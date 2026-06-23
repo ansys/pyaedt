@@ -74,6 +74,7 @@ class Object3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Object3DLayout
         >>> obj = Object3DLayout()
         >>> obj.object_units
+
         """
         return self._primitives.model_units
 
@@ -103,6 +104,7 @@ class Object3DLayout(PyAedtBase):
         >>> value = ["NAME:ChangedProps", ["NAME:Demo"]]
         >>> obj = Object3DLayout.__new__(Object3DLayout)
         >>> obj.change_property(value, names=["U1"])
+
         """
         vChangedProps = ["NAME:ChangedProps", value]
         if names:  # pragma: no cover
@@ -142,6 +144,7 @@ class Object3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Object3DLayout
         >>> obj = Object3DLayout()
         >>> obj.set_property_value(name="MyObject", value=1)
+
         """
         if "Pt" in name:
             coordinates = [value_split.strip() for value_split in value.split(",")]
@@ -168,6 +171,7 @@ class Object3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Object3DLayout
         >>> obj = Object3DLayout()
         >>> obj.angle
+
         """
         if self.prim_type in ["component", "pin", "via"]:
             return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Angle")
@@ -191,6 +195,7 @@ class Object3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Object3DLayout
         >>> obj = Object3DLayout()
         >>> obj.absolute_angle
+
         """
         if self.prim_type != "component":
             return 0.0
@@ -236,6 +241,7 @@ class Object3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Object3DLayout
         >>> obj = Object3DLayout()
         >>> obj.net_name
+
         """
         if self.prim_type not in ["component"]:
             return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Net")
@@ -264,6 +270,7 @@ class Object3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Object3DLayout
         >>> obj = Object3DLayout()
         >>> obj.placement_layer
+
         """
         if self.prim_type not in ["pin", "via"]:
             return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "PlacementLayer")
@@ -288,6 +295,7 @@ class Object3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Object3DLayout
         >>> obj = Object3DLayout()
         >>> obj.bounding_box
+
         """
         info = self._oeditor.GetComponentInfo(self.name)
         bbllx = bblly = bburx = bbury = 0
@@ -324,6 +332,7 @@ class Object3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Object3DLayout
         >>> obj = Object3DLayout()
         >>> obj.create_clearance_on_component(extra_soldermask_clearance=1.0)
+
         """
         if self.prim_type != "component":
             self.logger.error("Clearance applies only to components.")
@@ -377,6 +386,7 @@ class Object3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Object3DLayout
         >>> obj = Object3DLayout()
         >>> obj.location
+
         """
         if self.prim_type == "component":
             info = self._oeditor.GetComponentInfo(self.name)
@@ -469,6 +479,7 @@ class Object3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Object3DLayout
         >>> obj = Object3DLayout()
         >>> obj.lock_position
+
         """
         return (
             True
@@ -601,6 +612,7 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Components3DLayout
         >>> obj = Components3DLayout()
         >>> obj.part
+
         """
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Part")
 
@@ -622,6 +634,7 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Components3DLayout
         >>> obj = Components3DLayout()
         >>> obj.part_type
+
         """
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Part Type")
 
@@ -650,6 +663,7 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Components3DLayout
         >>> obj = Components3DLayout()
         >>> obj.enabled
+
         """
         comp_info = self._oeditor.GetComponentInfo(self.name)
         for el in comp_info:
@@ -680,6 +694,7 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Components3DLayout
         >>> obj = Components3DLayout()
         >>> obj.die_properties
+
         """
         if self.__part_type_id() != 4:
             return None
@@ -703,6 +718,7 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Components3DLayout
         >>> obj = Components3DLayout()
         >>> obj.port_properties
+
         """
         if not self.__has_port_properties():
             return None
@@ -764,6 +780,7 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Components3DLayout
         >>> obj = Components3DLayout()
         >>> obj.solderball_enabled
+
         """
         if not self.__has_port_properties():
             return False
@@ -786,6 +803,7 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Components3DLayout
         >>> obj = Components3DLayout()
         >>> obj.die_enabled
+
         """
         if not self.__has_port_properties():
             return False
@@ -807,6 +825,7 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Components3DLayout
         >>> obj = Components3DLayout()
         >>> obj.die_type
+
         """
         if not self.__has_port_properties():
             return False
@@ -859,6 +878,7 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Components3DLayout
         >>> obj = Components3DLayout()
         >>> obj.set_die_type(die_type=1, orientation=1)
+
         """
         if not self.__has_port_properties():
             return False
@@ -935,6 +955,7 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Components3DLayout
         >>> obj = Components3DLayout()
         >>> obj.set_solderball(material="copper", solderball_type=1)
+
         """
         if not self.__has_port_properties():
             return False
@@ -1027,6 +1048,7 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Components3DLayout
         >>> obj = Components3DLayout()
         >>> obj.pins
+
         """
         if self._pins:
             return self._pins
@@ -1046,6 +1068,7 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Components3DLayout
         >>> obj = Components3DLayout()
         >>> obj.model
+
         """
         if self.__part_type_id() in [1, 2, 3]:
             return ModelInfoRlc(self, self.name)
@@ -1080,6 +1103,7 @@ class Nets3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Nets3DLayout
         >>> obj = Nets3DLayout()
         >>> obj.components
+
         """
         comps = {}
         for c in self._oeditor.FilterObjectList("Type", "component", self._oeditor.FindObjects("Net", self.name)):
@@ -1100,6 +1124,7 @@ class Nets3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Nets3DLayout
         >>> obj = Nets3DLayout()
         >>> obj.geometry_names
+
         """
         comps = self._primitives._get_names(["component", "pin", "via"])
         geo = [i for i in self._oeditor.FindObjects("Net", self.name) if i not in comps]
@@ -1149,6 +1174,7 @@ class Nets3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Nets3DLayout
         >>> obj = Nets3DLayout()
         >>> obj.plot(layers=["TOP"], show_legend=True)
+
         """
         return self._primitives.edb.nets.plot(
             self.name,
@@ -1198,6 +1224,7 @@ class Pins3DLayout(Object3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Pins3DLayout
         >>> obj = Pins3DLayout()
         >>> obj.start_layer
+
         """
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Start Layer")
 
@@ -1219,6 +1246,7 @@ class Pins3DLayout(Object3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Pins3DLayout
         >>> obj = Pins3DLayout()
         >>> obj.stop_layer
+
         """
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Stop Layer")
 
@@ -1240,6 +1268,7 @@ class Pins3DLayout(Object3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Pins3DLayout
         >>> obj = Pins3DLayout()
         >>> obj.holediam
+
         """
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "HoleDiameter")
 
@@ -1277,6 +1306,7 @@ class Geometries3DLayout(Object3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Geometries3DLayout
         >>> obj = Geometries3DLayout()
         >>> obj.obounding_box
+
         """
         return self._primitives.obounding_box(self.name)
 
@@ -1289,6 +1319,7 @@ class Geometries3DLayout(Object3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Geometries3DLayout
         >>> obj = Geometries3DLayout()
         >>> obj.name
+
         """
         return self._name
 
@@ -1316,6 +1347,7 @@ class Geometries3DLayout(Object3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Geometries3DLayout
         >>> obj = Geometries3DLayout()
         >>> obj.is_closed
+
         """
         return True
 
@@ -1332,6 +1364,7 @@ class Geometries3DLayout(Object3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Geometries3DLayout
         >>> obj = Geometries3DLayout()
         >>> obj.points
+
         """
         if self._points:
             return self._points
@@ -1354,6 +1387,7 @@ class Geometries3DLayout(Object3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Geometries3DLayout
         >>> obj = Geometries3DLayout()
         >>> obj.edges
+
         """
         info = self._oeditor.GetPolygonInfo(self.name)
         points = []
@@ -1407,6 +1441,7 @@ class Geometries3DLayout(Object3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Geometries3DLayout
         >>> obj = Geometries3DLayout()
         >>> obj.edge_by_point(point=[0, 0, 0])
+
         """
         min_distance = float("inf")
         res = None
@@ -1432,6 +1467,7 @@ class Geometries3DLayout(Object3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Geometries3DLayout
         >>> obj = Geometries3DLayout()
         >>> obj.bottom_edge_x
+
         """
         result = [(edge[0][0] + edge[1][0]) for edge in self.edges]
         return result.index(min(result))
@@ -1450,6 +1486,7 @@ class Geometries3DLayout(Object3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Geometries3DLayout
         >>> obj = Geometries3DLayout()
         >>> obj.top_edge_x
+
         """
         result = [(edge[0][0] + edge[1][0]) for edge in self.edges]
         return result.index(max(result))
@@ -1468,6 +1505,7 @@ class Geometries3DLayout(Object3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Geometries3DLayout
         >>> obj = Geometries3DLayout()
         >>> obj.bottom_edge_y
+
         """
         result = [(edge[0][1] + edge[1][1]) for edge in self.edges]
         return result.index(min(result))
@@ -1486,6 +1524,7 @@ class Geometries3DLayout(Object3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Geometries3DLayout
         >>> obj = Geometries3DLayout()
         >>> obj.top_edge_y
+
         """
         result = [(edge[0][1] + edge[1][1]) for edge in self.edges]
         return result.index(max(result))
@@ -1513,6 +1552,7 @@ class Geometries3DLayout(Object3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Geometries3DLayout
         >>> obj = Geometries3DLayout()
         >>> obj.get_property_value(name="MyObject")
+
         """
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, name)
 
@@ -1538,6 +1578,7 @@ class Geometries3DLayout(Object3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Geometries3DLayout
         >>> obj = Geometries3DLayout()
         >>> obj.negative
+
         """
         if self.is_void:
             return False
@@ -1569,6 +1610,7 @@ class Geometries3DLayout(Object3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Geometries3DLayout
         >>> obj = Geometries3DLayout()
         >>> obj.net_name
+
         """
         if self.is_void:
             return None
@@ -1609,6 +1651,7 @@ class Polygons3DLayout(Geometries3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Polygons3DLayout
         >>> obj = Polygons3DLayout()
         >>> obj.is_closed
+
         """
         obj = self._oeditor.GetPolygon(self.name)
         return obj.IsClosed()
@@ -1627,6 +1670,7 @@ class Polygons3DLayout(Geometries3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Polygons3DLayout
         >>> obj = Polygons3DLayout()
         >>> obj.polygon_voids
+
         """
         voids = list(self._oeditor.GetPolygonVoids(self.name))
         pvoids = {}
@@ -1666,6 +1710,7 @@ class Circle3dLayout(Geometries3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Circle3dLayout
         >>> obj = Circle3dLayout()
         >>> obj.center
+
         """
         cent = self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Center")
         if cent:
@@ -1694,6 +1739,7 @@ class Circle3dLayout(Geometries3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Circle3dLayout
         >>> obj = Circle3dLayout()
         >>> obj.radius
+
         """
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Radius")
 
@@ -1734,6 +1780,7 @@ class Rect3dLayout(Geometries3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Rect3dLayout
         >>> obj = Rect3dLayout()
         >>> obj.corner_radius
+
         """
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "CornerRadius")
 
@@ -1760,6 +1807,7 @@ class Rect3dLayout(Geometries3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Rect3dLayout
         >>> obj = Rect3dLayout()
         >>> obj.two_point_description
+
         """
         return (
             True
@@ -1790,6 +1838,7 @@ class Rect3dLayout(Geometries3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Rect3dLayout
         >>> obj = Rect3dLayout()
         >>> obj.center
+
         """
         if not self.two_point_description:
             cent = self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Center")
@@ -1820,6 +1869,7 @@ class Rect3dLayout(Geometries3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Rect3dLayout
         >>> obj = Rect3dLayout()
         >>> obj.width
+
         """
         if not self.two_point_description:
             return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Width")
@@ -1848,6 +1898,7 @@ class Rect3dLayout(Geometries3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Rect3dLayout
         >>> obj = Rect3dLayout()
         >>> obj.height
+
         """
         if not self.two_point_description:
             return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Height")
@@ -1876,6 +1927,7 @@ class Rect3dLayout(Geometries3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Rect3dLayout
         >>> obj = Rect3dLayout()
         >>> obj.point_a
+
         """
         if self.two_point_description:
             pa = self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Pt A")
@@ -1906,6 +1958,7 @@ class Rect3dLayout(Geometries3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Rect3dLayout
         >>> obj = Rect3dLayout()
         >>> obj.point_b
+
         """
         if self.two_point_description:
             pa = self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Pt B")
@@ -1952,6 +2005,7 @@ class Line3dLayout(Geometries3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Line3dLayout
         >>> obj = Line3dLayout()
         >>> obj.bend_type
+
         """
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "BendType")
 
@@ -1978,6 +2032,7 @@ class Line3dLayout(Geometries3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Line3dLayout
         >>> obj = Line3dLayout()
         >>> obj.start_cap_type
+
         """
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "StartCapType")
 
@@ -2004,6 +2059,7 @@ class Line3dLayout(Geometries3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Line3dLayout
         >>> obj = Line3dLayout()
         >>> obj.end_cap_type
+
         """
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "EndCapType")
 
@@ -2030,6 +2086,7 @@ class Line3dLayout(Geometries3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Line3dLayout
         >>> obj = Line3dLayout()
         >>> obj.width
+
         """
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "LineWidth")
 
@@ -2056,6 +2113,7 @@ class Line3dLayout(Geometries3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Line3dLayout
         >>> obj = Line3dLayout()
         >>> obj.length
+
         """
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "TotalLength")
 
@@ -2073,6 +2131,7 @@ class Line3dLayout(Geometries3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Line3dLayout
         >>> obj = Line3dLayout()
         >>> obj.center_line
+
         """
         props = [
             i
@@ -2125,6 +2184,7 @@ class Line3dLayout(Geometries3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Line3dLayout
         >>> obj = Line3dLayout()
         >>> obj.add(point=1)
+
         """
         points = [
             [self._primitives._app.value_with_units(j, self.object_units) for j in i]
@@ -2157,6 +2217,7 @@ class Line3dLayout(Geometries3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Line3dLayout
         >>> obj = Line3dLayout()
         >>> obj.remove(point=1)
+
         """
         if isinstance(point, str):
             point = [point]
@@ -2232,6 +2293,7 @@ class Points3dLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Points3dLayout
         >>> obj = Points3dLayout()
         >>> obj.is_arc
+
         """
         return True if self.point.IsArc() != 0 else False
 
@@ -2248,6 +2310,7 @@ class Points3dLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Points3dLayout
         >>> obj = Points3dLayout()
         >>> obj.position
+
         """
         if self.is_arc:
             return [self.point.GetX()]
@@ -2273,6 +2336,7 @@ class Points3dLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Points3dLayout
         >>> obj = Points3dLayout()
         >>> obj.move(location=1)
+
         """
         if self.point.Move(self._primitives.oeditor.Point().Set(location[0], location[1])):
             return True
@@ -2308,6 +2372,7 @@ class ComponentsSubCircuit3DLayout(Object3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import ComponentsSubCircuit3DLayout
         >>> obj = ComponentsSubCircuit3DLayout()
         >>> obj.component_info
+
         """
         return self._oeditor.GetComponentInfo(self.name)
 
@@ -2320,6 +2385,7 @@ class ComponentsSubCircuit3DLayout(Object3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import ComponentsSubCircuit3DLayout
         >>> obj = ComponentsSubCircuit3DLayout()
         >>> obj.component_name
+
         """
         try:
             return self.component_info[0].split("=")[1]
@@ -2344,6 +2410,7 @@ class ComponentsSubCircuit3DLayout(Object3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import ComponentsSubCircuit3DLayout
         >>> obj = ComponentsSubCircuit3DLayout()
         >>> obj.angle
+
         """
         if self.is_3d_placement:
             ang = self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Rotation Angle")
@@ -2374,6 +2441,7 @@ class ComponentsSubCircuit3DLayout(Object3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import ComponentsSubCircuit3DLayout
         >>> obj = ComponentsSubCircuit3DLayout()
         >>> obj.is_3d_placement
+
         """
         if self._oeditor.GetPropertyValue("BaseElementTab", self.name, "3D Placement") in ["true", "True"]:
             return True
@@ -2394,6 +2462,7 @@ class ComponentsSubCircuit3DLayout(Object3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import ComponentsSubCircuit3DLayout
         >>> obj = ComponentsSubCircuit3DLayout()
         >>> obj.is_flipped
+
         """
         if self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Flipped").lower() == "true":
             return True
@@ -2414,6 +2483,7 @@ class ComponentsSubCircuit3DLayout(Object3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import ComponentsSubCircuit3DLayout
         >>> obj = ComponentsSubCircuit3DLayout()
         >>> obj.rotation_axis
+
         """
         if self.is_3d_placement:
             return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Rotation Axis")
@@ -2434,6 +2504,7 @@ class ComponentsSubCircuit3DLayout(Object3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import ComponentsSubCircuit3DLayout
         >>> obj = ComponentsSubCircuit3DLayout()
         >>> obj.rotation_axis_direction
+
         """
         if self.is_3d_placement:
             return [
@@ -2464,6 +2535,7 @@ class ComponentsSubCircuit3DLayout(Object3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import ComponentsSubCircuit3DLayout
         >>> obj = ComponentsSubCircuit3DLayout()
         >>> obj.local_origin
+
         """
         if self.is_3d_placement:
             return [i for i in self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Local Origin").split(",")]
@@ -2495,6 +2567,7 @@ class ComponentsSubCircuit3DLayout(Object3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import ComponentsSubCircuit3DLayout
         >>> obj = ComponentsSubCircuit3DLayout()
         >>> obj.location
+
         """
         location = self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Location").split(",")
         locs = []
@@ -2649,6 +2722,7 @@ class Padstack(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Padstack
         >>> obj = Padstack()
         >>> obj.pads_args
+
         """
         arg = [
             "NAME:" + self.name,
@@ -2801,6 +2875,7 @@ class Padstack(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Padstack
         >>> obj = Padstack()
         >>> obj.add_layer(layer="TOP", pad_hole=1)
+
         """
         if layer in self.layers:
             return False
@@ -2859,6 +2934,7 @@ class Padstack(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Padstack
         >>> obj = Padstack()
         >>> obj.add_hole(hole_type=1, sizes=["Box1"])
+
         """
         if sizes is None:
             sizes = [1]
@@ -2889,6 +2965,7 @@ class Padstack(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Padstack
         >>> obj = Padstack()
         >>> obj.create()
+
         """
         self.padstackmgr.Add(self.pads_args)
         return True
@@ -2911,6 +2988,7 @@ class Padstack(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Padstack
         >>> obj = Padstack()
         >>> obj.update()
+
         """
         self.padstackmgr.Edit(self.name, self.pads_args)
 
@@ -2932,6 +3010,7 @@ class Padstack(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import Padstack
         >>> obj = Padstack()
         >>> obj.remove()
+
         """
         self.padstackmgr.Remove(self.name, True, "", "Project")
 
@@ -2977,6 +3056,7 @@ class CoordinateSystems3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import CoordinateSystems3DLayout
         >>> obj = CoordinateSystems3DLayout()
         >>> obj.valid_properties
+
         """
         all_props = []
         if self.name:
@@ -3002,6 +3082,7 @@ class CoordinateSystems3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import CoordinateSystems3DLayout
         >>> obj = CoordinateSystems3DLayout()
         >>> obj.name
+
         """
         return self.__name
 
@@ -3040,6 +3121,7 @@ class CoordinateSystems3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import CoordinateSystems3DLayout
         >>> obj = CoordinateSystems3DLayout()
         >>> obj.origin
+
         """
         if self.__origin is None:
             location = self.get_property_value("Location")
@@ -3072,6 +3154,7 @@ class CoordinateSystems3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import CoordinateSystems3DLayout
         >>> obj = CoordinateSystems3DLayout()
         >>> obj.create()
+
         """
         if self.name is None:
             self.name = generate_unique_name("CS")
@@ -3117,6 +3200,7 @@ class CoordinateSystems3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import CoordinateSystems3DLayout
         >>> obj = CoordinateSystems3DLayout()
         >>> obj.get_property_value(property_name=1)
+
         """
         if property_name not in self.valid_properties:
             raise AttributeError(f"{property_name} is not a valid property.")
@@ -3147,6 +3231,7 @@ class CoordinateSystems3DLayout(PyAedtBase):
         >>> cs = app.modeler.create_coordinate_system()
         >>> property = ["NAME:Flipped", "Value:=", True]
         >>> cs.change_property(property)
+
         """
         vChangedProps = ["NAME:ChangedProps", value]
         vPropServers = ["NAME:PropServers", self.name]
@@ -3169,6 +3254,7 @@ class CoordinateSystems3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.object_3d_layout import CoordinateSystems3DLayout
         >>> obj = CoordinateSystems3DLayout()
         >>> obj.delete()
+
         """
         try:
             self._oeditor.Delete(self.name)

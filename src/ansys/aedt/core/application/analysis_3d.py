@@ -115,6 +115,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
     >>> hfss = Hfss()
     >>> hfss.modeler
     >>> hfss.mesh
+
     """
 
     def __init__(
@@ -173,6 +174,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations
+
         """
         return self._configurations
 
@@ -190,6 +192,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.modeler
+
         """
         if self._modeler is None and self._odesign:
             self.logger.reset_timer()
@@ -215,6 +218,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.mesh
+
         """
         if self._mesh is None and self._odesign:
             self.logger.reset_timer()
@@ -249,6 +253,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.post
+
         """
         if self._post is None and self._odesign:
             from ansys.aedt.core.visualization.post import post_processor
@@ -270,6 +275,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.components3d
+
         """
         components_dict = {}
 
@@ -350,6 +356,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.plot(show=False, output_file="model.png")
+
         """
         return self.post.plot_model_obj(
             objects=assignment,
@@ -394,6 +401,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.export_mesh_stats(setup="Setup1")
+
         """
         if not output_file:
             output_file = str(Path(self.working_directory) / "meshstats.ms")
@@ -420,6 +428,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.get_component_variables("Dipole_Antenna")
+
         """
         if isinstance(name, Path):
             name = str(name)
@@ -456,6 +465,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.get_property_value("Box1", "Material", "boundary")
+
         """
         if property_type:
             property_type = property_type.lower()
@@ -531,6 +541,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         >>> hfss1 = Hfss(design="Design1")
         >>> hfss2 = Hfss(design="Design2")
         >>> hfss2.copy_solid_bodies_from(hfss1)
+
         """
         body_list = design.modeler.solid_names
         udc_list = design.modeler.user_defined_component_names
@@ -657,6 +668,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.import_3d_cad("model.step")
+
         """
         input_file = Path(input_file)
 
@@ -722,6 +734,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.export_3d_model(file_name="model", file_format=".step")
+
         """
         return self.modeler.export_3d_model(
             file_name=file_name,
@@ -751,6 +764,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.get_all_sources()
+
         """
         return list(self.osolution.GetAllSources())
 
@@ -772,6 +786,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.get_all_source_modes()
+
         """
         return list(self.osolution.GetAllSourceModes())
 
@@ -800,6 +815,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.set_source_context(sources=["Port1"])
+
         """
         contexts = []
         for s in sources:
@@ -854,6 +870,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
 
         >>> obj_names_list = [box1.name, box2.name, cylinder1.name, cylinder2.name]
         >>> hfss.assign_material(obj_names_list, "aluminum")
+
         """
         matobj = None
         selections = self.modeler.convert_to_selections(assignment, True)
@@ -935,6 +952,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.get_all_conductors_names()
+
         """
         if len(self.modeler.objects) != len(self.modeler.object_names):
             self.modeler.refresh_all_ids()
@@ -965,6 +983,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.get_all_dielectrics_names()
+
         """
         if len(self.modeler.objects) != len(self.modeler.object_names):
             self.modeler.refresh_all_ids()
@@ -1017,6 +1036,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.assignmaterial_from_sherlock_files("components.csv", "materials.csv")
+
         """
         with open_file(material_file) as csvfile:
             csv_input = csv.reader(csvfile)
@@ -1145,6 +1165,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.cleanup_solution()
+
         """
         if isinstance(variations, str):
             variations = [variations]
@@ -1170,6 +1191,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> stackup = hfss.add_stackup_3d()
+
         """
         from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
 
@@ -1205,6 +1227,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.flatten_3d_components()
+
         """
         if password is None:
             password = os.getenv("PYAEDT_ENCRYPTED_PASSWORD", "")
@@ -1300,6 +1323,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.identify_touching_conductors()
+
         """
         import pyvista as pv
 
@@ -1435,6 +1459,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.import_dxf("layout.dxf", layers=["Layer1"])
+
         """
         input_file = Path(input_file)
         if self.desktop_class.non_graphical and self.desktop_class.aedt_version_id < "2024.2":  # pragma: no cover

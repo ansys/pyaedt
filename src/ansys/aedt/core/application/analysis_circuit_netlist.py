@@ -78,6 +78,7 @@ class AnalysisCircuitNetlist(Analysis, PyAedtBase):
     >>> from ansys.aedt.core import CircuitNetlist
     >>> netlist = CircuitNetlist()
     >>> netlist.post
+
     """
 
     def __init__(
@@ -130,6 +131,7 @@ class AnalysisCircuitNetlist(Analysis, PyAedtBase):
         >>> from ansys.aedt.core import CircuitNetlist
         >>> netlist = CircuitNetlist()
         >>> netlist.post
+
         """
         if self._post is None and self._odesign:
             from ansys.aedt.core.visualization.post import post_processor
@@ -146,5 +148,6 @@ class AnalysisCircuitNetlist(Analysis, PyAedtBase):
         >>> from ansys.aedt.core import CircuitNetlist
         >>> netlist = CircuitNetlist()
         >>> netlist.modeler
+
         """
         return self._modeler

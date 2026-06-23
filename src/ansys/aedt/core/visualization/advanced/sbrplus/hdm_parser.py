@@ -78,6 +78,7 @@ class Parser(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.sbrplus.hdm_parser import Parser
         >>> obj = Parser()
         >>> obj.parse_message()
+
         """
         return self._parse(self.message["type"])
 

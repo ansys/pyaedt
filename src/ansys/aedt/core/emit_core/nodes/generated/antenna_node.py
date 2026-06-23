@@ -57,6 +57,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> passband = antenna.add_antenna_passband()
+
         """
         return self._add_child_node("Antenna Passband")
 
@@ -70,6 +71,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> antenna_copy = antenna.duplicate("AntennaCopy")
+
         """
         return self._duplicate(new_name)
 
@@ -84,6 +86,7 @@ class AntennaNode(EmitNode):
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> antenna_copy = antenna.duplicate("AntennaCopy")
         >>> antenna_copy.delete()
+
         """
         self._delete()
 
@@ -115,6 +118,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> antenna.show_relative_coordinates = True
+
         """
         val = self._get_property("Show Relative Coordinates")
         return val == "true"
@@ -137,6 +141,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> antenna.position = [1.0, 0.0, 2.0]
+
         """
         val = self._get_property("Position")
         return val
@@ -159,6 +164,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> antenna.relative_position = [0.0, 0.0, 1.5]
+
         """
         val = self._get_property("Relative Position")
         return val
@@ -185,6 +191,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> antenna.orientation_mode = antenna.OrientationModeOption.ROLL_PITCH_YAW
+
         """
         val = self._get_property("Orientation Mode")
         val = self.OrientationModeOption[val.upper()]
@@ -208,6 +215,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> antenna.orientation = "0 0 90"
+
         """
         val = self._get_property("Orientation")
         return val
@@ -230,6 +238,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> antenna.relative_orientation = "0 15 0"
+
         """
         val = self._get_property("Relative Orientation")
         return val
@@ -252,6 +261,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> antenna.position_defined = True
+
         """
         val = self._get_property("Position Defined")
         return val == "true"
@@ -274,6 +284,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> antenna.antenna_temperature = 290.0
+
         """
         val = self._get_property("Antenna Temperature")
         return float(val)
@@ -307,6 +318,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> antenna.antenna_type = antenna.AntennaTypeOption.BY_FILE
+
         """
         val = self._get_property("Antenna Type")
         val = self.AntennaTypeOption[val.upper()]
@@ -328,6 +340,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> antenna.antenna_file = "C:\\Temp\\horn.uan"
+
         """
         val = self._get_property("Antenna File")
         return val
@@ -350,6 +363,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> antenna.project_name = "C:\\Projects\\horn.aedt"
+
         """
         val = self._get_property("Project Name")
         return val
@@ -372,6 +386,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> antenna.peak_gain = 12.5
+
         """
         val = self._get_property("Peak Gain")
         return float(val)
@@ -394,6 +409,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> antenna.vertical_beamwidth = 45.0
+
         """
         val = self._get_property("Vertical Beamwidth")
         return float(val)
@@ -416,6 +432,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> antenna.horizontal_beamwidth = 60.0
+
         """
         val = self._get_property("Horizontal Beamwidth")
         return float(val)
@@ -438,6 +455,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> antenna.extra_sidelobe = True
+
         """
         val = self._get_property("Extra Sidelobe")
         return val == "true"
@@ -463,6 +481,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> antenna.first_sidelobe_level = 15.0
+
         """
         val = self._get_property("First Sidelobe Level")
         return float(val)
@@ -485,6 +504,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> antenna.first_sidelobe_vert_bw = 20.0
+
         """
         val = self._get_property("First Sidelobe Vert. BW")
         return float(val)
@@ -507,6 +527,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> antenna.first_sidelobe_hor_bw = 25.0
+
         """
         val = self._get_property("First Sidelobe Hor. BW")
         return float(val)
@@ -532,6 +553,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> antenna.outerbacklobe_level = 30.0
+
         """
         val = self._get_property("Outer/Backlobe Level")
         return float(val)
@@ -557,6 +579,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> antenna.resonant_frequency = "2.4GHz"
+
         """
         val = self._get_property("Resonant Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -581,6 +604,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> antenna.mouth_width = "120mm"
+
         """
         val = self._get_property("Mouth Width")
         val = self._convert_from_internal_units(float(val), "Length")
@@ -605,6 +629,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> antenna.mouth_height = "80mm"
+
         """
         val = self._get_property("Mouth Height")
         val = self._convert_from_internal_units(float(val), "Length")
@@ -632,6 +657,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> antenna.waveguide_width = "95mm"
+
         """
         val = self._get_property("Waveguide Width")
         val = self._convert_from_internal_units(float(val), "Length")
@@ -659,6 +685,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> antenna.width_flare_half_angle = 18.0
+
         """
         val = self._get_property("Width Flare Half-angle")
         return float(val)
@@ -684,6 +711,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> antenna.height_flare_half_angle = 12.0
+
         """
         val = self._get_property("Height Flare Half-angle")
         return float(val)
@@ -709,6 +737,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> antenna.vswr = 1.8
+
         """
         val = self._get_property("VSWR")
         return float(val)
@@ -735,6 +764,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> antenna.antenna_polarization = antenna.AntennaPolarizationOption.RHCP
+
         """
         val = self._get_property("Antenna Polarization")
         val = self.AntennaPolarizationOption[val.upper()]
@@ -758,6 +788,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> antenna.show_axes = True
+
         """
         val = self._get_property("Show Axes")
         return val == "true"
@@ -780,6 +811,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> antenna.show_icon = False
+
         """
         val = self._get_property("Show Icon")
         return val == "true"
@@ -802,6 +834,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> antenna.size = 0.2
+
         """
         val = self._get_property("Size")
         return float(val)
@@ -824,6 +857,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> antenna.color = "#00FF00"
+
         """
         val = self._get_property("Color")
         return val
@@ -844,6 +878,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> antenna.el_sample_interval
+
         """
         val = self._get_property("El Sample Interval")
         return float(val)
@@ -859,6 +894,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> antenna.az_sample_interval
+
         """
         val = self._get_property("Az Sample Interval")
         return float(val)
@@ -876,6 +912,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> antenna.has_frequency_domain
+
         """
         val = self._get_property("Has Frequency Domain")
         return val == "true"
@@ -891,6 +928,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> antenna.frequency_domain
+
         """
         val = self._get_property("Frequency Domain")
         return val
@@ -909,6 +947,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> antenna.waveguide_height
+
         """
         val = self._get_property("Waveguide Height")
         val = self._convert_from_internal_units(float(val), "Length")
@@ -925,6 +964,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> antenna.waveguide_cutoff_frequency
+
         """
         val = self._get_property("Waveguide Cutoff Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -941,6 +981,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> antenna.notes = "Tower-mounted antenna"
+
         """
         val = self._get_property("Notes")
         return val
@@ -963,6 +1004,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> antenna.show_composite_passband = True
+
         """
         val = self._get_property("Show Composite Passband")
         return val == "true"
@@ -985,6 +1027,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> antenna.use_phase_center = True
+
         """
         val = self._get_property("Use Phase Center")
         return val == "true"
@@ -1007,6 +1050,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> antenna.coordinate_systems
+
         """
         val = self._get_property("Coordinate Systems")
         return val
@@ -1024,6 +1068,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> antenna.phasecenterposition
+
         """
         val = self._get_property("PhaseCenterPosition")
         return val
@@ -1041,6 +1086,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, antenna = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Antenna1")
         >>> antenna.phasecenterorientation
+
         """
         val = self._get_property("PhaseCenterOrientation")
         return val

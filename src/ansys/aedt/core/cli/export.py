@@ -27,6 +27,7 @@
 Examples
 --------
     pyaedt export screenshot --port 50051 --path "C:\\Users\\username\\Desktop\\design.jpg"
+
 """
 
 from __future__ import annotations
@@ -60,6 +61,7 @@ def screenshot(
     Examples
     --------
         pyaedt export screenshot --port 50051 --path "C:\\Users\\username\\Desktop\\design.jpg"
+
     """
     try:
         _, app, context = common.get_design_app(port=port, project_name=project, design_name=design)
@@ -99,6 +101,7 @@ def export_config(
     Examples
     --------
         pyaedt export config --port 50051 --output "C:\\Users\\username\\Desktop\\design.json"
+
     """
     try:
         temp_config_file = None

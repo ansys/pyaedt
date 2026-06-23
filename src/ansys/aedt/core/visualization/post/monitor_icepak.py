@@ -245,6 +245,7 @@ class Monitor(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.monitor_icepak import Monitor
         >>> obj = Monitor()
         >>> obj.get_icepak_monitor_object(monitor_name=1)
+
         """
         return self._app.get_oo_object(self._app.get_oo_object(self._app.odesign, "Monitor"), monitor_name)
 
@@ -262,6 +263,7 @@ class Monitor(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.monitor_icepak import Monitor
         >>> obj = Monitor()
         >>> obj.face_monitors
+
         """
         return self._face_monitors
 
@@ -279,6 +281,7 @@ class Monitor(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.monitor_icepak import Monitor
         >>> obj = Monitor()
         >>> obj.point_monitors
+
         """
         return self._point_monitors
 
@@ -296,6 +299,7 @@ class Monitor(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.monitor_icepak import Monitor
         >>> obj = Monitor()
         >>> obj.all_monitors
+
         """
         out_dict = {}
         out_dict.update(self.face_monitors)
@@ -414,6 +418,7 @@ class Monitor(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.monitor_icepak import Monitor
         >>> obj = Monitor()
         >>> obj.assign_point_monitor_to_vertex(vertex_id=[1])
+
         """
         if isinstance(vertex_id, int):
             vertex_id = [vertex_id]
@@ -470,6 +475,7 @@ class Monitor(PyAedtBase):
         >>> surface = icepak.modeler.create_rectangle(Plane.XY, [0, 0, 0], [10, 20], name="Surface1")
         >>> icepak.assign_surface_monitor("Surface1", monitor_name="monitor")
         'monitor'
+
         """
         if isinstance(surface_name, str):
             surface_name = [surface_name]
@@ -524,6 +530,7 @@ class Monitor(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.monitor_icepak import Monitor
         >>> obj = Monitor()
         >>> obj.assign_face_monitor(face_id=[1])
+
         """
         if isinstance(face_id, int):
             face_id = [face_id]
@@ -580,6 +587,7 @@ class Monitor(PyAedtBase):
         >>> box = icepak.modeler.create_box([1, 1, 1], [3, 3, 3], "BlockBox1", "copper")
         >>> icepak.assign_point_monitor(box.name, monitor_name="monitor2")
         "'monitor2'
+
         """
         if not isinstance(name, list):
             name = [name]
@@ -638,6 +646,7 @@ class Monitor(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.monitor_icepak import Monitor
         >>> obj = Monitor()
         >>> obj.delete_monitor(monitor_name=1)
+
         """
         try:
             self._omonitor.DeleteMonitors([monitor_name])
@@ -669,6 +678,7 @@ class Monitor(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.monitor_icepak import Monitor
         >>> obj = Monitor()
         >>> obj.get_monitor_object_assignment(monitor=1)
+
         """
         if isinstance(monitor, str):
             monitor = self.all_monitors[monitor]
@@ -714,6 +724,7 @@ class Monitor(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.monitor_icepak import Monitor
         >>> obj = Monitor()
         >>> obj.insert_monitor_object_from_dict(monitor_dict={"Name": "Value"})
+
         """
         m_case = monitor_dict["Type"]
         m_quantity = monitor_dict["Quantity"]
@@ -779,6 +790,7 @@ class ObjectMonitor(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.monitor_icepak import ObjectMonitor
         >>> obj = ObjectMonitor()
         >>> obj.geometry_assignment
+
         """
         return self._app.monitor.get_monitor_object_assignment(self)
 
@@ -796,6 +808,7 @@ class ObjectMonitor(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.monitor_icepak import ObjectMonitor
         >>> obj = ObjectMonitor()
         >>> obj.name
+
         """
         return self._name
 
@@ -813,6 +826,7 @@ class ObjectMonitor(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.monitor_icepak import ObjectMonitor
         >>> obj = ObjectMonitor()
         >>> obj.id
+
         """
         return self._id
 
@@ -830,6 +844,7 @@ class ObjectMonitor(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.monitor_icepak import ObjectMonitor
         >>> obj = ObjectMonitor()
         >>> obj.properties
+
         """
         return {
             "Name": self.name,
@@ -856,6 +871,7 @@ class ObjectMonitor(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.monitor_icepak import ObjectMonitor
         >>> obj = ObjectMonitor()
         >>> obj.delete()
+
         """
         self._app.monitor.delete_monitor(self.name)
         return True
@@ -874,6 +890,7 @@ class ObjectMonitor(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.monitor_icepak import ObjectMonitor
         >>> obj = ObjectMonitor()
         >>> obj.quantities
+
         """
         return self._quantities
 
@@ -891,6 +908,7 @@ class ObjectMonitor(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.monitor_icepak import ObjectMonitor
         >>> obj = ObjectMonitor()
         >>> obj.type
+
         """
         return self._type
 
@@ -931,6 +949,7 @@ class ObjectMonitor(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.monitor_icepak import ObjectMonitor
         >>> obj = ObjectMonitor()
         >>> obj.value(setup="Setup1", quantity=["Box1"])
+
         """
         if not setup:
             setup = self._app.existing_analysis_sweeps[0]
@@ -1005,6 +1024,7 @@ class PointMonitor(ObjectMonitor):
         >>> from ansys.aedt.core.visualization.post.monitor_icepak import PointMonitor
         >>> obj = PointMonitor()
         >>> obj.location
+
         """
         return [
             float(i.strip(self._app.modeler.model_units))
@@ -1042,6 +1062,7 @@ class FaceMonitor(ObjectMonitor):
         >>> from ansys.aedt.core.visualization.post.monitor_icepak import FaceMonitor
         >>> obj = FaceMonitor()
         >>> obj.location
+
         """
         if self.type == "Face":
             for f in self._app.modeler.get_object_from_name(self.geometry_assignment).faces:

@@ -207,6 +207,7 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.post_3dlayout import PostProcessor3DLayout
         >>> obj = PostProcessor3DLayout()
         >>> obj.compute_power_by_layer(layers=["TOP"], solution=1)
+
         """
         power_by_layers = {}
         power_loss = self._compute_power_loss(layer_filter=layers, solution=solution)
@@ -240,6 +241,7 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.post_3dlayout import PostProcessor3DLayout
         >>> obj = PostProcessor3DLayout()
         >>> obj.compute_power_by_net(nets=["VCC"], solution=1)
+
         """
         power_by_nets = {}
         power_loss = self._compute_power_loss(net_filter=nets, solution=solution)
@@ -384,6 +386,7 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.post_3dlayout import PostProcessor3DLayout
         >>> obj = PostProcessor3DLayout()
         >>> obj.create_fieldplot_layers(layers=["TOP"], quantity=1)
+
         """
         intrinsics = self._check_intrinsics(intrinsics, setup=setup)
         if not setup:
@@ -497,6 +500,7 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.post_3dlayout import PostProcessor3DLayout
         >>> obj = PostProcessor3DLayout()
         >>> obj.create_fieldplot_nets(nets=["VCC"], quantity=1)
+
         """
         intrinsics = self._check_intrinsics(intrinsics, setup=setup)
         if not setup:
@@ -585,6 +589,7 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.post_3dlayout import PostProcessor3DLayout
         >>> obj = PostProcessor3DLayout()
         >>> obj.create_fieldplot_layers_nets(layers_nets=["TOP"], quantity=1)
+
         """
         intrinsics = self._check_intrinsics(intrinsics, setup=setup)
         if not (

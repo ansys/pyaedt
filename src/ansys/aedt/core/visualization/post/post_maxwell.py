@@ -180,6 +180,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         >>>                                                   in_volume_tracing_objs="Region",
         >>>                                                   plot_name="LineTracesTest",
         >>>                                                   intrinsics="200Hz")
+
         """
         intrinsics = self._check_intrinsics(intrinsics, setup=setup)
         if self._app.solution_type != SolutionsMaxwell3D.ElectroStatic:
@@ -299,6 +300,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.post_maxwell import PostProcessorMaxwell
         >>> obj = PostProcessorMaxwell()
         >>> obj.create_fieldplot_layers(layers=["TOP"], quantity=1)
+
         """
         return self.post_3dlayout.create_fieldplot_layers(
             layers, quantity, setup, nets, plot_on_surface, intrinsics, name
@@ -366,6 +368,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.post_maxwell import PostProcessorMaxwell
         >>> obj = PostProcessorMaxwell()
         >>> obj.create_fieldplot_layers_nets(layers_nets=["TOP"], quantity=1)
+
         """
         return self.post_3dlayout.create_fieldplot_layers_nets(
             layers_nets, quantity, setup, intrinsics, plot_on_surface, plot_name
@@ -419,6 +422,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         created field line traces.
         >>> m2d.post.evaluate_inception_voltage(plot_name=plot.name, field_line_number=[1, 2, 4])
         >>> m2d.desktop_class.release_desktop()
+
         """
         if self._app.solution_type != SolutionsMaxwell3D.ElectroStatic:
             raise AEDTRuntimeError("Field line traces is valid only for electrostatic solution")
@@ -484,6 +488,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         ...     field_line_number=[1, 2, 4],
         ... )
         >>> m2d.desktop_class.release_desktop()
+
         """
         if self._app.solution_type != "Electrostatic":
             raise AEDTRuntimeError("Field line traces is valid only for Electrostatic solution.")
@@ -586,6 +591,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         created field line traces and inception voltage parameters can be edited
         >>> m2d.modify_inception_parameters()
         >>> m2d.desktop_class.release_desktop()
+
         """
         if not ionization_dataset:
             ionization_dataset = [0]

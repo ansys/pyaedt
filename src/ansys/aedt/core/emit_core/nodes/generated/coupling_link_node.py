@@ -46,6 +46,7 @@ class CouplingLinkNode(EmitNode):
         >>> revision = app.results.get_revision()
         >>> coupling_link = revision.get_coupling_data_node().children[0]
         >>> coupling_link.parent
+
         """
         return self._parent
 
@@ -62,6 +63,7 @@ class CouplingLinkNode(EmitNode):
         >>> revision = app.results.get_revision()
         >>> coupling_link = revision.get_coupling_data_node().children[0]
         >>> coupling_link.node_type
+
         """
         return self._node_type
 
@@ -80,6 +82,7 @@ class CouplingLinkNode(EmitNode):
         >>> revision = app.results.get_revision()
         >>> coupling_link = revision.get_coupling_data_node().children[0]
         >>> coupling_link.enabled = False
+
         """
         val = self._get_property("Enabled")
         return val == "true"
@@ -102,6 +105,7 @@ class CouplingLinkNode(EmitNode):
         >>> revision = app.results.get_revision()
         >>> coupling_link = revision.get_coupling_data_node().children[0]
         >>> coupling_link.ports = ["Antenna1", "Antenna2"]
+
         """
         val = self._get_property("Ports")
         return val

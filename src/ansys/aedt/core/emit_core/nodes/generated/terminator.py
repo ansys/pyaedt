@@ -46,6 +46,7 @@ class Terminator(EmitNode):
         >>> app = Emit()
         >>> terminator = app.schematic.create_component("Terminator", name="Load1")
         >>> terminator.node_type
+
         """
         return self._node_type
 
@@ -59,6 +60,7 @@ class Terminator(EmitNode):
         >>> app = Emit()
         >>> terminator = app.schematic.create_component("Terminator", name="Load1")
         >>> duplicate_terminator = terminator.duplicate("Load1_Copy")
+
         """
         return self._duplicate(new_name)
 
@@ -72,6 +74,7 @@ class Terminator(EmitNode):
         >>> app = Emit()
         >>> terminator = app.schematic.create_component("Terminator", name="Load1")
         >>> terminator.delete()
+
         """
         self._delete()
 
@@ -94,6 +97,7 @@ class Terminator(EmitNode):
         >>> terminator = app.schematic.create_component("Terminator", name="Load1")
         >>> terminator.table_data = [(1e9, 2e9, 1.2), (2e9, 4e9, 1.5)]
         >>> terminator.table_data
+
         """
         return self._get_table_data()
 
@@ -116,6 +120,7 @@ class Terminator(EmitNode):
         >>> terminator = app.schematic.create_component("Terminator", name="Load1")
         >>> terminator.filename = r"C:\\Temp\\terminator.s2p"
         >>> terminator.filename
+
         """
         val = self._get_property("Filename")
         return val
@@ -139,6 +144,7 @@ class Terminator(EmitNode):
         >>> terminator = app.schematic.create_component("Terminator", name="Load1")
         >>> terminator.noise_temperature = 290.0
         >>> terminator.noise_temperature
+
         """
         val = self._get_property("Noise Temperature")
         return float(val)
@@ -160,6 +166,7 @@ class Terminator(EmitNode):
         >>> terminator = app.schematic.create_component("Terminator", name="Load1")
         >>> terminator.notes = "Calibrated load."
         >>> terminator.notes
+
         """
         val = self._get_property("Notes")
         return val
@@ -188,6 +195,7 @@ class Terminator(EmitNode):
         >>> terminator = app.schematic.create_component("Terminator", name="Load1")
         >>> terminator.terminator_type = terminator.TerminatorTypeOption.PARAMETRIC
         >>> terminator.terminator_type
+
         """
         val = self._get_property("Terminator Type")
         val = self.TerminatorTypeOption[val.upper()]
@@ -216,6 +224,7 @@ class Terminator(EmitNode):
         >>> terminator = app.schematic.create_component("Terminator", name="Load1")
         >>> terminator.vswr = 1.5
         >>> terminator.vswr
+
         """
         val = self._get_property("VSWR")
         return float(val)
@@ -236,6 +245,7 @@ class Terminator(EmitNode):
         >>> app = Emit()
         >>> terminator = app.schematic.create_component("Terminator", name="Load1")
         >>> terminator.warnings
+
         """
         val = self._get_property("Warnings")
         return val

@@ -127,6 +127,7 @@ class ConfigureLayoutExtension(ExtensionHFSS3DLayoutCommon):
         ... )
         >>> extension = ConfigureLayoutExtension(withdraw=True)
         >>> extension.add_toggle_theme_button_(extension.root)
+
         """
         button_frame = ttk.Frame(
             parent, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2, name="theme_button_frame"

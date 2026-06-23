@@ -119,6 +119,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
     project, which is named ``"myfile.aedt"``.
 
     >>> app = TwinBuilder("myfile.aedt")
+
     """
 
     def __init__(
@@ -187,6 +188,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         >>> from ansys.aedt.core.twinbuilder import TwinBuilder
         >>> obj = TwinBuilder()
         >>> obj.create_schematic_from_netlist(input_file=r"C:\Temp\circuit.sp")
+
         """
         xpos = 0
         ypos = 0
@@ -265,6 +267,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         >>> from ansys.aedt.core.twinbuilder import TwinBuilder
         >>> obj = TwinBuilder()
         >>> obj.set_end_time(expression="dB(S(1,1))")
+
         """
         self.set_sim_setup_parameter("Tend", expression)
         return True
@@ -292,6 +295,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         >>> from ansys.aedt.core.twinbuilder import TwinBuilder
         >>> obj = TwinBuilder()
         >>> obj.set_hmin(expression="dB(S(1,1))")
+
         """
         self.set_sim_setup_parameter("Hmin", expression)
         return True
@@ -319,6 +323,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         >>> from ansys.aedt.core.twinbuilder import TwinBuilder
         >>> obj = TwinBuilder()
         >>> obj.set_hmax(expression="dB(S(1,1))")
+
         """
         self.set_sim_setup_parameter("Hmax", expression)
         return True
@@ -352,6 +357,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         >>> from ansys.aedt.core.twinbuilder import TwinBuilder
         >>> obj = TwinBuilder()
         >>> obj.set_sim_setup_parameter(variable=1, expression="dB(S(1,1))")
+
         """
         if isinstance(expression, Variable):
             value_str = expression.evaluated_value
@@ -397,6 +403,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         >>> from ansys.aedt.core import TwinBuilder
         >>> tb = TwinBuilder(version="2026.1")
         >>> tb.create_subsheet("subsheet", "parentdesign")
+
         """
         try:
             if design_name not in self.design_list:
@@ -488,6 +495,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         ...     "Q2D_ArmouredCableExample", "2D_Extractor_Cable", "MySetupAuto", "sweep1", "Original", "100mm"
         ... )
         >>> tb.desktop_class.close_desktop()
+
         """
         dkp = self.desktop_class
         is_loaded = False
@@ -749,6 +757,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         ...     excitations[e.name] = ["20", True, e.props["Type"], False]
         >>> comp = tb.add_excitation_model(project=project_name, design="my_maxwell_design", excitations=excitations)
         >>> tb.desktop_class.release_desktop(False, False)
+
         """
         dkp = self.desktop_class
         project_selection = 0

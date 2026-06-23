@@ -27,6 +27,7 @@
 Examples
 --------
     pyaedt script run "C:\\Scripts\\post_process.py"
+
 """
 
 from __future__ import annotations
@@ -59,6 +60,7 @@ def run_script(
     Examples
     --------
         pyaedt script run "C:\\Scripts\\post_process.py"
+
     """
     try:
         path = Path(script_path)

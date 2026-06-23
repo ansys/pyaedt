@@ -59,6 +59,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
     >>> from ansys.aedt.core import Hfss3dLayout
     >>> hfss = Hfss3dLayout()
     >>> my_modeler = hfss.modeler
+
     """
 
     def __init__(self, app) -> None:
@@ -82,6 +83,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
         >>> obj = Modeler3DLayout()
         >>> obj.o_def_manager
+
         """
         return self._app.odefinition_manager
 
@@ -98,6 +100,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
         >>> obj = Modeler3DLayout()
         >>> obj.stackup
+
         """
         return self.layers
 
@@ -114,6 +117,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
         >>> obj = Modeler3DLayout()
         >>> obj.oeditor
+
         """
         return self._app.oeditor
 
@@ -126,6 +130,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
         >>> obj = Modeler3DLayout()
         >>> obj.ocomponent_manager
+
         """
         return self._app.ocomponent_manager
 
@@ -138,6 +143,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
         >>> obj = Modeler3DLayout()
         >>> obj.omodel_manager
+
         """
         return self._app.omodel_manager
 
@@ -163,6 +169,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
         >>> obj = Modeler3DLayout()
         >>> obj.edb
+
         """
         if settings.remote_api or settings.remote_rpc_session:
             return self._edb
@@ -191,6 +198,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
         >>> obj = Modeler3DLayout()
         >>> obj.logger
+
         """
         return self._app.logger
 
@@ -207,6 +215,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
         >>> obj = Modeler3DLayout()
         >>> obj.fit_all()
+
         """
         try:
             self._desktop.RestoreWindow()
@@ -228,6 +237,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
         >>> obj = Modeler3DLayout()
         >>> obj.model_units
+
         """
         return self._app.units.length
 
@@ -253,6 +263,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
         >>> obj = Modeler3DLayout()
         >>> obj.obounding_box(assignment="Box1")
+
         """
         bb = self.oeditor.GetBBox(assignment)
         pll = bb.BBoxLL()
@@ -304,6 +315,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
         >>> obj = Modeler3DLayout()
         >>> obj.change_property(assignment="Box1", name="MyObject", value=1)
+
         """
         if isinstance(value, list) and len(value) == 3:
             xpos, ypos, zpos = self._pos_with_arg(value)
@@ -391,6 +403,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
         >>> obj = Modeler3DLayout()
         >>> obj.merge_design(merged_design=1, x=0)
+
         """
         des_name = merged_design.design_name
         merged_design.oproject.CopyDesign(des_name)
@@ -443,6 +456,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
         >>> obj = Modeler3DLayout()
         >>> obj.change_clip_plane_position(name="MyObject", location=["Box1"])
+
         """
         return self.change_property(name, "Location", location)
 
@@ -477,6 +491,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         >>> h3d.modeler.unite([l1, l2])
         >>> h3d.modeler.colinear_heal("poly_2", 0.25)
         True
+
         """
         if isinstance(assignment, str):
             assignment = [assignment]
@@ -583,6 +598,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
         >>> obj = Modeler3DLayout()
         >>> obj.import_cadence_brd(input_file=r"C:\Temp\example.txt")
+
         """
         if not output_dir:
             output_dir = self.projdir
@@ -612,6 +628,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
         >>> obj = Modeler3DLayout()
         >>> obj.modeler_variable(value=1)
+
         """
         if isinstance(value, str):
             return value
@@ -647,6 +664,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
         >>> obj = Modeler3DLayout()
         >>> obj.import_ipc2581(input_file=r"C:\Temp\example.txt")
+
         """
         if not output_dir:
             output_dir = self.projdir
@@ -685,6 +703,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
         >>> obj = Modeler3DLayout()
         >>> obj.subtract(blank=["Box1"], tool=["Box1"])
+
         """
         blank = self.convert_to_selections(blank)
         tool = self.convert_to_selections(tool, True)
@@ -721,6 +740,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
         >>> obj = Modeler3DLayout()
         >>> obj.convert_to_selections(assignment="Box1")
+
         """
         if not isinstance(assignment, list):
             assignment = [assignment]
@@ -758,6 +778,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
         >>> obj = Modeler3DLayout()
         >>> obj.unite(assignment="Box1")
+
         """
         vArg1 = ["NAME:primitives"]
         if len(assignment) >= 2:
@@ -795,6 +816,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
         >>> obj = Modeler3DLayout()
         >>> obj.intersect(assignment="Box1")
+
         """
         vArg1 = ["NAME:primitives"]
         if len(assignment) >= 2:
@@ -836,6 +858,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
         >>> obj = Modeler3DLayout()
         >>> obj.duplicate(assignment="Box1", count=1, vector=[1, 0, 0])
+
         """
         assignment = self.convert_to_selections(assignment, True)
 
@@ -868,6 +891,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
         >>> obj = Modeler3DLayout()
         >>> obj.duplicate_across_layers(assignment="Box1", layers=["TOP"])
+
         """
         assignment = self.convert_to_selections(assignment, True)
         self.cleanup_objects()
@@ -916,6 +940,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
         >>> obj = Modeler3DLayout()
         >>> obj.set_temperature_dependence(include_temperature_dependence=True, enable_feedback=True)
+
         """
         self.logger.info("Set the temperature dependence for the design.")
         if create_project_var:
@@ -977,6 +1002,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         >>> from ansys.aedt.core import Hfss3dLayout
         >>> h3d = Hfss3dLayout("myproject")
         >>> h3d.modeler.set_spice_model(assignment="A1", input_file="path/to/your/model", subcircuit_name="SUBCK1")
+
         """
         input_file = Path(input_file)
         if not model_name:
@@ -1378,6 +1404,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
         >>> obj = Modeler3DLayout()
         >>> obj.clip_plane()
+
         """
         names = self.clip_planes[::]
         new_name = generate_unique_name("VCP", n=3)
@@ -1399,6 +1426,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
         >>> obj = Modeler3DLayout()
         >>> obj.clip_planes
+
         """
         return [i for i in self.oeditor.FindObjects("Name", "VCP*")]
 
@@ -1425,6 +1453,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
         >>> obj = Modeler3DLayout()
         >>> obj.geometry_check_and_fix_all(min_area=1.0)
+
         """
         try:
             self.oeditor.GeometryCheckAndAutofix(

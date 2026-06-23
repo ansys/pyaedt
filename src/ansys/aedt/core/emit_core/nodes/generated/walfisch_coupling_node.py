@@ -50,6 +50,7 @@ class WalfischCouplingNode(EmitNode):
         >>> couplings = revision.get_coupling_data_node()
         >>> walfisch = couplings.add_walfisch_ikegami_coupling()
         >>> walfisch.parent
+
         """
         return self._parent
 
@@ -68,6 +69,7 @@ class WalfischCouplingNode(EmitNode):
         >>> couplings = revision.get_coupling_data_node()
         >>> walfisch = couplings.add_walfisch_ikegami_coupling()
         >>> walfisch.node_type
+
         """
         return self._node_type
 
@@ -85,6 +87,7 @@ class WalfischCouplingNode(EmitNode):
         >>> couplings = revision.get_coupling_data_node()
         >>> walfisch = couplings.add_walfisch_ikegami_coupling()
         >>> walfisch.duplicate("Walfisch_Copy")
+
         """
         return self._duplicate(new_name)
 
@@ -102,6 +105,7 @@ class WalfischCouplingNode(EmitNode):
         >>> couplings = revision.get_coupling_data_node()
         >>> walfisch = couplings.add_walfisch_ikegami_coupling()
         >>> walfisch.delete()
+
         """
         self._delete()
 
@@ -122,6 +126,7 @@ class WalfischCouplingNode(EmitNode):
         >>> couplings = revision.get_coupling_data_node()
         >>> walfisch = couplings.add_walfisch_ikegami_coupling()
         >>> walfisch.enabled = True
+
         """
         val = self._get_property("Enabled")
         return val == "true"
@@ -146,6 +151,7 @@ class WalfischCouplingNode(EmitNode):
         >>> couplings = revision.get_coupling_data_node()
         >>> walfisch = couplings.add_walfisch_ikegami_coupling()
         >>> walfisch.base_antenna = revision.get_component_node("Antenna 1")
+
         """
         val = self._get_property("Base Antenna")
         return val
@@ -170,6 +176,7 @@ class WalfischCouplingNode(EmitNode):
         >>> couplings = revision.get_coupling_data_node()
         >>> walfisch = couplings.add_walfisch_ikegami_coupling()
         >>> walfisch.mobile_antenna = revision.get_component_node("Antenna 2")
+
         """
         val = self._get_property("Mobile Antenna")
         return val
@@ -198,6 +205,7 @@ class WalfischCouplingNode(EmitNode):
         >>> couplings = revision.get_coupling_data_node()
         >>> walfisch = couplings.add_walfisch_ikegami_coupling()
         >>> walfisch.path_loss_type = walfisch.PathLossTypeOption.NLOS
+
         """
         val = self._get_property("Path Loss Type")
         val = self.PathLossTypeOption[val.upper()]
@@ -227,6 +235,7 @@ class WalfischCouplingNode(EmitNode):
         >>> couplings = revision.get_coupling_data_node()
         >>> walfisch = couplings.add_walfisch_ikegami_coupling()
         >>> walfisch.environment = walfisch.EnvironmentOption.DENSE_METRO
+
         """
         val = self._get_property("Environment")
         val = self.EnvironmentOption[val.upper()]
@@ -254,6 +263,7 @@ class WalfischCouplingNode(EmitNode):
         >>> couplings = revision.get_coupling_data_node()
         >>> walfisch = couplings.add_walfisch_ikegami_coupling()
         >>> walfisch.roof_height = "18 m"
+
         """
         val = self._get_property("Roof Height")
         val = self._convert_from_internal_units(float(val), "Length")
@@ -282,6 +292,7 @@ class WalfischCouplingNode(EmitNode):
         >>> couplings = revision.get_coupling_data_node()
         >>> walfisch = couplings.add_walfisch_ikegami_coupling()
         >>> walfisch.distance_between_buildings = "30 m"
+
         """
         val = self._get_property("Distance Between Buildings")
         val = self._convert_from_internal_units(float(val), "Length")
@@ -310,6 +321,7 @@ class WalfischCouplingNode(EmitNode):
         >>> couplings = revision.get_coupling_data_node()
         >>> walfisch = couplings.add_walfisch_ikegami_coupling()
         >>> walfisch.street_width = "12 m"
+
         """
         val = self._get_property("Street Width")
         val = self._convert_from_internal_units(float(val), "Length")
@@ -338,6 +350,7 @@ class WalfischCouplingNode(EmitNode):
         >>> couplings = revision.get_coupling_data_node()
         >>> walfisch = couplings.add_walfisch_ikegami_coupling()
         >>> walfisch.incidence_angle = 45.0
+
         """
         val = self._get_property("Incidence Angle")
         return float(val)
@@ -367,6 +380,7 @@ class WalfischCouplingNode(EmitNode):
         >>> couplings = revision.get_coupling_data_node()
         >>> walfisch = couplings.add_walfisch_ikegami_coupling()
         >>> walfisch.custom_fading_margin = 6.0
+
         """
         val = self._get_property("Custom Fading Margin")
         return float(val)
@@ -396,6 +410,7 @@ class WalfischCouplingNode(EmitNode):
         >>> couplings = revision.get_coupling_data_node()
         >>> walfisch = couplings.add_walfisch_ikegami_coupling()
         >>> walfisch.polarization_mismatch = 1.5
+
         """
         val = self._get_property("Polarization Mismatch")
         return float(val)
@@ -425,6 +440,7 @@ class WalfischCouplingNode(EmitNode):
         >>> couplings = revision.get_coupling_data_node()
         >>> walfisch = couplings.add_walfisch_ikegami_coupling()
         >>> walfisch.pointing_error_loss = 2.0
+
         """
         val = self._get_property("Pointing Error Loss")
         return float(val)
@@ -455,6 +471,7 @@ class WalfischCouplingNode(EmitNode):
         >>> couplings = revision.get_coupling_data_node()
         >>> walfisch = couplings.add_walfisch_ikegami_coupling()
         >>> walfisch.fading_type = walfisch.FadingTypeOption.SHADOWING_ONLY
+
         """
         val = self._get_property("Fading Type")
         val = self.FadingTypeOption[val.upper()]
@@ -485,6 +502,7 @@ class WalfischCouplingNode(EmitNode):
         >>> couplings = revision.get_coupling_data_node()
         >>> walfisch = couplings.add_walfisch_ikegami_coupling()
         >>> walfisch.fading_availability = 99.9
+
         """
         val = self._get_property("Fading Availability")
         return float(val)
@@ -511,6 +529,7 @@ class WalfischCouplingNode(EmitNode):
         >>> couplings = revision.get_coupling_data_node()
         >>> walfisch = couplings.add_walfisch_ikegami_coupling()
         >>> walfisch.std_deviation = 8.0
+
         """
         val = self._get_property("Std Deviation")
         return float(val)
@@ -537,6 +556,7 @@ class WalfischCouplingNode(EmitNode):
         >>> couplings = revision.get_coupling_data_node()
         >>> walfisch = couplings.add_walfisch_ikegami_coupling()
         >>> walfisch.include_rain_attenuation = True
+
         """
         val = self._get_property("Include Rain Attenuation")
         return val == "true"
@@ -566,6 +586,7 @@ class WalfischCouplingNode(EmitNode):
         >>> couplings = revision.get_coupling_data_node()
         >>> walfisch = couplings.add_walfisch_ikegami_coupling()
         >>> walfisch.rain_availability = 99.99
+
         """
         val = self._get_property("Rain Availability")
         return float(val)
@@ -592,6 +613,7 @@ class WalfischCouplingNode(EmitNode):
         >>> couplings = revision.get_coupling_data_node()
         >>> walfisch = couplings.add_walfisch_ikegami_coupling()
         >>> walfisch.rain_rate = 25.0
+
         """
         val = self._get_property("Rain Rate")
         return float(val)
@@ -621,6 +643,7 @@ class WalfischCouplingNode(EmitNode):
         >>> couplings = revision.get_coupling_data_node()
         >>> walfisch = couplings.add_walfisch_ikegami_coupling()
         >>> walfisch.polarization_tilt_angle = 90.0
+
         """
         val = self._get_property("Polarization Tilt Angle")
         return float(val)
@@ -650,6 +673,7 @@ class WalfischCouplingNode(EmitNode):
         >>> couplings = revision.get_coupling_data_node()
         >>> walfisch = couplings.add_walfisch_ikegami_coupling()
         >>> walfisch.include_atmospheric_absorption = True
+
         """
         val = self._get_property("Include Atmospheric Absorption")
         return val == "true"
@@ -676,6 +700,7 @@ class WalfischCouplingNode(EmitNode):
         >>> couplings = revision.get_coupling_data_node()
         >>> walfisch = couplings.add_walfisch_ikegami_coupling()
         >>> walfisch.temperature = 20.0
+
         """
         val = self._get_property("Temperature")
         return float(val)
@@ -702,6 +727,7 @@ class WalfischCouplingNode(EmitNode):
         >>> couplings = revision.get_coupling_data_node()
         >>> walfisch = couplings.add_walfisch_ikegami_coupling()
         >>> walfisch.total_air_pressure = 1013.25
+
         """
         val = self._get_property("Total Air Pressure")
         return float(val)
@@ -728,6 +754,7 @@ class WalfischCouplingNode(EmitNode):
         >>> couplings = revision.get_coupling_data_node()
         >>> walfisch = couplings.add_walfisch_ikegami_coupling()
         >>> walfisch.water_vapor_concentration = 7.5
+
         """
         val = self._get_property("Water Vapor Concentration")
         return float(val)

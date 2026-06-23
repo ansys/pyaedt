@@ -28,6 +28,7 @@ Examples
 --------
 >>> from ansys.aedt.core import CircuitNetlist
 >>> netlist = CircuitNetlist()
+
 """
 
 from pathlib import Path
@@ -175,6 +176,7 @@ class CircuitNetlist(AnalysisCircuitNetlist, PyAedtBase):
         Examples
         --------
         >>> log_path = netlist.browse_log_file()
+
         """
         if input_file and not Path(input_file).exists():
             self.logger.error("Path does not exist.")

@@ -47,6 +47,7 @@ class ComplexTerminationDefinition(Enum):
     --------
     >>> from ansys.aedt.core.filtersolutions_core.lumped_termination_impedance_table import ComplexTerminationDefinition
     >>> ComplexTerminationDefinition.POLAR
+
     """
 
     POLAR = 0
@@ -72,6 +73,7 @@ class ComplexReactanceType(Enum):
     --------
     >>> from ansys.aedt.core.filtersolutions_core.lumped_termination_impedance_table import ComplexReactanceType
     >>> ComplexReactanceType.IND
+
     """
 
     REAC = 0
@@ -94,6 +96,7 @@ class TerminationType(Enum):
     --------
     >>> from ansys.aedt.core.filtersolutions_core.lumped_termination_impedance_table import TerminationType
     >>> TerminationType.SOURCE
+
     """
 
     SOURCE = 0
@@ -112,6 +115,7 @@ class LumpedTerminationImpedance:
     >>> from ansys.aedt.core import FilterSolutions
     >>> design = FilterSolutions.LumpedDesign(version="2026.1")
     >>> design.source_impedance_table.row_count
+
     """
 
     def __init__(self, table_type) -> None:
@@ -209,6 +213,7 @@ class LumpedTerminationImpedance:
         >>> from ansys.aedt.core.filtersolutions import LumpedDesign
         >>> design = LumpedDesign("2026.1")
         >>> design.load_impedance_table.table_type_to_bool()
+
         """
         if self.table_type.value == TerminationType.SOURCE.value:
             return False
@@ -230,6 +235,7 @@ class LumpedTerminationImpedance:
         >>> from ansys.aedt.core import FilterSolutions
         >>> design = FilterSolutions.LumpedDesign(version="2026.1")
         >>> design.source_impedance_table.row_count
+
         """
         table_row_count = c_int()
         status = self._dll.getComplexTableRowCount(byref(table_row_count), self.table_type_to_bool())
@@ -257,6 +263,7 @@ class LumpedTerminationImpedance:
         >>> design = LumpedDesign("2026.1")
         >>> design.topology.complex_termination = True
         >>> design.source_impedance_table.row(0)
+
         """
         frequency_value_buffer = create_string_buffer(100)
         real_value_buffer = create_string_buffer(100)
@@ -295,6 +302,7 @@ class LumpedTerminationImpedance:
         >>> design = LumpedDesign("2026.1")
         >>> design.topology.complex_termination = True
         >>> design.source_impedance_table.update_row(0, "2G", "50", "0")
+
         """
         status = self._dll.updateComplexTableRow(
             row_index,
@@ -325,6 +333,7 @@ class LumpedTerminationImpedance:
         >>> design = LumpedDesign("2026.1")
         >>> design.topology.complex_termination = True
         >>> design.source_impedance_table.append_row("100M", "10", "20")
+
         """
         status = self._dll.appendComplexTableRow(
             self._bytes_or_none(frequency),
@@ -354,6 +363,7 @@ class LumpedTerminationImpedance:
         >>> design = LumpedDesign("2026.1")
         >>> design.topology.complex_termination = True
         >>> design.source_impedance_table.insert_row(0, "2G", "50", "0")
+
         """
         status = self._dll.insertComplexTableRow(
             row_index,
@@ -378,6 +388,7 @@ class LumpedTerminationImpedance:
         >>> design = LumpedDesign("2026.1")
         >>> design.topology.complex_termination = True
         >>> design.source_impedance_table.remove_row(0)
+
         """
         status = self._dll.removeComplexTableRow(row_index, self.table_type_to_bool())
         self._dll_interface.raise_error(status)
@@ -400,6 +411,7 @@ class LumpedTerminationImpedance:
         >>> design = FilterSolutions.LumpedDesign(version="2026.1")
         >>> design.source_impedance_table.complex_definition = ComplexTerminationDefinition.POLAR
         >>> design.source_impedance_table.complex_definition
+
         """
         type_string_buffer = create_string_buffer(100)
         status = self._dll.getLumpedComplexDefinition(
@@ -435,6 +447,7 @@ class LumpedTerminationImpedance:
         >>> design = FilterSolutions.LumpedDesign(version="2026.1")
         >>> design.source_impedance_table.reactance_type = ComplexReactanceType.IND
         >>> design.source_impedance_table.reactance_type
+
         """
         type_string_buffer = create_string_buffer(100)
         status = self._dll.getLumpedComplexReactanceType(
@@ -467,6 +480,7 @@ class LumpedTerminationImpedance:
         >>> design = LumpedDesign("2026.1")
         >>> design.topology.complex_termination = True
         >>> design.source_impedance_table.element_tune_enabled = False
+
         """
         element_tune_enabled = c_bool()
         status = self._dll.getLumpedComplexElementTuneEnabled(byref(element_tune_enabled))
@@ -492,6 +506,7 @@ class LumpedTerminationImpedance:
         >>> design = LumpedDesign("2026.1")
         >>> design.topology.complex_termination = True
         >>> design.load_impedance_table.compensation_enabled = True
+
         """
         compensation_enabled = c_bool()
         status = self._dll.getLumpedComplexImpCompensateEnabled(byref(compensation_enabled), self.table_type_to_bool())
@@ -519,6 +534,7 @@ class LumpedTerminationImpedance:
         >>> design = LumpedDesign("2026.1")
         >>> design.topology.complex_termination = True
         >>> design.load_impedance_table.compensation_order = 3
+
         """
         compensation_order = c_int()
         status = self._dll.getLumpedComplexCompOrder(byref(compensation_order), self.table_type_to_bool())

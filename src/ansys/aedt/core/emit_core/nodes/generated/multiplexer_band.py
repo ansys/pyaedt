@@ -47,6 +47,7 @@ class MultiplexerBand(EmitNode):
         >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
         >>> band = mux.add_multiplexer_pass_band()
         >>> band.parent
+
         """
         return self._parent
 
@@ -62,6 +63,7 @@ class MultiplexerBand(EmitNode):
         >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
         >>> band = mux.add_multiplexer_pass_band()
         >>> band.node_type
+
         """
         return self._node_type
 
@@ -76,6 +78,7 @@ class MultiplexerBand(EmitNode):
         >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
         >>> band = mux.add_multiplexer_pass_band()
         >>> band.duplicate("Pass Band Copy")
+
         """
         return self._duplicate(new_name)
 
@@ -90,6 +93,7 @@ class MultiplexerBand(EmitNode):
         >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
         >>> band = mux.add_multiplexer_pass_band()
         >>> band.delete()
+
         """
         self._delete()
 
@@ -115,6 +119,7 @@ class MultiplexerBand(EmitNode):
         >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
         >>> band = mux.add_multiplexer_pass_band()
         >>> band.passband_type = band.PassbandTypeOption.BAND_PASS
+
         """
         val = self._get_property("Passband Type")
         val = self.PassbandTypeOption[val.upper()]
@@ -139,6 +144,7 @@ class MultiplexerBand(EmitNode):
         >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
         >>> band = mux.add_multiplexer_pass_band()
         >>> band.filename = r"C:\\Temp\\pass_band.s2p"
+
         """
         val = self._get_property("Filename")
         return val
@@ -162,6 +168,7 @@ class MultiplexerBand(EmitNode):
         >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
         >>> band = mux.add_multiplexer_pass_band()
         >>> band.insertion_loss = 1.2
+
         """
         val = self._get_property("Insertion Loss")
         return float(val)
@@ -185,6 +192,7 @@ class MultiplexerBand(EmitNode):
         >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
         >>> band = mux.add_multiplexer_pass_band()
         >>> band.stop_band_attenuation = 35.0
+
         """
         val = self._get_property("Stop band Attenuation")
         return float(val)
@@ -208,6 +216,7 @@ class MultiplexerBand(EmitNode):
         >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
         >>> band = mux.add_multiplexer_pass_band()
         >>> band.max_pass_band = 2.6e9
+
         """
         val = self._get_property("Max Pass Band")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -233,6 +242,7 @@ class MultiplexerBand(EmitNode):
         >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
         >>> band = mux.add_multiplexer_pass_band()
         >>> band.min_stop_band = 1.9e9
+
         """
         val = self._get_property("Min Stop Band")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -258,6 +268,7 @@ class MultiplexerBand(EmitNode):
         >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
         >>> band = mux.add_multiplexer_pass_band()
         >>> band.max_stop_band = 2.8e9
+
         """
         val = self._get_property("Max Stop Band")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -283,6 +294,7 @@ class MultiplexerBand(EmitNode):
         >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
         >>> band = mux.add_multiplexer_pass_band()
         >>> band.min_pass_band = 2.1e9
+
         """
         val = self._get_property("Min Pass Band")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -308,6 +320,7 @@ class MultiplexerBand(EmitNode):
         >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
         >>> band = mux.add_multiplexer_pass_band()
         >>> band.lower_stop_band = 1.8e9
+
         """
         val = self._get_property("Lower Stop Band")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -333,6 +346,7 @@ class MultiplexerBand(EmitNode):
         >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
         >>> band = mux.add_multiplexer_pass_band()
         >>> band.lower_cutoff = 2.0e9
+
         """
         val = self._get_property("Lower Cutoff")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -358,6 +372,7 @@ class MultiplexerBand(EmitNode):
         >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
         >>> band = mux.add_multiplexer_pass_band()
         >>> band.higher_cutoff = 2.5e9
+
         """
         val = self._get_property("Higher Cutoff")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -383,6 +398,7 @@ class MultiplexerBand(EmitNode):
         >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
         >>> band = mux.add_multiplexer_pass_band()
         >>> band.higher_stop_band = 2.7e9
+
         """
         val = self._get_property("Higher Stop Band")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -406,6 +422,7 @@ class MultiplexerBand(EmitNode):
         >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
         >>> band = mux.add_multiplexer_pass_band()
         >>> band.warnings
+
         """
         val = self._get_property("Warnings")
         return val

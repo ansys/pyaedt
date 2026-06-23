@@ -83,6 +83,7 @@ class MultiPartComponent(PyAedtBase):
     --------
     >>> from ansys.aedt.core.modeler.advanced_cad.multiparts import MultiPartComponent
     >>> component = MultiPartComponent(r"C:\\temp\\actors")
+
     """
 
     _component_classes = ["environment", "rcs_standard", "vehicle", "person", "bike", "bird", "radar"]
@@ -120,6 +121,7 @@ class MultiPartComponent(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.multiparts import MultiPartComponent
         >>> hfss = pyaedt.Hfss()
         >>> MultiPartComponent.start(hfss)
+
         """
         app[MultiPartComponent._t] = MultiPartComponent._t_value
         app.modeler.model_units = "meter"  # Set units.
@@ -221,6 +223,7 @@ class MultiPartComponent(PyAedtBase):
         >>> component = MultiPartComponent(r"C:\\temp\\actors")
         >>> component.cs_name
         'actors_cs'
+
         """
         if self.use_global_cs:
             self._relative_cs_name = "Global"
@@ -243,6 +246,7 @@ class MultiPartComponent(PyAedtBase):
         >>> component = MultiPartComponent(r"C:\\temp\\actors")
         >>> component.index
         0
+
         """
         if self._index is None:  # Only increment one time.
             self._index = MultiPartComponent._names.count(self._name)
@@ -267,6 +271,7 @@ class MultiPartComponent(PyAedtBase):
         >>> component = MultiPartComponent(r"C:\\temp\\actors")
         >>> component.offset_x_name
         'actors_x'
+
         """
         return self._offset_var_names[0]
 
@@ -285,6 +290,7 @@ class MultiPartComponent(PyAedtBase):
         >>> component = MultiPartComponent(r"C:\\temp\\actors")
         >>> component.offset_y_name
         'actors_y'
+
         """
         return self._offset_var_names[1]
 
@@ -303,6 +309,7 @@ class MultiPartComponent(PyAedtBase):
         >>> component = MultiPartComponent(r"C:\\temp\\actors")
         >>> component.offset_z_name
         'actors_z'
+
         """
         return self._offset_var_names[2]
 
@@ -321,6 +328,7 @@ class MultiPartComponent(PyAedtBase):
         >>> component = MultiPartComponent(r"C:\\temp\\actors")
         >>> component.offset_names
         ['actors_x', 'actors_y', 'actors_z']
+
         """
         return [self.offset_x_name, self.offset_y_name, self.offset_z_name]
 
@@ -339,6 +347,7 @@ class MultiPartComponent(PyAedtBase):
         >>> component = MultiPartComponent(r"C:\\temp\\actors")
         >>> component.yaw_name
         'actors_yaw'
+
         """
         return self.name + "_yaw"
 
@@ -357,6 +366,7 @@ class MultiPartComponent(PyAedtBase):
         >>> component = MultiPartComponent(r"C:\\temp\\actors")
         >>> component.yaw
         '0deg'
+
         """
         return self._yaw
 
@@ -383,6 +393,7 @@ class MultiPartComponent(PyAedtBase):
         >>> component = MultiPartComponent(r"C:\\temp\\actors")
         >>> component.pitch_name
         'actors_pitch'
+
         """
         return self.name + "_pitch"
 
@@ -401,6 +412,7 @@ class MultiPartComponent(PyAedtBase):
         >>> component = MultiPartComponent(r"C:\\temp\\actors")
         >>> component.pitch
         '0deg'
+
         """
         return self._pitch
 
@@ -427,6 +439,7 @@ class MultiPartComponent(PyAedtBase):
         >>> component = MultiPartComponent(r"C:\\temp\\actors")
         >>> component.roll_name
         'actors_roll'
+
         """
         return self.name + "_roll"
 
@@ -445,6 +458,7 @@ class MultiPartComponent(PyAedtBase):
         >>> component = MultiPartComponent(r"C:\\temp\\actors")
         >>> component.roll
         '0deg'
+
         """
         return self._roll
 
@@ -483,6 +497,7 @@ class MultiPartComponent(PyAedtBase):
         >>> component = MultiPartComponent(r"C:\\temp\\actors")
         >>> component.name
         'actors'
+
         """
         suffix = "_" + str(self.index)
         return self._name + suffix  # unique instance name
@@ -502,6 +517,7 @@ class MultiPartComponent(PyAedtBase):
         >>> component = MultiPartComponent(r"C:\\temp\\actors")
         >>> component.use_global_cs
         True
+
         """
         return self._use_global_cs
 
@@ -520,6 +536,7 @@ class MultiPartComponent(PyAedtBase):
         >>> component = MultiPartComponent(r"C:\\temp\\actors")
         >>> component.offset
         ['0', '0', '0']
+
         """
         return self._offset_values
 
@@ -549,6 +566,7 @@ class MultiPartComponent(PyAedtBase):
         >>> hfss = pyaedt.Hfss()
         >>> component = MultiPartComponent(r"C:\\temp\\actors", motion=True)
         >>> component.position_in_app(hfss)
+
         """
         if self.motion:
             xyz = ["x", "y", "z"]
@@ -629,6 +647,7 @@ class MultiPartComponent(PyAedtBase):
         >>> hfss = pyaedt.Hfss()
         >>> component = MultiPartComponent(r"C:\\temp\\actors")
         >>> component.insert(hfss)
+
         """
         return self._insert(app, motion=motion)
 
@@ -654,6 +673,7 @@ class Environment(MultiPartComponent, PyAedtBase):
     >>> from ansys.aedt.core.modeler.advanced_cad.multiparts import Environment
     >>> env = Environment(r"C:\\temp\\actors")
     >>> env
+
     """
 
     def __init__(self, env_folder, relative_cs_name=None) -> None:
@@ -674,6 +694,7 @@ class Environment(MultiPartComponent, PyAedtBase):
         >>> env = Environment(r"C:\\temp\\actors")
         >>> env.cs_name
         'Global'
+
         """
         return "Global"
 
@@ -692,6 +713,7 @@ class Environment(MultiPartComponent, PyAedtBase):
         >>> env = Environment(r"C:\\temp\\actors")
         >>> env.yaw
         '0deg'
+
         """
         return self._yaw
 
@@ -714,6 +736,7 @@ class Environment(MultiPartComponent, PyAedtBase):
         >>> env = Environment(r"C:\\temp\\actors")
         >>> env.pitch
         '0deg'
+
         """
         return self._pitch
 
@@ -736,6 +759,7 @@ class Environment(MultiPartComponent, PyAedtBase):
         >>> env = Environment(r"C:\\temp\\actors")
         >>> env.roll
         '0deg'
+
         """
         return self._roll
 
@@ -757,6 +781,7 @@ class Environment(MultiPartComponent, PyAedtBase):
         >>> env = Environment(r"C:\\temp\\actors")
         >>> env.offset
         ['0', '0', '0']
+
         """
         return self._offset_values
 
@@ -790,6 +815,7 @@ class Actor(MultiPartComponent, PyAedtBase):
     >>> actor = Actor(r"C:\\temp\\actors")
     >>> actor.speed_name
     'actors_speed'
+
     """
 
     def __init__(self, actor_folder, speed: str | float = "0", relative_cs_name=None) -> None:
@@ -812,6 +838,7 @@ class Actor(MultiPartComponent, PyAedtBase):
         >>> actor = Actor(r"C:\\temp\\actors")
         >>> actor.speed_name
         'actors_speed'
+
         """
         return self.name + "_speed"
 
@@ -830,6 +857,7 @@ class Actor(MultiPartComponent, PyAedtBase):
         >>> actor = Actor(r"C:\\temp\\actors", speed=5)
         >>> actor.speed_expression
         '5m_per_sec'
+
         """
         return self._speed_expression
 

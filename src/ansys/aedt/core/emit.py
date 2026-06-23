@@ -125,6 +125,7 @@ class Emit(Design, PyAedtBase):
     >>> instance = interaction.worst_instance(ResultType.SENSITIVITY)
     >>> val = instance.value(ResultType.SENSITIVITY)
     >>> print(f"Worst-case sensitivity for Rx '{domain.rx_radio_name}' is {val}dB.")
+
     """
 
     def __init__(
@@ -198,6 +199,7 @@ class Emit(Design, PyAedtBase):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> app.modeler
+
         """
         return self._modeler
 
@@ -215,6 +217,7 @@ class Emit(Design, PyAedtBase):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> app.couplings
+
         """
         return self._couplings
 
@@ -232,6 +235,7 @@ class Emit(Design, PyAedtBase):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> app.schematic
+
         """
         return self._schematic
 
@@ -289,6 +293,7 @@ class Emit(Design, PyAedtBase):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> app.set_units("Frequency", "GHz")
+
         """
         if isinstance(unit_type, list):
             for t, v in zip(unit_type, unit_value):
@@ -343,6 +348,7 @@ class Emit(Design, PyAedtBase):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> app.get_units("Frequency")
+
         """
         if not unit_type:
             return self._units
@@ -382,6 +388,7 @@ class Emit(Design, PyAedtBase):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> app.save_project(file_name=r"C:\\Projects\\emit_demo.aedt")
+
         """
         if self.__emit_api_enabled:
             self._emit_api.save_project()

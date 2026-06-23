@@ -56,6 +56,7 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
     --------
     >>> from ansys.aedt.core.extensions.emit.interference_classification import InterferenceClassificationExtension
     >>> extension = InterferenceClassificationExtension(withdraw=True)
+
     """
 
     def __init__(self, withdraw: bool = False) -> None:

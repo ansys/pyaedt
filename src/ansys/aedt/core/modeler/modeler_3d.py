@@ -63,6 +63,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
     >>> from ansys.aedt.core import Hfss
     >>> hfss = Hfss()
     >>> my_modeler = hfss.modeler
+
     """
 
     def __init__(self, application) -> None:
@@ -178,6 +179,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         >>> from ansys.aedt.core.modeler.modeler_3d import Modeler3D
         >>> obj = Modeler3D()
         >>> obj.create_3dcomponent(input_file=r"C:\Temp\example.txt")
+
         """
         # If design name has a white space (as it usually happens with Maxwell 2D/3D new designs),
         # it has to be replaced with an underscore.
@@ -452,6 +454,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         >>> from ansys.aedt.core.modeler.modeler_3d import Modeler3D
         >>> obj = Modeler3D()
         >>> obj.replace_3dcomponent(assignment="Box1", name="MyObject")
+
         """
         if not variables_to_include:
             variables_to_include = []
@@ -962,6 +965,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         >>> from ansys.aedt.core.modeler.modeler_3d import Modeler3D
         >>> obj = Modeler3D()
         >>> obj.objects_in_bounding_box(bounding_box=["Box1"])
+
         """
         if len(bounding_box) != 6:
             raise ValueError("Bounding box list must have dimension 6.")
@@ -1066,6 +1070,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         >>> from ansys.aedt.core.modeler.modeler_3d import Modeler3D
         >>> obj = Modeler3D()
         >>> obj.import_nastran(file_path=r"C:\Temp\example.txt")
+
         """
         from ansys.aedt.core.syslib.nastran_import import nastran_to_stl
 
@@ -1259,6 +1264,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         >>> from ansys.aedt.core.modeler.modeler_3d import Modeler3D
         >>> obj = Modeler3D()
         >>> obj.import_from_openstreet_map(latitude_longitude=[1, 2, 3])
+
         """
         from ansys.aedt.core.modeler.advanced_cad.osm import BuildingsPrep
         from ansys.aedt.core.modeler.advanced_cad.osm import RoadPrep
@@ -1429,6 +1435,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         >>> from ansys.aedt.core.modeler.modeler_3d import Modeler3D
         >>> obj = Modeler3D()
         >>> obj.objects_segmentation(assignment="Box1")
+
         """
         if not segmentation_thickness and not segments:
             self.logger.error("Provide at least one option to segment the objects in the list.")
@@ -1512,6 +1519,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         >>> import ansys.aedt.core
         >>> app = ansys.aedt.core.Icepak()
         >>> app.modeler.change_region_padding("10mm", padding_type="Absolute Offset", direction="-X")
+
         """
         available_directions = ["+X", "-X", "+Y", "-Y", "+Z", "-Z"]
         available_paddings = [
@@ -1597,6 +1605,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         >>> app = ansys.aedt.core.Icepak()
         >>> app.modeler.create_coordinate_system(origin=[1, 1, 1], name="NewCS")
         >>> app.modeler.change_region_coordinate_system(assignment="NewCS")
+
         """
         try:
             create_region_name = self._app.get_oo_object(self._app.oeditor, name).GetChildNames()[0]

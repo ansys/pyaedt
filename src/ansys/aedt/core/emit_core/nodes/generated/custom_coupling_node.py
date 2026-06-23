@@ -46,6 +46,7 @@ class CustomCouplingNode(EmitNode):
         >>> couplings = revision.get_coupling_data_node()
         >>> custom_coupling = couplings.add_custom_coupling()
         >>> custom_coupling.parent
+
         """
         return self._parent
 
@@ -62,6 +63,7 @@ class CustomCouplingNode(EmitNode):
         >>> couplings = revision.get_coupling_data_node()
         >>> custom_coupling = couplings.add_custom_coupling()
         >>> custom_coupling.node_type
+
         """
         return self._node_type
 
@@ -77,6 +79,7 @@ class CustomCouplingNode(EmitNode):
         >>> couplings = revision.get_coupling_data_node()
         >>> custom_coupling = couplings.add_custom_coupling()
         >>> custom_coupling.import_csv_file("C:\\EMIT\\custom_coupling.csv")
+
         """
         return self._import(file_name, "Csv")
 
@@ -92,6 +95,7 @@ class CustomCouplingNode(EmitNode):
         >>> couplings = revision.get_coupling_data_node()
         >>> custom_coupling = couplings.add_custom_coupling()
         >>> custom_coupling_copy = custom_coupling.duplicate("Custom_Coupling_Copy")
+
         """
         return self._duplicate(new_name)
 
@@ -107,6 +111,7 @@ class CustomCouplingNode(EmitNode):
         >>> couplings = revision.get_coupling_data_node()
         >>> custom_coupling = couplings.add_custom_coupling()
         >>> custom_coupling.delete()
+
         """
         self._delete()
 
@@ -128,6 +133,7 @@ class CustomCouplingNode(EmitNode):
         >>> couplings = revision.get_coupling_data_node()
         >>> custom_coupling = couplings.add_custom_coupling()
         >>> custom_coupling.table_data = [(1e9, -60.0), (2e9, -55.0)]
+
         """
         return self._get_table_data()
 
@@ -151,6 +157,7 @@ class CustomCouplingNode(EmitNode):
         >>> couplings = revision.get_coupling_data_node()
         >>> custom_coupling = couplings.add_custom_coupling()
         >>> custom_coupling.enabled = True
+
         """
         val = self._get_property("Enabled")
         return val == "true"
@@ -173,6 +180,7 @@ class CustomCouplingNode(EmitNode):
         >>> couplings = revision.get_coupling_data_node()
         >>> custom_coupling = couplings.add_custom_coupling()
         >>> custom_coupling.antenna_a
+
         """
         val = self._get_property("Antenna A")
         return val
@@ -195,6 +203,7 @@ class CustomCouplingNode(EmitNode):
         >>> couplings = revision.get_coupling_data_node()
         >>> custom_coupling = couplings.add_custom_coupling()
         >>> custom_coupling.antenna_b
+
         """
         val = self._get_property("Antenna B")
         return val

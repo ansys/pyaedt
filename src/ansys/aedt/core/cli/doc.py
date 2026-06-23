@@ -43,6 +43,7 @@ def doc_callback(ctx: typer.Context) -> None:
     Examples
     --------
         pyaedt doc
+
     """
     if ctx.invoked_subcommand is None:
         from ansys.aedt.core.help import online_help
@@ -70,6 +71,7 @@ def github() -> None:
     Examples
     --------
         pyaedt doc github
+
     """
     from ansys.aedt.core.help import online_help
 
@@ -84,6 +86,7 @@ def user_guide() -> None:
     Examples
     --------
         pyaedt doc user-guide
+
     """
     from ansys.aedt.core.help import online_help
 
@@ -98,6 +101,7 @@ def getting_started() -> None:
     Examples
     --------
         pyaedt doc getting-started
+
     """
     from ansys.aedt.core.help import online_help
 
@@ -112,6 +116,7 @@ def installation() -> None:
     Examples
     --------
         pyaedt doc installation
+
     """
     from ansys.aedt.core.help import online_help
 
@@ -126,6 +131,7 @@ def api() -> None:
     Examples
     --------
         pyaedt doc api
+
     """
     from ansys.aedt.core.help import online_help
 
@@ -140,6 +146,7 @@ def changelog(pyaedt_version: str = typer.Argument(None)) -> None:
     Examples
     --------
         pyaedt doc changelog 0.22.0
+
     """
     from ansys.aedt.core.help import online_help
 
@@ -154,6 +161,7 @@ def issues() -> None:
     Examples
     --------
         pyaedt doc issues
+
     """
     from ansys.aedt.core.help import online_help
 
@@ -168,6 +176,7 @@ def search(search_keys: list[str] = typer.Argument(None)) -> None:
     Examples
     --------
         pyaedt doc search hfss setup
+
     """
     if not search_keys:
         typer.secho("✗ Error: Please provide at least one search keyword", fg=typer.colors.RED)

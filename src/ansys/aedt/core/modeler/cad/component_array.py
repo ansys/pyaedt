@@ -58,6 +58,7 @@ class ComponentArray(PyAedtBase):
     >>> aedtapp = Hfss(project="Array.aedt")
     >>> array_names = aedtapp.component_array_names[0]
     >>> array = aedtapp.component_array[array_names[0]]
+
     """
 
     def __init__(self, app, name: str | None = None) -> None:
@@ -113,6 +114,7 @@ class ComponentArray(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
         >>> obj = ComponentArray()
         >>> obj.create(app=1, input_data={"Name": "Value"})
+
         """
         app.hybrid = True
 
@@ -276,6 +278,7 @@ class ComponentArray(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
         >>> obj = ComponentArray()
         >>> obj.component_names
+
         """
         return self.properties["component"]
 
@@ -288,6 +291,7 @@ class ComponentArray(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
         >>> obj = ComponentArray()
         >>> obj.cells
+
         """
         if not self.update_cells:
             return self.__cells
@@ -314,6 +318,7 @@ class ComponentArray(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
         >>> obj = ComponentArray()
         >>> obj.name
+
         """
         return self.__name
 
@@ -338,6 +343,7 @@ class ComponentArray(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
         >>> obj = ComponentArray()
         >>> obj.properties
+
         """
         # From 2024R1, array information can be loaded from a CSV
         if self.__array_info_path and os.path.exists(self.__array_info_path):  # pragma: no cover
@@ -355,6 +361,7 @@ class ComponentArray(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
         >>> obj = ComponentArray()
         >>> obj.post_processing_cells
+
         """
         if not self.__post_processing_cells:
             self.__post_processing_cells = {}
@@ -387,6 +394,7 @@ class ComponentArray(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
         >>> obj = ComponentArray()
         >>> obj.visible
+
         """
         return self.__app.get_oo_property_value(self.__omodel, self.name, "Visible")
 
@@ -403,6 +411,7 @@ class ComponentArray(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
         >>> obj = ComponentArray()
         >>> obj.show_cell_number
+
         """
         return self.__app.get_oo_property_value(self.__omodel, self.name, "Show Cell Number")
 
@@ -419,6 +428,7 @@ class ComponentArray(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
         >>> obj = ComponentArray()
         >>> obj.render_choices
+
         """
         return list(self.__oarray.GetPropValue("Render/Choices"))
 
@@ -431,6 +441,7 @@ class ComponentArray(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
         >>> obj = ComponentArray()
         >>> obj.render
+
         """
         return self.__app.get_oo_property_value(self.__omodel, self.name, "Render")
 
@@ -450,6 +461,7 @@ class ComponentArray(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
         >>> obj = ComponentArray()
         >>> obj.render_id
+
         """
         res = self.render_choices.index(self.render)
         return res
@@ -463,6 +475,7 @@ class ComponentArray(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
         >>> obj = ComponentArray()
         >>> obj.a_vector_choices
+
         """
         return list(self.__app.get_oo_property_value(self.__omodel, self.name, "A Vector/Choices"))
 
@@ -475,6 +488,7 @@ class ComponentArray(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
         >>> obj = ComponentArray()
         >>> obj.b_vector_choices
+
         """
         return list(self.__app.get_oo_property_value(self.__omodel, self.name, "B Vector/Choices"))
 
@@ -487,6 +501,7 @@ class ComponentArray(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
         >>> obj = ComponentArray()
         >>> obj.a_vector_name
+
         """
         return self.__app.get_oo_property_value(self.__omodel, self.name, "A Vector")
 
@@ -506,6 +521,7 @@ class ComponentArray(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
         >>> obj = ComponentArray()
         >>> obj.b_vector_name
+
         """
         return self.__oarray.GetPropValue("B Vector")
 
@@ -525,6 +541,7 @@ class ComponentArray(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
         >>> obj = ComponentArray()
         >>> obj.a_size
+
         """
         return int(self.__app.get_oo_property_value(self.__omodel, self.name, "A Cell Count"))
 
@@ -543,6 +560,7 @@ class ComponentArray(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
         >>> obj = ComponentArray()
         >>> obj.b_size
+
         """
         return int(self.__app.get_oo_property_value(self.__omodel, self.name, "B Cell Count"))
 
@@ -561,6 +579,7 @@ class ComponentArray(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
         >>> obj = ComponentArray()
         >>> obj.a_length
+
         """
         lattice_vector = self.lattice_vector()
         if lattice_vector[0] != 0:  # pragma: no cover
@@ -579,6 +598,7 @@ class ComponentArray(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
         >>> obj = ComponentArray()
         >>> obj.b_length
+
         """
         lattice_vector = self.lattice_vector()
         if lattice_vector[1] != 0:
@@ -597,6 +617,7 @@ class ComponentArray(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
         >>> obj = ComponentArray()
         >>> obj.padding_cells
+
         """
         return int(self.__app.get_oo_property_value(self.__omodel, self.name, "Padding"))
 
@@ -613,6 +634,7 @@ class ComponentArray(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
         >>> obj = ComponentArray()
         >>> obj.coordinate_system
+
         """
         cs_dict = self.__map_coordinate_system_to_id()
         res = "Global"
@@ -646,6 +668,7 @@ class ComponentArray(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
         >>> obj = ComponentArray()
         >>> obj.update_properties()
+
         """
         # From 2024R1, array information can be loaded from a CSV, and this method is not needed.
         if self.__app.settings.aedt_version > "2023.2":  # pragma: no cover
@@ -673,6 +696,7 @@ class ComponentArray(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
         >>> obj = ComponentArray()
         >>> obj.delete()
+
         """
         self.__app.omodelsetup.DeleteArray()
         del self.__app.component_array[self.name]
@@ -697,6 +721,7 @@ class ComponentArray(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
         >>> obj = ComponentArray()
         >>> obj.export_array_info(output_file=r"C:\Temp\example.txt")
+
         """
         if not output_file:  # pragma: no cover
             output_file = os.path.join(self.__app.toolkit_directory, "array_info.csv")
@@ -725,6 +750,7 @@ class ComponentArray(PyAedtBase):
         >>> array = aedtapp.component_array[array_names[0]]
         >>> array_csv = array.export_array_info()
         >>> array_info = array.array_info_parser(array_csv)
+
         """
         info = read_csv(input_file)
         if not info:
@@ -822,6 +848,7 @@ class ComponentArray(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
         >>> obj = ComponentArray()
         >>> obj.edit_array()
+
         """
         args = [
             "NAME:" + self.name,
@@ -914,6 +941,7 @@ class ComponentArray(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
         >>> obj = ComponentArray()
         >>> obj.get_cell(row=1, col=1)
+
         """
         return self[row, col]
 
@@ -935,6 +963,7 @@ class ComponentArray(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
         >>> obj = ComponentArray()
         >>> obj.lattice_vector()
+
         """
         lattice_vectors = self.__app.omodelsetup.GetLatticeVectors()
 
@@ -955,6 +984,7 @@ class ComponentArray(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
         >>> obj = ComponentArray()
         >>> obj.get_component_objects()
+
         """
         component_info = {}
         component_names = self.component_names
@@ -991,6 +1021,7 @@ class ComponentArray(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
         >>> obj = ComponentArray()
         >>> obj.get_cell_position()
+
         """
         cell_info = [[None for _ in range(self.b_size)] for _ in range(self.a_size)]
         lattice_vector = self.lattice_vector()
@@ -1134,6 +1165,7 @@ class CellArray(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.component_array import CellArray
         >>> obj = CellArray()
         >>> obj.rotation
+
         """
         return self.__rotation
 
@@ -1156,6 +1188,7 @@ class CellArray(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.component_array import CellArray
         >>> obj = CellArray()
         >>> obj.component
+
         """
         return self.__component
 
@@ -1189,6 +1222,7 @@ class CellArray(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.component_array import CellArray
         >>> obj = CellArray()
         >>> obj.is_active
+
         """
         return self.__is_active
 

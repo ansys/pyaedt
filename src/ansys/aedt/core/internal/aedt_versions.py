@@ -53,6 +53,7 @@ class AedtVersions(PyAedtBase):
     --------
     >>> from ansys.aedt.core.internal.aedt_versions import AedtVersions
     >>> obj = AedtVersions()
+
     """
 
     def __init__(self) -> None:
@@ -117,6 +118,7 @@ class AedtVersions(PyAedtBase):
         >>> from ansys.aedt.core.internal.aedt_versions import AedtVersions
         >>> obj = AedtVersions()
         >>> obj.list_installed_ansysem
+
         """
         if self._list_installed_ansysem is None:
             version_pattern = re.compile(r"^(ANSYSEM_ROOT|ANSYSEM_PY_CLIENT_ROOT|ANSYSEMSV_ROOT)\d{3}$")
@@ -151,6 +153,7 @@ class AedtVersions(PyAedtBase):
         >>> from ansys.aedt.core.internal.aedt_versions import AedtVersions
         >>> obj = AedtVersions()
         >>> obj.installed_versions
+
         """
         if self._installed_versions is None:
             return_dict = {}
@@ -213,6 +216,7 @@ class AedtVersions(PyAedtBase):
         >>> from ansys.aedt.core.internal.aedt_versions import AedtVersions
         >>> obj = AedtVersions()
         >>> obj.stable_versions
+
         """
         if self._stable_versions is None:
             try:
@@ -232,6 +236,7 @@ class AedtVersions(PyAedtBase):
         >>> from ansys.aedt.core.internal.aedt_versions import AedtVersions
         >>> obj = AedtVersions()
         >>> obj.current_version
+
         """
         if self._current_version is None:
             if self.stable_versions:
@@ -249,6 +254,7 @@ class AedtVersions(PyAedtBase):
         >>> from ansys.aedt.core.internal.aedt_versions import AedtVersions
         >>> obj = AedtVersions()
         >>> obj.current_student_version
+
         """
         if self._current_student_version is None:
             stable_student_versions = [v for v in self.stable_versions if "SV" in v]
@@ -267,6 +273,7 @@ class AedtVersions(PyAedtBase):
         >>> from ansys.aedt.core.internal.aedt_versions import AedtVersions
         >>> obj = AedtVersions()
         >>> obj.latest_version
+
         """
         if self._latest_version is None:
             try:

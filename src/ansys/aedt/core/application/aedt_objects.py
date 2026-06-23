@@ -106,6 +106,7 @@ class AedtObjects(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.units.length
+
         """
         return self.__aedtunits
 
@@ -122,6 +123,7 @@ class AedtObjects(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.oradfield
+
         """
         if self.design_type == "HFSS" and self._odesign.GetSolutionType() not in [
             SolutionsHfss.EigenMode,
@@ -141,6 +143,7 @@ class AedtObjects(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.get_module("BoundarySetup")
+
         """
         if self.design_type not in ["EMIT"] and self._odesign:
             try:
@@ -162,6 +165,7 @@ class AedtObjects(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.osymbol_manager
+
         """
         if self.odefinition_manager:
             return self.odefinition_manager.GetManager("Symbol")
@@ -180,6 +184,7 @@ class AedtObjects(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.opadstack_manager
+
         """
         if self._oproject and not self._opadstack_manager:
             self._opadstack_manager = self._oproject.GetDefinitionManager().GetManager("Padstack")
@@ -199,6 +204,7 @@ class AedtObjects(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.oboundary
+
         """
         if not self._oboundary:
             if self.design_type in ["Twin Builder", "RMxprt", "ModelCreation", "Circuit Design", "Circuit Netlist"]:
@@ -222,6 +228,7 @@ class AedtObjects(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.oimport_export
+
         """
         if not self._oimport_export:
             self._oimport_export = self._odesktop.GetTool("ImportExport")
@@ -240,6 +247,7 @@ class AedtObjects(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.ooptimetrics
+
         """
         if not self._ooptimetrics and self.design_type not in ["Circuit Netlist", "Maxwell Circuit", "EMIT"]:
             self._ooptimetrics = self.get_module("Optimetrics")
@@ -258,6 +266,7 @@ class AedtObjects(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.ooutput_variable
+
         """
         if not self._ooutput_variable and self.design_type not in ["EMIT", "Maxwell Circuit", "Circuit Netlist"]:
             self._ooutput_variable = self.get_module("OutputVariable")
@@ -278,6 +287,7 @@ class AedtObjects(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.oanalysis
+
         """
         if self._oanalysis:
             return self._oanalysis
@@ -304,6 +314,7 @@ class AedtObjects(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.odefinition_manager
+
         """
         if not self._odefinition_manager and self._oproject:
             self._odefinition_manager = self._oproject.GetDefinitionManager()
@@ -322,6 +333,7 @@ class AedtObjects(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.omaterial_manager
+
         """
         if self.odefinition_manager and not self._omaterial_manager:
             self._omaterial_manager = self.odefinition_manager.GetManager("Material")
@@ -340,6 +352,7 @@ class AedtObjects(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.omodelsetup
+
         """
         if self.design_type not in ["Maxwell 3D", "Maxwell 2D", "HFSS"]:
             return
@@ -365,6 +378,7 @@ class AedtObjects(PyAedtBase):
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d()
         >>> m3d.omaxwell_parameters
+
         """
         if self._odesign and self.design_type not in ["Maxwell 3D", "Maxwell 2D"]:
             return
@@ -381,6 +395,7 @@ class AedtObjects(PyAedtBase):
         >>> from ansys.aedt.core import Icepak
         >>> ipk = Icepak()
         >>> ipk.omonitor
+
         """
         if not self._odesign or not self.design_type == "Icepak":
             return
@@ -401,6 +416,7 @@ class AedtObjects(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.osolution
+
         """
         if not self._osolution:
             if self.design_type in [
@@ -431,6 +447,7 @@ class AedtObjects(PyAedtBase):
         >>> from ansys.aedt.core import Hfss3dLayout
         >>> h3d = Hfss3dLayout()
         >>> h3d.oexcitation
+
         """
         if self.design_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
             return
@@ -448,6 +465,7 @@ class AedtObjects(PyAedtBase):
         >>> from ansys.aedt.core import Q3d
         >>> q3d = Q3d()
         >>> q3d.omatrix
+
         """
         if self.design_type not in ["Q3D Extractor", "2D Extractor"]:
             return
@@ -472,6 +490,7 @@ class AedtObjects(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.ofieldsreporter
+
         """
         if self.design_type in [
             "Circuit Design",
@@ -504,6 +523,7 @@ class AedtObjects(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.oreportsetup
+
         """
         if not self._oreportsetup:
             self._oreportsetup = self.get_module("ReportSetup")
@@ -522,6 +542,7 @@ class AedtObjects(PyAedtBase):
         >>> from ansys.aedt.core import Icepak
         >>> ipk = Icepak()
         >>> ipk.omeshmodule
+
         """
         if not self._omeshmodule and hasattr(self._design_type, "mesher"):
             self._omeshmodule = self.get_module(self._design_type.mesher)
@@ -540,6 +561,7 @@ class AedtObjects(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.oeditor
+
         """
         if not self._oeditor and self._odesign:
             if self.design_type in ["Circuit Design"]:
@@ -575,6 +597,7 @@ class AedtObjects(PyAedtBase):
         >>> from ansys.aedt.core import Circuit
         >>> cir = Circuit()
         >>> cir.layouteditor
+
         """
         if not self._layouteditor and self.design_type in ["Circuit Design"]:
             self._layouteditor = self._odesign.GetEditor("Layout")
@@ -589,6 +612,7 @@ class AedtObjects(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.ocomponent_manager
+
         """
         if not self._ocomponent_manager and self.odefinition_manager:
             self._ocomponent_manager = self.odefinition_manager.GetManager("Component")
@@ -603,6 +627,7 @@ class AedtObjects(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.omodel_manager
+
         """
         if not self._omodel_manager and self.odefinition_manager:
             self._omodel_manager = self.odefinition_manager.GetManager("Model")
@@ -621,6 +646,7 @@ class AedtObjects(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.onetwork_data_explorer
+
         """
         if not self._onetwork_data_explorer:
             self._onetwork_data_explorer = self._odesktop.GetTool("NdExplorer")
@@ -640,6 +666,7 @@ class AedtObjects(PyAedtBase):
         >>> from ansys.aedt.core import Circuit
         >>> cir = Circuit()
         >>> cir.odata_block
+
         """
         if not self._odata_block and self.design_type in ["Circuit Design"]:
             self._odata_block = self.get_module("DataBlock")

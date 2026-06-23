@@ -109,6 +109,7 @@ class VRTFieldPlot(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.vrt_data import VRTFieldPlot
         >>> obj = VRTFieldPlot()
         >>> obj.intrinsicVar
+
         """
         var = ""
         for a in self.intrinsics:
@@ -243,6 +244,7 @@ class VRTFieldPlot(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.vrt_data import VRTFieldPlot
         >>> obj = VRTFieldPlot()
         >>> obj.create()
+
         """
         try:
             if self.is_creeping_wave:
@@ -267,6 +269,7 @@ class VRTFieldPlot(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.vrt_data import VRTFieldPlot
         >>> obj = VRTFieldPlot()
         >>> obj.update()
+
         """
         try:
             if self.is_creeping_wave:
@@ -287,6 +290,7 @@ class VRTFieldPlot(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.vrt_data import VRTFieldPlot
         >>> obj = VRTFieldPlot()
         >>> obj.delete()
+
         """
         self._ofield.DeleteFieldPlot([self.name])
         return True
@@ -311,6 +315,7 @@ class VRTFieldPlot(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.vrt_data import VRTFieldPlot
         >>> obj = VRTFieldPlot()
         >>> obj.export(path=r"C:\Temp\example.txt")
+
         """
         if not path:
             path = os.path.join(self._postprocessor._app.working_directory, self.name + ".hdm")

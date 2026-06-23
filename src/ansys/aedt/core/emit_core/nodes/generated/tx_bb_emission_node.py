@@ -49,6 +49,7 @@ class TxBbEmissionNode(EmitNode):
         >>> tx_profile = band.children[0]
         >>> bb_noise = tx_profile.add_tx_broadband_noise_profile()
         >>> bb_noise.parent
+
         """
         return self._parent
 
@@ -66,6 +67,7 @@ class TxBbEmissionNode(EmitNode):
         >>> tx_profile = band.children[0]
         >>> bb_noise = tx_profile.add_tx_broadband_noise_profile()
         >>> bb_noise.node_type
+
         """
         return self._node_type
 
@@ -82,6 +84,7 @@ class TxBbEmissionNode(EmitNode):
         >>> tx_profile = band.children[0]
         >>> bb_noise = tx_profile.add_tx_broadband_noise_profile()
         >>> bb_noise.import_csv_file("C:\\Measurements\\tx_bb_profile.csv")
+
         """
         return self._import(file_name, "Csv")
 
@@ -98,6 +101,7 @@ class TxBbEmissionNode(EmitNode):
         >>> tx_profile = band.children[0]
         >>> bb_noise = tx_profile.add_tx_broadband_noise_profile()
         >>> bb_noise.delete()
+
         """
         self._delete()
 
@@ -121,6 +125,7 @@ class TxBbEmissionNode(EmitNode):
         >>> bb_noise = tx_profile.add_tx_broadband_noise_profile()
         >>> bb_noise.table_data = [(1e6, -165.0), (10e6, -160.0)]
         >>> bb_noise.table_data
+
         """
         return self._get_table_data()
 
@@ -144,6 +149,7 @@ class TxBbEmissionNode(EmitNode):
         >>> bb_noise = tx_profile.add_tx_broadband_noise_profile()
         >>> bb_noise.enabled = False
         >>> bb_noise.enabled
+
         """
         return self._get_property("Enabled") == "true"
 
@@ -173,6 +179,7 @@ class TxBbEmissionNode(EmitNode):
         >>> bb_noise = tx_profile.add_tx_broadband_noise_profile()
         >>> bb_noise.noise_behavior = bb_noise.NoiseBehaviorOption.EQUATION
         >>> bb_noise.noise_behavior
+
         """
         val = self._get_property("Noise Behavior")
         val = self.NoiseBehaviorOption[val.upper()]
@@ -203,6 +210,7 @@ class TxBbEmissionNode(EmitNode):
         >>> bb_noise = tx_profile.add_tx_broadband_noise_profile()
         >>> bb_noise.use_log_linear_interpolation = True
         >>> bb_noise.use_log_linear_interpolation
+
         """
         val = self._get_property("Use Log-Linear Interpolation")
         return val == "true"

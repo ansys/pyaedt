@@ -51,6 +51,7 @@ def load_entire_aedt_file(filename: str | Path) -> dict:
     --------
     >>> from ansys.aedt.core.internal.load_aedt_file import load_entire_aedt_file
     >>> load_entire_aedt_file(r"C:\\Projects\\filter_design.aedt")
+
     """
     settings.logger.reset_timer()
     settings.logger.info(f"Parsing {filename}.")
@@ -78,6 +79,7 @@ def load_keyword_in_aedt_file(filename: str | Path, keyword: str, design_name: s
     --------
     >>> from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
     >>> load_keyword_in_aedt_file(r"C:\\Projects\\filter_design.aedt", "ProjectPreview")
+
     """
     return _load_keyword_in_aedt_file(filename, keyword, design_name)
 
@@ -133,6 +135,7 @@ def get_designs(filename: str | Path) -> list[str]:
     --------
     >>> from ansys.aedt.core.internal.load_aedt_file import get_designs
     >>> get_designs(r"C:\\Projects\\filter_design.aedt")
+
     """
     filename = Path(filename)
     designs = load_keyword_in_aedt_file(str(filename), "ProjectPreview")["ProjectPreview"]

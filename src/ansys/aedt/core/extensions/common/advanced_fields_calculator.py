@@ -68,6 +68,7 @@ class AdvancedFieldsCalculatorExtensionData(ExtensionCommonData):
     --------
     >>> from ansys.aedt.core.extensions.common.advanced_fields_calculator import AdvancedFieldsCalculatorExtensionData
     >>> data = AdvancedFieldsCalculatorExtensionData(setup="Setup1 : LastAdaptive", calculation="Mag_E")
+
     """
 
     setup: str = ""
@@ -85,6 +86,7 @@ class AdvancedFieldsCalculatorExtension(ExtensionProjectCommon):
     --------
     >>> from ansys.aedt.core.extensions.common.advanced_fields_calculator import AdvancedFieldsCalculatorExtension
     >>> extension = AdvancedFieldsCalculatorExtension(withdraw=True)
+
     """
 
     def __init__(self, withdraw: bool = False) -> None:
@@ -111,6 +113,7 @@ class AdvancedFieldsCalculatorExtension(ExtensionProjectCommon):
         >>> from ansys.aedt.core.extensions.common.advanced_fields_calculator import AdvancedFieldsCalculatorExtension
         >>> extension = AdvancedFieldsCalculatorExtension(withdraw=True)
         >>> extension.check_design_type()
+
         """
         if self.aedt_application.design_type not in [
             "HFSS",
@@ -177,6 +180,7 @@ class AdvancedFieldsCalculatorExtension(ExtensionProjectCommon):
         >>> from ansys.aedt.core.extensions.common.advanced_fields_calculator import AdvancedFieldsCalculatorExtension
         >>> extension = AdvancedFieldsCalculatorExtension(withdraw=True)
         >>> extension.add_extension_content()
+
         """
         label = ttk.Label(self.root, text="Solved setup:", style="PyAEDT.TLabel")
         label.grid(row=0, column=0, padx=15, pady=10)
@@ -225,6 +229,7 @@ class AdvancedFieldsCalculatorExtension(ExtensionProjectCommon):
         >>> from ansys.aedt.core.extensions.common.advanced_fields_calculator import AdvancedFieldsCalculatorExtension
         >>> extension = AdvancedFieldsCalculatorExtension(withdraw=True)
         >>> extension.available_descriptions
+
         """
         return self.__available_descriptions
 
@@ -240,6 +245,7 @@ def main(data: AdvancedFieldsCalculatorExtensionData) -> bool:
     ... )
     >>> data = AdvancedFieldsCalculatorExtensionData(setup="Setup1 : LastAdaptive", calculation="Mag_E")
     >>> main(data)
+
     """
     if not data.calculation:
         raise AEDTRuntimeError("No calculation provided to the extension.")

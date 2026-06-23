@@ -27,6 +27,7 @@
 Examples
 --------
     pyaedt project list --port 50051
+
 """
 
 from __future__ import annotations
@@ -86,6 +87,7 @@ def list_projects(
     Examples
     --------
         pyaedt project list --port 50051
+
     """
     try:
         d = common.get_desktop(port=port)
@@ -126,6 +128,7 @@ def open_project(
     Examples
     --------
         pyaedt project open "C:\\Projects\\Demo.aedt" --port 50051
+
     """
     try:
         d = common.get_desktop(port=port)
@@ -157,6 +160,7 @@ def save_project(
     Examples
     --------
         pyaedt project save --port 50051 --path "C:\\Projects\\Demo_copy.aedt"
+
     """
     try:
         d = common.get_desktop(port=port)
@@ -199,6 +203,7 @@ def create_project(
     Examples
     --------
         pyaedt project create --port 50051 --project Demo --design Filter --type Hfss
+
     """
     try:
         if not project:
@@ -279,6 +284,7 @@ def close_project(
     Examples
     --------
         pyaedt project close --port 50051 --project Demo
+
     """
     try:
         d = common.get_desktop(port=port)

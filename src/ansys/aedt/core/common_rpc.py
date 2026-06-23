@@ -351,6 +351,7 @@ def create_session(
     >>> from ansys.aedt.core.common_rpc import create_session
     >>> client = create_session("localhost", client_port=18000)
     >>> client.host
+
     """
     try:
         client = rpyc.connect(
@@ -421,6 +422,7 @@ def connect(host: str, aedt_client_port: int) -> Connection:  # pragma: no cover
     >>> from ansys.aedt.core.common_rpc import connect
     >>> client = connect("localhost", 18000)
     >>> client.host
+
     """
     try:
         client = rpyc.connect(host, aedt_client_port, config={"allow_public_attrs": True, "sync_request_timeout": None})

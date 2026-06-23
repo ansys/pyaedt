@@ -61,6 +61,7 @@ class FresnelExtension(ExtensionHFSSCommon):
     --------
     >>> from ansys.aedt.core.extensions.hfss.fresnel import FresnelExtension
     >>> extension = FresnelExtension(withdraw=True)
+
     """
 
     def __init__(self, withdraw: bool = False):
@@ -135,6 +136,7 @@ class FresnelExtension(ExtensionHFSSCommon):
         >>> from ansys.aedt.core.extensions.hfss.fresnel import FresnelExtension
         >>> extension = FresnelExtension(withdraw=True)
         >>> extension.add_extension_content()
+
         """
         self.fresnel_type = tkinter.StringVar(value="isotropic")
         # Layout
@@ -967,6 +969,7 @@ class FresnelExtension(ExtensionHFSSCommon):
         --------
         >>> from ansys.aedt.core.extensions.hfss.fresnel import FresnelExtension
         >>> FresnelExtension.validate_even_and_divides_90([0.0, 15.0, 30.0, 45.0, 60.0, 75.0, 90.0])
+
         """
         # Sort & filter to [0, 90]
         th_input = np.sort(np.asarray(values, dtype=float))

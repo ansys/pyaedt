@@ -181,6 +181,7 @@ class MatProperties(PyAedtBase):
         >>> from ansys.aedt.core.modules.material import MatProperties
         >>> obj = MatProperties()
         >>> obj.wb_to_aedt_name(wb_name=1)
+
         """
         return cls.aedtname[cls.workbench_name.index(wb_name)]
 
@@ -203,6 +204,7 @@ class MatProperties(PyAedtBase):
         >>> from ansys.aedt.core.modules.material import MatProperties
         >>> obj = MatProperties()
         >>> obj.get_defaultunit(aedtname=1)
+
         """
         if aedtname:
             return cls.defaultunit[cls.aedtname.index(aedtname)]
@@ -228,6 +230,7 @@ class MatProperties(PyAedtBase):
         >>> from ansys.aedt.core.modules.material import MatProperties
         >>> obj = MatProperties()
         >>> obj.get_defaultvalue(aedtname=1)
+
         """
         if aedtname:
             return cls.defaultvalue[cls.aedtname.index(aedtname)]
@@ -278,6 +281,7 @@ class SurfMatProperties(PyAedtBase):
         >>> from ansys.aedt.core.modules.material import SurfMatProperties
         >>> obj = SurfMatProperties()
         >>> obj.get_defaultunit(aedtname=1)
+
         """
         if aedtname:
             return cls.defaultunit[cls.aedtname.index(aedtname)]
@@ -303,6 +307,7 @@ class SurfMatProperties(PyAedtBase):
         >>> from ansys.aedt.core.modules.material import SurfMatProperties
         >>> obj = SurfMatProperties()
         >>> obj.get_defaultvalue(aedtname=1)
+
         """
         if aedtname:
             return cls.defaultvalue[cls.aedtname.index(aedtname)]
@@ -404,6 +409,7 @@ class MatProperty(PyAedtBase):
     >>> from ansys.aedt.core import Hfss
     >>> app = Hfss()
     >>> matproperty = app.materials["copper"].conductivity
+
     """
 
     def __init__(self, material: str, name: str, val=None, thermalmodifier=None, spatialmodifier=None) -> None:
@@ -484,6 +490,7 @@ class MatProperty(PyAedtBase):
         >>> from ansys.aedt.core.modules.material import MatProperty
         >>> obj = MatProperty()
         >>> obj.type
+
         """
         return self._type
 
@@ -514,6 +521,7 @@ class MatProperty(PyAedtBase):
         >>> from ansys.aedt.core.modules.material import MatProperty
         >>> obj = MatProperty()
         >>> obj.evaluated_value
+
         """
         evaluated_expression = []
         if isinstance(self.value, list):
@@ -531,6 +539,7 @@ class MatProperty(PyAedtBase):
         >>> from ansys.aedt.core.modules.material import MatProperty
         >>> obj = MatProperty()
         >>> obj.value
+
         """
         if len(self._property_value) == 1:
             return self._property_value[0].value
@@ -590,6 +599,7 @@ class MatProperty(PyAedtBase):
         >>> from ansys.aedt.core.modules.material import MatProperty
         >>> obj = MatProperty()
         >>> obj.unit
+
         """
         return self._unit
 
@@ -606,6 +616,7 @@ class MatProperty(PyAedtBase):
         >>> from ansys.aedt.core.modules.material import MatProperty
         >>> obj = MatProperty()
         >>> obj.data_set
+
         """
         if len(self._property_value) == 1:
             return self._property_value[0].dataset
@@ -627,6 +638,7 @@ class MatProperty(PyAedtBase):
         >>> from ansys.aedt.core.modules.material import MatProperty
         >>> obj = MatProperty()
         >>> obj.thermalmodifier
+
         """
         if len(self._property_value) == 1:
             return self._property_value[0].thermalmodifier
@@ -851,6 +863,7 @@ class MatProperty(PyAedtBase):
         >>> hfss = Hfss(version="2021.2")
         >>> mat1 = hfss.materials.add_material("new_copper2")
         >>> mat1.add_thermal_modifier_free_form("if(Temp > 1000cel, 1, if(Temp < -273.15cel, 1, 1))")
+
         """
         self._property_value[index].thermalmodifier = formula
         return self._add_thermal_modifier(formula, index)
@@ -882,6 +895,7 @@ class MatProperty(PyAedtBase):
         >>> hfss = Hfss(version="2021.2")
         >>> mat1 = hfss.materials.add_material("new_copper2")
         >>> mat1.add_thermal_modifier_dataset("$ds1")
+
         """
         formula = f"pwl({dataset}, Temp)"
         self._property_value[index].thermalmodifier = formula
@@ -946,6 +960,7 @@ class MatProperty(PyAedtBase):
         >>> hfss = Hfss(version="2021.2")
         >>> mat1 = hfss.materials.add_material("new_copper2")
         >>> mat1.permittivity.add_thermal_modifier_closed_form(c1=1e-3)
+
         """
         if index > len(self._property_value):
             self.logger.error(
@@ -1112,6 +1127,7 @@ class MatProperty(PyAedtBase):
         >>> mat = hfss.materials.add_material("newMat")
         >>> b_h_dataset = [[b, h] for b, h in zip(B_value, H_value)]
         >>> mat.permeability = b_h_dataset
+
         """
         if self.name not in ["permeability", "conductivity", "permittivity"]:
             self.logger.error(
@@ -1161,6 +1177,7 @@ class MatProperty(PyAedtBase):
         >>> from ansys.aedt.core.modules.material import MatProperty
         >>> obj = MatProperty()
         >>> obj.spatialmodifier
+
         """
         if len(self._property_value) == 1:
             return self._property_value[0].spatialmodifier
@@ -1358,6 +1375,7 @@ class MatProperty(PyAedtBase):
         >>> hfss = Hfss(version="2021.2")
         >>> mat1 = hfss.materials.add_material("new_copper2")
         >>> mat1.add_spatial_modifier_free_form("if(X > 1mm, 1, if(X < 1mm, 2, 1))")
+
         """
         self._property_value[index].spatialmodifier = formula
         return self._add_spatial_modifier(formula, index)
@@ -1389,6 +1407,7 @@ class MatProperty(PyAedtBase):
         >>> hfss = Hfss(version="2021.2")
         >>> mat1 = hfss.materials.add_material("new_copper2")
         >>> mat1.add_spatial_modifier_dataset("$ds1")
+
         """
         formula = f"clp({dataset}, X,Y,Z)"
         self._property_value[index].spatialmodifier = formula
@@ -1454,6 +1473,7 @@ class CommonMaterial(PyAedtBase):
         >>> from ansys.aedt.core.modules.material import CommonMaterial
         >>> obj = CommonMaterial()
         >>> obj.is_used
+
         """
         is_used = self._omaterial_manager.IsUsed(self.name)
         if is_used == 0:
@@ -1469,6 +1489,7 @@ class CommonMaterial(PyAedtBase):
         >>> from ansys.aedt.core.modules.material import CommonMaterial
         >>> obj = CommonMaterial()
         >>> obj.coordinate_system
+
         """
         return self._coordinate_system
 
@@ -1590,6 +1611,7 @@ class Material(CommonMaterial, PyAedtBase):
     >>> from ansys.aedt.core import Hfss
     >>> app = Hfss()
     >>> material = app.materials["copper"]
+
     """
 
     def __repr__(self) -> str:
@@ -1714,6 +1736,7 @@ class Material(CommonMaterial, PyAedtBase):
         >>> mat1 = hfss.materials.add_material("new_material")
         >>> appearance_props = mat1.material_appearance
         >>> mat1.material_appearance = [0, 153, 153, 0.5]
+
         """
         return self._material_appearance
 
@@ -1774,6 +1797,7 @@ class Material(CommonMaterial, PyAedtBase):
         >>> from ansys.aedt.core.modules.material import Material
         >>> obj = Material()
         >>> obj.permittivity
+
         """
         return self._permittivity
 
@@ -1799,6 +1823,7 @@ class Material(CommonMaterial, PyAedtBase):
         >>> from ansys.aedt.core.modules.material import Material
         >>> obj = Material()
         >>> obj.permeability
+
         """
         return self._permeability
 
@@ -1824,6 +1849,7 @@ class Material(CommonMaterial, PyAedtBase):
         >>> from ansys.aedt.core.modules.material import Material
         >>> obj = Material()
         >>> obj.conductivity
+
         """
         return self._conductivity
 
@@ -1845,6 +1871,7 @@ class Material(CommonMaterial, PyAedtBase):
         >>> from ansys.aedt.core.modules.material import Material
         >>> obj = Material()
         >>> obj.dielectric_loss_tangent
+
         """
         return self._dielectric_loss_tangent
 
@@ -1870,6 +1897,7 @@ class Material(CommonMaterial, PyAedtBase):
         >>> from ansys.aedt.core.modules.material import Material
         >>> obj = Material()
         >>> obj.magnetic_loss_tangent
+
         """
         return self._magnetic_loss_tangent
 
@@ -1895,6 +1923,7 @@ class Material(CommonMaterial, PyAedtBase):
         >>> from ansys.aedt.core.modules.material import Material
         >>> obj = Material()
         >>> obj.thermal_conductivity
+
         """
         return self._thermal_conductivity
 
@@ -1922,6 +1951,7 @@ class Material(CommonMaterial, PyAedtBase):
         >>> from ansys.aedt.core.modules.material import Material
         >>> obj = Material()
         >>> obj.mass_density
+
         """
         return self._mass_density
 
@@ -1947,6 +1977,7 @@ class Material(CommonMaterial, PyAedtBase):
         >>> from ansys.aedt.core.modules.material import Material
         >>> obj = Material()
         >>> obj.specific_heat
+
         """
         return self._specific_heat
 
@@ -1972,6 +2003,7 @@ class Material(CommonMaterial, PyAedtBase):
         >>> from ansys.aedt.core.modules.material import Material
         >>> obj = Material()
         >>> obj.thermal_expansion_coefficient
+
         """
         return self._thermal_expansion_coefficient
 
@@ -1997,6 +2029,7 @@ class Material(CommonMaterial, PyAedtBase):
         >>> from ansys.aedt.core.modules.material import Material
         >>> obj = Material()
         >>> obj.youngs_modulus
+
         """
         return self._youngs_modulus
 
@@ -2024,6 +2057,7 @@ class Material(CommonMaterial, PyAedtBase):
         >>> from ansys.aedt.core.modules.material import Material
         >>> obj = Material()
         >>> obj.poissons_ratio
+
         """
         return self._poissons_ratio
 
@@ -2051,6 +2085,7 @@ class Material(CommonMaterial, PyAedtBase):
         >>> from ansys.aedt.core.modules.material import Material
         >>> obj = Material()
         >>> obj.diffusivity
+
         """
         return self._diffusivity
 
@@ -2076,6 +2111,7 @@ class Material(CommonMaterial, PyAedtBase):
         >>> from ansys.aedt.core.modules.material import Material
         >>> obj = Material()
         >>> obj.magnetic_coercivity
+
         """
         return self._magnetic_coercivity
 
@@ -2103,6 +2139,7 @@ class Material(CommonMaterial, PyAedtBase):
         >>> from ansys.aedt.core.modules.material import Material
         >>> obj = Material()
         >>> obj.molecular_mass
+
         """
         return self._molecular_mass
 
@@ -2128,6 +2165,7 @@ class Material(CommonMaterial, PyAedtBase):
         >>> from ansys.aedt.core.modules.material import Material
         >>> obj = Material()
         >>> obj.viscosity
+
         """
         return self._viscosity
 
@@ -2153,6 +2191,7 @@ class Material(CommonMaterial, PyAedtBase):
         >>> from ansys.aedt.core.modules.material import Material
         >>> obj = Material()
         >>> obj.stacking_type
+
         """
         return self._stacking_type
 
@@ -2191,6 +2230,7 @@ class Material(CommonMaterial, PyAedtBase):
         >>> from ansys.aedt.core.modules.material import Material
         >>> obj = Material()
         >>> obj.wire_type
+
         """
         return self._wire_type
 
@@ -2221,6 +2261,7 @@ class Material(CommonMaterial, PyAedtBase):
         >>> from ansys.aedt.core.modules.material import Material
         >>> obj = Material()
         >>> obj.wire_thickness_direction
+
         """
         return self._wire_thickness_direction
 
@@ -2251,6 +2292,7 @@ class Material(CommonMaterial, PyAedtBase):
         >>> from ansys.aedt.core.modules.material import Material
         >>> obj = Material()
         >>> obj.wire_width_direction
+
         """
         return self._wire_width_direction
 
@@ -2281,6 +2323,7 @@ class Material(CommonMaterial, PyAedtBase):
         >>> from ansys.aedt.core.modules.material import Material
         >>> obj = Material()
         >>> obj.strand_number
+
         """
         return self._strand_number
 
@@ -2308,6 +2351,7 @@ class Material(CommonMaterial, PyAedtBase):
         >>> from ansys.aedt.core.modules.material import Material
         >>> obj = Material()
         >>> obj.wire_thickness
+
         """
         return self._wire_thickness
 
@@ -2335,6 +2379,7 @@ class Material(CommonMaterial, PyAedtBase):
         >>> from ansys.aedt.core.modules.material import Material
         >>> obj = Material()
         >>> obj.wire_diameter
+
         """
         return self._wire_diameter
 
@@ -2362,6 +2407,7 @@ class Material(CommonMaterial, PyAedtBase):
         >>> from ansys.aedt.core.modules.material import Material
         >>> obj = Material()
         >>> obj.wire_width
+
         """
         return self._wire_width
 
@@ -2389,6 +2435,7 @@ class Material(CommonMaterial, PyAedtBase):
         >>> from ansys.aedt.core.modules.material import Material
         >>> obj = Material()
         >>> obj.stacking_factor
+
         """
         return self._stacking_factor
 
@@ -2416,6 +2463,7 @@ class Material(CommonMaterial, PyAedtBase):
         >>> from ansys.aedt.core.modules.material import Material
         >>> obj = Material()
         >>> obj.stacking_direction
+
         """
         return self._stacking_direction
 
@@ -2473,6 +2521,7 @@ class Material(CommonMaterial, PyAedtBase):
         >>> from ansys.aedt.core.modules.material import Material
         >>> obj = Material()
         >>> obj.set_magnetic_coercivity(value=1, x=0)
+
         """
         self._props["magnetic_coercivity"] = dict(
             {
@@ -2538,6 +2587,7 @@ class Material(CommonMaterial, PyAedtBase):
         ... )
         >>> print(coefficients)
         >>> m3d.desktop_class.close_desktop()
+
         """
         if not isinstance(points_at_frequency, dict):
             raise TypeError("Points list at frequency must be provided as a dictionary.")
@@ -2776,6 +2826,7 @@ class Material(CommonMaterial, PyAedtBase):
         >>> from ansys.aedt.core.modules.material import Material
         >>> obj = Material()
         >>> obj.set_electrical_steel_coreloss(kh=1, kc=1)
+
         """
         if "core_loss_type" not in self._props:
             self._props["core_loss_type"] = dict({"property_type": "ChoiceProperty", "Choice": "Electrical Steel"})
@@ -2818,6 +2869,7 @@ class Material(CommonMaterial, PyAedtBase):
         >>> from ansys.aedt.core.modules.material import Material
         >>> obj = Material()
         >>> obj.set_hysteresis_coreloss(kdc=1, hci=1)
+
         """
         if "core_loss_type" not in self._props:
             self._props["core_loss_type"] = dict({"property_type": "ChoiceProperty", "Choice": "Hysteresis Model"})
@@ -2863,6 +2915,7 @@ class Material(CommonMaterial, PyAedtBase):
         >>> from ansys.aedt.core.modules.material import Material
         >>> obj = Material()
         >>> obj.set_power_ferrite_coreloss(cm=1, x=0)
+
         """
         if "core_loss_type" not in self._props:
             self._props["core_loss_type"] = dict({"property_type": "ChoiceProperty", "Choice": "Power Ferrite"})
@@ -2921,6 +2974,7 @@ class Material(CommonMaterial, PyAedtBase):
         >>> from ansys.aedt.core.modules.material import Material
         >>> obj = Material()
         >>> obj.set_bp_curve_coreloss(points=[0, 0, 0])
+
         """
         if "core_loss_type" not in self._props:
             self._props["core_loss_type"] = dict({"property_type": "ChoiceProperty", "Choice": "B-P Curve"})
@@ -2965,6 +3019,7 @@ class Material(CommonMaterial, PyAedtBase):
         >>> from ansys.aedt.core.modules.material import Material
         >>> obj = Material()
         >>> obj.get_curve_coreloss_type()
+
         """
         if self._props.get("core_loss_type", None):
             return self._props["core_loss_type"].get("Choice", None)
@@ -2983,6 +3038,7 @@ class Material(CommonMaterial, PyAedtBase):
         >>> from ansys.aedt.core.modules.material import Material
         >>> obj = Material()
         >>> obj.get_curve_coreloss_values()
+
         """
         out = {}
         if self._props.get("core_loss_type", None):
@@ -3024,6 +3080,7 @@ class Material(CommonMaterial, PyAedtBase):
         >>> from ansys.aedt.core.modules.material import Material
         >>> obj = Material()
         >>> obj.get_magnetic_coercivity()
+
         """
         if "magnetic_coercivity" in self._props:
             return (
@@ -3056,6 +3113,7 @@ class Material(CommonMaterial, PyAedtBase):
         >>> from ansys.aedt.core.modules.material import Material
         >>> obj = Material()
         >>> obj.is_conductor(threshold=1.0)
+
         """
         cond = self.conductivity.evaluated_value
         if not cond:
@@ -3091,6 +3149,7 @@ class Material(CommonMaterial, PyAedtBase):
         >>> from ansys.aedt.core.modules.material import Material
         >>> obj = Material()
         >>> obj.is_dielectric(threshold=1.0)
+
         """
         return not self.is_conductor(threshold)
 
@@ -3128,6 +3187,7 @@ class Material(CommonMaterial, PyAedtBase):
         >>> from ansys.aedt.core.modules.material import Material
         >>> obj = Material()
         >>> obj.set_djordjevic_sarkar_model(dk=1, df=1.0)
+
         """
         # K = f"({dk} * {df} - {sigma_dc} / (2 * pi * {i_freq} * e0)) / atan({freq_hi} / {i_freq})"
         K = f"({dk} * {df} - {sigma_dc} / (2 * pi * {frequency} * e0)) / atan({freq_hi} / {frequency})"
@@ -3161,6 +3221,7 @@ class Material(CommonMaterial, PyAedtBase):
         >>> from ansys.aedt.core.modules.material import Material
         >>> obj = Material()
         >>> obj.update()
+
         """
         args = self._get_args()
         if not self._does_material_exists(self.name):
@@ -3253,6 +3314,7 @@ class SurfaceMaterial(CommonMaterial, PyAedtBase):
         >>> from ansys.aedt.core.modules.material import SurfaceMaterial
         >>> obj = SurfaceMaterial()
         >>> obj.emissivity
+
         """
         return self._surface_emissivity
 
@@ -3280,6 +3342,7 @@ class SurfaceMaterial(CommonMaterial, PyAedtBase):
         >>> from ansys.aedt.core.modules.material import SurfaceMaterial
         >>> obj = SurfaceMaterial()
         >>> obj.surface_diffuse_absorptance
+
         """
         return self._surface_diffuse_absorptance
 
@@ -3307,6 +3370,7 @@ class SurfaceMaterial(CommonMaterial, PyAedtBase):
         >>> from ansys.aedt.core.modules.material import SurfaceMaterial
         >>> obj = SurfaceMaterial()
         >>> obj.surface_incident_absorptance
+
         """
         return self._surface_incident_absorptance
 
@@ -3334,6 +3398,7 @@ class SurfaceMaterial(CommonMaterial, PyAedtBase):
         >>> from ansys.aedt.core.modules.material import SurfaceMaterial
         >>> obj = SurfaceMaterial()
         >>> obj.surface_roughness
+
         """
         return self._surface_roughness
 
@@ -3363,6 +3428,7 @@ class SurfaceMaterial(CommonMaterial, PyAedtBase):
         >>> from ansys.aedt.core.modules.material import SurfaceMaterial
         >>> obj = SurfaceMaterial()
         >>> obj.update()
+
         """
         args = self._get_args()
         if self._does_material_exists(self.name):

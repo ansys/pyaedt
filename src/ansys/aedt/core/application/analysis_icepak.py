@@ -93,6 +93,7 @@ class FieldAnalysisIcepak(FieldAnalysis3D, PyAedtBase):
     >>> from ansys.aedt.core import Icepak
     >>> icepak = Icepak()
     >>> icepak.monitor
+
     """
 
     def __init__(
@@ -154,6 +155,7 @@ class FieldAnalysisIcepak(FieldAnalysis3D, PyAedtBase):
         >>> from ansys.aedt.core import Icepak
         >>> icepak = Icepak()
         >>> icepak.post
+
         """
         if self._post is None and self._odesign:
             from ansys.aedt.core.visualization.post import post_processor
@@ -175,6 +177,7 @@ class FieldAnalysisIcepak(FieldAnalysis3D, PyAedtBase):
         >>> from ansys.aedt.core import Icepak
         >>> icepak = Icepak()
         >>> icepak.mesh
+
         """
         if self._mesh is None and self._odesign:
             self.logger.reset_timer()
@@ -198,6 +201,7 @@ class FieldAnalysisIcepak(FieldAnalysis3D, PyAedtBase):
         >>> from ansys.aedt.core import Icepak
         >>> icepak = Icepak()
         >>> icepak.monitor
+
         """
         if self._monitor is None:
             from ansys.aedt.core.visualization.post.monitor_icepak import Monitor
@@ -225,6 +229,7 @@ class IcepakDesignSettingsManipulation(DesignSettingsManipulation, PyAedtBase):
     >>> from ansys.aedt.core import Icepak
     >>> icepak = Icepak()
     >>> icepak.design_settings.manipulate_inputs.execute("AmbTemp", 25)
+
     """
 
     def __init__(self, app) -> None:
@@ -254,6 +259,7 @@ class IcepakDesignSettingsManipulation(DesignSettingsManipulation, PyAedtBase):
         >>> from ansys.aedt.core import Icepak
         >>> icepak = Icepak()
         >>> icepak.design_settings.manipulate_inputs.execute("AmbTemp", 25)
+
         """
         if k in ["AmbTemp", "AmbRadTemp"]:
             if k == "AmbTemp" and isinstance(v, (dict, BoundaryDictionary)):

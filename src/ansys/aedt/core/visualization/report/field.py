@@ -62,6 +62,7 @@ class AntennaParameters(Standard):
         >>> from ansys.aedt.core.visualization.report.field import AntennaParameters
         >>> obj = AntennaParameters()
         >>> obj.far_field_sphere
+
         """
         if self._is_created:
             try:
@@ -111,6 +112,7 @@ class Fields(CommonReport):
         >>> from ansys.aedt.core.visualization.report.field import Fields
         >>> obj = Fields()
         >>> obj.point_number
+
         """
         return self._legacy_props["context"].get("point_number", 1001)
 
@@ -160,6 +162,7 @@ class NearField(CommonReport):
         >>> from ansys.aedt.core.visualization.report.field import NearField
         >>> obj = NearField()
         >>> obj.near_field
+
         """
         return self._legacy_props["context"].get("near_field", None)
 
@@ -206,6 +209,7 @@ class FarField(CommonReport):
         >>> from ansys.aedt.core.visualization.report.field import FarField
         >>> obj = FarField()
         >>> obj.far_field_sphere
+
         """
         if self._is_created:
             try:

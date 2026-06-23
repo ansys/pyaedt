@@ -74,6 +74,7 @@ class HDMPlotter(CommonPlotter, PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.hdm_plot import HDMPlotter
         >>> obj = HDMPlotter()
         >>> obj.hdm_data
+
         """
         return self._bundle
 
@@ -96,6 +97,7 @@ class HDMPlotter(CommonPlotter, PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.hdm_plot import HDMPlotter
         >>> obj = HDMPlotter()
         >>> obj.add_cad_model(filename=r"C:\Temp\example.txt")
+
         """
         if os.path.exists(filename):
             self._objects.append(ObjClass(filename, cad_color, opacity, units=units))
@@ -112,6 +114,7 @@ class HDMPlotter(CommonPlotter, PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.hdm_plot import HDMPlotter
         >>> obj = HDMPlotter()
         >>> obj.add_hdm_bundle_from_file(filename=r"C:\Temp\example.txt")
+
         """
         from ansys.aedt.core.visualization.advanced.sbrplus.hdm_parser import Parser
 
@@ -180,6 +183,7 @@ class HDMPlotter(CommonPlotter, PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.hdm_plot import HDMPlotter
         >>> obj = HDMPlotter()
         >>> obj.plot_rays(snapshot_path=r"C:\Temp\example.txt")
+
         """
         import pyvista as pv
 
@@ -247,6 +251,7 @@ class HDMPlotter(CommonPlotter, PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.hdm_plot import HDMPlotter
         >>> obj = HDMPlotter()
         >>> obj.plot_first_bounce_currents(snapshot_path=r"C:\Temp\example.txt")
+
         """
         import pyvista as pv
 

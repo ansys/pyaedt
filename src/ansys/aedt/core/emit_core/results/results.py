@@ -45,6 +45,7 @@ class Results:
     >>> aedtapp.results = Results()
     >>> revision = aedtapp.results.analyze()
     >>> receivers = revision.get_receiver_names()
+
     """
 
     def __init__(self, emit_obj) -> None:
@@ -114,6 +115,7 @@ class Results:
         Examples
         --------
         >>> aedtapp.results.delete_revision("Revision 10")
+
         """
         if self.aedt_version > 251:
             if revision_name in self.design.GetKeptResultNames():
@@ -193,6 +195,7 @@ class Results:
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> app.results.revision_names()
+
         """
         return [rev.name for rev in self.revisions]
 
@@ -217,6 +220,7 @@ class Results:
         >>> rev = aedtapp.results.get_revision("Revision 15")
         >>> interferers = rev.get_interferer_names()
         >>> receivers = rev.get_receiver_names()
+
         """
         # no revisions to load, create a new one
         if len(self.revisions) == 0:
@@ -263,6 +267,7 @@ class Results:
         >>> rev = aedtapp.results.analyze()
         >>> interferers = rev.get_interferer_names()
         >>> receivers = rev.get_receiver_names()
+
         """
         if self.aedt_version > 251:
             if self.current_revision:

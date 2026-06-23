@@ -65,6 +65,7 @@ class RMXprtModule(PyAedtBase):
         >>> from ansys.aedt.core.rmxprt import RMXprtModule
         >>> obj = RMXprtModule()
         >>> obj.properties
+
         """
         try:
             child_object = self._app.get_oo_object(self._app.odesign, "Machine")
@@ -270,6 +271,7 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
     which is ``"myfile.aedt"``.
 
     >>> app = Rmxprt("myfile.aedt")
+
     """
 
     def __init__(
@@ -329,6 +331,7 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
         >>> from ansys.aedt.core.rmxprt import Rmxprt
         >>> obj = Rmxprt()
         >>> obj.design_type
+
         """
         return str(self.design_solutions._design_type)
 
@@ -450,6 +453,7 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
         >>> from ansys.aedt.core.rmxprt import Rmxprt
         >>> obj = Rmxprt()
         >>> obj.import_configuration(r"C:\\Temp\\rmxprt_config.json")
+
         """
         from ansys.aedt.core.generic.file_utils import read_configuration_file
 

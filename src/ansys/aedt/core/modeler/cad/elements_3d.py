@@ -76,6 +76,7 @@ class ModifiablePrimitive(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.elements_3d import ModifiablePrimitive
         >>> obj = ModifiablePrimitive()
         >>> obj.fillet(radius="10mm", setback=1.0)
+
         """
         edge_id_list = []
         vertex_id_list = []
@@ -138,6 +139,7 @@ class ModifiablePrimitive(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.elements_3d import ModifiablePrimitive
         >>> obj = ModifiablePrimitive()
         >>> obj.chamfer(left_distance=1.0, right_distance=1.0)
+
         """
         edge_id_list = []
         vertex_id_list = []
@@ -239,6 +241,7 @@ class VertexPrimitive(ModifiablePrimitive, PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
         >>> obj = VertexPrimitive()
         >>> obj.name
+
         """
         return self._object3d.name
 
@@ -262,6 +265,7 @@ class VertexPrimitive(ModifiablePrimitive, PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
         >>> obj = VertexPrimitive()
         >>> obj.position
+
         """
         if self._position:
             return self._position
@@ -319,6 +323,7 @@ class EdgePrimitive(ModifiablePrimitive, PyAedtBase):
         --------
         >>> for vertex in edge:
         ...     print(f"Vertex ID: {vertex.id}, Position: {vertex.position}")
+
         """
         return iter(self.vertices)
 
@@ -338,6 +343,7 @@ class EdgePrimitive(ModifiablePrimitive, PyAedtBase):
         --------
         >>> first_vertex = edge[0]
         >>> last_vertex = edge[-1]
+
         """
         return self.vertices[index]
 
@@ -365,6 +371,7 @@ class EdgePrimitive(ModifiablePrimitive, PyAedtBase):
         >>> vertex_id = 123
         >>> if vertex_id in edge:
         ...     print("Vertex ID is part of this edge")
+
         """
         if isinstance(item, VertexPrimitive):
             item_id = item.id
@@ -382,6 +389,7 @@ class EdgePrimitive(ModifiablePrimitive, PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
         >>> obj = EdgePrimitive()
         >>> obj.name
+
         """
         return self._object3d.name
 
@@ -402,6 +410,7 @@ class EdgePrimitive(ModifiablePrimitive, PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
         >>> obj = EdgePrimitive()
         >>> obj.segment_info
+
         """
         autosave = self._object3d._primitives._app.odesktop.GetAutosaveEnabled()
         try:
@@ -455,6 +464,7 @@ class EdgePrimitive(ModifiablePrimitive, PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
         >>> obj = EdgePrimitive()
         >>> obj.vertices
+
         """
         vertices = []
         v = [i for i in self.oeditor.GetVertexIDsFromEdge(self.id)]
@@ -487,6 +497,7 @@ class EdgePrimitive(ModifiablePrimitive, PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
         >>> obj = EdgePrimitive()
         >>> obj.midpoint
+
         """
         return [float(i) for i in self.oeditor.GetEdgePositionAtNormalizedParameter(self.id, 0.5)]
 
@@ -508,6 +519,7 @@ class EdgePrimitive(ModifiablePrimitive, PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
         >>> obj = EdgePrimitive()
         >>> obj.length
+
         """
         try:
             return float(self.oeditor.GetEdgeLength(self.id))
@@ -534,6 +546,7 @@ class EdgePrimitive(ModifiablePrimitive, PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
         >>> obj = EdgePrimitive()
         >>> obj.create_object(non_model=True)
+
         """
         return self._object3d._primitives.create_object_from_edge(self, non_model)
 
@@ -562,6 +575,7 @@ class EdgePrimitive(ModifiablePrimitive, PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
         >>> obj = EdgePrimitive()
         >>> obj.move_along_normal(offset="1mm")
+
         """
         if self._object3d.object_type == "Solid":
             self._object3d.logger.error("Edge Movement applies only to 2D objects.")
@@ -593,6 +607,7 @@ class EdgePrimitive(ModifiablePrimitive, PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
         >>> obj = EdgePrimitive()
         >>> obj.fillet(radius="10mm", setback=1.0)
+
         """
         edge_id_list = []
         vertex_id_list = []
@@ -654,6 +669,7 @@ class EdgePrimitive(ModifiablePrimitive, PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
         >>> obj = EdgePrimitive()
         >>> obj.chamfer(left_distance=1.0, right_distance=1.0)
+
         """
         edge_id_list = []
         vertex_id_list = []
@@ -758,6 +774,7 @@ class FacePrimitive(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
         >>> obj = FacePrimitive()
         >>> obj.name
+
         """
         return self._object3d.name
 
@@ -770,6 +787,7 @@ class FacePrimitive(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
         >>> obj = FacePrimitive()
         >>> obj.oeditor
+
         """
         return self._object3d._oeditor
 
@@ -782,6 +800,7 @@ class FacePrimitive(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
         >>> obj = FacePrimitive()
         >>> obj.logger
+
         """
         return self._object3d.logger
 
@@ -803,6 +822,7 @@ class FacePrimitive(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
         >>> obj = FacePrimitive()
         >>> obj.touching_objects
+
         """
         list_names = []
         for vertex in self.vertices:
@@ -841,6 +861,7 @@ class FacePrimitive(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
         >>> obj = FacePrimitive()
         >>> obj.edges
+
         """
         edges = []
         for edge in list(self.oeditor.GetEdgeIDsFromFace(self.id)):
@@ -865,6 +886,7 @@ class FacePrimitive(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
         >>> obj = FacePrimitive()
         >>> obj.vertices
+
         """
         vertices = []
         try:
@@ -891,6 +913,7 @@ class FacePrimitive(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
         >>> obj = FacePrimitive()
         >>> obj.id
+
         """
         return self._id
 
@@ -912,6 +935,7 @@ class FacePrimitive(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
         >>> obj = FacePrimitive()
         >>> obj.center_from_aedt
+
         """
         try:
             c = self.oeditor.GetFaceCenter(self.id)
@@ -934,6 +958,7 @@ class FacePrimitive(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
         >>> obj = FacePrimitive()
         >>> obj.is_planar
+
         """
         if self._is_planar is not None:
             return self._is_planar
@@ -971,6 +996,7 @@ class FacePrimitive(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
         >>> obj = FacePrimitive()
         >>> obj.center
+
         """
         if self.is_planar:
             return [float(i) for i in self.oeditor.GetFaceCenter(self.id)]
@@ -1017,6 +1043,7 @@ class FacePrimitive(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
         >>> obj = FacePrimitive()
         >>> obj.area
+
         """
         area = self.oeditor.GetFaceArea(self.id)
         return area
@@ -1038,6 +1065,7 @@ class FacePrimitive(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
         >>> obj = FacePrimitive()
         >>> obj.top_edge_z
+
         """
         try:
             result = [(float(edge.midpoint[2]), edge) for edge in self.edges]
@@ -1059,6 +1087,7 @@ class FacePrimitive(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
         >>> obj = FacePrimitive()
         >>> obj.bottom_edge_z
+
         """
         try:
             result = [(float(edge.midpoint[2]), edge) for edge in self.edges]
@@ -1080,6 +1109,7 @@ class FacePrimitive(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
         >>> obj = FacePrimitive()
         >>> obj.top_edge_x
+
         """
         try:
             result = [(float(edge.midpoint[0]), edge) for edge in self.edges]
@@ -1101,6 +1131,7 @@ class FacePrimitive(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
         >>> obj = FacePrimitive()
         >>> obj.bottom_edge_x
+
         """
         try:
             result = [(float(edge.midpoint[0]), edge) for edge in self.edges]
@@ -1122,6 +1153,7 @@ class FacePrimitive(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
         >>> obj = FacePrimitive()
         >>> obj.top_edge_y
+
         """
         try:
             result = [(float(edge.midpoint[1]), edge) for edge in self.edges]
@@ -1143,6 +1175,7 @@ class FacePrimitive(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
         >>> obj = FacePrimitive()
         >>> obj.bottom_edge_y
+
         """
         try:
             result = [(float(edge.midpoint[1]), edge) for edge in self.edges]
@@ -1170,6 +1203,7 @@ class FacePrimitive(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
         >>> obj = FacePrimitive()
         >>> obj.is_on_bounding(tolerance=1.0)
+
         """
         b = [float(i) for i in list(self.oeditor.GetModelBoundingBox())]
         c = self.center
@@ -1207,6 +1241,7 @@ class FacePrimitive(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
         >>> obj = FacePrimitive()
         >>> obj.move_with_offset(offset="1mm")
+
         """
         self.oeditor.MoveFaces(
             ["NAME:Selections", "Selections:=", self._object3d.name, "NewPartsModelFlag:=", "Model"],
@@ -1254,6 +1289,7 @@ class FacePrimitive(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
         >>> obj = FacePrimitive()
         >>> obj.move_with_vector(vector=[1, 0, 0])
+
         """
         self.oeditor.MoveFaces(
             ["NAME:Selections", "Selections:=", self._object3d.name, "NewPartsModelFlag:=", "Model"],
@@ -1304,6 +1340,7 @@ class FacePrimitive(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
         >>> obj = FacePrimitive()
         >>> obj.normal
+
         """
         vertices_ids = self.vertices
         if len(vertices_ids) < 2 or not self.center:
@@ -1362,6 +1399,7 @@ class FacePrimitive(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
         >>> obj = FacePrimitive()
         >>> obj.create_object(non_model=True)
+
         """
         return self._object3d._primitives.create_object_from_face(self, non_model)
 
@@ -1388,6 +1426,7 @@ class Point(PyAedtBase):
 
     >>> point = primitives.create_point([30, 30, 0], "my_point", (0, 195, 255))
     >>> my_point = primitives.points[point.name]
+
     """
 
     def __init__(self, primitives, name: str) -> None:
@@ -1420,6 +1459,7 @@ class Point(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.elements_3d import Point
         >>> obj = Point()
         >>> obj.logger
+
         """
         return self._primitives.logger
 
@@ -1442,6 +1482,7 @@ class Point(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.elements_3d import Point
         >>> obj = Point()
         >>> obj.name
+
         """
         return self._name
 
@@ -1477,6 +1518,7 @@ class Point(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.elements_3d import Point
         >>> obj = Point()
         >>> obj.valid_properties
+
         """
         if not self._all_props:
             self._all_props = self._oeditor.GetProperties("Geometry3DPointTab", self._name)
@@ -1550,6 +1592,7 @@ class Point(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.elements_3d import Point
         >>> obj = Point()
         >>> obj.coordinate_system
+
         """
         if self._point_coordinate_system is not None:
             return self._point_coordinate_system
@@ -1578,6 +1621,7 @@ class Point(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.elements_3d import Point
         >>> obj = Point()
         >>> obj.delete()
+
         """
         arg = ["NAME:Selections", "Selections:=", self._name]
         self._oeditor.Delete(arg)
@@ -1611,6 +1655,7 @@ class Plane(PyAedtBase):
 
     >>> plane = primitives.create_plane("my_plane", "-0.7mm", "0.3mm", "0mm", "0.7mm", "-0.3mm", "0mm", "(0, 195, 255)")
     >>> my_plane = primitives.planes[plane.name]
+
     """
 
     def __init__(self, primitives, name: str) -> None:
@@ -1645,6 +1690,7 @@ class Plane(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.elements_3d import Plane
         >>> obj = Plane()
         >>> obj.logger
+
         """
         return self._primitives.logger
 
@@ -1667,6 +1713,7 @@ class Plane(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.elements_3d import Plane
         >>> obj = Plane()
         >>> obj.name
+
         """
         return self._name
 
@@ -1705,6 +1752,7 @@ class Plane(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.elements_3d import Plane
         >>> obj = Plane()
         >>> obj.valid_properties
+
         """
         if not self._all_props:
             self._all_props = self._oeditor.GetProperties("Geometry3DPlaneTab", self._name)
@@ -1779,6 +1827,7 @@ class Plane(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.elements_3d import Plane
         >>> obj = Plane()
         >>> obj.coordinate_system
+
         """
         if self._plane_coordinate_system is not None:
             return self._plane_coordinate_system
@@ -1808,6 +1857,7 @@ class Plane(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.elements_3d import Plane
         >>> obj = Plane()
         >>> obj.delete()
+
         """
         arg = ["NAME:Selections", "Selections:=", self._name]
         self._oeditor.Delete(arg)
@@ -1941,6 +1991,7 @@ class BinaryTreeNode:
         >>> from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
         >>> obj = BinaryTreeNode()
         >>> obj.properties
+
         """
         self._props = {}
         if not getattr(self, "child_object", None):
@@ -1980,6 +2031,7 @@ class BinaryTreeNode:
         >>> from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
         >>> obj = BinaryTreeNode()
         >>> obj.command
+
         """
         return self.properties.get("Command", "")
 
@@ -2003,6 +2055,7 @@ class BinaryTreeNode:
         >>> from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
         >>> obj = BinaryTreeNode()
         >>> obj.update_property(prop_name=1, prop_value=1)
+
         """
         if prop_value is None:
             settings.logger.warning(f"Property {prop_name} set to None ignored.")
@@ -2041,6 +2094,7 @@ class BinaryTreeNode:
         >>> from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
         >>> obj = BinaryTreeNode()
         >>> obj.jsonalize_tree()
+
         """
         return self._jsonalize_tree(binary_tree_node=self)
 
@@ -2081,6 +2135,7 @@ class BinaryTreeNode:
         >>> from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
         >>> obj = BinaryTreeNode()
         >>> obj.suppress_all(app=1)
+
         """
         return self._suppress(self, app, True)
 
@@ -2103,5 +2158,6 @@ class BinaryTreeNode:
         >>> from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
         >>> obj = BinaryTreeNode()
         >>> obj.unsuppress_all(app=1)
+
         """
         return self._suppress(self, app, False)

@@ -46,6 +46,7 @@ class Multiplexer(EmitNode):
         >>> app = Emit()
         >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
         >>> mux.node_type
+
         """
         return self._node_type
 
@@ -59,6 +60,7 @@ class Multiplexer(EmitNode):
         >>> app = Emit()
         >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
         >>> band = mux.add_multiplexer_pass_band()
+
         """
         return self._add_child_node("Multiplexer Pass Band")
 
@@ -72,6 +74,7 @@ class Multiplexer(EmitNode):
         >>> app = Emit()
         >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
         >>> mux.duplicate("Mux1_Copy")
+
         """
         return self._duplicate(new_name)
 
@@ -85,6 +88,7 @@ class Multiplexer(EmitNode):
         >>> app = Emit()
         >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
         >>> mux.delete()
+
         """
         self._delete()
 
@@ -101,6 +105,7 @@ class Multiplexer(EmitNode):
         >>> app = Emit()
         >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
         >>> mux.filename = r"C:\\Temp\\mux_data.s4p"
+
         """
         val = self._get_property("Filename")
         return val
@@ -123,6 +128,7 @@ class Multiplexer(EmitNode):
         >>> app = Emit()
         >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
         >>> mux.noise_temperature = 290.0
+
         """
         val = self._get_property("Noise Temperature")
         return float(val)
@@ -143,6 +149,7 @@ class Multiplexer(EmitNode):
         >>> app = Emit()
         >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
         >>> mux.notes = "Front-end multiplexer"
+
         """
         val = self._get_property("Notes")
         return val
@@ -171,6 +178,7 @@ class Multiplexer(EmitNode):
         >>> app = Emit()
         >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
         >>> mux.multiplexer_type = mux.MultiplexerTypeOption.BY_PASS_BAND
+
         """
         val = self._get_property("Multiplexer Type")
         val = self.MultiplexerTypeOption[val.upper()]
@@ -192,6 +200,7 @@ class Multiplexer(EmitNode):
         >>> app = Emit()
         >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
         >>> mux.ports = ["Pass Band C", "Pass Band A", "Pass Band B"]
+
         """
         val = self._get_property("Ports")
         return val
@@ -214,6 +223,7 @@ class Multiplexer(EmitNode):
         >>> app = Emit()
         >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
         >>> mux.warnings
+
         """
         val = self._get_property("Warnings")
         return val

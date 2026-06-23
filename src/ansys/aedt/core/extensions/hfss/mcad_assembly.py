@@ -167,6 +167,7 @@ class MCADAssemblyFrontend(ExtensionHFSSCommon):
         >>> frontend = MCADAssemblyFrontend(withdraw=True)
         >>> frame = tkinter.Frame(frontend.root)
         >>> frontend.add_toggle_theme_button(frame)
+
         """
         button_frame = ttk.Frame(
             parent, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2, name="theme_button_frame"
@@ -387,6 +388,7 @@ class Component(BaseModel):
         ...     component_type="mcad", name="Bracket1", model=model_name, target_coordinate_system="Global"
         ... )
         >>> component.assemble(hfss)
+
         """
         if cs_prefix:
             self.target_coordinate_system = f"{cs_prefix}_{self.target_coordinate_system}"

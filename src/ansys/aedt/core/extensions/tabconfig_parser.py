@@ -53,6 +53,7 @@ class ButtonSpec:
     --------
     >>> from ansys.aedt.core.extensions.tabconfig_parser import ButtonSpec
     >>> button = ButtonSpec("Launch", {"script": "Project/Open"})
+
     """
 
     label: str
@@ -80,6 +81,7 @@ class GroupSpec:
     --------
     >>> from ansys.aedt.core.extensions.tabconfig_parser import ButtonSpec, GroupSpec
     >>> group = GroupSpec("Thermal", buttons=[ButtonSpec("Export", {"script": "Thermal/Export"})])
+
     """
 
     label: str
@@ -114,6 +116,7 @@ class GallerySpec:
     --------
     >>> from ansys.aedt.core.extensions.tabconfig_parser import ButtonSpec, GallerySpec, GroupSpec
     >>> gallery = GallerySpec(header_button=ButtonSpec("Examples"), groups=[GroupSpec("Thermal")])
+
     """
 
     imagewidth: int = 120
@@ -159,6 +162,7 @@ class PanelSpec:
     --------
     >>> from ansys.aedt.core.extensions.tabconfig_parser import ButtonSpec, PanelSpec
     >>> panel = PanelSpec("PyAEDT", buttons=[ButtonSpec("Launch")])
+
     """
 
     label: str
@@ -201,6 +205,7 @@ class TabConfigParser:
     ...     button=ButtonSpec("Heatsink Creation", {"script": "Geometry/Heatsinks/Heatsink_Creation"}),
     ... )
     >>> parser.save()
+
     """
 
     def __init__(self, xml_path: str | Path | None = None) -> None:
@@ -323,6 +328,7 @@ class TabConfigParser:
         >>> parser = TabConfigParser()
         >>> parser.add_button("PyAEDT", ButtonSpec("Launch"))
         >>> parser.has_button("PyAEDT", "Launch")
+
         """
         panel = self.get_panel(panel_label)
         if panel is None:

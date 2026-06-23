@@ -53,6 +53,7 @@ class SceneGroupNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> group = revision.get_scene_node().add_group()
         >>> group.node_type
+
         """
         return self._node_type
 
@@ -67,6 +68,7 @@ class SceneGroupNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> group = revision.get_scene_node().add_group()
         >>> emitter = group.add_emitter()
+
         """
         return self._add_child_node("Emitter")
 
@@ -81,6 +83,7 @@ class SceneGroupNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> group = revision.get_scene_node().add_group()
         >>> child_group = group.add_group()
+
         """
         return self._add_child_node("Group")
 
@@ -95,6 +98,7 @@ class SceneGroupNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> group = revision.get_scene_node().add_group()
         >>> cad_node = group.import_cad(r"C:\\Temp\\vehicle.glb")
+
         """
         return self._import(file_name, "CAD")
 
@@ -109,6 +113,7 @@ class SceneGroupNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> group = revision.get_scene_node().add_group()
         >>> antenna = group.add_antenna()
+
         """
         return self._add_child_node("Antenna")
 
@@ -123,6 +128,7 @@ class SceneGroupNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> group = revision.get_scene_node().add_group()
         >>> duplicate_group = group.duplicate("Scene Group Copy")
+
         """
         return self._duplicate(new_name)
 
@@ -137,6 +143,7 @@ class SceneGroupNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> group = revision.get_scene_node().add_group()
         >>> group.delete()
+
         """
         self._delete()
 
@@ -158,6 +165,7 @@ class SceneGroupNode(EmitNode):
         >>> group = revision.get_scene_node().add_group()
         >>> group.show_relative_coordinates = True
         >>> group.show_relative_coordinates
+
         """
         val = self._get_property("Show Relative Coordinates")
         return val == "true"
@@ -182,6 +190,7 @@ class SceneGroupNode(EmitNode):
         >>> group = revision.get_scene_node().add_group()
         >>> group.position = [0.0, 1.0, 2.0]
         >>> group.position
+
         """
         val = self._get_property("Position")
         return val
@@ -206,6 +215,7 @@ class SceneGroupNode(EmitNode):
         >>> group = revision.get_scene_node().add_group()
         >>> group.relative_position = [0.5, 0.0, 0.0]
         >>> group.relative_position
+
         """
         val = self._get_property("Relative Position")
         return val
@@ -234,6 +244,7 @@ class SceneGroupNode(EmitNode):
         >>> group = revision.get_scene_node().add_group()
         >>> group.orientation_mode = group.OrientationModeOption.ROLL_PITCH_YAW
         >>> group.orientation_mode
+
         """
         val = self._get_property("Orientation Mode")
         val = self.OrientationModeOption[val.upper()]
@@ -261,6 +272,7 @@ class SceneGroupNode(EmitNode):
         >>> group = revision.get_scene_node().add_group()
         >>> group.orientation = [0.0, 0.0, 90.0]
         >>> group.orientation
+
         """
         val = self._get_property("Orientation")
         return val
@@ -287,6 +299,7 @@ class SceneGroupNode(EmitNode):
         >>> group = revision.get_scene_node().add_group()
         >>> group.relative_orientation = [0.0, 10.0, 0.0]
         >>> group.relative_orientation
+
         """
         val = self._get_property("Relative Orientation")
         return val
@@ -313,6 +326,7 @@ class SceneGroupNode(EmitNode):
         >>> group = revision.get_scene_node().add_group()
         >>> group.show_axes = True
         >>> group.show_axes
+
         """
         val = self._get_property("Show Axes")
         return val == "true"
@@ -337,6 +351,7 @@ class SceneGroupNode(EmitNode):
         >>> group = revision.get_scene_node().add_group()
         >>> group.box_color = "#FF0000"
         >>> group.box_color
+
         """
         val = self._get_property("Box Color")
         return val
@@ -359,6 +374,7 @@ class SceneGroupNode(EmitNode):
         >>> group = revision.get_scene_node().add_group()
         >>> group.notes = "Placed on the mast."
         >>> group.notes
+
         """
         val = self._get_property("Notes")
         return val

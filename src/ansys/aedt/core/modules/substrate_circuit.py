@@ -101,6 +101,7 @@ class SubstrateManager(PyAedtBase):
         >>> from ansys.aedt.core.modules.substrate_circuit import SubstrateManager
         >>> obj = SubstrateManager()
         >>> obj.all
+
         """
         if not self._substrates:
             props = self._app.design_properties
@@ -138,6 +139,7 @@ class SubstrateManager(PyAedtBase):
         >>> from ansys.aedt.core.modules.substrate_circuit import SubstrateManager
         >>> obj = SubstrateManager()
         >>> obj.delete(name="MyObject")
+
         """
         if name in self.names:
             self._app.odata_block.Remove(name)
@@ -790,6 +792,7 @@ class SubstrateDataBlock(PyAedtBase):
         >>> from ansys.aedt.core.modules.substrate_circuit import SubstrateDataBlock
         >>> obj = SubstrateDataBlock()
         >>> obj.auto_update
+
         """
         return self._auto_update
 
@@ -806,6 +809,7 @@ class SubstrateDataBlock(PyAedtBase):
         >>> from ansys.aedt.core.modules.substrate_circuit import SubstrateDataBlock
         >>> obj = SubstrateDataBlock()
         >>> obj.name
+
         """
         return self._name
 
@@ -833,6 +837,7 @@ class SubstrateDataBlock(PyAedtBase):
         >>> from ansys.aedt.core.modules.substrate_circuit import SubstrateDataBlock
         >>> obj = SubstrateDataBlock()
         >>> obj.substrate_type
+
         """
         return self._substrate_type
 
@@ -851,6 +856,7 @@ class SubstrateDataBlock(PyAedtBase):
         >>> from ansys.aedt.core.modules.substrate_circuit import SubstrateDataBlock
         >>> obj = SubstrateDataBlock()
         >>> obj.dielectric
+
         """
         return self._dielectric
 
@@ -869,6 +875,7 @@ class SubstrateDataBlock(PyAedtBase):
         >>> from ansys.aedt.core.modules.substrate_circuit import SubstrateDataBlock
         >>> obj = SubstrateDataBlock()
         >>> obj.metal_material
+
         """
         return self._metal_material
 
@@ -887,6 +894,7 @@ class SubstrateDataBlock(PyAedtBase):
         >>> from ansys.aedt.core.modules.substrate_circuit import SubstrateDataBlock
         >>> obj = SubstrateDataBlock()
         >>> obj.metal_thickness
+
         """
         return self._metal_thickness
 
@@ -905,6 +913,7 @@ class SubstrateDataBlock(PyAedtBase):
         >>> from ansys.aedt.core.modules.substrate_circuit import SubstrateDataBlock
         >>> obj = SubstrateDataBlock()
         >>> obj.bottom_metal_material
+
         """
         return self._bottom_metal_material
 
@@ -923,6 +932,7 @@ class SubstrateDataBlock(PyAedtBase):
         >>> from ansys.aedt.core.modules.substrate_circuit import SubstrateDataBlock
         >>> obj = SubstrateDataBlock()
         >>> obj.bottom_metal_thickness
+
         """
         return self._bottom_metal_thickness
 
@@ -941,6 +951,7 @@ class SubstrateDataBlock(PyAedtBase):
         >>> from ansys.aedt.core.modules.substrate_circuit import SubstrateDataBlock
         >>> obj = SubstrateDataBlock()
         >>> obj.cover_metal_material
+
         """
         return self._cover_metal_material
 
@@ -959,6 +970,7 @@ class SubstrateDataBlock(PyAedtBase):
         >>> from ansys.aedt.core.modules.substrate_circuit import SubstrateDataBlock
         >>> obj = SubstrateDataBlock()
         >>> obj.cover_metal_thickness
+
         """
         return self._cover_metal_thickness
 
@@ -977,6 +989,7 @@ class SubstrateDataBlock(PyAedtBase):
         >>> from ansys.aedt.core.modules.substrate_circuit import SubstrateDataBlock
         >>> obj = SubstrateDataBlock()
         >>> obj.roughness
+
         """
         return self._roughness
 
@@ -995,6 +1008,7 @@ class SubstrateDataBlock(PyAedtBase):
         >>> from ansys.aedt.core.modules.substrate_circuit import SubstrateDataBlock
         >>> obj = SubstrateDataBlock()
         >>> obj.metal_specify_type
+
         """
         return self._metal_specify_type
 
@@ -1013,6 +1027,7 @@ class SubstrateDataBlock(PyAedtBase):
         >>> from ansys.aedt.core.modules.substrate_circuit import SubstrateDataBlock
         >>> obj = SubstrateDataBlock()
         >>> obj.metal_temp_material
+
         """
         return self._metal_temp_material
 
@@ -1031,6 +1046,7 @@ class SubstrateDataBlock(PyAedtBase):
         >>> from ansys.aedt.core.modules.substrate_circuit import SubstrateDataBlock
         >>> obj = SubstrateDataBlock()
         >>> obj.dielectric_temp_materials
+
         """
         return self._dielectric_temp_materials
 
@@ -1086,6 +1102,7 @@ class SubstrateDataBlock(PyAedtBase):
         >>> from ansys.aedt.core.modules.substrate_circuit import SubstrateDataBlock
         >>> obj = SubstrateDataBlock()
         >>> obj.microstrip(app=1)
+
         """
         dielectric = [dielectric_height, str(dielectric_constant), str(loss_tangent), air_height, "0", "0", "0"]
         obj = cls(
@@ -1149,6 +1166,7 @@ class SubstrateDataBlock(PyAedtBase):
         >>> from ansys.aedt.core.modules.substrate_circuit import SubstrateDataBlock
         >>> obj = SubstrateDataBlock()
         >>> obj.stripline(app=1)
+
         """
         dielectric = [dielectric_height, str(dielectric_constant), str(loss_tangent)]
         obj = cls(
@@ -1211,6 +1229,7 @@ class SubstrateDataBlock(PyAedtBase):
         >>> from ansys.aedt.core.modules.substrate_circuit import SubstrateDataBlock
         >>> obj = SubstrateDataBlock()
         >>> obj.suspended_stripline(app=1)
+
         """
         dielectric = [dielectric_height, air_height, str(dielectric_constant), str(loss_tangent)]
         obj = cls(
@@ -1274,6 +1293,7 @@ class SubstrateDataBlock(PyAedtBase):
         >>> from ansys.aedt.core.modules.substrate_circuit import SubstrateDataBlock
         >>> obj = SubstrateDataBlock()
         >>> obj.offset_stripline(app=1)
+
         """
         dielectric = [dielectric_height, str(dielectric_constant), str(loss_tangent), enclosure_width, enclosure_height]
         obj = cls(
@@ -1340,6 +1360,7 @@ class SubstrateDataBlock(PyAedtBase):
         >>> from ansys.aedt.core.modules.substrate_circuit import SubstrateDataBlock
         >>> obj = SubstrateDataBlock()
         >>> obj.coplanar_waveguide(app=1)
+
         """
         dielectric = [dielectric_height, str(dielectric_constant), str(loss_tangent), cover_height]
         obj = cls(
@@ -1405,6 +1426,7 @@ class SubstrateDataBlock(PyAedtBase):
         >>> from ansys.aedt.core.modules.substrate_circuit import SubstrateDataBlock
         >>> obj = SubstrateDataBlock()
         >>> obj.grounded_coplanar_waveguide(app=1)
+
         """
         dielectric = [dielectric_height, str(dielectric_constant), str(loss_tangent), bottom_air_height, top_air_height]
         obj = cls(
@@ -1468,6 +1490,7 @@ class SubstrateDataBlock(PyAedtBase):
         >>> from ansys.aedt.core.modules.substrate_circuit import SubstrateDataBlock
         >>> obj = SubstrateDataBlock()
         >>> obj.slotline(app=1)
+
         """
         dielectric = [dielectric_height, str(dielectric_constant), str(loss_tangent), bottom_air_height, top_air_height]
         obj = cls(
@@ -1519,6 +1542,7 @@ class SubstrateDataBlock(PyAedtBase):
         >>> from ansys.aedt.core.modules.substrate_circuit import SubstrateDataBlock
         >>> obj = SubstrateDataBlock()
         >>> obj.rectangular_waveguide(app=1)
+
         """
         dielectric = [str(num_layers), "0", str(num_layers)]
         obj = cls(
@@ -1582,6 +1606,7 @@ class SubstrateDataBlock(PyAedtBase):
         >>> from ansys.aedt.core.modules.substrate_circuit import SubstrateDataBlock
         >>> obj = SubstrateDataBlock()
         >>> obj.substrate_reference(app=1)
+
         """
         dielectric = [dielectric_height, str(dielectric_constant), str(loss_tangent), air_height, "0.0", "0.0", "0.0"]
         obj = cls(
@@ -1618,6 +1643,7 @@ class SubstrateDataBlock(PyAedtBase):
         >>> from ansys.aedt.core.modules.substrate_circuit import SubstrateDataBlock
         >>> obj = SubstrateDataBlock()
         >>> obj.from_dict(app=1, data={"Name": "Value"})
+
         """
         import re
 

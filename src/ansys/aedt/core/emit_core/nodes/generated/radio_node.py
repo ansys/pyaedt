@@ -44,6 +44,7 @@ class RadioNode(EmitNode):
         >>> app = Emit()
         >>> radio = app.modeler.components.create_component("New Radio", "Radio1")
         >>> radio.node_type
+
         """
         return self._node_type
 
@@ -57,6 +58,7 @@ class RadioNode(EmitNode):
         >>> app = Emit()
         >>> radio = app.modeler.components.create_component("New Radio", "Radio1")
         >>> band = radio.add_band()
+
         """
         return self._add_child_node("Band")
 
@@ -70,6 +72,7 @@ class RadioNode(EmitNode):
         >>> app = Emit()
         >>> radio = app.modeler.components.create_component("New Radio", "Radio1")
         >>> folder = radio.add_folder()
+
         """
         return self._add_child_node("Band Folder")
 
@@ -83,6 +86,7 @@ class RadioNode(EmitNode):
         >>> app = Emit()
         >>> radio = app.modeler.components.create_component("New Radio", "Radio1")
         >>> radio_copy = radio.duplicate("Radio1_Copy")
+
         """
         return self._duplicate(new_name)
 
@@ -96,6 +100,7 @@ class RadioNode(EmitNode):
         >>> app = Emit()
         >>> radio = app.modeler.components.create_component("New Radio", "Radio1")
         >>> radio.delete()
+
         """
         self._delete()
 
@@ -110,6 +115,7 @@ class RadioNode(EmitNode):
         >>> app = Emit()
         >>> radio = app.modeler.components.create_component("New Radio", "Radio1")
         >>> radio.notes = "Primary receiver chain"
+
         """
         val = self._get_property("Notes")
         return val

@@ -47,6 +47,7 @@ class EmitSceneNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> scene_node = revision.get_scene_node()
         >>> scene_node.node_type
+
         """
         return self._node_type
 
@@ -61,6 +62,7 @@ class EmitSceneNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> scene_node = revision.get_scene_node()
         >>> scene_node.add_emitter()
+
         """
         return self._add_child_node("Emitter")
 
@@ -75,6 +77,7 @@ class EmitSceneNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> scene_node = revision.get_scene_node()
         >>> scene_node.add_group()
+
         """
         return self._add_child_node("Group")
 
@@ -89,6 +92,7 @@ class EmitSceneNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> scene_node = revision.get_scene_node()
         >>> scene_node.import_cad(r"C:\\Users\\Public\\Documents\\antenna_scene.glb")
+
         """
         return self._import(file_name, "CAD")
 
@@ -103,6 +107,7 @@ class EmitSceneNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> scene_node = revision.get_scene_node()
         >>> scene_node.add_antenna()
+
         """
         return self._add_child_node("Antenna")
 
@@ -118,6 +123,7 @@ class EmitSceneNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> scene_node = revision.get_scene_node()
         >>> scene_node.notes = "Demo scene"
+
         """
         val = self._get_property("Notes")
         return val
@@ -144,6 +150,7 @@ class EmitSceneNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> scene_node = revision.get_scene_node()
         >>> scene_node.ground_plane_normal = scene_node.GroundPlaneNormalOption.Z_AXIS
+
         """
         val = self._get_property("Ground Plane Normal")
         val = self.GroundPlaneNormalOption[val.upper()]
@@ -169,6 +176,7 @@ class EmitSceneNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> scene_node = revision.get_scene_node()
         >>> scene_node.gp_position_along_normal = "2 m"
+
         """
         val = self._get_property("GP Position Along Normal")
         val = self._convert_from_internal_units(float(val), "Length")

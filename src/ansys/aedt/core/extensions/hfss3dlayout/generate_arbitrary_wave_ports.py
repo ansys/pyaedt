@@ -78,6 +78,7 @@ class ArbitraryWavePortExtensionData(ExtensionCommonData):
     ...     working_path="C:\\Temp\\wave_port_work",
     ...     source_path="C:\\Temp\\board.aedb",
     ... )
+
     """
 
     working_path: str = EXTENSION_DEFAULT_ARGUMENTS["working_path"]
@@ -99,6 +100,7 @@ class ArbitraryWavePortExtension(ExtensionHFSS3DLayoutCommon):
     ...     ArbitraryWavePortExtension,
     ... )
     >>> extension = ArbitraryWavePortExtension(withdraw=True)
+
     """
 
     def __init__(self, withdraw: bool = False) -> None:
@@ -134,6 +136,7 @@ class ArbitraryWavePortExtension(ExtensionHFSS3DLayoutCommon):
         ... )
         >>> extension = ArbitraryWavePortExtension(withdraw=True)
         >>> extension.add_extension_content()
+
         """
         # Working directory
         work_dir_label = ttk.Label(self.root, text="Working directory:", width=20, style="PyAEDT.TLabel")
@@ -247,6 +250,7 @@ def main(data: ArbitraryWavePortExtensionData) -> bool:
     ...     source_path="C:\\Temp\\board.aedb",
     ... )
     >>> main(data)
+
     """
     # Validate input data
     if not data.working_path:

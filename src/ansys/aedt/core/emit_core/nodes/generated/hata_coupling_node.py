@@ -58,6 +58,7 @@ class HataCouplingNode(EmitNode):
         >>> revision = app.results.get_revision()
         >>> coupling_node = revision.get_coupling_data_node().add_hata_coupling()
         >>> coupling_copy = coupling_node.duplicate("HataCopy")
+
         """
         return self._duplicate(new_name)
 
@@ -72,6 +73,7 @@ class HataCouplingNode(EmitNode):
         >>> revision = app.results.get_revision()
         >>> coupling_node = revision.get_coupling_data_node().add_hata_coupling()
         >>> coupling_node.delete()
+
         """
         self._delete()
 
@@ -286,6 +288,7 @@ class HataCouplingNode(EmitNode):
         >>> revision = app.results.get_revision()
         >>> coupling_node = revision.get_coupling_data_node().add_hata_coupling()
         >>> coupling_node.rain_rate = 25.0
+
         """
         val = self._get_property("Rain Rate")
         return float(val)
@@ -312,6 +315,7 @@ class HataCouplingNode(EmitNode):
         >>> revision = app.results.get_revision()
         >>> coupling_node = revision.get_coupling_data_node().add_hata_coupling()
         >>> coupling_node.polarization_tilt_angle = 45.0
+
         """
         val = self._get_property("Polarization Tilt Angle")
         return float(val)
@@ -338,6 +342,7 @@ class HataCouplingNode(EmitNode):
         >>> revision = app.results.get_revision()
         >>> coupling_node = revision.get_coupling_data_node().add_hata_coupling()
         >>> coupling_node.include_atmospheric_absorption = True
+
         """
         val = self._get_property("Include Atmospheric Absorption")
         return val == "true"
@@ -361,6 +366,7 @@ class HataCouplingNode(EmitNode):
         >>> revision = app.results.get_revision()
         >>> coupling_node = revision.get_coupling_data_node().add_hata_coupling()
         >>> coupling_node.temperature = 20.0
+
         """
         val = self._get_property("Temperature")
         return float(val)
@@ -384,6 +390,7 @@ class HataCouplingNode(EmitNode):
         >>> revision = app.results.get_revision()
         >>> coupling_node = revision.get_coupling_data_node().add_hata_coupling()
         >>> coupling_node.total_air_pressure = 1013.25
+
         """
         val = self._get_property("Total Air Pressure")
         return float(val)
@@ -407,6 +414,7 @@ class HataCouplingNode(EmitNode):
         >>> revision = app.results.get_revision()
         >>> coupling_node = revision.get_coupling_data_node().add_hata_coupling()
         >>> coupling_node.water_vapor_concentration = 7.5
+
         """
         val = self._get_property("Water Vapor Concentration")
         return float(val)

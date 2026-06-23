@@ -35,6 +35,7 @@ class AedtUnits(PyAedtBase):
     >>> hfss = Hfss()
     >>> hfss.units.length
     >>> hfss.units.frequency
+
     """
 
     def __init__(self, aedt_object=None) -> None:
@@ -80,6 +81,7 @@ class AedtUnits(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.units.rescale_model
+
         """
         return self._rescale_model
 
@@ -109,6 +111,7 @@ class AedtUnits(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.units.frequency
+
         """
         return self._frequency
 
@@ -127,6 +130,7 @@ class AedtUnits(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.units.length
+
         """
         if self._length is None and self.__app:
             if "GetActiveUnits" in dir(self.__app.oeditor):
@@ -167,6 +171,7 @@ class AedtUnits(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.units.angle
+
         """
         return self._angle
 
@@ -186,6 +191,7 @@ class AedtUnits(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.units.resistance
+
         """
         return self._resistance
 
@@ -205,6 +211,7 @@ class AedtUnits(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.units.power
+
         """
         return self._power
 
@@ -224,6 +231,7 @@ class AedtUnits(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.units.time
+
         """
         return self._time
 
@@ -243,6 +251,7 @@ class AedtUnits(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.units.temperature
+
         """
         return self._temperature
 
@@ -262,6 +271,7 @@ class AedtUnits(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.units.inductance
+
         """
         return self._inductance
 
@@ -281,6 +291,7 @@ class AedtUnits(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.units.voltage
+
         """
         return self._voltage
 
@@ -300,6 +311,7 @@ class AedtUnits(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.units.current
+
         """
         return self._current
 
@@ -319,6 +331,7 @@ class AedtUnits(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.units.angular_speed
+
         """
         return self._angular_speed
 
@@ -338,6 +351,7 @@ class AedtUnits(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.units.capacitance
+
         """
         return self._capacitance
 
@@ -357,6 +371,7 @@ class AedtUnits(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.units.conductance
+
         """
         return self._conductance
 
@@ -376,6 +391,7 @@ class AedtUnits(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.units.mass
+
         """
         return self._mass
 
@@ -395,5 +411,6 @@ class AedtUnits(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.units.speed
+
         """
         return self._speed

@@ -97,6 +97,7 @@ class DirectionOfArrival(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.doa import DirectionOfArrival
         >>> obj = DirectionOfArrival()
         >>> obj.get_scanning_vectors(azimuth_angles=["Box1"])
+
         """
         thetas_rad = np.deg2rad(azimuth_angles)
         P = len(thetas_rad)
@@ -140,6 +141,7 @@ class DirectionOfArrival(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.doa import DirectionOfArrival
         >>> obj = DirectionOfArrival()
         >>> obj.bartlett(data=1, scanning_vectors=[1, 0, 0])
+
         """
         if range_bins is None:
             range_bins = data.shape[0]
@@ -198,6 +200,7 @@ class DirectionOfArrival(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.doa import DirectionOfArrival
         >>> obj = DirectionOfArrival()
         >>> obj.capon(data=1, scanning_vectors=[1, 0, 0])
+
         """
         if range_bins is None:
             range_bins = data.shape[0]
@@ -265,6 +268,7 @@ class DirectionOfArrival(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.doa import DirectionOfArrival
         >>> obj = DirectionOfArrival()
         >>> obj.music(data=1, scanning_vectors=[1, 0, 0], signal_dimension=1)
+
         """
         if range_bins is None:
             range_bins = data.shape[0]
@@ -374,6 +378,7 @@ class DirectionOfArrival(PyAedtBase):
         >>> doa = DirectionOfArrival(x, y, freq)
         >>> doa.plot_angle_of_arrival(signal_snapshot)
         >>> doa.plot_angle_of_arrival(signal_snapshot, doa_method="MUSIC")
+
         """
         data = np.array([signal])
 

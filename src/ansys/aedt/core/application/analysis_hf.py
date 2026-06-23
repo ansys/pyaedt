@@ -37,6 +37,7 @@ class ScatteringMethods(PyAedtBase):
     >>> from ansys.aedt.core import Hfss
     >>> hfss = Hfss()
     >>> hfss.get_all_return_loss_list()
+
     """
 
     def __init__(self, app) -> None:
@@ -115,6 +116,7 @@ class ScatteringMethods(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.get_all_return_loss_list(math_formula="dB")
+
         """
         if excitations is None:
             excitations = []
@@ -190,6 +192,7 @@ class ScatteringMethods(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.get_next_xtalk_list(drivers_prefix_name="TX")
+
         """
         if drivers is None:
             drivers = [i for i in list(self._app.excitation_names)]
@@ -275,6 +278,7 @@ class ScatteringMethods(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.get_fext_xtalk_list(drivers_prefix_name="TX", receivers_prefix_name="RX")
+
         """
         next_xtalks = []
         if not drivers:
@@ -381,6 +385,7 @@ class ScatteringMethods(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.get_touchstone_data(setup="Setup1")
+
         """
         from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
 
@@ -456,6 +461,7 @@ class ScatteringMethods(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.export_touchstone(setup="Setup1", output_file="touchstone.s2p")
+
         """
         if output_file is not None:
             output_file = str(output_file)

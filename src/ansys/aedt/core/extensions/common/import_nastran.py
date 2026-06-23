@@ -71,6 +71,7 @@ class ImportNastranExtensionData(ExtensionCommonData):
     --------
     >>> from ansys.aedt.core.extensions.common.import_nastran import ImportNastranExtensionData
     >>> data = ImportNastranExtensionData(file_path=r"D:\\Geometry\\model.nas", decimate=0.2)
+
     """
 
     file_path: str = EXTENSION_DEFAULT_ARGUMENTS["file_path"]
@@ -92,6 +93,7 @@ class ImportNastranExtension(ExtensionProjectCommon):
     --------
     >>> from ansys.aedt.core.extensions.common.import_nastran import ImportNastranExtension
     >>> extension = ImportNastranExtension(withdraw=True)
+
     """
 
     def __init__(self, withdraw: bool = False) -> None:
@@ -121,6 +123,7 @@ class ImportNastranExtension(ExtensionProjectCommon):
         >>> from ansys.aedt.core.extensions.common.import_nastran import ImportNastranExtension
         >>> extension = ImportNastranExtension(withdraw=True)
         >>> extension.check_design_type()
+
         """
         if self.aedt_application.design_type not in [
             "HFSS",
@@ -143,6 +146,7 @@ class ImportNastranExtension(ExtensionProjectCommon):
         >>> from ansys.aedt.core.extensions.common.import_nastran import ImportNastranExtension
         >>> extension = ImportNastranExtension(withdraw=True)
         >>> extension.add_extension_content()
+
         """
         # File path selection
         ttk.Label(self.root, text="Browse file:", style="PyAEDT.TLabel").grid(row=0, column=0, padx=15, pady=10)
@@ -309,6 +313,7 @@ def main(data: ImportNastranExtensionData) -> bool:
     >>> from ansys.aedt.core.extensions.common.import_nastran import ImportNastranExtensionData, main
     >>> data = ImportNastranExtensionData(file_path=r"D:\\Geometry\\model.nas", decimate=0.2)
     >>> main(data)
+
     """
     # Input validation
     if not data.file_path:

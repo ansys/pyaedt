@@ -39,6 +39,7 @@ class ThreadTrace(threading.Thread):
     >>> worker = ThreadTrace(target=lambda: None)
     >>> worker.start()
     >>> worker.join()
+
     """
 
     def __init__(self, *args, **keywords) -> None:
@@ -287,6 +288,7 @@ class GeneticAlgorithm(PyAedtBase):
         >>> bounds = np.array([[0, 1], [0, 1]])
         >>> ga = GeneticAlgorithm(objective, dim=2, boundaries=bounds, var_type="real", progress_bar=False)
         >>> ga.run()
+
         """
         # Init Population
         pop = np.array([np.zeros(self.dim + 1)] * self.population_size)

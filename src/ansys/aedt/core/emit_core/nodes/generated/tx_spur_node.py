@@ -49,6 +49,7 @@ class TxSpurNode(EmitNode):
         >>> tx_profile = band.children[0]
         >>> spurs = tx_profile.add_spurious_emissions()
         >>> spurs.parent
+
         """
         return self._parent
 
@@ -66,6 +67,7 @@ class TxSpurNode(EmitNode):
         >>> tx_profile = band.children[0]
         >>> spurs = tx_profile.add_spurious_emissions()
         >>> spurs.node_type
+
         """
         return self._node_type
 
@@ -82,6 +84,7 @@ class TxSpurNode(EmitNode):
         >>> tx_profile = band.children[0]
         >>> spurs = tx_profile.add_spurious_emissions()
         >>> spurs.import_csv_file(r"C:\\Measurements\\tx_spurs.csv")
+
         """
         return self._import(file_name, "Csv")
 
@@ -98,6 +101,7 @@ class TxSpurNode(EmitNode):
         >>> tx_profile = band.children[0]
         >>> spurs = tx_profile.add_spurious_emissions()
         >>> spurs.delete()
+
         """
         self._delete()
 
@@ -122,6 +126,7 @@ class TxSpurNode(EmitNode):
         >>> tx_profile = band.children[0]
         >>> spurs = tx_profile.add_spurious_emissions()
         >>> spurs.table_data = [("RF+10.0", "50 MHz", -60.0)]
+
         """
         return self._get_table_data()
 
@@ -144,6 +149,7 @@ class TxSpurNode(EmitNode):
         >>> tx_profile = band.children[0]
         >>> spurs = tx_profile.add_spurious_emissions()
         >>> spurs.enabled = True
+
         """
         return self._get_property("Enabled") == "true"
 
@@ -170,6 +176,7 @@ class TxSpurNode(EmitNode):
         >>> tx_profile = band.children[0]
         >>> spurs = tx_profile.add_spurious_emissions()
         >>> spurs.spur_table_units = spurs.SpurTableUnitsOption.RELATIVE
+
         """
         val = self._get_property("Spur Table Units")
         val = self.SpurTableUnitsOption[val.upper()]

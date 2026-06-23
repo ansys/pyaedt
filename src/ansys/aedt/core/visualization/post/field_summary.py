@@ -188,6 +188,7 @@ class FieldSummary(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.field_summary import FieldSummary
         >>> obj = FieldSummary()
         >>> obj.add_calculation(entity=1, geometry=1, geometry_name=["Box1"], quantity=1)
+
         """
         if quantity not in AVAILABLE_QUANTITIES:
             raise AttributeError(
@@ -248,6 +249,7 @@ class FieldSummary(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.field_summary import FieldSummary
         >>> obj = FieldSummary()
         >>> obj.get_field_summary_data(setup="Setup1", variation={"Name": "Value"})
+
         """
         if variation is None:
             variation = {}
@@ -303,6 +305,7 @@ class FieldSummary(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.field_summary import FieldSummary
         >>> obj = FieldSummary()
         >>> obj.export_csv(output_file=r"C:\Temp\example.csv")
+
         """
         if not setup:
             setup = self._app.nominal_sweep

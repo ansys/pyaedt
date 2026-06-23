@@ -90,5 +90,6 @@ def nastran_to_stl(*args, **kwargs):
     --------
     >>> from ansys.aedt.core.syslib.nastran_import import nastran_to_stl
     >>> nastran_to_stl(input_file="my_file.nas", decimation=0, preview=True)
+
     """
     return _nastran_import_lib.nastran_to_stl(*args, **kwargs)

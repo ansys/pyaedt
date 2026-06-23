@@ -38,6 +38,7 @@ class GraphSetup:
     >>> from ansys.aedt.core import FilterSolutions
     >>> design = FilterSolutions.LumpedDesign(version="2026.1")
     >>> design.graph_setup.minimum_frequency = "100 MHz"
+
     """
 
     def __init__(self) -> None:
@@ -81,6 +82,7 @@ class GraphSetup:
         >>> design = FilterSolutions.LumpedDesign(version="2026.1")
         >>> design.graph_setup.minimum_frequency = "100 MHz"
         >>> design.graph_setup.minimum_frequency
+
         """
         min_freq_string = self._dll_interface.get_string(self._dll.getPlotMinimumFrequency)
         return min_freq_string
@@ -103,6 +105,7 @@ class GraphSetup:
         >>> design = FilterSolutions.LumpedDesign(version="2026.1")
         >>> design.graph_setup.maximum_frequency = "3 GHz"
         >>> design.graph_setup.maximum_frequency
+
         """
         max_freq_string = self._dll_interface.get_string(self._dll.getPlotMaximumFrequency)
         return max_freq_string
@@ -125,6 +128,7 @@ class GraphSetup:
         >>> design = FilterSolutions.LumpedDesign(version="2026.1")
         >>> design.graph_setup.minimum_time = "1 ns"
         >>> design.graph_setup.minimum_time
+
         """
         min_time_string = self._dll_interface.get_string(self._dll.getPlotMinimumTime)
         return min_time_string
@@ -147,6 +151,7 @@ class GraphSetup:
         >>> design = FilterSolutions.LumpedDesign(version="2026.1")
         >>> design.graph_setup.maximum_time = "20 ns"
         >>> design.graph_setup.maximum_time
+
         """
         max_time_string = self._dll_interface.get_string(self._dll.getPlotMaximumTime)
         return max_time_string

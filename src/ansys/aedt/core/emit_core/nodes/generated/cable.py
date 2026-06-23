@@ -46,6 +46,7 @@ class Cable(EmitNode):
         >>> app = Emit()
         >>> cable = app.schematic.create_component("Cable", name="Cable1")
         >>> cable.node_type
+
         """
         return self._node_type
 
@@ -59,6 +60,7 @@ class Cable(EmitNode):
         >>> app = Emit()
         >>> cable = app.schematic.create_component("Cable", name="Cable1")
         >>> cable_copy = cable.duplicate("CableCopy")
+
         """
         return self._duplicate(new_name)
 
@@ -72,6 +74,7 @@ class Cable(EmitNode):
         >>> app = Emit()
         >>> cable = app.schematic.create_component("Cable", name="Cable1")
         >>> cable.delete()
+
         """
         self._delete()
 
@@ -89,6 +92,7 @@ class Cable(EmitNode):
         >>> cable = app.schematic.create_component("Cable", name="Cable1")
         >>> cable.filename = "C:\\Temp\\cable.s2p"
         >>> cable.filename
+
         """
         val = self._get_property("Filename")
         return val
@@ -111,6 +115,7 @@ class Cable(EmitNode):
         >>> app = Emit()
         >>> cable = app.schematic.create_component("Cable", name="Cable1")
         >>> cable.noise_temperature = 290.0
+
         """
         val = self._get_property("Noise Temperature")
         return float(val)
@@ -131,6 +136,7 @@ class Cable(EmitNode):
         >>> app = Emit()
         >>> cable = app.schematic.create_component("Cable", name="Cable1")
         >>> cable.notes = "Route between modules"
+
         """
         val = self._get_property("Notes")
         return val
@@ -159,6 +165,7 @@ class Cable(EmitNode):
         >>> app = Emit()
         >>> cable = app.schematic.create_component("Cable", name="Cable1")
         >>> cable.cable_type = cable.CableTypeOption.CONSTANT_LOSS
+
         """
         val = self._get_property("Cable Type")
         val = self.CableTypeOption[val.upper()]
@@ -182,6 +189,7 @@ class Cable(EmitNode):
         >>> app = Emit()
         >>> cable = app.schematic.create_component("Cable", name="Cable1")
         >>> cable.length = "5 m"
+
         """
         val = self._get_property("Length")
         val = self._convert_from_internal_units(float(val), "Length")
@@ -206,6 +214,7 @@ class Cable(EmitNode):
         >>> app = Emit()
         >>> cable = app.schematic.create_component("Cable", name="Cable1")
         >>> cable.loss_per_length = 0.25
+
         """
         val = self._get_property("Loss Per Length")
         return float(val)
@@ -228,6 +237,7 @@ class Cable(EmitNode):
         >>> app = Emit()
         >>> cable = app.schematic.create_component("Cable", name="Cable1")
         >>> cable.measurement_length = "2 m"
+
         """
         val = self._get_property("Measurement Length")
         val = self._convert_from_internal_units(float(val), "Length")
@@ -252,6 +262,7 @@ class Cable(EmitNode):
         >>> app = Emit()
         >>> cable = app.schematic.create_component("Cable", name="Cable1")
         >>> cable.resistive_loss_constant = 0.1
+
         """
         val = self._get_property("Resistive Loss Constant")
         return float(val)
@@ -274,6 +285,7 @@ class Cable(EmitNode):
         >>> app = Emit()
         >>> cable = app.schematic.create_component("Cable", name="Cable1")
         >>> cable.dielectric_loss_constant = 0.01
+
         """
         val = self._get_property("Dielectric Loss Constant")
         return float(val)
@@ -294,6 +306,7 @@ class Cable(EmitNode):
         >>> app = Emit()
         >>> cable = app.schematic.create_component("Cable", name="Cable1")
         >>> cable.warnings
+
         """
         val = self._get_property("Warnings")
         return val

@@ -49,6 +49,7 @@ class TxHarmonicNode(EmitNode):
         >>> tx_profile = band.children[0]
         >>> tx_harmonics = tx_profile.add_custom_tx_harmonics()
         >>> tx_harmonics.parent
+
         """
         return self._parent
 
@@ -66,6 +67,7 @@ class TxHarmonicNode(EmitNode):
         >>> tx_profile = band.children[0]
         >>> tx_harmonics = tx_profile.add_custom_tx_harmonics()
         >>> tx_harmonics.node_type
+
         """
         return self._node_type
 
@@ -82,6 +84,7 @@ class TxHarmonicNode(EmitNode):
         >>> tx_profile = band.children[0]
         >>> tx_harmonics = tx_profile.add_custom_tx_harmonics()
         >>> tx_harmonics.import_csv_file("C:\\Measurements\\tx_harmonics.csv")
+
         """
         return self._import(file_name, "Csv")
 
@@ -98,6 +101,7 @@ class TxHarmonicNode(EmitNode):
         >>> tx_profile = band.children[0]
         >>> tx_harmonics = tx_profile.add_custom_tx_harmonics()
         >>> tx_harmonics.delete()
+
         """
         self._delete()
 
@@ -121,6 +125,7 @@ class TxHarmonicNode(EmitNode):
         >>> tx_harmonics = tx_profile.add_custom_tx_harmonics()
         >>> tx_harmonics.table_data = [(2, -35.0), (3, -45.0)]
         >>> tx_harmonics.table_data
+
         """
         return self._get_table_data()
 
@@ -144,6 +149,7 @@ class TxHarmonicNode(EmitNode):
         >>> tx_harmonics = tx_profile.add_custom_tx_harmonics()
         >>> tx_harmonics.enabled = False
         >>> tx_harmonics.enabled
+
         """
         return self._get_property("Enabled") == "true"
 
@@ -171,6 +177,7 @@ class TxHarmonicNode(EmitNode):
         >>> tx_harmonics = tx_profile.add_custom_tx_harmonics()
         >>> tx_harmonics.harmonic_table_units = tx_harmonics.HarmonicTableUnitsOption.RELATIVE
         >>> tx_harmonics.harmonic_table_units
+
         """
         val = self._get_property("Harmonic Table Units")
         val = self.HarmonicTableUnitsOption[val.upper()]

@@ -167,6 +167,7 @@ class HPCMethod(IntEnum):
     >>> from ansys.aedt.core.generic.scheduler import HPCMethod
     >>> HPCMethod.USE_AUTO_HPC.value
     4
+
     """
 
     USE_TASKS_AND_CORES = 1
@@ -190,6 +191,7 @@ def path_string(path: Path) -> str:
     >>> from pathlib import Path
     >>> from ansys.aedt.core.generic.scheduler import path_string
     >>> path_string(Path("C:\\Program Files\\AnsysEM\\v251"))
+
     """
     path_str = str(path)
     if platform.system() == "Windows" and " " in path_str:
@@ -215,6 +217,7 @@ def get_aedt_exe(version: str | None = None) -> Path:
     --------
     >>> from ansys.aedt.core.generic.scheduler import get_aedt_exe
     >>> get_aedt_exe("25.1")
+
     """
     exe_name = "ansysedt.exe"
     #  Check in the current path.
@@ -266,6 +269,7 @@ def load_template(template_path: Path) -> str:
     >>> from ansys.aedt.core.generic.scheduler import JOB_TEMPLATE_PATH
     >>> from ansys.aedt.core.generic.scheduler import load_template
     >>> load_template(JOB_TEMPLATE_PATH)
+
     """
     with template_path.open("r", encoding="utf-8") as f:
         return f.read()
@@ -281,6 +285,7 @@ def render_template(data: JobConfigurationData, template_path: Path) -> str:
     >>> from ansys.aedt.core.generic.scheduler import render_template
     >>> config = JobConfigurationData()
     >>> render_template(config, JOB_TEMPLATE_PATH)
+
     """
     pattern = re.compile(r"\{\{(\w+)\}\}")
 
@@ -371,6 +376,7 @@ class _ResourcesConfiguration:
         >>> resources = _ResourcesConfiguration(False, 8, None, 1, 2, None, 90, 2.0)
         >>> resources.cores_per_task
         4
+
         """
         return self.__num_cores // self.__num_tasks
 
@@ -384,6 +390,7 @@ class _ResourcesConfiguration:
         >>> resources = _ResourcesConfiguration(True, 8, None, 1, 2, None, 90, 2.0)
         >>> resources.exclusive
         True
+
         """
         return self.__exclusive
 
@@ -396,6 +403,7 @@ class _ResourcesConfiguration:
         >>> from ansys.aedt.core.generic.scheduler import _ResourcesConfiguration
         >>> resources = _ResourcesConfiguration(False, 8, None, 1, 2, None, 90, 2.0)
         >>> resources.exclusive = True
+
         """
         if not isinstance(value, bool):
             raise ValueError(f"exclusive must be a boolean, got {type(value).__name__}.")
@@ -411,6 +419,7 @@ class _ResourcesConfiguration:
         >>> resources = _ResourcesConfiguration(False, 8, None, 1, 2, None, 90, 2.0)
         >>> resources.num_cores
         8
+
         """
         return self.__num_cores
 
@@ -423,6 +432,7 @@ class _ResourcesConfiguration:
         >>> from ansys.aedt.core.generic.scheduler import _ResourcesConfiguration
         >>> resources = _ResourcesConfiguration(False, 8, None, 1, 2, None, 90, 2.0)
         >>> resources.num_cores = 16
+
         """
         self.__num_cores = self.__validate_positive_int("num_cores", value)
 
@@ -436,6 +446,7 @@ class _ResourcesConfiguration:
         >>> resources = _ResourcesConfiguration(False, 8, 1, 1, 2, None, 90, 2.0)
         >>> resources.num_gpus
         1
+
         """
         return self.__num_gpus
 
@@ -448,6 +459,7 @@ class _ResourcesConfiguration:
         >>> from ansys.aedt.core.generic.scheduler import _ResourcesConfiguration
         >>> resources = _ResourcesConfiguration(False, 8, None, 1, 2, None, 90, 2.0)
         >>> resources.num_gpus = 1
+
         """
         self.__num_gpus = self.__validate_optional_positive_int("num_gpus", value, strict=False)
 
@@ -461,6 +473,7 @@ class _ResourcesConfiguration:
         >>> resources = _ResourcesConfiguration(False, 8, None, 2, 2, None, 90, 2.0)
         >>> resources.num_nodes
         2
+
         """
         return self.__num_nodes
 
@@ -473,6 +486,7 @@ class _ResourcesConfiguration:
         >>> from ansys.aedt.core.generic.scheduler import _ResourcesConfiguration
         >>> resources = _ResourcesConfiguration(False, 8, None, 1, 2, None, 90, 2.0)
         >>> resources.num_nodes = 2
+
         """
         self.__num_nodes = self.__validate_positive_int("num_nodes", value)
 
@@ -486,6 +500,7 @@ class _ResourcesConfiguration:
         >>> resources = _ResourcesConfiguration(False, 8, None, 1, 4, None, 90, 2.0)
         >>> resources.num_tasks
         4
+
         """
         return self.__num_tasks
 
@@ -498,6 +513,7 @@ class _ResourcesConfiguration:
         >>> from ansys.aedt.core.generic.scheduler import _ResourcesConfiguration
         >>> resources = _ResourcesConfiguration(False, 8, None, 1, 2, None, 90, 2.0)
         >>> resources.num_tasks = 4
+
         """
         self.__num_tasks = self.__validate_positive_int("num_tasks", value)
 
@@ -511,6 +527,7 @@ class _ResourcesConfiguration:
         >>> resources = _ResourcesConfiguration(False, 8, None, 1, 2, 2, 90, 2.0)
         >>> resources.max_tasks_per_node
         2
+
         """
         return self.__max_tasks_per_node
 
@@ -523,6 +540,7 @@ class _ResourcesConfiguration:
         >>> from ansys.aedt.core.generic.scheduler import _ResourcesConfiguration
         >>> resources = _ResourcesConfiguration(False, 8, None, 1, 2, None, 90, 2.0)
         >>> resources.max_tasks_per_node = 2
+
         """
         self.__max_tasks_per_node = self.__validate_optional_positive_int("max_tasks_per_node", value, strict=False)
 
@@ -536,6 +554,7 @@ class _ResourcesConfiguration:
         >>> resources = _ResourcesConfiguration(False, 8, None, 1, 2, None, 90, 2.0)
         >>> resources.ram_limit
         90
+
         """
         return self.__ram_limit
 
@@ -548,6 +567,7 @@ class _ResourcesConfiguration:
         >>> from ansys.aedt.core.generic.scheduler import _ResourcesConfiguration
         >>> resources = _ResourcesConfiguration(False, 8, None, 1, 2, None, 90, 2.0)
         >>> resources.ram_limit = 80
+
         """
         self.__ram_limit = self.__validate_positive_int("ram_limit", value)
 
@@ -560,6 +580,7 @@ class _ResourcesConfiguration:
         >>> from ansys.aedt.core.generic.scheduler import _ResourcesConfiguration
         >>> resources = _ResourcesConfiguration(False, 8, None, 1, 2, None, 90, 2.5)
         >>> resources.ram_per_core
+
         """
         return self.__ram_per_core
 
@@ -572,6 +593,7 @@ class _ResourcesConfiguration:
         >>> from ansys.aedt.core.generic.scheduler import _ResourcesConfiguration
         >>> resources = _ResourcesConfiguration(False, 8, None, 1, 2, None, 90, 2.0)
         >>> resources.ram_per_core = 3.0
+
         """
         self.__ram_per_core = self.__validate_positive_float("ram_per_core", value)
 
@@ -583,6 +605,7 @@ class _ResourcesConfiguration:
         >>> from ansys.aedt.core.generic.scheduler import _ResourcesConfiguration
         >>> resources = _ResourcesConfiguration(False, 8, 1, 1, 2, 4, 90, 2.0)
         >>> resources.check_consistency()
+
         """
         if self.__max_tasks_per_node is not None:
             if self.__num_tasks // self.__num_nodes > self.__max_tasks_per_node:
@@ -604,6 +627,7 @@ class _ResourcesConfiguration:
         >>> from ansys.aedt.core.generic.scheduler import _ResourcesConfiguration
         >>> resources = _ResourcesConfiguration(False, 8, None, 1, 2, None, 90, 2.0)
         >>> resources.align_dependent_attributes()
+
         """
         if self.__num_gpus is None:
             logging.info(f"Number of GPUs is not set. Setting it to {DEFAULT_NUM_GPUS}.")
@@ -650,6 +674,7 @@ class _ExecutionConfiguration:
     >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
     >>> config = JobConfigurationData(num_cores=8, num_tasks=2)
     >>> config.to_dict()
+
     """
 
     auto_hpc: bool = DEFAULT_AUTO_HPC
@@ -807,6 +832,7 @@ class JobConfigurationData(PyAedtBase):
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData(custom_submission_string="-n 4")
         >>> config.use_custom_submission_string
+
         """
         return bool(self.custom_submission_string.strip())
 
@@ -819,6 +845,7 @@ class JobConfigurationData(PyAedtBase):
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData()
         >>> config.fix_job_name
+
         """
         return self.job_name == DEFAULT_JOB_NAME
 
@@ -833,6 +860,7 @@ class JobConfigurationData(PyAedtBase):
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData(num_cores=8, num_tasks=2)
         >>> config.cores_per_task
+
         """
         return self.__resources_conf.cores_per_task
 
@@ -845,6 +873,7 @@ class JobConfigurationData(PyAedtBase):
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData(exclusive=True)
         >>> config.exclusive
+
         """
         return self.__resources_conf.exclusive
 
@@ -857,6 +886,7 @@ class JobConfigurationData(PyAedtBase):
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData()
         >>> config.exclusive = True
+
         """
         self.__resources_conf.exclusive = value
 
@@ -869,6 +899,7 @@ class JobConfigurationData(PyAedtBase):
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData(num_cores=8)
         >>> config.num_cores
+
         """
         return self.__resources_conf.num_cores
 
@@ -881,6 +912,7 @@ class JobConfigurationData(PyAedtBase):
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData()
         >>> config.num_cores = 16
+
         """
         if value < self.num_tasks:
             logging.warning("Number of cores must be greater than or equal to the number of tasks.")
@@ -895,6 +927,7 @@ class JobConfigurationData(PyAedtBase):
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData(num_gpus=1)
         >>> config.num_gpus
+
         """
         return self.__resources_conf.num_gpus
 
@@ -907,6 +940,7 @@ class JobConfigurationData(PyAedtBase):
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData()
         >>> config.num_gpus = 1
+
         """
         self.__resources_conf.num_gpus = value
 
@@ -919,6 +953,7 @@ class JobConfigurationData(PyAedtBase):
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData(num_nodes=2)
         >>> config.num_nodes
+
         """
         return self.__resources_conf.num_nodes
 
@@ -931,6 +966,7 @@ class JobConfigurationData(PyAedtBase):
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData()
         >>> config.num_nodes = 2
+
         """
         self.__resources_conf.num_nodes = value
         self.__update_hpc_method()
@@ -944,6 +980,7 @@ class JobConfigurationData(PyAedtBase):
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData(num_tasks=4)
         >>> config.num_tasks
+
         """
         return self.__resources_conf.num_tasks
 
@@ -956,6 +993,7 @@ class JobConfigurationData(PyAedtBase):
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData()
         >>> config.num_tasks = 4
+
         """
         self.__resources_conf.num_tasks = value
         if self.num_tasks > self.num_cores:
@@ -973,6 +1011,7 @@ class JobConfigurationData(PyAedtBase):
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData(max_tasks_per_node=2)
         >>> config.max_tasks_per_node
+
         """
         return self.__resources_conf.max_tasks_per_node
 
@@ -985,6 +1024,7 @@ class JobConfigurationData(PyAedtBase):
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData()
         >>> config.max_tasks_per_node = 2
+
         """
         self.__resources_conf.max_tasks_per_node = value
 
@@ -997,6 +1037,7 @@ class JobConfigurationData(PyAedtBase):
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData(ram_limit=80)
         >>> config.ram_limit
+
         """
         return self.__resources_conf.ram_limit
 
@@ -1009,6 +1050,7 @@ class JobConfigurationData(PyAedtBase):
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData()
         >>> config.ram_limit = 80
+
         """
         self.__resources_conf.ram_limit = value
 
@@ -1021,6 +1063,7 @@ class JobConfigurationData(PyAedtBase):
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData(ram_per_core=3.0)
         >>> config.ram_per_core
+
         """
         return self.__resources_conf.ram_per_core
 
@@ -1033,6 +1076,7 @@ class JobConfigurationData(PyAedtBase):
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData()
         >>> config.ram_per_core = 3.0
+
         """
         self.__resources_conf.ram_per_core = value
 
@@ -1047,6 +1091,7 @@ class JobConfigurationData(PyAedtBase):
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData(auto_hpc=True)
         >>> config.auto_hpc
+
         """
         return self.__execution_conf.auto_hpc
 
@@ -1059,6 +1104,7 @@ class JobConfigurationData(PyAedtBase):
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData()
         >>> config.auto_hpc = True
+
         """
         self.__execution_conf.auto_hpc = value
         self.__update_hpc_method()
@@ -1072,6 +1118,7 @@ class JobConfigurationData(PyAedtBase):
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData(cluster_name="ClusterA")
         >>> config.cluster_name
+
         """
         return self.__execution_conf.cluster_name
 
@@ -1084,6 +1131,7 @@ class JobConfigurationData(PyAedtBase):
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData()
         >>> config.cluster_name = "ClusterA"
+
         """
         self.__execution_conf.cluster_name = value
 
@@ -1096,6 +1144,7 @@ class JobConfigurationData(PyAedtBase):
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData(custom_submission_string="-n 4")
         >>> config.custom_submission_string
+
         """
         return self.__execution_conf.custom_submission_string
 
@@ -1108,6 +1157,7 @@ class JobConfigurationData(PyAedtBase):
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData()
         >>> config.custom_submission_string = "-n 4"
+
         """
         self.__execution_conf.custom_submission_string = value
 
@@ -1120,6 +1170,7 @@ class JobConfigurationData(PyAedtBase):
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData(job_name="BatchSolve")
         >>> config.job_name
+
         """
         return self.__execution_conf.job_name
 
@@ -1132,6 +1183,7 @@ class JobConfigurationData(PyAedtBase):
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData()
         >>> config.job_name = "BatchSolve"
+
         """
         self.__execution_conf.job_name = value
 
@@ -1144,6 +1196,7 @@ class JobConfigurationData(PyAedtBase):
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData(monitor=False)
         >>> config.monitor
+
         """
         return self.__execution_conf.monitor
 
@@ -1156,6 +1209,7 @@ class JobConfigurationData(PyAedtBase):
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData()
         >>> config.monitor = False
+
         """
         self.__execution_conf.monitor = value
 
@@ -1168,6 +1222,7 @@ class JobConfigurationData(PyAedtBase):
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData(ng_solve=True)
         >>> config.ng_solve
+
         """
         return self.__execution_conf.ng_solve
 
@@ -1180,6 +1235,7 @@ class JobConfigurationData(PyAedtBase):
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData()
         >>> config.ng_solve = True
+
         """
         self.__execution_conf.ng_solve = value
 
@@ -1192,6 +1248,7 @@ class JobConfigurationData(PyAedtBase):
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData(product_full_path="C:\\Program Files\\AnsysEM\\v252\\Win64\\ansysedt.exe")
         >>> config.product_full_path
+
         """
         return self.__execution_conf.product_full_path
 
@@ -1204,6 +1261,7 @@ class JobConfigurationData(PyAedtBase):
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData()
         >>> config.product_full_path = "C:\\Program Files\\AnsysEM\\v252\\Win64\\ansysedt.exe"
+
         """
         self.__execution_conf.product_full_path = value
 
@@ -1216,6 +1274,7 @@ class JobConfigurationData(PyAedtBase):
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData(shared_directory_linux="/mnt/aedt_shared")
         >>> config.shared_directory_linux
+
         """
         return self.__execution_conf.shared_directory_linux
 
@@ -1228,6 +1287,7 @@ class JobConfigurationData(PyAedtBase):
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData()
         >>> config.shared_directory_linux = "/mnt/aedt_shared"
+
         """
         self.__execution_conf.shared_directory_linux = value
 
@@ -1240,6 +1300,7 @@ class JobConfigurationData(PyAedtBase):
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData(shared_directory_windows="C:\\AEDT\\shared")
         >>> config.shared_directory_windows
+
         """
         return self.__execution_conf.shared_directory_windows
 
@@ -1252,6 +1313,7 @@ class JobConfigurationData(PyAedtBase):
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData()
         >>> config.shared_directory_windows = "C:\\AEDT\\shared"
+
         """
         self.__execution_conf.shared_directory_windows = value
 
@@ -1264,6 +1326,7 @@ class JobConfigurationData(PyAedtBase):
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData(use_ppe=False)
         >>> config.use_ppe
+
         """
         return self.__execution_conf.use_ppe
 
@@ -1276,6 +1339,7 @@ class JobConfigurationData(PyAedtBase):
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData()
         >>> config.use_ppe = False
+
         """
         self.__execution_conf.use_ppe = value
 
@@ -1288,6 +1352,7 @@ class JobConfigurationData(PyAedtBase):
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData(wait_for_license=False)
         >>> config.wait_for_license
+
         """
         return self.__execution_conf.wait_for_license
 
@@ -1300,6 +1365,7 @@ class JobConfigurationData(PyAedtBase):
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData()
         >>> config.wait_for_license = False
+
         """
         self.__execution_conf.wait_for_license = value
 
@@ -1313,6 +1379,7 @@ class JobConfigurationData(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData.from_dict({"num_cores": 8, "num_tasks": 2})
+
         """
         return cls(
             aedt_version=data.get("aedt_version"),
@@ -1345,6 +1412,7 @@ class JobConfigurationData(PyAedtBase):
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData(num_cores=8, num_tasks=2)
         >>> config.to_dict()
+
         """
         return {
             "auto_hpc": self.auto_hpc,
@@ -1376,6 +1444,7 @@ class JobConfigurationData(PyAedtBase):
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData(num_cores=8)
         >>> config.to_json(r"C:\\Temp\\job_settings.json")
+
         """
         with open(path, "w") as f:
             json.dump(self.to_dict(), f, indent=4)
@@ -1388,6 +1457,7 @@ class JobConfigurationData(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData.from_json(r"C:\\Temp\\job_settings.json")
+
         """
         with open(path, "r") as f:
             data = json.load(f)
@@ -1401,6 +1471,7 @@ class JobConfigurationData(PyAedtBase):
         >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
         >>> config = JobConfigurationData(num_cores=8)
         >>> config.save_areg(r"C:\\Temp\\Job_Settings.areg")
+
         """
         # Check if inconsistencies in resources configuration exist
         self.__resources_conf.check_consistency()

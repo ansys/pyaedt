@@ -29,6 +29,7 @@ Examples
 >>> from typer.testing import CliRunner
 >>> from ansys.aedt.core.cli.aedt import session_app
 >>> CliRunner().invoke(session_app, ["list"])
+
 """
 
 from __future__ import annotations
@@ -120,6 +121,7 @@ def start(
     >>> from typer.testing import CliRunner
     >>> from ansys.aedt.core.cli.aedt import session_app
     >>> CliRunner().invoke(session_app, ["start", "--version", "2026.1", "--port", "50051", "--non-graphical"])
+
     """
     try:
         if not common.json_mode:
@@ -193,6 +195,7 @@ def list_sessions() -> None:
     >>> from typer.testing import CliRunner
     >>> from ansys.aedt.core.cli.aedt import session_app
     >>> CliRunner().invoke(session_app, ["list"])
+
     """
     try:
         aedt_sessions = _discover_aedt_sessions()
@@ -268,6 +271,7 @@ def stop(
     >>> from typer.testing import CliRunner
     >>> from ansys.aedt.core.cli.aedt import session_app
     >>> CliRunner().invoke(session_app, ["stop", "--port", "50051"])
+
     """
     try:
         aedt_sessions = _discover_aedt_sessions()
@@ -354,6 +358,7 @@ def attach(
     >>> from typer.testing import CliRunner
     >>> from ansys.aedt.core.cli.aedt import session_app
     >>> CliRunner().invoke(session_app, ["attach", "--port", "50051"])
+
     """
     try:
         aedt_sessions = _discover_aedt_sessions()

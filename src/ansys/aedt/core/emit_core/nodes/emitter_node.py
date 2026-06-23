@@ -53,6 +53,7 @@ class EmitterNode(EmitNode):
     >>> from ansys.aedt.core import Emit
     >>> app = Emit()
     >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+
     """
 
     def __init__(self, emit_obj, result_id, node_id) -> None:
@@ -82,6 +83,7 @@ class EmitterNode(EmitNode):
         >>> app = Emit()
         >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
         >>> emitter.node_type
+
         """
         return "EmitterNode"
 
@@ -95,6 +97,7 @@ class EmitterNode(EmitNode):
         >>> app = Emit()
         >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
         >>> emitter_copy = emitter.duplicate("Bluetooth_Copy")
+
         """
         return self._duplicate(new_name)
 
@@ -108,6 +111,7 @@ class EmitterNode(EmitNode):
         >>> app = Emit()
         >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
         >>> emitter.delete()
+
         """
         self._delete()
 
@@ -123,6 +127,7 @@ class EmitterNode(EmitNode):
         Examples
         --------
         >>> node = emitter.get_radio()
+
         """
         return self._radio_node
 
@@ -138,6 +143,7 @@ class EmitterNode(EmitNode):
         Examples
         --------
         >>> node = emitter.get_antenna()
+
         """
         return self._antenna_node
 
@@ -154,6 +160,7 @@ class EmitterNode(EmitNode):
         Examples
         --------
         >>> waveforms = emitter.get_waveforms()
+
         """
         return self.get_waveforms()
 
@@ -169,6 +176,7 @@ class EmitterNode(EmitNode):
         Examples
         --------
         >>> waveforms = emitter.get_waveforms()
+
         """
         radio = self.get_radio()
         radio_children = radio.children

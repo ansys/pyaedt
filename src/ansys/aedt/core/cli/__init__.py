@@ -29,6 +29,7 @@ Examples
 >>> from typer.testing import CliRunner
 >>> from ansys.aedt.core.cli import app
 >>> CliRunner().invoke(app, ["version"])
+
 """
 
 try:
@@ -63,6 +64,7 @@ def main_callback(
     >>> from typer.testing import CliRunner
     >>> from ansys.aedt.core.cli import app
     >>> CliRunner().invoke(app, ["--json", "version"])
+
     """
     if json_output:
         common.json_mode = True
@@ -77,6 +79,7 @@ def version() -> None:
     >>> from typer.testing import CliRunner
     >>> from ansys.aedt.core.cli import app
     >>> CliRunner().invoke(app, ["version"])
+
     """
     import ansys.aedt.core
 
@@ -97,6 +100,7 @@ def aedt_versions() -> None:
     >>> from typer.testing import CliRunner
     >>> from ansys.aedt.core.cli import app
     >>> CliRunner().invoke(app, ["aedt-versions"])
+
     """
     try:
         from ansys.aedt.core.internal.aedt_versions import aedt_versions

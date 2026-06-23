@@ -46,6 +46,7 @@ class Isolator(EmitNode):
         >>> app = Emit()
         >>> isolator = app.schematic.create_component("Isolator", name="Isolator1")
         >>> isolator.node_type
+
         """
         return self._node_type
 
@@ -59,6 +60,7 @@ class Isolator(EmitNode):
         >>> app = Emit()
         >>> isolator = app.schematic.create_component("Isolator", name="Isolator1")
         >>> isolator_copy = isolator.duplicate("IsolatorCopy")
+
         """
         return self._duplicate(new_name)
 
@@ -72,6 +74,7 @@ class Isolator(EmitNode):
         >>> app = Emit()
         >>> isolator = app.schematic.create_component("Isolator", name="Isolator1")
         >>> isolator.delete()
+
         """
         self._delete()
 
@@ -89,6 +92,7 @@ class Isolator(EmitNode):
         >>> app = Emit()
         >>> isolator = app.schematic.create_component("Isolator", name="Isolator1")
         >>> isolator.filename = "C:\\Temp\\isolator.s2p"
+
         """
         val = self._get_property("Filename")
         return val
@@ -112,6 +116,7 @@ class Isolator(EmitNode):
         >>> app = Emit()
         >>> isolator = app.schematic.create_component("Isolator", name="Isolator1")
         >>> isolator.noise_temperature = 290.0
+
         """
         val = self._get_property("Noise Temperature")
         return float(val)
@@ -132,6 +137,7 @@ class Isolator(EmitNode):
         >>> app = Emit()
         >>> isolator = app.schematic.create_component("Isolator", name="Isolator1")
         >>> isolator.notes = "Updated for the link budget study"
+
         """
         val = self._get_property("Notes")
         return val
@@ -160,6 +166,7 @@ class Isolator(EmitNode):
         >>> app = Emit()
         >>> isolator = app.schematic.create_component("Isolator", name="Isolator1")
         >>> isolator.isolator_type = isolator.IsolatorTypeOption.PARAMETRIC
+
         """
         val = self._get_property("Isolator Type")
         val = self.IsolatorTypeOption[val.upper()]
@@ -184,6 +191,7 @@ class Isolator(EmitNode):
         >>> app = Emit()
         >>> isolator = app.schematic.create_component("Isolator", name="Isolator1")
         >>> isolator.insertion_loss = 1.2
+
         """
         val = self._get_property("Insertion Loss")
         return float(val)
@@ -210,6 +218,7 @@ class Isolator(EmitNode):
         >>> app = Emit()
         >>> isolator = app.schematic.create_component("Isolator", name="Isolator1")
         >>> isolator.finite_reverse_isolation = True
+
         """
         val = self._get_property("Finite Reverse Isolation")
         return val == "true"
@@ -233,6 +242,7 @@ class Isolator(EmitNode):
         >>> app = Emit()
         >>> isolator = app.schematic.create_component("Isolator", name="Isolator1")
         >>> isolator.reverse_isolation = 35.0
+
         """
         val = self._get_property("Reverse Isolation")
         return float(val)
@@ -259,6 +269,7 @@ class Isolator(EmitNode):
         >>> app = Emit()
         >>> isolator = app.schematic.create_component("Isolator", name="Isolator1")
         >>> isolator.finite_bandwidth = True
+
         """
         val = self._get_property("Finite Bandwidth")
         return val == "true"
@@ -282,6 +293,7 @@ class Isolator(EmitNode):
         >>> app = Emit()
         >>> isolator = app.schematic.create_component("Isolator", name="Isolator1")
         >>> isolator.out_of_band_attenuation = 60.0
+
         """
         val = self._get_property("Out-of-band Attenuation")
         return float(val)
@@ -305,6 +317,7 @@ class Isolator(EmitNode):
         >>> app = Emit()
         >>> isolator = app.schematic.create_component("Isolator", name="Isolator1")
         >>> isolator.lower_stop_band = "1.8GHz"
+
         """
         val = self._get_property("Lower Stop Band")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -330,6 +343,7 @@ class Isolator(EmitNode):
         >>> app = Emit()
         >>> isolator = app.schematic.create_component("Isolator", name="Isolator1")
         >>> isolator.lower_cutoff = "2.0GHz"
+
         """
         val = self._get_property("Lower Cutoff")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -355,6 +369,7 @@ class Isolator(EmitNode):
         >>> app = Emit()
         >>> isolator = app.schematic.create_component("Isolator", name="Isolator1")
         >>> isolator.higher_cutoff = "2.2GHz"
+
         """
         val = self._get_property("Higher Cutoff")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -380,6 +395,7 @@ class Isolator(EmitNode):
         >>> app = Emit()
         >>> isolator = app.schematic.create_component("Isolator", name="Isolator1")
         >>> isolator.higher_stop_band = "2.4GHz"
+
         """
         val = self._get_property("Higher Stop Band")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -402,6 +418,7 @@ class Isolator(EmitNode):
         >>> app = Emit()
         >>> isolator = app.schematic.create_component("Isolator", name="Isolator1")
         >>> isolator.warnings
+
         """
         val = self._get_property("Warnings")
         return val

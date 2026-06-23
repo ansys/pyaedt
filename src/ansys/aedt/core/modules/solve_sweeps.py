@@ -62,6 +62,7 @@ def identify_setup(props: dict) -> bool:
     --------
     >>> from ansys.aedt.core.modules.solve_sweeps import identify_setup
     >>> identify_setup(props={"Name": "Value"})
+
     """
     keys = [
         "Transient",
@@ -166,6 +167,7 @@ class SweepHFSS(SweepCommon):
         >>> from ansys.aedt.core.modules.solve_sweeps import SweepHFSS
         >>> obj = SweepHFSS()
         >>> obj.is_solved
+
         """
         sol = self._app._app.post.reports_by_category.standard(setup=f"{self.setup_name} : {self.name}")
         if identify_setup(self.props):
@@ -188,6 +190,7 @@ class SweepHFSS(SweepCommon):
         >>> from ansys.aedt.core.modules.solve_sweeps import SweepHFSS
         >>> obj = SweepHFSS()
         >>> obj.frequencies
+
         """
         sol = self._app._app.post.reports_by_category.standard(setup=f"{self.setup_name} : {self.name}")
         soldata = sol.get_solution_data()
@@ -211,6 +214,7 @@ class SweepHFSS(SweepCommon):
         >>> from ansys.aedt.core.modules.solve_sweeps import SweepHFSS
         >>> obj = SweepHFSS()
         >>> obj.basis_frequencies
+
         """
         solutions_file = os.path.join(self._app._app.results_directory, f"{self._app._app.design_name}.asol")
         fr = []
@@ -355,6 +359,7 @@ class SweepHFSS(SweepCommon):
         >>> from ansys.aedt.core.modules.solve_sweeps import SweepHFSS
         >>> obj = SweepHFSS()
         >>> obj.create()
+
         """
         self.oanalysis.InsertFrequencySweep(self.setup_name, self._get_args())
         return True
@@ -373,6 +378,7 @@ class SweepHFSS(SweepCommon):
         >>> from ansys.aedt.core.modules.solve_sweeps import SweepHFSS
         >>> obj = SweepHFSS()
         >>> obj.update()
+
         """
         self.oanalysis.EditFrequencySweep(self.setup_name, self.name, self._get_args())
 
@@ -470,6 +476,7 @@ class SweepHFSS3DLayout(SweepCommon):
         >>> from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
         >>> obj = SweepHFSS3DLayout()
         >>> obj.combined_name
+
         """
         return f"{self.setup_name} : {self.name}"
 
@@ -487,6 +494,7 @@ class SweepHFSS3DLayout(SweepCommon):
         >>> from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
         >>> obj = SweepHFSS3DLayout()
         >>> obj.is_solved
+
         """
         expressions = [i for i in self._app.post.available_report_quantities(solution=self.combined_name)]
         sol = self._app._app.post.reports_by_category.standard(expressions=expressions[0], setup=self.combined_name)
@@ -514,6 +522,7 @@ class SweepHFSS3DLayout(SweepCommon):
         >>> from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
         >>> obj = SweepHFSS3DLayout()
         >>> obj.change_type(sweep_type=1)
+
         """
         if sweep_type == "Interpolating":
             self.props["FastSweep"] = True
@@ -544,6 +553,7 @@ class SweepHFSS3DLayout(SweepCommon):
         >>> from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
         >>> obj = SweepHFSS3DLayout()
         >>> obj.set_save_fields(save_fields=True)
+
         """
         self.props["GenerateSurfaceCurrent"] = save_fields
         self.props["SaveRadFieldsOnly"] = save_rad_fields
@@ -582,6 +592,7 @@ class SweepHFSS3DLayout(SweepCommon):
         >>> from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
         >>> obj = SweepHFSS3DLayout()
         >>> obj.add_subrange(range_type=1, start=[0, 0, 0])
+
         """
         try:
             if range_type == "SinglePoint" and self.props["FreqSweepType"] == "kInterpolating":
@@ -640,6 +651,7 @@ class SweepHFSS3DLayout(SweepCommon):
         >>> from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
         >>> obj = SweepHFSS3DLayout()
         >>> obj.change_range(range_type=1, start=[0, 0, 0])
+
         """
         if range_type == "LinearCount":
             sweep_range = "LINC " + str(start) + unit + " " + str(end) + unit + " " + str(count)
@@ -668,6 +680,7 @@ class SweepHFSS3DLayout(SweepCommon):
         >>> from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
         >>> obj = SweepHFSS3DLayout()
         >>> obj.create()
+
         """
         self.oanalysis.AddSweep(self.setup_name, self._get_args())
         return True
@@ -686,6 +699,7 @@ class SweepHFSS3DLayout(SweepCommon):
         >>> from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
         >>> obj = SweepHFSS3DLayout()
         >>> obj.update()
+
         """
         self.oanalysis.EditSweep(self.setup_name, self.name, self._get_args())
         return True
@@ -787,6 +801,7 @@ class SweepMatrix(SweepCommon):
         >>> from ansys.aedt.core.modules.solve_sweeps import SweepMatrix
         >>> obj = SweepMatrix()
         >>> obj.is_solved
+
         """
         sol = self._app._app.post.reports_by_category.standard(setup=f"{self.setup_name} : {self.name}")
         return True if sol.get_solution_data() else False
@@ -807,6 +822,7 @@ class SweepMatrix(SweepCommon):
         >>> from ansys.aedt.core.modules.solve_sweeps import SweepMatrix
         >>> obj = SweepMatrix()
         >>> obj.frequencies
+
         """
         sol = self._app._app.post.reports_by_category.standard(setup=f"{self.setup_name} : {self.name}")
         soldata = sol.get_solution_data()
@@ -830,6 +846,7 @@ class SweepMatrix(SweepCommon):
         >>> from ansys.aedt.core.modules.solve_sweeps import SweepMatrix
         >>> obj = SweepMatrix()
         >>> obj.basis_frequencies
+
         """
         solutions_file = os.path.join(self._app._app.results_directory, f"{self._app._app.design_name}.asol")
         fr = []
@@ -901,6 +918,7 @@ class SweepMatrix(SweepCommon):
         >>> from ansys.aedt.core.modules.solve_sweeps import SweepMatrix
         >>> obj = SweepMatrix()
         >>> obj.add_subrange(range_type=1, start=[0, 0, 0])
+
         """
         if clear:
             self.props["RangeType"] = range_type
@@ -945,6 +963,7 @@ class SweepMatrix(SweepCommon):
         >>> from ansys.aedt.core.modules.solve_sweeps import SweepMatrix
         >>> obj = SweepMatrix()
         >>> obj.create()
+
         """
         self.oanalysis.InsertSweep(self.setup_name, self._get_args())
         return True
@@ -963,6 +982,7 @@ class SweepMatrix(SweepCommon):
         >>> from ansys.aedt.core.modules.solve_sweeps import SweepMatrix
         >>> obj = SweepMatrix()
         >>> obj.update()
+
         """
         self.oanalysis.EditSweep(self.setup_name, self.name, self._get_args())
 
@@ -1042,6 +1062,7 @@ class SweepMaxwellEC(SweepCommon):
         >>> from ansys.aedt.core.modules.solve_sweeps import SweepMaxwellEC
         >>> obj = SweepMaxwellEC()
         >>> obj.name
+
         """
         return self.setup_name
 
@@ -1059,6 +1080,7 @@ class SweepMaxwellEC(SweepCommon):
         >>> from ansys.aedt.core.modules.solve_sweeps import SweepMaxwellEC
         >>> obj = SweepMaxwellEC()
         >>> obj.is_solved
+
         """
         expressions = [
             i for i in self._setup._app.post.available_report_quantities(solution=self._setup._app.nominal_sweep)
@@ -1086,6 +1108,7 @@ class SweepMaxwellEC(SweepCommon):
         >>> from ansys.aedt.core.modules.solve_sweeps import SweepMaxwellEC
         >>> obj = SweepMaxwellEC()
         >>> obj.frequencies
+
         """
         expressions = [
             i for i in self._setup._app.post.available_report_quantities(solution=self._setup._app.nominal_sweep)
@@ -1112,6 +1135,7 @@ class SweepMaxwellEC(SweepCommon):
         >>> from ansys.aedt.core.modules.solve_sweeps import SweepMaxwellEC
         >>> obj = SweepMaxwellEC()
         >>> obj.create()
+
         """
         self.oanalysis.EditSetup(self.setup_name, self._get_args(self._setup.props))
         return True
@@ -1130,6 +1154,7 @@ class SweepMaxwellEC(SweepCommon):
         >>> from ansys.aedt.core.modules.solve_sweeps import SweepMaxwellEC
         >>> obj = SweepMaxwellEC()
         >>> obj.update()
+
         """
         self.oanalysis.EditSetup(self.setup_name, self._get_args(self._setup.props))
         return True
@@ -1148,6 +1173,7 @@ class SweepMaxwellEC(SweepCommon):
         >>> from ansys.aedt.core.modules.solve_sweeps import SweepMaxwellEC
         >>> obj = SweepMaxwellEC()
         >>> obj.delete()
+
         """
         setup_sweeps = self._setup.props["SweepRanges"]["Subrange"].copy()
         if isinstance(self._setup.props["SweepRanges"]["Subrange"], list):

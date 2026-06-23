@@ -167,6 +167,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
     PyAEDT INFO: Project...
     PyAEDT INFO: No design is present. Inserting a new design.
     PyAEDT INFO: Added design...
+
     """
 
     def __init__(
@@ -217,6 +218,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core.icepak import Icepak
         >>> obj = Icepak()
         >>> obj.problem_type
+
         """
         return self.design_solutions.problem_type
 
@@ -238,6 +240,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core.icepak import Icepak
         >>> obj = Icepak()
         >>> obj.existing_analysis_sweeps
+
         """
         setup_list = self.setup_names
         sweep_list = []
@@ -296,6 +299,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> obj = Icepak()
         >>> region_faces = [face.id for face in obj.modeler["Region"].faces[:2]]
         >>> obj.assign_grille(region_faces, free_area_ratio=0.75)
+
         """
         if boundary_name is None:
             boundary_name = generate_unique_name("Grille")
@@ -348,6 +352,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> boundary = icepak.assign_openings(face_names)
         PyAEDT INFO: Face List boundary_faces created
         PyAEDT INFO: Opening Assigned
+
         """
         boundary_name = generate_unique_name("Opening")
         self.modeler.create_face_list(air_faces, "boundary_faces" + boundary_name)
@@ -461,6 +466,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         {'Objects': ['BlockBox1'], 'Block Type': 'Solid', 'Use External Conditions': False, 'Total Power': '2W'}
         >>> blocks[3].props
         {'Objects': ['BlockBox2'], 'Block Type': 'Solid', 'Use External Conditions': False, 'Total Power': '4W'}
+
         """
         oObjects = self.modeler.solid_names
         listmcad = []
@@ -516,6 +522,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> surface = icepak.modeler.create_rectangle(Plane.XY, [0, 0, 0], [10, 20], name="Surface1")
         >>> icepak.assign_surface_monitor("Surface1", monitor_name="monitor")
         'monitor'
+
         """
         return self.monitor.assign_surface_monitor(face_name, monitor_quantity=monitor_type, monitor_name=monitor_name)
 
@@ -588,6 +595,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> box = icepak.modeler.create_box([1, 1, 1], [3, 3, 3], "BlockBox1", "copper")
         >>> icepak.assign_point_monitor(box.name, monitor_name="monitor2")
         "'monitor2'
+
         """
         return self.monitor.assign_point_monitor_in_object(
             name, monitor_quantity=monitor_type, monitor_name=monitor_name
@@ -616,6 +624,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core.icepak import Icepak
         >>> obj = Icepak()
         >>> obj.assign_block_from_sherlock_file(r"C:\\Temp\\sherlock_components.csv")
+
         """
         with open_file(csv_name) as csvfile:
             csv_input = csv.reader(csvfile)
@@ -671,6 +680,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core.icepak import Icepak
         >>> obj = Icepak()
         >>> obj.find_top(5)
+
         """
         dirs = ["-X", "+X", "-Y", "+Y", "-Z", "+Z"]
         for dir in dirs:
@@ -766,6 +776,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> box = ipk.modeler.create_box([0, 0, 0], [1, 2, 3])
         >>> top_face = box.top_face_z
         >>> ipk.create_parametric_heatsink_on_face(top_face, material="Al-Extruded")
+
         """
         all_obj = self.modeler.object_names
         center = top_face.center
@@ -1092,6 +1103,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core.icepak import Icepak
         >>> obj = Icepak()
         >>> obj.edit_design_settings(gravity_dir=5, default_fluid="air", default_solid="Al-Extruded")
+
         """
         #
         # Configure design settings such as gravity
@@ -1234,6 +1246,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core.icepak import Icepak
         >>> obj = Icepak()
         >>> obj.assign_em_losses(["HeatSink"], design="HFSSDesign1", setup="Setup1", sweep="LastAdaptive")
+
         """
         if surface_objects is None:
             surface_objects = []
@@ -1348,6 +1361,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> obj = Icepak()
         >>> face = obj.modeler["Region"].faces[0]
         >>> obj.eval_surface_quantity_from_field_summary([face.id], quantity_name="Temperature")
+
         """
         if parameter_dict_with_values is None:
             parameter_dict_with_values = self.available_variations.nominal_values
@@ -1430,6 +1444,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core.icepak import Icepak
         >>> obj = Icepak()
         >>> obj.eval_volume_quantity_from_field_summary(["HeatSink"], quantity_name="Temperature")
+
         """
         if parameter_dict_with_values is None:
             parameter_dict_with_values = self.available_variations.nominal_values
@@ -1515,6 +1530,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core.icepak import Icepak
         >>> obj = Icepak()
         >>> obj.export_summary(quantity="Temperature", type="Object", geometry_type="Volume")
+
         """
         if type not in ("Object", "Boundary"):
             raise ValueError(("Entity type " + type + " not supported."))
@@ -1602,6 +1618,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core.icepak import Icepak
         >>> obj = Icepak()
         >>> obj.get_radiation_settings("Both")
+
         """
         if radiation == "Nothing":
             low_side_radiation = False
@@ -1642,6 +1659,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core.icepak import Icepak
         >>> obj = Icepak()
         >>> obj.get_link_data([None, "HFSSDesign1", "Setup1 : Last Adaptive", True, True])
+
         """
         if links_data[0] is None:
             project_name = "This Project*"
@@ -1720,6 +1738,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core.icepak import Icepak
         >>> obj = Icepak()
         >>> obj.create_fan("Fan1", cross_section="YZ", radius="15mm", hub_radius="5mm", origin=[5, 21, 1])
+
         """
         if not name:
             name = generate_unique_name("Fan")
@@ -1868,6 +1887,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> obj = Icepak()
         >>> link_data = [None, "LayoutDesign1", "Setup1 : Last Adaptive", True, True]
         >>> obj.create_ipk_3dcomponent_pcb("MainBoard", link_data, "2.4GHz", 2)
+
         """
         low_radiation, high_radiation = self.get_radiation_settings(rad)
         hfss_link_info = {}
@@ -2018,6 +2038,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core.icepak import Icepak
         >>> obj = Icepak()
         >>> obj.create_pcb_from_3dlayout("MainBoard", r"C:\\Projects\\layout_project.aedt", "LayoutDesign1")
+
         """
         if project_name == self.project_name:
             project_name = "This Project*"
@@ -2077,6 +2098,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core.icepak import Icepak
         >>> obj = Icepak()
         >>> obj.copy_group_from("HeatsinkGroup", "IcepakDesign1")
+
         """
         pj_names = self.desktop_class.project_list
 
@@ -2146,6 +2168,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core.icepak import Icepak
         >>> obj = Icepak()
         >>> obj.globalMeshSettings(2)
+
         """
         bounding_box = self.modeler.oeditor.GetModelBoundingBox()
         xsize = abs(float(bounding_box[0]) - float(bounding_box[3])) / (15 * meshtype * meshtype)
@@ -2223,6 +2246,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core.icepak import Icepak
         >>> obj = Icepak()
         >>> obj.delete_pcb_component("MainBoard")
+
         """
         arg = ["NAME:Selections", "Selections:=", comp_name]
 
@@ -2243,6 +2267,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core.icepak import Icepak
         >>> obj = Icepak()
         >>> obj.get_liquid_objects()
+
         """
         mats = []
         for el in self.materials.liquids:
@@ -2263,6 +2288,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core.icepak import Icepak
         >>> obj = Icepak()
         >>> obj.get_gas_objects()
+
         """
         mats = []
         for el in self.materials.gases:
@@ -2315,6 +2341,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core.icepak import Icepak
         >>> obj = Icepak()
         >>> obj.generate_fluent_mesh(["FluidRegion"], meshtype="tetrahedral")
+
         """
         import subprocess  # nosec
 
@@ -2474,6 +2501,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core.icepak import Icepak
         >>> obj = Icepak()
         >>> obj.assign_surface_material("HeatSink", "Steel-oxidised-surface")
+
         """
         objs = ["NAME:PropServers"]
         objs.extend(self.modeler.convert_to_selections(obj, True))
@@ -2612,6 +2640,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core.icepak import Icepak
         >>> obj = Icepak()
         >>> obj.import_idf(r"C:\\Boards\\demo_board.emn")
+
         """
         active_design_name = self.desktop_class.active_design(self.oproject).GetName()
         if not library_path:
@@ -2744,6 +2773,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> network_block = icepak.create_two_resistor_network_block("network_box1", "board", "5W", 2.5, 5)
         >>> network_block.props["Nodes"]["Internal"][0]
         '5W'
+
         """
 
         def get_face_normal(obj_face):
@@ -2962,6 +2992,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core.icepak import Icepak
         >>> obj = Icepak()
         >>> obj.assign_stationary_wall("HeatSink", "Heat Transfer Coefficient", htc="10w_per_m2kel", thickness="1mm")
+
         """
         if not name:
             name = generate_unique_name("StationaryWall")
@@ -3103,6 +3134,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core.icepak import Icepak
         >>> obj = Icepak()
         >>> obj.assign_stationary_wall_with_heat_flux("HeatSink", heat_flux="200irrad_W_per_m2")
+
         """
         return self.assign_stationary_wall(
             geometry,
@@ -3171,6 +3203,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core.icepak import Icepak
         >>> obj = Icepak()
         >>> obj.assign_stationary_wall_with_temperature("HeatSink", temperature="45cel")
+
         """
         return self.assign_stationary_wall(
             geometry,
@@ -3312,6 +3345,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core.icepak import Icepak
         >>> obj = Icepak()
         >>> obj.assign_stationary_wall_with_htc("HeatSink", htc="12w_per_m2kel", ref_temperature="AmbientTemp")
+
         """
         return self.assign_stationary_wall(
             geometry,
@@ -3566,6 +3600,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core import Icepak
         >>> app = Icepak()
         >>> network = app.create_network_object()
+
         """
         bound = NetworkObject(self, name, props, create)
         if create:
@@ -3626,6 +3661,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>>           [0, 3, 0, 0],
         >>>           [1, 2, 4, 0]]
         >>> boundary = app.assign_resistor_network_from_matrix(sources_power, faces_ids, matrix)
+
         """
         net = self.create_network_object(name=network_name)
         all_nodes = []
@@ -3938,6 +3974,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> ipk = Icepak()
         >>> ipk.create_fan()
         >>> filename, vol_flow_name, p_rise_name, op_dict = ipk.post.get_fans_operating_point()
+
         """
         return self.post.get_fans_operating_point(export_file, setup_name, time_step, design_variation)
 
@@ -4161,6 +4198,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> icepak = ansys.aedt.core.Icepak()
         >>> f_id = icepak.modeler["Region"].faces[0].id
         >>> icepak.assign_pressure_free_opening(f_id)
+
         """
         return self.assign_free_opening(
             assignment,
@@ -4234,6 +4272,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> icepak = ansys.aedt.core.Icepak()
         >>> f_id = icepak.modeler["Region"].faces[0].id
         >>> icepak.assign_velocity_free_opening(f_id)
+
         """
         if velocity is None:
             velocity = ["0m_per_sec", "0m_per_sec", "0m_per_sec"]
@@ -4317,6 +4356,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> icepak = ansys.aedt.core.Icepak()
         >>> f_id = icepak.modeler["Region"].faces[0].id
         >>> icepak.assign_mass_flow_free_opening(f_id)
+
         """
         assignment = self.modeler.convert_to_selections(assignment, True)
 
@@ -4360,6 +4400,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core.icepak import Icepak
         >>> obj = Icepak()
         >>> obj.assign_symmetry_wall([12, 18])
+
         """
         if not boundary_name:
             boundary_name = generate_unique_name("SymmetryWall")
@@ -4560,6 +4601,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
 
         Examples
         --------
+
         """
         props = {
             "Objects": objects if isinstance(objects, list) else [objects],
@@ -4676,6 +4718,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
 
         Examples
         --------
+
         """
         return self.assign_resistance(
             objects,
@@ -4763,6 +4806,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
 
         Examples
         --------
+
         """
         return self.assign_resistance(
             objects,
@@ -4846,6 +4890,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
 
         Examples
         --------
+
         """
         return self.assign_resistance(
             objects,
@@ -5296,6 +5341,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core.icepak import Icepak
         >>> obj = Icepak()
         >>> obj.assign_conducting_plate("Plate1", total_power="5W", thermal_specification="Thickness", thickness="1mm")
+
         """
         props = {}
         if not isinstance(obj_plate, list):
@@ -5400,6 +5446,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core.icepak import Icepak
         >>> obj = Icepak()
         >>> obj.assign_conducting_plate_with_thickness("Plate1", total_power="5W", thickness="1mm")
+
         """
         return self.assign_conducting_plate(
             obj_plate,
@@ -5462,6 +5509,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core.icepak import Icepak
         >>> obj = Icepak()
         >>> obj.assign_conducting_plate_with_resistance("Plate1", total_power="5W", thermal_resistance="2Kel_per_W")
+
         """
         return self.assign_conducting_plate(
             obj_plate,
@@ -5523,6 +5571,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core.icepak import Icepak
         >>> obj = Icepak()
         >>> obj.assign_conducting_plate_with_impedance("Plate1", total_power="5W", thermal_impedance="0.2Cel_m2_per_W")
+
         """
         return self.assign_conducting_plate(
             obj_plate,
@@ -5584,6 +5633,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core.icepak import Icepak
         >>> obj = Icepak()
         >>> obj.assign_conducting_plate_with_conductance("Plate1", total_power="5W", conductance="10W_per_Cel")
+
         """
         return self.assign_conducting_plate(
             obj_plate,
@@ -5650,6 +5700,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> obj = Icepak()
         >>> obj.create_dataset1d_design("TempProfile", [20, 40, 60], [1.0, 1.2, 1.4])
         >>> obj.create_temp_dep_assignment("TempProfile", scale=1)
+
         """
         return self.__create_dataset_assignment("Temp Dep", ds_name, scale)
 
@@ -5678,6 +5729,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> obj = Icepak()
         >>> obj.create_dataset1d_design("PowerProfile", [0, 1, 2], [0, 5, 10])
         >>> obj.create_dataset_transient_assignment("PowerProfile", scale=1)
+
         """
         return self.__create_dataset_assignment("Transient", ds_name, scale)
 
@@ -5708,6 +5760,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core.icepak import Icepak
         >>> obj = Icepak()
         >>> obj.create_linear_transient_assignment("0W", "2W_per_s")
+
         """
         return LinearDictionary(intercept, slope)
 
@@ -5743,6 +5796,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core.icepak import Icepak
         >>> obj = Icepak()
         >>> obj.create_powerlaw_transient_assignment("0W", "3W", "2")
+
         """
         return PowerLawDictionary(intercept, coefficient, scaling_exponent)
 
@@ -5778,6 +5832,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core.icepak import Icepak
         >>> obj = Icepak()
         >>> obj.create_exponential_transient_assignment("0W", "5W", "-1s")
+
         """
         return ExponentialDictionary(vertical_offset, coefficient, exponent_coefficient)
 
@@ -5815,6 +5870,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core.icepak import Icepak
         >>> obj = Icepak()
         >>> obj.create_sinusoidal_transient_assignment("5W", "2W", "1s", "0s")
+
         """
         return SinusoidalDictionary(vertical_offset, vertical_scaling, period, period_offset)
 
@@ -5848,6 +5904,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core.icepak import Icepak
         >>> obj = Icepak()
         >>> obj.create_square_wave_transient_assignment("10W", "0s", "0.5s", "0.5s", "0W")
+
         """
         return SquareWaveDictionary(on_value, initial_time_off, on_time, off_time, off_value)
 
@@ -5869,6 +5926,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core.icepak import Icepak
         >>> obj = Icepak()
         >>> obj.clear_linked_data()
+
         """
         try:
             self.odesign.ClearLinkedData()

@@ -84,6 +84,7 @@ class CutoutData(ExtensionCommonData):
     --------
     >>> from ansys.aedt.core.extensions.hfss3dlayout.cutout import CutoutData
     >>> data = CutoutData(signals=["SIG1"], references=["GND"], expansion_factor=3.0)
+
     """
 
     cutout_type: str = EXTENSION_DEFAULT_ARGUMENTS["cutout_type"]
@@ -105,6 +106,7 @@ class CutoutExtension(ExtensionHFSS3DLayoutCommon):
     --------
     >>> from ansys.aedt.core.extensions.hfss3dlayout.cutout import CutoutExtension
     >>> extension = CutoutExtension(withdraw=True)
+
     """
 
     def __init__(self, withdraw: bool = False) -> None:
@@ -126,6 +128,7 @@ class CutoutExtension(ExtensionHFSS3DLayoutCommon):
         >>> from ansys.aedt.core.extensions.hfss3dlayout.cutout import CutoutExtension
         >>> extension = CutoutExtension(withdraw=True)
         >>> extension.add_extension_content()
+
         """
         upper_frame = ttk.Frame(self.root, style="PyAEDT.TFrame")
         upper_frame.grid(row=0, column=0, columnspan=EXTENSION_NB_COLUMN)
@@ -229,6 +232,7 @@ class CutoutExtension(ExtensionHFSS3DLayoutCommon):
         >>> from ansys.aedt.core.extensions.hfss3dlayout.cutout import CutoutExtension
         >>> extension = CutoutExtension(withdraw=True)
         >>> extension.objects_net
+
         """
         return self.__objects_net
 
@@ -241,6 +245,7 @@ class CutoutExtension(ExtensionHFSS3DLayoutCommon):
         >>> from ansys.aedt.core.extensions.hfss3dlayout.cutout import CutoutExtension
         >>> extension = CutoutExtension(withdraw=True)
         >>> extension.widgets
+
         """
         return self.__widgets
 
@@ -253,6 +258,7 @@ class CutoutExtension(ExtensionHFSS3DLayoutCommon):
         >>> from ansys.aedt.core.extensions.hfss3dlayout.cutout import CutoutExtension
         >>> extension = CutoutExtension(withdraw=True)
         >>> extension.execute_cutout
+
         """
         return self.__execute_cutout
 
@@ -314,7 +320,7 @@ class CutoutExtension(ExtensionHFSS3DLayoutCommon):
             variable.set(WAITING_FOR_SELECTION)
 
     def __output_data(self):
-        """"""
+        """ """
         if not self.data.signals or not self.data.references:
             raise AEDTRuntimeError("Please select signal and reference nets before creating a cutout.")
         self.data.cutout_type = self.__widgets["cutout_type"].get()
@@ -332,6 +338,7 @@ def main(data: CutoutData) -> Path:
     >>> from ansys.aedt.core.extensions.hfss3dlayout.cutout import CutoutData, main
     >>> data = CutoutData(signals=["SIG1"], references=["GND"], expansion_factor=3.0)
     >>> main(data)
+
     """
     app = ansys.aedt.core.Desktop(
         new_desktop=False,

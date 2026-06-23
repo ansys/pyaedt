@@ -43,6 +43,7 @@ class RxSpurNode(EmitNode):
         Examples
         --------
         >>> rx_spurs.parent
+
         """
         return self._parent
 
@@ -54,6 +55,7 @@ class RxSpurNode(EmitNode):
         Examples
         --------
         >>> rx_spurs.node_type
+
         """
         return self._node_type
 
@@ -64,6 +66,7 @@ class RxSpurNode(EmitNode):
         Examples
         --------
         >>> rx_spurs.import_csv_file("C:\\Temp\\rx_spurs.csv")
+
         """
         return self._import(file_name, "Csv")
 
@@ -74,6 +77,7 @@ class RxSpurNode(EmitNode):
         Examples
         --------
         >>> rx_spurs.delete()
+
         """
         self._delete()
 
@@ -92,6 +96,7 @@ class RxSpurNode(EmitNode):
         Examples
         --------
         >>> rx_spurs.table_data = [("RF+10.0", "50 MHz", -60)]
+
         """
         return self._get_table_data()
 
@@ -108,6 +113,7 @@ class RxSpurNode(EmitNode):
         Examples
         --------
         >>> rx_spurs.enabled = True
+
         """
         return self._get_property("Enabled") == "true"
 
@@ -129,6 +135,7 @@ class RxSpurNode(EmitNode):
         --------
         >>> from ansys.aedt.core.emit_core.nodes.generated import RxSpurNode
         >>> rx_spurs.spur_table_units = RxSpurNode.SpurTableUnitsOption.RELATIVE
+
         """
         val = self._get_property("Spur Table Units")
         val = self.SpurTableUnitsOption[val.upper()]

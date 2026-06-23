@@ -94,6 +94,7 @@ class FileManagement(PyAedtBase):
         >>> from ansys.aedt.core.rpc.rpyc_services import FileManagement
         >>> obj = FileManagement()
         >>> obj.upload("localpath", "remotepath", overwrite=True)
+
         """
         if os.path.isdir(localpath):
             self._upload_dir(localpath, remotepath)
@@ -117,6 +118,7 @@ class FileManagement(PyAedtBase):
         >>> from ansys.aedt.core.rpc.rpyc_services import FileManagement
         >>> obj = FileManagement()
         >>> obj.download_folder("remotepath", "localpath", overwrite=True)
+
         """
         self._download_dir(remotepath, localpath, overwrite=True)
 
@@ -137,6 +139,7 @@ class FileManagement(PyAedtBase):
         >>> from ansys.aedt.core.rpc.rpyc_services import FileManagement
         >>> obj = FileManagement()
         >>> obj.download_file("remotepath", "localpath", overwrite=True)
+
         """
         self._download_file(remotepath, localpath, overwrite=overwrite)
 
@@ -254,6 +257,7 @@ def check_port(port: int) -> int:
     --------
     >>> from ansys.aedt.core.rpc.rpyc_services import check_port
     >>> check_port(50051)
+
     """
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     check = False
@@ -294,6 +298,7 @@ class GlobalService(rpyc.Service, PyAedtBase):
         >>> obj = GlobalService()
         >>> connection = object()
         >>> obj.on_connect(connection)
+
         """
         self.connection = connection
 
@@ -308,6 +313,7 @@ class GlobalService(rpyc.Service, PyAedtBase):
         >>> obj = GlobalService()
         >>> connection = object()
         >>> obj.on_disconnect(connection)
+
         """
         if is_windows:
             sys.stdout = sys.__stdout__
@@ -372,6 +378,7 @@ class GlobalService(rpyc.Service, PyAedtBase):
         >>> from ansys.aedt.core.rpc.rpyc_services import GlobalService
         >>> obj = GlobalService()
         >>> obj.aedt_grpc()
+
         """
         from ansys.aedt.core.generic.general_methods import grpc_active_sessions
         from ansys.aedt.core.generic.settings import settings
@@ -469,6 +476,7 @@ class GlobalService(rpyc.Service, PyAedtBase):
         >>> from ansys.aedt.core.rpc.rpyc_services import GlobalService
         >>> obj = GlobalService()
         >>> obj.aedt_port
+
         """
         from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 
@@ -489,6 +497,7 @@ class GlobalService(rpyc.Service, PyAedtBase):
         >>> from ansys.aedt.core.rpc.rpyc_services import GlobalService
         >>> obj = GlobalService()
         >>> obj.aedt_version
+
         """
         from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 
@@ -509,6 +518,7 @@ class GlobalService(rpyc.Service, PyAedtBase):
         >>> from ansys.aedt.core.rpc.rpyc_services import GlobalService
         >>> obj = GlobalService()
         >>> obj.student_version
+
         """
         from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 
@@ -529,6 +539,7 @@ class GlobalService(rpyc.Service, PyAedtBase):
         >>> from ansys.aedt.core.rpc.rpyc_services import GlobalService
         >>> obj = GlobalService()
         >>> obj.host
+
         """
         import socket
 
@@ -609,6 +620,7 @@ class ServiceManager(rpyc.Service, PyAedtBase):
         >>> obj = ServiceManager()
         >>> connection = object()
         >>> obj.on_connect(connection)
+
         """
         self.connection = connection
         self.__processes: dict[int, subprocess.Popen] = {}
@@ -624,6 +636,7 @@ class ServiceManager(rpyc.Service, PyAedtBase):
         >>> obj = ServiceManager()
         >>> connection = object()
         >>> obj.on_disconnect(connection)
+
         """
         for process in self.__processes.values():
             try:
@@ -662,6 +675,7 @@ class ServiceManager(rpyc.Service, PyAedtBase):
         >>> from ansys.aedt.core.rpc.rpyc_services import ServiceManager
         >>> obj = ServiceManager()
         >>> obj.start_service(host="localhost", port=50051, secure=True, listen_all=False)
+
         """
         try:
             port = check_port(port)
@@ -721,6 +735,7 @@ class ServiceManager(rpyc.Service, PyAedtBase):
         >>> from ansys.aedt.core.rpc.rpyc_services import ServiceManager
         >>> obj = ServiceManager()
         >>> obj.stop_service(port=50051)
+
         """
         if port in self.__processes:
             try:
@@ -740,6 +755,7 @@ class ServiceManager(rpyc.Service, PyAedtBase):
         >>> from ansys.aedt.core.rpc.rpyc_services import ServiceManager
         >>> obj = ServiceManager()
         >>> obj.exposed_check_port()
+
         """
         import secrets
 

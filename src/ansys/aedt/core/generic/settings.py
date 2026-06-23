@@ -39,6 +39,7 @@ Examples
 --------
 >>> from ansys.aedt.core.generic.settings import settings
 >>> settings.enable_screen_logs = False
+
 """
 
 from __future__ import annotations
@@ -157,6 +158,7 @@ def generate_log_filename() -> str:
     --------
     >>> from ansys.aedt.core.generic.settings import generate_log_filename
     >>> log_name = generate_log_filename()
+
     """
     base = "pyaedt"
     username = Path.home().name
@@ -184,6 +186,7 @@ class Settings(PyAedtBase):
     >>> from ansys.aedt.core.generic.settings import Settings
     >>> custom_settings = Settings()
     >>> custom_settings.enable_screen_logs = False
+
     """
 
     def __init__(self) -> None:
@@ -308,6 +311,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.pyedb_use_grpc = True
+
         """
         return self.__pyedb_use_grpc
 
@@ -324,6 +328,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.grpc_secure_mode = False
+
         """
         return self.__grpc_secure_mode
 
@@ -340,6 +345,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.grpc_local = True
+
         """
         return self.__grpc_local
 
@@ -356,6 +362,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.grpc_listen_all = False
+
         """
         return self.__grpc_listen_all
 
@@ -374,6 +381,7 @@ class Settings(PyAedtBase):
         >>> import logging
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.logger = logging.getLogger("pyaedt")
+
         """
         return self.__logger
 
@@ -391,6 +399,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.block_figure_plot = True
+
         """
         return self.__block_figure_plot
 
@@ -406,6 +415,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.enable_desktop_logs = True
+
         """
         return self.__enable_desktop_logs
 
@@ -421,6 +431,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.global_log_file_size = 20
+
         """
         return self.__global_log_file_size
 
@@ -438,6 +449,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.enable_global_log_file = True
+
         """
         return self.__enable_global_log_file
 
@@ -455,6 +467,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.enable_local_log_file = True
+
         """
         return self.__enable_local_log_file
 
@@ -470,6 +483,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.global_log_file_name = r"C:\\Temp\\pyaedt.log"
+
         """
         return self.__global_log_file_name
 
@@ -488,6 +502,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.enable_debug_methods_argument_logger = True
+
         """
         return self.__enable_debug_methods_argument_logger
 
@@ -503,6 +518,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.enable_screen_logs = False
+
         """
         return self.__enable_screen_logs
 
@@ -518,6 +534,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.enable_file_logs = True
+
         """
         return self.__enable_file_logs
 
@@ -533,6 +550,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.enable_logger = True
+
         """
         return self.__enable_logger
 
@@ -548,6 +566,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.logger_file_path = r"C:\\Temp\\pyaedt.log"
+
         """
         return self.__logger_file_path
 
@@ -565,6 +584,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.logger_formatter = "%(levelname)s:%(message)s"
+
         """
         return self.__logger_formatter
 
@@ -582,6 +602,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.logger_datefmt = "%H:%M:%S"
+
         """
         return self.__logger_datefmt
 
@@ -597,6 +618,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.enable_debug_edb_logger = True
+
         """
         return self.__enable_debug_edb_logger
 
@@ -612,6 +634,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.enable_debug_grpc_api_logger = True
+
         """
         return self.__enable_debug_grpc_api_logger
 
@@ -629,6 +652,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.enable_debug_geometry_operator_logger = True
+
         """
         return self.__enable_debug_geometry_operator_logger
 
@@ -646,6 +670,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.enable_debug_internal_methods_logger = True
+
         """
         return self.__enable_debug_internal_methods_logger
 
@@ -661,6 +686,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.enable_debug_logger = True
+
         """
         return self.__enable_debug_logger
 
@@ -678,6 +704,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.aedt_log_file = r"C:\\Temp\\aedt_launch.log"
+
         """
         return self.__aedt_log_file
 
@@ -697,6 +724,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.lsf_queue = "research"
+
         """
         return self.__lsf_queue
 
@@ -715,6 +743,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.use_lsf_scheduler = True
+
         """
         return self.__use_lsf_scheduler
 
@@ -739,6 +768,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.lsf_aedt_command = "ansysedt"
+
         """
         return self.__lsf_aedt_command
 
@@ -754,6 +784,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.num_cores = 8
+
         """
         return self.__num_cores
 
@@ -771,6 +802,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.lsf_ram = 4000
+
         """
         return self.__lsf_ram
 
@@ -786,6 +818,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.lsf_ui = 1
+
         """
         return self.__lsf_ui
 
@@ -802,6 +835,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.lsf_timeout = 1800
+
         """
         return self.__lsf_timeout
 
@@ -818,6 +852,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.lsf_osrel = "ubuntu22.04"
+
         """
         return self.__lsf_osrel
 
@@ -834,6 +869,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.custom_lsf_command = "bsub -n 4"
+
         """
         return self.__custom_lsf_command
 
@@ -852,6 +888,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.aedt_environment_variables = {"ANS_NODEPCHECK": "1"}
+
         """
         return self.__aedt_environment_variables
 
@@ -869,6 +906,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.remote_api = True
+
         """
         return self.__remote_api
 
@@ -885,6 +923,7 @@ class Settings(PyAedtBase):
         >>> import logging
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.formatter = logging.Formatter("%(levelname)s:%(message)s")
+
         """
         return self.__formatter
 
@@ -900,6 +939,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.remote_rpc_session = None
+
         """
         return self.__remote_rpc_session
 
@@ -915,6 +955,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.remote_rpc_session_temp_folder = r"C:\\Temp\\pyaedt_rpc"
+
         """
         return self.__remote_rpc_session_temp_folder
 
@@ -930,6 +971,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.remote_rpc_service_manager_port = 18000
+
         """
         return self.__remote_rpc_service_manager_port
 
@@ -946,6 +988,7 @@ class Settings(PyAedtBase):
         >>> import time
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.time_tick = time.time()
+
         """
         return self.__time_tick
 
@@ -961,6 +1004,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.release_on_exception = False
+
         """
         return self.__release_on_exception
 
@@ -976,6 +1020,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.objects_lazy_load = True
+
         """
         return self.__objects_lazy_load
 
@@ -991,6 +1036,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.lazy_load = True
+
         """
         return self.__lazy_load
 
@@ -1008,6 +1054,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.wait_for_license = True
+
         """
         return self.__wait_for_license
 
@@ -1023,6 +1070,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.retry_n_times_time_interval = 0.5
+
         """
         return self.__retry_n_times_time_interval
 
@@ -1038,6 +1086,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.number_of_grpc_api_retries = 5
+
         """
         return self.__number_of_grpc_api_retries
 
@@ -1053,6 +1102,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.desktop_launch_timeout = 180
+
         """
         return self.__desktop_launch_timeout
 
@@ -1070,6 +1120,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.aedt_version = "2026.1"
+
         """
         return self.__aedt_version
 
@@ -1093,6 +1144,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.use_multi_desktop = True
+
         """
         return self.__use_multi_desktop
 
@@ -1108,6 +1160,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.edb_dll_path = r"C:\\Program Files\\AnsysEM\\v261\\Delcross\\Win64\\aedb.dll"
+
         """
         if self.__edb_dll_path is not None:
             # If the optional path is set, return it
@@ -1133,6 +1186,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.enable_pandas_output = True
+
         """
         return self.__enable_pandas_output
 
@@ -1152,6 +1206,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.force_error_on_missing_project = True
+
         """
         return self.__force_error_on_missing_project
 
@@ -1167,6 +1222,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.disable_bounding_box_sat = True
+
         """
         return self.__disable_bounding_box_sat
 
@@ -1182,6 +1238,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.use_grpc_api = True
+
         """
         return self.__use_grpc_api
 
@@ -1197,6 +1254,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.enable_error_handler = False
+
         """
         return self.__enable_error_handler
 
@@ -1212,6 +1270,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.pyaedt_server_path = r"C:\\Program Files\\AnsysEM\\v261\\Win64\\ansysedt.exe"
+
         """
         self.__pyaedt_server_path = os.getenv("PYAEDT_SERVER_AEDT_PATH", "")
         return self.__pyaedt_server_path
@@ -1230,6 +1289,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.skip_license_check = True
+
         """
         return self.__skip_license_check
 
@@ -1245,6 +1305,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.use_local_example_data = True
+
         """
         return self.__use_local_example_data
 
@@ -1260,6 +1321,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.local_example_folder = r"C:\\Temp\\PyAEDTExamples"
+
         """
         return self.__local_example_folder
 
@@ -1306,6 +1368,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.load_yaml_configuration(r"C:\\Temp\\pyaedt_settings.yaml")
+
         """
         import yaml
 
@@ -1353,6 +1416,7 @@ class Settings(PyAedtBase):
         --------
         >>> from ansys.aedt.core.generic.settings import settings
         >>> settings.write_yaml_configuration(r"C:\\Temp\\pyaedt_settings.yaml")
+
         """
         import yaml
 

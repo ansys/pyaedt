@@ -67,6 +67,7 @@ class MoveItExtensionData(ExtensionCommonData):
     --------
     >>> from ansys.aedt.core.extensions.hfss.move_it import MoveItExtensionData
     >>> data = MoveItExtensionData(choice="Polyline1", velocity=1.0, acceleration=0.2, delay=0.0)
+
     """
 
     choice: str = EXTENSION_DEFAULT_ARGUMENTS["choice"]
@@ -86,6 +87,7 @@ class MoveItExtension(ExtensionHFSSCommon):
     --------
     >>> from ansys.aedt.core.extensions.hfss.move_it import MoveItExtension
     >>> extension = MoveItExtension(withdraw=True)
+
     """
 
     def __init__(self, withdraw: bool = False) -> None:
@@ -126,6 +128,7 @@ class MoveItExtension(ExtensionHFSSCommon):
         >>> from ansys.aedt.core.extensions.hfss.move_it import MoveItExtension
         >>> extension = MoveItExtension(withdraw=True)
         >>> extension.add_extension_content()
+
         """
         label = ttk.Label(self.root, text="Select line:", width=30, style="PyAEDT.TLabel")
         label.grid(row=0, column=0, padx=15, pady=10)
@@ -207,6 +210,7 @@ def main(data: MoveItExtensionData) -> bool:
     >>> from ansys.aedt.core.extensions.hfss.move_it import MoveItExtensionData, main
     >>> data = MoveItExtensionData(choice="Polyline1", velocity=1.4, acceleration=0.0, delay=0.0)
     >>> main(data)
+
     """
     if not data.choice:
         raise AEDTRuntimeError("No assignment provided to the extension.")

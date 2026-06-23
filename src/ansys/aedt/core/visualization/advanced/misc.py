@@ -65,6 +65,7 @@ class BoxFacePointsAndFields(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.misc import BoxFacePointsAndFields
         >>> obj = BoxFacePointsAndFields()
         >>> obj.set_xyz_points(x=0, y=0, z=0)
+
         """
         self.x = x
         self.y = y
@@ -78,6 +79,7 @@ class BoxFacePointsAndFields(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.misc import BoxFacePointsAndFields
         >>> obj = BoxFacePointsAndFields()
         >>> obj.set_field_component(field_component=1, real=["Box1"], imag=["Box1"], invert=True)
+
         """
         if field_component in self.re:
             if invert:
@@ -97,6 +99,7 @@ class BoxFacePointsAndFields(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.misc import BoxFacePointsAndFields
         >>> obj = BoxFacePointsAndFields()
         >>> obj.fill_empty_data()
+
         """
         for el, val in self.re.items():
             if not val:
@@ -135,6 +138,7 @@ def convert_nearfield_data(
     --------
     >>> from ansys.aedt.core.visualization.advanced.misc import convert_nearfield_data
     >>> convert_nearfield_data(dat_folder=r"C:\Temp\example.txt")
+
     """
     file_keys = ["xmin", "xmax", "ymin", "ymax", "zmin", "zmax"]
     components = {
@@ -268,6 +272,7 @@ def convert_farfield_data(input_file: str | Path, output_file: str | Path = None
     --------
     >>> from ansys.aedt.core.visualization.advanced.misc import convert_farfield_data
     >>> convert_farfield_data(input_file=r"C:\Temp\example.txt")
+
     """
     input_file = Path(input_file)
 
@@ -437,6 +442,7 @@ def parse_rdat_file(file_path: str) -> dict:
     --------
     >>> from ansys.aedt.core.visualization.advanced.misc import parse_rdat_file
     >>> parse_rdat_file(file_path=r"C:\Temp\example.txt")
+
     """
     report_dict = {}
     # data = load_entire_aedt_file(file_path)
@@ -598,6 +604,7 @@ def simplify_and_preview_stl(
     --------
     >>> from ansys.aedt.core.visualization.advanced.misc import simplify_and_preview_stl
     >>> simplify_and_preview_stl(input_file=r"C:\Temp\example.txt")
+
     """
     import pyvista as pv
 

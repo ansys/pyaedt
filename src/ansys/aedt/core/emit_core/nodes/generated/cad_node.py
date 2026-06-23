@@ -47,6 +47,7 @@ class CADNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> cad = [child for child in revision.get_scene_node().children if child.node_type == "CADNode"][0]
         >>> cad.parent
+
         """
         return self._parent
 
@@ -62,6 +63,7 @@ class CADNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> cad = [child for child in revision.get_scene_node().children if child.node_type == "CADNode"][0]
         >>> cad.node_type
+
         """
         return self._node_type
 
@@ -76,6 +78,7 @@ class CADNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> cad = [child for child in revision.get_scene_node().children if child.node_type == "CADNode"][0]
         >>> cad_copy = cad.duplicate("CADCopy")
+
         """
         return self._duplicate(new_name)
 
@@ -90,6 +93,7 @@ class CADNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> cad = [child for child in revision.get_scene_node().children if child.node_type == "CADNode"][0]
         >>> cad.delete()
+
         """
         self._delete()
 
@@ -107,6 +111,7 @@ class CADNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> cad = [child for child in revision.get_scene_node().children if child.node_type == "CADNode"][0]
         >>> cad.file
+
         """
         val = self._get_property("File")
         return val
@@ -128,6 +133,7 @@ class CADNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> cad = [child for child in revision.get_scene_node().children if child.node_type == "CADNode"][0]
         >>> cad.show_relative_coordinates = True
+
         """
         val = self._get_property("Show Relative Coordinates")
         return val == "true"
@@ -151,6 +157,7 @@ class CADNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> cad = [child for child in revision.get_scene_node().children if child.node_type == "CADNode"][0]
         >>> cad.position = [0.0, 0.0, 1.5]
+
         """
         val = self._get_property("Position")
         return val
@@ -176,6 +183,7 @@ class CADNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> cad = [child for child in revision.get_scene_node().children if child.node_type == "CADNode"][0]
         >>> cad.relative_position = [0.0, 0.0, 0.25]
+
         """
         val = self._get_property("Relative Position")
         return val
@@ -203,6 +211,7 @@ class CADNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> cad = [child for child in revision.get_scene_node().children if child.node_type == "CADNode"][0]
         >>> cad.orientation_mode = cad.OrientationModeOption.ROLL_PITCH_YAW
+
         """
         val = self._get_property("Orientation Mode")
         val = self.OrientationModeOption[val.upper()]
@@ -227,6 +236,7 @@ class CADNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> cad = [child for child in revision.get_scene_node().children if child.node_type == "CADNode"][0]
         >>> cad.orientation = [0.0, 45.0, 0.0]
+
         """
         val = self._get_property("Orientation")
         return val
@@ -252,6 +262,7 @@ class CADNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> cad = [child for child in revision.get_scene_node().children if child.node_type == "CADNode"][0]
         >>> cad.relative_orientation = [0.0, 0.0, 90.0]
+
         """
         val = self._get_property("Relative Orientation")
         return val
@@ -275,6 +286,7 @@ class CADNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> cad = [child for child in revision.get_scene_node().children if child.node_type == "CADNode"][0]
         >>> cad.visible = False
+
         """
         val = self._get_property("Visible")
         return val == "true"
@@ -302,6 +314,7 @@ class CADNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> cad = [child for child in revision.get_scene_node().children if child.node_type == "CADNode"][0]
         >>> cad.render_mode = cad.RenderModeOption.WIRE_FRAME
+
         """
         val = self._get_property("Render Mode")
         val = self.RenderModeOption[val.upper()]
@@ -326,6 +339,7 @@ class CADNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> cad = [child for child in revision.get_scene_node().children if child.node_type == "CADNode"][0]
         >>> cad.show_axes = True
+
         """
         val = self._get_property("Show Axes")
         return val == "true"
@@ -349,6 +363,7 @@ class CADNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> cad = [child for child in revision.get_scene_node().children if child.node_type == "CADNode"][0]
         >>> cad.min
+
         """
         val = self._get_property("Min")
         return val
@@ -367,6 +382,7 @@ class CADNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> cad = [child for child in revision.get_scene_node().children if child.node_type == "CADNode"][0]
         >>> cad.max
+
         """
         val = self._get_property("Max")
         return val
@@ -383,6 +399,7 @@ class CADNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> cad = [child for child in revision.get_scene_node().children if child.node_type == "CADNode"][0]
         >>> cad.number_of_surfaces
+
         """
         val = self._get_property("Number of Surfaces")
         return int(val)
@@ -401,6 +418,7 @@ class CADNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> cad = [child for child in revision.get_scene_node().children if child.node_type == "CADNode"][0]
         >>> cad.color = "#FF0000"
+
         """
         val = self._get_property("Color")
         return val
@@ -422,6 +440,7 @@ class CADNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> cad = [child for child in revision.get_scene_node().children if child.node_type == "CADNode"][0]
         >>> cad.notes = "Imported platform"
+
         """
         val = self._get_property("Notes")
         return val

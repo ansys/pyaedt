@@ -28,6 +28,7 @@ Examples
 --------
 >>> from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
 >>> add_pyaedt_to_aedt("C:\\\\Ansys\\\\PersonalLib")
+
 """
 
 import logging
@@ -91,6 +92,7 @@ def add_extension_manager(personal_lib, odesktop=None) -> bool:
     --------
     >>> from ansys.aedt.core.extensions.installer.pyaedt_installer import add_extension_manager
     >>> add_extension_manager("C:\\\\Ansys\\\\PersonalLib")
+
     """
     return _install_catalog_extension("ExtensionManager", personal_lib, odesktop)
 
@@ -109,6 +111,7 @@ def add_version_manager(personal_lib, odesktop=None) -> bool:
     --------
     >>> from ansys.aedt.core.extensions.installer.pyaedt_installer import add_version_manager
     >>> add_version_manager("C:\\\\Ansys\\\\PersonalLib")
+
     """
     return _install_catalog_extension("VersionManager", personal_lib, odesktop)
 
@@ -140,6 +143,7 @@ def add_pyaedt_to_aedt(
     --------
     >>> from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
     >>> add_pyaedt_to_aedt("C:\\\\Ansys\\\\PersonalLib", skip_extension_manager=True)
+
     """
     personal_lib = _resolve_personal_lib(personal_lib)
     if not personal_lib:

@@ -41,6 +41,7 @@ class RxMeasNode(EmitNode):
         Examples
         --------
         >>> rx_meas.parent
+
         """
         return self._parent
 
@@ -52,6 +53,7 @@ class RxMeasNode(EmitNode):
         Examples
         --------
         >>> rx_meas.node_type
+
         """
         return self._node_type
 
@@ -62,6 +64,7 @@ class RxMeasNode(EmitNode):
         Examples
         --------
         >>> rx_meas.delete()
+
         """
         self._delete()
 
@@ -75,6 +78,7 @@ class RxMeasNode(EmitNode):
         Examples
         --------
         >>> rx_meas.file
+
         """
         val = self._get_property("File")
         return val
@@ -87,6 +91,7 @@ class RxMeasNode(EmitNode):
         Examples
         --------
         >>> rx_meas.receive_frequency
+
         """
         val = self._get_property("Receive Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -102,6 +107,7 @@ class RxMeasNode(EmitNode):
         Examples
         --------
         >>> rx_meas.exclude_mixer_products_below_noise = True
+
         """
         val = self._get_property("Exclude Mixer Products Below Noise")
         return val == "true"
@@ -119,6 +125,7 @@ class RxMeasNode(EmitNode):
         Examples
         --------
         >>> rx_meas.enabled = False
+
         """
         return self._get_property("Enabled") == "true"
 

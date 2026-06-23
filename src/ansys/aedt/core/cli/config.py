@@ -27,6 +27,7 @@
 Examples
 --------
     pyaedt config test --show
+
 """
 
 try:
@@ -74,6 +75,7 @@ def test_config_callback(
     Examples
     --------
         pyaedt config test --show
+
     """
     if ctx.invoked_subcommand is not None:
         return

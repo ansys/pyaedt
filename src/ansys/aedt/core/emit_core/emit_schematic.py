@@ -35,6 +35,7 @@ class EmitSchematic:
     >>> from ansys.aedt.core import Emit
     >>> app = Emit()
     >>> app.schematic
+
     """
 
     def __init__(self, emit_instance) -> None:
@@ -98,6 +99,7 @@ class EmitSchematic:
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> node = app.schematic.create_component("Bluetooth")
+
         """
         if not component_type:
             raise ValueError("The 'component_type' argument is required.")
@@ -190,6 +192,7 @@ class EmitSchematic:
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> radio, antenna = app.schematic.create_radio_antenna("Bluetooth")
+
         """
         radio_name = radio_name or ""
         antenna_name = antenna_name or ""
@@ -229,6 +232,7 @@ class EmitSchematic:
         >>> antenna = app.schematic.create_component("Antenna")
         >>> radio = app.schematic.create_component("Bluetooth")
         >>> app.schematic.connect_components(antenna.name, radio.name)
+
         """
         try:
             self.emit_instance._oeditor.PlaceComponent(component_name_1, component_name_2)
@@ -261,6 +265,7 @@ class EmitSchematic:
         >>> app = Emit()
         >>> node = app.schematic.create_component("Antenna")
         >>> app.schematic.delete_component(node.name)
+
         """
         try:
             self._emit_com_module.DeleteEmitComponent(name)

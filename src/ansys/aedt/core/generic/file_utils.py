@@ -75,6 +75,7 @@ def normalize_path(input_dir: str | Path, sep: str = None) -> str:
     --------
     >>> from ansys.aedt.core.generic.file_utils import normalize_path
     >>> normalize_path(r"C:\\Projects\\Motor\\test.aedt")
+
     """
     path = Path(input_dir)
     if sep:
@@ -100,6 +101,7 @@ def get_filename_without_extension(input_file: str | Path) -> str:
     --------
     >>> from ansys.aedt.core.generic.file_utils import get_filename_without_extension
     >>> get_filename_without_extension(r"C:\\Projects\\Motor\\test.aedt")
+
     """
     path = Path(input_file)
     return str(path.stem)
@@ -123,6 +125,7 @@ def is_project_locked(input_file: str | Path) -> bool:
     --------
     >>> from ansys.aedt.core.generic.file_utils import is_project_locked
     >>> is_project_locked(r"C:\\Projects\\Motor\\test.aedt")
+
     """
     input_file = Path(input_file)
     if settings.remote_rpc_session:
@@ -154,6 +157,7 @@ def remove_project_lock(input_file: str | Path) -> bool:
     --------
     >>> from ansys.aedt.core.generic.file_utils import remove_project_lock
     >>> remove_project_lock(r"C:\\Projects\\Motor\\test.aedt")
+
     """
     input_file = Path(input_file)
     input_file_locked = Path(str(input_file) + ".lock")
@@ -186,6 +190,7 @@ def check_and_download_file(remote_path: str | Path, overwrite: bool = True) -> 
     --------
     >>> from ansys.aedt.core.generic.file_utils import check_and_download_file
     >>> check_and_download_file(r"C:\\Projects\\Motor\\meshstats.ms")
+
     """
     remote_path = Path(remote_path)
     if settings.remote_rpc_session:
@@ -215,6 +220,7 @@ def check_if_path_exists(path: str | Path) -> bool:
     --------
     >>> from ansys.aedt.core.generic.file_utils import check_if_path_exists
     >>> check_if_path_exists(r"C:\\Projects\\Motor\\test.aedt")
+
     """
     path = Path(path)
     if settings.remote_rpc_session:
@@ -245,6 +251,7 @@ def check_and_download_folder(local_path: str | Path, remote_path: str | Path, o
     --------
     >>> from ansys.aedt.core.generic.file_utils import check_and_download_folder
     >>> check_and_download_folder(r"C:\\Projects\\LocalCopy", r"C:\\Projects\\RemoteCopy")
+
     """
     local_path = str(local_path)
     remote_path = str(remote_path)
@@ -278,6 +285,7 @@ def generate_unique_name(root_name: str | None, suffix: str = "", n: int = 6) ->
     --------
     >>> from ansys.aedt.core.generic.file_utils import generate_unique_name
     >>> generate_unique_name("Setup")
+
     """
     if root_name is None:
         root_name = ""
@@ -314,6 +322,7 @@ def generate_unique_folder_name(root_name: str = None, folder_name: str = None) 
     --------
     >>> from ansys.aedt.core.generic.file_utils import generate_unique_folder_name
     >>> generate_unique_folder_name(root_name=r"C:\\Projects", folder_name="MyFolder")
+
     """
     if not root_name:
         if settings.remote_rpc_session:
@@ -358,6 +367,7 @@ def generate_unique_project_name(
     --------
     >>> from ansys.aedt.core.generic.file_utils import generate_unique_project_name
     >>> generate_unique_project_name(root_name=r"C:\\Projects", project_name="Motor", project_format="aedt")
+
     """
     if not project_name:
         project_name = generate_unique_name("Project", n=3)
@@ -394,6 +404,7 @@ def available_file_name(full_file_name: str | Path) -> Path:
     >>> from pathlib import Path
     >>> from ansys.aedt.core.generic.file_utils import available_file_name
     >>> available_file_name(Path(r"C:\\Temp\\results.csv"))
+
     """
     p = Path(full_file_name)
     candidate = p
@@ -424,6 +435,7 @@ def recursive_glob(path: str | Path, file_pattern: str):
     --------
     >>> from ansys.aedt.core.generic.file_utils import recursive_glob
     >>> recursive_glob(r"C:\\Temp\\Projects", "*.aedt")
+
     """
     path = Path(path)
     if settings.remote_rpc_session:
@@ -469,6 +481,7 @@ def open_file(
     >>> from ansys.aedt.core.generic.file_utils import open_file
     >>> with open_file(r"C:\\Temp\\notes.txt", "w") as file_obj:
     ...     _ = file_obj.write("PyAEDT")
+
     """
     file_path = Path(file_path)
     dir_name = file_path.parent
@@ -516,6 +529,7 @@ def read_json(input_file: str | Path, encoding: str = "utf-8") -> dict:
     --------
     >>> from ansys.aedt.core.generic.file_utils import read_json
     >>> read_json(r"C:\\Temp\\settings.json")
+
     """
     json_data = {}
     with open_file(input_file, encoding=encoding) as json_file:
@@ -545,6 +559,7 @@ def read_toml(input_file: str | Path) -> dict:
     --------
     >>> from ansys.aedt.core.generic.file_utils import read_toml
     >>> read_toml(r"C:\\Temp\\settings.toml")
+
     """
     try:
         import tomllib
@@ -575,6 +590,7 @@ def read_csv(input_file: str | Path, encoding: str = "utf-8") -> list:
     --------
     >>> from ansys.aedt.core.generic.file_utils import read_csv
     >>> read_csv(r"C:\\Temp\\losses.csv")
+
     """
     file_name = check_and_download_file(input_file)
 
@@ -606,6 +622,7 @@ def read_csv_pandas(input_file: str | Path, encoding: str = "utf-8") -> "pandas.
     --------
     >>> from ansys.aedt.core.generic.file_utils import read_csv_pandas
     >>> read_csv_pandas(r"C:\\Temp\\losses.csv")
+
     """
     input_file = Path(input_file)
     input_file = check_and_download_file(input_file)
@@ -656,6 +673,7 @@ def write_csv(
     >>> from ansys.aedt.core.generic.file_utils import write_csv
     >>> data = [["Freq", "Gain"], [1e9, 10.5]]
     >>> write_csv(r"C:\\Temp\\gain.csv", data)
+
     """
     f = open(output_file, "w", newline="")
     writer = csv.writer(f, delimiter=delimiter, quotechar=quote_char, quoting=quoting)
@@ -683,6 +701,7 @@ def read_tab(input_file: str | Path) -> list:
     --------
     >>> from ansys.aedt.core.generic.file_utils import read_tab
     >>> read_tab(r"C:\\Temp\\mesh.tab")
+
     """
     with open_file(input_file) as my_file:
         lines = my_file.readlines()
@@ -707,6 +726,7 @@ def read_xlsx(input_file: str | Path):
     --------
     >>> from ansys.aedt.core.generic.file_utils import read_xlsx
     >>> read_xlsx(r"C:\\Temp\\stackup.xlsx")
+
     """
     file_name = check_and_download_file(input_file)
     try:
@@ -744,6 +764,7 @@ def read_component_file(input_file: str | Path) -> dict:
     --------
     >>> from ansys.aedt.core.generic.file_utils import read_component_file
     >>> read_component_file(r"C:\\Temp\\filter.a3dcomp")
+
     """
     variables = {}
     file_path = Path(input_file)
@@ -814,6 +835,7 @@ def parse_excitation_file(
     --------
     >>> from ansys.aedt.core.generic.file_utils import parse_excitation_file
     >>> parse_excitation_file(r"C:\\Temp\\source.csv", is_time_domain=True)
+
     """
     import numpy as np
 
@@ -881,6 +903,7 @@ def tech_to_control_file(input_file: str | Path, units: str = "nm", output_file:
     --------
     >>> from ansys.aedt.core.generic.file_utils import tech_to_control_file
     >>> tech_to_control_file(r"C:\\Temp\\layers.tech")
+
     """
     result = []
     input_file = Path(input_file)
@@ -942,6 +965,7 @@ def get_dxf_layers(input_file: str | Path) -> list[str]:
     --------
     >>> from ansys.aedt.core.generic.file_utils import get_dxf_layers
     >>> get_dxf_layers(r"C:\\Temp\\board_outline.dxf")
+
     """
     file_path = Path(input_file)
 
@@ -981,6 +1005,7 @@ def read_configuration_file(input_file: str | Path) -> dict | list:
     --------
     >>> from ansys.aedt.core.generic.file_utils import read_configuration_file
     >>> read_configuration_file(r"C:\\Temp\\settings.json")
+
     """
     file_path = Path(input_file)
     ext = Path(file_path).suffix
@@ -1016,6 +1041,7 @@ def write_configuration_file(input_data: dict, output_file: str | Path) -> bool:
     --------
     >>> from ansys.aedt.core.generic.file_utils import write_configuration_file
     >>> write_configuration_file({"units": "mm"}, r"C:\\Temp\\settings.json")
+
     """
     ext = Path(output_file).suffix
     if ext == ".json":
@@ -1050,6 +1076,7 @@ def compute_fft(
     >>> import pandas as pd
     >>> from ansys.aedt.core.generic.file_utils import compute_fft
     >>> compute_fft(pd.Series([0.0, 1e-9, 2e-9]), pd.Series([0.0, 1.0, 0.0]))
+
     """
     import numpy as np
 
@@ -1117,6 +1144,7 @@ def available_license_feature(
     --------
     >>> from ansys.aedt.core.generic.file_utils import available_license_feature
     >>> available_license_feature(feature="electronics_desktop")
+
     """
     import subprocess  # nosec
 

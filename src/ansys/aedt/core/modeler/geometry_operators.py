@@ -69,6 +69,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.List2list(input_list=[1, [2, 3]])
+
         """
         output_list = []
         for i in input_list:
@@ -168,6 +169,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.cs_plane_to_axis_str(val="XY")
+
         """
         if val == Plane.XY or val == "XY":
             return "Z"
@@ -196,6 +198,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.cs_plane_to_plane_str(val="XY")
+
         """
         if val == Plane.XY or val == "XY":
             return "XY"
@@ -225,6 +228,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.cs_axis_str(val="X")
+
         """
         if val == Axis.X or val == "X":
             return "X"
@@ -253,6 +257,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.draft_type_str(val=0)
+
         """
         if val == SweepDraft.Extended:
             return "Extended"
@@ -283,6 +288,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.get_mid_point(v1=[0, 0, 0], v2=[10, 0, 0])
+
         """
         m = [((i + j) / 2.0) for i, j in zip(v1, v2)]
         return m
@@ -311,6 +317,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.get_triangle_area(v1=[0, 0, 0], v2=[10, 0, 0], v3=[0, 10, 0])
+
         """
         a = ((v1[0] - v2[0]) ** 2 + (v1[1] - v2[1]) ** 2 + (v1[2] - v2[2]) ** 2) ** 0.5
         b = ((v2[0] - v3[0]) ** 2 + (v2[1] - v3[1]) ** 2 + (v2[2] - v3[2]) ** 2) ** 0.5
@@ -343,6 +350,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.v_cross(a=[1, 0, 0], b=[0, 1, 0])
+
         """
         c = [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]
         return c
@@ -395,6 +403,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.v_dot(a=[1, 0, 0], b=[0, 1, 0])
+
         """
         return GeometryOperators._v_dot(a, b)
 
@@ -422,6 +431,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.v_prod(s=2, v=[0, 1, 0])
+
         """
         r = [s * i for i in v]
         return r
@@ -452,6 +462,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.v_rotate_about_axis(vector=[1, 0, 0], angle=45)
+
         """
         if not radians:
             angle = math.radians(angle)
@@ -495,6 +506,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.v_sub(a=[1, 0, 0], b=[0, 1, 0])
+
         """
         c = [i - j for i, j in zip(a, b)]
         return c
@@ -521,6 +533,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.v_sum(a=[1, 0, 0], b=[0, 1, 0])
+
         """
         c = [i + j for i, j in zip(a, b)]
         return c
@@ -545,6 +558,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.v_norm(a=[1, 0, 0])
+
         """
         n = math.sqrt(sum(x * x for x in a))
 
@@ -570,6 +584,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.normalize_vector(v=[0, 1, 0])
+
         """
         # normalize a vector to its norm
         norm = GeometryOperators.v_norm(v)
@@ -600,6 +615,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.v_points(p1=[0, 0, 0], p2=[10, 0, 0])
+
         """
         return GeometryOperators.v_sub(p2, p1)
 
@@ -625,6 +641,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.points_distance(p1=[0, 0, 0], p2=[10, 0, 0])
+
         """
         # fmt: off
         if len(p1) == 3:
@@ -655,6 +672,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.find_point_on_plane(pointlists=[[0, 0, 0], [10, 0, 0], [0, 10, 0]])
+
         """
         if direction <= 2:
             point = 1e6
@@ -696,6 +714,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.distance_vector(p=[0, 0, 0], a=[1, 0, 0], b=[0, 1, 0])
+
         """
         v1 = GeometryOperators.v_points(a, b)
         n = [i / GeometryOperators.v_norm(v1) for i in v1]
@@ -731,6 +750,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.is_between_points(p=[0, 0, 0], a=[1, 0, 0], b=[0, 1, 0])
+
         """
         v1 = GeometryOperators.v_points(a, b)
         v2 = GeometryOperators.v_points(a, p)
@@ -771,6 +791,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.is_parallel(a1=["Box1"], a2=["Box1"], b1=["Box1"], b2=["Box1"])
+
         """
         if 1.0 - GeometryOperators.parallel_coeff(a1, a2, b1, b2) < tol * tol:
             return True
@@ -803,6 +824,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.parallel_coeff(a1=["Box1"], a2=["Box1"], b1=["Box1"], b2=["Box1"])
+
         """
         va = GeometryOperators.v_points(a1, a2)
         vb = GeometryOperators.v_points(b1, b2)
@@ -835,6 +857,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.is_collinear(a=[1, 0, 0], b=[0, 1, 0])
+
         """
         an = GeometryOperators.v_norm(a)
         bn = GeometryOperators.v_norm(b)
@@ -870,6 +893,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.is_projection_inside(a1=["Box1"], a2=["Box1"], b1=["Box1"], b2=["Box1"])
+
         """
         if not GeometryOperators.is_parallel(a1, a2, b1, b2):
             return False
@@ -902,6 +926,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.arrays_positions_sum(vertlist1=["Box1"], vertlist2=["Box1"])
+
         """
         s = 0
         for el in vertlist1:
@@ -931,6 +956,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.v_angle(a=[1, 0, 0], b=[0, 1, 0])
+
         """
         d = GeometryOperators.v_dot(a, b)
         an = GeometryOperators.v_norm(a)
@@ -960,6 +986,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.deg2rad(angle=45)
+
         """
         pi = math.pi
         return angle / 180.0 * pi
@@ -984,6 +1011,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.rad2deg(angle=45)
+
         """
         pi = math.pi
         return angle * 180.0 / pi
@@ -1015,6 +1043,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.is_orthonormal_triplet(x=0, y=0, z=0)
+
         """
         if tol is None:
             tol = MathUtils.EPSILON
@@ -1061,6 +1090,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.is_unit_vector(v=[0, 1, 0])
+
         """
         if tol is None:
             tol = MathUtils.EPSILON
@@ -1106,6 +1136,7 @@ class GeometryOperators(PyAedtBase):
         >>> matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
         >>> is_orthogonal_matrix(matrix)
         False
+
         """
         if tol is None:
             tol = MathUtils.EPSILON
@@ -1144,6 +1175,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.get_polygon_centroid(pts=["Box1"])
+
         """
         if len(pts) == 0:  # pragma: no cover
             raise ValueError("pts must contain at list one point")
@@ -1188,6 +1220,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.cs_xy_pointing_expression(yaw=1, pitch=1, roll=1)
+
         """
         # X-Pointing
         xx = "cos(" + yaw + ")*cos(" + pitch + ")"
@@ -1219,6 +1252,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.get_numeric(s=2)
+
         """
         if isinstance(s, str):
             if s == "Global":
@@ -1249,6 +1283,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.is_small(s=2)
+
         """
         n = GeometryOperators.get_numeric(s)
         return True if math.fabs(n) < 2.0 * abs(sys.float_info.epsilon) else False
@@ -1278,6 +1313,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.is_vector_equal(v1=[0, 0, 0], v2=[10, 0, 0])
+
         """
         if len(v1) != len(v2):
             return False
@@ -1300,6 +1336,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.numeric_cs(cs_in=["Box1"])
+
         """
         if isinstance(cs_in, str):
             if cs_in == "Global":
@@ -1343,6 +1380,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.orient_polygon(x=0, y=0)
+
         """
         x_ret = x[:]
         y_ret = y[:]
@@ -1430,6 +1468,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.v_angle_sign(va=["Box1"], vb=["Box1"], vn=["Box1"])
+
         """
         tol = 1e-12
         cross = GeometryOperators.v_cross(va, vb)
@@ -1473,6 +1512,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.v_angle_sign_2D(va=["Box1"], vb=["Box1"])
+
         """
         c = va[0] * vb[1] - va[1] * vb[0]
 
@@ -1509,6 +1549,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.point_in_polygon(point=[0, 0, 0], polygon=["Box1"])
+
         """
         # fmt: off
         tol = tolerance
@@ -1570,6 +1611,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.is_point_in_polygon(point=[0, 0, 0], polygon=["Box1"])
+
         """
         r = GeometryOperators.point_in_polygon(point, polygon)
         if r == -1:
@@ -1700,6 +1742,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.is_segment_intersecting_polygon(a=[1, 0, 0], b=[0, 1, 0], polygon=["Box1"])
+
         """
         if len(a) != 2 or len(b) != 2:
             raise ValueError("Point must be a list in the form [x, y]")
@@ -1742,6 +1785,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.is_perpendicular(a=[1, 0, 0], b=[0, 1, 0])
+
         """
         var = GeometryOperators._v_dot(a, b)
         if abs(var) < tol * tol:
@@ -1773,6 +1817,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.is_point_projection_in_segment(p=[0, 0, 0], a=[1, 0, 0], b=[0, 1, 0])
+
         """
         # fmt: off
         dx = b[0]-a[0]
@@ -1805,6 +1850,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.point_segment_distance(p=[0, 0, 0], a=[1, 0, 0], b=[0, 1, 0])
+
         """
         # fmt: off
         den = math.sqrt((b[0] - a[0])**2 + (b[1] - a[1])**2)
@@ -1950,6 +1996,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.degrees_over_rounded(angle=45, digits=[1, 2, 3])
+
         """
         return math.ceil(math.degrees(angle) * 10**digits) / (10**digits)
 
@@ -1974,6 +2021,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.radians_over_rounded(angle=45, digits=[1, 2, 3])
+
         """
         return math.ceil(math.radians(angle) * 10**digits) / (10**digits)
 
@@ -1998,6 +2046,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.degrees_default_rounded(angle=45, digits=[1, 2, 3])
+
         """
         return math.floor(math.degrees(angle) * 10**digits) / (10**digits)
 
@@ -2022,6 +2071,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.radians_default_rounded(angle=45, digits=[1, 2, 3])
+
         """
         return math.floor(math.radians(angle) * 10**digits) / (10**digits)
 
@@ -2051,6 +2101,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.find_closest_points(points_list=[0, 0, 0], reference_point=[0, 0, 0])
+
         """
         # fmt: off
         if not isinstance(points_list, list) or not isinstance(points_list[0], list):
@@ -2102,6 +2153,7 @@ class GeometryOperators(PyAedtBase):
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         >>> obj = GeometryOperators()
         >>> obj.mirror_point(start=[0, 0, 0], reference=["Box1"], vector=[1, 0, 0])
+
         """
         distance = [start[i] - reference[i] for i in range(3)]
         vector_norm = GeometryOperators.v_norm(vector)

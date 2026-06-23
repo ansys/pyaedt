@@ -45,6 +45,7 @@ class SolutionCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> coupling = next(node for node in revision.get_all_nodes() if node.node_type == "SolutionCouplingNode")
         >>> coupling.parent
+
         """
         return self._parent
 
@@ -60,6 +61,7 @@ class SolutionCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> coupling = next(node for node in revision.get_all_nodes() if node.node_type == "SolutionCouplingNode")
         >>> coupling.node_type
+
         """
         return self._node_type
 
@@ -81,6 +83,7 @@ class SolutionCouplingNode(EmitNode):
         >>> coupling = next(node for node in revision.get_all_nodes() if node.node_type == "SolutionCouplingNode")
         >>> coupling.enabled = False
         >>> coupling.enabled
+
         """
         val = self._get_property("Enabled")
         return val == "true"

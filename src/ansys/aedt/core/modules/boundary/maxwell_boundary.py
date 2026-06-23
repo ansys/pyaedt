@@ -344,6 +344,7 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellParameters
         >>> obj = MaxwellParameters()
         >>> obj.props
+
         """
         if self.__props:
             return self.__props
@@ -363,6 +364,7 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellParameters
         >>> obj = MaxwellParameters()
         >>> obj.name
+
         """
         if self._child_object:
             self._name = str(self.properties["Name"])
@@ -411,6 +413,7 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellParameters
         >>> obj = MaxwellParameters()
         >>> obj.create()
+
         """
         if self.type == "Matrix":
             self._app.omaxwell_parameters.AssignMatrix(self._get_args())
@@ -438,6 +441,7 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellParameters
         >>> obj = MaxwellParameters()
         >>> obj.update()
+
         """
         if self.type == "Matrix":
             self._app.omaxwell_parameters.EditMatrix(self.name, self._get_args())
@@ -491,6 +495,7 @@ class MaxwellMatrix(MaxwellParameters):
 
     >>> matrix = m2d.assign_matrix(matrix_args)
     >>> m2d.release_desktop(True, True)
+
     """
 
     def __init__(self, app, name, props=None, schema: MaxwellMatrixSchema | None = None) -> None:
@@ -565,6 +570,7 @@ class MaxwellMatrix(MaxwellParameters):
         >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellMatrix
         >>> obj = MaxwellMatrix()
         >>> obj.reduced_matrices
+
         """
         if self._app.solution_type in [SolutionsMaxwell3D.EddyCurrent, SolutionsMaxwell3D.ACMagnetic]:
             self.__reduced_matrices = []
@@ -605,6 +611,7 @@ class MaxwellMatrix(MaxwellParameters):
         >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellMatrix
         >>> obj = MaxwellMatrix()
         >>> obj.join_series(sources=["Box1"])
+
         """
         return self._create_matrix_reduction(
             red_type="Series", sources=sources, matrix_name=matrix_name, join_name=join_name
@@ -633,6 +640,7 @@ class MaxwellMatrix(MaxwellParameters):
         >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellMatrix
         >>> obj = MaxwellMatrix()
         >>> obj.join_parallel(sources=["Box1"])
+
         """
         return self._create_matrix_reduction(
             red_type="Parallel", sources=sources, matrix_name=matrix_name, join_name=join_name
@@ -714,6 +722,7 @@ class MaxwellReducedMatrix:
     >>>     join_name="JoinSeries1"
     >>> )
     >>> m3d.release_desktop(True, True)
+
     """
 
     def __init__(
@@ -807,6 +816,7 @@ class MaxwellReducedMatrix:
         >>> name=join_operation.name, operation_type="series", new_sources=["Current2", "Current3"]
         >>> )
         >>> m3d.release_desktop(True, True)
+
         """
         if operation_type.lower() not in ["series", "parallel"]:
             raise AEDTRuntimeError("Join type not valid.")
@@ -884,6 +894,7 @@ class MaxwellReducedMatrix:
         Delete the reduction operation.
         >>> reduced_matrix.delete(name="JoinSeries1")
         >>> m3d.release_desktop(True, True)
+
         """
         if name not in [op.name for op in self.operations_reduction]:
             raise AEDTRuntimeError("Reduction operation name not valid.")

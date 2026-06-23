@@ -33,6 +33,7 @@ Examples
 --------
 >>> from ansys.aedt.core.emit_core.emit_constants import EMIT_VALID_UNITS
 >>> EMIT_VALID_UNITS["Frequency"]
+
 """
 
 
@@ -218,6 +219,7 @@ def data_rate_conv(value: float, units: str, to_internal: bool = True) -> float:
     --------
     >>> from ansys.aedt.core.emit_core.emit_constants import data_rate_conv
     >>> rate = data_rate_conv(1.5, "Mbps")
+
     """
     mult = 1.0
 

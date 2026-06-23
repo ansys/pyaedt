@@ -45,6 +45,7 @@ class BandFolder(EmitNode):
         >>> radio = app.schematic.create_component("New Radio", name="Radio1")
         >>> folder = radio.add_folder()
         >>> folder.parent
+
         """
         return self._parent
 
@@ -60,6 +61,7 @@ class BandFolder(EmitNode):
         >>> radio = app.schematic.create_component("New Radio", name="Radio1")
         >>> folder = radio.add_folder()
         >>> folder.node_type
+
         """
         return self._node_type
 
@@ -74,6 +76,7 @@ class BandFolder(EmitNode):
         >>> radio = app.schematic.create_component("New Radio", name="Radio1")
         >>> folder = radio.add_folder()
         >>> band = folder.add_band()
+
         """
         return self._add_child_node("Band")
 
@@ -88,6 +91,7 @@ class BandFolder(EmitNode):
         >>> radio = app.schematic.create_component("New Radio", name="Radio1")
         >>> folder = radio.add_folder()
         >>> folder_copy = folder.duplicate("BandFolder1")
+
         """
         return self._duplicate(new_name)
 
@@ -102,5 +106,6 @@ class BandFolder(EmitNode):
         >>> radio = app.schematic.create_component("New Radio", name="Radio1")
         >>> folder = radio.add_folder()
         >>> folder.delete()
+
         """
         self._delete()

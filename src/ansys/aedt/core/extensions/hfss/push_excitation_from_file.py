@@ -63,6 +63,7 @@ class PushExcitationExtensionData(ExtensionCommonData):
     --------
     >>> from ansys.aedt.core.extensions.hfss.push_excitation_from_file import PushExcitationExtensionData
     >>> data = PushExcitationExtensionData(choice="Port1", file_path="C:\\Temp\\excitation.csv")
+
     """
 
     choice: str = ""
@@ -78,6 +79,7 @@ class PushExcitationExtension(ExtensionHFSSCommon):
     --------
     >>> from ansys.aedt.core.extensions.hfss.push_excitation_from_file import PushExcitationExtension
     >>> extension = PushExcitationExtension(withdraw=True)
+
     """
 
     def __init__(self, withdraw: bool = False) -> None:
@@ -123,6 +125,7 @@ class PushExcitationExtension(ExtensionHFSSCommon):
         >>> from ansys.aedt.core.extensions.hfss.push_excitation_from_file import PushExcitationExtension
         >>> extension = PushExcitationExtension(withdraw=True)
         >>> extension.add_extension_content()
+
         """
         # Port selection
         self.port_label = ttk.Label(self.root, text="Choose a port:", style="PyAEDT.TLabel")
@@ -184,6 +187,7 @@ class PushExcitationExtension(ExtensionHFSSCommon):
         >>> from ansys.aedt.core.extensions.hfss.push_excitation_from_file import PushExcitationExtension
         >>> extension = PushExcitationExtension(withdraw=True)
         >>> extension.browse_files()
+
         """
         filename = filedialog.askopenfilename(
             initialdir="/",
@@ -206,6 +210,7 @@ def main(data: PushExcitationExtensionData) -> bool:
     ... )
     >>> data = PushExcitationExtensionData(choice="Port1", file_path="C:\\Temp\\excitation.csv")
     >>> main(data)
+
     """
     if not data.choice:
         raise AEDTRuntimeError("No excitation selected.")

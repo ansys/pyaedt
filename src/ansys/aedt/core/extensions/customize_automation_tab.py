@@ -135,6 +135,7 @@ def add_automation_tab(
     --------
     >>> from ansys.aedt.core.extensions.customize_automation_tab import add_automation_tab
     >>> add_automation_tab("MyToolkit", r"D:\\PersonalLib\\Toolkits", product="HFSS")
+
     """
     product = tab_map(product)
     lib_dir = Path(lib_dir)
@@ -261,6 +262,7 @@ def is_extension_in_panel(toolkit_dir: str, product: str, name: str, panel: str 
     --------
     >>> from ansys.aedt.core.extensions.customize_automation_tab import is_extension_in_panel
     >>> is_extension_in_panel(r"D:\\PersonalLib\\Toolkits", "HFSS", "MyToolkit")
+
     """
     tab_config_file_path = Path(toolkit_dir) / tab_map(product) / "TabConfig.xml"
     if not tab_config_file_path.is_file():
@@ -341,6 +343,7 @@ def add_script_to_menu(
     --------
     >>> from ansys.aedt.core.extensions.customize_automation_tab import add_script_to_menu
     >>> add_script_to_menu("MyToolkit", script_file=r"D:\\Scripts\\my_toolkit.py", product="HFSS")
+
     """
     logger = logging.getLogger("Global")
     if not personal_lib:
@@ -442,6 +445,7 @@ def tab_map(product: str) -> str:  # pragma: no cover
     --------
     >>> from ansys.aedt.core.extensions.customize_automation_tab import tab_map
     >>> tab_map("HFSS3DLayout")
+
     """
     if product.lower() == "hfss3dlayout":
         return "HFSS3DLayoutDesign"
@@ -475,6 +479,7 @@ def run_command(command: list[str], desktop_object: object) -> int:  # pragma: n
     >>> from ansys.aedt.core.extensions.customize_automation_tab import run_command
     >>> desktop = Desktop()
     >>> run_command(["python", "--version"], desktop)
+
     """
     try:
         subprocess.run(command, check=True, capture_output=True, text=True)  # nosec
@@ -517,6 +522,7 @@ def add_custom_toolkit(
     >>> from ansys.aedt.core.extensions.customize_automation_tab import add_custom_toolkit
     >>> desktop = Desktop()
     >>> add_custom_toolkit(desktop, "ChokeDesigner")
+
     """
     toolkits = available_toolkits()
     toolkit_info = None
@@ -724,6 +730,7 @@ def remove_script_from_menu(desktop_object: object, name: str, product: str = "P
     >>> from ansys.aedt.core.extensions.customize_automation_tab import remove_script_from_menu
     >>> desktop = Desktop()
     >>> remove_script_from_menu(desktop, "MyToolkit", product="HFSS")
+
     """
     product = tab_map(product)
     toolkit_dir = Path(desktop_object.personallib) / "Toolkits"
@@ -758,6 +765,7 @@ def get_custom_extensions_from_tabconfig(
     --------
     >>> from ansys.aedt.core.extensions.customize_automation_tab import get_custom_extensions_from_tabconfig
     >>> get_custom_extensions_from_tabconfig(r"D:\\PersonalLib\\Toolkits\\Project\\TabConfig.xml", [], {})
+
     """
     parser = _safe_parse_tabconfig(tabconfig_path, logger=logger)
     if not parser:
@@ -776,6 +784,7 @@ def get_custom_extension_script(tabconfig_path: str, label: str, logger: object 
     --------
     >>> from ansys.aedt.core.extensions.customize_automation_tab import get_custom_extension_script
     >>> get_custom_extension_script(r"D:\\PersonalLib\\Toolkits\\Project\\TabConfig.xml", "MyToolkit")
+
     """
     parser = _safe_parse_tabconfig(tabconfig_path, logger=logger)
     if not parser:
@@ -794,6 +803,7 @@ def get_custom_extension_image(tabconfig_path: str, label: str, logger: object =
     --------
     >>> from ansys.aedt.core.extensions.customize_automation_tab import get_custom_extension_image
     >>> get_custom_extension_image(r"D:\\PersonalLib\\Toolkits\\Project\\TabConfig.xml", "MyToolkit")
+
     """
     parser = _safe_parse_tabconfig(tabconfig_path, logger=logger)
     if not parser:

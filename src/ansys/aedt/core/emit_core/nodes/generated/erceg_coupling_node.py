@@ -47,6 +47,7 @@ class ErcegCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> erceg = revision.get_coupling_data_node().add_erceg_coupling()
         >>> erceg.parent
+
         """
         return self._parent
 
@@ -62,6 +63,7 @@ class ErcegCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> erceg = revision.get_coupling_data_node().add_erceg_coupling()
         >>> erceg.node_type
+
         """
         return self._node_type
 
@@ -76,6 +78,7 @@ class ErcegCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> erceg = revision.get_coupling_data_node().add_erceg_coupling()
         >>> erceg.duplicate("Erceg Copy")
+
         """
         return self._duplicate(new_name)
 
@@ -90,6 +93,7 @@ class ErcegCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> erceg = revision.get_coupling_data_node().add_erceg_coupling()
         >>> erceg.delete()
+
         """
         self._delete()
 
@@ -107,6 +111,7 @@ class ErcegCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> erceg = revision.get_coupling_data_node().add_erceg_coupling()
         >>> erceg.enabled = True
+
         """
         val = self._get_property("Enabled")
         return val == "true"
@@ -130,6 +135,7 @@ class ErcegCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> erceg = revision.get_coupling_data_node().add_erceg_coupling()
         >>> erceg.base_antenna = revision.get_component_node("GPS")
+
         """
         val = self._get_property("Base Antenna")
         return val
@@ -153,6 +159,7 @@ class ErcegCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> erceg = revision.get_coupling_data_node().add_erceg_coupling()
         >>> erceg.mobile_antenna = revision.get_component_node("WiFi")
+
         """
         val = self._get_property("Mobile Antenna")
         return val
@@ -179,6 +186,7 @@ class ErcegCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> erceg = revision.get_coupling_data_node().add_erceg_coupling()
         >>> erceg.terrain_category = erceg.TerrainCategoryOption.TYPE_B
+
         """
         val = self._get_property("Terrain Category")
         val = self.TerrainCategoryOption[val.upper()]
@@ -206,6 +214,7 @@ class ErcegCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> erceg = revision.get_coupling_data_node().add_erceg_coupling()
         >>> erceg.custom_fading_margin = 6.0
+
         """
         val = self._get_property("Custom Fading Margin")
         return float(val)
@@ -232,6 +241,7 @@ class ErcegCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> erceg = revision.get_coupling_data_node().add_erceg_coupling()
         >>> erceg.polarization_mismatch = 1.5
+
         """
         val = self._get_property("Polarization Mismatch")
         return float(val)
@@ -258,6 +268,7 @@ class ErcegCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> erceg = revision.get_coupling_data_node().add_erceg_coupling()
         >>> erceg.pointing_error_loss = 2.0
+
         """
         val = self._get_property("Pointing Error Loss")
         return float(val)
@@ -285,6 +296,7 @@ class ErcegCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> erceg = revision.get_coupling_data_node().add_erceg_coupling()
         >>> erceg.fading_type = erceg.FadingTypeOption.SHADOWING_ONLY
+
         """
         val = self._get_property("Fading Type")
         val = self.FadingTypeOption[val.upper()]
@@ -312,6 +324,7 @@ class ErcegCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> erceg = revision.get_coupling_data_node().add_erceg_coupling()
         >>> erceg.fading_availability = 99.9
+
         """
         val = self._get_property("Fading Availability")
         return float(val)
@@ -335,6 +348,7 @@ class ErcegCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> erceg = revision.get_coupling_data_node().add_erceg_coupling()
         >>> erceg.std_deviation = 4.0
+
         """
         val = self._get_property("Std Deviation")
         return float(val)
@@ -358,6 +372,7 @@ class ErcegCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> erceg = revision.get_coupling_data_node().add_erceg_coupling()
         >>> erceg.include_rain_attenuation = True
+
         """
         val = self._get_property("Include Rain Attenuation")
         return val == "true"
@@ -384,6 +399,7 @@ class ErcegCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> erceg = revision.get_coupling_data_node().add_erceg_coupling()
         >>> erceg.rain_availability = 99.99
+
         """
         val = self._get_property("Rain Availability")
         return float(val)
@@ -407,6 +423,7 @@ class ErcegCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> erceg = revision.get_coupling_data_node().add_erceg_coupling()
         >>> erceg.rain_rate = 25.0
+
         """
         val = self._get_property("Rain Rate")
         return float(val)
@@ -433,6 +450,7 @@ class ErcegCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> erceg = revision.get_coupling_data_node().add_erceg_coupling()
         >>> erceg.polarization_tilt_angle = 45.0
+
         """
         val = self._get_property("Polarization Tilt Angle")
         return float(val)
@@ -459,6 +477,7 @@ class ErcegCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> erceg = revision.get_coupling_data_node().add_erceg_coupling()
         >>> erceg.include_atmospheric_absorption = True
+
         """
         val = self._get_property("Include Atmospheric Absorption")
         return val == "true"
@@ -482,6 +501,7 @@ class ErcegCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> erceg = revision.get_coupling_data_node().add_erceg_coupling()
         >>> erceg.temperature = 20.0
+
         """
         val = self._get_property("Temperature")
         return float(val)
@@ -505,6 +525,7 @@ class ErcegCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> erceg = revision.get_coupling_data_node().add_erceg_coupling()
         >>> erceg.total_air_pressure = 1013.25
+
         """
         val = self._get_property("Total Air Pressure")
         return float(val)
@@ -528,6 +549,7 @@ class ErcegCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> erceg = revision.get_coupling_data_node().add_erceg_coupling()
         >>> erceg.water_vapor_concentration = 7.5
+
         """
         val = self._get_property("Water Vapor Concentration")
         return float(val)

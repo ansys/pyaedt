@@ -170,6 +170,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.modules.mesh import MeshOperation
         >>> obj = MeshOperation()
         >>> obj.props
+
         """
         if not self._legacy_props:
             props = {}
@@ -232,6 +233,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.modules.mesh import MeshOperation
         >>> obj = MeshOperation()
         >>> obj.name
+
         """
         if self._child_object:
             self._name = str(self.properties["Name"])
@@ -259,6 +261,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.modules.mesh import MeshOperation
         >>> obj = MeshOperation()
         >>> obj.create()
+
         """
         if self.type == "SurfApproxBased":
             self._mesh.omeshmodule.AssignTrueSurfOp(self._get_args())
@@ -314,6 +317,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.modules.mesh import MeshOperation
         >>> obj = MeshOperation()
         >>> obj.update(key_name=1, value=1)
+
         """
         mesh_oo = self._mesh._app.get_oo_object(self._mesh._app.odesign, "Mesh")
         mesh_names = self._mesh._app.get_oo_name(mesh_oo)
@@ -370,6 +374,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.modules.mesh import MeshOperation
         >>> obj = MeshOperation()
         >>> obj.update_assignment()
+
         """
         out = []
 
@@ -440,6 +445,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.modules.mesh import MeshOperation
         >>> obj = MeshOperation()
         >>> obj.delete()
+
         """
         self._mesh.omeshmodule.DeleteOp([self.name])
         for el in self._mesh.meshoperations[:]:
@@ -470,6 +476,7 @@ class Mesh(PyAedtBase):
     >>> hfss = Hfss()
     >>> cylinder = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
     >>> model_resolution = hfss.mesh.assign_model_resolution(cylinder, 1e-4, "ModelRes1")
+
     """
 
     def __init__(self, app) -> None:
@@ -509,6 +516,7 @@ class Mesh(PyAedtBase):
         >>> cylinder = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
         >>> mr1 = hfss.mesh.assign_model_resolution(cylinder, 1e-4, "ModelRes1")
         >>> mr2 = hfss.mesh[mr1.name]
+
         """
         if part_id in self.meshoperation_names:
             mesh_op_selected = [mesh_op for mesh_op in self.meshoperations if mesh_op.name == part_id]
@@ -533,6 +541,7 @@ class Mesh(PyAedtBase):
         >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
         >>> mr1 = hfss.mesh.assign_model_resolution(o, 1e-4, "ModelRes1")
         >>> mesh_operations_list = hfss.mesh.meshoperations
+
         """
         if self._meshoperations is None:
             self._meshoperations = self._get_design_mesh_operations()
@@ -563,6 +572,7 @@ class Mesh(PyAedtBase):
         >>> mr1 = hfss.mesh.assign_model_resolution(o, 1e-4, "ModelRes1")
         >>> mr2 = hfss.mesh.assign_model_resolution(o, 1e-2, "ModelRes2")
         >>> mesh_operations_names = hfss.mesh.meshoperation_names
+
         """
         if self._app._is_object_oriented_enabled():
             return list(self._app.get_oo_name(self._app.odesign, "Mesh"))
@@ -586,6 +596,7 @@ class Mesh(PyAedtBase):
         >>> from ansys.aedt.core.modules.mesh import Mesh
         >>> obj = Mesh()
         >>> obj.initial_mesh_settings
+
         """
         if not self._globalmesh:
             self._globalmesh = self._get_design_global_mesh()
@@ -604,6 +615,7 @@ class Mesh(PyAedtBase):
         >>> from ansys.aedt.core.modules.mesh import Mesh
         >>> obj = Mesh()
         >>> obj.omeshmodule
+
         """
         return self._app.omeshmodule
 
@@ -681,6 +693,7 @@ class Mesh(PyAedtBase):
         >>> hfss = Hfss()
         >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
         >>> surface = hfss.mesh.assign_surface_mesh(o.id, 3, "Surface")
+
         """
         assignment = self._modeler.convert_to_selections(assignment, True)
         if name:
@@ -750,6 +763,7 @@ class Mesh(PyAedtBase):
         >>> hfss = Hfss()
         >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
         >>> surface = hfss.mesh.assign_surface_mesh_manual(o.id, 1e-6, aspect_ratio=3, name="Surface_Manual")
+
         """
         assignment = self._modeler.convert_to_selections(assignment, True)
         if name:
@@ -828,6 +842,7 @@ class Mesh(PyAedtBase):
         >>> hfss = Hfss()
         >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
         >>> surface = hfss.mesh.assign_model_resolution(o, 1e-4, "ModelRes1")
+
         """
         assignment = self._modeler.convert_to_selections(assignment, True)
         if name:
@@ -911,6 +926,7 @@ class Mesh(PyAedtBase):
         >>> from ansys.aedt.core.modules.mesh import Mesh
         >>> obj = Mesh()
         >>> obj.assign_initial_mesh_from_slider(level=1, method=1)
+
         """
         if self._app.design_type in ["2D Extractor", "Maxwell 2D"]:
             mesh_methods = ["Auto", "AnsoftClassic"]
@@ -1012,6 +1028,7 @@ class Mesh(PyAedtBase):
         >>> from ansys.aedt.core.modules.mesh import Mesh
         >>> obj = Mesh()
         >>> obj.assign_initial_mesh(method=1, surface_deviation=1.0)
+
         """
         if self._app.design_type in ["2D Extractor", "Maxwell 2D"]:
             mesh_methods = ["Auto", "AnsoftClassic"]
@@ -1097,6 +1114,7 @@ class Mesh(PyAedtBase):
         >>> from ansys.aedt.core.modules.mesh import Mesh
         >>> obj = Mesh()
         >>> obj.assign_surf_priority_for_tau(assignment="Box1")
+
         """
         meshop_name = generate_unique_name("SurfaceRepPriority")
         props = dict({"Type": "SurfaceRepPriority", "Objects": assignment, "SurfaceRepPriority": surface_priority})
@@ -1158,6 +1176,7 @@ class Mesh(PyAedtBase):
         >>> from ansys.aedt.core.modules.mesh import Mesh
         >>> obj = Mesh()
         >>> obj.delete_mesh_operations(mesh_type=1)
+
         """
         mesh_op_types = ["Length Based", "Surface Approximation Based"]
 
@@ -1215,6 +1234,7 @@ class Mesh(PyAedtBase):
         >>> from ansys.aedt.core.modules.mesh import Mesh
         >>> obj = Mesh()
         >>> obj.assign_length_mesh(assignment="Box1")
+
         """
         assignment = self._modeler.convert_to_selections(assignment, True)
         if name:
@@ -1316,6 +1336,7 @@ class Mesh(PyAedtBase):
         >>> from ansys.aedt.core.modules.mesh import Mesh
         >>> obj = Mesh()
         >>> obj.assign_skin_depth(assignment="Box1")
+
         """
         assignment = self._modeler.convert_to_selections(assignment, True)
 
@@ -1393,6 +1414,7 @@ class Mesh(PyAedtBase):
         >>> from ansys.aedt.core.modules.mesh import Mesh
         >>> obj = Mesh()
         >>> obj.assign_curvilinear_elements(assignment="Box1")
+
         """
         assignment = self._modeler.convert_to_selections(assignment, True)
 
@@ -1450,6 +1472,7 @@ class Mesh(PyAedtBase):
         >>> from ansys.aedt.core.modules.mesh import Mesh
         >>> obj = Mesh()
         >>> obj.assign_curvature_extraction(assignment="Box1")
+
         """
         assignment = self._modeler.convert_to_selections(assignment, True)
 
@@ -1511,6 +1534,7 @@ class Mesh(PyAedtBase):
         >>> from ansys.aedt.core.modules.mesh import Mesh
         >>> obj = Mesh()
         >>> obj.assign_rotational_layer(assignment="Box1")
+
         """
         assignment = self._modeler.convert_to_selections(assignment, True)
 
@@ -1565,6 +1589,7 @@ class Mesh(PyAedtBase):
         >>> from ansys.aedt.core.modules.mesh import Mesh
         >>> obj = Mesh()
         >>> obj.assign_edge_cut(assignment="Box1")
+
         """
         assignment = self._modeler.convert_to_selections(assignment, True)
 
@@ -1625,6 +1650,7 @@ class Mesh(PyAedtBase):
         >>> from ansys.aedt.core.modules.mesh import Mesh
         >>> obj = Mesh()
         >>> obj.assign_density_control(assignment="Box1")
+
         """
         assignment = self._modeler.convert_to_selections(assignment, True)
 
@@ -1723,6 +1749,7 @@ class Mesh(PyAedtBase):
         >>> from ansys.aedt.core.modules.mesh import Mesh
         >>> obj = Mesh()
         >>> obj.assign_cylindrical_gap(entity=["Box1"])
+
         """
         try:
             if self._app.design_type != "Maxwell 2D" and self._app.design_type != "Maxwell 3D":

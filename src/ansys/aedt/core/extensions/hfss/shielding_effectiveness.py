@@ -78,6 +78,7 @@ class ShieldingEffectivenessExtensionData(ExtensionCommonData):
     --------
     >>> from ansys.aedt.core.extensions.hfss.shielding_effectiveness import ShieldingEffectivenessExtensionData
     >>> data = ShieldingEffectivenessExtensionData(sphere_size=0.01, start_frequency=0.1, stop_frequency=1.0)
+
     """
 
     sphere_size: float = EXTENSION_DEFAULT_ARGUMENTS["sphere_size"]
@@ -109,6 +110,7 @@ class ShieldingEffectivenessExtension(ExtensionHFSSCommon):
     --------
     >>> from ansys.aedt.core.extensions.hfss.shielding_effectiveness import ShieldingEffectivenessExtension
     >>> extension = ShieldingEffectivenessExtension(withdraw=True)
+
     """
 
     def __init__(self, withdraw: bool = False) -> None:
@@ -155,6 +157,7 @@ class ShieldingEffectivenessExtension(ExtensionHFSSCommon):
         >>> from ansys.aedt.core.extensions.hfss.shielding_effectiveness import ShieldingEffectivenessExtension
         >>> extension = ShieldingEffectivenessExtension(withdraw=True)
         >>> extension.add_extension_content()
+
         """
         # Sphere size entry
         sphere_size_label = ttk.Label(self.root, text="Source sphere radius (meters):", width=30, style="PyAEDT.TLabel")
@@ -318,6 +321,7 @@ def main(data: ShieldingEffectivenessExtensionData) -> bool:
     ... )
     >>> data = ShieldingEffectivenessExtensionData(sphere_size=0.01, start_frequency=0.1, stop_frequency=1.0)
     >>> main(data)
+
     """
     if data.sphere_size <= 0:
         raise AEDTRuntimeError("Sphere size must be greater than zero.")

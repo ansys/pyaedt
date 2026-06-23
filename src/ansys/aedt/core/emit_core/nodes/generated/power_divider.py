@@ -51,6 +51,7 @@ class PowerDivider(EmitNode):
         >>> app = Emit()
         >>> power_divider = app.modeler.components.create_component("Divider", "TestDivider")
         >>> power_divider_copy = power_divider.duplicate("TestDividerCopy")
+
         """
         return self._duplicate(new_name)
 
@@ -64,6 +65,7 @@ class PowerDivider(EmitNode):
         >>> app = Emit()
         >>> power_divider = app.modeler.components.create_component("Divider", "TestDivider")
         >>> power_divider.delete()
+
         """
         self._delete()
 
@@ -80,6 +82,7 @@ class PowerDivider(EmitNode):
         >>> app = Emit()
         >>> power_divider = app.modeler.components.create_component("Divider", "TestDivider")
         >>> power_divider.filename = "C:\\Emit\\divider.s2p"
+
         """
         val = self._get_property("Filename")
         return val
@@ -102,6 +105,7 @@ class PowerDivider(EmitNode):
         >>> app = Emit()
         >>> power_divider = app.modeler.components.create_component("Divider", "TestDivider")
         >>> power_divider.noise_temperature = 290.0
+
         """
         val = self._get_property("Noise Temperature")
         return float(val)
@@ -122,6 +126,7 @@ class PowerDivider(EmitNode):
         >>> app = Emit()
         >>> power_divider = app.modeler.components.create_component("Divider", "TestDivider")
         >>> power_divider.notes = "Validated against vendor data"
+
         """
         val = self._get_property("Notes")
         return val
@@ -151,6 +156,7 @@ class PowerDivider(EmitNode):
         >>> app = Emit()
         >>> power_divider = app.modeler.components.create_component("Divider", "TestDivider")
         >>> power_divider.power_divider_type = PowerDivider.PowerDividerTypeOption.RESISTIVE
+
         """
         val = self._get_property("Power Divider Type")
         val = self.PowerDividerTypeOption[val.upper()]
@@ -177,6 +183,7 @@ class PowerDivider(EmitNode):
         >>> app = Emit()
         >>> power_divider = app.modeler.components.create_component("Divider", "TestDivider")
         >>> power_divider.insertion_loss_above_ideal = 0.5
+
         """
         val = self._get_property("Insertion Loss Above Ideal")
         return float(val)
@@ -202,6 +209,7 @@ class PowerDivider(EmitNode):
         >>> app = Emit()
         >>> power_divider = app.modeler.components.create_component("Divider", "TestDivider")
         >>> power_divider.finite_isolation = True
+
         """
         val = self._get_property("Finite Isolation")
         return val == "true"
@@ -224,6 +232,7 @@ class PowerDivider(EmitNode):
         >>> app = Emit()
         >>> power_divider = app.modeler.components.create_component("Divider", "TestDivider")
         >>> power_divider.isolation = 25.0
+
         """
         val = self._get_property("Isolation")
         return float(val)
@@ -249,6 +258,7 @@ class PowerDivider(EmitNode):
         >>> app = Emit()
         >>> power_divider = app.modeler.components.create_component("Divider", "TestDivider")
         >>> power_divider.finite_bandwidth = True
+
         """
         val = self._get_property("Finite Bandwidth")
         return val == "true"
@@ -271,6 +281,7 @@ class PowerDivider(EmitNode):
         >>> app = Emit()
         >>> power_divider = app.modeler.components.create_component("Divider", "TestDivider")
         >>> power_divider.out_of_band_attenuation = 45.0
+
         """
         val = self._get_property("Out-of-band Attenuation")
         return float(val)
@@ -293,6 +304,7 @@ class PowerDivider(EmitNode):
         >>> app = Emit()
         >>> power_divider = app.modeler.components.create_component("Divider", "TestDivider")
         >>> power_divider.lower_stop_band = "700 MHz"
+
         """
         val = self._get_property("Lower Stop Band")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -317,6 +329,7 @@ class PowerDivider(EmitNode):
         >>> app = Emit()
         >>> power_divider = app.modeler.components.create_component("Divider", "TestDivider")
         >>> power_divider.lower_cutoff = "800 MHz"
+
         """
         val = self._get_property("Lower Cutoff")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -341,6 +354,7 @@ class PowerDivider(EmitNode):
         >>> app = Emit()
         >>> power_divider = app.modeler.components.create_component("Divider", "TestDivider")
         >>> power_divider.higher_cutoff = "2 GHz"
+
         """
         val = self._get_property("Higher Cutoff")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -365,6 +379,7 @@ class PowerDivider(EmitNode):
         >>> app = Emit()
         >>> power_divider = app.modeler.components.create_component("Divider", "TestDivider")
         >>> power_divider.higher_stop_band = "2.2 GHz"
+
         """
         val = self._get_property("Higher Stop Band")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -387,6 +402,7 @@ class PowerDivider(EmitNode):
         >>> app = Emit()
         >>> power_divider = app.modeler.components.create_component("Divider", "TestDivider")
         >>> warnings = power_divider.warnings
+
         """
         val = self._get_property("Warnings")
         return val

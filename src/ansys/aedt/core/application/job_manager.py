@@ -42,6 +42,7 @@ def get_hpc_info(filename: str) -> tuple[str, str]:
     --------
     >>> from ansys.aedt.core.application.job_manager import get_hpc_info
     >>> get_hpc_info("C:\\Users\\user\\Documents\\hpc_config.acf")
+
     """
     config_name = ""
     design_type = ""
@@ -80,6 +81,7 @@ def update_hpc_option(
     --------
     >>> from ansys.aedt.core.application.job_manager import update_hpc_option
     >>> update_hpc_option("C:\\Users\\user\\Documents\\hpc_config.acf", "ConfigName", "Local")
+
     """
     line_number = None
     new_line = ""
@@ -119,6 +121,7 @@ def update_simulation_cores(name: str, nc: int | str) -> None:
     --------
     >>> from ansys.aedt.core.application.job_manager import update_simulation_cores
     >>> update_simulation_cores("C:\\Users\\user\\Documents\\hpc_config.acf", 8)
+
     """
     with open(name) as fid:
         for line in fid:
@@ -145,6 +148,7 @@ def update_simulation_engines(name: str, nc: int | str) -> None:
     --------
     >>> from ansys.aedt.core.application.job_manager import update_simulation_engines
     >>> update_simulation_engines("C:\\Users\\user\\Documents\\hpc_config.acf", 2)
+
     """
     with open(name) as fid:
         for line in fid:
@@ -171,6 +175,7 @@ def update_machine_name(name: str, machinename: str) -> None:
     --------
     >>> from ansys.aedt.core.application.job_manager import update_machine_name
     >>> update_machine_name("C:\\Users\\user\\Documents\\hpc_config.acf", "localhost")
+
     """
     with open(name) as fid:
         for line in fid:
@@ -197,6 +202,7 @@ def update_config_name(name: str, machinename: str) -> None:
     --------
     >>> from ansys.aedt.core.application.job_manager import update_config_name
     >>> update_config_name("C:\\Users\\user\\Documents\\hpc_config.acf", "Local")
+
     """
     with open(name) as fid:
         for line in fid:
@@ -227,6 +233,7 @@ def update_cluster_cores(file_name: str, param_name, param_val) -> None:
     --------
     >>> from ansys.aedt.core.application.job_manager import update_cluster_cores
     >>> update_cluster_cores("C:\\Users\\user\\Documents\\hpc_config.acf", "NumCores", 16)
+
     """
     with open(file_name) as f:
         for line in f:
@@ -255,6 +262,7 @@ def update_hpc_template(file_name: str, param_name: str, param_val: int) -> None
     --------
     >>> from ansys.aedt.core.application.job_manager import update_hpc_template
     >>> update_hpc_template("C:\\Users\\user\\Documents\\hpc_template.acf", "NumCores", 16)
+
     """
     with open(file_name) as f:
         for line in f:

@@ -72,6 +72,7 @@ class PostLayoutDesignExtensionData(ExtensionCommonData):
     --------
     >>> from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design import PostLayoutDesignExtensionData
     >>> data = PostLayoutDesignExtensionData(action="antipad", selections=["Via1", "Via2"], radius="0.5mm")
+
     """
 
     action: str = EXTENSION_DEFAULT_ARGUMENTS["action"]
@@ -101,6 +102,7 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
     --------
     >>> from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design import PostLayoutDesignExtension
     >>> extension = PostLayoutDesignExtension(withdraw=True)
+
     """
 
     def __init__(self, withdraw: bool = False) -> None:
@@ -168,6 +170,7 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
         >>> from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design import PostLayoutDesignExtension
         >>> extension = PostLayoutDesignExtension(withdraw=True)
         >>> extension.add_extension_content()
+
         """
         # Create notebook for tabs
         self._widgets["notebook"] = ttk.Notebook(self.root, style="PyAEDT.TNotebook")
@@ -388,6 +391,7 @@ def main(data: PostLayoutDesignExtensionData) -> bool:
     ... )
     >>> data = PostLayoutDesignExtensionData(action="antipad", selections=["Via1", "Via2"], radius="0.5mm")
     >>> main(data)
+
     """
     if not data.selections:
         raise AEDTRuntimeError("No selections provided to the extension.")

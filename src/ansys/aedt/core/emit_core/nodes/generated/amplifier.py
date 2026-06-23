@@ -44,6 +44,7 @@ class Amplifier(EmitNode):
         >>> app = Emit()
         >>> amp = app.schematic.create_component("Amplifier")
         >>> amp.node_type
+
         """
         return self._node_type
 
@@ -57,6 +58,7 @@ class Amplifier(EmitNode):
         >>> app = Emit()
         >>> amp = app.schematic.create_component("Amplifier")
         >>> amp_copy = amp.duplicate("Amplifier_Copy")
+
         """
         return self._duplicate(new_name)
 
@@ -70,6 +72,7 @@ class Amplifier(EmitNode):
         >>> app = Emit()
         >>> amp = app.schematic.create_component("Amplifier")
         >>> amp.delete()
+
         """
         self._delete()
 
@@ -89,6 +92,7 @@ class Amplifier(EmitNode):
         >>> app = Emit()
         >>> amp = app.schematic.create_component("Amplifier")
         >>> amp.table_data = [(2, 25.0)]
+
         """
         return self._get_table_data()
 
@@ -110,6 +114,7 @@ class Amplifier(EmitNode):
         >>> app = Emit()
         >>> amp = app.schematic.create_component("Amplifier")
         >>> amp.noise_temperature = 290.0
+
         """
         val = self._get_property("Noise Temperature")
         return float(val)
@@ -130,6 +135,7 @@ class Amplifier(EmitNode):
         >>> app = Emit()
         >>> amp = app.schematic.create_component("Amplifier")
         >>> amp.notes = "LNA stage"
+
         """
         val = self._get_property("Notes")
         return val
@@ -152,6 +158,7 @@ class Amplifier(EmitNode):
         >>> app = Emit()
         >>> amp = app.schematic.create_component("Amplifier")
         >>> amp.gain = 15.0
+
         """
         val = self._get_property("Gain")
         return float(val)
@@ -174,6 +181,7 @@ class Amplifier(EmitNode):
         >>> app = Emit()
         >>> amp = app.schematic.create_component("Amplifier")
         >>> amp.center_frequency = "2.4GHz"
+
         """
         val = self._get_property("Center Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -198,6 +206,7 @@ class Amplifier(EmitNode):
         >>> app = Emit()
         >>> amp = app.schematic.create_component("Amplifier")
         >>> amp.bandwidth = "20MHz"
+
         """
         val = self._get_property("Bandwidth")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -222,6 +231,7 @@ class Amplifier(EmitNode):
         >>> app = Emit()
         >>> amp = app.schematic.create_component("Amplifier")
         >>> amp.noise_figure = 3.0
+
         """
         val = self._get_property("Noise Figure")
         return float(val)
@@ -244,6 +254,7 @@ class Amplifier(EmitNode):
         >>> app = Emit()
         >>> amp = app.schematic.create_component("Amplifier")
         >>> amp.saturation_level = "10dBm"
+
         """
         val = self._get_property("Saturation Level")
         val = self._convert_from_internal_units(float(val), "Power")
@@ -268,6 +279,7 @@ class Amplifier(EmitNode):
         >>> app = Emit()
         >>> amp = app.schematic.create_component("Amplifier")
         >>> amp.p1_db_point_ref_input = "-10dBm"
+
         """
         val = self._get_property("P1-dB Point, Ref. Input")
         val = self._convert_from_internal_units(float(val), "Power")
@@ -292,6 +304,7 @@ class Amplifier(EmitNode):
         >>> app = Emit()
         >>> amp = app.schematic.create_component("Amplifier")
         >>> amp.ip3_ref_input = "5dBm"
+
         """
         val = self._get_property("IP3, Ref. Input")
         val = self._convert_from_internal_units(float(val), "Power")
@@ -316,6 +329,7 @@ class Amplifier(EmitNode):
         >>> app = Emit()
         >>> amp = app.schematic.create_component("Amplifier")
         >>> amp.shape_factor = 2.0
+
         """
         val = self._get_property("Shape Factor")
         return float(val)
@@ -338,6 +352,7 @@ class Amplifier(EmitNode):
         >>> app = Emit()
         >>> amp = app.schematic.create_component("Amplifier")
         >>> amp.reverse_isolation = 40.0
+
         """
         val = self._get_property("Reverse Isolation")
         return float(val)
@@ -360,6 +375,7 @@ class Amplifier(EmitNode):
         >>> app = Emit()
         >>> amp = app.schematic.create_component("Amplifier")
         >>> amp.max_intermod_order = 5
+
         """
         val = self._get_property("Max Intermod Order")
         return int(val)

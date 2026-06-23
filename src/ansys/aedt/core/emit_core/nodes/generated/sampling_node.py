@@ -43,6 +43,7 @@ class SamplingNode(EmitNode):
         Examples
         --------
         >>> sampling.parent
+
         """
         return self._parent
 
@@ -54,6 +55,7 @@ class SamplingNode(EmitNode):
         Examples
         --------
         >>> sampling.node_type
+
         """
         return self._node_type
 
@@ -70,6 +72,7 @@ class SamplingNode(EmitNode):
         Examples
         --------
         >>> sampling.table_data = [("100 MHz", "300 MHz")]
+
         """
         return self._get_table_data()
 
@@ -92,6 +95,7 @@ class SamplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core.emit_core.nodes.generated import SamplingNode
         >>> sampling.sampling_type = SamplingNode.SamplingTypeOption.RANDOM_SAMPLING
+
         """
         val = self._get_property("Sampling Type")
         val = self.SamplingTypeOption[val.upper()]
@@ -115,6 +119,7 @@ class SamplingNode(EmitNode):
         Examples
         --------
         >>> sampling.specify_percentage = True
+
         """
         val = self._get_property("Specify Percentage")
         return val == "true"
@@ -134,6 +139,7 @@ class SamplingNode(EmitNode):
         Examples
         --------
         >>> sampling.percentage_of_channels = 25
+
         """
         val = self._get_property("Percentage of Channels")
         return float(val)
@@ -153,6 +159,7 @@ class SamplingNode(EmitNode):
         Examples
         --------
         >>> sampling.max_channels_range_band = 75
+
         """
         val = self._get_property("Max # Channels/Range/Band")
         return int(val)
@@ -172,6 +179,7 @@ class SamplingNode(EmitNode):
         Examples
         --------
         >>> sampling.seed = 100
+
         """
         val = self._get_property("Seed")
         return int(val)
@@ -192,6 +200,7 @@ class SamplingNode(EmitNode):
         Examples
         --------
         >>> sampling.total_tx_channels
+
         """
         val = self._get_property("Total Tx Channels")
         return int(val)
@@ -207,6 +216,7 @@ class SamplingNode(EmitNode):
         Examples
         --------
         >>> sampling.total_rx_channels
+
         """
         val = self._get_property("Total Rx Channels")
         return int(val)
@@ -219,6 +229,7 @@ class SamplingNode(EmitNode):
         Examples
         --------
         >>> sampling.warnings
+
         """
         val = self._get_property("Warnings")
         return val

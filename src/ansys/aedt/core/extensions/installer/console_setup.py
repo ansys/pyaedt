@@ -33,6 +33,7 @@ Examples
 >>> from ansys.aedt.core import Hfss
 >>> hfss = Hfss()
 >>> hfss.logger.info("PyAEDT Console is ready")
+
 """
 
 import atexit

@@ -65,6 +65,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
     >>> from ansys.aedt.core import Circuit
     >>> aedtapp = Circuit()
     >>> prim = aedtapp.modeler.schematic
+
     """
 
     @property
@@ -76,6 +77,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_nexxim import NexximComponents
         >>> obj = NexximComponents()
         >>> obj.design_libray
+
         """
         return "Nexxim Circuit Elements"
 
@@ -88,6 +90,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_nexxim import NexximComponents
         >>> obj = NexximComponents()
         >>> obj.tab_name
+
         """
         return "PassedParameterTab"
 
@@ -151,6 +154,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_nexxim import NexximComponents
         >>> obj = NexximComponents()
         >>> obj.get_component(name="MyObject")
+
         """
         if name in self.components:
             return self.components[name]
@@ -186,6 +190,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_nexxim import NexximComponents
         >>> obj = NexximComponents()
         >>> obj.delete_component(name="MyObject")
+
         """
         cmp = self.get_component(name)
         if cmp:
@@ -206,6 +211,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_nexxim import NexximComponents
         >>> obj = NexximComponents()
         >>> obj.components_catalog
+
         """
         if not self._components_catalog:
             self._components_catalog = ComponentCatalog(self)
@@ -243,6 +249,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         --------
         >>> from ansys.aedt.core import Circuit
         >>> cir = Circuit()
+
         """
         if not name:
             name = generate_unique_name("Circuit")
@@ -316,6 +323,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_nexxim import NexximComponents
         >>> obj = NexximComponents()
         >>> obj.duplicate(assignment="Box1")
+
         """
         comp_names = []
         if isinstance(assignment, CircuitComponent):
@@ -360,6 +368,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         >>> myind = circuit.modeler.schematic.create_inductor(value=1e-9, location=[0, 0])
         >>> myres = circuit.modeler.schematic.create_resistor(value=50, location=[100, 2000])
         >>> circuit.modeler.schematic.connect_components_in_series([myind, myres])
+
         """
         comps = []
         for component in assignment:
@@ -399,6 +408,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         >>> myind = circuit.modeler.schematic.create_inductor("L100", 1e-9)
         >>> myres = circuit.modeler.schematic.create_resistor("R100", 50)
         >>> circuit.modeler.schematic.connect_components_in_parallel([myind, myres.composed_name])
+
         """
         comps = []
         for component in assignment:
@@ -441,6 +451,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_nexxim import NexximComponents
         >>> obj = NexximComponents()
         >>> obj.add_subcircuit_3dlayout(name="MyObject")
+
         """
         self._app._oproject.CopyDesign(name)
         self.oeditor.PasteDesign(
@@ -485,6 +496,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_nexxim import NexximComponents
         >>> obj = NexximComponents()
         >>> obj.create_field_model(design_name=1, solution_name=1, pin_names=["Box1"])
+
         """
         id = self.create_unique_id()
         component_name = design_name + "_" + str(id)
@@ -754,6 +766,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_nexxim import NexximComponents
         >>> obj = NexximComponents()
         >>> obj.create_resistor(name="MyObject", value=1)
+
         """
         if location is None:
             location = []
@@ -810,6 +823,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_nexxim import NexximComponents
         >>> obj = NexximComponents()
         >>> obj.create_inductor(name="MyObject", value=1)
+
         """
         if location is None:
             location = []
@@ -869,6 +883,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_nexxim import NexximComponents
         >>> obj = NexximComponents()
         >>> obj.create_capacitor(name="MyObject", value=1)
+
         """
         if location is None:
             location = []
@@ -929,6 +944,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_nexxim import NexximComponents
         >>> obj = NexximComponents()
         >>> obj.create_voltage_dc(name="MyObject", value=1)
+
         """
         if location is None:
             location = []
@@ -987,6 +1003,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         >>> cir = Circuit()
         >>> cir.modeler.components.create_voltage_probe(name="probe")
         >>> cir.desktop_class.release_desktop(False, False)
+
         """
         return self.__create_probe(
             name=name,
@@ -1037,6 +1054,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         >>> cir = Circuit()
         >>> cir.modeler.components.create_current_probe(name="probe")
         >>> cir.desktop_class.release_desktop(False, False)
+
         """
         return self.__create_probe(
             name=name,
@@ -1124,6 +1142,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_nexxim import NexximComponents
         >>> obj = NexximComponents()
         >>> obj.create_current_pulse(name="MyObject", value_lists=[1, 2, 3])
+
         """
         if value_lists is None:
             value_lists = []
@@ -1198,6 +1217,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_nexxim import NexximComponents
         >>> obj = NexximComponents()
         >>> obj.create_voltage_pulse(name="MyObject", value_lists=[1, 2, 3])
+
         """
         if value_lists is None:
             value_lists = []
@@ -1275,6 +1295,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_nexxim import NexximComponents
         >>> obj = NexximComponents()
         >>> obj.create_voltage_pwl(name="MyObject", time_list=[1, 2, 3])
+
         """
         if location is None:
             location = []
@@ -1342,6 +1363,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_nexxim import NexximComponents
         >>> obj = NexximComponents()
         >>> obj.create_current_dc(name="MyObject", value=1)
+
         """
         if location is None:
             location = []
@@ -1403,6 +1425,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_nexxim import NexximComponents
         >>> obj = NexximComponents()
         >>> obj.create_coupling_inductors(compname=1, l1=1.0, l2=1.0)
+
         """
         if location is None:
             location = []
@@ -1464,6 +1487,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_nexxim import NexximComponents
         >>> obj = NexximComponents()
         >>> obj.create_diode(name="MyObject", model_name=1)
+
         """
         if location is None:
             location = []
@@ -1522,6 +1546,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_nexxim import NexximComponents
         >>> obj = NexximComponents()
         >>> obj.create_npn(name="MyObject", value=1)
+
         """
         if location is None:
             location = []
@@ -1580,6 +1605,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_nexxim import NexximComponents
         >>> obj = NexximComponents()
         >>> obj.create_pnp(name="MyObject", value=1)
+
         """
         if location is None:
             location = []
@@ -1647,6 +1673,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_nexxim import NexximComponents
         >>> obj = NexximComponents()
         >>> obj.create_new_component_from_symbol(name="MyObject", pins=["Box1"])
+
         """
         parameters = [] if parameters is None else parameters
         values = [] if values is None else values
@@ -1887,6 +1914,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_nexxim import NexximComponents
         >>> obj = NexximComponents()
         >>> obj.add_subcircuit_dynamic_link(name="MyObject", pyaedt_app=1)
+
         """
         if not name:
             name = generate_unique_name(pyaedt_app.design_name)
@@ -2243,6 +2271,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_nexxim import NexximComponents
         >>> obj = NexximComponents()
         >>> obj.set_sim_option_on_hfss_subcircuit(component=1)
+
         """
         if option == "simulate":
             setting = "Simulate missing solutions"
@@ -2280,6 +2309,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_nexxim import NexximComponents
         >>> obj = NexximComponents()
         >>> obj.set_sim_solution_on_hfss_subcircuit(component=1)
+
         """
         arg = ["NAME:Solution", "Value:=", solution_name]
         return self._edit_link_definition_hfss_subcircuit(component, arg)
@@ -2336,6 +2366,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_nexxim import NexximComponents
         >>> obj = NexximComponents()
         >>> obj.refresh_dynamic_link(name="MyObject")
+
         """
         if "@" in name:
             name = name.split("@")[1]
@@ -2401,6 +2432,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         >>> model = Path("Your path") / "test.lib"
         >>> cir.modeler.schematic.create_component_from_spicemodel(input_file=model, model="GRM1234", symbol="nexx_cap")
         >>> cir.desktop_class.release_desktop(False, False)
+
         """
         if isinstance(input_file, str):
             input_file = Path(input_file)
@@ -2454,6 +2486,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_nexxim import NexximComponents
         >>> obj = NexximComponents()
         >>> obj.add_siwave_dynamic_link(input_file=r"C:\Temp\example.txt")
+
         """
         if isinstance(input_file, str):
             input_file = Path(input_file)
@@ -2531,6 +2564,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         Use a string reference to a design in the same project:
 
         >>> comp = circuit_app.modeler.schematic.add_q3d_rlgc("Q3DDesignName", solution_name="Setup1 : Sweep")
+
         """
         # Handle pyaedt_app as string
         if isinstance(pyaedt_app, str):

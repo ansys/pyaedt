@@ -52,6 +52,7 @@ def install_message(dependency: str | list[str], target: str, level: str = "meth
     --------
     >>> from ansys.aedt.core.internal.checks import install_message
     >>> install_message("pyvista", "graphics")
+
     """
     if isinstance(dependency, list):
         msg = f"Dependencies {', '.join(dependency)} are required."
@@ -86,6 +87,7 @@ def min_aedt_version(min_version: str) -> callable:
     >>> decorator = min_aedt_version("2026.1")
     >>> callable(decorator)
     True
+
     """
 
     def fetch_odesktop_from_common_attributes_names(item: object) -> object:
@@ -159,6 +161,7 @@ def check_dependency_available(dependency: str, warning: bool = False) -> bool |
     --------
     >>> from ansys.aedt.core.internal.checks import check_dependency_available
     >>> check_dependency_available("pyvista")
+
     """
     if dependency not in _GRAPHICS_DEPENDENCIES:
         raise ValueError(f"Unknown dependency: {dependency}. Valid options: {list(_GRAPHICS_DEPENDENCIES.keys())}")
@@ -223,6 +226,7 @@ def requires_graphical_dependency(*dependencies: str) -> callable:
     >>> decorator = requires_graphical_dependency("pyvista", "vtk")
     >>> callable(decorator)
     True
+
     """
 
     def decorator(method: _F) -> _F:
@@ -249,6 +253,7 @@ def is_notebook() -> bool:
     >>> from ansys.aedt.core.internal.checks import is_notebook
     >>> isinstance(is_notebook(), bool)
     True
+
     """
     try:
         shell = get_ipython().__class__.__name__
