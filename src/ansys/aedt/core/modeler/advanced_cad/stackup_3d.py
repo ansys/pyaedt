@@ -151,6 +151,13 @@ class NamedVariable(PyAedtBase):
         ----------
         expression: str
             Value expression of the variable.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import NamedVariable
+        >>> obj = NamedVariable()
+        >>> obj.expression = "c0/my_frequency"
+
         """
         if isinstance(expression, str):
             self._expression = expression
@@ -348,37 +355,93 @@ class DuplicatedParametrizedMaterial(PyAedtBase):
 
     @property
     def material(self) -> "Material":
-        """Retrieve material."""
+        """Retrieve material.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import DuplicatedParametrizedMaterial
+        >>> obj = DuplicatedParametrizedMaterial()
+        >>> obj.material
+
+        """
         return self._material
 
     @property
     def material_name(self) -> str:
-        """Retrieve material name."""
+        """Retrieve material name.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import DuplicatedParametrizedMaterial
+        >>> obj = DuplicatedParametrizedMaterial()
+        >>> obj.material_name
+
+        """
         return self._material_name
 
     @property
     def permittivity(self) -> "NamedVariable":
-        """Retrieve permittivity."""
+        """Retrieve permittivity.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import DuplicatedParametrizedMaterial
+        >>> obj = DuplicatedParametrizedMaterial()
+        >>> obj.permittivity
+
+        """
         return self._permittivity
 
     @property
     def permeability(self) -> "NamedVariable":
-        """Retrieve permeability."""
+        """Retrieve permeability.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import DuplicatedParametrizedMaterial
+        >>> obj = DuplicatedParametrizedMaterial()
+        >>> obj.permeability
+
+        """
         return self._permeability
 
     @property
     def conductivity(self) -> "NamedVariable":
-        """Retrieve conductivity."""
+        """Retrieve conductivity.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import DuplicatedParametrizedMaterial
+        >>> obj = DuplicatedParametrizedMaterial()
+        >>> obj.conductivity
+
+        """
         return self._conductivity
 
     @property
     def dielectric_loss_tangent(self) -> "NamedVariable":
-        """Retrieve dielectric loss tangent."""
+        """Retrieve dielectric loss tangent.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import DuplicatedParametrizedMaterial
+        >>> obj = DuplicatedParametrizedMaterial()
+        >>> obj.dielectric_loss_tangent
+
+        """
         return self._dielectric_loss_tangent
 
     @property
     def magnetic_loss_tangent(self) -> "NamedVariable":
-        """Retrieve magnetic loss tangent."""
+        """Retrieve magnetic loss tangent.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import DuplicatedParametrizedMaterial
+        >>> obj = DuplicatedParametrizedMaterial()
+        >>> obj.magnetic_loss_tangent
+
+        """
         return self._magnetic_loss_tangent
 
 
