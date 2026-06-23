@@ -255,12 +255,12 @@ def check_and_download_folder(local_path: str | Path, remote_path: str | Path, o
 
 
 @pyaedt_function_handler()
-def generate_unique_name(root_name: str, suffix: str = "", n: int = 6) -> str:
+def generate_unique_name(root_name: str | None, suffix: str = "", n: int = 6) -> str:
     """Generate a new name given a root name and optional suffix.
 
     Parameters
     ----------
-    root_name : str
+    root_name : str or None
         Root name to add random characters to.
     suffix : string, optional
         Suffix to add. The default is ``''``.
@@ -277,6 +277,9 @@ def generate_unique_name(root_name: str, suffix: str = "", n: int = 6) -> str:
     >>> from ansys.aedt.core.generic.file_utils import generate_unique_name
     >>> generate_unique_name("Setup")
     """
+    if root_name is None:
+        root_name = ""
+
     alphabet = string.ascii_uppercase + string.digits
 
     import secrets
@@ -582,7 +585,7 @@ def read_csv(input_file: str | Path, encoding: str = "utf-8") -> list:
 
 
 @pyaedt_function_handler()
-def read_csv_pandas(input_file: str | Path, encoding: str = "utf-8") -> "pandas.DataFrame" | None:
+def read_csv_pandas(input_file: str | Path, encoding: str = "utf-8") -> "pandas.DataFrame | None":
     """Read information from a CSV file and return a list.
 
     Parameters

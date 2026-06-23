@@ -45,6 +45,12 @@ class BoundaryDictionary(PyAedtBase):
         the function can only be ``"Piecewise Linear"``. Otherwise, the function can be
         ``"Exponential"``, ``"Linear"``, ``"Piecewise Linear"``, ``"Power Law"``,
         ``"Sinusoidal"``, and ``"Square Wave"``.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.boundary.icepak_boundary import BoundaryDictionary
+    >>> obj = BoundaryDictionary()
+
     """
 
     def __init__(self, assignment_type, function_type) -> None:
@@ -59,7 +65,14 @@ class BoundaryDictionary(PyAedtBase):
 
     @property
     def props(self) -> dict:
-        """Dictionary that defines all the boundary condition properties."""
+        """Dictionary that defines all the boundary condition properties.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.icepak_boundary import BoundaryDictionary
+        >>> obj = BoundaryDictionary()
+        >>> obj.props
+        """
         return {
             "Type": self.assignment_type,
             "Function": self.function_type,
@@ -89,6 +102,12 @@ class LinearDictionary(BoundaryDictionary):
     slope : str
         Slope of the assignment condition, which
         corresponds to the coefficient ``b`` in the formula.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.boundary.icepak_boundary import LinearDictionary
+    >>> obj = LinearDictionary()
+
     """
 
     def __init__(self, intercept, slope) -> None:
@@ -118,6 +137,12 @@ class PowerLawDictionary(BoundaryDictionary):
      scaling_exponent : str
          Exponent of the power term, which
          corresponds to the coefficient ``c`` in the formula.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.boundary.icepak_boundary import PowerLawDictionary
+    >>> obj = PowerLawDictionary()
+
     """
 
     def __init__(self, intercept, coefficient, scaling_exponent) -> None:
@@ -148,6 +173,12 @@ class ExponentialDictionary(BoundaryDictionary):
     exponent_coefficient : str
         Coefficient in the exponential term, which
         corresponds to the coefficient ``c`` in the formula.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.boundary.icepak_boundary import ExponentialDictionary
+    >>> obj = ExponentialDictionary()
+
     """
 
     def __init__(self, vertical_offset, coefficient, exponent_coefficient) -> None:
@@ -181,6 +212,12 @@ class SinusoidalDictionary(BoundaryDictionary):
     period_offset : str
         Offset of the sinusoid, which
         corresponds to the coefficient ``t0`` in the formula.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.boundary.icepak_boundary import SinusoidalDictionary
+    >>> obj = SinusoidalDictionary()
+
     """
 
     def __init__(self, vertical_offset, vertical_scaling, period, period_offset) -> None:
@@ -210,6 +247,12 @@ class SquareWaveDictionary(BoundaryDictionary):
         Time for which the square wave keeps the minimum value during one period.
     off_value : str
         Minimum value of the square wave.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.boundary.icepak_boundary import SquareWaveDictionary
+    >>> obj = SquareWaveDictionary()
+
     """
 
     def __init__(self, on_value, initial_time_off, on_time, off_time, off_value) -> None:
@@ -238,6 +281,12 @@ class PieceWiseLinearDictionary(BoundaryDictionary):
         Dataset name to assign.
     scale : str
         Scaling factor for the y values of the dataset.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.boundary.icepak_boundary import PieceWiseLinearDictionary
+    >>> obj = PieceWiseLinearDictionary()
+
     """
 
     def __init__(self, assignment_type, ds, scale) -> None:
@@ -252,12 +301,26 @@ class PieceWiseLinearDictionary(BoundaryDictionary):
 
     @property
     def dataset_name(self) -> str:
-        """Dataset name that defines the piecewise assignment."""
+        """Dataset name that defines the piecewise assignment.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.icepak_boundary import PieceWiseLinearDictionary
+        >>> obj = PieceWiseLinearDictionary()
+        >>> obj.dataset_name
+        """
         return self.dataset.name
 
 
 class NetworkObject(BoundaryObject):
-    """Manages networks in Icepak projects."""
+    """Manages networks in Icepak projects.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
+    >>> obj = NetworkObject()
+
+    """
 
     def __init__(self, app, name: str | None = None, props=None, create: bool = False) -> None:
         if not app.design_type == "Icepak":  # pragma: no cover
@@ -306,6 +369,12 @@ class NetworkObject(BoundaryObject):
         -------
         bool:
             True if successful.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
+        >>> obj = NetworkObject()
+        >>> obj.create()
         """
         if not self.props.get("Faces", None):
             self.props["Faces"] = [node.props["FaceID"] for _, node in self.face_nodes.items()]
@@ -382,6 +451,18 @@ class NetworkObject(BoundaryObject):
         -------
         bool:
             Whether auto-update is enabled.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
+        >>> obj = NetworkObject()
+        >>> obj.auto_update()
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
+        >>> obj = NetworkObject()
+        >>> obj.auto_update
         """
         return False
 
@@ -411,6 +492,11 @@ class NetworkObject(BoundaryObject):
         dict:
             Links dictionary.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
+        >>> obj = NetworkObject()
+        >>> obj.links
         """
         self._update_from_props()
         return {link.name: link for link in self._links}
@@ -425,6 +511,11 @@ class NetworkObject(BoundaryObject):
         dict:
             R-links dictionary.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
+        >>> obj = NetworkObject()
+        >>> obj.r_links
         """
         self._update_from_props()
         return {link.name: link for link in self._links if link._link_type[0] == "R-Link"}
@@ -439,6 +530,11 @@ class NetworkObject(BoundaryObject):
         dict:
             C-links dictionary.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
+        >>> obj = NetworkObject()
+        >>> obj.c_links
         """
         self._update_from_props()
         return {link.name: link for link in self._links if link._link_type[0] == "C-Link"}
@@ -453,6 +549,11 @@ class NetworkObject(BoundaryObject):
         dict:
             Nodes dictionary.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
+        >>> obj = NetworkObject()
+        >>> obj.nodes
         """
         self._update_from_props()
         return {node.name: node for node in self._nodes}
@@ -467,6 +568,11 @@ class NetworkObject(BoundaryObject):
         dict:
             Face nodes dictionary.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
+        >>> obj = NetworkObject()
+        >>> obj.face_nodes
         """
         self._update_from_props()
         return {node.name: node for node in self._nodes if node.node_type == "FaceNode"}
@@ -481,6 +587,11 @@ class NetworkObject(BoundaryObject):
         list:
             Face IDs.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
+        >>> obj = NetworkObject()
+        >>> obj.faces_ids_in_network
         """
         out_arr = []
         for _, node_dict in self.face_nodes.items():
@@ -497,6 +608,11 @@ class NetworkObject(BoundaryObject):
         list:
             Objects names.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
+        >>> obj = NetworkObject()
+        >>> obj.objects_in_network
         """
         out_arr = []
         for face_id in self.faces_ids_in_network:
@@ -513,6 +629,11 @@ class NetworkObject(BoundaryObject):
         dict:
             Internal nodes.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
+        >>> obj = NetworkObject()
+        >>> obj.internal_nodes
         """
         self._update_from_props()
         return {node.name: node for node in self._nodes if node.node_type == "InternalNode"}
@@ -527,6 +648,11 @@ class NetworkObject(BoundaryObject):
         dict:
             Boundary nodes.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
+        >>> obj = NetworkObject()
+        >>> obj.boundary_nodes
         """
         self._update_from_props()
         return {node.name: node for node in self._nodes if node.node_type == "BoundaryNode"}
@@ -540,6 +666,18 @@ class NetworkObject(BoundaryObject):
         -------
         str
             Network name.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
+        >>> obj = NetworkObject()
+        >>> obj.name()
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
+        >>> obj = NetworkObject()
+        >>> obj.name
         """
         return self._name
 
@@ -997,6 +1135,11 @@ class NetworkObject(BoundaryObject):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
+        >>> obj = NetworkObject()
+        >>> obj.update()
         """
         if self.name in [b.name for b in self._app.boundaries]:
             self.delete()
@@ -1014,7 +1157,14 @@ class NetworkObject(BoundaryObject):
 
     @pyaedt_function_handler()
     def update_assignment(self) -> bool:
-        """Update assignments of the network."""
+        """Update assignments of the network.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
+        >>> obj = NetworkObject()
+        >>> obj.update_assignment()
+        """
         return self.update()
 
     class _Link:

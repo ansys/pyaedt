@@ -58,6 +58,11 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         Inherited parent object. The parent object must provide the members
         `_modeler`, `_desktop`, `_odesign`, and `logger`.
 
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post.post_icepak import PostProcessorIcepak
+    >>> obj = PostProcessorIcepak()
+
     """
 
     def __init__(self, app) -> None:
@@ -72,6 +77,11 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         -------
         :class:`ansys.aedt.core.visualization.post.field_summary.FieldSummary`
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_icepak import PostProcessorIcepak
+        >>> obj = PostProcessorIcepak()
+        >>> obj.create_field_summary()
         """
         return FieldSummary(self._app)
 
@@ -218,6 +228,12 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         References
         ----------
         >>> oModule.ExportFieldsSummary
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_icepak import PostProcessorIcepak
+        >>> obj = PostProcessorIcepak()
+        >>> obj.evaluate_faces_quantity(faces=[1], quantity=1)
         """
         if variations is None:
             variations = {}
@@ -279,6 +295,12 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         References
         ----------
         >>> oModule.ExportFieldsSummary
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_icepak import PostProcessorIcepak
+        >>> obj = PostProcessorIcepak()
+        >>> obj.evaluate_boundary_quantity(boundary=1, quantity=1)
         """
         if variations is None:
             variations = {}
@@ -339,6 +361,12 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         References
         ----------
         >>> oModule.ExportFieldsSummary
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_icepak import PostProcessorIcepak
+        >>> obj = PostProcessorIcepak()
+        >>> obj.evaluate_monitor_quantity(monitor=1, quantity=1)
         """
         if variations is None:
             variations = {}
@@ -401,6 +429,12 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         References
         ----------
         >>> oModule.ExportFieldsSummary
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_icepak import PostProcessorIcepak
+        >>> obj = PostProcessorIcepak()
+        >>> obj.evaluate_object_quantity(object_name=1, quantity_name=1)
         """
         if variations is None:
             variations = {}
@@ -446,6 +480,12 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
 
               - A tuple of three floats representing the (x, y, z) coordinates of the maximum point.
               - A float representing the value associated with the maximum point.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_icepak import PostProcessorIcepak
+        >>> obj = PostProcessorIcepak()
+        >>> obj.get_temperature_extremum(assignment="Box1", max_min=1, location=1)
         """
         return self.get_field_extremum(assignment, max_min, location, "Temp", setup, {"Time": time})
 
@@ -473,6 +513,12 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         References
         ----------
         >>> oEditor.ChangeProperty
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_icepak import PostProcessorIcepak
+        >>> obj = PostProcessorIcepak()
+        >>> obj.power_budget(units="mm", temperature=1)
         """
         available_bcs = self._app.boundaries
         power_dict = {}

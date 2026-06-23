@@ -47,6 +47,11 @@ class VRTFieldPlot(PyAedtBase):
     intrinsics : dict, optional
         Name of the intrinsic dictionary. The default is ``{}``.
 
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post.vrt_data import VRTFieldPlot
+    >>> obj = VRTFieldPlot()
+
     """
 
     @pyaedt_function_handler()
@@ -98,6 +103,12 @@ class VRTFieldPlot(PyAedtBase):
         -------
         str
             Variables for the field plot.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.vrt_data import VRTFieldPlot
+        >>> obj = VRTFieldPlot()
+        >>> obj.intrinsicVar
         """
         var = ""
         for a in self.intrinsics:
@@ -226,6 +237,12 @@ class VRTFieldPlot(PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.vrt_data import VRTFieldPlot
+        >>> obj = VRTFieldPlot()
+        >>> obj.create()
         """
         try:
             if self.is_creeping_wave:
@@ -244,6 +261,12 @@ class VRTFieldPlot(PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.vrt_data import VRTFieldPlot
+        >>> obj = VRTFieldPlot()
+        >>> obj.update()
         """
         try:
             if self.is_creeping_wave:
@@ -257,13 +280,20 @@ class VRTFieldPlot(PyAedtBase):
 
     @pyaedt_function_handler()
     def delete(self) -> bool:
-        """Delete the field plot."""
+        """Delete the field plot.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.vrt_data import VRTFieldPlot
+        >>> obj = VRTFieldPlot()
+        >>> obj.delete()
+        """
         self._ofield.DeleteFieldPlot([self.name])
         return True
 
     @pyaedt_function_handler()
     def export(self, path: str = None) -> str:
-        """Export the Visual Ray Tracing to ``hdm`` file.
+        r"""Export the Visual Ray Tracing to ``hdm`` file.
 
         Parameters
         ----------
@@ -275,6 +305,12 @@ class VRTFieldPlot(PyAedtBase):
         -------
         str
             Path to the file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.vrt_data import VRTFieldPlot
+        >>> obj = VRTFieldPlot()
+        >>> obj.export(path=r"C:\Temp\example.txt")
         """
         if not path:
             path = os.path.join(self._postprocessor._app.working_directory, self.name + ".hdm")

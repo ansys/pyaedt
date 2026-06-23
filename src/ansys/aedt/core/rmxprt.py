@@ -35,7 +35,14 @@ from ansys.aedt.core.modules.solve_setup import SetupHFSS
 
 
 class RMXprtModule(PyAedtBase):
-    """Provides RMxprt module properties."""
+    """Provides RMxprt module properties.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.rmxprt import RMXprtModule
+    >>> obj = RMXprtModule()
+
+    """
 
     component = None
 
@@ -52,6 +59,11 @@ class RMXprtModule(PyAedtBase):
             :class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTreeNode` when successful,
             ``False`` when failed.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.rmxprt import RMXprtModule
+        >>> obj = RMXprtModule()
+        >>> obj.properties
         """
         try:
             child_object = self._app.get_oo_object(self._app.odesign, "Machine")
@@ -108,31 +120,66 @@ class RMXprtModule(PyAedtBase):
 
 
 class Stator(RMXprtModule):
-    """Provides stator properties."""
+    """Provides stator properties.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.rmxprt import Stator
+    >>> obj = Stator()
+
+    """
 
     component = "Stator"
 
 
 class Rotor(RMXprtModule):
-    """Provides rotor properties."""
+    """Provides rotor properties.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.rmxprt import Rotor
+    >>> obj = Rotor()
+
+    """
 
     component = "Rotor"
 
 
 class Shaft(RMXprtModule):
-    """Provides rotor properties."""
+    """Provides rotor properties.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.rmxprt import Shaft
+    >>> obj = Shaft()
+
+    """
 
     component = "Shaft"
 
 
 class Machine(RMXprtModule):
-    """Provides rotor properties."""
+    """Provides rotor properties.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.rmxprt import Machine
+    >>> obj = Machine()
+
+    """
 
     component = "General"
 
 
 class Circuit(RMXprtModule):
-    """Provides rotor properties."""
+    """Provides rotor properties.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.rmxprt import Circuit
+    >>> obj = Circuit()
+
+    """
 
     component = "Circuit"
 
@@ -269,7 +316,14 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
 
     @property
     def design_type(self):
-        """Machine design type."""
+        """Machine design type.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.rmxprt import Rmxprt
+        >>> obj = Rmxprt()
+        >>> obj.design_type
+        """
         return str(self.design_solutions._design_type)
 
     @design_type.setter
@@ -343,6 +397,13 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
         -------
         str
            Full path to json file created.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.rmxprt import Rmxprt
+        >>> obj = Rmxprt()
+        >>> obj.export_configuration(r"C:\\Temp\\rmxprt_config.json")
+
         """
 
         def jsonalize(dict_in, dict_out) -> None:
@@ -377,6 +438,12 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.rmxprt import Rmxprt
+        >>> obj = Rmxprt()
+        >>> obj.import_configuration(r"C:\\Temp\\rmxprt_config.json")
         """
         from ansys.aedt.core.generic.file_utils import read_configuration_file
 

@@ -1712,7 +1712,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def create_setup(
         self, name: str = "MySetupAuto", setup_type: str | None = None, **kwargs
-    ) -> "SetupHFSS" | "SetupHFSSAuto":
+    ) -> "SetupHFSS | SetupHFSSAuto":
         """Create an analysis setup for HFSS.
 
         Optional arguments are passed along with ``setup_type`` and ``name``. Keyword
@@ -1794,7 +1794,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         sweep_type: str = "Discrete",
         interpolation_tol: float = 0.5,
         interpolation_max_solutions: int = 250,
-    ) -> "SweepHFSS" | bool:
+    ) -> "SweepHFSS | bool":
         """Create a sweep with a specified number of points.
 
         Parameters
@@ -1912,7 +1912,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         save_fields: bool = True,
         save_rad_fields: bool = False,
         sweep_type: str = "Discrete",
-    ) -> "SweepHFSS" | bool:
+    ) -> "SweepHFSS | bool":
         """Create a sweep with a specified frequency step.
 
         Parameters
@@ -1995,7 +1995,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         save_single_field: bool = True,
         save_fields: bool = False,
         save_rad_fields: bool = False,
-    ) -> "SweepHFSS" | bool:
+    ) -> "SweepHFSS | bool":
         """Create a sweep with a single frequency point.
 
         Parameters
@@ -5006,6 +5006,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         ----------
         >>> oModule.CreateReport
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.hfss import Hfss
+        >>> obj = Hfss()
+        >>> obj.create_qfactor_report(name="MyObject", setup="Setup1")
         """
         import warnings
 
@@ -6502,7 +6507,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
     @pyaedt_function_handler()
     def set_impedance_multiplier(self, multiplier: float) -> bool:
-        # type: (float) -> bool
         """Set impedance multiplier.
 
         Parameters
@@ -6537,7 +6541,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
     @pyaedt_function_handler()
     def set_phase_center_per_port(self, coordinate_system: list = None) -> bool:
-        # type: (list) -> bool
         """Set phase center per port.
 
         Parameters
@@ -7494,9 +7497,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         volume_padding: list | None = None,
         priority: list | None = None,
     ) -> bool:
-        # type: (list|str, list, list) -> bool
         """Set mesh fusion settings in HFSS.
 
+        Parameters
+        ----------
         assignment : list, optional
             List of active 3D Components.
             The default is ``None``, in which case components are disabled.

@@ -47,6 +47,12 @@ class HDMPlotter(CommonPlotter, PyAedtBase):
 
     Note: the methods in this class are just examples and subject
     to improvement and changes.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.advanced.hdm_plot import HDMPlotter
+    >>> obj = HDMPlotter()
+
     """
 
     def __init__(self) -> None:
@@ -61,12 +67,19 @@ class HDMPlotter(CommonPlotter, PyAedtBase):
 
     @property
     def hdm_data(self):
-        """Return the ``hds`` Data parsed."""
+        """Return the ``hds`` Data parsed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.hdm_plot import HDMPlotter
+        >>> obj = HDMPlotter()
+        >>> obj.hdm_data
+        """
         return self._bundle
 
     @pyaedt_function_handler()
     def add_cad_model(self, filename: str, cad_color: str = "dodgerblue", opacity: int = 1, units: str = "mm") -> bool:
-        """Add a ``stl`` file to the scenario.
+        r"""Add a ``stl`` file to the scenario.
 
         Parameters
         ----------
@@ -77,6 +90,12 @@ class HDMPlotter(CommonPlotter, PyAedtBase):
         -------
         bool
             ``True`` if imported.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.hdm_plot import HDMPlotter
+        >>> obj = HDMPlotter()
+        >>> obj.add_cad_model(filename=r"C:\Temp\example.txt")
         """
         if os.path.exists(filename):
             self._objects.append(ObjClass(filename, cad_color, opacity, units=units))
@@ -86,7 +105,14 @@ class HDMPlotter(CommonPlotter, PyAedtBase):
 
     @pyaedt_function_handler()
     def add_hdm_bundle_from_file(self, filename: str, units: str = None):
-        """Add hdm bundle from file."""
+        r"""Add hdm bundle from file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.hdm_plot import HDMPlotter
+        >>> obj = HDMPlotter()
+        >>> obj.add_hdm_bundle_from_file(filename=r"C:\Temp\example.txt")
+        """
         from ansys.aedt.core.visualization.advanced.sbrplus.hdm_parser import Parser
 
         if os.path.exists(filename):
@@ -133,7 +159,7 @@ class HDMPlotter(CommonPlotter, PyAedtBase):
     @pyaedt_function_handler()
     @requires_graphical_dependency("pyvista")
     def plot_rays(self, snapshot_path: str = None) -> "Plotter":
-        """Plot Rays read from an ``hdm`` file.
+        r"""Plot Rays read from an ``hdm`` file.
 
         Parameters
         ----------
@@ -149,6 +175,11 @@ class HDMPlotter(CommonPlotter, PyAedtBase):
         -----
         This method is intended to be an example of the usage that can be made of hdm file.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.hdm_plot import HDMPlotter
+        >>> obj = HDMPlotter()
+        >>> obj.plot_rays(snapshot_path=r"C:\Temp\example.txt")
         """
         import pyvista as pv
 
@@ -200,7 +231,7 @@ class HDMPlotter(CommonPlotter, PyAedtBase):
     @pyaedt_function_handler()
     @requires_graphical_dependency("pyvista")
     def plot_first_bounce_currents(self, snapshot_path: str = None) -> "Plotter":
-        """Plot First bounce of currents read from an ``hdm`` file.
+        r"""Plot First bounce of currents read from an ``hdm`` file.
 
         Parameters
         ----------
@@ -210,6 +241,12 @@ class HDMPlotter(CommonPlotter, PyAedtBase):
         Returns
         -------
         :class:`pyvista.Plotter`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.hdm_plot import HDMPlotter
+        >>> obj = HDMPlotter()
+        >>> obj.plot_first_bounce_currents(snapshot_path=r"C:\Temp\example.txt")
         """
         import pyvista as pv
 

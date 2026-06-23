@@ -81,6 +81,12 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
         HFSS solution data. The default is ``None``.
     touchstone_file : str or :class:'pathlib.Path', optional
         Path for the touchstone file. The default is ``None``.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
+    >>> obj = TouchstoneData()
+
     """
 
     def __init__(self, solution_data=None, touchstone_file=None) -> None:
@@ -165,6 +171,11 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
         str
             Output file path
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
+        >>> obj = TouchstoneData()
+        >>> obj.reduce(ports=[1, 2, 3])
         """
         name = f"temp_touchstone.s{len(self.port_names)}p"
         temp_touch = Path(tempfile.gettempdir()) / name
@@ -349,6 +360,11 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
          list
             List of index couples representing insertion losses of excitations.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
+        >>> obj = TouchstoneData()
+        >>> obj.get_insertion_loss_index(threshold=1.0)
         """
         temp_list = []
         s_db = self.s_db[0:2, :, :]
@@ -380,6 +396,12 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
         -------
         list
             List of tuples representing insertion loss excitations.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
+        >>> obj = TouchstoneData()
+        >>> obj.plot_insertion_losses(threshold=1.0, plot=True)
         """
         import matplotlib.pyplot as plt
 
@@ -404,6 +426,12 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
         Returns
         -------
         :class:`matplotlib.plt`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
+        >>> obj = TouchstoneData()
+        >>> obj.plot(index_couples=["Box1"], show=True)
         """
         import matplotlib.pyplot as plt
 
@@ -423,6 +451,12 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
+        >>> obj = TouchstoneData()
+        >>> obj.plot_return_losses()
         """
         import matplotlib.pyplot as plt
 
@@ -448,6 +482,11 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
         -------
         class:`ansys.aedt.core.generic.touchstone_parser.TouchstoneData`
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
+        >>> obj = TouchstoneData()
+        >>> obj.get_mixed_mode_touchstone_data(num_of_diff_ports=[1, 2, 3], port_ordering=1)
         """
         ts_diff = copy(self)
         port_count = len(ts_diff.port_names)
@@ -500,6 +539,11 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
         list
             List of index couples representing return losses of excitations.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
+        >>> obj = TouchstoneData()
+        >>> obj.get_return_loss_index(excitation_name_prefix=1)
         """
         values = []
         if excitation_name_prefix:
@@ -526,6 +570,11 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
         list
             List of index couples representing Insertion Losses of excitations.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
+        >>> obj = TouchstoneData()
+        >>> obj.get_insertion_loss_index_from_prefix(tx_prefix=1, rx_prefix=1)
         """
         trlist = [i for i in self.port_names if tx_prefix in i]
         receiver_list = [i for i in self.port_names if rx_prefix in i]
@@ -553,6 +602,12 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
         -------
         list
             List of index couples representing Near End XTalks.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
+        >>> obj = TouchstoneData()
+        >>> obj.get_next_xtalk_index(tx_prefix=1)
         """
         if tx_prefix:
             trlist = [i for i in self.port_names if tx_prefix in i]
@@ -588,6 +643,12 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
         -------
         list
             List of index couples representing Far End XTalks.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
+        >>> obj = TouchstoneData()
+        >>> obj.get_fext_xtalk_index_from_prefix(tx_prefix=1, rx_prefix=1)
         """
         trlist = [i for i in self.port_names if tx_prefix in i]
         reclist = [i for i in self.port_names if rx_prefix in i]
@@ -610,6 +671,12 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
+        >>> obj = TouchstoneData()
+        >>> obj.plot_next_xtalk_losses(tx_prefix=1)
         """
         import matplotlib.pyplot as plt
 
@@ -636,6 +703,12 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
+        >>> obj = TouchstoneData()
+        >>> obj.plot_fext_xtalk_losses(tx_prefix=1, rx_prefix=1)
         """
         import matplotlib.pyplot as plt
 
@@ -679,6 +752,12 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
         -------
         tuple
             Worst element, dictionary of ordered expression.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
+        >>> obj = TouchstoneData()
+        >>> obj.get_worst_curve(freq_min=1.0, freq_max=1.0)
         """
         import matplotlib.pyplot as plt
 
@@ -726,6 +805,10 @@ def read_touchstone(input_file: str) -> TouchstoneData:
     class:`ansys.aedt.core.generic.touchstone_parser.TouchstoneData`
         NPort holding data contained in the touchstone file.
 
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.advanced.touchstone_parser import read_touchstone
+    >>> read_touchstone(input_file=r"C:\\Temp\network.s2p")
     """
     data = TouchstoneData(touchstone_file=input_file)
     return data
@@ -758,6 +841,10 @@ def check_touchstone_files(input_dir: str = "", passivity: bool = True, causalit
         is a Boolean that is set to ``True`` when the criteria passed or ``False`` otherwise. The last element
         is a string with the log information.
 
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.advanced.touchstone_parser import check_touchstone_files
+    >>> check_touchstone_files(input_dir=r"C:\\Temp\network.s2p", passivity=True)
     """
     import subprocess  # nosec
 
@@ -820,6 +907,11 @@ def find_touchstone_files(input_dir: str) -> dict:
     -------
     dict
         Dictionary with the SNP file names as the key and the absolute path as the value.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.advanced.touchstone_parser import find_touchstone_files
+    >>> find_touchstone_files(input_dir=r"C:\\Temp\network.s2p")
     """
     out = {}
     input_dir = Path(input_dir)

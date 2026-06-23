@@ -61,7 +61,14 @@ class _AEDTGrpcInfo:
 
 
 class FileManagement(PyAedtBase):
-    """Class to manage file transfer."""
+    """Class to manage file transfer.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.rpc.rpyc_services import FileManagement
+    >>> obj = FileManagement()
+
+    """
 
     def __init__(self, client) -> None:
         self.client = client
@@ -77,6 +84,12 @@ class FileManagement(PyAedtBase):
             Remote path.
         overwrite : bool, optional
             Either if overwrite the local file or not.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.rpc.rpyc_services import FileManagement
+        >>> obj = FileManagement()
+        >>> obj.upload("localpath", "remotepath", overwrite=True)
         """
         if os.path.isdir(localpath):
             self._upload_dir(localpath, remotepath)
@@ -94,6 +107,12 @@ class FileManagement(PyAedtBase):
             Path to the local file or directory.
         overwrite : bool, optional
             Either if overwrite the local file or not.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.rpc.rpyc_services import FileManagement
+        >>> obj = FileManagement()
+        >>> obj.download_folder("remotepath", "localpath", overwrite=True)
         """
         self._download_dir(remotepath, localpath, overwrite=True)
 
@@ -108,6 +127,12 @@ class FileManagement(PyAedtBase):
             Path to the local file or directory.
         overwrite : bool, optional
             Either if overwrite the local file or not.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.rpc.rpyc_services import FileManagement
+        >>> obj = FileManagement()
+        >>> obj.download_file("remotepath", "localpath", overwrite=True)
         """
         self._download_file(remotepath, localpath, overwrite=overwrite)
 
@@ -220,6 +245,11 @@ def check_port(port: int) -> int:
     -------
     int
         Next Port available.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.rpc.rpyc_services import check_port
+    >>> check_port(50051)
     """
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     check = False
@@ -241,12 +271,25 @@ class GlobalService(rpyc.Service, PyAedtBase):
 
     Each ``GlobalService`` runs in its own subprocess (spawned by ``ServiceManager``)
     and exposes AEDT launch and remote file operations to the connected client.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.rpc.rpyc_services import GlobalService
+    >>> obj = GlobalService()
+
     """
 
     def on_connect(self, connection):
         """Initiate the service when a connection is created.
 
         This method is called when the connection is established.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.rpc.rpyc_services import GlobalService
+        >>> obj = GlobalService()
+        >>> connection = object()
+        >>> obj.on_connect(connection)
         """
         self.connection = connection
 
@@ -254,6 +297,13 @@ class GlobalService(rpyc.Service, PyAedtBase):
         """Finalize the service when the connection is closed.
 
         This method is called when the connection had already terminated for cleanup.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.rpc.rpyc_services import GlobalService
+        >>> obj = GlobalService()
+        >>> connection = object()
+        >>> obj.on_disconnect(connection)
         """
         if is_windows:
             sys.stdout = sys.__stdout__
@@ -312,6 +362,12 @@ class GlobalService(rpyc.Service, PyAedtBase):
         -------
         info : _AEDTGrpcInfo
             Information about the AEDT gRPC session.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.rpc.rpyc_services import GlobalService
+        >>> obj = GlobalService()
+        >>> obj.aedt_grpc()
         """
         from ansys.aedt.core.generic.general_methods import grpc_active_sessions
         from ansys.aedt.core.generic.settings import settings
@@ -403,6 +459,12 @@ class GlobalService(rpyc.Service, PyAedtBase):
         Returns
         -------
         int
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.rpc.rpyc_services import GlobalService
+        >>> obj = GlobalService()
+        >>> obj.aedt_port
         """
         from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 
@@ -417,6 +479,12 @@ class GlobalService(rpyc.Service, PyAedtBase):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.rpc.rpyc_services import GlobalService
+        >>> obj = GlobalService()
+        >>> obj.aedt_version
         """
         from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 
@@ -431,6 +499,12 @@ class GlobalService(rpyc.Service, PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.rpc.rpyc_services import GlobalService
+        >>> obj = GlobalService()
+        >>> obj.student_version
         """
         from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 
@@ -445,6 +519,12 @@ class GlobalService(rpyc.Service, PyAedtBase):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.rpc.rpyc_services import GlobalService
+        >>> obj = GlobalService()
+        >>> obj.host
         """
         import socket
 
@@ -506,12 +586,25 @@ class ServiceManager(rpyc.Service, PyAedtBase):
     The ``ServiceManager`` listens on a well-known port (default 17878) and
     handles requests to spawn or stop per-client ``GlobalService`` workers,
     each running in its own subprocess on a dedicated port.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.rpc.rpyc_services import ServiceManager
+    >>> obj = ServiceManager()
+
     """
 
     def on_connect(self, connection):
         """Initiate the service when a connection is created.
 
         This method is called when the connection is established.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.rpc.rpyc_services import ServiceManager
+        >>> obj = ServiceManager()
+        >>> connection = object()
+        >>> obj.on_connect(connection)
         """
         self.connection = connection
         self.__processes: dict[int, subprocess.Popen] = {}
@@ -520,6 +613,13 @@ class ServiceManager(rpyc.Service, PyAedtBase):
         """Finalize the service when the connection is closed.
 
         This method is called when the connection had already terminated for cleanup.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.rpc.rpyc_services import ServiceManager
+        >>> obj = ServiceManager()
+        >>> connection = object()
+        >>> obj.on_disconnect(connection)
         """
         for process in self.__processes.values():
             try:
@@ -552,6 +652,12 @@ class ServiceManager(rpyc.Service, PyAedtBase):
         Returns
         -------
         RPyC object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.rpc.rpyc_services import ServiceManager
+        >>> obj = ServiceManager()
+        >>> obj.start_service(host="localhost", port=50051, secure=True, listen_all=False)
         """
         try:
             port = check_port(port)
@@ -605,6 +711,12 @@ class ServiceManager(rpyc.Service, PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.rpc.rpyc_services import ServiceManager
+        >>> obj = ServiceManager()
+        >>> obj.stop_service(port=50051)
         """
         if port in self.__processes:
             try:
@@ -617,7 +729,14 @@ class ServiceManager(rpyc.Service, PyAedtBase):
 
     @staticmethod
     def exposed_check_port() -> int:
-        """Check if a random port is available."""
+        """Check if a random port is available.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.rpc.rpyc_services import ServiceManager
+        >>> obj = ServiceManager()
+        >>> obj.exposed_check_port()
+        """
         import secrets
 
         secure_random = secrets.SystemRandom()

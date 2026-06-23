@@ -396,7 +396,7 @@ class Coil(PyAedtBase):
         --------
         >>> from ansys.aedt.core.modeler.advanced_cad.coil import Coil
         >>> obj = Coil()
-        >>> obj.create_sweep_profile(...)
+        >>> obj.create_sweep_profile(polyline=1)
         """
         profile = self._app.modeler.create_circle(
             "YZ", polyline.end_point, "wire_radius", num_sides="section_segmentation"

@@ -81,6 +81,12 @@ class CommonTemplate(PyAedtBase):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.compliance import CommonTemplate
+        >>> obj = CommonTemplate()
+        >>> obj.name
         """
         return self._name
 
@@ -91,6 +97,12 @@ class CommonTemplate(PyAedtBase):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.compliance import CommonTemplate
+        >>> obj = CommonTemplate()
+        >>> obj.project_name
         """
         if self._project_name:
             return self._project_name
@@ -104,7 +116,14 @@ class CommonTemplate(PyAedtBase):
 
     @property
     def project(self) -> str:
-        """Project path."""
+        """Project path.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.compliance import CommonTemplate
+        >>> obj = CommonTemplate()
+        >>> obj.project
+        """
         return self._project
 
     @project.setter
@@ -118,6 +137,12 @@ class CommonTemplate(PyAedtBase):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.compliance import CommonTemplate
+        >>> obj = CommonTemplate()
+        >>> obj.report_type
         """
         return self._report_type
 
@@ -132,6 +157,12 @@ class CommonTemplate(PyAedtBase):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.compliance import CommonTemplate
+        >>> obj = CommonTemplate()
+        >>> obj.config_file
         """
         return self._config_file
 
@@ -146,6 +177,12 @@ class CommonTemplate(PyAedtBase):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.compliance import CommonTemplate
+        >>> obj = CommonTemplate()
+        >>> obj.design_name
         """
         return self._design_name
 
@@ -160,6 +197,12 @@ class CommonTemplate(PyAedtBase):
         Returns
         -------
         list
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.compliance import CommonTemplate
+        >>> obj = CommonTemplate()
+        >>> obj.traces
         """
         return self._traces
 
@@ -177,6 +220,12 @@ class CommonTemplate(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.compliance import CommonTemplate
+        >>> obj = CommonTemplate()
+        >>> obj.pass_fail
         """
         return self._pass_fail
 
@@ -191,6 +240,12 @@ class CommonTemplate(PyAedtBase):
         Returns
         -------
         float, int
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.compliance import CommonTemplate
+        >>> obj = CommonTemplate()
+        >>> obj.pass_fail_criteria
         """
         return self._pass_fail_criteria
 
@@ -211,6 +266,12 @@ class ReportTemplate(CommonTemplate):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.compliance import ReportTemplate
+        >>> obj = ReportTemplate()
+        >>> obj.group_plots
         """
         return self._group_plots
 
@@ -232,6 +293,12 @@ class ReportParametersTemplate(CommonTemplate):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.compliance import ReportParametersTemplate
+        >>> obj = ReportParametersTemplate()
+        >>> obj.parameter_name
         """
         return self._parameter_name
 
@@ -253,6 +320,12 @@ class ParametersTemplate(CommonTemplate):
         Returns
         -------
         list
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.compliance import ParametersTemplate
+        >>> obj = ParametersTemplate()
+        >>> obj.trace_pins
         """
         return self._trace_pins
 
@@ -262,7 +335,14 @@ class ParametersTemplate(CommonTemplate):
 
 
 class VirtualComplianceGenerator(PyAedtBase):
-    """Class to generate a Virtual Compliance configuration."""
+    """Class to generate a Virtual Compliance configuration.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post.compliance import VirtualComplianceGenerator
+    >>> obj = VirtualComplianceGenerator()
+
+    """
 
     def __init__(self, compliance_name, project_name, specification_folder=None) -> None:
         self.config = {
@@ -299,7 +379,14 @@ class VirtualComplianceGenerator(PyAedtBase):
 
     @property
     def project_file(self) -> str:
-        """Project file."""
+        """Project file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.compliance import VirtualComplianceGenerator
+        >>> obj = VirtualComplianceGenerator()
+        >>> obj.project_file
+        """
         return self.config["general"]["project"]
 
     @project_file.setter
@@ -318,7 +405,7 @@ class VirtualComplianceGenerator(PyAedtBase):
         name: str = "ERL",
         project: str | None = None,
     ) -> None:
-        """Add Com parameters computed by SpiSim into the configuration.
+        r"""Add Com parameters computed by SpiSim into the configuration.
 
         Parameters
         ----------
@@ -341,6 +428,14 @@ class VirtualComplianceGenerator(PyAedtBase):
         project : str, optional
             Full path to the project to use for the computation of this report.
             If ``None`` the default project will be used.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.compliance import VirtualComplianceGenerator
+        >>> obj = VirtualComplianceGenerator()
+        >>> obj.add_erl_parameters(
+        ...     design_name=1, config_file=r"C:\Temp\example.txt", traces=["Box1"], pins=["Box1"], pass_fail=True
+        ... )
         """
         pars = {
             "name": name,
@@ -367,7 +462,7 @@ class VirtualComplianceGenerator(PyAedtBase):
         name: str,
         project: str | None = None,
     ) -> None:
-        """Add report derived parameters computed by AEDT and python into the configuration.
+        r"""Add report derived parameters computed by AEDT and python into the configuration.
 
         Parameters
         ----------
@@ -388,6 +483,20 @@ class VirtualComplianceGenerator(PyAedtBase):
         project : str, optional
             Full path to the project to use for the computation of this report.
             If ``None`` the default project will be used.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.compliance import VirtualComplianceGenerator
+        >>> obj = VirtualComplianceGenerator()
+        >>> obj.add_report_derived_parameter(
+        ...     design_name=1,
+        ...     config_file=r"C:\Temp\example.txt",
+        ...     parameter=1,
+        ...     traces=["Box1"],
+        ...     report_type=1,
+        ...     pass_fail_criteria=1.0,
+        ...     name="MyObject",
+        ... )
         """
         pars = {
             "name": name,
@@ -415,7 +524,7 @@ class VirtualComplianceGenerator(PyAedtBase):
         name: str,
         project: str | None = None,
     ) -> None:
-        """Add Com parameters computed by SpiSim into the configuration.
+        r"""Add Com parameters computed by SpiSim into the configuration.
 
         Parameters
         ----------
@@ -436,6 +545,20 @@ class VirtualComplianceGenerator(PyAedtBase):
         project : str, optional
             Full path to the project to use for the computation of this report.
             If ``None`` the default project will be used.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.compliance import VirtualComplianceGenerator
+        >>> obj = VirtualComplianceGenerator()
+        >>> obj.add_report(
+        ...     design_name=1,
+        ...     config_file=r"C:\Temp\example.txt",
+        ...     traces=["Box1"],
+        ...     report_type=1,
+        ...     pass_fail=True,
+        ...     group_plots=True,
+        ...     name="MyObject",
+        ... )
         """
         pars = {
             "name": name,
@@ -454,7 +577,7 @@ class VirtualComplianceGenerator(PyAedtBase):
     def add_report_from_folder(
         self, input_folder: str | Path, design_name: str, group_plots: bool = False, project: str = None
     ) -> None:
-        """Add multiple reports from a folder.
+        r"""Add multiple reports from a folder.
 
         Parameters
         ----------
@@ -464,6 +587,12 @@ class VirtualComplianceGenerator(PyAedtBase):
             Name of design to apply the configuration.
         group_plots : bool
             Whether to group plot traces or not.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.compliance import VirtualComplianceGenerator
+        >>> obj = VirtualComplianceGenerator()
+        >>> obj.add_report_from_folder(input_folder=r"C:\Temp\example.txt", design_name=1)
         """
         input_reports = search_files(input_folder, "*.json")
         for input_report in input_reports:
@@ -488,7 +617,7 @@ class VirtualComplianceGenerator(PyAedtBase):
 
     @pyaedt_function_handler()
     def save_configuration(self, output_file: str | Path) -> bool:
-        """Save the configuration to a json file.
+        r"""Save the configuration to a json file.
 
         Parameters
         ----------
@@ -499,6 +628,12 @@ class VirtualComplianceGenerator(PyAedtBase):
         -------
         bool
             ``True`` if export is successful, ``False`` if not.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.compliance import VirtualComplianceGenerator
+        >>> obj = VirtualComplianceGenerator()
+        >>> obj.save_configuration(output_file=r"C:\Temp\example.txt")
         """
         return write_configuration_file(self.config, output_file)
 
@@ -517,33 +652,81 @@ class VirtualComplianceChaptersData(PyAedtBase):
             Data to be added.
         content_type : int, optional
             Content type. 0 is subchapter, 1 is text, 2 is image, 3 is table, 4 is section.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.compliance import VirtualComplianceChaptersData
+        >>> obj = VirtualComplianceChaptersData()
+        >>> obj.add_content(content={"Name": "Value"})
         """
         self.content.append({"type": content_type, "data": content})
         return self.content[-1]
 
     def add_section(self) -> dict:
-        """Add a section to the chapter."""
+        """Add a section to the chapter.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.compliance import VirtualComplianceChaptersData
+        >>> obj = VirtualComplianceChaptersData()
+        >>> obj.add_section()
+        """
         return self.add_content("", 4)
 
     def add_subchapter(self, text: str) -> dict:
-        """Add a subchapter to the chapter."""
+        """Add a subchapter to the chapter.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.compliance import VirtualComplianceChaptersData
+        >>> obj = VirtualComplianceChaptersData()
+        >>> obj.add_subchapter(text=1)
+        """
         return self.add_content(text, 0)
 
     def add_text(self, text: str) -> dict:
-        """Add text to the chapter."""
+        """Add text to the chapter.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.compliance import VirtualComplianceChaptersData
+        >>> obj = VirtualComplianceChaptersData()
+        >>> obj.add_text(text=1)
+        """
         return self.add_content(text, 1)
 
     def add_image(self, image_data: str) -> dict:
-        """Add image to the chapter."""
+        """Add image to the chapter.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.compliance import VirtualComplianceChaptersData
+        >>> obj = VirtualComplianceChaptersData()
+        >>> obj.add_image(image_data=1)
+        """
         return self.add_content(image_data, 2)
 
     def add_table(self, table_data: dict) -> dict:
-        """Add table to the chapter."""
+        """Add table to the chapter.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.compliance import VirtualComplianceChaptersData
+        >>> obj = VirtualComplianceChaptersData()
+        >>> obj.add_table(table_data={"Name": "Value"})
+        """
         return self.add_content(table_data, 3)
 
 
 class VirtualComplianceData(PyAedtBase):
-    """Virtual compliance data class."""
+    """Virtual compliance data class.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post.compliance import VirtualComplianceData
+    >>> obj = VirtualComplianceData()
+
+    """
 
     def __init__(self) -> None:
         self._chapters = []
@@ -555,6 +738,12 @@ class VirtualComplianceData(PyAedtBase):
         Returns
         -------
         list[:class:`ansys.aedt.core.visualization.post.compliance.VirtualComplianceChaptersData`]
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.compliance import VirtualComplianceData
+        >>> obj = VirtualComplianceData()
+        >>> obj.chapters
         """
         return self._chapters
 
@@ -568,6 +757,12 @@ class VirtualComplianceData(PyAedtBase):
         Returns
         -------
         :class:`ansys.aedt.core.visualization.post.compliance.VirtualComplianceChaptersData`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.compliance import VirtualComplianceData
+        >>> obj = VirtualComplianceData()
+        >>> obj.add_chapter(chapter=1)
         """
         if position is None:
             self.chapters.append(VirtualComplianceChaptersData(chapter))
@@ -586,6 +781,11 @@ class VirtualCompliance(PyAedtBase):
         Desktop object.
     template : str or :class:`pathlib.Path`
         Full path to the template. Supported formats are JSON and TOML.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post.compliance import VirtualCompliance
+    >>> obj = VirtualCompliance()
 
     """
 
@@ -615,7 +815,14 @@ class VirtualCompliance(PyAedtBase):
 
     @property
     def image_width(self) -> int:
-        """Image width resolution during export."""
+        """Image width resolution during export.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.compliance import VirtualCompliance
+        >>> obj = VirtualCompliance()
+        >>> obj.image_width
+        """
         return self._image_width
 
     @image_width.setter
@@ -624,7 +831,14 @@ class VirtualCompliance(PyAedtBase):
 
     @property
     def image_height(self) -> int:
-        """Image height resolution during export."""
+        """Image height resolution during export.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.compliance import VirtualCompliance
+        >>> obj = VirtualCompliance()
+        >>> obj.image_height
+        """
         return self._image_height
 
     @image_height.setter
@@ -638,6 +852,12 @@ class VirtualCompliance(PyAedtBase):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.compliance import VirtualCompliance
+        >>> obj = VirtualCompliance()
+        >>> obj.dut_image
         """
         return self._dut
 
@@ -652,6 +872,12 @@ class VirtualCompliance(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.compliance import VirtualCompliance
+        >>> obj = VirtualCompliance()
+        >>> obj.load_project()
         """
         if not self._project_file:
             self._desktop_class.logger.error("Project path has not been provided.")
@@ -673,6 +899,12 @@ class VirtualCompliance(PyAedtBase):
         Returns
         -------
         dict[str, :class:`ansys.aedt.core.generic.compliance.ReportTemplate`]
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.compliance import VirtualCompliance
+        >>> obj = VirtualCompliance()
+        >>> obj.reports
         """
         return self._reports
 
@@ -687,6 +919,12 @@ class VirtualCompliance(PyAedtBase):
         Returns
         -------
         dict[str, :class:`ansys.aedt.core.generic.compliance.ParametersTemplate`]
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.compliance import VirtualCompliance
+        >>> obj = VirtualCompliance()
+        >>> obj.parameters
         """
         return self._parameters
 
@@ -696,7 +934,14 @@ class VirtualCompliance(PyAedtBase):
 
     @property
     def add_project_info(self) -> bool:
-        """Add project information."""
+        """Add project information.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.compliance import VirtualCompliance
+        >>> obj = VirtualCompliance()
+        >>> obj.add_project_info
+        """
         return self._add_project_info
 
     @add_project_info.setter
@@ -705,7 +950,14 @@ class VirtualCompliance(PyAedtBase):
 
     @property
     def add_specs_info(self) -> bool:
-        """Add specification information."""
+        """Add specification information.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.compliance import VirtualCompliance
+        >>> obj = VirtualCompliance()
+        >>> obj.add_specs_info
+        """
         return self._add_specs_info
 
     @add_specs_info.setter
@@ -714,7 +966,14 @@ class VirtualCompliance(PyAedtBase):
 
     @property
     def specs_folder(self) -> str:
-        """Add specification folder."""
+        """Add specification folder.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.compliance import VirtualCompliance
+        >>> obj = VirtualCompliance()
+        >>> obj.specs_folder
+        """
         return self._specs_folder
 
     @specs_folder.setter
@@ -725,7 +984,14 @@ class VirtualCompliance(PyAedtBase):
 
     @property
     def template_name(self) -> str:
-        """Template name."""
+        """Template name.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.compliance import VirtualCompliance
+        >>> obj = VirtualCompliance()
+        >>> obj.template_name
+        """
         return self._template_name
 
     @template_name.setter
@@ -734,7 +1000,14 @@ class VirtualCompliance(PyAedtBase):
 
     @property
     def project_file(self) -> str:
-        """Project file."""
+        """Project file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.compliance import VirtualCompliance
+        >>> obj = VirtualCompliance()
+        >>> obj.project_file
+        """
         return self._project_file
 
     @project_file.setter
@@ -743,12 +1016,26 @@ class VirtualCompliance(PyAedtBase):
 
     @property
     def project_name(self) -> str:
-        """Project name."""
+        """Project name.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.compliance import VirtualCompliance
+        >>> obj = VirtualCompliance()
+        >>> obj.project_name
+        """
         return Path(self.project_file).stem
 
     @property
     def use_portrait(self) -> bool:
-        """Use portrait."""
+        """Use portrait.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.compliance import VirtualCompliance
+        >>> obj = VirtualCompliance()
+        >>> obj.use_portrait
+        """
         return self._use_portrait
 
     @use_portrait.setter
@@ -832,7 +1119,7 @@ class VirtualCompliance(PyAedtBase):
         pass_fail: bool = True,
         pass_fail_criteria=None,
     ) -> None:
-        """Add a new custom aedt report to the compliance.
+        r"""Add a new custom aedt report to the compliance.
 
         Parameters
         ----------
@@ -856,6 +1143,13 @@ class VirtualCompliance(PyAedtBase):
         Returns
         -------
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.compliance import VirtualCompliance
+        >>> obj = VirtualCompliance()
+        >>> obj.add_aedt_report(
+        ...     name="MyObject", report_type=1, config_file=r"C:\Temp\project.aedt", design_name=1, traces=["Box1"]
+        ... )
         """
         new_rep = {
             "name": name,
@@ -1653,7 +1947,7 @@ class VirtualCompliance(PyAedtBase):
 
     @pyaedt_function_handler()
     def add_specs_to_report(self, folder: str):
-        """Add specs to the report from a given folder.
+        r"""Add specs to the report from a given folder.
 
         All images in such folder will be added to the report.
 
@@ -1661,6 +1955,12 @@ class VirtualCompliance(PyAedtBase):
         ----------
         folder : str
             Folder relative path to compliance report or absolute path.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.compliance import VirtualCompliance
+        >>> obj = VirtualCompliance()
+        >>> obj.add_specs_to_report(folder=r"C:\Temp\example.txt")
         """
         if folder:
             self._specs_folder = folder
@@ -1709,7 +2009,7 @@ class VirtualCompliance(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_compliance_report(self, file_name: str = "compliance_test.pdf", close_project: bool = True) -> str:
-        """Create the Virtual Compliance report.
+        r"""Create the Virtual Compliance report.
 
         Parameters
         ----------
@@ -1722,12 +2022,25 @@ class VirtualCompliance(PyAedtBase):
         -------
         str
             Path to the output file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.compliance import VirtualCompliance
+        >>> obj = VirtualCompliance()
+        >>> obj.create_compliance_report(file_name=r"C:\Temp\example.txt", close_project=True)
         """
         self.compute_report_data()
         return self.create_pdf(file_name=file_name, close_project=close_project)
 
     def compute_report_data(self) -> VirtualComplianceData:
-        """Compute the report data and exports all the images and table without creating the pdf."""
+        """Compute the report data and exports all the images and table without creating the pdf.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.compliance import VirtualCompliance
+        >>> obj = VirtualCompliance()
+        >>> obj.compute_report_data()
+        """
         self.report_data = VirtualComplianceData()
         if not self._project_name:
             self.load_project()
@@ -1772,7 +2085,7 @@ class VirtualCompliance(PyAedtBase):
         return self.report_data
 
     def create_pdf(self, file_name: str, close_project: bool = True) -> str:
-        """Create the PDF report after the method ``compute_report_data`` is called.
+        r"""Create the PDF report after the method ``compute_report_data`` is called.
 
         Parameters
         ----------
@@ -1785,6 +2098,12 @@ class VirtualCompliance(PyAedtBase):
         -------
         str
             Path to the output file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.compliance import VirtualCompliance
+        >>> obj = VirtualCompliance()
+        >>> obj.create_pdf(file_name=r"C:\Temp\example.txt")
         """
         if not self.report_data.chapters:
             self.create_compliance_report()

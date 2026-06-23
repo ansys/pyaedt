@@ -26,12 +26,34 @@
 
 
 class GrpcApiError(RuntimeError):
-    """Exception raised for errors encountered while interacting with the gRPC API."""
+    """Exception raised for errors encountered while interacting with the gRPC API.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.internal.errors import GrpcApiError
+    >>> obj = GrpcApiError()
+
+
+    """
 
 
 class MethodNotSupportedError(RuntimeError):
-    """Exception raised when attempting to call a method that is not supported."""
+    """Exception raised when attempting to call a method that is not supported.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.internal.errors import MethodNotSupportedError
+    >>> obj = MethodNotSupportedError()
+
+
+    """
 
 
 class AEDTRuntimeError(RuntimeError):
-    """Exception raised for errors occurring during the runtime execution of AEDT scripts."""
+    """Exception raised for errors occurring during the runtime execution of AEDT scripts.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.internal.errors import AEDTRuntimeError
+    >>> obj = AEDTRuntimeError()
+    """

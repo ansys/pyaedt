@@ -106,9 +106,14 @@ class LimitLine(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import LimitLine
-        >>> obj = LimitLine()
-        >>> obj.set_line_properties(...)
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.reports_by_category.modal_solution("dB(S(1,1))")
+        >>> report.create()
+        >>> report.add_limit_line_from_points([3, 5, 5, 3], [-50, -50, -60, -60], "GHz")
+        >>> report.limit_lines[0].set_line_properties(
+        ...     style="Dot", width=4, violation_emphasis=True, color=(255, 255, 0)
+        ... )
         """
         props = ["NAME:ChangedProps"]
         if style:
@@ -402,9 +407,11 @@ class Trace(BinaryTreeNode, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.visualization.report.common import Trace
-        >>> obj = Trace()
-        >>> obj.set_trace_properties(...)
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.reports_by_category.modal_solution("dB(S(1,1))")
+        >>> report.create()
+        >>> report.traces[0].set_trace_properties(style="Dot", width=5, trace_type="Digital", color=(0, 255, 0))
         """
         props = ["NAME:ChangedProps"]
         if style:

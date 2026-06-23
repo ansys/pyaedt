@@ -108,6 +108,12 @@ class FieldsCalculator(PyAedtBase):
         -------
         list
             List of available expressions in the catalog.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculator
+        >>> obj = FieldsCalculator()
+        >>> obj.expression_names
         """
         return list(self.expression_catalog.keys())
 
@@ -261,6 +267,12 @@ class FieldsCalculator(PyAedtBase):
         -------
         str, bool
             Path of the calculator expression file when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculator
+        >>> obj = FieldsCalculator()
+        >>> obj.create_expression_file(name="MyObject", operations=["Box1"])
         """
         file_name = generate_unique_project_name(
             root_name=self.__app.toolkit_directory,
@@ -416,6 +428,12 @@ class FieldsCalculator(PyAedtBase):
         -------
         bool
             ``True`` when it exists, ``False`` otherwise.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculator
+        >>> obj = FieldsCalculator()
+        >>> obj.is_expression_defined(name="MyObject")
         """
         is_defined = self.ofieldsreporter.DoesNamedExpressionExists(name)
         if is_defined == 1:
@@ -435,6 +453,12 @@ class FieldsCalculator(PyAedtBase):
         -------
         bool
             ``True`` if the named expression is general, ``False`` otherwise.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculator
+        >>> obj = FieldsCalculator()
+        >>> obj.is_general_expression(name="MyObject")
         """
         if name not in self.expression_names:
             self.__app.logger.error("Named expression not available.")
@@ -495,6 +519,12 @@ class FieldsCalculator(PyAedtBase):
         -------
         dict or bool
             Expression if the input expression is valid, ``False`` otherwise.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculator
+        >>> obj = FieldsCalculator()
+        >>> obj.validate_expression(expression="dB(S(1,1))")
         """
         from jsonschema import exceptions
         from jsonschema import validate
@@ -619,6 +649,12 @@ class FieldsCalculator(PyAedtBase):
         -------
         float
             Value computed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculator
+        >>> obj = FieldsCalculator()
+        >>> obj.evaluate(expression="dB(S(1,1))")
         """
         out_file = Path(self.__app.working_directory) / (generate_unique_name("expression") + ".fld")
         self.write(expression, setup=setup, intrinsics=intrinsics, output_file=str(out_file))
@@ -747,6 +783,12 @@ class FieldsCalculator(PyAedtBase):
         -------
         bool or str
             The path to the exported field file when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculator
+        >>> obj = FieldsCalculator()
+        >>> obj.export(quantity=1)
         """
         if sample_points:
             if isinstance(sample_points, str):
@@ -835,6 +877,12 @@ class FieldsCalculator(PyAedtBase):
         >>> poly = hfss.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="Polyline1")
         >>> exprs = hfss.post.fields_calculator.get_expressions()
         >>> hfss.desktop_class.release_desktop(False, False)
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculator
+        >>> obj = FieldsCalculator()
+        >>> obj.get_expressions(field_type=1)
         """
         expressions = {}
         field_type = field_type or ""

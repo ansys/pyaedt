@@ -835,6 +835,12 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         References
         ----------
         >>> oEditor.CreateRectangle
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.primitives_3d import Primitives3D
+        >>> obj = Primitives3D()
+        >>> obj.create_rectangle(orientation=1, origin=[0, 0, 0], sizes=["Box1"])
         """
         if len(sizes) != 2:
             raise ValueError(ERROR_MSG_SIZES_2)
@@ -1389,6 +1395,11 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         ----------
         >>> oEditor.CreateUserDefinedModel
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.primitives_3d import Primitives3D
+        >>> obj = Primitives3D()
+        >>> obj.create_udm(udm_full_name=1, parameters={"Name": "Value"})
         """
         arg_1 = ["NAME:UserDefinedModelParameters", ["NAME:Definition"], ["NAME:Options"]]
         arg_param_vector = ["NAME:GeometryParams"]
@@ -1486,6 +1497,12 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         -------
         bool, :class:`ansys.aedt.core.modeler.cad.elements_3d.Polyline`
             Polyline object or ``False`` if it fails.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.primitives_3d import Primitives3D
+        >>> obj = Primitives3D()
+        >>> obj.create_spiral(name="MyObject", material="copper")
         """
         if internal_radius < 0:
             raise ValueError("The ``internal_radius`` argument must be greater than 0.")
@@ -1679,7 +1696,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             password = None,
             auxiliary_parameters: bool = False,
     ) -> "UserDefinedComponent | bool":
-        """Insert a new 3D component.
+        r"""Insert a new 3D component.
 
         Parameters
         ----------
@@ -1709,6 +1726,12 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         References
         ----------
         >>> oEditor.Insert3DComponent
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.primitives_3d import Primitives3D
+        >>> obj = Primitives3D()
+        >>> obj.insert_3d_component(input_file=r"C:\Temp\example.txt")
         """
         if isinstance(input_file, Path):
             input_file = str(input_file)
@@ -1880,7 +1903,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             file_path: str | Path,
             name: str="",
     ) -> str:
-        """Add a layout submodel definition to the design.
+        r"""Add a layout submodel definition to the design.
 
         Parameters
         ----------
@@ -1893,6 +1916,12 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         -------
         bool
             True if the submodel definition was added successfully, False otherwise.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.primitives_3d import Primitives3D
+        >>> obj = Primitives3D()
+        >>> obj.add_layout_component_definition(file_path=r"C:\Temp\example.txt")
         """
         name = Path(file_path).stem if not name else name
 
@@ -2265,6 +2294,12 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         References
         ----------
         >>> oeditor.GetChildObject
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.primitives_3d import Primitives3D
+        >>> obj = Primitives3D()
+        >>> obj.get_3d_component_object_list(name="MyObject")
         """
         if self._app._is_object_oriented_enabled():
             compobj = self._app.get_oo_object(self.oeditor, name)
@@ -2305,7 +2340,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             coordinate_system = None,
             name: str = None,
     ) -> "Person" | bool:
-        """Add a Walking Person Multipart from 3D Components.
+        r"""Add a Walking Person Multipart from 3D Components.
 
         It requires a json file in the folder containing person
         infos. An example json file follows:
@@ -2385,6 +2420,12 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         References
         ----------
         >>> oEditor.Insert3DComponent
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.primitives_3d import Primitives3D
+        >>> obj = Primitives3D()
+        >>> obj.add_person(input_dir=r"C:\Temp\example.txt")
         """
         self._initialize_multipart()
         if not self._check_actor_folder(input_dir):
@@ -2412,7 +2453,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             coordinate_system: str = None,
             name: str = None,
     ) -> "Vehicle" | bool:
-        """Add a Moving Vehicle Multipart from 3D Components.
+        r"""Add a Moving Vehicle Multipart from 3D Components.
 
         It requires a json file in the folder containing vehicle
         infos. An example json file follows:
@@ -2473,6 +2514,12 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         References
         ----------
         >>> oEditor.Insert3DComponent
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.primitives_3d import Primitives3D
+        >>> obj = Primitives3D()
+        >>> obj.add_vehicle(input_dir=r"C:\Temp\example.txt")
         """
         self._initialize_multipart()
 
@@ -2615,7 +2662,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             coordinate_system: str=None,
             name: str = None
     ) -> "Environment" | bool:
-        """Add an Environment Multipart Component from JSON file.
+        r"""Add an Environment Multipart Component from JSON file.
 
          .. code-block:: json
 
@@ -2662,6 +2709,11 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         ----------
         >>> oEditor.Insert3DComponent
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.primitives_3d import Primitives3D
+        >>> obj = Primitives3D()
+        >>> obj.add_environment(input_dir=r"C:\Temp\example.txt")
         """
         self._initialize_multipart()
         if not self._check_actor_folder(input_dir):

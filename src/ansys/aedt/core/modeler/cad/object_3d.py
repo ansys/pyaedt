@@ -126,6 +126,12 @@ class Object3d(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.is_polyline
         """
         if self._is_polyline is None:
             hist = self.history()
@@ -243,6 +249,11 @@ class Object3d(PyAedtBase):
         ----------
         >>> oEditor.GetModelBoundingBox
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.bounding_box
         """
         if self.object_type == "Unclassified":
             return [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
@@ -270,6 +281,12 @@ class Object3d(PyAedtBase):
         References
         ----------
         >>> oEditor.GetModelBoundingBox
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.bounding_dimension
         """
         oBoundingBox = self.bounding_box
         dimensions = []
@@ -301,6 +318,12 @@ class Object3d(PyAedtBase):
         Notes
         -----
         Works from AEDT 2021.2 in CPython only. PyVista has to be installed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.plot(show=True)
         """
         return self._primitives._app.post.plot_model_obj(
             objects=[self.name],
@@ -312,7 +335,7 @@ class Object3d(PyAedtBase):
     @pyaedt_function_handler()
     @min_aedt_version("2021.2")
     def export_image(self, output_file: str | Path | None = None) -> str:
-        """Export the current object to a specified file path.
+        r"""Export the current object to a specified file path.
 
         .. note::
            Works from AEDT 2021.2 in CPython only. PyVista has to be installed.
@@ -328,6 +351,12 @@ class Object3d(PyAedtBase):
         -------
         str
             File path.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.export_image(output_file=r"C:\Temp\example.txt")
         """
         if not output_file:
             output_file = Path(self._primitives._app.working_directory) / (self.name + ".png")
@@ -351,12 +380,25 @@ class Object3d(PyAedtBase):
         -------
         list
             Name of all touching conductors.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.touching_conductors()
         """
         return [i for i in self._primitives._app.identify_touching_conductors(self.name)["Net1"] if i != self.name]
 
     @property
     def touching_objects(self) -> list:
-        """Get the objects that touch a vertex, edge midpoint, or face of the object."""
+        """Get the objects that touch a vertex, edge midpoint, or face of the object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.touching_objects
+        """
         if self.object_type == "Unclassified":
             return []
         list_names = []
@@ -390,6 +432,12 @@ class Object3d(PyAedtBase):
         -------
         list
             list of objects and faces touching.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.get_touching_faces(assignment="Box1")
         """
         _names = []
         if isinstance(assignment, Object3d):
@@ -412,6 +460,11 @@ class Object3d(PyAedtBase):
         ----------
         >>> oEditor.GetFaceIDs
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.faces
         """
         if self.object_type == "Unclassified":
             return []
@@ -432,6 +485,12 @@ class Object3d(PyAedtBase):
         Returns
         -------
         list[:class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`]
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.faces_on_bounding_box
         """
         f_list = []
         for face in self.faces:
@@ -446,6 +505,12 @@ class Object3d(PyAedtBase):
         Returns
         -------
         :class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.face_closest_to_bounding_box
         """
         b = [float(i) for i in list(self._oeditor.GetModelBoundingBox())]
         f_id = None
@@ -475,6 +540,12 @@ class Object3d(PyAedtBase):
         Returns
         -------
         list[:class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`]
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.largest_face(n=1)
         """
         f = []
         for face in self.faces:
@@ -490,6 +561,12 @@ class Object3d(PyAedtBase):
         Returns
         -------
         list[:class:`ansys.aedt.core.modeler.cad.elements_3d.EdgePrimitive`]
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.longest_edge(n=1)
         """
         e = []
         for edge in self.edges:
@@ -505,6 +582,12 @@ class Object3d(PyAedtBase):
         Returns
         -------
         list[:class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`]
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.smallest_face(n=1)
         """
         f = []
         for face in self.faces:
@@ -520,6 +603,12 @@ class Object3d(PyAedtBase):
         Returns
         -------
         list[:class:`ansys.aedt.core.modeler.cad.elements_3d.EdgePrimitive`]
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.shortest_edge(n=1)
         """
         e = []
         for edge in self.edges:
@@ -542,6 +631,11 @@ class Object3d(PyAedtBase):
         ----------
         >>> oEditor.FaceCenter
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.top_face_z
         """
         try:
             result = [(float(face.center[2]), face) for face in self.faces]
@@ -562,6 +656,11 @@ class Object3d(PyAedtBase):
         ----------
         >>> oEditor.FaceCenter
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.bottom_face_z
         """
         try:
             result = [(float(face.center[2]), face) for face in self.faces]
@@ -582,6 +681,11 @@ class Object3d(PyAedtBase):
         ----------
         >>> oEditor.FaceCenter
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.top_face_x
         """
         try:
             result = [(float(face.center[0]), face) for face in self.faces]
@@ -602,6 +706,11 @@ class Object3d(PyAedtBase):
         ----------
         >>> oEditor.FaceCenter
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.bottom_face_x
         """
         try:
             result = [(float(face.center[0]), face) for face in self.faces]
@@ -622,6 +731,11 @@ class Object3d(PyAedtBase):
         ----------
         >>> oEditor.FaceCenter
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.top_face_y
         """
         try:
             result = [(float(face.center[1]), face) for face in self.faces]
@@ -642,6 +756,11 @@ class Object3d(PyAedtBase):
         ----------
         >>> oEditor.FaceCenter
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.bottom_face_y
         """
         try:
             result = [(float(face.center[1]), face) for face in self.faces]
@@ -662,6 +781,11 @@ class Object3d(PyAedtBase):
         ----------
         >>> oEditor.FaceCenter
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.top_edge_z
         """
         try:
             result = [(float(face.top_edge_z.midpoint[2]), face.top_edge_z) for face in self.faces]
@@ -678,6 +802,11 @@ class Object3d(PyAedtBase):
         -------
         :class:`ansys.aedt.core.modeler.cad.elements_3d.EdgePrimitive`
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.bottom_edge_z
         """
         try:
             result = [(float(face.bottom_edge_z.midpoint[2]), face.bottom_edge_z) for face in self.faces]
@@ -694,6 +823,11 @@ class Object3d(PyAedtBase):
         -------
         :class:`ansys.aedt.core.modeler.cad.elements_3d.EdgePrimitive`
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.top_edge_x
         """
         try:
             result = [(float(face.top_edge_x.midpoint[0]), face.top_edge_x) for face in self.faces]
@@ -710,6 +844,11 @@ class Object3d(PyAedtBase):
         -------
         :class:`ansys.aedt.core.modeler.cad.elements_3d.EdgePrimitive`
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.bottom_edge_x
         """
         try:
             result = [(float(face.bottom_edge_x.midpoint[0]), face.bottom_edge_x) for face in self.faces]
@@ -726,6 +865,11 @@ class Object3d(PyAedtBase):
         -------
         :class:`ansys.aedt.core.modeler.cad.elements_3d.EdgePrimitive`
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.top_edge_y
         """
         try:
             result = [(float(face.top_edge_y.midpoint[1]), face.top_edge_y) for face in self.faces]
@@ -742,6 +886,11 @@ class Object3d(PyAedtBase):
         -------
         :class:`ansys.aedt.core.modeler.cad.elements_3d.EdgePrimitive`
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.bottom_edge_y
         """
         try:
             result = [(float(face.bottom_edge_y.midpoint[1]), face.bottom_edge_y) for face in self.faces]
@@ -762,6 +911,11 @@ class Object3d(PyAedtBase):
         ----------
         >>> oEditor.GetEdgeIDsFromObject
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.edges
         """
         if self.object_type == "Unclassified":
             return []
@@ -783,6 +937,11 @@ class Object3d(PyAedtBase):
         ----------
         >>> oEditor.GetVertexIDsFromObject
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.vertices
         """
         if self.object_type == "Unclassified":
             return []
@@ -816,7 +975,14 @@ class Object3d(PyAedtBase):
 
     @property
     def logger(self):
-        """Logger."""
+        """Logger.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.logger
+        """
         return self._primitives.logger
 
     @property
@@ -833,6 +999,11 @@ class Object3d(PyAedtBase):
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.surface_material_name
         """
         if self._surface_material is not None:
             return self._surface_material
@@ -856,6 +1027,17 @@ class Object3d(PyAedtBase):
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.group_name()
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.group_name
         """
         group_name = None
         if "Group" in self.valid_properties:
@@ -916,7 +1098,14 @@ class Object3d(PyAedtBase):
 
     @property
     def is_conductor(self) -> bool:
-        """Check if the object is a conductor."""
+        """Check if the object is a conductor.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.is_conductor
+        """
         if self.material_name and self._primitives._materials[self.material_name].is_conductor():
             return True
         return False
@@ -935,6 +1124,11 @@ class Object3d(PyAedtBase):
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.material_name
         """
         if self._material_name is not None:
             return self._material_name
@@ -989,6 +1183,11 @@ class Object3d(PyAedtBase):
         ----------
         >>> oEditor.GetObjectIDByName
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.id
         """
         if not self._id:
             try:
@@ -1011,6 +1210,11 @@ class Object3d(PyAedtBase):
         str
             Type of the object.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.object_type
         """
         if self._object_type:
             return self._object_type
@@ -1035,6 +1239,12 @@ class Object3d(PyAedtBase):
         -------
         bool
             ``True`` if the object is a 3D solid, ``False`` otherwise.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.is_3d
         """
         res = self.object_type == "Solid"
         return res
@@ -1053,6 +1263,11 @@ class Object3d(PyAedtBase):
         ----------
         >>> oEditor.GetObjectVolume
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.mass
         """
         if self.is_model and self.material_name:
             volume = self._primitives.oeditor.GetObjectVolume(self._m_name)
@@ -1080,6 +1295,11 @@ class Object3d(PyAedtBase):
         ----------
         >>> oEditor.GetObjectVolume
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.volume
         """
         if self.object_type == "Solid":
             self._volume = float(self._primitives.oeditor.GetObjectVolume(self._m_name))
@@ -1101,6 +1321,11 @@ class Object3d(PyAedtBase):
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.name
         """
         return self._m_name
 
@@ -1126,6 +1351,12 @@ class Object3d(PyAedtBase):
         References
         ----------
         >>> oEditor.GetProperties
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.valid_properties
         """
         if not self._all_props:
             self._all_props = self._oeditor.GetProperties("Geometry3DAttributeTab", self._m_name)
@@ -1168,6 +1399,12 @@ class Object3d(PyAedtBase):
         ----------
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.color_string
         """
         return f"({self.color[0]} {self.color[1]} {self.color[2]})"
 
@@ -1212,6 +1449,11 @@ class Object3d(PyAedtBase):
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.transparency
         """
         if self._transparency is not None:
             return self._transparency
@@ -1242,7 +1484,14 @@ class Object3d(PyAedtBase):
 
     @property
     def object_units(self) -> str:
-        """Object units."""
+        """Object units.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.object_units
+        """
         return self._primitives.model_units
 
     @property
@@ -1259,6 +1508,11 @@ class Object3d(PyAedtBase):
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.part_coordinate_system
         """
         if self._part_coordinate_system is not None and not isinstance(self._part_coordinate_system, int):
             return self._part_coordinate_system
@@ -1288,6 +1542,11 @@ class Object3d(PyAedtBase):
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.solve_inside
         """
         if self._solve_inside is not None:
             return self._solve_inside
@@ -1327,6 +1586,11 @@ class Object3d(PyAedtBase):
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.display_wireframe
         """
         if self._wireframe is not None:
             return self._wireframe
@@ -1360,6 +1624,11 @@ class Object3d(PyAedtBase):
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.material_appearance
         """
         if self._material_appearance is not None:
             return self._material_appearance
@@ -1393,6 +1662,11 @@ class Object3d(PyAedtBase):
             :class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTree` when successful,
             ``False`` when failed.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.history()
         """
         try:
             child_object = self._primitives._app.get_oo_object(self._oeditor, self.name)
@@ -1415,6 +1689,11 @@ class Object3d(PyAedtBase):
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.is_model
         """
         if self._model is not None:
             return self._model
@@ -1452,6 +1731,11 @@ class Object3d(PyAedtBase):
         ----------
         >>> oEditor.Unite
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.unite(assignment="Box1")
         """
         unite_list = [self.name] + self._primitives.convert_to_selections(assignment, return_list=True)
         self._primitives.unite(unite_list)
@@ -1476,6 +1760,12 @@ class Object3d(PyAedtBase):
         References
         ----------
         >>> oEditor.Intersect
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.intersect(assignment="Box1")
         """
         assignment = [self.name] + self._primitives.convert_to_selections(assignment, return_list=True)
         self._primitives.intersect(assignment)
@@ -1503,6 +1793,12 @@ class Object3d(PyAedtBase):
         References
         ----------
         >>> oEditor.Split
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.split(plane="XY")
         """
         return self._primitives.split(self.name, plane, sides)
 
@@ -1533,6 +1829,12 @@ class Object3d(PyAedtBase):
         References
         ----------
         >>> oEditor.Mirror
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.mirror(origin=[0, 0, 0], vector=[1, 0, 0])
         """
         if self._primitives.mirror(self.id, origin=origin, vector=vector, duplicate=duplicate):
             return self
@@ -1561,6 +1863,12 @@ class Object3d(PyAedtBase):
         References
         ----------
         >>> oEditor.Rotate
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.rotate(axis="Z")
         """
         if self._primitives.rotate(self.id, axis=axis, angle=angle, units=units):
             return self
@@ -1585,6 +1893,12 @@ class Object3d(PyAedtBase):
         References
         ----------
         >>> oEditor.Move
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.move(vector=[1, 0, 0])
         """
         if self._primitives.move(self.id, vector):
             return self
@@ -1616,6 +1930,11 @@ class Object3d(PyAedtBase):
         ----------
         >>> oEditor.DuplicateAroundAxis
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.duplicate_around_axis(axis="Z")
         """
         _, added_objects = self._primitives.duplicate_around_axis(
             self, axis, angle, clones, create_new_objects=create_new_objects
@@ -1646,6 +1965,11 @@ class Object3d(PyAedtBase):
         ----------
         >>> oEditor.DuplicateAlongLine
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.duplicate_along_line(vector=[1, 0, 0])
         """
         _, added_objects = self._primitives.duplicate_along_line(self, vector, clones, attach=attach)
         return added_objects
@@ -1675,6 +1999,11 @@ class Object3d(PyAedtBase):
         ----------
         >>> oEditor.SweepAlongVector
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.sweep_along_vector(sweep_vector=[1, 0, 0])
         """
         self._primitives.sweep_along_vector(self, sweep_vector, draft_angle, draft_type)
         return self
@@ -1713,6 +2042,11 @@ class Object3d(PyAedtBase):
         ----------
         >>> oEditor.SweepAlongPath
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.sweep_along_path(sweep_object=1)
         """
         self._primitives.sweep_along_path(
             self, sweep_object, draft_angle, draft_type, is_check_face_intersection, twist_angle
@@ -1741,6 +2075,11 @@ class Object3d(PyAedtBase):
         ----------
         >>> oEditor.SweepAroundAxis
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.sweep_around_axis(axis="Z")
         """
         self._primitives.sweep_around_axis(self, axis, sweep_angle, draft_angle)
         return self
@@ -1767,6 +2106,11 @@ class Object3d(PyAedtBase):
         ----------
         >>> oEditor.Section
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.section(plane="XY")
         """
         self._primitives.section(self, plane, create_new, section_cross_object)
         return self
@@ -1789,6 +2133,11 @@ class Object3d(PyAedtBase):
         ----------
         >>> oEditor.DetachFaces
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.detach_faces(faces=[1])
         """
         return self._primitives.detach_faces(self, faces)
 
@@ -1805,6 +2154,11 @@ class Object3d(PyAedtBase):
         ----------
         >>> oEditor.Clone
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.clone()
         """
         new_obj_tuple = self._primitives.clone(self.id)
         success = new_obj_tuple[0]
@@ -1837,6 +2191,11 @@ class Object3d(PyAedtBase):
         ----------
         >>> oEditor.Subtract
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.subtract(tool_list=["Box1"])
         """
         self._primitives.subtract(self.name, tool_list, keep_originals)
         return self
@@ -1857,6 +2216,12 @@ class Object3d(PyAedtBase):
         -------
         bool
             Command execution status.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.wrap_sheet(object_name=1)
         """
         object_name = self._primitives.convert_to_selections(object_name, False)
         if self.object_type == "Sheet" and object_name in self._primitives.solid_names:
@@ -1876,6 +2241,12 @@ class Object3d(PyAedtBase):
         References
         ----------
         >>> oEditor.Delete
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.delete()
         """
         arg = ["NAME:Selections", "Selections:=", self._m_name]
         self._oeditor.Delete(arg)
@@ -1900,6 +2271,12 @@ class Object3d(PyAedtBase):
         -------
         list[:class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`]
             List of face primitives.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.faces_by_area(area=1.0)
         """
         filters = ["==", "<=", ">=", "<", ">"]
         if area_filter not in filters:
@@ -1945,6 +2322,12 @@ class Object3d(PyAedtBase):
         -------
         list[:class:`ansys.aedt.core.modeler.cad.elements_3d.EdgePrimitive`]
             List of edge primitives.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.edges_by_length(length=1.0)
         """
         filters = ["==", "<=", ">=", "<", ">"]
         if length_filter not in filters:
@@ -1998,6 +2381,11 @@ class Object3d(PyAedtBase):
         ----------
         >>> oEditor.Fillet
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.fillet(vertices=["Box1"], edges=[1])
         """
         if not vertices and not edges:
             raise ValueError("Either vertices or edges have to be provided as input.")
@@ -2063,6 +2451,11 @@ class Object3d(PyAedtBase):
         ----------
         >>> oEditor.Chamfer
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.chamfer(vertices=["Box1"], edges=[1])
         """
         edge_id_list = []
         vertex_id_list = []
@@ -2121,6 +2514,12 @@ class Object3d(PyAedtBase):
         list
             List of the ``[x, y, z]`` coordinates for the starting point in the polyline
             object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.start_point
         """
         try:
             return self.points[0]
@@ -2143,6 +2542,11 @@ class Object3d(PyAedtBase):
         >>> oEditor.GetVertexIDsFromObject
         >>> oEditor.GetVertexPosition
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.end_point
         """
         try:
             return self.points[-1]
@@ -2273,7 +2677,14 @@ class Object3d(PyAedtBase):
 
     @property
     def points(self) -> list | None:
-        """Polyline Points."""
+        """Polyline Points.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.points
+        """
         if not self.is_polyline:
             return
         if self._positions:
@@ -2284,7 +2695,14 @@ class Object3d(PyAedtBase):
 
     @property
     def segment_types(self) -> list | None:
-        """List of the segment types of the polyline."""
+        """List of the segment types of the polyline.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.segment_types
+        """
         if not self.is_polyline:
             return
         if self._segment_types:
@@ -2309,6 +2727,11 @@ class Object3d(PyAedtBase):
         >>> oEditor.GetVertexIDsFromObject
         >>> oEditor.GetVertexPosition
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.vertex_positions
         """
         if not self.is_polyline:
             return
@@ -2877,6 +3300,11 @@ class Object3d(PyAedtBase):
         ----------
         >>> oEditor.InsertPolylineSegment
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
+        >>> obj = Object3d()
+        >>> obj.insert_segment(points=[0, 0, 0])
         """
         # Check for a valid number of points
         if not self.is_polyline:

@@ -47,6 +47,11 @@ def search_files(dirname: str, pattern: str = "*") -> list:
     Returns
     -------
     list
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.internal.filesystem import search_files
+    >>> search_files(r"C:\\Projects", "*.aedt")
     """
     return [Path(i).absolute() for i in Path(dirname).glob(pattern)]
 
@@ -112,6 +117,12 @@ class Scratch(PyAedtBase):
         -------
         dst_file : str
             Full path and file name of the copied file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.internal.filesystem import Scratch
+        >>> obj = Scratch(r"C:\\Temp")
+        >>> obj.copyfile(r"C:\\Temp\\source.txt", "copied_source.txt")
         """
         if dst_filename:
             dst_file = self.path / dst_filename
@@ -142,6 +153,11 @@ class Scratch(PyAedtBase):
         Returns
         -------
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.internal.filesystem import Scratch
+        >>> obj = Scratch(r"C:\\Temp")
+        >>> obj.copyfolder(r"C:\\Temp\\input_folder", r"C:\\Temp\\output_folder")
         """
         shutil.copytree(src_folder, destfolder, dirs_exist_ok=True)
         return True
@@ -169,6 +185,12 @@ class Scratch(PyAedtBase):
         ------
         str
             Full path to the created subfolder. If no name is provided, a random name is generated.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.internal.filesystem import Scratch
+        >>> obj = Scratch(r"C:\\Temp")
+        >>> obj.create_sub_folder("results")
         """
         sub_folder = Path(self.path) / _uname(name)
         sub_folder.mkdir(parents=True, exist_ok=True)
@@ -188,12 +210,23 @@ def get_json_files(start_folder: str) -> list[str]:
     -------
     list[str]
         List of absolute paths to all *.json files in start_folder.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.internal.filesystem import get_json_files
+    >>> get_json_files(r"C:\\Temp")
     """
     return [y for x in os.walk(start_folder) for y in search_files(x[0], "*.json")]
 
 
 def is_safe_path(path: str | Path, allowed_extensions: list[str] | None = None) -> bool:
-    """Validate if a path is safe to use."""
+    """Validate if a path is safe to use.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.internal.filesystem import is_safe_path
+    >>> is_safe_path(r"C:\\Temp\\settings.json", allowed_extensions=[".json"])
+    """
     # Ensure path is an existing file or directory
     path = Path(path)
     if not path.exists() or not path.is_file():

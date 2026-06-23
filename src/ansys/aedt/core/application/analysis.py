@@ -701,7 +701,6 @@ class Analysis(Design, PyAedtBase):
         category: str = "dB(S",
         differential_pairs: list = None,
     ) -> list:
-        # type: (bool, bool, str, str, str, list) -> list
         """Retrieve a list of traces of specified designs ready to use in plot reports.
 
         Parameters

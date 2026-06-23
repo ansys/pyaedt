@@ -75,17 +75,38 @@ class Materials(PyAedtBase):
 
     @property
     def material_keys(self) -> dict[str, Material]:
-        """Material dictionary available in current project."""
+        """Material dictionary available in current project.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.material_lib import Materials
+        >>> obj = Materials()
+        >>> obj.material_keys
+        """
         return self.__material_keys
 
     @property
     def odefinition_manager(self):
-        """Definition Manager from AEDT."""
+        """Definition Manager from AEDT.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.material_lib import Materials
+        >>> obj = Materials()
+        >>> obj.odefinition_manager
+        """
         return self._app.odefinition_manager
 
     @property
     def omaterial_manager(self):
-        """Material Manager from AEDT."""
+        """Material Manager from AEDT.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.material_lib import Materials
+        >>> obj = Materials()
+        >>> obj.omaterial_manager
+        """
         return self._app.omaterial_manager
 
     def __len__(self) -> int:
@@ -109,6 +130,12 @@ class Materials(PyAedtBase):
         Returns
         -------
         dict of :class:`ansys.aedt.core.modules.material.Material`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.material_lib import Materials
+        >>> obj = Materials()
+        >>> obj.surface_material_keys
         """
         if not self.__surface_material_keys and self._app.design_type == "Icepak":
             self.__surface_material_keys = self._get_surface_materials()
@@ -122,6 +149,12 @@ class Materials(PyAedtBase):
         -------
         list
             List of fluid materials.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.material_lib import Materials
+        >>> obj = Materials()
+        >>> obj.liquids
         """
         mats = []
         for el, val in self.material_keys.items():
@@ -137,6 +170,12 @@ class Materials(PyAedtBase):
         -------
         list
             List of all Gas materials.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.material_lib import Materials
+        >>> obj = Materials()
+        >>> obj.gases
         """
         mats = []
         for el, val in self.material_keys.items():
@@ -158,12 +197,26 @@ class Materials(PyAedtBase):
 
     @property
     def mat_names_aedt(self) -> list[str]:
-        """List material names."""
+        """List material names.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.material_lib import Materials
+        >>> obj = Materials()
+        >>> obj.mat_names_aedt
+        """
         return self._mat_names_aedt
 
     @property
     def mat_names_aedt_lower(self) -> list[str]:
-        """List material names with lower case."""
+        """List material names with lower case.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.material_lib import Materials
+        >>> obj = Materials()
+        >>> obj.mat_names_aedt_lower
+        """
         return self._mat_names_aedt_lower
 
     @pyaedt_function_handler()
@@ -260,6 +313,12 @@ class Materials(PyAedtBase):
         ----------
         >>> oDefinitionManager.GetProjectMaterialNames
         >>> oMaterialManager.GetData
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.material_lib import Materials
+        >>> obj = Materials()
+        >>> obj.exists_material(material="copper")
         """
         if isinstance(material, Material):
             if material.name.casefold() in self.material_keys:
@@ -293,6 +352,11 @@ class Materials(PyAedtBase):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.material_lib import Materials
+        >>> obj = Materials()
+        >>> obj.check_thermal_modifier(material="copper")
         """
         omat = self.exists_material(material)
         if omat:
@@ -634,6 +698,11 @@ class Materials(PyAedtBase):
         list
             List of conductors in the material database.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.material_lib import Materials
+        >>> obj = Materials()
+        >>> obj.conductors
         """
         data = []
         for key, mat in self.material_keys.items():
@@ -650,6 +719,11 @@ class Materials(PyAedtBase):
         list
             List of dielectrics in the material database.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.material_lib import Materials
+        >>> obj = Materials()
+        >>> obj.dielectrics
         """
         data = []
         for key, mat in self.material_keys.items():
@@ -697,7 +771,7 @@ class Materials(PyAedtBase):
 
     @pyaedt_function_handler()
     def export_materials_to_file(self, output_file: str) -> bool:
-        """Export all materials to a JSON or TOML file.
+        r"""Export all materials to a JSON or TOML file.
 
         Parameters
         ----------
@@ -708,6 +782,12 @@ class Materials(PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.material_lib import Materials
+        >>> obj = Materials()
+        >>> obj.export_materials_to_file(output_file=r"C:\Temp\example.txt")
 
         """
 
@@ -763,7 +843,7 @@ class Materials(PyAedtBase):
 
     @pyaedt_function_handler()
     def import_materials_from_file(self, input_file: str | None = None) -> list[Material] | bool:
-        """Import and create materials from a JSON or AMAT file.
+        r"""Import and create materials from a JSON or AMAT file.
 
         Parameters
         ----------
@@ -773,6 +853,12 @@ class Materials(PyAedtBase):
         Returns
         -------
         List of :class:`ansys.aedt.core.modules.material.Material`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.material_lib import Materials
+        >>> obj = Materials()
+        >>> obj.import_materials_from_file(input_file=r"C:\Temp\example.txt")
         """
         if input_file is None or not os.path.exists(input_file):
             self.logger.error("Incorrect path provided.")
@@ -863,7 +949,7 @@ class Materials(PyAedtBase):
 
     @pyaedt_function_handler()
     def import_materials_from_excel(self, input_file: str) -> list[Material] | bool:
-        """Import and create materials from a csv or excel file.
+        r"""Import and create materials from a csv or excel file.
 
         Parameters
         ----------
@@ -874,6 +960,11 @@ class Materials(PyAedtBase):
         -------
         List of :class:`ansys.aedt.core.modules.material.Material`
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.material_lib import Materials
+        >>> obj = Materials()
+        >>> obj.import_materials_from_excel(input_file=r"C:\Temp\example.txt")
         """
         try:  # pragma: no cover
             import pandas as pd
@@ -925,12 +1016,18 @@ class Materials(PyAedtBase):
         References
         ----------
         >>> oDefinitionManager.GetInUseProjectMaterialNames
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.material_lib import Materials
+        >>> obj = Materials()
+        >>> obj.get_used_project_material_names()
         """
         return self.odefinition_manager.GetInUseProjectMaterialNames()
 
     @pyaedt_function_handler
     def import_materials_from_workbench(self, input_file: str, name_suffix: str = None) -> list[Material] | bool:
-        """Import and create materials from Workbench Engineering Data XML file.
+        r"""Import and create materials from Workbench Engineering Data XML file.
 
         Parameters
         ----------
@@ -946,6 +1043,11 @@ class Materials(PyAedtBase):
         -------
         List of :class:`ansys.aedt.core.modules.material.Material`
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.material_lib import Materials
+        >>> obj = Materials()
+        >>> obj.import_materials_from_workbench(input_file=r"C:\Temp\example.txt")
         """
         # create an instance of the class
         mat_wb = MaterialWorkbench(self._app)

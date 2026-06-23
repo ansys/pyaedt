@@ -45,6 +45,12 @@ class DirectionOfArrival(PyAedtBase):
     """
     Class for direction of arrival (DoA) estimation using 2D planar antenna arrays
     with coordinates in meters and user-defined frequency.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.advanced.doa import DirectionOfArrival
+    >>> obj = DirectionOfArrival()
+
     """
 
     def __init__(self, x_position: np.array, y_position: np.array, frequency: float) -> None:
@@ -84,6 +90,12 @@ class DirectionOfArrival(PyAedtBase):
         -------
         scanning_vectors : np.ndarray
             Scanning vectors.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.doa import DirectionOfArrival
+        >>> obj = DirectionOfArrival()
+        >>> obj.get_scanning_vectors(azimuth_angles=["Box1"])
         """
         thetas_rad = np.deg2rad(azimuth_angles)
         P = len(thetas_rad)
@@ -121,6 +133,12 @@ class DirectionOfArrival(PyAedtBase):
         np.ndarray
             2D complex-valued array of shape (range_bins, cross_range_bins), representing the
             power angular density (PAD) for each range bin and angle.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.doa import DirectionOfArrival
+        >>> obj = DirectionOfArrival()
+        >>> obj.bartlett(data=1, scanning_vectors=[1, 0, 0])
         """
         if range_bins is None:
             range_bins = data.shape[0]
@@ -173,6 +191,12 @@ class DirectionOfArrival(PyAedtBase):
         np.ndarray
             2D real-valued array of shape (range_bins, cross_range_bins), representing the
             Capon spatial spectrum (inverse of interference power) for each range bin and angle.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.doa import DirectionOfArrival
+        >>> obj = DirectionOfArrival()
+        >>> obj.capon(data=1, scanning_vectors=[1, 0, 0])
         """
         if range_bins is None:
             range_bins = data.shape[0]
@@ -234,6 +258,12 @@ class DirectionOfArrival(PyAedtBase):
         np.ndarray
             2D real-valued array of shape (range_bins, cross_range_bins),
             representing the MUSIC spectrum for each range bin and angle.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.doa import DirectionOfArrival
+        >>> obj = DirectionOfArrival()
+        >>> obj.music(data=1, scanning_vectors=[1, 0, 0], signal_dimension=1)
         """
         if range_bins is None:
             range_bins = data.shape[0]

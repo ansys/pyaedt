@@ -38,6 +38,7 @@ from pathlib import Path
 import re
 import shutil
 import time
+from typing import Any
 
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
 from ansys.aedt.core.application.analysis_nexxim import FieldAnalysisCircuit
@@ -1698,7 +1699,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
     def connect_circuit_models_from_multi_zone_cutout(
         self,
         project_connections: dict[str, str],
-        edb_zones_dict: dict[str, any],
+        edb_zones_dict: dict[str, Any],
         ports: dict[str, str] | None = None,
         schematic_units: str | None = "mm",
         model_inc: float | None = 50,

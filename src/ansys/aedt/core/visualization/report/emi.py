@@ -35,7 +35,14 @@ from ansys.aedt.core.visualization.report.common import CommonReport
 
 
 class EMIReceiver(CommonReport):
-    """Provides for managing EMI receiver reports."""
+    """Provides for managing EMI receiver reports.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.report.emi import EMIReceiver
+    >>> obj = EMIReceiver()
+
+    """
 
     def __init__(self, app, report_category: str = "EMIReceiver", setup_name=None, expressions=None) -> None:
         CommonReport.__init__(self, app, "EMIReceiver", setup_name, expressions)
@@ -61,6 +68,12 @@ class EMIReceiver(CommonReport):
         -------
         str
             Net name.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.emi import EMIReceiver
+        >>> obj = EMIReceiver()
+        >>> obj.net
         """
         if self._legacy_props["context"].get("net", None):
             self._net = self._legacy_props["context"]["net"]
@@ -88,6 +101,12 @@ class EMIReceiver(CommonReport):
         -------
         str, int
             Overlap rate.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.emi import EMIReceiver
+        >>> obj = EMIReceiver()
+        >>> obj.overlap_rate
         """
         return self._legacy_props["context"].get("overlap_rate", 95)
 
@@ -103,6 +122,12 @@ class EMIReceiver(CommonReport):
         -------
         str
             Band name.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.emi import EMIReceiver
+        >>> obj = EMIReceiver()
+        >>> obj.band
         """
         return self._legacy_props["context"].get("band", "0")
 
@@ -118,6 +143,12 @@ class EMIReceiver(CommonReport):
         -------
         str
             RBW setting.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.emi import EMIReceiver
+        >>> obj = EMIReceiver()
+        >>> obj.rbw
         """
         return self._legacy_props["context"].get("RBW", "0")
 
@@ -133,6 +164,12 @@ class EMIReceiver(CommonReport):
         -------
         str
             RBW Factor setting.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.emi import EMIReceiver
+        >>> obj = EMIReceiver()
+        >>> obj.rbw_factor
         """
         return self._legacy_props["context"].get("RBW_factor", "0")
 
@@ -150,6 +187,12 @@ class EMIReceiver(CommonReport):
         -------
         str
             Emission.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.emi import EMIReceiver
+        >>> obj = EMIReceiver()
+        >>> obj.emission
         """
         return self._emission
 
@@ -172,6 +215,12 @@ class EMIReceiver(CommonReport):
         -------
         str
             Time start.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.emi import EMIReceiver
+        >>> obj = EMIReceiver()
+        >>> obj.time_start
         """
         return self._legacy_props["context"].get("time_start", None)
 
@@ -187,6 +236,12 @@ class EMIReceiver(CommonReport):
         -------
         str
             Time stop.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.emi import EMIReceiver
+        >>> obj = EMIReceiver()
+        >>> obj.time_stop
         """
         return self._legacy_props["context"].get("time_stop", None)
 
@@ -291,6 +346,17 @@ class EMIReceiver(CommonReport):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit()
+        >>> new_report = circuit.post.reports_by_category.emi_receiver()
+        >>> new_report.band = "2"
+        >>> new_report.emission = "RE"
+        >>> new_report.time_start = "1ns"
+        >>> new_report.time_stop = "2us"
+        >>> new_report.create()
         """
         if not name:
             self.plot_name = generate_unique_name("Plot")

@@ -40,6 +40,11 @@ def sort_bundle(bundle, monoPW_attrib: str = "sweep_angle_index") -> None:
 
     :param bundle: SBR+ or CW bundle from hdm_parser
     :param str monoPW_attrib: sweep angle index argument name for monostatic PW illumination
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.advanced.sbrplus.hdm_utils import sort_bundle
+    >>> sort_bundle(bundle=1)
     """
     if bundle.__name__ == "CreepingWave":
         if hasattr(bundle.creeping_rays[0], monoPW_attrib):

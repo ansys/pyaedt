@@ -155,7 +155,7 @@ class COMParameters:
         --------
         >>> from ansys.aedt.core.visualization.post.spisim_com_configuration_files.com_parameters import COMParameters
         >>> obj = COMParameters()
-        >>> obj.set_parameter(...)
+        >>> obj.set_parameter(keyword=1, value=1)
         """
         if keyword in self.table_93a1:
             self.table_93a1[keyword] = value
@@ -186,7 +186,7 @@ class COMParameters:
 
     @pyaedt_function_handler
     def export(self, file_path: str) -> None:
-        """Export COM parameter to a JSON file.
+        r"""Export COM parameter to a JSON file.
 
         Parameters
         ----------
@@ -197,7 +197,7 @@ class COMParameters:
         --------
         >>> from ansys.aedt.core.visualization.post.spisim_com_configuration_files.com_parameters import COMParameters
         >>> obj = COMParameters()
-        >>> obj.export(...)
+        >>> obj.export(file_path=r"C:\Temp\example.txt")
         """
         temp = dict()
         temp["table_93a1"] = self.table_93a1
@@ -219,7 +219,7 @@ class COMParameters:
 
     @pyaedt_function_handler
     def load(self, file_path: str) -> None:
-        """Load COM parameters from a JSON file.
+        r"""Load COM parameters from a JSON file.
 
         Parameters
         ----------
@@ -230,7 +230,7 @@ class COMParameters:
         --------
         >>> from ansys.aedt.core.visualization.post.spisim_com_configuration_files.com_parameters import COMParameters
         >>> obj = COMParameters()
-        >>> obj.load(...)
+        >>> obj.load(file_path=r"C:\Temp\example.txt")
         """
         self._init()
         with open(file_path) as f:  # pragma: no cover
@@ -242,7 +242,7 @@ class COMParameters:
 
     @pyaedt_function_handler
     def export_spisim_cfg(self, file_path: str) -> bool:
-        """Export COM parameter to a SPISim cfg file.
+        r"""Export COM parameter to a SPISim cfg file.
 
         Parameters
         ----------
@@ -253,7 +253,7 @@ class COMParameters:
         --------
         >>> from ansys.aedt.core.visualization.post.spisim_com_configuration_files.com_parameters import COMParameters
         >>> obj = COMParameters()
-        >>> obj.export_spisim_cfg(...)
+        >>> obj.export_spisim_cfg(file_path=r"C:\Temp\example.txt")
         """
         with open(file_path, "w") as fp:
             fp.write("################################################################################\n")
@@ -269,7 +269,7 @@ class COMParameters:
 
     @pyaedt_function_handler
     def load_spisim_cfg(self, file_path: str) -> bool:
-        """Load a SPIsim configuration file.
+        r"""Load a SPIsim configuration file.
 
         Parameters
         ----------
@@ -285,7 +285,7 @@ class COMParameters:
         --------
         >>> from ansys.aedt.core.visualization.post.spisim_com_configuration_files.com_parameters import COMParameters
         >>> obj = COMParameters()
-        >>> obj.load_spisim_cfg(...)
+        >>> obj.load_spisim_cfg(file_path=r"C:\Temp\example.txt")
         """
         reverse_map = {j: i for i, j in spimsim_matlab_keywords_mapping.items()}
 

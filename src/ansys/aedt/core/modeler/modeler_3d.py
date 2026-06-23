@@ -98,7 +98,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         native_components: list = None,
         create_folder: bool = True,
     ) -> bool:
-        """Create a 3D component file.
+        r"""Create a 3D component file.
 
         Parameters
         ----------
@@ -172,6 +172,12 @@ class Modeler3D(Primitives3D, PyAedtBase):
         References
         ----------
         >>> oEditor.Create3DComponent
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.modeler_3d import Modeler3D
+        >>> obj = Modeler3D()
+        >>> obj.create_3dcomponent(input_file=r"C:\Temp\example.txt")
         """
         # If design name has a white space (as it usually happens with Maxwell 2D/3D new designs),
         # it has to be replaced with an underscore.
@@ -440,6 +446,12 @@ class Modeler3D(Primitives3D, PyAedtBase):
         References
         ----------
         >>> oEditor.ReplaceWith3DComponent
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.modeler_3d import Modeler3D
+        >>> obj = Modeler3D()
+        >>> obj.replace_3dcomponent(assignment="Box1", name="MyObject")
         """
         if not variables_to_include:
             variables_to_include = []
@@ -944,6 +956,12 @@ class Modeler3D(Primitives3D, PyAedtBase):
         Returns
         -------
         list[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.modeler_3d import Modeler3D
+        >>> obj = Modeler3D()
+        >>> obj.objects_in_bounding_box(bounding_box=["Box1"])
         """
         if len(bounding_box) != 6:
             raise ValueError("Bounding box list must have dimension 6.")
@@ -1005,7 +1023,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         merge_angle: float = 1e-3,
         remove_multiple_connections: bool = False,
     ) -> tuple[list["Object3d"], dict] | tuple[list[str], dict]:
-        """Import Nastran file into 3D Modeler by converting the faces to stl and reading it.
+        r"""Import Nastran file into 3D Modeler by converting the faces to stl and reading it.
 
         The solids are translated directly to AEDT format.
 
@@ -1042,6 +1060,12 @@ class Modeler3D(Primitives3D, PyAedtBase):
         -------
         List of :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`, dict
             New object created and nastran dictionary.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.modeler_3d import Modeler3D
+        >>> obj = Modeler3D()
+        >>> obj.import_nastran(file_path=r"C:\Temp\example.txt")
         """
         from ansys.aedt.core.syslib.nastran_import import nastran_to_stl
 
@@ -1230,6 +1254,11 @@ class Modeler3D(Primitives3D, PyAedtBase):
         ``https://examples.aedt.docs.pyansys.com/version/dev/examples/high_frequency/antenna/large_scenarios/city.html``
         to compute also elevation.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.modeler_3d import Modeler3D
+        >>> obj = Modeler3D()
+        >>> obj.import_from_openstreet_map(latitude_longitude=[1, 2, 3])
         """
         from ansys.aedt.core.modeler.advanced_cad.osm import BuildingsPrep
         from ansys.aedt.core.modeler.advanced_cad.osm import RoadPrep
@@ -1394,6 +1423,12 @@ class Modeler3D(Primitives3D, PyAedtBase):
             If mesh sheets are not applied the method returns only the dictionary of
             segments that the object has been divided into.
             ``False`` is returned if the method fails.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.modeler_3d import Modeler3D
+        >>> obj = Modeler3D()
+        >>> obj.objects_segmentation(assignment="Box1")
         """
         if not segmentation_thickness and not segments:
             self.logger.error("Provide at least one option to segment the objects in the list.")

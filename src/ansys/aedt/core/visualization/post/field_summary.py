@@ -116,7 +116,14 @@ AVAILABLE_QUANTITIES = [
 
 
 class FieldSummary(PyAedtBase):
-    """Provides Icepak field summary methods."""
+    """Provides Icepak field summary methods.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post.field_summary import FieldSummary
+    >>> obj = FieldSummary()
+
+    """
 
     def __init__(self, app) -> None:
         self._app = app
@@ -173,6 +180,12 @@ class FieldSummary(PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_summary import FieldSummary
+        >>> obj = FieldSummary()
+        >>> obj.add_calculation(entity=1, geometry=1, geometry_name=["Box1"], quantity=1)
         """
         if quantity not in AVAILABLE_QUANTITIES:
             raise AttributeError(
@@ -227,6 +240,12 @@ class FieldSummary(PyAedtBase):
         dict or pandas.DataFrame
             Output type depending on the Boolean ``pandas_output`` parameter.
             The output consists of information exported from the field summary.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_summary import FieldSummary
+        >>> obj = FieldSummary()
+        >>> obj.get_field_summary_data(setup="Setup1", variation={"Name": "Value"})
         """
         if variation is None:
             variation = {}
@@ -255,7 +274,7 @@ class FieldSummary(PyAedtBase):
     def export_csv(
         self, output_file: str, setup: str | None = None, variations: dict | None = None, intrinsics: str = ""
     ) -> bool:
-        """
+        r"""
         Get the field summary output computation.
 
         Parameters
@@ -276,6 +295,12 @@ class FieldSummary(PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_summary import FieldSummary
+        >>> obj = FieldSummary()
+        >>> obj.export_csv(output_file=r"C:\Temp\example.csv")
         """
         if not setup:
             setup = self._app.nominal_sweep

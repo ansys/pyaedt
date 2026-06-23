@@ -50,6 +50,12 @@ class MaterialWorkbench(PyAedtBase):
     ----------
     app : :class:`ansys.aedt.core`
         Inherited parent object.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.material_workbench import MaterialWorkbench
+    >>> obj = MaterialWorkbench()
+
     """
 
     def __init__(self, app) -> None:
@@ -122,7 +128,7 @@ class MaterialWorkbench(PyAedtBase):
         return f"{normalize_string_format(wb_material_name)}{self.mat_name_suffix}"
 
     def import_materials_from_workbench(self, filename: str) -> list[str] | bool:
-        """Import materials from Workbench Engineering Data XML file.
+        r"""Import materials from Workbench Engineering Data XML file.
 
         Parameters
         ----------
@@ -134,6 +140,11 @@ class MaterialWorkbench(PyAedtBase):
         list
             List of imported materials.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.material_workbench import MaterialWorkbench
+        >>> obj = MaterialWorkbench()
+        >>> obj.import_materials_from_workbench(filename=r"C:\Temp\example.txt")
         """
         # Parse the XML
         xml_dict = MaterialWorkbench._parse_xml(filename)

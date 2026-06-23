@@ -130,22 +130,50 @@ class FfdSolutionDataExporter(PyAedtBase):
 
     @property
     def model_info(self) -> dict:
-        """List of models."""
+        """List of models.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.farfield_exporter import FfdSolutionDataExporter
+        >>> obj = FfdSolutionDataExporter()
+        >>> obj.model_info
+        """
         return self.__model_info
 
     @property
     def farfield_data(self) -> FfdSolutionData | None:
-        """Farfield data."""
+        """Farfield data.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.farfield_exporter import FfdSolutionDataExporter
+        >>> obj = FfdSolutionDataExporter()
+        >>> obj.farfield_data
+        """
         return self.__farfield_data
 
     @property
     def metadata_file(self) -> str:
-        """Metadata file."""
+        """Metadata file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.farfield_exporter import FfdSolutionDataExporter
+        >>> obj = FfdSolutionDataExporter()
+        >>> obj.metadata_file
+        """
         return self.__metadata_file
 
     @pyaedt_function_handler()
     def export_farfield(self) -> bool:
-        """Export far field solution data of each element."""
+        """Export far field solution data of each element.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.farfield_exporter import FfdSolutionDataExporter
+        >>> obj = FfdSolutionDataExporter()
+        >>> obj.export_farfield()
+        """
         # Output directory
         exported_name_map = "element.txt"
         solution_setup_name = self.setup_name.replace(":", "_").replace(" ", "")

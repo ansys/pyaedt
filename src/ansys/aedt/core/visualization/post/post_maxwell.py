@@ -53,6 +53,11 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         Inherited parent object. The parent object must provide the members
         `_modeler`, `_desktop`, `_odesign`, and `logger`.
 
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post.post_maxwell import PostProcessorMaxwell
+    >>> obj = PostProcessorMaxwell()
+
     """
 
     def __init__(self, app) -> None:
@@ -288,6 +293,12 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         References
         ----------
         >>> oModule.CreateFieldPlot
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_maxwell import PostProcessorMaxwell
+        >>> obj = PostProcessorMaxwell()
+        >>> obj.create_fieldplot_layers(layers=["TOP"], quantity=1)
         """
         return self.post_3dlayout.create_fieldplot_layers(
             layers, quantity, setup, nets, plot_on_surface, intrinsics, name
@@ -349,6 +360,12 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         References
         ----------
         >>> oModule.CreateFieldPlot
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_maxwell import PostProcessorMaxwell
+        >>> obj = PostProcessorMaxwell()
+        >>> obj.create_fieldplot_layers_nets(layers_nets=["TOP"], quantity=1)
         """
         return self.post_3dlayout.create_fieldplot_layers_nets(
             layers_nets, quantity, setup, intrinsics, plot_on_surface, plot_name

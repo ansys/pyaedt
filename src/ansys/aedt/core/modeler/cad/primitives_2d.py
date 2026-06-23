@@ -50,7 +50,14 @@ class Primitives2D(GeometryModeler, PyAedtBase):
 
     @property
     def plane2d(self) -> str:
-        """Create a 2D plane."""
+        """Create a 2D plane.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.primitives_2d import Primitives2D
+        >>> obj = Primitives2D()
+        >>> obj.plane2d
+        """
         plane = "Z"
         if self._app.design_type == "Maxwell 2D":  # Cylindrical symmetry about the z-axis.
             if self._app._odesign.GetGeometryMode() == "about Z":
@@ -398,6 +405,12 @@ class Primitives2D(GeometryModeler, PyAedtBase):
         References
         ----------
         >>> oEditor.CreateRegion
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.primitives_2d import Primitives2D
+        >>> obj = Primitives2D()
+        >>> obj.create_region(name="MyObject", pad_value=[1, 2, 3])
         """
         # backward compatibility
         if kwarg:

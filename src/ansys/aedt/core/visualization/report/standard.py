@@ -39,7 +39,14 @@ from ansys.aedt.core.visualization.report.common import CommonReport
 
 
 class Standard(CommonReport, PyAedtBase):
-    """Provides a reporting class that fits most of the app's standard reports."""
+    """Provides a reporting class that fits most of the app's standard reports.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.report.standard import Standard
+    >>> obj = Standard()
+
+    """
 
     def __init__(self, app, report_category, setup_name, expressions=None) -> None:
         CommonReport.__init__(self, app, report_category, setup_name, expressions)
@@ -52,6 +59,12 @@ class Standard(CommonReport, PyAedtBase):
         -------
         int
             Number of the sub design ID.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.standard import Standard
+        >>> obj = Standard()
+        >>> obj.sub_design_id
         """
         return self._legacy_props["context"].get("Sub Design ID", None)
 
@@ -67,6 +80,12 @@ class Standard(CommonReport, PyAedtBase):
         -------
         str
             Time start value.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.standard import Standard
+        >>> obj = Standard()
+        >>> obj.time_start
         """
         return self._legacy_props["context"].get("time_start", "0ps")
 
@@ -81,6 +100,12 @@ class Standard(CommonReport, PyAedtBase):
         Returns
         -------
         int
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.standard import Standard
+        >>> obj = Standard()
+        >>> obj.thinning
         """
         return self._legacy_props["context"].get("thinning", 0)
 
@@ -95,6 +120,12 @@ class Standard(CommonReport, PyAedtBase):
         Returns
         -------
         int
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.standard import Standard
+        >>> obj = Standard()
+        >>> obj.thinning_points
         """
         return self._legacy_props["context"].get("thinning_points", 500000000)
 
@@ -109,6 +140,12 @@ class Standard(CommonReport, PyAedtBase):
         Returns
         -------
         int
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.standard import Standard
+        >>> obj = Standard()
+        >>> obj.dy_dx_tolerance
         """
         return self._legacy_props["context"].get("dy_dx_tolerance", 0.001)
 
@@ -124,6 +161,12 @@ class Standard(CommonReport, PyAedtBase):
         -------
         str
             Time stop value.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.standard import Standard
+        >>> obj = Standard()
+        >>> obj.time_stop
         """
         return self._legacy_props["context"].get("time_stop", "10ns")
 
@@ -154,6 +197,12 @@ class Standard(CommonReport, PyAedtBase):
         -------
         float
             Pulse rise time.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.standard import Standard
+        >>> obj = Standard()
+        >>> obj.pulse_rise_time
         """
         return (
             self._legacy_props["context"].get("pulse_rise_time", 1.66666666666667e-11) if self.domain == "Time" else 0
@@ -171,6 +220,12 @@ class Standard(CommonReport, PyAedtBase):
         -------
         float
             Maximum time.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.standard import Standard
+        >>> obj = Standard()
+        >>> obj.maximum_time
         """
         return self._legacy_props["context"].get("maximum_time", 3.33333333333333e-10) if self.domain == "Time" else 0
 
@@ -186,6 +241,12 @@ class Standard(CommonReport, PyAedtBase):
         -------
         float
             step time.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.standard import Standard
+        >>> obj = Standard()
+        >>> obj.step_time
         """
         return self._legacy_props["context"].get("step_time", 3.33333333333333e-12) if self.domain == "Time" else 0
 
@@ -212,6 +273,12 @@ class Standard(CommonReport, PyAedtBase):
         -------
         int
             Time windowing.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.standard import Standard
+        >>> obj = Standard()
+        >>> obj.time_windowing
         """
         _time_windowing = self._legacy_props["context"].get("time_windowing", 4)
         return _time_windowing if self.domain == "Time" and self.pulse_rise_time != 0 else 0
@@ -541,7 +608,14 @@ class Standard(CommonReport, PyAedtBase):
 
 
 class Spectral(CommonReport, PyAedtBase):
-    """Provides for managing spectral reports from transient data."""
+    """Provides for managing spectral reports from transient data.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.report.standard import Spectral
+    >>> obj = Spectral()
+
+    """
 
     def __init__(self, app, report_category, setup_name, expressions=None) -> None:
         CommonReport.__init__(self, app, report_category, setup_name, expressions)
@@ -565,6 +639,12 @@ class Spectral(CommonReport, PyAedtBase):
         -------
         str
             Time start.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.standard import Spectral
+        >>> obj = Spectral()
+        >>> obj.time_start
         """
         return self._legacy_props["context"].get("time_start", "0s")
 
@@ -580,6 +660,12 @@ class Spectral(CommonReport, PyAedtBase):
         -------
         str
             Time stop.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.standard import Spectral
+        >>> obj = Spectral()
+        >>> obj.time_stop
         """
         return self._legacy_props["context"].get("time_stop", "100ns")
 
@@ -595,6 +681,12 @@ class Spectral(CommonReport, PyAedtBase):
         -------
         str
             Window.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.standard import Spectral
+        >>> obj = Spectral()
+        >>> obj.window
         """
         return self._legacy_props["context"].get("window", "Rectangular")
 
@@ -610,6 +702,12 @@ class Spectral(CommonReport, PyAedtBase):
         -------
         str
             Kaiser coefficient.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.standard import Spectral
+        >>> obj = Spectral()
+        >>> obj.kaiser_coeff
         """
         return self._legacy_props["context"].get("kaiser_coeff", 0)
 
@@ -625,6 +723,12 @@ class Spectral(CommonReport, PyAedtBase):
         -------
         bool
             ``True`` if coherent gain is enabled, ``False`` otherwise.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.standard import Spectral
+        >>> obj = Spectral()
+        >>> obj.adjust_coherent_gain
         """
         return self._legacy_props["context"].get("adjust_coherent_gain", False)
 
@@ -640,6 +744,12 @@ class Spectral(CommonReport, PyAedtBase):
         -------
         bool
             ``True`` if continuous spectrum is enabled, ``False`` otherwise.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.standard import Spectral
+        >>> obj = Spectral()
+        >>> obj.plot_continous_spectrum
         """
         return self._legacy_props["context"].get("plot_continous_spectrum", False)
 
@@ -655,6 +765,12 @@ class Spectral(CommonReport, PyAedtBase):
         -------
         str
             Maximum spectrum frequency.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.standard import Spectral
+        >>> obj = Spectral()
+        >>> obj.max_frequency
         """
         return self._legacy_props["context"].get("max_frequency", "10GHz")
 
@@ -670,6 +786,12 @@ class Spectral(CommonReport, PyAedtBase):
         -------
         str
             Noise Threshold.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.standard import Spectral
+        >>> obj = Spectral()
+        >>> obj.noise_threshold
         """
         return self._legacy_props["context"].get("noise_threshold", 0)
 
@@ -818,6 +940,17 @@ class Spectral(CommonReport, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit()
+        >>> new_report = circuit.post.reports_by_category.spectral(["dB(V(net_11))"], "Transient")
+        >>> new_report.window = "Hanning"
+        >>> new_report.max_freq = "1GHz"
+        >>> new_report.time_start = "1ns"
+        >>> new_report.time_stop = "190ns"
+        >>> new_report.create()
         """
         if not name:
             self.plot_name = generate_unique_name("Plot")

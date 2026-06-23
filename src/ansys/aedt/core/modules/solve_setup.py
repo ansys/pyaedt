@@ -162,6 +162,12 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
         -------
         dict
             Dictionary which keys are typically Freq, Phase or Time.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import CommonSetup
+        >>> obj = CommonSetup()
+        >>> obj.default_intrinsics
         """
         intrinsics = {}
         if "HFSS 3D Layout" in self._app.design_type:  # pragma no cover
@@ -264,6 +270,12 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
         References
         ----------
         >>> oDesign.Analyze
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import CommonSetup
+        >>> obj = CommonSetup()
+        >>> obj.analyze(cores=[1, 2, 3], tasks=[1, 2, 3])
         """
         self._app.analyze(
             setup=self.name,
@@ -281,7 +293,14 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
 
     @property
     def props(self) -> SetupProps:
-        """Properties of the setup."""
+        """Properties of the setup.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import CommonSetup
+        >>> obj = CommonSetup()
+        >>> obj.props
+        """
         if self._legacy_props:
             return self._legacy_props
         if self._is_new_setup:
@@ -315,6 +334,12 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
         -------
         bool
             ``True`` if solutions are available, ``False`` otherwise.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import CommonSetup
+        >>> obj = CommonSetup()
+        >>> obj.is_solved
         """
         if self._app.design_type == "Circuit Design":
             return True if self.omodule.ListVariations(self.name) else False
@@ -338,12 +363,26 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
 
     @property
     def omodule(self):
-        """Analysis module."""
+        """Analysis module.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import CommonSetup
+        >>> obj = CommonSetup()
+        >>> obj.omodule
+        """
         return self._app.oanalysis
 
     @property
     def name(self) -> str:
-        """Name."""
+        """Name.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import CommonSetup
+        >>> obj = CommonSetup()
+        >>> obj.name
+        """
         return self._name
 
     @name.setter
@@ -359,6 +398,12 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
         -------
         :class:`ansys.aedt.core.modules.profile.Profiles`
             Profile data when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import CommonSetup
+        >>> obj = CommonSetup()
+        >>> obj.get_profile()
         """
         return self._app.get_profile(self.name)  # Native API getter.
 
@@ -623,6 +668,11 @@ class Setup(CommonSetup):
         Whether to create the setup from a template. The default is ``True``.
         If ``False``, access is to the existing setup.
 
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.solve_setup import Setup
+    >>> obj = Setup()
+
     """
 
     def __init__(self, app, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True) -> None:
@@ -640,6 +690,12 @@ class Setup(CommonSetup):
         References
         ----------
         >>> oModule.InsertSetup
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import Setup
+        >>> obj = Setup()
+        >>> obj.create()
         """
         soltype = SetupKeys.SetupNames[self.setuptype]
         arg = self._setup_dict_to_arg()
@@ -663,6 +719,12 @@ class Setup(CommonSetup):
         References
         ----------
         >>> oModule.EditSetup
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import Setup
+        >>> obj = Setup()
+        >>> obj.update(properties={"Name": "Value"})
         """
         legacy_update = self.auto_update
         self.auto_update = False
@@ -683,6 +745,12 @@ class Setup(CommonSetup):
         -------
         bool
             ``True`` if setup is deleted. ``False`` if it failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import Setup
+        >>> obj = Setup()
+        >>> obj.delete()
         """
         self._app.delete_setup(self.name)
         return True
@@ -853,6 +921,12 @@ class Setup(CommonSetup):
         References
         ----------
         >>> oModule.EditSetup
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import Setup
+        >>> obj = Setup()
+        >>> obj.enable_expression_cache(expressions=["dB(S(1,1))"])
         """
         self.props["UseCacheFor"] = []
         if use_cache_for_pass:
@@ -885,6 +959,12 @@ class Setup(CommonSetup):
         References
         ----------
         >>> oModule.EditSetup
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import Setup
+        >>> obj = Setup()
+        >>> obj.enable()
         """
         self.props["Enabled"] = True
         return True
@@ -906,6 +986,12 @@ class Setup(CommonSetup):
         References
         ----------
         >>> oModule.EditSetup
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import Setup
+        >>> obj = Setup()
+        >>> obj.disable()
         """
         self.props["Enabled"] = False
         return True
@@ -1185,6 +1271,11 @@ class SetupCircuit(CommonSetup):
       Whether to create the setup from a template. The default is ``True.``
       If ``False``, access is to the existing setup.
 
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.solve_setup import SetupCircuit
+    >>> obj = SetupCircuit()
+
     """
 
     def __init__(self, app, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True) -> None:
@@ -1236,6 +1327,12 @@ class SetupCircuit(CommonSetup):
         >>> oModule.AddQuickEyeAnalysis
         >>> oModule.AddVerifEyeAnalysis
         >>> oModule.AddAMIAnalysis
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import SetupCircuit
+        >>> obj = SetupCircuit()
+        >>> obj.create()
         """
         soltype = SetupKeys.SetupNames[self.setuptype]
 
@@ -1301,6 +1398,12 @@ class SetupCircuit(CommonSetup):
         >>> oModule.EditQuickEyeAnalysis
         >>> oModule.EditVerifEyeAnalysis
         >>> oModule.EditAMIAnalysis
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import SetupCircuit
+        >>> obj = SetupCircuit()
+        >>> obj.update(properties={"Name": "Value"})
         """
         legacy_update = self.auto_update
         self.auto_update = False
@@ -1350,6 +1453,12 @@ class SetupCircuit(CommonSetup):
         >>> oModule.EditQuickEyeAnalysis
         >>> oModule.EditVerifEyeAnalysis
         >>> oModule.EditAMIAnalysis
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import SetupCircuit
+        >>> obj = SetupCircuit()
+        >>> obj.add_sweep_points(sweep_variable=1, sweep_points=[0, 0, 0])
         """
         if isinstance(sweep_points, (int, float)):
             sweep_points = [sweep_points]
@@ -1407,6 +1516,12 @@ class SetupCircuit(CommonSetup):
         >>> oModule.EditQuickEyeAnalysis
         >>> oModule.EditVerifEyeAnalysis
         >>> oModule.EditAMIAnalysis
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import SetupCircuit
+        >>> obj = SetupCircuit()
+        >>> obj.add_sweep_count(sweep_variable=1, start=[0, 0, 0])
         """
         if isinstance(start, (int, float)):
             start = str(start) + units
@@ -1463,6 +1578,12 @@ class SetupCircuit(CommonSetup):
         >>> oModule.EditQuickEyeAnalysis
         >>> oModule.EditVerifEyeAnalysis
         >>> oModule.EditAMIAnalysis
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import SetupCircuit
+        >>> obj = SetupCircuit()
+        >>> obj.add_sweep_step(sweep_variable=1, start=[0, 0, 0])
         """
         if isinstance(start, (int, float)):
             start = str(start) + units
@@ -1653,6 +1774,12 @@ class SetupCircuit(CommonSetup):
         References
         ----------
         >>> oModule.EditSetup
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import SetupCircuit
+        >>> obj = SetupCircuit()
+        >>> obj.enable_expression_cache(expressions=["dB(S(1,1))"])
         """
         arg = self._setup_dict_to_arg(name="SimSetup")
         expression_cache = self._expression_cache(
@@ -1679,6 +1806,12 @@ class SetupCircuit(CommonSetup):
         References
         ----------
         >>> oModule.EditSetup
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import SetupCircuit
+        >>> obj = SetupCircuit()
+        >>> obj.enable(name="MyObject")
         """
         if not name:
             name = self.name
@@ -1702,6 +1835,12 @@ class SetupCircuit(CommonSetup):
         References
         ----------
         >>> oModule.EditSetup
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import SetupCircuit
+        >>> obj = SetupCircuit()
+        >>> obj.disable(name="MyObject")
         """
         if not name:
             name = self.name
@@ -1777,6 +1916,12 @@ class SetupCircuit(CommonSetup):
         References
         ----------
         >>> oModule.GetSolutionDataPerVariation
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import SetupCircuit
+        >>> obj = SetupCircuit()
+        >>> obj.get_solution_data(expressions=["dB(S(1,1))"], domain=1)
         """
         return self._app.post.get_solution_data(
             expressions=expressions,
@@ -1870,6 +2015,12 @@ class SetupCircuit(CommonSetup):
         References
         ----------
         >>> oModule.CreateReport
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import SetupCircuit
+        >>> obj = SetupCircuit()
+        >>> obj.create_report(name="MyObject", expressions=["dB(S(1,1))"])
         """
         return self._app.post.create_report(
             expressions=expressions,
@@ -1906,6 +2057,11 @@ class Setup3DLayout(CommonSetup):
     is_new_setup : bool, optional
         Whether to create the setup from a template. The default is ``True.``
         If ``False``, access is to the existing setup.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.solve_setup import Setup3DLayout
+    >>> obj = Setup3DLayout()
 
     """
 
@@ -1963,6 +2119,12 @@ class Setup3DLayout(CommonSetup):
         -------
         bool
             `True` if solutions are available.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import Setup3DLayout
+        >>> obj = Setup3DLayout()
+        >>> obj.is_solved
         """
         if self.properties:
             props = self.properties
@@ -1998,6 +2160,12 @@ class Setup3DLayout(CommonSetup):
         -------
         type
             Setup type.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import Setup3DLayout
+        >>> obj = Setup3DLayout()
+        >>> obj.solver_type
         """
         try:
             return self.properties["Solver"]
@@ -2021,6 +2189,12 @@ class Setup3DLayout(CommonSetup):
         References
         ----------
         >>> oModule.Add
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import Setup3DLayout
+        >>> obj = Setup3DLayout()
+        >>> obj.create()
         """
         arg = self._setup_dict_to_arg()
 
@@ -2044,6 +2218,12 @@ class Setup3DLayout(CommonSetup):
         References
         ----------
         >>> oModule.Edit
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import Setup3DLayout
+        >>> obj = Setup3DLayout()
+        >>> obj.update(properties={"Name": "Value"})
         """
         if properties:
             for el in properties:
@@ -2069,6 +2249,12 @@ class Setup3DLayout(CommonSetup):
         References
         ----------
         >>> oModule.Edit
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import Setup3DLayout
+        >>> obj = Setup3DLayout()
+        >>> obj.enable()
         """
         self.props["Properties"]["Enable"] = "true"
         self.update()
@@ -2091,6 +2277,12 @@ class Setup3DLayout(CommonSetup):
         References
         ----------
         >>> oModule.Edit
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import Setup3DLayout
+        >>> obj = Setup3DLayout()
+        >>> obj.disable()
         """
         self.props["Properties"]["Enable"] = "false"
         self.update()
@@ -2098,7 +2290,7 @@ class Setup3DLayout(CommonSetup):
 
     @pyaedt_function_handler()
     def export_to_hfss(self, output_file: str, keep_net_name: bool = False, unite: bool = True) -> bool:
-        """Export the HFSS 3D Layout design to an HFSS 3D design.
+        r"""Export the HFSS 3D Layout design to an HFSS 3D design.
 
         This method is not supported with IronPython.
 
@@ -2121,6 +2313,12 @@ class Setup3DLayout(CommonSetup):
         References
         ----------
         >>> oModule.ExportToHfss
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import Setup3DLayout
+        >>> obj = Setup3DLayout()
+        >>> obj.export_to_hfss(output_file=r"C:\Temp\example.txt")
         """
         output_file = output_file
         if not os.path.isdir(os.path.dirname(output_file)):
@@ -2364,7 +2562,7 @@ class Setup3DLayout(CommonSetup):
 
     @pyaedt_function_handler()
     def export_to_q3d(self, output_file: str, keep_net_name: bool = False, unite: bool = True) -> bool:
-        """Export the HFSS 3D Layout design to a Q3D design.
+        r"""Export the HFSS 3D Layout design to a Q3D design.
 
         Parameters
         ----------
@@ -2386,6 +2584,12 @@ class Setup3DLayout(CommonSetup):
         References
         ----------
         >>> oModule.ExportToQ3d
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import Setup3DLayout
+        >>> obj = Setup3DLayout()
+        >>> obj.export_to_q3d(output_file=r"C:\Temp\example.txt")
         """
         if not os.path.isdir(os.path.dirname(output_file)):
             return False
@@ -2424,6 +2628,12 @@ class Setup3DLayout(CommonSetup):
         References
         ----------
         >>> oModule.AddSweep
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import Setup3DLayout
+        >>> obj = Setup3DLayout()
+        >>> obj.add_sweep(name="MyObject", sweep_type=1)
         """
         if not name:
             name = generate_unique_name("Sweep")
@@ -2466,12 +2676,18 @@ class Setup3DLayout(CommonSetup):
 
     @pyaedt_function_handler()
     def import_from_json(self, file_path: str) -> bool:
-        """Import setup properties from a json file.
+        r"""Import setup properties from a json file.
 
         Parameters
         ----------
         file_path : str
             File path of the json file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import Setup3DLayout
+        >>> obj = Setup3DLayout()
+        >>> obj.import_from_json(file_path=r"C:\Temp\example.json")
         """
         self.props._import_properties_from_json(file_path)
         if self.props["AdaptiveSettings"]["AdaptType"] == "kBroadband":
@@ -2487,7 +2703,7 @@ class Setup3DLayout(CommonSetup):
 
     @pyaedt_function_handler()
     def export_to_json(self, file_path: str, overwrite: bool = False) -> bool:
-        """Export all setup properties into a json file.
+        r"""Export all setup properties into a json file.
 
         Parameters
         ----------
@@ -2495,6 +2711,12 @@ class Setup3DLayout(CommonSetup):
             File path of the json file.
         overwrite : bool, optional
             Whether to overwrite the file if it already exists.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import Setup3DLayout
+        >>> obj = Setup3DLayout()
+        >>> obj.export_to_json(file_path=r"C:\Temp\example.json")
         """
         if os.path.isfile(file_path):  # pragma no cover
             if not overwrite:  # pragma no cover
@@ -2543,6 +2765,12 @@ class Setup3DLayout(CommonSetup):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import Setup3DLayout
+        >>> obj = Setup3DLayout()
+        >>> obj.use_matrix_convergence(entry_selection=1, ignore_phase_when_mag_is_less_than=1.0)
         """
         legacy_update = self.auto_update
         self.auto_update = False
@@ -2600,6 +2828,11 @@ class SetupHFSS(Setup, PyAedtBase):
         Whether to create the setup from a template. The default is ``True``.
         If ``False``, access is to the existing setup.
 
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.solve_setup import SetupHFSS
+    >>> obj = SetupHFSS()
+
     """
 
     def __init__(self, app, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True) -> None:
@@ -2612,6 +2845,12 @@ class SetupHFSS(Setup, PyAedtBase):
         Returns
         -------
         List
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import SetupHFSS
+        >>> obj = SetupHFSS()
+        >>> obj.get_derivative_variables()
         """
         try:
             return list(self._app.oanalysis.GetDerivativeVariables(self.name))
@@ -2635,6 +2874,12 @@ class SetupHFSS(Setup, PyAedtBase):
         References
         ----------
         >>> oModule.EditSetup
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import SetupHFSS
+        >>> obj = SetupHFSS()
+        >>> obj.add_derivatives(derivative_list=["Box1"])
         """
         if not isinstance(derivative_list, list):
             derivative_list = [derivative_list]
@@ -3002,6 +3247,12 @@ class SetupHFSS(Setup, PyAedtBase):
         References
         ----------
         >>> oModule.InsertFrequencySweep
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import SetupHFSS
+        >>> obj = SetupHFSS()
+        >>> obj.add_sweep(name="MyObject", sweep_type=1)
         """
         if not name:
             name = generate_unique_name("Sweep")
@@ -3121,6 +3372,12 @@ class SetupHFSS(Setup, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import SetupHFSS
+        >>> obj = SetupHFSS()
+        >>> obj.enable_adaptive_setup_single(freq="1GHz", max_passes=[1, 2, 3])
         """
         if self.setuptype != 1 or self._app.solution_type not in ["Modal", "Terminal"]:
             self._app.logger.error("Method applies only to HFSS-driven solutions.")
@@ -3164,6 +3421,12 @@ class SetupHFSS(Setup, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import SetupHFSS
+        >>> obj = SetupHFSS()
+        >>> obj.enable_adaptive_setup_broadband(low_frequency="1GHz", high_frequency="1GHz")
         """
         if self.setuptype != 1 or self._app.solution_type not in ["Modal", "Terminal"]:
             self._app.logger.error("Method applies only to HFSS-driven solutions.")
@@ -3199,6 +3462,12 @@ class SetupHFSS(Setup, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import SetupHFSS
+        >>> obj = SetupHFSS()
+        >>> obj.enable_adaptive_setup_multifrequency(frequencies=["Box1"])
         """
         if self.setuptype != 1 or self._app.solution_type not in ["Modal", "Terminal"]:
             self._app.logger.error("Method applies only to HFSS-driven solutions.")
@@ -3269,6 +3538,12 @@ class SetupHFSS(Setup, PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import SetupHFSS
+        >>> obj = SetupHFSS()
+        >>> obj.use_matrix_convergence(entry_selection=1, ignore_phase_when_mag_is_less_than=1.0)
         """
         legacy_update = self.auto_update
         self.auto_update = False
@@ -3332,6 +3607,11 @@ class SetupHFSSAuto(Setup, PyAedtBase):
         Whether to create the setup from a template. The default is ``True``.
         If ``False``, access is to the existing setup.
 
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.solve_setup import SetupHFSSAuto
+    >>> obj = SetupHFSSAuto()
+
     """
 
     def __init__(self, app, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True) -> None:
@@ -3344,6 +3624,12 @@ class SetupHFSSAuto(Setup, PyAedtBase):
         Returns
         -------
         List
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import SetupHFSSAuto
+        >>> obj = SetupHFSSAuto()
+        >>> obj.get_derivative_variables()
         """
         try:
             return list(self._app.oanalysis.GetDerivativeVariables(self.name))
@@ -3367,6 +3653,12 @@ class SetupHFSSAuto(Setup, PyAedtBase):
         References
         ----------
         >>> oModule.EditSetup
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import SetupHFSSAuto
+        >>> obj = SetupHFSSAuto()
+        >>> obj.add_derivatives(derivative_list=["Box1"])
         """
         if not isinstance(derivative_list, list):
             derivative_list = [derivative_list]
@@ -3462,6 +3754,11 @@ class SetupHFSSAuto(Setup, PyAedtBase):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import SetupHFSSAuto
+        >>> obj = SetupHFSSAuto()
+        >>> obj.add_subrange(range_type=1, start=[0, 0, 0])
         """
         if clear:
             self.props["Sweeps"]["Sweep"]["RangeType"] = range_type
@@ -3516,6 +3813,12 @@ class SetupHFSSAuto(Setup, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import SetupHFSSAuto
+        >>> obj = SetupHFSSAuto()
+        >>> obj.enable_adaptive_setup_single(frequency="1GHz", max_passes=[1, 2, 3])
         """
         if self.setuptype != 1 or self._app.solution_type not in ["Modal", "Terminal"]:
             self._app.logger.error("Method applies only to HFSS-driven solutions.")
@@ -3556,6 +3859,12 @@ class SetupHFSSAuto(Setup, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import SetupHFSSAuto
+        >>> obj = SetupHFSSAuto()
+        >>> obj.enable_adaptive_setup_broadband(low_frequency="1GHz", high_frequency="1GHz")
         """
         if self.setuptype != 1 or self._app.solution_type not in ["Modal", "Terminal"]:
             self._app.logger.error("Method applies only to HFSS-driven solutions.")
@@ -3591,6 +3900,12 @@ class SetupHFSSAuto(Setup, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import SetupHFSSAuto
+        >>> obj = SetupHFSSAuto()
+        >>> obj.enable_adaptive_setup_multifrequency(frequencies=["Box1"])
         """
         if self.setuptype != 1 or self._app.solution_type not in ["Modal", "Terminal"]:
             self._app.logger.error("Method applies only to HFSS-driven solutions.")
@@ -3632,6 +3947,11 @@ class SetupSBR(Setup, PyAedtBase):
         Whether to create the setup from a template. The default is ``True``.
         If ``False``, access is to the existing setup.
 
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.solve_setup import SetupSBR
+    >>> obj = SetupSBR()
+
     """
 
     def __init__(self, app, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True) -> None:
@@ -3670,6 +3990,11 @@ class SetupSBR(Setup, PyAedtBase):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import SetupSBR
+        >>> obj = SetupSBR()
+        >>> obj.add_subrange(range_type=1, start=[0, 0, 0])
         """
         if clear:
             self.props["Sweeps"]["Sweep"]["RangeType"] = range_type
@@ -3718,6 +4043,11 @@ class SetupMaxwell(Setup, PyAedtBase):
     is_new_setup : bool, optional
         Whether to create the setup from a template. The default is ``True``.
         If ``False``, access is to the existing setup.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.solve_setup import SetupMaxwell
+    >>> obj = SetupMaxwell()
 
     """
 
@@ -3821,6 +4151,12 @@ class SetupMaxwell(Setup, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import SetupMaxwell
+        >>> obj = SetupMaxwell()
+        >>> obj.delete_all_eddy_current_sweeps()
         """
         if self.setuptype not in [7, 60]:
             self._app.logger.warning("This method only applies to Maxwell Eddy Current Solution.")
@@ -3866,6 +4202,12 @@ class SetupMaxwell(Setup, PyAedtBase):
         References
         ----------
         >>> oModule.EditSetup
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import SetupMaxwell
+        >>> obj = SetupMaxwell()
+        >>> obj.enable_control_program(control_program_path=r"C:\\Temp\\example.txt")
         """
         if self._app.solution_type not in ["Transient", "TransientXY", "TransientZ"]:
             self._app.logger.error("Control Program is only available in Maxwell 2D and 3D Transient solutions.")
@@ -4057,6 +4399,12 @@ class SetupMaxwell(Setup, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import SetupMaxwell
+        >>> obj = SetupMaxwell()
+        >>> obj.export_matrix(matrix_type=1, matrix_name=1, output_file=r"C:\\Temp\\example.txt")
         """
         if matrix_type == "RL":
             if self._app.export_rl_matrix(
@@ -4098,6 +4446,11 @@ class SetupQ3D(Setup, PyAedtBase):
     is_new_setup : bool, optional
         Whether to create the setup from a template. The default is ``True``.
         If ``False``, access is to the existing setup.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.solve_setup import SetupQ3D
+    >>> obj = SetupQ3D()
 
     """
 
@@ -4395,6 +4748,12 @@ class SetupQ3D(Setup, PyAedtBase):
         References
         ----------
         >>> oModule.InsertFrequencySweep
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import SetupQ3D
+        >>> obj = SetupQ3D()
+        >>> obj.add_sweep(name="MyObject", sweep_type=1)
         """
         if not name:
             name = generate_unique_name("Sweep")
@@ -4449,6 +4808,12 @@ class SetupQ3D(Setup, PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import SetupQ3D
+        >>> obj = SetupQ3D()
+        >>> obj.ac_rl_enabled
         """
         return self._ac_rl_enbled
 
@@ -4465,6 +4830,12 @@ class SetupQ3D(Setup, PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import SetupQ3D
+        >>> obj = SetupQ3D()
+        >>> obj.capacitance_enabled
         """
         return self._capacitance_enabled
 
@@ -4481,6 +4852,12 @@ class SetupQ3D(Setup, PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import SetupQ3D
+        >>> obj = SetupQ3D()
+        >>> obj.dc_enabled
         """
         return self._dc_enabled
 
@@ -4497,6 +4874,12 @@ class SetupQ3D(Setup, PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import SetupQ3D
+        >>> obj = SetupQ3D()
+        >>> obj.dc_resistance_only
         """
         try:
             return self.props["DC"]["SolveResOnly"]
@@ -4525,6 +4908,12 @@ class SetupQ3D(Setup, PyAedtBase):
         References
         ----------
         >>> oModule.EditSetup
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_setup import SetupQ3D
+        >>> obj = SetupQ3D()
+        >>> obj.update(properties={"Name": "Value"})
         """
         legacy_update = self.auto_update
         self.auto_update = False

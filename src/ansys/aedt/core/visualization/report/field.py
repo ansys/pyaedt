@@ -35,7 +35,14 @@ from ansys.aedt.core.visualization.report.standard import Standard
 
 
 class AntennaParameters(Standard):
-    """Provides a reporting class that fits antenna parameter reports in an HFSS plot."""
+    """Provides a reporting class that fits antenna parameter reports in an HFSS plot.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.report.field import AntennaParameters
+    >>> obj = AntennaParameters()
+
+    """
 
     def __init__(self, app, report_category, setup_name, far_field_sphere=None, expressions=None) -> None:
         Standard.__init__(self, app, report_category, setup_name, expressions)
@@ -49,6 +56,12 @@ class AntennaParameters(Standard):
         -------
         str
             Name of the far field sphere.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.field import AntennaParameters
+        >>> obj = AntennaParameters()
+        >>> obj.far_field_sphere
         """
         if self._is_created:
             try:
@@ -69,7 +82,14 @@ class AntennaParameters(Standard):
 
 
 class Fields(CommonReport):
-    """Handler to manage fields."""
+    """Handler to manage fields.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.report.field import Fields
+    >>> obj = Fields()
+
+    """
 
     @pyaedt_function_handler()
     def __init__(self, post_app, report_category, setup_name, expressions=None) -> None:
@@ -85,6 +105,12 @@ class Fields(CommonReport):
         -------
         str
             Point number.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.field import Fields
+        >>> obj = Fields()
+        >>> obj.point_number
         """
         return self._legacy_props["context"].get("point_number", 1001)
 
@@ -103,7 +129,14 @@ class Fields(CommonReport):
 
 
 class NearField(CommonReport):
-    """Provides for managing near field reports."""
+    """Provides for managing near field reports.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.report.field import NearField
+    >>> obj = NearField()
+
+    """
 
     def __init__(self, app, report_category, setup_name, expressions=None) -> None:
         CommonReport.__init__(self, app, report_category, setup_name, expressions)
@@ -121,6 +154,12 @@ class NearField(CommonReport):
         -------
         str
             Field name.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.field import NearField
+        >>> obj = NearField()
+        >>> obj.near_field
         """
         return self._legacy_props["context"].get("near_field", None)
 
@@ -130,7 +169,14 @@ class NearField(CommonReport):
 
 
 class FarField(CommonReport):
-    """Provides for managing far field reports."""
+    """Provides for managing far field reports.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.report.field import FarField
+    >>> obj = FarField()
+
+    """
 
     def __init__(self, app, report_category, setup_name, expressions=None, **variations) -> None:
         CommonReport.__init__(self, app, report_category, setup_name, expressions)
@@ -154,6 +200,12 @@ class FarField(CommonReport):
         -------
         str
             Field name.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.field import FarField
+        >>> obj = FarField()
+        >>> obj.far_field_sphere
         """
         if self._is_created:
             try:
@@ -176,7 +228,14 @@ class FarField(CommonReport):
 
 
 class Emission(CommonReport):
-    """Provides for managing emission reports."""
+    """Provides for managing emission reports.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.report.field import Emission
+    >>> obj = Emission()
+
+    """
 
     def __init__(self, app, report_category, setup_name, expressions=None) -> None:
         CommonReport.__init__(self, app, report_category, setup_name, expressions)

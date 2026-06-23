@@ -148,7 +148,7 @@ class Cable(PyAedtBase):
         --------
         >>> from ansys.aedt.core.modules.cable_modeling import Cable
         >>> obj = Cable()
-        >>> obj.create_cable(...)
+        >>> obj.create_cable()
         """
         try:
             if self.cable_type == "bundle":
@@ -276,7 +276,7 @@ class Cable(PyAedtBase):
         --------
         >>> from ansys.aedt.core.modules.cable_modeling import Cable
         >>> obj = Cable()
-        >>> obj.update_cable_properties(...)
+        >>> obj.update_cable_properties()
         """
         try:
             if self.cable_type == "bundle":
@@ -356,7 +356,7 @@ class Cable(PyAedtBase):
         --------
         >>> from ansys.aedt.core.modules.cable_modeling import Cable
         >>> obj = Cable()
-        >>> obj.update_shielding(...)
+        >>> obj.update_shielding()
         """
         try:
             self._odesign.ChangeProperty(
@@ -410,7 +410,7 @@ class Cable(PyAedtBase):
         --------
         >>> from ansys.aedt.core.modules.cable_modeling import Cable
         >>> obj = Cable()
-        >>> obj.remove_cables(...)
+        >>> obj.remove_cables()
         """
         for cable_to_remove in self.cables_to_remove:
             if cable_to_remove not in itertools.chain(
@@ -441,7 +441,7 @@ class Cable(PyAedtBase):
         --------
         >>> from ansys.aedt.core.modules.cable_modeling import Cable
         >>> obj = Cable()
-        >>> obj.add_cable_to_bundle(...)
+        >>> obj.add_cable_to_bundle()
         """
         if [x for x in self.cables_to_add_to_bundle if x in self.existing_straight_wire_cables_names]:
             for cable_to_add in self.cables_to_add_to_bundle:
@@ -474,7 +474,7 @@ class Cable(PyAedtBase):
         --------
         >>> from ansys.aedt.core.modules.cable_modeling import Cable
         >>> obj = Cable()
-        >>> obj.create_clock_source(...)
+        >>> obj.create_clock_source()
         """
         try:
             self._omodule.CreateClockSource(
@@ -513,7 +513,7 @@ class Cable(PyAedtBase):
         --------
         >>> from ansys.aedt.core.modules.cable_modeling import Cable
         >>> obj = Cable()
-        >>> obj.update_clock_source(...)
+        >>> obj.update_clock_source()
         """
         try:
             self._odesign.ChangeProperty(
@@ -553,7 +553,7 @@ class Cable(PyAedtBase):
         --------
         >>> from ansys.aedt.core.modules.cable_modeling import Cable
         >>> obj = Cable()
-        >>> obj.remove_source(...)
+        >>> obj.remove_source()
         """
         try:
             self._omodule.RemoveTimeDomainSource(self.source_to_remove)
@@ -575,7 +575,7 @@ class Cable(PyAedtBase):
         --------
         >>> from ansys.aedt.core.modules.cable_modeling import Cable
         >>> obj = Cable()
-        >>> obj.remove_all_sources(...)
+        >>> obj.remove_all_sources()
         """
         try:
             if self.existing_sources_names:
@@ -599,7 +599,7 @@ class Cable(PyAedtBase):
         --------
         >>> from ansys.aedt.core.modules.cable_modeling import Cable
         >>> obj = Cable()
-        >>> obj.create_pwl_source(...)
+        >>> obj.create_pwl_source()
         """
         try:
             self.signal_values.insert(0, "NAME:SignalValues")
@@ -632,7 +632,7 @@ class Cable(PyAedtBase):
         --------
         >>> from ansys.aedt.core.modules.cable_modeling import Cable
         >>> obj = Cable()
-        >>> obj.create_pwl_source_from_file(...)
+        >>> obj.create_pwl_source_from_file()
         """
         try:
             self._omodule.CreatePWLSourceFromFile(
@@ -656,7 +656,7 @@ class Cable(PyAedtBase):
         --------
         >>> from ansys.aedt.core.modules.cable_modeling import Cable
         >>> obj = Cable()
-        >>> obj.update_pwl_source(...)
+        >>> obj.update_pwl_source()
         """
         self.signal_values.insert(0, "NAME:SignalValues")
         self.time_values.insert(0, "NAME:TimeValues")
@@ -704,7 +704,7 @@ class Cable(PyAedtBase):
         --------
         >>> from ansys.aedt.core.modules.cable_modeling import Cable
         >>> obj = Cable()
-        >>> obj.create_cable_harness(...)
+        >>> obj.create_cable_harness()
         """
         try:
             self._omodule.CreateCableHarness(

@@ -51,6 +51,11 @@ class Mesh3DOperation(PropsManager, PyAedtBase):
     props : dict
         Dictionary of the properties.
 
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.mesh_3d_layout import Mesh3DOperation
+    >>> obj = Mesh3DOperation()
+
     """
 
     def __init__(self, app, hfss_setup_name, name: str, props) -> None:
@@ -94,6 +99,12 @@ class Mesh3DOperation(PropsManager, PyAedtBase):
         References
         ----------
         >>> oModule.AddMeshOperation
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_3d_layout import Mesh3DOperation
+        >>> obj = Mesh3DOperation()
+        >>> obj.create()
         """
         self._mesh3dlayout.omeshmodule.AddMeshOperation(self.hfss_setup_name, self._get_args())
         return True
@@ -110,6 +121,12 @@ class Mesh3DOperation(PropsManager, PyAedtBase):
         References
         ----------
         >>> oModule.EditMeshOperation
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_3d_layout import Mesh3DOperation
+        >>> obj = Mesh3DOperation()
+        >>> obj.update()
         """
         self._mesh3dlayout.omeshmodule.EditMeshOperation(self.hfss_setup_name, self.name, self._get_args())
         return True
@@ -126,6 +143,12 @@ class Mesh3DOperation(PropsManager, PyAedtBase):
         References
         ----------
         >>> oModule.DeleteMeshOperation
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_3d_layout import Mesh3DOperation
+        >>> obj = Mesh3DOperation()
+        >>> obj.delete()
         """
         self._mesh3dlayout.omeshmodule.DeleteMeshOperation(
             self.hfss_setup_name,
@@ -144,6 +167,11 @@ class Mesh3d(PyAedtBase):
     Parameters
     ----------
     app : :class:`ansys.aedt.core.application.analysis_3d_layout.FieldAnalysis3DLayout`
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.mesh_3d_layout import Mesh3d
+    >>> obj = Mesh3d()
 
     """
 
@@ -177,6 +205,12 @@ class Mesh3d(PyAedtBase):
         References
         ----------
         >>> oDesign.GenerateMesh
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_3d_layout import Mesh3d
+        >>> obj = Mesh3d()
+        >>> obj.generate_mesh(name="MyObject")
         """
         self._app.oanalysis.GenerateMesh([name])
         return True
@@ -188,6 +222,12 @@ class Mesh3d(PyAedtBase):
         References
         ----------
         >>> oDesign.GetModule("SolveSetups")
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_3d_layout import Mesh3d
+        >>> obj = Mesh3d()
+        >>> obj.omeshmodule
         """
         return self._app.omeshmodule
 
@@ -210,6 +250,12 @@ class Mesh3d(PyAedtBase):
         References
         ----------
         >>> oModule.DeleteMeshOperation
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_3d_layout import Mesh3d
+        >>> obj = Mesh3d()
+        >>> obj.delete_mesh_operations(setup="Setup1", name="MyObject")
         """
         for el in self.meshoperations:
             if el.hfss_setup_name == setup and el.name == name:
@@ -279,6 +325,12 @@ class Mesh3d(PyAedtBase):
         References
         ----------
         >>> oModule.AddMeshOperation
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_3d_layout import Mesh3d
+        >>> obj = Mesh3d()
+        >>> obj.assign_length_mesh(setup="Setup1", layer="TOP", net="VCC")
         """
         if name:
             for el in self.meshoperations:
@@ -374,6 +426,12 @@ class Mesh3d(PyAedtBase):
         References
         ----------
         >>> oModule.AddMeshOperation
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_3d_layout import Mesh3d
+        >>> obj = Mesh3d()
+        >>> obj.assign_skin_depth(setup="Setup1", layer="TOP", net="VCC")
         """
         if name:
             for el in self.meshoperations:

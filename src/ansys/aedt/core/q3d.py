@@ -118,7 +118,14 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
 
     @property
     def design_file(self):
-        """Design file."""
+        """Design file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.q3d import QExtractor
+        >>> obj = QExtractor()
+        >>> obj.design_file
+        """
         design_file = Path(self.working_directory) / "design_data.json"
         return design_file
 
@@ -174,6 +181,12 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         Returns
         -------
         List
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.q3d import QExtractor
+        >>> obj = QExtractor()
+        >>> obj.sources()
         """
         return self.matrices[matrix_index].sources(is_gc_sources=is_gc_sources)
 
@@ -209,6 +222,12 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         -------
         :class:`ansys.aedt.core.modules.q3d_boundary.Matrix`
             Matrix object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.q3d import QExtractor
+        >>> obj = QExtractor()
+        >>> obj.insert_reduced_matrix(operation_name="JoinParallel")
         """
         if not reduced_matrix:
             reduced_matrix = generate_unique_name(operation_name)
@@ -239,6 +258,12 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         References
         ----------
         >>> oModule.GetAllSources
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.q3d import QExtractor
+        >>> obj = QExtractor()
+        >>> obj.get_all_sources()
         """
         return self.sources(0, False)
 
@@ -319,6 +344,12 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         References
         ----------
         >>> oDesign.ExportMeshStats
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.q3d import QExtractor
+        >>> obj = QExtractor()
+        >>> obj.export_mesh_stats()
         """
         if not output_file:
             output_file = Path(self.working_directory) / "meshstats.ms"
@@ -596,6 +627,12 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.q3d import QExtractor
+        >>> obj = QExtractor()
+        >>> obj.export_matrix_data(file_name="matrix_data.m")
         """
         if Path(file_name).suffix not in [".m", ".lvl", ".csv", ".txt"]:
             self.logger.error("Extension is invalid. Possible extensions are *.m, *.lvl, *.csv, and *.txt.")
@@ -1463,6 +1500,12 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         References
         ----------
         >>> oModule.ListNets
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.q3d import Q3d
+        >>> obj = Q3d()
+        >>> obj.net_names
         """
         try:
             net_names = self.get_oo_name(self.odesign, "Nets")
@@ -1486,6 +1529,12 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         References
         ----------
         >>> oModule.GetExcitations
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.q3d import Q3d
+        >>> obj = Q3d()
+        >>> obj.design_nets
         """
         net_objects = {}
         for el in self.boundaries:
@@ -1501,6 +1550,12 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         -------
         dict
             Dictionary of nets.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.q3d import Q3d
+        >>> obj = Q3d()
+        >>> obj.nets_by_type
         """
         _dict_out = {}
         for bound in self.design_nets.values():
@@ -1559,7 +1614,14 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
 
     @pyaedt_function_handler()
     def delete_all_nets(self) -> bool:
-        """Delete all nets in the design."""
+        """Delete all nets in the design.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.q3d import Q3d
+        >>> obj = Q3d()
+        >>> obj.delete_all_nets()
+        """
         net_names = self.net_names[::]
         for i in self.boundaries[::]:
             if i.name in net_names:
@@ -1582,6 +1644,12 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         -------
         dict
             Dictionary of net name and objects that belongs to it.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.q3d import Q3d
+        >>> obj = Q3d()
+        >>> obj.objects_from_nets(assignment="Net1", materials="copper")
         """
         if isinstance(assignment, str):
             assignment = [assignment]
@@ -1691,6 +1759,12 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         References
         ----------
         >>> oModule.AutoIdentifyNets
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.q3d import Q3d
+        >>> obj = Q3d()
+        >>> obj.auto_identify_nets()
         """
         original_nets = [i for i in self.net_names]
         has_conductor = False
@@ -1847,6 +1921,12 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         References
         ----------
         >>> oModule.AssignSource
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.q3d import Q3d
+        >>> obj = Q3d()
+        >>> obj.source()
         """
         return self._assign_source_or_sink(assignment, direction, name, net_name, terminal_type, "Source")
 
@@ -1885,6 +1965,12 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         References
         ----------
         >>> oModule.AssignSource
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.q3d import Q3d
+        >>> obj = Q3d()
+        >>> obj.sink()
         """
         return self._assign_source_or_sink(assignment, direction, name, net_name, terminal_type, "Sink")
 
@@ -1949,6 +2035,12 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.q3d import Q3d
+        >>> obj = Q3d()
+        >>> obj.set_material_thresholds()
         """
         try:
             import numpy as np
@@ -2047,6 +2139,12 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         -------
         :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Source object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.q3d import Q3d
+        >>> obj = Q3d()
+        >>> obj.assign_thin_conductor(assignment="my_sheet", material="copper", thickness=1, name="my_thin_conductor")
         """
         assignment = self.modeler.convert_to_selections(assignment, True)
         new_ass = []
@@ -2239,6 +2337,12 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         Returns
         -------
         :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.q3d import Q3d
+        >>> obj = Q3d()
+        >>> obj.insert_em_field_line(assignment="my_polyline", points=1000, name="my_em_field_line")
         """
         if assignment not in self.modeler.line_names:
             raise ValueError("Line does not exists in this design.")
@@ -2294,6 +2398,12 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         Returns
         -------
         :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.q3d import Q3d
+        >>> obj = Q3d()
+        >>> obj.insert_em_field_rectangle(u_length=20, u_samples=21, v_length=20, v_samples=21, units="mm")
         """
         if not self.setups:
             raise AEDTRuntimeError("At least one setup is required to create an EM field rectangle.")
@@ -2359,6 +2469,12 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         Returns
         -------
         :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.q3d import Q3d
+        >>> obj = Q3d()
+        >>> obj.insert_em_field_box(u_length=20, u_samples=21, v_length=20, v_samples=21, w_length=20, w_samples=21)
         """
         if not self.setups:
             raise AEDTRuntimeError("At least one setup is required to create a EM field box.")
@@ -2432,6 +2548,12 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         Returns
         -------
         :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.q3d import Q3d
+        >>> obj = Q3d()
+        >>> obj.insert_em_field_sphere(radius=20, radius_units="mm", x_start=0, x_stop=180, x_step=10)
         """
         if not self.setups:
             raise AEDTRuntimeError("At least one setup is required to create an EM field sphere.")
@@ -2575,7 +2697,14 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
 
     @property  # for legacy purposes
     def dim(self):
-        """Dimension."""
+        """Dimension.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.q3d import Q2d
+        >>> obj = Q2d()
+        >>> obj.dim
+        """
         return self.modeler.dimension
 
     def __init__(
@@ -2643,6 +2772,12 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         References
         ----------
         >>> oEditor.CreateRectangle
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.q3d import Q2d
+        >>> obj = Q2d()
+        >>> obj.create_rectangle(origin=[0, 0], sizes=[10, 5], name="MyRectangle", material="copper")
         """
         return self.modeler.create_rectangle(origin=origin, sizes=sizes, name=name, material=material)
 
@@ -2688,6 +2823,12 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         >>> oModule.AssignSingleSignalLine
         >>> oModule.AssignSingleReferenceGround
         >>> oModule.AssignSingleSurfaceGround
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.q3d import Q2d
+        >>> obj = Q2d()
+        >>> obj.assign_single_conductor(assignment=my_sheet, name="MyConductor")
         """
         if not name:
             name = generate_unique_name(name)
@@ -2715,7 +2856,7 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def assign_huray_finitecond_to_edges(
         self,
-        assignment: list,
+        assignment: "list[Object3d] | Object3d",
         radius: float | str,
         ratio: float | str,
         units: str | None = "um",
@@ -2726,9 +2867,12 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
 
         Parameters
         ----------
-        assignment :
-        radius :
-        ratio :
+        assignment : list or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+            List of Object3D.
+        radius : float or str
+            Radius of the spheres. It can be a number or a string with units.
+        ratio : float or str
+            Ratio.
         units : str, optional
             The default is ``"um"``.
         name : str, optional
@@ -2742,9 +2886,24 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         References
         ----------
         >>> oMdoule.AssignFiniteCond
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.q3d import Q2d
+        >>> q2d = Q2d()
+        >>> rect = q2d.create_rectangle([6, 6], [5, 3], name="Rectangle1", material="Copper")
+        >>> q2d.assign_single_conductor(assignment=rect, solve_option="SolveOnBoundary")
+        >>> q2d.assign_huray_finitecond_to_edges(
+        ...     assignment=rect.edges,
+        ...     radius=0.5,
+        ...     ratio=1.5,
+        ... )
         """
         if not name:
             name = generate_unique_name(name)
+
+        if units is None:
+            units = "um"
 
         if not isinstance(radius, str):
             ra = str(radius) + units
@@ -2765,6 +2924,12 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.q3d import Q2d
+        >>> obj = Q2d()
+        >>> obj.auto_assign_conductors()
         """
         original_nets = list(self.oboundary.GetExcitations())
         self.oboundary.AutoAssignSignals()
@@ -2798,6 +2963,12 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         -------
         list
             List of all exported files.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.q3d import Q2d
+        >>> obj = Q2d()
+        >>> obj.export_w_elements("C:/Users/UserName/ExportedWElements")
         """
         exported_files = []
         if not export_folder:
@@ -2915,6 +3086,12 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.q3d import Q2d
+        >>> obj = Q2d()
+        >>> obj.toggle_conductor_type(assignment="MyConductor", new_type="ReferenceGround")
         """
         try:
             self.oboundary.ToggleConductor(assignment, new_type)

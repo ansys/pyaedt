@@ -58,6 +58,13 @@ class BaseFolderPlot(PyAedtBase):
         -------
         dict
             A dictionary containing settings.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import BaseFolderPlot
+        >>> obj = BaseFolderPlot()
+        >>> obj.to_dict()
+
         """
 
     @abstractmethod
@@ -69,6 +76,14 @@ class BaseFolderPlot(PyAedtBase):
         dictionary : dict
             Dictionary containing the configuration settings.
             Dictionary syntax must be the same of the AEDT file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import BaseFolderPlot
+        >>> obj = BaseFolderPlot()
+        >>> obj.from_dict(dictionary={"Name": "Value"})
+
+
         """
 
 
@@ -84,6 +99,12 @@ class ColorMapSettings(BaseFolderPlot):
     color : str or list[float], optional
         Color to use. If "Spectrum" color map, a string is expected.
         Else a list of 3 values (R,G,B). Default is `"Rainbow"`.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post.field_data import ColorMapSettings
+    >>> obj = ColorMapSettings()
+
     """
 
     def __init__(self, map_type: str = "Spectrum", color: str = "Rainbow") -> None:
@@ -100,7 +121,20 @@ class ColorMapSettings(BaseFolderPlot):
 
     @property
     def map_type(self) -> str:
-        """Get the color map type for the field plot."""
+        """Get the color map type for the field plot.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import ColorMapSettings
+        >>> obj = ColorMapSettings()
+        >>> obj.map_type()
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import ColorMapSettings
+        >>> obj = ColorMapSettings()
+        >>> obj.map_type
+        """
         return self._map_type
 
     @map_type.setter
@@ -128,6 +162,18 @@ class ColorMapSettings(BaseFolderPlot):
         Returns
         -------
             str or list of float: The color scheme based on the map type.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import ColorMapSettings
+        >>> obj = ColorMapSettings()
+        >>> obj.color()
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import ColorMapSettings
+        >>> obj = ColorMapSettings()
+        >>> obj.color
         """
         if self.map_type == "Spectrum":
             return self._color_spectrum
@@ -191,6 +237,12 @@ class ColorMapSettings(BaseFolderPlot):
         dict
             A dictionary containing all the color map settings
             for the folder field plot settings.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import ColorMapSettings
+        >>> obj = ColorMapSettings()
+        >>> obj.to_dict()
         """
         return {
             "ColorMapSettings": {
@@ -207,6 +259,12 @@ class ColorMapSettings(BaseFolderPlot):
         dictionary : dict
             Dictionary containing the configuration for colormap settings.
             Dictionary syntax must be the same of relevant portion of the AEDT file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import ColorMapSettings
+        >>> obj = ColorMapSettings()
+        >>> obj.from_dict(settings={"Name": "Value"})
         """
         self._map_type = settings["ColorMapType"]
         self._color_spectrum = settings["SpectrumType"]
@@ -227,6 +285,12 @@ class AutoScale(BaseFolderPlot):
         Precision digits. Default is `3`.
     use_current_scale_for_animation : bool, optional
         Whether to use the scale for the animation. Default is `False`.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post.field_data import AutoScale
+    >>> obj = AutoScale()
+
     """
 
     def __init__(
@@ -265,6 +329,12 @@ class AutoScale(BaseFolderPlot):
         dict
             A dictionary containing all the auto-scale settings
             for the folder field plot settings.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import AutoScale
+        >>> obj = AutoScale()
+        >>> obj.to_dict()
         """
         return {
             "m_nLevels": self.n_levels,
@@ -281,6 +351,12 @@ class AutoScale(BaseFolderPlot):
         dictionary : dict
             Dictionary containing the configuration for auto-scale settings.
             Dictionary syntax must be the same of relevant portion of the AEDT file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import AutoScale
+        >>> obj = AutoScale()
+        >>> obj.from_dict(dictionary={"Name": "Value"})
         """
         self.n_levels = dictionary["m_nLevels"]
         self.limit_precision_digits = dictionary["LimitFieldValuePrecision"]
@@ -299,6 +375,12 @@ class MinMaxScale(BaseFolderPlot):
         Minimum value of the scale. Default is `0`.
     max_value : float, optional
         Maximum value of the scale. Default is `1`.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post.field_data import MinMaxScale
+    >>> obj = MinMaxScale()
+
     """
 
     def __init__(self, n_levels: int = 10, min_value: int = 0, max_value: int = 1) -> None:
@@ -320,6 +402,12 @@ class MinMaxScale(BaseFolderPlot):
         dict
             A dictionary containing all the min-max scale settings
             for the folder field plot settings.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import MinMaxScale
+        >>> obj = MinMaxScale()
+        >>> obj.to_dict()
         """
         return {"minvalue": self.min_value, "maxvalue": self.max_value, "m_nLevels": self.n_levels}
 
@@ -331,6 +419,12 @@ class MinMaxScale(BaseFolderPlot):
         dictionary : dict
             Dictionary containing the configuration for min-max scale settings.
             Dictionary syntax must be the same of relevant portion of the AEDT file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import MinMaxScale
+        >>> obj = MinMaxScale()
+        >>> obj.from_dict(dictionary={"Name": "Value"})
         """
         self.min_value = dictionary["minvalue"]
         self.max_value = dictionary["maxvalue"]
@@ -344,6 +438,12 @@ class SpecifiedScale(PyAedtBase):
     ----------
     scale_values : int, optional
         Scale levels. Default is `None`.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post.field_data import SpecifiedScale
+    >>> obj = SpecifiedScale()
+
     """
 
     def __init__(self, scale_values=None) -> None:
@@ -367,6 +467,12 @@ class SpecifiedScale(PyAedtBase):
         dict
             A dictionary containing all the specified scale settings
             for the folder field plot settings.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import SpecifiedScale
+        >>> obj = SpecifiedScale()
+        >>> obj.to_dict()
         """
         return {"UserSpecifyValues": [len(self.scale_values)] + self.scale_values}
 
@@ -378,6 +484,12 @@ class SpecifiedScale(PyAedtBase):
         dictionary : dict
             Dictionary containing the configuration for specified scale settings.
             Dictionary syntax must be the same of relevant portion of the AEDT file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import SpecifiedScale
+        >>> obj = SpecifiedScale()
+        >>> obj.from_dict(dictionary={"Name": "Value"})
         """
         self.scale_values = dictionary["UserSpecifyValues"][:-1]
 
@@ -393,6 +505,12 @@ class NumberFormat(BaseFolderPlot):
         Width of the numbers space. Default is `4`.
     precision : int, optional
         Precision of the numbers. Default is `4`.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post.field_data import NumberFormat
+    >>> obj = NumberFormat()
+
     """
 
     def __init__(self, format_type: str = "Automatic", width: int = 4, precision: int = 4) -> None:
@@ -403,7 +521,20 @@ class NumberFormat(BaseFolderPlot):
 
     @property
     def format_type(self) -> str:
-        """Get the current number format type."""
+        """Get the current number format type.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import NumberFormat
+        >>> obj = NumberFormat()
+        >>> obj.format_type()
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import NumberFormat
+        >>> obj = NumberFormat()
+        >>> obj.format_type
+        """
         return self._format_type
 
     @format_type.setter
@@ -438,6 +569,12 @@ class NumberFormat(BaseFolderPlot):
         dict
             A dictionary containing all the number format settings
             for the folder field plot settings.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import NumberFormat
+        >>> obj = NumberFormat()
+        >>> obj.to_dict()
         """
         return {
             "ValueNumberFormatTypeAuto": self._accepted.index(self.format_type),
@@ -454,6 +591,12 @@ class NumberFormat(BaseFolderPlot):
         dictionary : dict
             Dictionary containing the configuration for number format settings.
             Dictionary syntax must be the same of relevant portion of the AEDT file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import NumberFormat
+        >>> obj = NumberFormat()
+        >>> obj.from_dict(dictionary={"Name": "Value"})
         """
         self._format_type = self._accepted[dictionary["ValueNumberFormatTypeAuto"]]
         self.width = dictionary["ValueNumberFormatWidth"]
@@ -479,6 +622,12 @@ class Scale3DSettings(BaseFolderPlot):
         Unit to use in the scale. Default is `None`.
     number_format : :class:`ansys.aedt.core.modules.post_general.NumberFormat`, optional
         Number format settings. Default is `NumberFormat()`.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post.field_data import Scale3DSettings
+    >>> obj = Scale3DSettings()
+
     """
 
     def __init__(
@@ -506,7 +655,20 @@ class Scale3DSettings(BaseFolderPlot):
 
     @property
     def unit(self) -> str:
-        """Get unit used in the plot."""
+        """Get unit used in the plot.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import Scale3DSettings
+        >>> obj = Scale3DSettings()
+        >>> obj.unit()
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import Scale3DSettings
+        >>> obj = Scale3DSettings()
+        >>> obj.unit
+        """
         return EnumUnits(self._unit).name
 
     @unit.setter
@@ -526,7 +688,20 @@ class Scale3DSettings(BaseFolderPlot):
 
     @property
     def scale_type(self) -> str:
-        """Get type of scale used for the field plot."""
+        """Get type of scale used for the field plot.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import Scale3DSettings
+        >>> obj = Scale3DSettings()
+        >>> obj.scale_type()
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import Scale3DSettings
+        >>> obj = Scale3DSettings()
+        >>> obj.scale_type
+        """
         return self._scale_type
 
     @scale_type.setter
@@ -557,7 +732,20 @@ class Scale3DSettings(BaseFolderPlot):
 
     @property
     def scale_settings(self) -> AutoScale | MinMaxScale | SpecifiedScale:
-        """Get the current scale settings based on the scale type."""
+        """Get the current scale settings based on the scale type.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import Scale3DSettings
+        >>> obj = Scale3DSettings()
+        >>> obj.scale_settings()
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import Scale3DSettings
+        >>> obj = Scale3DSettings()
+        >>> obj.scale_settings
+        """
         self.scale_type = self.scale_type  # update correct scale settings
         return self._scale_settings
 
@@ -598,6 +786,12 @@ class Scale3DSettings(BaseFolderPlot):
         dict
             A dictionary containing all scale settings
             for the folder field plot settings.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import Scale3DSettings
+        >>> obj = Scale3DSettings()
+        >>> obj.to_dict()
         """
         arg_out = {
             "Scale3DSettings": {
@@ -619,6 +813,12 @@ class Scale3DSettings(BaseFolderPlot):
         dictionary : dict
             Dictionary containing the configuration for scale settings.
             Dictionary syntax must be the same of relevant portion of the AEDT file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import Scale3DSettings
+        >>> obj = Scale3DSettings()
+        >>> obj.from_dict(dictionary={"Name": "Value"})
         """
         self._scale_type = self._accepted[dictionary["ScaleType"]]
         self.number_format = NumberFormat()
@@ -649,6 +849,12 @@ class MarkerSettings(BaseFolderPlot):
         Whether to map the field magnitude to the arrow type. Default is `False`.
     map_color : bool, optional
         Whether to map the field magnitude to the arrow color. Default is `True`.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post.field_data import MarkerSettings
+    >>> obj = MarkerSettings()
+
     """
 
     def __init__(
@@ -662,7 +868,20 @@ class MarkerSettings(BaseFolderPlot):
 
     @property
     def marker_type(self) -> str:
-        """Get the type of maker to use."""
+        """Get the type of maker to use.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import MarkerSettings
+        >>> obj = MarkerSettings()
+        >>> obj.marker_type()
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import MarkerSettings
+        >>> obj = MarkerSettings()
+        >>> obj.marker_type
+        """
         return AllowedMarkers(self._marker_type).name
 
     @marker_type.setter
@@ -700,6 +919,12 @@ class MarkerSettings(BaseFolderPlot):
         dict
             A dictionary containing all the marker settings
             for the folder field plot settings.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import MarkerSettings
+        >>> obj = MarkerSettings()
+        >>> obj.to_dict()
         """
         return {
             "Marker3DSettings": {
@@ -718,6 +943,12 @@ class MarkerSettings(BaseFolderPlot):
         dictionary : dict
             Dictionary containing the configuration for marker settings.
             Dictionary syntax must be the same of relevant portion of the AEDT file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import MarkerSettings
+        >>> obj = MarkerSettings()
+        >>> obj.from_dict(dictionary={"Name": "Value"})
         """
         self.marker_type = AllowedMarkers(int(dictionary["MarkerType"])).name
         self.map_size = dictionary["MarkerMapSize"]
@@ -749,6 +980,12 @@ class ArrowSettings(BaseFolderPlot):
         Minimum value for plotting vectors. Default is `0`.
     max_magnitude : bool, optional
         Maximum value for plotting vectors. Default is `0.5`.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post.field_data import ArrowSettings
+    >>> obj = ArrowSettings()
+
     """
 
     def __init__(
@@ -777,7 +1014,20 @@ class ArrowSettings(BaseFolderPlot):
 
     @property
     def arrow_type(self) -> str:
-        """Get the type of arrows used in the field plot."""
+        """Get the type of arrows used in the field plot.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import ArrowSettings
+        >>> obj = ArrowSettings()
+        >>> obj.arrow_type()
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import ArrowSettings
+        >>> obj = ArrowSettings()
+        >>> obj.arrow_type
+        """
         return self._arrow_type
 
     @arrow_type.setter
@@ -825,6 +1075,12 @@ class ArrowSettings(BaseFolderPlot):
         dict
             A dictionary containing all the arrow settings
             for the folder field plot settings.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import ArrowSettings
+        >>> obj = ArrowSettings()
+        >>> obj.to_dict()
         """
         return {
             "Arrow3DSettings": {
@@ -848,6 +1104,12 @@ class ArrowSettings(BaseFolderPlot):
         dictionary : dict
             Dictionary containing the configuration for arrow settings.
             Dictionary syntax must be the same of relevant portion of the AEDT file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import ArrowSettings
+        >>> obj = ArrowSettings()
+        >>> obj.from_dict(dictionary={"Name": "Value"})
         """
         self.arrow_type = self._allowed_arrow_types[dictionary["ArrowType"]]
         self.arrow_size = dictionary["ArrowType"]
@@ -876,6 +1138,12 @@ class FolderPlotSettings(BaseFolderPlot):
         Scale settings. Default is `None`.
     color_map_settings : :class:`ansys.aedt.core.modules.solution.ColorMapSettings`, optional
         Colormap settings. Default is `None`.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post.field_data import FolderPlotSettings
+    >>> obj = FolderPlotSettings()
+
     """
 
     def __init__(
@@ -895,7 +1163,14 @@ class FolderPlotSettings(BaseFolderPlot):
         self._folder_name = folder_name
 
     def update(self) -> None:
-        """Update folder plot settings."""
+        """Update folder plot settings.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import FolderPlotSettings
+        >>> obj = FolderPlotSettings()
+        >>> obj.update()
+        """
         out = []
         _dict2arg(self.to_dict(), out)
         self._postprocessor.ofieldsreporter.SetPlotFolderSettings(self._folder_name, out[0])
@@ -909,6 +1184,12 @@ class FolderPlotSettings(BaseFolderPlot):
             A dictionary containing all the settings for the field plot,
             including arrow settings, marker settings,
             scale settings, and color map settings.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import FolderPlotSettings
+        >>> obj = FolderPlotSettings()
+        >>> obj.to_dict()
         """
         out = {}
         out.update(self.arrow_settings.to_dict())
@@ -926,6 +1207,12 @@ class FolderPlotSettings(BaseFolderPlot):
             Dictionary containing the configuration for the color map,
             scale, arrow, and marker settings. Dictionary syntax must
             be the same of the AEDT file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import FolderPlotSettings
+        >>> obj = FolderPlotSettings()
+        >>> obj.from_dict(dictionary={"Name": "Value"})
         """
         cmap = ColorMapSettings()
         cmap.from_dict(dictionary["ColorMapSettings"])
@@ -955,6 +1242,11 @@ class FieldPlot(PyAedtBase):
         Name of the plot or the name of the object.
     intrinsics : dict, optional
         Name of the intrinsic dictionary. The default is ``{}``.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post.field_data import FieldPlot
+    >>> obj = FieldPlot()
 
     """
 
@@ -1049,7 +1341,20 @@ class FieldPlot(PyAedtBase):
 
     @property
     def folder_settings(self) -> FolderPlotSettings:
-        """Get the folder settings."""
+        """Get the folder settings.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import FieldPlot
+        >>> obj = FieldPlot()
+        >>> obj.folder_settings()
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import FieldPlot
+        >>> obj = FieldPlot()
+        >>> obj.folder_settings
+        """
         if self._folder_settings is None:
             self._folder_settings = self._parse_folder_settings()
         return self._folder_settings
@@ -1075,7 +1380,14 @@ class FieldPlot(PyAedtBase):
 
     @property
     def filter_boxes(self) -> list:
-        """Volumes on which filter the plot."""
+        """Volumes on which filter the plot.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import FieldPlot
+        >>> obj = FieldPlot()
+        >>> obj.filter_boxes
+        """
         return self._filter_boxes
 
     @filter_boxes.setter
@@ -1086,7 +1398,14 @@ class FieldPlot(PyAedtBase):
 
     @property
     def plotGeomInfo(self) -> list:
-        """Plot geometry information."""
+        """Plot geometry information.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import FieldPlot
+        >>> obj = FieldPlot()
+        >>> obj.plotGeomInfo
+        """
         idx = 0
         if self.volumes:
             idx += 1
@@ -1168,6 +1487,12 @@ class FieldPlot(PyAedtBase):
         -------
         list or dict
             Variables for the field plot.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import FieldPlot
+        >>> obj = FieldPlot()
+        >>> obj.intrinsicVar
         """
         var = ""
         for a in self.intrinsics:
@@ -1182,6 +1507,12 @@ class FieldPlot(PyAedtBase):
         -------
         list
             List of plot settings.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import FieldPlot
+        >>> obj = FieldPlot()
+        >>> obj.plotsettings
         """
         if self.surfaces or self.cutplanes or (self.layer_nets and self.layer_plot_type == "LayerNetsExtFace"):
             if self.quantity == "Flux_Lines":
@@ -1292,6 +1623,12 @@ class FieldPlot(PyAedtBase):
             Each key is associated with a list with the same length of the argument points.
             If pandas is installed, the output is a pandas DataFrame with point names as
             index and coordinates and quantity as columns.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import FieldPlot
+        >>> obj = FieldPlot()
+        >>> obj.get_points_value(points={"Name": "Value"})
         """
         self.oField.ClearAllMarkers()
 
@@ -1380,6 +1717,12 @@ class FieldPlot(PyAedtBase):
         -------
         list
             List of surface plot settings.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import FieldPlot
+        >>> obj = FieldPlot()
+        >>> obj.surfacePlotInstruction
         """
         out = [
             "NAME:" + self.name,
@@ -1430,6 +1773,12 @@ class FieldPlot(PyAedtBase):
         -------
         list
             List of plot settings for line traces.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import FieldPlot
+        >>> obj = FieldPlot()
+        >>> obj.surfacePlotInstructionLineTraces
         """
         out = [
             "NAME:" + self.name,
@@ -1498,6 +1847,12 @@ class FieldPlot(PyAedtBase):
         -------
         list
             Field Plot Settings.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import FieldPlot
+        >>> obj = FieldPlot()
+        >>> obj.field_plot_settings
         """
         return [
             "NAME:FieldsPlotItemSettings",
@@ -1543,6 +1898,12 @@ class FieldPlot(PyAedtBase):
         -------
         list
             List of settings for the field line traces in the plot.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import FieldPlot
+        >>> obj = FieldPlot()
+        >>> obj.field_line_trace_plot_settings
         """
         return [
             "NAME:FieldLineTracePlotSettings",
@@ -1559,6 +1920,12 @@ class FieldPlot(PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import FieldPlot
+        >>> obj = FieldPlot()
+        >>> obj.create()
         """
         try:
             if self.seeding_faces:
@@ -1591,6 +1958,12 @@ class FieldPlot(PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import FieldPlot
+        >>> obj = FieldPlot()
+        >>> obj.update()
         """
         try:
             if self.seeding_faces:
@@ -1645,13 +2018,26 @@ class FieldPlot(PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import FieldPlot
+        >>> obj = FieldPlot()
+        >>> obj.update_field_plot_settings()
         """
         self.oField.SetFieldPlotSettings(self.name, ["NAME:FieldsPlotItemSettings", self.plotsettings])
         return True
 
     @pyaedt_function_handler()
     def delete(self) -> None:
-        """Delete the field plot."""
+        """Delete the field plot.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import FieldPlot
+        >>> obj = FieldPlot()
+        >>> obj.delete()
+        """
         self.oField.DeleteFieldPlot([self.name])
         self._postprocessor.field_plots.pop(self.name, None)
 
@@ -1669,7 +2055,7 @@ class FieldPlot(PyAedtBase):
         show_grid: bool = True,
         show_ruler: bool = True,
     ) -> str | bool:
-        """Export the active plot to an image file.
+        r"""Export the active plot to an image file.
 
         .. note::
            There are some limitations on HFSS 3D Layout plots.
@@ -1713,6 +2099,12 @@ class FieldPlot(PyAedtBase):
         >>> oModule.ExportPlotImageToFile
         >>> oModule.ExportModelImageToFile
         >>> oModule.ExportPlotImageWithViewToFile
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import FieldPlot
+        >>> obj = FieldPlot()
+        >>> obj.export_image(full_path=r"C:\Temp\example.txt", width="2mm")
         """
         self.oField.UpdateQuantityFieldsPlots(self.plot_folder)
 
@@ -1751,7 +2143,7 @@ class FieldPlot(PyAedtBase):
         scale_min: float = None,
         scale_max: float = None,
     ) -> str | bool:
-        """Save an image of the active plot using PyVista.
+        r"""Save an image of the active plot using PyVista.
 
         .. note::
             This method only works if the CPython with PyVista module is installed.
@@ -1780,6 +2172,12 @@ class FieldPlot(PyAedtBase):
         >>> oModule.UpdateAllFieldsPlots
         >>> oModule.UpdateQuantityFieldsPlots
         >>> oModule.ExportFieldPlot
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import FieldPlot
+        >>> obj = FieldPlot()
+        >>> obj.export_image_from_aedtplt(export_path=r"C:\Temp\project.aedt", view="iso")
         """
         # Convert pathlib.Path to string if needed
         if export_path is not None and hasattr(export_path, "__fspath__"):

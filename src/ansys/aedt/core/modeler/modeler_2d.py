@@ -36,6 +36,11 @@ class ModelerRMxprt(Modeler, PyAedtBase):
     This class is inherited in the caller application and is accessible through the modeler variable
     object( eg. ``rmxprt.modeler``).
 
+    Examples
+    --------
+    >>> from ansys.aedt.core.modeler.modeler_2d import ModelerRMxprt
+    >>> obj = ModelerRMxprt()
+
     """
 
     def __init__(self, app) -> None:
@@ -50,6 +55,12 @@ class ModelerRMxprt(Modeler, PyAedtBase):
         References
         ----------
         >>> oEditor = oDesign.SetActiveEditor("Machine")
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.modeler_2d import ModelerRMxprt
+        >>> obj = ModelerRMxprt()
+        >>> obj.oeditor
         """
         return self._app.oeditor
 
@@ -96,6 +107,11 @@ class Modeler2D(Primitives2D, PyAedtBase):
                 If ``inner=True``, then the maximum is returned; otherwise,
                 the minimum is returned.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.modeler_2d import Modeler2D
+        >>> obj = Modeler2D()
+        >>> obj.calculate_radius_2D(assignment="Box1")
         """
         radius = 0
         oVertexIDs = self[assignment].vertices
@@ -134,6 +150,12 @@ class Modeler2D(Primitives2D, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.modeler_2d import Modeler2D
+        >>> obj = Modeler2D()
+        >>> obj.radial_split_2D(radius="10mm", name="MyObject")
         """
         cir = self.create_circle([0, 0, 0], 3, name=name + "_split", material="vacuum")
         self.oeditor.Copy(["NAME:Selections", "Selections:=", name])
@@ -161,6 +183,12 @@ class Modeler2D(Primitives2D, PyAedtBase):
         Returns
         -------
         list[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.modeler_2d import Modeler2D
+        >>> obj = Modeler2D()
+        >>> obj.objects_in_bounding_box(bounding_box=["Box1"])
         """
         if len(bounding_box) != 4 and len(bounding_box) != 6:
             raise ValueError("Bounding box must be a list of 4 or 6 elements.")

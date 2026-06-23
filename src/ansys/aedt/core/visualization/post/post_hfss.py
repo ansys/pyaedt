@@ -52,6 +52,12 @@ class PostProcessorHFSS(PostProcessor3D, PyAedtBase):
     app : :class:`ansys.aedt.core.application.analysis_3d.FieldAnalysis3D`
         Inherited parent object. The parent object must provide the members
         `_modeler`, `_desktop`, `_odesign`, and `logger`.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post.post_hfss import PostProcessorHFSS
+    >>> obj = PostProcessorHFSS()
+
     """
 
     def __init__(self, app) -> None:
@@ -91,6 +97,12 @@ class PostProcessorHFSS(PostProcessor3D, PyAedtBase):
         References
         ----------
         >>> oModule.GetSolutionDataPerVariation
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_hfss import PostProcessorHFSS
+        >>> obj = PostProcessorHFSS()
+        >>> obj.get_far_field_data(expressions=["dB(S(1,1))"], setup_sweep_name=1)
         """
         if not isinstance(expressions, list):
             expressions = [expressions]
@@ -147,6 +159,12 @@ class PostProcessorHFSS(PostProcessor3D, PyAedtBase):
         Returns
         -------
         :class:` from ansys.aedt.core.modules.solutions.VRTFieldPlot`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_hfss import PostProcessorHFSS
+        >>> obj = PostProcessorHFSS()
+        >>> obj.create_creeping_plane_visual_ray_tracing(max_frequency="1GHz", ray_density=1)
         """
         vrt = VRTFieldPlot(self, is_creeping_wave=True)
         vrt.max_frequency = max_frequency
@@ -191,6 +209,12 @@ class PostProcessorHFSS(PostProcessor3D, PyAedtBase):
         Returns
         -------
         :class:` from ansys.aedt.core.modules.solutions.VRTFieldPlot`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_hfss import PostProcessorHFSS
+        >>> obj = PostProcessorHFSS()
+        >>> obj.create_creeping_point_visual_ray_tracing(max_frequency="1GHz", ray_density=1)
         """
         if custom_location is None:
             custom_location = [0, 0, 0]
@@ -259,6 +283,12 @@ class PostProcessorHFSS(PostProcessor3D, PyAedtBase):
         Returns
         -------
         :class:` from ansys.aedt.core.modules.solutions.VRTFieldPlot`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_hfss import PostProcessorHFSS
+        >>> obj = PostProcessorHFSS()
+        >>> obj.create_sbr_plane_visual_ray_tracing(max_frequency="1GHz", ray_density=1)
         """
         vrt = VRTFieldPlot(self, is_creeping_wave=False)
         vrt.max_frequency = max_frequency
@@ -328,6 +358,11 @@ class PostProcessorHFSS(PostProcessor3D, PyAedtBase):
         -------
         :class:` from ansys.aedt.core.modules.solutions.VRTFieldPlot`
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_hfss import PostProcessorHFSS
+        >>> obj = PostProcessorHFSS()
+        >>> obj.create_sbr_point_visual_ray_tracing(max_frequency="1GHz", ray_density=1)
         """
         if custom_location is None:
             custom_location = [0, 0, 0]
@@ -362,6 +397,12 @@ class PostProcessorHFSS(PostProcessor3D, PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_hfss import PostProcessorHFSS
+        >>> obj = PostProcessorHFSS()
+        >>> obj.set_tuning_offset(setup="Setup1", offsets={"Name": "Value"})
         """
         setup_obj = self._app.get_setup(setup)
         if setup_obj and "set_tuning_offset" in dir(setup_obj):
@@ -428,6 +469,12 @@ class PostProcessorHFSS(PostProcessor3D, PyAedtBase):
         References
         ----------
         >>> oModule.CreateFieldPlot
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_hfss import PostProcessorHFSS
+        >>> obj = PostProcessorHFSS()
+        >>> obj.create_fieldplot_layers(layers=["TOP"], quantity=1)
         """
         return self.post_3dlayout.create_fieldplot_layers(
             layers, quantity, setup, nets, plot_on_surface, intrinsics, name
@@ -489,6 +536,12 @@ class PostProcessorHFSS(PostProcessor3D, PyAedtBase):
         References
         ----------
         >>> oModule.CreateFieldPlot
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_hfss import PostProcessorHFSS
+        >>> obj = PostProcessorHFSS()
+        >>> obj.create_fieldplot_layers_nets(layers_nets=["TOP"], quantity=1)
         """
         return self.post_3dlayout.create_fieldplot_layers_nets(
             layers_nets, quantity, setup, intrinsics, plot_on_surface, plot_name

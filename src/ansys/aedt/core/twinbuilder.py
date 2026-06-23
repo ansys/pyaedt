@@ -161,7 +161,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_schematic_from_netlist(self, input_file: str) -> bool:
-        """Create a circuit schematic from an HSpice net list.
+        r"""Create a circuit schematic from an HSpice net list.
 
         Supported currently are:
 
@@ -182,6 +182,11 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.twinbuilder import TwinBuilder
+        >>> obj = TwinBuilder()
+        >>> obj.create_schematic_from_netlist(input_file=r"C:\Temp\circuit.sp")
         """
         xpos = 0
         ypos = 0
@@ -254,6 +259,12 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         References
         ----------
         >>> oDesign.ChangeProperty
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.twinbuilder import TwinBuilder
+        >>> obj = TwinBuilder()
+        >>> obj.set_end_time(expression="dB(S(1,1))")
         """
         self.set_sim_setup_parameter("Tend", expression)
         return True
@@ -275,6 +286,12 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         References
         ----------
         >>> oDesign.ChangeProperty
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.twinbuilder import TwinBuilder
+        >>> obj = TwinBuilder()
+        >>> obj.set_hmin(expression="dB(S(1,1))")
         """
         self.set_sim_setup_parameter("Hmin", expression)
         return True
@@ -296,6 +313,12 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         References
         ----------
         >>> oDesign.ChangeProperty
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.twinbuilder import TwinBuilder
+        >>> obj = TwinBuilder()
+        >>> obj.set_hmax(expression="dB(S(1,1))")
         """
         self.set_sim_setup_parameter("Hmax", expression)
         return True
@@ -323,6 +346,12 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         References
         ----------
         >>> oDesign.ChangeProperty
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.twinbuilder import TwinBuilder
+        >>> obj = TwinBuilder()
+        >>> obj.set_sim_setup_parameter(variable=1, expression="dB(S(1,1))")
         """
         if isinstance(expression, Variable):
             value_str = expression.evaluated_value

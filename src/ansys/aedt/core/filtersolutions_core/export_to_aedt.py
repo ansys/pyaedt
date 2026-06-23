@@ -1015,7 +1015,7 @@ class ExportToAedt:
         export_format: ExportFormat = None,
         export_creation_mode: ExportCreationMode = None,
         export_path: str = None,
-    ) -> "Circuit" | "Hfss" | "Hfss3dLayout" | None:
+    ) -> "Circuit | Hfss | Hfss3dLayout | None":
         """Export the design directly to ``AEDT`` or generate a ``Python`` script for exporting.
 
         When exporting to ``AEDT``, the design can either be appended to an existing project or overwrite it.
@@ -1033,7 +1033,7 @@ class ExportToAedt:
         export_format : `ExportFormat`
             The export format type.
             The default is ``None``.
-        design_creation_mode : `ExportCreationMode`
+        export_creation_mode : `ExportCreationMode`
             The design creation mode.
             The default is ``None``.
         export_path : str

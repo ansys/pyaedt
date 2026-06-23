@@ -117,6 +117,12 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         -------
         str
            Model units, such as ``"mm"``.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+        >>> obj = PostProcessor3D()
+        >>> obj.model_units
         """
         return self._app.units.length
 
@@ -128,6 +134,12 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         -------
         type
             Solution module.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+        >>> obj = PostProcessor3D()
+        >>> obj.post_osolution
         """
         return self._post_osolution
 
@@ -142,6 +154,12 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         References
         ----------
         >>> oDesign.GetModule("FieldsReporter")
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+        >>> obj = PostProcessor3D()
+        >>> obj.ofieldsreporter
         """
         return self._app.ofieldsreporter
 
@@ -153,6 +171,12 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         -------
         str
             Field plot names.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+        >>> obj = PostProcessor3D()
+        >>> obj.field_plot_names
         """
         return self._app.ofieldsreporter.GetChildNames()
 
@@ -379,6 +403,12 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         References
         ----------
         >>> oDesign.ChangeProperty
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+        >>> obj = PostProcessor3D()
+        >>> obj.change_field_property(plot_name=1, property_name=1, property_value=1)
         """
         self._odesign.ChangeProperty(
             [
@@ -913,7 +943,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
     def export_field_plot(
         self, plot_name: str, output_dir: str | Path, file_name: str = "", file_format: str = "aedtplt"
     ) -> str | bool:
-        """Export a field plot.
+        r"""Export a field plot.
 
         .. note:
            This method works only when the plot is active when it is run.
@@ -937,6 +967,12 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         References
         ----------
         >>> oModule.ExportFieldPlot
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+        >>> obj = PostProcessor3D()
+        >>> obj.export_field_plot(plot_name=1, output_dir=r"C:\Temp\example.txt")
         """
         if not file_name:
             file_name = plot_name
@@ -1130,6 +1166,12 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         References
         ----------
         >>> oModule.CreateFieldPlot
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+        >>> obj = PostProcessor3D()
+        >>> obj.create_fieldplot_surface(assignment="Box1", quantity=1)
         """
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info(f"Plot {plot_name} exists. returning the object.")
@@ -1279,6 +1321,12 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         References
         ----------
         >>> oModule.CreateFieldPlot
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+        >>> obj = PostProcessor3D()
+        >>> obj.create_fieldplot_volume(assignment="Box1", quantity=1)
         """
         assignment = self._app.modeler.convert_to_selections(assignment, True)
 
@@ -1322,7 +1370,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         show_ruler: bool = True,
         show_region: str = "Default",
     ) -> bool:
-        """Export a field plot and coordinate system to a JPG file.
+        r"""Export a field plot and coordinate system to a JPG file.
 
         Parameters
         ----------
@@ -1365,6 +1413,12 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         ----------
         >>> oModule.ExportPlotImageToFile
         >>> oModule.ExportModelImageToFile
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+        >>> obj = PostProcessor3D()
+        >>> obj.export_field_jpg(file_name=r"C:\Temp\example.txt", plot_name=1, folder_name=r"C:\Temp\example.txt")
         """
         if self.post_solution_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
             wireframes = []
@@ -1424,6 +1478,12 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         References
         ----------
         >>> oModule.DeleteFieldPlot
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+        >>> obj = PostProcessor3D()
+        >>> obj.delete_field_plot(name="MyObject")
         """
         self.ofieldsreporter.DeleteFieldPlot([name])
         self.field_plots.pop(name, None)
@@ -1557,7 +1617,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         export_as_multiple_objects: bool = False,
         air_objects: bool = False,
     ) -> list[str]:
-        """Export the model.
+        r"""Export the model.
 
         Parameters
         ----------
@@ -1576,6 +1636,12 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         -------
         list
             Paths for OBJ files.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+        >>> obj = PostProcessor3D()
+        >>> obj.export_model_obj(assignment="Box1", export_path=r"C:\Temp\example.txt")
         """
         if assignment and not isinstance(assignment, (list, tuple)):
             assignment = [assignment]
@@ -1730,6 +1796,12 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         -------
         :class:`IPython.core.display.Image`
             Jupyter notebook image.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+        >>> obj = PostProcessor3D()
+        >>> obj.nb_display(show_axis=True, show_grid=True)
         """
         try:
             from IPython.display import Image
@@ -1764,6 +1836,12 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         -------
         np.ndarray
             Numpy array containing ``[theta_range, phi_range, Etheta, Ephi]``.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+        >>> obj = PostProcessor3D()
+        >>> obj.get_efields_data(setup_sweep_name=1, ff_setup=1)
         """
         if not setup_sweep_name:
             setup_sweep_name = self._app.nominal_adaptive
@@ -1851,6 +1929,12 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         -------
         :class:`ansys.aedt.core.generic.plot.ModelPlotter`
             Model Object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+        >>> obj = PostProcessor3D()
+        >>> obj.get_model_plotter_geometries(objects=["Box1"], plot_as_separate_objects=True)
         """
         from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 
@@ -1932,6 +2016,12 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         -------
         :class:`ansys.aedt.core.generic.plot.ModelPlotter`
             Model Object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+        >>> obj = PostProcessor3D()
+        >>> obj.plot_model_obj(objects=["Box1"], show=True)
         """
         model = self.get_model_plotter_geometries(
             objects=objects,
@@ -2038,6 +2128,12 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         -------
         :class:`ansys.aedt.core.generic.plot.ModelPlotter`
             Model Object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+        >>> obj = PostProcessor3D()
+        >>> obj.plot_field_from_fieldplot(plot_name=1)
         """
         is_pcb = False
         if self._app.solution_type in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
@@ -2189,6 +2285,12 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         -------
         :class:`ansys.aedt.core.visualization.plot.pyvista.ModelPlotter`
             Model Object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+        >>> obj = PostProcessor3D()
+        >>> obj.plot_field(quantity=1, assignment="Box1")
         """
         intrinsics = self._check_intrinsics(intrinsics, setup=setup)
         if filter_objects is None:
@@ -2331,6 +2433,12 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         -------
         :class:`ansys.aedt.core.generic.plot.ModelPlotter`
             Model Object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+        >>> obj = PostProcessor3D()
+        >>> obj.plot_animated_field(quantity=1, assignment="Box1")
         """
         if isinstance(export_path, Path):
             export_path = str(export_path)
@@ -2444,6 +2552,12 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         -------
         :class:`ansys.aedt.core.generic.plot.ModelPlotter`
             Model Object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+        >>> obj = PostProcessor3D()
+        >>> obj.animate_fields_from_aedtplt(plot_name=1)
         """
         if isinstance(project_path, Path):
             project_path = str(project_path)
@@ -2527,6 +2641,12 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         -------
          bool
              ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+        >>> obj = PostProcessor3D()
+        >>> obj.create_3d_plot(solution_data=1)
         """
         if nominal_value:
             solution_data.intrinsics[nominal_sweep] = nominal_value
@@ -2550,7 +2670,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         convert_fields_in_db: bool = False,
         log_multiplier: float = 10.0,
     ) -> bool:
-        """Plot the current model 3D scene with overlapping animation coming from a file list and save the gif.
+        r"""Plot the current model 3D scene with overlapping animation coming from a file list and save the gif.
 
         Parameters
         ----------
@@ -2581,6 +2701,12 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
 
         Returns
         -------
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+        >>> obj = PostProcessor3D()
+        >>> obj.plot_scene(frames=["Box1"], gif_path=r"C:\Temp\example.txt")
         """
         if isinstance(frames, str) and Path(frames).exists():
             with open_file(frames, "r") as f:
@@ -2654,6 +2780,12 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
 
               - A tuple of three floats representing the (x, y, z) coordinates of the maximum point.
               - A float representing the value associated with the maximum point.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+        >>> obj = PostProcessor3D()
+        >>> obj.get_field_extremum(assignment="Box1", max_min=1, location=1, field=1)
         """
         if assignment not in self._app.modeler.object_names:
             raise ValueError(f"Object '{assignment}' does not exist.")

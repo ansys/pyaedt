@@ -163,6 +163,11 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.maxwellcircuit import MaxwellCircuit
+        >>> obj = MaxwellCircuit()
+        >>> obj.create_schematic_from_netlist(r"C:\\Temp\\rectifier.sp")
         """
         xpos = 0
         ypos = 0

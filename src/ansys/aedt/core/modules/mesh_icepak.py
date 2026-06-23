@@ -59,6 +59,12 @@ class CommonRegion(PyAedtBase):
         Returns
         -------
         List[str]
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import CommonRegion
+        >>> obj = CommonRegion()
+        >>> obj.padding_types
         """
         self._update_region_data()
         return self._padding_type
@@ -73,6 +79,12 @@ class CommonRegion(PyAedtBase):
         Returns
         -------
         List[Union[str, float]]
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import CommonRegion
+        >>> obj = CommonRegion()
+        >>> obj.padding_values
         """
         self._update_region_data()
         return self._padding_value
@@ -85,6 +97,12 @@ class CommonRegion(PyAedtBase):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import CommonRegion
+        >>> obj = CommonRegion()
+        >>> obj.positive_x_padding_type
         """
         return self._get_region_data("+X")
 
@@ -96,6 +114,12 @@ class CommonRegion(PyAedtBase):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import CommonRegion
+        >>> obj = CommonRegion()
+        >>> obj.negative_x_padding_type
         """
         return self._get_region_data("-X")
 
@@ -107,6 +131,12 @@ class CommonRegion(PyAedtBase):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import CommonRegion
+        >>> obj = CommonRegion()
+        >>> obj.positive_y_padding_type
         """
         return self._get_region_data("+Y")
 
@@ -118,6 +148,12 @@ class CommonRegion(PyAedtBase):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import CommonRegion
+        >>> obj = CommonRegion()
+        >>> obj.negative_y_padding_type
         """
         return self._get_region_data("-Y")
 
@@ -129,6 +165,12 @@ class CommonRegion(PyAedtBase):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import CommonRegion
+        >>> obj = CommonRegion()
+        >>> obj.positive_z_padding_type
         """
         return self._get_region_data("+Z")
 
@@ -140,6 +182,12 @@ class CommonRegion(PyAedtBase):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import CommonRegion
+        >>> obj = CommonRegion()
+        >>> obj.negative_z_padding_type
         """
         return self._get_region_data("-Z")
 
@@ -151,6 +199,12 @@ class CommonRegion(PyAedtBase):
         Returns
         -------
         float
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import CommonRegion
+        >>> obj = CommonRegion()
+        >>> obj.positive_x_padding
         """
         return self._get_region_data("+X", False)
 
@@ -162,6 +216,12 @@ class CommonRegion(PyAedtBase):
         Returns
         -------
         float
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import CommonRegion
+        >>> obj = CommonRegion()
+        >>> obj.negative_x_padding
         """
         return self._get_region_data("-X", False)
 
@@ -173,6 +233,12 @@ class CommonRegion(PyAedtBase):
         Returns
         -------
         float
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import CommonRegion
+        >>> obj = CommonRegion()
+        >>> obj.positive_y_padding
         """
         return self._get_region_data("+Y", False)
 
@@ -184,6 +250,12 @@ class CommonRegion(PyAedtBase):
         Returns
         -------
         float
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import CommonRegion
+        >>> obj = CommonRegion()
+        >>> obj.negative_y_padding
         """
         return self._get_region_data("-Y", False)
 
@@ -195,6 +267,12 @@ class CommonRegion(PyAedtBase):
         Returns
         -------
         float
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import CommonRegion
+        >>> obj = CommonRegion()
+        >>> obj.positive_z_padding
         """
         return self._get_region_data("+Z", False)
 
@@ -206,6 +284,12 @@ class CommonRegion(PyAedtBase):
         Returns
         -------
         float
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import CommonRegion
+        >>> obj = CommonRegion()
+        >>> obj.negative_z_padding
         """
         return self._get_region_data("-Z", False)
 
@@ -279,6 +363,12 @@ class CommonRegion(PyAedtBase):
         Returns
         -------
         ::class::modeler.cad.object_3d.Object3d
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import CommonRegion
+        >>> obj = CommonRegion()
+        >>> obj.object
         """
         if isinstance(self, Region):
             # use native apis instead of history() for performance reasons
@@ -298,6 +388,12 @@ class CommonRegion(PyAedtBase):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import CommonRegion
+        >>> obj = CommonRegion()
+        >>> obj.name
         """
         return self.object.name
 
@@ -343,7 +439,14 @@ class CommonRegion(PyAedtBase):
 
 
 class Region(CommonRegion):
-    """Provides Icepak global mesh region properties and methods."""
+    """Provides Icepak global mesh region properties and methods.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.mesh_icepak import Region
+    >>> obj = Region()
+
+    """
 
     def __init__(self, app) -> None:
         super(Region, self).__init__(app, None)
@@ -354,7 +457,14 @@ class Region(CommonRegion):
 
 
 class SubRegion(CommonRegion):
-    """Provides Icepak mesh subregions properties and methods."""
+    """Provides Icepak mesh subregions properties and methods.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.mesh_icepak import SubRegion
+    >>> obj = SubRegion()
+
+    """
 
     def __init__(self, app, parts, name: str | None = None) -> None:
         if name is None:
@@ -385,6 +495,12 @@ class SubRegion(CommonRegion):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import SubRegion
+        >>> obj = SubRegion()
+        >>> obj.create(padding_values=[1, 2, 3], padding_types=["Box1"], region_name=1, parts=["Box1"])
         """
         try:
             if (
@@ -409,6 +525,12 @@ class SubRegion(CommonRegion):
         -------
         bool
            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import SubRegion
+        >>> obj = SubRegion()
+        >>> obj.delete()
         """
         try:
             self.object.delete()
@@ -428,6 +550,18 @@ class SubRegion(CommonRegion):
         -------
         dict
             Dictionary with the part names as keys and ::class::modeler.cad.object_3d.Object3d as values.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import SubRegion
+        >>> obj = SubRegion()
+        >>> obj.parts()
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import SubRegion
+        >>> obj = SubRegion()
+        >>> obj.parts
         """
         if self.object:
             history = self.object.history().properties
@@ -452,6 +586,12 @@ class MeshSettings(PyAedtBase):
 
     It can be used like a dictionary. Available keys change according
     to the type of settings chosen (manual or automatic).
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.mesh_icepak import MeshSettings
+    >>> obj = MeshSettings()
+
     """
 
     _automatic_mesh_settings = {
@@ -516,6 +656,12 @@ class MeshSettings(PyAedtBase):
         -------
         List
             Arguments to pass to native APIs.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import MeshSettings
+        >>> obj = MeshSettings()
+        >>> obj.parse_settings_as_args()
         """
         out = []
         for k, v in self._instance_settings.items():
@@ -533,6 +679,12 @@ class MeshSettings(PyAedtBase):
         -------
         dict
             Settings of the subregion.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import MeshSettings
+        >>> obj = MeshSettings()
+        >>> obj.parse_settings_as_dictionary()
         """
         out = {}
         for k in self.keys():
@@ -549,6 +701,12 @@ class MeshSettings(PyAedtBase):
         -------
         dict_keys
             Available settings keys.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import MeshSettings
+        >>> obj = MeshSettings()
+        >>> obj.keys()
         """
         if self._mesh_class.manual_settings:
             return set(self._manual_mesh_settings.keys()) | set(self._common_mesh_settings.keys())
@@ -562,6 +720,12 @@ class MeshSettings(PyAedtBase):
         -------
         dict_values
             Settings values.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import MeshSettings
+        >>> obj = MeshSettings()
+        >>> obj.values()
         """
         return self.parse_settings_as_dictionary().values()
 
@@ -573,6 +737,12 @@ class MeshSettings(PyAedtBase):
         -------
         dict_items
             Settings items.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import MeshSettings
+        >>> obj = MeshSettings()
+        >>> obj.items()
         """
         return self.parse_settings_as_dictionary().items()
 
@@ -636,6 +806,12 @@ class MeshRegionCommon(BinaryTreeNode, PyAedtBase):
             Whether to use manual settings. If ``False``, automatic settings are used.
         settings : :class:`modules.mesh_icepak.MeshSettings`
             Dictionary-like object to handle settings.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.mesh_icepak import MeshRegionCommon
+    >>> obj = MeshRegionCommon()
+
     """
 
     def __init__(self, units, app, name: str) -> None:
@@ -667,15 +843,39 @@ class MeshRegionCommon(BinaryTreeNode, PyAedtBase):
 
     @abstractmethod
     def update(self) -> bool:
-        """Update the mesh region object."""
+        """Update the mesh region object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import MeshRegionCommon
+        >>> obj = MeshRegionCommon()
+        >>> obj.update()
+
+        """
 
     @abstractmethod
     def delete(self) -> bool:
-        """Delete the mesh region object."""
+        """Delete the mesh region object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import MeshRegionCommon
+        >>> obj = MeshRegionCommon()
+        >>> obj.delete()
+
+        """
 
     @abstractmethod
     def create(self) -> bool:
-        """Create the mesh region object."""
+        """Create the mesh region object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import MeshRegionCommon
+        >>> obj = MeshRegionCommon()
+        >>> obj.create()
+
+        """
 
     @pyaedt_function_handler()
     def _initialize_tree_node(self) -> bool:
@@ -737,7 +937,14 @@ class MeshRegionCommon(BinaryTreeNode, PyAedtBase):
 
 
 class GlobalMeshRegion(MeshRegionCommon):
-    """Provides Icepak global mesh properties and methods."""
+    """Provides Icepak global mesh properties and methods.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.mesh_icepak import GlobalMeshRegion
+    >>> obj = GlobalMeshRegion()
+
+    """
 
     def __init__(self, app) -> None:
         self.global_region = Region(app)
@@ -749,7 +956,14 @@ class GlobalMeshRegion(MeshRegionCommon):
 
     @property
     def name(self) -> str:
-        """Mesh region name."""
+        """Mesh region name.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import GlobalMeshRegion
+        >>> obj = GlobalMeshRegion()
+        >>> obj.name
+        """
         return "Global"
 
     @pyaedt_function_handler
@@ -764,6 +978,12 @@ class GlobalMeshRegion(MeshRegionCommon):
         References
         ----------
         >>> oModule.EditGlobalMeshRegion
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import GlobalMeshRegion
+        >>> obj = GlobalMeshRegion()
+        >>> obj.update()
         """
         args = ["NAME:Settings"]
         args += self.settings.parse_settings_as_args()
@@ -778,16 +998,37 @@ class GlobalMeshRegion(MeshRegionCommon):
 
     @property
     def Objects(self) -> str:
-        """Get the region object from the modeler."""
+        """Get the region object from the modeler.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import GlobalMeshRegion
+        >>> obj = GlobalMeshRegion()
+        >>> obj.Objects
+        """
         return self.global_region.name
 
     def delete(self) -> None:
-        """Delete the region object in the modeler."""
+        """Delete the region object in the modeler.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import GlobalMeshRegion
+        >>> obj = GlobalMeshRegion()
+        >>> obj.delete()
+        """
         self.global_region.object.delete()
         self.global_region = None
 
     def create(self) -> bool:
-        """Create the region object in the modeler."""
+        """Create the region object in the modeler.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import GlobalMeshRegion
+        >>> obj = GlobalMeshRegion()
+        >>> obj.create()
+        """
         self.delete()
         self.global_region = Region(self._app)
         self.global_region.create(self.padding_types, self.padding_values)
@@ -795,7 +1036,14 @@ class GlobalMeshRegion(MeshRegionCommon):
 
 
 class MeshRegion(MeshRegionCommon):
-    """Provides Icepak subregions mesh properties and methods."""
+    """Provides Icepak subregions mesh properties and methods.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.mesh_icepak import MeshRegion
+    >>> obj = MeshRegion()
+
+    """
 
     def __init__(self, app, objects=None, name: str | None = None, **kwargs) -> None:
         if name is None:
@@ -846,6 +1094,12 @@ class MeshRegion(MeshRegionCommon):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import MeshRegion
+        >>> obj = MeshRegion()
+        >>> obj.name
         """
         if self._child_object:
             self._name = str(self.properties["Name"])
@@ -881,6 +1135,12 @@ class MeshRegion(MeshRegionCommon):
         References
         ----------
         >>> oModule.EditMeshRegion
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import MeshRegion
+        >>> obj = MeshRegion()
+        >>> obj.update()
         """
         args = ["NAME:" + self.name, "Enable:=", self.enable]
         args += self.settings.parse_settings_as_args()
@@ -904,6 +1164,12 @@ class MeshRegion(MeshRegionCommon):
         References
         ----------
         >>> oModule.DeleteMeshRegions()
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import MeshRegion
+        >>> obj = MeshRegion()
+        >>> obj.delete()
         """
         self._app.omeshmodule.DeleteMeshRegions([self.name])
         self._app.mesh.meshregions.remove(self)
@@ -917,6 +1183,12 @@ class MeshRegion(MeshRegionCommon):
         Returns
         -------
         list
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import MeshRegion
+        >>> obj = MeshRegion()
+        >>> obj.assignment
         """
         if isinstance(self._assignment, SubRegion):
             mesh_oo = self._app.get_oo_object(self._app.odesign, "Mesh")
@@ -979,6 +1251,12 @@ class MeshRegion(MeshRegionCommon):
         References
         ----------
         >>> oModule.AssignMeshRegion
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import MeshRegion
+        >>> obj = MeshRegion()
+        >>> obj.create()
         """
         if self.name == "Settings":
             self._app.logger.error("Cannot create a new mesh region with this Name")
@@ -1001,6 +1279,12 @@ class IcepakMesh(PyAedtBase):
     Parameters
     ----------
     app : :class:`ansys.aedt.core.application.analysis_3d.FieldAnalysis3D`
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.mesh_icepak import IcepakMesh
+    >>> obj = IcepakMesh()
+
     """
 
     def __init__(self, app) -> None:
@@ -1040,6 +1324,12 @@ class IcepakMesh(PyAedtBase):
         -------
         dict
             Dictionary with mesh region names as keys and mesh region objects as values.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import IcepakMesh
+        >>> obj = IcepakMesh()
+        >>> obj.meshregions_dict
         """
         return {mr.name: mr for mr in self.meshregions}
 
@@ -1056,12 +1346,25 @@ class IcepakMesh(PyAedtBase):
         References
         ----------
         >>> oDesign.GetModule("MeshRegion")
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import IcepakMesh
+        >>> obj = IcepakMesh()
+        >>> obj.omeshmodule
         """
         return self._app.omeshmodule
 
     @property
     def boundingdimension(self) -> list:
-        """Bounding dimension."""
+        """Bounding dimension.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import IcepakMesh
+        >>> obj = IcepakMesh()
+        >>> obj.boundingdimension
+        """
         return self._modeler.get_bounding_dimension()
 
     @pyaedt_function_handler()
@@ -1168,6 +1471,12 @@ class IcepakMesh(PyAedtBase):
         References
         ----------
         >>> oModule.AssignMeshOperation
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import IcepakMesh
+        >>> obj = IcepakMesh()
+        >>> obj.assign_mesh_level(mesh_order={"Name": "Value"})
         """
         level_order = {}
         for obj in mesh_order:
@@ -1189,7 +1498,7 @@ class IcepakMesh(PyAedtBase):
 
     @pyaedt_function_handler()
     def assign_mesh_from_file(self, assignment: list, file_name: str, name: str = None) -> MeshOperation | bool:
-        """Assign a mesh from a file to objects.
+        r"""Assign a mesh from a file to objects.
 
         Parameters
         ----------
@@ -1208,6 +1517,12 @@ class IcepakMesh(PyAedtBase):
         References
         ----------
         >>> oModule.AssignMeshOperation
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import IcepakMesh
+        >>> obj = IcepakMesh()
+        >>> obj.assign_mesh_from_file(assignment="Box1", file_name=r"C:\Temp\example.txt")
         """
         objs = self._app.modeler.convert_to_selections(assignment, True)
         if name:
@@ -1334,6 +1649,12 @@ class IcepakMesh(PyAedtBase):
         References
         ----------
         >>> oModule.AssignMeshRegion
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import IcepakMesh
+        >>> obj = IcepakMesh()
+        >>> obj.assign_mesh_region(assignment="Box1", name="MyObject")
         """
         if not name:
             name = generate_unique_name("MeshRegion")
@@ -1374,6 +1695,12 @@ class IcepakMesh(PyAedtBase):
         References
         ----------
         >>> oDesign.GenerateMesh
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import IcepakMesh
+        >>> obj = IcepakMesh()
+        >>> obj.generate_mesh(name="MyObject")
         """
         if name is None:
             name = []
@@ -1410,6 +1737,12 @@ class IcepakMesh(PyAedtBase):
         References
         ----------
         >>> oModule.AssignMeshOperation
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import IcepakMesh
+        >>> obj = IcepakMesh()
+        >>> obj.assign_mesh_level_to_group(mesh_level=1, group_name=1)
         """
         if name:
             for el in self.meshoperations:
@@ -1433,7 +1766,7 @@ class IcepakMesh(PyAedtBase):
         return mop
 
     def assign_mesh_reuse(self, assignment: list, mesh_file: str, name: str = None) -> MeshOperation | bool:
-        """Assign a mesh file to objects.
+        r"""Assign a mesh file to objects.
 
         Parameters
         ----------
@@ -1452,6 +1785,12 @@ class IcepakMesh(PyAedtBase):
         References
         ----------
         >>> oModule.AssignMeshOperation
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.mesh_icepak import IcepakMesh
+        >>> obj = IcepakMesh()
+        >>> obj.assign_mesh_reuse(assignment="Box1", mesh_file=r"C:\Temp\example.txt")
         """
         if not os.path.exists(mesh_file):
             self._app.logger.error("Mesh file does not exist.")

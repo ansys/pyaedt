@@ -44,12 +44,26 @@ class MaxwellCircuitComponents(CircuitComponents, PyAedtBase):
 
     @property
     def design_libray(self) -> str:
-        """Design Library."""
+        """Design Library.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_maxwell_circuit import MaxwellCircuitComponents
+        >>> obj = MaxwellCircuitComponents()
+        >>> obj.design_libray
+        """
         return "Maxwell Circuit Elements"
 
     @property
     def tab_name(self) -> str:
-        """Tab name."""
+        """Tab name.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_maxwell_circuit import MaxwellCircuitComponents
+        >>> obj = MaxwellCircuitComponents()
+        >>> obj.tab_name
+        """
         return "PassedParameterTab"
 
     @pyaedt_function_handler()

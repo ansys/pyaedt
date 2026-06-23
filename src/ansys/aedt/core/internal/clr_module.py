@@ -40,7 +40,7 @@ def custom_show_warning(message, category, filename, lineno, file=None, line=Non
     Examples
     --------
     >>> from ansys.aedt.core.internal.clr_module import custom_show_warning
-    >>> custom_show_warning(...)
+    >>> custom_show_warning("CLR runtime not found", UserWarning, "example.py", 1)
     """
     print(f"{category.__name__}: {message}", file=file or sys.stderr)
 

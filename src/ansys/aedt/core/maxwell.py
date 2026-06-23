@@ -77,6 +77,12 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         References
         ----------
         >>> oModule.GetSymmetryMultiplier()
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.maxwell import Maxwell
+        >>> obj = Maxwell()
+        >>> obj.symmetry_multiplier
         """
         return int(self.omodelsetup.GetSymmetryMultiplier())
 
@@ -87,13 +93,26 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         References
         ----------
         >>> oModule.GetExcitationsOfType("Winding Group")
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.maxwell import Maxwell
+        >>> obj = Maxwell()
+        >>> obj.windings
         """
         windings = self.oboundary.GetExcitationsOfType("Winding Group")
         return list(windings)
 
     @property
     def design_file(self):
-        """Design file."""
+        """Design file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.maxwell import Maxwell
+        >>> obj = Maxwell()
+        >>> obj.design_file
+        """
         design_file = Path(self.working_directory) / "design_data.json"
         return design_file
 
@@ -2220,6 +2239,12 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         References
         ----------
         >>> odesign.EnableHarmonicForceCalculation
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.maxwell import Maxwell
+        >>> obj = Maxwell()
+        >>> obj.enable_harmonic_force_on_layout_component("LC1", {"VCC": ["TOP", "BOTTOM"]}, force_type=0)
         """
         maxwell_solutions = SolutionsMaxwell3D
         if self.solution_type not in [
@@ -2808,7 +2833,14 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
 
     @property  # for legacy purposes
     def dim(self) -> str:
-        """Dimensions."""
+        """Dimensions.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.maxwell import Maxwell3d
+        >>> obj = Maxwell3d()
+        >>> obj.dim
+        """
         return "3D"
 
     @pyaedt_function_handler()
@@ -3866,7 +3898,14 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, PyAedtBase):
 
     @property  # for legacy purposes
     def dim(self) -> str:
-        """Dimensions."""
+        """Dimensions.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.maxwell import Maxwell2d
+        >>> obj = Maxwell2d()
+        >>> obj.dim
+        """
         return self.modeler.dimension
 
     @property
@@ -3876,6 +3915,12 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, PyAedtBase):
         References
         ----------
         >>> oDesign.GetGeometryMode
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.maxwell import Maxwell2d
+        >>> obj = Maxwell2d()
+        >>> obj.geometry_mode
         """
         return self.odesign.GetGeometryMode()
 
@@ -3921,7 +3966,14 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, PyAedtBase):
 
     @property
     def xy_plane(self) -> bool:
-        """Maxwell 2D plane between ``True`` and ``False``."""
+        """Maxwell 2D plane between ``True`` and ``False``.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.maxwell import Maxwell2d
+        >>> obj = Maxwell2d()
+        >>> obj.xy_plane
+        """
         return self.design_solutions.xy_plane
 
     @xy_plane.setter
@@ -3930,7 +3982,14 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, PyAedtBase):
 
     @property
     def model_depth(self):
-        """Model depth."""
+        """Model depth.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.maxwell import Maxwell2d
+        >>> obj = Maxwell2d()
+        >>> obj.model_depth
+        """
         design_settings = self.design_settings
         if "ModelDepth" in design_settings:
             value_str = design_settings["ModelDepth"]

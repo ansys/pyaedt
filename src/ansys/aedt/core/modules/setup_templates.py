@@ -39,6 +39,10 @@ def HFSS3DLayout_AdaptiveFrequencyData(freq):
     list
         List of frequency data.
 
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.setup_templates import HFSS3DLayout_AdaptiveFrequencyData
+    >>> HFSS3DLayout_AdaptiveFrequencyData(1.0)
     """
     value = dict({"AdaptiveFrequency": freq, "MaxDelta": "0.02", "MaxPasses": 10, "Expressions": []})
     return value
@@ -1575,7 +1579,13 @@ RmxprtDefault = dict(
 """RMxprt Default setup properties and default values."""
 
 GRM = copy.deepcopy(RmxprtDefault)
-"""RMxprt GRM Generic Rotating Machine setup properties and default values."""
+"""RMxprt GRM Generic Rotating Machine setup properties and default values.
+
+Examples
+--------
+>>> from ansys.aedt.core.modules.setup_templates import GRM
+>>> GRM
+"""
 
 GRM["RatedPowerFactor"] = "0.8"
 GRM["Frequency"] = "60Hz"
@@ -1601,11 +1611,23 @@ TPIM = copy.deepcopy(RmxprtDefault)
 TPIM["Frequency"] = "60Hz"
 TPIM["WindingConnection"] = 0
 
-"""RMxprt TPIM Three-Phase Induction Machine setup properties."""
+"""RMxprt TPIM Three-Phase Induction Machine setup properties.
+
+Examples
+--------
+>>> from ansys.aedt.core.modules.setup_templates import TPIM
+>>> TPIM
+"""
 SPIM = copy.deepcopy(RmxprtDefault)
 SPIM["Frequency"] = "60Hz"
 
-"""RMxprt SPIM Single-Phase Induction Machine setup properties."""
+"""RMxprt SPIM Single-Phase Induction Machine setup properties.
+
+Examples
+--------
+>>> from ansys.aedt.core.modules.setup_templates import SPIM
+>>> SPIM
+"""
 
 TPSM = dict(
     {
@@ -1637,11 +1659,23 @@ ASSM = BLDC = PMDC = SRM = RmxprtDefault
 LSSM = copy.deepcopy(RmxprtDefault)
 LSSM["WindingConnection"] = False
 
-"""RMxprt LSSM Line-start Synchronous Machine setup properties."""
+"""RMxprt LSSM Line-start Synchronous Machine setup properties.
+
+Examples
+--------
+>>> from ansys.aedt.core.modules.setup_templates import LSSM
+>>> LSSM
+"""
 UNIM = copy.deepcopy(RmxprtDefault)
 UNIM["Frequency"] = "60Hz"
 
-"""RMxprt UNIM Universal Machine setup properties."""
+"""RMxprt UNIM Universal Machine setup properties.
+
+Examples
+--------
+>>> from ansys.aedt.core.modules.setup_templates import UNIM
+>>> UNIM
+"""
 
 DCM = dict(
     {
@@ -2139,7 +2173,15 @@ icepak_natural_convection_update = {
 
 
 class SetupKeys:
-    """Provides setup keys."""
+    """Provides setup keys.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.setup_templates import SetupKeys
+    >>> obj = SetupKeys()
+    >>> obj.SetupNames[0]
+    'HFSSDrivenAuto'
+    """
 
     SetupNames = [
         "HFSSDrivenAuto",
@@ -2333,7 +2375,11 @@ class SetupKeys:
         dict
             Dictionary containing the Icepak default setup for the chosen simulation type.
 
-
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.setup_templates import SetupKeys
+        >>> obj = SetupKeys()
+        >>> obj.get_default_icepak_template("Default")
         """
         icepak_setups_n = [11, 12, 13, 36, 37, 38]
         template = self.get_setup_templates()

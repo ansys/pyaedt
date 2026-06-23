@@ -75,7 +75,14 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
 
     @property
     def o_def_manager(self):
-        """AEDT Definition manager."""
+        """AEDT Definition manager.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
+        >>> obj = Modeler3DLayout()
+        >>> obj.o_def_manager
+        """
         return self._app.odefinition_manager
 
     @property
@@ -85,6 +92,12 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         Returns
         -------
         :class:`ansys.aedt.core.modules.layer_stackup.Layers`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
+        >>> obj = Modeler3DLayout()
+        >>> obj.stackup
         """
         return self.layers
 
@@ -95,17 +108,37 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         References
         ----------
         >>> oEditor = oDesign.SetActiveEditor("Layout")
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
+        >>> obj = Modeler3DLayout()
+        >>> obj.oeditor
         """
         return self._app.oeditor
 
     @property
     def ocomponent_manager(self):
-        """Component manager object."""
+        """Component manager object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
+        >>> obj = Modeler3DLayout()
+        >>> obj.ocomponent_manager
+        """
         return self._app.ocomponent_manager
 
     @property
     def omodel_manager(self):
-        """Model manager object."""
+        """Model manager object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
+        >>> obj = Modeler3DLayout()
+        >>> obj.omodel_manager
+        """
         return self._app.omodel_manager
 
     @property
@@ -125,6 +158,11 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         :class:`ansys.aedt.core.edb.Edb`
              EDB.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
+        >>> obj = Modeler3DLayout()
+        >>> obj.edb
         """
         if settings.remote_api or settings.remote_rpc_session:
             return self._edb
@@ -146,7 +184,14 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
 
     @property
     def logger(self):
-        """Logger."""
+        """Logger.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
+        >>> obj = Modeler3DLayout()
+        >>> obj.logger
+        """
         return self._app.logger
 
     @pyaedt_function_handler()
@@ -156,6 +201,12 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         References
         ----------
         >>> oEditor.ZoomToFit()
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
+        >>> obj = Modeler3DLayout()
+        >>> obj.fit_all()
         """
         try:
             self._desktop.RestoreWindow()
@@ -171,6 +222,12 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         ----------
         >>> oEditor.GetActiveUnits
         >>> oEditor.SetActiveUnits
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
+        >>> obj = Modeler3DLayout()
+        >>> obj.model_units
         """
         return self._app.units.length
 
@@ -190,6 +247,12 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         References
         ----------
         >>> oEditor.GetBBox
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
+        >>> obj = Modeler3DLayout()
+        >>> obj.obounding_box(assignment="Box1")
         """
         bb = self.oeditor.GetBBox(assignment)
         pll = bb.BBoxLL()
@@ -235,6 +298,12 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         References
         ----------
         >>> oEditor.ChangeProperty
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
+        >>> obj = Modeler3DLayout()
+        >>> obj.change_property(assignment="Box1", name="MyObject", value=1)
         """
         if isinstance(value, list) and len(value) == 3:
             xpos, ypos, zpos = self._pos_with_arg(value)
@@ -316,6 +385,12 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         -------
         :class:`ansys.aedt.core.modeler.Object3d.ComponentsSubCircuit3DLayout`
             Object if successful.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
+        >>> obj = Modeler3DLayout()
+        >>> obj.merge_design(merged_design=1, x=0)
         """
         des_name = merged_design.design_name
         merged_design.oproject.CopyDesign(des_name)
@@ -362,6 +437,12 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         References
         ----------
         >>> oEditor.ChangeProperty
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
+        >>> obj = Modeler3DLayout()
+        >>> obj.change_clip_plane_position(name="MyObject", location=["Box1"])
         """
         return self.change_property(name, "Location", location)
 
@@ -475,7 +556,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
 
     @pyaedt_function_handler()
     def import_cadence_brd(self, input_file: str, output_dir: str = None, name: str | None = None) -> bool:
-        """Import a cadence board.
+        r"""Import a cadence board.
 
         Parameters
         ----------
@@ -496,6 +577,12 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         References
         ----------
         >>> oImportExport.ImportExtracta
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
+        >>> obj = Modeler3DLayout()
+        >>> obj.import_cadence_brd(input_file=r"C:\Temp\example.txt")
         """
         if not output_dir:
             output_dir = self.projdir
@@ -520,6 +607,11 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         Returns
         -------
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
+        >>> obj = Modeler3DLayout()
+        >>> obj.modeler_variable(value=1)
         """
         if isinstance(value, str):
             return value
@@ -528,7 +620,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
 
     @pyaedt_function_handler()
     def import_ipc2581(self, input_file: str, output_dir: str = None, name: str | None = None) -> bool:
-        """Import an IPC file.
+        r"""Import an IPC file.
 
         Parameters
         ----------
@@ -549,6 +641,12 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         References
         ----------
         >>> oImportExport.ImportIPC
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
+        >>> obj = Modeler3DLayout()
+        >>> obj.import_ipc2581(input_file=r"C:\Temp\example.txt")
         """
         if not output_dir:
             output_dir = self.projdir
@@ -581,6 +679,12 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         References
         ----------
         >>> oEditor.Subtract
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
+        >>> obj = Modeler3DLayout()
+        >>> obj.subtract(blank=["Box1"], tool=["Box1"])
         """
         blank = self.convert_to_selections(blank)
         tool = self.convert_to_selections(tool, True)
@@ -612,6 +716,11 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         str or list
            String or list of the selections.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
+        >>> obj = Modeler3DLayout()
+        >>> obj.convert_to_selections(assignment="Box1")
         """
         if not isinstance(assignment, list):
             assignment = [assignment]
@@ -643,6 +752,12 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         References
         ----------
         >>> oEditor.Unite
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
+        >>> obj = Modeler3DLayout()
+        >>> obj.unite(assignment="Box1")
         """
         vArg1 = ["NAME:primitives"]
         if len(assignment) >= 2:
@@ -674,6 +789,12 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         References
         ----------
         >>> oEditor.Intersect
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
+        >>> obj = Modeler3DLayout()
+        >>> obj.intersect(assignment="Box1")
         """
         vArg1 = ["NAME:primitives"]
         if len(assignment) >= 2:
@@ -709,6 +830,12 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         References
         ----------
         >>> oEditor.Duplicate
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
+        >>> obj = Modeler3DLayout()
+        >>> obj.duplicate(assignment="Box1", count=1, vector=[1, 0, 0])
         """
         assignment = self.convert_to_selections(assignment, True)
 
@@ -735,6 +862,12 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         References
         ----------
         >>> oEditor.DuplicateAcrossLyrs
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
+        >>> obj = Modeler3DLayout()
+        >>> obj.duplicate_across_layers(assignment="Box1", layers=["TOP"])
         """
         assignment = self.convert_to_selections(assignment, True)
         self.cleanup_objects()
@@ -777,6 +910,12 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         References
         ----------
         >>> oDesign.SetTemperatureSettings
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
+        >>> obj = Modeler3DLayout()
+        >>> obj.set_temperature_dependence(include_temperature_dependence=True, enable_feedback=True)
         """
         self.logger.info("Set the temperature dependence for the design.")
         if create_project_var:
@@ -1233,6 +1372,12 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         -------
         str
             Name of newly created clip plane.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
+        >>> obj = Modeler3DLayout()
+        >>> obj.clip_plane()
         """
         names = self.clip_planes[::]
         new_name = generate_unique_name("VCP", n=3)
@@ -1248,6 +1393,12 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         Returns
         -------
         list[str]
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
+        >>> obj = Modeler3DLayout()
+        >>> obj.clip_planes
         """
         return [i for i in self.oeditor.FindObjects("Name", "VCP*")]
 
@@ -1268,6 +1419,12 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
+        >>> obj = Modeler3DLayout()
+        >>> obj.geometry_check_and_fix_all(min_area=1.0)
         """
         try:
             self.oeditor.GeometryCheckAndAutofix(

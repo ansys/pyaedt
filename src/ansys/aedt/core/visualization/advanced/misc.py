@@ -41,7 +41,14 @@ from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
 
 
 class BoxFacePointsAndFields(PyAedtBase):
-    """Data model class containing field component and coordinates."""
+    """Data model class containing field component and coordinates.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.advanced.misc import BoxFacePointsAndFields
+    >>> obj = BoxFacePointsAndFields()
+
+    """
 
     def __init__(self) -> None:
         self.x = []
@@ -51,13 +58,27 @@ class BoxFacePointsAndFields(PyAedtBase):
         self.im = {"Ex": [], "Ey": [], "Ez": [], "Hx": [], "Hy": [], "Hz": []}
 
     def set_xyz_points(self, x: float, y: float, z: float) -> None:
-        """Set X, Y, Z coordinates."""
+        """Set X, Y, Z coordinates.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.misc import BoxFacePointsAndFields
+        >>> obj = BoxFacePointsAndFields()
+        >>> obj.set_xyz_points(x=0, y=0, z=0)
+        """
         self.x = x
         self.y = y
         self.z = z
 
     def set_field_component(self, field_component: str, real: list, imag: list, invert: bool) -> None:
-        """Set Field component Real and imaginary parts."""
+        """Set Field component Real and imaginary parts.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.misc import BoxFacePointsAndFields
+        >>> obj = BoxFacePointsAndFields()
+        >>> obj.set_field_component(field_component=1, real=["Box1"], imag=["Box1"], invert=True)
+        """
         if field_component in self.re:
             if invert:
                 self.re[field_component] = [str(-float(i)) for i in real]
@@ -69,7 +90,14 @@ class BoxFacePointsAndFields(PyAedtBase):
             print("Error in set_field_component function.")
 
     def fill_empty_data(self) -> None:
-        """Fill empty data with zeros."""
+        """Fill empty data with zeros.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.misc import BoxFacePointsAndFields
+        >>> obj = BoxFacePointsAndFields()
+        >>> obj.fill_empty_data()
+        """
         for el, val in self.re.items():
             if not val:
                 zero_field_z_faces = [0] * len(self.x)
@@ -84,7 +112,7 @@ class BoxFacePointsAndFields(PyAedtBase):
 def convert_nearfield_data(
     dat_folder: str, frequency: int = 6, invert_phase_for_lower_faces: bool = True, output_folder: str = None
 ) -> str:
-    """Convert a near field data folder to hfss `nfd` file and link it to `and` file.
+    r"""Convert a near field data folder to hfss `nfd` file and link it to `and` file.
 
     Parameters
     ----------
@@ -102,6 +130,11 @@ def convert_nearfield_data(
     -------
     str
         Full path to `.and` file.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.advanced.misc import convert_nearfield_data
+    >>> convert_nearfield_data(dat_folder=r"C:\Temp\example.txt")
     """
     file_keys = ["xmin", "xmax", "ymin", "ymax", "zmin", "zmax"]
     components = {
@@ -216,7 +249,7 @@ def convert_nearfield_data(
 
 @pyaedt_function_handler()
 def convert_farfield_data(input_file: str | Path, output_file: str | Path = None) -> str:
-    """Convert a far field data file to hfss `ffd` file.
+    r"""Convert a far field data file to hfss `ffd` file.
 
     Parameters
     ----------
@@ -230,6 +263,11 @@ def convert_farfield_data(input_file: str | Path, output_file: str | Path = None
     -------
     str
         Full path to the converted `.ffd` file.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.advanced.misc import convert_farfield_data
+    >>> convert_farfield_data(input_file=r"C:\Temp\example.txt")
     """
     input_file = Path(input_file)
 
@@ -387,13 +425,18 @@ def __convert_ffe_data(input_file: str, output_file):
 
 @pyaedt_function_handler()
 def parse_rdat_file(file_path: str) -> dict:
-    """
+    r"""
     Parse Ansys report '.rdat' file.
 
     Returns
     -------
     dict
         Report data.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.advanced.misc import parse_rdat_file
+    >>> parse_rdat_file(file_path=r"C:\Temp\example.txt")
     """
     report_dict = {}
     # data = load_entire_aedt_file(file_path)
@@ -530,7 +573,7 @@ def preview_pyvista(dict_in: dict, decimation: int = 0, output_stls: list = None
 def simplify_and_preview_stl(
     input_file: str, output_file: str = None, decimation: float = 0.5, preview: bool = False
 ) -> str:
-    """Import and simplify a stl file using pyvista and fast-simplification.
+    r"""Import and simplify a stl file using pyvista and fast-simplification.
 
     Parameters
     ----------
@@ -549,6 +592,11 @@ def simplify_and_preview_stl(
     -------
     str
         Full path to output stl.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.advanced.misc import simplify_and_preview_stl
+    >>> simplify_and_preview_stl(input_file=r"C:\Temp\example.txt")
     """
     import pyvista as pv
 

@@ -55,12 +55,26 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
 
     @property
     def design_libray(self) -> str:
-        """Design Library."""
+        """Design Library.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_twin_builder import TwinBuilderComponents
+        >>> obj = TwinBuilderComponents()
+        >>> obj.design_libray
+        """
         return "Simplorer Elements"
 
     @property
     def tab_name(self) -> str:
-        """Tab name."""
+        """Tab name.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_twin_builder import TwinBuilderComponents
+        >>> obj = TwinBuilderComponents()
+        >>> obj.tab_name
+        """
         return "Quantities"
 
     @pyaedt_function_handler()
@@ -100,6 +114,12 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
         Returns
         -------
         :class:`ansys.aedt.core.modeler.cad.primitivesCircuit.ComponentCatalog`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_twin_builder import TwinBuilderComponents
+        >>> obj = TwinBuilderComponents()
+        >>> obj.components_catalog
         """
         if not self._components_catalog:
             self._components_catalog = ComponentCatalog(self)
@@ -107,7 +127,14 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
 
     @property
     def o_simmodel_manager(self):
-        """Simulation models manager object."""
+        """Simulation models manager object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_twin_builder import TwinBuilderComponents
+        >>> obj = TwinBuilderComponents()
+        >>> obj.o_simmodel_manager
+        """
         return self.o_definition_manager.GetManager("SimModel")
 
     @pyaedt_function_handler()
@@ -142,6 +169,12 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
         References
         ----------
         >>> oEditor.CreateComponent
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_twin_builder import TwinBuilderComponents
+        >>> obj = TwinBuilderComponents()
+        >>> obj.create_resistor(name="MyObject", value=1)
         """
         if location is None:
             location = []
@@ -191,6 +224,12 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
         References
         ----------
         >>> oEditor.CreateComponent
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_twin_builder import TwinBuilderComponents
+        >>> obj = TwinBuilderComponents()
+        >>> obj.create_inductor(name="MyObject", value=1)
         """
         if location is None:
             location = []
@@ -239,6 +278,12 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
         References
         ----------
         >>> oEditor.CreateComponent
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_twin_builder import TwinBuilderComponents
+        >>> obj = TwinBuilderComponents()
+        >>> obj.create_capacitor(name="MyObject", value=1)
         """
         if location is None:
             location = []
@@ -294,6 +339,12 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
         References
         ----------
         >>> oEditor.CreateComponent
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_twin_builder import TwinBuilderComponents
+        >>> obj = TwinBuilderComponents()
+        >>> obj.create_voltage_source(name="MyObject", source_type=1)
         """
         if location is None:
             location = []
@@ -344,6 +395,12 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
         References
         ----------
         >>> oEditor.CreateComponent
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_twin_builder import TwinBuilderComponents
+        >>> obj = TwinBuilderComponents()
+        >>> obj.create_diode(name="MyObject", location=[1, 2, 3])
         """
         if location is None:
             location = []
@@ -383,6 +440,12 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
         References
         ----------
         >>> oEditor.CreateComponent
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_twin_builder import TwinBuilderComponents
+        >>> obj = TwinBuilderComponents()
+        >>> obj.create_npn(name="MyObject", location=[1, 2, 3])
         """
         if location is None:
             location = []
@@ -422,6 +485,12 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
         References
         ----------
         >>> oEditor.CreateComponent
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_twin_builder import TwinBuilderComponents
+        >>> obj = TwinBuilderComponents()
+        >>> obj.create_pnp(name="MyObject", location=[1, 2, 3])
         """
         if location is None:
             location = []
@@ -485,6 +554,12 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
         References
         ----------
         >>> oEditor.CreateComponent
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_twin_builder import TwinBuilderComponents
+        >>> obj = TwinBuilderComponents()
+        >>> obj.create_periodic_waveform_source(name="MyObject", waveform_type=1)
         """
         if location is None:
             location = []

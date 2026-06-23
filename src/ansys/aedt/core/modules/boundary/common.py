@@ -195,7 +195,7 @@ def disable_auto_update(func: callable) -> callable:
     Examples
     --------
     >>> from ansys.aedt.core.modules.boundary.common import disable_auto_update
-    >>> disable_auto_update(...)
+    >>> disable_auto_update(func=1)
     """
 
     def wrapper(self, *args, **kwargs):
