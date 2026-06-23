@@ -22,7 +22,7 @@ The following table summarizes the most common behavior combinations:
 
 .. list-table::
    :header-rows: 1
-   :widths: 25 20 20 35
+   :widths: 35 35
 
    * - Usage
      - Result on exit
