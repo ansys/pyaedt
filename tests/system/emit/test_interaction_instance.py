@@ -87,13 +87,13 @@ def test_instance_get_value_with_unavailable_results(cell_phone):
 
     interaction = sim.run(domain)
     emi_instance = interaction.get_worst_instance(ResultType.EMI)
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         emi_instance.get_value(ResultType.DESENSE)
     assert "Desense and sensitivity values not available" in str(e.value)
 
     # Get worst instance for DESENSE - EMI should be marked as 30201
     desense_instance = interaction.get_worst_instance(ResultType.DESENSE)
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         desense_instance.get_value(ResultType.EMI)
     assert "EMI value not available" in str(e.value)
 

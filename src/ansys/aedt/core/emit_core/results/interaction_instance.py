@@ -62,7 +62,7 @@ class InteractionInstance:
         """
         error = self._check_validity()
         if error:
-            raise RuntimeError(f"Interaction instance is not valid: {error}")
+            raise ValueError(f"Interaction instance is not valid: {error}")
 
         warning = self.emit_project._emit_com_module.GetResultWarning(
             self.revision.results_index,
@@ -91,7 +91,7 @@ class InteractionInstance:
         """
         error = self._check_validity()
         if error:
-            raise RuntimeError(f"Interaction instance is not valid: {error}")
+            raise ValueError(f"Interaction instance is not valid: {error}")
 
         valid_values = self.emit_project._emit_com_module.HasValidResultValues(
             self.revision.results_index,
@@ -122,19 +122,19 @@ class InteractionInstance:
 
         Raises
         ------
-        RuntimeError
+        ValueError
             If the interaction is invalid or values are not available.
         """
         error = self._check_validity()
         if error:
-            raise RuntimeError(f"Interaction instance is not valid: {error}")
+            raise ValueError(f"Interaction instance is not valid: {error}")
 
         # For worst-case instances, check if the requested result type is available locally
         # (a worst-case EMI instance has _encoded_desense=30201 meaning "not available")
         if result_type == ResultType.EMI and self._encoded_emi == 30201:
-            raise RuntimeError("EMI value not available.")
+            raise ValueError("EMI value not available.")
         elif result_type in (ResultType.DESENSE, ResultType.SENSITIVITY) and self._encoded_desense == 30201:
-            raise RuntimeError("Desense and sensitivity values not available.")
+            raise ValueError("Desense and sensitivity values not available.")
 
         value = self.emit_project._emit_com_module.GetResultValue(
             self.revision.results_index,
@@ -148,7 +148,7 @@ class InteractionInstance:
         )
         if float(value) < -30000 or float(value) > 30000:
             warning = self.get_result_warning()
-            raise RuntimeError(f"Value not valid: {warning}")
+            raise ValueError(f"Value not valid: {warning}")
         return float(value)
 
     @min_aedt_version("2027.1")
@@ -165,18 +165,18 @@ class InteractionInstance:
 
         Raises
         ------
-        RuntimeError
+        ValueError
             If the interaction is invalid or values are not available.
         """
         error = self._check_validity()
         if error:
-            raise RuntimeError(f"Interaction instance is not valid: {error}")
+            raise ValueError(f"Interaction instance is not valid: {error}")
 
         if self._encoded_emi == 30201:
-            raise RuntimeError("An EMI value is not available so the largest EMI problem type is undefined.")
+            raise ValueError("An EMI value is not available so the largest EMI problem type is undefined.")
 
         if not self.has_valid_values():
-            raise RuntimeError("An EMI value is not available so the largest EMI problem type is undefined.")
+            raise ValueError("An EMI value is not available so the largest EMI problem type is undefined.")
 
         category = self.emit_project._emit_com_module.GetLargestEmiProblemType(
             self.revision.results_index,
@@ -191,7 +191,7 @@ class InteractionInstance:
         # Map the category to the enum
         result = EMI_CATEGORY_TO_INTERFERER_TYPE.get(int(category))
         if result is None:
-            raise RuntimeError(f"Error: category {category} not found")
+            raise ValueError(f"Error: category {category} not found")
         return result
 
     @min_aedt_version("2027.1")
@@ -213,12 +213,12 @@ class InteractionInstance:
 
         Raises
         ------
-        RuntimeError
+        ValueError
             If the instance is not valid.
         """
         error = self._check_validity()
         if error:
-            raise RuntimeError(error)
+            raise ValueError(error)
 
     @min_aedt_version("2027.1")
     @pyaedt_function_handler()

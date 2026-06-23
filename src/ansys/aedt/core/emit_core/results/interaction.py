@@ -56,12 +56,12 @@ class Interaction:
 
         Raises
         ------
-        RuntimeError
+        RuntimeError or ValueError
             If the worst case instance cannot be retrieved.
         """
         error = self._check_validity()
         if error:
-            raise RuntimeError("Interaction is not valid: " + error)
+            raise ValueError("Interaction is not valid: " + error)
 
         if result_type == ResultType.POWER_AT_RX:
             warnings.warn("Worst case instances are not available for Power At Rx.")
@@ -73,7 +73,7 @@ class Interaction:
             len(self.domain.interferer_names) == 1 and self.domain.interferer_names[0] == ""
         )
         if is_n_to_1 and self.domain.receiver_channel_frequency > 0:
-            raise RuntimeError("Unable to retrieve N to 1 worst instance results for a specific receiver channel.")
+            raise ValueError("Unable to retrieve N to 1 worst instance results for a specific receiver channel.")
 
         result_data = self.emit_project._emit_com_module.GetWorstInstance(
             self.revision.results_index,
@@ -130,18 +130,7 @@ class Interaction:
         -------
         float
             The availability value for this interaction. Returns -1 if not valid.
-
-        Raises
-        ------
-        RuntimeError
-            If the interaction is not longer valid (domain invalid or results are incomplete).
-            or availability cannot be calculated.
         """
-        # First check if availability is valid for this domain
-        warning = self.get_availability_warning(domain)
-        if warning:
-            raise RuntimeError(f"Availability is not valid for this domain: {warning}")
-
         # Call GetAvailability via COM
         availability = self.emit_project._emit_com_module.GetAvailability(
             self.revision.results_index,
@@ -198,21 +187,21 @@ class Interaction:
 
         Raises
         ------
-        RuntimeError
+        RuntimeError or ValueError
             If the interaction is not longer valid (domain invalid or results are incomplete).
         """
         error = self._check_validity(domain)
         if error:
-            raise RuntimeError("Interaction is not valid: " + error)
+            raise ValueError("Interaction is not valid: " + error)
 
         # Validate the domain can return a single instance
         if not domain.is_single_instance():
-            raise RuntimeError("The interaction domain must be fully defined.")
+            raise ValueError("The interaction domain must be fully defined.")
 
         # Validate the instance domain's radio/band names
         domain_error = self.revision.get_simulation().is_domain_valid(domain)
         if domain_error:
-            raise RuntimeError(domain_error)
+            raise ValueError(domain_error)
 
         # get_instance_count validates the domain (catches bad radio/band names) and
         # returns 0 when the radio pair is disabled at the simulation level.
@@ -220,10 +209,10 @@ class Interaction:
             raise RuntimeError("Radio pair disabled.")
 
         if not domain.is_single_instance():
-            raise RuntimeError("The instance domain must be fully defined")
+            raise ValueError("The instance domain must be fully defined")
 
         if len(domain.interferer_names) > 1:
-            raise RuntimeError("Instance data for multiple simultaneous interferers not available.")
+            raise ValueError("Instance data for multiple simultaneous interferers not available.")
 
         # Fetch instance data. The backend always computes both EMI and desense
         # in a single pass and returns [encodedEmi, encodedDesense, worstEmiIntCat].
@@ -283,12 +272,12 @@ class Interaction:
 
         Raises
         ------
-        RuntimeError
+        ValueError
             If the interaction is not valid, with details on why.
         """
         error = self._check_validity()
         if error:
-            raise RuntimeError(error)
+            raise ValueError(error)
 
     def export_results(self, file_path: str, continue_if_partial: bool = False) -> None:
         """Export the results for this interaction to a file.

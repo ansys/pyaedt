@@ -136,14 +136,14 @@ def test_interaction_is_valid(cell_phone):
     domain.set_interferers(names=["GSM Mobile Station"], band_names=["Not a band"])
 
     interaction = Interaction(cell_phone, domain, rev)
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         interaction.validate()
     assert "Interferer band 'Not a band' not found in 'GSM Mobile Station'." in str(e.value)
     assert not interaction.is_valid()
 
     domain.set_interferers(names=["GSM Mobile Station"], band_names=["Tx GSM-850"])
     # Check invalid domain (bad band name → domain validation error)
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         interaction.validate()
     assert "Interaction results are incomplete" in str(e.value)
     assert not interaction.is_valid()
@@ -232,11 +232,11 @@ def test_run_band_pair(cell_phone):
     assert value == 9.37
 
     # Verify expected errors for requests of alternative result types from worst-case EMI instance
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance.get_value(ResultType.DESENSE)
     assert "Desense and sensitivity values not available" in str(e.value)
 
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance.get_value(ResultType.SENSITIVITY)
     assert "Desense and sensitivity values not available" in str(e.value)
 
@@ -245,11 +245,11 @@ def test_run_band_pair(cell_phone):
     value = instance_desense.get_value(ResultType.DESENSE)
     assert value == 3.54
 
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance_desense.get_value(ResultType.EMI)
     assert "EMI value not available" in str(e.value)
 
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance_desense.get_largest_emi_problem_type()
     assert "An EMI value is not available so the largest EMI problem type is undefined." in str(e.value)
 
@@ -263,7 +263,7 @@ def test_run_band_pair(cell_phone):
 
     # Test invalid domain
     domain3 = InteractionDomain(cell_phone)
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         interaction.get_instance(domain3)
     assert "The interaction domain must be fully defined" in str(e.value)
 
@@ -385,20 +385,20 @@ def test_non_numeric_results(non_numeric_results):
 
     # Run a new interaction on this domain — get_worst_instance should fail
     bad_interaction = sim.run(domain)
-    with pytest.raises((RuntimeError, ValueError)) as e:
+    with pytest.raises(ValueError) as e:
         bad_interaction.get_worst_instance(ResultType.EMI)
     assert "Radio pair disabled" in str(e.value)
 
     # Undefined instance domain should raise
     inst_domain = InteractionDomain(non_numeric_results)
-    with pytest.raises((RuntimeError, ValueError)) as e:
+    with pytest.raises(ValueError) as e:
         interaction.get_instance(inst_domain)
     assert "The interaction domain must be fully defined" in str(e.value)
 
     # Bad receiver band name
     inst_domain.set_interferer("Self Interaction - Self Interaction", "Band", 96000000, "Hz")
     inst_domain.set_receiver("Low Susc Rx - Low Susc Rx", "Bad Band", 102000000, "Hz")
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         interaction.get_instance(inst_domain)
     assert "'Bad Band' not found" in str(e.value)
 
@@ -414,13 +414,13 @@ def test_non_numeric_results(non_numeric_results):
     assert not instance.has_valid_values()
     warning = instance.get_result_warning()
     assert warning == "Greater than 300 dB."
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance.get_value(ResultType.EMI)
     assert "Greater than 300 dB" in str(e.value)
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance.get_value(ResultType.DESENSE)
     assert "Greater than 300 dB" in str(e.value)
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance.get_value(ResultType.SENSITIVITY)
     assert "Greater than 300 dB" in str(e.value)
 
@@ -431,13 +431,13 @@ def test_non_numeric_results(non_numeric_results):
     assert not instance.has_valid_values()
     warning = instance.get_result_warning()
     assert warning == "Less than -300 dB."
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance.get_value(ResultType.EMI)
     assert "Less than -300 dB" in str(e.value)
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance.get_value(ResultType.DESENSE)
     assert "Less than -300 dB" in str(e.value)
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance.get_value(ResultType.SENSITIVITY)
     assert "Less than -300 dB" in str(e.value)
 
@@ -447,13 +447,13 @@ def test_non_numeric_results(non_numeric_results):
     assert not instance.has_valid_values()
     warning = instance.get_result_warning()
     assert warning == "An amplifier was saturated."
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance.get_value(ResultType.EMI)
     assert "An amplifier was saturated" in str(e.value)
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance.get_value(ResultType.DESENSE)
     assert "An amplifier was saturated" in str(e.value)
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance.get_value(ResultType.SENSITIVITY)
     assert "An amplifier was saturated" in str(e.value)
 
@@ -468,13 +468,13 @@ def test_non_numeric_results(non_numeric_results):
     assert not instance.has_valid_values()
     warning = instance.get_result_warning()
     assert warning == "No path from Tx to Rx."
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance.get_value(ResultType.EMI)
     assert "No path from Tx to Rx" in str(e.value)
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance.get_value(ResultType.DESENSE)
     assert "No path from Tx to Rx" in str(e.value)
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance.get_value(ResultType.SENSITIVITY)
     assert "No path from Tx to Rx" in str(e.value)
 
@@ -484,20 +484,20 @@ def test_non_numeric_results(non_numeric_results):
     assert not instance.has_valid_values()
     warning = instance.get_result_warning()
     assert warning == "Unallowable Tx/Rx channel combination."
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance.get_value(ResultType.EMI)
     assert "Unallowable Tx/Rx channel combination" in str(e.value)
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance.get_value(ResultType.DESENSE)
     assert "Unallowable Tx/Rx channel combination" in str(e.value)
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance.get_value(ResultType.SENSITIVITY)
     assert "Unallowable Tx/Rx channel combination" in str(e.value)
 
     # Null -> Null: no channels enabled
     inst_domain.set_receiver("RF System - Null")
     inst_domain.set_interferers(names=["RF System - Null"])
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         interaction.get_instance(inst_domain)
     assert "No channels are enabled in this radio" in str(e.value)
 
