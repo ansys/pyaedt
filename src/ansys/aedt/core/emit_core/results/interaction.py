@@ -103,7 +103,15 @@ class Interaction:
         -------
         bool
             True if the interaction has valid availability, False otherwise.
+
+        Raises
+        ------
+        ValueError
+            If the domain is not valid.
         """
+        sim = self.revision.get_simulation()
+        if sim.is_domain_valid(domain) != "":
+            raise ValueError("Interaction is not valid: " + sim.is_domain_valid(domain))
         # Call HasValidAvailability via COM
         has_valid = self.emit_project._emit_com_module.HasValidAvailability(
             self.revision.results_index,
@@ -130,7 +138,16 @@ class Interaction:
         -------
         float
             The availability value for this interaction. Returns -1 if not valid.
+
+        Raises
+        ------
+        ValueError
+            If the domain is not valid.
         """
+        sim = self.revision.get_simulation()
+        if sim.is_domain_valid(domain) != "":
+            raise ValueError("Interaction is not valid: " + sim.is_domain_valid(domain))
+
         # Call GetAvailability via COM
         availability = self.emit_project._emit_com_module.GetAvailability(
             self.revision.results_index,
@@ -157,7 +174,15 @@ class Interaction:
         -------
         str
             The availability warning message, or empty string if no warning
+
+        Raises
+        ------
+        ValueError
+            If the domain is not valid.
         """
+        sim = self.revision.get_simulation()
+        if sim.is_domain_valid(domain) != "":
+            raise ValueError("Interaction is not valid: " + sim.is_domain_valid(domain))
         # Call GetAvailabilityWarning via COM
         warning = self.emit_project._emit_com_module.GetAvailabilityWarning(
             self.revision.results_index,
