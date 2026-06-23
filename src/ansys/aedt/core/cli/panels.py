@@ -37,6 +37,7 @@ except ImportError as e:  # pragma: no cover
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 
 panels_app = typer.Typer(help="Manage PyAEDT panels in AEDT", no_args_is_help=True)
+"""Value for panels app."""
 
 
 @panels_app.command("add")

@@ -31,6 +31,7 @@ from tkinter import ttk
 
 
 def create_tab_main(tab_frame, master) -> None:
+    """Create tab main."""
     frame0 = ttk.Frame(tab_frame, name="frame0", style="PyAEDT.TFrame", borderwidth=1, relief="raised")
     # frame0.grid(row=0, column=0, **master.GRID_PARAMS)
     frame0.pack(fill="both", expand=True, padx=5, pady=5)
@@ -185,6 +186,7 @@ def callback_select_design(master) -> None:
 
 
 def callback_apply(master) -> bool:
+    """Return callback apply."""
     file_path = filedialog.askopenfilename(
         title="Select Configuration",
         filetypes=(("json", "*.json"), ("toml", "*.toml"), ("All files", "*.*")),
@@ -200,6 +202,7 @@ def callback_apply(master) -> bool:
 
 
 def callback_export(master):
+    """Return callback export."""
     file_path = filedialog.asksaveasfilename(
         title="Select Configuration",
         filetypes=(("json", "*.json"), ("toml", "*.toml"), ("All files", "*.*")),

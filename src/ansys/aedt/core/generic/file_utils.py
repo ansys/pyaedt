@@ -49,7 +49,9 @@ from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 is_linux = os.name == "posix"
+"""Flag indicating whether linux is enabled."""
 is_windows = not is_linux
+"""Flag indicating whether windows is enabled."""
 
 
 # Path processing

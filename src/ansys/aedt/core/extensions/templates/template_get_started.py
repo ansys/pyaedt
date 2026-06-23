@@ -41,14 +41,21 @@ from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 EXTENSION_DEFAULT_ARGUMENTS = {"origin_x": 0, "origin_y": 0, "origin_z": 0, "radius": 1, "file_path": ""}
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Extension template"
+"""Title displayed for the extension."""
 
 result = None
+"""Value for result."""
 
 
 @dataclass
@@ -62,10 +69,15 @@ class ExtensionData:
     """
 
     origin_x: float = 0.0
+    """Value for origin x."""
     origin_y: float = 0.0
+    """Value for origin y."""
     origin_z: float = 0.0
+    """Value for origin z."""
     radius: float = 1
+    """Value for radius."""
     file_path: str = ""
+    """Path to file."""
 
 
 class TemplateExtension(ExtensionProjectCommon):
@@ -187,6 +199,7 @@ class TemplateExtension(ExtensionProjectCommon):
 
 
 def main(extension_args) -> bool:
+    """Return main."""
     origin_x = extension_args.get("origin_x", EXTENSION_DEFAULT_ARGUMENTS["origin_x"])
     origin_y = extension_args.get("origin_y", EXTENSION_DEFAULT_ARGUMENTS["origin_y"])
     origin_z = extension_args.get("origin_z", EXTENSION_DEFAULT_ARGUMENTS["origin_z"])

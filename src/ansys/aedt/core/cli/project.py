@@ -43,22 +43,38 @@ except ImportError:  # pragma: no cover
 from ansys.aedt.core.cli import common
 
 project_app = typer.Typer(help="Project and design management commands")
+"""Value for project app."""
 
 
 class AEDTAppType(str, Enum):
+    """Provide AEDT app type."""
+
     Hfss = "Hfss"
+    """HFSS option."""
     Maxwell2d = "Maxwell2d"
+    """Maxwell 2 d option."""
     Maxwell3d = "Maxwell3d"
+    """Maxwell 3 d option."""
     Q3d = "Q3d"
+    """Q 3 d option."""
     Q2d = "Q2d"
+    """Q 2 d option."""
     Icepak = "Icepak"
+    """Icepak option."""
     Circuit = "Circuit"
+    """Circuit option."""
     TwinBuilder = "TwinBuilder"
+    """Twin builder option."""
     Mechanical = "Mechanical"
+    """Mechanical option."""
     Emit = "Emit"
+    """EMIT option."""
     Rmxprt = "Rmxprt"
+    """RMxprt option."""
     Hfss3dLayout = "Hfss3dLayout"
+    """HFSS 3 d layout option."""
     MaxwellCircuit = "MaxwellCircuit"
+    """Maxwell circuit option."""
 
 
 @project_app.command(name="list")

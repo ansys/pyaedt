@@ -55,6 +55,7 @@ AEDT_APPLICATIONS = {
     "q3d": "Q3DExtractor",
     "twinbuilder": "TwinBuilder",
 }
+"""AEDT applications."""
 
 
 def _iter_panel_button_specs(parser: TabConfigParser, panel_label: str | None = None):
@@ -274,6 +275,7 @@ def is_extension_in_panel(toolkit_dir: str, product: str, name: str, panel: str 
 
 
 def available_toolkits() -> dict:
+    """Retrieve available toolkits."""
     product_toolkits = {}
     for product_extension, product_name in AEDT_APPLICATIONS.items():
         toml_file = Path(__file__).parent / product_extension / "toolkits_catalog.toml"

@@ -492,6 +492,7 @@ class EmitComponent(PyAedtBase):
     # class decorator and use EmitComponent.create to create the correct
     # object type.
     subclasses = {}
+    """Value for subclasses."""
 
     @classmethod
     def register_subclass(cls, root_node_type):
@@ -1295,6 +1296,8 @@ class EmitRadioComponent(EmitComponent):
 
 
 class EmitComponentPropNode(PyAedtBase):
+    """Provide EMIT component prop node."""
+
     def __init__(self, editor, design, parent_component, node_name) -> None:
         self.oeditor = editor
         """Oeditor module"""

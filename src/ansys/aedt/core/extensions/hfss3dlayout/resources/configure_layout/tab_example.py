@@ -34,6 +34,7 @@ from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.template
 
 
 def create_tab_example(tab_frame, master) -> None:
+    """Create tab example."""
     ttk.Button(
         tab_frame,
         name="load_example_board",
@@ -54,6 +55,7 @@ def create_tab_example(tab_frame, master) -> None:
 
 
 def call_back_load_example_board(master, test_folder=None) -> None:  # pragma: no cover
+    """Return call back load example board."""
     temp_dir = tempfile.TemporaryDirectory(suffix=".ansys", dir=test_folder).name
     Path(temp_dir).mkdir()
     example_edb = download_file(source="edb/ANSYS_SVP_V1_1.aedb", local_path=temp_dir)
@@ -61,6 +63,7 @@ def call_back_load_example_board(master, test_folder=None) -> None:  # pragma: n
 
 
 def call_back_export_template() -> None:
+    """Return call back export template."""
     file = filedialog.asksaveasfilename(
         initialfile="serdes_config.json", defaultextension=".json", filetypes=[("JSON files", "*.json")]
     )

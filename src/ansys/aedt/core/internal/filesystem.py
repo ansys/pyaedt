@@ -57,20 +57,25 @@ def search_files(dirname: str, pattern: str = "*") -> list:
 
 
 def my_location() -> Path:
+    """Return my location."""
     """ """
     return Path(__file__).parent.resolve(strict=False)
 
 
 class Scratch(PyAedtBase):
+    """Provide scratch."""
+
     """ """
 
     @property
     def path(self) -> str:
+        """Retrieve path."""
         """ """
         return self._scratch_path
 
     @property
     def is_empty(self) -> bool:
+        """Flag indicating whether empty is enabled."""
         """ """
         return self._cleaned
 

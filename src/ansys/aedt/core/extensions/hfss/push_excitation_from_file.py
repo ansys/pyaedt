@@ -40,13 +40,19 @@ from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 # Extension batch arguments
 EXTENSION_DEFAULT_ARGUMENTS = {"choice": "", "file_path": ""}
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Push Excitation From File"
+"""Title displayed for the extension."""
 
 
 @dataclass
@@ -60,7 +66,9 @@ class PushExcitationExtensionData(ExtensionCommonData):
     """
 
     choice: str = ""
+    """Value for choice."""
     file_path: str = ""
+    """Path to file."""
 
 
 class PushExcitationExtension(ExtensionHFSSCommon):

@@ -98,6 +98,7 @@ class MultiPartComponent(PyAedtBase):
     _t = "time_var"
     _t_value = "0s"
     modeler_units = "meter"
+    """Value for modeler units."""
 
     @staticmethod
     def start(app: "Hfss") -> bool:

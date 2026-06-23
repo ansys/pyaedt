@@ -45,21 +45,32 @@ from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 EXTENSION_DEFAULT_ARGUMENTS = {
     "file_path": "",
     "geometric_info": [],
     "source_value_info": {},
     "source_unit_info": {},
 }
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Power map from file"
+"""Title displayed for the extension."""
 EXTENSION_NB_ROW = 2
+"""Number of rows used by the extension UI."""
 EXTENSION_NB_COLUMN = 3
+"""Number of columns used by the extension UI."""
 FILE_PATH_ERROR_MSG = "Please select an existing CSV file before creating a power map."
+"""Error message for file path."""
 DESIGN_TYPE_ERROR_MSG = "An Icepak design is needed for this extension."
+"""Error message for design type."""
 PARSING_ERROR_MSG = "Missing information in the CSV file. Please provide both geometric and source data."
+"""Error message for parsing."""
 
 
 class IcepakCSVFormatError(AEDTRuntimeError):
@@ -88,9 +99,13 @@ class PowerMapFromCSVExtensionData(ExtensionCommonData):
     """
 
     file_path: Path | None = None
+    """Path to file."""
     geometric_info: list = field(default_factory=list)
+    """Value for geometric info."""
     source_value_info: dict = field(default_factory=dict)
+    """Value for source value info."""
     source_unit_info: dict = field(default_factory=dict)
+    """Value for source unit info."""
 
 
 class PowerMapFromCSVExtension(ExtensionIcepakCommon):

@@ -62,12 +62,19 @@ class OptimizationGoalParameter(Enum):
     """
 
     LOWER_FREQUENCY = 0
+    """Lower frequency option."""
     UPPER_FREQUENCY = 1
+    """Upper frequency option."""
     GOAL_VALUE = 2
+    """Goal value option."""
     CONDITION = 3
+    """Condition option."""
     PARAMETER_NAME = 4
+    """Parameter name option."""
     WEIGHT = 5
+    """Weight option."""
     ENABLED = 6
+    """Enabled option."""
 
 
 class OptimizationGoalsTable:

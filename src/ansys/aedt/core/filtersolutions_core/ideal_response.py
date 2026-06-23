@@ -58,15 +58,25 @@ class FrequencyResponseColumn(Enum):
     """
 
     MAGNITUDE_DB = 0
+    """Magnitude db option."""
     PHASE_DEG = 1
+    """Phase deg option."""
     GROUP_DELAY = 2
+    """Group delay option."""
     PHASE_RAD = 4
+    """Phase rad option."""
     MAGNITUDE_ARITH = 3
+    """Magnitude arith option."""
     MAGNITUDE_REAL = 5
+    """Magnitude real option."""
     MAGNITUDE_IMAG = 6
+    """Magnitude imag option."""
     PHASE_DEV_DEG = 7
+    """Phase dev deg option."""
     PHASE_DEV_RAD = 8
+    """Phase dev rad option."""
     FREQUENCY = 9
+    """Frequency option."""
 
 
 class TimeResponseColumn(Enum):
@@ -89,12 +99,19 @@ class TimeResponseColumn(Enum):
     """
 
     STEP_RESPONSE = 0
+    """Step response option."""
     RAMP_RESPONSE = 1
+    """Ramp response option."""
     IMPULSE_RESPONSE = 2
+    """Impulse response option."""
     STEP_RESPONSE_DB = 3
+    """Step response db option."""
     RAMP_RESPONSE_DB = 4
+    """Ramp response db option."""
     IMPULSE_RESPONSE_DB = 5
+    """Impulse response db option."""
     TIME = 6
+    """Time option."""
 
 
 class SParametersResponseColumn(Enum):
@@ -115,10 +132,15 @@ class SParametersResponseColumn(Enum):
     """
 
     S21_DB = 0
+    """S21 db option."""
     S11_DB = 1
+    """S11 db option."""
     S21_ARITH = 3
+    """S21 arith option."""
     S11_ARITH = 4
+    """S11 arith option."""
     FREQUENCY = 5
+    """Frequency option."""
 
 
 class PoleZerosResponseColumn(Enum):
@@ -150,21 +172,37 @@ class PoleZerosResponseColumn(Enum):
     """
 
     TX_ZERO_DEN_X = 0
+    """Tx zero den X option."""
     TX_ZERO_DEN_Y = 1
+    """Tx zero den Y option."""
     PROTO_TX_ZERO_DEN_X = 2
+    """Proto tx zero den X option."""
     PROTO_TX_ZERO_DEN_Y = 3
+    """Proto tx zero den Y option."""
     TX_ZERO_NUM_X = 4
+    """Tx zero num X option."""
     TX_ZERO_NUM_Y = 5
+    """Tx zero num Y option."""
     PROTO_TX_ZERO_NUM_X = 6
+    """Proto tx zero num X option."""
     PROTO_TX_ZERO_NUM_Y = 7
+    """Proto tx zero num Y option."""
     RX_ZERO_DEN_X = 8
+    """Rx zero den X option."""
     RX_ZERO_DEN_Y = 9
+    """Rx zero den Y option."""
     PROTO_RX_ZERO_DEN_X = 10
+    """Proto rx zero den X option."""
     PROTO_RX_ZERO_DEN_Y = 11
+    """Proto rx zero den Y option."""
     RX_ZERO_NUM_X = 12
+    """Rx zero num X option."""
     RX_ZERO_NUM_Y = 13
+    """Rx zero num Y option."""
     PROTO_RX_ZERO_NUM_X = 14
+    """Proto rx zero num X option."""
     PROTO_RX_ZERO_NUM_Y = 15
+    """Proto rx zero num Y option."""
 
 
 class IdealResponse:

@@ -35,6 +35,7 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 PARENT_DIR = Path(__file__).parent
+"""Parent dir."""
 
 
 class FieldsCalculator(PyAedtBase):

@@ -41,6 +41,7 @@ else:  # pragma: no cover
 
 
 EMIT_API_PYTHON = None
+"""EMIT api python."""
 
 
 def emit_api_python():

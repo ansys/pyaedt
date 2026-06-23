@@ -170,9 +170,13 @@ class HPCMethod(IntEnum):
     """
 
     USE_TASKS_AND_CORES = 1
+    """Use tasks and cores option."""
     USE_RAM_CONSTRAINED = 2
+    """Use ram constrained option."""
     USE_NODES_AND_CORES = 3
+    """Use nodes and cores option."""
     USE_AUTO_HPC = 4
+    """Use auto hpc option."""
 
 
 def path_string(path: Path) -> str:
@@ -649,19 +653,32 @@ class _ExecutionConfiguration:
     """
 
     auto_hpc: bool = DEFAULT_AUTO_HPC
+    """Value for auto hpc."""
     cluster_name: str = DEFAULT_CLUSTER_NAME
+    """Value for cluster name."""
     custom_submission_string: str = DEFAULT_CUSTOM_SUBMISSION_STRING
+    """Value for custom submission string."""
     job_name: str = DEFAULT_JOB_NAME
+    """Value for job name."""
     monitor: bool = True
+    """Value for monitor."""
     ng_solve: bool = False
+    """Value for ng solve."""
     product_full_path: str | None = None
+    """Path to product full."""
     shared_directory_linux: str | None = None
+    """Value for shared directory linux."""
     shared_directory_windows: str | None = None
+    """Value for shared directory windows."""
     use_ppe: bool = True
+    """Flag indicating whether ppe is enabled."""
     wait_for_license: bool = True
+    """Value for wait for license."""
 
 
 class JobConfigurationData(PyAedtBase):
+    """Store job configuration data."""
+
     def __init__(
         self,
         aedt_version: str | None = None,

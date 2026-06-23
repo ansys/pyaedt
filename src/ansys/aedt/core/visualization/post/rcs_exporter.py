@@ -41,6 +41,7 @@ from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 DEFAULT_EXPRESSION = "ComplexMonostaticRCSTheta"
+"""Default expression."""
 
 
 class MonostaticRCSExporter(PyAedtBase):

@@ -107,25 +107,40 @@ DATA = {
         },
     },
 }
+"""Stored data."""
 
 
 # Frontend
 class AedtInfo(BaseModel):
+    """Provide AEDT info."""
+
     version: str = ""
+    """Value for version."""
     port: int
+    """Value for port."""
     aedt_process_id: int | None
+    """Value for AEDT process id."""
     student_version: bool | None = False
+    """Value for student version."""
 
 
 class MCADAssemblyFrontend(ExtensionHFSSCommon):
+    """Provide MCAD assembly frontend."""
+
     EXTENSION_TITLE = "MCAD Assembly"
+    """Title displayed for the extension."""
     GRID_PARAMS = {"padx": 15, "pady": 10, "sticky": "nsew"}
+    """Grid params."""
     PACK_PARAMS = {"padx": 15, "pady": 10}
+    """Pack params."""
 
     tab_frame_main = None
+    """Value for tab frame main."""
 
     local_path = ""
+    """Path to local."""
     config_data: dict = dict()
+    """Value for config data."""
 
     def __init__(self, withdraw: bool = False) -> None:
         self.aedt_info = AedtInfo(
@@ -211,6 +226,7 @@ class MCADAssemblyFrontend(ExtensionHFSSCommon):
 
 # create main tab
 def create_tab_main(tab_frame: tkinter.Widget, master: MCADAssemblyFrontend) -> None:
+    """Create tab main."""
     tree = ttk.Treeview(tab_frame, name="tree")
     tree.pack(expand=True, fill="both", **master.PACK_PARAMS)
 
@@ -225,6 +241,7 @@ def create_tab_main(tab_frame: tkinter.Widget, master: MCADAssemblyFrontend) -> 
 
 
 def load_dict(tree: ttk.Treeview, master: MCADAssemblyFrontend) -> None:
+    """Load dict."""
     file_path = filedialog.askopenfilename(
         title="Select Design",
         filetypes=(("JSON", "*.json"), ("All files", "*.*")),
@@ -250,6 +267,7 @@ def load_dict(tree: ttk.Treeview, master: MCADAssemblyFrontend) -> None:
 
 
 def insert_items(tree: ttk.Treeview, parent: str, dictionary: dict | list | str | int | float | None) -> None:
+    """Insert items."""
     if isinstance(dictionary, dict):
         for key, value in dictionary.items():
             node = tree.insert(parent, "end", text=str(key), open=False)
@@ -269,34 +287,52 @@ def insert_items(tree: ttk.Treeview, parent: str, dictionary: dict | list | str 
 
 # Below is the backend for the MCAD assembly extension.
 class Arrange(BaseModel):
+    """Provide arrange."""
+
     operation: str
+    """Value for operation."""
     # Rotate parameters
     axis: str | None = "X"
+    """Value for axis."""
     angle: str | None = "0deg"
+    """Value for angle."""
 
     # Move parameters
     vector: list[str | int | float] | None = ["0mm", "0mm", "0mm"]
+    """Value for vector."""
 
     class Config:
         extra = "forbid"
 
 
 class Component(BaseModel):
+    """Provide component."""
+
     component_type: str
+    """Value for component type."""
     name: str
+    """Value for name."""
     model: str
+    """Value for model."""
 
     target_coordinate_system: str
+    """Value for target coordinate system."""
     layout_coordinate_systems: list[str] | None = Field(default_factory=list)
+    """Value for layout coordinate systems."""
     arranges: list[Arrange] = Field(default_factory=list)
+    """Value for arranges."""
     sub_components: dict | None = Field(default_factory=dict)
+    """Value for sub components."""
     password: str = None
+    """Value for password."""
 
     # Mcad parameters
     geometry_parameters: dict[str, str | float | int] | None = None
+    """Value for geometry parameters."""
 
     # Ecad parameters
     reference_coordinate_system: str = "Global"
+    """Value for reference coordinate system."""
 
     # internal properties
     __rotate_index: int | None = 0
@@ -396,13 +432,20 @@ class Component(BaseModel):
 Component.model_rebuild()
 
 COMPONENT_MODELS = {}
+"""Component models."""
 
 
 class MCADAssemblyBackend(BaseModel):
+    """Provide MCAD assembly backend."""
+
     coordinate_system: dict[str, dict[str, str | list[str]]] = Field(default_factory=dict)
+    """Value for coordinate system."""
     layout_component_models: dict[str, str] = Field(default_factory=dict)
+    """Value for layout component models."""
     component_models: dict[str, str] = Field(default_factory=dict)
+    """Value for component models."""
     sub_components: dict[str, Component] = Field(default_factory=dict)
+    """Value for sub components."""
 
     class Config:
         extra = "forbid"

@@ -499,6 +499,7 @@ def parse_rdat_file(file_path: str) -> dict:
 @pyaedt_function_handler()
 @requires_graphical_dependency("pyvista")
 def preview_pyvista(dict_in: dict, decimation: int = 0, output_stls: list = None) -> None:
+    """Return preview pyvista."""
     import pyvista as pv
 
     if decimation > 0:

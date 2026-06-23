@@ -61,26 +61,35 @@ settings.use_multi_desktop = True
 # The default can be overridden by setting the ``PYAEDT_KERNEL_AEDT_VERSION`` environment
 # variable, e.g. ``set PYAEDT_KERNEL_AEDT_VERSION=2022.2`` with Command Prompt (cmd) on Windows.
 REQUIRED_INPUT_VERSION = os.getenv("PYAEDT_KERNEL_AEDT_VERSION", "2022.2")
+"""Required input version."""
 
 on_ci = os.getenv("ON_CI", "false")
+"""Flag indicating whether ci is enabled."""
 
 if on_ci.lower() == "true":
     settings.use_multi_desktop = False
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 # Extension batch arguments
 PASSWORD = os.getenv("PYAEDT_ENCRYPTED_PASSWORD", "")
+"""Password value."""
 EXTENSION_DEFAULT_ARGUMENTS = {
     "password": PASSWORD,
     "application": "HFSS",
     "solution": "Modal",
     "file_path": "",
 }
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Kernel Converter"
+"""Title displayed for the extension."""
 
 
 @dataclass
@@ -94,9 +103,13 @@ class KernelConverterExtensionData(ExtensionCommonData):
     """
 
     password: str = EXTENSION_DEFAULT_ARGUMENTS["password"]
+    """Value for password."""
     application: str = EXTENSION_DEFAULT_ARGUMENTS["application"]
+    """Value for application."""
     solution: str = EXTENSION_DEFAULT_ARGUMENTS["solution"]
+    """Value for solution."""
     file_path: str = EXTENSION_DEFAULT_ARGUMENTS["file_path"]
+    """Path to file."""
 
 
 class KernelConverterExtension(ExtensionProjectCommon):

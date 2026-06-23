@@ -37,6 +37,7 @@ if TYPE_CHECKING:
     from matplotlib.figure import Figure
 
 current_python_version = sys.version_info[:2]
+"""Value for current python version."""
 if current_python_version < (3, 10):  # pragma: no cover
     raise Exception("Python 3.10 or higher is required for direction of arrival (DoA) post-processing.")
 

@@ -50,6 +50,7 @@ from ansys.aedt.core.rpc.rpyc_services import check_port
 
 # Maximum Stream message size. Set to 256MB
 consts.STREAM_CHUNK = 256000000
+"""Maximum chunk size used for streamed RPC transfers."""
 
 
 safe_attrs = {
@@ -131,6 +132,7 @@ safe_attrs = {
     "__next__",
     "__format__",
 }
+"""Value for safe attrs."""
 
 
 def pyaedt_service_manager(

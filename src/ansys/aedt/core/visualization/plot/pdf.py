@@ -55,40 +55,74 @@ class ReportSpec(PyAedtBase):
     """
 
     document_prefix: str = "ANSS"
+    """Value for document prefix."""
     ansys_version: str = "2025R1"
+    """Value for ansys version."""
     revision: str = "Rev 1.0"
+    """Value for revision."""
     logo_name: str = os.path.join(os.path.dirname(__file__), "../../misc/Ansys.png")
+    """Value for logo name."""
     company_name: str = "Ansys Inc."
+    """Value for company name."""
     template_name: str = os.path.join(os.path.dirname(__file__), "../../misc/AnsysTemplate.json")
+    """Value for template name."""
     design_name: str = "Design1"
+    """Value for design name."""
     project_name: str = "Project1"
+    """Value for project name."""
     pyaedt_version: str = __version__
+    """Value for pyaedt version."""
     units: str = "cm"
+    """Value for units."""
     top_margin: float = 3.0
+    """Value for top margin."""
     bottom_margin: float = 2.0
+    """Value for bottom margin."""
     left_margin: float = 1.0
+    """Value for left margin."""
     right_margin: float = 1.0
+    """Value for right margin."""
     footer_font_size: int = 7
+    """Value for footer font size."""
     footer_text: str = "Copyright (c) 2023, ANSYS Inc. unauthorised use, distribution or duplication is prohibited"
+    """Value for footer text."""
     header_font_size: int = 7
+    """Value for header font size."""
     header_image_width: float = 3.3
+    """Value for header image width."""
     title_font_size: int = 14
+    """Value for title font size."""
     subtitle_font_size: int = 12
+    """Value for subtitle font size."""
     text_font_size: int = 11
+    """Value for text font size."""
     table_font_size: int = 9
+    """Value for table font size."""
     caption_font_size: int = 9
+    """Value for caption font size."""
     cover_title_font_size: int = 28
+    """Value for cover title font size."""
     cover_subtitle_font_size: int = 24
+    """Value for cover subtitle font size."""
     font: str = "helvetica"
+    """Value for font."""
     chart_width: float = 16.0
+    """Value for chart width."""
     font_color: list = field(default_factory=lambda: [0, 0, 0])
+    """Value for font color."""
     font_chapter_color: list = field(default_factory=lambda: [0, 0, 0])
+    """Value for font chapter color."""
     font_subchapter_color: list = field(default_factory=lambda: [0, 0, 0])
+    """Value for font subchapter color."""
     font_header_color: list = field(default_factory=lambda: [0, 0, 0])
+    """Value for font header color."""
     font_caption_color: list = field(default_factory=lambda: [0, 0, 0])
+    """Value for font caption color."""
 
 
 class AnsysReport(FPDF, PyAedtBase):
+    """Provide ansys report."""
+
     def __init__(
         self,
         version: str = "2025R1",

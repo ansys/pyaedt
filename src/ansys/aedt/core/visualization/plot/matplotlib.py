@@ -76,6 +76,8 @@ def is_ipython() -> bool:
 
 
 class Note(PyAedtBase):
+    """Provide note."""
+
     def __init__(self) -> None:
         self._position = (0, 0)
         self._text = ""
@@ -619,6 +621,8 @@ class LimitLine(Trace):
 
 
 class EyeMask:
+    """Provide eye mask."""
+
     def __init__(self):
         self.eye_xunits = "ns"
         self.eye_yunits = "mV"

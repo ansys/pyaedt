@@ -2790,6 +2790,8 @@ class Analysis(Design, PyAedtBase):
 
 
 class AvailableVariations(PyAedtBase):
+    """Provide available variations."""
+
     def __init__(self, app) -> None:
         """Contains available variations.
 

@@ -34,9 +34,12 @@ import time
 from ansys.aedt.core.generic.settings import settings
 
 message_levels = {"Global": 0, "Project": 1, "Design": 2}
+"""Value for message levels."""
 
 
 class Msg:
+    """Provide msg."""
+
     (INFO, WARNING, ERROR, FATAL) = range(4)
 
 
@@ -1344,3 +1347,4 @@ class AedtLogger:
 
 
 pyaedt_logger = AedtLogger(to_stdout=settings.enable_screen_logs)
+"""Value for pyaedt logger."""

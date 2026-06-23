@@ -56,6 +56,7 @@ from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 
 session_app = typer.Typer(help="Session management commands")
+"""Value for session app."""
 
 
 def _extract_session_metadata(cmdline: str | None) -> dict[str, object]:

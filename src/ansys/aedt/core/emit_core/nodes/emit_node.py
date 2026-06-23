@@ -40,6 +40,7 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 
 # Type variable to be used in methods that might receive a subclass of EmitNode
 T = TypeVar("T", bound="EmitNode")
+"""T."""
 
 
 class EmitNode:

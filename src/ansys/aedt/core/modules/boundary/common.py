@@ -78,6 +78,8 @@ class BoundaryProps(dict):
 
 
 class BoundaryCommon(PropsManager, PyAedtBase):
+    """Provide boundary common."""
+
     """ """
 
     def __repr__(self) -> str:

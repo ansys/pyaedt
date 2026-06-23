@@ -44,6 +44,7 @@ except ImportError as e:  # pragma: no cover
     raise ImportError(msg) from e
 
 logger = settings.logger
+"""Value for logger."""
 
 try:
     import osmnx as ox
@@ -53,6 +54,7 @@ except ImportError as e:  # pragma: no cover
 
 
 ZONE_LETTERS = "CDEFGHJKLMNPQRSTUVWXX"
+"""Zone letters."""
 
 
 class BuildingsPrep(PyAedtBase):

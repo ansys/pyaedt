@@ -132,6 +132,7 @@ class NativeComponentObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
     @property
     def props(self) -> BoundaryProps:
+        """Retrieve props."""
         return self.__props
 
     @property

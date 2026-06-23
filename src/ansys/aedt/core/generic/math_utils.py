@@ -40,6 +40,7 @@ class MathUtils(PyAedtBase):
     """
 
     EPSILON = float_info.epsilon * 10.0
+    """Epsilon."""
 
     @staticmethod
     @pyaedt_function_handler()

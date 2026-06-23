@@ -56,6 +56,7 @@ from ansys.aedt.core.generic.scheduler import DEFAULT_CUSTOM_SUBMISSION_STRING
 from ansys.aedt.core.generic.scheduler import DEFAULT_NUM_CORES
 
 is_linux = os.name == "posix"
+"""Flag indicating whether linux is enabled."""
 
 # Settings allowed to be updated using a YAML configuration file.
 ALLOWED_LOG_SETTINGS = [
@@ -79,6 +80,7 @@ ALLOWED_LOG_SETTINGS = [
     "logger_formatter",
     "aedt_log_file",
 ]
+"""Allowed log settings."""
 ALLOWED_LSF_SETTINGS = [
     "custom_lsf_command",
     "lsf_aedt_command",
@@ -89,6 +91,7 @@ ALLOWED_LSF_SETTINGS = [
     "lsf_ui",
     "use_lsf_scheduler",
 ]
+"""Allowed LSF settings."""
 ALLOWED_GENERAL_SETTINGS = [
     "lazy_load",
     "objects_lazy_load",
@@ -117,7 +120,9 @@ ALLOWED_GENERAL_SETTINGS = [
     "pyd_libraries_path",
     "pyd_libraries_user_path",
 ]
+"""Allowed general settings."""
 ALLOWED_GRPC_SETTINGS = ["grpc_secure_mode", "grpc_local", "grpc_listen_all", "pyedb_use_grpc"]
+"""Allowed gRPC settings."""
 ALLOWED_AEDT_ENV_VAR_SETTINGS = [
     "ANSYSEM_FEATURE_F335896_MECHANICAL_STRUCTURAL_SOLN_TYPE_ENABLE",
     "ANSYSEM_FEATURE_F395486_RIGID_FLEX_BENDING_ENABLE",
@@ -135,10 +140,14 @@ ALLOWED_AEDT_ENV_VAR_SETTINGS = [
     "AnsysSendMsg",
     "ANSYSEM_FEATURE_F544773_SSFIT_AUTO_SELECTION_ENABLE",
 ]
+"""Allowed AEDT env var settings."""
 
 DEFAULT_GRPC_LOCAL: bool = True
+"""Default gRPC local."""
 DEFAULT_GRPC_SECURE_MODE: bool = True
+"""Default gRPC secure mode."""
 DEFAULT_GRPC_LISTEN_ALL: bool = False
+"""Default gRPC listen all."""
 
 
 def generate_log_filename() -> str:
@@ -162,7 +171,9 @@ class _InnerProjectSettings:  # pragma: no cover
     """
 
     properties: dict = {}
+    """Value for properties."""
     time_stamp: int | float = 0
+    """Value for time stamp."""
 
 
 class Settings(PyAedtBase):
@@ -1258,6 +1269,7 @@ class Settings(PyAedtBase):
 
     @property
     def pyd_libraries_path(self) -> Path:
+        """Path to pyd libraries."""
         if self.__pyd_libraries_user_path is not None:
             # If the user path is set, return it
             return Path(self.__pyd_libraries_user_path)
@@ -1265,6 +1277,7 @@ class Settings(PyAedtBase):
 
     @property
     def pyd_libraries_user_path(self) -> Path | None:
+        """Path to pyd libraries user."""
         # Get the user path for PyAEDT libraries.
         if self.__pyd_libraries_user_path is not None:
             return Path(self.__pyd_libraries_user_path)
@@ -1366,4 +1379,6 @@ class Settings(PyAedtBase):
 
 
 settings = Settings()
+"""Value for settings."""
 inner_project_settings = _InnerProjectSettings()
+"""Value for inner project settings."""

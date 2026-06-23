@@ -57,15 +57,25 @@ class FilterType(Enum):
     """
 
     GAUSSIAN = 0
+    """Gaussian option."""
     BESSEL = 1
+    """Bessel option."""
     BUTTERWORTH = 2
+    """Butterworth option."""
     LEGENDRE = 3
+    """Legendre option."""
     CHEBYSHEV_I = 4
+    """Chebyshev I option."""
     CHEBYSHEV_II = 5
+    """Chebyshev ii option."""
     HOURGLASS = 6
+    """Hourglass option."""
     ELLIPTIC = 7
+    """Elliptic option."""
     DELAY = 8
+    """Delay option."""
     RAISED_COS = 9
+    """Raised cos option."""
 
 
 #   CUSTOM = 8
@@ -96,15 +106,25 @@ class FilterClass(Enum):
     """
 
     LOW_PASS = 0
+    """Low pass option."""
     HIGH_PASS = 1
+    """High pass option."""
     DIPLEXER_1 = 2
+    """Diplexer 1 option."""
     BAND_PASS = 3
+    """Band pass option."""
     BAND_STOP = 4
+    """Band stop option."""
     DIPLEXER_2 = 5
+    """Diplexer 2 option."""
     LOW_BAND = 6
+    """Low band option."""
     BAND_HIGH = 7
+    """Band high option."""
     BAND_BAND = 8
+    """Band band option."""
     STOP_STOP = 9
+    """Stop stop option."""
 
 
 class DiplexerType(Enum):
@@ -126,11 +146,17 @@ class DiplexerType(Enum):
     """
 
     HI_LO = 0
+    """Hi lo option."""
     BP_1 = 1
+    """Bp 1 option."""
     BP_2 = 2
+    """Bp 2 option."""
     BP_BS = 3
+    """Bp bs option."""
     TRIPLEXER_1 = 4
+    """Triplexer 1 option."""
     TRIPLEXER_2 = 5
+    """Triplexer 2 option."""
 
 
 class RaisedCosineAlphaPercentage(Enum):
@@ -156,15 +182,25 @@ class RaisedCosineAlphaPercentage(Enum):
     """
 
     FIFTEEN = 0
+    """Fifteen option."""
     FORTY = 1
+    """Forty option."""
     TWENTY = 2
+    """Twenty option."""
     FORTY_FIVE = 3
+    """Forty five option."""
     TWENTY_FIVE = 4
+    """Twenty five option."""
     FIFTY = 5
+    """Fifty option."""
     THIRTY = 6
+    """Thirty option."""
     SEVENTY_FIVE = 7
+    """Seventy five option."""
     THIRTY_FIVE = 8
+    """Thirty five option."""
     HUNDRED = 9
+    """Hundred option."""
 
 
 class BesselRipplePercentage(Enum):
@@ -186,11 +222,17 @@ class BesselRipplePercentage(Enum):
     """
 
     ZERO = 0
+    """Zero option."""
     HALF = 1
+    """Half option."""
     ONE = 2
+    """One option."""
     TWO = 3
+    """Two option."""
     FIVE = 4
+    """Five option."""
     TEN = 5
+    """Ten option."""
 
 
 class GaussianTransition(Enum):
@@ -212,11 +254,17 @@ class GaussianTransition(Enum):
     """
 
     TRANSITION_NONE = 0
+    """Transition none option."""
     TRANSITION_3_DB = 1
+    """Transition 3 db option."""
     TRANSITION_6_DB = 2
+    """Transition 6 db option."""
     TRANSITION_9_DB = 3
+    """Transition 9 db option."""
     TRANSITION_12_DB = 4
+    """Transition 12 db option."""
     TRANSITION_15_DB = 5
+    """Transition 15 db option."""
 
 
 class GaussianBesselReflection(Enum):
@@ -235,8 +283,11 @@ class GaussianBesselReflection(Enum):
     """
 
     OPTION_1 = 0
+    """Option 1 option."""
     OPTION_2 = 1
+    """Option 2 option."""
     OPTION_3 = 2
+    """Option 3 option."""
 
 
 class RippleConstrictionBandSelect(Enum):
@@ -255,8 +306,11 @@ class RippleConstrictionBandSelect(Enum):
     """
 
     STOP = 0
+    """Stop option."""
     PASS = 1
+    """Pass option."""
     BOTH = 2
+    """Both option."""
 
 
 class SinglePointRippleInfZeros(Enum):
@@ -274,7 +328,9 @@ class SinglePointRippleInfZeros(Enum):
     """
 
     RIPPLE_INF_ZEROS_1 = 0
+    """Ripple inf zeros 1 option."""
     RIPPLE_INF_ZEROS_3 = 1
+    """Ripple inf zeros 3 option."""
 
 
 class PassbandDefinition(Enum):
@@ -292,7 +348,9 @@ class PassbandDefinition(Enum):
     """
 
     CENTER_FREQUENCY = 0
+    """Center frequency option."""
     CORNER_FREQUENCIES = 1
+    """Corner frequencies option."""
 
 
 class StopbandDefinition(Enum):
@@ -311,8 +369,11 @@ class StopbandDefinition(Enum):
     """
 
     RATIO = 0
+    """Ratio option."""
     FREQUENCY = 1
+    """Frequency option."""
     ATTENUATION_DB = 2
+    """Attenuation db option."""
 
 
 class Attributes:

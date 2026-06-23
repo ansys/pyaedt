@@ -33,16 +33,26 @@ from ansys.aedt.core.visualization.post.spisim_com_configuration_files.com_setti
 )
 
 logger = settings.logger
+"""Value for logger."""
 
 
 class COMStandards(Enum):
+    """Provide com standards."""
+
     COM_CUSTOM = 0
+    """Com custom option."""
     COM_50GAUI_1_C2C = 1  # com_120d_8
+    """Com 50gaui 1 c2c option."""
     COM_100GAUI_2_C2C = 2  # com_120d_8
+    """Com 100gaui 2 c2c option."""
     COM_200GAUI_4 = 3  # com_120d_8
+    """Com 200gaui 4 option."""
     COM_400GAUI_8 = 4  # com_120d_8
+    """Com 400gaui 8 option."""
     COM_100GBASE_KR4 = 5  # com_93_8
+    """Com 100gbase kr4 option."""
     COM_100GBASE_KP4 = 6  # com_94_17
+    """Com 100gbase kp4 option."""
 
 
 class COMParameters:

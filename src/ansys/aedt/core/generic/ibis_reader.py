@@ -672,6 +672,8 @@ class DifferentialPin(PyAedtBase):
 
 
 class Buffer(PyAedtBase):
+    """Provide buffer."""
+
     def __init__(self, ibis_name: str, short_name: str, app) -> None:
         self._ibis_name = ibis_name
         self._short_name = short_name
@@ -782,6 +784,8 @@ class Buffer(PyAedtBase):
 
 
 class ModelSelector(PyAedtBase):
+    """Provide model selector."""
+
     def __init__(self) -> None:
         self._model_selector_items = []
         self._name = None
@@ -824,6 +828,8 @@ class ModelSelector(PyAedtBase):
 
 
 class ModelSelectorItem(PyAedtBase):
+    """Provide model selector item."""
+
     def __init__(self) -> None:
         self._description = []
         self._name = None
@@ -866,6 +872,8 @@ class ModelSelectorItem(PyAedtBase):
 
 
 class Model(PyAedtBase):
+    """Provide model."""
+
     def __init__(self) -> None:
         self._description = []
         self._name = None

@@ -57,7 +57,9 @@ class ExportFormat(Enum):
     """
 
     DIRECT_TO_AEDT = 0
+    """Direct to AEDT option."""
     PYTHON_SCRIPT = 1
+    """Python script option."""
 
 
 class ExportCreationMode(Enum):
@@ -75,7 +77,9 @@ class ExportCreationMode(Enum):
     """
 
     OVERWRITE = 0
+    """Overwrite option."""
     APPEND = 1
+    """Append option."""
 
 
 class PartLibraries(Enum):
@@ -94,8 +98,11 @@ class PartLibraries(Enum):
     """
 
     LUMPED = 0
+    """Lumped option."""
     INTERCONNECT = 1
+    """Interconnect option."""
     MODELITHICS = 2
+    """Modelithics option."""
 
 
 class SubstrateType(Enum):
@@ -116,10 +123,15 @@ class SubstrateType(Enum):
     """
 
     RGLC = 0
+    """Rglc option."""
     STRIPLINE = 1
+    """Stripline option."""
     MICROSTRIP = 2
+    """Microstrip option."""
     SUSPEND = 3
+    """Suspend option."""
     INVERTED = 4
+    """Inverted option."""
 
 
 class SubstrateEr(Enum):
@@ -154,22 +166,39 @@ class SubstrateEr(Enum):
     """
 
     AIR = 0
+    """Air option."""
     ALUMINA = 1
+    """Alumina option."""
     GA_AS = 2
+    """Ga as option."""
     GERMANIUM = 3
+    """Germanium option."""
     INDIUM_PHOSPHATE = 4
+    """Indium phosphate option."""
     SILICON = 5
+    """Silicon option."""
     QUARTZ = 6
+    """Quartz option."""
     RT_DUROID_5880 = 7
+    """Rt duroid 5880 option."""
     RT_DUROID_5870 = 8
+    """Rt duroid 5870 option."""
     RT_DUROID_6006 = 9
+    """Rt duroid 6006 option."""
     G_10_LOW_RESIN = 10
+    """G 10 low resin option."""
     G_10_HIGH_RESIN = 11
+    """G 10 high resin option."""
     PAPER_PHONELIC = 12
+    """Paper phonelic option."""
     POLYTHYLENE = 13
+    """Polythylene option."""
     POLYSTYRENE = 14
+    """Polystyrene option."""
     CORNING_GLASS_7059 = 15
+    """Corning glass 7059 option."""
     BERYLIUM_OXIDE = 16
+    """Berylium oxide option."""
 
 
 class SubstrateResistivity(Enum):
@@ -198,16 +227,27 @@ class SubstrateResistivity(Enum):
     """
 
     IDEAL = 0
+    """Ideal option."""
     SILVER = 1
+    """Silver option."""
     COPPER = 2
+    """Copper option."""
     GOLD = 3
+    """Gold option."""
     ALUMINUM = 4
+    """Aluminum option."""
     MAGNESIUM = 5
+    """Magnesium option."""
     TUNGSTEN = 6
+    """Tungsten option."""
     ZINC = 7
+    """Zinc option."""
     NICKEL = 8
+    """Nickel option."""
     IRON = 9
+    """Iron option."""
     PLATINUM = 10
+    """Platinum option."""
 
 
 class ExportToAedt:

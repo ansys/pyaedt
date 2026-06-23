@@ -48,7 +48,9 @@ class TableFormat(Enum):
     """
 
     RATIO = 0
+    """Ratio option."""
     BANDWIDTH = 1
+    """Bandwidth option."""
 
 
 class TransmissionZeros:

@@ -61,27 +61,41 @@ DISCLAIMER = (
     "Third-Party Software.\n"
     "Do you want to proceed?\n"
 )
+"""Displayed disclaimer message."""
 UNKNOWN_VERSION = "Unknown"
+"""Fallback label for an unknown version."""
 
 
 class VersionManager:
+    """Manage version manager."""
+
     TITLE = "Version Manager"
+    """Displayed title."""
     USER_GUIDE = (
         "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/project/version_manager.html"
     )
+    """Link to the user guide."""
     UI_WIDTH = 650
+    """UI width."""
     UI_HEIGHT = 320
+    """UI height."""
     UI_MAX_WIDTH = 650
+    """UI max width."""
     UI_MAX_HEIGHT = 320
+    """UI max height."""
     UI_MIN_WIDTH = 450
+    """UI min width."""
     UI_MIN_HEIGHT = 250
+    """UI min height."""
 
     @property
     def venv_path(self) -> str:
+        """Path to venv."""
         return sys.prefix
 
     @property
     def python_exe(self) -> str:
+        """Retrieve python exe."""
         # Use the venv "Scripts" on Windows and "bin" on POSIX; choose platform-appropriate executable name.
         bin_dir = "Scripts" if self.is_windows else "bin"
         exe_name = "python.exe" if self.is_windows else "python"
@@ -89,19 +103,23 @@ class VersionManager:
 
     @property
     def python_version(self) -> str:
+        """Retrieve python version."""
         temp = platform.python_version().split(".")[0:2]
         return ".".join(temp)
 
     @property
     def pyaedt_version(self) -> str:
+        """Retrieve pyaedt version."""
         return self.get_installed_version("pyaedt")
 
     @property
     def pyedb_version(self) -> str:
+        """Retrieve pyedb version."""
         return self.get_installed_version("pyedb")
 
     @property
     def aedt_version(self) -> str:
+        """Retrieve AEDT version."""
         from ansys.aedt.core.extensions.misc import get_aedt_version
 
         return get_aedt_version()
@@ -113,6 +131,7 @@ class VersionManager:
 
     @property
     def personal_lib(self) -> str:
+        """Retrieve personal lib."""
         personal_lib = os.getenv("PYAEDT_PERSONAL_LIB", "").strip()
         if personal_lib:
             return personal_lib
@@ -929,6 +948,7 @@ class VersionManager:
 
 
 def get_desktop():
+    """Retrieve desktop."""
     port = get_port()
     aedt_version = get_aedt_version()
     aedt_process_id = get_process_id()

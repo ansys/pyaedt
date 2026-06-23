@@ -39,6 +39,7 @@ except ImportError as e:  # pragma: no cover
 # ---------------------------------------------------------------------------
 
 json_mode = False
+"""Value for JSON mode."""
 
 
 def print_output(data=None, error=None):
@@ -232,6 +233,7 @@ DEFAULT_TEST_CONFIG = {
     "skip_modelithics": True,
     "use_pyedb_grpc": True,
 }
+"""Default test config."""
 
 
 def get_tests_folder() -> Path:

@@ -46,16 +46,25 @@ from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 # Extension batch arguments
 EXTENSION_DEFAULT_ARGUMENTS = {"file_path": [], "output_dir": ""}
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Circuit Configuration"
+"""Title displayed for the extension."""
 EXTENSION_NB_COLUMN = 2
+"""Number of columns used by the extension UI."""
 FILE_PATH_ERROR_MSG = "Select an existing file before importing."
+"""Error message for file path."""
 DESIGN_TYPE_ERROR_MSG = "A Circuit design is needed for this extension."
+"""Error message for design type."""
 
 
 @dataclass
@@ -69,7 +78,9 @@ class CircuitConfigurationData(ExtensionCommonData):
     """
 
     file_path: list[str] = field(default_factory=list)
+    """Path to file."""
     output_dir: str = EXTENSION_DEFAULT_ARGUMENTS["output_dir"]
+    """Value for output dir."""
 
 
 class CircuitConfigurationExtension(ExtensionCircuitCommon):

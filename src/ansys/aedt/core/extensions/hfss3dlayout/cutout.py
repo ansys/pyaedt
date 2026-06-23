@@ -47,10 +47,15 @@ from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 CUTOUT_TYPES = ("ConvexHull", "Bounding", "Conforming")
+"""Available cutout types."""
 EXTENSION_DEFAULT_ARGUMENTS = {
     "cutout_type": "ConvexHull",
     "signals": [],
@@ -58,11 +63,17 @@ EXTENSION_DEFAULT_ARGUMENTS = {
     "expansion_factor": 3.0,
     "fix_disjoints": False,
 }
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Layout cutout"
+"""Title displayed for the extension."""
 EXTENSION_NB_ROW = 5
+"""Number of rows used by the extension UI."""
 EXTENSION_NB_COLUMN = 2
+"""Number of columns used by the extension UI."""
 SELECTION_PERFORMED = "Selection performed."
+"""Message displayed after a selection is performed."""
 WAITING_FOR_SELECTION = "Waiting for selection..."
+"""Message displayed while waiting for a selection."""
 
 
 @dataclass
@@ -76,10 +87,15 @@ class CutoutData(ExtensionCommonData):
     """
 
     cutout_type: str = EXTENSION_DEFAULT_ARGUMENTS["cutout_type"]
+    """Value for cutout type."""
     signals: list[str] = field(default_factory=lambda: EXTENSION_DEFAULT_ARGUMENTS["signals"])
+    """Value for signals."""
     references: list[str] = field(default_factory=lambda: EXTENSION_DEFAULT_ARGUMENTS["references"])
+    """Value for references."""
     expansion_factor: float = EXTENSION_DEFAULT_ARGUMENTS["expansion_factor"]
+    """Value for expansion factor."""
     fix_disjoints: bool = EXTENSION_DEFAULT_ARGUMENTS["fix_disjoints"]
+    """Value for fix disjoints."""
 
 
 class CutoutExtension(ExtensionHFSS3DLayoutCommon):

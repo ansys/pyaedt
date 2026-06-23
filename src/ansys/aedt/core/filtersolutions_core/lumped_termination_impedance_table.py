@@ -50,9 +50,13 @@ class ComplexTerminationDefinition(Enum):
     """
 
     POLAR = 0
+    """Polar option."""
     CARTESIAN = 1
+    """Cartesian option."""
     PARALLEL = 2
+    """Parallel option."""
     REAL = 3
+    """Real option."""
 
 
 class ComplexReactanceType(Enum):
@@ -71,8 +75,11 @@ class ComplexReactanceType(Enum):
     """
 
     REAC = 0
+    """Reac option."""
     IND = 1
+    """Ind option."""
     CAP = 2
+    """Cap option."""
 
 
 class TerminationType(Enum):
@@ -90,7 +97,9 @@ class TerminationType(Enum):
     """
 
     SOURCE = 0
+    """Source option."""
     LOAD = 1
+    """Load option."""
 
 
 class LumpedTerminationImpedance:

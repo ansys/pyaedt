@@ -41,9 +41,13 @@ from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 # Extension batch arguments
 EXTENSION_DEFAULT_ARGUMENTS = {
@@ -55,7 +59,9 @@ EXTENSION_DEFAULT_ARGUMENTS = {
     "split_via": True,
     "angle": 75.0,
 }
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Layout Design Toolkit"
+"""Title displayed for the extension."""
 
 
 @dataclass
@@ -69,12 +75,19 @@ class PostLayoutDesignExtensionData(ExtensionCommonData):
     """
 
     action: str = EXTENSION_DEFAULT_ARGUMENTS["action"]
+    """Value for action."""
     selections: list = None
+    """Value for selections."""
     radius: str = EXTENSION_DEFAULT_ARGUMENTS["radius"]
+    """Value for radius."""
     race_track: bool = EXTENSION_DEFAULT_ARGUMENTS["race_track"]
+    """Value for race track."""
     signal_only: bool = EXTENSION_DEFAULT_ARGUMENTS["signal_only"]
+    """Value for signal only."""
     split_via: bool = EXTENSION_DEFAULT_ARGUMENTS["split_via"]
+    """Value for split via."""
     angle: float = EXTENSION_DEFAULT_ARGUMENTS["angle"]
+    """Value for angle."""
 
     def __post_init__(self) -> None:
         if self.selections is None:
@@ -137,6 +150,7 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
 
     @property
     def pedb(self):
+        """Retrieve pedb."""
         if self._pedb is None:
             self._pedb = self.aedt_application.modeler.primitives.edb
         return self._pedb

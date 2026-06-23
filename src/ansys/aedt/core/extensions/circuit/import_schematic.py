@@ -41,13 +41,19 @@ from ansys.aedt.core.extensions.misc import is_student
 
 # Retrieve environment info
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 # Extension batch arguments and title
 EXTENSION_DEFAULT_ARGUMENTS = {"file_extension": ""}
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Import schematic to Circuit"
+"""Title displayed for the extension."""
 
 
 @dataclass
@@ -61,6 +67,7 @@ class ImportSchematicData(ExtensionCommonData):
     """
 
     file_extension: str = EXTENSION_DEFAULT_ARGUMENTS["file_extension"]
+    """Value for file extension."""
 
 
 class ImportSchematicExtension(ExtensionCircuitCommon):

@@ -80,6 +80,7 @@ class Part(PyAedtBase):
         "beamwidth_azimuth": None,  # Antenna only
         "polarization": None,
     }  # Antenna only
+    """Value for allowed keys."""
 
     def __init__(self, part_folder, part_dict, parent=None, name: str | None = None) -> None:
         # Default values:

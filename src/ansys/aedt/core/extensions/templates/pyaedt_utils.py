@@ -47,6 +47,7 @@ from System.Windows.Forms import MessageBoxButtons
 from System.Windows.Forms import MessageBoxIcon
 
 is_linux = os.name == "posix"
+"""Flag indicating whether linux is enabled."""
 
 
 def sanitize_interpreter_path(interpreter_path, version):
@@ -127,6 +128,8 @@ def get_linux_terminal_command():
 
 
 def which(program):
+    """Return the executable path for a program."""
+
     def is_exe(fpath):
         return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
 
@@ -209,6 +212,7 @@ def environment_variables(oDesktop):
 
 
 def generate_unique_name(root_name, suffix="", n=6):
+    """Return generate unique name."""
     char_set = string.ascii_uppercase + string.digits
     unique_name = root_name + "_" + "".join(random.choice(char_set) for _ in range(n))  # nosec B311
     if suffix:

@@ -49,6 +49,7 @@ from ansys.aedt.core.internal.filesystem import is_safe_path
 
 logging.basicConfig(stream=sys.stderr, level=logging.INFO)
 logger = logging.getLogger(__name__)
+"""Value for logger."""
 
 
 @dataclass
@@ -56,8 +57,11 @@ class _AEDTGrpcInfo:
     """Class to store information about the AEDT gRPC server."""
 
     host: str
+    """Value for host."""
     port: int
+    """Value for port."""
     version: str
+    """Value for version."""
 
 
 class FileManagement(PyAedtBase):

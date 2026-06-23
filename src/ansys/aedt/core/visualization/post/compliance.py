@@ -59,9 +59,12 @@ default_keys = [
     "V2",
     "TD",
 ]
+"""Value for default keys."""
 
 
 class CommonTemplate(PyAedtBase):
+    """Provide common template."""
+
     def __init__(self, report) -> None:
         self._name = report["name"]
         self.report_type = report.get("type", "frequency")
@@ -255,6 +258,8 @@ class CommonTemplate(PyAedtBase):
 
 
 class ReportTemplate(CommonTemplate):
+    """Provide report template."""
+
     def __init__(self, report) -> None:
         CommonTemplate.__init__(self, report)
         self.group_plots = report.get("group_plots", False)
@@ -281,6 +286,8 @@ class ReportTemplate(CommonTemplate):
 
 
 class ReportParametersTemplate(CommonTemplate):
+    """Provide report parameters template."""
+
     def __init__(self, report) -> None:
         CommonTemplate.__init__(self, report)
         self._parameter_name = report.get("parameter_name", "")
@@ -308,6 +315,8 @@ class ReportParametersTemplate(CommonTemplate):
 
 
 class ParametersTemplate(CommonTemplate):
+    """Provide parameters template."""
+
     def __init__(self, report) -> None:
         CommonTemplate.__init__(self, report)
         self.trace_pins = report.get("trace_pins", [])
@@ -639,6 +648,8 @@ class VirtualComplianceGenerator(PyAedtBase):
 
 
 class VirtualComplianceChaptersData(PyAedtBase):
+    """Store virtual compliance chapters data."""
+
     def __init__(self, title) -> None:
         self.title = title
         self.content = []

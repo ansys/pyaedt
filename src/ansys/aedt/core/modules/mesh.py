@@ -66,6 +66,7 @@ mesh_props = {
     "RestrictLayersNum": "Restrict Layers Number",
     "LayersNum": "Number of layers",
 }
+"""Value for mesh props."""
 
 
 class MeshProps(dict):
@@ -155,6 +156,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
 
     @property
     def type(self) -> str:
+        """Retrieve type."""
         if not self._type:
             self._type = self.props.get("Type", None)
         return self._type

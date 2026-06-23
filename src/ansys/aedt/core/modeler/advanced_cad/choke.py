@@ -90,6 +90,7 @@ CHOKE_DEFAULT_PARAMETERS = {
     "Settings": {"Units": "mm"},
     "Create Component": {"True": True, "False": False},
 }
+"""Choke default parameters."""
 
 
 @dataclass
@@ -197,18 +198,31 @@ class Choke(PyAedtBase):
     """
 
     name: str = "choke"
+    """Value for name."""
     number_of_windings: dict[str, bool] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Number of Windings"])
+    """Value for number of windings."""
     layer: dict[str, bool] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Layer"])
+    """Value for layer."""
     layer_type: dict[str, bool] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Layer Type"])
+    """Value for layer type."""
     similar_layer: dict[str, bool] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Similar Layer"])
+    """Value for similar layer."""
     mode: dict[str, bool] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Mode"])
+    """Value for mode."""
     wire_section: dict[str, bool] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Wire Section"])
+    """Value for wire section."""
     core: dict[str, Any] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Core"])
+    """Value for core."""
     outer_winding: dict[str, Any] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Outer Winding"])
+    """Value for outer winding."""
     mid_winding: dict[str, Any] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Mid Winding"])
+    """Value for mid winding."""
     inner_winding: dict[str, Any] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Inner Winding"])
+    """Value for inner winding."""
     settings: dict[str, Any] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Settings"])
+    """Value for settings."""
     create_component: dict[str, bool] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Create Component"])
+    """Value for create component."""
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "Choke":

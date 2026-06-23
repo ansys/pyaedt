@@ -65,12 +65,19 @@ if TYPE_CHECKING:
 
 # Error messages
 ERROR_MSG_CENTER = "The ``center`` argument must be a valid three-element list."
+"""Error message for error msg center."""
 ERROR_MSG_ORIGIN = "The ``origin`` argument must be a valid three-element list."
+"""Error message for error msg origin."""
 ERROR_MSG_RADIUS = "The ``radius`` argument must be greater than 0."
+"""Error message for error msg radius."""
 ERROR_MSG_SIZES_2 = "The ``sizes`` argument must be a valid two-element list."
+"""Error message for error msg sizes 2."""
 ERROR_MSG_SIZES_3 = "The ``sizes`` argument must be a valid three-element list."
+"""Error message for error msg sizes 3."""
 ERROR_MSG_START = "The ``start`` argument must be a valid three-element list."
+"""Error message for error msg start."""
 ERROR_MSG_END = "The ``end`` argument must be a valid three-element list."
+"""Error message for error msg end."""
 
 
 class Primitives3D(GeometryModeler, PyAedtBase):

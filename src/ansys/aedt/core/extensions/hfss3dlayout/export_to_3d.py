@@ -38,15 +38,22 @@ from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 # Extension batch arguments
 EXTENSION_DEFAULT_ARGUMENTS = {"choice": "Export to HFSS"}
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Export to 3D"
+"""Title displayed for the extension."""
 
 SUFFIXES = {"Export to HFSS": "HFSS", "Export to Q3D": "Q3D", "Export to Maxwell 3D": "M3D", "Export to Icepak": "IPK"}
+"""Supported suffixes."""
 
 
 @dataclass
@@ -60,6 +67,7 @@ class ExportTo3DExtensionData(ExtensionCommonData):
     """
 
     choice: str = EXTENSION_DEFAULT_ARGUMENTS["choice"]
+    """Value for choice."""
 
 
 class ExportTo3DExtension(ExtensionHFSS3DLayoutCommon):

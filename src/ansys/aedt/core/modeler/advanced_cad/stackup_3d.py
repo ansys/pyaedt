@@ -36,6 +36,7 @@ if TYPE_CHECKING:
 from ansys.aedt.core.modules.material_lib import Material
 
 LAYERS = {"s": "signal", "g": "ground", "d": "dielectric"}
+"""Layers."""
 
 
 def _replace_by_underscore(character, string):
@@ -337,30 +338,37 @@ class DuplicatedParametrizedMaterial(PyAedtBase):
 
     @property
     def material(self) -> "Material":
+        """Retrieve material."""
         return self._material
 
     @property
     def material_name(self) -> str:
+        """Retrieve material name."""
         return self._material_name
 
     @property
     def permittivity(self) -> "NamedVariable":
+        """Retrieve permittivity."""
         return self._permittivity
 
     @property
     def permeability(self) -> "NamedVariable":
+        """Retrieve permeability."""
         return self._permeability
 
     @property
     def conductivity(self) -> "NamedVariable":
+        """Retrieve conductivity."""
         return self._conductivity
 
     @property
     def dielectric_loss_tangent(self) -> "NamedVariable":
+        """Retrieve dielectric loss tangent."""
         return self._dielectric_loss_tangent
 
     @property
     def magnetic_loss_tangent(self) -> "NamedVariable":
+        """Retrieve magnetic loss tangent."""
         return self._magnetic_loss_tangent
 
 

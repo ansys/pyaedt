@@ -85,6 +85,8 @@ def identify_setup(props: dict) -> bool:
 
 
 class SweepCommon(PyAedtBase):
+    """Provide sweep common."""
+
     def __repr__(self) -> str:
         return f"{self.setup_name} : {self.name}"
 

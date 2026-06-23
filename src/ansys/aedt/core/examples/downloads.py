@@ -44,6 +44,7 @@ from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 EXAMPLES_PATH = Path(tempfile.gettempdir()) / "PyAEDTExamples"
+"""Path to the examples directory."""
 
 
 def delete_downloads() -> None:
@@ -899,6 +900,7 @@ def download_file(source: str, name: str = None, local_path: str | Path = None, 
 
 
 def unzip(source_filename: str, dest_dir: str) -> None:
+    """Return unzip."""
     with zipfile.ZipFile(source_filename) as zf:
         zf.extractall(dest_dir)
     print(dest_dir)

@@ -32,6 +32,7 @@ import ansys.aedt.core
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 
 existing_showwarning = warnings.showwarning
+"""Value for existing showwarning."""
 
 
 def custom_show_warning(message, category, filename, lineno, file=None, line=None) -> None:
@@ -46,13 +47,20 @@ def custom_show_warning(message, category, filename, lineno, file=None, line=Non
 
 
 warnings.showwarning = custom_show_warning
+"""Warnings hook used while configuring CLR integration."""
 
 modules = [tup[1] for tup in pkgutil.iter_modules()]
+"""Value for modules."""
 cpython = "IronPython" not in sys.version and ".NETFramework" not in sys.version
+"""Value for cpython."""
 is_linux = os.name == "posix"
+"""Flag indicating whether linux is enabled."""
 is_windows = not is_linux
+"""Flag indicating whether windows is enabled."""
 is_clr = False
+"""Flag indicating whether clr is enabled."""
 pyaedt_path = Path(ansys.aedt.core.__file__).parent
+"""Path to pyaedt path."""
 
 if is_linux and cpython:
     from pythonnet import load

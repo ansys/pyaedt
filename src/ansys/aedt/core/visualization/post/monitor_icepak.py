@@ -49,6 +49,7 @@ quantities_dict_1 = {  # pragma: no cover
     29: "HeatFlux",
     31: "HeatFlowRate",
 }
+"""Value for quantities dict 1."""
 
 quantities_dict_2 = {  # pragma: no cover
     8: "Speed",
@@ -68,6 +69,7 @@ quantities_dict_2 = {  # pragma: no cover
     32: "TemperatureMinimum",
     33: "HeatFlowRate",
 }
+"""Value for quantities dict 2."""
 
 
 quantities_type_dict = {  # pragma: no cover
@@ -88,6 +90,7 @@ quantities_type_dict = {  # pragma: no cover
     "TemperatureMaximum": ["Face"],
     "TemperatureMinimum": ["Face"],
 }
+"""Value for quantities type dict."""
 
 
 class Monitor(PyAedtBase):

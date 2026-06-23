@@ -1923,6 +1923,7 @@ class BinaryTreeNode:
 
     @property
     def children(self) -> dict:
+        """Retrieve children."""
         if not self._children:
             self._update_children()
         return self._children

@@ -36,6 +36,8 @@ from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 
 
 class AedtObjects(PyAedtBase):
+    """Provide AEDT objects."""
+
     def __init__(
         self, desktop=None, project: str | None = None, design: str | None = None, is_inherithed: bool = False
     ) -> None:
@@ -185,6 +187,7 @@ class AedtObjects(PyAedtBase):
 
     @property
     def design_type(self) -> object:
+        """Retrieve design type."""
         return self._odesign.GetDesignType()
 
     @property

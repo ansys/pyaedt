@@ -309,6 +309,7 @@ class StandardWaveguide(PyAedtBase):
     """
 
     wg = {}
+    """Value for wg."""
     wg["WR-2300"] = [23.0, 11.5, 0.15]
     wg["WR-2100"] = [21.0, 10.5, 0.125]
     wg["WR-1800"] = [18.0, 9.0, 0.125]

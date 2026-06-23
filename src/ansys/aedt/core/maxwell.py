@@ -67,6 +67,8 @@ from ansys.aedt.core.modules.setup_templates import SetupKeys
 
 
 class Maxwell(CreateBoundaryMixin, PyAedtBase):
+    """Provide maxwell."""
+
     def __init__(self) -> None:
         pass
 

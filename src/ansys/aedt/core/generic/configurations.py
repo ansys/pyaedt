@@ -1621,6 +1621,8 @@ class Configurations(PyAedtBase):
 
 
 class ConfigurationOptionsIcepak(ConfigurationsOptions, PyAedtBase):
+    """Provide configuration options icepak."""
+
     def __init__(self, app) -> None:
         ConfigurationsOptions.__init__(self)
         self._export_monitor = True
@@ -1630,6 +1632,7 @@ class ConfigurationOptionsIcepak(ConfigurationsOptions, PyAedtBase):
 
     @property
     def import_monitor(self):
+        """Retrieve import monitor."""
         return self._import_monitor
 
     @import_monitor.setter
@@ -1638,6 +1641,7 @@ class ConfigurationOptionsIcepak(ConfigurationsOptions, PyAedtBase):
 
     @property
     def export_monitor(self):
+        """Retrieve export monitor."""
         return self._export_monitor
 
     @export_monitor.setter
@@ -1646,6 +1650,7 @@ class ConfigurationOptionsIcepak(ConfigurationsOptions, PyAedtBase):
 
     @property
     def import_native_components(self):
+        """Retrieve import native components."""
         return self._import_native_components
 
     @import_native_components.setter
@@ -1654,6 +1659,7 @@ class ConfigurationOptionsIcepak(ConfigurationsOptions, PyAedtBase):
 
     @property
     def export_native_components(self):
+        """Retrieve export native components."""
         return self._export_native_components
 
     @export_native_components.setter
@@ -1662,6 +1668,8 @@ class ConfigurationOptionsIcepak(ConfigurationsOptions, PyAedtBase):
 
 
 class ConfigurationOptions3DLayout(ConfigurationsOptions, PyAedtBase):
+    """Provide configuration options 3 D layout."""
+
     def __init__(self, app) -> None:
         ConfigurationsOptions.__init__(self)
         self._export_mesh_operations = False

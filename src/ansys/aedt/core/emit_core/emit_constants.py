@@ -37,6 +37,8 @@ Examples
 
 
 class MutableEnum:
+    """Provide mutable enum."""
+
     @classmethod
     def members(cls):
         members = [
@@ -50,32 +52,57 @@ class MutableEnum:
 
 
 class ResultType(MutableEnum):
+    """Provide result type."""
+
     EMI = None
+    """EMI option."""
     DESENSE = None
+    """Desense option."""
     SENSITIVITY = None
+    """Sensitivity option."""
     POWER_AT_RX = None
+    """Power at rx option."""
 
 
 class TxRxMode(MutableEnum):
+    """Provide tx rx mode."""
+
     TX = None
+    """Tx option."""
     RX = None
+    """Rx option."""
     BOTH = None
+    """Both option."""
 
 
 class InterfererType(MutableEnum):
+    """Provide interferer type."""
+
     TRANSMITTERS = None
+    """Transmitters option."""
     EMITTERS = None
+    """Emitters option."""
     TRANSMITTERS_AND_EMITTERS = None
+    """Transmitters and emitters option."""
 
 
 class UnitType(MutableEnum):
+    """Provide unit type."""
+
     POWER = None
+    """Power option."""
     FREQUENCY = None
+    """Frequency option."""
     LENGTH = None
+    """Length option."""
     TIME = None
+    """Time option."""
     VOLTAGE = None
+    """Voltage option."""
     DATA_RATE = None
+    """Data rate option."""
     RESISTANCE = None
+    """Resistance option."""
 
 
 EMIT_VALID_UNITS = {
@@ -160,12 +187,16 @@ EMIT_TO_AEDT_UNITS = {
     "Mbps": "Mbps",
     "Gbps": "Gbps",
 }
+"""EMIT to AEDT units."""
 
 EMIT_FN_ALLOWED_VARS = {"RF", "IF", "LO"}
+"""EMIT fn allowed vars."""
 
 EMIT_FN_ALLOWED_FUNCS = {"abs", "trunc"}
+"""EMIT fn allowed funcs."""
 
 EMIT_FN_ALLOWED_OPS = {"+", "-", "*", "/"}
+"""EMIT fn allowed ops."""
 
 
 def data_rate_conv(value: float, units: str, to_internal: bool = True) -> float:
@@ -214,6 +245,7 @@ def data_rate_conv(value: float, units: str, to_internal: bool = True) -> float:
 
 
 def emit_unit_type_string_to_enum(unit_string: str) -> UnitType:
+    """Return EMIT unit type string to enum."""
     EMIT_UNIT_TYPE_STRING_TO_ENUM = {
         "Power": UnitType.POWER,
         "Frequency": UnitType.FREQUENCY,
@@ -227,6 +259,7 @@ def emit_unit_type_string_to_enum(unit_string: str) -> UnitType:
 
 
 def emi_cat_enum_to_string(emi_cat_enum) -> str:
+    """Return EMI cat enum to string."""
     EMI_CAT_ENUM_TO_STR = {
         EmiCategoryFilter.IN_CHANNEL_TX_FUNDAMENTAL: "In-Channel Tx Fundamental",
         EmiCategoryFilter.IN_CHANNEL_TX_HARMONIC_SPURIOUS: "In-Channel Tx Harmonic/Spurious",
@@ -240,13 +273,22 @@ def emi_cat_enum_to_string(emi_cat_enum) -> str:
 
 
 class EmiCategoryFilter(MutableEnum):
+    """Provide EMI category filter."""
+
     IN_CHANNEL_TX_FUNDAMENTAL = None
+    """In channel tx fundamental option."""
     IN_CHANNEL_TX_HARMONIC_SPURIOUS = None
+    """In channel tx harmonic spurious option."""
     IN_CHANNEL_TX_INTERMOD = None
+    """In channel tx intermod option."""
     IN_CHANNEL_TX_BROADBAND = None
+    """In channel tx broadband option."""
     OUT_OF_CHANNEL_TX_FUNDAMENTAL = None
+    """Out of channel tx fundamental option."""
     OUT_OF_CHANNEL_TX_HARMONIC_SPURIOUS = None
+    """Out of channel tx harmonic spurious option."""
     OUT_OF_CHANNEL_TX_INTERMOD = None
+    """Out of channel tx intermod option."""
 
 
 if __name__ == "__main__":

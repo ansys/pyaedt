@@ -47,9 +47,13 @@ from ansys.aedt.core.generic.file_utils import write_csv
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 # Extension batch arguments
 EXTENSION_DEFAULT_ARGUMENTS = {
@@ -59,7 +63,9 @@ EXTENSION_DEFAULT_ARGUMENTS = {
     "objects_list": [],
     "solution_option": "",
 }
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Fields Distribution"
+"""Title displayed for the extension."""
 
 
 @dataclass
@@ -77,10 +83,15 @@ class FieldsDistributionExtensionData(ExtensionCommonData):
     """
 
     points_file: str = EXTENSION_DEFAULT_ARGUMENTS["points_file"]
+    """File path for points."""
     export_file: str = EXTENSION_DEFAULT_ARGUMENTS["export_file"]
+    """File path for export."""
     export_option: str = EXTENSION_DEFAULT_ARGUMENTS["export_option"]
+    """Value for export option."""
     objects_list: list = None
+    """Value for objects list."""
     solution_option: str = EXTENSION_DEFAULT_ARGUMENTS["solution_option"]
+    """Value for solution option."""
 
     def __post_init__(self) -> None:
         if self.objects_list is None:

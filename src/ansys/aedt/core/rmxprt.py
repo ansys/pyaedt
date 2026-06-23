@@ -45,6 +45,7 @@ class RMXprtModule(PyAedtBase):
     """
 
     component = None
+    """Value for component."""
 
     def __init__(self, app) -> None:
         self._app = app
@@ -130,6 +131,7 @@ class Stator(RMXprtModule):
     """
 
     component = "Stator"
+    """Value for component."""
 
 
 class Rotor(RMXprtModule):
@@ -143,6 +145,7 @@ class Rotor(RMXprtModule):
     """
 
     component = "Rotor"
+    """Value for component."""
 
 
 class Shaft(RMXprtModule):
@@ -156,6 +159,7 @@ class Shaft(RMXprtModule):
     """
 
     component = "Shaft"
+    """Value for component."""
 
 
 class Machine(RMXprtModule):
@@ -169,6 +173,7 @@ class Machine(RMXprtModule):
     """
 
     component = "General"
+    """Value for component."""
 
 
 class Circuit(RMXprtModule):
@@ -182,6 +187,7 @@ class Circuit(RMXprtModule):
     """
 
     component = "Circuit"
+    """Value for component."""
 
 
 class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):

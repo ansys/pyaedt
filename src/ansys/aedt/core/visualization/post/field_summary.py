@@ -71,6 +71,7 @@ TOTAL_QUANTITIES = [
     "VolumeFlowRate",
     "SurfJouleHeatingDensity",
 ]
+"""Total quantities."""
 AVAILABLE_QUANTITIES = [
     "Temperature",
     "SurfTemperature",
@@ -113,6 +114,7 @@ AVAILABLE_QUANTITIES = [
     "SurfJouleHeatingDensity",
     "JouleHeatingDensity",
 ]
+"""Available quantities."""
 
 
 class FieldSummary(PyAedtBase):

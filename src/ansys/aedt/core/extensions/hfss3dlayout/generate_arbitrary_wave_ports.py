@@ -45,9 +45,13 @@ from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 # Extension batch arguments
 EXTENSION_DEFAULT_ARGUMENTS = {
@@ -56,7 +60,9 @@ EXTENSION_DEFAULT_ARGUMENTS = {
     "mounting_side": "top",
     "import_edb": True,
 }
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Arbitrary wave port creator"
+"""Title displayed for the extension."""
 
 
 @dataclass
@@ -75,9 +81,13 @@ class ArbitraryWavePortExtensionData(ExtensionCommonData):
     """
 
     working_path: str = EXTENSION_DEFAULT_ARGUMENTS["working_path"]
+    """Path to working."""
     source_path: str = EXTENSION_DEFAULT_ARGUMENTS["source_path"]
+    """Path to source."""
     mounting_side: str = EXTENSION_DEFAULT_ARGUMENTS["mounting_side"]
+    """Value for mounting side."""
     import_edb: bool = EXTENSION_DEFAULT_ARGUMENTS["import_edb"]
+    """Value for import EDB."""
 
 
 class ArbitraryWavePortExtension(ExtensionHFSS3DLayoutCommon):

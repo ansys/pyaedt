@@ -44,10 +44,13 @@ from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 INTRO_LINK = "https://aedt.docs.pyansys.com/version/dev/User_guide/pyaedt_extensions_doc/project/configure_layout.html"
+"""Intro link."""
 GUIDE_LINK = "https://examples.aedt.docs.pyansys.com/version/dev/examples/edb/use_configuration/index.html"
+"""Guide link."""
 
 
 def create_new_edb_name(name: str):
+    """Create new EDB name."""
     suffix = name.split("_")[-1]
     is_int = True
     try:
@@ -60,21 +63,32 @@ def create_new_edb_name(name: str):
 
 
 class ConfigureLayoutExtension(ExtensionHFSS3DLayoutCommon):
+    """Provide the configure layout extension."""
+
     EXTENSION_TITLE = "Configure Layout"
+    """Title displayed for the extension."""
     GRID_PARAMS = {"padx": 15, "pady": 10, "sticky": "nsew"}
+    """Grid params."""
 
     tab_frame_main = None
+    """Value for tab frame main."""
     tab_frame_export = None
+    """Value for tab frame export."""
     tab_frame_example = None
+    """Value for tab frame example."""
 
     var_active_design = None
+    """Value for var active design."""
     var_load_overwrite = None
+    """Value for var load overwrite."""
     var_selected_design = None
+    """Value for var selected design."""
 
     __selected_design = ""
 
     @property
     def selected_edb(self):
+        """Retrieve selected EDB."""
         if self.var_active_design.get() == 0:
             return self.get_active_edb()
         else:

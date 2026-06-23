@@ -37,6 +37,7 @@ from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
 
 json_to_dict = read_json
+"""Value for JSON to dict."""
 
 
 @pyaedt_function_handler()
@@ -437,7 +438,9 @@ RKM_MAPS = {
     "pH": "p",
     "PH": "p",
 }
+"""Rkm maps."""
 AEDT_MAPS = {"μ": "u"}
+"""AEDT maps."""
 
 
 @pyaedt_function_handler()
@@ -619,6 +622,7 @@ unit_val = {
     "meter": 1.0,
     "km": 1e3,
 }
+"""Value for unit val."""
 resynch_maxwell2D_control_program_for_design = """
 from ansys.aedt.core.desktop import Desktop
 from ansys.aedt.core.maxwell import Maxwell2d
@@ -631,6 +635,7 @@ with Desktop() as d:
     d.logger.info("Successfully updated project definitions")
     maxwell_2d.save_project()
 """
+"""Value for resynch maxwell2D control program for design."""
 
 
 @pyaedt_function_handler()
@@ -671,6 +676,7 @@ def float_units(val_str: str, units: str = "") -> float:
 
 @pyaedt_function_handler()
 def normalize_string_format(text: str) -> str:
+    """Normalize string format."""
     equivalence_table = {
         "$": "S",
         "€": "E",

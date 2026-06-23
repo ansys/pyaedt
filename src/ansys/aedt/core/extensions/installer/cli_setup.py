@@ -30,7 +30,9 @@ import sys
 import tempfile
 
 aedt_process_id = int(os.environ.get("PYAEDT_PROCESS_ID", None))
+"""Value for AEDT process id."""
 version = os.environ.get("PYAEDT_DESKTOP_VERSION", None)
+"""Value for version."""
 print("Loading the PyAEDT CLI.")
 
 try:
@@ -53,16 +55,21 @@ except ImportError:
 
 
 def release(d) -> None:
+    """Release the specified resource."""
     d.logger.info("Exiting the PyAEDT CLI.")
 
     d.release_desktop(False, False)
 
 
 session_found = False
+"""Value for session found."""
 port = 0
+"""Value for port."""
 student_version = False
+"""Value for student version."""
 
 sessions = active_sessions(version=version, student_version=False)
+"""Value for sessions."""
 if aedt_process_id in sessions:
     session_found = True
     if sessions[aedt_process_id] != -1:
@@ -76,6 +83,7 @@ if not session_found:
             port = sessions[aedt_process_id]
 
 error = False
+"""Value for error."""
 if port:
     desktop = Desktop(
         version=version,

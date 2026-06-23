@@ -38,8 +38,10 @@ from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.settings import settings
 
 CURRENT_STABLE_AEDT_VERSION = 2026.1
+"""Current stable AEDT version."""
 
 module_file_path = __file__
+"""Path to module file path."""
 
 
 class AedtVersions(PyAedtBase):
@@ -98,6 +100,7 @@ class AedtVersions(PyAedtBase):
 
     @property
     def pyaedt_edt_version(self):
+        """Retrieve pyaedt edt version."""
         if self._pyaedt_edt_version is None:
             self.is_pyaedt_in_edt()
 
@@ -307,3 +310,4 @@ class AedtVersions(PyAedtBase):
 
 
 aedt_versions = AedtVersions()
+"""Value for AEDT versions."""

@@ -49,6 +49,7 @@ from ansys.aedt.core.cli.project import project_app
 from ansys.aedt.core.cli.script import run_script
 
 app = typer.Typer(no_args_is_help=True)
+"""Value for app."""
 
 
 @app.callback()

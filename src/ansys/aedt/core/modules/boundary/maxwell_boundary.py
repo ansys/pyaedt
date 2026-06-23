@@ -59,8 +59,11 @@ class MatrixElectric:
     """
 
     signal_sources: list
+    """Value for signal sources."""
     ground_sources: list = field(default_factory=list)
+    """Value for ground sources."""
     matrix_name: str | None = None
+    """Value for matrix name."""
 
 
 @dataclass
@@ -86,8 +89,11 @@ class SourceMagnetostatic:
     """
 
     name: str
+    """Value for name."""
     return_path: str = "infinite"
+    """Path to return."""
     turns_number: int = 1
+    """Value for turns number."""
 
 
 @dataclass
@@ -113,8 +119,11 @@ class GroupSourcesMagnetostatic:
     """
 
     source_names: list
+    """Value for source names."""
     branches_number: int = 1
+    """Value for branches number."""
     name: str | None = None
+    """Value for name."""
 
 
 @dataclass
@@ -138,8 +147,11 @@ class MatrixMagnetostatic:
     """
 
     signal_sources: list[SourceMagnetostatic]
+    """Value for signal sources."""
     group_sources: list[GroupSourcesMagnetostatic]
+    """Value for group sources."""
     matrix_name: str | None = None
+    """Value for matrix name."""
 
 
 @dataclass
@@ -163,7 +175,9 @@ class SourceACMagnetic:
     """
 
     name: str
+    """Value for name."""
     return_path: str = "infinite"
+    """Path to return."""
 
 
 @dataclass
@@ -185,7 +199,9 @@ class MatrixACMagnetic:
     """
 
     signal_sources: list[SourceACMagnetic]
+    """Value for signal sources."""
     matrix_name: str | None = None
+    """Value for matrix name."""
 
 
 @dataclass
@@ -207,7 +223,9 @@ class RLSourceACMagneticAPhi:
     """
 
     signal_sources: list
+    """Value for signal sources."""
     ground_sources: list
+    """Value for ground sources."""
 
 
 @dataclass
@@ -229,7 +247,9 @@ class GCSourceACMagneticAPhi:
     """
 
     signal_sources: list
+    """Value for signal sources."""
     ground_sources: list
+    """Value for ground sources."""
 
 
 @dataclass
@@ -253,18 +273,24 @@ class MatrixACMagneticAPhi:
     """
 
     rl_sources: list[RLSourceACMagneticAPhi]
+    """Value for rl sources."""
     gc_sources: list[GCSourceACMagneticAPhi]
+    """Value for gc sources."""
     matrix_name: str | None = None
+    """Value for matrix name."""
 
 
 # Type aliases for data classes
 
 # Source types for different solvers
 MaxwellSourceSchema = SourceMagnetostatic | SourceACMagnetic | RLSourceACMagneticAPhi | GCSourceACMagneticAPhi
+"""Value for maxwell source schema."""
 # Group source types
 MaxwellGroupSourceSchema = GroupSourcesMagnetostatic
+"""Value for maxwell group source schema."""
 # All matrix schema types (top-level matrix definitions)
 MaxwellMatrixSchema = MatrixElectric | MatrixMagnetostatic | MatrixACMagnetic | MatrixACMagneticAPhi
+"""Value for maxwell matrix schema."""
 
 
 class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
@@ -488,6 +514,7 @@ class MaxwellMatrix(MaxwellParameters):
 
     @property
     def signal_sources(self) -> list[SourceACMagnetic] | None:
+        """Retrieve signal sources."""
         if (
             isinstance(self._schema, MatrixElectric)
             or isinstance(self._schema, MatrixMagnetostatic)
@@ -498,24 +525,28 @@ class MaxwellMatrix(MaxwellParameters):
 
     @property
     def ground_sources(self) -> list[str] | None:
+        """Retrieve ground sources."""
         if isinstance(self._schema, MatrixElectric):
             return self._schema.ground_sources
         return None
 
     @property
     def group_sources(self) -> list[GroupSourcesMagnetostatic] | None:
+        """Retrieve group sources."""
         if isinstance(self._schema, MatrixMagnetostatic):
             return self._schema.group_sources
         return None
 
     @property
     def rl_sources(self) -> list[RLSourceACMagneticAPhi] | None:
+        """Retrieve rl sources."""
         if isinstance(self._schema, MatrixACMagneticAPhi):
             return self._schema.rl_sources
         return None
 
     @property
     def gc_sources(self) -> list[GCSourceACMagneticAPhi] | None:
+        """Retrieve gc sources."""
         if isinstance(self._schema, MatrixACMagneticAPhi):
             return self._schema.gc_sources
         return None

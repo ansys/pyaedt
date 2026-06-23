@@ -33,6 +33,7 @@ __all__ = ["nastran_to_stl"]
 
 
 USE_PY_SOURCE_FOR_DEBUG = False  # Set to True to use nastran_import_lib.py directly
+"""Flag indicating whether py source for debug is enabled."""
 
 if USE_PY_SOURCE_FOR_DEBUG:
     import importlib.util

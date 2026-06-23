@@ -5087,6 +5087,8 @@ class DesignSettings(PyAedtBase):
 
 
 class DesignSettingsManipulation(PyAedtBase):
+    """Provide design settings manipulation."""
+
     @abstractmethod
     def execute(self, k: str, v: Any) -> Any:
         pass

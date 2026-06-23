@@ -36,6 +36,7 @@ from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 
 log = settings.logger
+"""Value for log."""
 
 
 # lazy imports

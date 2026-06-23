@@ -49,7 +49,9 @@ from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import ExtensionEMITCommon
 
 EXTENSION_TITLE = "EMIT EMI Heat Map"
+"""Title displayed for the extension."""
 EXTENSION_DEFAULT_ARGUMENTS = {}
+"""Default arguments for the extension."""
 
 
 @dataclass
@@ -63,13 +65,21 @@ class EMIHeatmapExtensionData(ExtensionCommonData):
     """
 
     emi: np.ndarray | None = None
+    """Value for EMI."""
     rx_power: np.ndarray | None = None
+    """Value for rx power."""
     sensitivity: np.ndarray | None = None
+    """Value for sensitivity."""
     desense: np.ndarray | None = None
+    """Value for desense."""
     victim: str = ""
+    """Value for victim."""
     victim_band: str = ""
+    """Value for victim band."""
     aggressor: str = ""
+    """Value for aggressor."""
     aggressor_band: str = ""
+    """Value for aggressor band."""
 
 
 class EMIHeatmapExtension(ExtensionEMITCommon):

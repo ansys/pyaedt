@@ -32,15 +32,21 @@ from ansys.aedt.core.extensions.misc import ExtensionEMITCommon
 from ansys.aedt.core.extensions.misc import get_arguments
 
 EXTENSION_TITLE = "EMIT Interference Classification"
+"""Title displayed for the extension."""
 EXTENSION_DEFAULT_ARGUMENTS = {}
+"""Default arguments for the extension."""
 
 
 @dataclass
 class _MatrixData:
     tx_radios: list
+    """Value for tx radios."""
     rx_radios: list
+    """Value for rx radios."""
     colors: list  # colors[col][row]
+    """Value for colors."""
     values: list  # values[col][row]
+    """Value for values."""
 
 
 class InterferenceClassificationExtension(ExtensionEMITCommon):

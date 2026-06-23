@@ -58,27 +58,39 @@ from ansys.aedt.core.generic.aedt_constants import DesignType
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 
 EXTENSION_TITLE = "Extension Manager"
+"""Title displayed for the extension."""
 
 # Default width and height for the extension window
 WIDTH = 900
+"""Default width."""
 HEIGHT = 450
+"""Default height."""
 
 # Maximum dimensions for the extension window
 MAX_WIDTH = 900
+"""Maximum width."""
 MAX_HEIGHT = 550
+"""Maximum height."""
 
 # Minimum dimensions for the extension window
 MIN_WIDTH = 850
+"""Minimum width."""
 MIN_HEIGHT = 400
+"""Minimum height."""
 
 # Maximum characters shown in an extension card title before truncation
 MAX_CARD_LABEL_CHARS = 18
+"""Max card label chars."""
 
 AEDT_EXTENSION_APPLICATIONS = [
     "Common",
@@ -94,6 +106,7 @@ AEDT_EXTENSION_APPLICATIONS = [
     "EMIT",
     "TwinBuilder",
 ]
+"""AEDT extension applications."""
 
 
 class ExtensionManager(ExtensionProjectCommon):
@@ -106,6 +119,7 @@ class ExtensionManager(ExtensionProjectCommon):
     """
 
     OPTIONAL_EXTENSION_TOOLTIP = "This extension requires optional dependencies and is currently unavailable."
+    """Optional extension tooltip."""
 
     def _resolve_category_folder(self, category: str) -> str:
         """Resolve the extension folder name from a category or product name.

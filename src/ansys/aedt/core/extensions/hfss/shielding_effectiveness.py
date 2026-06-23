@@ -44,9 +44,13 @@ from ansys.aedt.core.generic.file_utils import write_csv
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 # Extension batch arguments
 EXTENSION_DEFAULT_ARGUMENTS = {
@@ -61,7 +65,9 @@ EXTENSION_DEFAULT_ARGUMENTS = {
     "points": 10,
     "cores": 4,
 }
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Shielding Effectiveness"
+"""Title displayed for the extension."""
 
 
 @dataclass
@@ -75,15 +81,25 @@ class ShieldingEffectivenessExtensionData(ExtensionCommonData):
     """
 
     sphere_size: float = EXTENSION_DEFAULT_ARGUMENTS["sphere_size"]
+    """Value for sphere size."""
     x_pol: float = EXTENSION_DEFAULT_ARGUMENTS["x_pol"]
+    """Value for x pol."""
     y_pol: float = EXTENSION_DEFAULT_ARGUMENTS["y_pol"]
+    """Value for y pol."""
     z_pol: float = EXTENSION_DEFAULT_ARGUMENTS["z_pol"]
+    """Value for z pol."""
     dipole_type: str = EXTENSION_DEFAULT_ARGUMENTS["dipole_type"]
+    """Value for dipole type."""
     frequency_units: str = EXTENSION_DEFAULT_ARGUMENTS["frequency_units"]
+    """Value for frequency units."""
     start_frequency: float = EXTENSION_DEFAULT_ARGUMENTS["start_frequency"]
+    """Value for start frequency."""
     stop_frequency: float = EXTENSION_DEFAULT_ARGUMENTS["stop_frequency"]
+    """Value for stop frequency."""
     points: int = EXTENSION_DEFAULT_ARGUMENTS["points"]
+    """Value for points."""
     cores: int = EXTENSION_DEFAULT_ARGUMENTS["cores"]
+    """Value for cores."""
 
 
 class ShieldingEffectivenessExtension(ExtensionHFSSCommon):

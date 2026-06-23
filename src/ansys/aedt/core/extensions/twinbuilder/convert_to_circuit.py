@@ -42,13 +42,19 @@ from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 # Extension batch arguments
 EXTENSION_DEFAULT_ARGUMENTS = {"design_name": ""}
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Convert to Circuit"
+"""Title displayed for the extension."""
 
 
 @dataclass
@@ -62,6 +68,7 @@ class ConvertToCircuitExtensionData(ExtensionCommonData):
     """
 
     design_name: str = EXTENSION_DEFAULT_ARGUMENTS["design_name"]
+    """Value for design name."""
 
 
 class ConvertToCircuitExtension(ExtensionTwinBuilderCommon):

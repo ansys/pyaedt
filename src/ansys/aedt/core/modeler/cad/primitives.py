@@ -72,6 +72,7 @@ from ansys.aedt.core.modules.material_lib import Material
 from ansys.aedt.core.modules.material_lib import Materials
 
 aedt_wait_time = 0.1
+"""Value for AEDT wait time."""
 
 
 class Objects(dict):

@@ -44,13 +44,19 @@ from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 # Extension batch arguments
 EXTENSION_DEFAULT_ARGUMENTS = {"choice": "", "velocity": 1.4, "acceleration": 0.0, "delay": 0.0}
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Move It"
+"""Title displayed for the extension."""
 
 
 @dataclass
@@ -64,9 +70,13 @@ class MoveItExtensionData(ExtensionCommonData):
     """
 
     choice: str = EXTENSION_DEFAULT_ARGUMENTS["choice"]
+    """Value for choice."""
     velocity: float = EXTENSION_DEFAULT_ARGUMENTS["velocity"]
+    """Value for velocity."""
     acceleration: float = EXTENSION_DEFAULT_ARGUMENTS["acceleration"]
+    """Value for acceleration."""
     delay: float = EXTENSION_DEFAULT_ARGUMENTS["delay"]
+    """Value for delay."""
 
 
 class MoveItExtension(ExtensionHFSSCommon):

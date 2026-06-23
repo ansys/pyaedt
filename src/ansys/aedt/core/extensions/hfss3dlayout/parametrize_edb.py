@@ -42,9 +42,13 @@ from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 # Extension batch arguments
 EXTENSION_DEFAULT_ARGUMENTS = {
@@ -60,7 +64,9 @@ EXTENSION_DEFAULT_ARGUMENTS = {
     "relative_parametric": True,
     "project_name": "",
 }
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Layout Parametrization"
+"""Title displayed for the extension."""
 
 
 @dataclass
@@ -78,16 +84,27 @@ class ParametrizeEdbExtensionData(ExtensionCommonData):
     """
 
     aedb_path: str = EXTENSION_DEFAULT_ARGUMENTS["aedb_path"]
+    """Path to aedb."""
     design_name: str = EXTENSION_DEFAULT_ARGUMENTS["design_name"]
+    """Value for design name."""
     parametrize_layers: bool = EXTENSION_DEFAULT_ARGUMENTS["parametrize_layers"]
+    """Value for parametrize layers."""
     parametrize_materials: bool = EXTENSION_DEFAULT_ARGUMENTS["parametrize_materials"]
+    """Value for parametrize materials."""
     parametrize_padstacks: bool = EXTENSION_DEFAULT_ARGUMENTS["parametrize_padstacks"]
+    """Value for parametrize padstacks."""
     parametrize_traces: bool = EXTENSION_DEFAULT_ARGUMENTS["parametrize_traces"]
+    """Value for parametrize traces."""
     nets_filter: list = None
+    """Value for nets filter."""
     expansion_polygon_mm: float = EXTENSION_DEFAULT_ARGUMENTS["expansion_polygon_mm"]
+    """Value for expansion polygon mm."""
     expansion_void_mm: float = EXTENSION_DEFAULT_ARGUMENTS["expansion_void_mm"]
+    """Value for expansion void mm."""
     relative_parametric: bool = EXTENSION_DEFAULT_ARGUMENTS["relative_parametric"]
+    """Value for relative parametric."""
     project_name: str = EXTENSION_DEFAULT_ARGUMENTS["project_name"]
+    """Value for project name."""
 
     def __post_init__(self) -> None:
         if self.nets_filter is None:

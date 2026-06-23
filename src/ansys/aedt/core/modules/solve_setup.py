@@ -64,6 +64,8 @@ if TYPE_CHECKING:
 
 
 class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
+    """Provide common setup."""
+
     def __init__(self, app, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True) -> None:
         self.auto_update = False
         self._app = app
@@ -121,6 +123,7 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
 
     @property
     def sweeps(self) -> list:
+        """Retrieve sweeps."""
         if self._sweeps is not None:
             return self._sweeps
         try:
@@ -1283,6 +1286,7 @@ class SetupCircuit(CommonSetup):
 
     @property
     def props(self) -> SetupProps:
+        """Retrieve props."""
         if self._legacy_props:
             return self._legacy_props
         if self._is_new_setup:
@@ -2070,6 +2074,7 @@ class Setup3DLayout(CommonSetup):
 
     @property
     def sweeps(self) -> list["SweepHFSS3DLayout"]:
+        """Retrieve sweeps."""
         if self._sweeps is not None:
             return self._sweeps
         try:
@@ -2088,6 +2093,7 @@ class Setup3DLayout(CommonSetup):
 
     @property
     def props(self) -> SetupProps:
+        """Retrieve props."""
         if self._legacy_props:
             return self._legacy_props
         if self._is_new_setup:
@@ -4935,6 +4941,8 @@ class SetupQ3D(Setup, PyAedtBase):
 
 
 class SetupIcepak(Setup, PyAedtBase):
+    """Provide setup icepak."""
+
     def __init__(self, app, solution_type, setup_name, is_new_setup: bool = True) -> None:
         Setup.__init__(self, app, solution_type, setup_name, is_new_setup)
 

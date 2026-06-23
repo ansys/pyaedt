@@ -47,14 +47,21 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 # Extension batch arguments
 EXTENSION_DEFAULT_ARGUMENTS = {"choice": "", "points": 1000, "output_file": ""}
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Point cloud generator"
+"""Title displayed for the extension."""
 EXTENSION_NB_COLUMN = 3
+"""Number of columns used by the extension UI."""
 
 
 @dataclass
@@ -68,8 +75,11 @@ class PointsCloudExtensionData(ExtensionCommonData):
     """
 
     choice: str | list[str] = EXTENSION_DEFAULT_ARGUMENTS["choice"]
+    """Value for choice."""
     points: int = EXTENSION_DEFAULT_ARGUMENTS["points"]
+    """Value for points."""
     output_file: str = EXTENSION_DEFAULT_ARGUMENTS["output_file"]
+    """File path for output."""
 
 
 class PointsCloudExtension(ExtensionProjectCommon):

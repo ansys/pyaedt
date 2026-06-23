@@ -85,18 +85,22 @@ class Quaternion(PyAedtBase):
 
     @property
     def a(self) -> float:
+        """Retrieve a."""
         return self._args[0]
 
     @property
     def b(self) -> float:
+        """Retrieve b."""
         return self._args[1]
 
     @property
     def c(self) -> float:
+        """Retrieve c."""
         return self._args[2]
 
     @property
     def d(self) -> float:
+        """Retrieve d."""
         return self._args[3]
 
     @classmethod

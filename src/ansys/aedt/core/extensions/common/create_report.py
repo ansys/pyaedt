@@ -44,9 +44,13 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 # Extension batch arguments
 EXTENSION_DEFAULT_ARGUMENTS = {
@@ -54,7 +58,9 @@ EXTENSION_DEFAULT_ARGUMENTS = {
     "open_report": True,
     "save_path": "",
 }
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Create Report"
+"""Title displayed for the extension."""
 
 
 @dataclass
@@ -68,8 +74,11 @@ class CreateReportExtensionData(ExtensionCommonData):
     """
 
     report_name: str = EXTENSION_DEFAULT_ARGUMENTS["report_name"]
+    """Value for report name."""
     open_report: bool = EXTENSION_DEFAULT_ARGUMENTS["open_report"]
+    """Value for open report."""
     save_path: str = EXTENSION_DEFAULT_ARGUMENTS["save_path"]
+    """Path to save."""
 
 
 class CreateReportExtension(ExtensionProjectCommon):

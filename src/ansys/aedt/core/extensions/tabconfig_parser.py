@@ -56,7 +56,9 @@ class ButtonSpec:
     """
 
     label: str
+    """Value for label."""
     attributes: dict[str, str] = field(default_factory=dict)
+    """Value for attributes."""
 
     def to_element(self) -> ET.Element:
         attrs = {"label": self.label}
@@ -81,8 +83,11 @@ class GroupSpec:
     """
 
     label: str
+    """Value for label."""
     image: str | None = None
+    """Value for image."""
     buttons: list[ButtonSpec] = field(default_factory=list)
+    """Value for buttons."""
 
     def to_element(self) -> ET.Element:
         attrs = {"label": self.label}
@@ -112,9 +117,13 @@ class GallerySpec:
     """
 
     imagewidth: int = 120
+    """Value for imagewidth."""
     imageheight: int = 72
+    """Value for imageheight."""
     header_button: ButtonSpec | None = None
+    """Value for header button."""
     groups: list[GroupSpec] = field(default_factory=list)
+    """Value for groups."""
 
     def to_element(self) -> ET.Element:
         attrs = {"imagewidth": str(self.imagewidth), "imageheight": str(self.imageheight)}
@@ -153,8 +162,11 @@ class PanelSpec:
     """
 
     label: str
+    """Value for label."""
     buttons: list[ButtonSpec] = field(default_factory=list)
+    """Value for buttons."""
     galleries: list[GallerySpec] = field(default_factory=list)
+    """Value for galleries."""
 
     def to_element(self) -> ET.Element:
         panel_el = ET.Element("panel", {"label": self.label})
@@ -199,10 +211,12 @@ class TabConfigParser:
 
     @property
     def root(self) -> ET.Element:
+        """Retrieve root."""
         return self._root
 
     @property
     def path(self) -> Path | None:
+        """Retrieve path."""
         return self._path
 
     def load(self, xml_path: str | Path):

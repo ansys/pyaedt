@@ -76,6 +76,7 @@ class SolutionData(PyAedtBase):
 
     @property
     def active_variation(self) -> dict:
+        """Retrieve active variation."""
         return self._active_variation
 
     @active_variation.setter

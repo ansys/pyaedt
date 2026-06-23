@@ -111,6 +111,7 @@ class Quantity(float, PyAedtBase):
 
     @property
     def expression(self) -> str:
+        """Retrieve expression."""
         return f"{self._value}{self._unit}"
 
     @expression.setter

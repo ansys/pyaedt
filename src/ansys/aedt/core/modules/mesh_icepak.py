@@ -41,6 +41,8 @@ from ansys.aedt.core.modules.mesh import MeshOperation
 
 
 class CommonRegion(PyAedtBase):
+    """Provide common region."""
+
     def __init__(self, app, name: str) -> None:
         self._app = app
         self._name = name

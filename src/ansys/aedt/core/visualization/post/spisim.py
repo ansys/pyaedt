@@ -54,51 +54,93 @@ from ansys.aedt.core.visualization.post.spisim_com_configuration_files.com_param
 
 
 class ReportBase(BaseModel, PyAedtBase):
+    """Provide report base."""
+
     model_config = {"populate_by_name": True}
+    """Value for model config."""
 
 
 class FrequencyFigure(ReportBase):
+    """Provide frequency figure."""
+
     title: str = Field(..., alias="TITLE")
+    """Value for title."""
     param: str = Field(..., alias="PARAM")
+    """Value for param."""
     td_inp_delay: str = Field(..., alias="TDInpDelay")
+    """Value for td inp delay."""
     skew_threshold: str = Field(..., alias="SkewThreshold")
+    """Value for skew threshold."""
     dtcyc: str = Field(..., alias="DTCyc")
+    """Value for dtcyc."""
     xlim: str = Field(..., alias="XLIM")
+    """Value for xlim."""
     ylim: str = Field(..., alias="YLIM")
+    """Value for ylim."""
     limitline: str = Field(..., alias="LIMITLINE")
+    """Value for limitline."""
     gencsv: str = Field(..., alias="GENCSV")
+    """Value for gencsv."""
     fig_fq_axis_log: str = Field(..., alias="FigFqAxis Log")
+    """Value for fig fq axis log."""
     fig_fq_unit: str = Field(..., alias="FigFqUnit")
+    """Value for fig fq unit."""
     phase: str = Field(..., alias="Phase")
+    """Value for phase."""
 
 
 class AdvancedReport(ReportBase):
+    """Provide advanced report."""
+
     version: str = Field("1.0", alias="Version")
+    """Value for version."""
     rpt_name: str | None = Field("", alias="RptName")
+    """Value for rpt name."""
     touchstone: str = Field(..., alias="Touchstone")
+    """Value for touchstone."""
     expiration: str = Field(default="12/31/2100", alias="Expiration")
+    """Value for expiration."""
     mode: str = Field(..., alias="Mode")
+    """Value for mode."""
     dpextract: str | None = Field("", alias="DPExtract")
+    """Value for dpextract."""
     port: str = Field(..., alias="Port")
+    """Value for port."""
     r: int = Field(50, alias="R")
+    """Value for r."""
     report_dir: str = Field(..., alias="ReportDir")
+    """Value for report dir."""
     extrapolate: str = Field(..., alias="Extrapolate")
+    """Value for extrapolate."""
     watermark: str | None = Field("", alias="WaterMark")
+    """Value for watermark."""
     td_length: str = Field(..., alias="TDLength")
+    """Value for td length."""
     fq_axis_log: str = Field("F", alias="FqAxis Log")
+    """Value for fq axis log."""
     fq_unit: str = Field("GHz", alias="FqUnit")
+    """Value for fq unit."""
     smoothing: str = Field("0%", alias="Smoothing")
+    """Value for smoothing."""
 
     trace_width: int = Field(4, alias="Trace  Width")  # Signal traces width in .param plot
+    """Value for trace width."""
     title_font_size: int = Field(45, alias="Title  FontSize")  # Figure title font size
+    """Value for title font size."""
     legend_font_size: int = Field(25, alias="Legend FontSize")  # Legend font size
+    """Value for legend font size."""
     axis_font_size: int = Field(35, alias="Axis   FontSize")  # X-Y axis font size
+    """Value for axis font size."""
     grid_width: int = Field(0, alias="Grid Width")  # Grid line width
+    """Value for grid width."""
 
     var_list: str = Field(..., alias="VARList")
+    """Value for var list."""
     cascade: str = Field(default="", alias="CASCADE")  # additional file to be formed via cascading
+    """Value for cascade."""
 
     frequency_domain: list[FrequencyFigure] | None = Field(default=[], alias="[Frequency Domain]")
+    """Value for frequency domain."""
 
     @classmethod
     def from_spisim_cfg(cls, file_path: str | Path) -> "AdvancedReport":  # pragma: no cover

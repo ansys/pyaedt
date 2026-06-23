@@ -54,15 +54,25 @@ from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 NO_ACTIVE_PROJECT = "No active project"
+"""No active project."""
 NO_ACTIVE_DESIGN = "No active design"
+"""No active design."""
 MOON = "\u2600"
+"""Moon."""
 SUN = "\u263d"
+"""Sun."""
 DEFAULT_PADDING = {"padx": 10, "pady": 6}
+"""Default padding."""
 DEFAULT_WIDTH = 10
+"""Default width."""
 DEFAULT_FOREGROUND: str = "white"
+"""Default foreground."""
 DEFAULT_FOREGROUND_DARK: str = "black"
+"""Default foreground dark."""
 DEFAULT_BD: int = 0
+"""Default bd."""
 DEFAULT_BORDERWIDTH: int = 0
+"""Default borderwidth."""
 
 
 def get_process_id() -> int | None:
@@ -275,6 +285,8 @@ class ExtensionCommonData(PyAedtBase):
 
 
 class ExtensionCommon(PyAedtBase):
+    """Provide extension common."""
+
     def __init__(
         self,
         title: str,
@@ -654,6 +666,7 @@ class ExtensionCommon(PyAedtBase):
 
     @property
     def data(self) -> ExtensionCommonData | None:
+        """Retrieve data."""
         return self.__data
 
     @data.setter
@@ -783,6 +796,7 @@ class ExtensionProjectCommon(ExtensionCommon):
 
 
 def create_default_ui(title: str, withdraw: bool = False) -> tuple[tkinter.Tk, ExtensionTheme, ttk.Style]:
+    """Create default UI."""
     import tkinter
     from tkinter import ttk
 

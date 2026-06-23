@@ -42,9 +42,13 @@ from ansys.aedt.core.generic.aedt_constants import DesignType
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 # Extension batch arguments
 EXTENSION_DEFAULT_ARGUMENTS = {
@@ -54,7 +58,9 @@ EXTENSION_DEFAULT_ARGUMENTS = {
     "planar": True,
     "remove_multiple_connections": False,
 }
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Import Nastran"
+"""Title displayed for the extension."""
 
 
 @dataclass
@@ -68,10 +74,15 @@ class ImportNastranExtensionData(ExtensionCommonData):
     """
 
     file_path: str = EXTENSION_DEFAULT_ARGUMENTS["file_path"]
+    """Path to file."""
     lightweight: bool = EXTENSION_DEFAULT_ARGUMENTS["lightweight"]
+    """Value for lightweight."""
     decimate: float = EXTENSION_DEFAULT_ARGUMENTS["decimate"]
+    """Value for decimate."""
     planar: bool = EXTENSION_DEFAULT_ARGUMENTS["planar"]
+    """Value for planar."""
     remove_multiple_connections: bool = EXTENSION_DEFAULT_ARGUMENTS["remove_multiple_connections"]
+    """Value for remove multiple connections."""
 
 
 class ImportNastranExtension(ExtensionProjectCommon):

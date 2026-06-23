@@ -337,6 +337,7 @@ PROFILE_PROP_MAPPING = MappingProxyType(
         "Residual": ("residual", float),  # Icepak steady-state only
     }
 )
+"""Profile prop mapping."""
 
 
 def step_name_map(input_name: str) -> str | None:
@@ -391,6 +392,7 @@ MERGE_OPERATOR = {
     "validation_memory": max,
     "steps": merge_dict,
 }
+"""Merge operator."""
 ATTR_MAPPING = {
     "_name": "Name",
     "_cpu_time": "Cpu time",
@@ -410,6 +412,7 @@ ATTR_MAPPING = {
     "_cells": "Cells",  # Icepak only
     "_info": "Info",
 }
+"""Attr mapping."""
 
 
 class ProfileStepSummary(PyAedtBase):
@@ -757,6 +760,7 @@ class TransientProfile(ProfileStep):
 
     @property
     def time_steps(self) -> list[float]:
+        """Retrieve time steps."""
         return sorted([float(t.replace("s", "")) for t in self._time_step_keys])
 
     def time_step_keys(self, max_time: float) -> list[str]:

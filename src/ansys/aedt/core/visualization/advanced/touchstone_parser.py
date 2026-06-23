@@ -66,10 +66,14 @@ except ImportError:
 
 
 REAL_IMAG = "RI"
+"""Real imag."""
 MAG_ANGLE = "MA"
+"""Mag angle."""
 DB_ANGLE = "DB"
+"""Db angle."""
 
 keys = {REAL_IMAG: ("real", "imag"), MAG_ANGLE: ("mag", "deg"), DB_ANGLE: ("db20", "deg")}
+"""Value for keys."""
 
 
 class TouchstoneData(_TouchstoneBase, PyAedtBase):

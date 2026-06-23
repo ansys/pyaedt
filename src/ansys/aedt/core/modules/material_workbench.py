@@ -64,6 +64,7 @@ class MaterialWorkbench(PyAedtBase):
 
     @property
     def mat_name_suffix(self) -> str:
+        """Retrieve mat name suffix."""
         return self._mat_name_suffix
 
     @mat_name_suffix.setter

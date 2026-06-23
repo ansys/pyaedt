@@ -55,6 +55,7 @@ COIL_PARAMETERS = {
         "distance_turns": 3.0,
     },
 }
+"""Coil parameters."""
 
 
 class Coil(PyAedtBase):

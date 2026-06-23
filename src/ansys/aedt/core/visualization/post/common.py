@@ -89,6 +89,7 @@ TEMPLATES_BY_NAME = {
     "EMIReceiver": report_emi.EMIReceiver,
     "Netlist": report_netlist.CircuitNetlistReport,
 }
+"""Templates by name."""
 
 
 class PostProcessorCommon(PyAedtBase):
@@ -726,6 +727,7 @@ class PostProcessorCommon(PyAedtBase):
 
     @property
     def oeditor(self):
+        """Retrieve oeditor."""
         try:
             return self._app.modeler.oeditor
         except AttributeError:

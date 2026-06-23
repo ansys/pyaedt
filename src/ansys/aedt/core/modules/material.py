@@ -79,6 +79,7 @@ class MatProperties(PyAedtBase):
         "molecular_mass",
         "viscosity",
     ]
+    """Value for aedtname."""
 
     defaultvalue = [
         1.0,
@@ -108,6 +109,7 @@ class MatProperties(PyAedtBase):
         0,
         0,
     ]
+    """Value for defaultvalue."""
 
     defaultunit = [
         None,
@@ -130,10 +132,13 @@ class MatProperties(PyAedtBase):
         None,
         None,
     ]
+    """Value for defaultunit."""
 
     diel_order = [3, 0, 1, 4, 5, 6, 7, 8, 9, 10, 11, 1]
+    """Value for diel order."""
 
     cond_order = [2, 0, 1, 4, 5, 6, 7, 8, 9, 10, 11, 3]
+    """Value for cond order."""
 
     workbench_name = [
         "Relative Permittivity",
@@ -152,6 +157,7 @@ class MatProperties(PyAedtBase):
         "Molecular Weight",
         "Viscosity",
     ]
+    """Value for workbench name."""
 
     @classmethod
     def wb_to_aedt_name(cls, wb_name: str) -> str:
@@ -247,8 +253,11 @@ class SurfMatProperties(PyAedtBase):
         "surface_diffuse_absorptance",
         "surface_incident_absorptance",
     ]
+    """Value for aedtname."""
     defaultvalue = [1.0, 0, 0.4, 0.4]
+    """Value for defaultvalue."""
     defaultunit = [None, "[m]", None, None]
+    """Value for defaultunit."""
 
     @classmethod
     def get_defaultunit(cls, aedtname: str = None) -> str:
@@ -312,13 +321,21 @@ class ClosedFormTM:
     """
 
     Tref = "22cel"
+    """Value for tref."""
     C1 = 0
+    """C 1."""
     C2 = 0
+    """C 2."""
     TL = "-273.15cel"
+    """Tl."""
     TU = "1000cel"
+    """Tu."""
     autocalculation = True
+    """Value for autocalculation."""
     TML = 1000
+    """Tml."""
     TMU = 1000
+    """Tmu."""
 
 
 class Dataset:
@@ -332,13 +349,21 @@ class Dataset:
     """
 
     ds = []
+    """Value for ds."""
     unitx = ""
+    """Value for unitx."""
     unity = ""
+    """Value for unity."""
     unitz = ""
+    """Value for unitz."""
     type = "Absolute"
+    """Value for type."""
     namex = ""
+    """Value for namex."""
     namey = ""
+    """Value for namey."""
     namez = None
+    """Value for namez."""
 
 
 class BasicValue:

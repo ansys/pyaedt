@@ -44,9 +44,13 @@ from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 # Extension batch arguments
 EXTENSION_DEFAULT_ARGUMENTS = {
@@ -58,7 +62,9 @@ EXTENSION_DEFAULT_ARGUMENTS = {
     "stop_layer": "",
     "contour_list": [],
 }
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Via Clustering Extension"
+"""Title displayed for the extension."""
 
 
 @dataclass
@@ -74,12 +80,19 @@ class ViaClusteringExtensionData(ExtensionCommonData):
     """
 
     aedb_path: str = EXTENSION_DEFAULT_ARGUMENTS["aedb_path"]
+    """Path to aedb."""
     design_name: str = EXTENSION_DEFAULT_ARGUMENTS["design_name"]
+    """Value for design name."""
     new_aedb_path: str = EXTENSION_DEFAULT_ARGUMENTS["new_aedb_path"]
+    """Path to new aedb."""
     nets_filter: list = None
+    """Value for nets filter."""
     start_layer: str = EXTENSION_DEFAULT_ARGUMENTS["start_layer"]
+    """Value for start layer."""
     stop_layer: str = EXTENSION_DEFAULT_ARGUMENTS["stop_layer"]
+    """Value for stop layer."""
     contour_list: list = None
+    """Value for contour list."""
 
     def __post_init__(self) -> None:
         if self.nets_filter is None:

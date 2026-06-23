@@ -42,11 +42,16 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 settings.release_on_exception = False
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 EXTENSION_TITLE = "Fresnel Coefficients"
+"""Title displayed for the extension."""
 
 
 class FresnelExtension(ExtensionHFSSCommon):

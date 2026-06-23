@@ -483,12 +483,15 @@ class Object3DLayout(PyAedtBase):
 
 
 class ModelInfoRlc(PyAedtBase):
+    """Provide model info rlc."""
+
     def __init__(self, component, name: str) -> None:
         self._comp = component
         self._name = name
 
     @property
     def rlc_model_type(self) -> list:
+        """Retrieve rlc model type."""
         props = self._comp._oeditor.GetComponentInfo(self._name)
         model = ""
         for p in props:
@@ -510,21 +513,25 @@ class ModelInfoRlc(PyAedtBase):
 
     @property
     def res(self) -> str:
+        """Retrieve res."""
         if self.rlc_model_type:
             return self.rlc_model_type[0]
 
     @property
     def cap(self) -> str:
+        """Retrieve cap."""
         if self.rlc_model_type:
             return self.rlc_model_type[4]
 
     @property
     def ind(self) -> str:
+        """Retrieve ind."""
         if self.rlc_model_type:
             return self.rlc_model_type[2]
 
     @property
     def is_parallel(self) -> bool:
+        """Flag indicating whether parallel is enabled."""
         if self.rlc_model_type:
             return self.rlc_model_type[6]
 

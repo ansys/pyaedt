@@ -31,6 +31,8 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 
 class DesignSolution(PyAedtBase):
+    """Provide design solution."""
+
     def __init__(self, odesign, design_type, aedt_version) -> None:
         self._odesign = odesign
         self._aedt_version = aedt_version
@@ -180,6 +182,8 @@ class DesignSolution(PyAedtBase):
 
 
 class HFSSDesignSolution(DesignSolution, PyAedtBase):
+    """Provide HFSS design solution."""
+
     def __init__(self, odesign, design_type, aedt_version) -> None:
         DesignSolution.__init__(self, odesign, design_type, aedt_version)
         self._composite = False
@@ -357,6 +361,8 @@ class HFSSDesignSolution(DesignSolution, PyAedtBase):
 
 
 class Maxwell2DDesignSolution(DesignSolution, PyAedtBase):
+    """Provide maxwell 2 D design solution."""
+
     def __init__(self, odesign, design_type, aedt_version) -> None:
         DesignSolution.__init__(self, odesign, design_type, aedt_version)
         self._geometry_mode = "XY"
@@ -431,6 +437,8 @@ class Maxwell2DDesignSolution(DesignSolution, PyAedtBase):
 
 
 class IcepakDesignSolution(DesignSolution, PyAedtBase):
+    """Provide icepak design solution."""
+
     def __init__(self, odesign, design_type, aedt_version) -> None:
         DesignSolution.__init__(self, odesign, design_type, aedt_version)
         self._problem_type = "TemperatureAndFlow"
@@ -523,6 +531,8 @@ class IcepakDesignSolution(DesignSolution, PyAedtBase):
 
 
 class RmXprtDesignSolution(DesignSolution, PyAedtBase):
+    """Provide rm xprt design solution."""
+
     def __init__(self, odesign, design_type, aedt_version) -> None:
         DesignSolution.__init__(self, odesign, design_type, aedt_version)
 

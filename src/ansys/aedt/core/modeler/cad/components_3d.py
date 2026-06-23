@@ -45,6 +45,8 @@ if TYPE_CHECKING:
 
 
 class UserDefinedComponentParameters(dict):
+    """Provide user defined component parameters."""
+
     def __setitem__(self, key, value):
         try:
             self._component._m_Editor.ChangeProperty(

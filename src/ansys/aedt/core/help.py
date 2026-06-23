@@ -522,3 +522,4 @@ class Help(PyAedtBase):  # pragma: no cover
 
 
 online_help = Help()
+"""Value for online help."""

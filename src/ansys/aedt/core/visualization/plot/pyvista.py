@@ -54,6 +54,7 @@ import pyvista as pv
 
 @pyaedt_function_handler()
 def get_structured_mesh(theta: list, phi: list, ff_data: np.ndarray) -> pv.StructuredGrid:
+    """Retrieve structured mesh."""
     if ff_data.min() < 0:
         ff_data_renorm = ff_data + np.abs(ff_data.min())
     else:
@@ -391,6 +392,8 @@ class FieldClass(PyAedtBase):
 
 
 class CommonPlotter(PyAedtBase):
+    """Provide common plotter."""
+
     def __init__(self) -> None:
         self._objects = []
         self._fields = []

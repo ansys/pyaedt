@@ -33,6 +33,7 @@ except ImportError as e:  # pragma: no cover
     raise ImportError(msg) from e
 
 doc_app = typer.Typer(help="Documentation commands", no_args_is_help=False)
+"""Value for doc app."""
 
 
 @doc_app.callback(invoke_without_command=True)

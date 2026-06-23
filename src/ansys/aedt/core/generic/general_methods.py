@@ -62,11 +62,16 @@ from ansys.aedt.core.internal.errors import MethodNotSupportedError
 _F = TypeVar("_F", bound=Callable[..., Any])
 
 system = platform.system()
+"""Value for system."""
 is_linux = system == "Linux"
+"""Flag indicating whether linux is enabled."""
 is_windows = system == "Windows"
+"""Flag indicating whether windows is enabled."""
 is_macos = system == "Darwin"
+"""Flag indicating whether macos is enabled."""
 
 inside_desktop_ironpython_console = True if "4.0.30319.42000" in sys.version else False
+"""Value for inside desktop ironpython console."""
 
 inclusion_list = [
     "CreateVia",
@@ -78,9 +83,12 @@ inclusion_list = [
     "ImportGerber",
     "EditSources",
 ]
+"""Value for inclusion list."""
 
 RE_SOCK = re.compile(r"\b(\d{1,5})\.sock\b")
+"""Re sock."""
 RE_PORT = re.compile(r"(?:\*|0\.0\.0\.0|\[::\]|\[::ffff:[0-9.]+\]|127\.0\.0\.1|[0-9.]+):(\d{1,5})\b")
+"""Re port."""
 
 
 def _write_mes(mes_text) -> None:
@@ -212,6 +220,7 @@ def _check_types(arg) -> str:
 
 
 def raise_exception_or_return_false(e):
+    """Return raise exception or return false."""
     if not settings.enable_error_handler:
         if settings.release_on_exception:
             from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
@@ -675,6 +684,7 @@ def _retry_ntimes(n, function, *args, **kwargs):
 
 @pyaedt_function_handler()
 def time_fn(fn: callable, *args, **kwargs):
+    """Return time fn."""
     start = datetime.datetime.now()
     results = fn(*args, **kwargs)
     end = datetime.datetime.now()
@@ -1607,6 +1617,8 @@ def conversion_function(data: "list | array", function: str = None):  # pragma: 
 
 
 class PropsManager(PyAedtBase):
+    """Manage props manager."""
+
     def __getitem__(self, item):
         """Get the `self.props` key value.
 
@@ -1744,6 +1756,7 @@ class PropsManager(PyAedtBase):
 
 
 def clamp(n, minn, maxn):
+    """Return clamp."""
     return max(min(maxn, n), minn)
 
 
@@ -1767,6 +1780,7 @@ rgb_color_codes = {
     "copper": (184, 115, 51),
     "stainless steel": (224, 223, 219),
 }
+"""Value for rgb color codes."""
 
 
 @pyaedt_function_handler()

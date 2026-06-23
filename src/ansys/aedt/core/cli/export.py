@@ -45,6 +45,7 @@ except ImportError:  # pragma: no cover
 from ansys.aedt.core.cli import common
 
 export_app = typer.Typer(help="Export commands")
+"""Value for export app."""
 
 
 @export_app.command("screenshot")

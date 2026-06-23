@@ -42,6 +42,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.visualization.advanced.doa import DirectionOfArrival
 
 current_python_version = sys.version_info[:2]
+"""Value for current python version."""
 if current_python_version < (3, 10):  # pragma: no cover
     raise Exception("Python 3.10 or higher is required for Monostatic RCS post-processing.")
 
@@ -1650,6 +1651,7 @@ class FRTMPlotter(PyAedtBase):
 
 @pyaedt_function_handler()
 def get_results_files(input_dir: str, var_name: str = "time_var") -> dict:
+    """Retrieve results files."""
     path = Path(input_dir)
 
     # Find all CSV files recursively

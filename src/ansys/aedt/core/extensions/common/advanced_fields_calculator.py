@@ -46,12 +46,18 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 EXTENSION_DEFAULT_ARGUMENTS = {"setup": "", "calculation": "", "assignments": []}
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Advanced fields calculator"
+"""Title displayed for the extension."""
 
 
 @dataclass
@@ -65,8 +71,11 @@ class AdvancedFieldsCalculatorExtensionData(ExtensionCommonData):
     """
 
     setup: str = ""
+    """Value for setup."""
     calculation: str = ""
+    """Value for calculation."""
     assignments: list = field(default_factory=lambda: [])
+    """Value for assignments."""
 
 
 class AdvancedFieldsCalculatorExtension(ExtensionProjectCommon):

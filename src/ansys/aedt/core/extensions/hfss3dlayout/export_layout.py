@@ -39,9 +39,13 @@ from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 # Extension batch arguments
 EXTENSION_DEFAULT_ARGUMENTS = {
@@ -49,7 +53,9 @@ EXTENSION_DEFAULT_ARGUMENTS = {
     "export_configuration": True,
     "export_bom": True,
 }
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Layout Exporter"
+"""Title displayed for the extension."""
 
 
 @dataclass
@@ -63,8 +69,11 @@ class ExportLayoutExtensionData(ExtensionCommonData):
     """
 
     export_ipc: bool = EXTENSION_DEFAULT_ARGUMENTS["export_ipc"]
+    """Value for export IPC."""
     export_configuration: bool = EXTENSION_DEFAULT_ARGUMENTS["export_configuration"]
+    """Value for export configuration."""
     export_bom: bool = EXTENSION_DEFAULT_ARGUMENTS["export_bom"]
+    """Value for export BOM."""
 
 
 class ExportLayoutExtension(ExtensionHFSS3DLayoutCommon):

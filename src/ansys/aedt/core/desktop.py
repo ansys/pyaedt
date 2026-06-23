@@ -82,6 +82,7 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
 
 ON_CI = os.getenv("ON_CI", "false").lower() == "true"
+"""Flag indicating whether execution is running on CI."""
 LOOPBACK_HOSTS = ("localhost", "127.0.0.1")
 """Tuple of loopback host names.
 
@@ -93,8 +94,11 @@ True
 """
 
 pathname = Path(__file__)
+"""Value for pathname."""
 pyaedtversion = __version__
+"""Value for pyaedtversion."""
 modules = [tup[1] for tup in pkgutil.iter_modules()]
+"""Value for modules."""
 
 
 class TransportMode(str, Enum):
@@ -111,6 +115,7 @@ class TransportMode(str, Enum):
 
 
 def get_local_ip(host):
+    """Retrieve local ip."""
     try:
         host = host if host else socket.gethostname()
         return socket.gethostbyname(host)
@@ -622,6 +627,7 @@ def exception_to_desktop(ex_value: str, tb_data: str) -> None:  # pragma: no cov
 
 
 def is_student_version(oDesktop: object) -> bool:
+    """Check whether student version."""
     edt_root = Path(oDesktop.GetExeDir())
     if is_windows and Path(edt_root).is_dir():
         if any("ansysedtsv" in fn.lower() for fn in os.listdir(edt_root)):  # pragma no cover
@@ -860,6 +866,7 @@ class Desktop(PyAedtBase):
 
     @property
     def aedt_version_id(self) -> str | None:
+        """Retrieve AEDT version id."""
         return self.__aedt_version_id
 
     @aedt_version_id.setter
@@ -873,6 +880,7 @@ class Desktop(PyAedtBase):
 
     @property
     def aedt_process_id(self) -> int:
+        """Retrieve AEDT process id."""
         return self.__aedt_process_id
 
     @aedt_process_id.setter
@@ -1511,6 +1519,7 @@ class Desktop(PyAedtBase):
 
     @property
     def grpc_mode(self) -> str:
+        """Retrieve gRPC mode."""
         server_args: _ServerArgs = _get_grpcsrv_args(self.machine, self.port)
         return server_args.mode
 

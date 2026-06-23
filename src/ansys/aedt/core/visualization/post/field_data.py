@@ -50,6 +50,8 @@ if TYPE_CHECKING:
 
 
 class BaseFolderPlot(PyAedtBase):
+    """Provide base folder plot."""
+
     @abstractmethod
     def to_dict(self) -> dict:
         """Convert the settings to a dictionary.

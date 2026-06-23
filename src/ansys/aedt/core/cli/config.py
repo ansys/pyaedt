@@ -47,6 +47,7 @@ from ansys.aedt.core.cli.common import prompt_config_value
 from ansys.aedt.core.cli.common import save_config
 
 test_config_app = typer.Typer(help="Test configuration management (local_config.json)", invoke_without_command=True)
+"""Value for test config app."""
 
 CONFIG_DESCRIPTIONS = {
     "desktopVersion": "AEDT version to use",
@@ -60,6 +61,7 @@ CONFIG_DESCRIPTIONS = {
     "skip_modelithics": "Skip Modelithics tests",
     "use_pyedb_grpc": "Use PyEDB with gRPC for database access",
 }
+"""Configuration descriptions."""
 
 
 @test_config_app.callback(invoke_without_command=True)

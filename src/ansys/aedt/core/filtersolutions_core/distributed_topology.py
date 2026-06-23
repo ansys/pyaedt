@@ -61,21 +61,37 @@ class TopologyType(Enum):
     """
 
     LUMPED_TRANSLATION = 0
+    """Lumped translation option."""
     INDUCTOR_TRANSLATION = 1
+    """Inductor translation option."""
     STEPPED_IMPEDANCE = 2
+    """Stepped impedance option."""
     COUPLED_SEGMENTS = 3
+    """Coupled segments option."""
     SPACED_STUBS = 4
+    """Spaced stubs option."""
     SHUNT_STUB_RESONATORS = 5
+    """Shunt stub resonators option."""
     OPEN_STUB_RESONATORS = 6
+    """Open stub resonators option."""
     PARALLEL_EDGE_COUPLED = 7
+    """Parallel edge coupled option."""
     HAIRPIN = 8
+    """Hairpin option."""
     MINIATURE_HAIRPIN = 9
+    """Miniature hairpin option."""
     RING_RESONATOR = 10
+    """Ring resonator option."""
     INTERDIGITAL = 11
+    """Interdigital option."""
     COMBLINE = 12
+    """Combline option."""
     DUAL_RESONATORS = 13
+    """Dual resonators option."""
     SPACED_DUAL_RESONATORS = 14
+    """Spaced dual resonators option."""
     NOTCH_RESONATORS = 15
+    """Notch resonators option."""
 
 
 class TapPosition(Enum):
@@ -95,9 +111,13 @@ class TapPosition(Enum):
     """
 
     AUTO = 0
+    """Auto option."""
     BACK = 1
+    """Back option."""
     SIDES = 2
+    """Sides option."""
     CORNER = 3
+    """Corner option."""
 
 
 class DistributedTopology:

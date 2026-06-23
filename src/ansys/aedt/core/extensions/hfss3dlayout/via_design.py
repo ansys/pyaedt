@@ -49,22 +49,35 @@ from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 EXTENSION_DEFAULT_ARGUMENTS = {"file_path": ""}
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Via design"
+"""Title displayed for the extension."""
 EXTENSION_RESOURCES_PATH = Path(__file__).parent / "resources" / "via_design"
+"""Path to extension resources."""
 EXTENSION_NB_ROW = 2
+"""Number of rows used by the extension UI."""
 EXTENSION_NB_COLUMN = 3
+"""Number of columns used by the extension UI."""
 
 
 @dataclass
 class ExportExampleData:
+    """Store export example data."""
+
     """"""
 
     picture_path: Path
+    """Path to picture."""
     toml_file_path: Path
+    """Path to TOML file."""
 
 
 EXPORT_EXAMPLES = [
@@ -74,6 +87,7 @@ EXPORT_EXAMPLES = [
         EXTENSION_RESOURCES_PATH / "via_design_pkg_diff.png", EXTENSION_RESOURCES_PATH / "package_diff.toml"
     ),
 ]
+"""Available export examples."""
 
 
 class ViaDesignExtension(ExtensionHFSS3DLayoutCommon):
@@ -236,10 +250,12 @@ class ViaDesignExtension(ExtensionHFSS3DLayoutCommon):
 
     @property
     def create_design_path(self) -> Path | None:
+        """Path to create design."""
         return self.__create_design_path
 
     @property
     def export_examples(self) -> list[ExportExampleData]:
+        """Retrieve export examples."""
         return self.__export_examples
 
 
