@@ -47,6 +47,7 @@ class ResultPlotNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> result_plot = revision.get_result_plot_node()
         >>> result_plot.node_type
+
         """
         return self._node_type
 
@@ -62,6 +63,7 @@ class ResultPlotNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> result_plot = revision.get_result_plot_node()
         >>> result_plot.title = "Receiver Sensitivity"
+
         """
         val = self._get_property("Title")
         return val
@@ -85,6 +87,7 @@ class ResultPlotNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> result_plot = revision.get_result_plot_node()
         >>> result_plot.title_font = "Sans Serif,12,-1,5,50,0,0,0,0,0"
+
         """
         val = self._get_property("Title Font")
         return val
@@ -108,6 +111,7 @@ class ResultPlotNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> result_plot = revision.get_result_plot_node()
         >>> result_plot.show_legend = True
+
         """
         val = self._get_property("Show Legend")
         return val == "true"
@@ -131,6 +135,7 @@ class ResultPlotNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> result_plot = revision.get_result_plot_node()
         >>> result_plot.legend_font = "Sans Serif,10,-1,5,50,0,0,0,0,0"
+
         """
         val = self._get_property("Legend Font")
         return val
@@ -154,6 +159,7 @@ class ResultPlotNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> result_plot = revision.get_result_plot_node()
         >>> result_plot.show_emi_thresholds = True
+
         """
         val = self._get_property("Show EMI Thresholds")
         return val == "true"
@@ -180,6 +186,7 @@ class ResultPlotNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> result_plot = revision.get_result_plot_node()
         >>> result_plot.lock_axes = True
+
         """
         val = self._get_property("Lock Axes")
         return val == "true"

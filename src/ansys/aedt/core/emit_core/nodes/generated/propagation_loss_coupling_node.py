@@ -47,6 +47,7 @@ class PropagationLossCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> coupling = revision.get_coupling_data_node().add_path_loss_coupling()
         >>> coupling.parent
+
         """
         return self._parent
 
@@ -62,6 +63,7 @@ class PropagationLossCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> coupling = revision.get_coupling_data_node().add_path_loss_coupling()
         >>> coupling.node_type
+
         """
         return self._node_type
 
@@ -76,6 +78,7 @@ class PropagationLossCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> coupling = revision.get_coupling_data_node().add_path_loss_coupling()
         >>> coupling_copy = coupling.duplicate("PathLossCopy")
+
         """
         return self._duplicate(new_name)
 
@@ -90,6 +93,7 @@ class PropagationLossCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> coupling = revision.get_coupling_data_node().add_path_loss_coupling()
         >>> coupling.delete()
+
         """
         self._delete()
 
@@ -107,6 +111,7 @@ class PropagationLossCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> coupling = revision.get_coupling_data_node().add_path_loss_coupling()
         >>> coupling.enabled = True
+
         """
         val = self._get_property("Enabled")
         return val == "true"
@@ -130,6 +135,7 @@ class PropagationLossCouplingNode(EmitNode):
         >>> antenna_a = scene.add_antenna()
         >>> coupling = revision.get_coupling_data_node().add_path_loss_coupling()
         >>> coupling.antenna_a = antenna_a
+
         """
         val = self._get_property("Antenna A")
         return val
@@ -153,6 +159,7 @@ class PropagationLossCouplingNode(EmitNode):
         >>> antenna_b = scene.add_antenna()
         >>> coupling = revision.get_coupling_data_node().add_path_loss_coupling()
         >>> coupling.antenna_b = antenna_b
+
         """
         val = self._get_property("Antenna B")
         return val
@@ -179,6 +186,7 @@ class PropagationLossCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> coupling = revision.get_coupling_data_node().add_path_loss_coupling()
         >>> coupling.custom_fading_margin = 3.0
+
         """
         val = self._get_property("Custom Fading Margin")
         return float(val)
@@ -205,6 +213,7 @@ class PropagationLossCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> coupling = revision.get_coupling_data_node().add_path_loss_coupling()
         >>> coupling.polarization_mismatch = 1.5
+
         """
         val = self._get_property("Polarization Mismatch")
         return float(val)
@@ -231,6 +240,7 @@ class PropagationLossCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> coupling = revision.get_coupling_data_node().add_path_loss_coupling()
         >>> coupling.pointing_error_loss = 0.8
+
         """
         val = self._get_property("Pointing Error Loss")
         return float(val)
@@ -259,6 +269,7 @@ class PropagationLossCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> coupling = revision.get_coupling_data_node().add_path_loss_coupling()
         >>> coupling.fading_type = PropagationLossCouplingNode.FadingTypeOption.FAST_FADING_ONLY
+
         """
         val = self._get_property("Fading Type")
         val = self.FadingTypeOption[val.upper()]
@@ -286,6 +297,7 @@ class PropagationLossCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> coupling = revision.get_coupling_data_node().add_path_loss_coupling()
         >>> coupling.fading_availability = 99.0
+
         """
         val = self._get_property("Fading Availability")
         return float(val)
@@ -309,6 +321,7 @@ class PropagationLossCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> coupling = revision.get_coupling_data_node().add_path_loss_coupling()
         >>> coupling.std_deviation = 2.0
+
         """
         val = self._get_property("Std Deviation")
         return float(val)
@@ -332,6 +345,7 @@ class PropagationLossCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> coupling = revision.get_coupling_data_node().add_path_loss_coupling()
         >>> coupling.include_rain_attenuation = True
+
         """
         val = self._get_property("Include Rain Attenuation")
         return val == "true"
@@ -358,6 +372,7 @@ class PropagationLossCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> coupling = revision.get_coupling_data_node().add_path_loss_coupling()
         >>> coupling.rain_availability = 99.9
+
         """
         val = self._get_property("Rain Availability")
         return float(val)
@@ -381,6 +396,7 @@ class PropagationLossCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> coupling = revision.get_coupling_data_node().add_path_loss_coupling()
         >>> coupling.rain_rate = 25.0
+
         """
         val = self._get_property("Rain Rate")
         return float(val)
@@ -407,6 +423,7 @@ class PropagationLossCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> coupling = revision.get_coupling_data_node().add_path_loss_coupling()
         >>> coupling.polarization_tilt_angle = 45.0
+
         """
         val = self._get_property("Polarization Tilt Angle")
         return float(val)
@@ -433,6 +450,7 @@ class PropagationLossCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> coupling = revision.get_coupling_data_node().add_path_loss_coupling()
         >>> coupling.include_atmospheric_absorption = True
+
         """
         val = self._get_property("Include Atmospheric Absorption")
         return val == "true"
@@ -456,6 +474,7 @@ class PropagationLossCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> coupling = revision.get_coupling_data_node().add_path_loss_coupling()
         >>> coupling.temperature = 20.0
+
         """
         val = self._get_property("Temperature")
         return float(val)
@@ -479,6 +498,7 @@ class PropagationLossCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> coupling = revision.get_coupling_data_node().add_path_loss_coupling()
         >>> coupling.total_air_pressure = 1013.25
+
         """
         val = self._get_property("Total Air Pressure")
         return float(val)
@@ -502,6 +522,7 @@ class PropagationLossCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> coupling = revision.get_coupling_data_node().add_path_loss_coupling()
         >>> coupling.water_vapor_concentration = 7.5
+
         """
         val = self._get_property("Water Vapor Concentration")
         return float(val)

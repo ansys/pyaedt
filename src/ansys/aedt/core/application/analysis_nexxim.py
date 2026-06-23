@@ -176,6 +176,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         >>> from ansys.aedt.core import Circuit
         >>> circuit = Circuit()
         >>> circuit.configurations
+
         """
         return self._configurations
 
@@ -202,6 +203,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         >>> from ansys.aedt.core import Circuit
         >>> circuit = Circuit()
         >>> circuit.delete_setup("Setup1")
+
         """
         if name in self.setup_names:
             self.oanalysis.RemoveSimSetup([name])
@@ -230,6 +232,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         >>> from ansys.aedt.core import Circuit
         >>> circuit = Circuit()
         >>> circuit.push_down("U1")
+
         """
         out_name = ""
         if isinstance(component, CircuitComponent):
@@ -263,6 +266,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         >>> from ansys.aedt.core import Circuit
         >>> circuit = Circuit()
         >>> circuit.pop_up()
+
         """
         try:
             parent_name = self.odesign.GetName().split(";")[1].split("/")[0]
@@ -286,6 +290,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         >>> from ansys.aedt.core import Circuit
         >>> circuit = Circuit()
         >>> circuit.post
+
         """
         if self._post is None and self._odesign:
             from ansys.aedt.core.visualization.post import post_processor
@@ -306,6 +311,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         >>> from ansys.aedt.core import Circuit
         >>> circuit = Circuit()
         >>> circuit.modeler
+
         """
         if self._modeler is None and self._odesign:
             self.logger.reset_timer()
@@ -329,6 +335,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         >>> from ansys.aedt.core import Circuit
         >>> circuit = Circuit()
         >>> circuit.setup_names
+
         """
         return [i.split(" : ")[0] for i in self.oanalysis.GetAllSolutionSetups()]
 
@@ -350,6 +357,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         >>> from ansys.aedt.core import Circuit
         >>> circuit = Circuit()
         >>> circuit.source_names
+
         """
         return list(self.get_oo_name(self.odesign, "Excitations"))
 
@@ -367,6 +375,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         >>> from ansys.aedt.core import Circuit
         >>> circuit = Circuit()
         >>> circuit.source_objects
+
         """
         return [self.sources[name] for name in self.sources]
 
@@ -440,6 +449,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         >>> from ansys.aedt.core import Circuit
         >>> circuit = Circuit()
         >>> circuit.excitation_names
+
         """
         return [p.replace("IPort@", "").split(";")[0] for p in self.modeler.oeditor.GetAllPorts() if "IPort@" in p]
 
@@ -461,6 +471,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         >>> from ansys.aedt.core import Circuit
         >>> circuit = Circuit()
         >>> circuit.design_excitations
+
         """
         props = {}
 
@@ -530,6 +541,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         >>> from ansys.aedt.core.generic.constants import Setups
         >>> app = Circuit()
         >>> app.create_setup(name="Setup1", setup_type=Setups.NexximLNA, Data="LINC 0GHz 4GHz 501")
+
         """
         if setup_type is None:
             setup_type = self.design_solutions.default_setup
@@ -597,6 +609,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         >>> from ansys.aedt.core import Circuit
         >>> circuit = Circuit()
         >>> circuit.change_properties(circuit.odesign, "LocalVariableTab", "LocalVariables", ["Rload"], ["50ohm"])
+
         """
         button_list = [
             "file",

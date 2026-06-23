@@ -43,6 +43,7 @@ def HFSS3DLayout_AdaptiveFrequencyData(freq):
     --------
     >>> from ansys.aedt.core.modules.setup_templates import HFSS3DLayout_AdaptiveFrequencyData
     >>> HFSS3DLayout_AdaptiveFrequencyData(1.0)
+
     """
     value = dict({"AdaptiveFrequency": freq, "MaxDelta": "0.02", "MaxPasses": 10, "Expressions": []})
     return value
@@ -1645,6 +1646,7 @@ Examples
 --------
 >>> from ansys.aedt.core.modules.setup_templates import GRM
 >>> GRM
+
 """
 
 GRM["RatedPowerFactor"] = "0.8"
@@ -1669,6 +1671,7 @@ DFIG = dict(
 
 TPIM = copy.deepcopy(RmxprtDefault)
 """Tpim."""
+
 TPIM["Frequency"] = "60Hz"
 TPIM["WindingConnection"] = 0
 
@@ -1678,7 +1681,9 @@ Examples
 --------
 >>> from ansys.aedt.core.modules.setup_templates import TPIM
 >>> TPIM
+
 """
+
 SPIM = copy.deepcopy(RmxprtDefault)
 """Spim."""
 SPIM["Frequency"] = "60Hz"
@@ -1689,6 +1694,7 @@ Examples
 --------
 >>> from ansys.aedt.core.modules.setup_templates import SPIM
 >>> SPIM
+
 """
 
 TPSM = dict(
@@ -1730,9 +1736,11 @@ Examples
 --------
 >>> from ansys.aedt.core.modules.setup_templates import LSSM
 >>> LSSM
+
 """
 UNIM = copy.deepcopy(RmxprtDefault)
 """Unim."""
+
 UNIM["Frequency"] = "60Hz"
 
 """RMxprt UNIM Universal Machine setup properties.
@@ -1741,6 +1749,7 @@ Examples
 --------
 >>> from ansys.aedt.core.modules.setup_templates import UNIM
 >>> UNIM
+
 """
 
 DCM = dict(
@@ -2264,6 +2273,7 @@ class SetupKeys:
     >>> obj = SetupKeys()
     >>> obj.SetupNames[0]
     'HFSSDrivenAuto'
+
     """
 
     SetupNames = [
@@ -2470,6 +2480,7 @@ class SetupKeys:
         >>> from ansys.aedt.core.modules.setup_templates import SetupKeys
         >>> obj = SetupKeys()
         >>> obj.get_default_icepak_template("Default")
+
         """
         icepak_setups_n = [11, 12, 13, 36, 37, 38]
         template = self.get_setup_templates()

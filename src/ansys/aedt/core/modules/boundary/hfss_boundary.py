@@ -43,6 +43,7 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
     >>> sphere1.props["ThetaStop"] = "90deg"
     >>> sphere1.props["ThetaStep"] = "2deg"
     >>> sphere1.delete()
+
     """
 
     def __init__(self, app, component_name, props, component_type) -> None:
@@ -85,6 +86,7 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FieldSetup
         >>> obj = FieldSetup()
         >>> obj.props
+
         """
         if not self.__props and self._app.design_properties:
             if (
@@ -111,6 +113,7 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FieldSetup
         >>> obj = FieldSetup()
         >>> obj.name
+
         """
         if self._child_object:
             self._name = str(self.properties["Name"])
@@ -146,6 +149,7 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FieldSetup
         >>> obj = FieldSetup()
         >>> obj.create()
+
         """
         if self.type == "FarFieldSphere":
             self._app.oradfield.InsertInfiniteSphereSetup(self._get_args())
@@ -179,6 +183,7 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FieldSetup
         >>> obj = FieldSetup()
         >>> obj.update()
+
         """
         if self.type == "FarFieldSphere":
             self._app.oradfield.EditInfiniteSphereSetup(self.name, self._get_args())
@@ -210,6 +215,7 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FieldSetup
         >>> obj = FieldSetup()
         >>> obj.delete()
+
         """
         self._app.oradfield.DeleteSetup([self.name])
         for el in self._app.field_setups:
@@ -231,6 +237,7 @@ class FarFieldSetup(FieldSetup):
     >>> sphere1.props["ThetaStop"] = "90deg"
     >>> sphere1.props["ThetaStep"] = "2deg"
     >>> sphere1.delete()
+
     """
 
     def __init__(self, app, component_name, props, component_type, units: str = "deg") -> None:
@@ -246,6 +253,7 @@ class FarFieldSetup(FieldSetup):
         >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
         >>> obj = FarFieldSetup()
         >>> obj.definition
+
         """
         return self.props["CSDefinition"]
 
@@ -315,6 +323,7 @@ class FarFieldSetup(FieldSetup):
         >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
         >>> obj = FarFieldSetup()
         >>> obj.use_custom_radiation_surface
+
         """
         return self.props["UseCustomRadiationSurface"]
 
@@ -332,6 +341,7 @@ class FarFieldSetup(FieldSetup):
         >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
         >>> obj = FarFieldSetup()
         >>> obj.custom_radiation_surface
+
         """
         return self.props["CustomRadiationSurface"]
 
@@ -354,6 +364,7 @@ class FarFieldSetup(FieldSetup):
         >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
         >>> obj = FarFieldSetup()
         >>> obj.use_local_coordinate_system
+
         """
         return self.props["UseLocalCS"]
 
@@ -371,6 +382,7 @@ class FarFieldSetup(FieldSetup):
         >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
         >>> obj = FarFieldSetup()
         >>> obj.local_coordinate_system
+
         """
         try:
             return self.properties["Coordinate System"]
@@ -396,6 +408,7 @@ class FarFieldSetup(FieldSetup):
         >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
         >>> obj = FarFieldSetup()
         >>> obj.polarization
+
         """
         return self.props["Polarization"]
 
@@ -413,6 +426,7 @@ class FarFieldSetup(FieldSetup):
         >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
         >>> obj = FarFieldSetup()
         >>> obj.slant_angle
+
         """
         if self.props["Polarization"] == "Slant":
             return self.props["SlantAngle"]
@@ -434,6 +448,7 @@ class FarFieldSetup(FieldSetup):
         >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
         >>> obj = FarFieldSetup()
         >>> obj.theta_start
+
         """
         if "ThetaStart" in self.props:
             return self.props["ThetaStart"]
@@ -449,6 +464,7 @@ class FarFieldSetup(FieldSetup):
         >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
         >>> obj = FarFieldSetup()
         >>> obj.theta_stop
+
         """
         if "ThetaStop" in self.props:
             return self.props["ThetaStop"]
@@ -464,6 +480,7 @@ class FarFieldSetup(FieldSetup):
         >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
         >>> obj = FarFieldSetup()
         >>> obj.theta_step
+
         """
         if "ThetaStep" in self.props:
             return self.props["ThetaStep"]
@@ -479,6 +496,7 @@ class FarFieldSetup(FieldSetup):
         >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
         >>> obj = FarFieldSetup()
         >>> obj.phi_start
+
         """
         if "PhiStart" in self.props:
             return self.props["PhiStart"]
@@ -494,6 +512,7 @@ class FarFieldSetup(FieldSetup):
         >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
         >>> obj = FarFieldSetup()
         >>> obj.phi_stop
+
         """
         if "PhiStop" in self.props:
             return self.props["PhiStop"]
@@ -509,6 +528,7 @@ class FarFieldSetup(FieldSetup):
         >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
         >>> obj = FarFieldSetup()
         >>> obj.phi_step
+
         """
         if "PhiStep" in self.props:
             return self.props["PhiStep"]
@@ -524,6 +544,7 @@ class FarFieldSetup(FieldSetup):
         >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
         >>> obj = FarFieldSetup()
         >>> obj.azimuth_start
+
         """
         if "AzimuthStart" in self.props:
             return self.props["AzimuthStart"]
@@ -539,6 +560,7 @@ class FarFieldSetup(FieldSetup):
         >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
         >>> obj = FarFieldSetup()
         >>> obj.azimuth_stop
+
         """
         if "AzimuthStop" in self.props:
             return self.props["AzimuthStop"]
@@ -554,6 +576,7 @@ class FarFieldSetup(FieldSetup):
         >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
         >>> obj = FarFieldSetup()
         >>> obj.azimuth_step
+
         """
         if "AzimuthStep" in self.props:
             return self.props["AzimuthStep"]
@@ -569,6 +592,7 @@ class FarFieldSetup(FieldSetup):
         >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
         >>> obj = FarFieldSetup()
         >>> obj.elevation_start
+
         """
         if "ElevationStart" in self.props:
             return self.props["ElevationStart"]
@@ -584,6 +608,7 @@ class FarFieldSetup(FieldSetup):
         >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
         >>> obj = FarFieldSetup()
         >>> obj.elevation_stop
+
         """
         if "ElevationStop" in self.props:
             return self.props["ElevationStop"]
@@ -599,6 +624,7 @@ class FarFieldSetup(FieldSetup):
         >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
         >>> obj = FarFieldSetup()
         >>> obj.elevation_step
+
         """
         if "ElevationStep" in self.props:
             return self.props["ElevationStep"]
@@ -689,6 +715,7 @@ class NearFieldSetup(FieldSetup):
     >>> from ansys.aedt.core import Hfss
     >>> hfss = Hfss()
     >>> rectangle1 = hfss.insert_near_field_rectangle()
+
     """
 
     def __init__(self, app, component_name, props, component_type) -> None:

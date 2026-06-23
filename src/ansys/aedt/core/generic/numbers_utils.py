@@ -51,6 +51,7 @@ class Quantity(float, PyAedtBase):
     >>> length = Quantity("10mm")
     >>> length.unit_system
     'Length'
+
     """
 
     def __new__(cls, expression, unit=None):
@@ -85,6 +86,7 @@ class Quantity(float, PyAedtBase):
         >>> from ansys.aedt.core.generic.numbers_utils import Quantity
         >>> Quantity("10mm").to("cm")
         1cm
+
         """
         if self.unit_system and unit in AEDT_UNITS[self.unit_system]:
             new_value = unit_converter(
@@ -129,6 +131,7 @@ class Quantity(float, PyAedtBase):
         >>> length.expression = "2cm"
         >>> length.expression
         '2cm'
+
         """
         self._value, _unit = decompose_variable_value(value)
         if _unit:
@@ -147,6 +150,7 @@ class Quantity(float, PyAedtBase):
         >>> from ansys.aedt.core.generic.numbers_utils import Quantity
         >>> Quantity("10mm").unit_system
         'Length'
+
         """
         return self._unit_system
 
@@ -163,6 +167,7 @@ class Quantity(float, PyAedtBase):
         >>> from ansys.aedt.core.generic.numbers_utils import Quantity
         >>> Quantity("10mm").unit
         'mm'
+
         """
         return self._unit
 
@@ -184,6 +189,7 @@ class Quantity(float, PyAedtBase):
         >>> from ansys.aedt.core.generic.numbers_utils import Quantity
         >>> Quantity("10mm").value
         10.0
+
         """
         return self._value
 
@@ -353,6 +359,7 @@ class Quantity(float, PyAedtBase):
         >>> from ansys.aedt.core.generic.numbers_utils import Quantity
         >>> Quantity(9).sqrt()
         3
+
         """
         return Quantity(self.value**0.5, self.unit)
 
@@ -364,6 +371,7 @@ class Quantity(float, PyAedtBase):
         >>> from ansys.aedt.core.generic.numbers_utils import Quantity
         >>> Quantity(100).log10()
         2
+
         """
         import numpy as np
 
@@ -377,6 +385,7 @@ class Quantity(float, PyAedtBase):
         >>> from ansys.aedt.core.generic.numbers_utils import Quantity
         >>> Quantity(0).sin()
         0
+
         """
         import numpy as np
 
@@ -390,6 +399,7 @@ class Quantity(float, PyAedtBase):
         >>> from ansys.aedt.core.generic.numbers_utils import Quantity
         >>> Quantity(0).cos()
         1
+
         """
         import numpy as np
 
@@ -403,6 +413,7 @@ class Quantity(float, PyAedtBase):
         >>> from ansys.aedt.core.generic.numbers_utils import Quantity
         >>> Quantity(0).arcsin()
         0
+
         """
         import numpy as np
 
@@ -416,6 +427,7 @@ class Quantity(float, PyAedtBase):
         >>> from ansys.aedt.core.generic.numbers_utils import Quantity
         >>> Quantity(1).arccos()
         0
+
         """
         import numpy as np
 
@@ -429,6 +441,7 @@ class Quantity(float, PyAedtBase):
         >>> from ansys.aedt.core.generic.numbers_utils import Quantity
         >>> Quantity(0).tan()
         0
+
         """
         import numpy as np
 
@@ -443,6 +456,7 @@ class Quantity(float, PyAedtBase):
         >>> angle = Quantity(1).arctan2(Quantity(1))
         >>> angle.value
         0.7853981633974483
+
         """
         import numpy as np
 
@@ -472,6 +486,7 @@ def decompose_variable_value(variable_value: str, full_variables: dict[str, Any]
     >>> from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
     >>> decompose_variable_value("10mm")
     (10.0, 'mm')
+
     """
     # set default return values - then check for valid units
     if full_variables is None:
@@ -529,6 +544,7 @@ def is_close(a: float, b: float, relative_tolerance: float = 1e-9, absolute_tole
     >>> from ansys.aedt.core.generic.numbers_utils import is_close
     >>> is_close(1.0, 1.0 + 1e-10)
     True
+
     """
     return abs(a - b) <= max(relative_tolerance * max(abs(a), abs(b)), absolute_tolerance)
 
@@ -551,6 +567,7 @@ def is_number(a: Any) -> bool:
     >>> from ansys.aedt.core.generic.numbers_utils import is_number
     >>> is_number("3.14")
     True
+
     """
     if isinstance(a, float) or isinstance(a, int):
         return True
@@ -582,6 +599,7 @@ def is_array(a: Any) -> bool:
     >>> from ansys.aedt.core.generic.numbers_utils import is_array
     >>> is_array("[1, 2, 3]")
     True
+
     """
     try:
         v = list(ast.literal_eval(a))

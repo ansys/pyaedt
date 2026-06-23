@@ -66,6 +66,7 @@ class ExtensionData:
     --------
     >>> from ansys.aedt.core.extensions.templates.template_get_started import ExtensionData
     >>> data = ExtensionData(origin_x=1.0, origin_y=2.0, origin_z=0.0, radius=5.0)
+
     """
 
     origin_x: float = 0.0
@@ -87,6 +88,7 @@ class TemplateExtension(ExtensionProjectCommon):
     --------
     >>> from ansys.aedt.core.extensions.templates.template_get_started import TemplateExtension
     >>> extension = TemplateExtension(withdraw=True)
+
     """
 
     def __init__(self, withdraw: bool = False) -> None:
@@ -106,6 +108,7 @@ class TemplateExtension(ExtensionProjectCommon):
         >>> from ansys.aedt.core.extensions.templates.template_get_started import TemplateExtension
         >>> extension = TemplateExtension(withdraw=True)
         >>> extension.add_extension_content()
+
         """
         # Origin x entry
         origin_x_label = ttk.Label(self.root, text="Origin X:", width=20, style="PyAEDT.TLabel")

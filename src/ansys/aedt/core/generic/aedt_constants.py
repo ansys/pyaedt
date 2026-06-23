@@ -1071,6 +1071,7 @@ class DesignType(metaclass=DynamicMeta):
     --------
     >>> from ansys.aedt.core.generic.aedt_constants import DesignType
     >>> DesignType.HFSS
+
     """
 
     (

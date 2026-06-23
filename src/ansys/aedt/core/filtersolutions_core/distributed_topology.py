@@ -58,6 +58,7 @@ class TopologyType(Enum):
     --------
     >>> from ansys.aedt.core.filtersolutions_core.distributed_topology import TopologyType
     >>> TopologyType.HAIRPIN
+
     """
 
     LUMPED_TRANSLATION = 0
@@ -108,6 +109,7 @@ class TapPosition(Enum):
     --------
     >>> from ansys.aedt.core.filtersolutions_core.distributed_topology import TapPosition
     >>> TapPosition.SIDES
+
     """
 
     AUTO = 0
@@ -131,6 +133,7 @@ class DistributedTopology:
     >>> import ansys.aedt.core.filtersolutions
     >>> design = ansys.aedt.core.FilterSolutions.DistributedDesign(version="2026.1")
     >>> design.topology
+
     """
 
     def __init__(self) -> None:
@@ -346,6 +349,7 @@ class DistributedTopology:
         >>> from ansys.aedt.core.filtersolutions_core.distributed_topology import TopologyType
         >>> design = ansys.aedt.core.FilterSolutions.DistributedDesign(version="2026.1")
         >>> design.topology.topology_type = TopologyType.INTERDIGITAL
+
         """
         type_string = self._dll_interface.get_string(self._dll.getDistributedTopology)
         return self._dll_interface.string_to_enum(TopologyType, type_string)
@@ -370,6 +374,7 @@ class DistributedTopology:
         >>> import ansys.aedt.core.filtersolutions
         >>> design = ansys.aedt.core.FilterSolutions.DistributedDesign(version="2026.1")
         >>> design.topology.source_resistance = "30"
+
         """
         source_resistance_string = self._dll_interface.get_string(self._dll.getDistributedSourceResistance)
         return source_resistance_string
@@ -392,6 +397,7 @@ class DistributedTopology:
         >>> import ansys.aedt.core.filtersolutions
         >>> design = ansys.aedt.core.FilterSolutions.DistributedDesign(version="2026.1")
         >>> design.topology.load_resistance = "30"
+
         """
         load_resistance_string = self._dll_interface.get_string(self._dll.getDistributedLoadResistance)
         return load_resistance_string
@@ -416,6 +422,7 @@ class DistributedTopology:
         >>> import ansys.aedt.core.filtersolutions
         >>> design = ansys.aedt.core.FilterSolutions.DistributedDesign(version="2026.1")
         >>> design.topology.first_shunt = False
+
         """
         first_shunt = c_bool()
         status = self._dll.getDistributedFirstElementShunt(byref(first_shunt))
@@ -445,6 +452,7 @@ class DistributedTopology:
         >>> design = ansys.aedt.core.FilterSolutions.DistributedDesign(version="2026.1")
         >>> design.topology.topology_type = TopologyType.STEPPED_IMPEDANCE
         >>> design.topology.first_fat = False
+
         """
         first_fat = c_bool()
         status = self._dll.getDistributedFirstElementFat(byref(first_fat))
@@ -476,6 +484,7 @@ class DistributedTopology:
         >>> design = ansys.aedt.core.FilterSolutions.DistributedDesign(version="2026.1")
         >>> design.attributes.filter_class = FilterClass.BAND_PASS
         >>> design.topology.use_series_caps = True
+
         """
         use_series_caps = c_bool()
         status = self._dll.getDistributedSeriesCaps(byref(use_series_caps))
@@ -506,6 +515,7 @@ class DistributedTopology:
         >>> design = ansys.aedt.core.FilterSolutions.DistributedDesign(version="2026.1")
         >>> design.attributes.filter_class = FilterClass.BAND_PASS
         >>> design.topology.combine_stubs = True
+
         """
         combine_stubs = c_bool()
         status = self._dll.getDistributedCombineStubs(byref(combine_stubs))
@@ -536,6 +546,7 @@ class DistributedTopology:
         >>> design = ansys.aedt.core.FilterSolutions.DistributedDesign(version="2026.1")
         >>> design.attributes.filter_class = FilterClass.BAND_PASS
         >>> design.topology.use_coupled_lines = True
+
         """
         use_coupled_lines = c_bool()
         status = self._dll.getDistributedCoupledLines(byref(use_coupled_lines))
@@ -567,6 +578,7 @@ class DistributedTopology:
         >>> design.attributes.filter_class = FilterClass.BAND_PASS
         >>> design.topology.topology_type = TopologyType.INTERDIGITAL
         >>> design.topology.equal_width_approx = False
+
         """
         equal_width_approx = c_bool()
         status = self._dll.getDistributedEqualWidthApprox(byref(equal_width_approx))
@@ -597,6 +609,7 @@ class DistributedTopology:
         >>> design.attributes.filter_class = FilterClass.BAND_STOP
         >>> design.topology.topology_type = TopologyType.NOTCH_RESONATORS
         >>> design.topology.open_stub_ground = True
+
         """
         open_stub_ground = c_bool()
         status = self._dll.getDistributedOpenStubGround(byref(open_stub_ground))
@@ -628,6 +641,7 @@ class DistributedTopology:
         >>> design.attributes.filter_class = FilterClass.BAND_STOP
         >>> design.topology.topology_type = TopologyType.NOTCH_RESONATORS
         >>> design.topology.left_ground_side = False
+
         """
         left_ground_side = c_bool()
         status = self._dll.getDistributedGroundSideLeft(byref(left_ground_side))
@@ -659,6 +673,7 @@ class DistributedTopology:
         >>> design.attributes.filter_class = FilterClass.BAND_PASS
         >>> design.topology.topology_type = TopologyType.SHUNT_STUB_RESONATORS
         >>> design.topology.equal_stub_widths = True
+
         """
         equal_stub_widths = c_bool()
         status = self._dll.getDistributedEqualStubWidths(byref(equal_stub_widths))
@@ -689,6 +704,7 @@ class DistributedTopology:
         >>> design.attributes.filter_class = FilterClass.BAND_PASS
         >>> design.topology.topology_type = TopologyType.SHUNT_STUB_RESONATORS
         >>> design.topology.center_z0_impedance_enabled = True
+
         """
         center_z0_impedance_enabled = c_bool()
         status = self._dll.getEnableDistributedCenterImpedance(byref(center_z0_impedance_enabled))
@@ -729,6 +745,7 @@ class DistributedTopology:
         >>> design.topology.topology_type = TopologyType.SHUNT_STUB_RESONATORS
         >>> design.topology.center_z0_impedance_enabled = True
         >>> design.topology.center_z0_impedance = "55"
+
         """
         center_z0_impedance_string = self._dll_interface.get_string(self._dll.getDistributedCenterImpedance)
         return center_z0_impedance_string
@@ -756,6 +773,7 @@ class DistributedTopology:
         >>> design.attributes.filter_class = FilterClass.BAND_PASS
         >>> design.topology.topology_type = TopologyType.PARALLEL_EDGE_COUPLED
         >>> design.topology.equal_width_conductors = False
+
         """
         equal_width_conductors = c_bool()
         status = self._dll.getDistributedEqualWidthApprox(byref(equal_width_conductors))
@@ -791,6 +809,7 @@ class DistributedTopology:
         >>> design.attributes.filter_class = FilterClass.BAND_PASS
         >>> design.topology.topology_type = TopologyType.PARALLEL_EDGE_COUPLED
         >>> design.topology.tapped = False
+
         """
         tapped = c_bool()
         status = self._dll.getDistributedTapped(byref(tapped))
@@ -826,6 +845,7 @@ class DistributedTopology:
         >>> design.attributes.filter_class = FilterClass.BAND_PASS
         >>> design.topology.topology_type = TopologyType.PARALLEL_EDGE_COUPLED
         >>> design.topology.pinned = True
+
         """
         pinned = c_bool()
         status = self._dll.getDistributedPinned(byref(pinned))
@@ -859,6 +879,7 @@ class DistributedTopology:
         >>> design.attributes.filter_class = FilterClass.BAND_PASS
         >>> design.topology.topology_type = TopologyType.PARALLEL_EDGE_COUPLED
         >>> design.topology.stub_taps = True
+
         """
         stub_taps = c_bool()
         status = self._dll.getDistributedStubTaps(byref(stub_taps))
@@ -891,6 +912,7 @@ class DistributedTopology:
         >>> design.attributes.filter_class = FilterClass.BAND_PASS
         >>> design.topology.topology_type = TopologyType.PARALLEL_EDGE_COUPLED
         >>> design.topology.via_ends = True
+
         """
         via_ends = c_bool()
         status = self._dll.getDistributedViaEnds(byref(via_ends))
@@ -921,6 +943,7 @@ class DistributedTopology:
         >>> design.attributes.filter_class = FilterClass.BAND_PASS
         >>> design.topology.topology_type = TopologyType.HAIRPIN
         >>> design.topology.resonator_line_width_enabled = True
+
         """
         resonator_line_width_enabled = c_bool()
         status = self._dll.getEnableDistributedLineWidth(byref(resonator_line_width_enabled))
@@ -952,6 +975,7 @@ class DistributedTopology:
         >>> design.topology.topology_type = TopologyType.HAIRPIN
         >>> design.topology.resonator_line_width_enabled = True
         >>> design.topology.resonator_line_width = "5 mm"
+
         """
         resonator_line_width_string = self._dll_interface.get_string(self._dll.getDistributedLineWidth)
         return resonator_line_width_string
@@ -979,6 +1003,7 @@ class DistributedTopology:
         >>> design.attributes.filter_class = FilterClass.BAND_PASS
         >>> design.topology.topology_type = TopologyType.PARALLEL_EDGE_COUPLED
         >>> design.topology.resonator_rotation_angle_enabled = False
+
         """
         resonator_rotation_angle_enabled = c_bool()
         status = self._dll.getEnableDistributedResonatorRotationAngle(byref(resonator_rotation_angle_enabled))
@@ -1010,6 +1035,7 @@ class DistributedTopology:
         >>> design.topology.topology_type = TopologyType.PARALLEL_EDGE_COUPLED
         >>> design.topology.resonator_rotation_angle_enabled = True
         >>> design.topology.resonator_rotation_angle = "5"
+
         """
         resonator_rotation_angle_string = self._dll_interface.get_string(self._dll.getDistributedResonatorRotationAngle)
         return resonator_rotation_angle_string
@@ -1038,6 +1064,7 @@ class DistributedTopology:
         >>> design.attributes.filter_class = FilterClass.BAND_PASS
         >>> design.topology.topology_type = TopologyType.HAIRPIN
         >>> design.topology.mitered_corners = True
+
         """
         mitered_corners = c_bool()
         status = self._dll.getDistributedMiteredCorners(byref(mitered_corners))
@@ -1068,6 +1095,7 @@ class DistributedTopology:
         >>> design.attributes.filter_class = FilterClass.BAND_PASS
         >>> design.topology.topology_type = TopologyType.HAIRPIN
         >>> design.topology.hairpin_gap_width_enabled = True
+
         """
         hairpin_gap_width_enabled = c_bool()
         status = self._dll.getEnableDistributedHGapWidth(byref(hairpin_gap_width_enabled))
@@ -1098,6 +1126,7 @@ class DistributedTopology:
         >>> design.topology.topology_type = TopologyType.HAIRPIN
         >>> design.topology.hairpin_gap_width_enabled = True
         >>> design.topology.hairpin_gap_width = "4 mm"
+
         """
         hairpin_gap_width_string = self._dll_interface.get_string(self._dll.getDistributedHGapWidth)
         return hairpin_gap_width_string
@@ -1126,6 +1155,7 @@ class DistributedTopology:
         >>> design.attributes.filter_class = FilterClass.BAND_PASS
         >>> design.topology.topology_type = TopologyType.MINIATURE_HAIRPIN
         >>> design.topology.miniature_hairpin_gap_width_enabled = True
+
         """
         miniature_hairpin_gap_width_enabled = c_bool()
         status = self._dll.getEnableDistributedRHGapWidth(byref(miniature_hairpin_gap_width_enabled))
@@ -1156,6 +1186,7 @@ class DistributedTopology:
         >>> design.topology.topology_type = TopologyType.MINIATURE_HAIRPIN
         >>> design.topology.miniature_hairpin_gap_width_enabled = True
         >>> design.topology.miniature_hairpin_gap_width = "450 um"
+
         """
         miniature_hairpin_gap_width_string = self._dll_interface.get_string(self._dll.getDistributedRHGapWidth)
         return miniature_hairpin_gap_width_string
@@ -1183,6 +1214,7 @@ class DistributedTopology:
         >>> design.topology.topology_type = TopologyType.RING_RESONATOR
         >>> design.topology.miniature_hairpin_gap_width_enabled = True
         >>> design.topology.ring_resonator_gap_width = "450 um"
+
         """
         ring_resonator_gap_width_string = self._dll_interface.get_string(self._dll.getDistributedRHGapWidth)
         return ring_resonator_gap_width_string
@@ -1210,6 +1242,7 @@ class DistributedTopology:
         >>> design.attributes.filter_class = FilterClass.BAND_PASS
         >>> design.topology.topology_type = TopologyType.HAIRPIN
         >>> design.topology.hairpin_extension_length = "2 mm"
+
         """
         hairpin_extension_length_string = self._dll_interface.get_string(self._dll.getDistributedTuningExtensionValue)
         return hairpin_extension_length_string
@@ -1237,6 +1270,7 @@ class DistributedTopology:
         >>> design.attributes.filter_class = FilterClass.BAND_PASS
         >>> design.topology.topology_type = TopologyType.MINIATURE_HAIRPIN
         >>> design.topology.miniature_hairpin_end_curl_extension = "2 mm"
+
         """
         miniature_hairpin_end_curl_extension_string = self._dll_interface.get_string(
             self._dll.getDistributedTuningExtensionValue
@@ -1268,6 +1302,7 @@ class DistributedTopology:
         >>> design.attributes.filter_class = FilterClass.BAND_PASS
         >>> design.topology.topology_type = TopologyType.RING_RESONATOR
         >>> design.topology.ring_resonator_end_gap_extension = "2 mm"
+
         """
         ring_resonator_end_gap_extension_string = self._dll_interface.get_string(
             self._dll.getDistributedTuningExtensionValue
@@ -1299,6 +1334,7 @@ class DistributedTopology:
         >>> design.attributes.filter_class = FilterClass.BAND_PASS
         >>> design.topology.topology_type = TopologyType.HAIRPIN
         >>> design.topology.tuning_type_1 = False
+
         """
         tuning_type_1 = c_bool()
         status = self._dll.getDistributedTuningType1(byref(tuning_type_1))
@@ -1330,6 +1366,7 @@ class DistributedTopology:
         >>> design.attributes.filter_class = FilterClass.BAND_PASS
         >>> design.topology.topology_type = TopologyType.MINIATURE_HAIRPIN
         >>> design.topology.tap_position = TapPosition.SIDES
+
         """
         type_string = self._dll_interface.get_string(self._dll.getDistributedTapPosition)
         return self._dll_interface.string_to_enum(TapPosition, type_string)
@@ -1355,6 +1392,7 @@ class DistributedTopology:
         >>> design = DistributedDesign(version="2026.1")
         >>> design.topology.topology_type = TopologyType.INTERDIGITAL
         >>> design.topology.wide_band = True
+
         """
         wide_band = c_bool()
         status = self._dll.getDistributedWideBand(byref(wide_band))
@@ -1384,6 +1422,7 @@ class DistributedTopology:
         >>> design = DistributedDesign(version="2026.1")
         >>> design.topology.topology_type = TopologyType.INTERDIGITAL
         >>> design.topology.open_ends = True
+
         """
         open_ends = c_bool()
         status = self._dll.getDistributedOpenEnds(byref(open_ends))
@@ -1411,6 +1450,7 @@ class DistributedTopology:
         >>> design = DistributedDesign(version="2026.1")
         >>> design.topology.topology_type = TopologyType.COMBLINE
         >>> design.topology.combline_half_length_frequency = "3.8G"
+
         """
         combline_half_length_frequency_string = self._dll_interface.get_string(
             self._dll.getDistributedHalfLengthFrequency
@@ -1439,6 +1479,7 @@ class DistributedTopology:
         >>> design = DistributedDesign(version="2026.1")
         >>> design.topology.topology_type = TopologyType.COUPLED_SEGMENTS
         >>> design.topology.coupled_segments_quarter_length_frequency_enabled = True
+
         """
         coupled_segments_quarter_length_frequency_enabled = c_bool()
         status = self._dll.getEnableDistributedQuarterLengthFrequency(
@@ -1470,6 +1511,7 @@ class DistributedTopology:
         >>> design = DistributedDesign(version="2026.1")
         >>> design.topology.topology_type = TopologyType.COUPLED_SEGMENTS
         >>> design.topology.coupled_segments_quarter_length_frequency = "4.2G"
+
         """
         coupled_segments_quarter_length_frequency_string = self._dll_interface.get_string(
             self._dll.getDistributedQuarterLengthFrequency
@@ -1490,6 +1532,7 @@ class DistributedTopology:
         >>> from ansys.aedt.core.filtersolutions import DistributedDesign
         >>> design = DistributedDesign(version="2026.1")
         >>> netlist = design.topology.netlist()
+
         """
         size = c_int()
         status = self._dll.getDistributedNetlistSize(byref(size))
@@ -1511,6 +1554,7 @@ class DistributedTopology:
         >>> from ansys.aedt.core.filtersolutions import DistributedDesign
         >>> design = DistributedDesign(version="2026.1")
         >>> design.topology.quick_optimize = True
+
         """
         quick_optimize = c_bool()
         status = self._dll.getDistributedQuickOptimize(byref(quick_optimize))
@@ -1538,6 +1582,7 @@ class DistributedTopology:
         >>> design = DistributedDesign(version="2026.1")
         >>> design.topology.topology_type = TopologyType.INTERDIGITAL
         >>> design.topology.resonator_length_extension = True
+
         """
         resonator_length_extension = c_bool()
         status = self._dll.getDistributedEnableExtensions(byref(resonator_length_extension))

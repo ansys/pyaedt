@@ -62,6 +62,7 @@ class FRTMData(PyAedtBase):
     >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
     >>> file = "RxSignal.frtm"
     >>> data = RangeDopplerData(file)
+
     """
 
     def __init__(self, input_file: str | Path) -> None:
@@ -117,6 +118,7 @@ class FRTMData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
         >>> obj = FRTMData()
         >>> obj.dlxcd_version
+
         """
         return self.__dlxcd_version
 
@@ -129,6 +131,7 @@ class FRTMData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
         >>> obj = FRTMData()
         >>> obj.row_count
+
         """
         return self.__row_count
 
@@ -141,6 +144,7 @@ class FRTMData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
         >>> obj = FRTMData()
         >>> obj.col_count
+
         """
         return self.__col_count
 
@@ -153,6 +157,7 @@ class FRTMData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
         >>> obj = FRTMData()
         >>> obj.col_header1
+
         """
         return self.__col_header1
 
@@ -165,6 +170,7 @@ class FRTMData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
         >>> obj = FRTMData()
         >>> obj.col_header2
+
         """
         return self.__col_header2
 
@@ -177,6 +183,7 @@ class FRTMData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
         >>> obj = FRTMData()
         >>> obj.binary_record_length
+
         """
         return self.__binary_record_length
 
@@ -189,6 +196,7 @@ class FRTMData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
         >>> obj = FRTMData()
         >>> obj.binary_start_byte
+
         """
         return self.__binary_start_byte
 
@@ -201,6 +209,7 @@ class FRTMData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
         >>> obj = FRTMData()
         >>> obj.binary_byte_type_line
+
         """
         return self.__binary_byte_type_line
 
@@ -213,6 +222,7 @@ class FRTMData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
         >>> obj = FRTMData()
         >>> obj.radar_waveform
+
         """
         return self.__radar_waveform
 
@@ -225,6 +235,7 @@ class FRTMData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
         >>> obj = FRTMData()
         >>> obj.radar_channels
+
         """
         return self.__radar_channels
 
@@ -237,6 +248,7 @@ class FRTMData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
         >>> obj = FRTMData()
         >>> obj.time_start
+
         """
         return self.__time_start
 
@@ -249,6 +261,7 @@ class FRTMData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
         >>> obj = FRTMData()
         >>> obj.time_stop
+
         """
         return self.__time_stop
 
@@ -261,6 +274,7 @@ class FRTMData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
         >>> obj = FRTMData()
         >>> obj.cpi_frames
+
         """
         return self.__cpi_frames
 
@@ -273,6 +287,7 @@ class FRTMData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
         >>> obj = FRTMData()
         >>> obj.time_sweep
+
         """
         return self.__time_sweep
 
@@ -285,6 +300,7 @@ class FRTMData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
         >>> obj = FRTMData()
         >>> obj.cpi_duration
+
         """
         return self.__cpi_duration
 
@@ -297,6 +313,7 @@ class FRTMData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
         >>> obj = FRTMData()
         >>> obj.pulse_repetition_frequency
+
         """
         return 1 / self.__cpi_duration
 
@@ -309,6 +326,7 @@ class FRTMData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
         >>> obj = FRTMData()
         >>> obj.time_duration
+
         """
         return self.__time_duration
 
@@ -321,6 +339,7 @@ class FRTMData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
         >>> obj = FRTMData()
         >>> obj.frequency_domain_type
+
         """
         return self.__frequency_domain_type
 
@@ -333,6 +352,7 @@ class FRTMData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
         >>> obj = FRTMData()
         >>> obj.frequency_start
+
         """
         return self.__frequency_start
 
@@ -345,6 +365,7 @@ class FRTMData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
         >>> obj = FRTMData()
         >>> obj.frequency_stop
+
         """
         return self.__frequency_stop
 
@@ -357,6 +378,7 @@ class FRTMData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
         >>> obj = FRTMData()
         >>> obj.frequency_number
+
         """
         return self.__frequency_number
 
@@ -369,6 +391,7 @@ class FRTMData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
         >>> obj = FRTMData()
         >>> obj.frequency_sweep
+
         """
         return self.__frequency_sweep
 
@@ -381,6 +404,7 @@ class FRTMData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
         >>> obj = FRTMData()
         >>> obj.frequency_delta
+
         """
         return self.__frequency_delta
 
@@ -393,6 +417,7 @@ class FRTMData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
         >>> obj = FRTMData()
         >>> obj.frequency_bandwidth
+
         """
         return self.__frequency_bandwidth
 
@@ -405,6 +430,7 @@ class FRTMData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
         >>> obj = FRTMData()
         >>> obj.frequency_center
+
         """
         return self.__frequency_center
 
@@ -417,6 +443,7 @@ class FRTMData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
         >>> obj = FRTMData()
         >>> obj.antenna_names
+
         """
         return self.__antenna_names
 
@@ -429,6 +456,7 @@ class FRTMData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
         >>> obj = FRTMData()
         >>> obj.channel_number
+
         """
         return self.__channel_number
 
@@ -441,6 +469,7 @@ class FRTMData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
         >>> obj = FRTMData()
         >>> obj.coupling_combos
+
         """
         return self.__coupling_combos
 
@@ -453,6 +482,7 @@ class FRTMData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
         >>> obj = FRTMData()
         >>> obj.channel_names
+
         """
         return self.__channel_names
 
@@ -471,6 +501,7 @@ class FRTMData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
         >>> obj = FRTMData()
         >>> obj.receiver_position
+
         """
         return self.__receiver_position
 
@@ -488,6 +519,7 @@ class FRTMData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
         >>> obj = FRTMData()
         >>> obj.all_data
+
         """
         return self.__all_data
 
@@ -500,6 +532,7 @@ class FRTMData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
         >>> obj = FRTMData()
         >>> obj.range_resolution
+
         """
         bw = self.frequency_bandwidth
         rr = SpeedOfLight / 2 / bw
@@ -514,6 +547,7 @@ class FRTMData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
         >>> obj = FRTMData()
         >>> obj.range_maximum
+
         """
         rr = self.range_resolution
         max_range = rr * self.frequency_number
@@ -530,6 +564,7 @@ class FRTMData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
         >>> obj = FRTMData()
         >>> obj.velocity_resolution
+
         """
         fc = self.frequency_center
         tpt = self.time_duration
@@ -545,6 +580,7 @@ class FRTMData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
         >>> obj = FRTMData()
         >>> obj.velocity_maximum
+
         """
         vr = self.velocity_resolution
         time_step = self.cpi_frames
@@ -571,6 +607,7 @@ class FRTMData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
         >>> obj = FRTMData()
         >>> obj.data_conversion_function
+
         """
         return self.__data_conversion_function
 
@@ -602,6 +639,7 @@ class FRTMData(PyAedtBase):
         >>> data = RangeDopplerData(file)
         >>> pulse_number = data.cpi_frames
         >>> data_pulse = data.get_data_pulse(0)
+
         """
         if pulse is None:
             pulse = int(self.cpi_frames / 2)
@@ -642,6 +680,7 @@ class FRTMData(PyAedtBase):
         >>> file = "RxSignal.frtm"
         >>> data = RangeDopplerData(file)
         >>> data_range = data.convert_frequency_range()
+
         """
         data_conversion_function_original = self.data_conversion_function
         self.data_conversion_function = None
@@ -702,6 +741,7 @@ class FRTMData(PyAedtBase):
         >>> data_channel_1 = data.all_data[channel_name]
         >>> data_pulse_0 = data_channel_1[0]
         >>> range_profile = data.range_profile(data_pulse_0)
+
         """
         data_conversion_function_original = self.data_conversion_function
         self.data_conversion_function = None
@@ -766,6 +806,7 @@ class FRTMData(PyAedtBase):
         >>> data = RangeDopplerData(file)
         >>> channel_name = data.channel_names[0]
         >>> range_doppler = data.range_doppler(channel_name)
+
         """
         if channel is None:
             channel = self.channel_names[0]
@@ -870,6 +911,7 @@ class FRTMData(PyAedtBase):
         >>> file = "RxSignal.frtm"
         >>> data = RangeDopplerData(file)
         >>> range_angle_map = data.range_angle_map()
+
         """
         if field_of_view is None:
             field_of_view = [-90, 90]
@@ -948,6 +990,7 @@ class FRTMData(PyAedtBase):
         >>> file = "RxSignal.frtm"
         >>> data = RangeDopplerData(file)
         >>> window = data.window_function("Hann")
+
         """
         if window is None or window == "Flat":
             win = np.ones(size)
@@ -1133,6 +1176,7 @@ class FRTMPlotter(PyAedtBase):
     >>> from ansys.aedt.core.visualization.advanced.doppler_range_visualization import RangeDopplerData
     >>> file = "RxSignal.frtm"
     >>> data = RangeDopplerData(file)
+
     """
 
     def __init__(self, frtm_data) -> None:
@@ -1152,6 +1196,7 @@ class FRTMPlotter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMPlotter
         >>> obj = FRTMPlotter()
         >>> obj.all_data
+
         """
         return self.__all_data
 
@@ -1164,6 +1209,7 @@ class FRTMPlotter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMPlotter
         >>> obj = FRTMPlotter()
         >>> obj.frames
+
         """
         return list(self.__all_data.keys())
 
@@ -1240,6 +1286,7 @@ class FRTMPlotter(PyAedtBase):
         >>> frtm_plotter.plot_range_profile(frame=frame_number)
         >>> frtm_plotter.plot_range_profile(output_file="range_profile.gif", animation=True, show=False)
         >>> frtm_plotter.plot_range_profile(animation=False)
+
         """
         from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 
@@ -1374,6 +1421,7 @@ class FRTMPlotter(PyAedtBase):
         >>> frame_number = frtm_plotter.frames[0]
         >>> frtm_plotter.plot_range_doppler(frame=frame_number)
         >>> frtm_plotter.plot_range_doppler(output_file="range_doppler.gif", animation=True, show=False)
+
         """
         from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 
@@ -1539,6 +1587,7 @@ class FRTMPlotter(PyAedtBase):
         >>> frame_number = frtm_plotter.frames[0]
         >>> frtm_plotter.plot_range_angle_map(frame=frame_number)
         >>> frtm_plotter.plot_range_angle_map(output_file="range_angle_map.gif", animation=True, show=False)
+
         """
         from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 

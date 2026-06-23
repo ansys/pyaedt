@@ -80,6 +80,7 @@ class AnalysisMaxwellCircuit(Analysis, PyAedtBase):
     >>> from ansys.aedt.core import MaxwellCircuit
     >>> maxwell = MaxwellCircuit()
     >>> maxwell.modeler
+
     """
 
     def __init__(
@@ -131,6 +132,7 @@ class AnalysisMaxwellCircuit(Analysis, PyAedtBase):
         >>> from ansys.aedt.core import MaxwellCircuit
         >>> maxwell = MaxwellCircuit()
         >>> maxwell.modeler
+
         """
         if self._modeler is None and self._odesign:
             from ansys.aedt.core.modeler.schematic import ModelerMaxwellCircuit

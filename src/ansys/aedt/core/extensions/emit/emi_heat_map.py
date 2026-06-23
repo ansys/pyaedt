@@ -28,6 +28,7 @@ Examples
 --------
 >>> from ansys.aedt.core.extensions.emit.emi_heat_map import EMIHeatmapExtension
 >>> extension = EMIHeatmapExtension(withdraw=True)
+
 """
 
 from dataclasses import dataclass
@@ -62,6 +63,7 @@ class EMIHeatmapExtensionData(ExtensionCommonData):
     --------
     >>> from ansys.aedt.core.extensions.emit.emi_heat_map import EMIHeatmapExtensionData
     >>> data = EMIHeatmapExtensionData(victim="GPS", aggressor="Bluetooth")
+
     """
 
     emi: np.ndarray | None = None
@@ -89,6 +91,7 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
     --------
     >>> from ansys.aedt.core.extensions.emit.emi_heat_map import EMIHeatmapExtension
     >>> extension = EMIHeatmapExtension(withdraw=True)
+
     """
 
     def __init__(self, withdraw: bool = False) -> None:
@@ -124,6 +127,7 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
         >>> from ansys.aedt.core.extensions.emit.emi_heat_map import EMIHeatmapExtension
         >>> extension = EMIHeatmapExtension(withdraw=True)
         >>> extension.add_extension_content()
+
         """
         root = self.root
 

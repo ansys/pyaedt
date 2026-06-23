@@ -77,6 +77,7 @@ class ViaClusteringExtensionData(ExtensionCommonData):
     >>> data = ViaClusteringExtensionData(aedb_path="C:\\\\PCB\\\\board.aedb", design_name="Main")
     >>> data.design_name
     'Main'
+
     """
 
     aedb_path: str = EXTENSION_DEFAULT_ARGUMENTS["aedb_path"]
@@ -108,6 +109,7 @@ class ViaClusteringExtension(ExtensionHFSS3DLayoutCommon):
     --------
     >>> from ansys.aedt.core.extensions.hfss3dlayout.via_clustering import ViaClusteringExtension
     >>> extension = ViaClusteringExtension(withdraw=True)
+
     """
 
     def __init__(self, withdraw: bool = False) -> None:
@@ -165,6 +167,7 @@ class ViaClusteringExtension(ExtensionHFSS3DLayoutCommon):
         >>> from ansys.aedt.core.extensions.hfss3dlayout.via_clustering import ViaClusteringExtension
         >>> extension = ViaClusteringExtension(withdraw=True)
         >>> extension.add_extension_content()
+
         """
         # Project name label and entry
         project_label = ttk.Label(
@@ -335,6 +338,7 @@ def main(data: ViaClusteringExtensionData) -> bool:
     ...     contour_list=[],
     ... )
     >>> main(data)
+
     """
     if not data.aedb_path:
         raise AEDTRuntimeError("No AEDB path provided to the extension.")

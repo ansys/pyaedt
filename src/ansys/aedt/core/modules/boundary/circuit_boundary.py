@@ -37,6 +37,7 @@ class Sources(PyAedtBase):
     --------
     >>> from ansys.aedt.core.modules.boundary.circuit_boundary import Sources
     >>> source = Sources(app, name="V1")
+
     """
 
     def __init__(self, app, name: str, source_type=None) -> None:
@@ -63,6 +64,7 @@ class Sources(PyAedtBase):
         >>> source = Sources(app, name="V1")
         >>> source.name
         'V1'
+
         """
         return self._name
 
@@ -222,6 +224,7 @@ class Sources(PyAedtBase):
         >>> from ansys.aedt.core.modules.boundary.circuit_boundary import Sources
         >>> source = Sources(app, name="V1")
         >>> source.update(original_name="V1", new_source="V2")
+
         """
         arg0 = ["NAME:Data"]
         if self.source_type != "VoltageFrequencyDependent":
@@ -325,6 +328,7 @@ class Sources(PyAedtBase):
         >>> from ansys.aedt.core.modules.boundary.circuit_boundary import Sources
         >>> source = Sources(app, name="V1")
         >>> source.delete()
+
         """
         self._app.modeler._odesign.DeleteSource(self.name)
         for port in self._app.excitation_names:
@@ -348,6 +352,7 @@ class Sources(PyAedtBase):
         >>> from ansys.aedt.core.modules.boundary.circuit_boundary import Sources
         >>> source = Sources(app, name="V1")
         >>> source.create()
+
         """
         self.update(original_name=None, new_source=self.name)
         return True
@@ -362,6 +367,7 @@ class PowerSinSource(Sources):
     >>> from ansys.aedt.core.modules.boundary.circuit_boundary import PowerSinSource
     >>> app = pyaedt.Circuit()
     >>> source = PowerSinSource(app, name="P1")
+
     """
 
     def __init__(self, app, name: str, source_type=None) -> None:
@@ -389,6 +395,7 @@ class PowerSinSource(Sources):
         >>> source = PowerSinSource(app, name="P1")
         >>> source.ac_magnitude
         "1V"
+
         """
         return self._props["ACMAG"]
 
@@ -414,6 +421,7 @@ class PowerSinSource(Sources):
         >>> source = PowerSinSource(app, name="P1")
         >>> source.ac_phase
         "0deg"
+
         """
         return self._props["ACPHASE"]
 
@@ -439,6 +447,7 @@ class PowerSinSource(Sources):
         >>> source = PowerSinSource(app, name="P1")
         >>> source.dc_magnitude
         "0V"
+
         """
         return self._props["DC"]
 
@@ -464,6 +473,7 @@ class PowerSinSource(Sources):
         >>> source = PowerSinSource(app, name="P1")
         >>> source.power_offset
         "0W"
+
         """
         return self._props["VO"]
 
@@ -489,6 +499,7 @@ class PowerSinSource(Sources):
         >>> source = PowerSinSource(app, name="P1")
         >>> source.power_magnitude
         "1W"
+
         """
         return self._props["POWER"]
 
@@ -514,6 +525,7 @@ class PowerSinSource(Sources):
         >>> source = PowerSinSource(app, name="P1")
         >>> source.frequency
         "1GHz"
+
         """
         return self._props["FREQ"]
 
@@ -539,6 +551,7 @@ class PowerSinSource(Sources):
         >>> source = PowerSinSource(app, name="P1")
         >>> source.delay
         "0s"
+
         """
         return self._props["TD"]
 
@@ -564,6 +577,7 @@ class PowerSinSource(Sources):
         >>> source = PowerSinSource(app, name="P1")
         >>> source.damping_factor
         "0"
+
         """
         return self._props["ALPHA"]
 
@@ -589,6 +603,7 @@ class PowerSinSource(Sources):
         >>> source = PowerSinSource(app, name="P1")
         >>> source.phase_delay
         "0deg"
+
         """
         return self._props["THETA"]
 
@@ -614,6 +629,7 @@ class PowerSinSource(Sources):
         >>> source = PowerSinSource(app, name="P1")
         >>> source.tone
         "1GHz"
+
         """
         return self._props["TONE"]
 
@@ -632,6 +648,7 @@ class PowerIQSource(Sources):
     >>> from ansys.aedt.core.modules.boundary.circuit_boundary import PowerIQSource
     >>> app = pyaedt.Circuit()
     >>> source = PowerIQSource(app, name="IQ1")
+
     """
 
     def __init__(self, app, name: str, source_type=None) -> None:
@@ -659,6 +676,7 @@ class PowerIQSource(Sources):
         >>> source = PowerIQSource(app, name="IQ1")
         >>> source.carrier_frequency
         "1GHz"
+
         """
         return self._props["FC"]
 
@@ -684,6 +702,7 @@ class PowerIQSource(Sources):
         >>> source = PowerIQSource(app, name="IQ1")
         >>> source.sampling_time
         "1ns"
+
         """
         return self._props["TS"]
 
@@ -709,6 +728,7 @@ class PowerIQSource(Sources):
         >>> source = PowerIQSource(app, name="IQ1")
         >>> source.dc_magnitude
         "0V"
+
         """
         return self._props["DC"]
 
@@ -734,6 +754,7 @@ class PowerIQSource(Sources):
         >>> source = PowerIQSource(app, name="IQ1")
         >>> source.repeat_from
         "0s"
+
         """
         return self._props["R"]
 
@@ -759,6 +780,7 @@ class PowerIQSource(Sources):
         >>> source = PowerIQSource(app, name="IQ1")
         >>> source.delay
         "0s"
+
         """
         return self._props["TD"]
 
@@ -782,6 +804,7 @@ class PowerIQSource(Sources):
         >>> app = pyaedt.Circuit()
         >>> source = PowerIQSource(app, name="IQ1")
         >>> source.carrier_amplitude_voltage
+
         """
         return self._props["V"]
 
@@ -805,6 +828,7 @@ class PowerIQSource(Sources):
         >>> app = pyaedt.Circuit()
         >>> source = PowerIQSource(app, name="IQ1")
         >>> source.carrier_amplitude_power
+
         """
         return self._props["VA"]
 
@@ -828,6 +852,7 @@ class PowerIQSource(Sources):
         >>> app = pyaedt.Circuit()
         >>> source = PowerIQSource(app, name="IQ1")
         >>> source.carrier_offset
+
         """
         return self._props["VO"]
 
@@ -851,6 +876,7 @@ class PowerIQSource(Sources):
         >>> app = pyaedt.Circuit()
         >>> source = PowerIQSource(app, name="IQ1")
         >>> source.real_impedance
+
         """
         return self._props["RZ"]
 
@@ -874,6 +900,7 @@ class PowerIQSource(Sources):
         >>> app = pyaedt.Circuit()
         >>> source = PowerIQSource(app, name="IQ1")
         >>> source.imaginary_impedance
+
         """
         return self._props["IZ"]
 
@@ -897,6 +924,7 @@ class PowerIQSource(Sources):
         >>> app = pyaedt.Circuit()
         >>> source = PowerIQSource(app, name="IQ1")
         >>> source.damping_factor
+
         """
         return self._props["ALPHA"]
 
@@ -920,6 +948,7 @@ class PowerIQSource(Sources):
         >>> app = pyaedt.Circuit()
         >>> source = PowerIQSource(app, name="IQ1")
         >>> source.phase_delay
+
         """
         return self._props["THETA"]
 
@@ -943,6 +972,7 @@ class PowerIQSource(Sources):
         >>> app = pyaedt.Circuit()
         >>> source = PowerIQSource(app, name="IQ1")
         >>> source.tone
+
         """
         return self._props["TONE"]
 
@@ -966,6 +996,7 @@ class PowerIQSource(Sources):
         >>> app = pyaedt.Circuit()
         >>> source = PowerIQSource(app, name="IQ1")
         >>> source.i_q_values
+
         """
         i_q = []
         for cont in range(1, 20):
@@ -1003,6 +1034,7 @@ class PowerIQSource(Sources):
         >>> app = pyaedt.Circuit()
         >>> source = PowerIQSource(app, name="IQ1")
         >>> source.file
+
         """
         return self._props["file"]
 
@@ -1021,6 +1053,7 @@ class VoltageFrequencyDependentSource(Sources):
     >>> import ansys.aedt.core as pyaedt
     >>> app = pyaedt.Circuit()
     >>> source = VoltageFrequencyDependentSource(app, name="VFD1")
+
     """
 
     def __init__(self, app, name: str, source_type=None) -> None:
@@ -1046,6 +1079,7 @@ class VoltageFrequencyDependentSource(Sources):
         >>> app = pyaedt.Circuit()
         >>> source = VoltageFrequencyDependentSource(app, name="VFD1")
         >>> source.frequencies
+
         """
         return self._props["frequencies"]
 
@@ -1069,6 +1103,7 @@ class VoltageFrequencyDependentSource(Sources):
         >>> app = pyaedt.Circuit()
         >>> source = VoltageFrequencyDependentSource(app, name="VFD1")
         >>> source.vmag
+
         """
         return self._props["vmag"]
 
@@ -1092,6 +1127,7 @@ class VoltageFrequencyDependentSource(Sources):
         >>> app = pyaedt.Circuit()
         >>> source = VoltageFrequencyDependentSource(app, name="VFD1")
         >>> source.vang
+
         """
         return self._props["vang"]
 
@@ -1115,6 +1151,7 @@ class VoltageFrequencyDependentSource(Sources):
         >>> app = pyaedt.Circuit()
         >>> source = VoltageFrequencyDependentSource(app, name="VFD1")
         >>> source.vreal
+
         """
         return self._props["vreal"]
 
@@ -1138,6 +1175,7 @@ class VoltageFrequencyDependentSource(Sources):
         >>> app = pyaedt.Circuit()
         >>> source = VoltageFrequencyDependentSource(app, name="VFD1")
         >>> source.vimag
+
         """
         return self._props["vimag"]
 
@@ -1161,6 +1199,7 @@ class VoltageFrequencyDependentSource(Sources):
         >>> app = pyaedt.Circuit()
         >>> source = VoltageFrequencyDependentSource(app, name="VFD1")
         >>> source.magnitude_angle
+
         """
         return self._props["magnitude_angle"]
 
@@ -1184,6 +1223,7 @@ class VoltageFrequencyDependentSource(Sources):
         >>> app = pyaedt.Circuit()
         >>> source = VoltageFrequencyDependentSource(app, name="VFD1")
         >>> source.fds_filename
+
         """
         return self._props["fds_filename"]
 
@@ -1248,6 +1288,7 @@ class VoltageDCSource(Sources):
     >>> import ansys.aedt.core as pyaedt
     >>> app = pyaedt.Circuit()
     >>> source = VoltageDCSource(app, name="V1")
+
     """
 
     def __init__(self, app, name: str, source_type=None) -> None:
@@ -1273,6 +1314,7 @@ class VoltageDCSource(Sources):
         >>> app = pyaedt.Circuit()
         >>> source = VoltageDCSource(app, name="V1")
         >>> source.ac_magnitude
+
         """
         return self._props["ACMAG"]
 
@@ -1296,6 +1338,7 @@ class VoltageDCSource(Sources):
         >>> app = pyaedt.Circuit()
         >>> source = VoltageDCSource(app, name="V1")
         >>> source.ac_phase
+
         """
         return self._props["ACPHASE"]
 
@@ -1319,6 +1362,7 @@ class VoltageDCSource(Sources):
         >>> app = pyaedt.Circuit()
         >>> source = VoltageDCSource(app, name="V1")
         >>> source.dc_magnitude
+
         """
         return self._props["DC"]
 
@@ -1337,6 +1381,7 @@ class VoltageSinSource(Sources):
     >>> import ansys.aedt.core as pyaedt
     >>> app = pyaedt.Circuit()
     >>> source = VoltageSinSource(app, name="V1")
+
     """
 
     def __init__(self, app, name: str, source_type=None) -> None:
@@ -1362,6 +1407,7 @@ class VoltageSinSource(Sources):
         >>> app = pyaedt.Circuit()
         >>> source = VoltageSinSource(app, name="V1")
         >>> source.ac_magnitude
+
         """
         return self._props["ACMAG"]
 
@@ -1385,6 +1431,7 @@ class VoltageSinSource(Sources):
         >>> app = pyaedt.Circuit()
         >>> source = VoltageSinSource(app, name="V1")
         >>> source.ac_phase
+
         """
         return self._props["ACPHASE"]
 
@@ -1408,6 +1455,7 @@ class VoltageSinSource(Sources):
         >>> app = pyaedt.Circuit()
         >>> source = VoltageSinSource(app, name="V1")
         >>> source.dc_magnitude
+
         """
         return self._props["DC"]
 
@@ -1431,6 +1479,7 @@ class VoltageSinSource(Sources):
         >>> app = pyaedt.Circuit()
         >>> source = VoltageSinSource(app, name="V1")
         >>> source.voltage_amplitude
+
         """
         return self._props["VA"]
 
@@ -1454,6 +1503,7 @@ class VoltageSinSource(Sources):
         >>> app = pyaedt.Circuit()
         >>> source = VoltageSinSource(app, name="V1")
         >>> source.voltage_offset
+
         """
         return self._props["VO"]
 
@@ -1477,6 +1527,7 @@ class VoltageSinSource(Sources):
         >>> app = pyaedt.Circuit()
         >>> source = VoltageSinSource(app, name="V1")
         >>> source.frequency
+
         """
         return self._props["FREQ"]
 
@@ -1500,6 +1551,7 @@ class VoltageSinSource(Sources):
         >>> app = pyaedt.Circuit()
         >>> source = VoltageSinSource(app, name="V1")
         >>> source.delay
+
         """
         return self._props["TD"]
 
@@ -1523,6 +1575,7 @@ class VoltageSinSource(Sources):
         >>> app = pyaedt.Circuit()
         >>> source = VoltageSinSource(app, name="V1")
         >>> source.damping_factor
+
         """
         return self._props["ALPHA"]
 
@@ -1546,6 +1599,7 @@ class VoltageSinSource(Sources):
         >>> app = pyaedt.Circuit()
         >>> source = VoltageSinSource(app, name="V1")
         >>> source.phase_delay
+
         """
         return self._props["THETA"]
 
@@ -1569,6 +1623,7 @@ class VoltageSinSource(Sources):
         >>> app = pyaedt.Circuit()
         >>> source = VoltageSinSource(app, name="V1")
         >>> source.tone
+
         """
         return self._props["TONE"]
 
@@ -1587,6 +1642,7 @@ class CurrentSinSource(Sources):
     >>> import ansys.aedt.core as pyaedt
     >>> app = pyaedt.Circuit()
     >>> source = CurrentSinSource(app, name="I1")
+
     """
 
     def __init__(self, app, name: str, source_type=None) -> None:
@@ -1612,6 +1668,7 @@ class CurrentSinSource(Sources):
         >>> app = pyaedt.Circuit()
         >>> source = CurrentSinSource(app, name="I1")
         >>> source.ac_magnitude
+
         """
         return self._props["ACMAG"]
 
@@ -1635,6 +1692,7 @@ class CurrentSinSource(Sources):
         >>> app = pyaedt.Circuit()
         >>> source = CurrentSinSource(app, name="I1")
         >>> source.ac_phase
+
         """
         return self._props["ACPHASE"]
 
@@ -1658,6 +1716,7 @@ class CurrentSinSource(Sources):
         >>> app = pyaedt.Circuit()
         >>> source = CurrentSinSource(app, name="I1")
         >>> source.dc_magnitude
+
         """
         return self._props["DC"]
 
@@ -1681,6 +1740,7 @@ class CurrentSinSource(Sources):
         >>> app = pyaedt.Circuit()
         >>> source = CurrentSinSource(app, name="I1")
         >>> source.current_amplitude
+
         """
         return self._props["VA"]
 
@@ -1704,6 +1764,7 @@ class CurrentSinSource(Sources):
         >>> app = pyaedt.Circuit()
         >>> source = CurrentSinSource(app, name="I1")
         >>> source.current_offset
+
         """
         return self._props["VO"]
 
@@ -1727,6 +1788,7 @@ class CurrentSinSource(Sources):
         >>> app = pyaedt.Circuit()
         >>> source = CurrentSinSource(app, name="I1")
         >>> source.frequency
+
         """
         return self._props["FREQ"]
 
@@ -1750,6 +1812,7 @@ class CurrentSinSource(Sources):
         >>> app = pyaedt.Circuit()
         >>> source = CurrentSinSource(app, name="I1")
         >>> source.delay
+
         """
         return self._props["TD"]
 
@@ -1773,6 +1836,7 @@ class CurrentSinSource(Sources):
         >>> app = pyaedt.Circuit()
         >>> source = CurrentSinSource(app, name="I1")
         >>> source.damping_factor
+
         """
         return self._props["ALPHA"]
 
@@ -1796,6 +1860,7 @@ class CurrentSinSource(Sources):
         >>> app = pyaedt.Circuit()
         >>> source = CurrentSinSource(app, name="I1")
         >>> source.phase_delay
+
         """
         return self._props["THETA"]
 
@@ -1819,6 +1884,7 @@ class CurrentSinSource(Sources):
         >>> app = pyaedt.Circuit()
         >>> source = CurrentSinSource(app, name="I1")
         >>> source.multiplier
+
         """
         return self._props["M"]
 
@@ -1842,6 +1908,7 @@ class CurrentSinSource(Sources):
         >>> app = pyaedt.Circuit()
         >>> source = CurrentSinSource(app, name="I1")
         >>> source.tone
+
         """
         return self._props["TONE"]
 

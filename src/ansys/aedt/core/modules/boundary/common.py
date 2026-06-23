@@ -42,6 +42,7 @@ class BoundaryProps(dict):
     --------
     >>> from ansys.aedt.core.modules.boundary.common import BoundaryProps
     >>> obj = BoundaryProps()
+
     """
 
     def __setitem__(self, key, value):
@@ -80,7 +81,9 @@ class BoundaryProps(dict):
 class BoundaryCommon(PropsManager, PyAedtBase):
     """Provide boundary common."""
 
-    """ """
+    """
+
+    """
 
     def __repr__(self) -> str:
         return self.name
@@ -130,6 +133,7 @@ class BoundaryCommon(PropsManager, PyAedtBase):
         >>> from ansys.aedt.core.modules.boundary.common import BoundaryCommon
         >>> obj = BoundaryCommon()
         >>> obj.delete()
+
         """
         if self.type == "Matrix" or self.type == "Force" or self.type == "Torque":
             self._app.omaxwell_parameters.DeleteParameters([self.name])
@@ -198,6 +202,7 @@ def disable_auto_update(func: callable) -> callable:
     --------
     >>> from ansys.aedt.core.modules.boundary.common import disable_auto_update
     >>> disable_auto_update(func=1)
+
     """
 
     def wrapper(self, *args, **kwargs):
@@ -244,6 +249,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
     ...     "inner",
     ... )
     >>> coat = hfss.assign_finite_conductivity([inner_id], "copper", use_thickness=True, thickness="0.2mm")
+
     """
 
     def __init__(self, app, name: str, props=None, boundarytype=None, auto_update: bool = True) -> None:
@@ -323,6 +329,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.modules.boundary.common import BoundaryObject
         >>> obj = BoundaryObject()
         >>> obj.props
+
         """
         if self.__props:
             return self.__props
@@ -347,6 +354,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.modules.boundary.common import BoundaryObject
         >>> obj = BoundaryObject()
         >>> obj.type
+
         """
         if not self._type:
             if self.available_properties:
@@ -375,6 +383,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.modules.boundary.common import BoundaryObject
         >>> obj = BoundaryObject()
         >>> obj.name
+
         """
         if getattr(self, "child_object", None):
             self._name = str(self.properties["Name"])
@@ -424,6 +433,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.modules.boundary.common import BoundaryObject
         >>> obj = BoundaryObject()
         >>> obj.create()
+
         """
         bound_type = self.type
         if bound_type == "Perfect E":
@@ -622,6 +632,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.modules.boundary.common import BoundaryObject
         >>> obj = BoundaryObject()
         >>> obj.update()
+
         """
         bound_type = self.type
         if bound_type == "Perfect E":
@@ -773,6 +784,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.modules.boundary.common import BoundaryObject
         >>> obj = BoundaryObject()
         >>> obj.update_assignment()
+
         """
         out = ["Name:" + self.name]
 

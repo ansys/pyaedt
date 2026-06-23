@@ -64,6 +64,7 @@ def db20(x: float, inverse: bool = True) -> float:
     --------
     >>> from ansys.aedt.core.generic.constants import db20
     >>> db20(0.5)
+
     """
     if inverse:
         return 20 * math.log10(x)
@@ -78,6 +79,7 @@ def db10(x: float, inverse: bool = True) -> float:
     --------
     >>> from ansys.aedt.core.generic.constants import db10
     >>> db10(10.0)
+
     """
     if inverse:
         return 10 * math.log10(x)
@@ -92,6 +94,7 @@ def dbw(x: float, inverse: bool = True) -> float:
     --------
     >>> from ansys.aedt.core.generic.constants import dbw
     >>> dbw(1.0)
+
     """
     if inverse:
         return 10 * math.log10(x)
@@ -106,6 +109,7 @@ def dbm(x: float, inverse: bool = True) -> float:
     --------
     >>> from ansys.aedt.core.generic.constants import dbm
     >>> dbm(1.0)
+
     """
     if inverse:
         return 10 * math.log10(x) + 30
@@ -247,6 +251,7 @@ def unit_converter(
     --------
     >>> from ansys.aedt.core.generic.constants import unit_converter
     >>> unit_converter(1.0, unit_system="Length", input_units="meter", output_units="mm")
+
     """
     if unit_system in AEDT_UNITS:
         if input_units not in AEDT_UNITS[unit_system]:
@@ -307,6 +312,7 @@ def scale_units(scale_to_unit: str) -> float:
     --------
     >>> from ansys.aedt.core.generic.constants import scale_units
     >>> scale_units("mm")
+
     """
     sunit = 1.0
     for val in list(AEDT_UNITS.values()):
@@ -343,6 +349,7 @@ def validate_enum_class_value(cls, value: int) -> bool:
     ...     B = 1
     ...     Invalid = 2
     >>> validate_enum_class_value(ExampleEnum, 1)
+
     """
     return isinstance(value, int) and value >= 0 and value < cls.Invalid
 
@@ -836,6 +843,7 @@ class InfiniteSphereType(metaclass=DynamicMeta):
     --------
     >>> from ansys.aedt.core.generic.constants import InfiniteSphereType
     >>> InfiniteSphereType.ThetaPhi
+
     """
 
     ThetaPhi = "Theta-Phi"
@@ -853,6 +861,7 @@ class Fillet(metaclass=DynamicMeta):
     --------
     >>> from ansys.aedt.core.generic.constants import Fillet
     >>> Fillet.Round
+
     """
 
     (Round, Mitered) = range(2)
@@ -946,6 +955,7 @@ class Gravity(metaclass=DynamicMeta):
     --------
     >>> from ansys.aedt.core.generic.constants import Gravity
     >>> Gravity.ZNeg
+
     """
 
     (XNeg, YNeg, ZNeg, XPos, YPos, ZPos) = range(6)
@@ -973,6 +983,7 @@ class View(metaclass=DynamicMeta):
     --------
     >>> from ansys.aedt.core.generic.constants import View
     >>> View.ISO
+
     """
 
     (XY, YZ, ZX, ISO) = ("XY", "YZ", "ZX", "iso")
@@ -985,6 +996,7 @@ class GlobalCS(metaclass=DynamicMeta):
     --------
     >>> from ansys.aedt.core.generic.constants import GlobalCS
     >>> GlobalCS.XY
+
     """
 
     (XY, YZ, ZX) = ("Global:XY", "Global:YZ", "Global:XZ")
@@ -997,6 +1009,7 @@ class MatrixOperationsQ3D(metaclass=DynamicMeta):
     --------
     >>> from ansys.aedt.core.generic.constants import MatrixOperationsQ3D
     >>> MatrixOperationsQ3D.JoinSeries
+
     """
 
     (JoinSeries, JoinParallel, FloatNet, GroundNet, FloatTerminal, FloatInfinity, ReturnPath, AddSink, MoveSink) = (
@@ -1019,6 +1032,7 @@ class MatrixOperationsQ2D(metaclass=DynamicMeta):
     --------
     >>> from ansys.aedt.core.generic.constants import MatrixOperationsQ2D
     >>> MatrixOperationsQ2D.DiffPair
+
     """
 
     (AddGround, SetReferenceGround, Float, Parallel, DiffPair) = (
@@ -1037,6 +1051,7 @@ class PlotCategoriesQ3D(metaclass=DynamicMeta):
     --------
     >>> from ansys.aedt.core.generic.constants import PlotCategoriesQ3D
     >>> PlotCategoriesQ3D.C
+
     """
 
     (C, G, DCL, DCR, ACL, ACR) = ("C", "G", "DCL", "DCR", "ACL", "ACR")
@@ -1049,6 +1064,7 @@ class PlotCategoriesQ2D(metaclass=DynamicMeta):
     --------
     >>> from ansys.aedt.core.generic.constants import PlotCategoriesQ2D
     >>> PlotCategoriesQ2D.CMatrix
+
     """
 
     (
@@ -1074,6 +1090,7 @@ class CSMode(metaclass=DynamicMeta):
     --------
     >>> from ansys.aedt.core.generic.constants import CSMode
     >>> CSMode.Axis
+
     """
 
     (View, Axis, ZXZ, ZYZ, AXISROTATION) = ("view", "axis", "zxz", "zyz", "axisrotation")
@@ -1086,6 +1103,7 @@ class SegmentType(metaclass=DynamicMeta):
     --------
     >>> from ansys.aedt.core.generic.constants import SegmentType
     >>> SegmentType.Line
+
     """
 
     (Line, Arc, Spline, AngularArc) = range(0, 4)
@@ -1098,6 +1116,7 @@ class CrossSection(metaclass=DynamicMeta):
     --------
     >>> from ansys.aedt.core.generic.constants import CrossSection
     >>> CrossSection.Circle
+
     """
 
     (NONE, Line, Circle, Rectangle, Trapezoid) = range(0, 5)
@@ -1110,6 +1129,7 @@ class SweepDraft(metaclass=DynamicMeta):
     --------
     >>> from ansys.aedt.core.generic.constants import SweepDraft
     >>> SweepDraft.Round
+
     """
 
     (Extended, Round, Natural, Mixed) = range(0, 4)
@@ -1122,6 +1142,7 @@ class FlipChipOrientation(metaclass=DynamicMeta):
     --------
     >>> from ansys.aedt.core.generic.constants import FlipChipOrientation
     >>> FlipChipOrientation.Up
+
     """
 
     (Up, Down) = range(0, 2)
@@ -1134,6 +1155,7 @@ class SolverType(metaclass=DynamicMeta):
     --------
     >>> from ansys.aedt.core.generic.constants import SolverType
     >>> SolverType.Hfss
+
     """
 
     (Hfss, Siwave, Q3D, Maxwell, Nexxim, TwinBuilder, Hfss3dLayout, SiwaveSYZ, SiwaveDC) = range(0, 9)
@@ -1146,6 +1168,7 @@ class CutoutSubdesignType(metaclass=DynamicMeta):
     --------
     >>> from ansys.aedt.core.generic.constants import CutoutSubdesignType
     >>> CutoutSubdesignType.Conformal
+
     """
 
     (BoundingBox, Conformal, ConvexHull, Invalid) = range(0, 4)
@@ -1158,6 +1181,7 @@ class RadiationBoxType(metaclass=DynamicMeta):
     --------
     >>> from ansys.aedt.core.generic.constants import RadiationBoxType
     >>> RadiationBoxType.Polygon
+
     """
 
     (BoundingBox, Conformal, ConvexHull, Polygon, Invalid) = range(0, 5)
@@ -1170,6 +1194,7 @@ class SweepType(metaclass=DynamicMeta):
     --------
     >>> from ansys.aedt.core.generic.constants import SweepType
     >>> SweepType.Linear
+
     """
 
     (Linear, LogCount, Invalid) = range(0, 3)
@@ -1185,6 +1210,7 @@ class BasisOrder(metaclass=DynamicMeta):
     --------
     >>> from ansys.aedt.core.generic.constants import BasisOrder
     >>> BasisOrder.Single
+
     """
 
     (Mixed, Zero, Single, Double, Invalid) = (-1, 0, 1, 2, 3)
@@ -1197,6 +1223,7 @@ class NodeType(metaclass=DynamicMeta):
     --------
     >>> from ansys.aedt.core.generic.constants import NodeType
     >>> NodeType.Positive
+
     """
 
     (Positive, Negative, Floating) = range(0, 3)
@@ -1209,6 +1236,7 @@ class SourceType(metaclass=DynamicMeta):
     --------
     >>> from ansys.aedt.core.generic.constants import SourceType
     >>> SourceType.CoaxPort
+
     """
 
     (CoaxPort, CircPort, LumpedPort, Vsource, Isource, Rlc, DcTerminal) = range(0, 7)
@@ -1221,6 +1249,7 @@ class SolutionsHfss(metaclass=DynamicMeta):
     --------
     >>> from ansys.aedt.core.generic.constants import SolutionsHfss
     >>> SolutionsHfss.DrivenModal
+
     """
 
     (DrivenModal, DrivenTerminal, EigenMode, Transient, SBR, CharacteristicMode) = (
@@ -1240,6 +1269,7 @@ class SolutionsMaxwell3D(metaclass=DynamicMeta):
     --------
     >>> from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
     >>> SolutionsMaxwell3D.Transient
+
     """
 
     (
@@ -1299,6 +1329,7 @@ class SolutionsMaxwell2D(metaclass=DynamicMeta):
     --------
     >>> from ansys.aedt.core.generic.constants import SolutionsMaxwell2D
     >>> SolutionsMaxwell2D.MagnetostaticXY
+
     """
 
     (
@@ -1371,6 +1402,7 @@ class SolutionsIcepak(metaclass=DynamicMeta):
     --------
     >>> from ansys.aedt.core.generic.constants import SolutionsIcepak
     >>> SolutionsIcepak.SteadyState
+
     """
 
     (SteadyState, Transient) = (
@@ -1386,6 +1418,7 @@ class SolutionsCircuit(metaclass=DynamicMeta):
     --------
     >>> from ansys.aedt.core.generic.constants import SolutionsCircuit
     >>> SolutionsCircuit.NexximTransient
+
     """
 
     (
@@ -1430,6 +1463,7 @@ class SolutionsMechanical(metaclass=DynamicMeta):
     --------
     >>> from ansys.aedt.core.generic.constants import SolutionsMechanical
     >>> SolutionsMechanical.Structural
+
     """
 
     (Thermal, Structural, Modal, SteadyStateThermal, TransientThermal) = (
@@ -1448,6 +1482,7 @@ class Setups(metaclass=DynamicMeta):
     --------
     >>> from ansys.aedt.core.generic.constants import Setups
     >>> Setups.HFSSDrivenDefault
+
     """
 
     HFSSDrivenAuto = 0
@@ -1559,6 +1594,7 @@ class LineStyle(metaclass=DynamicMeta):
     --------
     >>> from ansys.aedt.core.generic.constants import LineStyle
     >>> LineStyle.Dash
+
     """
 
     (Solid, Dot, ShortDash, DotShortDash, Dash, DotDash, DotDot, DotDotDash, LongDash) = (
@@ -1581,6 +1617,7 @@ class TraceType(metaclass=DynamicMeta):
     --------
     >>> from ansys.aedt.core.generic.constants import TraceType
     >>> TraceType.Continuous
+
     """
 
     (Continuous, Discrete, StickZero, StickInfinity, BarZero, BarInfinity, Histogram, Step, Stair, Digital) = (
@@ -1604,6 +1641,7 @@ class SymbolStyle(metaclass=DynamicMeta):
     --------
     >>> from ansys.aedt.core.generic.constants import SymbolStyle
     >>> SymbolStyle.Circle
+
     """
 
     (
@@ -3737,6 +3775,7 @@ class SubstrateType(IntEnumProps):
     0
     >>> int(SubstrateType.Microstrip)
     0
+
     """
 
     Microstrip = 0

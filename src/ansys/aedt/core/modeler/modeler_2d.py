@@ -61,6 +61,7 @@ class ModelerRMxprt(Modeler, PyAedtBase):
         >>> from ansys.aedt.core.modeler.modeler_2d import ModelerRMxprt
         >>> obj = ModelerRMxprt()
         >>> obj.oeditor
+
         """
         return self._app.oeditor
 
@@ -76,6 +77,7 @@ class Modeler2D(Primitives2D, PyAedtBase):
     >>> from ansys.aedt.core import Maxwell2d
     >>> app = Maxwell2d()
     >>> my_modeler = app.modeler
+
     """
 
     def __init__(self, application) -> None:
@@ -112,6 +114,7 @@ class Modeler2D(Primitives2D, PyAedtBase):
         >>> from ansys.aedt.core.modeler.modeler_2d import Modeler2D
         >>> obj = Modeler2D()
         >>> obj.calculate_radius_2D(assignment="Box1")
+
         """
         radius = 0
         oVertexIDs = self[assignment].vertices
@@ -156,6 +159,7 @@ class Modeler2D(Primitives2D, PyAedtBase):
         >>> from ansys.aedt.core.modeler.modeler_2d import Modeler2D
         >>> obj = Modeler2D()
         >>> obj.radial_split_2D(radius="10mm", name="MyObject")
+
         """
         cir = self.create_circle([0, 0, 0], 3, name=name + "_split", material="vacuum")
         self.oeditor.Copy(["NAME:Selections", "Selections:=", name])
@@ -189,6 +193,7 @@ class Modeler2D(Primitives2D, PyAedtBase):
         >>> from ansys.aedt.core.modeler.modeler_2d import Modeler2D
         >>> obj = Modeler2D()
         >>> obj.objects_in_bounding_box(bounding_box=["Box1"])
+
         """
         if len(bounding_box) != 4 and len(bounding_box) != 6:
             raise ValueError("Bounding box must be a list of 4 or 6 elements.")

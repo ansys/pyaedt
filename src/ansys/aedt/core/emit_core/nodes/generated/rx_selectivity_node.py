@@ -41,6 +41,7 @@ class RxSelectivityNode(EmitNode):
         Examples
         --------
         >>> rx_selectivity.parent
+
         """
         return self._parent
 
@@ -52,6 +53,7 @@ class RxSelectivityNode(EmitNode):
         Examples
         --------
         >>> rx_selectivity.node_type
+
         """
         return self._node_type
 
@@ -62,6 +64,7 @@ class RxSelectivityNode(EmitNode):
         Examples
         --------
         >>> rx_selectivity.import_csv_file("C:\\Temp\\rx_selectivity.csv")
+
         """
         return self._import(file_name, "Csv")
 
@@ -72,6 +75,7 @@ class RxSelectivityNode(EmitNode):
         Examples
         --------
         >>> rx_selectivity.delete()
+
         """
         self._delete()
 
@@ -88,6 +92,7 @@ class RxSelectivityNode(EmitNode):
         Examples
         --------
         >>> rx_selectivity.table_data = [("25 kHz", 3), ("50 kHz", 12)]
+
         """
         return self._get_table_data()
 
@@ -104,6 +109,7 @@ class RxSelectivityNode(EmitNode):
         Examples
         --------
         >>> rx_selectivity.enabled = True
+
         """
         return self._get_property("Enabled") == "true"
 
@@ -125,6 +131,7 @@ class RxSelectivityNode(EmitNode):
         Examples
         --------
         >>> rx_selectivity.use_arithmetic_mean = True
+
         """
         val = self._get_property("Use Arithmetic Mean")
         return val == "true"

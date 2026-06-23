@@ -64,6 +64,7 @@ def is_ipython() -> bool:
     --------
     >>> from ansys.aedt.core.visualization.plot.matplotlib import is_ipython
     >>> is_ipython()
+
     """
     try:
         shell = get_ipython().__class__.__name__
@@ -104,6 +105,7 @@ class Note(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import Note
         >>> obj = Note()
         >>> obj.text
+
         """
         return self._text
 
@@ -124,6 +126,7 @@ class Note(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import Note
         >>> obj = Note()
         >>> obj.background_color
+
         """
         return self._back_color
 
@@ -144,6 +147,7 @@ class Note(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import Note
         >>> obj = Note()
         >>> obj.background_visibility
+
         """
         return self._background_visibility
 
@@ -164,6 +168,7 @@ class Note(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import Note
         >>> obj = Note()
         >>> obj.border_visibility
+
         """
         return self._border_visibility
 
@@ -184,6 +189,7 @@ class Note(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import Note
         >>> obj = Note()
         >>> obj.border_width
+
         """
         return self._border_width
 
@@ -204,6 +210,7 @@ class Note(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import Note
         >>> obj = Note()
         >>> obj.font
+
         """
         return self._font
 
@@ -224,6 +231,7 @@ class Note(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import Note
         >>> obj = Note()
         >>> obj.font_size
+
         """
         return self._font_size
 
@@ -244,6 +252,7 @@ class Note(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import Note
         >>> obj = Note()
         >>> obj.color
+
         """
         return self._color
 
@@ -264,6 +273,7 @@ class Note(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import Note
         >>> obj = Note()
         >>> obj.bold
+
         """
         return self._bold
 
@@ -284,6 +294,7 @@ class Note(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import Note
         >>> obj = Note()
         >>> obj.italic
+
         """
         return self._italic
 
@@ -299,6 +310,7 @@ class Trace(PyAedtBase):
     --------
     >>> from ansys.aedt.core.visualization.plot.matplotlib import Trace
     >>> obj = Trace()
+
     """
 
     def __init__(self) -> None:
@@ -325,6 +337,7 @@ class Trace(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import Trace
         >>> obj = Trace()
         >>> obj.show_symbol
+
         """
         return self.__show_symbol
 
@@ -341,6 +354,7 @@ class Trace(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import Trace
         >>> obj = Trace()
         >>> obj.symbol_color
+
         """
         return self.__symbol_color
 
@@ -361,6 +375,7 @@ class Trace(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import Trace
         >>> obj = Trace()
         >>> obj.trace_style
+
         """
         return self.__trace_style
 
@@ -377,6 +392,7 @@ class Trace(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import Trace
         >>> obj = Trace()
         >>> obj.trace_width
+
         """
         return self.__trace_width
 
@@ -393,6 +409,7 @@ class Trace(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import Trace
         >>> obj = Trace()
         >>> obj.trace_color
+
         """
         return self.__trace_color
 
@@ -409,6 +426,7 @@ class Trace(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import Trace
         >>> obj = Trace()
         >>> obj.symbol_style
+
         """
         return self.__symbol_style
 
@@ -425,6 +443,7 @@ class Trace(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import Trace
         >>> obj = Trace()
         >>> obj.fill_symbol
+
         """
         return self.__fill_symbol
 
@@ -462,6 +481,7 @@ class Trace(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import Trace
         >>> obj = Trace()
         >>> obj.cartesian_data
+
         """
         return self._cartesian_data
 
@@ -491,6 +511,7 @@ class Trace(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import Trace
         >>> obj = Trace()
         >>> obj.spherical_data
+
         """
         return self._spherical_data
 
@@ -527,6 +548,7 @@ class Trace(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import Trace
         >>> obj = Trace()
         >>> obj.car2polar([1, 0], [0, 1], is_degree=True)
+
         """
         x = np.array(x, dtype=float)
         y = np.array(y, dtype=float)
@@ -546,6 +568,7 @@ class Trace(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import Trace
         >>> obj = Trace()
         >>> obj.car2spherical()
+
         """
         try:
             x = np.array(self.cartesian_data[0], dtype=float)
@@ -570,6 +593,7 @@ class Trace(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import Trace
         >>> obj = Trace()
         >>> obj.spherical2car()
+
         """
         r = np.array(self._spherical_data[0], dtype=float)
         theta = np.array(self._spherical_data[1] * math.pi / 180, dtype=float)  # to radian
@@ -598,6 +622,7 @@ class Trace(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import Trace
         >>> obj = Trace()
         >>> obj.polar2car([1, 0], [0, 90])
+
         """
         r = np.array(r, dtype=float)
         theta = np.array(theta, dtype=float)
@@ -613,6 +638,7 @@ class LimitLine(Trace):
     --------
     >>> from ansys.aedt.core.visualization.plot.matplotlib import LimitLine
     >>> obj = LimitLine()
+
     """
 
     def __init__(self) -> None:
@@ -643,6 +669,7 @@ class ReportPlotter(PyAedtBase):
     --------
     >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
     >>> obj = ReportPlotter()
+
     """
 
     def __init__(self, solution_data=None) -> None:
@@ -698,6 +725,7 @@ class ReportPlotter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
         >>> obj = ReportPlotter()
         >>> obj.dpi
+
         """
         return self.__dpi
 
@@ -714,6 +742,7 @@ class ReportPlotter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
         >>> obj = ReportPlotter()
         >>> obj.width
+
         """
         return self.__width
 
@@ -730,6 +759,7 @@ class ReportPlotter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
         >>> obj = ReportPlotter()
         >>> obj.height
+
         """
         return self.__height
 
@@ -746,6 +776,7 @@ class ReportPlotter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
         >>> obj = ReportPlotter()
         >>> obj.text_size
+
         """
         return self.__text_size
 
@@ -762,6 +793,7 @@ class ReportPlotter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
         >>> obj = ReportPlotter()
         >>> obj.title_size
+
         """
         return self.__title_size
 
@@ -777,6 +809,7 @@ class ReportPlotter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
         >>> obj = ReportPlotter()
         >>> obj.get_solution_data()
+
         """
         return self.__solution_data
 
@@ -793,6 +826,7 @@ class ReportPlotter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
         >>> obj = ReportPlotter()
         >>> obj.traces
+
         """
         return self._traces
 
@@ -809,6 +843,7 @@ class ReportPlotter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
         >>> obj = ReportPlotter()
         >>> obj.traces_by_index
+
         """
         return list(self._traces.values())
 
@@ -825,6 +860,7 @@ class ReportPlotter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
         >>> obj = ReportPlotter()
         >>> obj.trace_names
+
         """
         return list(self._traces.keys())
 
@@ -841,6 +877,7 @@ class ReportPlotter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
         >>> obj = ReportPlotter()
         >>> obj.limit_lines
+
         """
         return self._limit_lines
 
@@ -862,6 +899,7 @@ class ReportPlotter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
         >>> obj = ReportPlotter()
         >>> obj.apply_style("background_dark")
+
         """
         if style_name in plt.style.available:
             plt.style.use(style_name)
@@ -881,6 +919,7 @@ class ReportPlotter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
         >>> obj = ReportPlotter()
         >>> obj.grid_style
+
         """
         return self.__grid_style
 
@@ -901,6 +940,7 @@ class ReportPlotter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
         >>> obj = ReportPlotter()
         >>> obj.grid_enable_major_x
+
         """
         return self.__grid_enable_major_x
 
@@ -921,6 +961,7 @@ class ReportPlotter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
         >>> obj = ReportPlotter()
         >>> obj.grid_enable_major_y
+
         """
         return self.__grid_enable_major_y
 
@@ -941,6 +982,7 @@ class ReportPlotter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
         >>> obj = ReportPlotter()
         >>> obj.grid_enable_minor_x
+
         """
         return self.__grid_enable_minor_x
 
@@ -961,6 +1003,7 @@ class ReportPlotter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
         >>> obj = ReportPlotter()
         >>> obj.grid_enable_minor_y
+
         """
         return self.__grid_enable_minor_y
 
@@ -982,6 +1025,7 @@ class ReportPlotter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
         >>> obj = ReportPlotter()
         >>> obj.grid_color
+
         """
         return self.__grid_color
 
@@ -1005,6 +1049,7 @@ class ReportPlotter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
         >>> obj = ReportPlotter()
         >>> obj.general_back_color
+
         """
         return self.__general_back_color
 
@@ -1028,6 +1073,7 @@ class ReportPlotter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
         >>> obj = ReportPlotter()
         >>> obj.general_plot_color
+
         """
         return self.__general_plot_color
 
@@ -1149,6 +1195,7 @@ class ReportPlotter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
         >>> obj = ReportPlotter()
         >>> obj.y_scale
+
         """
         return self.__y_scale
 
@@ -1169,6 +1216,7 @@ class ReportPlotter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
         >>> obj = ReportPlotter()
         >>> obj.x_scale
+
         """
         return self.__x_scale
 
@@ -1189,6 +1237,7 @@ class ReportPlotter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
         >>> obj = ReportPlotter()
         >>> obj.interactive
+
         """
         return plt.isinteractive()
 
@@ -1236,6 +1285,7 @@ class ReportPlotter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
         >>> obj = ReportPlotter()
         >>> obj.add_note("Note")
+
         """
         note = Note()
         note.text = text
@@ -1283,6 +1333,7 @@ class ReportPlotter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
         >>> obj = ReportPlotter()
         >>> obj.add_limit_line([[0, 1], [0, 1]])
+
         """
         nt = LimitLine()
         nt.hatch_above = hatch_above
@@ -1312,6 +1363,7 @@ class ReportPlotter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
         >>> obj = ReportPlotter()
         >>> obj.add_eye_mask({"points": [[0, 0], [1, 1]], "xunits": "ns", "yunits": "mV", "enable_limits": True})
+
         """
         self._eye_mask = EyeMask()
         self._eye_mask.eye_points = properties.get("points", [])
@@ -1360,6 +1412,7 @@ class ReportPlotter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
         >>> obj = ReportPlotter()
         >>> obj.add_trace([[0, 1], [0, 1]], data_type=0)
+
         """
         nt = Trace()
         nt.name = name if name else f"Trace_{len(self.traces)}"
@@ -1393,6 +1446,7 @@ class ReportPlotter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
         >>> obj = ReportPlotter()
         >>> obj.size
+
         """
         px = self.plt_params["figure.dpi"]  # pixel in inches
         return [i * px for i in self.plt_params["figure.figsize"]]
@@ -1522,6 +1576,7 @@ class ReportPlotter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
         >>> obj = ReportPlotter()
         >>> obj.plot_polar()
+
         """
         traces_to_plot = self._retrieve_traces(traces)
         if not traces_to_plot:
@@ -1603,6 +1658,7 @@ class ReportPlotter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
         >>> obj = ReportPlotter()
         >>> obj.plot_3d()
+
         """
         if color_map_limits is None:
             color_map_limits = [0, 1]
@@ -1722,6 +1778,7 @@ class ReportPlotter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
         >>> obj = ReportPlotter()
         >>> obj.plot_2d()
+
         """
         traces_to_plot = self._retrieve_traces(traces)
         if not traces_to_plot:
@@ -1823,6 +1880,7 @@ class ReportPlotter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
         >>> obj = ReportPlotter()
         >>> obj.animate_2d()
+
         """
         self.animation = None
 
@@ -1900,6 +1958,7 @@ class ReportPlotter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
         >>> obj = ReportPlotter()
         >>> obj.plot_eye_diagram()
+
         """
         self.fig, self.ax = plt.subplots()
         self.fig.set_size_inches(self.width / self.dpi, self.height / self.dpi)
@@ -2215,6 +2274,7 @@ class ReportPlotter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
         >>> obj = ReportPlotter()
         >>> obj.plot_contour()
+
         """
         tr = self._retrieve_traces(trace)
         if not tr:
@@ -2303,6 +2363,7 @@ class ReportPlotter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
         >>> obj = ReportPlotter()
         >>> obj.plot_pcolor()
+
         """
         tr = self._retrieve_traces(trace)
         if not tr:
@@ -2399,6 +2460,7 @@ class ReportPlotter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
         >>> obj = ReportPlotter()
         >>> obj.animate_contour()
+
         """
         self.animation = None
 
@@ -2524,6 +2586,7 @@ def plot_matplotlib(
     --------
     >>> from ansys.aedt.core.visualization.plot.matplotlib import plot_matplotlib
     >>> plot_matplotlib()
+
     """
     dpi = 100.0
     fig, ax = plt.subplots()

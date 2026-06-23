@@ -65,6 +65,7 @@ class ConvertToCircuitExtensionData(ExtensionCommonData):
     --------
     >>> from ansys.aedt.core.extensions.twinbuilder.convert_to_circuit import ConvertToCircuitExtensionData
     >>> data = ConvertToCircuitExtensionData(design_name="TwinBuilderDesign1")
+
     """
 
     design_name: str = EXTENSION_DEFAULT_ARGUMENTS["design_name"]
@@ -78,6 +79,7 @@ class ConvertToCircuitExtension(ExtensionTwinBuilderCommon):
     --------
     >>> from ansys.aedt.core.extensions.twinbuilder.convert_to_circuit import ConvertToCircuitExtension
     >>> extension = ConvertToCircuitExtension(withdraw=True)
+
     """
 
     def __init__(self, withdraw: bool = False) -> None:
@@ -123,6 +125,7 @@ class ConvertToCircuitExtension(ExtensionTwinBuilderCommon):
         >>> from ansys.aedt.core.extensions.twinbuilder.convert_to_circuit import ConvertToCircuitExtension
         >>> extension = ConvertToCircuitExtension(withdraw=True)
         >>> extension.add_extension_content()
+
         """
         # Design selection
         label = ttk.Label(self.root, text="Select Twin Builder Design:", width=30, style="PyAEDT.TLabel")
@@ -176,6 +179,7 @@ def main(data: ConvertToCircuitExtensionData) -> bool:
     >>> from ansys.aedt.core.extensions.twinbuilder.convert_to_circuit import ConvertToCircuitExtensionData, main
     >>> data = ConvertToCircuitExtensionData(design_name="TwinBuilderDesign1")
     >>> main(data)
+
     """
     if not data.design_name:
         raise AEDTRuntimeError("No design provided to the extension.")

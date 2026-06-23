@@ -29,6 +29,7 @@ Examples
 >>> import ast
 >>> from ansys.aedt.core.emit_core.emit_function_validator import FunctionValidator
 >>> FunctionValidator().visit(ast.parse("abs(RF - IF)"))
+
 """
 
 import ast
@@ -56,6 +57,7 @@ class FunctionValidator(ast.NodeVisitor):
     >>> import ast
     >>> validator = FunctionValidator()
     >>> validator.visit(ast.parse("RF + LO"))
+
     """
 
     def visit_Module(self, node: ast.Module):
@@ -72,6 +74,7 @@ class FunctionValidator(ast.NodeVisitor):
         >>> import ast
         >>> module = ast.parse("RF + IF")
         >>> FunctionValidator().visit_Module(module)
+
         """
         for stmt in node.body:
             self.visit(stmt)
@@ -89,6 +92,7 @@ class FunctionValidator(ast.NodeVisitor):
         >>> import ast
         >>> expr = ast.parse("RF + IF").body[0]
         >>> FunctionValidator().visit_Expr(expr)
+
         """
         self.visit(node.value)
 
@@ -112,6 +116,7 @@ class FunctionValidator(ast.NodeVisitor):
         >>> import ast
         >>> bin_op = ast.parse("RF + LO").body[0].value
         >>> FunctionValidator().visit_BinOp(bin_op)
+
         """
         if not isinstance(node.op, (ast.Add, ast.Sub, ast.Mult, ast.Div)):
             raise ValueError("Only +, -, *, / are allowed")
@@ -141,6 +146,7 @@ class FunctionValidator(ast.NodeVisitor):
         >>> import ast
         >>> call = ast.parse("abs(RF)").body[0].value
         >>> FunctionValidator().visit_Call(call)
+
         """
         if not isinstance(node.func, ast.Name):
             raise ValueError("Only simple function calls are allowed")
@@ -173,6 +179,7 @@ class FunctionValidator(ast.NodeVisitor):
         >>> import ast
         >>> name = ast.parse("RF").body[0].value
         >>> FunctionValidator().visit_Name(name)
+
         """
         if node.id not in EMIT_FN_ALLOWED_VARS:
             raise ValueError(f"Unknown variable: {node.id}")
@@ -197,6 +204,7 @@ class FunctionValidator(ast.NodeVisitor):
         >>> import ast
         >>> constant = ast.parse("10").body[0].value
         >>> FunctionValidator().visit_Constant(constant)
+
         """
         if not isinstance(node.value, (int, float)):
             raise ValueError("Only numeric constants allowed")
@@ -217,5 +225,6 @@ class FunctionValidator(ast.NodeVisitor):
         >>> import ast
         >>> expr = ast.parse("RF + LO").body[0]
         >>> FunctionValidator().generic_visit(expr)
+
         """
         return super().generic_visit(node)

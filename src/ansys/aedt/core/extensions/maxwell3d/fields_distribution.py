@@ -80,6 +80,7 @@ class FieldsDistributionExtensionData(ExtensionCommonData):
     ...     export_option="Ohmic loss",
     ...     solution_option="Setup1 : LastAdaptive",
     ... )
+
     """
 
     points_file: str = EXTENSION_DEFAULT_ARGUMENTS["points_file"]
@@ -105,6 +106,7 @@ class FieldsDistributionExtension(ExtensionCommon):
     --------
     >>> from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtension
     >>> extension = FieldsDistributionExtension(withdraw=True)
+
     """
 
     def __init__(self, withdraw: bool = False) -> None:
@@ -153,6 +155,7 @@ class FieldsDistributionExtension(ExtensionCommon):
         >>> from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtension
         >>> extension = FieldsDistributionExtension(withdraw=True)
         >>> extension.check_design_type()
+
         """
         if self.aedt_application.design_type not in ["Maxwell 2D", "Maxwell 3D"]:
             self.release_desktop()
@@ -216,6 +219,7 @@ class FieldsDistributionExtension(ExtensionCommon):
         >>> from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtension
         >>> extension = FieldsDistributionExtension(withdraw=True)
         >>> extension.add_extension_content()
+
         """
         # Export options
         export_options_frame = tkinter.Frame(self.root, width=20)
@@ -480,6 +484,7 @@ def main(data: FieldsDistributionExtensionData) -> bool:
     ...     solution_option="Setup1 : LastAdaptive",
     ... )
     >>> main(data)
+
     """
     if not data.export_file:
         raise AEDTRuntimeError("No export file specified.")

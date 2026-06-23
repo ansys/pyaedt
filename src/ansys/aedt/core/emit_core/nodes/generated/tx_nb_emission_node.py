@@ -48,6 +48,7 @@ class TxNbEmissionNode(EmitNode):
         >>> tx_spec = radio.children[0].children[0]
         >>> nb_mask = tx_spec.add_narrowband_emissions_mask()
         >>> nb_mask.parent
+
         """
         return self._parent
 
@@ -64,6 +65,7 @@ class TxNbEmissionNode(EmitNode):
         >>> tx_spec = radio.children[0].children[0]
         >>> nb_mask = tx_spec.add_narrowband_emissions_mask()
         >>> nb_mask.node_type
+
         """
         return self._node_type
 
@@ -79,6 +81,7 @@ class TxNbEmissionNode(EmitNode):
         >>> tx_spec = radio.children[0].children[0]
         >>> nb_mask = tx_spec.add_narrowband_emissions_mask()
         >>> nb_mask.import_csv_file("C:\\Temp\\tx_nb_emission.csv")
+
         """
         return self._import(file_name, "Csv")
 
@@ -94,6 +97,7 @@ class TxNbEmissionNode(EmitNode):
         >>> tx_spec = radio.children[0].children[0]
         >>> nb_mask = tx_spec.add_narrowband_emissions_mask()
         >>> nb_mask.delete()
+
         """
         self._delete()
 
@@ -115,6 +119,7 @@ class TxNbEmissionNode(EmitNode):
         >>> tx_spec = radio.children[0].children[0]
         >>> nb_mask = tx_spec.add_narrowband_emissions_mask()
         >>> nb_mask.table_data = [("1 MHz", "-40 dB"), ("5 MHz", "-55 dB")]
+
         """
         return self._get_table_data()
 
@@ -136,6 +141,7 @@ class TxNbEmissionNode(EmitNode):
         >>> tx_spec = radio.children[0].children[0]
         >>> nb_mask = tx_spec.add_narrowband_emissions_mask()
         >>> nb_mask.enabled = True
+
         """
         return self._get_property("Enabled") == "true"
 
@@ -161,6 +167,7 @@ class TxNbEmissionNode(EmitNode):
         >>> tx_spec = radio.children[0].children[0]
         >>> nb_mask = tx_spec.add_narrowband_emissions_mask()
         >>> nb_mask.narrowband_behavior = nb_mask.NarrowbandBehaviorOption.RELATIVE_FREQS_AND_ATTENUATION
+
         """
         val = self._get_property("Narrowband Behavior")
         val = self.NarrowbandBehaviorOption[val.upper()]
@@ -184,6 +191,7 @@ class TxNbEmissionNode(EmitNode):
         >>> tx_spec = radio.children[0].children[0]
         >>> nb_mask = tx_spec.add_narrowband_emissions_mask()
         >>> nb_mask.measurement_frequency = "2.45 GHz"
+
         """
         val = self._get_property("Measurement Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")

@@ -72,7 +72,9 @@ EXTENSION_NB_COLUMN = 3
 class ExportExampleData:
     """Store export example data."""
 
-    """"""
+    """
+
+    """
 
     picture_path: Path
     """Path to picture."""
@@ -97,6 +99,7 @@ class ViaDesignExtension(ExtensionHFSS3DLayoutCommon):
     --------
     >>> from ansys.aedt.core.extensions.hfss3dlayout.via_design import ViaDesignExtension
     >>> extension = ViaDesignExtension(withdraw=True)
+
     """
 
     def __init__(self, withdraw: bool = False) -> None:
@@ -121,6 +124,7 @@ class ViaDesignExtension(ExtensionHFSS3DLayoutCommon):
         >>> from ansys.aedt.core.extensions.hfss3dlayout.via_design import ViaDesignExtension
         >>> extension = ViaDesignExtension(withdraw=True)
         >>> extension.add_extension_content()
+
         """
 
         def save_example(toml_file_path: Path) -> None:
@@ -210,6 +214,7 @@ class ViaDesignExtension(ExtensionHFSS3DLayoutCommon):
         >>> from ansys.aedt.core.extensions.hfss3dlayout.via_design import ViaDesignExtension
         >>> extension = ViaDesignExtension(withdraw=True)
         >>> extension.create_design(Path("C:\\\\Temp\\\\pcb_rf.toml"))
+
         """
         if create_design_path is None:
             create_design_path = filedialog.askopenfilename(

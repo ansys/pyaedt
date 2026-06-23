@@ -281,6 +281,7 @@ def deprecate_kwargs(func_name, kwargs, aliases):
     >>> deprecate_kwargs("my_function", kwargs, {"old_name": "new_name"})
     >>> kwargs["new_name"]
     'Setup1'
+
     """
     for alias, new in aliases.items():
         if alias in kwargs:
@@ -316,6 +317,7 @@ def deprecate_argument(arg_name: str, version: str = None, message: str = None, 
     ...     return new_arg if new_arg is not None else old_arg
     >>> my_function(old_arg=1)
     1
+
     """
 
     def decorator(func: _F) -> _F:
@@ -413,6 +415,7 @@ def check_numeric_equivalence(a, b, relative_tolerance: float = 1e-7):
     >>> from ansys.aedt.core.generic.general_methods import check_numeric_equivalence
     >>> check_numeric_equivalence(1.0, 1.0 + 1e-9)
     True
+
     """
     if abs(a) > 0.0:
         reldiff = abs(a - b) / a
@@ -484,6 +487,7 @@ def get_version_and_release(input_version: str) -> tuple:
     >>> from ansys.aedt.core.generic.general_methods import get_version_and_release
     >>> get_version_and_release("2025.1")
     (25, 1)
+
     """
     version = int(input_version[2:4])
     release = int(input_version[5])
@@ -563,6 +567,7 @@ def env_path(input_version: str) -> str:
     --------
     >>> env_path_student("2026.1")
     "C:/Program Files/ANSYSEM/ANSYSEM2026.1/Win64"
+
     """
     return os.getenv(
         f"ANSYSEM_ROOT{get_version_and_release(input_version)[0]}{get_version_and_release(input_version)[1]}", ""
@@ -587,6 +592,7 @@ def env_value(input_version: str) -> str:
     --------
     >>> env_value(2026.1)
     "ANSYSEM_ROOT261"
+
     """
     return f"ANSYSEM_ROOT{get_version_and_release(input_version)[0]}{get_version_and_release(input_version)[1]}"
 
@@ -609,6 +615,7 @@ def env_path_student(input_version: str) -> str:
     --------
     >>> env_path_student(2026.1)
     "C:/Program Files/ANSYSEM/ANSYSEM2026.1/Win64"
+
     """
     return os.getenv(
         f"ANSYSEMSV_ROOT{get_version_and_release(input_version)[0]}{get_version_and_release(input_version)[1]}",
@@ -634,6 +641,7 @@ def env_value_student(input_version: str) -> str:
     --------
     >>> env_value_student(2026.1)
     "ANSYSEMSV_ROOT261"
+
     """
     return f"ANSYSEMSV_ROOT{get_version_and_release(input_version)[0]}{get_version_and_release(input_version)[1]}"
 
@@ -703,6 +711,7 @@ def filter_tuple(value: str, search_key_1: str, search_key_2: str) -> bool:
     >>> from ansys.aedt.core.generic.general_methods import filter_tuple
     >>> filter_tuple("(Port1,Port2)", "Port*", "Port2")
     True
+
     """
     ignore_case = True
 
@@ -734,6 +743,7 @@ def filter_string(value: str, search_key_1: str) -> bool:
     >>> from ansys.aedt.core.generic.general_methods import filter_string
     >>> filter_string("Setup1", "Setup*")
     True
+
     """
     ignore_case = True
 
@@ -773,6 +783,7 @@ def number_aware_string_key(s: str) -> tuple:
     >>> from ansys.aedt.core.generic.general_methods import number_aware_string_key
     >>> number_aware_string_key("Trace10")
     ('Trace', 10)
+
     """
 
     def is_digit(c):
@@ -815,6 +826,7 @@ def _run_ss() -> dict[int, int]:
     >>> from ansys.aedt.core.generic.general_methods import _run_ss
     >>> _run_ss()
     {12345: 50051, 67890: 50052}
+
     """
     # ``ss`` is a Linux-only utility. Skip everything elsewhere.
     if not is_linux:  # pragma: no cover
@@ -962,6 +974,7 @@ def _get_pids_by_name_windows(image_name: str) -> list[int]:
     >>> from ansys.aedt.core.generic.general_methods import _get_pids_by_name_windows
     >>> _get_pids_by_name_windows("ansysedt.exe")
     [12345, 67890]
+
     """
     import csv
 
@@ -1038,6 +1051,7 @@ def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str]]]
     >>> from ansys.aedt.core.generic.general_methods import _get_target_processes
     >>> _get_target_processes(["ansysedt.exe"])
         # [(12345, ['C:/Program Files/.../ansysedt.exe', '-grpcsrv', '127.0.0.1:50051'])]
+
     """
     platform_system = platform.system()
     found_data = []
@@ -1317,6 +1331,7 @@ def is_grpc_session_active(port: int, machine: str | None = None) -> bool:
     ...     print("Port 50051 is occupied.")
     ... else:
     ...     print("Port 50051 is available.")
+
     """
     pyaedt_logger.debug(f"Checking if gRPC session is active on port: {port}")
 
@@ -1400,6 +1415,7 @@ def active_sessions(
 
     >>> active_sessions(version="2024.1", non_graphical=True)
     {45678: 50054}
+
     """
     # Step 1: Determine target process names based on version type and operating system
     # Student version uses different executable names (ansysedtsv vs ansysedt)
@@ -1503,6 +1519,7 @@ def com_active_sessions(
     --------
     >>> from ansys.aedt.core.generic.general_methods import com_active_sessions
     >>> com_active_sessions("2025.1")
+
     """
     all_sessions = active_sessions(version, student_version, non_graphical)
 
@@ -1543,6 +1560,7 @@ def grpc_active_sessions(
     --------
     >>> from ansys.aedt.core.generic.general_methods import grpc_active_sessions
     >>> grpc_active_sessions("2025.1")
+
     """
     all_sessions = active_sessions(version, student_version, non_graphical)
 
@@ -1593,6 +1611,7 @@ def conversion_function(data: "list | array", function: str = None):  # pragma: 
 
     >>> conversion_function(values, "ang_deg")
     array([ 0., 0., 0., 0.])
+
     """
     import numpy as np
 
@@ -1736,6 +1755,7 @@ class PropsManager(PyAedtBase):
         >>> hfss = Hfss()
         >>> setup = hfss.create_setup(name="Setup1")
         >>> setup.available_properties
+
         """
         if self.props:
             return self._recursive_list(self.props)
@@ -1751,6 +1771,7 @@ class PropsManager(PyAedtBase):
         >>> hfss = Hfss()
         >>> setup = hfss.create_setup(name="Setup1")
         >>> setup.update()
+
         """
         pass
 
@@ -1838,6 +1859,7 @@ def install_with_pip(
     --------
     >>> from ansys.aedt.core.generic.general_methods import install_with_pip
     >>> install_with_pip("pandas", upgrade=True)
+
     """
     import subprocess  # nosec B404
 

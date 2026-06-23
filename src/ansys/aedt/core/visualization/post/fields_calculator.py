@@ -115,6 +115,7 @@ class FieldsCalculator(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculator
         >>> obj = FieldsCalculator()
         >>> obj.expression_names
+
         """
         return list(self.expression_catalog.keys())
 
@@ -168,6 +169,7 @@ class FieldsCalculator(PyAedtBase):
         ... }
         >>> expr_name = hfss.post.fields_calculator.add_expression(my_expression, "Polyline1")
         >>> hfss.desktop_class.release_desktop(False, False)
+
         """
         if assignment is not None:
             assignment = self.__app.modeler.convert_to_selections(assignment, return_list=True)[0]
@@ -274,6 +276,7 @@ class FieldsCalculator(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculator
         >>> obj = FieldsCalculator()
         >>> obj.create_expression_file(name="MyObject", operations=["Box1"])
+
         """
         file_name = generate_unique_project_name(
             root_name=self.__app.toolkit_directory,
@@ -320,6 +323,7 @@ class FieldsCalculator(PyAedtBase):
         >>> expr_name = hfss.post.fields_calculator.add_expression("voltage_line", "Polyline1")
         >>> reports = hfss.post.fields_calculator.expression_plot("voltage_line", "Polyline1", [name])
         >>> hfss.desktop_class.release_desktop(False, False)
+
         """
         if assignment is not None:
             assignment = self.__app.modeler.convert_to_selections(assignment, return_list=True)
@@ -407,6 +411,7 @@ class FieldsCalculator(PyAedtBase):
         >>> expr_name = hfss.post.fields_calculator.add_expression("voltage_line", "Polyline1")
         >>> hfss.post.fields_calculator.delete_expression(expr_name)
         >>> hfss.desktop_class.release_desktop(False, False)
+
         """
         if not name:
             self.ofieldsreporter.ClearAllNamedExpr()
@@ -435,6 +440,7 @@ class FieldsCalculator(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculator
         >>> obj = FieldsCalculator()
         >>> obj.is_expression_defined(name="MyObject")
+
         """
         is_defined = self.ofieldsreporter.DoesNamedExpressionExists(name)
         if is_defined == 1:
@@ -460,6 +466,7 @@ class FieldsCalculator(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculator
         >>> obj = FieldsCalculator()
         >>> obj.is_general_expression(name="MyObject")
+
         """
         if name not in self.expression_names:
             self.__app.logger.error("Named expression not available.")
@@ -492,6 +499,7 @@ class FieldsCalculator(PyAedtBase):
         >>> my_toml = str(Path("my_path_to_toml") / "my_toml.toml")
         >>> new_catalog = hfss.post.fields_calculator.load_expression_file(my_toml)
         >>> hfss.desktop_class.release_desktop(False, False)
+
         """
         if not Path(input_file).is_file():
             self.__app.logger.error("File does not exist.")
@@ -526,6 +534,7 @@ class FieldsCalculator(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculator
         >>> obj = FieldsCalculator()
         >>> obj.validate_expression(expression="dB(S(1,1))")
+
         """
         from jsonschema import exceptions
         from jsonschema import validate
@@ -586,6 +595,7 @@ class FieldsCalculator(PyAedtBase):
         >>> file_path = Path(hfss.working_directory) / "my_expr.fld"
         >>> hfss.post.fields_calculator.write("voltage_line", file_path, hfss.nominal_adaptive)
         >>> hfss.desktop_class.release_desktop(False, False)
+
         """
         if not self.is_expression_defined(expression):
             self.__app.logger.error("Expression does not exist in current stack.")
@@ -656,6 +666,7 @@ class FieldsCalculator(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculator
         >>> obj = FieldsCalculator()
         >>> obj.evaluate(expression="dB(S(1,1))")
+
         """
         out_file = Path(self.__app.working_directory) / (generate_unique_name("expression") + ".fld")
         self.write(expression, setup=setup, intrinsics=intrinsics, output_file=str(out_file))
@@ -790,6 +801,7 @@ class FieldsCalculator(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculator
         >>> obj = FieldsCalculator()
         >>> obj.export(quantity=1)
+
         """
         if sample_points:
             if isinstance(sample_points, str):
@@ -884,6 +896,7 @@ class FieldsCalculator(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculator
         >>> obj = FieldsCalculator()
         >>> obj.get_expressions(field_type=1)
+
         """
         expressions = {}
         field_type = field_type or ""

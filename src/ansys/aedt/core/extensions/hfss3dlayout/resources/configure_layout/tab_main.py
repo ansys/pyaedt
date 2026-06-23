@@ -58,6 +58,7 @@ def create_sub_frame0(parent, master) -> None:
     >>> extension = ConfigureLayoutExtension(withdraw=True)
     >>> frame = ttk.Frame(extension.tab_frame_main)
     >>> create_sub_frame0(frame, extension)
+
     """
     row = 0
     ttk.Radiobutton(
@@ -115,6 +116,7 @@ def create_sub_frame1(parent, master) -> None:
     >>> extension = ConfigureLayoutExtension(withdraw=True)
     >>> frame = ttk.Frame(extension.tab_frame_main)
     >>> create_sub_frame1(frame, extension)
+
     """
     row = 0
 
@@ -165,6 +167,7 @@ def callback_select_design(master) -> None:
     ... )
     >>> extension = ConfigureLayoutExtension(withdraw=True)
     >>> callback_select_design(extension)
+
     """
     design_path = filedialog.askopenfilename(
         title="Select Design",
@@ -230,6 +233,7 @@ def update_options(master) -> None:
     >>> from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.tab_main import update_options
     >>> extension = ConfigureLayoutExtension(withdraw=True)
     >>> update_options(extension)
+
     """
     for name, var in master.export_option_vars.items():
         setattr(master.export_options, name, var.get())

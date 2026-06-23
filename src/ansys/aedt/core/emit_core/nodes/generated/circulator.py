@@ -46,6 +46,7 @@ class Circulator(EmitNode):
         >>> app = Emit()
         >>> circulator = app.schematic.create_component("Circulator", name="Circulator1")
         >>> circulator.node_type
+
         """
         return self._node_type
 
@@ -59,6 +60,7 @@ class Circulator(EmitNode):
         >>> app = Emit()
         >>> circulator = app.schematic.create_component("Circulator", name="Circulator1")
         >>> circulator_copy = circulator.duplicate("CirculatorCopy")
+
         """
         return self._duplicate(new_name)
 
@@ -72,6 +74,7 @@ class Circulator(EmitNode):
         >>> app = Emit()
         >>> circulator = app.schematic.create_component("Circulator", name="Circulator1")
         >>> circulator.delete()
+
         """
         self._delete()
 
@@ -89,6 +92,7 @@ class Circulator(EmitNode):
         >>> circulator = app.schematic.create_component("Circulator", name="Circulator1")
         >>> circulator.filename = "C:\\Temp\\circulator.s3p"
         >>> circulator.filename
+
         """
         val = self._get_property("Filename")
         return val
@@ -111,6 +115,7 @@ class Circulator(EmitNode):
         >>> app = Emit()
         >>> circulator = app.schematic.create_component("Circulator", name="Circulator1")
         >>> circulator.noise_temperature = 290.0
+
         """
         val = self._get_property("Noise Temperature")
         return float(val)
@@ -131,6 +136,7 @@ class Circulator(EmitNode):
         >>> app = Emit()
         >>> circulator = app.schematic.create_component("Circulator", name="Circulator1")
         >>> circulator.notes = "Three-port routing device"
+
         """
         val = self._get_property("Notes")
         return val
@@ -158,6 +164,7 @@ class Circulator(EmitNode):
         >>> app = Emit()
         >>> circulator = app.schematic.create_component("Circulator", name="Circulator1")
         >>> circulator.circulator_type = circulator.CirculatorTypeOption.PARAMETRIC
+
         """
         val = self._get_property("Circulator Type")
         val = self.CirculatorTypeOption[val.upper()]
@@ -181,6 +188,7 @@ class Circulator(EmitNode):
         >>> app = Emit()
         >>> circulator = app.schematic.create_component("Circulator", name="Circulator1")
         >>> circulator.insertion_loss = 1.5
+
         """
         val = self._get_property("Insertion Loss")
         return float(val)
@@ -206,6 +214,7 @@ class Circulator(EmitNode):
         >>> app = Emit()
         >>> circulator = app.schematic.create_component("Circulator", name="Circulator1")
         >>> circulator.finite_reverse_isolation = True
+
         """
         val = self._get_property("Finite Reverse Isolation")
         return val == "true"
@@ -228,6 +237,7 @@ class Circulator(EmitNode):
         >>> app = Emit()
         >>> circulator = app.schematic.create_component("Circulator", name="Circulator1")
         >>> circulator.reverse_isolation = 30.0
+
         """
         val = self._get_property("Reverse Isolation")
         return float(val)
@@ -253,6 +263,7 @@ class Circulator(EmitNode):
         >>> app = Emit()
         >>> circulator = app.schematic.create_component("Circulator", name="Circulator1")
         >>> circulator.finite_bandwidth = True
+
         """
         val = self._get_property("Finite Bandwidth")
         return val == "true"
@@ -275,6 +286,7 @@ class Circulator(EmitNode):
         >>> app = Emit()
         >>> circulator = app.schematic.create_component("Circulator", name="Circulator1")
         >>> circulator.out_of_band_attenuation = 60.0
+
         """
         val = self._get_property("Out-of-band Attenuation")
         return float(val)
@@ -297,6 +309,7 @@ class Circulator(EmitNode):
         >>> app = Emit()
         >>> circulator = app.schematic.create_component("Circulator", name="Circulator1")
         >>> circulator.lower_stop_band = "1.8 GHz"
+
         """
         val = self._get_property("Lower Stop Band")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -321,6 +334,7 @@ class Circulator(EmitNode):
         >>> app = Emit()
         >>> circulator = app.schematic.create_component("Circulator", name="Circulator1")
         >>> circulator.lower_cutoff = "2 GHz"
+
         """
         val = self._get_property("Lower Cutoff")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -345,6 +359,7 @@ class Circulator(EmitNode):
         >>> app = Emit()
         >>> circulator = app.schematic.create_component("Circulator", name="Circulator1")
         >>> circulator.higher_cutoff = "2.4 GHz"
+
         """
         val = self._get_property("Higher Cutoff")
         val = self._convert_from_internal_units(float(val), "Freq")

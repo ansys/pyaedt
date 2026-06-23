@@ -76,6 +76,7 @@ class MessageList:
     >>> msgs = hfss.logger.messages
     >>> msgs.info_level
     >>> msgs.warning_level
+
     """
 
     def __init__(self, msg_list) -> None:
@@ -129,6 +130,7 @@ class AppFilter(logging.Filter):
     --------
     >>> from ansys.aedt.core.aedt_logger import AppFilter
     >>> app_filter = AppFilter(destination="Project", extra="MyProject")
+
     """
 
     def __init__(self, destination: str = "Global", extra: str = "") -> None:
@@ -153,6 +155,7 @@ class AppFilter(logging.Filter):
         >>> record = logging.LogRecord("name", logging.INFO, "", 0, "msg", None, None)
         >>> app_filter.filter(record)
         True
+
         """
         record.destination = self._destination
 
@@ -187,6 +190,7 @@ class AedtLogger:
     >>> hfss = Hfss()
     >>> hfss.logger.info("Info message")
     >>> hfss.logger.warning("Warning message")
+
     """
 
     def __init__(self, level=logging.DEBUG, filename: str | None = None, to_stdout: bool = False, desktop=None) -> None:
@@ -261,6 +265,7 @@ class AedtLogger:
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.logger.add_file_logger("my_log.log", "MyProject")
+
         """
         # Ensure the directory exists
         log_path = Path(filename)
@@ -295,6 +300,7 @@ class AedtLogger:
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.logger.remove_file_logger("MyProject")
+
         """
         handlers = [i for i in self._global.handlers]
         for handler in self._files_handlers:
@@ -312,6 +318,7 @@ class AedtLogger:
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.logger.remove_all_project_file_logger()
+
         """
         handlers = [i for i in self._global.handlers]
         for handler in handlers:
@@ -365,6 +372,7 @@ class AedtLogger:
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> logger_obj = hfss.logger.logger
+
         """
         if self._log_on_file:
             return logging.getLogger("Global")
@@ -385,6 +393,7 @@ class AedtLogger:
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> msgs = hfss.logger.aedt_messages
+
         """
         return self.get_messages(self.project_name, self.design_name, aedt_messages=True)
 
@@ -402,6 +411,7 @@ class AedtLogger:
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> msgs = hfss.logger.messages
+
         """
         return self.get_messages(self.project_name, self.design_name)
 
@@ -419,6 +429,7 @@ class AedtLogger:
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> info_msgs = hfss.logger.aedt_info_messages
+
         """
         aa = self.get_messages(self.project_name, self.design_name, aedt_messages=True)
         return aa.info_level
@@ -437,6 +448,7 @@ class AedtLogger:
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> warn_msgs = hfss.logger.aedt_warning_messages
+
         """
         aa = self.get_messages(self.project_name, self.design_name, aedt_messages=True)
         return aa.warning_level
@@ -455,6 +467,7 @@ class AedtLogger:
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> err_msgs = hfss.logger.aedt_error_messages
+
         """
         aa = self.get_messages(self.project_name, self.design_name, aedt_messages=True)
         return aa.error_level
@@ -473,6 +486,7 @@ class AedtLogger:
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> info_msgs = hfss.logger.info_messages
+
         """
         aa = self.get_messages(self.project_name, self.design_name, aedt_messages=False)
         return aa.info_level
@@ -491,6 +505,7 @@ class AedtLogger:
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> warn_msgs = hfss.logger.warning_messages
+
         """
         aa = self.get_messages(self.project_name, self.design_name, aedt_messages=False)
 
@@ -510,6 +525,7 @@ class AedtLogger:
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> err_msgs = hfss.logger.error_messages
+
         """
         aa = self.get_messages(self.project_name, self.design_name, aedt_messages=False)
         return aa.error_level
@@ -530,6 +546,7 @@ class AedtLogger:
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.logger.reset_timer()
+
         """
         if time_val:
             self._timer = time_val
@@ -570,6 +587,7 @@ class AedtLogger:
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> msgs = hfss.logger.get_messages(level=0)
+
         """
         if aedt_messages and self._desktop.GetVersion() > "2022.2":
             project_name = project_name or self.project_name
@@ -685,6 +703,7 @@ class AedtLogger:
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.logger.add_debug_message("Debug info")
+
         """
         return self.add_message(3, message_text, level=level)
 
@@ -723,6 +742,7 @@ class AedtLogger:
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.logger.add_message(0, "Custom info message")
+
         """
         self._log_on_dekstop(
             message_type=message_type, message_text=message_text, level=level, proj_name=proj_name, des_name=des_name
@@ -816,6 +836,7 @@ class AedtLogger:
         Clear all messages.
 
         >>> hfss.clear_messages(proj_name="", des_name="", level=3)
+
         """
         if self.non_graphical:
             return
@@ -841,6 +862,7 @@ class AedtLogger:
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.logger.non_graphical
+
         """
         if self._non_graphical is None and self._desktop:
             self._non_graphical = self._desktop.GetIsNonGraphical()
@@ -860,6 +882,7 @@ class AedtLogger:
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.logger.oproject
+
         """
         if self._oproject:
             return self._oproject
@@ -878,6 +901,7 @@ class AedtLogger:
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.logger.odesign
+
         """
         if self._odesign:
             return self._odesign
@@ -912,6 +936,7 @@ class AedtLogger:
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.logger.design_name
+
         """
         return self._design_name
 
@@ -928,6 +953,7 @@ class AedtLogger:
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.logger.project_name
+
         """
         return self._project_name
 
@@ -947,6 +973,7 @@ class AedtLogger:
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> project_logger = hfss.logger.add_logger("Project")
+
         """
         if destination == "Project":
             project_name = self._project_name
@@ -989,6 +1016,7 @@ class AedtLogger:
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.logger.log_on_desktop
+
         """
         return self._log_on_desktop
 
@@ -1001,6 +1029,7 @@ class AedtLogger:
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.logger.log_on_desktop = False
+
         """
         if value:
             self.enable_desktop_log()
@@ -1015,6 +1044,7 @@ class AedtLogger:
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.logger.disable_desktop_log()
+
         """
         self._log_on_desktop = False
         self.debug("Log on AEDT is disabled.")
@@ -1027,6 +1057,7 @@ class AedtLogger:
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.logger.enable_desktop_log()
+
         """
         self._log_on_desktop = True
         self.debug("Log on AEDT is enabled.")
@@ -1045,6 +1076,7 @@ class AedtLogger:
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.logger.log_on_stdout
+
         """
         return self._log_on_screen
 
@@ -1057,6 +1089,7 @@ class AedtLogger:
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.logger.log_on_stdout = False
+
         """
         if value:
             self.enable_stdout_log()
@@ -1071,6 +1104,7 @@ class AedtLogger:
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.logger.disable_stdout_log()
+
         """
         self._log_on_screen = False
         self._global.removeHandler(self._std_out_handler)
@@ -1084,6 +1118,7 @@ class AedtLogger:
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.logger.enable_stdout_log()
+
         """
         self._log_on_screen = True
         if not self._std_out_handler:
@@ -1110,6 +1145,7 @@ class AedtLogger:
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.logger.log_on_file
+
         """
         return self._log_on_file
 
@@ -1122,6 +1158,7 @@ class AedtLogger:
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.logger.log_on_file = False
+
         """
         if value:
             self.enable_log_on_file()
@@ -1136,6 +1173,7 @@ class AedtLogger:
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.logger.disable_log_on_file()
+
         """
         self._log_on_file = False
 
@@ -1155,6 +1193,7 @@ class AedtLogger:
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.logger.enable_log_on_file()
+
         """
         self._log_on_file = True
 
@@ -1171,6 +1210,7 @@ class AedtLogger:
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.logger.info("Simulation started")
+
         """
         if not settings.enable_logger:
             return
@@ -1193,6 +1233,7 @@ class AedtLogger:
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.logger.info_timer("Operation completed")
+
         """
         if not settings.enable_logger:
             return
@@ -1226,6 +1267,7 @@ class AedtLogger:
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.logger.warning("Potential issue detected")
+
         """
         if not settings.enable_logger:
             return
@@ -1247,6 +1289,7 @@ class AedtLogger:
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.logger.error("Operation failed")
+
         """
         if args:
             try:
@@ -1266,6 +1309,7 @@ class AedtLogger:
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.logger.debug("Debug trace message")
+
         """
         if not (settings.enable_debug_logger or settings.enable_debug_grpc_api_logger) or not settings.enable_logger:
             return
@@ -1289,6 +1333,7 @@ class AedtLogger:
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> global_logger = hfss.logger.glb
+
         """
         self._global = logging.getLogger("Global")
         return self._global
@@ -1302,6 +1347,7 @@ class AedtLogger:
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> proj_logger = hfss.logger.project_logger
+
         """
         self._project = logging.getLogger(self.project_name)
         if not self._project.handlers:
@@ -1317,6 +1363,7 @@ class AedtLogger:
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> des_logger = hfss.logger.design_logger
+
         """
         self._design = logging.getLogger(self.project_name + ":" + self.design_name)
         if not self._design.handlers:
@@ -1333,6 +1380,7 @@ class AedtLogger:
         >>> hfss = Hfss()
         >>> with hfss.logger.suspend_logging():
         ...     pass  # No logging occurs here
+
         """
         previous_state = (self.log_on_stdout, self.log_on_file, self.log_on_desktop)
 

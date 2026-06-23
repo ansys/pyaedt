@@ -45,6 +45,7 @@ class MultipleBandsTable:
     >>> design = LumpedDesign("2026.1")
     >>> design.attributes.filter_multiple_bands_enabled = True
     >>> design.multiple_bands_table
+
     """
 
     def __init__(self) -> None:
@@ -94,6 +95,7 @@ class MultipleBandsTable:
         >>> design = LumpedDesign("2026.1")
         >>> design.attributes.filter_multiple_bands_enabled = True
         >>> design.multiple_bands_table.row_count
+
         """
         table_row_count = c_int()
         status = self._dll.getMultipleBandsTableRowCount(byref(table_row_count))
@@ -122,6 +124,7 @@ class MultipleBandsTable:
         >>> design = LumpedDesign("2026.1")
         >>> design.attributes.filter_multiple_bands_enabled = True
         >>> design.multiple_bands_table.row(0)
+
         """
         lower_value_buffer = create_string_buffer(100)
         upper_value_buffer = create_string_buffer(100)
@@ -151,6 +154,7 @@ class MultipleBandsTable:
         >>> design = LumpedDesign("2026.1")
         >>> design.attributes.filter_multiple_bands_enabled = True
         >>> design.multiple_bands_table.update_row(0, lower_frequency="200M", upper_frequency="5G")
+
         """
         status = self._dll.updateMultipleBandsTableRow(
             row_index,
@@ -175,6 +179,7 @@ class MultipleBandsTable:
         >>> design = LumpedDesign("2026.1")
         >>> design.attributes.filter_multiple_bands_enabled = True
         >>> design.multiple_bands_table.append_row("100M", "500M")
+
         """
         status = self._dll.appendMultipleBandsTableRow(
             self._bytes_or_none(lower_frequency),
@@ -200,6 +205,7 @@ class MultipleBandsTable:
         >>> design = LumpedDesign("2026.1")
         >>> design.attributes.filter_multiple_bands_enabled = True
         >>> design.multiple_bands_table.insert_row(0, "200M", "5G")
+
         """
         status = self._dll.insertMultipleBandsTableRow(
             row_index,
@@ -223,6 +229,7 @@ class MultipleBandsTable:
         >>> design = LumpedDesign("2026.1")
         >>> design.attributes.filter_multiple_bands_enabled = True
         >>> design.multiple_bands_table.remove_row(0)
+
         """
         status = self._dll.removeMultipleBandsTableRow(row_index)
         self._dll_interface.raise_error(status)
@@ -236,6 +243,7 @@ class MultipleBandsTable:
         >>> design = LumpedDesign("2026.1")
         >>> design.attributes.filter_multiple_bands_enabled = True
         >>> design.multiple_bands_table.clear_table()
+
         """
         for i in range(self.row_count - 1, -1, -1):
             self.remove_row(i)

@@ -59,6 +59,7 @@ def _replace_by_underscore(character, string):
     >>> name = _replace_by_underscore(" ", name)
     >>> name = _replace_by_underscore("(", name)
     >>> name = _replace_by_underscore(")", name)
+
     """
     if not isinstance(character, str):
         raise TypeError("character must be str")
@@ -119,6 +120,7 @@ class NamedVariable(PyAedtBase):
         >>> my_variable = NamedVariable(hfss, "my_frequency", "900000Hz")
         >>> my_variable.name
         'my_frequency'
+
         """
         return self._name
 
@@ -137,6 +139,7 @@ class NamedVariable(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import NamedVariable
         >>> obj = NamedVariable()
         >>> obj.expression
+
         """
         return self._expression
 
@@ -164,6 +167,7 @@ class NamedVariable(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import NamedVariable
         >>> obj = NamedVariable()
         >>> obj.unit_system
+
         """
         return self._variable.unit_system
 
@@ -176,6 +180,7 @@ class NamedVariable(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import NamedVariable
         >>> obj = NamedVariable()
         >>> obj.units
+
         """
         return self._variable.units
 
@@ -188,6 +193,7 @@ class NamedVariable(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import NamedVariable
         >>> obj = NamedVariable()
         >>> obj.value
+
         """
         return self._variable.si_value
 
@@ -200,6 +206,7 @@ class NamedVariable(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import NamedVariable
         >>> obj = NamedVariable()
         >>> obj.numeric_value
+
         """
         return self._variable.numeric_value
 
@@ -212,6 +219,7 @@ class NamedVariable(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import NamedVariable
         >>> obj = NamedVariable()
         >>> obj.evaluated_value
+
         """
         return self._variable.evaluated_value
 
@@ -233,6 +241,7 @@ class NamedVariable(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import NamedVariable
         >>> obj = NamedVariable()
         >>> obj.hide_variable(value=1)
+
         """
         self._application.variable_manager[self._name].hidden = value
         return True
@@ -255,6 +264,7 @@ class NamedVariable(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import NamedVariable
         >>> obj = NamedVariable()
         >>> obj.read_only_variable(value=1)
+
         """
         self._application.variable_manager[self._name].read_only = value
         return True
@@ -511,6 +521,7 @@ class Layer3D(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Layer3D
         >>> obj = Layer3D()
         >>> obj.name
+
         """
         return self._name
 
@@ -527,6 +538,7 @@ class Layer3D(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Layer3D
         >>> obj = Layer3D()
         >>> obj.type
+
         """
         return self._layer_type
 
@@ -543,6 +555,7 @@ class Layer3D(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Layer3D
         >>> obj = Layer3D()
         >>> obj.number
+
         """
         return self._index
 
@@ -559,6 +572,7 @@ class Layer3D(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Layer3D
         >>> obj = Layer3D()
         >>> obj.material_name
+
         """
         return self._material.name
 
@@ -576,6 +590,7 @@ class Layer3D(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Layer3D
         >>> obj = Layer3D()
         >>> obj.material
+
         """
         return self._material
 
@@ -593,6 +608,7 @@ class Layer3D(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Layer3D
         >>> obj = Layer3D()
         >>> obj.duplicated_material
+
         """
         return self._duplicated_material
 
@@ -610,6 +626,7 @@ class Layer3D(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Layer3D
         >>> obj = Layer3D()
         >>> obj.filling_material
+
         """
         return self._fill_material
 
@@ -626,6 +643,7 @@ class Layer3D(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Layer3D
         >>> obj = Layer3D()
         >>> obj.filling_material_name
+
         """
         return self._fill_material_name
 
@@ -643,6 +661,7 @@ class Layer3D(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Layer3D
         >>> obj = Layer3D()
         >>> obj.thickness
+
         """
         return self._thickness
 
@@ -659,6 +678,7 @@ class Layer3D(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Layer3D
         >>> obj = Layer3D()
         >>> obj.thickness_value
+
         """
         return self._thickness.value
 
@@ -680,6 +700,7 @@ class Layer3D(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Layer3D
         >>> obj = Layer3D()
         >>> obj.elevation
+
         """
         return self._position
 
@@ -696,6 +717,7 @@ class Layer3D(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Layer3D
         >>> obj = Layer3D()
         >>> obj.elevation_value
+
         """
         return self._app.variable_manager[self._position.name].value
 
@@ -712,6 +734,7 @@ class Layer3D(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Layer3D
         >>> obj = Layer3D()
         >>> obj.stackup
+
         """
         return self._stackup
 
@@ -728,6 +751,7 @@ class Layer3D(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Layer3D
         >>> obj = Layer3D()
         >>> obj.frequency
+
         """
         return self._frequency
 
@@ -766,6 +790,7 @@ class Layer3D(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Layer3D
         >>> obj = Layer3D()
         >>> obj.duplicate_parametrize_material(material_name=1)
+
         """
         if isinstance(material_name, Material):  # Make sure material_name is of type str.
             material_name = material_name.name
@@ -830,6 +855,7 @@ class Layer3D(PyAedtBase):
         >>> top = my_stackup.add_signal_layer("top")
         >>> my_patch = top.add_patch(frequency=None, patch_width=51, patch_name="MLPatch")
         >>> my_stackup.resize_around_element(my_patch)
+
         """
         if not patch_name:
             patch_name = generate_unique_name(f"{self._name}_patch", n=3)
@@ -1062,6 +1088,7 @@ class PadstackLayer(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import PadstackLayer
         >>> obj = PadstackLayer()
         >>> obj.layer_name
+
         """
         return self._layer_name
 
@@ -1079,6 +1106,7 @@ class PadstackLayer(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import PadstackLayer
         >>> obj = PadstackLayer()
         >>> obj.pad_radius
+
         """
         return self._pad_radius
 
@@ -1100,6 +1128,7 @@ class PadstackLayer(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import PadstackLayer
         >>> obj = PadstackLayer()
         >>> obj.antipad_radius
+
         """
         return self._antipad_radius
 
@@ -1148,6 +1177,7 @@ class Padstack(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Padstack
         >>> obj = Padstack()
         >>> obj.plating_ratio
+
         """
         return self._plating_ratio
 
@@ -1174,6 +1204,7 @@ class Padstack(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Padstack
         >>> obj = Padstack()
         >>> obj.padstacks_by_layer
+
         """
         return self._padstacks_by_layer
 
@@ -1190,6 +1221,7 @@ class Padstack(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Padstack
         >>> obj = Padstack()
         >>> obj.num_sides
+
         """
         return self._num_sides
 
@@ -1216,6 +1248,7 @@ class Padstack(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Padstack
         >>> obj = Padstack()
         >>> obj.set_all_pad_value(value=1)
+
         """
         for v in list(self._padstacks_by_layer.values()):
             v._pad_radius = value
@@ -1240,6 +1273,7 @@ class Padstack(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Padstack
         >>> obj = Padstack()
         >>> obj.set_all_antipad_value(value=1)
+
         """
         for v in list(self._padstacks_by_layer.values()):
             v._antipad_radius = value
@@ -1264,6 +1298,7 @@ class Padstack(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Padstack
         >>> obj = Padstack()
         >>> obj.set_start_layer(layer="TOP")
+
         """
         found = False
         new_stackup = {}
@@ -1298,6 +1333,7 @@ class Padstack(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Padstack
         >>> obj = Padstack()
         >>> obj.set_stop_layer(layer="TOP")
+
         """
         found = False
         new_stackup = {}
@@ -1337,6 +1373,7 @@ class Padstack(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Padstack
         >>> obj = Padstack()
         >>> obj.add_via(position_x=1.0, position_y=1.0)
+
         """
         if not instance_name:
             instance_name = generate_unique_name(f"{self.name}_", n=3)
@@ -1468,6 +1505,7 @@ class Stackup3D(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> obj = Stackup3D()
         >>> obj.thickness
+
         """
         return self._stackup_thickness
 
@@ -1484,6 +1522,7 @@ class Stackup3D(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> obj = Stackup3D()
         >>> obj.application
+
         """
         return self._app
 
@@ -1500,6 +1539,7 @@ class Stackup3D(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> obj = Stackup3D()
         >>> obj.padstacks
+
         """
         return self._padstacks
 
@@ -1516,6 +1556,7 @@ class Stackup3D(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> obj = Stackup3D()
         >>> obj.dielectrics
+
         """
         return self._dielectric_list
 
@@ -1532,6 +1573,7 @@ class Stackup3D(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> obj = Stackup3D()
         >>> obj.grounds
+
         """
         return self._ground_list
 
@@ -1548,6 +1590,7 @@ class Stackup3D(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> obj = Stackup3D()
         >>> obj.signals
+
         """
         return self._signal_list
 
@@ -1564,6 +1607,7 @@ class Stackup3D(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> obj = Stackup3D()
         >>> obj.objects
+
         """
         return self._object_list
 
@@ -1580,6 +1624,7 @@ class Stackup3D(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> obj = Stackup3D()
         >>> obj.objects_by_layer
+
         """
         objs = {}
         for obj in self.objects:
@@ -1602,6 +1647,7 @@ class Stackup3D(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> obj = Stackup3D()
         >>> obj.start_position
+
         """
         return self._start_position
 
@@ -1623,6 +1669,7 @@ class Stackup3D(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> obj = Stackup3D()
         >>> obj.dielectric_x_position
+
         """
         return self._dielectric_x_position
 
@@ -1644,6 +1691,7 @@ class Stackup3D(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> obj = Stackup3D()
         >>> obj.dielectric_y_position
+
         """
         return self._dielectric_y_position
 
@@ -1665,6 +1713,7 @@ class Stackup3D(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> obj = Stackup3D()
         >>> obj.dielectric_width
+
         """
         return self._dielectric_width
 
@@ -1686,6 +1735,7 @@ class Stackup3D(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> obj = Stackup3D()
         >>> obj.dielectric_length
+
         """
         return self._dielectric_length
 
@@ -1706,6 +1756,7 @@ class Stackup3D(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> obj = Stackup3D()
         >>> obj.layer_names
+
         """
         return self._layer_name
 
@@ -1722,6 +1773,7 @@ class Stackup3D(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> obj = Stackup3D()
         >>> obj.layer_positions
+
         """
         return self._layer_position
 
@@ -1738,6 +1790,7 @@ class Stackup3D(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> obj = Stackup3D()
         >>> obj.stackup_layers
+
         """
         return self._stackup
 
@@ -1754,6 +1807,7 @@ class Stackup3D(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> obj = Stackup3D()
         >>> obj.z_position_offset
+
         """
         return self._z_position_offset
 
@@ -1770,6 +1824,7 @@ class Stackup3D(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> obj = Stackup3D()
         >>> obj.frequency
+
         """
         return self._frequency
 
@@ -1786,6 +1841,7 @@ class Stackup3D(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> obj = Stackup3D()
         >>> obj.duplicated_material_list
+
         """
         return self._duplicated_material_list
 
@@ -1809,6 +1865,7 @@ class Stackup3D(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> obj = Stackup3D()
         >>> obj.add_padstack(name="MyObject")
+
         """
         p = Padstack(self._app, self, name, material)
         self._padstacks.append(p)
@@ -2089,6 +2146,7 @@ class Stackup3D(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> obj = Stackup3D()
         >>> obj.resize(percentage_offset=1.0)
+
         """
         list_of_2d_points = []
         list_of_x_coordinates = []
@@ -2202,6 +2260,7 @@ class CommonObject(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import CommonObject
         >>> obj = CommonObject()
         >>> obj.reference_system
+
         """
         return self._reference_system
 
@@ -2218,6 +2277,7 @@ class CommonObject(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import CommonObject
         >>> obj = CommonObject()
         >>> obj.dielectric_layer
+
         """
         return self._dielectric_layer
 
@@ -2234,6 +2294,7 @@ class CommonObject(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import CommonObject
         >>> obj = CommonObject()
         >>> obj.signal_layer
+
         """
         return self._signal_layer
 
@@ -2250,6 +2311,7 @@ class CommonObject(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import CommonObject
         >>> obj = CommonObject()
         >>> obj.name
+
         """
         return self._name
 
@@ -2262,6 +2324,7 @@ class CommonObject(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import CommonObject
         >>> obj = CommonObject()
         >>> obj.application
+
         """
         return self._app
 
@@ -2278,6 +2341,7 @@ class CommonObject(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import CommonObject
         >>> obj = CommonObject()
         >>> obj.aedt_object
+
         """
         return self._aedt_object
 
@@ -2294,6 +2358,7 @@ class CommonObject(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import CommonObject
         >>> obj = CommonObject()
         >>> obj.layer_name
+
         """
         return self._layer_name
 
@@ -2310,6 +2375,7 @@ class CommonObject(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import CommonObject
         >>> obj = CommonObject()
         >>> obj.layer_number
+
         """
         return self._layer_number
 
@@ -2326,6 +2392,7 @@ class CommonObject(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import CommonObject
         >>> obj = CommonObject()
         >>> obj.material_name
+
         """
         return self._material_name
 
@@ -2343,6 +2410,7 @@ class CommonObject(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import CommonObject
         >>> obj = CommonObject()
         >>> obj.points_on_layer
+
         """
         bb = self._aedt_object.bounding_box
         return [[bb[0], bb[1]], [bb[0], bb[4]], [bb[3], bb[4]], [bb[3], bb[1]]]
@@ -2528,6 +2596,7 @@ class Patch(CommonObject, PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Patch
         >>> obj = Patch()
         >>> obj.frequency
+
         """
         return self._frequency
 
@@ -2545,6 +2614,7 @@ class Patch(CommonObject, PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Patch
         >>> obj = Patch()
         >>> obj.substrate_thickness
+
         """
         return self._substrate_thickness
 
@@ -2562,6 +2632,7 @@ class Patch(CommonObject, PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Patch
         >>> obj = Patch()
         >>> obj.width
+
         """
         return self._width
 
@@ -2579,6 +2650,7 @@ class Patch(CommonObject, PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Patch
         >>> obj = Patch()
         >>> obj.position_x
+
         """
         return self._position_x
 
@@ -2596,6 +2668,7 @@ class Patch(CommonObject, PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Patch
         >>> obj = Patch()
         >>> obj.position_y
+
         """
         return self._position_y
 
@@ -2613,6 +2686,7 @@ class Patch(CommonObject, PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Patch
         >>> obj = Patch()
         >>> obj.permittivity
+
         """
         return self._permittivity
 
@@ -2642,6 +2716,7 @@ class Patch(CommonObject, PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Patch
         >>> obj = Patch()
         >>> obj.effective_permittivity
+
         """
         return self._effective_permittivity
 
@@ -2679,6 +2754,7 @@ class Patch(CommonObject, PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Patch
         >>> obj = Patch()
         >>> obj.added_length
+
         """
         return self._added_length
 
@@ -2718,6 +2794,7 @@ class Patch(CommonObject, PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Patch
         >>> obj = Patch()
         >>> obj.wave_length
+
         """
         return self._wave_length
 
@@ -2755,6 +2832,7 @@ class Patch(CommonObject, PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Patch
         >>> obj = Patch()
         >>> obj.length
+
         """
         return self._length
 
@@ -2788,6 +2866,7 @@ class Patch(CommonObject, PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Patch
         >>> obj = Patch()
         >>> obj.impedance
+
         """
         return self._impedance_l_w, self._impedance_w_l
 
@@ -2877,6 +2956,7 @@ class Patch(CommonObject, PyAedtBase):
         >>> my_patch = top.add_patch(frequency=None, patch_width=51, patch_name="MLPatch")
         >>> my_stackup.resize_around_element(my_patch)
         >>> my_patch.create_probe_port(gnd)
+
         """
         probe_or = 2.45 * r  # Probe outer radius (relative to inner radius).
         feed_length = 6 * probe_or
@@ -2964,6 +3044,7 @@ class Patch(CommonObject, PyAedtBase):
         >>> my_patch = top.add_patch(frequency=None, patch_width=51, patch_name="MLPatch")
         >>> my_stackup.resize_around_element(my_patch)
         >>> my_patch.create_lumped_port(gnd)
+
         """
         string_position_x = self.position_x.name
         if opposite_side:
@@ -3121,6 +3202,7 @@ class Trace(CommonObject, PyAedtBase):
     >>> top = my_stackup.add_signal_layer("top")
     >>> my_trace = top.add_trace(line_width=2.5, line_length=22)
     >>> my_stackup.resize_around_element(my_trace)
+
     """
 
     def __init__(
@@ -3275,6 +3357,7 @@ class Trace(CommonObject, PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Trace
         >>> obj = Trace()
         >>> obj.frequency
+
         """
         return self._frequency
 
@@ -3292,6 +3375,7 @@ class Trace(CommonObject, PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Trace
         >>> obj = Trace()
         >>> obj.substrate_thickness
+
         """
         return self._substrate_thickness
 
@@ -3309,6 +3393,7 @@ class Trace(CommonObject, PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Trace
         >>> obj = Trace()
         >>> obj.width
+
         """
         if self._width is not None:
             return self._width
@@ -3333,6 +3418,7 @@ class Trace(CommonObject, PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Trace
         >>> obj = Trace()
         >>> obj.width_h_w
+
         """
         if self._width_h_w is not None:
             return self._width_h_w
@@ -3351,6 +3437,7 @@ class Trace(CommonObject, PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Trace
         >>> obj = Trace()
         >>> obj.width_w_h
+
         """
         if self._width_w_h is not None:
             return self._width_w_h
@@ -3428,6 +3515,7 @@ class Trace(CommonObject, PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Trace
         >>> obj = Trace()
         >>> obj.position_x
+
         """
         return self._position_x
 
@@ -3445,6 +3533,7 @@ class Trace(CommonObject, PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Trace
         >>> obj = Trace()
         >>> obj.position_y
+
         """
         return self._position_y
 
@@ -3462,6 +3551,7 @@ class Trace(CommonObject, PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Trace
         >>> obj = Trace()
         >>> obj.permittivity
+
         """
         return self._permittivity
 
@@ -3496,6 +3586,7 @@ class Trace(CommonObject, PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Trace
         >>> obj = Trace()
         >>> obj.added_length
+
         """
         return self._added_length
 
@@ -3535,6 +3626,7 @@ class Trace(CommonObject, PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Trace
         >>> obj = Trace()
         >>> obj.length
+
         """
         return self._length
 
@@ -3568,6 +3660,7 @@ class Trace(CommonObject, PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Trace
         >>> obj = Trace()
         >>> obj.charac_impedance
+
         """
         return self._charac_impedance
 
@@ -3613,6 +3706,7 @@ class Trace(CommonObject, PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Trace
         >>> obj = Trace()
         >>> obj.effective_permittivity
+
         """
         if self.width.numeric_value >= self.dielectric_layer.thickness.numeric_value:
             return self._effective_permittivity_w_h
@@ -3633,6 +3727,7 @@ class Trace(CommonObject, PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Trace
         >>> obj = Trace()
         >>> obj.effective_permittivity_w_h
+
         """
         return self._effective_permittivity_w_h
 
@@ -3650,6 +3745,7 @@ class Trace(CommonObject, PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Trace
         >>> obj = Trace()
         >>> obj.effective_permittivity_h_w
+
         """
         return self._effective_permittivity_h_w
 
@@ -3708,6 +3804,7 @@ class Trace(CommonObject, PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Trace
         >>> obj = Trace()
         >>> obj.wave_length
+
         """
         return self._wave_length
 
@@ -3746,6 +3843,7 @@ class Trace(CommonObject, PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Trace
         >>> obj = Trace()
         >>> obj.electrical_length
+
         """
         return self._electrical_length
 
@@ -3939,6 +4037,7 @@ class Polygon(CommonObject, PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Polygon
         >>> obj = Polygon()
         >>> obj.points_on_layer
+
         """
         bb = self._aedt_object.bounding_box
         return [[bb[0], bb[1]], [bb[0], bb[4]], [bb[3], bb[4]], [bb[3], bb[1]]]

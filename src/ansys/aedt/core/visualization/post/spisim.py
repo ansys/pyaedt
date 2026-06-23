@@ -151,6 +151,7 @@ class AdvancedReport(ReportBase):
         >>> from ansys.aedt.core.visualization.post.spisim import AdvancedReport
         >>> obj = AdvancedReport()
         >>> obj.from_spisim_cfg(file_path=r"C:\Temp\example.txt")
+
         """
         with open(file_path, "r") as f:
             content = f.read()
@@ -222,6 +223,7 @@ class AdvancedReport(ReportBase):
         >>> from ansys.aedt.core.visualization.post.spisim import AdvancedReport
         >>> obj = AdvancedReport()
         >>> obj.dump_spisim_cfg(file_path=r"C:\Temp\example.txt")
+
         """
         data = self.model_dump(by_alias=True)
 
@@ -274,6 +276,7 @@ class SpiSim(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.spisim import SpiSim
         >>> obj = SpiSim()
         >>> obj.working_directory
+
         """
         if self._working_directory != "":
             return self._working_directory
@@ -468,6 +471,7 @@ class SpiSim(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.spisim import SpiSim
         >>> obj = SpiSim()
         >>> obj.compute_erl(config_file=r"C:\Temp\example.txt", port_order=1)
+
         """
         cfg_dict = {
             "INPARRY": "",
@@ -594,6 +598,7 @@ class SpiSim(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.spisim import SpiSim
         >>> obj = SpiSim()
         >>> obj.compute_com(standard=1, config_file=r"C:\Temp\example.txt")
+
         """
         com_param = COMParametersVer3p4()
         if standard == 0:
@@ -671,6 +676,7 @@ class SpiSim(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.spisim import SpiSim
         >>> obj = SpiSim()
         >>> obj.export_com_configure_file(file_path=r"C:\Temp\example.txt")
+
         """
         return COMParametersVer3p4(standard).export(file_path)
 
@@ -819,6 +825,7 @@ def detect_encoding(file_path: str, expected_pattern: str = "", re_flags: int = 
     --------
     >>> from ansys.aedt.core.visualization.post.spisim import detect_encoding
     >>> detect_encoding(file_path=r"C:\Temp\example.txt")
+
     """
     for encoding in ("utf-8", "utf_16_le", "cp1252", "cp1250", "shift_jis"):
         try:
@@ -896,6 +903,7 @@ class DataSet(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.spisim import DataSet
         >>> obj = DataSet()
         >>> obj.wave
+
         """
         return self.data
 
@@ -941,6 +949,7 @@ class SpiSimRawError(Exception):
     --------
     >>> from ansys.aedt.core.visualization.post.spisim import SpiSimRawException
     >>> raise SpiSimRawException("Unsupported RAW File.")
+
     """
 
     ...
@@ -957,6 +966,7 @@ class SpiSimRawRead(PyAedtBase):
     --------
     >>> from ansys.aedt.core.visualization.post.spisim import SpiSimRawRead
     >>> obj = SpiSimRawRead()
+
     """
 
     @staticmethod
@@ -1067,6 +1077,7 @@ class SpiSimRawRead(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.spisim import SpiSimRawRead
         >>> obj = SpiSimRawRead()
         >>> obj.get_raw_property(property_name=1)
+
         """
         if property_name is None:
             return self.raw_params
@@ -1089,6 +1100,7 @@ class SpiSimRawRead(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.spisim import SpiSimRawRead
         >>> obj = SpiSimRawRead()
         >>> obj.trace_names
+
         """
         return [trace.name for trace in self._traces]
 
@@ -1105,6 +1117,7 @@ class SpiSimRawRead(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.spisim import SpiSimRawRead
         >>> obj = SpiSimRawRead()
         >>> obj.get_trace(trace_ref=1)
+
         """
         if isinstance(trace_ref, str):
             for trace in self._traces:
@@ -1135,6 +1148,7 @@ class SpiSimRawRead(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.spisim import SpiSimRawRead
         >>> obj = SpiSimRawRead()
         >>> obj.get_wave(trace_ref=1)
+
         """
         return self.get_trace(trace_ref).wave
 
@@ -1151,6 +1165,7 @@ class SpiSimRawRead(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.spisim import SpiSimRawRead
         >>> obj = SpiSimRawRead()
         >>> obj.get_axis()
+
         """
         if self.axis:
             return self.axis.wave

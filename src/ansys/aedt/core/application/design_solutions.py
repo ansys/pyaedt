@@ -56,6 +56,7 @@ class DesignSolution(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.design_solutions.solution_type
+
         """
         if self._design_type in [
             DesignType.CIRCUIT,
@@ -115,6 +116,7 @@ class DesignSolution(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.design_solutions.report_type
+
         """
         return self._solution_options[self.solution_type]["report_type"]
 
@@ -127,6 +129,7 @@ class DesignSolution(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.design_solutions.default_setup
+
         """
         return self._solution_options[self.solution_type]["default_setup"]
 
@@ -139,6 +142,7 @@ class DesignSolution(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.design_solutions.default_adaptive
+
         """
         return self._solution_options[self.solution_type]["default_adaptive"]
 
@@ -151,6 +155,7 @@ class DesignSolution(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.design_solutions.solution_types
+
         """
         return list(self._solution_options.keys())
 
@@ -163,6 +168,7 @@ class DesignSolution(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.design_solutions.design_types
+
         """
         return [str(getattr(DesignType, i)) for i in dir(DesignType) if not i.startswith("_")]
 
@@ -175,6 +181,7 @@ class DesignSolution(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.design_solutions.intrinsics
+
         """
         if "intrinsics" in self._solution_options[self.solution_type]:
             return self._solution_options[self.solution_type]["intrinsics"]
@@ -198,6 +205,7 @@ class HFSSDesignSolution(DesignSolution, PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.design_solutions.solution_type
+
         """
         if self._odesign:
             try:
@@ -275,6 +283,7 @@ class HFSSDesignSolution(DesignSolution, PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.design_solutions.hybrid
+
         """
         if self._aedt_version < "2021.2":
             return False
@@ -306,6 +315,7 @@ class HFSSDesignSolution(DesignSolution, PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.design_solutions.composite
+
         """
         if self._aedt_version < "2021.2":
             return False
@@ -348,6 +358,7 @@ class HFSSDesignSolution(DesignSolution, PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.design_solutions.set_auto_open(enable=True, opening_type="Radiation")
+
         """
         if self._aedt_version < "2021.2":
             return False
@@ -376,6 +387,7 @@ class Maxwell2DDesignSolution(DesignSolution, PyAedtBase):
         >>> from ansys.aedt.core import Maxwell2d
         >>> maxwell = Maxwell2d()
         >>> maxwell.design_solutions.xy_plane
+
         """
         return self._geometry_mode == "XY"
 
@@ -397,6 +409,7 @@ class Maxwell2DDesignSolution(DesignSolution, PyAedtBase):
         >>> from ansys.aedt.core import Maxwell2d
         >>> maxwell = Maxwell2d()
         >>> maxwell.design_solutions.solution_type
+
         """
         if self._odesign and "GetSolutionType":
             try:
@@ -454,6 +467,7 @@ class IcepakDesignSolution(DesignSolution, PyAedtBase):
         >>> from ansys.aedt.core import Icepak
         >>> icepak = Icepak()
         >>> icepak.design_solutions.problem_type
+
         """
         if self._odesign:
             self._problem_type = self._odesign.GetProblemType()
@@ -495,6 +509,7 @@ class IcepakDesignSolution(DesignSolution, PyAedtBase):
         >>> from ansys.aedt.core import Icepak
         >>> icepak = Icepak()
         >>> icepak.design_solutions.solution_type
+
         """
         if self._odesign:
             try:
@@ -545,6 +560,7 @@ class RmXprtDesignSolution(DesignSolution, PyAedtBase):
         >>> from ansys.aedt.core import Rmxprt
         >>> rmxprt = Rmxprt()
         >>> rmxprt.design_solutions.solution_type
+
         """
         if self._solution_type is None and "GetMachineType" in dir(self._odesign):
             self._solution_type = self._odesign.GetMachineType()
@@ -568,6 +584,7 @@ class RmXprtDesignSolution(DesignSolution, PyAedtBase):
         >>> from ansys.aedt.core import Rmxprt
         >>> rmxprt = Rmxprt()
         >>> rmxprt.design_solutions.design_type
+
         """
         return self._design_type
 

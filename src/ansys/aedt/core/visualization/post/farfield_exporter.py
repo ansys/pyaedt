@@ -84,6 +84,7 @@ class FfdSolutionDataExporter(PyAedtBase):
     >>> sphere = "3D"
     >>> data = app.get_antenna_data(frequencies, setup_name, sphere)
     >>> data.plot_3d(quantity_format="dB10")
+
     """
 
     def __init__(
@@ -137,6 +138,7 @@ class FfdSolutionDataExporter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.farfield_exporter import FfdSolutionDataExporter
         >>> obj = FfdSolutionDataExporter()
         >>> obj.model_info
+
         """
         return self.__model_info
 
@@ -149,6 +151,7 @@ class FfdSolutionDataExporter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.farfield_exporter import FfdSolutionDataExporter
         >>> obj = FfdSolutionDataExporter()
         >>> obj.farfield_data
+
         """
         return self.__farfield_data
 
@@ -161,6 +164,7 @@ class FfdSolutionDataExporter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.farfield_exporter import FfdSolutionDataExporter
         >>> obj = FfdSolutionDataExporter()
         >>> obj.metadata_file
+
         """
         return self.__metadata_file
 
@@ -173,6 +177,7 @@ class FfdSolutionDataExporter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.farfield_exporter import FfdSolutionDataExporter
         >>> obj = FfdSolutionDataExporter()
         >>> obj.export_farfield()
+
         """
         # Output directory
         exported_name_map = "element.txt"

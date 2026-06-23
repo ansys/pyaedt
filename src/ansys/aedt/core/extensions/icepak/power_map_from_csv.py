@@ -82,6 +82,7 @@ class IcepakCSVFormatError(AEDTRuntimeError):
     >>> error = IcepakCSVFormatError("Invalid CSV format")
     >>> str(error)
     'Invalid CSV format'
+
     """
 
 
@@ -96,6 +97,7 @@ class PowerMapFromCSVExtensionData(ExtensionCommonData):
     >>> data = PowerMapFromCSVExtensionData(file_path=Path("C:\\\\Temp\\\\power_map.csv"))
     >>> data.file_path.name
     'power_map.csv'
+
     """
 
     file_path: Path | None = None
@@ -115,6 +117,7 @@ class PowerMapFromCSVExtension(ExtensionIcepakCommon):
     --------
     >>> from ansys.aedt.core.extensions.icepak.power_map_from_csv import PowerMapFromCSVExtension
     >>> extension = PowerMapFromCSVExtension(withdraw=True)
+
     """
 
     def __init__(self, withdraw: bool = False) -> None:
@@ -148,6 +151,7 @@ class PowerMapFromCSVExtension(ExtensionIcepakCommon):
         >>> from ansys.aedt.core.extensions.icepak.power_map_from_csv import PowerMapFromCSVExtension
         >>> extension = PowerMapFromCSVExtension(withdraw=True)
         >>> extension.add_extension_content()
+
         """
         upper_frame = ttk.Frame(self.root, style="PyAEDT.TFrame")
         upper_frame.grid(row=0, column=0, columnspan=EXTENSION_NB_COLUMN)
@@ -202,6 +206,7 @@ def create_powermaps_from_csv(ipk: Icepak, csv_path: Path) -> None:
     >>> from ansys.aedt.core.extensions.icepak.power_map_from_csv import create_powermaps_from_csv
     >>> ipk = Icepak()
     >>> create_powermaps_from_csv(ipk, Path("C:\\\\Temp\\\\power_map.csv"))
+
     """
     geometric_info, source_value_info, source_unit_info = extract_info(csv_path)
     data = PowerMapFromCSVExtensionData(
@@ -236,6 +241,7 @@ def create_powermaps_from_data(ipk: Icepak, data: PowerMapFromCSVExtensionData) 
     ...     source_unit_info={"Block1": "W"},
     ... )
     >>> create_powermaps_from_data(ipk, data)
+
     """
     for info in data.geometric_info:
         name = info["name"]
@@ -342,6 +348,7 @@ def main(data: PowerMapFromCSVExtensionData) -> bool:
     >>> from ansys.aedt.core.extensions.icepak.power_map_from_csv import PowerMapFromCSVExtensionData, main
     >>> data = PowerMapFromCSVExtensionData(file_path=Path("C:\\\\Temp\\\\power_map.csv"))
     >>> main(data)
+
     """
     app = ansys.aedt.core.Desktop(
         new_desktop=False,

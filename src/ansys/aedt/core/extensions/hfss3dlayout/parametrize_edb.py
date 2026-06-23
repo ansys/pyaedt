@@ -81,6 +81,7 @@ class ParametrizeEdbExtensionData(ExtensionCommonData):
     ...     design_name="Layout1",
     ...     project_name="DemoParametric",
     ... )
+
     """
 
     aedb_path: str = EXTENSION_DEFAULT_ARGUMENTS["aedb_path"]
@@ -118,6 +119,7 @@ class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
     --------
     >>> from ansys.aedt.core.extensions.hfss3dlayout.parametrize_edb import ParametrizeEdbExtension
     >>> extension = ParametrizeEdbExtension(withdraw=True)
+
     """
 
     def __init__(self, withdraw: bool = False) -> None:
@@ -197,6 +199,7 @@ class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
         >>> from ansys.aedt.core.extensions.hfss3dlayout.parametrize_edb import ParametrizeEdbExtension
         >>> extension = ParametrizeEdbExtension(withdraw=True)
         >>> extension.add_extension_content()
+
         """
         # Project name
         ttk.Label(self.root, text="New project name:", style="PyAEDT.TLabel").grid(row=0, column=0, pady=10, sticky="w")
@@ -315,6 +318,7 @@ class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
         >>> from ansys.aedt.core.extensions.hfss3dlayout.parametrize_edb import ParametrizeEdbExtension
         >>> extension = ParametrizeEdbExtension(withdraw=True)
         >>> extension.show_error_message("Invalid input.")
+
         """
         import tkinter.messagebox
 
@@ -328,6 +332,7 @@ class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
         >>> from ansys.aedt.core.extensions.hfss3dlayout.parametrize_edb import ParametrizeEdbExtension
         >>> extension = ParametrizeEdbExtension(withdraw=True)
         >>> extension.generate_callback()
+
         """
         try:
             # Validate expansion values
@@ -387,6 +392,7 @@ def main(data: ParametrizeEdbExtensionData) -> bool:
     ...     project_name="DemoParametric",
     ... )
     >>> main(data)
+
     """
     if data.expansion_polygon_mm < 0:
         raise AEDTRuntimeError("Polygon expansion cannot be negative.")

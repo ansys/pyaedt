@@ -342,6 +342,7 @@ class BaseCoordinateSystem(PropsManager, PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.modeler import BaseCoordinateSystem
         >>> obj = BaseCoordinateSystem()
         >>> obj.set_as_working_cs()
+
         """
         self._modeler.oeditor.SetWCS(
             ["NAME:SetWCS Parameter", "Working Coordinate System:=", self.name, "RegionDepCSOk:=", False]
@@ -388,6 +389,7 @@ class BaseCoordinateSystem(PropsManager, PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.modeler import BaseCoordinateSystem
         >>> obj = BaseCoordinateSystem()
         >>> obj.rename(name="MyObject")
+
         """
         self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Name", "Value:=", name]])
         self.name = name
@@ -410,6 +412,7 @@ class BaseCoordinateSystem(PropsManager, PyAedtBase):
         >>> app = Maxwell2d()
         >>> cs_copy = [i for i in app.modeler.coordinate_systems]
         >>> [i.delete() for i in cs_copy]
+
         """
         try:
             self._modeler.oeditor.Delete(["NAME:Selections", "Selections:=", self.name])
@@ -467,6 +470,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.modeler import FaceCoordinateSystem
         >>> obj = FaceCoordinateSystem()
         >>> obj.props
+
         """
         if self._props or settings.aedt_version <= "2022.2" or self.name is None:
             return self._props
@@ -559,6 +563,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.modeler import FaceCoordinateSystem
         >>> obj = FaceCoordinateSystem()
         >>> obj.create(assignment="Box1", origin=[0, 0, 0], axis_position=1)
+
         """
         face_id = self._modeler.convert_to_selections(assignment, True)[0]
         if not isinstance(face_id, int):  # pragma: no cover
@@ -696,6 +701,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.modeler import FaceCoordinateSystem
         >>> obj = FaceCoordinateSystem()
         >>> obj.update()
+
         """
         try:
             self._change_property(
@@ -769,6 +775,7 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
         >>> obj = CoordinateSystem()
         >>> obj.mode
+
         """
         if self._mode:
             return self._mode
@@ -798,6 +805,7 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
         >>> obj = CoordinateSystem()
         >>> obj.props
+
         """
         if self._props or settings.aedt_version <= "2022.2" or self.name is None:
             return self._props
@@ -817,6 +825,7 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
         >>> obj = CoordinateSystem()
         >>> obj.ref_cs
+
         """
         if self._ref_cs or settings.aedt_version <= "2022.2":
             return self._ref_cs
@@ -850,6 +859,7 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
         >>> obj = CoordinateSystem()
         >>> obj.update()
+
         """
         self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Reference CS", "Value:=", self.ref_cs]])
 
@@ -933,6 +943,7 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
         >>> obj = CoordinateSystem()
         >>> obj.change_cs_mode(mode_type=1)
+
         """
         previous_auto_update = self.auto_update
         self.auto_update = False
@@ -1096,6 +1107,7 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
         >>> obj = CoordinateSystem()
         >>> obj.create(name="MyObject", origin=[0, 0, 0])
+
         """
         if not origin:
             origin = [0, 0, 0]
@@ -1218,6 +1230,7 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
         >>> obj = CoordinateSystem()
         >>> obj.pointing_to_axis(x_pointing=[1, 0, 0], y_pointing=[0, 1, 0])
+
         """
         zpt = GeometryOperators.v_cross(x_pointing, y_pointing)
         ypt = GeometryOperators.v_cross(zpt, x_pointing)
@@ -1275,6 +1288,7 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
         >>> obj = CoordinateSystem()
         >>> obj.quaternion
+
         """
         if self._quaternion:
             return self._quaternion
@@ -1326,6 +1340,7 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
         >>> obj = CoordinateSystem()
         >>> obj.origin
+
         """
         self._get_numeric_value(init=True)
         x = self._get_numeric_value(self.props["OriginX"])
@@ -1409,6 +1424,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.modeler import ObjectCoordinateSystem
         >>> obj = ObjectCoordinateSystem()
         >>> obj.ref_cs
+
         """
         if self._ref_cs or settings.aedt_version <= "2022.2":
             return self._ref_cs
@@ -1441,6 +1457,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.modeler import ObjectCoordinateSystem
         >>> obj = ObjectCoordinateSystem()
         >>> obj.props
+
         """
         if self._props or settings.aedt_version <= "2022.2" or self.name is None:
             return self._props
@@ -1541,6 +1558,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.modeler import ObjectCoordinateSystem
         >>> obj = ObjectCoordinateSystem()
         >>> obj.create(assignment="Box1", origin=[0, 0, 0], x_axis=[1, 0, 0], y_axis=[0, 1, 0])
+
         """
         if isinstance(assignment, str):
             self.entity_id = self._modeler.objects_by_name[assignment].id
@@ -1730,6 +1748,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.modeler import ObjectCoordinateSystem
         >>> obj = ObjectCoordinateSystem()
         >>> obj.update()
+
         """
         try:
             self._change_property(
@@ -1897,6 +1916,7 @@ class Lists(PropsManager, PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.modeler import Lists
         >>> obj = Lists()
         >>> obj.update()
+
         """
         # self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Reference CS", "Value:=", self.ref_cs]])
         object_list_new = self._list_verification(self.props["List"], self.props["Type"])
@@ -1946,6 +1966,7 @@ class Lists(PropsManager, PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.modeler import Lists
         >>> obj = Lists()
         >>> obj.create(assignment="Box1", name="MyObject")
+
         """
         if not name:
             name = generate_unique_name(entity_type + "List")
@@ -1987,6 +2008,7 @@ class Lists(PropsManager, PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.modeler import Lists
         >>> obj = Lists()
         >>> obj.delete()
+
         """
         self._modeler.oeditor.Delete(["NAME:Selections", "Selections:=", self.name])
         self._modeler.user_lists.remove(self)
@@ -2011,6 +2033,7 @@ class Lists(PropsManager, PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.modeler import Lists
         >>> obj = Lists()
         >>> obj.rename(name="MyObject")
+
         """
         argument = [
             "NAME:AllTabs",
@@ -2072,6 +2095,7 @@ class Modeler(PyAedtBase):
     >>> from ansys.aedt.core import Maxwell2d
     >>> app = Maxwell2d()
     >>> my_modeler = app.modeler
+
     """
 
     def __init__(self, app) -> None:
@@ -2092,6 +2116,7 @@ class Modeler(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.modeler import Modeler
         >>> obj = Modeler()
         >>> obj.logger
+
         """
         return self._app.logger
 
@@ -2114,5 +2139,6 @@ class Modeler(PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.modeler import Modeler
         >>> obj = Modeler()
         >>> obj.projdir
+
         """
         return self._app.project_path

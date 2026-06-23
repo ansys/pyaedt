@@ -54,6 +54,7 @@ class EmitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
         >>> obj = EmitComponents()
         >>> obj.oeditor
+
         """
         return self.modeler.oeditor
 
@@ -66,6 +67,7 @@ class EmitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
         >>> obj = EmitComponents()
         >>> obj.odesign
+
         """
         return self._parent.odesign
 
@@ -78,6 +80,7 @@ class EmitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
         >>> obj = EmitComponents()
         >>> obj.messenger
+
         """
         return self._parent._messenger
 
@@ -90,6 +93,7 @@ class EmitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
         >>> obj = EmitComponents()
         >>> obj.version
+
         """
         return self._parent._aedt_version
 
@@ -102,6 +106,7 @@ class EmitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
         >>> obj = EmitComponents()
         >>> obj.model_units
+
         """
         return self.modeler.model_units
 
@@ -114,6 +119,7 @@ class EmitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
         >>> obj = EmitComponents()
         >>> obj.omodel_manager
+
         """
         return self.modeler.omodel_manager
 
@@ -130,6 +136,7 @@ class EmitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
         >>> obj = EmitComponents()
         >>> obj.o_definition_manager
+
         """
         return self._parent._oproject.GetDefinitionManager()
 
@@ -146,6 +153,7 @@ class EmitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
         >>> obj = EmitComponents()
         >>> obj.osymbol_manager
+
         """
         return self._parent.osymbol_manager
 
@@ -162,6 +170,7 @@ class EmitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
         >>> obj = EmitComponents()
         >>> obj.ocomponent_manager
+
         """
         return self._parent.ocomponent_manager
 
@@ -174,6 +183,7 @@ class EmitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
         >>> obj = EmitComponents()
         >>> obj.design_type
+
         """
         return self._parent.design_type
 
@@ -226,6 +236,7 @@ class EmitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
         >>> obj = EmitComponents()
         >>> obj.include_personal_library
+
         """
         if value is not None:
             self.include_personal_lib = value
@@ -244,6 +255,7 @@ class EmitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
         >>> obj = EmitComponents()
         >>> obj.design_libray
+
         """
         if self.include_personal_lib:
             return "PersonalLib"
@@ -262,6 +274,7 @@ class EmitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
         >>> obj = EmitComponents()
         >>> obj.components_catalog
+
         """
         if not self._components_catalog:
             self._components_catalog = ComponentCatalog(self)
@@ -296,6 +309,7 @@ class EmitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
         >>> obj = EmitComponents()
         >>> obj.create_component(component_type=1)
+
         """
         # Pass an empty string to allow name to be automatically assigned.
         if name is None:
@@ -347,6 +361,7 @@ class EmitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
         >>> obj = EmitComponents()
         >>> obj.create_radio_antenna(radio_type=1)
+
         """
         # Pass an empty string to allow name to be automatically assigned.
         if radio_name is None:
@@ -388,6 +403,7 @@ class EmitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
         >>> obj = EmitComponents()
         >>> obj.get_radios()
+
         """
         return {k: v for k, v in self.components.items() if v.get_type() == "RadioNode"}
 
@@ -406,6 +422,7 @@ class EmitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
         >>> obj = EmitComponents()
         >>> obj.get_antennas()
+
         """
         return {k: v for k, v in self.components.items() if v.get_type() == "AntennaNode"}
 
@@ -418,6 +435,7 @@ class EmitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
         >>> obj = EmitComponents()
         >>> obj.refresh_all_ids()
+
         """
         all_comps = self.oeditor.GetAllComponents()
         for comp_name in all_comps:
@@ -446,6 +464,7 @@ class EmitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
         >>> obj = EmitComponents()
         >>> obj.get_obj_id(object_name=1)
+
         """
         for el in self.components:
             if self.components[el].name == object_name:
@@ -471,6 +490,7 @@ class EmitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
         >>> obj = EmitComponents()
         >>> obj.update_object_properties(o=1)
+
         """
         o.update_property_tree()
         comp_type = o.root_prop_node.props["Type"]
@@ -523,6 +543,7 @@ class EmitComponent(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
         >>> obj = EmitComponent()
         >>> obj.create(components=["U1"], component_name=1)
+
         """
         nodes = components.odesign.GetComponentNodeNames(component_name)
         root_node = nodes[0]
@@ -560,6 +581,7 @@ class EmitComponent(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
         >>> obj = EmitComponent()
         >>> obj.composed_name
+
         """
         return self.name
 
@@ -578,6 +600,7 @@ class EmitComponent(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
         >>> obj = EmitComponent()
         >>> obj.move_and_connect_to(component="U1")
+
         """
         if isinstance(component, EmitComponent):
             self.oeditor.PlaceComponent(self.name, component.name)
@@ -602,6 +625,7 @@ class EmitComponent(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
         >>> obj = EmitComponent()
         >>> obj.port_names()
+
         """
         return self.oeditor.GetComponentPorts(self.name)
 
@@ -633,6 +657,7 @@ class EmitComponent(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
         >>> obj = EmitComponent()
         >>> obj.port_connection(port_name=1)
+
         """
         wire_name = self.oeditor.GetWireAtPort(self.name, port_name)
         wire_connections = self.oeditor.GetWireConnections(wire_name)
@@ -662,6 +687,7 @@ class EmitComponent(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
         >>> obj = EmitComponent()
         >>> obj.update_property_tree()
+
         """
         node_names = sorted(self.odesign.GetComponentNodeNames(self.name))
         root_node_name = node_names[0]
@@ -703,6 +729,7 @@ class EmitComponent(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
         >>> obj = EmitComponent()
         >>> obj.get_node_properties(node=1)
+
         """
         nodes = sorted(self.odesign.GetComponentNodeNames(self.name))
         root_node = nodes[0]
@@ -751,6 +778,7 @@ class EmitComponent(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
         >>> obj = EmitComponent()
         >>> obj.get_prop_nodes(property_filter={"Name": "Value"})
+
         """
         if property_filter is None:
             property_filter = {}
@@ -783,6 +811,7 @@ class EmitComponent(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
         >>> obj = EmitComponent()
         >>> obj.get_connected_components()
+
         """
         component_names = []
         to_search = [self.name]
@@ -818,6 +847,7 @@ class EmitComponent(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
         >>> obj = EmitComponent()
         >>> obj.get_type()
+
         """
         properties = self.get_node_properties()
 
@@ -855,6 +885,7 @@ class EmitAntennaComponent(EmitComponent):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
         >>> obj = EmitAntennaComponent()
         >>> obj.get_pattern_filename()
+
         """
         properties = self.get_node_properties()
         return properties["Filename"]
@@ -875,6 +906,7 @@ class EmitAntennaComponent(EmitComponent):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
         >>> obj = EmitAntennaComponent()
         >>> obj.get_orientation_rpy()
+
         """
         properties = self.get_node_properties()
 
@@ -912,6 +944,7 @@ class EmitAntennaComponent(EmitComponent):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
         >>> obj = EmitAntennaComponent()
         >>> obj.get_position(units="mm")
+
         """
         properties = self.get_node_properties()
         position_string = properties["Position"]
@@ -965,6 +998,7 @@ class EmitRadioComponent(EmitComponent):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitRadioComponent
         >>> obj = EmitRadioComponent()
         >>> obj.is_emitter()
+
         """
         properties = self.get_node_properties()
 
@@ -989,6 +1023,7 @@ class EmitRadioComponent(EmitComponent):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitRadioComponent
         >>> obj = EmitRadioComponent()
         >>> obj.bands()
+
         """
         band_nodes = self.get_prop_nodes({"Type": "Band"})
         return band_nodes
@@ -1009,6 +1044,7 @@ class EmitRadioComponent(EmitComponent):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitRadioComponent
         >>> obj = EmitRadioComponent()
         >>> obj.band_node(band_name=1)
+
         """
         band_nodes = self.bands()
         for node in band_nodes:
@@ -1035,6 +1071,7 @@ class EmitRadioComponent(EmitComponent):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitRadioComponent
         >>> obj = EmitRadioComponent()
         >>> obj.band_start_frequency(band_node=1)
+
         """
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Frequency"]:
             units = "Hz"
@@ -1059,6 +1096,7 @@ class EmitRadioComponent(EmitComponent):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitRadioComponent
         >>> obj = EmitRadioComponent()
         >>> obj.band_stop_frequency(band_node=1)
+
         """
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Frequency"]:
             units = "Hz"
@@ -1092,6 +1130,7 @@ class EmitRadioComponent(EmitComponent):
         >>> start_freq = 10
         >>> units = "MHz"
         >>> radio.set_band_start_frequency(band, start_freq, units=units)
+
         """
         # if "Band" not in band_node.props["Type"]:
         #     raise TypeError("{} must be a band.".format(band_node.node_name))
@@ -1137,6 +1176,7 @@ class EmitRadioComponent(EmitComponent):
         >>> stop_freq = 10
         >>> units = "MHz"
         >>> radio.set_band_stop_frequency(band, stop_freq, units=units)
+
         """
         # if "Band" not in band_node.props["Type"]:
         #     raise TypeError("{} must be a band.".format(band_node.node_name))
@@ -1174,6 +1214,7 @@ class EmitRadioComponent(EmitComponent):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitRadioComponent
         >>> obj = EmitRadioComponent()
         >>> obj.band_channel_bandwidth(band_node=1)
+
         """
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Frequency"]:
             units = "Hz"
@@ -1200,6 +1241,7 @@ class EmitRadioComponent(EmitComponent):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitRadioComponent
         >>> obj = EmitRadioComponent()
         >>> obj.band_tx_power(band_node=1)
+
         """
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Power"]:
             units = "W"
@@ -1225,6 +1267,7 @@ class EmitRadioComponent(EmitComponent):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitRadioComponent
         >>> obj = EmitRadioComponent()
         >>> obj.has_tx_channels()
+
         """
         nodes = self.get_prop_nodes({"Type": "TxSpectralProfNode", "Enabled": "true"})
         return len(nodes) > 0
@@ -1247,6 +1290,7 @@ class EmitRadioComponent(EmitComponent):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitRadioComponent
         >>> obj = EmitRadioComponent()
         >>> obj.has_rx_channels()
+
         """
         nodes = self.get_prop_nodes({"Type": "RxSusceptibilityProfNode", "Enabled": "true"})
         return len(nodes) > 0
@@ -1268,6 +1312,7 @@ class EmitRadioComponent(EmitComponent):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitRadioComponent
         >>> obj = EmitRadioComponent()
         >>> obj.get_connected_antennas()
+
         """
         components = super().get_connected_components()
         antennas = filter(lambda component: component.get_node_properties()["Type"] == "AntennaNode", components)
@@ -1290,6 +1335,7 @@ class EmitRadioComponent(EmitComponent):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitRadioComponent
         >>> obj = EmitRadioComponent()
         >>> obj.get_sampling()
+
         """
         samp_node = self.get_prop_nodes({"Type": "SamplingNode"})
         return samp_node[0]
@@ -1338,6 +1384,7 @@ class EmitComponentPropNode(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponentPropNode
         >>> obj = EmitComponentPropNode()
         >>> obj.props
+
         """
         prop_list = self.odesign.GetComponentNodeProperties(self.parent_component.name, self.node_name)
         props = dict(p.split("=", 1) for p in prop_list)
@@ -1368,6 +1415,7 @@ class EmitComponentPropNode(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponentPropNode
         >>> obj = EmitComponentPropNode()
         >>> obj.enabled
+
         """
         return self.props["Enabled"] == "true"
 
@@ -1391,6 +1439,7 @@ class EmitComponentPropNode(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponentPropNode
         >>> obj = EmitComponentPropNode()
         >>> obj.set_band_power_level(power=1.0)
+
         """
         if "Band" not in self.props["Type"]:
             raise TypeError(f"{self.node_name} must be a band.")
@@ -1426,6 +1475,7 @@ class EmitComponentPropNode(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponentPropNode
         >>> obj = EmitComponentPropNode()
         >>> obj.get_band_power_level(units="mm")
+
         """
         if "Band" not in self.props["Type"]:
             raise TypeError(f"{self.node_name} must be a band.")
@@ -1468,6 +1518,7 @@ class EmitComponentPropNode(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponentPropNode
         >>> obj = EmitComponentPropNode()
         >>> obj.set_channel_sampling(sampling_type=1, percentage=1.0)
+
         """
         if "SamplingNode" not in self.props["Type"]:
             raise TypeError(f"{self.node_name} must be a sampling node.")

@@ -100,6 +100,7 @@ class KernelConverterExtensionData(ExtensionCommonData):
     --------
     >>> from ansys.aedt.core.extensions.common.kernel_converter import KernelConverterExtensionData
     >>> data = KernelConverterExtensionData(file_path=r"D:\\Projects\\legacy_board.aedt", application="HFSS")
+
     """
 
     password: str = EXTENSION_DEFAULT_ARGUMENTS["password"]
@@ -119,6 +120,7 @@ class KernelConverterExtension(ExtensionProjectCommon):
     --------
     >>> from ansys.aedt.core.extensions.common.kernel_converter import KernelConverterExtension
     >>> extension = KernelConverterExtension(withdraw=True)
+
     """
 
     def __init__(self, withdraw: bool = False) -> None:
@@ -148,6 +150,7 @@ class KernelConverterExtension(ExtensionProjectCommon):
         >>> from ansys.aedt.core.extensions.common.kernel_converter import KernelConverterExtension
         >>> extension = KernelConverterExtension(withdraw=True)
         >>> extension.add_extension_content()
+
         """
         # File path selection
         file_label = ttk.Label(
@@ -424,6 +427,7 @@ def main(data: KernelConverterExtensionData) -> bool:  # pragma: no cover
     >>> from ansys.aedt.core.extensions.common.kernel_converter import KernelConverterExtensionData, main
     >>> data = KernelConverterExtensionData(file_path=r"D:\\Projects\\legacy_board.aedt")
     >>> main(data)
+
     """
     if not data.file_path:
         raise AEDTRuntimeError("No file path provided to the extension.")

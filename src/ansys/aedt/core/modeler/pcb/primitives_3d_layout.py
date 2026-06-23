@@ -64,6 +64,7 @@ class Primitives3DLayout(PyAedtBase):
     >>> from ansys.aedt.core import Hfss3dLayout
     >>> aedtapp = Hfss3dLayout()
     >>> prim = aedtapp.modeler
+
     """
 
     @pyaedt_function_handler()
@@ -132,6 +133,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.opadstack_manager
+
         """
         return self._app.opadstack_manager
 
@@ -149,6 +151,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.components
+
         """
         if self._components:
             return self._components
@@ -171,6 +174,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.coordinate_systems
+
         """
         objs = self.modeler.oeditor.FindObjects("Type", "CS")
         coordinate_systems = {}
@@ -194,6 +198,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.coordinate_system_names
+
         """
         return list(self.coordinate_systems.keys())
 
@@ -211,6 +216,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.geometries
+
         """
         geom = {}
         for k, v in self.polygons.items():
@@ -239,6 +245,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.voids
+
         """
         geom = {}
         for k, v in self.polygons_voids.items():
@@ -267,6 +274,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.objects_by_polygon(polygon=["Box1"], layer="TOP")
+
         """
         if isinstance(polygon, list):
             p = self.modeler.oeditor.Polygon()
@@ -308,6 +316,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.objects_by_layer(layer="TOP")
+
         """
         objs = []
         if object_filter:
@@ -351,6 +360,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.objects_by_net(net="VCC")
+
         """
         objs = []
         if object_filter:
@@ -388,6 +398,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.polygon_names
+
         """
         return self._get_names(["poly", "plg"])
 
@@ -404,6 +415,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.polygon_voids_names
+
         """
         return self._get_names(["poly void", "plg void"])
 
@@ -420,6 +432,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.line_names
+
         """
         return self._get_names(["line", "arc"])
 
@@ -436,6 +449,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.line_voids_names
+
         """
         return self._get_names(["line void", "arc void"])
 
@@ -452,6 +466,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.rectangle_names
+
         """
         return self._get_names(["rect"])
 
@@ -468,6 +483,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.rectangle_void_names
+
         """
         return self._get_names(["rect void"])
 
@@ -484,6 +500,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.circle_names
+
         """
         return self._get_names(["circle"])
 
@@ -500,6 +517,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.circle_voids_names
+
         """
         return self._get_names(["circle void"])
 
@@ -516,6 +534,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.via_names
+
         """
         return self._get_names(["via"])
 
@@ -536,6 +555,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.cleanup_objects()
+
         """
         families = [
             [["poly", "plg"], self._polygons, Polygons3DLayout],
@@ -593,6 +613,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.polygons
+
         """
         if self._polygons:
             return self._polygons
@@ -614,6 +635,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.lines
+
         """
         if self._lines:
             return self._lines
@@ -636,6 +658,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.circles
+
         """
         if self._circles:
             return self._circles
@@ -657,6 +680,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.rectangles
+
         """
         if self._rectangles:
             return self._rectangles
@@ -678,6 +702,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.polygons_voids
+
         """
         if self._polygons_voids:
             return self._polygons_voids
@@ -699,6 +724,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.lines_voids
+
         """
         if self._lines:
             return self._lines
@@ -720,6 +746,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.circles_voids
+
         """
         if self._circles:
             return self._circles
@@ -741,6 +768,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.rectangles_voids
+
         """
         if self._rectangles:
             return self._rectangles
@@ -762,6 +790,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.components_3d
+
         """
         if not self._components3d:
             for i in range(1, 1000):
@@ -809,6 +838,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.pins
+
         """
         if self._pins or len(self._get_names(["pin"])) == len(self._pins):
             return self._pins
@@ -829,6 +859,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.vias
+
         """
         if self._vias or len(self._get_names(["via"])) == len(self._vias):
             return self._vias
@@ -850,6 +881,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.nets
+
         """
         n = {}
         for k, v in self.power_nets.items():
@@ -874,6 +906,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.power_nets
+
         """
         if self._power_nets:
             return self._power_nets
@@ -897,6 +930,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.signal_nets
+
         """
         if self._signal_nets:
             return self._signal_nets
@@ -920,6 +954,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.no_nets
+
         """
         if self._no_nets:
             return self._no_nets
@@ -944,6 +979,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.defaultmaterial
+
         """
         return self._app._design_type.default_material
 
@@ -956,6 +992,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.logger
+
         """
         return self._app.logger
 
@@ -973,6 +1010,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.version
+
         """
         return self._app._aedt_version
 
@@ -985,6 +1023,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.modeler
+
         """
         return self._modeler
 
@@ -997,6 +1036,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.model_units
+
         """
         return self.modeler.model_units
 
@@ -1009,6 +1049,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.Padstack
+
         """
         return Padstack()
 
@@ -1031,6 +1072,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.new_padstack(name="MyObject")
+
         """
         if name in self.padstacks:
             return None
@@ -1052,6 +1094,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.padstacks
+
         """
         if self._padstacks:
             return self._padstacks
@@ -1149,6 +1192,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.change_net_visibility(assignment="Box1", visible=True)
+
         """
         nets_dictionary = {}
         if not assignment:
@@ -1243,6 +1287,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.create_via(name="MyObject", padstack=1)
+
         """
         layers = self.modeler.layers.all_signal_layers
         if not top_layer:
@@ -1332,6 +1377,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.create_circle(layer="TOP", x=0, y=0, radius="10mm")
+
         """
         if not name:
             name = _uname()
@@ -1404,6 +1450,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.create_rectangle(layer="TOP", origin=[0, 0, 0], sizes=["Box1"])
+
         """
         if not name:
             name = _uname()
@@ -1475,6 +1522,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.create_polygon(layer="TOP", point_list=[0, 0, 0])
+
         """
         if not name:
             name = _uname()
@@ -1537,6 +1585,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.create_polygon_void(layer="TOP", points=[0, 0, 0], assignment="Box1")
+
         """
         if not name:
             name = _uname()
@@ -1620,6 +1669,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.create_line(layer="TOP", center_line_coordinates=["Box1"])
+
         """
         if not name:
             name = _uname()
@@ -1706,6 +1756,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.place_3d_component(component_path=r"C:\Temp\example.txt")
+
         """
         component_path = Path(component_path)
 
@@ -1840,6 +1891,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.create_component_on_pins(pins=["Box1"])
+
         """
         if not definition_name:
             definition_name = generate_unique_name("COMP")
@@ -1897,6 +1949,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.create_text(text=1, position=[0, 0, 0])
+
         """
         name = _uname("text_")
         args = [
@@ -1958,6 +2011,7 @@ class Primitives3DLayout(PyAedtBase):
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
         >>> obj.create_coordinate_system(origin=[0, 0, 0], name="CS1")
+
         """
         if name and self.coordinate_systems:
             cs_names = [i.name for i in self.coordinate_systems.values()]

@@ -41,6 +41,7 @@ class RxSaturationNode(EmitNode):
         Examples
         --------
         >>> rx_saturation.parent
+
         """
         return self._parent
 
@@ -52,6 +53,7 @@ class RxSaturationNode(EmitNode):
         Examples
         --------
         >>> rx_saturation.node_type
+
         """
         return self._node_type
 
@@ -78,6 +80,7 @@ class RxSaturationNode(EmitNode):
         Examples
         --------
         >>> rx_saturation.table_data = [(1e9, -15.0)]
+
         """
         return self._get_table_data()
 

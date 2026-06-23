@@ -90,6 +90,7 @@ class BuildingsPrep(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.osm import BuildingsPrep
         >>> obj = BuildingsPrep()
         >>> obj.create_building_roof(all_pos=[1, 2, 3])
+
         """
         points = vtk.vtkPoints()
         for each in all_pos:
@@ -147,6 +148,7 @@ class BuildingsPrep(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.osm import BuildingsPrep
         >>> obj = BuildingsPrep()
         >>> obj.generate_buildings(center_lat_lon=[1, 2, 3], terrain_mesh=1)
+
         """
         gdf = ox.features.features_from_point(center_lat_lon, tags={"building": True}, dist=max_radius)
 
@@ -317,6 +319,7 @@ class RoadPrep(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.osm import RoadPrep
         >>> obj = RoadPrep()
         >>> obj.create_roads(center_lat_lon=[1, 2, 3], terrain_mesh=1)
+
         """
         graph = ox.graph_from_point(center_lat_lon, dist=max_radius, simplify=False, network_type="all")
 
@@ -445,6 +448,7 @@ class TerrainPrep(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.osm import TerrainPrep
         >>> obj = TerrainPrep()
         >>> obj.get_terrain(center_lat_lon=[1, 2, 3])
+
         """
         utm_center = convert_latlon_to_utm(center_lat_lon[0], center_lat_lon[1])
         logger.info("Generating Terrain")
@@ -507,6 +511,7 @@ class TerrainPrep(PyAedtBase):
         >>> from ansys.aedt.core.modeler.advanced_cad.osm import TerrainPrep
         >>> obj = TerrainPrep()
         >>> obj.get_elevation(center_lat_lon=[1, 2, 3])
+
         """
         latitude = center_lat_lon[0]
         longitude = center_lat_lon[1]
@@ -596,6 +601,7 @@ def convert_latlon_to_utm(
     --------
     >>> from ansys.aedt.core.modeler.advanced_cad.osm import convert_latlon_to_utm
     >>> convert_latlon_to_utm(latitude=1.0, longitude=1.0)
+
     """
     if latitude < -80.0 or latitude > 84.0:
         raise ValueError("Latitude out of range: must be between -80 degrees and 84 degrees.")
@@ -729,6 +735,7 @@ def convert_utm_to_latlon(
     --------
     >>> from ansys.aedt.core.modeler.advanced_cad.osm import convert_utm_to_latlon
     >>> convert_utm_to_latlon(east=1.0, north=1.0, zone_number=1)
+
     """
     if not zone_letter and northern is None:
         raise ValueError("Set either zone_letter or northern.")

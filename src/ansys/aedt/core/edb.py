@@ -166,6 +166,7 @@ def Siwave(
     --------
     >>> from ansys.aedt.core import Siwave
     >>> siwave = Siwave(specified_version="2026.1")
+
     """
     from pyedb.generic.design_types import Siwave as app
 

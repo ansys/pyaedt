@@ -66,6 +66,7 @@ class PushExcitation3DLayoutExtensionData(ExtensionCommonData):
     ...     PushExcitation3DLayoutExtensionData,
     ... )
     >>> data = PushExcitation3DLayoutExtensionData(choice="Port1", file_path="C:\\Temp\\excitation.csv")
+
     """
 
     choice: str = ""
@@ -83,6 +84,7 @@ class PushExcitation3DLayoutExtension(ExtensionHFSS3DLayoutCommon):
     ...     PushExcitation3DLayoutExtension,
     ... )
     >>> extension = PushExcitation3DLayoutExtension(withdraw=True)
+
     """
 
     def __init__(self, withdraw: bool = False) -> None:
@@ -130,6 +132,7 @@ class PushExcitation3DLayoutExtension(ExtensionHFSS3DLayoutCommon):
         ... )
         >>> extension = PushExcitation3DLayoutExtension(withdraw=True)
         >>> extension.add_extension_content()
+
         """
         # Port selection
         self.port_label = ttk.Label(self.root, text="Choose a port:", style="PyAEDT.TLabel")
@@ -197,6 +200,7 @@ class PushExcitation3DLayoutExtension(ExtensionHFSS3DLayoutCommon):
         ... )
         >>> extension = PushExcitation3DLayoutExtension(withdraw=True)
         >>> extension.browse_files()
+
         """
         filename = filedialog.askopenfilename(
             initialdir="/",
@@ -222,6 +226,7 @@ def main(data: PushExcitation3DLayoutExtensionData) -> bool:
     ... )
     >>> data = PushExcitation3DLayoutExtensionData(choice="Port1", file_path="C:\\Temp\\excitation.csv")
     >>> main(data)
+
     """
     if not data.choice:
         raise AEDTRuntimeError("No excitation selected.")

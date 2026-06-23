@@ -51,6 +51,7 @@ class EmitNode:
     >>> from ansys.aedt.core import Emit
     >>> app = Emit()
     >>> node = app.schematic.create_component("Bluetooth")
+
     """
 
     def __init__(self, emit_obj, result_id, node_id) -> None:
@@ -75,6 +76,7 @@ class EmitNode:
         >>> app = Emit()
         >>> node = app.schematic.create_component("Bluetooth")
         >>> node.odesktop
+
         """
         return self._emit_obj.odesktop
 
@@ -95,6 +97,7 @@ class EmitNode:
         Examples
         --------
         >>> EmitNode.props_to_dict(["Name=Radio1", "Type=RadioNode"])
+
         """
         result = {}
         for prop in props:
@@ -120,6 +123,7 @@ class EmitNode:
         >>> app = Emit()
         >>> node = app.schematic.create_component("Bluetooth")
         >>> node.valid
+
         """
         return self._valid
 
@@ -139,6 +143,7 @@ class EmitNode:
         >>> app = Emit()
         >>> node = app.schematic.create_component("Bluetooth")
         >>> node.name
+
         """
         return self._get_property("Name", True)
 
@@ -163,6 +168,7 @@ class EmitNode:
         >>> app = Emit()
         >>> node = app.schematic.create_component("Bluetooth")
         >>> node.name = "Bluetooth_1"
+
         """
         if self._result_id > 0:
             raise ValueError("This node is read-only for kept results.")
@@ -218,6 +224,7 @@ class EmitNode:
         >>> app = Emit()
         >>> node = app.schematic.create_component("Bluetooth")
         >>> node.parent_name
+
         """
         return self._get_property("Parent", True)
 
@@ -265,6 +272,7 @@ class EmitNode:
         >>> app = Emit()
         >>> node = app.schematic.create_component("Bluetooth")
         >>> node.properties
+
         """
         props = self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, True)
         props = self.props_to_dict(props)
@@ -286,6 +294,7 @@ class EmitNode:
         >>> app = Emit()
         >>> node = app.schematic.create_component("Bluetooth")
         >>> node.warnings
+
         """
         node_warnings = ""
         try:
@@ -313,6 +322,7 @@ class EmitNode:
         >>> app = Emit()
         >>> node = app.schematic.create_component("Antenna")
         >>> node.allowed_child_types
+
         """
         return self._oRevisionData.GetAllowedChildTypes(self._result_id, self._node_id)
 
@@ -333,6 +343,7 @@ class EmitNode:
         Examples
         --------
         >>> new_node = node._get_node(node_id)
+
         """
         from ansys.aedt.core.emit_core.nodes import generated
         from ansys.aedt.core.emit_core.nodes.emitter_node import EmitterNode
@@ -383,6 +394,7 @@ class EmitNode:
         >>> app = Emit()
         >>> emitter, _ = app.schematic.create_radio_antenna("Bluetooth")
         >>> emitter.children
+
         """
         child_names = self._oRevisionData.GetChildNodeNames(self._result_id, self._node_id)
         child_ids = [self._oRevisionData.GetChildNodeID(self._result_id, self._node_id, name) for name in child_names]
@@ -720,6 +732,7 @@ class EmitNode:
         >>> app = Emit()
         >>> node = app.schematic.create_component("Bluetooth")
         >>> node.get_is_component()
+
         """
         return self._is_component
 

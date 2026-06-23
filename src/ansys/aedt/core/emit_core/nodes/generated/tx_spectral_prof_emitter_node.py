@@ -47,6 +47,7 @@ class TxSpectralProfEmitterNode(EmitNode):
         ... )
         >>> tx_spec = emitter.get_waveforms()[0].children[0]
         >>> tx_spec.parent
+
         """
         return self._parent
 
@@ -64,6 +65,7 @@ class TxSpectralProfEmitterNode(EmitNode):
         ... )
         >>> tx_spec = emitter.get_waveforms()[0].children[0]
         >>> tx_spec.node_type
+
         """
         return self._node_type
 
@@ -80,6 +82,7 @@ class TxSpectralProfEmitterNode(EmitNode):
         ... )
         >>> tx_spec = emitter.get_waveforms()[0].children[0]
         >>> nb_mask = tx_spec.add_narrowband_emissions_mask()
+
         """
         return self._add_child_node("Narrowband Emissions Mask")
 
@@ -96,6 +99,7 @@ class TxSpectralProfEmitterNode(EmitNode):
         ... )
         >>> tx_spec = emitter.get_waveforms()[0].children[0]
         >>> bb_noise = tx_spec.add_tx_broadband_noise_profile()
+
         """
         return self._add_child_node("Tx Broadband Noise Profile")
 
@@ -112,6 +116,7 @@ class TxSpectralProfEmitterNode(EmitNode):
         ... )
         >>> tx_spec = emitter.get_waveforms()[0].children[0]
         >>> tx_harmonics = tx_spec.add_custom_tx_harmonics()
+
         """
         return self._add_child_node("Custom Tx Harmonics")
 
@@ -128,6 +133,7 @@ class TxSpectralProfEmitterNode(EmitNode):
         ... )
         >>> tx_spec = emitter.get_waveforms()[0].children[0]
         >>> spurs = tx_spec.add_spurious_emissions()
+
         """
         return self._add_child_node("Spurious Emissions")
 
@@ -145,6 +151,7 @@ class TxSpectralProfEmitterNode(EmitNode):
         ... )
         >>> tx_spec = emitter.get_waveforms()[0].children[0]
         >>> tx_spec.enabled = True
+
         """
         return self._get_property("Enabled") == "true"
 
@@ -167,6 +174,7 @@ class TxSpectralProfEmitterNode(EmitNode):
         ... )
         >>> tx_spec = emitter.get_waveforms()[0].children[0]
         >>> tx_spec.output_voltage_peak = "3.3 V"
+
         """
         val = self._get_property("Output Voltage Peak")
         val = self._convert_from_internal_units(float(val), "Voltage")
@@ -194,6 +202,7 @@ class TxSpectralProfEmitterNode(EmitNode):
         ... )
         >>> tx_spec = emitter.get_waveforms()[0].children[0]
         >>> tx_spec.include_phase_noise = True
+
         """
         val = self._get_property("Include Phase Noise")
         return val == "true"
@@ -219,6 +228,7 @@ class TxSpectralProfEmitterNode(EmitNode):
         ... )
         >>> tx_spec = emitter.get_waveforms()[0].children[0]
         >>> tx_spec.tx_broadband_noise = -165.0
+
         """
         val = self._get_property("Tx Broadband Noise")
         return float(val)
@@ -244,6 +254,7 @@ class TxSpectralProfEmitterNode(EmitNode):
         ... )
         >>> tx_spec = emitter.get_waveforms()[0].children[0]
         >>> tx_spec.number_of_harmonics = 5
+
         """
         val = self._get_property("Number of Harmonics")
         return int(val)
@@ -269,6 +280,7 @@ class TxSpectralProfEmitterNode(EmitNode):
         ... )
         >>> tx_spec = emitter.get_waveforms()[0].children[0]
         >>> tx_spec.perform_tx_intermod_analysis = True
+
         """
         val = self._get_property("Perform Tx Intermod Analysis")
         return val == "true"
@@ -294,6 +306,7 @@ class TxSpectralProfEmitterNode(EmitNode):
         ... )
         >>> tx_spec = emitter.get_waveforms()[0].children[0]
         >>> tx_spec.internal_amp_gain = 12.0
+
         """
         val = self._get_property("Internal Amp Gain")
         return float(val)
@@ -319,6 +332,7 @@ class TxSpectralProfEmitterNode(EmitNode):
         ... )
         >>> tx_spec = emitter.get_waveforms()[0].children[0]
         >>> tx_spec.noise_figure = 4.5
+
         """
         val = self._get_property("Noise Figure")
         return float(val)
@@ -344,6 +358,7 @@ class TxSpectralProfEmitterNode(EmitNode):
         ... )
         >>> tx_spec = emitter.get_waveforms()[0].children[0]
         >>> tx_spec.amplifier_saturation_level = "27 dBm"
+
         """
         val = self._get_property("Amplifier Saturation Level")
         val = self._convert_from_internal_units(float(val), "Power")
@@ -374,6 +389,7 @@ class TxSpectralProfEmitterNode(EmitNode):
         ... )
         >>> tx_spec = emitter.get_waveforms()[0].children[0]
         >>> tx_spec.p1_db_point_ref_input = "15 dBm"
+
         """
         val = self._get_property("P1-dB Point, Ref. Input ")
         val = self._convert_from_internal_units(float(val), "Power")
@@ -401,6 +417,7 @@ class TxSpectralProfEmitterNode(EmitNode):
         ... )
         >>> tx_spec = emitter.get_waveforms()[0].children[0]
         >>> tx_spec.ip3_ref_input = "20 dBm"
+
         """
         val = self._get_property("IP3, Ref. Input")
         val = self._convert_from_internal_units(float(val), "Power")
@@ -428,6 +445,7 @@ class TxSpectralProfEmitterNode(EmitNode):
         ... )
         >>> tx_spec = emitter.get_waveforms()[0].children[0]
         >>> tx_spec.reverse_isolation = -35.0
+
         """
         val = self._get_property("Reverse Isolation")
         return float(val)
@@ -453,6 +471,7 @@ class TxSpectralProfEmitterNode(EmitNode):
         ... )
         >>> tx_spec = emitter.get_waveforms()[0].children[0]
         >>> tx_spec.max_intermod_order = 7
+
         """
         val = self._get_property("Max Intermod Order")
         return int(val)

@@ -961,6 +961,7 @@ class ExtensionTheme(PyAedtBase):  # pragma: no cover
         >>> root = tkinter.Tk()
         >>> theme = ExtensionTheme()
         >>> theme.apply_light_theme(ttk.Style())
+
         """
         self._apply_theme(style, self.light)
 
@@ -975,6 +976,7 @@ class ExtensionTheme(PyAedtBase):  # pragma: no cover
         >>> root = tkinter.Tk()
         >>> theme = ExtensionTheme()
         >>> theme.apply_dark_theme(ttk.Style())
+
         """
         self._apply_theme(style, self.dark)
 
@@ -1325,6 +1327,7 @@ class ToolTip:
     >>> root = tkinter.Tk()
     >>> button = ttk.Button(root, text="Info")
     >>> tooltip = ToolTip(button, "Open the active project")
+
     """
 
     # Palette keyed by theme name.
@@ -1359,6 +1362,7 @@ class ToolTip:
         >>> root = tkinter.Tk()
         >>> tooltip = ToolTip(ttk.Button(root, text="Info"), "Details")
         >>> tooltip.enter()
+
         """
         self.show_tooltip()
 
@@ -1373,6 +1377,7 @@ class ToolTip:
         >>> root = tkinter.Tk()
         >>> tooltip = ToolTip(ttk.Button(root, text="Info"), "Details")
         >>> tooltip.leave()
+
         """
         self.hide_tooltip()
 
@@ -1387,6 +1392,7 @@ class ToolTip:
         >>> root = tkinter.Tk()
         >>> tooltip = ToolTip(ttk.Button(root, text="Info"), "Details")
         >>> tooltip.show_tooltip()
+
         """
         if self.tipwindow or not self.text:
             return
@@ -1422,6 +1428,7 @@ class ToolTip:
         >>> root = tkinter.Tk()
         >>> tooltip = ToolTip(ttk.Button(root, text="Info"), "Details")
         >>> tooltip.hide_tooltip()
+
         """
         tw = self.tipwindow
         self.tipwindow = None
@@ -1437,6 +1444,7 @@ def decline_pyaedt_update(declined_file_path: Path, latest_version: str) -> None
     >>> from pathlib import Path
     >>> from ansys.aedt.core.extensions.misc import decline_pyaedt_update
     >>> decline_pyaedt_update(Path(r"C:\\Users\\user\\AppData\\Local\\Ansys\\Toolkits\\.pyaedt_version"), "0.18.0")
+
     """
     try:
         declined_file_path.parent.mkdir(parents=True, exist_ok=True)

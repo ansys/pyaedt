@@ -37,6 +37,7 @@ def post_processor(app=None, project: str | None = None, design: str | None = No
     --------
     >>> from ansys.aedt.core.visualization.post import post_processor
     >>> post_processor()
+
     """
     if not app:
         from ansys.aedt.core.generic.design_types import get_pyaedt_app

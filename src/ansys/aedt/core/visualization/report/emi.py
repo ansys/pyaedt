@@ -74,6 +74,7 @@ class EMIReceiver(CommonReport):
         >>> from ansys.aedt.core.visualization.report.emi import EMIReceiver
         >>> obj = EMIReceiver()
         >>> obj.net
+
         """
         if self._legacy_props["context"].get("net", None):
             self._net = self._legacy_props["context"]["net"]
@@ -107,6 +108,7 @@ class EMIReceiver(CommonReport):
         >>> from ansys.aedt.core.visualization.report.emi import EMIReceiver
         >>> obj = EMIReceiver()
         >>> obj.overlap_rate
+
         """
         return self._legacy_props["context"].get("overlap_rate", 95)
 
@@ -128,6 +130,7 @@ class EMIReceiver(CommonReport):
         >>> from ansys.aedt.core.visualization.report.emi import EMIReceiver
         >>> obj = EMIReceiver()
         >>> obj.band
+
         """
         return self._legacy_props["context"].get("band", "0")
 
@@ -149,6 +152,7 @@ class EMIReceiver(CommonReport):
         >>> from ansys.aedt.core.visualization.report.emi import EMIReceiver
         >>> obj = EMIReceiver()
         >>> obj.rbw
+
         """
         return self._legacy_props["context"].get("RBW", "0")
 
@@ -170,6 +174,7 @@ class EMIReceiver(CommonReport):
         >>> from ansys.aedt.core.visualization.report.emi import EMIReceiver
         >>> obj = EMIReceiver()
         >>> obj.rbw_factor
+
         """
         return self._legacy_props["context"].get("RBW_factor", "0")
 
@@ -193,6 +198,7 @@ class EMIReceiver(CommonReport):
         >>> from ansys.aedt.core.visualization.report.emi import EMIReceiver
         >>> obj = EMIReceiver()
         >>> obj.emission
+
         """
         return self._emission
 
@@ -221,6 +227,7 @@ class EMIReceiver(CommonReport):
         >>> from ansys.aedt.core.visualization.report.emi import EMIReceiver
         >>> obj = EMIReceiver()
         >>> obj.time_start
+
         """
         return self._legacy_props["context"].get("time_start", None)
 
@@ -242,6 +249,7 @@ class EMIReceiver(CommonReport):
         >>> from ansys.aedt.core.visualization.report.emi import EMIReceiver
         >>> obj = EMIReceiver()
         >>> obj.time_stop
+
         """
         return self._legacy_props["context"].get("time_stop", None)
 
@@ -357,6 +365,7 @@ class EMIReceiver(CommonReport):
         >>> new_report.time_start = "1ns"
         >>> new_report.time_stop = "2us"
         >>> new_report.create()
+
         """
         if not name:
             self.plot_name = generate_unique_name("Plot")

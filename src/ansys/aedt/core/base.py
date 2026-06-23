@@ -39,6 +39,7 @@ class DirMixin:
     ...         pass
     >>> e = Example()
     >>> e.public_dir  # same as dir(e)
+
     """
 
     def __dir__(self):
@@ -60,6 +61,7 @@ class DirMixin:
         >>> class Example(DirMixin):
         ...     pass
         >>> Example().public_dir
+
         """
         result = []
         for name in dir(self):
@@ -103,6 +105,7 @@ class PyAedtBase(DirMixin):
     >>> class Example(PyAedtBase):
     ...     pass
     >>> Example()
+
     """
 
     def __repr__(self) -> str:

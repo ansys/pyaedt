@@ -356,6 +356,7 @@ class DistributedRadial:
         >>> import ansys.aedt.core.filtersolutions
         >>> design = ansys.aedt.core.FilterSolutions.DistributedDesign(version="2026.1")
         >>> design.radial.apply_limits_radial_delta = False
+
         """
         apply_limits_radial_delta = c_bool()
         status = self._dll.getDistributedApplyLimitsRadialDelta(byref(apply_limits_radial_delta))

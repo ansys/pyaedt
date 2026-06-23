@@ -54,6 +54,7 @@ class ExportFormat(Enum):
     --------
     >>> from ansys.aedt.core.filtersolutions_core.export_to_aedt import ExportFormat
     >>> ExportFormat.PYTHON_SCRIPT
+
     """
 
     DIRECT_TO_AEDT = 0
@@ -74,6 +75,7 @@ class ExportCreationMode(Enum):
     --------
     >>> from ansys.aedt.core.filtersolutions_core.export_to_aedt import ExportCreationMode
     >>> ExportCreationMode.APPEND
+
     """
 
     OVERWRITE = 0
@@ -95,6 +97,7 @@ class PartLibraries(Enum):
     --------
     >>> from ansys.aedt.core.filtersolutions_core.export_to_aedt import PartLibraries
     >>> PartLibraries.MODELITHICS
+
     """
 
     LUMPED = 0
@@ -120,6 +123,7 @@ class SubstrateType(Enum):
     --------
     >>> from ansys.aedt.core.filtersolutions_core.export_to_aedt import SubstrateType
     >>> SubstrateType.MICROSTRIP
+
     """
 
     RGLC = 0
@@ -163,6 +167,7 @@ class SubstrateEr(Enum):
     --------
     >>> from ansys.aedt.core.filtersolutions_core.export_to_aedt import SubstrateEr
     >>> SubstrateEr.RT_DUROID_5880
+
     """
 
     AIR = 0
@@ -224,6 +229,7 @@ class SubstrateResistivity(Enum):
     --------
     >>> from ansys.aedt.core.filtersolutions_core.export_to_aedt import SubstrateResistivity
     >>> SubstrateResistivity.COPPER
+
     """
 
     IDEAL = 0
@@ -260,6 +266,7 @@ class ExportToAedt:
     >>> from ansys.aedt.core.filtersolutions import DistributedDesign
     >>> design = DistributedDesign(version="2026.1")
     >>> design.export_to_aedt.schematic_name = "DistributedFilter"
+
     """
 
     def __init__(self) -> None:
@@ -594,6 +601,7 @@ class ExportToAedt:
         >>> design = FilterSolutions.DistributedDesign(version="2026.1")
         >>> export = design.export_to_aedt
         >>> export.define_export_to_desktop_distributed_dll_functions()
+
         """
         self._dll.setCircuitDesign.argtype = c_bool
         self._dll.setCircuitDesign.restype = c_int
@@ -655,6 +663,7 @@ class ExportToAedt:
         >>> from ansys.aedt.core.filtersolutions import DistributedDesign
         >>> design = DistributedDesign(version="2026.1")
         >>> design.export_to_aedt.schematic_name = "DistributedFilter"
+
         """
         schematic_name_string = self._dll_interface.get_string(self._dll.getSchematicName)
         return schematic_name_string
@@ -676,6 +685,7 @@ class ExportToAedt:
         >>> from ansys.aedt.core.filtersolutions import DistributedDesign
         >>> design = DistributedDesign(version="2026.1")
         >>> design.export_to_aedt.simulate_after_export_enabled = True
+
         """
         simulate_after_export_enabled = c_bool()
         status = self._dll.getSimulateAfterExport(byref(simulate_after_export_enabled))
@@ -700,6 +710,7 @@ class ExportToAedt:
         >>> from ansys.aedt.core.filtersolutions import DistributedDesign
         >>> design = DistributedDesign(version="2026.1")
         >>> design.export_to_aedt.include_group_delay_enabled = True
+
         """
         include_group_delay_enabled = c_bool()
         status = self._dll.getGroupDelay(byref(include_group_delay_enabled))
@@ -724,6 +735,7 @@ class ExportToAedt:
         >>> from ansys.aedt.core.filtersolutions import DistributedDesign
         >>> design = DistributedDesign(version="2026.1")
         >>> design.export_to_aedt.include_gt_gain_enabled = True
+
         """
         include_gt_gain_enabled = c_bool()
         status = self._dll.getGTGain(byref(include_gt_gain_enabled))
@@ -748,6 +760,7 @@ class ExportToAedt:
         >>> from ansys.aedt.core.filtersolutions import DistributedDesign
         >>> design = DistributedDesign(version="2026.1")
         >>> design.export_to_aedt.include_vgsl_enabled = True
+
         """
         include_vgsl_enabled = c_bool()
         status = self._dll.getVGSL(byref(include_vgsl_enabled))
@@ -772,6 +785,7 @@ class ExportToAedt:
         >>> from ansys.aedt.core.filtersolutions import DistributedDesign
         >>> design = DistributedDesign(version="2026.1")
         >>> design.export_to_aedt.include_vgin_enabled = True
+
         """
         include_vgin_enabled = c_bool()
         status = self._dll.getVGIN(byref(include_vgin_enabled))
@@ -797,6 +811,7 @@ class ExportToAedt:
         >>> from ansys.aedt.core.filtersolutions import DistributedDesign
         >>> design = DistributedDesign(version="2026.1")
         >>> design.export_to_aedt.include_input_return_loss_s11_enabled = True
+
         """
         include_input_return_loss_s11_enabled = c_bool()
         status = self._dll.getS11(byref(include_input_return_loss_s11_enabled))
@@ -821,6 +836,7 @@ class ExportToAedt:
         >>> from ansys.aedt.core.filtersolutions import DistributedDesign
         >>> design = DistributedDesign(version="2026.1")
         >>> design.export_to_aedt.include_forward_transfer_s21_enabled = True
+
         """
         include_forward_transfer_s21_enabled = c_bool()
         status = self._dll.getS21(byref(include_forward_transfer_s21_enabled))
@@ -845,6 +861,7 @@ class ExportToAedt:
         >>> from ansys.aedt.core.filtersolutions import DistributedDesign
         >>> design = DistributedDesign(version="2026.1")
         >>> design.export_to_aedt.include_reverse_transfer_s12_enabled = True
+
         """
         include_reverse_transfer_s12_enabled = c_bool()
         status = self._dll.getS12(byref(include_reverse_transfer_s12_enabled))
@@ -869,6 +886,7 @@ class ExportToAedt:
         >>> from ansys.aedt.core.filtersolutions import DistributedDesign
         >>> design = DistributedDesign(version="2026.1")
         >>> design.export_to_aedt.include_output_return_loss_s22_enabled = True
+
         """
         include_output_return_loss_s22_enabled = c_bool()
         status = self._dll.getS22(byref(include_output_return_loss_s22_enabled))
@@ -893,6 +911,7 @@ class ExportToAedt:
         >>> from ansys.aedt.core.filtersolutions import DistributedDesign
         >>> design = DistributedDesign(version="2026.1")
         >>> design.export_to_aedt.db_format_enabled = True
+
         """
         db_format_enabled = c_bool()
         status = self._dll.getDbFormat(byref(db_format_enabled))
@@ -918,6 +937,7 @@ class ExportToAedt:
         >>> from ansys.aedt.core.filtersolutions import DistributedDesign
         >>> design = DistributedDesign(version="2026.1")
         >>> design.export_to_aedt.rectangular_plot_enabled = True
+
         """
         rectangular_plot_enabled = c_bool()
         status = self._dll.getRectPlot(byref(rectangular_plot_enabled))
@@ -943,6 +963,7 @@ class ExportToAedt:
         >>> from ansys.aedt.core.filtersolutions import DistributedDesign
         >>> design = DistributedDesign(version="2026.1")
         >>> design.export_to_aedt.smith_plot_enabled = True
+
         """
         smith_plot_enabled = c_bool()
         status = self._dll.getSmithPlot(byref(smith_plot_enabled))
@@ -967,6 +988,7 @@ class ExportToAedt:
         >>> from ansys.aedt.core.filtersolutions import DistributedDesign
         >>> design = DistributedDesign(version="2026.1")
         >>> design.export_to_aedt.polar_plot_enabled = True
+
         """
         polar_plot_enabled = c_bool()
         status = self._dll.getPolarPlot(byref(polar_plot_enabled))
@@ -991,6 +1013,7 @@ class ExportToAedt:
         >>> from ansys.aedt.core.filtersolutions import DistributedDesign
         >>> design = DistributedDesign(version="2026.1")
         >>> design.export_to_aedt.table_data_enabled = True
+
         """
         table_data_enabled = c_bool()
         status = self._dll.getTableData(byref(table_data_enabled))
@@ -1015,6 +1038,7 @@ class ExportToAedt:
         >>> from ansys.aedt.core.filtersolutions import DistributedDesign
         >>> design = DistributedDesign(version="2026.1")
         >>> design.export_to_aedt.optimitrics_enabled = True
+
         """
         optimitrics_enabled = c_bool()
         status = self._dll.getOptimetrics(byref(optimitrics_enabled))
@@ -1039,6 +1063,7 @@ class ExportToAedt:
         >>> from ansys.aedt.core.filtersolutions import DistributedDesign
         >>> design = DistributedDesign(version="2026.1")
         >>> design.export_to_aedt.optimize_after_export_enabled = True
+
         """
         optimize_after_export_enabled = c_bool()
         status = self._dll.getOptimizeAfterExport(byref(optimize_after_export_enabled))
@@ -1092,6 +1117,7 @@ class ExportToAedt:
         >>> design.export_to_aedt.export_design(
         ...     ExportFormat.PYTHON_SCRIPT, export_path=r"C:\\Temp\\distributed_filter.py"
         ... )
+
         """
         desktop_version = getattr(self._dll_interface, "_version")
         if export_format is None:
@@ -1133,6 +1159,7 @@ class ExportToAedt:
         >>> design = FilterSolutions.DistributedDesign(version="2026.1")
         >>> export = design.export_to_aedt
         >>> tuned_variables = export.import_tuned_variables()
+
         """
         size = c_int()
         status = self._dll.importTunedVariablesSize(byref(size))
@@ -1156,6 +1183,7 @@ class ExportToAedt:
         >>> from ansys.aedt.core.filtersolutions_core.export_to_aedt import PartLibraries
         >>> design = DistributedDesign(version="2026.1")
         >>> design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
+
         """
         index = c_int()
         part_libraries_list = list(PartLibraries)
@@ -1187,6 +1215,7 @@ class ExportToAedt:
         >>> from ansys.aedt.core.filtersolutions import DistributedDesign
         >>> design = DistributedDesign(version="2026.1")
         >>> design.export_to_aedt.interconnect_length_to_width_ratio = "2.5"
+
         """
         interconnect_length_to_width_ratio_string = self._dll_interface.get_string(self._dll.getLengthToWidthRatio)
         return interconnect_length_to_width_ratio_string
@@ -1213,6 +1242,7 @@ class ExportToAedt:
         >>> from ansys.aedt.core.filtersolutions import DistributedDesign
         >>> design = DistributedDesign(version="2026.1")
         >>> design.export_to_aedt.interconnect_minimum_length_to_width_ratio = "0.75"
+
         """
         interconnect_minimum_length_to_width_ratio_string = self._dll_interface.get_string(
             self._dll.getLowerLengthGeometricLimitRatio
@@ -1245,6 +1275,7 @@ class ExportToAedt:
         >>> from ansys.aedt.core.filtersolutions import DistributedDesign
         >>> design = DistributedDesign(version="2026.1")
         >>> design.export_to_aedt.interconnect_maximum_length_to_width_ratio = "3.5"
+
         """
         interconnect_maximum_length_to_width_ratio_string = self._dll_interface.get_string(
             self._dll.getUpperLengthGeometricLimitRatio
@@ -1278,6 +1309,7 @@ class ExportToAedt:
         >>> from ansys.aedt.core.filtersolutions import DistributedDesign
         >>> design = DistributedDesign(version="2026.1")
         >>> design.export_to_aedt.interconnect_line_to_termination_width_ratio = "1.2"
+
         """
         interconnect_line_to_termination_width_ratio_string = self._dll_interface.get_string(
             self._dll.getLineWidthToTerminationWidthRatio
@@ -1310,6 +1342,7 @@ class ExportToAedt:
         >>> from ansys.aedt.core.filtersolutions import DistributedDesign
         >>> design = DistributedDesign(version="2026.1")
         >>> design.export_to_aedt.interconnect_minimum_line_to_termination_width_ratio = "0.8"
+
         """
         interconnect_minimum_line_to_termination_width_ratio_string = self._dll_interface.get_string(
             self._dll.getLowerWidthGeometricLimitRatio
@@ -1342,6 +1375,7 @@ class ExportToAedt:
         >>> from ansys.aedt.core.filtersolutions import DistributedDesign
         >>> design = DistributedDesign(version="2026.1")
         >>> design.export_to_aedt.interconnect_maximum_line_to_termination_width_ratio = "2.5"
+
         """
         interconnect_maximum_line_to_termination_width_ratio_string = self._dll_interface.get_string(
             self._dll.getUpperWidthGeometricLimitRatio
@@ -1375,6 +1409,7 @@ class ExportToAedt:
         >>> from ansys.aedt.core.filtersolutions import DistributedDesign
         >>> design = DistributedDesign(version="2026.1")
         >>> design.export_to_aedt.interconnect_length_value = "3 mm"
+
         """
         interconnect_length_value_string = self._dll_interface.get_string(self._dll.getLengthToWidthValue)
         return interconnect_length_value_string
@@ -1401,6 +1436,7 @@ class ExportToAedt:
         >>> from ansys.aedt.core.filtersolutions import DistributedDesign
         >>> design = DistributedDesign(version="2026.1")
         >>> design.export_to_aedt.interconnect_minimum_length_value = "1.5 mm"
+
         """
         interconnect_minimum_length_value_string = self._dll_interface.get_string(
             self._dll.getLowerLengthGeometricLimitValue
@@ -1430,6 +1466,7 @@ class ExportToAedt:
         >>> from ansys.aedt.core.filtersolutions import DistributedDesign
         >>> design = DistributedDesign(version="2026.1")
         >>> design.export_to_aedt.interconnect_maximum_length_value = "6 mm"
+
         """
         interconnect_maximum_length_value_string = self._dll_interface.get_string(
             self._dll.getUpperLengthGeometricLimitValue
@@ -1462,6 +1499,7 @@ class ExportToAedt:
         >>> design = FilterSolutions.DistributedDesign(version="2026.1")
         >>> export = design.export_to_aedt
         >>> export.interconnect_line_width_value = "1.5 mm"
+
         """
         interconnect_line_width_value_string = self._dll_interface.get_string(
             self._dll.getLineWidthToTerminationWidthValue
@@ -1493,6 +1531,7 @@ class ExportToAedt:
         >>> design = FilterSolutions.DistributedDesign(version="2026.1")
         >>> export = design.export_to_aedt
         >>> export.interconnect_minimum_width_value = "750 um"
+
         """
         interconnect_minimum_width_value_string = self._dll_interface.get_string(
             self._dll.getLowerWidthGeometricLimitValue
@@ -1524,6 +1563,7 @@ class ExportToAedt:
         >>> design = FilterSolutions.DistributedDesign(version="2026.1")
         >>> export = design.export_to_aedt
         >>> export.interconnect_maximum_width_value = "2 mm"
+
         """
         interconnect_maximum_width_value_string = self._dll_interface.get_string(
             self._dll.getUpperWidthGeometricLimitValue
@@ -1552,6 +1592,7 @@ class ExportToAedt:
         >>> design = FilterSolutions.DistributedDesign(version="2026.1")
         >>> export = design.export_to_aedt
         >>> export.interconnect_inductor_tolerance_value = "2"
+
         """
         interconnect_inductor_tolerance_value_string = self._dll_interface.get_string(
             self._dll.getInterConnectInductorTolerance
@@ -1580,6 +1621,7 @@ class ExportToAedt:
         >>> design = FilterSolutions.DistributedDesign(version="2026.1")
         >>> export = design.export_to_aedt
         >>> export.interconnect_capacitor_tolerance_value = "2"
+
         """
         interconnect_capacitor_tolerance_value_string = self._dll_interface.get_string(
             self._dll.getInterConnectCapacitorTolerance
@@ -1606,6 +1648,7 @@ class ExportToAedt:
         >>> design = FilterSolutions.DistributedDesign(version="2026.1")
         >>> export = design.export_to_aedt
         >>> export.interconnect_geometry_optimization_enabled = True
+
         """
         interconnect_geometry_optimization_enabled = c_bool()
         status = self._dll.getInterconnectGeometryOptimization(byref(interconnect_geometry_optimization_enabled))
@@ -1627,6 +1670,7 @@ class ExportToAedt:
         >>> export = design.export_to_aedt
         >>> export.interconnect_line_width_value = "1.5 mm"
         >>> export.update_interconncet_parameters()
+
         """
         status = self._dll.updateInterConnectParmeters()
         self._dll_interface.raise_error(status)
@@ -1641,6 +1685,7 @@ class ExportToAedt:
         >>> export = design.export_to_aedt
         >>> export.interconnect_inductor_tolerance_value = "2"
         >>> export.update_inductor_capacitor_tolerances()
+
         """
         status = self._dll.updatePartsTolerances()
         self._dll_interface.raise_error(status)
@@ -1662,6 +1707,7 @@ class ExportToAedt:
         >>> design = FilterSolutions.DistributedDesign(version="2026.1")
         >>> export = design.export_to_aedt
         >>> export.substrate_type = SubstrateType.MICROSTRIP
+
         """
         # The 25R2 DLL is updated to return the enum value directly
         if self._dll_interface.api_version() >= "2025.2":
@@ -1706,6 +1752,7 @@ class ExportToAedt:
         >>> design = FilterSolutions.DistributedDesign(version="2026.1")
         >>> export = design.export_to_aedt
         >>> export.substrate_er = SubstrateEr.RT_DUROID_5880
+
         """
         substrate_er_index = c_int()
         substrate_er_value_str = create_string_buffer(100)
@@ -1748,6 +1795,7 @@ class ExportToAedt:
         >>> design = FilterSolutions.DistributedDesign(version="2026.1")
         >>> export = design.export_to_aedt
         >>> export.substrate_resistivity = SubstrateResistivity.COPPER
+
         """
         substrate_resistivity_index = c_int()
         substrate_resistivity_value_str = create_string_buffer(100)
@@ -1790,6 +1838,7 @@ class ExportToAedt:
         >>> design = FilterSolutions.DistributedDesign(version="2026.1")
         >>> export = design.export_to_aedt
         >>> export.substrate_loss_tangent = SubstrateEr.RT_DUROID_5880
+
         """
         substrate_loss_tangent_index = c_int()
         substrate_loss_tangent_value_str = create_string_buffer(100)
@@ -1830,6 +1879,7 @@ class ExportToAedt:
         >>> design = FilterSolutions.DistributedDesign(version="2026.1")
         >>> export = design.export_to_aedt
         >>> export.substrate_conductor_thickness = "17 um"
+
         """
         substrate_conductor_thickness_string = self._dll_interface.get_string(self._dll.getConductorThickness)
         return substrate_conductor_thickness_string
@@ -1854,6 +1904,7 @@ class ExportToAedt:
         >>> design = FilterSolutions.DistributedDesign(version="2026.1")
         >>> export = design.export_to_aedt
         >>> export.substrate_dielectric_height = "0.635 mm"
+
         """
         substrate_dielectric_height_string = self._dll_interface.get_string(self._dll.getDielectricHeight)
         return substrate_dielectric_height_string
@@ -1878,6 +1929,7 @@ class ExportToAedt:
         >>> design = FilterSolutions.DistributedDesign(version="2026.1")
         >>> export = design.export_to_aedt
         >>> export.substrate_unbalanced_lower_dielectric_height = "3 mm"
+
         """
         substrate_unbalanced_lower_dielectric_height_string = self._dll_interface.get_string(
             self._dll.getLowerDielectricHeight
@@ -1908,6 +1960,7 @@ class ExportToAedt:
         >>> design = FilterSolutions.DistributedDesign(version="2026.1")
         >>> export = design.export_to_aedt
         >>> export.substrate_suspend_dielectric_height = "0.8 mm"
+
         """
         substrate_suspend_dielectric_height_string = self._dll_interface.get_string(
             self._dll.getSuspendDielectricHeight
@@ -1933,6 +1986,7 @@ class ExportToAedt:
         >>> design = FilterSolutions.DistributedDesign(version="2026.1")
         >>> export = design.export_to_aedt
         >>> export.substrate_cover_height = "5 mm"
+
         """
         substrate_cover_height_string = self._dll_interface.get_string(self._dll.getCoverHeight)
         return substrate_cover_height_string
@@ -1955,6 +2009,7 @@ class ExportToAedt:
         >>> design = FilterSolutions.DistributedDesign(version="2026.1")
         >>> export = design.export_to_aedt
         >>> export.substrate_unbalanced_stripline_enabled = True
+
         """
         substrate_unbalanced_stripline_enabled = c_bool()
         status = self._dll.getUnbalancedStripLine(byref(substrate_unbalanced_stripline_enabled))
@@ -1980,6 +2035,7 @@ class ExportToAedt:
         >>> design = FilterSolutions.DistributedDesign(version="2026.1")
         >>> export = design.export_to_aedt
         >>> export.substrate_cover_height_enabled = True
+
         """
         substrate_cover_height_enabled = c_bool()
         status = self._dll.getGroundedCoverAboveLine(byref(substrate_cover_height_enabled))
@@ -2000,6 +2056,7 @@ class ExportToAedt:
         >>> design = FilterSolutions.DistributedDesign(version="2026.1")
         >>> export = design.export_to_aedt
         >>> export.load_modelithics_models()
+
         """
         status = self._dll.loadModelithicsModels()
         self._dll_interface.raise_error(status)
@@ -2018,6 +2075,7 @@ class ExportToAedt:
         >>> design = FilterSolutions.DistributedDesign(version="2026.1")
         >>> export = design.export_to_aedt
         >>> export.modelithics_include_interconnect_enabled = True
+
         """
         modelithics_include_interconnect_enabled = c_bool()
         status = self._dll.getModelithicsIncludeInterconnect(byref(modelithics_include_interconnect_enabled))
@@ -2044,6 +2102,7 @@ class ExportToAedt:
         >>> export = design.export_to_aedt
         >>> export.load_modelithics_models()
         >>> export.modelithics_inductor_list_count
+
         """
         count = c_int()
         status = self._dll.getModelithicsInductorsListCount(byref(count))
@@ -2061,6 +2120,7 @@ class ExportToAedt:
         >>> export = design.export_to_aedt
         >>> export.load_modelithics_models()
         >>> export.modelithics_inductor_list(0)
+
         """
         modelithics_inductor_buffer = create_string_buffer(100)
         status = self._dll.getModelithicsInductorsList(row_index, modelithics_inductor_buffer, 100)
@@ -2086,6 +2146,7 @@ class ExportToAedt:
         >>> export = design.export_to_aedt
         >>> export.load_modelithics_models()
         >>> export.modelithics_inductor_selection = export.modelithics_inductor_list(0)
+
         """
         modelithics_inductor_selection_string = self._dll_interface.get_string(self._dll.getModelithicsInductors)
         return modelithics_inductor_selection_string
@@ -2111,6 +2172,7 @@ class ExportToAedt:
         >>> family = export.modelithics_inductor_list(0)
         >>> export.modelithics_inductor_add_family(family)
         >>> export.modelithics_inductor_family_list_count
+
         """
         count = c_int()
         status = self._dll.getModelithicsInductorsFamilyListCount(byref(count))
@@ -2138,6 +2200,7 @@ class ExportToAedt:
         >>> family = export.modelithics_inductor_list(0)
         >>> export.modelithics_inductor_add_family(family)
         >>> export.modelithics_inductor_family_list(0)
+
         """
         modelithics_inductor_family_buffer = create_string_buffer(100)
         status = self._dll.getModelithicsInductorsFamilyList(index, modelithics_inductor_family_buffer, 100)
@@ -2161,6 +2224,7 @@ class ExportToAedt:
         >>> export.load_modelithics_models()
         >>> family = export.modelithics_inductor_list(0)
         >>> export.modelithics_inductor_add_family(family)
+
         """
         self._dll_interface.set_string(self._dll.addModelithicsInductorsFamily, modelithics_inductor)
 
@@ -2181,6 +2245,7 @@ class ExportToAedt:
         >>> family = export.modelithics_inductor_list(0)
         >>> export.modelithics_inductor_add_family(family)
         >>> export.modelithics_inductor_remove_family(family)
+
         """
         self._dll_interface.set_string(self._dll.removeModelithicsInductorsFamily, modelithics_inductor)
 
@@ -2199,6 +2264,7 @@ class ExportToAedt:
         >>> export = design.export_to_aedt
         >>> export.load_modelithics_models()
         >>> export.modelithics_capacitor_list_count
+
         """
         count = c_int()
         status = self._dll.getModelithicsCapacitorsListCount(byref(count))
@@ -2216,6 +2282,7 @@ class ExportToAedt:
         >>> export = design.export_to_aedt
         >>> export.load_modelithics_models()
         >>> export.modelithics_capacitor_list(0)
+
         """
         modelithics_capacitor_buffer = create_string_buffer(100)
         status = self._dll.getModelithicsCapacitorsList(row_index, modelithics_capacitor_buffer, 100)
@@ -2241,6 +2308,7 @@ class ExportToAedt:
         >>> export = design.export_to_aedt
         >>> export.load_modelithics_models()
         >>> export.modelithics_capacitor_selection = export.modelithics_capacitor_list(0)
+
         """
         modelithics_capacitor_selection_string = self._dll_interface.get_string(self._dll.getModelithicsCapacitors)
         return modelithics_capacitor_selection_string
@@ -2266,6 +2334,7 @@ class ExportToAedt:
         >>> family = export.modelithics_capacitor_list(0)
         >>> export.modelithics_capacitor_add_family(family)
         >>> export.modelithics_capacitor_family_list_count
+
         """
         count = c_int()
         status = self._dll.getModelithicsCapacitorsFamilyListCount(byref(count))
@@ -2293,6 +2362,7 @@ class ExportToAedt:
         >>> family = export.modelithics_capacitor_list(0)
         >>> export.modelithics_capacitor_add_family(family)
         >>> export.modelithics_capacitor_family_list(0)
+
         """
         modelithics_capacitor_family_buffer = create_string_buffer(100)
         status = self._dll.getModelithicsCapacitorsFamilyList(index, modelithics_capacitor_family_buffer, 100)
@@ -2316,6 +2386,7 @@ class ExportToAedt:
         >>> export.load_modelithics_models()
         >>> family = export.modelithics_capacitor_list(0)
         >>> export.modelithics_capacitor_add_family(family)
+
         """
         self._dll_interface.set_string(self._dll.addModelithicsCapacitorsFamily, modelithics_capacitor)
 
@@ -2336,6 +2407,7 @@ class ExportToAedt:
         >>> family = export.modelithics_capacitor_list(0)
         >>> export.modelithics_capacitor_add_family(family)
         >>> export.modelithics_capacitor_remove_family(family)
+
         """
         self._dll_interface.set_string(self._dll.removeModelithicsCapacitorsFamily, modelithics_capacitor)
 
@@ -2354,6 +2426,7 @@ class ExportToAedt:
         >>> export = design.export_to_aedt
         >>> export.load_modelithics_models()
         >>> export.modelithics_resistor_list_count
+
         """
         count = c_int()
         status = self._dll.getModelithicsResistorsListCount(byref(count))
@@ -2371,6 +2444,7 @@ class ExportToAedt:
         >>> export = design.export_to_aedt
         >>> export.load_modelithics_models()
         >>> export.modelithics_resistor_list(0)
+
         """
         modelithics_resistor_buffer = create_string_buffer(100)
         status = self._dll.getModelithicsResistorsList(row_index, modelithics_resistor_buffer, 100)
@@ -2396,6 +2470,7 @@ class ExportToAedt:
         >>> export = design.export_to_aedt
         >>> export.load_modelithics_models()
         >>> export.modelithics_resistor_selection
+
         """
         modelithics_resistor_selection_string = self._dll_interface.get_string(self._dll.getModelithicsResistors)
         return modelithics_resistor_selection_string
@@ -2419,6 +2494,7 @@ class ExportToAedt:
         >>> export = design.export_to_aedt
         >>> export.load_modelithics_models()
         >>> export.modelithics_resistor_family_list_count
+
         """
         count = c_int()
         status = self._dll.getModelithicsResistorsFamilyListCount(byref(count))
@@ -2447,6 +2523,7 @@ class ExportToAedt:
         >>> family = export.modelithics_resistor_list(0)
         >>> export.modelithics_resistor_add_family(family)
         >>> export.modelithics_resistor_family_list(0)
+
         """
         modelithics_resistor_family_buffer = create_string_buffer(100)
         status = self._dll.getModelithicsResistorsFamilyList(index, modelithics_resistor_family_buffer, 100)
@@ -2470,6 +2547,7 @@ class ExportToAedt:
         >>> export.load_modelithics_models()
         >>> family = export.modelithics_resistor_list(0)
         >>> export.modelithics_resistor_add_family(family)
+
         """
         self._dll_interface.set_string(self._dll.addModelithicsResistorsFamily, modelithics_resistor)
 
@@ -2490,6 +2568,7 @@ class ExportToAedt:
         >>> family = export.modelithics_resistor_list(0)
         >>> export.modelithics_resistor_add_family(family)
         >>> export.modelithics_resistor_remove_family(family)
+
         """
         self._dll_interface.set_string(self._dll.removeModelithicsResistorsFamily, modelithics_resistor)
 
@@ -2507,6 +2586,7 @@ class ExportToAedt:
         >>> design = FilterSolutions.DistributedDesign(version="2026.1")
         >>> export = design.export_to_aedt
         >>> export.insert_circuit_design = True
+
         """
         insert_circuit_design = c_bool()
         status = self._dll.getCircuitDesign(byref(insert_circuit_design))
@@ -2532,6 +2612,7 @@ class ExportToAedt:
         >>> design = FilterSolutions.DistributedDesign(version="2026.1")
         >>> export = design.export_to_aedt
         >>> export.insert_hfss_design = True
+
         """
         insert_hfss_design = c_bool()
         status = self._dll.getHFSSDesign(byref(insert_hfss_design))
@@ -2557,6 +2638,7 @@ class ExportToAedt:
         >>> design = FilterSolutions.DistributedDesign(version="2026.1")
         >>> export = design.export_to_aedt
         >>> export.insert_hfss_3dl_design = True
+
         """
         insert_hfss_3dl_design = c_bool()
         status = self._dll.getHFSS3DLDesign(byref(insert_hfss_3dl_design))
@@ -2583,6 +2665,7 @@ class ExportToAedt:
         >>> design = FilterSolutions.DistributedDesign(version="2026.1")
         >>> export = design.export_to_aedt
         >>> export.full_parametrization_enabled = True
+
         """
         full_parametrization_enabled = c_bool()
         status = self._dll.getFullParametrization(byref(full_parametrization_enabled))
@@ -2608,6 +2691,7 @@ class ExportToAedt:
         >>> design = FilterSolutions.DistributedDesign(version="2026.1")
         >>> export = design.export_to_aedt
         >>> export.ports_always_on_sides_enabled = True
+
         """
         ports_always_on_sides_enabled = c_bool()
         status = self._dll.getPortsOnSides(byref(ports_always_on_sides_enabled))
@@ -2633,6 +2717,7 @@ class ExportToAedt:
         >>> design = FilterSolutions.DistributedDesign(version="2026.1")
         >>> export = design.export_to_aedt
         >>> export.reverse_x_axis_enabled = True
+
         """
         reverse_x_axis_enabled = c_bool()
         status = self._dll.getFlipXAxis(byref(reverse_x_axis_enabled))
@@ -2658,6 +2743,7 @@ class ExportToAedt:
         >>> design = FilterSolutions.DistributedDesign(version="2026.1")
         >>> export = design.export_to_aedt
         >>> export.reverse_y_axis_enabled = True
+
         """
         reverse_y_axis_enabled = c_bool()
         status = self._dll.getFlipYAxis(byref(reverse_y_axis_enabled))
@@ -2683,6 +2769,7 @@ class ExportToAedt:
         >>> design = FilterSolutions.DistributedDesign(version="2026.1")
         >>> export = design.export_to_aedt
         >>> export.export_with_tuning_port_format_enabled = True
+
         """
         export_with_tuning_port_format_enabled = c_bool()
         status = self._dll.getIncludeTuningPorts(byref(export_with_tuning_port_format_enabled))
@@ -2708,6 +2795,7 @@ class ExportToAedt:
         >>> design = FilterSolutions.DistributedDesign(version="2026.1")
         >>> export = design.export_to_aedt
         >>> export.use_series_horizontal_ports_enabled = True
+
         """
         use_series_horizontal_ports_enabled = c_bool()
         status = self._dll.getSeriesHorizontalPorts(byref(use_series_horizontal_ports_enabled))
@@ -2728,6 +2816,7 @@ class ExportToAedt:
         >>> design = FilterSolutions.DistributedDesign(version="2026.1")
         >>> export = design.export_to_aedt
         >>> export.import_tuned_variables_port_tuning()
+
         """
         status = self._dll.importPortTunedVariables()
         self._dll_interface.raise_error(status)
@@ -2741,6 +2830,7 @@ class ExportToAedt:
         >>> design = FilterSolutions.DistributedDesign(version="2026.1")
         >>> export = design.export_to_aedt
         >>> export.import_and_reexport_over_port_tuning()
+
         """
         status = self._dll.importReexportPortTunedVariables()
         self._dll_interface.raise_error(status)
@@ -2754,6 +2844,7 @@ class ExportToAedt:
         >>> design = FilterSolutions.DistributedDesign(version="2026.1")
         >>> export = design.export_to_aedt
         >>> export.simulate_full_port_tuning()
+
         """
         status = self._dll.simulateFull()
         self._dll_interface.raise_error(status)
@@ -2767,6 +2858,7 @@ class ExportToAedt:
         >>> design = FilterSolutions.DistributedDesign(version="2026.1")
         >>> export = design.export_to_aedt
         >>> export.simulate_tuning_circuit_port_tuning()
+
         """
         status = self._dll.simulateTune()
         self._dll_interface.raise_error(status)
@@ -2780,6 +2872,7 @@ class ExportToAedt:
         >>> design = FilterSolutions.DistributedDesign(version="2026.1")
         >>> export = design.export_to_aedt
         >>> export.optimize_port_tuning()
+
         """
         status = self._dll.optimizerPortTunedVariables()
         self._dll_interface.raise_error(status)

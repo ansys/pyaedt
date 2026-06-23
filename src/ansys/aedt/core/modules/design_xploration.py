@@ -321,6 +321,7 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
         >>> from ansys.aedt.core.modules.design_xploration import CommonOptimetrics
         >>> obj = CommonOptimetrics()
         >>> obj.update(update_dictionary={"Name": "Value"})
+
         """
         if update_dictionary:
             for el in update_dictionary:
@@ -356,6 +357,7 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
         >>> from ansys.aedt.core.modules.design_xploration import CommonOptimetrics
         >>> obj = CommonOptimetrics()
         >>> obj.create()
+
         """
         arg = ["NAME:" + self.name]
         _dict2arg(self.props, arg)
@@ -411,6 +413,7 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
         >>> from ansys.aedt.core.modules.design_xploration import CommonOptimetrics
         >>> obj = CommonOptimetrics()
         >>> obj.add_calculation(calculation=1)
+
         """
         return self._add_calculation(
             calculation,
@@ -578,6 +581,7 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
         >>> from ansys.aedt.core.modules.design_xploration import CommonOptimetrics
         >>> obj = CommonOptimetrics()
         >>> obj.analyze(cores=[1, 2, 3], tasks=[1, 2, 3])
+
         """
         return self._app.analyze(
             setup=self.name,
@@ -626,6 +630,7 @@ class SetupOpti(CommonOptimetrics, PyAedtBase):
         >>> from ansys.aedt.core.modules.design_xploration import SetupOpti
         >>> obj = SetupOpti()
         >>> obj.delete()
+
         """
         self.omodule.DeleteSetups([self.name])
         self._app.optimizations.setups.remove(self)
@@ -690,6 +695,7 @@ class SetupOpti(CommonOptimetrics, PyAedtBase):
         >>> from ansys.aedt.core.modules.design_xploration import SetupOpti
         >>> obj = SetupOpti()
         >>> obj.add_goal(calculation=1, ranges={"Name": "Value"})
+
         """
         return self._add_calculation(
             calculation,
@@ -748,6 +754,7 @@ class SetupOpti(CommonOptimetrics, PyAedtBase):
         >>> from ansys.aedt.core.modules.design_xploration import SetupOpti
         >>> obj = SetupOpti()
         >>> obj.add_variation(variable_name=1, min_value=1.0, max_value=1.0)
+
         """
         if variable_name not in self._app.variable_manager.variables:
             self._app.logger.error(f"Variable {variable_name} does not exists.")
@@ -871,6 +878,7 @@ class SetupParam(CommonOptimetrics, PyAedtBase):
         >>> from ansys.aedt.core.modules.design_xploration import SetupParam
         >>> obj = SetupParam()
         >>> obj.delete()
+
         """
         self.omodule.DeleteSetups([self.name])
         self._app.parametrics.setups.remove(self)
@@ -918,6 +926,7 @@ class SetupParam(CommonOptimetrics, PyAedtBase):
         >>> from ansys.aedt.core.modules.design_xploration import SetupParam
         >>> obj = SetupParam()
         >>> obj.add_variation(sweep_variable=1, start_point=1.0)
+
         """
         if sweep_variable not in self._app.variable_manager.variables:
             self._app.logger.error(f"Variable {sweep_variable} does not exists.")
@@ -994,6 +1003,7 @@ class SetupParam(CommonOptimetrics, PyAedtBase):
         >>> from ansys.aedt.core.modules.design_xploration import SetupParam
         >>> obj = SetupParam()
         >>> obj.sync_variables(variables=["Box1"])
+
         """
         if type(self.props["Sweeps"]["SweepDefinition"]) is not list:
             self._app.logger.error("Not enough variables are defined in the Parametric setup")
@@ -1044,6 +1054,7 @@ class SetupParam(CommonOptimetrics, PyAedtBase):
         >>> from ansys.aedt.core.modules.design_xploration import SetupParam
         >>> obj = SetupParam()
         >>> obj.export_to_csv(output_file=r"C:\Temp\example.csv")
+
         """
         self.omodule.ExportParametricSetupTable(self.name, output_file)
         return True
@@ -1057,6 +1068,7 @@ class ParametricSetups(PyAedtBase):
     >>> from ansys.aedt.core import Hfss
     >>> app = Hfss()
     >>> sensitivity_setups = app.parametrics
+
     """
 
     def __init__(self, p_app) -> None:
@@ -1086,6 +1098,7 @@ class ParametricSetups(PyAedtBase):
         >>> from ansys.aedt.core.modules.design_xploration import ParametricSetups
         >>> obj = ParametricSetups()
         >>> obj.design_setups
+
         """
         return {i.name.split(":")[0].strip(): i for i in self.setups}
 
@@ -1098,6 +1111,7 @@ class ParametricSetups(PyAedtBase):
         >>> from ansys.aedt.core.modules.design_xploration import ParametricSetups
         >>> obj = ParametricSetups()
         >>> obj.p_app
+
         """
         return self._app
 
@@ -1114,6 +1128,7 @@ class ParametricSetups(PyAedtBase):
         >>> from ansys.aedt.core.modules.design_xploration import ParametricSetups
         >>> obj = ParametricSetups()
         >>> obj.optimodule
+
         """
         return self._app.ooptimetrics
 
@@ -1167,6 +1182,7 @@ class ParametricSetups(PyAedtBase):
         >>> from ansys.aedt.core.modules.design_xploration import ParametricSetups
         >>> obj = ParametricSetups()
         >>> obj.add(variable=1, start_point=1.0)
+
         """
         if variable not in self._app.variable_manager.variables:
             self._app.logger.error(f"Variable {variable} not found.")
@@ -1210,6 +1226,7 @@ class ParametricSetups(PyAedtBase):
         >>> from ansys.aedt.core.modules.design_xploration import ParametricSetups
         >>> obj = ParametricSetups()
         >>> obj.delete(name="MyObject")
+
         """
         for el in self.setups:
             if el.name == name:
@@ -1242,6 +1259,7 @@ class ParametricSetups(PyAedtBase):
         >>> from ansys.aedt.core.modules.design_xploration import ParametricSetups
         >>> obj = ParametricSetups()
         >>> obj.add_from_file(input_file=r"C:\Temp\example.txt")
+
         """
         if not name:
             name = generate_unique_name("Parametric")
@@ -1287,6 +1305,7 @@ class OptimizationSetups(PyAedtBase):
     >>> from ansys.aedt.core import Hfss
     >>> app = Hfss()
     >>> optimization_setup = app.optimizations
+
     """
 
     def __init__(self, p_app) -> None:
@@ -1320,6 +1339,7 @@ class OptimizationSetups(PyAedtBase):
         >>> from ansys.aedt.core.modules.design_xploration import OptimizationSetups
         >>> obj = OptimizationSetups()
         >>> obj.p_app
+
         """
         return self._app
 
@@ -1336,6 +1356,7 @@ class OptimizationSetups(PyAedtBase):
         >>> from ansys.aedt.core.modules.design_xploration import OptimizationSetups
         >>> obj = OptimizationSetups()
         >>> obj.design_setups
+
         """
         return {i.name.split(":")[0].strip(): i for i in self.setups}
 
@@ -1352,6 +1373,7 @@ class OptimizationSetups(PyAedtBase):
         >>> from ansys.aedt.core.modules.design_xploration import OptimizationSetups
         >>> obj = OptimizationSetups()
         >>> obj.optimodule
+
         """
         return self._app.ooptimetrics
 
@@ -1374,6 +1396,7 @@ class OptimizationSetups(PyAedtBase):
         >>> from ansys.aedt.core.modules.design_xploration import OptimizationSetups
         >>> obj = OptimizationSetups()
         >>> obj.delete(name="MyObject")
+
         """
         for el in self.setups:
             if el.name == name:
@@ -1450,6 +1473,7 @@ class OptimizationSetups(PyAedtBase):
         >>> from ansys.aedt.core.modules.design_xploration import OptimizationSetups
         >>> obj = OptimizationSetups()
         >>> obj.add(name="MyObject", calculation=1)
+
         """
         if not solution and not self._app.nominal_sweep:
             self._app.logger.error("At least one setup is needed.")

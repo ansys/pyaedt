@@ -59,6 +59,7 @@ class AntennaPassband(EmitNode):
         >>>     passband.duplicate("Antenna Passband Copy")
         >>> except NotImplementedError:
         >>>     pass
+
         """
         return self._duplicate(new_name)
 
@@ -73,6 +74,7 @@ class AntennaPassband(EmitNode):
         >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
         >>> passband = antenna.add_antenna_passband()
         >>> passband.delete()
+
         """
         self._delete()
 
@@ -116,6 +118,7 @@ class AntennaPassband(EmitNode):
         >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
         >>> passband = antenna.add_antenna_passband()
         >>> passband.out_of_band_attenuation = 20
+
         """
         val = self._get_property("Out of Band Attenuation")
         return float(val)
@@ -139,6 +142,7 @@ class AntennaPassband(EmitNode):
         >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
         >>> passband = antenna.add_antenna_passband()
         >>> passband.lower_stop_band = "2.2GHz"
+
         """
         val = self._get_property("Lower Stop Band")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -164,6 +168,7 @@ class AntennaPassband(EmitNode):
         >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
         >>> passband = antenna.add_antenna_passband()
         >>> passband.lower_cutoff = "2.3GHz"
+
         """
         val = self._get_property("Lower Cutoff")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -189,6 +194,7 @@ class AntennaPassband(EmitNode):
         >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
         >>> passband = antenna.add_antenna_passband()
         >>> passband.higher_cutoff = "2.5GHz"
+
         """
         val = self._get_property("Higher Cutoff")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -214,6 +220,7 @@ class AntennaPassband(EmitNode):
         >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
         >>> passband = antenna.add_antenna_passband()
         >>> passband.higher_stop_band = "2.6GHz"
+
         """
         val = self._get_property("Higher Stop Band")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -237,6 +244,7 @@ class AntennaPassband(EmitNode):
         >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
         >>> passband = antenna.add_antenna_passband()
         >>> passband.notes = "Measured passband for the roof antenna."
+
         """
         val = self._get_property("Notes")
         return val

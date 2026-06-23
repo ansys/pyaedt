@@ -38,6 +38,7 @@ class DistributedParasitics:
     >>> import ansys.aedt.core.filtersolutions
     >>> design = ansys.aedt.core.filtersolutions.DistributedDesign(version="2026.1")
     >>> parasitics = design.parasitics
+
     """
 
     def __init__(self) -> None:
@@ -126,6 +127,7 @@ class DistributedParasitics:
         >>> import ansys.aedt.core.filtersolutions
         >>> design = ansys.aedt.core.filtersolutions.DistributedDesign(version="2026.1")
         >>> design.parasitics.capacitor_q = "200"
+
         """
         capacitor_q_string = self._dll_interface.get_string(self._dll.getDistributedCapacitorQ)
         return capacitor_q_string
@@ -148,6 +150,7 @@ class DistributedParasitics:
         >>> import ansys.aedt.core.filtersolutions
         >>> design = ansys.aedt.core.filtersolutions.DistributedDesign(version="2026.1")
         >>> design.parasitics.capacitor_rs = "0.1 ohm"
+
         """
         capacitor_rs_string = self._dll_interface.get_string(self._dll.getDistributedCapacitorRs)
         return capacitor_rs_string
@@ -170,6 +173,7 @@ class DistributedParasitics:
         >>> import ansys.aedt.core.filtersolutions
         >>> design = ansys.aedt.core.filtersolutions.DistributedDesign(version="2026.1")
         >>> design.parasitics.capacitor_rp = "5 kohm"
+
         """
         capacitor_rp_string = self._dll_interface.get_string(self._dll.getDistributedCapacitorRp)
         return capacitor_rp_string
@@ -192,6 +196,7 @@ class DistributedParasitics:
         >>> import ansys.aedt.core.filtersolutions
         >>> design = ansys.aedt.core.filtersolutions.DistributedDesign(version="2026.1")
         >>> design.parasitics.capacitor_ls = "0.02 nH"
+
         """
         capacitor_ls_string = self._dll_interface.get_string(self._dll.getDistributedCapacitorLs)
         return capacitor_ls_string
@@ -214,6 +219,7 @@ class DistributedParasitics:
         >>> import ansys.aedt.core.filtersolutions
         >>> design = ansys.aedt.core.filtersolutions.DistributedDesign(version="2026.1")
         >>> design.parasitics.inductor_q = "150"
+
         """
         inductor_q_string = self._dll_interface.get_string(self._dll.getDistributedInductorQ)
         return inductor_q_string
@@ -236,6 +242,7 @@ class DistributedParasitics:
         >>> import ansys.aedt.core.filtersolutions
         >>> design = ansys.aedt.core.filtersolutions.DistributedDesign(version="2026.1")
         >>> design.parasitics.inductor_rs = "0.08 ohm"
+
         """
         inductor_rs_string = self._dll_interface.get_string(self._dll.getDistributedInductorRs)
         return inductor_rs_string
@@ -258,6 +265,7 @@ class DistributedParasitics:
         >>> import ansys.aedt.core.filtersolutions
         >>> design = ansys.aedt.core.filtersolutions.DistributedDesign(version="2026.1")
         >>> design.parasitics.inductor_rp = "10 kohm"
+
         """
         inductor_rp_string = self._dll_interface.get_string(self._dll.getDistributedInductorRp)
         return inductor_rp_string
@@ -280,6 +288,7 @@ class DistributedParasitics:
         >>> import ansys.aedt.core.filtersolutions
         >>> design = ansys.aedt.core.filtersolutions.DistributedDesign(version="2026.1")
         >>> design.parasitics.inductor_cp = "0.01 pF"
+
         """
         inductor_cp_string = self._dll_interface.get_string(self._dll.getDistributedInductorCp)
         return inductor_cp_string
@@ -303,6 +312,7 @@ class DistributedParasitics:
         >>> import ansys.aedt.core.filtersolutions
         >>> design = ansys.aedt.core.filtersolutions.DistributedDesign(version="2026.1")
         >>> design.parasitics.line_odd_resistance = "0.2 ohm/mm"
+
         """
         odd_resistance_string = self._dll_interface.get_string(self._dll.getDistributedOddResistance)
         return odd_resistance_string
@@ -326,6 +336,7 @@ class DistributedParasitics:
         >>> import ansys.aedt.core.filtersolutions
         >>> design = ansys.aedt.core.filtersolutions.DistributedDesign(version="2026.1")
         >>> design.parasitics.line_even_resistance = "0.18 ohm/mm"
+
         """
         even_resistance_string = self._dll_interface.get_string(self._dll.getDistributedEvenResistance)
         return even_resistance_string
@@ -349,6 +360,7 @@ class DistributedParasitics:
         >>> import ansys.aedt.core.filtersolutions
         >>> design = ansys.aedt.core.filtersolutions.DistributedDesign(version="2026.1")
         >>> design.parasitics.line_odd_conductance = "0.002 S/m"
+
         """
         odd_conductance_string = self._dll_interface.get_string(self._dll.getDistributedOddConductance)
         return odd_conductance_string
@@ -372,6 +384,7 @@ class DistributedParasitics:
         >>> import ansys.aedt.core.filtersolutions
         >>> design = ansys.aedt.core.filtersolutions.DistributedDesign(version="2026.1")
         >>> design.parasitics.line_even_conductance = "0.0015 S/m"
+
         """
         even_conductance_string = self._dll_interface.get_string(self._dll.getDistributedEvenConductance)
         return even_conductance_string
@@ -395,6 +408,7 @@ class DistributedParasitics:
         >>> import ansys.aedt.core.filtersolutions
         >>> design = ansys.aedt.core.filtersolutions.DistributedDesign(version="2026.1")
         >>> design.parasitics.line_min_segment_lengths = "0.5 mm"
+
         """
         line_min_segment_length_string = self._dll_interface.get_string(self._dll.getDistributedMinSegmentLength)
         return line_min_segment_length_string

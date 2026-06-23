@@ -267,6 +267,7 @@ def main(data: CoilExtensionData) -> bool:
     >>> from ansys.aedt.core.extensions.maxwell3d.create_coil import main
     >>> coil_data = CoilExtensionData(name="Coil1", turns=6)
     >>> main(coil_data)
+
     """
     app = ansys.aedt.core.Desktop(
         new_desktop=False,

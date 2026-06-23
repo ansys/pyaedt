@@ -48,6 +48,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
         >>> couplings = revision.get_coupling_data_node()
         >>> two_ray = couplings.add_two_ray_path_loss_coupling()
         >>> two_ray.parent
+
         """
         return self._parent
 
@@ -64,6 +65,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
         >>> couplings = revision.get_coupling_data_node()
         >>> two_ray = couplings.add_two_ray_path_loss_coupling()
         >>> two_ray.node_type
+
         """
         return self._node_type
 
@@ -79,6 +81,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
         >>> couplings = revision.get_coupling_data_node()
         >>> two_ray = couplings.add_two_ray_path_loss_coupling()
         >>> two_ray.duplicate("TwoRay2")
+
         """
         return self._duplicate(new_name)
 
@@ -94,6 +97,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
         >>> couplings = revision.get_coupling_data_node()
         >>> two_ray = couplings.add_two_ray_path_loss_coupling()
         >>> two_ray.delete()
+
         """
         self._delete()
 
@@ -113,6 +117,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
         >>> two_ray = couplings.add_two_ray_path_loss_coupling()
         >>> two_ray.enabled = False
         >>> two_ray.enabled
+
         """
         val = self._get_property("Enabled")
         return val == "true"
@@ -138,6 +143,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
         >>> two_ray = couplings.add_two_ray_path_loss_coupling()
         >>> two_ray.antenna_a = ant1
         >>> two_ray.antenna_a
+
         """
         val = self._get_property("Antenna A")
         return val
@@ -163,6 +169,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
         >>> two_ray = couplings.add_two_ray_path_loss_coupling()
         >>> two_ray.antenna_b = ant2
         >>> two_ray.antenna_b
+
         """
         val = self._get_property("Antenna B")
         return val
@@ -188,6 +195,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
         >>> two_ray = couplings.add_two_ray_path_loss_coupling()
         >>> two_ray.ground_reflection_coeff = -0.7
         >>> two_ray.ground_reflection_coeff
+
         """
         val = self._get_property("Ground Reflection Coeff.")
         return float(val)
@@ -215,6 +223,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
         >>> two_ray = couplings.add_two_ray_path_loss_coupling()
         >>> two_ray.pointspeak = 9
         >>> two_ray.pointspeak
+
         """
         val = self._get_property("Points/Peak")
         return int(val)
@@ -243,6 +252,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
         >>> two_ray = couplings.add_two_ray_path_loss_coupling()
         >>> two_ray.custom_fading_margin = 3.0
         >>> two_ray.custom_fading_margin
+
         """
         val = self._get_property("Custom Fading Margin")
         return float(val)
@@ -271,6 +281,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
         >>> two_ray = couplings.add_two_ray_path_loss_coupling()
         >>> two_ray.polarization_mismatch = 1.5
         >>> two_ray.polarization_mismatch
+
         """
         val = self._get_property("Polarization Mismatch")
         return float(val)
@@ -299,6 +310,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
         >>> two_ray = couplings.add_two_ray_path_loss_coupling()
         >>> two_ray.pointing_error_loss = 0.8
         >>> two_ray.pointing_error_loss
+
         """
         val = self._get_property("Pointing Error Loss")
         return float(val)
@@ -328,6 +340,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
         >>> two_ray = couplings.add_two_ray_path_loss_coupling()
         >>> two_ray.fading_type = two_ray.FadingTypeOption.FAST_FADING_ONLY
         >>> two_ray.fading_type
+
         """
         val = self._get_property("Fading Type")
         val = self.FadingTypeOption[val.upper()]
@@ -357,6 +370,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
         >>> two_ray = couplings.add_two_ray_path_loss_coupling()
         >>> two_ray.fading_availability = 99.9
         >>> two_ray.fading_availability
+
         """
         val = self._get_property("Fading Availability")
         return float(val)
@@ -382,6 +396,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
         >>> two_ray = couplings.add_two_ray_path_loss_coupling()
         >>> two_ray.std_deviation = 2.5
         >>> two_ray.std_deviation
+
         """
         val = self._get_property("Std Deviation")
         return float(val)
@@ -407,6 +422,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
         >>> two_ray = couplings.add_two_ray_path_loss_coupling()
         >>> two_ray.include_rain_attenuation = True
         >>> two_ray.include_rain_attenuation
+
         """
         val = self._get_property("Include Rain Attenuation")
         return val == "true"
@@ -435,6 +451,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
         >>> two_ray = couplings.add_two_ray_path_loss_coupling()
         >>> two_ray.rain_availability = 99.95
         >>> two_ray.rain_availability
+
         """
         val = self._get_property("Rain Availability")
         return float(val)
@@ -460,6 +477,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
         >>> two_ray = couplings.add_two_ray_path_loss_coupling()
         >>> two_ray.rain_rate = 25.0
         >>> two_ray.rain_rate
+
         """
         val = self._get_property("Rain Rate")
         return float(val)
@@ -488,6 +506,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
         >>> two_ray = couplings.add_two_ray_path_loss_coupling()
         >>> two_ray.polarization_tilt_angle = 45.0
         >>> two_ray.polarization_tilt_angle
+
         """
         val = self._get_property("Polarization Tilt Angle")
         return float(val)
@@ -516,6 +535,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
         >>> two_ray = couplings.add_two_ray_path_loss_coupling()
         >>> two_ray.include_atmospheric_absorption = True
         >>> two_ray.include_atmospheric_absorption
+
         """
         val = self._get_property("Include Atmospheric Absorption")
         return val == "true"
@@ -541,6 +561,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
         >>> two_ray = couplings.add_two_ray_path_loss_coupling()
         >>> two_ray.temperature = 20.0
         >>> two_ray.temperature
+
         """
         val = self._get_property("Temperature")
         return float(val)
@@ -566,6 +587,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
         >>> two_ray = couplings.add_two_ray_path_loss_coupling()
         >>> two_ray.total_air_pressure = 1013.0
         >>> two_ray.total_air_pressure
+
         """
         val = self._get_property("Total Air Pressure")
         return float(val)
@@ -591,6 +613,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
         >>> two_ray = couplings.add_two_ray_path_loss_coupling()
         >>> two_ray.water_vapor_concentration = 7.5
         >>> two_ray.water_vapor_concentration
+
         """
         val = self._get_property("Water Vapor Concentration")
         return float(val)

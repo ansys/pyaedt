@@ -49,6 +49,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.analyze()
         >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
         >>> coupling_node.parent
+
         """
         return self._parent
 
@@ -66,6 +67,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.analyze()
         >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
         >>> coupling_node.node_type
+
         """
         return self._node_type
 
@@ -82,6 +84,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.analyze()
         >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
         >>> coupling_copy = coupling_node.duplicate("5G Channel Model Coupling 2")
+
         """
         return self._duplicate(new_name)
 
@@ -98,6 +101,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.analyze()
         >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
         >>> coupling_node.delete()
+
         """
         self._delete()
 
@@ -117,6 +121,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.analyze()
         >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
         >>> coupling_node.enabled = False
+
         """
         val = self._get_property("Enabled")
         return val == "true"
@@ -140,6 +145,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.analyze()
         >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
         >>> coupling_node.base_antenna = rev.get_component_node("Ant1")
+
         """
         val = self._get_property("Base Antenna")
         return val
@@ -163,6 +169,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.analyze()
         >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
         >>> coupling_node.mobile_antenna = rev.get_component_node("Ant2")
+
         """
         val = self._get_property("Mobile Antenna")
         return val
@@ -191,6 +198,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.analyze()
         >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
         >>> coupling_node.environment = coupling_node.EnvironmentOption.URBAN_MACROCELL
+
         """
         val = self._get_property("Environment")
         val = self.EnvironmentOption[val.upper()]
@@ -217,6 +225,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.analyze()
         >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
         >>> coupling_node.los = True
+
         """
         val = self._get_property("LOS")
         return val == "true"
@@ -242,6 +251,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.analyze()
         >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
         >>> coupling_node.include_bpl = True
+
         """
         val = self._get_property("Include BPL")
         return val == "true"
@@ -269,6 +279,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.analyze()
         >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
         >>> coupling_node.nyu_bpl_model = coupling_node.NYUBPLModelOption.HIGH_LOSS_MODEL
+
         """
         val = self._get_property("NYU BPL Model")
         val = self.NYUBPLModelOption[val.upper()]
@@ -298,6 +309,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.analyze()
         >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
         >>> coupling_node.custom_fading_margin = 3.0
+
         """
         val = self._get_property("Custom Fading Margin")
         return float(val)
@@ -326,6 +338,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.analyze()
         >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
         >>> coupling_node.polarization_mismatch = 1.5
+
         """
         val = self._get_property("Polarization Mismatch")
         return float(val)
@@ -354,6 +367,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.analyze()
         >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
         >>> coupling_node.pointing_error_loss = 2.0
+
         """
         val = self._get_property("Pointing Error Loss")
         return float(val)
@@ -383,6 +397,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.analyze()
         >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
         >>> coupling_node.fading_type = coupling_node.FadingTypeOption.FAST_FADING_AND_SHADOWING
+
         """
         val = self._get_property("Fading Type")
         val = self.FadingTypeOption[val.upper()]
@@ -412,6 +427,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.analyze()
         >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
         >>> coupling_node.fading_availability = 99.0
+
         """
         val = self._get_property("Fading Availability")
         return float(val)
@@ -437,6 +453,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.analyze()
         >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
         >>> coupling_node.std_deviation = 6.0
+
         """
         val = self._get_property("Std Deviation")
         return float(val)
@@ -462,6 +479,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.analyze()
         >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
         >>> coupling_node.include_rain_attenuation = True
+
         """
         val = self._get_property("Include Rain Attenuation")
         return val == "true"
@@ -490,6 +508,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.analyze()
         >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
         >>> coupling_node.rain_availability = 99.9
+
         """
         val = self._get_property("Rain Availability")
         return float(val)
@@ -515,6 +534,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.analyze()
         >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
         >>> coupling_node.rain_rate = 25.0
+
         """
         val = self._get_property("Rain Rate")
         return float(val)
@@ -543,6 +563,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.analyze()
         >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
         >>> coupling_node.polarization_tilt_angle = 45.0
+
         """
         val = self._get_property("Polarization Tilt Angle")
         return float(val)
@@ -571,6 +592,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.analyze()
         >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
         >>> coupling_node.include_atmospheric_absorption = True
+
         """
         val = self._get_property("Include Atmospheric Absorption")
         return val == "true"
@@ -596,6 +618,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.analyze()
         >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
         >>> coupling_node.temperature = 20.0
+
         """
         val = self._get_property("Temperature")
         return float(val)
@@ -621,6 +644,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.analyze()
         >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
         >>> coupling_node.total_air_pressure = 1013.0
+
         """
         val = self._get_property("Total Air Pressure")
         return float(val)
@@ -646,6 +670,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.analyze()
         >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
         >>> coupling_node.water_vapor_concentration = 7.5
+
         """
         val = self._get_property("Water Vapor Concentration")
         return float(val)

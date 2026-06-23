@@ -71,6 +71,7 @@ class CreateReportExtensionData(ExtensionCommonData):
     --------
     >>> from ansys.aedt.core.extensions.common.create_report import CreateReportExtensionData
     >>> data = CreateReportExtensionData(report_name="MyReport", save_path=r"D:\\Reports")
+
     """
 
     report_name: str = EXTENSION_DEFAULT_ARGUMENTS["report_name"]
@@ -88,6 +89,7 @@ class CreateReportExtension(ExtensionProjectCommon):
     --------
     >>> from ansys.aedt.core.extensions.common.create_report import CreateReportExtension
     >>> extension = CreateReportExtension(withdraw=True)
+
     """
 
     def __init__(self, withdraw: bool = False) -> None:
@@ -117,6 +119,7 @@ class CreateReportExtension(ExtensionProjectCommon):
         >>> from ansys.aedt.core.extensions.common.create_report import CreateReportExtension
         >>> extension = CreateReportExtension(withdraw=True)
         >>> extension.add_extension_content()
+
         """
         # Report name entry
         report_name_label = ttk.Label(
@@ -205,6 +208,7 @@ def main(data: CreateReportExtensionData) -> bool:
     >>> from ansys.aedt.core.extensions.common.create_report import CreateReportExtensionData, main
     >>> data = CreateReportExtensionData(report_name="MyReport", save_path=r"D:\\Reports")
     >>> main(data)
+
     """
     if not data.report_name:
         raise AEDTRuntimeError("Report name cannot be empty.")

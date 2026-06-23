@@ -49,6 +49,7 @@ class TR_Switch(EmitNode):  # noqa: N801
         >>> app = Emit()
         >>> tr_switch = app.schematic.create_component("TR Switch", name="Switch1")
         >>> tr_switch.duplicate("Switch2")
+
         """
         return self._duplicate(new_name)
 
@@ -62,6 +63,7 @@ class TR_Switch(EmitNode):  # noqa: N801
         >>> app = Emit()
         >>> tr_switch = app.schematic.create_component("TR Switch", name="Switch1")
         >>> tr_switch.delete()
+
         """
         self._delete()
 
@@ -187,6 +189,7 @@ class TR_Switch(EmitNode):  # noqa: N801
         >>> tr_switch = app.schematic.create_component("TR Switch", name="Switch1")
         >>> tr_switch.lower_stop_band = "1 GHz"
         >>> tr_switch.lower_stop_band
+
         """
         val = self._get_property("Lower Stop Band")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -212,6 +215,7 @@ class TR_Switch(EmitNode):  # noqa: N801
         >>> tr_switch = app.schematic.create_component("TR Switch", name="Switch1")
         >>> tr_switch.lower_cutoff = "2 GHz"
         >>> tr_switch.lower_cutoff
+
         """
         val = self._get_property("Lower Cutoff")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -237,6 +241,7 @@ class TR_Switch(EmitNode):  # noqa: N801
         >>> tr_switch = app.schematic.create_component("TR Switch", name="Switch1")
         >>> tr_switch.higher_cutoff = "6 GHz"
         >>> tr_switch.higher_cutoff
+
         """
         val = self._get_property("Higher Cutoff")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -262,6 +267,7 @@ class TR_Switch(EmitNode):  # noqa: N801
         >>> tr_switch = app.schematic.create_component("TR Switch", name="Switch1")
         >>> tr_switch.higher_stop_band = "7 GHz"
         >>> tr_switch.higher_stop_band
+
         """
         val = self._get_property("Higher Stop Band")
         val = self._convert_from_internal_units(float(val), "Freq")

@@ -50,6 +50,7 @@ def print_output(data=None, error=None):
     >>> from ansys.aedt.core.cli import common
     >>> common.json_mode = True
     >>> common.print_output(data={"port": 50051})
+
     """
     if not json_mode:
         return
@@ -72,6 +73,7 @@ def get_desktop(port: int):
     --------
     >>> from ansys.aedt.core.cli.common import get_desktop
     >>> desktop = get_desktop(port=50051)
+
     """
     if port is None:
         if json_mode:
@@ -100,6 +102,7 @@ def get_project_designs(desktop, project_name: str) -> list[dict]:
     >>> from ansys.aedt.core.cli import common
     >>> desktop = common.get_desktop(port=50051)
     >>> common.get_project_designs(desktop, "Project1")
+
     """
     designs = []
     for design_name in desktop.design_list(project_name):
@@ -116,6 +119,7 @@ def list_projects_with_designs(desktop) -> list[dict]:
     >>> from ansys.aedt.core.cli import common
     >>> desktop = common.get_desktop(port=50051)
     >>> common.list_projects_with_designs(desktop)
+
     """
     project_names = list(desktop.project_list)
     active_project_name = desktop.active_project_name
@@ -144,6 +148,7 @@ def resolve_project(desktop, project_name: str | None = None):
     >>> from ansys.aedt.core.cli import common
     >>> desktop = common.get_desktop(port=50051)
     >>> project = common.resolve_project(desktop, project_name="Project1")
+
     """
     project_names = list(desktop.project_list)
 
@@ -174,6 +179,7 @@ def resolve_project_and_design(desktop, project_name: str | None = None, design_
     >>> from ansys.aedt.core.cli import common
     >>> desktop = common.get_desktop(port=50051)
     >>> common.resolve_project_and_design(desktop, project_name="Project1", design_name="HFSSDesign1")
+
     """
     project = resolve_project(desktop, project_name=project_name)
     resolved_project_name = project.GetName()
@@ -207,6 +213,7 @@ def get_design_app(port: int, project_name: str | None = None, design_name: str 
     --------
     >>> from ansys.aedt.core.cli.common import get_design_app
     >>> desktop, app, context = get_design_app(port=50051, project_name="Project1", design_name="HFSSDesign1")
+
     """
     import ansys.aedt.core as aedt
 
@@ -248,6 +255,7 @@ def get_tests_folder() -> Path:
     --------
     >>> from ansys.aedt.core.cli.common import get_tests_folder
     >>> tests_folder = get_tests_folder()
+
     """
     try:
         import ansys.aedt.core
@@ -283,6 +291,7 @@ def load_config(config_path: Path) -> dict:
     >>> from pathlib import Path
     >>> from ansys.aedt.core.cli.common import load_config
     >>> config = load_config(Path(r"C:\\tests\\local_config.json"))
+
     """
     try:
         with open(config_path, "r") as f:
@@ -308,6 +317,7 @@ def save_config(config_path: Path, config: dict) -> None:
     >>> from pathlib import Path
     >>> from ansys.aedt.core.cli.common import save_config
     >>> save_config(Path(r"C:\\tests\\local_config.json"), {"desktopVersion": "2026.1"})
+
     """
     config_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -334,6 +344,7 @@ def prompt_config_value(key: str, current_value) -> any:
     --------
     >>> from ansys.aedt.core.cli.common import prompt_config_value
     >>> prompt_config_value("desktopVersion", "2026.1")
+
     """
     if isinstance(current_value, bool):
         typer.echo("      ", nl=False)
@@ -386,6 +397,7 @@ def display_config(config: dict, title: str = "Configuration", descriptions: dic
     --------
     >>> from ansys.aedt.core.cli.common import display_config
     >>> display_config({"NonGraphical": True}, title="Current Test Configuration")
+
     """
     typer.echo(f"\n{title}:")
     typer.echo()

@@ -176,6 +176,7 @@ class Quaternion(PyAedtBase):
         >>> q = Quaternion.from_euler([0, pi / 2, pi], "zyz")
         >>> q
         Quaternion(0, 0.7071067811865476, 0, 0.7071067811865476)
+
         """
         if len(angles) != 3:
             raise ValueError("Three rotation angles are required.")
@@ -241,6 +242,7 @@ class Quaternion(PyAedtBase):
         ----------
         [1] https://doi.org/10.1371/journal.pone.0276302
         [2] https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
+
         """
         # fmt: off
         if not Quaternion._is_valid_rotation_sequence(sequence):
@@ -344,6 +346,7 @@ class Quaternion(PyAedtBase):
         >>> from math import pi, sqrt
         >>> Quaternion.from_axis_angle((sqrt(3) / 3, sqrt(3) / 3, sqrt(3) / 3), 2 * pi / 3)
         Quaternion(0.5, 0.5, 0.5, 0.5)
+
         """
         if len(axis) != 3:
             raise ValueError("axis must be a list or tuple containing 3 floats.")
@@ -558,6 +561,7 @@ class Quaternion(PyAedtBase):
         (0.0, 1.0, 0.0)
         >>> z
         (-0.7071067811865476, 0.0, 0.7071067811865476)
+
         """
         if not GeometryOperators.is_orthogonal_matrix(rotation_matrix):
             raise ValueError("The rotation matrix must be orthogonal.")
@@ -601,6 +605,7 @@ class Quaternion(PyAedtBase):
         >>> from ansys.aedt.core.generic.quaternion import Quaternion
         >>> Quaternion.axis_to_rotation_matrix((1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0))
         ((1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0))
+
         """
         if not GeometryOperators.is_orthonormal_triplet(x_axis, y_axis, z_axis):
             raise ValueError("The provided axes must form an orthonormal basis.")
@@ -776,6 +781,7 @@ class Quaternion(PyAedtBase):
         Quaternion(-60, 12, 30, 24)
         >>> q1.mul(2)
         Quaternion(2, 4, 6, 8)
+
         """
         return self._q_prod(self, other)
 
@@ -833,6 +839,7 @@ class Quaternion(PyAedtBase):
         >>> q2 = Quaternion(5, 6, 7, 8)
         >>> Quaternion.hamilton_prod(q1, q2)
         Quaternion(-60, 12, 30, 24)
+
         """
         # fmt: off
         q1 = Quaternion._to_quaternion(q1)
@@ -854,6 +861,7 @@ class Quaternion(PyAedtBase):
         >>> from ansys.aedt.core.generic.quaternion import Quaternion
         >>> Quaternion(1, 2, 3, 4).conjugate()
         Quaternion(1.0, -2.0, -3.0, -4.0)
+
         """
         q = self
         return Quaternion(q.a, -q.b, -q.c, -q.d)
@@ -867,6 +875,7 @@ class Quaternion(PyAedtBase):
         >>> from ansys.aedt.core.generic.quaternion import Quaternion
         >>> Quaternion(1, 2, 3, 4).norm()
         5.477225575051661
+
         """
         # fmt: off
         q = self
@@ -882,6 +891,7 @@ class Quaternion(PyAedtBase):
         >>> from ansys.aedt.core.generic.quaternion import Quaternion
         >>> Quaternion(0, 2, 0, 0).normalize()
         Quaternion(0.0, 1.0, 0.0, 0.0)
+
         """
         # fmt: off
         q = self
@@ -899,6 +909,7 @@ class Quaternion(PyAedtBase):
         >>> from ansys.aedt.core.generic.quaternion import Quaternion
         >>> Quaternion(0, 2, 0, 0).inverse()
         Quaternion(0.0, -0.5, 0.0, 0.0)
+
         """
         # fmt: off
         q = self
@@ -932,6 +943,7 @@ class Quaternion(PyAedtBase):
         Quaternion(10/7, 1/7, 10/7, -3/7)
         >>> q1.div(2)
         Quaternion(0.5, 1, 1.5, 2)
+
         """
         return self._q_div(self, other)
 
@@ -966,5 +978,6 @@ class Quaternion(PyAedtBase):
         >>> from ansys.aedt.core.generic.quaternion import Quaternion
         >>> Quaternion(1, 2, 3, 4).coefficients()
         (1.0, 2.0, 3.0, 4.0)
+
         """
         return self.a, self.b, self.c, self.d

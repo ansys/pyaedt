@@ -48,6 +48,7 @@ class Filter(EmitNode):
         >>> revision = app.results.analyze()
         >>> filter_node = revision.get_component_node("Input Filter")
         >>> filter_node.node_type
+
         """
         return self._node_type
 
@@ -61,6 +62,7 @@ class Filter(EmitNode):
         >>> app = Emit()
         >>> filter_node = app.modeler.components.create_component("Filter", name="RF_Filter")
         >>> filter_copy = filter_node.duplicate("RF_Filter_Copy")
+
         """
         return self._duplicate(new_name)
 
@@ -74,6 +76,7 @@ class Filter(EmitNode):
         >>> app = Emit()
         >>> filter_node = app.modeler.components.create_component("Filter", name="RF_Filter")
         >>> filter_node.delete()
+
         """
         self._delete()
 
@@ -92,6 +95,7 @@ class Filter(EmitNode):
         >>> revision = app.results.analyze()
         >>> filter_node = revision.get_component_node("Input Filter")
         >>> filter_node.filename = r"C:\\Users\\Public\\Documents\\frontend_filter.s2p"
+
         """
         val = self._get_property("Filename")
         return val
@@ -116,6 +120,7 @@ class Filter(EmitNode):
         >>> revision = app.results.analyze()
         >>> filter_node = revision.get_component_node("Input Filter")
         >>> filter_node.noise_temperature = 290.0
+
         """
         val = self._get_property("Noise Temperature")
         return float(val)
@@ -138,6 +143,7 @@ class Filter(EmitNode):
         >>> revision = app.results.analyze()
         >>> filter_node = revision.get_component_node("Input Filter")
         >>> filter_node.notes = "Front-end band-pass filter"
+
         """
         val = self._get_property("Notes")
         return val
@@ -172,6 +178,7 @@ class Filter(EmitNode):
         >>> revision = app.results.analyze()
         >>> filter_node = revision.get_component_node("Input Filter")
         >>> filter_node.filter_type = filter_node.FilterTypeOption.BAND_PASS
+
         """
         val = self._get_property("Filter Type")
         val = self.FilterTypeOption[val.upper()]
@@ -197,6 +204,7 @@ class Filter(EmitNode):
         >>> revision = app.results.analyze()
         >>> filter_node = revision.get_component_node("Input Filter")
         >>> filter_node.insertion_loss = 1.2
+
         """
         val = self._get_property("Insertion Loss")
         return float(val)
@@ -221,6 +229,7 @@ class Filter(EmitNode):
         >>> revision = app.results.analyze()
         >>> filter_node = revision.get_component_node("Input Filter")
         >>> filter_node.stop_band_attenuation = 45.0
+
         """
         val = self._get_property("Stop band Attenuation")
         return float(val)
@@ -245,6 +254,7 @@ class Filter(EmitNode):
         >>> revision = app.results.analyze()
         >>> filter_node = revision.get_component_node("Input Filter")
         >>> filter_node.max_pass_band = "2.5 GHz"
+
         """
         val = self._get_property("Max Pass Band")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -271,6 +281,7 @@ class Filter(EmitNode):
         >>> revision = app.results.analyze()
         >>> filter_node = revision.get_component_node("Input Filter")
         >>> filter_node.min_stop_band = "2.8 GHz"
+
         """
         val = self._get_property("Min Stop Band")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -297,6 +308,7 @@ class Filter(EmitNode):
         >>> revision = app.results.analyze()
         >>> filter_node = revision.get_component_node("Input Filter")
         >>> filter_node.max_stop_band = "1.8 GHz"
+
         """
         val = self._get_property("Max Stop Band")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -323,6 +335,7 @@ class Filter(EmitNode):
         >>> revision = app.results.analyze()
         >>> filter_node = revision.get_component_node("Input Filter")
         >>> filter_node.min_pass_band = "2.1 GHz"
+
         """
         val = self._get_property("Min Pass Band")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -349,6 +362,7 @@ class Filter(EmitNode):
         >>> revision = app.results.analyze()
         >>> filter_node = revision.get_component_node("Input Filter")
         >>> filter_node.bp_lower_stop_band = "2.35 GHz"
+
         """
         if int(self._emit_obj.aedt_version_id[-3:]) < 261:
             val = self._get_property("Lower Stop Band")
@@ -378,6 +392,7 @@ class Filter(EmitNode):
         >>> revision = app.results.analyze()
         >>> filter_node = revision.get_component_node("Input Filter")
         >>> filter_node.bp_lower_cutoff = "2.4 GHz"
+
         """
         if int(self._emit_obj.aedt_version_id[-3:]) < 261:
             val = self._get_property("Lower Cutoff")
@@ -407,6 +422,7 @@ class Filter(EmitNode):
         >>> revision = app.results.analyze()
         >>> filter_node = revision.get_component_node("Input Filter")
         >>> filter_node.bp_higher_cutoff = "2.48 GHz"
+
         """
         if int(self._emit_obj.aedt_version_id[-3:]) < 261:
             val = self._get_property("Higher Cutoff")
@@ -436,6 +452,7 @@ class Filter(EmitNode):
         >>> revision = app.results.analyze()
         >>> filter_node = revision.get_component_node("Input Filter")
         >>> filter_node.bp_higher_stop_band = "2.53 GHz"
+
         """
         if int(self._emit_obj.aedt_version_id[-3:]) < 261:
             val = self._get_property("Higher Stop Band")
@@ -464,6 +481,7 @@ class Filter(EmitNode):
         >>> filter_node = app.modeler.components.create_component("Filter", name="RF_Filter")
         >>> filter_node.filter_type = filter_node.FilterTypeOption.BAND_STOP
         >>> filter_node.bs_lower_cutoff = "1.8GHz"
+
         """
         if int(self._emit_obj.aedt_version_id[-3:]) < 261:
             val = self._get_property("Lower Cutoff")
@@ -492,6 +510,7 @@ class Filter(EmitNode):
         >>> filter_node = app.modeler.components.create_component("Filter", name="RF_Filter")
         >>> filter_node.filter_type = filter_node.FilterTypeOption.BAND_STOP
         >>> filter_node.bs_lower_stop_band = "1.7GHz"
+
         """
         if int(self._emit_obj.aedt_version_id[-3:]) < 261:
             val = self._get_property("Lower Stop Band")
@@ -520,6 +539,7 @@ class Filter(EmitNode):
         >>> filter_node = app.modeler.components.create_component("Filter", name="RF_Filter")
         >>> filter_node.filter_type = filter_node.FilterTypeOption.BAND_STOP
         >>> filter_node.bs_higher_stop_band = "2.3GHz"
+
         """
         if int(self._emit_obj.aedt_version_id[-3:]) < 261:
             val = self._get_property("Higher Stop Band")
@@ -548,6 +568,7 @@ class Filter(EmitNode):
         >>> filter_node = app.modeler.components.create_component("Filter", name="RF_Filter")
         >>> filter_node.filter_type = filter_node.FilterTypeOption.BAND_STOP
         >>> filter_node.bs_higher_cutoff = "2.2GHz"
+
         """
         if int(self._emit_obj.aedt_version_id[-3:]) < 261:
             val = self._get_property("Higher Cutoff")
@@ -576,6 +597,7 @@ class Filter(EmitNode):
         >>> filter_node = app.modeler.components.create_component("Filter", name="RF_Filter")
         >>> filter_node.filter_type = filter_node.FilterTypeOption.TUNABLE_BANDPASS
         >>> filter_node.lowest_tuned_frequency = "900MHz"
+
         """
         val = self._get_property("Lowest Tuned Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -601,6 +623,7 @@ class Filter(EmitNode):
         >>> filter_node = app.modeler.components.create_component("Filter", name="RF_Filter")
         >>> filter_node.filter_type = filter_node.FilterTypeOption.TUNABLE_BANDPASS
         >>> filter_node.highest_tuned_frequency = "2.4GHz"
+
         """
         val = self._get_property("Highest Tuned Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -626,6 +649,7 @@ class Filter(EmitNode):
         >>> filter_node = app.modeler.components.create_component("Filter", name="RF_Filter")
         >>> filter_node.filter_type = filter_node.FilterTypeOption.TUNABLE_BANDPASS
         >>> filter_node.percent_bandwidth = 12.5
+
         """
         val = self._get_property("Percent Bandwidth")
         return float(val)
@@ -649,6 +673,7 @@ class Filter(EmitNode):
         >>> filter_node = app.modeler.components.create_component("Filter", name="RF_Filter")
         >>> filter_node.filter_type = filter_node.FilterTypeOption.TUNABLE_BANDPASS
         >>> filter_node.shape_factor = 1.8
+
         """
         val = self._get_property("Shape Factor")
         return float(val)
@@ -669,6 +694,7 @@ class Filter(EmitNode):
         >>> app = Emit()
         >>> filter_node = app.modeler.components.create_component("Filter", name="RF_Filter")
         >>> filter_node.warnings
+
         """
         val = self._get_property("Warnings")
         return val

@@ -55,6 +55,7 @@ class FrequencyResponseColumn(Enum):
     --------
     >>> from ansys.aedt.core.filtersolutions_core.ideal_response import FrequencyResponseColumn
     >>> FrequencyResponseColumn.MAGNITUDE_DB
+
     """
 
     MAGNITUDE_DB = 0
@@ -96,6 +97,7 @@ class TimeResponseColumn(Enum):
     --------
     >>> from ansys.aedt.core.filtersolutions_core.ideal_response import TimeResponseColumn
     >>> TimeResponseColumn.STEP_RESPONSE
+
     """
 
     STEP_RESPONSE = 0
@@ -129,6 +131,7 @@ class SParametersResponseColumn(Enum):
     --------
     >>> from ansys.aedt.core.filtersolutions_core.ideal_response import SParametersResponseColumn
     >>> SParametersResponseColumn.S21_DB
+
     """
 
     S21_DB = 0
@@ -169,6 +172,7 @@ class PoleZerosResponseColumn(Enum):
     --------
     >>> from ansys.aedt.core.filtersolutions_core.ideal_response import PoleZerosResponseColumn
     >>> PoleZerosResponseColumn.TX_ZERO_DEN_X
+
     """
 
     TX_ZERO_DEN_X = 0
@@ -218,6 +222,7 @@ class IdealResponse:
     >>> from ansys.aedt.core import FilterSolutions
     >>> design = FilterSolutions.LumpedDesign(version="2026.1")
     >>> design.ideal_response.transfer_function_response()
+
     """
 
     def __init__(self) -> None:
@@ -369,6 +374,7 @@ class IdealResponse:
         >>> from ansys.aedt.core import FilterSolutions
         >>> design = FilterSolutions.LumpedDesign(version="2026.1")
         >>> design.ideal_response.transfer_function_response()
+
         """
         size = c_int()
         status = self._dll.getIdealTransferFunctionResponseSize(byref(size))
@@ -392,6 +398,7 @@ class IdealResponse:
         >>> design = FilterSolutions.LumpedDesign(version="2026.1")
         >>> design.ideal_response.vsg_analysis_enabled = True
         >>> design.ideal_response.vsg_analysis_enabled
+
         """
         vsg_analysis_enabled = c_bool()
         status = self._dll.getVSGAnalsyis(byref(vsg_analysis_enabled))
@@ -438,6 +445,7 @@ class IdealResponse:
         >>> from ansys.aedt.core.filtersolutions_core.ideal_response import FrequencyResponseColumn
         >>> design = FilterSolutions.LumpedDesign(version="2026.1")
         >>> frequency, magnitude = design.ideal_response.frequency_response(FrequencyResponseColumn.MAGNITUDE_DB)
+
         """
         if maximum_frequency is not None:
             self.graph_setup.maximum_frequency = maximum_frequency
@@ -486,6 +494,7 @@ class IdealResponse:
         >>> from ansys.aedt.core.filtersolutions_core.ideal_response import TimeResponseColumn
         >>> design = FilterSolutions.LumpedDesign(version="2026.1")
         >>> time, response = design.ideal_response.time_response(TimeResponseColumn.STEP_RESPONSE)
+
         """
         if maximum_time is not None:
             self.graph_setup.maximum_time = maximum_time
@@ -530,6 +539,7 @@ class IdealResponse:
         >>> from ansys.aedt.core.filtersolutions_core.ideal_response import SParametersResponseColumn
         >>> design = FilterSolutions.LumpedDesign(version="2026.1")
         >>> frequency, s21 = design.ideal_response.s_parameters(SParametersResponseColumn.S21_DB)
+
         """
         if maximum_frequency is not None:
             self.graph_setup.maximum_frequency = maximum_frequency
@@ -573,6 +583,7 @@ class IdealResponse:
         >>> x_values, y_values = design.ideal_response.pole_zero_locations(
         ...     PoleZerosResponseColumn.TX_ZERO_DEN_X, PoleZerosResponseColumn.TX_ZERO_DEN_Y
         ... )
+
         """
         x_parameter = self._pole_zeros_response_getter(x_axis_parameter)
         y_parameter = self._pole_zeros_response_getter(y_axis_parameter)

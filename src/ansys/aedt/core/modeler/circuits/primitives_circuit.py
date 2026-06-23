@@ -53,6 +53,7 @@ class CircuitComponents(PyAedtBase):
     >>> from ansys.aedt.core import Circuit
     >>> aedtapp = Circuit()
     >>> prim = aedtapp.modeler.schematic
+
     """
 
     @pyaedt_function_handler()
@@ -109,6 +110,7 @@ class CircuitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
         >>> obj = CircuitComponents()
         >>> obj.get_wire_by_name(name="MyObject")
+
         """
         for _, w in self.wires.items():
             if w.name == name:
@@ -131,6 +133,7 @@ class CircuitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
         >>> obj = CircuitComponents()
         >>> obj.wires
+
         """
         wire_names = {}
         for wire in self.oeditor.GetAllElements():
@@ -159,6 +162,7 @@ class CircuitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
         >>> obj = CircuitComponents()
         >>> obj.o_definition_manager
+
         """
         return self._app.oproject.GetDefinitionManager()
 
@@ -171,6 +175,7 @@ class CircuitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
         >>> obj = CircuitComponents()
         >>> obj.ocomponent_manager
+
         """
         return self._app.ocomponent_manager
 
@@ -183,6 +188,7 @@ class CircuitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
         >>> obj = CircuitComponents()
         >>> obj.osymbol_manager
+
         """
         return self._app.osymbol_manager
 
@@ -195,6 +201,7 @@ class CircuitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
         >>> obj = CircuitComponents()
         >>> obj.version
+
         """
         return self._app._aedt_version
 
@@ -207,6 +214,7 @@ class CircuitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
         >>> obj = CircuitComponents()
         >>> obj.model_units
+
         """
         return self._app.units.length
 
@@ -222,6 +230,7 @@ class CircuitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
         >>> obj = CircuitComponents()
         >>> obj.schematic_units
+
         """
         return self._modeler.schematic_units
 
@@ -238,6 +247,7 @@ class CircuitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
         >>> obj = CircuitComponents()
         >>> obj.design_type
+
         """
         return self._app.design_type
 
@@ -250,6 +260,7 @@ class CircuitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
         >>> obj = CircuitComponents()
         >>> obj.nets
+
         """
         nets_comp = self.oeditor.GetAllNets()
         nets = []
@@ -333,6 +344,7 @@ class CircuitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
         >>> obj = CircuitComponents()
         >>> obj.create_unique_id()
+
         """
         element_ids = []
         for el in self.oeditor.GetAllElements():
@@ -371,6 +383,7 @@ class CircuitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
         >>> obj = CircuitComponents()
         >>> obj.add_pin_iports(name="MyObject", id_num=1)
+
         """
         comp_id = "CompInst@" + name + ";" + str(id_num) + ";395"
         arg1 = ["Name:Selections", "Selections:=", [comp_id]]
@@ -407,6 +420,7 @@ class CircuitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
         >>> obj = CircuitComponents()
         >>> obj.create_interface_port(name="MyObject")
+
         """
         if location is None:
             location = []
@@ -463,6 +477,7 @@ class CircuitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
         >>> obj = CircuitComponents()
         >>> obj.create_page_port(name="MyObject")
+
         """
         location = [] if location is None else location
         xpos, ypos = self._get_location(location, update_current_location=False)
@@ -542,6 +557,7 @@ class CircuitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
         >>> obj = CircuitComponents()
         >>> obj.create_gnd(location=["Box1"], angle=45)
+
         """
         if location is None:
             location = []
@@ -593,6 +609,7 @@ class CircuitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
         >>> obj = CircuitComponents()
         >>> obj.create_model_from_touchstone(input_file=r"C:\\Temp\network.s2p")
+
         """
         if not model_name:
             model_name = Path(Path(input_file).name).stem
@@ -882,6 +899,7 @@ class CircuitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
         >>> obj = CircuitComponents()
         >>> obj.create_model_from_nexxim_state_space(input_file=r"C:\Temp\example.txt", num_terminal=1)
+
         """
         if not model_name:
             model_name = Path(Path(input_file).name).stem
@@ -1142,6 +1160,7 @@ class CircuitComponents(PyAedtBase):
         >>> comps = cir.modeler.components
         >>> s_parameter_path = Path("your_path") / "s_param_file_name.s4p"
         >>> circuit_comp = comps.create_touchstone_component(s_parameter_path, location=[0.0, 0.0], show_bitmap=False)
+
         """
         if not Path(model_name):
             raise FileNotFoundError("File not found.")
@@ -1213,6 +1232,7 @@ class CircuitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
         >>> obj = CircuitComponents()
         >>> obj.create_nexxim_state_space_component(model_name=1, num_terminal=1)
+
         """
         if not Path(model_name):
             raise FileNotFoundError("File not found.")
@@ -1279,6 +1299,7 @@ class CircuitComponents(PyAedtBase):
         >>> cmp = aedtapp.modeler.schematic.create_component(component_library="", component_name="ExcitationComponent")
         >>> cmp.set_property("ShowPin", True)
         >>> aedtapp.desktop_class.close_desktop()
+
         """
         # id = self.create_unique_id()
         if component_library:
@@ -1325,6 +1346,7 @@ class CircuitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
         >>> obj = CircuitComponents()
         >>> obj.disable_data_netlist(assignment="Box1")
+
         """
         name = assignment
 
@@ -1367,6 +1389,7 @@ class CircuitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
         >>> obj = CircuitComponents()
         >>> obj.enable_global_netlist(assignment="Box1")
+
         """
         if global_netlist_list is None:
             global_netlist_list = []
@@ -1412,6 +1435,7 @@ class CircuitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
         >>> obj = CircuitComponents()
         >>> obj.create_symbol(name="MyObject", pins=["Box1"])
+
         """
         numpins = len(pins)
         h = int(numpins / 2)
@@ -1498,6 +1522,7 @@ class CircuitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
         >>> obj = CircuitComponents()
         >>> obj.enable_use_instance_name(component_library=1, component_name=1)
+
         """
         if component_library:
             name = self.design_libray + "\\" + component_library + ":" + component_name
@@ -1537,6 +1562,7 @@ class CircuitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
         >>> obj = CircuitComponents()
         >>> obj.refresh_all_ids()
+
         """
         obj = self.oeditor.GetAllElements()
         if not obj:
@@ -1585,6 +1611,7 @@ class CircuitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
         >>> obj = CircuitComponents()
         >>> obj.add_id_to_component(component_id=1)
+
         """
         if name:
             name = name.split(";")
@@ -1648,6 +1675,7 @@ class CircuitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
         >>> obj = CircuitComponents()
         >>> obj.get_obj_id(assignment="Box1")
+
         """
         for el in self.components:
             if self.components[el].name == assignment:
@@ -1677,6 +1705,7 @@ class CircuitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
         >>> obj = CircuitComponents()
         >>> obj.get_pins(assignment="Box1")
+
         """
         if isinstance(assignment, CircuitComponent):
             pins = self.oeditor.GetComponentPins(assignment.composed_name)
@@ -1713,6 +1742,7 @@ class CircuitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
         >>> obj = CircuitComponents()
         >>> obj.get_pin_location(assignment="Box1", pin=1)
+
         """
         if isinstance(assignment, str):
             x = self.oeditor.GetComponentPinLocation(assignment, pin, True)
@@ -1747,6 +1777,7 @@ class CircuitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
         >>> obj = CircuitComponents()
         >>> obj.create_line(points=[0, 0, 0])
+
         """
         points = [str(tuple(self._convert_point_to_meter(i))) for i in points]
         # id = self.create_unique_id()
@@ -1783,6 +1814,7 @@ class CircuitComponents(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
         >>> obj = CircuitComponents()
         >>> obj.create_wire(points=[0, 0, 0])
+
         """
         points = [str(tuple(self._convert_point_to_meter(i))) for i in points]
         # wire_id = self.create_unique_id()
@@ -1830,6 +1862,7 @@ class ComponentInfo(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import ComponentInfo
         >>> obj = ComponentInfo()
         >>> obj.props
+
         """
         if not self._props:
             self._props = load_keyword_in_aedt_file(self.file_name, self.name)
@@ -1874,6 +1907,7 @@ class ComponentInfo(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import ComponentInfo
         >>> obj = ComponentInfo()
         >>> obj.place(assignment="Box1", location=["Box1"])
+
         """
         if location is None:
             location = []
@@ -1978,6 +2012,7 @@ class ComponentCatalog(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import ComponentCatalog
         >>> obj = ComponentCatalog()
         >>> obj.find_components(filter_str=1)
+
         """
         c = []
         for el in list(self.components.keys()):

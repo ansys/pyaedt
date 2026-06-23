@@ -34,6 +34,7 @@ Examples
 ...     r"C:\\Program Files\\AnsysEM\\v242\\commonfiles\\CPython\\3_7\\winx64\\Release\\python\\python.exe",
 ...     "242",
 ... )
+
 """
 
 import os
@@ -60,6 +61,7 @@ def sanitize_interpreter_path(interpreter_path, version):
     ...     r"C:\\Program Files\\AnsysEM\\v242\\commonfiles\\CPython\\3_7\\winx64\\Release\\python\\python.exe",
     ...     "242",
     ... )
+
     """
     python_version = "3_10" if version > "231" else "3_7"
     if version > "231" and python_version not in interpreter_path:
@@ -76,6 +78,7 @@ def check_file(file_path, oDesktop):
     --------
     >>> from ansys.aedt.core.extensions.templates.pyaedt_utils import check_file
     >>> check_file(r"C:\\Program Files\\AnsysEM\\v242\\Win64\\ansysedt.exe", oDesktop)
+
     """
     if not os.path.isfile(file_path):
         show_error(
@@ -94,6 +97,7 @@ def get_linux_terminal():
     --------
     >>> from ansys.aedt.core.extensions.templates.pyaedt_utils import get_linux_terminal
     >>> terminal, terminal_exe = get_linux_terminal()
+
     """
     for terminal in ["x-terminal-emulator", "xterm", "xfce4-terminal", "gnome-terminal", "lxterminal", "mlterm"]:
         terminal_exe = which(terminal)
@@ -109,6 +113,7 @@ def get_linux_terminal_command():
     --------
     >>> from ansys.aedt.core.extensions.templates.pyaedt_utils import get_linux_terminal_command
     >>> get_linux_terminal_command()
+
     """
     terminal, terminal_exe = get_linux_terminal()
     if terminal == "x-terminal-emulator":
@@ -153,6 +158,7 @@ def show_error(msg, oDesktop):
     --------
     >>> from ansys.aedt.core.extensions.templates.pyaedt_utils import show_error
     >>> show_error("PyAEDT is not installed.", oDesktop)
+
     """
     oDesktop.AddMessage("", "", 2, str(msg))
     MessageBox.Show(str(msg), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
@@ -166,6 +172,7 @@ def environment_variables(oDesktop):
     --------
     >>> from ansys.aedt.core.extensions.templates.pyaedt_utils import environment_variables
     >>> environment_variables(oDesktop)
+
     """
     os.environ["PYAEDT_PROCESS_ID"] = str(oDesktop.GetProcessID())
     version = str(oDesktop.GetVersion()[:6])
@@ -227,6 +234,7 @@ def validate_disclaimer():
     --------
     >>> from ansys.aedt.core.extensions.templates.pyaedt_utils import validate_disclaimer
     >>> validate_disclaimer()
+
     """
     DISCLAIMER = (
         "This script will download and install certain third-party software and/or "

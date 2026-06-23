@@ -57,6 +57,7 @@ class FilterDesignBase(PyAedtBase):
     --------
     >>> from ansys.aedt.core.filtersolutions import FilterDesignBase
     >>> design = FilterDesignBase(version="2026.1")
+
     """
 
     _active_design = None
@@ -93,6 +94,7 @@ class FilterDesignBase(PyAedtBase):
         >>> from ansys.aedt.core.filtersolutions import FilterDesignBase
         >>> design = FilterDesignBase(version="2026.1")
         >>> design.close()
+
         """
         if FilterDesignBase._active_design == self:
             print(f"Closing design: {self}")
@@ -165,6 +167,7 @@ class LumpedDesign(FilterDesignBase):
     >>> LumpedDesign = ansys.aedt.core.FilterSolutions.LumpedDesign(version="2026.1")
     >>> LumpedDesign.attributes.filter_class = FilterClass.BAND_PASS
     >>> LumpedDesign.attributes.filter_type = FilterType.ELLIPTIC
+
     """
 
     def __init__(self, version: str | None = None) -> None:
@@ -200,6 +203,7 @@ class DistributedDesign(FilterDesignBase):
     >>> DistributedDesign = ansys.aedt.core.FilterSolutions.DistributedDesign(version="2026.1")
     >>> DistributedDesign.attributes.filter_class = FilterClass.BAND_PASS
     >>> DistributedDesign.topology.topology_type = TopologyType.INTERDIGITAL
+
     """
 
     def __init__(self, version: str | None = None) -> None:

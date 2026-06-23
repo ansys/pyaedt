@@ -49,6 +49,7 @@ class LimitLine(BinaryTreeNode, PyAedtBase):
     --------
     >>> from ansys.aedt.core.visualization.report.common import LimitLine
     >>> obj = LimitLine()
+
     """
 
     def __init__(self, post, trace_name, oo=None) -> None:
@@ -114,6 +115,7 @@ class LimitLine(BinaryTreeNode, PyAedtBase):
         >>> report.limit_lines[0].set_line_properties(
         ...     style="Dot", width=4, violation_emphasis=True, color=(255, 255, 0)
         ... )
+
         """
         props = ["NAME:ChangedProps"]
         if style:
@@ -138,6 +140,7 @@ class Note(BinaryTreeNode, PyAedtBase):
     --------
     >>> from ansys.aedt.core.visualization.report.common import Note
     >>> obj = Note()
+
     """
 
     def __init__(self, post, plot_note_name, oo=None) -> None:
@@ -215,6 +218,7 @@ class Note(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import Note
         >>> obj = Note()
         >>> obj.set_note_properties()
+
         """
         props = ["NAME:ChangedProps"]
         if text:
@@ -278,6 +282,7 @@ class Trace(BinaryTreeNode, PyAedtBase):
     --------
     >>> from ansys.aedt.core.visualization.report.common import Trace
     >>> obj = Trace()
+
     """
 
     def __repr__(self) -> str:
@@ -328,6 +333,7 @@ class Trace(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import Trace
         >>> obj = Trace()
         >>> obj.curve_properties
+
         """
         if self.aedt_name.split(":")[-1] in self.children:
             return self.children[self.aedt_name.split(":")[-1]].properties
@@ -347,6 +353,7 @@ class Trace(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import Trace
         >>> obj = Trace()
         >>> obj.name
+
         """
         return self._name
 
@@ -412,6 +419,7 @@ class Trace(BinaryTreeNode, PyAedtBase):
         >>> report = hfss.post.reports_by_category.modal_solution("dB(S(1,1))")
         >>> report.create()
         >>> report.traces[0].set_trace_properties(style="Dot", width=5, trace_type="Digital", color=(0, 255, 0))
+
         """
         props = ["NAME:ChangedProps"]
         if style:
@@ -455,6 +463,7 @@ class Trace(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import Trace
         >>> obj = Trace()
         >>> obj.set_symbol_properties()
+
         """
         props = ["NAME:ChangedProps", ["NAME:Show Symbol", "Value:=", show]]
         if style:
@@ -475,6 +484,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
     --------
     >>> from ansys.aedt.core.visualization.report.common import CommonReport
     >>> obj = CommonReport()
+
     """
 
     def __repr__(self) -> str:
@@ -547,6 +557,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import CommonReport
         >>> obj = CommonReport()
         >>> obj.delete()
+
         """
         self._post.oreportsetup.DeleteReports([self.plot_name])
         for i in self._post.plots:
@@ -569,6 +580,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import CommonReport
         >>> obj = CommonReport()
         >>> obj.differential_pairs
+
         """
         return self._legacy_props["context"].get("differential_pairs", False)
 
@@ -590,6 +602,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import CommonReport
         >>> obj = CommonReport()
         >>> obj.matrix
+
         """
         if self._is_created and (
             self._app.design_type in ["Q3D Extractor", "2D Extractor"]
@@ -625,6 +638,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import CommonReport
         >>> obj = CommonReport()
         >>> obj.reduced_matrix
+
         """
         return self._legacy_props["context"].get("reduced_matrix", None)
 
@@ -646,6 +660,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import CommonReport
         >>> obj = CommonReport()
         >>> obj.polyline
+
         """
         if self._is_created and self.report_category != "Far Fields" and self.report_category.endswith("Fields"):
             try:
@@ -672,6 +687,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import CommonReport
         >>> obj = CommonReport()
         >>> obj.expressions
+
         """
         self._initialize_tree_node()
         if self._is_created:
@@ -709,6 +725,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import CommonReport
         >>> obj = CommonReport()
         >>> obj.report_category
+
         """
         if self._is_created:
             try:
@@ -738,6 +755,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import CommonReport
         >>> obj = CommonReport()
         >>> obj.report_type
+
         """
         if self._is_created:
             try:
@@ -778,6 +796,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import CommonReport
         >>> obj = CommonReport()
         >>> obj.traces
+
         """
         _ = self.expressions[::]
         _traces = []
@@ -1171,6 +1190,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import CommonReport
         >>> obj = CommonReport()
         >>> obj.limit_lines
+
         """
         _traces = []
         oo_names = self._app.get_oo_name(self._post.oreportsetup, self.internal_plot_name)
@@ -1205,6 +1225,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import CommonReport
         >>> obj = CommonReport()
         >>> obj.notes
+
         """
         _notes = []
         try:
@@ -1239,6 +1260,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import CommonReport
         >>> obj = CommonReport()
         >>> obj.plot_name
+
         """
         return self._legacy_props["plot_name"]
 
@@ -1271,6 +1293,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import CommonReport
         >>> obj = CommonReport()
         >>> obj.internal_plot_name
+
         """
         return re.sub(r"(?<!\\)/", r"\\/", self.plot_name.replace("\\", "\\\\"))
 
@@ -1288,6 +1311,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import CommonReport
         >>> obj = CommonReport()
         >>> obj.variations
+
         """
         if self._is_created:
             try:
@@ -1340,6 +1364,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import CommonReport
         >>> obj = CommonReport()
         >>> obj.primary_sweep
+
         """
         if self._is_created:
             try:
@@ -1374,6 +1399,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import CommonReport
         >>> obj = CommonReport()
         >>> obj.secondary_sweep
+
         """
         if self._is_created:
             els = list(self.properties.values())[4].split(" ,")
@@ -1407,6 +1433,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import CommonReport
         >>> obj = CommonReport()
         >>> obj.primary_sweep_range
+
         """
         return self._legacy_props["context"]["primary_sweep_range"]
 
@@ -1428,6 +1455,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import CommonReport
         >>> obj = CommonReport()
         >>> obj.secondary_sweep_range
+
         """
         return self._legacy_props["context"]["secondary_sweep_range"]
 
@@ -1459,6 +1487,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import CommonReport
         >>> obj = CommonReport()
         >>> obj.update_expressions_with_defaults()
+
         """
         self.expressions = self._post.available_report_quantities(
             self.report_category, self.report_type, self.setup, quantities_category
@@ -1595,6 +1624,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import CommonReport
         >>> obj = CommonReport()
         >>> obj.domain
+
         """
         if self._is_created:
             try:
@@ -1638,6 +1668,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import CommonReport
         >>> obj = CommonReport()
         >>> obj.use_pulse_in_tdr
+
         """
         return self._legacy_props["context"].get("use_pulse_in_tdr", False)
 
@@ -1698,6 +1729,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import CommonReport
         >>> obj = CommonReport()
         >>> obj.create()
+
         """
         self._is_created = False
         if not name:
@@ -2015,6 +2047,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import CommonReport
         >>> obj = CommonReport()
         >>> obj.export_config("c:/temp/report_config.json")
+
         """
         output_dict = {}
         output_dict["Help"] = "Report Generated automatically by PyAEDT"
@@ -2043,6 +2076,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import CommonReport
         >>> obj = CommonReport()
         >>> obj.get_solution_data()
+
         """
         if self._is_created:
             expr = [i.name for i in self.traces]
@@ -2093,6 +2127,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import CommonReport
         >>> obj = CommonReport()
         >>> obj.add_limit_line_from_points([0, 0], [0, 0], "GHz", "V", "Y1")
+
         """
         x_list = [GeometryOperators.parse_dim_arg(str(i) + x_units) for i in x_list]
         y_list = [GeometryOperators.parse_dim_arg(str(i) + y_units) for i in y_list]
@@ -2149,6 +2184,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import CommonReport
         >>> obj = CommonReport()
         >>> obj.add_limit_line_from_equation(0, 10, 1, "x", "GHz", 1)
+
         """
         if self.plot_name and self._is_created:
             self._post.oreportsetup.AddCartesianLimitLineFromEquation(
@@ -2193,6 +2229,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import CommonReport
         >>> obj = CommonReport()
         >>> obj.add_note("Note text", 0.0, 0.0)
+
         """
         note_name = generate_unique_name("Note", n=3)
         if self.plot_name and self._is_created:
@@ -2242,6 +2279,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import CommonReport
         >>> obj = CommonReport()
         >>> obj.add_cartesian_x_marker("1GHz")
+
         """
         if not name:
             name = generate_unique_name("MX")
@@ -2275,6 +2313,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import CommonReport
         >>> obj = CommonReport()
         >>> obj.add_cartesian_y_marker("1V", y_axis=1)
+
         """
         if not name:
             name = generate_unique_name("MY")
@@ -2341,6 +2380,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import CommonReport
         >>> obj = CommonReport()
         >>> obj.edit_grid()
+
         """
         props = [
             "NAME:ChangedProps",
@@ -2396,6 +2436,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import CommonReport
         >>> obj = CommonReport()
         >>> obj.edit_x_axis()
+
         """
         props = [
             "NAME:ChangedProps",
@@ -2482,6 +2523,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import CommonReport
         >>> obj = CommonReport()
         >>> obj.edit_x_axis_scaling()
+
         """
         if linear_scaling:
             props = ["NAME:ChangedProps", ["NAME:Axis Scaling", "Value:=", "Linear"]]
@@ -2536,6 +2578,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import CommonReport
         >>> obj = CommonReport()
         >>> obj.edit_legend()
+
         """
         props = [
             "NAME:ChangedProps",
@@ -2574,6 +2617,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import CommonReport
         >>> obj = CommonReport()
         >>> obj.hide_legend()
+
         """
         try:
             oo = self._app.get_oo_object(self._post.oreportsetup, self.plot_name)
@@ -2632,6 +2676,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import CommonReport
         >>> obj = CommonReport()
         >>> obj.edit_y_axis()
+
         """
         props = [
             "NAME:ChangedProps",
@@ -2720,6 +2765,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import CommonReport
         >>> obj = CommonReport()
         >>> obj.edit_y_axis_scaling()
+
         """
         if linear_scaling:
             props = ["NAME:ChangedProps", ["NAME:Axis Scaling", "Value:=", "Linear"]]
@@ -2777,6 +2823,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import CommonReport
         >>> obj = CommonReport()
         >>> obj.edit_general_settings()
+
         """
         if enable_y_stripes is None:
             props = [
@@ -2843,6 +2890,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import CommonReport
         >>> obj = CommonReport()
         >>> obj.edit_header()
+
         """
         props = [
             "NAME:ChangedProps",
@@ -2947,6 +2995,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import CommonReport
         >>> obj = CommonReport()
         >>> obj.import_traces("report_data.csv", "MyPlot")
+
         """
         if not os.path.exists(input_file):
             msg = "File does not exist."
@@ -2999,6 +3048,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import CommonReport
         >>> obj = CommonReport()
         >>> obj.delete_traces("Plot1", ["Trace1", "Trace2"])
+
         """
         if plot_name not in self._post.all_report_names:
             raise ValueError("Plot does not exist in current project.")
@@ -3044,6 +3094,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import CommonReport
         >>> obj = CommonReport()
         >>> obj.add_trace_to_report(["Trace1", "Trace2"], setup_name="Setup1 : LastAdaptive")
+
         """
         try:
             self._post.oreportsetup.AddTraces(
@@ -3085,6 +3136,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import CommonReport
         >>> obj = CommonReport()
         >>> obj.update_trace_in_report(["Trace1", "Trace2"], setup_name="Setup1 : LastAdaptive")
+
         """
         expr = copy.deepcopy(self.expressions)
         self.expressions = traces
@@ -3132,6 +3184,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import CommonReport
         >>> obj = CommonReport()
         >>> obj.apply_report_template("template.rpt", property_type="Graphical")
+
         """
         if not os.path.exists(input_file):  # pragma: no cover
             msg = "File does not exist."
@@ -3178,6 +3231,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import CommonReport
         >>> obj = CommonReport()
         >>> obj.add_trace_characteristics(name="XAtYVal")
+
         """
         if not arguments:
             arguments = []
@@ -3215,6 +3269,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> from ansys.aedt.core.visualization.report.common import CommonReport
         >>> obj = CommonReport()
         >>> obj.export_table_to_file("MyPlot", "output.csv", table_type="Marker")
+
         """
         plot_names = [plot.plot_name for plot in self._post.plots]
         if plot_name not in plot_names:

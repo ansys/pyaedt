@@ -62,6 +62,7 @@ def string_to_time(time_string: str) -> timedelta:
     Examples
     --------
     >>> time_object = string_to_time("01:02:03")
+
     """
     h, m, s = None, None, None
     h, m, s = map(int, time_string.split(":"))
@@ -90,6 +91,7 @@ def format_timedelta(time_delta: str | timedelta | None) -> str:
     >>> from ansys.aedt.core.modules.profile import format_timedelta
     >>> format_timedelta(timedelta(hours=1, minutes=2, seconds=3))
     '01:02:03'
+
     """
     if not isinstance(time_delta, timedelta):
         return str(time_delta)
@@ -141,6 +143,7 @@ def merge_dict(d1: dict, d2: dict) -> dict:
     >>> from ansys.aedt.core.modules.profile import merge_dict
     >>> merge_dict({"a": 1}, {"b": 2})
     {'a': 1, 'b': 2}
+
     """
 
     def sort_key(k: str):
@@ -196,6 +199,7 @@ class MemoryGB(PyAedtBase):
     >>> obj = MemoryGB(2)
     >>> obj.value
     2.0
+
     """
 
     _convert_mem = {"TB": 1000.0, "G": 1.0, "M": 0.001, "MB": 0.001, "KB": 1e-6, "K": 1e-6, "Bytes": 1e-9}
@@ -235,6 +239,7 @@ class MemoryGB(PyAedtBase):
         >>> from ansys.aedt.core.modules.profile import MemoryGB
         >>> obj = MemoryGB()
         >>> obj.value
+
         """
         num, suffix = self._memory_str.split()
         return float(num) * self._convert_mem[suffix]
@@ -361,6 +366,7 @@ def step_name_map(input_name: str) -> str | None:
     >>> from ansys.aedt.core.modules.profile import step_name_map
     >>> step_name_map("Frequency - 1.0 GHz")
     '1.0 GHz'
+
     """
     pattern = [re.compile(r"^Frequency\s*-\s*([\d.]+(?:[TGMk]?Hz))$")]
     for p in pattern:
@@ -432,6 +438,7 @@ class ProfileStepSummary(PyAedtBase):
     >>> obj = ProfileStepSummary({"Name": "Pass 1", "Cpu time": "00:00:05"})
     >>> obj.cpu_time
     datetime.timedelta(seconds=5)
+
     """
 
     @pyaedt_function_handler()
@@ -523,6 +530,7 @@ class ProfileStep(PyAedtBase):
         >>> from ansys.aedt.core.modules.profile import ProfileStep
         >>> obj = ProfileStep()
         >>> obj.process_steps
+
         """
         if hasattr(self, "steps"):
             return list(self.steps.keys())
@@ -542,6 +550,7 @@ class ProfileStep(PyAedtBase):
         >>> from ansys.aedt.core.modules.profile import ProfileStep
         >>> obj = ProfileStep()
         >>> obj.cpu_time
+
         """
         if hasattr(self, "_cpu_time"):
             this_time = self._cpu_time
@@ -564,6 +573,7 @@ class ProfileStep(PyAedtBase):
         >>> from ansys.aedt.core.modules.profile import ProfileStep
         >>> obj = ProfileStep()
         >>> obj.real_time
+
         """
         if hasattr(self, "_real_time"):
             this_time = self._real_time
@@ -604,6 +614,7 @@ class ProfileStep(PyAedtBase):
         >>> from ansys.aedt.core.modules.profile import ProfileStep
         >>> obj = ProfileStep()
         >>> obj.max_memory
+
         """
         if hasattr(self, "_memory"):
             mem = self._memory
@@ -652,6 +663,7 @@ class ProfileStep(PyAedtBase):
         >>> from ansys.aedt.core.modules.profile import ProfileStep
         >>> obj = ProfileStep()
         >>> obj.table(columns=["Box1"])
+
         """
         import pandas as pd_module
 
@@ -780,6 +792,7 @@ class TransientProfile(ProfileStep):
         >>> from ansys.aedt.core.modules.profile import TransientProfile
         >>> obj = TransientProfile()
         >>> obj.time_step_keys(max_time=1.0)
+
         """
         return_val = []
         for k in self._time_step_keys:
@@ -800,6 +813,7 @@ class TransientProfile(ProfileStep):
         >>> from ansys.aedt.core.modules.profile import TransientProfile
         >>> obj = TransientProfile()
         >>> obj.max_time
+
         """
         if hasattr(self, "time_steps"):
             if len(self.time_steps) > 0:
@@ -899,6 +913,7 @@ class FrequencySweepProfile(ProfileStep):
         >>> from ansys.aedt.core.modules.profile import FrequencySweepProfile
         >>> obj = FrequencySweepProfile()
         >>> obj.frequencies
+
         """
         if self._frequencies:
             return self._frequencies
@@ -942,6 +957,7 @@ class FrequencySweepProfile(ProfileStep):
         >>> from ansys.aedt.core.modules.profile import FrequencySweepProfile
         >>> obj = FrequencySweepProfile()
         >>> obj.keys()
+
         """
         return [str(f) for f in self.frequencies]
 
@@ -990,6 +1006,7 @@ class AdaptivePass(ProfileStep):
         >>> from ansys.aedt.core.modules.profile import AdaptivePass
         >>> obj = AdaptivePass()
         >>> obj.adapt_frequency
+
         """
         return self._adapt_frequency
 
@@ -1012,6 +1029,7 @@ def get_mesh_process_name(group_data: BinaryTreeNode) -> str | None:
     --------
     >>> from ansys.aedt.core.modules.profile import get_mesh_process_name
     >>> get_mesh_process_name(group_data=1)
+
     """
     mesh_process_names = ["Initial Meshing Group", "Meshing Process Group", "Meshing Process", "Meshing Process 2"]
     names = []
@@ -1039,6 +1057,7 @@ def convert_icepak_info(info_str: str) -> tuple:
     --------
     >>> from ansys.aedt.core.modules.profile import convert_icepak_info
     >>> convert_icepak_info(info_str=1)
+
     """
     pattern = (
         r"Elapsed time\s*:\s*(\d{2}:\d{2}:\d{2})\s*,\s*"
@@ -1245,6 +1264,7 @@ class SimulationProfile(PyAedtBase):
         >>> from ansys.aedt.core.modules.profile import SimulationProfile
         >>> obj = SimulationProfile()
         >>> obj.product
+
         """
         if not self.__product:
             self.__product = self._product_str.split()[0]
@@ -1267,6 +1287,7 @@ class SimulationProfile(PyAedtBase):
         >>> from ansys.aedt.core.modules.profile import SimulationProfile
         >>> obj = SimulationProfile()
         >>> obj.product_version
+
         """
         return self._product_str.split()[-1]
 
@@ -1308,6 +1329,7 @@ class SimulationProfile(PyAedtBase):
         >>> from ansys.aedt.core.modules.profile import SimulationProfile
         >>> obj = SimulationProfile()
         >>> obj.cpu_time(num_passes=[1, 2, 3], max_time=1.0)
+
         """
         return self._time_calc("cpu_time", num_passes, max_time)
 
@@ -1346,6 +1368,7 @@ class SimulationProfile(PyAedtBase):
         >>> from ansys.aedt.core.modules.profile import SimulationProfile
         >>> obj = SimulationProfile()
         >>> obj.real_time(num_passes=[1, 2, 3], max_time=1.0)
+
         """
         return self._time_calc("real_time", num_passes, max_time)
 
@@ -1389,6 +1412,7 @@ class SimulationProfile(PyAedtBase):
         >>> from ansys.aedt.core.modules.profile import SimulationProfile
         >>> obj = SimulationProfile()
         >>> obj.num_adaptive_passes
+
         """
         if self.adaptive_pass:
             return sum("Pass" in s for s in self.adaptive_pass.process_steps)
@@ -1408,6 +1432,7 @@ class SimulationProfile(PyAedtBase):
         >>> from ansys.aedt.core.modules.profile import SimulationProfile
         >>> obj = SimulationProfile()
         >>> obj.is_transient
+
         """
         return bool(self.transient)
 
@@ -1424,6 +1449,7 @@ class SimulationProfile(PyAedtBase):
         >>> from ansys.aedt.core.modules.profile import SimulationProfile
         >>> obj = SimulationProfile()
         >>> obj.has_frequency_sweep
+
         """
         if len(self.frequency_sweeps) > 0:
             return True
@@ -1449,6 +1475,7 @@ class SimulationProfile(PyAedtBase):
         >>> from ansys.aedt.core.modules.profile import SimulationProfile
         >>> obj = SimulationProfile()
         >>> obj.max_memory(num_passes=[1, 2, 3])
+
         """
         num_passes = self._check_num_passes(num_passes)
         mem = []
@@ -1525,6 +1552,7 @@ class SimulationProfile(PyAedtBase):
         >>> from ansys.aedt.core.modules.profile import SimulationProfile
         >>> obj = SimulationProfile()
         >>> obj.max_time
+
         """
         if self.is_transient:
             if len(self.transient.time_steps) > 0:
@@ -1547,6 +1575,7 @@ class SimulationProfile(PyAedtBase):
         >>> from ansys.aedt.core.modules.profile import SimulationProfile
         >>> obj = SimulationProfile()
         >>> obj.time_steps
+
         """
         if self.transient:
             return self.transient.time_steps
@@ -1571,6 +1600,7 @@ class SimulationProfile(PyAedtBase):
         >>> from ansys.aedt.core.modules.profile import SimulationProfile
         >>> obj = SimulationProfile()
         >>> obj.time_keys(max_time=1.0)
+
         """
         return self.transient.time_step_keys(max_time)
 
@@ -1656,6 +1686,7 @@ class Profiles(Mapping, PyAedtBase):
         Elapsed time: 0:01:24
     >>> print(f"Number of time steps: {len(profiles[profile_name].time_steps)}")
         Number of time steps: 80
+
     """
 
     @pyaedt_function_handler()
@@ -1721,6 +1752,7 @@ class Profiles(Mapping, PyAedtBase):
         >>> from ansys.aedt.core.modules.profile import Profiles
         >>> obj = Profiles()
         >>> obj.keys()
+
         """
         if len(self._profile_data) > 0:
             return self._profile_data.keys()

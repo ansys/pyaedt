@@ -94,6 +94,7 @@ class FfdSolutionData(PyAedtBase):
     >>> app.desktop_class.close_desktop()
     >>> farfield_data = FfdSolutionData(input_file=metadata_file)
     >>> farfield_data.plot_3d(quantity_format="dB10")
+
     """
 
     def __init__(
@@ -297,6 +298,7 @@ class FfdSolutionData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
         >>> obj = FfdSolutionData()
         >>> obj.phi_scan
+
         """
         return self.__phi_scan
 
@@ -314,6 +316,7 @@ class FfdSolutionData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
         >>> obj = FfdSolutionData()
         >>> obj.theta_scan
+
         """
         return self.__theta_scan
 
@@ -331,6 +334,7 @@ class FfdSolutionData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
         >>> obj = FfdSolutionData()
         >>> obj.metadata
+
         """
         return self.__metadata
 
@@ -343,6 +347,7 @@ class FfdSolutionData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
         >>> obj = FfdSolutionData()
         >>> obj.touchstone_data
+
         """
         return self.__touchstone_data
 
@@ -355,6 +360,7 @@ class FfdSolutionData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
         >>> obj = FfdSolutionData()
         >>> obj.s_parameters
+
         """
         if self.touchstone_data:
             touchstone_frequencies = self.touchstone_data.f
@@ -370,6 +376,7 @@ class FfdSolutionData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
         >>> obj = FfdSolutionData()
         >>> obj.incident_power_element
+
         """
         incident_power = {}
         for element_name, element_props in self.element_info.items():
@@ -390,6 +397,7 @@ class FfdSolutionData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
         >>> obj = FfdSolutionData()
         >>> obj.incident_power
+
         """
         incident_power_element = self.incident_power_element
         if incident_power_element:
@@ -404,6 +412,7 @@ class FfdSolutionData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
         >>> obj = FfdSolutionData()
         >>> obj.accepted_power_element
+
         """
         power = {}
         for element_name, element_props in self.element_info.items():
@@ -423,6 +432,7 @@ class FfdSolutionData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
         >>> obj = FfdSolutionData()
         >>> obj.accepted_power
+
         """
         power_element = self.accepted_power_element
         if power_element:
@@ -437,6 +447,7 @@ class FfdSolutionData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
         >>> obj = FfdSolutionData()
         >>> obj.radiated_power_element
+
         """
         power = {}
         for element_name, element_props in self.element_info.items():
@@ -456,6 +467,7 @@ class FfdSolutionData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
         >>> obj = FfdSolutionData()
         >>> obj.radiated_power
+
         """
         power_element = self.radiated_power_element
         if power_element:
@@ -470,6 +482,7 @@ class FfdSolutionData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
         >>> obj = FfdSolutionData()
         >>> obj.active_s_parameters
+
         """
         if self.s_parameters is not None:
             active_s_parameter = {}
@@ -508,6 +521,7 @@ class FfdSolutionData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
         >>> obj = FfdSolutionData()
         >>> obj.input_file
+
         """
         return self.__input_file
 
@@ -520,6 +534,7 @@ class FfdSolutionData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
         >>> obj = FfdSolutionData()
         >>> obj.farfield_data
+
         """
         return self.combine_farfield(self.theta_scan, self.phi_scan)
 
@@ -532,6 +547,7 @@ class FfdSolutionData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
         >>> obj = FfdSolutionData()
         >>> obj.element_info
+
         """
         return self.__element_info
 
@@ -544,6 +560,7 @@ class FfdSolutionData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
         >>> obj = FfdSolutionData()
         >>> obj.frequencies
+
         """
         return self.__frequencies
 
@@ -556,6 +573,7 @@ class FfdSolutionData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
         >>> obj = FfdSolutionData()
         >>> obj.all_element_names
+
         """
         return self.__all_element_names
 
@@ -568,6 +586,7 @@ class FfdSolutionData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
         >>> obj = FfdSolutionData()
         >>> obj.weight
+
         """
         return self.__weight
 
@@ -580,6 +599,7 @@ class FfdSolutionData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
         >>> obj = FfdSolutionData()
         >>> obj.frequency
+
         """
         return self._frequency
 
@@ -604,6 +624,7 @@ class FfdSolutionData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
         >>> obj = FfdSolutionData()
         >>> obj.phase
+
         """
         return self.__phase
 
@@ -623,6 +644,7 @@ class FfdSolutionData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
         >>> obj = FfdSolutionData()
         >>> obj.magnitude
+
         """
         return self.__magnitude
 
@@ -650,6 +672,7 @@ class FfdSolutionData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
         >>> obj = FfdSolutionData()
         >>> obj.taper
+
         """
         return self.__taper
 
@@ -670,6 +693,7 @@ class FfdSolutionData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
         >>> obj = FfdSolutionData()
         >>> obj.origin
+
         """
         return self.__origin
 
@@ -701,6 +725,7 @@ class FfdSolutionData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
         >>> obj = FfdSolutionData()
         >>> obj.combine_farfield(phi_scan=1.0, theta_scan=1.0)
+
         """
         # Modify theta and phi and compute weight
 
@@ -816,6 +841,7 @@ class FfdSolutionData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
         >>> obj = FfdSolutionData()
         >>> obj.get_accepted_power()
+
         """
         if self.active_s_parameters is not None:
             accepted_power = {}
@@ -1133,6 +1159,7 @@ class FfdSolutionData(PyAedtBase):
         >>> sphere = "3D"
         >>> data = app.get_antenna_data(frequencies, setup_name, sphere)
         >>> data.plot_cut(theta=20)
+
         """
         from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 
@@ -1242,6 +1269,7 @@ class FfdSolutionData(PyAedtBase):
         >>> sphere = "3D"
         >>> data = app.get_antenna_data(frequencies, setup_name, sphere)
         >>> data.polar_plot_3d(theta=10)
+
         """
         from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 
@@ -1340,6 +1368,7 @@ class FfdSolutionData(PyAedtBase):
         >>> sphere = "3D"
         >>> data = app.get_antenna_data(setup=setup_name, sphere=sphere)
         >>> data.plot_3d(quantity_format="dB10")
+
         """
         import pyvista as pv
 
@@ -1587,6 +1616,7 @@ class FfdSolutionData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
         >>> obj = FfdSolutionData()
         >>> obj.get_far_field_mesh(quantity=1, quantity_format=1)
+
         """
         farfield_data = self.farfield_data
         if quantity not in farfield_data:  # pragma: no cover
@@ -1723,6 +1753,7 @@ class FfdSolutionData(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
         >>> obj = FfdSolutionData()
         >>> obj.get_port_index()
+
         """
         port_index = {}
 
@@ -1826,6 +1857,7 @@ class UpdateBeamForm(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import UpdateBeamForm
         >>> obj = UpdateBeamForm()
         >>> obj.update_phi(phi=1.0)
+
         """
         self.__phi = phi * np.pi / 180
         self.__update_both()
@@ -1839,6 +1871,7 @@ class UpdateBeamForm(PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import UpdateBeamForm
         >>> obj = UpdateBeamForm()
         >>> obj.update_theta(theta=1.0)
+
         """
         self.__theta = theta * np.pi / 180
         self.__update_both()
@@ -1883,6 +1916,7 @@ def export_pyaedt_antenna_metadata(
     --------
     >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import export_pyaedt_antenna_metadata
     >>> export_pyaedt_antenna_metadata(input_file=r"C:\Temp\project.aedt", output_dir=r"C:\Temp\project.aedt")
+
     """
     from ansys.aedt.core.visualization.advanced.touchstone_parser import find_touchstone_files
 
@@ -2045,6 +2079,7 @@ def antenna_metadata_from_xml(input_file: str) -> dict:
     --------
     >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import antenna_metadata_from_xml
     >>> antenna_metadata_from_xml(input_file=r"C:\Temp\example.xml")
+
     """
     # Load the XML file
     try:

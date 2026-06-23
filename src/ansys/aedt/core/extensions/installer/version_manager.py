@@ -462,6 +462,7 @@ class VersionManager:
         >>> root.withdraw()
         >>> manager = VersionManager(root)
         >>> manager.activate_venv()
+
         """
         try:
             scripts_dir = (
@@ -495,6 +496,7 @@ class VersionManager:
         >>> root.withdraw()
         >>> manager = VersionManager(root)
         >>> manager.run_pip(["--version"], capture_output=True)
+
         """
         cmd = [self.python_exe, "-m", "pip"] + pip_args
         if capture_output:
@@ -513,6 +515,7 @@ class VersionManager:
         >>> root.withdraw()
         >>> manager = VersionManager(root)
         >>> manager.show_loading("pyaedt")
+
         """
         if key in self.loading_labels:
             self.loading_labels[key].config(text="⏳")
@@ -529,6 +532,7 @@ class VersionManager:
         >>> root.withdraw()
         >>> manager = VersionManager(root)
         >>> manager.hide_loading("pyaedt")
+
         """
         if key in self.loading_labels:
             self.loading_labels[key].config(text="")
@@ -545,6 +549,7 @@ class VersionManager:
         >>> root.withdraw()
         >>> manager = VersionManager(root)
         >>> manager.update_and_reload(["install", "-U", "pyaedt[all]"], loading_key="pyaedt")
+
         """
         # Confirm action
         response = messagebox.askyesno("Confirm Action", "This will perform the installation. Continue?")
@@ -642,6 +647,7 @@ class VersionManager:
         >>> root.withdraw()
         >>> manager = VersionManager(root)
         >>> manager.update_all()
+
         """
         response = messagebox.askyesno("Disclaimer", DISCLAIMER)
 
@@ -799,6 +805,7 @@ class VersionManager:
         >>> root.withdraw()
         >>> manager = VersionManager(root)
         >>> manager.get_installed_version("pyaedt")
+
         """
         try:
             # Prefer importlib.metadata (Python 3.8+). Use venv python to inspect
@@ -878,6 +885,7 @@ class VersionManager:
         >>> root.withdraw()
         >>> manager = VersionManager(root)
         >>> manager.show_pyaedt_update_notification("0.17.0", Path("C:\\\\Temp\\\\declined_version.txt"))
+
         """
         try:
             dlg = tkinter.Toplevel(self.root)

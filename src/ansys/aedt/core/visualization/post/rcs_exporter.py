@@ -83,6 +83,7 @@ class MonostaticRCSExporter(PyAedtBase):
     >>> sphere = "3D"
     >>> data = app.get_monostatic_rcs(frequencies, setup_name, sphere)
     >>> data.plot_3d(quantity_format="dB10")
+
     """
 
     def __init__(
@@ -136,6 +137,7 @@ class MonostaticRCSExporter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
         >>> obj = MonostaticRCSExporter()
         >>> obj.model_info
+
         """
         return self.__model_info
 
@@ -148,6 +150,7 @@ class MonostaticRCSExporter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
         >>> obj = MonostaticRCSExporter()
         >>> obj.metadata_file
+
         """
         return self.__metadata_file
 
@@ -166,6 +169,7 @@ class MonostaticRCSExporter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
         >>> obj = MonostaticRCSExporter()
         >>> obj.column_name
+
         """
         return self.__column_name
 
@@ -188,6 +192,7 @@ class MonostaticRCSExporter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
         >>> obj = MonostaticRCSExporter()
         >>> obj.get_monostatic_rcs()
+
         """
         variations = {i: k for i, k in self.variations.items()}
         variations["IWaveTheta"] = ["All"]
@@ -235,6 +240,7 @@ class MonostaticRCSExporter(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
         >>> obj = MonostaticRCSExporter()
         >>> obj.export_rcs(name="MyObject", metadata_name=1)
+
         """
         import pandas as pd
 

@@ -61,6 +61,7 @@ class CircuitPins(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitPins
         >>> obj = CircuitPins()
         >>> obj.units
+
         """
         return self._circuit_comp.units
 
@@ -73,6 +74,7 @@ class CircuitPins(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitPins
         >>> obj = CircuitPins()
         >>> obj.total_angle
+
         """
         tol = 1e-9
         loc = self.location[::]
@@ -106,6 +108,7 @@ class CircuitPins(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitPins
         >>> obj = CircuitPins()
         >>> obj.location
+
         """
         if "Port" in self._circuit_comp.composed_name:
             pos1 = self._oeditor.GetPropertyValue(
@@ -143,6 +146,7 @@ class CircuitPins(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitPins
         >>> obj = CircuitPins()
         >>> obj.net
+
         """
         if "PagePort@" in self.name:
             return self._circuit_comp.name.split("@")[1]
@@ -162,6 +166,7 @@ class CircuitPins(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitPins
         >>> obj = CircuitPins()
         >>> obj.angle
+
         """
         props = list(self._oeditor.GetComponentPinInfo(self._circuit_comp.composed_name, self.name))
         for i in props:
@@ -263,6 +268,7 @@ class CircuitPins(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitPins
         >>> obj = CircuitPins()
         >>> obj.connect_to_component(assignment="Box1")
+
         """
         local_page = self._circuit_comp.page
         tol = 1e-8
@@ -483,6 +489,7 @@ class ModelParameters(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import ModelParameters
         >>> obj = ModelParameters()
         >>> obj.update()
+
         """
         try:
             a = {}
@@ -528,6 +535,7 @@ class CircuitComponent(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
         >>> obj = CircuitComponent()
         >>> obj.composed_name
+
         """
         if self.id:
             return self.name + ";" + str(self.id) + ";" + str(self.schematic_id)
@@ -571,6 +579,7 @@ class CircuitComponent(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
         >>> obj = CircuitComponent()
         >>> obj.instance_name
+
         """
         if self._InstanceName:
             return self._InstanceName
@@ -664,6 +673,7 @@ class CircuitComponent(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
         >>> obj = CircuitComponent()
         >>> obj.delete()
+
         """
         self._oeditor.Delete(["NAME:Selections", "Selections:=", [self.composed_name]])
         for k, v in self._circuit_components.components.items():
@@ -681,6 +691,7 @@ class CircuitComponent(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
         >>> obj = CircuitComponent()
         >>> obj.name
+
         """
         return self.__name
 
@@ -697,6 +708,7 @@ class CircuitComponent(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
         >>> obj = CircuitComponent()
         >>> obj.refdes
+
         """
         if self._refdes:
             return self._refdes
@@ -713,6 +725,7 @@ class CircuitComponent(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
         >>> obj = CircuitComponent()
         >>> obj.units
+
         """
         return self._circuit_components.schematic_units
 
@@ -737,6 +750,7 @@ class CircuitComponent(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
         >>> obj = CircuitComponent()
         >>> obj.model_name
+
         """
         if self._property_data and "ModelDefName:=" in self._property_data:
             return self._property_data[self._property_data.index("ModelDefName:=") + 1]
@@ -755,6 +769,7 @@ class CircuitComponent(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
         >>> obj = CircuitComponent()
         >>> obj.model_data
+
         """
         if self._model_data:
             return self._model_data
@@ -778,6 +793,7 @@ class CircuitComponent(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
         >>> obj = CircuitComponent()
         >>> obj.parameters
+
         """
         if self._parameters:
             return self._parameters
@@ -821,6 +837,7 @@ class CircuitComponent(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
         >>> obj = CircuitComponent()
         >>> obj.component_info
+
         """
         if self._component_info or self._circuit_components._app.design_type != "Circuit Design":
             return self._component_info
@@ -843,6 +860,7 @@ class CircuitComponent(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
         >>> obj = CircuitComponent()
         >>> obj.bounding_box
+
         """
         comp_info = self._oeditor.GetComponentInfo(self.composed_name)
         if not comp_info:
@@ -881,6 +899,7 @@ class CircuitComponent(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
         >>> obj = CircuitComponent()
         >>> obj.pins
+
         """
         if self._pins:
             return self._pins
@@ -917,6 +936,7 @@ class CircuitComponent(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
         >>> obj = CircuitComponent()
         >>> obj.page
+
         """
         try:
             comp_info = self._oeditor.GetComponentInfo(self.composed_name)
@@ -949,6 +969,7 @@ class CircuitComponent(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
         >>> obj = CircuitComponent()
         >>> obj.location
+
         """
         self._location = []
         try:
@@ -1001,6 +1022,7 @@ class CircuitComponent(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
         >>> obj = CircuitComponent()
         >>> obj.angle
+
         """
         comp_info = self._oeditor.GetComponentInfo(self.composed_name)
         self._angle = 0.0
@@ -1068,6 +1090,7 @@ class CircuitComponent(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
         >>> obj = CircuitComponent()
         >>> obj.mirror
+
         """
         if self._mirror is not None:
             return self._mirror
@@ -1118,6 +1141,7 @@ class CircuitComponent(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
         >>> obj = CircuitComponent()
         >>> obj.set_use_symbol_color(color=(255, 0, 0))
+
         """
         if not color:
             color = self.usesymbolcolor
@@ -1152,6 +1176,7 @@ class CircuitComponent(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
         >>> obj = CircuitComponent()
         >>> obj.set_color(red=1, green=1)
+
         """
         vMaterial = ["NAME:Component Color", "R:=", red, "G:=", green, "B:=", blue]
         self.change_property(vMaterial)
@@ -1182,6 +1207,7 @@ class CircuitComponent(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
         >>> obj = CircuitComponent()
         >>> obj.set_property(name="MyObject", value=1)
+
         """
         if isinstance(name, list):
             for p, v in zip(name, value):
@@ -1248,6 +1274,7 @@ class CircuitComponent(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
         >>> obj = CircuitComponent()
         >>> obj.change_property(property_name=["Box1"])
+
         """
         vChangedProps = ["NAME:ChangedProps", property_name]
         if names:
@@ -1289,6 +1316,7 @@ class CircuitComponent(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
         >>> obj = CircuitComponent()
         >>> obj.enforce_touchstone_model_passive()
+
         """
         props = self.model_data.props
         passive = dict(
@@ -1343,6 +1371,7 @@ class CircuitComponent(PyAedtBase):
         ...     "right": ["DDR_CH3_DM_DBI0_DIE_7976"],
         ... }
         >>> ts_component.change_symbol_pin_locations(pin_locations)
+
         """
         base_spacing = 0.00254
         is_spice = False
@@ -1486,6 +1515,7 @@ class CircuitComponent(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
         >>> obj = CircuitComponent()
         >>> obj.component_path
+
         """
         if self.component_info.get("Info", None) is None:
             return None
@@ -1539,6 +1569,7 @@ class Wire(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import Wire
         >>> obj = Wire()
         >>> obj.points_in_segment
+
         """
         if not self.composed_name:
             return {}
@@ -1565,6 +1596,7 @@ class Wire(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import Wire
         >>> obj = Wire()
         >>> obj.logger
+
         """
         return self._app.logger
 
@@ -1577,6 +1609,7 @@ class Wire(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import Wire
         >>> obj = Wire()
         >>> obj.wires
+
         """
         wire_names = []
         for wire in self._oeditor.GetAllElements():
@@ -1618,6 +1651,7 @@ class Wire(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import Wire
         >>> obj = Wire()
         >>> obj.display_wire_properties(name="MyObject", property_to_display=1)
+
         """
         try:
             if name:
@@ -1666,6 +1700,7 @@ class Wire(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import Wire
         >>> obj = Wire()
         >>> obj.get_net_name()
+
         """
         return self.composed_name.split("@")[1].split(";")[0]
 
@@ -1690,6 +1725,7 @@ class Wire(PyAedtBase):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import Wire
         >>> obj = Wire()
         >>> obj.set_net_name(name="MyObject")
+
         """
         self._oeditor.ChangeProperty(
             [
@@ -1738,6 +1774,7 @@ class Excitations(CircuitComponent):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import Excitations
         >>> obj = Excitations()
         >>> obj.name
+
         """
         return self._name
 
@@ -1761,6 +1798,7 @@ class Excitations(CircuitComponent):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import Excitations
         >>> obj = Excitations()
         >>> obj.composed_name
+
         """
         return "IPort@" + self.name + ";" + str(self.schematic_id)
 
@@ -1777,6 +1815,7 @@ class Excitations(CircuitComponent):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import Excitations
         >>> obj = Excitations()
         >>> obj.impedance
+
         """
         return [self.parameters["rz"], self.parameters["iz"]]
 
@@ -1800,6 +1839,7 @@ class Excitations(CircuitComponent):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import Excitations
         >>> obj = Excitations()
         >>> obj.enable_noise
+
         """
         return self.parameters["EnableNoise"]
 
@@ -1821,6 +1861,7 @@ class Excitations(CircuitComponent):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import Excitations
         >>> obj = Excitations()
         >>> obj.noise_temperature
+
         """
         return self.parameters["noisetemp"]
 
@@ -1842,6 +1883,7 @@ class Excitations(CircuitComponent):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import Excitations
         >>> obj = Excitations()
         >>> obj.microwave_symbol
+
         """
         if self.parameters["SymbolType"] == 1:
             return True
@@ -1875,6 +1917,7 @@ class Excitations(CircuitComponent):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import Excitations
         >>> obj = Excitations()
         >>> obj.reference_node
+
         """
         if self.parameters["RefNode"] != "Z":
             try:
@@ -1935,6 +1978,7 @@ class Excitations(CircuitComponent):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import Excitations
         >>> obj = Excitations()
         >>> obj.enabled_sources
+
         """
         return self.parameters["EnabledPorts"]
 
@@ -1956,6 +2000,7 @@ class Excitations(CircuitComponent):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import Excitations
         >>> obj = Excitations()
         >>> obj.enabled_analyses
+
         """
         return self.parameters["EnabledAnalyses"]
 
@@ -2058,6 +2103,7 @@ class Excitations(CircuitComponent):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import Excitations
         >>> obj = Excitations()
         >>> obj.parameters
+
         """
         if self._parameters:
             return self._parameters
@@ -2102,6 +2148,7 @@ class Excitations(CircuitComponent):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import Excitations
         >>> obj = Excitations()
         >>> obj.update()
+
         """
         # self._logger.warning("Property port update only working with GRPC")
 
@@ -2178,6 +2225,7 @@ class Excitations(CircuitComponent):
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import Excitations
         >>> obj = Excitations()
         >>> obj.delete()
+
         """
         self._circuit_components._app.modeler._odesign.DeletePort(self.name)
         for k, v in self._circuit_components.components.items():

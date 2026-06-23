@@ -146,6 +146,7 @@ class MaterialWorkbench(PyAedtBase):
         >>> from ansys.aedt.core.modules.material_workbench import MaterialWorkbench
         >>> obj = MaterialWorkbench()
         >>> obj.import_materials_from_workbench(filename=r"C:\Temp\example.txt")
+
         """
         # Parse the XML
         xml_dict = MaterialWorkbench._parse_xml(filename)

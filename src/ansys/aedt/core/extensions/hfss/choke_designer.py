@@ -68,6 +68,7 @@ class ChokeDesignerExtensionData(ExtensionCommonData):
     >>> from ansys.aedt.core.extensions.hfss.choke_designer import ChokeDesignerExtensionData
     >>> from ansys.aedt.core.modeler.advanced_cad.choke import Choke
     >>> data = ChokeDesignerExtensionData(choke=Choke())
+
     """
 
     choke: Choke = None
@@ -81,6 +82,7 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
     --------
     >>> from ansys.aedt.core.extensions.hfss.choke_designer import ChokeDesignerExtension
     >>> extension = ChokeDesignerExtension(withdraw=True)
+
     """
 
     def __init__(self, withdraw: bool = False) -> None:
@@ -125,6 +127,7 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
         >>> from ansys.aedt.core.extensions.hfss.choke_designer import ChokeDesignerExtension
         >>> extension = ChokeDesignerExtension(withdraw=True)
         >>> extension.validate_configuration(extension.choke)
+
         """
         try:
             if choke.core["Outer Radius"] <= choke.core["Inner Radius"]:
@@ -161,6 +164,7 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
         >>> from ansys.aedt.core.extensions.hfss.choke_designer import ChokeDesignerExtension
         >>> extension = ChokeDesignerExtension(withdraw=True)
         >>> extension.save_configuration()
+
         """
         if not self.validate_configuration(self.choke):
             messagebox.showerror(
@@ -190,6 +194,7 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
         >>> from ansys.aedt.core.extensions.hfss.choke_designer import ChokeDesignerExtension
         >>> extension = ChokeDesignerExtension(withdraw=True)
         >>> extension.load_configuration()
+
         """
         file_path = filedialog.askopenfilename(filetypes=[("JSON files", "*.json")])
         if file_path:
@@ -226,6 +231,7 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
         >>> extension = ChokeDesignerExtension(withdraw=True)
         >>> choice = tkinter.StringVar(value=next(iter(extension.choke.number_of_windings)))
         >>> extension.update_config("number_of_windings", choice)
+
         """
         choke_options = getattr(self.choke, category)
         for key in choke_options:
@@ -242,6 +248,7 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
         >>> entry = tkinter.Entry(extension.root)
         >>> entry.insert(0, "30")
         >>> extension.update_parameter_config("core", "Outer Radius", entry)
+
         """
         try:
             entry_value = entry_widget.get()
@@ -258,6 +265,7 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
         >>> from ansys.aedt.core.extensions.hfss.choke_designer import ChokeDesignerExtension
         >>> extension = ChokeDesignerExtension(withdraw=True)
         >>> extension.update_radio_buttons()
+
         """
         for category in self.boolean_categories:
             if hasattr(self.choke, category):
@@ -278,6 +286,7 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
         >>> from ansys.aedt.core.extensions.hfss.choke_designer import ChokeDesignerExtension
         >>> extension = ChokeDesignerExtension(withdraw=True)
         >>> extension.update_entries()
+
         """
         for category_name, attr_name in self.category_map.items():
             if hasattr(self.choke, attr_name):
@@ -296,6 +305,7 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
         >>> from ansys.aedt.core.extensions.hfss.choke_designer import ChokeDesignerExtension
         >>> extension = ChokeDesignerExtension(withdraw=True)
         >>> extension.callback()
+
         """
         self.flag = True
         if self.validate_configuration(self.choke):
@@ -312,6 +322,7 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
         >>> extension = ChokeDesignerExtension(withdraw=True)
         >>> frame = tkinter.Frame(extension.root)
         >>> extension.create_boolean_options(frame)
+
         """
         for category in self.boolean_categories:
             if hasattr(self.choke, category):
@@ -351,6 +362,7 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
         >>> extension = ChokeDesignerExtension(withdraw=True)
         >>> frame = tkinter.Frame(extension.root)
         >>> extension.create_parameter_inputs(frame, "Core")
+
         """
         # Get the attribute name from the category name
         attr_name = self.category_map.get(category_name)
@@ -380,6 +392,7 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
         >>> from ansys.aedt.core.extensions.hfss.choke_designer import ChokeDesignerExtension
         >>> extension = ChokeDesignerExtension(withdraw=True)
         >>> extension.add_extension_content()
+
         """
         master = self.root
         # Main panel
@@ -449,6 +462,7 @@ def main(data) -> bool:
     >>> from ansys.aedt.core.extensions.hfss.choke_designer import ChokeDesignerExtensionData, main
     >>> from ansys.aedt.core.modeler.advanced_cad.choke import Choke
     >>> main(ChokeDesignerExtensionData(choke=Choke()))
+
     """
     choke = data.choke
     app = ansys.aedt.core.Desktop(

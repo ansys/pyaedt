@@ -75,6 +75,7 @@ class CircuitConfigurationData(ExtensionCommonData):
     --------
     >>> from ansys.aedt.core.extensions.circuit.circuit_configuration import CircuitConfigurationData
     >>> data = CircuitConfigurationData(output_dir=r"D:\\Temp")
+
     """
 
     file_path: list[str] = field(default_factory=list)
@@ -90,6 +91,7 @@ class CircuitConfigurationExtension(ExtensionCircuitCommon):
     --------
     >>> from ansys.aedt.core.extensions.circuit.circuit_configuration import CircuitConfigurationExtension
     >>> extension = CircuitConfigurationExtension(withdraw=True)
+
     """
 
     def __init__(self, withdraw: bool = False) -> None:
@@ -135,6 +137,7 @@ class CircuitConfigurationExtension(ExtensionCircuitCommon):
         >>> from ansys.aedt.core.extensions.circuit.circuit_configuration import CircuitConfigurationExtension
         >>> extension = CircuitConfigurationExtension(withdraw=True)
         >>> extension.add_extension_content()
+
         """
         upper_frame = ttk.Frame(self.root, style="PyAEDT.TFrame")
         upper_frame.grid(row=0, column=0, columnspan=EXTENSION_NB_COLUMN)
@@ -167,6 +170,7 @@ def main(data: CircuitConfigurationData) -> bool:
     >>> from ansys.aedt.core.extensions.circuit.circuit_configuration import CircuitConfigurationData, main
     >>> data = CircuitConfigurationData(output_dir=r"D:\\Temp")
     >>> main(data)
+
     """
     app = ansys.aedt.core.Desktop(
         new_desktop=False,

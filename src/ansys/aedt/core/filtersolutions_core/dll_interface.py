@@ -41,6 +41,7 @@ class DllInterface:
     >>> from ansys.aedt.core.filtersolutions_core.dll_interface import DllInterface
     >>> dll = DllInterface(version="2026.1")
     >>> dll.api_version()
+
     """
 
     def __init__(self, show_gui: bool = False, version: str | None = None) -> None:
@@ -55,6 +56,7 @@ class DllInterface:
         >>> from ansys.aedt.core.filtersolutions_core.dll_interface import DllInterface
         >>> dll = DllInterface(version="2026.1")
         >>> dll.restore_defaults()
+
         """
         status = self._dll.startApplication(self.show_gui)
         self.raise_error(status)
@@ -137,6 +139,7 @@ class DllInterface:
         >>> from ansys.aedt.core.filtersolutions_core.dll_interface import DllInterface
         >>> dll = DllInterface(version="2026.1")
         >>> dll.get_string(dll._dll.getVersion)
+
         """
         text_buffer = ctypes.create_string_buffer(max_size)
         status = dll_function(text_buffer, max_size)
@@ -160,6 +163,7 @@ class DllInterface:
         >>> design = DistributedDesign(version="2026.1")
         >>> dll = design.export_to_aedt._dll_interface
         >>> dll.set_string(design.export_to_aedt._dll.setSchematicName, "FilterSolutionsDemo")
+
         """
         bytes_value = bytes(string, "ascii")
         status = dll_function(bytes_value)
@@ -187,6 +191,7 @@ class DllInterface:
         >>> from ansys.aedt.core.filtersolutions_core.export_to_aedt import PartLibraries
         >>> dll = DllInterface(version="2026.1")
         >>> dll.string_to_enum(PartLibraries, "modelithics")
+
         """
         fixed_string = string.upper().replace(" ", "_")
         return enum_type[fixed_string]
@@ -210,6 +215,7 @@ class DllInterface:
         >>> from ansys.aedt.core.filtersolutions_core.export_to_aedt import PartLibraries
         >>> dll = DllInterface(version="2026.1")
         >>> dll.enum_to_string(PartLibraries.MODELITHICS)
+
         """
         fixed_string = str(enum_value.name).replace("_", " ").lower()
         return fixed_string
@@ -227,6 +233,7 @@ class DllInterface:
         >>> from ansys.aedt.core.filtersolutions_core.dll_interface import DllInterface
         >>> dll = DllInterface(version="2026.1")
         >>> dll.api_version()
+
         """
         api_version = self.get_string(self._dll.getVersion)
         match = re.search(r"Version (\d{4}) R(\d+)", api_version)
@@ -253,6 +260,7 @@ class DllInterface:
         >>> from ansys.aedt.core.filtersolutions_core.dll_interface import DllInterface
         >>> dll = DllInterface(version="2026.1")
         >>> dll.raise_error(0)
+
         """
         if error_status != 0:
             error_message = self.get_string(self._dll.getErrorMessage, 4096)

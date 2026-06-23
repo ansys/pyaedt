@@ -37,6 +37,7 @@ class MathUtils(PyAedtBase):
     >>> from ansys.aedt.core.generic.math_utils import MathUtils
     >>> MathUtils.is_zero(1e-16)
     True
+
     """
 
     EPSILON = float_info.epsilon * 10.0
@@ -94,6 +95,7 @@ class MathUtils(PyAedtBase):
         >>> from ansys.aedt.core.generic.math_utils import MathUtils
         >>> MathUtils.is_close(1.0, 1.0 + 1e-10)
         True
+
         """
         return abs(a - b) <= max(relative_tolerance * max(abs(a), abs(b)), absolute_tolerance)
 
@@ -122,6 +124,7 @@ class MathUtils(PyAedtBase):
         >>> from ansys.aedt.core.generic.math_utils import MathUtils
         >>> MathUtils.is_equal(2.0, 2.0)
         True
+
         """
         return abs(a - b) < eps
 
@@ -180,6 +183,7 @@ class MathUtils(PyAedtBase):
         >>> from ansys.aedt.core.generic.math_utils import MathUtils
         >>> MathUtils.is_scalar_number(3.14)
         True
+
         """
         return isinstance(x, (int, float))
 

@@ -43,6 +43,7 @@ class RxSusceptibilityProfNode(EmitNode):
         Examples
         --------
         >>> rx_profile.parent
+
         """
         return self._parent
 
@@ -54,6 +55,7 @@ class RxSusceptibilityProfNode(EmitNode):
         Examples
         --------
         >>> rx_profile.node_type
+
         """
         return self._node_type
 
@@ -64,6 +66,7 @@ class RxSusceptibilityProfNode(EmitNode):
         Examples
         --------
         >>> rx_saturation = rx_profile.add_rx_saturation()
+
         """
         return self._add_child_node("Rx Saturation")
 
@@ -74,6 +77,7 @@ class RxSusceptibilityProfNode(EmitNode):
         Examples
         --------
         >>> rx_selectivity = rx_profile.add_rx_selectivity()
+
         """
         return self._add_child_node("Rx Selectivity")
 
@@ -84,6 +88,7 @@ class RxSusceptibilityProfNode(EmitNode):
         Examples
         --------
         >>> mixer_products = rx_profile.add_mixer_products()
+
         """
         return self._add_child_node("Mixer Products")
 
@@ -94,6 +99,7 @@ class RxSusceptibilityProfNode(EmitNode):
         Examples
         --------
         >>> rx_spurs = rx_profile.add_spurious_responses()
+
         """
         return self._add_child_node("Spurious Responses")
 
@@ -105,6 +111,7 @@ class RxSusceptibilityProfNode(EmitNode):
         Examples
         --------
         >>> rx_profile.enabled = True
+
         """
         return self._get_property("Enabled") == "true"
 
@@ -128,6 +135,7 @@ class RxSusceptibilityProfNode(EmitNode):
         --------
         >>> from ansys.aedt.core.emit_core.nodes.generated import RxSusceptibilityProfNode
         >>> rx_profile.sensitivity_units = RxSusceptibilityProfNode.SensitivityUnitsOption.DBM
+
         """
         val = self._get_property("Sensitivity Units")
         val = self.SensitivityUnitsOption[val.upper()]
@@ -148,6 +156,7 @@ class RxSusceptibilityProfNode(EmitNode):
         Examples
         --------
         >>> rx_profile.min_receive_signal_pwr = -95.0
+
         """
         val = self._get_property("Min. Receive Signal Pwr")
         return float(val)
@@ -170,6 +179,7 @@ class RxSusceptibilityProfNode(EmitNode):
         Examples
         --------
         >>> rx_profile.snr_at_rx_signal_pwr = 12.0
+
         """
         val = self._get_property("SNR at Rx Signal Pwr")
         return float(val)
@@ -189,6 +199,7 @@ class RxSusceptibilityProfNode(EmitNode):
         Examples
         --------
         >>> rx_profile.processing_gain = 18.0
+
         """
         val = self._get_property("Processing Gain")
         return float(val)
@@ -211,6 +222,7 @@ class RxSusceptibilityProfNode(EmitNode):
         Examples
         --------
         >>> rx_profile.apply_pg_to_narrowband_only = True
+
         """
         val = self._get_property("Apply PG to Narrowband Only")
         return val == "true"
@@ -230,6 +242,7 @@ class RxSusceptibilityProfNode(EmitNode):
         Examples
         --------
         >>> rx_profile.saturation_level = "-15 dBm"
+
         """
         val = self._get_property("Saturation Level")
         val = self._convert_from_internal_units(float(val), "Power")
@@ -251,6 +264,7 @@ class RxSusceptibilityProfNode(EmitNode):
         Examples
         --------
         >>> rx_profile.rx_noise_figure = 4.5
+
         """
         val = self._get_property("Rx Noise Figure")
         return float(val)
@@ -270,6 +284,7 @@ class RxSusceptibilityProfNode(EmitNode):
         Examples
         --------
         >>> rx_profile.receiver_sensitivity = "-100 dBm"
+
         """
         val = self._get_property("Receiver Sensitivity")
         val = self._convert_from_internal_units(float(val), "Power")
@@ -291,6 +306,7 @@ class RxSusceptibilityProfNode(EmitNode):
         Examples
         --------
         >>> rx_profile.snrsinad_at_sensitivity = 10.0
+
         """
         val = self._get_property("SNR/SINAD at Sensitivity")
         return float(val)
@@ -310,6 +326,7 @@ class RxSusceptibilityProfNode(EmitNode):
         Examples
         --------
         >>> rx_profile.perform_rx_intermod_analysis = True
+
         """
         val = self._get_property("Perform Rx Intermod Analysis")
         return val == "true"
@@ -329,6 +346,7 @@ class RxSusceptibilityProfNode(EmitNode):
         Examples
         --------
         >>> rx_profile.amplifier_saturation_level = "-5 dBm"
+
         """
         val = self._get_property("Amplifier Saturation Level")
         val = self._convert_from_internal_units(float(val), "Power")
@@ -352,6 +370,7 @@ class RxSusceptibilityProfNode(EmitNode):
         Examples
         --------
         >>> rx_profile.p1_db_point_ref_input = "-12 dBm"
+
         """
         val = self._get_property("P1-dB Point, Ref. Input")
         val = self._convert_from_internal_units(float(val), "Power")
@@ -373,6 +392,7 @@ class RxSusceptibilityProfNode(EmitNode):
         Examples
         --------
         >>> rx_profile.ip3_ref_input = "-2 dBm"
+
         """
         val = self._get_property("IP3, Ref. Input")
         val = self._convert_from_internal_units(float(val), "Power")
@@ -394,6 +414,7 @@ class RxSusceptibilityProfNode(EmitNode):
         Examples
         --------
         >>> rx_profile.max_intermod_order = 5
+
         """
         val = self._get_property("Max Intermod Order")
         return int(val)

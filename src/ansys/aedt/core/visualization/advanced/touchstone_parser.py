@@ -180,6 +180,7 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
         >>> obj = TouchstoneData()
         >>> obj.reduce(ports=[1, 2, 3])
+
         """
         name = f"temp_touchstone.s{len(self.port_names)}p"
         temp_touch = Path(tempfile.gettempdir()) / name
@@ -299,6 +300,7 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
         Usage of `component_filter` and `include_filter`:
         - `component_filter=["U9"]` with `include_filter=False`: scan only U1 and X1 ports
         - `component_filter=["X1", "U1"]` with `include_filter=True`: scan only U1↔other and X1↔other
+
         """
         if component_filter is None:
             component_filter = []
@@ -369,6 +371,7 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
         >>> obj = TouchstoneData()
         >>> obj.get_insertion_loss_index(threshold=1.0)
+
         """
         temp_list = []
         s_db = self.s_db[0:2, :, :]
@@ -406,6 +409,7 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
         >>> obj = TouchstoneData()
         >>> obj.plot_insertion_losses(threshold=1.0, plot=True)
+
         """
         import matplotlib.pyplot as plt
 
@@ -436,6 +440,7 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
         >>> obj = TouchstoneData()
         >>> obj.plot(index_couples=["Box1"], show=True)
+
         """
         import matplotlib.pyplot as plt
 
@@ -461,6 +466,7 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
         >>> obj = TouchstoneData()
         >>> obj.plot_return_losses()
+
         """
         import matplotlib.pyplot as plt
 
@@ -491,6 +497,7 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
         >>> obj = TouchstoneData()
         >>> obj.get_mixed_mode_touchstone_data(num_of_diff_ports=[1, 2, 3], port_ordering=1)
+
         """
         ts_diff = copy(self)
         port_count = len(ts_diff.port_names)
@@ -548,6 +555,7 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
         >>> obj = TouchstoneData()
         >>> obj.get_return_loss_index(excitation_name_prefix=1)
+
         """
         values = []
         if excitation_name_prefix:
@@ -579,6 +587,7 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
         >>> obj = TouchstoneData()
         >>> obj.get_insertion_loss_index_from_prefix(tx_prefix=1, rx_prefix=1)
+
         """
         trlist = [i for i in self.port_names if tx_prefix in i]
         receiver_list = [i for i in self.port_names if rx_prefix in i]
@@ -612,6 +621,7 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
         >>> obj = TouchstoneData()
         >>> obj.get_next_xtalk_index(tx_prefix=1)
+
         """
         if tx_prefix:
             trlist = [i for i in self.port_names if tx_prefix in i]
@@ -653,6 +663,7 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
         >>> obj = TouchstoneData()
         >>> obj.get_fext_xtalk_index_from_prefix(tx_prefix=1, rx_prefix=1)
+
         """
         trlist = [i for i in self.port_names if tx_prefix in i]
         reclist = [i for i in self.port_names if rx_prefix in i]
@@ -681,6 +692,7 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
         >>> obj = TouchstoneData()
         >>> obj.plot_next_xtalk_losses(tx_prefix=1)
+
         """
         import matplotlib.pyplot as plt
 
@@ -713,6 +725,7 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
         >>> obj = TouchstoneData()
         >>> obj.plot_fext_xtalk_losses(tx_prefix=1, rx_prefix=1)
+
         """
         import matplotlib.pyplot as plt
 
@@ -762,6 +775,7 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
         >>> from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
         >>> obj = TouchstoneData()
         >>> obj.get_worst_curve(freq_min=1.0, freq_max=1.0)
+
         """
         import matplotlib.pyplot as plt
 
@@ -813,6 +827,7 @@ def read_touchstone(input_file: str) -> TouchstoneData:
     --------
     >>> from ansys.aedt.core.visualization.advanced.touchstone_parser import read_touchstone
     >>> read_touchstone(input_file=r"C:\\Temp\network.s2p")
+
     """
     data = TouchstoneData(touchstone_file=input_file)
     return data
@@ -849,6 +864,7 @@ def check_touchstone_files(input_dir: str = "", passivity: bool = True, causalit
     --------
     >>> from ansys.aedt.core.visualization.advanced.touchstone_parser import check_touchstone_files
     >>> check_touchstone_files(input_dir=r"C:\\Temp\network.s2p", passivity=True)
+
     """
     import subprocess  # nosec
 
@@ -916,6 +932,7 @@ def find_touchstone_files(input_dir: str) -> dict:
     --------
     >>> from ansys.aedt.core.visualization.advanced.touchstone_parser import find_touchstone_files
     >>> find_touchstone_files(input_dir=r"C:\\Temp\network.s2p")
+
     """
     out = {}
     input_dir = Path(input_dir)

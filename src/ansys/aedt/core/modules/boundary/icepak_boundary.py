@@ -72,6 +72,7 @@ class BoundaryDictionary(PyAedtBase):
         >>> from ansys.aedt.core.modules.boundary.icepak_boundary import BoundaryDictionary
         >>> obj = BoundaryDictionary()
         >>> obj.props
+
         """
         return {
             "Type": self.assignment_type,
@@ -308,6 +309,7 @@ class PieceWiseLinearDictionary(BoundaryDictionary):
         >>> from ansys.aedt.core.modules.boundary.icepak_boundary import PieceWiseLinearDictionary
         >>> obj = PieceWiseLinearDictionary()
         >>> obj.dataset_name
+
         """
         return self.dataset.name
 
@@ -375,6 +377,7 @@ class NetworkObject(BoundaryObject):
         >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
         >>> obj = NetworkObject()
         >>> obj.create()
+
         """
         if not self.props.get("Faces", None):
             self.props["Faces"] = [node.props["FaceID"] for _, node in self.face_nodes.items()]
@@ -463,6 +466,7 @@ class NetworkObject(BoundaryObject):
         >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
         >>> obj = NetworkObject()
         >>> obj.auto_update
+
         """
         return False
 
@@ -497,6 +501,7 @@ class NetworkObject(BoundaryObject):
         >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
         >>> obj = NetworkObject()
         >>> obj.links
+
         """
         self._update_from_props()
         return {link.name: link for link in self._links}
@@ -516,6 +521,7 @@ class NetworkObject(BoundaryObject):
         >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
         >>> obj = NetworkObject()
         >>> obj.r_links
+
         """
         self._update_from_props()
         return {link.name: link for link in self._links if link._link_type[0] == "R-Link"}
@@ -535,6 +541,7 @@ class NetworkObject(BoundaryObject):
         >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
         >>> obj = NetworkObject()
         >>> obj.c_links
+
         """
         self._update_from_props()
         return {link.name: link for link in self._links if link._link_type[0] == "C-Link"}
@@ -554,6 +561,7 @@ class NetworkObject(BoundaryObject):
         >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
         >>> obj = NetworkObject()
         >>> obj.nodes
+
         """
         self._update_from_props()
         return {node.name: node for node in self._nodes}
@@ -573,6 +581,7 @@ class NetworkObject(BoundaryObject):
         >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
         >>> obj = NetworkObject()
         >>> obj.face_nodes
+
         """
         self._update_from_props()
         return {node.name: node for node in self._nodes if node.node_type == "FaceNode"}
@@ -592,6 +601,7 @@ class NetworkObject(BoundaryObject):
         >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
         >>> obj = NetworkObject()
         >>> obj.faces_ids_in_network
+
         """
         out_arr = []
         for _, node_dict in self.face_nodes.items():
@@ -613,6 +623,7 @@ class NetworkObject(BoundaryObject):
         >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
         >>> obj = NetworkObject()
         >>> obj.objects_in_network
+
         """
         out_arr = []
         for face_id in self.faces_ids_in_network:
@@ -634,6 +645,7 @@ class NetworkObject(BoundaryObject):
         >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
         >>> obj = NetworkObject()
         >>> obj.internal_nodes
+
         """
         self._update_from_props()
         return {node.name: node for node in self._nodes if node.node_type == "InternalNode"}
@@ -653,6 +665,7 @@ class NetworkObject(BoundaryObject):
         >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
         >>> obj = NetworkObject()
         >>> obj.boundary_nodes
+
         """
         self._update_from_props()
         return {node.name: node for node in self._nodes if node.node_type == "BoundaryNode"}
@@ -678,6 +691,7 @@ class NetworkObject(BoundaryObject):
         >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
         >>> obj = NetworkObject()
         >>> obj.name
+
         """
         return self._name
 
@@ -739,6 +753,7 @@ class NetworkObject(BoundaryObject):
         >>> network = ansys.aedt.core.modules.boundary.Network(app)
         >>> network.add_internal_node("TestNode", {"Type": "Transient",
         >>>                                        "Function": "Linear", "Values": ["0.01W", "1"]})
+
         """
         if self._app.solution_type != "SteadyState" and mass is None and specific_heat is None:
             self._app.logger.warning("The solution is transient but neither mass nor specific heat is assigned.")
@@ -797,6 +812,7 @@ class NetworkObject(BoundaryObject):
         >>> network.add_boundary_node("TestNode", "Power", {"Type": "Temp Dep",
         >>>                                                       "Function": "Piecewise Linear",
         >>>                                                       "Values": "Test_DataSet"})
+
         """
         if assignment_type not in ["Power", "Temperature", "PowerValue", "TemperatureValue"]:  # pragma: no cover
             raise AttributeError('``type`` can be only ``"Power"`` or ``"Temperature"``.')
@@ -879,6 +895,7 @@ class NetworkObject(BoundaryObject):
         ...     faces_ids[1], name="TestNode", thermal_resistance="Compute", material="Al-Extruded", thickness="2mm"
         ... )
         >>> network.add_face_node(faces_ids[2], name="TestNode", thermal_resistance="Specified", resistance=2)
+
         """
         props_dict = {}
         props_dict["FaceID"] = assignment
@@ -1003,6 +1020,7 @@ class NetworkObject(BoundaryObject):
         >>>         {"FaceID": faces_ids[2], "ThermalResistance": "Specified", "Resistance": "2cel_per_w"},
         >>>         {"Name": "Junction", "Power": "1W"}]
         >>> network.add_nodes_from_dictionaries(nodes_dict)
+
         """
         if isinstance(nodes, dict):
             nodes = [nodes]
@@ -1066,6 +1084,7 @@ class NetworkObject(BoundaryObject):
         >>> faces_ids = [face.id for face in box.faces]
         >>> connection = {"Name": "LinkTest", "Connection": [faces_ids[1], faces_ids[0]], "Value": "1cel_per_w"}
         >>> network.add_links_from_dictionaries(connection)
+
         """
         if name is None:
             new_name = True
@@ -1110,6 +1129,7 @@ class NetworkObject(BoundaryObject):
         >>> [network.add_face_node(faces_ids[i]) for i in range(2)]
         >>> connection = {"Name": "LinkTest", "Link": [faces_ids[1], faces_ids[0], "1cel_per_w"]}
         >>> network.add_links_from_dictionaries(connection)
+
         """
         if isinstance(connections, dict):
             connections = [connections]
@@ -1140,6 +1160,7 @@ class NetworkObject(BoundaryObject):
         >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
         >>> obj = NetworkObject()
         >>> obj.update()
+
         """
         if self.name in [b.name for b in self._app.boundaries]:
             self.delete()
@@ -1164,6 +1185,7 @@ class NetworkObject(BoundaryObject):
         >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
         >>> obj = NetworkObject()
         >>> obj.update_assignment()
+
         """
         return self.update()
 

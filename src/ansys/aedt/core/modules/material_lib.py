@@ -59,6 +59,7 @@ class Materials(PyAedtBase):
     >>> from ansys.aedt.core import Hfss
     >>> app = Hfss()
     >>> materials = app.materials
+
     """
 
     def __init__(self, app) -> None:
@@ -82,6 +83,7 @@ class Materials(PyAedtBase):
         >>> from ansys.aedt.core.modules.material_lib import Materials
         >>> obj = Materials()
         >>> obj.material_keys
+
         """
         return self.__material_keys
 
@@ -94,6 +96,7 @@ class Materials(PyAedtBase):
         >>> from ansys.aedt.core.modules.material_lib import Materials
         >>> obj = Materials()
         >>> obj.odefinition_manager
+
         """
         return self._app.odefinition_manager
 
@@ -106,6 +109,7 @@ class Materials(PyAedtBase):
         >>> from ansys.aedt.core.modules.material_lib import Materials
         >>> obj = Materials()
         >>> obj.omaterial_manager
+
         """
         return self._app.omaterial_manager
 
@@ -136,6 +140,7 @@ class Materials(PyAedtBase):
         >>> from ansys.aedt.core.modules.material_lib import Materials
         >>> obj = Materials()
         >>> obj.surface_material_keys
+
         """
         if not self.__surface_material_keys and self._app.design_type == "Icepak":
             self.__surface_material_keys = self._get_surface_materials()
@@ -155,6 +160,7 @@ class Materials(PyAedtBase):
         >>> from ansys.aedt.core.modules.material_lib import Materials
         >>> obj = Materials()
         >>> obj.liquids
+
         """
         mats = []
         for el, val in self.material_keys.items():
@@ -176,6 +182,7 @@ class Materials(PyAedtBase):
         >>> from ansys.aedt.core.modules.material_lib import Materials
         >>> obj = Materials()
         >>> obj.gases
+
         """
         mats = []
         for el, val in self.material_keys.items():
@@ -204,6 +211,7 @@ class Materials(PyAedtBase):
         >>> from ansys.aedt.core.modules.material_lib import Materials
         >>> obj = Materials()
         >>> obj.mat_names_aedt
+
         """
         return self._mat_names_aedt
 
@@ -216,6 +224,7 @@ class Materials(PyAedtBase):
         >>> from ansys.aedt.core.modules.material_lib import Materials
         >>> obj = Materials()
         >>> obj.mat_names_aedt_lower
+
         """
         return self._mat_names_aedt_lower
 
@@ -319,6 +328,7 @@ class Materials(PyAedtBase):
         >>> from ansys.aedt.core.modules.material_lib import Materials
         >>> obj = Materials()
         >>> obj.exists_material(material="copper")
+
         """
         if isinstance(material, Material):
             if material.name.casefold() in self.material_keys:
@@ -357,6 +367,7 @@ class Materials(PyAedtBase):
         >>> from ansys.aedt.core.modules.material_lib import Materials
         >>> obj = Materials()
         >>> obj.check_thermal_modifier(material="copper")
+
         """
         omat = self.exists_material(material)
         if omat:
@@ -507,6 +518,7 @@ class Materials(PyAedtBase):
         >>> hfss.materials.add_material("MyMaterial")
         >>> hfss.materials.add_material("MyMaterial2")
         >>> hfss.materials.add_material_sweep(["MyMaterial", "MyMaterial2"], "Sweep_copper")
+
         """
         matsweep = []
         for mat in assignment:
@@ -640,6 +652,7 @@ class Materials(PyAedtBase):
         >>> hfss = Hfss()
         >>> hfss.materials.add_surface_material("MyMaterial")
         >>> hfss.materials.duplicate_surface_material("MyMaterial", "MyMaterial2")
+
         """
         if material.casefold() not in list(self.surface_material_keys.keys()):
             self.logger.error(f"Material {material} is not present")
@@ -703,6 +716,7 @@ class Materials(PyAedtBase):
         >>> from ansys.aedt.core.modules.material_lib import Materials
         >>> obj = Materials()
         >>> obj.conductors
+
         """
         data = []
         for key, mat in self.material_keys.items():
@@ -724,6 +738,7 @@ class Materials(PyAedtBase):
         >>> from ansys.aedt.core.modules.material_lib import Materials
         >>> obj = Materials()
         >>> obj.dielectrics
+
         """
         data = []
         for key, mat in self.material_keys.items():
@@ -859,6 +874,7 @@ class Materials(PyAedtBase):
         >>> from ansys.aedt.core.modules.material_lib import Materials
         >>> obj = Materials()
         >>> obj.import_materials_from_file(input_file=r"C:\Temp\example.txt")
+
         """
         if input_file is None or not os.path.exists(input_file):
             self.logger.error("Incorrect path provided.")
@@ -965,6 +981,7 @@ class Materials(PyAedtBase):
         >>> from ansys.aedt.core.modules.material_lib import Materials
         >>> obj = Materials()
         >>> obj.import_materials_from_excel(input_file=r"C:\Temp\example.txt")
+
         """
         try:  # pragma: no cover
             import pandas as pd
@@ -1022,6 +1039,7 @@ class Materials(PyAedtBase):
         >>> from ansys.aedt.core.modules.material_lib import Materials
         >>> obj = Materials()
         >>> obj.get_used_project_material_names()
+
         """
         return self.odefinition_manager.GetInUseProjectMaterialNames()
 
@@ -1048,6 +1066,7 @@ class Materials(PyAedtBase):
         >>> from ansys.aedt.core.modules.material_lib import Materials
         >>> obj = Materials()
         >>> obj.import_materials_from_workbench(input_file=r"C:\Temp\example.txt")
+
         """
         # create an instance of the class
         mat_wb = MaterialWorkbench(self._app)

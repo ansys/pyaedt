@@ -105,6 +105,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
     project, which is named ``"myfile.aedt"``.
 
     >>> app = MaxwellCircuit("myfile.aedt")
+
     """
 
     def __init__(
@@ -168,6 +169,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
         >>> from ansys.aedt.core.maxwellcircuit import MaxwellCircuit
         >>> obj = MaxwellCircuit()
         >>> obj.create_schematic_from_netlist(r"C:\\Temp\\rectifier.sp")
+
         """
         xpos = 0
         ypos = 0
@@ -253,6 +255,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
         Export circuit netlist.
         >>> circ.export_netlist_from_schematic(output_file="C:\\Users\\netlist.sph")
         >>> circ.desktop_class.close_desktop()
+
         """
         if Path(output_file).suffix != ".sph":
             self.logger.error("Invalid file extension. It must be ``.sph``.")

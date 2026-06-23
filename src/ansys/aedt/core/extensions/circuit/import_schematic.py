@@ -64,6 +64,7 @@ class ImportSchematicData(ExtensionCommonData):
     --------
     >>> from ansys.aedt.core.extensions.circuit.import_schematic import ImportSchematicData
     >>> data = ImportSchematicData(file_extension=r"D:\\Circuits\\filter.asc")
+
     """
 
     file_extension: str = EXTENSION_DEFAULT_ARGUMENTS["file_extension"]
@@ -77,6 +78,7 @@ class ImportSchematicExtension(ExtensionCircuitCommon):
     --------
     >>> from ansys.aedt.core.extensions.circuit.import_schematic import ImportSchematicExtension
     >>> extension = ImportSchematicExtension(withdraw=True)
+
     """
 
     def __init__(self, withdraw: bool = False) -> None:
@@ -98,6 +100,7 @@ class ImportSchematicExtension(ExtensionCircuitCommon):
         >>> from ansys.aedt.core.extensions.circuit.import_schematic import ImportSchematicExtension
         >>> extension = ImportSchematicExtension(withdraw=True)
         >>> extension.add_extension_content()
+
         """
         label = ttk.Label(
             self.root,
@@ -169,6 +172,7 @@ def main(data: ImportSchematicData) -> bool:
     >>> from ansys.aedt.core.extensions.circuit.import_schematic import ImportSchematicData, main
     >>> data = ImportSchematicData(file_extension=r"D:\\Circuits\\filter.asc")
     >>> main(data)
+
     """
     file_extension = Path(data.file_extension)
     app = Desktop(

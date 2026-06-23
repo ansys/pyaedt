@@ -47,6 +47,7 @@ class LogDistanceCouplingNode(EmitNode):
         >>> revision = app.results.get_revision()
         >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
         >>> coupling.parent
+
         """
         return self._parent
 
@@ -62,6 +63,7 @@ class LogDistanceCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
         >>> coupling.node_type
+
         """
         return self._node_type
 
@@ -76,6 +78,7 @@ class LogDistanceCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
         >>> coupling.duplicate("LogDistanceCopy")
+
         """
         return self._duplicate(new_name)
 
@@ -90,6 +93,7 @@ class LogDistanceCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
         >>> coupling.delete()
+
         """
         self._delete()
 
@@ -107,6 +111,7 @@ class LogDistanceCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
         >>> coupling.enabled = True
+
         """
         val = self._get_property("Enabled")
         return val == "true"
@@ -129,6 +134,7 @@ class LogDistanceCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
         >>> coupling.antenna_a = revision.get_component_node("Antenna 1")
+
         """
         val = self._get_property("Antenna A")
         return val
@@ -151,6 +157,7 @@ class LogDistanceCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
         >>> coupling.antenna_b = revision.get_component_node("Antenna 2")
+
         """
         val = self._get_property("Antenna B")
         return val
@@ -181,6 +188,7 @@ class LogDistanceCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
         >>> coupling.environment = coupling.EnvironmentOption.URBAN
+
         """
         val = self._get_property("Environment")
         val = self.EnvironmentOption[val.upper()]
@@ -205,6 +213,7 @@ class LogDistanceCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
         >>> coupling.path_loss_exponent = 2.7
+
         """
         val = self._get_property("Path Loss Exponent")
         return float(val)
@@ -231,6 +240,7 @@ class LogDistanceCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
         >>> coupling.custom_fading_margin = 3.0
+
         """
         val = self._get_property("Custom Fading Margin")
         return float(val)
@@ -257,6 +267,7 @@ class LogDistanceCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
         >>> coupling.polarization_mismatch = 1.5
+
         """
         val = self._get_property("Polarization Mismatch")
         return float(val)
@@ -283,6 +294,7 @@ class LogDistanceCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
         >>> coupling.pointing_error_loss = 0.5
+
         """
         val = self._get_property("Pointing Error Loss")
         return float(val)
@@ -310,6 +322,7 @@ class LogDistanceCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
         >>> coupling.fading_type = coupling.FadingTypeOption.FAST_FADING_ONLY
+
         """
         val = self._get_property("Fading Type")
         val = self.FadingTypeOption[val.upper()]
@@ -337,6 +350,7 @@ class LogDistanceCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
         >>> coupling.fading_availability = 99.5
+
         """
         val = self._get_property("Fading Availability")
         return float(val)
@@ -360,6 +374,7 @@ class LogDistanceCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
         >>> coupling.std_deviation = 4.0
+
         """
         val = self._get_property("Std Deviation")
         return float(val)
@@ -383,6 +398,7 @@ class LogDistanceCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
         >>> coupling.include_rain_attenuation = True
+
         """
         val = self._get_property("Include Rain Attenuation")
         return val == "true"
@@ -409,6 +425,7 @@ class LogDistanceCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
         >>> coupling.rain_availability = 99.9
+
         """
         val = self._get_property("Rain Availability")
         return float(val)
@@ -432,6 +449,7 @@ class LogDistanceCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
         >>> coupling.rain_rate = 25.0
+
         """
         val = self._get_property("Rain Rate")
         return float(val)
@@ -458,6 +476,7 @@ class LogDistanceCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
         >>> coupling.polarization_tilt_angle = 45.0
+
         """
         val = self._get_property("Polarization Tilt Angle")
         return float(val)
@@ -484,6 +503,7 @@ class LogDistanceCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
         >>> coupling.include_atmospheric_absorption = True
+
         """
         val = self._get_property("Include Atmospheric Absorption")
         return val == "true"
@@ -507,6 +527,7 @@ class LogDistanceCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
         >>> coupling.temperature = 20.0
+
         """
         val = self._get_property("Temperature")
         return float(val)
@@ -530,6 +551,7 @@ class LogDistanceCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
         >>> coupling.total_air_pressure = 1013.25
+
         """
         val = self._get_property("Total Air Pressure")
         return float(val)
@@ -553,6 +575,7 @@ class LogDistanceCouplingNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
         >>> coupling.water_vapor_concentration = 7.5
+
         """
         val = self._get_property("Water Vapor Concentration")
         return float(val)

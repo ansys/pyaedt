@@ -71,6 +71,7 @@ def bin_to_grid(
     >>> from ansys.aedt.core.visualization.plot.contour import bin_to_grid
     >>> import numpy as np
     >>> bin_to_grid(np.array([1, 2, 3]), np.array([4, 5, 6]), np.array([7, 8, 9]))
+
     """
     xc = np.asarray(xc).ravel()
     yc = np.asarray(yc).ravel()
@@ -215,6 +216,7 @@ def extract_eye_opening_contour_by_center(
     >>> extract_eye_opening_contour_by_center(
     ...     np.array([1, 2, 3]), np.array([4, 5, 6]), np.array([[0, 1, 0], [1, 0, 1], [0, 1, 0]]), center=(2.5, 5.5)
     ... )
+
     """
     Xc = np.asarray(Xc).ravel()
     Yc = np.asarray(Yc).ravel()
@@ -310,6 +312,7 @@ def prepare_and_extract(
     >>> from ansys.aedt.core.visualization.plot.contour import prepare_and_extract
     >>> import numpy as np
     >>> prepare_and_extract(np.array([1, 2, 3]), np.array([4, 5, 6]), np.array([7, 8, 9]), center=(2.5, 5.5))
+
     """
     Xc, Yc, Z = bin_to_grid(
         xc,

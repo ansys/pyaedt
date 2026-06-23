@@ -42,6 +42,7 @@ class LumpedNodesandLeads:
     >>> from ansys.aedt.core import FilterSolutions
     >>> design = FilterSolutions.LumpedDesign(version="2026.1")
     >>> design.leads_and_nodes.c_node_capacitor = "0.01 pF"
+
     """
 
     def __init__(self) -> None:
@@ -106,6 +107,7 @@ class LumpedNodesandLeads:
         >>> design = FilterSolutions.LumpedDesign(version="2026.1")
         >>> design.leads_and_nodes.c_node_capacitor = "0.01 pF"
         >>> design.leads_and_nodes.c_node_capacitor
+
         """
         c_node_capacitor = self._dll_interface.get_string(self._dll.getLumpedCNodeCapacitor)
         return c_node_capacitor
@@ -129,6 +131,7 @@ class LumpedNodesandLeads:
         >>> design = FilterSolutions.LumpedDesign(version="2026.1")
         >>> design.leads_and_nodes.c_lead_inductor = "0.2 nH"
         >>> design.leads_and_nodes.c_lead_inductor
+
         """
         c_lead_inductor = self._dll_interface.get_string(self._dll.getLumpedCLeadInductor)
         return c_lead_inductor
@@ -153,6 +156,7 @@ class LumpedNodesandLeads:
         >>> design = FilterSolutions.LumpedDesign(version="2026.1")
         >>> design.leads_and_nodes.l_node_capacitor = "0.01 pF"
         >>> design.leads_and_nodes.l_node_capacitor
+
         """
         l_node_capacitor = self._dll_interface.get_string(self._dll.getLumpedLNodeCapacitor)
         return l_node_capacitor
@@ -177,6 +181,7 @@ class LumpedNodesandLeads:
         >>> design = FilterSolutions.LumpedDesign(version="2026.1")
         >>> design.leads_and_nodes.l_lead_inductor = "0.3 nH"
         >>> design.leads_and_nodes.l_lead_inductor
+
         """
         l_lead_inductor = self._dll_interface.get_string(self._dll.getLumpedLLeadInductor)
         return l_lead_inductor
@@ -200,6 +205,7 @@ class LumpedNodesandLeads:
         >>> design = FilterSolutions.LumpedDesign(version="2026.1")
         >>> design.leads_and_nodes.r_node_capacitor = "0.01 pF"
         >>> design.leads_and_nodes.r_node_capacitor
+
         """
         r_node_capacitor = self._dll_interface.get_string(self._dll.getLumpedRNodeCapacitor)
         return r_node_capacitor
@@ -224,6 +230,7 @@ class LumpedNodesandLeads:
         >>> design = FilterSolutions.LumpedDesign(version="2026.1")
         >>> design.leads_and_nodes.r_lead_inductor = "0.1 nH"
         >>> design.leads_and_nodes.r_lead_inductor
+
         """
         r_lead_inductor = self._dll_interface.get_string(self._dll.getLumpedRLeadInductor)
         return r_lead_inductor
@@ -246,6 +253,7 @@ class LumpedNodesandLeads:
         >>> design = FilterSolutions.LumpedDesign(version="2026.1")
         >>> design.leads_and_nodes.c_node_compensate = True
         >>> design.leads_and_nodes.c_node_compensate
+
         """
         c_node_compensate = c_bool()
         status = self._dll.getLumpedCNodeLedComensate(byref(c_node_compensate))
@@ -271,6 +279,7 @@ class LumpedNodesandLeads:
         >>> design = FilterSolutions.LumpedDesign(version="2026.1")
         >>> design.leads_and_nodes.l_node_compensate = True
         >>> design.leads_and_nodes.l_node_compensate
+
         """
         l_node_compensate = c_bool()
         status = self._dll.getLumpedLNodeLedComensate(byref(l_node_compensate))

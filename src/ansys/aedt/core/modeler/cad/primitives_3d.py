@@ -130,6 +130,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
 
     In this example, ``color`` and ``transparency`` are the variable named arguments that
     can be passed to any method that creates a primitive.
+
     """
 
     def __init__(self, application) -> None:
@@ -365,6 +366,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         >>> ret_obj = aedtapp.modeler.create_polyhedron(orientation='X',center=[0, 0, 0],
         ...                                             origin=[0,5,0],height=0.5,num_sides=8,
         ...                                             name="mybox",material="copper")
+
         """
         orientation = GeometryOperators.cs_axis_str(orientation)
         if len(center) != 3:
@@ -536,6 +538,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> aedtapp = Hfss()
         >>> ret_object = aedtapp.modeler.create_sphere(origin=[0,0,0],radius=2,name="mysphere",material="copper")
+
         """
         if len(origin) != 3:
             raise ValueError(ERROR_MSG_ORIGIN)
@@ -726,6 +729,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         >>> #Material and name are not mandatory fields
         >>> object_id = hfss.modeler.create_bondwire(origin,endpos,h1=0.5,h2=0.1,alpha=75,
         ...                                          beta=4,bond_type=0,name="mybox",material="copper")
+
         """
         if len(start) != 3:
             raise ValueError(ERROR_MSG_START)
@@ -848,6 +852,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.primitives_3d import Primitives3D
         >>> obj = Primitives3D()
         >>> obj.create_rectangle(orientation=1, origin=[0, 0, 0], sizes=["Box1"])
+
         """
         if len(sizes) != 2:
             raise ValueError(ERROR_MSG_SIZES_2)
@@ -940,6 +945,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         >>> circle_object = aedtapp.modeler.create_circle(orientation='Z', origin=[0,0,0],
         ...                                                   radius=2, num_sides=8, name="mycyl",
         ...                                                   material="vacuum")
+
         """
         if isinstance(radius, (int, float)) and radius < 0:
             raise ValueError(ERROR_MSG_RADIUS)
@@ -1039,6 +1045,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         >>> ellipse = aedtapp.modeler.create_ellipse(orientation='Z', origin=[0,0,0],
         ...                                          major_radius=2, ratio=2, is_covered=True, name="myell",
         ...                                          material="vacuum")
+
         """
         axis = GeometryOperators.cs_plane_to_axis_str(orientation)
         x_start, y_start, z_start = self._pos_with_arg(origin)
@@ -1163,6 +1170,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         ...                                                               t_start=0.2,
         ...                                                               t_end=1.2,
         ...                                                               xsection_type="Circle")
+
         """
         x_section = self._crosssection_arguments(
             type=xsection_type,
@@ -1257,6 +1265,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         ...                                                     v_start=0,
         ...                                                     v_end='2*pi'
         ...                                                     )
+
         """
         arg_1 = [
             "NAME:EquationBasedSurfaceParameters",
@@ -1341,6 +1350,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         >>> helix_right_turn = aedtapp.modeler.create_helix(assignment=polyline.name,origin=[0, 0, 0],
         ...                                                 x_start_dir=0,y_start_dir=1.0,z_start_dir=1.0,
         ...                                                 turns=1,right_hand=True,radius_increment=0.0,thread=1.0)
+
         """
         if not assignment or assignment == "":
             raise ValueError("The name of the polyline cannot be an empty string.")
@@ -1407,6 +1417,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.primitives_3d import Primitives3D
         >>> obj = Primitives3D()
         >>> obj.create_udm(udm_full_name=1, parameters={"Name": "Value"})
+
         """
         arg_1 = ["NAME:UserDefinedModelParameters", ["NAME:Definition"], ["NAME:Options"]]
         arg_param_vector = ["NAME:GeometryParams"]
@@ -1510,6 +1521,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.primitives_3d import Primitives3D
         >>> obj = Primitives3D()
         >>> obj.create_spiral(name="MyObject", material="copper")
+
         """
         if internal_radius < 0:
             raise ValueError("The ``internal_radius`` argument must be greater than 0.")
@@ -1739,6 +1751,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.primitives_3d import Primitives3D
         >>> obj = Primitives3D()
         >>> obj.insert_3d_component(input_file=r"C:\Temp\example.txt")
+
         """
         if isinstance(input_file, Path):
             input_file = str(input_file)
@@ -1929,6 +1942,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.primitives_3d import Primitives3D
         >>> obj = Primitives3D()
         >>> obj.add_layout_component_definition(file_path=r"C:\Temp\example.txt")
+
         """
         name = Path(file_path).stem if not name else name
 
@@ -2307,6 +2321,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.primitives_3d import Primitives3D
         >>> obj = Primitives3D()
         >>> obj.get_3d_component_object_list(name="MyObject")
+
         """
         if self._app._is_object_oriented_enabled():
             compobj = self._app.get_oo_object(self.oeditor, name)
@@ -2433,6 +2448,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.primitives_3d import Primitives3D
         >>> obj = Primitives3D()
         >>> obj.add_person(input_dir=r"C:\Temp\example.txt")
+
         """
         self._initialize_multipart()
         if not self._check_actor_folder(input_dir):
@@ -2527,6 +2543,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.primitives_3d import Primitives3D
         >>> obj = Primitives3D()
         >>> obj.add_vehicle(input_dir=r"C:\Temp\example.txt")
+
         """
         self._initialize_multipart()
 
@@ -2721,6 +2738,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.primitives_3d import Primitives3D
         >>> obj = Primitives3D()
         >>> obj.add_environment(input_dir=r"C:\Temp\example.txt")
+
         """
         self._initialize_multipart()
         if not self._check_actor_folder(input_dir):
@@ -2769,6 +2787,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         >>> hfss = Hfss()
         >>> dictionary_values = hfss.modeler.check_choke_values("C:/Example/Of/Path/myJsonFile.json")
         >>> mychoke = hfss.modeler.create_choke("C:/Example/Of/Path/myJsonFile_Corrected.json")
+
         """
         with open_file(input_file, "r") as read_file:
             values = json.load(read_file)
@@ -3311,6 +3330,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> dictionary_values = hfss.modeler.check_choke_values("C:/Example/Of/Path/myJsonFile.json")
+
         """
         dictionary_model = {
             "Number of Windings": {"1": True, "2": False, "3": False, "4": False},

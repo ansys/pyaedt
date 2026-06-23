@@ -56,4 +56,5 @@ class AEDTRuntimeError(RuntimeError):
     --------
     >>> from ansys.aedt.core.internal.errors import AEDTRuntimeError
     >>> obj = AEDTRuntimeError()
+
     """

@@ -54,6 +54,7 @@ class FilterType(Enum):
     --------
     >>> from ansys.aedt.core.filtersolutions_core.attributes import FilterType
     >>> FilterType.ELLIPTIC
+
     """
 
     GAUSSIAN = 0
@@ -103,6 +104,7 @@ class FilterClass(Enum):
     --------
     >>> from ansys.aedt.core.filtersolutions_core.attributes import FilterClass
     >>> FilterClass.BAND_PASS
+
     """
 
     LOW_PASS = 0
@@ -143,6 +145,7 @@ class DiplexerType(Enum):
     --------
     >>> from ansys.aedt.core.filtersolutions_core.attributes import DiplexerType
     >>> DiplexerType.BP_BS
+
     """
 
     HI_LO = 0
@@ -179,6 +182,7 @@ class RaisedCosineAlphaPercentage(Enum):
     --------
     >>> from ansys.aedt.core.filtersolutions_core.attributes import RaisedCosineAlphaPercentage
     >>> RaisedCosineAlphaPercentage.FIFTY
+
     """
 
     FIFTEEN = 0
@@ -219,6 +223,7 @@ class BesselRipplePercentage(Enum):
     --------
     >>> from ansys.aedt.core.filtersolutions_core.attributes import BesselRipplePercentage
     >>> BesselRipplePercentage.ONE
+
     """
 
     ZERO = 0
@@ -251,6 +256,7 @@ class GaussianTransition(Enum):
     --------
     >>> from ansys.aedt.core.filtersolutions_core.attributes import GaussianTransition
     >>> GaussianTransition.TRANSITION_6_DB
+
     """
 
     TRANSITION_NONE = 0
@@ -280,6 +286,7 @@ class GaussianBesselReflection(Enum):
     --------
     >>> from ansys.aedt.core.filtersolutions_core.attributes import GaussianBesselReflection
     >>> GaussianBesselReflection.OPTION_2
+
     """
 
     OPTION_1 = 0
@@ -303,6 +310,7 @@ class RippleConstrictionBandSelect(Enum):
     --------
     >>> from ansys.aedt.core.filtersolutions_core.attributes import RippleConstrictionBandSelect
     >>> RippleConstrictionBandSelect.BOTH
+
     """
 
     STOP = 0
@@ -325,6 +333,7 @@ class SinglePointRippleInfZeros(Enum):
     --------
     >>> from ansys.aedt.core.filtersolutions_core.attributes import SinglePointRippleInfZeros
     >>> SinglePointRippleInfZeros.RIPPLE_INF_ZEROS_3
+
     """
 
     RIPPLE_INF_ZEROS_1 = 0
@@ -345,6 +354,7 @@ class PassbandDefinition(Enum):
     --------
     >>> from ansys.aedt.core.filtersolutions_core.attributes import PassbandDefinition
     >>> PassbandDefinition.CENTER_FREQUENCY
+
     """
 
     CENTER_FREQUENCY = 0
@@ -366,6 +376,7 @@ class StopbandDefinition(Enum):
     --------
     >>> from ansys.aedt.core.filtersolutions_core.attributes import StopbandDefinition
     >>> StopbandDefinition.ATTENUATION_DB
+
     """
 
     RATIO = 0
@@ -386,6 +397,7 @@ class Attributes:
     >>> from ansys.aedt.core.filtersolutions_core.attributes import Attributes
     >>> attributes = Attributes()
     >>> attributes.filter_type
+
     """
 
     def __init__(self) -> None:
@@ -733,6 +745,7 @@ class Attributes:
         >>> from ansys.aedt.core.filtersolutions_core.attributes import FilterType
         >>> design = LumpedDesign(version="2026.1")
         >>> design.attributes.filter_type = FilterType.ELLIPTIC
+
         """
         type_string = self._dll_interface.get_string(self._dll.getFilterType)
         return self._dll_interface.string_to_enum(FilterType, type_string)
@@ -761,6 +774,7 @@ class Attributes:
         >>> from ansys.aedt.core.filtersolutions_core.attributes import FilterClass
         >>> design = LumpedDesign(version="2026.1")
         >>> design.attributes.filter_class = FilterClass.BAND_PASS
+
         """
         type_string = self._dll_interface.get_string(self._dll.getFilterClass)
         return self._dll_interface.string_to_enum(FilterClass, type_string)
@@ -794,6 +808,7 @@ class Attributes:
         >>> design = LumpedDesign(version="2026.1")
         >>> design.attributes.filter_class = FilterClass.DIPLEXER_2
         >>> design.attributes.diplexer_type = DiplexerType.BP_BS
+
         """
         type_string = self._dll_interface.get_string(self._dll.getDiplexerType)
         return self._dll_interface.string_to_enum(DiplexerType, type_string)
@@ -816,6 +831,7 @@ class Attributes:
         >>> from ansys.aedt.core.filtersolutions import LumpedDesign
         >>> design = LumpedDesign(version="2026.1")
         >>> design.attributes.filter_multiple_bands_enabled = True
+
         """
         filter_multiple_bands_enabled = c_bool()
         status = self._dll.getMultipleBandsEnabled(byref(filter_multiple_bands_enabled))
@@ -840,6 +856,7 @@ class Attributes:
         >>> from ansys.aedt.core.filtersolutions import LumpedDesign
         >>> design = LumpedDesign(version="2026.1")
         >>> design.attributes.filter_multiple_bands_low_pass_frequency = "900MHz"
+
         """
         filter_multiple_bands_low_pass_freq_string = self._dll_interface.get_string(
             self._dll.getMultipleBandsLowPassFrequency

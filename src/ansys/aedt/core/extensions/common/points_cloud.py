@@ -72,6 +72,7 @@ class PointsCloudExtensionData(ExtensionCommonData):
     --------
     >>> from ansys.aedt.core.extensions.common.points_cloud import PointsCloudExtensionData
     >>> data = PointsCloudExtensionData(choice=["Box1"], points=500, output_file=r"D:\\Temp\\box1.pts")
+
     """
 
     choice: str | list[str] = EXTENSION_DEFAULT_ARGUMENTS["choice"]
@@ -89,6 +90,7 @@ class PointsCloudExtension(ExtensionProjectCommon):
     --------
     >>> from ansys.aedt.core.extensions.common.points_cloud import PointsCloudExtension
     >>> extension = PointsCloudExtension(withdraw=True)
+
     """
 
     def __init__(self, withdraw: bool = False) -> None:
@@ -114,6 +116,7 @@ class PointsCloudExtension(ExtensionProjectCommon):
         >>> from ansys.aedt.core.extensions.common.points_cloud import PointsCloudExtension
         >>> extension = PointsCloudExtension(withdraw=True)
         >>> extension.check_design_type()
+
         """
         if self.aedt_application.design_type not in [
             "HFSS",
@@ -149,6 +152,7 @@ class PointsCloudExtension(ExtensionProjectCommon):
         >>> from ansys.aedt.core.extensions.common.points_cloud import PointsCloudExtension
         >>> extension = PointsCloudExtension(withdraw=True)
         >>> extension.add_extension_content()
+
         """
         # Upper frame of the extension GUI with widgets receiving user inputs
         input_frame = ttk.Frame(self.root, style="PyAEDT.TFrame", name="input_frame")
@@ -322,6 +326,7 @@ class PointsCloudExtension(ExtensionProjectCommon):
         >>> extension = PointsCloudExtension(withdraw=True)
         >>> extension._widgets["objects_list"].selection_set(1)
         >>> assignments, points, output_file = extension.check_and_format_extension_data()
+
         """
         selected_objects = [self._widgets["objects_list"].get(i) for i in self._widgets["objects_list"].curselection()]
         if not selected_objects or any(
@@ -352,6 +357,7 @@ def main(data: PointsCloudExtensionData):
     >>> from ansys.aedt.core.extensions.common.points_cloud import PointsCloudExtensionData, main
     >>> data = PointsCloudExtensionData(choice=["Box1"], points=500, output_file=r"D:\\Temp\\box1.pts")
     >>> main(data)
+
     """
     # Check validity of data
     if not data.choice:
@@ -422,6 +428,7 @@ def generate_point_cloud(aedtapp: Desktop, selected_objects: list[str], num_poin
     >>> from ansys.aedt.core.extensions.common.points_cloud import generate_point_cloud
     >>> hfss = Hfss()
     >>> generate_point_cloud(hfss, ["Box1"], 500, r"D:\\Temp\\box1.pts")
+
     """
     # Export the mesh (export_model_obj expects a file name with the .obj extension passed as a str)
     if not output_file or Path(output_file).is_dir():

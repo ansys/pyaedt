@@ -48,6 +48,7 @@ class EmiPlotMarkerNode(EmitNode):
         >>> result_plot = revision.get_result_plot_node()
         >>> marker = result_plot.children[0]
         >>> marker.parent
+
         """
         return self._parent
 
@@ -64,6 +65,7 @@ class EmiPlotMarkerNode(EmitNode):
         >>> result_plot = revision.get_result_plot_node()
         >>> marker = result_plot.children[0]
         >>> marker.node_type
+
         """
         return self._node_type
 
@@ -82,6 +84,7 @@ class EmiPlotMarkerNode(EmitNode):
         >>> result_plot = revision.get_result_plot_node()
         >>> marker = result_plot.children[0]
         >>> marker.visible = True
+
         """
         val = self._get_property("Visible")
         return val == "true"
@@ -104,6 +107,7 @@ class EmiPlotMarkerNode(EmitNode):
         >>> result_plot = revision.get_result_plot_node()
         >>> marker = result_plot.children[0]
         >>> marker.position_x
+
         """
         val = self._get_property("Position X")
         return float(val)
@@ -121,6 +125,7 @@ class EmiPlotMarkerNode(EmitNode):
         >>> result_plot = revision.get_result_plot_node()
         >>> marker = result_plot.children[0]
         >>> marker.position_y
+
         """
         val = self._get_property("Position Y")
         return float(val)
@@ -143,6 +148,7 @@ class EmiPlotMarkerNode(EmitNode):
         >>> result_plot = revision.get_result_plot_node()
         >>> marker = result_plot.children[0]
         >>> marker.floating_label = True
+
         """
         val = self._get_property("Floating Label")
         return val == "true"
@@ -170,6 +176,7 @@ class EmiPlotMarkerNode(EmitNode):
         >>> result_plot = revision.get_result_plot_node()
         >>> marker = result_plot.children[0]
         >>> marker.position_from_left = 10.0
+
         """
         val = self._get_property("Position from Left")
         return float(val)
@@ -197,6 +204,7 @@ class EmiPlotMarkerNode(EmitNode):
         >>> result_plot = revision.get_result_plot_node()
         >>> marker = result_plot.children[0]
         >>> marker.position_from_top = 15.0
+
         """
         val = self._get_property("Position from Top")
         return float(val)
@@ -219,6 +227,7 @@ class EmiPlotMarkerNode(EmitNode):
         >>> result_plot = revision.get_result_plot_node()
         >>> marker = result_plot.children[0]
         >>> marker.text = "Peak"
+
         """
         val = self._get_property("Text")
         return val
@@ -246,6 +255,7 @@ class EmiPlotMarkerNode(EmitNode):
         >>> result_plot = revision.get_result_plot_node()
         >>> marker = result_plot.children[0]
         >>> marker.horizontal_position = marker.HorizontalPositionOption.RIGHT
+
         """
         val = self._get_property("Horizontal Position")
         val = self.HorizontalPositionOption[val.upper()]
@@ -274,6 +284,7 @@ class EmiPlotMarkerNode(EmitNode):
         >>> result_plot = revision.get_result_plot_node()
         >>> marker = result_plot.children[0]
         >>> marker.vertical_position = marker.VerticalPositionOption.TOP
+
         """
         val = self._get_property("Vertical Position")
         val = self.VerticalPositionOption[val.upper()]
@@ -302,6 +313,7 @@ class EmiPlotMarkerNode(EmitNode):
         >>> result_plot = revision.get_result_plot_node()
         >>> marker = result_plot.children[0]
         >>> marker.text_alignment = marker.TextAlignmentOption.CENTER
+
         """
         val = self._get_property("Text Alignment")
         val = self.TextAlignmentOption[val.upper()]
@@ -327,6 +339,7 @@ class EmiPlotMarkerNode(EmitNode):
         >>> result_plot = revision.get_result_plot_node()
         >>> marker = result_plot.children[0]
         >>> marker.font = "Sans Serif,10,-1,5,50,0,0,0,0,0"
+
         """
         val = self._get_property("Font")
         return val
@@ -351,6 +364,7 @@ class EmiPlotMarkerNode(EmitNode):
         >>> result_plot = revision.get_result_plot_node()
         >>> marker = result_plot.children[0]
         >>> marker.color = "#FF0000"
+
         """
         val = self._get_property("Color")
         return val
@@ -375,6 +389,7 @@ class EmiPlotMarkerNode(EmitNode):
         >>> result_plot = revision.get_result_plot_node()
         >>> marker = result_plot.children[0]
         >>> marker.background_color = "#80FFFFFF"
+
         """
         val = self._get_property("Background Color")
         return val
@@ -399,6 +414,7 @@ class EmiPlotMarkerNode(EmitNode):
         >>> result_plot = revision.get_result_plot_node()
         >>> marker = result_plot.children[0]
         >>> marker.border = True
+
         """
         val = self._get_property("Border")
         return val == "true"
@@ -423,6 +439,7 @@ class EmiPlotMarkerNode(EmitNode):
         >>> result_plot = revision.get_result_plot_node()
         >>> marker = result_plot.children[0]
         >>> marker.border_width = 2
+
         """
         val = self._get_property("Border Width")
         return int(val)
@@ -447,6 +464,7 @@ class EmiPlotMarkerNode(EmitNode):
         >>> result_plot = revision.get_result_plot_node()
         >>> marker = result_plot.children[0]
         >>> marker.border_color = "#000000"
+
         """
         val = self._get_property("Border Color")
         return val
@@ -487,6 +505,7 @@ class EmiPlotMarkerNode(EmitNode):
         >>> result_plot = revision.get_result_plot_node()
         >>> marker = result_plot.children[0]
         >>> marker.symbol = marker.SymbolOption.DIAMOND
+
         """
         val = self._get_property("Symbol")
         val = self.SymbolOption[val.upper()]
@@ -512,6 +531,7 @@ class EmiPlotMarkerNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> marker_node = next(node for node in revision.get_all_nodes() if isinstance(node, EmiPlotMarkerNode))
         >>> marker_node.arrow_direction = 90
+
         """
         val = self._get_property("Arrow Direction")
         return int(val)
@@ -536,6 +556,7 @@ class EmiPlotMarkerNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> marker_node = next(node for node in revision.get_all_nodes() if isinstance(node, EmiPlotMarkerNode))
         >>> marker_node.symbol_size = 14
+
         """
         val = self._get_property("Symbol Size")
         return int(val)
@@ -560,6 +581,7 @@ class EmiPlotMarkerNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> marker_node = next(node for node in revision.get_all_nodes() if isinstance(node, EmiPlotMarkerNode))
         >>> marker_node.symbol_color = "#FF6600"
+
         """
         val = self._get_property("Symbol Color")
         return val
@@ -584,6 +606,7 @@ class EmiPlotMarkerNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> marker_node = next(node for node in revision.get_all_nodes() if isinstance(node, EmiPlotMarkerNode))
         >>> marker_node.line_width = 2
+
         """
         val = self._get_property("Line Width")
         return int(val)
@@ -611,6 +634,7 @@ class EmiPlotMarkerNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> marker_node = next(node for node in revision.get_all_nodes() if isinstance(node, EmiPlotMarkerNode))
         >>> marker_node.filled = True
+
         """
         val = self._get_property("Filled")
         return val == "true"

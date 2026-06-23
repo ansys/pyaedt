@@ -45,6 +45,7 @@ class SolutionsNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> solutions = next(node for node in revision.get_all_nodes() if node.node_type == "SolutionsNode")
         >>> solutions.parent
+
         """
         return self._parent
 
@@ -60,6 +61,7 @@ class SolutionsNode(EmitNode):
         >>> revision = app.results.analyze()
         >>> solutions = next(node for node in revision.get_all_nodes() if node.node_type == "SolutionsNode")
         >>> solutions.node_type
+
         """
         return self._node_type
 
@@ -81,6 +83,7 @@ class SolutionsNode(EmitNode):
         >>> solutions = next(node for node in revision.get_all_nodes() if node.node_type == "SolutionsNode")
         >>> solutions.enabled = False
         >>> solutions.enabled
+
         """
         val = self._get_property("Enabled")
         return val == "true"
