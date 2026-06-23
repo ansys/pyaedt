@@ -25,36 +25,18 @@ The following table summarizes the most common behavior combinations:
    :widths: 25 20 20 35
 
    * - Usage
-     - AEDT session used by PyAEDT
-     - ``close_on_exit``
      - Result on exit
-   * - ``with Desktop(...)``
-     - New or existing session
-     - omitted
+   * - ``with Desktop(close_on_exit=True)`` or ``with Desktop()``
      - AEDT closes when leaving the context manager
-   * - ``with Desktop(...)``
-     - New or existing session
-     - ``True``
-     - AEDT closes when leaving the context manager
-   * - ``with Desktop(...)``
-     - New or existing session
-     - ``False``
+   * - ``with Desktop(close_on_exit=False)``
      - AEDT remains open when leaving the context manager
-   * - ``Desktop(...)``
-     - New session started by PyAEDT
-     - omitted
+   * - ``Desktop(new_desktop=True)``
      - AEDT closes when the interpreter session ends
-   * - ``Desktop(...)``
-     - PyAEDT connected to an existing session
-     - omitted
-     - AEDT remains open when the interpreter session ends
-   * - ``Desktop(...)``
-     - New or existing session
-     - ``True``
+   * - ``Desktop(new_desktop=False)``
+     - PyAEDT connected to an existing session. AEDT remains open when the interpreter session ends
+   * - ``Desktop(close_on_exit=True)``
      - AEDT closes when the interpreter session ends
-   * - ``Desktop(...)``
-     - New or existing session
-     - ``False``
+   * - ``Desktop(close_on_exit=False)``
      - AEDT remains open when the interpreter session ends
 
 Use a context manager
