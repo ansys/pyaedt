@@ -1646,6 +1646,7 @@ Examples
 --------
 >>> from ansys.aedt.core.modules.setup_templates import GRM
 >>> GRM
+
 """
 
 GRM["RatedPowerFactor"] = "0.8"
@@ -1670,6 +1671,7 @@ DFIG = dict(
 
 TPIM = copy.deepcopy(RmxprtDefault)
 """Tpim."""
+
 TPIM["Frequency"] = "60Hz"
 TPIM["WindingConnection"] = 0
 
@@ -1679,6 +1681,7 @@ Examples
 --------
 >>> from ansys.aedt.core.modules.setup_templates import TPIM
 >>> TPIM
+
 """
 
 SPIM = copy.deepcopy(RmxprtDefault)
@@ -1691,6 +1694,7 @@ Examples
 --------
 >>> from ansys.aedt.core.modules.setup_templates import SPIM
 >>> SPIM
+
 """
 
 TPSM = dict(
@@ -1732,6 +1736,7 @@ Examples
 --------
 >>> from ansys.aedt.core.modules.setup_templates import LSSM
 >>> LSSM
+
 """
 UNIM = copy.deepcopy(RmxprtDefault)
 """Unim."""
