@@ -47,7 +47,9 @@ class TxSpurNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def import_csv_file(self, file_name: str) -> EmitNode:
-        """Import a CSV File..."""
+        """Import a CSV File...
+
+        Note: The CSV file should not have any header lines and must contain only numeric values."""
         return self._import(file_name, "CsvFile")
 
     @min_aedt_version("2027.1")
