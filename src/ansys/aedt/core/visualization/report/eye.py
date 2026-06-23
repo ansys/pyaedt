@@ -65,7 +65,7 @@ class AMIConturEyeDiagram(CommonReport):
 
     @property
     def expressions(self) -> list:
-        """Expressions.
+        """Get the expressions for the eye diagram.
 
         Returns
         -------
@@ -80,7 +80,18 @@ class AMIConturEyeDiagram(CommonReport):
         new_exprs = []
         for expr_dict in self._legacy_props["expressions"]:
             expr = expr_dict["name"] if isinstance(expr_dict, dict) else expr_dict
-            if ".int_ami" not in expr:
+            if "amiprobe" in expr.lower() or "amisource" in expr.lower():
+                if "Bit Error Rate" not in expr:
+                    qtype = int(self.quantity_type)
+                    if qtype == 0:
+                        new_exprs.append(f"Initial{expr_head}(" + expr.lower() + ")<Bit Error Rate>")
+                    elif qtype == 1:
+                        new_exprs.append(f"{expr_head}AfterSource(" + expr.lower() + ")<Bit Error Rate>")
+                    elif qtype == 2:
+                        new_exprs.append(f"{expr_head}AfterChannel(" + expr.lower() + ")<Bit Error Rate>")
+                    elif qtype == 3:
+                        new_exprs.append(f"{expr_head}AfterProbe(" + expr.lower() + ")<Bit Error Rate>")
+            elif ".int_ami" not in expr:
                 qtype = int(self.quantity_type)
                 if qtype == 0:
                     new_exprs.append(f"Initial{expr_head}(" + expr + ".int_ami_tx)<Bit Error Rate>")
