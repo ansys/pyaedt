@@ -631,12 +631,6 @@ class MatProperty(PyAedtBase):
         --------
         >>> from ansys.aedt.core.modules.material import MatProperty
         >>> obj = MatProperty()
-        >>> obj.thermalmodifier()
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.material import MatProperty
-        >>> obj = MatProperty()
         >>> obj.thermalmodifier
 
         """
@@ -652,6 +646,13 @@ class MatProperty(PyAedtBase):
         References
         ----------
         >>> oDefinitionManager.EditMaterial
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.material import MatProperty
+        >>> obj = MatProperty()
+        >>> obj.thermalmodifier = "value"
+
         """
         if thermal_value is None:
             self._property_value[0].thermalmodifier = None
