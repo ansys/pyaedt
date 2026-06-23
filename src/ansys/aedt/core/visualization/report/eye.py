@@ -534,7 +534,7 @@ class AMIEyeDiagram(CommonReport):
         for expr_dict in self._legacy_props["expressions"]:
             expr = expr_dict["name"] if isinstance(expr_dict, dict) else expr_dict
             if "amiprobe" in expr.lower() or "amisource" in expr.lower():
-                if "Initial" not in expr or "After" not in expr:
+                if "Initial" not in expr and "After" not in expr:
                     qtype = int(self.quantity_type)
                     if qtype == 0:
                         new_exprs.append(f"Initial{expr_head}<" + expr + ">")
