@@ -810,7 +810,7 @@ class Desktop(PyAedtBase):
         # Register the desktop closure to be called at exit unless asked not to.
         atexit.register(
             lambda: self.__release_and_close_desktop(
-                close_projects=self.close_on_exit, close_aedt_app=self.close_on_exit
+                close_projects=self.__close_on_exit, close_aedt_app=self.__close_on_exit
             )
         )
 
