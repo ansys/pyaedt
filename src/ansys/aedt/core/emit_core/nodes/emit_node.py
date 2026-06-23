@@ -322,11 +322,26 @@ class EmitNode:
         return child_nodes
 
     @staticmethod
-    def _parse_property_value(prop: str, val: str | list[str], isTable: bool = False) -> str | list[str] | list[float] | list[tuple[str, ...]]:
-        if isinstance(val, list):
-            raw_val = val
-        else:
-            raw_val = val
+    def _parse_property_value(
+        prop: str, val: str | list[str], isTable: bool = False
+    ) -> str | list[str] | list[float] | list[tuple[str, ...]]:
+        """Parse a property value into a list of strings or floats.
+
+        Parameters
+        ----------
+        prop : str
+            Property name.
+        val : str or list[str]
+            Property value.
+        isTable : bool, optional
+            Whether the property is a table.
+
+        Returns
+        -------
+        str | list[str] | list[float] | list[tuple[str, ...]]
+            Parsed property value.
+        """
+        raw_val = val
 
         if prop in _FLOAT_LIST_PROPERTIES:
             if isinstance(raw_val, list):
@@ -347,6 +362,20 @@ class EmitNode:
 
     @staticmethod
     def _format_property_value(prop: str, value) -> str:
+        """Format a property value into a string.
+
+        Parameters
+        ----------
+        prop : str
+            Property name.
+        value : bool | float | list[float] | str
+            Property value.
+
+        Returns
+        -------
+        str
+            Formatted property value.
+        """
         if isinstance(value, bool):
             return str(value).lower()
         if prop in _FLOAT_LIST_PROPERTIES:
@@ -368,10 +397,9 @@ class EmitNode:
         skipChecks: bool = True,
         raw: bool = True,
     ) -> dict[str, str | list[str] | list[float]]:
-        """Get node properties in a single EmitCom call.
+        """Get all of a node's properties in a single API call.
 
-        This method is equivalent to ``GetEmitNodeProperties`` and is intended for
-        production scripts that need to read multiple properties efficiently.
+        This method is intended for scripts that need to read multiple properties efficiently.
 
         Parameters
         ----------
@@ -380,7 +408,7 @@ class EmitNode:
         skipChecks : bool, optional
             Whether to skip property visibility checks. The default is ``True``.
         raw : bool, optional
-            When ``True``, return string values as returned by EmitCom.
+            When ``True``, return string values
             When ``False``, parse values such as position and orientation into
             lists of floats. The default is ``True``.
 
@@ -397,9 +425,9 @@ class EmitNode:
         try:
             props = self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, skipChecks)
         except Exception:
-             errors = self._emit_obj.logger.aedt_messages.error_level
-             msg = errors[-1] if errors else "Failed to get node properties."
-             raise ValueError(str(msg))
+            errors = self._emit_obj.logger.aedt_messages.error_level
+            msg = errors[-1] if errors else "Failed to get node properties."
+            raise ValueError(str(msg))
         props_dict = self.props_to_dict(props)
 
         if property_names is not None:
@@ -421,18 +449,11 @@ class EmitNode:
     def set_properties(
         self,
         properties: dict[str, str | bool | float | list] | list[str],
-        skipChecks: bool = False,
+        skipChecks: bool = True,
     ) -> None:
-        """Set multiple node properties in a single EmitCom call.
+        """Set multiple node properties simultaneously.
 
-        This method is equivalent to ``SetEmitNodeProperties`` and is intended for
-        production scripts that need to write multiple properties efficiently.
-
-        When setting multiple properties, changes are applied before visibility
-        validation so that one property can expose another. For example,
-        ``['Position Defined=true', 'Position=1 1 1']`` is valid because the first
-        property makes the second visible. If validation fails after applying the
-        changes, the previous values are restored.
+        This method is intended for scripts that need to write multiple properties efficiently.
 
         Parameters
         ----------
@@ -440,8 +461,7 @@ class EmitNode:
             Properties to set. Either a dictionary of property names and values or
             a list of ``'name=value'`` strings as used by EmitCom.
         skipChecks : bool, optional
-            When ``True``, skip validation after applying property changes.
-            The default is ``False``.
+            Whether to skip property visibility checks. The default is ``True``.
 
         Raises
         ------
@@ -454,25 +474,31 @@ class EmitNode:
         if not prop_strings:
             return
 
-        original_values = self._get_raw_property_values(prop_keys)
-        use_deferred_validation = not skipChecks and len(prop_strings) > 1
-
         try:
-            if use_deferred_validation:
-                self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, prop_strings, True)
-                self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, False)
-            else:
-                self._oRevisionData.SetEmitNodeProperties(
-                    self._result_id, self._node_id, prop_strings, skipChecks
-                )
+            self._oRevisionData.SetEmitNodeProperties(
+                self._result_id, self._node_id, prop_strings, skipChecks
+            )
         except Exception:
-            if use_deferred_validation:
-                self._restore_property_values(original_values)
             raise ValueError(self._format_set_properties_error(prop_strings, prop_keys))
 
-    def _normalize_properties_input(
-        self, properties: dict[str, str | bool | float | list] | list[str]
-    ) -> tuple[list[str], list[str]]:
+    def _normalize_properties_input(self, properties: object) -> tuple[list[str], list[str]]:
+        """Normalize the properties input into a list of strings and a list of keys.
+
+        Parameters
+        ----------
+        properties : object
+            Properties to normalize.
+
+        Returns
+        -------
+        tuple[list[str], list[str]]
+            List of property strings and list of property keys.
+
+        Raises
+        ------
+        TypeError
+            If ``properties`` is not a dictionary or list of strings.
+        """
         if isinstance(properties, dict):
             prop_dict = properties
         elif isinstance(properties, list):
@@ -487,32 +513,25 @@ class EmitNode:
         else:
             raise TypeError("properties must be a dict or list of 'name=value' strings.")
 
-        prop_strings = []
-        prop_keys = []
-        for key, value in prop_dict.items():
-            prop_keys.append(key)
-            prop_strings.append(f"{key}={self._format_property_value(key, value)}")
-        return prop_strings, prop_keys
-
-    def _get_raw_property_values(self, property_names: list[str]) -> dict[str, str]:
-        if not property_names:
-            return {}
-        props = self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, True)
-        props_dict = self.props_to_dict(props)
-        return {name: props_dict[name] for name in property_names if name in props_dict}
-
-    def _restore_property_values(self, original_values: dict[str, str]) -> None:
-        if not original_values:
-            return
-        rollback_strings = [f"{key}={value}" for key, value in original_values.items()]
-        try:
-            self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, rollback_strings, True)
-        except Exception:
-            pass
+        return [f"{key}={self._format_property_value(key, value)}" for key, value in prop_dict.items()], list(prop_dict.keys())
 
     def _format_set_properties_error(self, prop_strings: list[str], prop_keys: list[str]) -> str:
+        """Format the error message for setting properties.
+
+        Parameters
+        ----------
+        prop_strings : list[str]
+            List of property strings.
+        prop_keys : list[str]
+            List of property keys.
+
+        Returns
+        -------
+        str
+            Formatted error message.
+        """
         aedt_errors = self._emit_obj.logger.aedt_messages.error_level
-        error_text = str(aedt_errors[-1]) if aedt_errors else None        
+        error_text = str(aedt_errors[-1]) if aedt_errors else None
         if not error_text:
             props_desc = ", ".join(f'"{key}"' for key in prop_keys)
             return (
@@ -529,7 +548,32 @@ class EmitNode:
         return error_text
 
     @min_aedt_version("2025.2")
-    def _get_property(self, prop: str, skipChecks: bool = False, isTable: bool = False) -> str | list[str] | list[float] | list[tuple[str, ...]]:
+    def _get_property(
+        self, prop: str, skipChecks: bool = True, isTable: bool = False
+    ) -> str | list[str] | list[float] | list[tuple[str, ...]]:
+        """Get a single property value.
+
+        Parameters
+        ----------
+        prop : str
+            Property name.
+        skipChecks : bool, optional
+            Whether to skip property visibility checks.
+        isTable : bool, optional
+            Whether the property is a table.
+
+        Returns
+        -------
+        str | list[str] | list[float] | list[tuple[str, ...]]
+            Property value.
+
+        Raises
+        ------
+        ValueError
+            If the property is not found or not available.
+        Exception
+            If an error occurs.
+        """
         try:
             props = self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, skipChecks)
             kv_pairs = [prop.split("=") for prop in props]
@@ -546,12 +590,29 @@ class EmitNode:
             raise self._emit_obj.logger.aedt_messages.error_level[-1]
 
     @min_aedt_version("2025.2")
-    def _set_property(self, prop, value, skipChecks: bool = False):
+    def _set_property(self, prop, value, skipChecks: bool = True):
+        """Set a single property value.
+
+        Parameters
+        ----------
+        prop : str
+            Property name.
+        value : str | bool | float | list[float] | list[tuple[str, ...]]
+            Property value.
+        skipChecks : bool, optional
+            Whether to skip property visibility checks.
+
+        Raises
+        ------
+        ValueError
+            If the property is not found or not available.
+        Exception
+            If an error occurs.
+        """
         formatted_value = self._format_property_value(prop, value)
         try:
             self._oRevisionData.SetEmitNodeProperties(
-                self._result_id, self._node_id, [f"{prop}={formatted_value}"], skipChecks
-            )
+                self._result_id, self._node_id, [f"{prop}={formatted_value}"], skipChecks)
         except Exception:
             raise ValueError(
                 self._format_set_properties_error([f"{prop}={formatted_value}"], [prop])
