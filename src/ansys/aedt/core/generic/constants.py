@@ -1324,6 +1324,20 @@ class DisplayFamiliesType(metaclass=DynamicMeta):
     )
 
 
+class IncidentWaveType(metaclass=DynamicMeta):
+    """Incident wave field type constants."""
+
+    (
+        Total,
+        Incident,
+        Scattered,
+    ) = (
+        "TotalFields",
+        "IncidentFields",
+        "ScatteredFields",
+    )
+
+
 class IntEnumProps(IntEnum):
     def __repr__(self) -> str:
         return str(self.value)
