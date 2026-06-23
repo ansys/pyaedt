@@ -30,6 +30,7 @@ import shutil
 import pytest
 
 from ansys.aedt.core.generic.constants import Axis
+from ansys.aedt.core.generic.constants import IncidentWaveType
 from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.generic.file_utils import get_dxf_layers
 from ansys.aedt.core.hfss import Hfss
@@ -599,6 +600,19 @@ def test_edit_sources_modal(aedt_app) -> None:
         include_port_post_processing=True,
         max_available_power="40W",
     )
+
+
+def test_edit_sources_plane_wave(aedt_app) -> None:
+    aedt_app.solution_type = "Modal"
+    sphere = aedt_app.modeler.create_sphere([0, 0, 0], 10)
+    sphere2 = aedt_app.modeler.create_sphere([10, 100, 0], 10)
+    assignment = [sphere, sphere2.faces[0].id]
+    p = aedt_app.plane_wave(assignment=assignment, wave_type="Evanescent")
+
+    assert aedt_app.edit_sources({f"{p.name}": "2V_per_meter"}, incident_wave=IncidentWaveType.Incident)
+
+    with pytest.raises(AttributeError):
+        aedt_app.edit_sources({f"{p.name}": "2V_per_meter"}, incident_wave="invented")
 
 
 def test_create_circuit_port_from_edges(aedt_app):

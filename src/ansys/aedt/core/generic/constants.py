@@ -1324,6 +1324,20 @@ class DisplayFamiliesType(metaclass=DynamicMeta):
     )
 
 
+class IncidentWaveType(metaclass=DynamicMeta):
+    """Incident wave field type constants."""
+
+    (
+        Total,
+        Incident,
+        Scattered,
+    ) = (
+        "TotalFields",
+        "IncidentFields",
+        "ScatteredFields",
+    )
+
+
 class IntEnumProps(IntEnum):
     def __repr__(self) -> str:
         return str(self.value)
@@ -2497,17 +2511,17 @@ class SubstrateType(IntEnumProps):
     Stripline = 1
     """Stripline — conductor embedded between two dielectric layers."""
 
-    SuspendedStripline = 2
-    """Suspended stripline — conductor suspended above the ground plane with an air gap."""
-
-    OffsetStripline = 3
+    OffsetStripline = 2
     """Offset stripline — asymmetric stripline with conductor offset from centre."""
 
-    CoplanarWaveguide = 4
+    CoplanarWaveguide = 3
     """Coplanar waveguide (CPW) — conductor and ground planes on the same surface."""
 
-    GroundedCoplanarWaveguide = 5
+    GroundedCoplanarWaveguide = 4
     """Grounded coplanar waveguide (GCPW) — CPW with an additional ground plane below."""
+
+    SuspendedStripline = 5
+    """Suspended stripline — conductor suspended above the ground plane with an air gap."""
 
     Slotline = 6
     """Slotline — narrow slot cut in a metallic plane on a dielectric substrate."""
