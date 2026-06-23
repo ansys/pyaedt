@@ -6130,32 +6130,35 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         Add a 3D component array from a json file.
         Below is the content of a json file that will be used in the following code sample.
 
-        >>> {
-        >>> "primarylattice": "MyFirstLattice",
-        >>> "secondarylattice": "MySecondLattice",
-        >>> "useairobjects": true,
-        >>> "rowdimension": 4,
-        >>> "columndimension": 4,
-        >>> "visible": true,
-        >>> "showcellnumber": true,
-        >>> "paddingcells": 0,
-        >>> "referencecs": "Global",
-        >>> "MyFirstCell": "path/to/firstcell.a3dcomp", # optional to insert 3d comp
-        >>> "MySecondCell": "path/to/secondcell.a3dcomp",# optional to insert 3d comp
-        >>> "MyThirdCell": "path/to/thirdcell.a3dcomp",  # optional to insert 3d comp
-        >>> "cells": { "(1,1)": {
-        >>>            "name" : "MyFirstCell",
-        >>>            "color" : "(255,0,20)", #optional
-        >>>            "active" : true, #optional
-        >>>            "postprocessing" : true #optional
-        >>>            "rotation" : 0.0  #optional
-        >>>             },
-        >>>            "(1,2)": {
-        >>>            "name" : "MySecondCell",
-        >>>            "rotation" : 90.0
-        >>>             }
-        >>> # continue
-        >>> }
+        .. code-block:: json
+
+            {
+                "primarylattice": "MyFirstLattice",
+                "secondarylattice": "MySecondLattice",
+                "useairobjects": true,
+                "rowdimension": 4,
+                "columndimension": 4,
+                "visible": true,
+                "showcellnumber": true,
+                "paddingcells": 0,
+                "referencecs": "Global",
+                "MyFirstCell": "path/to/firstcell.a3dcomp",
+                "MySecondCell": "path/to/secondcell.a3dcomp",
+                "MyThirdCell": "path/to/thirdcell.a3dcomp",
+                "cells": {
+                    "(1,1)": {
+                        "name": "MyFirstCell",
+                        "color": "(255,0,20)",
+                        "active": true,
+                        "postprocessing": true,
+                        "rotation": 0.0
+                    },
+                    "(1,2)": {
+                        "name": "MySecondCell",
+                        "rotation": 90.0
+                    }
+                }
+            }
 
         >>> from ansys.aedt.core import Hfss
         >>> from ansys.aedt.core.generic.file_utils import read_configuration_file

@@ -1037,7 +1037,7 @@ def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str]]]
     --------
     >>> from ansys.aedt.core.generic.general_methods import _get_target_processes
     >>> _get_target_processes(["ansysedt.exe"])
-    [(12345, ['C:\\Program Files\\...\\ansysedt.exe', '-grpcsrv', '127.0.0.1:50051'])]
+        # [(12345, ['C:/Program Files/.../ansysedt.exe', '-grpcsrv', '127.0.0.1:50051'])]
     """
     platform_system = platform.system()
     found_data = []

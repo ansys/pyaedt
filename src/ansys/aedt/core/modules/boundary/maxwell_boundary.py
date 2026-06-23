@@ -847,7 +847,7 @@ class MaxwellReducedMatrix:
         Create a Maxwell 3D model in AC Magnetic solver.
         >>> from ansys.aedt.core import Maxwell3d
         >>> from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
-        >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellMatrix
+        >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import SourceACMagnetic, MatrixACMagnetic
 
         >>> m3d = Maxwell3d(version="2026.1", solution_type=SolutionsMaxwell3D.ACMagnetic)
 
@@ -876,10 +876,10 @@ class MaxwellReducedMatrix:
 
         Join sources in series to create a reduced matrix.
         >>> reduced_matrix = matrix.join_series(
-        >>> sources = (["Current1", "Current2", "Current3"],)
-        >>> matrix_name = ("ReducedMatrix1",)
-        >>> join_name = "JoinSeries1"
-        >>> )
+        ...     sources=["Current1", "Current2", "Current3"],
+        ...     matrix_name="ReducedMatrix1",
+        ...     join_name="JoinSeries1",
+        ... )
 
         Delete the reduction operation.
         >>> reduced_matrix.delete(name="JoinSeries1")

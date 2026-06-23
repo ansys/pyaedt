@@ -48,7 +48,7 @@ class FfdSolutionDataExporter(PyAedtBase):
     element pattern files for an antenna that have been solved in HFSS. The
     ``metadata_file`` properties can then be passed as arguments to
     instantiate an instance of the
-    :class:`ansys.aedt.core.ansys.aedt.core.visualization.advanced.farfield_visualization.FfdSolutionData` class for
+    :class:`ansys.aedt.core.visualization.advanced.farfield_visualization.FfdSolutionData` class for
     subsequent analysis and postprocessing of the array data.
 
     Note that this class is derived from the :class:`FfdSolutionData` class and can be used directly for
@@ -77,8 +77,8 @@ class FfdSolutionDataExporter(PyAedtBase):
 
     Examples
     --------
-    >>> from ansys.aedt.core
-    >>> app = ansys.aedt.core.Hfss(version="2026.1", design="Antenna")
+    >>> from ansys.aedt.core import Hfss
+    >>> app = Hfss(version="2026.1", design="Antenna")
     >>> setup_name = "Setup1 : LastAdaptive"
     >>> frequencies = [77e9]
     >>> sphere = "3D"

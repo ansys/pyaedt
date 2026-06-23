@@ -1889,20 +1889,19 @@ class PostProcessorCommon(PyAedtBase):
         >>> variations["Phi"] = ["All"]
         >>> variations["Freq"] = ["30GHz"]
         >>> data1 = hfss.post.get_solution_data(
-        ...    "GainTotal",
-        ...    hfss.nominal_adaptive,
-        ...    variations=variations,
-        ...    primary_sweep_variable="Phi",
-        ...    secondary_sweep_variable="Theta",
-        ...    context="3D",
-        ...    report_category="Far Fields",
-        ...)
+        ...     "GainTotal",
+        ...     hfss.nominal_adaptive,
+        ...     variations=variations,
+        ...     primary_sweep_variable="Phi",
+        ...     context="3D",
+        ...     report_category="Far Fields",
+        ... )
 
-        >>> data2 =hfss.post.get_solution_data(
-        ...    "S(1,1)",
-        ...    hfss.nominal_sweep,
-        ...    variations=variations,
-        ...)
+        >>> data2 = hfss.post.get_solution_data(
+        ...     "S(1,1)",
+        ...     hfss.nominal_sweep,
+        ...     variations=variations,
+        ... )
         >>> data2.plot()
         >>> hfss.desktop_class.release_desktop(False, False)
 
@@ -1937,7 +1936,7 @@ class PostProcessorCommon(PyAedtBase):
         >>> expressions = m3d.post.available_report_quantities(
         ...     report_category="EddyCurrent", display_type="Data Table", context={"Matrix1": "ReducedMatrix1"}
         ... )
-        >>> data = m2d.post.get_solution_data(expressions=expressions, context={"Matrix1": "ReducedMatrix1"})
+        >>> data = m3d.post.get_solution_data(expressions=expressions, context={"Matrix1": "ReducedMatrix1"})
         >>> m3d.desktop_class.release_desktop(False, False)
         """
         report = self._get_report_object(

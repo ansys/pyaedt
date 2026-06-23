@@ -512,7 +512,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         --------
         Create a rectangle named ``"Surface1"`` and assign a temperature monitor to that surface.
 
-        >>> >>> from ansys.aedt.core.generic.constants import Plane
+        >>> from ansys.aedt.core.generic.constants import Plane
         >>> surface = icepak.modeler.create_rectangle(Plane.XY, [0, 0, 0], [10, 20], name="Surface1")
         >>> icepak.assign_surface_monitor("Surface1", monitor_name="monitor")
         'monitor'

@@ -833,18 +833,21 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         >>> m3d = Maxwell3d()
         >>> # Intrinsics is provided as a string.
         >>> fld_file1 = "test_fld_hfss1.fld"
-        >>> hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file1, assignment="Box1",
-        >>>                                 intrinsics="1GHz"
+        >>> m3d.post.export_field_file(quantity="Mag_E", output_file=fld_file1, assignment="Box1", intrinsics="1GHz")
         >>> # Intrinsics is provided as dictionary. Phase is automatically assigned to 0deg.
         >>> fld_file2 = "test_fld_hfss2.fld"
-        >>> hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
-        >>>                                intrinsics={"frequency":"1GHz"})
+        >>> m3d.post.export_field_file(
+        ...     quantity="Mag_E", output_file=fld_file2, assignment="Box1", intrinsics={"frequency": "1GHz"}
+        ... )
         >>> # Intrinsics is provided as dictionary. Phase is provided.
-        >>> hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
-        >>>                                 intrinsics={"frequency":"1GHz", "phase":"30deg"})
+        >>> m3d.post.export_field_file(
+        ...     quantity="Mag_E",
+        ...     output_file=fld_file2,
+        ...     assignment="Box1",
+        ...     intrinsics={"frequency": "1GHz", "phase": "30deg"},
+        ... )
         >>> # Intrinsics is not provided. It is computed from the setup arguments.
-        >>>  hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
-        >>>                                     )
+        >>> m3d.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1")
         """
         intrinsics = self._check_intrinsics(intrinsics, solution, return_list=True)
         self.logger.info(f"Exporting '{quantity}' field. Please be patient.")

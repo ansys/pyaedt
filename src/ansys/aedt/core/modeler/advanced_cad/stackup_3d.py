@@ -3020,10 +3020,12 @@ class Patch(CommonObject, PyAedtBase):
         >>> my_patch = top.add_patch(frequency=None, patch_width=51, patch_name="MLPatch")
         >>> my_stackup.resize_around_element(my_patch)
         >>> my_feeding_line = my_patch.quarter_wave_feeding_line()
-        >>> my_stackup.dielectric_x_position.expression = my_stackup.dielectric_x_position.expression +
-        >>> " - " + my_feeding_line.length.name
-        >>> my_stackup.dielectric_length.expression = my_stackup.dielectric_length.expression +
-        >>> " + " + my_feeding_line.length.name
+        >>> my_stackup.dielectric_x_position.expression = (
+        ...     my_stackup.dielectric_x_position.expression + " - " + my_feeding_line.length.name
+        ... )
+        >>> my_stackup.dielectric_length.expression = (
+        ...     my_stackup.dielectric_length.expression + " + " + my_feeding_line.length.name
+        ... )
 
         """
         string_formula = "sqrt(" + str(impedance_to_adapt) + "*" + self._impedance_bal.name + ")"
