@@ -573,18 +573,6 @@ class NativeComponentPCB(NativeComponentObject):
         --------
         >>> from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
         >>> obj = NativeComponentPCB()
-        >>> obj.power()
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
-        >>> obj = NativeComponentPCB()
-        >>> obj.power()
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
-        >>> obj = NativeComponentPCB()
         >>> obj.power
 
         """
@@ -650,24 +638,19 @@ class NativeComponentPCB(NativeComponentObject):
         ----------
         value : str
             Power to apply to the PCB.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
+        >>> obj = NativeComponentPCB()
+        >>> obj.power = "5W"
+
         """
         self.props["NativeComponentDefinitionProvider"]["Power"] = value
 
     @property
     def force_source_solve(self):
         """Force source solution option.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
-        >>> obj = NativeComponentPCB()
-        >>> obj.force_source_solve()
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
-        >>> obj = NativeComponentPCB()
-        >>> obj.force_source_solve()
 
         Examples
         --------
@@ -687,6 +670,13 @@ class NativeComponentPCB(NativeComponentObject):
         ----------
         value : bool
             Whether to force source solution.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
+        >>> obj = NativeComponentPCB()
+        >>> obj.force_source_solve = True
+
         """
         if not isinstance(val, bool):
             self._app.logger.add_message(
@@ -707,18 +697,6 @@ class NativeComponentPCB(NativeComponentObject):
         --------
         >>> from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
         >>> obj = NativeComponentPCB()
-        >>> obj.preserve_partner_solution()
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
-        >>> obj = NativeComponentPCB()
-        >>> obj.preserve_partner_solution()
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
-        >>> obj = NativeComponentPCB()
         >>> obj.preserve_partner_solution
 
         """
@@ -733,6 +711,13 @@ class NativeComponentPCB(NativeComponentObject):
         ----------
         val : bool
             Whether to preserve partner solution.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
+        >>> obj = NativeComponentPCB()
+        >>> obj.preserve_partner_solution = True
+
         """
         if not isinstance(val, bool):
             self._app.logger.add_message(
@@ -748,18 +733,6 @@ class NativeComponentPCB(NativeComponentObject):
     @property
     def included_parts(self) -> "None | PCBSettingsDeviceParts | PCBSettingsPackageParts":
         """Parts options.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
-        >>> obj = NativeComponentPCB()
-        >>> obj.included_parts()
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
-        >>> obj = NativeComponentPCB()
-        >>> obj.included_parts()
 
         Examples
         --------
@@ -785,6 +758,13 @@ class NativeComponentPCB(NativeComponentObject):
         ----------
         value : str or int
             Valid options are ``"None"``, ``"Device"``, and ``"Package"`` (or 0, 1, and 2 respectivaly)
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
+        >>> obj = NativeComponentPCB()
+        >>> obj.included_parts = "Device"
+
         """
         if value is None:
             value = "None"
@@ -863,6 +843,13 @@ class NativeComponentPCB(NativeComponentObject):
         ----------
         value : str
             Power to apply to the PCB.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
+        >>> obj = NativeComponentPCB()
+        >>> obj.power = "5W"
+
         """
         self.props["NativeComponentDefinitionProvider"]["Power"] = value
 
@@ -896,6 +883,13 @@ class NativeComponentPCB(NativeComponentObject):
         ----------
         val : bool
             Whether to preserve partner solution.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
+        >>> obj = NativeComponentPCB()
+        >>> obj.preserve_partner_solution = True
+
         """
         if not isinstance(val, bool):
             self._app.logger.add_message(
@@ -917,6 +911,12 @@ class NativeComponentPCB(NativeComponentObject):
         ----------
         value : str or int
             Valid options are ``"None"``, ``"Device"``, and ``"Package"`` (or 0, 1, and 2 respectivaly)
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
+        >>> obj = NativeComponentPCB()
+        >>> obj.included_parts = "Device"
         """
         if value is None:
             value = "None"
@@ -948,7 +948,7 @@ class NativeComponentPCB(NativeComponentObject):
         --------
         >>> from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
         >>> obj = NativeComponentPCB()
-        >>> obj.identify_extent_poly()
+        >>> obj.identify_extent_poly
 
         """
         from ansys.aedt.core import Hfss3dLayout
@@ -988,12 +988,6 @@ class NativeComponentPCB(NativeComponentObject):
         --------
         >>> from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
         >>> obj = NativeComponentPCB()
-        >>> obj.board_cutout_material()
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
-        >>> obj = NativeComponentPCB()
         >>> obj.board_cutout_material
 
         """
@@ -1002,12 +996,6 @@ class NativeComponentPCB(NativeComponentObject):
     @property
     def via_holes_material(self) -> str:
         """Material applied to via hole regions.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
-        >>> obj = NativeComponentPCB()
-        >>> obj.via_holes_material()
 
         Examples
         --------
@@ -1027,6 +1015,13 @@ class NativeComponentPCB(NativeComponentObject):
         ----------
         value : str
             Material to apply to cutout regions.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
+        >>> obj = NativeComponentPCB()
+        >>> obj.board_cutout_material = "FR4"
+
         """
         self.props["NativeComponentDefinitionProvider"]["BoardCutoutMaterial"] = value
 
@@ -1039,6 +1034,13 @@ class NativeComponentPCB(NativeComponentObject):
         ----------
         value : str
             Material to apply to via hole regions.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
+        >>> obj = NativeComponentPCB()
+        >>> obj.via_holes_material = "copper"
+
         """
         self.props["NativeComponentDefinitionProvider"]["ViaHoleMaterial"] = value
 
@@ -1288,12 +1290,6 @@ class PCBSettingsDeviceParts(PyAedtBase):
         --------
         >>> from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsDeviceParts
         >>> obj = PCBSettingsDeviceParts()
-        >>> obj.simplify_parts()
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsDeviceParts
-        >>> obj = PCBSettingsDeviceParts()
         >>> obj.simplify_parts
 
         """
@@ -1308,6 +1304,13 @@ class PCBSettingsDeviceParts(PyAedtBase):
         ----------
         value : bool
             Whether parts are simplified as cuboid.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsDeviceParts
+        >>> obj = PCBSettingsDeviceParts()
+        >>> obj.simplify_parts = True
+
         """
         self.pcb.props["NativeComponentDefinitionProvider"]["ModelDeviceAsRect"] = value
 
@@ -1315,12 +1318,6 @@ class PCBSettingsDeviceParts(PyAedtBase):
     @pyaedt_function_handler()
     def surface_material(self) -> str:
         """Surface material to apply to parts.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsDeviceParts
-        >>> obj = PCBSettingsDeviceParts()
-        >>> obj.surface_material()
 
         Examples
         --------
@@ -1340,6 +1337,13 @@ class PCBSettingsDeviceParts(PyAedtBase):
         ----------
         value : str
             Surface material to apply to parts.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsDeviceParts
+        >>> obj = PCBSettingsDeviceParts()
+        >>> obj.surface_material = "Aluminum"
+
         """
         self.pcb.props["NativeComponentDefinitionProvider"]["DeviceSurfaceMaterial"] = value
 
@@ -1347,12 +1351,6 @@ class PCBSettingsDeviceParts(PyAedtBase):
     @pyaedt_function_handler()
     def footprint_filter(self) -> str | None:
         """Minimum component footprint for filtering.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsDeviceParts
-        >>> obj = PCBSettingsDeviceParts()
-        >>> obj.footprint_filter()
 
         Examples
         --------
@@ -1384,6 +1382,13 @@ class PCBSettingsDeviceParts(PyAedtBase):
         ----------
         minimum_footprint : str
             Value with unit of the minimum component footprint for filtering.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsDeviceParts
+        >>> obj = PCBSettingsDeviceParts()
+        >>> obj.footprint_filter = "1mm2"
+
         """
         if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
             self._app.logger.add_message(
@@ -1413,12 +1418,6 @@ class PCBSettingsDeviceParts(PyAedtBase):
         --------
         >>> from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsDeviceParts
         >>> obj = PCBSettingsDeviceParts()
-        >>> obj.power_filter()
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsDeviceParts
-        >>> obj = PCBSettingsDeviceParts()
         >>> obj.power_filter
 
         """
@@ -1443,6 +1442,13 @@ class PCBSettingsDeviceParts(PyAedtBase):
         ----------
         minimum_power : str | None
             Value with unit of the minimum component power for filtering.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsDeviceParts
+        >>> obj = PCBSettingsDeviceParts()
+        >>> obj.power_filter = "1W"
+
         """
         if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
             self._app.logger.add_message(
@@ -1465,12 +1471,6 @@ class PCBSettingsDeviceParts(PyAedtBase):
     @pyaedt_function_handler()
     def type_filters(self) -> list | None:
         """Types of component that are filtered.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsDeviceParts
-        >>> obj = PCBSettingsDeviceParts()
-        >>> obj.type_filters()
 
         Examples
         --------
@@ -1500,6 +1500,13 @@ class PCBSettingsDeviceParts(PyAedtBase):
         ----------
         object_type : str or list
             Types of object to filter. Options are ``"Capacitors"``, ``"Inductors"``, and ``"Resistors"``.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsDeviceParts
+        >>> obj = PCBSettingsDeviceParts()
+        >>> obj.type_filters = ["Capacitors", "Inductors"]
+
         """
         if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
             self._app.logger.add_message(
@@ -1535,12 +1542,6 @@ class PCBSettingsDeviceParts(PyAedtBase):
         --------
         >>> from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsDeviceParts
         >>> obj = PCBSettingsDeviceParts()
-        >>> obj.height_filter()
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsDeviceParts
-        >>> obj = PCBSettingsDeviceParts()
         >>> obj.height_filter
 
         """
@@ -1565,6 +1566,13 @@ class PCBSettingsDeviceParts(PyAedtBase):
         ----------
         minimum_height : str | None
             Value with unit of the minimum component power for filtering.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsDeviceParts
+        >>> obj = PCBSettingsDeviceParts()
+        >>> obj.height_filter = "1mm"
+
         """
         if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
             self._app.logger.add_message(
@@ -1587,12 +1595,6 @@ class PCBSettingsDeviceParts(PyAedtBase):
     @pyaedt_function_handler()
     def objects_2d_filter(self) -> bool | None:
         """Whether 2d objects are filtered.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsDeviceParts
-        >>> obj = PCBSettingsDeviceParts()
-        >>> obj.objects_2d_filter()
 
         Examples
         --------
@@ -1622,6 +1624,13 @@ class PCBSettingsDeviceParts(PyAedtBase):
         ----------
         enable : bool
             Whether 2d objects are filtered.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsDeviceParts
+        >>> obj = PCBSettingsDeviceParts()
+        >>> obj.objects_2d_filter = True
+
         """
         if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
             self._app.logger.add_message(

@@ -992,6 +992,13 @@ class CircuitComponent(PyAedtBase):
         ----------
         location_xy : list
             List of x and y coordinates. If float values are provided, the default units are used.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
+        >>> obj = CircuitComponent()
+        >>> obj.location = [0.1, 0.2]
+
         """
         x, y = [
             int(i / AEDT_UNITS["Length"]["mil"]) for i in self._circuit_components._convert_point_to_meter(location_xy)
