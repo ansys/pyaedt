@@ -33,8 +33,8 @@ try:
 except ImportError as e:  # pragma: no cover
     from ansys.aedt.core.internal.checks import install_message
 
-    msg = install_message("fpdf", "graphics", level="module")
-    raise ImportError(msg) from e
+    msg_error = install_message("fpdf", "graphics", level="module")
+    raise ImportError(msg_error) from e
 
 from ansys.aedt.core import __version__
 from ansys.aedt.core.base import PyAedtBase
@@ -46,7 +46,13 @@ from ansys.aedt.core.internal.checks import requires_graphical_dependency
 
 @dataclass
 class ReportSpec(PyAedtBase):
-    """Data class containing all report template specifications."""
+    """Data class containing all report template specifications.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.plot.pdf import ReportSpec
+    >>> obj = ReportSpec()
+    """
 
     document_prefix: str = "ANSS"
     ansys_version: str = "2025R1"
@@ -111,10 +117,18 @@ class AnsysReport(FPDF, PyAedtBase):
         self.alias_nb_pages()
 
     def read_template(self, template_file: str = None) -> None:
-        """Reade pdf template.
+        """Read pdf template.
 
+        Parameters
+        ----------
         template_file : str
             Path to the json template file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pdf import AnsysReport
+        >>> obj = AnsysReport()
+        >>> obj.read_template()
         """
         if template_file:
             self.report_specs.template_name = template_file
@@ -155,7 +169,14 @@ class AnsysReport(FPDF, PyAedtBase):
         )
 
     def header(self) -> None:
-        """Header."""
+        """Header.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pdf import AnsysReport
+        >>> obj = AnsysReport()
+        >>> obj.header()
+        """
         from datetime import date
 
         def add_field(field_name, field_value) -> None:
@@ -226,7 +247,14 @@ class AnsysReport(FPDF, PyAedtBase):
 
     # Page footer
     def footer(self) -> None:
-        """Footer."""
+        """Footer.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pdf import AnsysReport
+        >>> obj = AnsysReport()
+        >>> obj.footer()
+        """
         # Position at 1.5 cm from bottom
         self.set_y(-15)
         self.set_x(self._left_margin)
@@ -250,6 +278,12 @@ class AnsysReport(FPDF, PyAedtBase):
         Returns
         -------
         :class:`AnsysReport`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pdf import AnsysReport
+        >>> obj = AnsysReport()
+        >>> obj.create()
         """
         if add_cover_page:
             self.__add_cover_page()
@@ -270,6 +304,12 @@ class AnsysReport(FPDF, PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pdf import AnsysReport
+        >>> obj = AnsysReport()
+        >>> obj.add_project_info()
         """
         self.add_page("P" if self.use_portrait else "L")
         self.add_chapter(f"Design {design.design_name} Info")
@@ -328,6 +368,12 @@ class AnsysReport(FPDF, PyAedtBase):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pdf import AnsysReport
+        >>> obj = AnsysReport()
+        >>> obj.template_name
         """
         return self.report_specs.template_name
 
@@ -342,6 +388,12 @@ class AnsysReport(FPDF, PyAedtBase):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pdf import AnsysReport
+        >>> obj = AnsysReport()
+        >>> obj.design_name
         """
         return self.report_specs.design_name
 
@@ -356,6 +408,12 @@ class AnsysReport(FPDF, PyAedtBase):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pdf import AnsysReport
+        >>> obj = AnsysReport()
+        >>> obj.project_name
         """
         return self.report_specs.project_name
 
@@ -370,6 +428,12 @@ class AnsysReport(FPDF, PyAedtBase):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pdf import AnsysReport
+        >>> obj = AnsysReport()
+        >>> obj.aedt_version
         """
         return self.report_specs.ansys_version
 
@@ -391,6 +455,12 @@ class AnsysReport(FPDF, PyAedtBase):
         -------
         int,
             Section id.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pdf import AnsysReport
+        >>> obj = AnsysReport()
+        >>> obj.add_section()
         """
         orientation = "portrait"
         if portrait is False:
@@ -406,6 +476,12 @@ class AnsysReport(FPDF, PyAedtBase):
         ----------
         chapter_name : str
             Chapter name.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pdf import AnsysReport
+        >>> obj = AnsysReport()
+        >>> obj.add_chapter("Chapter 1")
         """
         self.__chapter_idx += 1
         self.__sub_chapter_idx = 0
@@ -432,6 +508,12 @@ class AnsysReport(FPDF, PyAedtBase):
         ----------
         chapter_name : str
             Chapter name.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pdf import AnsysReport
+        >>> obj = AnsysReport()
+        >>> obj.add_sub_chapter("Sub-chapter 1")
         """
         self.__sub_chapter_idx += 1
         txt = f"     {self.__chapter_idx}.{self.__sub_chapter_idx} {chapter_name}"
@@ -470,6 +552,12 @@ class AnsysReport(FPDF, PyAedtBase):
             Image width in millimeters.
         height : int, optional
             Image height in millimeters.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pdf import AnsysReport
+        >>> obj = AnsysReport()
+        >>> obj.add_image("image_path", "Image caption", width=100, height=100)
         """
         if width == 0:
             width = self.epw
@@ -492,10 +580,18 @@ class AnsysReport(FPDF, PyAedtBase):
         ----------
         path: str
             Path to the image file.
+        caption: str, optional
+            Image caption.
         max_width: float, int, optional
             Maximum width available for the image.
         max_height: float, int, optional
             Maximum height available for the image.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pdf import AnsysReport
+        >>> obj = AnsysReport()
+        >>> obj.add_image_with_aspect_ratio("path/to/image.png", caption="My Image", max_width=150, max_height=100)
         """
         from PIL import Image
 
@@ -533,6 +629,11 @@ class AnsysReport(FPDF, PyAedtBase):
         content : str
             Caption name.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pdf import AnsysReport
+        >>> obj = AnsysReport()
+        >>> obj.add_caption("Figure 1: My Figure")
         """
         self.set_font(self.report_specs.font.lower(), "I", self.report_specs.caption_font_size)
         self.set_text_color(*self.report_specs.font_caption_color)
@@ -555,11 +656,24 @@ class AnsysReport(FPDF, PyAedtBase):
         ----------
         num_lines : int, optional
             Number of lines to add.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pdf import AnsysReport
+        >>> obj = AnsysReport()
+        >>> obj.add_empty_line(num_lines=2)
         """
         self.ln(num_lines * self.font_size)
 
     def add_page_break(self) -> None:
-        """Add a new page break line."""
+        """Add a new page break line.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pdf import AnsysReport
+        >>> obj = AnsysReport()
+        >>> obj.add_page_break()
+        """
         self.add_page("P" if self.use_portrait else "L")
 
     def add_table(
@@ -585,6 +699,12 @@ class AnsysReport(FPDF, PyAedtBase):
             (color, background_color).  Color is a RGB list.
         col_widths : list, optional
             List of column widths.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pdf import AnsysReport
+        >>> obj = AnsysReport()
+        >>> obj.add_table("Table Title", [["Header1", "Header2"], ["Row1Col1", "Row1Col2"], ["Row2Col1", "Row2Col2"]])
         """
         self.set_font(self.report_specs.font.lower(), size=self.report_specs.text_font_size)
         self.set_font(self.report_specs.font.lower(), size=self.report_specs.table_font_size)
@@ -628,6 +748,12 @@ class AnsysReport(FPDF, PyAedtBase):
             Whether if text is bold or not. Default is ``True``.
         italic : bool, optional
             Whether if text is italic or not. Default is ``True``.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pdf import AnsysReport
+        >>> obj = AnsysReport()
+        >>> obj.add_text("Some text content", bold=True, italic=False)
         """
         font_type = ""
         if bold:
@@ -647,11 +773,18 @@ class AnsysReport(FPDF, PyAedtBase):
         )
 
     def add_toc(self) -> None:
-        """Add toc."""
+        """Add toc.
 
-        def p(section, **kwargs) -> None:
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pdf import AnsysReport
+        >>> obj = AnsysReport()
+        >>> obj.add_toc()
+        """
+
+        def p(section_toc, **kwargs) -> None:
             # Inserts a paragraph
-            self.cell(w=self.epw, h=self.font_size, text=section, new_x="LMARGIN", new_y="NEXT", **kwargs)
+            self.cell(w=self.epw, h=self.font_size, text=section_toc, new_x="LMARGIN", new_y="NEXT", **kwargs)
 
         self.add_page("P" if self.use_portrait else "L")
         self.set_font(self.report_specs.font.lower(), size=self.report_specs.title_font_size)
@@ -698,9 +831,15 @@ class AnsysReport(FPDF, PyAedtBase):
             Pdf path.
         file_name : str, optional
             File name.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pdf import AnsysReport
+        >>> obj = AnsysReport()
+        >>> obj.save_pdf("path/to/save", "report.pdf")
         """
         self.output(os.path.join(file_path, file_name))
-        return os.path.join(file_path, file_name)
+        return str(os.path.join(file_path, file_name))
 
     @requires_graphical_dependency("matplotlib", "pillow")
     def add_chart(self, x_values: list, y_values: list, x_caption: str, y_caption: str, title: str) -> None:
@@ -718,6 +857,12 @@ class AnsysReport(FPDF, PyAedtBase):
             Y axis caption.
         title : str
             Chart title.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pdf import AnsysReport
+        >>> obj = AnsysReport()
+        >>> obj.add_chart([1, 2, 3], [4, 5, 6], "X Axis", "Y Axis", "Sample Chart")
         """
         from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
         from matplotlib.figure import Figure
