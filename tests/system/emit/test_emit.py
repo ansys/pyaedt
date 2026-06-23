@@ -1487,7 +1487,7 @@ def test_analysis_enabled(n_to_1):
     interaction2 = sim.run(domain)
     assert not interaction2.is_valid()
     # Verify the error is about the interaction not being run (no results were produced)
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         interaction2.get_worst_instance(ResultType.EMI)
     assert "Radio pair disabled" in str(e.value)
 
