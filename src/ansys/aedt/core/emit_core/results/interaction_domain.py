@@ -24,6 +24,8 @@
 
 from ansys.aedt.core.emit_core.emit_constants import EMIT_INTERNAL_UNITS
 from ansys.aedt.core.emit_core.emit_constants import EMIT_VALID_UNITS
+from ansys.aedt.core.emit_core.nodes.generated import Band
+from ansys.aedt.core.emit_core.nodes.generated import RadioNode
 import ansys.aedt.core.generic.constants as consts
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.checks import min_aedt_version
@@ -97,16 +99,16 @@ class InteractionDomain:
 
     @pyaedt_function_handler()
     @min_aedt_version("2027.1")
-    def set_receiver(self, name: str, band_name: str = "", freq: float = -1, units: str = "Hz"):
+    def set_receiver(self, radio: str | RadioNode = "", band: str | Band = "", freq: float = -1, units: str = "Hz"):
         """
-        Set the receiver radio name, band name, and channel frequency.
+        Set the receiver radio, band, and channel frequency.
 
         Parameters
         ----------
-        name : str
-            Name of the receiver radio.
-        band_name : str, optional
-            Name of the receiver band. Default is ``""``.
+        radio : str | RadioNode
+            Name of the receiver radio as a string or a RadioNode object.
+        band : str | Band, optional
+            Name of the receiver band as a string or a Band object. Default is ``""``.
         freq : float, optional
             Channel frequency of the receiver. Default is ``-1`` (no channel constraint).
         units : str, optional
@@ -116,8 +118,15 @@ class InteractionDomain:
         -------
         None
         """
-        self.receiver_name = name
-        self.receiver_band_name = band_name
+        if isinstance(radio, RadioNode):
+            self.receiver_name = radio.name
+        else:
+            self.receiver_name = radio
+
+        if isinstance(band, Band):
+            self.receiver_band_name = band.name
+        else:
+            self.receiver_band_name = band
 
         if units not in EMIT_VALID_UNITS["Freq"]:
             raise ValueError(f"Unit {units} is not valid for frequency. Valid units are: {EMIT_VALID_UNITS['Freq']}")
@@ -128,17 +137,17 @@ class InteractionDomain:
 
     @pyaedt_function_handler()
     @min_aedt_version("2027.1")
-    def set_interferer(self, name: str, band_name: str = "", freq: float = -1, units: str = "Hz"):
+    def set_interferer(self, radio: str | RadioNode = "", band: str | Band = "", freq: float = -1, units: str = "Hz"):
         """
         Set a single interferer radio name, band name, and channel frequency.
         This overwrites any existing interferer configuration.
 
         Parameters
         ----------
-        name : str
-            Name of the interferer radio.
-        band_name : str, optional
-            Name of the interferer band. Default is ``""``.
+        radio : str | RadioNode
+            Name of the interferer radio as a string or a RadioNode object.
+        band : str | Band, optional
+            Name of the interferer band as a string or a Band object. Default is ``""``.
         freq : float, optional
             Channel frequency of the interferer. Default is ``-1`` (no channel constraint).
         units : str, optional
@@ -150,9 +159,17 @@ class InteractionDomain:
 
         """
         self.interferer_names = []
-        self.interferer_names.append(name)
+        if isinstance(radio, RadioNode):
+            self.interferer_names.append(radio.name)
+        else:
+            self.interferer_names.append(radio)
+
         self.interferer_band_names = []
-        self.interferer_band_names.append(band_name)
+        if isinstance(band, Band):
+            self.interferer_band_names.append(band.name)
+        else:
+            self.interferer_band_names.append(band)
+
         self.interferer_channel_frequencies = []
 
         if units not in EMIT_VALID_UNITS["Freq"]:
@@ -164,17 +181,23 @@ class InteractionDomain:
 
     @pyaedt_function_handler()
     @min_aedt_version("2027.1")
-    def set_interferers(self, names: list[str], band_names: list[str] = [], freqs: list[float] = [], units: str = "Hz"):
+    def set_interferers(
+        self,
+        radios: list[str] | list[RadioNode],
+        bands: list[str] | list[Band] = [],
+        freqs: list[float] = [],
+        units: str = "Hz",
+    ):
         """
-        Set multiple interferer radio names, band names, and channel frequencies.
+        Set multiple interferer radios, bands, and channel frequencies.
         This overwrites existing interferer list(s).
 
         Parameters
         ----------
-        names : list
-            List of interferer radio names.
-        band_names : list, optional
-            List of interferer band names. Default is ``None`` (empty list).
+        radios : list
+            List of interferer radio names as strings or RadioNode objects.
+        bands : list, optional
+            List of interferer band names as strings or Band objects. Default is ``None`` (empty list).
         freqs : list, optional
             List of channel frequencies of the interferers. Default is ``None`` (empty list).
         units : str, optional
@@ -185,13 +208,20 @@ class InteractionDomain:
         None
 
         """
-        if len(band_names) > 0 and len(band_names) != len(names):
+        if len(bands) > 0 and len(bands) != len(radios):
             raise ValueError("When assigning bands you must assign one band per interferer.")
-        if len(freqs) > 0 and len(freqs) != len(band_names):
+        if len(freqs) > 0 and len(freqs) != len(bands):
             raise ValueError("When assigning channels you must assign one channel per band.")
 
-        self.interferer_names = names
-        self.interferer_band_names = band_names
+        if any(isinstance(radio, RadioNode) for radio in radios):
+            self.interferer_names = [radio.name if isinstance(radio, RadioNode) else radio for radio in radios]
+        else:
+            self.interferer_names = radios
+
+        if any(isinstance(band, Band) for band in bands):
+            self.interferer_band_names = [band.name if isinstance(band, Band) else band for band in bands]
+        else:
+            self.interferer_band_names = bands
 
         if units not in EMIT_VALID_UNITS["Freq"]:
             raise ValueError(f"Unit {units} is not valid for frequency. Valid units are: {EMIT_VALID_UNITS['Freq']}")
