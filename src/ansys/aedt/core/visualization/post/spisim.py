@@ -476,8 +476,8 @@ class SpiSim(PyAedtBase):
         standard: int = 1,
         config_file: str = None,
         port_order: str = "EvenOdd",
-        fext_s4p: str = "",
-        next_s4p: str = "",
+        fext_s4p: str|list = "",
+        next_s4p: str|list = "",
         out_folder: str = "",
     ) -> list | float:
         """Compute Channel Operating Margin. Only COM ver3.4 is supported.
