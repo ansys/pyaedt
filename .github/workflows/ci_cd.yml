@@ -229,7 +229,7 @@ jobs:
           bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
           bot-email: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
           cname: ${{ env.DOCUMENTATION_CNAME }}
-          doc-artifact-name: documentation-ubuntu-latest-html
+          doc-artifact-name: documentation-html
           maximum-pr-doc-deployments: 3
           token: ${{ secrets.GITHUB_TOKEN }}
 
