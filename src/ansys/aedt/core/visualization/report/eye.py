@@ -71,6 +71,7 @@ class AMIConturEyeDiagram(CommonReport):
         -------
         list
             Expressions.
+
         """
         if self._is_created:
             return [i.split(" ,")[-1] for i in list(self.properties.values())[4:]]
