@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -43,8 +43,8 @@ import PIL.ImageTk
 import ansys.aedt.core
 from ansys.aedt.core.extensions.misc import ToolTip
 from ansys.aedt.core.extensions.misc import check_for_pyaedt_update_on_startup
-from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_aedt_theme
+from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_latest_version
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
@@ -62,6 +62,7 @@ DISCLAIMER = (
     "Do you want to proceed?\n"
 )
 UNKNOWN_VERSION = "Unknown"
+
 
 class VersionManager:
     TITLE = "Version Manager"
@@ -102,6 +103,7 @@ class VersionManager:
     @property
     def aedt_version(self) -> str:
         from ansys.aedt.core.extensions.misc import get_aedt_version
+
         return get_aedt_version()
 
     def _get_desktop(self):
@@ -275,14 +277,19 @@ class VersionManager:
 
         # --- Row 0: PyAEDT ---
         ttk.Label(
-            parent, textvariable=self.pyaedt_info, style="PyAEDT.TLabel",
+            parent,
+            textvariable=self.pyaedt_info,
+            style="PyAEDT.TLabel",
         ).grid(row=0, column=0, columnspan=2, sticky="w", padx=8, pady=(8, 2))
 
         btn_frame0 = ttk.Frame(parent, style="PyAEDT.TFrame")
         btn_frame0.grid(row=0, column=2, sticky="e", padx=8, pady=(8, 2))
         ttk.Button(
-            btn_frame0, text="Update", width=14,
-            command=self.update_pyaedt, style="PyAEDT.TButton",
+            btn_frame0,
+            text="Update",
+            width=14,
+            command=self.update_pyaedt,
+            style="PyAEDT.TButton",
         ).pack(side="left", padx=(0, 4))
         lbl0 = ttk.Label(btn_frame0, text="", style="PyAEDT.TLabel")
         lbl0.pack(side="left")
@@ -290,14 +297,19 @@ class VersionManager:
 
         # --- Row 1: PyEDB ---
         ttk.Label(
-            parent, textvariable=self.pyedb_info, style="PyAEDT.TLabel",
+            parent,
+            textvariable=self.pyedb_info,
+            style="PyAEDT.TLabel",
         ).grid(row=1, column=0, columnspan=2, sticky="w", padx=8, pady=2)
 
         btn_frame1 = ttk.Frame(parent, style="PyAEDT.TFrame")
         btn_frame1.grid(row=1, column=2, sticky="e", padx=8, pady=2)
         ttk.Button(
-            btn_frame1, text="Update", width=14,
-            command=self.update_pyedb, style="PyAEDT.TButton",
+            btn_frame1,
+            text="Update",
+            width=14,
+            command=self.update_pyedb,
+            style="PyAEDT.TButton",
         ).pack(side="left", padx=(0, 4))
         lbl1 = ttk.Label(btn_frame1, text="", style="PyAEDT.TLabel")
         lbl1.pack(side="left")
@@ -306,19 +318,30 @@ class VersionManager:
         # --- Divider ---
         divider = ttk.Frame(parent, style="PyAEDT.TFrame", height=1)
         divider.grid(
-            row=2, column=0, columnspan=3, sticky="ew", padx=8, pady=6,
+            row=2,
+            column=0,
+            columnspan=3,
+            sticky="ew",
+            padx=8,
+            pady=6,
         )
 
         # --- Row 3: Wheelhouse actions ---
         wh_frame = ttk.Frame(parent, style="PyAEDT.TFrame")
         wh_frame.grid(row=3, column=0, columnspan=3, sticky="ew", padx=8, pady=2)
         ttk.Button(
-            wh_frame, text="Update from wheelhouse", width=22,
-            command=self.update_from_wheelhouse, style="PyAEDT.TButton",
+            wh_frame,
+            text="Update from wheelhouse",
+            width=22,
+            command=self.update_from_wheelhouse,
+            style="PyAEDT.TButton",
         ).pack(side="left", padx=(0, 6))
         ttk.Button(
-            wh_frame, text="Update All", width=14,
-            command=self.update_all, style="PyAEDT.TButton",
+            wh_frame,
+            text="Update All",
+            width=14,
+            command=self.update_all,
+            style="PyAEDT.TButton",
         ).pack(side="left", padx=(0, 6))
         lbl_wh = ttk.Label(wh_frame, text="", style="PyAEDT.TLabel")
         lbl_wh.pack(side="left")
@@ -327,13 +350,21 @@ class VersionManager:
         # --- Row 4: Environment info (fills remaining space) ---
         info_frame = ttk.Frame(parent, style="PyAEDT.Card.TFrame")
         info_frame.grid(
-            row=4, column=0, columnspan=3, sticky="nsew", padx=8, pady=(6, 8),
+            row=4,
+            column=0,
+            columnspan=3,
+            sticky="nsew",
+            padx=8,
+            pady=(6, 8),
         )
         parent.grid_rowconfigure(4, weight=1)
 
         info_label = ttk.Label(
-            info_frame, textvariable=self.venv_information,
-            style="PyAEDT.TLabel", wraplength=600, justify="left",
+            info_frame,
+            textvariable=self.venv_information,
+            style="PyAEDT.TLabel",
+            wraplength=600,
+            justify="left",
         )
         info_label.pack(anchor="nw", padx=6, pady=4, fill="x")
 
@@ -342,18 +373,26 @@ class VersionManager:
 
         # --- Row 0: PyAEDT branch ---
         ttk.Label(
-            parent, text="PyAEDT", width=8, style="PyAEDT.TLabel",
+            parent,
+            text="PyAEDT",
+            width=8,
+            style="PyAEDT.TLabel",
         ).grid(row=0, column=0, sticky="w", padx=(8, 4), pady=6)
 
         ttk.Entry(
-            parent, width=28, textvariable=self.pyaedt_branch_name,
+            parent,
+            width=28,
+            textvariable=self.pyaedt_branch_name,
         ).grid(row=0, column=1, sticky="w", padx=4, pady=6)
 
         adv_frame0 = ttk.Frame(parent, style="PyAEDT.TFrame")
         adv_frame0.grid(row=0, column=2, sticky="w", padx=4, pady=6)
         ttk.Button(
-            adv_frame0, text="Get Branch", width=14,
-            command=self.get_pyaedt_branch, style="PyAEDT.TButton",
+            adv_frame0,
+            text="Get Branch",
+            width=14,
+            command=self.get_pyaedt_branch,
+            style="PyAEDT.TButton",
         ).pack(side="left", padx=(0, 4))
         lbl_ab0 = ttk.Label(adv_frame0, text="", style="PyAEDT.TLabel")
         lbl_ab0.pack(side="left")
@@ -361,18 +400,26 @@ class VersionManager:
 
         # --- Row 1: PyEDB branch ---
         ttk.Label(
-            parent, text="PyEDB", width=8, style="PyAEDT.TLabel",
+            parent,
+            text="PyEDB",
+            width=8,
+            style="PyAEDT.TLabel",
         ).grid(row=1, column=0, sticky="w", padx=(8, 4), pady=6)
 
         ttk.Entry(
-            parent, width=28, textvariable=self.pyedb_branch_name,
+            parent,
+            width=28,
+            textvariable=self.pyedb_branch_name,
         ).grid(row=1, column=1, sticky="w", padx=4, pady=6)
 
         adv_frame1 = ttk.Frame(parent, style="PyAEDT.TFrame")
         adv_frame1.grid(row=1, column=2, sticky="w", padx=4, pady=6)
         ttk.Button(
-            adv_frame1, text="Get Branch", width=14,
-            command=self.get_pyedb_branch, style="PyAEDT.TButton",
+            adv_frame1,
+            text="Get Branch",
+            width=14,
+            command=self.get_pyedb_branch,
+            style="PyAEDT.TButton",
         ).pack(side="left", padx=(0, 4))
         lbl_ab1 = ttk.Label(adv_frame1, text="", style="PyAEDT.TLabel")
         lbl_ab1.pack(side="left")
@@ -386,8 +433,7 @@ class VersionManager:
         return res
 
     def activate_venv(self) -> None:
-        """Prepare a subprocess environment that has the virtual environment activated.
-        """
+        """Prepare a subprocess environment that has the virtual environment activated."""
         try:
             scripts_dir = (
                 os.path.join(self.venv_path, "Scripts") if self.is_windows else os.path.join(self.venv_path, "bin")
@@ -404,7 +450,7 @@ class VersionManager:
             # Fallback to the current environment to avoid breaking functionality
             self.activated_env = os.environ.copy()
 
-    def run_pip(self, pip_args: list, capture_output: bool=False, check: bool=True) -> str | None:
+    def run_pip(self, pip_args: list, capture_output: bool = False, check: bool = True) -> str | None:
         """Run pip using python -m pip.
 
         Arguments:
@@ -430,13 +476,10 @@ class VersionManager:
             self.loading_labels[key].config(text="")
             self.root.update_idletasks()
 
-    def update_and_reload(self, pip_args: list, loading_key: str | None = None): # pragma: no cover
+    def update_and_reload(self, pip_args: list, loading_key: str | None = None):  # pragma: no cover
         """Run pip install/upgrade and refresh the UI."""
         # Confirm action
-        response = messagebox.askyesno(
-            "Confirm Action",
-            "This will perform the installation. Continue?"
-        )
+        response = messagebox.askyesno("Confirm Action", "This will perform the installation. Continue?")
         if not response:
             return
 
@@ -449,8 +492,7 @@ class VersionManager:
         except Exception as exc:
             if loading_key:
                 self.hide_loading(loading_key)
-            messagebox.showerror("Error: Installation Failed",
-                               f"Installation failed: {exc}")
+            messagebox.showerror("Error: Installation Failed", f"Installation failed: {exc}")
             return
 
         # Refresh the UI to show updated version information
@@ -460,11 +502,7 @@ class VersionManager:
             self.hide_loading(loading_key)
 
         # Inform user that update is complete
-        messagebox.showinfo(
-            "Message",
-            "Update completed successfully. Module versions have "
-            "been refreshed."
-        )
+        messagebox.showinfo("Message", "Update completed successfully. Module versions have been refreshed.")
 
     def update_pyaedt(self) -> None:
         response = messagebox.askyesno("Disclaimer", DISCLAIMER)
@@ -525,9 +563,8 @@ class VersionManager:
 
             self.update_and_reload(pip_args, loading_key="pyedb")
 
-    def update_all(self) -> None: # pragma: no cover
-        """Update both pyaedt and pyedb together.
-        """
+    def update_all(self) -> None:  # pragma: no cover
+        """Update both pyaedt and pyedb together."""
         response = messagebox.askyesno("Disclaimer", DISCLAIMER)
 
         if not response:
@@ -553,28 +590,18 @@ class VersionManager:
                     ]
                 )
             else:
-                pip_args.extend(
-                    ["-U", "--upgrade-strategy", "eager", "pyaedt[all]"]
-                )
+                pip_args.extend(["-U", "--upgrade-strategy", "eager", "pyaedt[all]"])
         except Exception:
-            pip_args.extend(
-                ["-U", "--upgrade-strategy", "eager", "pyaedt[all]"]
-            )
+            pip_args.extend(["-U", "--upgrade-strategy", "eager", "pyaedt[all]"])
 
         # Decide pyedb install args (pin if current > latest, else upgrade)
         try:
             if self.pyedb_version > latest_pyedb:
-                pip_args.extend(
-                    ["--upgrade-strategy", "eager", f"pyedb=={latest_pyedb}"]
-                )
+                pip_args.extend(["--upgrade-strategy", "eager", f"pyedb=={latest_pyedb}"])
             else:
-                pip_args.extend(
-                    ["-U", "--upgrade-strategy", "eager", "pyedb"]
-                )
+                pip_args.extend(["-U", "--upgrade-strategy", "eager", "pyedb"])
         except Exception:
-            pip_args.extend(
-                ["-U", "--upgrade-strategy", "eager", "pyedb"]
-            )
+            pip_args.extend(["-U", "--upgrade-strategy", "eager", "pyedb"])
 
         self.update_and_reload(pip_args, loading_key="update_all")
 
@@ -667,14 +694,16 @@ class VersionManager:
                 # Extract all contents to a directory. (You can specify a different extraction path if needed.)
                 zip_ref.extractall(unzipped_path)
 
-            self.run_pip([
-                "install",
-                "--force-reinstall",
-                "--no-cache-dir",
-                "--no-index",
-                f"--find-links={unzipped_path.as_uri()}",
-                "pyaedt[all]",
-            ])
+            self.run_pip(
+                [
+                    "install",
+                    "--force-reinstall",
+                    "--no-cache-dir",
+                    "--no-index",
+                    f"--find-links={unzipped_path.as_uri()}",
+                    "pyaedt[all]",
+                ]
+            )
 
             self.clicked_refresh(need_restart=True)
 
@@ -686,7 +715,7 @@ class VersionManager:
         """
         try:
             # Prefer importlib.metadata (Python 3.8+). Use venv python to inspect
-            cmd = [self.python_exe, "-c", "import importlib.metadata as m; print(m.version(\"%s\"))" % package_name]
+            cmd = [self.python_exe, "-c", 'import importlib.metadata as m; print(m.version("%s"))' % package_name]
             out = subprocess.check_output(cmd, env=self.activated_env, stderr=subprocess.DEVNULL, text=True)  # nosec
             return out.strip()
         except Exception:
@@ -699,12 +728,12 @@ class VersionManager:
             except Exception:  # pragma: no cover
                 return "Please restart"
 
-    def clicked_refresh(self, need_restart: bool=False):
+    def clicked_refresh(self, need_restart: bool = False):
         msg = [f"Venv path: {self.venv_path}", f"Python version: {self.python_version}"]
         msg = "\n".join(msg)
         self.venv_information.set(msg)
 
-        if need_restart is False:
+        if not need_restart:
             self.pyaedt_info.set(f"PyAEDT: {self.pyaedt_version} (Latest {get_latest_version('pyaedt')})")
             self.pyedb_info.set(f"PyEDB: {self.pyedb_version} (Latest {get_latest_version('pyedb')})")
         else:
@@ -726,6 +755,7 @@ class VersionManager:
             self.pyaedt_info.set(f"PyAEDT: {pyaedt_installed} (Latest {latest_pyaedt})")
             self.pyedb_info.set(f"PyEDB: {pyedb_installed} (Latest {latest_pyedb})")
             messagebox.showinfo("Message", "Done")
+
     def _on_close(self) -> None:
         """Best-effort cleanup when the extension window is closed.
 
@@ -749,7 +779,7 @@ class VersionManager:
             except Exception:
                 logging.getLogger("Global").debug("Failed to destroy root window", exc_info=True)
 
-    def show_pyaedt_update_notification(self, latest_version: str, declined_file_path: Path): # pragma: no cover
+    def show_pyaedt_update_notification(self, latest_version: str, declined_file_path: Path):  # pragma: no cover
         """Display a notification dialog informing the user about a new PyAEDT version."""
         try:
             dlg = tkinter.Toplevel(self.root)
@@ -768,9 +798,7 @@ class VersionManager:
 
             # Create frame for label and changelog button
             label_frame = ttk.Frame(dlg, style="PyAEDT.TFrame")
-            label_frame.pack(
-                padx=12, pady=(12, 6), expand=True, fill="both"
-            )
+            label_frame.pack(padx=12, pady=(12, 6), expand=True, fill="both")
 
             ttk.Label(
                 label_frame,
@@ -789,17 +817,9 @@ class VersionManager:
                 try:
                     self.help.release_notes()
                 except Exception:
-                    logging.getLogger("Global").debug(
-                        "Failed to open changelog", exc_info=True
-                    )
+                    logging.getLogger("Global").debug("Failed to open changelog", exc_info=True)
 
-            changelog_btn = ttk.Button(
-                label_frame,
-                text="?",
-                command=open_changelog,
-                style="PyAEDT.TButton",
-                width=3
-            )
+            changelog_btn = ttk.Button(label_frame, text="?", command=open_changelog, style="PyAEDT.TButton", width=3)
             changelog_btn.pack(side="right", padx=(5, 0))
             ToolTip(changelog_btn, "View changelog")
 
@@ -846,7 +866,7 @@ def get_desktop():
     return aedtapp
 
 
-if __name__ == "__main__": # pragma: no cover
+if __name__ == "__main__":  # pragma: no cover
     # Initialize tkinter root window and run the app
     personal_lib = os.getenv("PYAEDT_PERSONAL_LIB", "").strip()
     desktop = None if personal_lib else get_desktop()

@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
+#
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -64,7 +65,7 @@ def check_file(file_path, oDesktop):
 
 def get_linux_terminal():
     """Get a Linux terminal."""
-    for terminal in ["x-terminal-emulator", "xterm", "gnome-terminal", "lxterminal", "mlterm"]:
+    for terminal in ["x-terminal-emulator", "xterm", "xfce4-terminal", "gnome-terminal", "lxterminal", "mlterm"]:
         terminal_exe = which(terminal)
         if terminal_exe:
             return terminal, terminal_exe
@@ -77,6 +78,8 @@ def get_linux_terminal_command():
     if terminal == "x-terminal-emulator":
         return [terminal_exe, "-e"]
     elif terminal == "xterm":
+        return [terminal_exe, "-e"]
+    elif terminal == "xfce4-terminal":
         return [terminal_exe, "-e"]
     elif terminal == "gnome-terminal":
         return [terminal_exe, "--"]

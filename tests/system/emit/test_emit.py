@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -903,7 +903,7 @@ def test_radio_band_getters(emit_app) -> None:
     assert radios == ["Radio", "Bluetooth Low Energy (LE)", "WiFi - 802.11-2012", "WiFi 6"]
 
     # Get the Bands
-    bands = rev.get_band_names(radio_name=radios[0], tx_rx_mode=TxRxMode.RX)
+    bands = rev.get_band_names(radio_node=rev.get_component_node(radios[0]), tx_rx_mode=TxRxMode.RX)
     assert bands == ["Band"]
 
     # Get the Freqs
@@ -921,35 +921,35 @@ def test_radio_band_getters(emit_app) -> None:
     assert exception_raised
 
     # Get WiFi 2012 Rx Bands
-    bands = rev.get_band_names(radio_name=radios[2], tx_rx_mode=TxRxMode.RX)
+    bands = rev.get_band_names(radio_node=rev.get_component_node(radios[2]), tx_rx_mode=TxRxMode.RX)
     assert len(bands) == 16
 
     # Get WiFi 2012 Tx Bands
-    bands = rev.get_band_names(radio_name=radios[2], tx_rx_mode=TxRxMode.TX)
+    bands = rev.get_band_names(radio_node=rev.get_component_node(radios[2]), tx_rx_mode=TxRxMode.TX)
     assert len(bands) == 16
 
     # Get WiFi 2012 All Bands
-    bands = rev.get_band_names(radio_name=radios[2], tx_rx_mode=TxRxMode.BOTH)
+    bands = rev.get_band_names(radio_node=rev.get_component_node(radios[2]), tx_rx_mode=TxRxMode.BOTH)
     assert len(bands) == 32
 
     # Get WiFi 2012 All Bands (default args)
-    bands = rev.get_band_names(radio_name=radios[2])
+    bands = rev.get_band_names(radio_node=rev.get_component_node(radios[2]))
     assert len(bands) == 32
 
     # Get WiFi 6 All Bands (default args)
-    bands = rev.get_band_names(radio_name=radios[3])
+    bands = rev.get_band_names(radio_node=rev.get_component_node(radios[3]))
     assert len(bands) == 192
 
     # Get WiFi 6 Rx Bands
-    bands = rev.get_band_names(radio_name=radios[3], tx_rx_mode=TxRxMode.RX)
+    bands = rev.get_band_names(radio_node=rev.get_component_node(radios[3]), tx_rx_mode=TxRxMode.RX)
     assert len(bands) == 192
 
     # Get WiFi 6 Tx Bands
-    bands = rev.get_band_names(radio_name=radios[3], tx_rx_mode=TxRxMode.TX)
+    bands = rev.get_band_names(radio_node=rev.get_component_node(radios[3]), tx_rx_mode=TxRxMode.TX)
     assert len(bands) == 192
 
     # Get WiFi 6 All Bands
-    bands = rev.get_band_names(radio_name=radios[3], tx_rx_mode=TxRxMode.BOTH)
+    bands = rev.get_band_names(radio_node=rev.get_component_node(radios[3]), tx_rx_mode=TxRxMode.BOTH)
     assert len(bands) == 192
 
     # Add an emitter
@@ -1245,7 +1245,8 @@ def test_optimal_n_to_1_feature(emit_app) -> None:
     sim = rev.get_simulation()
     assert len(emit_app.results.revisions) == 1
     radios_rx = rev.get_receiver_names()
-    bands_rx = rev.get_band_names(radio_name=radios_rx[0], tx_rx_mode=TxRxMode.RX)
+    rx_node = rev.get_component_node(radios_rx[0])
+    bands_rx = rev.get_band_names(rx_node, tx_rx_mode=TxRxMode.RX)
     radios_tx = rev.get_interferer_names()
     domain = InteractionDomain(emit_app)
     domain.set_receiver(radios_rx[0], bands_rx[0])
@@ -2787,7 +2788,7 @@ def test_emitters_radios(emit_app) -> None:
         emit_app.schematic.delete_component(comp.name)
 
     emitter_radio_nodes = rev.get_all_emitter_radios()
-    assert emitter_radio_nodes is None
+    assert emitter_radio_nodes == []
 
     emitter_name = "Test Emitter"
     emitter_node: EmitterNode = emit_app.schematic.create_component(

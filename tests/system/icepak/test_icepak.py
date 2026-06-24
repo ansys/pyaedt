@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -522,7 +522,7 @@ def test_assign_mesh_operation(usb_ipk_app) -> None:
     assert test
     assert test.delete()
     b = usb_ipk_app.modeler.create_box([0, 0, 0], [1, 1, 1])
-    b.model = False
+    b.is_model = False
     test = usb_ipk_app.mesh.assign_mesh_region([b.name])
     assert test
     assert test.delete()

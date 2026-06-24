@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -71,7 +71,7 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
                 cc = self._app.get_oo_object(self._app.odesign, category)
                 cc_names = self._app.get_oo_name(cc)
                 if self._name in cc_names:
-                    child_object = cc.GetChildObject(self._name)
+                    child_object = self._app.get_oo_object(cc, self._name)
                     break
 
         return child_object

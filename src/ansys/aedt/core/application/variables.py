@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -1566,8 +1566,11 @@ class Variable(PyAedtBase):
             return None
         prop = prop or self.name
         app = self._aedt_obj
+
+        app_type = app.GetObjType()
+
         # DefinitionParameters only available in circuit and HFSS 3D Layout design type
-        if hasattr(app, "GetDesignName") and self.has_definition_parameters:
+        if app_type.lower() == "design" and self.has_definition_parameters:
             inst_name = f"Instance:{app.GetName()}"
 
             if self.is_circuit_parameter:

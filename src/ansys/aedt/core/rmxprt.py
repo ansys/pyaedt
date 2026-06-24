@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -54,9 +54,9 @@ class RMXprtModule(PyAedtBase):
 
         """
         try:
-            child_object = self._app.odesign.GetChildObject("Machine")
+            child_object = self._app.get_oo_object(self._app.odesign, "Machine")
             if self.component:
-                child_object = child_object.GetChildObject(self.component)
+                child_object = self._app.get_oo_object(child_object, self.component)
             parent = BinaryTreeNode(self.component if self.component else "Machine", child_object, False, app=self._app)
             return parent
         except Exception:

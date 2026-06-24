@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -111,7 +111,7 @@ def test_set_end_time(aedt_app) -> None:
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
 def test_catalog(aedt_app) -> None:
-    comp_catalog = aedt_app.modeler.components.components_catalog
+    comp_catalog = aedt_app.modeler.schematic.components_catalog
     assert not comp_catalog["Capacitors"]
     assert comp_catalog["Aircraft Electrical VHDLAMS\\Basic:lowpass_filter"].props
     assert comp_catalog["Aircraft Electrical VHDLAMS\\Basic:lowpass_filter"].place("LP1")

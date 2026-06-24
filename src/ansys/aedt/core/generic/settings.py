@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -65,6 +65,7 @@ ALLOWED_LOG_SETTINGS = [
     "enable_global_log_file",
     "enable_local_log_file",
     "enable_logger",
+    "enable_monitor_in_aedt",
     "enable_screen_logs",
     "global_log_file_name",
     "global_log_file_size",
@@ -127,6 +128,7 @@ ALLOWED_AEDT_ENV_VAR_SETTINGS = [
     "ANS_NODEPCHECK",
     "ANSYSEM_FEATURE_F629017_HARMONIC_APHI_SOLUTION_ENABLE",
     "AnsysSendMsg",
+    "ANSYSEM_FEATURE_F544773_SSFIT_AUTO_SELECTION_ENABLE",
 ]
 
 DEFAULT_GRPC_LOCAL: bool = True
@@ -203,6 +205,7 @@ class Settings(PyAedtBase):
             "ANSYSEM_FEATURE_F826442_MULTI_FINITE_ARRAYS_ENABLE": "1",
             "AnsysSendMsg": "1",
             "ANSYSEM_FEATURE_F629017_HARMONIC_APHI_SOLUTION_ENABLE": "1",
+            "ANSYSEM_FEATURE_F544773_SSFIT_AUTO_SELECTION_ENABLE": "1",
         }
         if is_linux:
             self.__aedt_environment_variables["ANS_NODEPCHECK"] = "1"
@@ -241,6 +244,7 @@ class Settings(PyAedtBase):
         self.__grpc_local = DEFAULT_GRPC_LOCAL
         self.__grpc_listen_all = DEFAULT_GRPC_LISTEN_ALL
         self.__pyedb_use_grpc: bool | None = None
+        self.__enable_monitor_in_aedt: bool = False
         self._update_settings()
 
     def _update_settings(self) -> None:
@@ -254,6 +258,17 @@ class Settings(PyAedtBase):
         self.load_yaml_configuration(pyaedt_settings_path)
 
     # ########################## gRPC properties ##########################
+
+    @property
+    def enable_monitor_in_aedt(self) -> bool:
+        """Enable monitor in AEDT application during its launch.
+        Default is ``False`` to guarantee back compatibility.
+        """
+        return self.__enable_monitor_in_aedt
+
+    @enable_monitor_in_aedt.setter
+    def enable_monitor_in_aedt(self, value: bool) -> None:
+        self.__enable_monitor_in_aedt = value
 
     @property
     def pyedb_use_grpc(self) -> bool | None:

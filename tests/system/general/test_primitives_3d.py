@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -587,7 +587,7 @@ def test_create_polyline_with_crosssection(aedt_app) -> None:
 
     assert isinstance(polyline, Polyline)
     assert aedt_app.modeler[polyline.id].object_type == "Solid"
-    assert aedt_app.modeler[polyline.id].is3d
+    assert aedt_app.modeler[polyline.id].is_3d
 
 
 def test_sweep_along_path_with_single_assignment(aedt_app) -> None:
@@ -1707,7 +1707,7 @@ def test_create_torus(aedt_app) -> None:
     assert torus.id > 0
     assert torus.name.startswith("MyTorus")
     assert torus.object_type == "Solid"
-    assert torus.is3d is True
+    assert torus.is_3d is True
 
 
 def test_create_torus_exceptions(aedt_app) -> None:
@@ -2075,7 +2075,7 @@ def test_3dcomponent_operations(aedt_app) -> None:
     assert obj_3dcomp.group_name == "test_group1"
     obj_3dcomp.group_name = "test_group"
     assert obj_3dcomp.group_name == "test_group"
-    assert obj_3dcomp.is3dcomponent
+    assert obj_3dcomp.is_3d_component
     assert not obj_3dcomp.mesh_assembly
     obj_3dcomp.mesh_assembly = True
     assert obj_3dcomp.mesh_assembly
@@ -2144,7 +2144,7 @@ def test_udm_operations(aedt_app) -> None:
     assert obj_udm.group_name == "test_group1"
     obj_udm.group_name = "test_group"
     assert obj_udm.group_name == "test_group"
-    assert not obj_udm.is3dcomponent
+    assert not obj_udm.is_3d_component
     assert not obj_udm.mesh_assembly
     obj_udm.mesh_assembly = True
     assert not obj_udm.mesh_assembly
@@ -2243,7 +2243,10 @@ def test_insert_layout_component(aedt_app, test_tmp_dir) -> None:
     assert isinstance(comp, UserDefinedComponent)
     assert len(aedt_app.modeler.user_defined_components[comp.name].parts) == 3
     assert comp.layout_component.edb_object
+
+    # Import again file
     comp3 = aedt_app.modeler.insert_layout_component(str(input_file), name="new_layout", parameter_mapping=True)
+
     assert isinstance(comp3, UserDefinedComponent)
     assert len(comp3.parameters) == 2
     assert comp3.layout_component.show_layout

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -191,6 +191,7 @@ def main(data: ExportLayoutExtensionData) -> bool:
         if data.export_configuration:
             config_file = aedb_path.with_name(aedb_path.stem + "_config.json")
             edb.configuration.export(config_file)
+
     finally:
         # Ensure EDB is properly closed
         edb.close()

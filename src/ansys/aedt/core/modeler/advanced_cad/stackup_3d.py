@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -21,7 +21,6 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
 
 from typing import TYPE_CHECKING
 
@@ -519,7 +518,6 @@ class Layer3D(PyAedtBase):
     def thickness_value(self) -> float | str:
         """Thickness value.
 
-
         Returns
         -------
         float, str
@@ -843,14 +841,14 @@ class Layer3D(PyAedtBase):
 
         if self._layer_type == "ground":
             if not is_void:
-                if polygon.aedt_object.is3d:
+                if polygon.aedt_object.is_3d:
                     self._app.modeler[self._name].subtract(polygon.aedt_object, True)
                     polygon.aedt_object.material_name = self.filling_material_name
                 else:
                     self._app.modeler[self._name].subtract(polygon.aedt_object, False)
                     return True
         elif is_void:
-            if polygon.aedt_object.is3d:
+            if polygon.aedt_object.is_3d:
                 self._app.modeler.subtract(self._obj_3d, polygon.aedt_object, True)
                 polygon.aedt_object.material_name = self.filling_material_name
             else:

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,12 +22,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
 import copy
 import os
+import re
 from typing import TYPE_CHECKING
 
 from ansys.aedt.core.base import PyAedtBase
+from ansys.aedt.core.generic.constants import DisplayFamiliesType
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import write_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -441,15 +442,17 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
             self.expressions = expressions
         self._is_created = False
         self.siwave_dc_category = 0
+        self._display_families_type = None
+        self._display_families_options = {}
         self._traces = []
         self._initialize_tree_node()
 
     @pyaedt_function_handler()
     def _initialize_tree_node(self) -> bool:
         if self._is_created:
-            oo = self._post.oreportsetup.GetChildObject(self._legacy_props["plot_name"])
+            oo = self._app.get_oo_object(self._post.oreportsetup, self.internal_plot_name)
             if oo:
-                BinaryTreeNode.__init__(self, self._legacy_props["plot_name"], oo, False, app=self._app)
+                BinaryTreeNode.__init__(self, self.internal_plot_name, oo, False, app=self._app)
                 return True
         return False
 
@@ -458,8 +461,8 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 
         try:
-            oo = self._post.oreportsetup.GetChildObject(self._legacy_props["plot_name"])
-            _child_object = BinaryTreeNode(self.plot_name, oo, False, app=self._app)
+            oo = self._app.get_oo_object(self._post.oreportsetup, self.internal_plot_name)
+            _child_object = BinaryTreeNode(self.internal_plot_name, oo, False, app=self._app)
             for var in [i.split(" ,")[-1] for i in list(_child_object.properties.values())[4:]]:
                 if var in _child_object.children:
                     del _child_object.children[var]
@@ -659,16 +662,17 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         _ = self.expressions[::]
         _traces = []
         try:
-            oo = self._post.oreportsetup.GetChildObject(self.plot_name)
-            oo_names = self._post.oreportsetup.GetChildObject(self.plot_name).GetChildNames()
+            oo = self._app.get_oo_object(self._post.oreportsetup, self.internal_plot_name)
+            oo_names = self._app.get_oo_name(self._post.oreportsetup, self.internal_plot_name)
         except Exception:
             return _traces
         for el in oo_names:
-            if {"Families", "Source"}.isdisjoint(set(oo.GetChildObject(el).GetPropNames())):
+            new_trace_name = re.sub(r"(?<!\\)/", r"\\/", el.replace("\\", "\\\\"))
+            if {"Families", "Source"}.isdisjoint(set(self._app.get_oo_properties(oo, new_trace_name))):
                 continue
             try:
-                oo1 = oo.GetChildObject(el)
-                oo1_name = oo1.GetChildNames()
+                oo1 = self._app.get_oo_object(oo, new_trace_name)
+                oo1_name = self._app.get_oo_name(oo, new_trace_name)
                 trace_names = self._app.oreportsetup.GetCurvePropServerName(self.plot_name, el)
                 if trace_names:
                     for aedt_name in trace_names:
@@ -751,7 +755,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         ):
             eye_xunits = self.__props_with_default(self._legacy_props["eye_mask"], "xunits", "ns")
             eye_yunits = self.__props_with_default(self._legacy_props["eye_mask"], "yunits", "mV")
-            eye_points = self.__props_with_default(self._legacy_props["eye_mask"], "points")
+            eye_points = self.__props_with_default(self._legacy_props["eye_mask"], "points", [])
             eye_enable = self.__props_with_default(self._legacy_props["eye_mask"], "enable_limits", False)
             eye_upper = self.__props_with_default(self._legacy_props["eye_mask"], "upper_limit", 500)
             eye_lower = self.__props_with_default(self._legacy_props["eye_mask"], "lower_limit", 0.3)
@@ -1043,14 +1047,16 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         List of :class:`ansys.aedt.core.modules.report_templates.LimitLine`
         """
         _traces = []
-        oo_names = self._app.get_oo_name(self._post.oreportsetup, self.plot_name)
+        oo_names = self._app.get_oo_name(self._post.oreportsetup, self.internal_plot_name)
         for el in oo_names:
             if "LimitLine" in el:
+                oo = self._app.get_oo_object(self._post.oreportsetup, self.internal_plot_name)
+                oo1 = self._app.get_oo_object(oo, el)
                 _traces.append(
                     LimitLine(
                         self._post,
                         f"{self.plot_name}:{el}",
-                        self._post.oreportsetup.GetChildObject(self.plot_name).GetChildObject(el),
+                        oo1,
                     )
                 )
 
@@ -1070,16 +1076,18 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         """
         _notes = []
         try:
-            oo_names = self._post.oreportsetup.GetChildObject(self.plot_name).GetChildNames()
+            oo_names = self._app.get_oo_name(self._post.oreportsetup, self.internal_plot_name)
         except Exception:
             return _notes
         for el in oo_names:
             if "Note" in el:
+                oo = self._app.get_oo_object(self._post.oreportsetup, self.internal_plot_name)
+                oo1 = self._app.get_oo_object(oo, el)
                 _notes.append(
                     Note(
                         self._post,
                         f"{self.plot_name}:{el}",
-                        self._post.oreportsetup.GetChildObject(self.plot_name).GetChildObject(el),
+                        oo1,
                     )
                 )
 
@@ -1102,6 +1110,25 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
             if name not in self._post.oreportsetup.GetAllReportNames():
                 self._post.oreportsetup.RenameReport(self._legacy_props["plot_name"], name)
         self._legacy_props["plot_name"] = name
+
+    @property
+    def internal_plot_name(self) -> str:
+        """Internal AEDT plot name with escaped backslashes and forward slashes.
+
+        Some AEDT APIs (such as ``oReportSetup.GetChildObject`` and a few
+        report-related operations) require special characters in the plot
+        name to be escaped: backslashes are doubled (``\\`` -> ``\\\\``) and
+        forward slashes that are not already preceded by a backslash are
+        prefixed with a backslash (``/`` -> ``\\/``). This property returns
+        the plot name in that escaped form, ready to be passed to those
+        APIs, while :attr:`plot_name` keeps the original user-facing name.
+
+        Returns
+        -------
+        str
+            Escaped plot name suitable for AEDT internal API calls.
+        """
+        return re.sub(r"(?<!\\)/", r"\\/", self.plot_name.replace("\\", "\\\\"))
 
     @property
     def variations(self) -> dict:
@@ -1293,6 +1320,88 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         return arg
 
     @property
+    def display_families_type(self) -> str:
+        """Display families type for reports with X and Y components.
+
+        Options are ``DisplayFamiliesType.Histogram``, ``DisplayFamiliesType.Statistics``,
+        and ``DisplayFamiliesType.Cumulative``.
+
+        Returns
+        -------
+        str
+            Display families type or ``None`` if not set.
+        """
+        return self._display_families_type
+
+    @display_families_type.setter
+    def display_families_type(self, value: str | None) -> None:
+        valid = [
+            DisplayFamiliesType.Histogram,
+            DisplayFamiliesType.Statistics,
+            DisplayFamiliesType.Cumulative,
+        ]
+        if value is not None and value not in valid:
+            raise ValueError(f"Invalid display_families_type '{value}'. Valid options: {valid}")
+        self._display_families_type = value
+        if value == DisplayFamiliesType.Histogram:
+            self._display_families_options.setdefault("val_to_sample_at", "")
+            self._display_families_options.setdefault("num_bins", 10)
+        elif value == DisplayFamiliesType.Statistics:
+            self._display_families_options.setdefault("functions", [])
+        else:
+            self._display_families_options = {}
+
+    @property
+    def display_families_options(self) -> dict:
+        """Options for the display families type.
+
+        Default values are populated automatically when ``display_families_type``
+        is set:
+
+        - ``DisplayFamiliesType.Histogram``: ``{"val_to_sample_at": "", "num_bins": 10}``
+        - ``DisplayFamiliesType.Statistics``: ``{"functions": []}``
+        - ``DisplayFamiliesType.Cumulative``: no options needed (empty dict).
+
+        Returns
+        -------
+        dict
+            Display families options.
+        """
+        return self._display_families_options
+
+    @display_families_options.setter
+    def display_families_options(self, value: dict) -> None:
+        self._display_families_options = value if value else {}
+
+    def _display_families_arg(self):
+        """Build the display families argument for CreateReport.
+
+        Returns
+        -------
+        list
+            Display families argument list, or empty list if not applicable.
+        """
+        if not self._display_families_type:
+            return []
+        # Only applicable when report uses X Component and Y Component
+        if self.report_type not in ["Rectangular Plot", "Radiation Pattern", "Data Table"]:
+            return []
+        arg = ["DisplayFamiliesType:=", self._display_families_type]
+        if self._display_families_type == DisplayFamiliesType.Histogram:
+            val = self._display_families_options["val_to_sample_at"]
+            num_bins = self._display_families_options["num_bins"]
+            arg.append("ValToSampleAt:=")
+            arg.append(val)
+            arg.append("NumBins:=")
+            arg.append(num_bins)
+        elif self._display_families_type == DisplayFamiliesType.Statistics:
+            functions = self._display_families_options["functions"]
+            func_list = ["NAME:functions"] + functions
+            arg.append(func_list)
+        # CumulativeDistribute has no extra options
+        return arg
+
+    @property
     def domain(self) -> str:
         """Plot domain.
 
@@ -1412,6 +1521,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
             self._context,
             self._convert_dict_to_report_sel(self.variations),
             self._trace_info(),
+            *([self._display_families_arg()] if self._display_families_arg() else []),
         )
         self._post.plots.append(self)
         self._is_created = True
@@ -2196,7 +2306,8 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
             ``True`` when successful, ``False`` when failed.
         """
         try:
-            legend = self._post.oreportsetup.GetChildObject(self.plot_name).GetChildObject("Legend")
+            oo = self._app.get_oo_object(self._post.oreportsetup, self.plot_name)
+            legend = self._app.get_oo_object(oo, "Legend")
             legend.Show_Solution_Name = not solution_name
             legend.Show_Trace_Name = not trace_name
             legend.Show_Variation_Key = not variation_key

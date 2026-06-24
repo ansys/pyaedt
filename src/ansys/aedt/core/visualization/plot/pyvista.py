@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -70,23 +70,6 @@ def get_structured_mesh(theta: list, phi: list, ff_data: np.ndarray) -> pv.Struc
     ff_mesh = pv.StructuredGrid(x, y, z)
     ff_mesh["FarFieldData"] = mag
     return ff_mesh
-
-
-# def is_notebook() -> bool:
-#     """Check if pyaedt is running in Jupyter or not.
-
-#     Returns
-#     -------
-#     bool
-#     """
-#     try:
-#         shell = get_ipython().__class__.__name__
-#         if shell == "ZMQInteractiveShell":
-#             return True  # Jupyter notebook or qtconsole
-#         else:
-#             return False
-#     except NameError:
-#         return False  # Probably standard Python interpreter
 
 
 def is_float(istring: str) -> float:
@@ -1181,10 +1164,8 @@ class ModelPlotter(CommonPlotter):
                 self.text = []
 
             def __call__(self, state):
-                try:
-                    self.plot.button_widgets = [self.plot.button_widgets[0]]
-                except Exception:
-                    self.plot.button_widgets = []
+                while len(self.plot.button_widgets) > 1:
+                    self.plot.button_widgets.pop(-1)
                 self.id += 1
                 k = 0
                 startpos = self.startpos

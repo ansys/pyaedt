@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -998,7 +998,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         default_surface: str | None = "Steel-oxidised-surface",
         export_monitor: bool | None = False,
         export_sherlock: bool | None = False,
-        export_directory: str | None = os.getcwd(),
+        export_directory: str | None = Path.cwd(),
         gauge_pressure: int | None = 0,
         radiation_temperature: int | None = 20,
         ignore_unclassified_objects: bool | None = False,
@@ -1484,7 +1484,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
             output_dir = self.working_directory
         self.osolution.EditFieldsSummarySetting(arg)
         if not Path(output_dir).exists():
-            os.mkdir(output_dir)
+            Path(output_dir).mkdir(parents=True, exist_ok=True)
         if not solution_name:
             solution_name = self.nominal_sweep
         if variation:

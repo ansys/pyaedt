@@ -106,4 +106,5 @@ Example with ``Desktop`` class implicit initialization:
    CableModeling
    FilterSolutions
    Profiles
+   Substrate
    generic

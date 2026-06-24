@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
 from typing import TYPE_CHECKING
 from typing import Any
 
@@ -30,8 +29,8 @@ from typing import Any
 # Currently pyedb isn't part of conda and importing it at the top level of this module leads to
 # errors when importing ansys.aedt.core
 if TYPE_CHECKING:
-    from pyedb import Edb as EdbApp
-    from pyedb import Siwave
+    from pyedb.generic.design_types import Edb as EdbApp
+    from pyedb.generic.design_types import Siwave
 
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
@@ -118,7 +117,7 @@ def Edb(
     >>> app = Edb("/path/to/file/myfile.gds")
 
     """
-    from pyedb import Edb as EdbApp
+    from pyedb.generic.design_types import Edb as EdbApp
 
     if version is not None:
         # Clear global state before initialization
@@ -161,7 +160,7 @@ def Siwave(
     specified_version: str | None = None,
 ) -> "Siwave":
     """Siwave Class."""
-    from pyedb.siwave import Siwave as app
+    from pyedb.generic.design_types import Siwave as app
 
     return app(
         specified_version=specified_version,
