@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -31,62 +31,101 @@ from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import main
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
-def test_export_to_3d_extension_button(add_app, local_scratch):
+def test_export_to_3d_extension_button(add_app, test_tmp_dir) -> None:
     """Test the Export button in the Export to 3D extension."""
     data = ExportTo3DExtensionData(choice="Export to HFSS")
-    proj = str(local_scratch.path / "export_to_3d.aedt")
 
     # Create an HFSS 3D Layout application
     aedt_app = add_app(
         application=Hfss3dLayout,
-        project_name=proj,
-        just_open=True,
+        project="export_to_3d",
     )
 
     # Create a simple stackup and net for the export to work
     aedt_app.modeler.layers.add_layer("signal", "signal", thickness="0.035mm", elevation="0mm")
-    aedt_app.modeler.create_rectangle(
+    rect = aedt_app.modeler.create_rectangle(
         "signal",
         [0, 0],
         [5, 5],
     )
+    rect.net_name = "net1"
+
+    rect1 = aedt_app.modeler.create_rectangle(
+        "signal",
+        [10, 10],
+        [50, 50],
+    )
+    rect1.net_name = "net1"
+
+    aedt_app.modeler.create_rectangle(
+        "signal",
+        [-10, -10],
+        [-50, -50],
+    )
+
+    rect2 = aedt_app.modeler.create_rectangle(
+        "signal",
+        [-20, 20],
+        [10, 10],
+    )
+    rect2.net_name = "net2"
 
     # Test that the extension can be instantiated
     extension = ExportTo3DExtension(withdraw=True)
     extension.root.nametowidget("export").invoke()
     assert data.choice == extension.data.choice
     result = main(extension.data)
-    aedt_app.close_project("export_to_3d_HFSS", save=False)
     aedt_app.close_project(save=False)
+    aedt_app.close_project(save=False)
+
     assert result
 
 
-def test_export_to_3d_q3d_choice(add_app, local_scratch):
+def test_export_to_3d_q3d_choice(add_app) -> None:
     """Test the Export to Q3D functionality."""
     # Create an HFSS 3D Layout application
-    proj = str(local_scratch.path / "export_to_3d_q3d.aedt")
     aedt_app = add_app(
         application=Hfss3dLayout,
-        project_name=proj,
-        just_open=True,
+        project="export_to_3d_q3d",
     )
 
-    # Create a simple stackup for the export to work
+    # Create a simple stackup and net for the export to work
     aedt_app.modeler.layers.add_layer("signal", "signal", thickness="0.035mm", elevation="0mm")
-    aedt_app.modeler.create_rectangle(
+    rect = aedt_app.modeler.create_rectangle(
         "signal",
         [0, 0],
         [5, 5],
     )
+    rect.net_name = "net1"
+
+    rect1 = aedt_app.modeler.create_rectangle(
+        "signal",
+        [10, 10],
+        [50, 50],
+    )
+    rect1.net_name = "net1"
+
+    aedt_app.modeler.create_rectangle(
+        "signal",
+        [-10, -10],
+        [-50, -50],
+    )
+
+    rect2 = aedt_app.modeler.create_rectangle(
+        "signal",
+        [-20, 20],
+        [10, 10],
+    )
+    rect2.net_name = "net2"
 
     data = ExportTo3DExtensionData(choice="Export to Q3D")
     result = main(data)
-    aedt_app.close_project("export_to_3d_q3d_Q3D", save=False)
+    aedt_app.close_project(save=False)
     aedt_app.close_project(save=False)
     assert result is True
 
 
-def test_export_to_3d_exceptions(add_app, local_scratch):
+def test_export_to_3d_exceptions() -> None:
     """Test exceptions thrown by the Export to 3D extension."""
     # Test with no choice
     data = ExportTo3DExtensionData(choice=None)
@@ -98,53 +137,90 @@ def test_export_to_3d_exceptions(add_app, local_scratch):
     with pytest.raises(AEDTRuntimeError):
         main(data)
 
-    # Test with wrong application type (HFSS instead of 3D Layout)
 
-
-def test_export_to_3d_maxwell_choice(add_app, local_scratch):
+def test_export_to_3d_maxwell_choice(add_app) -> None:
     """Test the Export to Maxwell 3D functionality."""
     # Create an HFSS 3D Layout application
-    proj = str(local_scratch.path / "export_to_3d_maxwell.aedt")
     aedt_app = add_app(
         application=Hfss3dLayout,
-        project_name=proj,
-        just_open=True,
+        project="export_to_3d_maxwell",
     )
 
-    # Create a simple stackup for the export to work
+    # Create a simple stackup and net for the export to work
     aedt_app.modeler.layers.add_layer("signal", "signal", thickness="0.035mm", elevation="0mm")
-    aedt_app.modeler.create_rectangle(
+    rect = aedt_app.modeler.create_rectangle(
         "signal",
         [0, 0],
         [5, 5],
     )
+    rect.net_name = "net1"
+
+    rect1 = aedt_app.modeler.create_rectangle(
+        "signal",
+        [10, 10],
+        [50, 50],
+    )
+    rect1.net_name = "net1"
+
+    aedt_app.modeler.create_rectangle(
+        "signal",
+        [-10, -10],
+        [-50, -50],
+    )
+
+    rect2 = aedt_app.modeler.create_rectangle(
+        "signal",
+        [-20, 20],
+        [10, 10],
+    )
+    rect2.net_name = "net2"
+
     data = ExportTo3DExtensionData(choice="Export to Maxwell 3D")
     result = main(data)
-    aedt_app.close_project("export_to_3d_maxwell_M3D", save=False)
+    aedt_app.close_project(save=False)
     aedt_app.close_project(save=False)
     assert result is True
 
 
-def test_export_to_3d_icepak_choice(add_app, local_scratch):
+def test_export_to_3d_icepak_choice(add_app) -> None:
     """Test the Export to Icepak functionality."""
     # Create an HFSS 3D Layout application
-    proj = str(local_scratch.path / "export_to_3d_icepak.aedt")
     aedt_app = add_app(
         application=Hfss3dLayout,
-        project_name=proj,
-        just_open=True,
+        project="export_to_3d_icepak",
     )
 
-    # Create a simple stackup for the export to work
+    # Create a simple stackup and net for the export to work
     aedt_app.modeler.layers.add_layer("signal", "signal", thickness="0.035mm", elevation="0mm")
-    aedt_app.modeler.create_rectangle(
+    rect = aedt_app.modeler.create_rectangle(
         "signal",
         [0, 0],
         [5, 5],
     )
+    rect.net_name = "net1"
+
+    rect1 = aedt_app.modeler.create_rectangle(
+        "signal",
+        [10, 10],
+        [50, 50],
+    )
+    rect1.net_name = "net1"
+
+    aedt_app.modeler.create_rectangle(
+        "signal",
+        [-10, -10],
+        [-50, -50],
+    )
+
+    rect2 = aedt_app.modeler.create_rectangle(
+        "signal",
+        [-20, 20],
+        [10, 10],
+    )
+    rect2.net_name = "net2"
 
     data = ExportTo3DExtensionData(choice="Export to Icepak")
     result = main(data)
-    aedt_app.close_project("export_to_3d_maxwell_IPK", save=False)
+    aedt_app.close_project(save=False)
     aedt_app.close_project(save=False)
     assert result is True

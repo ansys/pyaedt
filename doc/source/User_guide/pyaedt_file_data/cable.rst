@@ -10,8 +10,9 @@ This file can be created using the following command:
     from ansys.aedt.core import Hfss
     from ansys.aedt.core.modules.cable_modeling import Cable
     from ansys.aedt.core.generic.DataHandlers import json_to_dict
+
     hfss = Hfss()
-    cable = Cable(hfss,"set_cable_properties.json"))
+    cable = Cable(hfss, "set_cable_properties.json")
     cable.create_cable()
     hfss.release_desktop()
 

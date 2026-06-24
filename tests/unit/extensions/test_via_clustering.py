@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
+#
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +11,8 @@
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
 #
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -92,7 +93,7 @@ def mock_hfss_3d_layout_app_no_layers(mock_hfss_3d_layout_app):
             yield mock_hfss_3d_layout_app
 
 
-def test_via_clustering_extension_data_post_init():
+def test_via_clustering_extension_data_post_init() -> None:
     """Test ViaClusteringExtensionData __post_init__ method."""
     # Test with None values
     data = ViaClusteringExtensionData()
@@ -105,7 +106,7 @@ def test_via_clustering_extension_data_post_init():
     assert data.contour_list == [[[0, 0], [1, 1]]]
 
 
-def test_via_clustering_extension_default(mock_hfss_3d_layout_app_with_layers):
+def test_via_clustering_extension_default(mock_hfss_3d_layout_app_with_layers) -> None:
     """Test instantiation of the Via Clustering extension."""
     extension = ViaClusteringExtension(withdraw=True)
 
@@ -115,13 +116,13 @@ def test_via_clustering_extension_default(mock_hfss_3d_layout_app_with_layers):
     extension.root.destroy()
 
 
-def test_via_clustering_extension_no_layers_exception(mock_hfss_3d_layout_app_no_layers):
+def test_via_clustering_extension_no_layers_exception(mock_hfss_3d_layout_app_no_layers) -> None:
     """Test exception when no signal layers are defined."""
     with pytest.raises(AEDTRuntimeError, match="No signal layers are defined in this design."):
         ViaClusteringExtension(withdraw=True)
 
 
-def test_via_clustering_extension_ui_elements(mock_hfss_3d_layout_app_with_layers):
+def test_via_clustering_extension_ui_elements(mock_hfss_3d_layout_app_with_layers) -> None:
     """Test that all UI elements are created correctly."""
     extension = ViaClusteringExtension(withdraw=True)
 
@@ -146,7 +147,7 @@ def test_via_clustering_extension_ui_elements(mock_hfss_3d_layout_app_with_layer
     extension.root.destroy()
 
 
-def test_via_clustering_extension_add_layer_button(mock_hfss_3d_layout_app_with_layers):
+def test_via_clustering_extension_add_layer_button(mock_hfss_3d_layout_app_with_layers) -> None:
     """Test the add layer button functionality."""
     extension = ViaClusteringExtension(withdraw=True)
 
@@ -174,7 +175,7 @@ def test_via_clustering_extension_add_layer_button(mock_hfss_3d_layout_app_with_
     extension.root.destroy()
 
 
-def test_via_clustering_extension_merge_vias_button_with_primitives(mock_hfss_3d_layout_app_with_layers):
+def test_via_clustering_extension_merge_vias_button_with_primitives(mock_hfss_3d_layout_app_with_layers) -> None:
     """Test the merge vias button functionality with valid primitives."""
     extension = ViaClusteringExtension(withdraw=True)
 
@@ -224,7 +225,7 @@ def test_via_clustering_extension_merge_vias_button_with_primitives(mock_hfss_3d
         mock_hfss.desktop_class.release_desktop.assert_called_once_with(False, False)
 
 
-def test_via_clustering_extension_merge_vias_unsupported_primitive(mock_hfss_3d_layout_app_with_layers):
+def test_via_clustering_extension_merge_vias_unsupported_primitive(mock_hfss_3d_layout_app_with_layers) -> None:
     """Test merge vias with unsupported primitive type."""
     extension = ViaClusteringExtension(withdraw=True)
 
@@ -255,7 +256,7 @@ def test_via_clustering_extension_merge_vias_unsupported_primitive(mock_hfss_3d_
         assert extension.data.contour_list == []
 
 
-def test_main_function_exceptions():
+def test_main_function_exceptions() -> None:
     """Test exceptions in the main function."""
     # Test with no AEDB path
     data = ViaClusteringExtensionData(aedb_path="")
@@ -273,7 +274,7 @@ def test_main_function_exceptions():
         main(data)
 
 
-def test_main_function_success():
+def test_main_function_success() -> None:
     """Test successful execution of the main function."""
     # Create test data
     data = ViaClusteringExtensionData(
@@ -318,10 +319,10 @@ def test_main_function_success():
 
                 # Verify EDB was saved and closed
                 mock_edb.save.assert_called_once()
-                mock_edb.close_edb.assert_called_once()
+                mock_edb.close.assert_called_once()
 
 
-def test_main_function_without_pytest_env():
+def test_main_function_without_pytest_env() -> None:
     """Test main function behavior when not running in pytest environment."""
     # Create test data
     data = ViaClusteringExtensionData(
@@ -367,7 +368,7 @@ def test_main_function_without_pytest_env():
                     mock_h3d.desktop_class.release_desktop.assert_called_once_with(False, False)
 
 
-def test_via_clustering_extension_wrong_design_type():
+def test_via_clustering_extension_wrong_design_type() -> None:
     """Test exception when design type is not HFSS 3D Layout."""
     mock_app = MagicMock()
     mock_app.design_type = "HFSS"
@@ -381,7 +382,7 @@ def test_via_clustering_extension_wrong_design_type():
             ViaClusteringExtension(withdraw=True)
 
 
-def test_via_clustering_extension_layer_selection_change(mock_hfss_3d_layout_app_with_layers):
+def test_via_clustering_extension_layer_selection_change(mock_hfss_3d_layout_app_with_layers) -> None:
     """Test changing layer selections in the UI."""
     extension = ViaClusteringExtension(withdraw=True)
 
@@ -396,7 +397,7 @@ def test_via_clustering_extension_layer_selection_change(mock_hfss_3d_layout_app
     extension.root.destroy()
 
 
-def test_via_clustering_extension_project_name_change(mock_hfss_3d_layout_app_with_layers):
+def test_via_clustering_extension_project_name_change(mock_hfss_3d_layout_app_with_layers) -> None:
     """Test changing project name in the UI."""
     extension = ViaClusteringExtension(withdraw=True)
 

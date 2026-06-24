@@ -1,0 +1,219 @@
+name: Manual Build Wheelhouse
+
+on:
+  workflow_dispatch:
+    inputs:
+      pyaedt-branch:
+        description: "PyAEDT branch used to run the test"
+        default: 'main'
+        type: string
+      build-ubuntu-wheels:
+         description: "Build Ubuntu wheelhouse artifacts"
+         default: 'no'
+         type: choice
+         options:
+           - 'yes'
+           - 'no'
+      build-windows-wheels:
+         description: "Build Windows wheelhouse artifacts"
+         default: 'no'
+         type: choice
+         options:
+           - 'yes'
+           - 'no'
+      build-rocky-wheels:
+         description: "Build Rocky Linux wheelhouse artifacts"
+         default: 'no'
+         type: choice
+         options:
+           - 'yes'
+           - 'no'
+      python-version:
+         description: "Python version to build for (choose 'all' for all supported versions)"
+         default: '3.10'
+         type: choice
+         options:
+           - 'all'
+           - '3.10'
+           - '3.11'
+           - '3.12'
+           - '3.13'
+           - '3.14'
+      target:
+         description: "Package extras to build"
+         default: 'all'
+         type: choice
+         options:
+           - 'all'
+           - 'all-dotnet'
+
+env:
+  PACKAGE_NAME: 'PyAEDT'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Disable all default permissions at workflow level for security (least privilege principle)
+# Individual jobs will explicitly request only the permissions they need
+permissions: {}
+
+jobs:
+
+  build-wheelhouse-ubuntu-all:
+    if: github.event.inputs.build-ubuntu-wheels == 'yes' && github.event.inputs.python-version == 'all'
+    name: Build wheelhouse (Ubuntu, all)
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.10','3.11','3.12','3.13', '3.14']
+    steps:
+      - name: Clone PyAEDT using specified input branch
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          ref: ${{ github.event.inputs.pyaedt-branch }}
+          persist-credentials: false
+
+      - name: Build wheelhouse and perform smoke test
+        id: build-wheelhouse-ubuntu
+        uses: ansys/actions/build-wheelhouse@d946b24b9a765f4169bcc94afdb27bd1a0533741 # v10.3.2
+        with:
+          checkout: false
+          library-name: ${{ env.PACKAGE_NAME }}
+          operating-system: ubuntu-latest
+          python-version: ${{ matrix.python-version }}
+          target: ${{ github.event.inputs.target }}
+          use-python-cache: false
+          whitelist-license-check: 'fpdf2'
+
+      - name: Import python package
+        env:
+          ACTIVATE_VENV: ${{ steps.build-wheelhouse-ubuntu.outputs.activate-venv }}
+        shell: bash
+        run: |
+          ${ACTIVATE_VENV}
+          python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
+
+  build-wheelhouse-ubuntu-single:
+    if: github.event.inputs.build-ubuntu-wheels == 'yes' && github.event.inputs.python-version != 'all'
+    name: Build wheelhouse (Ubuntu, single)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone PyAEDT using specified input branch
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          ref: ${{ github.event.inputs.pyaedt-branch }}
+          persist-credentials: false
+
+      - name: Build wheelhouse and perform smoke test
+        id: build-wheelhouse-ubuntu
+        uses: ansys/actions/build-wheelhouse@d946b24b9a765f4169bcc94afdb27bd1a0533741 # v10.3.2
+        with:
+          checkout: false
+          library-name: ${{ env.PACKAGE_NAME }}
+          operating-system: ubuntu-latest
+          python-version: ${{ github.event.inputs.python-version }}
+          target: ${{ github.event.inputs.target }}
+          use-python-cache: false
+          whitelist-license-check: 'fpdf2'
+
+      - name: Import python package
+        env:
+          ACTIVATE_VENV: ${{ steps.build-wheelhouse-ubuntu.outputs.activate-venv }}
+        shell: bash
+        run: |
+          ${ACTIVATE_VENV}
+          python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
+
+  build-wheelhouse-windows-all:
+    if: github.event.inputs.build-windows-wheels == 'yes' && github.event.inputs.python-version == 'all'
+    name: Build wheelhouse (Windows, all)
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.10','3.11','3.12','3.13', '3.14']
+    steps:
+      - name: Clone PyAEDT using specified input branch
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          ref: ${{ github.event.inputs.pyaedt-branch }}
+          persist-credentials: false
+
+      - name: Build wheelhouse and perform smoke test
+        id: build-wheelhouse-windows
+        uses: ansys/actions/build-wheelhouse@d946b24b9a765f4169bcc94afdb27bd1a0533741 # v10.3.2
+        with:
+          checkout: false
+          library-name: ${{ env.PACKAGE_NAME }}
+          operating-system: windows-latest
+          python-version: ${{ matrix.python-version }}
+          target: ${{ github.event.inputs.target }}
+          use-python-cache: false
+          whitelist-license-check: 'fpdf2'
+
+      - name: Import python package
+        env:
+          ACTIVATE_VENV: ${{ steps.build-wheelhouse-windows.outputs.activate-venv }}
+        shell: bash
+        run: |
+          ${ACTIVATE_VENV}
+          python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
+
+  build-wheelhouse-windows-single:
+    if: github.event.inputs.build-windows-wheels == 'yes' && github.event.inputs.python-version != 'all'
+    name: Build wheelhouse (Windows, single)
+    runs-on: windows-latest
+    steps:
+      - name: Clone PyAEDT using specified input branch
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          ref: ${{ github.event.inputs.pyaedt-branch }}
+          persist-credentials: false
+
+      - name: Build wheelhouse and perform smoke test
+        id: build-wheelhouse-windows
+        uses: ansys/actions/build-wheelhouse@d946b24b9a765f4169bcc94afdb27bd1a0533741 # v10.3.2
+        with:
+          checkout: false
+          library-name: ${{ env.PACKAGE_NAME }}
+          operating-system: windows-latest
+          python-version: ${{ github.event.inputs.python-version }}
+          target: ${{ github.event.inputs.target }}
+          use-python-cache: false
+          whitelist-license-check: 'fpdf2'
+
+      - name: Import python package
+        env:
+          ACTIVATE_VENV: ${{ steps.build-wheelhouse-windows.outputs.activate-venv }}
+        shell: bash
+        run: |
+          ${ACTIVATE_VENV}
+          python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
+
+  build-wheelhouse-rocky-all:
+    if: github.event.inputs.build-rocky-wheels == 'yes' && github.event.inputs.python-version == 'all'
+    name: Build wheelhouse (Rocky Linux)
+    permissions:
+      attestations: write   # Required to create and publish build attestations (SLSA provenance)
+      contents: read        # Required to read repository content for building
+      id-token: write       # Required for OIDC token generation (for provenance signing)
+    uses: ./.github/workflows/reusable-smoke-tests-rocky.yml
+    with:
+      python-versions: '["3.10", "3.11", "3.12", "3.13", "3.14"]'
+      extras: ${{ format('["{0}"]', github.event.inputs.target) }}
+      checkout-ref: ${{ github.event.inputs.pyaedt-branch }}
+
+  build-wheelhouse-rocky-single:
+    if: github.event.inputs.build-rocky-wheels == 'yes' && github.event.inputs.python-version != 'all'
+    name: Build wheelhouse (Rocky Linux)
+    permissions:
+      attestations: write   # Required to create and publish build attestations (SLSA provenance)
+      contents: read        # Required to read repository content for building
+      id-token: write       # Required for OIDC token generation (for provenance signing)
+    uses: ./.github/workflows/reusable-smoke-tests-rocky.yml
+    with:
+      python-versions: ${{ format('["{0}"]', github.event.inputs.python-version) }}
+      extras: ${{ format('["{0}"]', github.event.inputs.target) }}
+      checkout-ref: ${{ github.event.inputs.pyaedt-branch }}

@@ -8,6 +8,7 @@ This code creates the JSON file:
 .. code:: python
 
     from ansys.aedt.core import Maxwell3d
+
     maxwell = Maxwell3d()
     maxwell.materials.export_materials_to_file("materials.json")
     maxwell.release_desktop()
@@ -17,6 +18,7 @@ This code imports materials from the JSON file:
 .. code:: python
 
     from ansys.aedt.core import Maxwell3d
+
     maxwell = Maxwell3d()
     maxwell.materials.import_materials_from_file("material_example.json")
     maxwell.release_desktop()

@@ -401,5 +401,11 @@ model.index\+
 # test coverage output
 /.cov/
 
+# testmon
+.testmondata
+.testmondata-shm
+.testmondata-wal
+
 # Custom instructions for GitHub Copilot
 .github/copilot-instructions.md
+

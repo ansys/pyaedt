@@ -7,7 +7,7 @@ HFSS extensions
             :link: choke_designer
             :link-type: doc
             :margin: 2 2 0 0
-            
+
             Design a choke and import it in HFSS.
 
    .. grid-item-card:: Push excitation from file
@@ -37,3 +37,10 @@ HFSS extensions
             :margin: 2 2 0 0
 
             Automated assembly workflow.
+
+   .. grid-item-card:: Fresnel
+            :link: fresnel
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Extract Fresnel coefficients from HFSS Floquet port simulations for periodic structures.

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -24,13 +24,15 @@
 
 from pathlib import Path
 import platform
+import shutil
 
 try:
     import typer
-except ImportError:  # pragma: no cover
-    raise ImportError(
-        "typer is required for the CLI. Please install with 'pip install pyaedt[all]' or 'pip install typer'"
-    )
+except ImportError as e:  # pragma: no cover
+    from ansys.aedt.core.internal.checks import install_message
+
+    msg = install_message("typer", "all", level="module")
+    raise ImportError(msg) from e
 
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 
@@ -39,16 +41,9 @@ panels_app = typer.Typer(help="Manage PyAEDT panels in AEDT", no_args_is_help=Tr
 
 @panels_app.command("add")
 def add_panels(
-    aedt_version: str = typer.Option(
-        None,
-        "--version",
-        "-v",
-        help="AEDT version (such as 2025.2). If not provided, you'll be prompted to select from installed versions.",
-    ),
     personal_lib: str = typer.Option(
         None,
         "--personal-lib",
-        "-p",
         help="Path to AEDT PersonalLib folder",
         prompt="Enter path to PersonalLib folder",
     ),
@@ -57,17 +52,36 @@ def add_panels(
         "--skip-version-manager",
         help="Skip installing the Version Manager tab",
     ),
+    skip_extension_manager: bool = typer.Option(
+        False,
+        "--skip-extension-manager",
+        help="Skip installing the Extension Manager tab",
+    ),
+    light: bool = typer.Option(
+        False,
+        "--minimal",
+        help="Install only the light PyAEDT panel set (Console, Run Script, and optional manager panels)",
+    ),
+    reset: bool = typer.Option(
+        False,
+        "--reset",
+        help="Delete existing Toolkits directory before installing",
+    ),
 ):
-    """Add PyAEDT panels to AEDT installation.
+    """
+    Add PyAEDT panels to AEDT installation.
 
-    This command installs PyAEDT tabs (Console, Jupyter, Run Script, Extension Manager,
-    and optionally Version Manager) into your AEDT installation.
+    This command installs PyAEDT tabs (Console, Jupyter, Run Script, optional Extension Manager,
+    and optional Version Manager) into your AEDT installation.
 
     Examples
     --------
-        pyaedt panels add --version 2025.2 --personal-lib "C:\\Users\\username\\AppData\\Roaming\\Ansoft\\PersonalLib"
-        pyaedt panels add -v 2025.2 -p "/home/username/Ansoft/PersonalLib"
+        pyaedt panels add --personal-lib "C:\\Users\\username\\AppData\\Roaming\\Ansoft\\PersonalLib"
+        pyaedt panels add -p "/home/username/Ansoft/PersonalLib"
+        pyaedt panels add --personal-lib "..." --minimal
+        pyaedt panels add --personal-lib "..." --reset  # Delete Toolkits before installing
         pyaedt panels add  # Interactive mode: select from installed versions
+
     """
     try:
         installed = aedt_versions.installed_versions
@@ -79,55 +93,6 @@ def add_panels(
                 bold=True,
             )
             typer.echo("\nPlease install AEDT before running this command.")
-            raise typer.Exit(code=1)
-
-        main_versions = [v for v in installed.keys() if not any(suffix in v for suffix in ["AWP", "CL", "SV"])]
-
-        if not main_versions:
-            main_versions = list(installed.keys())
-
-        if not aedt_version:
-            typer.secho("\nInstalled AEDT versions:", fg=typer.colors.CYAN, bold=True)
-            for idx, ver in enumerate(main_versions, 1):
-                typer.echo(f"  {idx}. {ver}")
-
-            selection = typer.prompt("\nSelect AEDT version number", type=int, default=1)
-
-            if selection < 1 or selection > len(main_versions):
-                typer.secho(
-                    f"✗ Invalid selection. Please choose a number between 1 and {len(main_versions)}.",
-                    fg=typer.colors.RED,
-                    bold=True,
-                )
-                raise typer.Exit(code=1)
-
-            aedt_version = main_versions[selection - 1]
-            typer.secho(f"\nSelected version: {aedt_version}", fg=typer.colors.GREEN)
-
-        # Validate AEDT version format
-        if not aedt_version or not isinstance(aedt_version, str):
-            typer.secho(
-                "✗ Invalid AEDT version. Provide a valid version string (such as 2025.2)",
-                fg=typer.colors.RED,
-                bold=True,
-            )
-            raise typer.Exit(code=1)
-
-        aedt_version = aedt_version.strip()
-        if not aedt_version:
-            typer.secho("✗ AEDT version cannot be empty.", fg=typer.colors.RED, bold=True)
-            raise typer.Exit(code=1)
-
-        # Validate that the selected version is installed
-        if aedt_version not in installed:
-            typer.secho(
-                f"✗ AEDT version '{aedt_version}' is not installed on this system.",
-                fg=typer.colors.RED,
-                bold=True,
-            )
-            typer.echo("\nInstalled versions:")
-            for ver in main_versions:
-                typer.secho(f"  • {ver}", fg=typer.colors.CYAN)
             raise typer.Exit(code=1)
 
         # Validate personal_lib path
@@ -177,9 +142,49 @@ def add_panels(
             )
             raise typer.Exit(code=1)
 
+        # Handle reset option - delete Toolkits directory if requested
+        if reset:
+            toolkits_path = personal_lib_path / "Toolkits"
+            if toolkits_path.exists():
+                typer.secho(
+                    "Deleting existing Toolkits directory...",
+                    fg=typer.colors.YELLOW,
+                    bold=True,
+                )
+                typer.secho(f"  {toolkits_path}", fg=typer.colors.CYAN)
+                try:
+                    shutil.rmtree(toolkits_path)
+                    typer.secho(
+                        "✓ Toolkits directory deleted successfully.",
+                        fg=typer.colors.GREEN,
+                    )
+                except PermissionError as e:
+                    typer.secho(
+                        f"✗ Permission denied: {str(e)}",
+                        fg=typer.colors.RED,
+                        bold=True,
+                    )
+                    typer.echo("\nMake sure:")
+                    typer.echo("  • You have permission to delete files in this directory")
+                    typer.echo("  • AEDT is not currently running")
+                    typer.echo("  • No files in the Toolkits directory are currently in use")
+                    raise typer.Exit(code=1)
+                except Exception as e:
+                    typer.secho(
+                        f"✗ Error deleting Toolkits directory: {str(e)}",
+                        fg=typer.colors.RED,
+                        bold=True,
+                    )
+                    raise typer.Exit(code=1)
+            else:
+                typer.secho(
+                    "ℹ Toolkits directory does not exist, nothing to delete.",
+                    fg=typer.colors.YELLOW,
+                )
+
         # Import and run the installer
         typer.secho(
-            f"Installing PyAEDT panels for AEDT {aedt_version}...",
+            "Installing PyAEDT panels...",
             fg=typer.colors.BLUE,
             bold=True,
         )
@@ -188,27 +193,33 @@ def add_panels(
         if skip_version_manager:
             typer.secho("Skipping Version Manager tab...", fg=typer.colors.YELLOW)
 
+        if skip_extension_manager:
+            typer.secho("Skipping Extension Manager tab...", fg=typer.colors.YELLOW)
+
         from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
 
         result = add_pyaedt_to_aedt(
-            aedt_version=aedt_version,
             personal_lib=str(personal_lib_path),
             skip_version_manager=skip_version_manager,
-            odesktop=None,
+            skip_extension_manager=skip_extension_manager,
+            light=light,
         )
 
-        if result is False:
+        if not result:
             typer.secho("✗ Failed to install PyAEDT panels.", fg=typer.colors.RED, bold=True)
             raise typer.Exit(code=1)
 
         typer.secho("✓ PyAEDT panels installed successfully.", fg=typer.colors.GREEN, bold=True)
         typer.echo("\nInstalled panels:")
-        typer.secho("  • Console", fg=typer.colors.GREEN)
-        typer.secho("  • Jupyter", fg=typer.colors.GREEN)
-        typer.secho("  • Run Script", fg=typer.colors.GREEN)
-        typer.secho("  • Extension Manager", fg=typer.colors.GREEN)
+        installed_panels = (
+            ["Console", "Run Script"] if light else ["PyAEDT Utilities (Console, CLI, Jupyter)", "Run Script"]
+        )
+        if not skip_extension_manager:
+            installed_panels.append("Extension Manager")
         if not skip_version_manager:
-            typer.secho("  • Version Manager", fg=typer.colors.GREEN)
+            installed_panels.append("Version Manager")
+        for panel_name in installed_panels:
+            typer.secho(f"  • {panel_name}", fg=typer.colors.GREEN)
         typer.secho(
             "\nRestart AEDT to see the new panels on the Automation tab.",
             fg=typer.colors.YELLOW,

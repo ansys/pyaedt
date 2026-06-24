@@ -9,18 +9,16 @@ Below is an example configure file in json format
 
     {
         "component_models": {
-        "case": "E:\\Chassi.a3dcomp",
+            "case": "E:\\Chassi.a3dcomp",
         },
-        "layout_component_models": {
-        "pcb": "E:\\DCDC-Converter-App_main.aedbcomp"
-        },
+        "layout_component_models": {"pcb": "E:\\DCDC-Converter-App_main.aedbcomp"},
         # Create global coordinate system
         "coordinate_system": {
             # Name of the coordinate system
             "CS_1": {
                 # Location of the new coordinate system
                 "origin": ["100mm", "0mm", "0mm"],
-                "reference_cs": "Global"
+                "reference_cs": "Global",
             },
         },
         # Assembly contains all components to be assembled
@@ -40,7 +38,7 @@ Below is an example configure file in json format
                 # Available operations are "rotate", "move"
                 "arranges": [
                     {"operation": "rotate", "axis": "X", "angle": "0deg"},
-                    {"operation": "move", "vector": ["0mm", "0mm", "0mm"]}
+                    {"operation": "move", "vector": ["0mm", "0mm", "0mm"]},
                 ],
                 # Child components, if any
                 "sub_components": {
@@ -50,9 +48,9 @@ Below is an example configure file in json format
                         # Target coordinate system must be defined in its parent component
                         "target_coordinate_system": "CS_CHASSIS",
                     },
-                }
+                },
             }
-        }
+        },
     }
 
 ----------

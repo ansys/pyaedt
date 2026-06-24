@@ -10,13 +10,14 @@ of the codebase.
 Deprecation of function argument names
 --------------------------------------
 
-In the 1.0 release, several function argument names are deprecated. You should review 
+In the 1.0 release, several function argument names are deprecated. You should review
 your code and check the warnings that are logged at run time.
 The following example shows a warning triggered by the use of an argument that is currently acceptable but is not going to work with version 1.0.
 
 .. code-block:: python
 
     from pyaedt import Circuit
+
     c = Circuit(designname="whatever")
 
 Expected log output:
@@ -60,7 +61,7 @@ accordingly. An example of migration is shown below:
 
 .. code-block:: python
 
-    from pyaedt import Circuit    
+    from pyaedt import Circuit
 
 **New import:**
 
@@ -152,7 +153,7 @@ The following table list the name changes with the old and new paths:
 +----------------------------------------------------------------+--------------------------------------------------------------------------+
 | pyaedt\\modules\\DesignXPloration.py                           | src\\ansys\\aedt\\core\\modules\\design_xploration.py                    |
 +----------------------------------------------------------------+--------------------------------------------------------------------------+
-| pyaedt\\modules\\LayerStackup.py                               | src\\ansys\\aedt\\core\\modules\\layer_stackup.py                        |        
+| pyaedt\\modules\\LayerStackup.py                               | src\\ansys\\aedt\\core\\modules\\layer_stackup.py                        |
 +----------------------------------------------------------------+--------------------------------------------------------------------------+
 | pyaedt\\modules\\MaterialLib.py                                | src\\ansys\\aedt\\core\\modules\\material_lib.py                         |
 +----------------------------------------------------------------+--------------------------------------------------------------------------+
@@ -213,6 +214,31 @@ and `Install .NET <https://learn.microsoft.com/en-us/dotnet/core/install/linux-u
     .. code::
 
         sudo apt update && sudo apt install -y dotnet-sdk-6.0
+
+Error handler default behavior change
+--------------------------------------
+
+In release 1.0, the default value of the ``enable_error_handler`` parameter has been changed from ``True`` to ``False``
+for all application classes.
+
+This change provides users with more control over error handling and allows for better integration with custom
+error handling workflows.
+
+**Impact:**
+
+Previously, PyAEDT automatically enabled the error handler by default, which would catch and log errors from AEDT.
+With the new default behavior:
+
+- **Exception handling behavior**: When ``enable_error_handler=False`` (new default), PyAEDT methods **raise exceptions**
+  instead of returning ``False`` when errors occur. This means your code needs proper try-except blocks to handle errors.
+- **Return values**: With the error handler disabled, methods that encounter errors raise exceptions than
+  silently returning ``False``, making error detection more explicit.
+- **Error logging**: Errors from AEDT are still logged, but exceptions propagate to your code instead of being suppressed by the error handler.
+- **Migration requirement**: Users who want to maintain the previous behavior (where methods return ``False`` on error
+  instead of raising exceptions) must explicitly set ``enable_error_handler=True`` when initializing an application.
+- **Code robustness**: This change gives users more flexibility to implement their own error handling strategies and
+  encourages more robust error handling practices.
+
 
 Other changes in release 1.0
 ============================

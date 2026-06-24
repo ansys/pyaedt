@@ -12,7 +12,7 @@ This code creates the choke geometry:
     from ansys.aedt.core import Hfss
 
     hfss = Hfss()
-    choke_file1 =  "choke_example.json"
+    choke_file1 = "choke_example.json"
     choke = hfss.modeler.create_choke(choke_file1)
     hfss.release_desktop()
 

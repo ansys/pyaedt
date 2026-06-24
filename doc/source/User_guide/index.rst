@@ -15,7 +15,7 @@ For end-to-end examples, see `Examples <https://examples.aedt.docs.pyansys.com>`
             :link: intro
             :link-type: doc
             :margin: 2 2 0 0
-            
+
             How to launch AEDT and create a project.
 
    .. grid-item-card:: Extensions

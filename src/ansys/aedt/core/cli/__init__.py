@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -26,31 +26,97 @@
 
 try:
     import typer
-except ImportError:  # pragma: no cover
-    raise ImportError(
-        "typer is required for the CLI. Please install with 'pip install pyaedt[all]' or 'pip install typer'"
-    )
+except ImportError as e:  # pragma: no cover
+    from ansys.aedt.core.internal.checks import install_message
 
-from ansys.aedt.core.cli.config import config_app
+    msg = install_message("typer", "all")
+    raise ImportError(msg) from e
+
+from ansys.aedt.core.cli import common
+from ansys.aedt.core.cli.aedt import session_app
+from ansys.aedt.core.cli.config import test_config_app
 from ansys.aedt.core.cli.doc import doc_app
+from ansys.aedt.core.cli.export import export_app
 from ansys.aedt.core.cli.panels import panels_app
-from ansys.aedt.core.cli.process import processes
-from ansys.aedt.core.cli.process import start
-from ansys.aedt.core.cli.process import stop
-from ansys.aedt.core.cli.process import version
+from ansys.aedt.core.cli.project import project_app
+from ansys.aedt.core.cli.script import run_script
 
-app = typer.Typer(help="CLI for PyAEDT", no_args_is_help=True)
+app = typer.Typer(no_args_is_help=True)
 
-# Register sub-apps
-app.add_typer(config_app, name="config")
+
+@app.callback()
+def main_callback(
+    json_output: bool = typer.Option(False, "--json", help="Output results as JSON (agent-friendly mode)"),
+) -> None:
+    """CLI for PyAEDT."""
+    if json_output:
+        common.json_mode = True
+
+
+@app.command()
+def version() -> None:
+    """Display PyAEDT version."""
+    import ansys.aedt.core
+
+    ver = ansys.aedt.core.__version__
+    if common.json_mode:
+        common.print_output(data={"version": ver})
+    else:
+        typer.echo("PyAEDT version: ", nl=False)
+        typer.secho(ver, fg="cyan")
+
+
+@app.command(name="aedt-versions")
+def aedt_versions() -> None:
+    """List installed AEDT versions on this machine."""
+    try:
+        from ansys.aedt.core.internal.aedt_versions import aedt_versions
+
+        versions = aedt_versions.installed_versions
+        data = {"versions": {k: str(v) for k, v in versions.items()}, "count": len(versions)}
+        if common.json_mode:
+            common.print_output(data=data)
+        else:
+            if not versions:
+                typer.secho("No AEDT versions found.", fg="yellow")
+                return
+            typer.secho(f"Found {len(versions)} installed version(s):", fg="green")
+            for ver, path in versions.items():
+                typer.echo(f"  {ver}: {path}")
+    except Exception as e:
+        if common.json_mode:
+            common.print_output(error=str(e))
+        else:
+            typer.secho(f"Error: {e}", fg="red")
+        raise typer.Exit(code=1)
+
+
+app.command(name="run")(run_script)
+
+
+# Sub-apps
+app.add_typer(session_app, name="session")
+app.add_typer(project_app, name="project")
+app.add_typer(export_app, name="export")
 app.add_typer(panels_app, name="panels")
 app.add_typer(doc_app, name="doc")
+app.add_typer(test_config_app, name="test-config")
 
-# Register top-level commands
-app.command()(version)
-app.command()(processes)
-app.command()(start)
-app.command()(stop)
+# Load plugin entry points
+try:
+    import importlib.metadata
+
+    entry_points = importlib.metadata.entry_points()
+    plugin_group = entry_points.select(group="pyaedt.cli")
+
+    for ep in plugin_group:
+        try:
+            plugin_app = ep.load()
+            app.add_typer(plugin_app, name=ep.name)
+        except Exception as exc:
+            typer.secho(f"Skipping CLI plugin '{ep.name}' because it failed to load: {exc}", fg="yellow")
+except Exception as exc:
+    typer.secho(f"Skipping CLI plugin discovery because entry-point loading failed: {exc}", fg="yellow")
 
 if __name__ == "__main__":
     app()

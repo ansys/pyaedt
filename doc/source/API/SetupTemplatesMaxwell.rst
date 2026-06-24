@@ -10,11 +10,11 @@ You can edit a setup after it is created. Here is an example:
 
     from ansys.aedt.core import Maxwell3d
 
-    Maxwell3d = Maxwell3d ()
+    Maxwell3d = Maxwell3d()
     # Any property of this setup can be found on this page.
-    setup = Maxwell3d.create_setup ()
+    setup = Maxwell3d.create_setup()
     setup.props["MaximumPasses"] = 5
-    setup.update ()
+    setup.update()
 
 .. pprint:: ansys.aedt.core.modules.setup_templates.MaxwellTransient
 .. pprint:: ansys.aedt.core.modules.setup_templates.Magnetostatic

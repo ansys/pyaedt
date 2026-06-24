@@ -10,6 +10,10 @@
   description: Improvements or additions to documentation
   color: 0677ba
 
+- name: deploy-pr-doc
+  description: Deploy pull request documentation
+  color: 00ff00
+
 - name: enhancement
   description: New features or code improvements
   color: FFD827
@@ -41,3 +45,100 @@
 - name: extensions
   description: Related to extensions
   color: 6905d2
+
+# Applications
+
+- name: HFSS
+  description: Related to the HFSS application
+  color: 0369a1
+
+- name: Circuit
+  description: Related to the Circuit application
+  color: 0369a1
+
+- name: Maxwell
+  description: Related to the Maxwell application
+  color: 0369a1
+
+- name: Icepak
+  description: Related to the Icepak application
+  color: 0369a1
+
+- name: Q3D
+  description: Related to the Q3D Extractor application
+  color: 0369a1
+
+- name: Q2D
+  description: Related to the 2D Extractor application
+  color: 0369a1
+
+- name: EMIT
+  description: Related to the EMIT application
+  color: 0369a1
+
+- name: Mechanical
+  description: Related to the Mechanical application
+  color: 0369a1
+
+- name: Twin Builder
+  description: Related to the Twin Builder application
+  color: 0369a1
+
+- name: HFSS 3D Layout
+  description: Related to the HFSS 3D Layout application
+  color: 0369a1
+
+# AEDT versions
+
+- name: AEDT 24.1
+  description: Affects or requires AEDT 2024 R1
+  color: 6d28d9
+
+- name: AEDT 24.2
+  description: Affects or requires AEDT 2024 R2
+  color: 6d28d9
+
+- name: AEDT 25.1
+  description: Affects or requires AEDT 2025 R1
+  color: 6d28d9
+
+- name: AEDT 25.2
+  description: Affects or requires AEDT 2025 R2
+  color: 6d28d9
+
+- name: AEDT 26.1
+  description: Affects or requires AEDT 2026 R1
+  color: 6d28d9
+
+# Platform / OS
+
+- name: windows
+  description: Windows-specific issue or change
+  color: 047857
+
+- name: linux
+  description: Linux-specific issue or change
+  color: 047857
+
+- name: rocky
+  description: Rocky Linux-specific issue or change
+  color: 047857
+
+# API lifecycle
+
+- name: deprecation
+  description: Marks a deprecation of a public API or feature
+  color: b45309
+
+- name: breaking-change
+  description: Introduces a breaking change to the public API
+  color: 9f1239
+
+# Label to be used when manually updating the release/2.0 branch with maintenance
+# changes that do not contain breaking changes. Example of such scenario:
+# wrong information in the release notes that needs to be fixed after the release.
+# See https://github.com/ansys/pyaedt/pull/7740 for more information.
+
+- name: release-maintenance
+  description: Related to maintenance of the release branch
+  color: f78c37

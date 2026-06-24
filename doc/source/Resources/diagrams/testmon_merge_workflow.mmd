@@ -1,0 +1,8 @@
+flowchart TD
+    A[PR Merged to Main] --> B[update-testmondata-cache.yml Triggers]
+    B --> C[Run Tests with Testmon]
+    C --> D[Update Dependency Data]
+    D --> E[Delete Old Cache Entries]
+    E --> F[Save New Cache]
+    F --> G[Cache Key: testmondata-suite-main-SHA]
+    G --> H[Cache Available for Future PRs]

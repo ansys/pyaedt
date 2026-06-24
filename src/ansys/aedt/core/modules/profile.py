@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,6 +22,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import pandas as pd
+
 from collections.abc import Mapping
 from datetime import datetime
 from datetime import timedelta
@@ -31,18 +38,6 @@ import inspect
 from pathlib import Path
 import re
 from types import MappingProxyType
-from typing import List
-from typing import Optional
-from typing import Union
-import warnings
-
-try:
-    import pandas as pd
-except ImportError:  # pragma: no cover
-    pd = None
-    warnings.warn(
-        "The Pandas module is required to run some functionalities of PostProcess.\nInstall with \n\npip install pandas"
-    )
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logging
 from ansys.aedt.core.base import PyAedtBase
@@ -76,7 +71,7 @@ def string_to_time(time_string: str) -> timedelta:
         return timedelta(seconds=0)
 
 
-def format_timedelta(time_delta: Optional[Union[str, timedelta]]) -> str:
+def format_timedelta(time_delta: str | timedelta | None) -> str:
     """Format :class:`datetime.timedelta` for tables.
 
     Parameters
@@ -188,7 +183,7 @@ class MemoryGB(PyAedtBase):
     _convert_mem = {"TB": 1000.0, "G": 1.0, "M": 0.001, "MB": 0.001, "KB": 1e-6, "K": 1e-6, "Bytes": 1e-9}
 
     @pyaedt_function_handler()
-    def __init__(self, memory_value: Optional[Union[int, float, str]] = None):
+    def __init__(self, memory_value: int | float | str | None = None) -> None:
         """Initialize the instance."""
         if isinstance(memory_value, (int, float)):
             self._memory_str = f"{memory_value} G"
@@ -260,7 +255,7 @@ class MemoryGB(PyAedtBase):
             return self.__add__(new_memory)
         return NotImplemented
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Unambiguous string representation."""
         return self._memory_str
 
@@ -279,7 +274,7 @@ class MemoryGB(PyAedtBase):
         return NotImplemented
 
     @pyaedt_function_handler()
-    def __float__(self):
+    def __float__(self) -> float:
         """Coerce to ``float`` (gigabytes)."""
         return self.value
 
@@ -320,7 +315,7 @@ PROFILE_PROP_MAPPING = MappingProxyType(
 )
 
 
-def step_name_map(input_name: str) -> str:
+def step_name_map(input_name: str) -> str | None:
     """Map verbose AEDT step labels to compact names.
 
     Currently, recognizes labels like ``"Frequency - <value>Hz"`` and
@@ -330,7 +325,7 @@ def step_name_map(input_name: str) -> str:
     Parameters
     ----------
     input_name : str
-    Original AEDT step label.
+        Original AEDT step label.
 
     Returns
     -------
@@ -344,6 +339,7 @@ def step_name_map(input_name: str) -> str:
             return match.group(1)
         else:
             return input_name
+    return None
 
 
 # Specify operation for keys having common values.
@@ -401,7 +397,7 @@ class ProfileStepSummary(PyAedtBase):
     """
 
     @pyaedt_function_handler()
-    def __init__(self, props: dict):
+    def __init__(self, props: dict) -> None:
         self.name = props.get("Name", None)
         if "Cpu time" in props.keys():
             self.cpu_time = string_to_time(props["Cpu time"])
@@ -441,7 +437,7 @@ class ProfileStep(PyAedtBase):
     __timedelta_props = ["elapsed_time", "cpu_time", "real_time"]
 
     @pyaedt_function_handler()
-    def __init__(self, data):  # data is the dict with the profile step data
+    def __init__(self, data) -> None:  # data is the dict with the profile step data
         for key, value in data.properties.items():
             if key in PROFILE_PROP_MAPPING:
                 setattr(self, PROFILE_PROP_MAPPING[key][0], PROFILE_PROP_MAPPING[key][1](value))
@@ -472,7 +468,7 @@ class ProfileStep(PyAedtBase):
                 setattr(self, "stop_time", self.start_time + self.elapsed_time)
 
     @property
-    def process_steps(self) -> Optional[List[str]]:
+    def process_steps(self) -> list[str] | None:
         """Names of nested process steps, if any.
 
         Returns
@@ -553,7 +549,7 @@ class ProfileStep(PyAedtBase):
         return max(mem_list)
 
     @pyaedt_function_handler()
-    def table(self, columns: list = None) -> pd.DataFrame:
+    def table(self, columns: list = None) -> "pd.DataFrame":
         """Return a summary of profile step metrics.
 
         Parameters
@@ -584,6 +580,8 @@ class ProfileStep(PyAedtBase):
             Table of profile process step information for
             the specified property values.
         """
+        import pandas as pd_module
+
         if columns is None:
             columns = ("elapsed_time", "real_time", "cpu_time", "max_memory")
 
@@ -600,11 +598,11 @@ class ProfileStep(PyAedtBase):
                         value = "NA"
                     data.setdefault(prop, []).append(value)
 
-            table_out = pd.DataFrame(data)
+            table_out = pd_module.DataFrame(data)
 
             # Update formatting of timedelta props
             for p in self.__timedelta_props:
-                if p in table_out:
+                if p in table_out.columns:
                     table_out[p] = table_out[p].apply(format_timedelta)
         # This is meant to handle Icepak steady-state mesh profile steps which are completely
         # different from all other profile steps. TODO: Improve handling of Icepak mesh profile.
@@ -618,7 +616,7 @@ class ProfileStep(PyAedtBase):
                     else:
                         value = "NA"
                     data.setdefault(prop, []).append(value)
-            table_out = pd.DataFrame(data)
+            table_out = pd_module.DataFrame(data)
 
         return table_out
 
@@ -674,7 +672,7 @@ class TransientProfile(ProfileStep):
     _SELECT_TRANSIENT = re.compile(r"(\d+(?:\.\d+)?s)")  # Matches a time-step name like "0.01s"
 
     @pyaedt_function_handler()
-    def __init__(self, data):
+    def __init__(self, data) -> None:
         super().__init__(data)
         self._time_step_keys = []
         for sim_key in self.steps:
@@ -683,10 +681,10 @@ class TransientProfile(ProfileStep):
                 self._time_step_keys.append(match.group(1))
 
     @property
-    def time_steps(self) -> List[float]:
+    def time_steps(self) -> list[float]:
         return sorted([float(t.replace("s", "")) for t in self._time_step_keys])
 
-    def time_step_keys(self, max_time: float) -> List[str]:
+    def time_step_keys(self, max_time: float) -> list[str]:
         """Return time-step labels up to a limit.
 
         Parameters
@@ -705,7 +703,7 @@ class TransientProfile(ProfileStep):
         return return_val
 
     @property
-    def max_time(self) -> Optional[float]:
+    def max_time(self) -> float | None:
         """Largest time step in seconds, if any.
 
         Returns
@@ -733,7 +731,7 @@ class FrequencySweepProfile(ProfileStep):
     _SELECT_FREQ = re.compile(r"Frequency - (.*?) Group")
 
     @pyaedt_function_handler()
-    def __init__(self, data, sweep_name=None):
+    def __init__(self, data, sweep_name=None) -> None:
         super().__init__(data)
         self._create_summary(data.properties)
         if sweep_name:
@@ -792,7 +790,7 @@ class FrequencySweepProfile(ProfileStep):
             self.start_time = datetime.strptime(data["Time"], "%m/%d/%Y %H:%M:%S")
 
     @property
-    def frequencies(self) -> List[Quantity]:
+    def frequencies(self) -> list[Quantity]:
         """Frequencies extracted from child groups or summary.
 
         Returns
@@ -829,7 +827,7 @@ class FrequencySweepProfile(ProfileStep):
         return f"Frequency - {freq_str} Group"
 
     @pyaedt_function_handler()
-    def keys(self) -> Optional[List[str]]:
+    def keys(self) -> list[str] | None:
         """Frequency strings for quick iteration.
 
         Returns
@@ -862,19 +860,19 @@ class AdaptivePass(ProfileStep):
     """Information for a single adaptive pass."""
 
     @pyaedt_function_handler()
-    def __init__(self, data):
+    def __init__(self, data) -> None:
         super().__init__(data)
         if "Frequency" in data.properties.keys():
             self._adapt_frequency = Quantity(data.properties["Frequency"])
 
     @property
-    def adapt_frequency(self) -> Optional[Quantity]:
+    def adapt_frequency(self) -> Quantity | None:
         """Frequency used in this adaptive pass."""
         return self._adapt_frequency
 
 
 @pyaedt_function_handler()
-def get_mesh_process_name(group_data: BinaryTreeNode) -> Optional[str]:
+def get_mesh_process_name(group_data: BinaryTreeNode) -> str | None:
     """Return the name of the meshing process group if present.
 
     Parameters
@@ -954,7 +952,7 @@ class SimulationProfile(PyAedtBase):
     )
 
     @pyaedt_function_handler()
-    def __init__(self, group_data: BinaryTreeNode):
+    def __init__(self, group_data: BinaryTreeNode) -> None:
         for name in self._dict_attributes:
             setattr(self, name, dict())
         self._update_props_from_dict(group_data.properties)
@@ -1097,7 +1095,7 @@ class SimulationProfile(PyAedtBase):
                 setattr(self, PROFILE_PROP_MAPPING[key][0], PROFILE_PROP_MAPPING[key][1](value))
 
     @property
-    def product(self) -> Optional[str]:
+    def product(self) -> str | None:
         """Product name parsed from the ``Product`` field.
 
         Returns
@@ -1109,7 +1107,7 @@ class SimulationProfile(PyAedtBase):
         return self.__product
 
     @product.setter
-    def product(self, value):
+    def product(self, value) -> None:
         self.__product = str(value)
 
     @property
@@ -1315,14 +1313,14 @@ class SimulationProfile(PyAedtBase):
         else:
             return self.num_adaptive_passes
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Human-readable representation including elapsed time when present."""
         repr_str = self.__repr__()
         if hasattr(self, "elapsed_time"):
             repr_str += f"Elapsed time: {str(self.elapsed_time)}"
         return repr_str
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Unambiguous representation including product and version."""
         repr_str = f"Instance of {self.__class__.__name__}\n"
         if hasattr(self, "_product_str"):
@@ -1330,7 +1328,7 @@ class SimulationProfile(PyAedtBase):
         return repr_str
 
     @property
-    def max_time(self) -> Optional[float]:
+    def max_time(self) -> float | None:
         """Maximum transient time in seconds.
 
         Returns
@@ -1346,7 +1344,7 @@ class SimulationProfile(PyAedtBase):
             return None
 
     @property
-    def time_steps(self) -> Optional[List[float]]:
+    def time_steps(self) -> list[float] | None:
         """List of transient time steps.
 
         Returns
@@ -1359,7 +1357,7 @@ class SimulationProfile(PyAedtBase):
             return None
 
     @pyaedt_function_handler()
-    def time_keys(self, max_time: float) -> List[str]:
+    def time_keys(self, max_time: float) -> list[str]:
         """Return labels for transient steps not exceeding ``max_time``.
 
         Parameters
@@ -1375,7 +1373,7 @@ class SimulationProfile(PyAedtBase):
 
 
 @pyaedt_function_handler()
-def _merge_profiles(profiles: List) -> SimulationProfile:
+def _merge_profiles(profiles: list) -> SimulationProfile:
     """Merge a list of :class:`SimulationProfile` into one.
 
     Parameters
@@ -1407,7 +1405,7 @@ def _parse_profile_data(profile_data: BinaryTreeNode) -> SimulationProfile:
 
     Returns
     -------
-    :class:`pyaedt.modules.SolveSetup.SimulationProfile`
+    :class:`ansys.aedt.core.modules.SolveSetup.SimulationProfile`
         An instance of the SimulationProfile class.
 
     """
@@ -1458,7 +1456,7 @@ class Profiles(Mapping, PyAedtBase):
     """
 
     @pyaedt_function_handler()
-    def __init__(self, profile_dict):  # Omit setup_type ? setup_type="HFSS 3D Layout"
+    def __init__(self, profile_dict) -> None:  # Omit setup_type ? setup_type="HFSS 3D Layout"
         self._profile_data = dict()
         if isinstance(profile_dict, dict):
             self._profile_dict = profile_dict
@@ -1506,7 +1504,7 @@ class Profiles(Mapping, PyAedtBase):
                 logging.warning(f"Error parsing profile: {e}")
                 return 0
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Unambiguous representation of the mapping."""
         repr_str = f"{self.__class__.__name__}"
         return str(repr_str)

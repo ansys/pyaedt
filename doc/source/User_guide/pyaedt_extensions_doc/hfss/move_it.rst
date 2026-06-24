@@ -24,5 +24,5 @@ You can also launch the extension user interface from the terminal. An example c
    :maxdepth: 2
 
    ../commandline
-   
-   
+
+

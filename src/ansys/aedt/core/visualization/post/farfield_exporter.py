@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import os
+from pathlib import Path
 import shutil
 import time
 
@@ -77,7 +78,7 @@ class FfdSolutionDataExporter(PyAedtBase):
     Examples
     --------
     >>> from ansys.aedt.core
-    >>> app = ansys.aedt.core.Hfss(version="2025.2", design="Antenna")
+    >>> app = ansys.aedt.core.Hfss(version="2026.1", design="Antenna")
     >>> setup_name = "Setup1 : LastAdaptive"
     >>> frequencies = [77e9]
     >>> sphere = "3D"
@@ -91,11 +92,11 @@ class FfdSolutionDataExporter(PyAedtBase):
         sphere_name,
         setup_name,
         frequencies,
-        variations=None,
-        overwrite=True,
-        export_touchstone=True,
-        set_phase_center_per_port=True,
-    ):
+        variations: dict | None = None,
+        overwrite: bool = True,
+        export_touchstone: bool = True,
+        set_phase_center_per_port: bool = True,
+    ) -> None:
         # Public
         self.sphere_name = sphere_name
         self.setup_name = setup_name
@@ -128,22 +129,22 @@ class FfdSolutionDataExporter(PyAedtBase):
             self.__app.logger.warning("Set phase center in port location manually.")
 
     @property
-    def model_info(self):
+    def model_info(self) -> dict:
         """List of models."""
         return self.__model_info
 
     @property
-    def farfield_data(self):
+    def farfield_data(self) -> FfdSolutionData | None:
         """Farfield data."""
         return self.__farfield_data
 
     @property
-    def metadata_file(self):
+    def metadata_file(self) -> str:
         """Metadata file."""
         return self.__metadata_file
 
     @pyaedt_function_handler()
-    def export_farfield(self):
+    def export_farfield(self) -> bool:
         """Export far field solution data of each element."""
         # Output directory
         exported_name_map = "element.txt"
@@ -218,10 +219,10 @@ class FfdSolutionDataExporter(PyAedtBase):
 
         # Export geometry
         if os.path.isfile(input_file):
-            geometry_path = os.path.join(export_path, "geometry")
-            if not os.path.exists(geometry_path):
-                os.mkdir(geometry_path)
-            obj_list = self.__create_geometries(geometry_path)
+            geometry_path = Path(export_path) / "geometry"
+            if not geometry_path.exists():
+                geometry_path.mkdir(parents=True, exist_ok=True)
+            obj_list = self.__create_geometries(str(geometry_path))
             if obj_list:
                 self.__model_info["object_list"] = obj_list
 

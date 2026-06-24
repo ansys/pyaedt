@@ -36,7 +36,7 @@ Using the extension
 4. Once the options are selected, click the **Export** button to generate the respective files.
 
 .. note::
-   
+
    The selected files are saved in the same directory as the AEDB project.
 
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,12 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from typing import Optional
-from typing import Union
-import warnings
-
 from ansys.aedt.core.base import PyAedtBase
-from ansys.aedt.core.generic.constants import CATEGORIESQ3D
 from ansys.aedt.core.generic.constants import MatrixOperationsQ3D
 from ansys.aedt.core.generic.constants import PlotCategoriesQ3D
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -45,7 +40,7 @@ class Matrix(PyAedtBase):
 
     """
 
-    def __init__(self, app, name, operations=None):
+    def __init__(self, app, name: str, operations=None) -> None:
         self._app = app
         self.omatrix = self._app.omatrix
         self.name = name
@@ -55,18 +50,6 @@ class Matrix(PyAedtBase):
                 self._operations = operations
             else:
                 self._operations = [operations]
-
-    # TODO: Remove for release 1.0.0
-    @property
-    def CATEGORIES(self):
-        """Deprecated: Use a plot category from ``ansys.aedt.core.generic.constants`` instead."""
-        warnings.warn(
-            "Usage of CATEGORIES is deprecated. "
-            "Use a plot category defined in ansys.aedt.core.generic.constants instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return CATEGORIESQ3D
 
     @pyaedt_function_handler()
     def sources(self, is_gc_sources: bool = True) -> list:
@@ -93,9 +76,9 @@ class Matrix(PyAedtBase):
         self,
         get_self_terms: bool = True,
         get_mutual_terms: bool = True,
-        first_element_filter: Optional[str] = None,
-        second_element_filter: Optional[str] = None,
-        category: Optional[Union[str, MatrixOperationsQ3D]] = "C",
+        first_element_filter: str = None,
+        second_element_filter: str = None,
+        category: str | MatrixOperationsQ3D = "C",
     ) -> list:
         """Return a list of source of specified matrix ready to be used in plot reports.
 
@@ -162,10 +145,10 @@ class Matrix(PyAedtBase):
     @pyaedt_function_handler()
     def create(
         self,
-        source_names: Optional[Union[str, list]] = None,
-        new_net_name: Optional[str] = None,
-        new_source_name: Optional[str] = None,
-        new_sink_name: Optional[str] = None,
+        source_names: str | list = None,
+        new_net_name: str = None,
+        new_source_name: str = None,
+        new_sink_name: str = None,
     ) -> bool:
         """Create a new matrix.
 
@@ -210,11 +193,11 @@ class Matrix(PyAedtBase):
     @pyaedt_function_handler()
     def add_operation(
         self,
-        operation_type: Union[str, MatrixOperationsQ3D],
-        source_names: Optional[Union[str, list]] = None,
-        new_net_name: Optional[str] = None,
-        new_source_name: Optional[str] = None,
-        new_sink_name: Optional[str] = None,
+        operation_type: str | MatrixOperationsQ3D,
+        source_names: str | list = None,
+        new_net_name: str = None,
+        new_source_name: str = None,
+        new_sink_name: str = None,
     ) -> bool:
         """Add a new operation to existing matrix.
 
