@@ -49,6 +49,7 @@ TOUCHSTONE = "SSN_1.5_ssn.s6p"
 TOUCHSTONE_CUSTOM = "SSN_custom.s6p"
 TOUCHSTONE2 = "V3P3S0.ts"
 AMI_PROJECT = "AMI_Example"
+PROBE_NAMES_PROJECT = "probe_names_pytest"
 NETLIST_FILE2 = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / NETLIST2
 NETLIST_FILE1 = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / NETLIST1
 TOUCHSTONE_FILE = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / TOUCHSTONE
@@ -81,6 +82,13 @@ def substrate_app(add_app_example):
 @pytest.fixture
 def ami_model(add_app_example):
     app = add_app_example(project=AMI_PROJECT, application=Circuit, subfolder="T01")
+    yield app
+    app.close_project(app.project_name, save=False)
+
+
+@pytest.fixture
+def probe_names_app(add_app_example):
+    app = add_app_example(project=PROBE_NAMES_PROJECT, application=Circuit, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(app.project_name, save=False)
 
@@ -383,6 +391,88 @@ def test_create_ami_plots_b(aedt_app) -> None:
         )
         == "MyReportV"
     )
+
+
+def test_eye_probe_expression_non_ami_ibis(probe_names_app) -> None:
+    """Test that AMI eye expressions correctly handle amiprobe/amisource for non-AMI IBIS models."""
+    setup_name = "AMIAnalysis"
+    probe_expr = "AMIProbe1"
+    source_expr = "AMISource1"
+
+    # AMIConturEyeDiagram: verify amiprobe expression formatting per quantity_type
+    rep_contour = probe_names_app.post.reports_by_category.statistical_eye_contour(
+        setup=setup_name, expressions=[probe_expr]
+    )
+
+    rep_contour.quantity_type = 0
+    exprs = rep_contour.expressions
+    assert len(exprs) > 0
+    assert exprs[0] == f"InitialEye({probe_expr.lower()})<Bit Error Rate>"
+
+    rep_contour.quantity_type = 1
+    exprs = rep_contour.expressions
+    assert exprs[0] == f"EyeAfterSource({probe_expr.lower()})<Bit Error Rate>"
+
+    rep_contour.quantity_type = 2
+    exprs = rep_contour.expressions
+    assert exprs[0] == f"EyeAfterChannel({probe_expr.lower()})<Bit Error Rate>"
+
+    rep_contour.quantity_type = 3
+    exprs = rep_contour.expressions
+    assert exprs[0] == f"EyeAfterProbe({probe_expr.lower()})<Bit Error Rate>"
+
+    # AMIConturEyeDiagram: verify amisource expression formatting
+    rep_contour_src = probe_names_app.post.reports_by_category.statistical_eye_contour(
+        setup=setup_name, expressions=[source_expr]
+    )
+    rep_contour_src.quantity_type = 0
+    exprs = rep_contour_src.expressions
+    assert exprs[0] == f"InitialEye({source_expr.lower()})<Bit Error Rate>"
+
+    # AMIEyeDiagram (Statistical Eye): verify amiprobe expression formatting per quantity_type
+    rep_eye = probe_names_app.post.reports_by_category.eye_diagram(
+        setup=setup_name, expressions=[probe_expr], statistical_analysis=True
+    )
+
+    rep_eye.quantity_type = 0
+    exprs = rep_eye.expressions
+    assert len(exprs) > 0
+    assert exprs[0] == f"InitialEye<{probe_expr}>"
+
+    rep_eye.quantity_type = 1
+    exprs = rep_eye.expressions
+    assert exprs[0] == f"EyeAfterSource<{probe_expr}>"
+
+    rep_eye.quantity_type = 2
+    exprs = rep_eye.expressions
+    assert exprs[0] == f"EyeAfterChannel<{probe_expr}>"
+
+    rep_eye.quantity_type = 3
+    exprs = rep_eye.expressions
+    assert exprs[0] == f"EyeAfterProbe<{probe_expr}>"
+
+    # AMIEyeDiagram (Eye Diagram / transient): verify amiprobe with Wave prefix
+    rep_eye_transient = probe_names_app.post.reports_by_category.eye_diagram(
+        setup=setup_name, expressions=[probe_expr], statistical_analysis=False
+    )
+
+    rep_eye_transient.quantity_type = 0
+    exprs = rep_eye_transient.expressions
+    assert len(exprs) > 0
+    assert exprs[0] == f"InitialWave<{probe_expr}>"
+
+    rep_eye_transient.quantity_type = 3
+    exprs = rep_eye_transient.expressions
+    assert exprs[0] == f"WaveAfterProbe<{probe_expr}>"
+
+    # AMIEyeDiagram: verify amisource expression formatting
+    rep_eye_src = probe_names_app.post.reports_by_category.eye_diagram(
+        setup=setup_name, expressions=[source_expr], statistical_analysis=True
+    )
+    rep_eye_src.quantity_type = 0
+    exprs = rep_eye_src.expressions
+    assert exprs[0] == f"InitialEye<{source_expr}>"
+
 
 
 def test_assign_voltage_sinusoidal_excitation_to_ports(aedt_app) -> None:
