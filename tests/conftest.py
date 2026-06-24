@@ -32,9 +32,8 @@ from pathlib import Path
 import shutil
 import sys
 import tempfile
-import warnings
-from typing import List
 from unittest.mock import MagicMock
+import warnings
 
 import pytest
 
@@ -52,7 +51,7 @@ warnings.filterwarnings(
 )
 warnings.filterwarnings(
     "ignore",
-    message=".*defusedxml\.cElementTree is deprecated.*",
+    message=r".*defusedxml\.cElementTree is deprecated.*",
     category=DeprecationWarning,
 )
 
@@ -121,6 +120,7 @@ os.environ["PYAEDT_DESKTOP_VERSION"] = DESKTOP_VERSION
 AEDT_INSTALL_DIR = config.get("aedt_install_dir", None)
 if AEDT_INSTALL_DIR:
     from ansys.aedt.core.internal.aedt_versions import aedt_versions
+
     env_var = aedt_versions.get_version_env_variable(DESKTOP_VERSION)
     os.environ[env_var] = AEDT_INSTALL_DIR
 

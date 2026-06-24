@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# -*- coding: utf-8 -*-
 import os
 import sys
 import tempfile
@@ -166,6 +165,7 @@ def test_import_csv_file_all_node_types(emit_app) -> None:
             if os.path.exists(p):
                 os.remove(p)
 
+
 @pytest.mark.skipif(not DESKTOP_VERSION or DESKTOP_VERSION < "2027.1", reason="Regression test for defect 1442777.")
 def test_defect_1442777_csv_import_bounds_validation(emit_app) -> None:
     """Regression test for TFS defect 1442777.
@@ -213,11 +213,26 @@ def test_defect_1442777_csv_import_bounds_validation(emit_app) -> None:
         assert isinstance(rx_sat, RxSaturationNode)
 
         # Valid data
-        valid_csv = _write_csv("rx_sat_valid", "\n".join(
-            [f"{f},{a}" for f, a in
-             [(1, -500), (10, -200), (1e3, -100), (1e6, -50), (1e9, 0),
-              (5e9, 100), (10e9, 200), (50e9, 500), (80e9, 800), (100e9, 1000)]]
-        ))
+        valid_csv = _write_csv(
+            "rx_sat_valid",
+            "\n".join(
+                [
+                    f"{f},{a}"
+                    for f, a in [
+                        (1, -500),
+                        (10, -200),
+                        (1e3, -100),
+                        (1e6, -50),
+                        (1e9, 0),
+                        (5e9, 100),
+                        (10e9, 200),
+                        (50e9, 500),
+                        (80e9, 800),
+                        (100e9, 1000),
+                    ]
+                ]
+            ),
+        )
         csv_paths.append(valid_csv)
         result = rx_sat.import_csv_file(valid_csv)
         assert result is not None
@@ -248,11 +263,26 @@ def test_defect_1442777_csv_import_bounds_validation(emit_app) -> None:
         rx_sel = rx_susceptibility.add_rx_selectivity()
         assert isinstance(rx_sel, RxSelectivityNode)
 
-        valid_csv = _write_csv("rx_sel_valid", "\n".join(
-            [f"{bw},{att}" for bw, att in
-             [(25e3, -3), (50e3, -6), (100e3, -10), (500e3, -20), (1e6, -30),
-              (5e6, -40), (10e6, -50), (50e6, -60), (100e6, -70), (1e9, -80)]]
-        ))
+        valid_csv = _write_csv(
+            "rx_sel_valid",
+            "\n".join(
+                [
+                    f"{bw},{att}"
+                    for bw, att in [
+                        (25e3, -3),
+                        (50e3, -6),
+                        (100e3, -10),
+                        (500e3, -20),
+                        (1e6, -30),
+                        (5e6, -40),
+                        (10e6, -50),
+                        (50e6, -60),
+                        (100e6, -70),
+                        (1e9, -80),
+                    ]
+                ]
+            ),
+        )
         csv_paths.append(valid_csv)
         result = rx_sel.import_csv_file(valid_csv)
         assert result is not None
@@ -278,11 +308,26 @@ def test_defect_1442777_csv_import_bounds_validation(emit_app) -> None:
         rx_mixer = rx_susceptibility.add_mixer_products()
         assert isinstance(rx_mixer, RxMixerProductNode)
 
-        valid_csv = _write_csv("rx_mixer_valid", "\n".join(
-            [f"{rf},{lo},{p}" for rf, lo, p in
-             [(-5, 1, -30), (-3, 2, -40), (-1, 1, -50), (0, 1, -60), (1, 1, -30),
-              (2, 1, -60), (3, 2, -45), (5, 3, -55), (7, 1, -70), (10, 5, -80)]]
-        ))
+        valid_csv = _write_csv(
+            "rx_mixer_valid",
+            "\n".join(
+                [
+                    f"{rf},{lo},{p}"
+                    for rf, lo, p in [
+                        (-5, 1, -30),
+                        (-3, 2, -40),
+                        (-1, 1, -50),
+                        (0, 1, -60),
+                        (1, 1, -30),
+                        (2, 1, -60),
+                        (3, 2, -45),
+                        (5, 3, -55),
+                        (7, 1, -70),
+                        (10, 5, -80),
+                    ]
+                ]
+            ),
+        )
         csv_paths.append(valid_csv)
         result = rx_mixer.import_csv_file(valid_csv)
         assert result is not None
@@ -323,11 +368,26 @@ def test_defect_1442777_csv_import_bounds_validation(emit_app) -> None:
         tx_harm = tx_spectral.add_custom_tx_harmonics()
         assert isinstance(tx_harm, TxHarmonicNode)
 
-        valid_csv = _write_csv("tx_harm_valid", "\n".join(
-            [f"{h},{p}" for h, p in
-             [(2, -10), (3, -20), (5, -30), (7, -40), (10, -50),
-              (15, -60), (20, -70), (50, -80), (100, -90), (500, -100)]]
-        ))
+        valid_csv = _write_csv(
+            "tx_harm_valid",
+            "\n".join(
+                [
+                    f"{h},{p}"
+                    for h, p in [
+                        (2, -10),
+                        (3, -20),
+                        (5, -30),
+                        (7, -40),
+                        (10, -50),
+                        (15, -60),
+                        (20, -70),
+                        (50, -80),
+                        (100, -90),
+                        (500, -100),
+                    ]
+                ]
+            ),
+        )
         csv_paths.append(valid_csv)
         result = tx_harm.import_csv_file(valid_csv)
         assert result is not None
@@ -363,11 +423,26 @@ def test_defect_1442777_csv_import_bounds_validation(emit_app) -> None:
         # Use absolute mode for the valid import — default may be relative which
         # constrains min frequency to channel_bandwidth.
         tx_nb.narrowband_behavior = TxNbEmissionNode.NarrowbandBehaviorOption.ABSOLUTE_FREQS_AND_POWER
-        valid_csv = _write_csv("tx_nb_valid", "\n".join(
-            [f"{f},{a}" for f, a in
-             [(1e3, -10), (5e3, -15), (1e4, -20), (5e4, -30), (1e5, -40),
-              (5e5, -50), (1e6, -60), (5e6, -70), (1e7, -80), (1e8, -90)]]
-        ))
+        valid_csv = _write_csv(
+            "tx_nb_valid",
+            "\n".join(
+                [
+                    f"{f},{a}"
+                    for f, a in [
+                        (1e3, -10),
+                        (5e3, -15),
+                        (1e4, -20),
+                        (5e4, -30),
+                        (1e5, -40),
+                        (5e5, -50),
+                        (1e6, -60),
+                        (5e6, -70),
+                        (1e7, -80),
+                        (1e8, -90),
+                    ]
+                ]
+            ),
+        )
         csv_paths.append(valid_csv)
         result = tx_nb.import_csv_file(valid_csv)
         assert result is not None
@@ -401,11 +476,26 @@ def test_defect_1442777_csv_import_bounds_validation(emit_app) -> None:
         tx_bb = tx_spectral.add_tx_broadband_noise_profile()
         assert isinstance(tx_bb, TxBbEmissionNode)
 
-        valid_csv = _write_csv("tx_bb_valid", "\n".join(
-            [f"{f},{a}" for f, a in
-             [(1e3, -100), (5e3, -105), (1e4, -110), (5e4, -115), (1e5, -120),
-              (5e5, -125), (1e6, -130), (5e6, -135), (1e7, -140), (1e8, -145)]]
-        ))
+        valid_csv = _write_csv(
+            "tx_bb_valid",
+            "\n".join(
+                [
+                    f"{f},{a}"
+                    for f, a in [
+                        (1e3, -100),
+                        (5e3, -105),
+                        (1e4, -110),
+                        (5e4, -115),
+                        (1e5, -120),
+                        (5e5, -125),
+                        (1e6, -130),
+                        (5e6, -135),
+                        (1e7, -140),
+                        (1e8, -145),
+                    ]
+                ]
+            ),
+        )
         csv_paths.append(valid_csv)
         result = tx_bb.import_csv_file(valid_csv)
         assert result is not None
@@ -437,11 +527,26 @@ def test_defect_1442777_csv_import_bounds_validation(emit_app) -> None:
         tx_spur = tx_spectral.add_spurious_emissions()
         assert isinstance(tx_spur, TxSpurNode)
 
-        valid_csv = _write_csv("tx_spur_valid", "\n".join(
-            [f"{f},{bw},{p}" for f, bw, p in
-             [(1e6, 1, -30), (2e6, 2, -40), (5e6, 5, -50), (1e7, 10, -60), (2e7, 20, -70),
-              (5e7, 50, -55), (1e8, 100, -45), (2e8, 200, -65), (5e8, 500, -75), (1e9, 1000, -85)]]
-        ))
+        valid_csv = _write_csv(
+            "tx_spur_valid",
+            "\n".join(
+                [
+                    f"{f},{bw},{p}"
+                    for f, bw, p in [
+                        (1e6, 1, -30),
+                        (2e6, 2, -40),
+                        (5e6, 5, -50),
+                        (1e7, 10, -60),
+                        (2e7, 20, -70),
+                        (5e7, 50, -55),
+                        (1e8, 100, -45),
+                        (2e8, 200, -65),
+                        (5e8, 500, -75),
+                        (1e9, 1000, -85),
+                    ]
+                ]
+            ),
+        )
         csv_paths.append(valid_csv)
         result = tx_spur.import_csv_file(valid_csv)
         assert result is not None
@@ -483,11 +588,26 @@ def test_defect_1442777_csv_import_bounds_validation(emit_app) -> None:
         rx_spur = rx_susceptibility.add_spurious_responses()
         assert isinstance(rx_spur, RxSpurNode)
 
-        valid_csv = _write_csv("rx_spur_valid", "\n".join(
-            [f"{f},{bw},{p}" for f, bw, p in
-             [(1e6, 1, -30), (2e6, 2, -40), (5e6, 5, -50), (1e7, 10, -60), (2e7, 20, -70),
-              (5e7, 50, -55), (1e8, 100, -45), (2e8, 200, -65), (5e8, 500, -75), (1e9, 1000, -85)]]
-        ))
+        valid_csv = _write_csv(
+            "rx_spur_valid",
+            "\n".join(
+                [
+                    f"{f},{bw},{p}"
+                    for f, bw, p in [
+                        (1e6, 1, -30),
+                        (2e6, 2, -40),
+                        (5e6, 5, -50),
+                        (1e7, 10, -60),
+                        (2e7, 20, -70),
+                        (5e7, 50, -55),
+                        (1e8, 100, -45),
+                        (2e8, 200, -65),
+                        (5e8, 500, -75),
+                        (1e9, 1000, -85),
+                    ]
+                ]
+            ),
+        )
         csv_paths.append(valid_csv)
         result = rx_spur.import_csv_file(valid_csv)
         assert result is not None
@@ -529,11 +649,26 @@ def test_defect_1442777_csv_import_bounds_validation(emit_app) -> None:
         custom_coupling = couplings_node.add_custom_coupling()
         assert isinstance(custom_coupling, CustomCouplingNode)
 
-        valid_csv = _write_csv("custom_coupling_valid", "\n".join(
-            [f"{f},{v}" for f, v in
-             [(1e-6, -5), (10e-6, -10), (50e-6, -15), (100e-6, -20), (500e-6, -30),
-              (1e3, -40), (5e3, -50), (10e3, -60), (50e3, -70), (100e3, -80)]]
-        ))  
+        valid_csv = _write_csv(
+            "custom_coupling_valid",
+            "\n".join(
+                [
+                    f"{f},{v}"
+                    for f, v in [
+                        (1e-6, -5),
+                        (10e-6, -10),
+                        (50e-6, -15),
+                        (100e-6, -20),
+                        (500e-6, -30),
+                        (1e3, -40),
+                        (5e3, -50),
+                        (10e3, -60),
+                        (50e3, -70),
+                        (100e3, -80),
+                    ]
+                ]
+            ),
+        )
         csv_paths.append(valid_csv)
         result = custom_coupling.import_csv_file(valid_csv)
         assert result is not None
@@ -562,4 +697,3 @@ def test_defect_1442777_csv_import_bounds_validation(emit_app) -> None:
         for p in csv_paths:
             if os.path.exists(p):
                 os.remove(p)
-

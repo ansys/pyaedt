@@ -93,8 +93,8 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1") o
     from ansys.aedt.core.emit_core.nodes.generated import Waveform
     from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
     from ansys.aedt.core.emit_core.results.revision import Revision
-    from ansys.aedt.core.emit_core.results.simulation import Simulation
     from ansys.aedt.core.emit_core.results.simulation import Interaction
+    from ansys.aedt.core.emit_core.results.simulation import Simulation
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
@@ -3216,4 +3216,3 @@ def test_terminator_table_persistence(add_app) -> None:
     assert reopened_amplifier.table_data == expected_amplifier_table
 
     app2.close_project(app2.project_name, save=False)
-

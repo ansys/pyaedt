@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -300,7 +300,7 @@ class Simulation:
             int_freqs,
             continue_if_partial,
         )
-        # Skip the error if specified via continue_if_partial, 
+        # Skip the error if specified via continue_if_partial,
         # but raise it otherwise since the user likely expects the export to be complete
         if not continue_if_partial and partial:
             raise RuntimeError(

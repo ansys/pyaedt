@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,19 +22,18 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
-from matplotlib import lines
-import pytest
-import tempfile
 import os
+import tempfile
+
+import pytest
 
 from ansys.aedt.core import Emit
 from ansys.aedt.core.emit_core.emit_constants import ResultType
+from ansys.aedt.core.emit_core.nodes.generated.couplings_node import CouplingsNode
 from ansys.aedt.core.emit_core.results.interaction import Interaction
 from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
 from ansys.aedt.core.emit_core.results.revision import Revision
 from ansys.aedt.core.emit_core.results.simulation import Simulation
-from ansys.aedt.core.emit_core.nodes.generated.couplings_node import CouplingsNode
 from tests import TESTS_EMIT_PATH
 from tests.conftest import DESKTOP_VERSION
 
@@ -92,12 +91,14 @@ def n_to_1(add_app_example):
     yield app
     app.close_project(app.project_name, save=False)
 
+
 @pytest.fixture
 def export(add_app_example):
     """Fixture for export project."""
     app = add_app_example(project="Export", application=Emit, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(app.project_name, save=False)
+
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
 def test_interaction_creation(cell_phone):
@@ -613,6 +614,7 @@ def test_n_to_1_worst_case(n_to_1):
         domain.set_interferers(names=[], band_names=[], freqs=[23], units="Hz")
     assert "When assigning channels you must assign one channel per band" in str(e.value)
 
+
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
 def test_export(export):
     """
@@ -626,7 +628,7 @@ def test_export(export):
     sim: Simulation = rev.get_simulation()
 
     # Check that export scenario matrix works with interaction domain
-    # empty domain should export all interactions    
+    # empty domain should export all interactions
     temp_dir = tempfile.mkdtemp()
     csv_path = os.path.join(temp_dir, "scenario_matrix.csv")
     domain: InteractionDomain = InteractionDomain(export)
@@ -646,7 +648,7 @@ def test_export(export):
         data_lines = [l for l in lines if not l.startswith("#")]
         assert len(comment_lines) == 9, "Expected categorization comment header"
         assert len(data_lines) == data_lines_expected, "Expected column header + 253 data rows"
-    
+
         # Data rows should reference the selected radios
         for row in data_lines[1:]:
             fields = row.split(",")
@@ -654,9 +656,9 @@ def test_export(export):
 
     # Scenario Matrix export
     # Should have 9 data lines: 1 header + 4 rows for each Rx (3 Tx + 1 Nto1)
-    validate_csv(csv_path, 9)  
+    validate_csv(csv_path, 9)
 
-    # 1 Tx Channel to 1 Rx Channel 
+    # 1 Tx Channel to 1 Rx Channel
     csv_path = os.path.join(temp_dir, "tx1_rx1.csv")
     domain.set_receiver(
         name="Rx_MultiBands",
@@ -677,14 +679,11 @@ def test_export(export):
 
     # Selection export
     # Should have 2 data lines: 1 header + 1 row for the single channel pair analyzed
-    validate_csv(csv_path, 2) 
+    validate_csv(csv_path, 2)
 
     # N Tx Channels to 1 Rx Channel
-    csv_path = os.path.join(temp_dir, "txn_rx1.csv")    
-    domain.set_interferer(
-        name="Tx_MultiBands",
-        band_name="Band 2"
-    )
+    csv_path = os.path.join(temp_dir, "txn_rx1.csv")
+    domain.set_interferer(name="Tx_MultiBands", band_name="Band 2")
 
     sim.run(domain)
     interaction: Interaction = Interaction(export, domain, rev)
@@ -694,7 +693,7 @@ def test_export(export):
     # Selection export
     # Should have 23 data lines: 1 header + 22 rows for the analyzed channel pairs
     # 21 Tx vs 1 Rx channel + Tx Band vs Rx channel
-    validate_csv(csv_path, 23) 
+    validate_csv(csv_path, 23)
 
     # N Rx Channels to 1 Tx Channel
     csv_path = os.path.join(temp_dir, "tx1_rxn.csv")
@@ -716,7 +715,7 @@ def test_export(export):
     # Selection export
     # Should have 103 data lines: 1 header + 102 rows for the analyzed channel pairs
     # 1 Tx vs 101 Rx channel + Rx Band vs 1 Tx channel
-    validate_csv(csv_path, 103) 
+    validate_csv(csv_path, 103)
 
     # Force results purge
     coupling_data: CouplingsNode = rev.get_coupling_data_node()
@@ -736,7 +735,7 @@ def test_export(export):
     )
     interaction: Interaction = Interaction(export, domain, rev)
     interaction.export_results(csv_path, False)
-    assert not os.path.isfile(csv_path) # no results should be exported since all were purged
+    assert not os.path.isfile(csv_path)  # no results should be exported since all were purged
 
     # N to 1
     csv_path = os.path.join(temp_dir, "n_to_1.csv")
@@ -752,6 +751,4 @@ def test_export(export):
 
     # Selection export
     # Should have 4284 data lines: 1 header + 4283 rows for the analyzed channel pairs
-    validate_csv(csv_path, 4284) 
-
-    
+    validate_csv(csv_path, 4284)

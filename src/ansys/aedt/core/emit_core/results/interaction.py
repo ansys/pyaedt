@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -340,13 +340,11 @@ class Interaction:
                 self.domain.interferer_names,
                 self.domain.interferer_band_names,
                 self.domain.interferer_channel_frequencies,
-                continue_if_partial
+                continue_if_partial,
             )
         except Exception as e:
-            raise Exception(
-                f'Failed to export results: {str(e)}'
-            ) from e
-        
+            raise Exception(f"Failed to export results: {str(e)}") from e
+
     def _check_validity(self) -> str:
         """
         Check if this interaction is valid. The associated domain must

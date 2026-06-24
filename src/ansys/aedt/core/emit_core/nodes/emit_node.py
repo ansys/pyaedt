@@ -383,7 +383,6 @@ class EmitNode:
         ValueError
             If the property cannot be set or if the value is invalid.
         """
-
         convert_from_float = [
             "Position",
             "Relative Position",
@@ -653,9 +652,7 @@ class EmitNode:
         try:
             node_id = self._oRevisionData.EmitNodeImport(self._result_id, self._node_id, file_path, import_type)
         except Exception as e:
-            raise Exception(
-                f'Failed to import "{file_path}" as "{import_type}": {e}'
-            ) from e
+            raise Exception(f'Failed to import "{file_path}" as "{import_type}": {e}') from e
         return self._get_node(node_id)
 
     @min_aedt_version("2025.2")
