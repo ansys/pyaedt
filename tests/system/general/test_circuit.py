@@ -474,7 +474,6 @@ def test_eye_probe_expression_non_ami_ibis(probe_names_app) -> None:
     assert exprs[0] == f"InitialEye<{source_expr}>"
 
 
-
 def test_assign_voltage_sinusoidal_excitation_to_ports(aedt_app) -> None:
     aedt_app.modeler.schematic.create_interface_port("Port1")
     aedt_app.modeler.schematic.create_interface_port("Port2")
