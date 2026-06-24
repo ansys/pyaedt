@@ -67,7 +67,7 @@ def test_create_new_edb_name() -> None:
     new_callable=PropertyMock,
 )
 @patch(
-    "ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui.ConfigureLayoutExtension.get_active_edb"
+    "ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui.ConfigureLayoutExtension._get_active_edb"
 )
 @patch("tkinter.filedialog.askopenfilename")
 def test_main_selected_edb(mock_askopenfilename, mock_active_db, mock_aedt_app) -> None:
@@ -98,7 +98,7 @@ def test_main_selected_edb(mock_askopenfilename, mock_active_db, mock_aedt_app) 
     "ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui.ConfigureLayoutExtension.load_edb_into_hfss3dlayout"
 )
 @patch(
-    "ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui.ConfigureLayoutExtension.apply_config_to_edb"
+    "ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui.ConfigureLayoutExtension._apply_config_to_edb"
 )
 @patch(
     "ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui.ConfigureLayoutExtension.selected_edb",
@@ -132,7 +132,7 @@ def test_tab_main_apply(
 
 
 @patch(
-    "ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui.ConfigureLayoutExtension.export_config_from_edb"
+    "ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui.ConfigureLayoutExtension._export_config_from_edb"
 )
 @patch(
     "ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui.ConfigureLayoutExtension.selected_edb",
