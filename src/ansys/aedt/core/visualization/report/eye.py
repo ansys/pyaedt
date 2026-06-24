@@ -65,12 +65,13 @@ class AMIConturEyeDiagram(CommonReport):
 
     @property
     def expressions(self) -> list:
-        """Expressions.
+        """Get the expressions for the eye diagram.
 
         Returns
         -------
         list
             Expressions.
+
         """
         if self._is_created:
             return [i.split(" ,")[-1] for i in list(self.properties.values())[4:]]
@@ -80,7 +81,18 @@ class AMIConturEyeDiagram(CommonReport):
         new_exprs = []
         for expr_dict in self._legacy_props["expressions"]:
             expr = expr_dict["name"] if isinstance(expr_dict, dict) else expr_dict
-            if ".int_ami" not in expr:
+            if "amiprobe" in expr.lower() or "amisource" in expr.lower():
+                if "Bit Error Rate" not in expr:
+                    qtype = int(self.quantity_type)
+                    if qtype == 0:
+                        new_exprs.append(f"Initial{expr_head}(" + expr.lower() + ")<Bit Error Rate>")
+                    elif qtype == 1:
+                        new_exprs.append(f"{expr_head}AfterSource(" + expr.lower() + ")<Bit Error Rate>")
+                    elif qtype == 2:
+                        new_exprs.append(f"{expr_head}AfterChannel(" + expr.lower() + ")<Bit Error Rate>")
+                    elif qtype == 3:
+                        new_exprs.append(f"{expr_head}AfterProbe(" + expr.lower() + ")<Bit Error Rate>")
+            elif ".int_ami" not in expr:
                 qtype = int(self.quantity_type)
                 if qtype == 0:
                     new_exprs.append(f"Initial{expr_head}(" + expr + ".int_ami_tx)<Bit Error Rate>")
@@ -522,7 +534,20 @@ class AMIEyeDiagram(CommonReport):
         new_exprs = []
         for expr_dict in self._legacy_props["expressions"]:
             expr = expr_dict["name"] if isinstance(expr_dict, dict) else expr_dict
-            if ".int_ami" not in expr and ("amiprobe" not in expr.lower() and "amisource" not in expr.lower()):
+            if "amiprobe" in expr.lower() or "amisource" in expr.lower():
+                if "Initial" not in expr and "After" not in expr:
+                    qtype = int(self.quantity_type)
+                    if qtype == 0:
+                        new_exprs.append(f"Initial{expr_head}<" + expr + ">")
+                    elif qtype == 1:
+                        new_exprs.append(f"{expr_head}AfterSource<" + expr + ">")
+                    elif qtype == 2:
+                        new_exprs.append(f"{expr_head}AfterChannel<" + expr + ">")
+                    elif qtype == 3:
+                        new_exprs.append(f"{expr_head}AfterProbe<" + expr + ">")
+                    else:
+                        new_exprs.append(expr)
+            elif ".int_ami" not in expr:
                 qtype = int(self.quantity_type)
                 if qtype == 0:
                     new_exprs.append(f"Initial{expr_head}<" + expr + ".int_ami_tx>")
