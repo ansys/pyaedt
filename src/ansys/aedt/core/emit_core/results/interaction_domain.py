@@ -164,9 +164,7 @@ class InteractionDomain:
 
     @pyaedt_function_handler()
     @min_aedt_version("2027.1")
-    def set_interferers(
-        self, names: list[str], band_names: list[str] = [], freqs: list[float] = [], units: str = "Hz"
-    ):
+    def set_interferers(self, names: list[str], band_names: list[str] = [], freqs: list[float] = [], units: str = "Hz"):
         """
         Set multiple interferer radio names, band names, and channel frequencies.
         This overwrites existing interferer list(s).

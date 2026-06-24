@@ -27,6 +27,8 @@ import warnings
 from ansys.aedt.core.emit_core.emit_constants import ResultType
 from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
 from ansys.aedt.core.emit_core.results.interaction_instance import InteractionInstance
+from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class Interaction:
@@ -35,7 +37,10 @@ class Interaction:
         self.odesktop = self.emit_project.odesktop
         self.domain: InteractionDomain = domain
         self.revision = revision
+        self._instances = []
 
+    @min_aedt_version("2027.1")
+    @pyaedt_function_handler()
     def get_worst_instance(self, result_type: ResultType) -> InteractionInstance:
         """Get the worst instance for this interaction.
 
@@ -51,11 +56,12 @@ class Interaction:
 
         Raises
         ------
-        RuntimeError
+        RuntimeError or ValueError
             If the worst case instance cannot be retrieved.
         """
-        # Validate the interaction before proceeding
-        self.validate()
+        error = self._check_validity()
+        if error:
+            raise ValueError("Interaction is not valid: " + error)
 
         if result_type == ResultType.POWER_AT_RX:
             warnings.warn("Worst case instances are not available for Power At Rx.")
@@ -67,7 +73,7 @@ class Interaction:
             len(self.domain.interferer_names) == 1 and self.domain.interferer_names[0] == ""
         )
         if is_n_to_1 and self.domain.receiver_channel_frequency > 0:
-            raise RuntimeError("Unable to retrieve N to 1 worst instance results for a specific receiver channel.")
+            raise ValueError("Unable to retrieve N to 1 worst instance results for a specific receiver channel.")
 
         result_data = self.emit_project._emit_com_module.GetWorstInstance(
             self.revision.results_index,
@@ -83,6 +89,8 @@ class Interaction:
         worst_instance = self._data_to_instance(result_data, result_type)
         return worst_instance
 
+    @min_aedt_version("2027.1")
+    @pyaedt_function_handler()
     def has_valid_availability(self, domain: InteractionDomain) -> bool:
         """Check if this interaction has valid availability.
 
@@ -95,9 +103,16 @@ class Interaction:
         -------
         bool
             True if the interaction has valid availability, False otherwise.
-        """
-        # Call HasValidAvailability via COM
 
+        Raises
+        ------
+        ValueError
+            If the domain is not valid.
+        """
+        sim = self.revision.get_simulation()
+        if sim.is_domain_valid(domain) != "":
+            raise ValueError("Interaction is not valid: " + sim.is_domain_valid(domain))
+        # Call HasValidAvailability via COM
         has_valid = self.emit_project._emit_com_module.HasValidAvailability(
             self.revision.results_index,
             domain.receiver_name,
@@ -109,6 +124,8 @@ class Interaction:
         )
         return bool(has_valid)
 
+    @min_aedt_version("2027.1")
+    @pyaedt_function_handler()
     def get_availability(self, domain: InteractionDomain) -> float:
         """Get the availability of this interaction.
 
@@ -124,13 +141,12 @@ class Interaction:
 
         Raises
         ------
-        RuntimeError
-            If the domain is invalid or availability cannot be calculated.
+        ValueError
+            If the domain is not valid.
         """
-        # First check if availability is valid for this domain
-        warning = self.get_availability_warning(domain)
-        if warning:
-            raise RuntimeError(f"Availability is not valid for this domain: {warning}")
+        sim = self.revision.get_simulation()
+        if sim.is_domain_valid(domain) != "":
+            raise ValueError("Interaction is not valid: " + sim.is_domain_valid(domain))
 
         # Call GetAvailability via COM
         availability = self.emit_project._emit_com_module.GetAvailability(
@@ -144,6 +160,8 @@ class Interaction:
         )
         return float(availability)
 
+    @min_aedt_version("2027.1")
+    @pyaedt_function_handler()
     def get_availability_warning(self, domain: InteractionDomain) -> str:
         """Get the availability warning for this interaction.
 
@@ -155,13 +173,16 @@ class Interaction:
         Returns
         -------
         str
-            The availability warning message, or empty string if no warning.
+            The availability warning message, or empty string if no warning
 
         Raises
         ------
-        RuntimeError
-            If the document is invalid or domain validation fails.
+        ValueError
+            If the domain is not valid.
         """
+        sim = self.revision.get_simulation()
+        if sim.is_domain_valid(domain) != "":
+            raise ValueError("Interaction is not valid: " + sim.is_domain_valid(domain))
         # Call GetAvailabilityWarning via COM
         warning = self.emit_project._emit_com_module.GetAvailabilityWarning(
             self.revision.results_index,
@@ -174,6 +195,8 @@ class Interaction:
         )
         return str(warning)
 
+    @min_aedt_version("2027.1")
+    @pyaedt_function_handler()
     def get_instance(self, domain: InteractionDomain) -> InteractionInstance:
         """Get the instance at the specified index for this interaction.
 
@@ -189,21 +212,32 @@ class Interaction:
 
         Raises
         ------
-        RuntimeError
-            If the domain is invalid, not fully defined, or if instance data cannot be retrieved.
+        RuntimeError or ValueError
+            If the interaction is not longer valid (domain invalid or results are incomplete).
         """
-        # GetInstance only supports a single interferer
-        if len(domain.interferer_names) > 1:
-            raise RuntimeError("Instance data for multiple simultaneous interferers not available.")
+        error = self._check_validity(domain)
+        if error:
+            raise ValueError("Interaction is not valid: " + error)
 
         # Validate the domain can return a single instance
         if not domain.is_single_instance():
-            raise RuntimeError("The interaction domain must be fully defined.")
+            raise ValueError("The interaction domain must be fully defined.")
+
+        # Validate the instance domain's radio/band names
+        domain_error = self.revision.get_simulation().is_domain_valid(domain)
+        if domain_error:
+            raise ValueError(domain_error)
 
         # get_instance_count validates the domain (catches bad radio/band names) and
         # returns 0 when the radio pair is disabled at the simulation level.
-        if self.get_instance_count(domain) == 0:
+        if self.revision.get_simulation().get_instance_count(domain) == 0:
             raise RuntimeError("Radio pair disabled.")
+
+        if not domain.is_single_instance():
+            raise ValueError("The instance domain must be fully defined")
+
+        if len(domain.interferer_names) > 1:
+            raise ValueError("Instance data for multiple simultaneous interferers not available.")
 
         # Fetch instance data. The backend always computes both EMI and desense
         # in a single pass and returns [encodedEmi, encodedDesense, worstEmiIntCat].
@@ -219,7 +253,8 @@ class Interaction:
         )
 
         # Populate both EMI and desense from the single response array.
-        instance = InteractionInstance(self.emit_project, domain, self.revision)
+        instance = InteractionInstance(self.emit_project, domain, self.revision, self)
+        self._instances.append(instance)
         if instance_values and len(instance_values) >= 3:
             instance._encoded_emi = int(instance_values[0])
             instance._encoded_desense = int(instance_values[1])
@@ -227,46 +262,8 @@ class Interaction:
 
         return instance
 
-    def get_instance_count(self, domain: InteractionDomain) -> int:
-        """Get the number of instances (channel combinations) for this interaction domain.
-
-        Parameters
-        ----------
-        domain : InteractionDomain, optional
-            The interaction domain to count instances for.
-            If not provided, uses the interaction's own domain.
-
-        Returns
-        -------
-        int
-            The number of instances in the domain (product of channel counts).
-
-        Raises
-        ------
-        RuntimeError
-            If the domain is invalid.
-        """
-        if domain is None:
-            domain = self.domain
-
-        sim = self.revision.get_simulation()
-        status = sim.is_domain_valid(domain)
-        if status != "":
-            raise RuntimeError(status)
-
-        # Call GetInstanceCount to get the count of channel combinations
-        count = self.emit_project._emit_com_module.GetInstanceCount(
-            self.revision.results_index,
-            domain.receiver_name,
-            domain.receiver_band_name,
-            domain.receiver_channel_frequency,
-            domain.interferer_names,
-            domain.interferer_band_names,
-            domain.interferer_channel_frequencies,
-        )
-
-        return int(count)
-
+    @min_aedt_version("2027.1")
+    @pyaedt_function_handler()
     def get_domain(self) -> InteractionDomain:
         """Get the interaction domain for this interaction.
 
@@ -277,6 +274,8 @@ class Interaction:
         """
         return self.domain
 
+    @min_aedt_version("2027.1")
+    @pyaedt_function_handler()
     def is_valid(self) -> bool:
         """Check if this interaction is valid.
 
@@ -289,6 +288,8 @@ class Interaction:
         """
         return self._check_validity() == ""
 
+    @min_aedt_version("2027.1")
+    @pyaedt_function_handler()
     def validate(self) -> None:
         """Validate this interaction, raising an exception if invalid.
 
@@ -330,7 +331,7 @@ class Interaction:
         """
         # Call ExportInteractionResults via COM
         try:
-            partial_results = self.emit_project._emit_com_module.ExportEmitResults(
+            self.emit_project._emit_com_module.ExportEmitResults(
                 self.revision.results_index,
                 "Selection",
                 file_path,
@@ -340,58 +341,42 @@ class Interaction:
                 self.domain.interferer_names,
                 self.domain.interferer_band_names,
                 self.domain.interferer_channel_frequencies,
-                continue_if_partial
+                continue_if_partial,
             )
         except Exception as e:
-            raise Exception(
-                f'Failed to export results: {str(e)}'
-            ) from e
-        
-    def _check_validity(self) -> str:
+            raise Exception(f"Failed to export results: {str(e)}") from e
+
+    @min_aedt_version("2027.1")
+    @pyaedt_function_handler()
+    def _check_validity(self, domain: InteractionDomain = None) -> str:
         """
         Check if this interaction is valid. The associated domain must
-        be valid and results must exist for the interaction.
+        be valid and results must be complete for the interaction.
 
         Returns
         -------
         str
             Empty string if valid, error message otherwise.
         """
-        error = self.revision.get_simulation().is_domain_valid(self.domain)
-        if error:
-            return f"Interaction is not valid. The domain is invalid: {error}"
+        if domain is None:
+            domain = self.domain
 
-        if not self._check_results_exist():
-            return "Interaction is not valid. The interaction results do not exist."
+        # Domain validity and result completeness check
+        error = self.emit_project._emit_com_module.CheckInteractionValidity(
+            self.revision.results_index,
+            domain.receiver_name,
+            domain.receiver_band_name,
+            domain.receiver_channel_frequency,
+            domain.interferer_names,
+            domain.interferer_band_names,
+            domain.interferer_channel_frequencies,
+        )
+        if error:
+            return str(error)
         return ""
 
-    def _check_results_exist(self, domain: InteractionDomain = None) -> bool:
-        """Check if simulation results exist for the given domain.
-
-        Parameters
-        ----------
-        domain : InteractionDomain, optional
-            The domain to check. If None, uses self.domain.
-
-        Returns
-        -------
-        bool
-            True if results exist for the domain, False otherwise.
-        """
-        # Use the provided domain or default to self.domain
-        check_domain = domain if domain is not None else self.domain
-        results_exist = self.emit_project._emit_com_module.GetResultsExist(
-            self.revision.results_index,
-            check_domain.receiver_name,
-            check_domain.receiver_band_name,
-            check_domain.receiver_channel_frequency,
-            check_domain.interferer_names,
-            check_domain.interferer_band_names,
-            check_domain.interferer_channel_frequencies,
-        )
-        results_exist = bool(results_exist)
-        return results_exist
-
+    @min_aedt_version("2027.1")
+    @pyaedt_function_handler()
     def _data_to_instance(self, result_data, result_type: ResultType) -> InteractionInstance:
         """Convert the raw result data from GetWorstInstance into an InteractionInstance.
 
@@ -439,7 +424,8 @@ class Interaction:
 
         # For both 1-to-1 and N-to-1, a worst-case instance only carries the requested
         # result type. The other is always 30201 ("not available"), matching old API behavior.
-        instance = InteractionInstance(self.emit_project, worst_domain, self.revision)
+        instance = InteractionInstance(self.emit_project, worst_domain, self.revision, self)
+        self._instances.append(instance)
         if result_type == ResultType.EMI:
             instance._encoded_emi = encoded_value
             instance._largest_emi_interferer_type = worst_int_cat
@@ -447,4 +433,5 @@ class Interaction:
         else:
             instance._encoded_desense = encoded_value
             instance._encoded_emi = 30201
+            instance._largest_emi_interferer_type = None
         return instance
