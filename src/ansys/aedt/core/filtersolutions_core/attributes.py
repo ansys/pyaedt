@@ -877,6 +877,12 @@ class Attributes:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.filter_multiple_bands_high_pass_frequency = "1.2GHz"
         """
         filter_multiple_bands_high_pass_freq_string = self._dll_interface.get_string(
             self._dll.getMultipleBandsHighPassFrequency
@@ -897,6 +903,12 @@ class Attributes:
         Returns
         -------
         int
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.filter_order = 7
         """
         order = c_int()
         status = self._dll.getOrder(byref(order))
@@ -917,6 +929,12 @@ class Attributes:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.minimum_order_stop_band_attenuation_db = "55"
         """
         minimum_order_stop_band_attenuation_db_string = self._dll_interface.get_string(
             self._dll.getMinimumOrderStopbandAttenuationdB
@@ -939,6 +957,12 @@ class Attributes:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.minimum_order_stop_band_frequency = "12GHz"
         """
         minimum_order_stop_band_frequency_string = self._dll_interface.get_string(
             self._dll.getMinimumOrderStopbandFrequency
@@ -961,6 +985,12 @@ class Attributes:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.minimum_order_group_delay_error_percent = "4"
         """
         minimum_order_group_delay_error_percent_string = self._dll_interface.get_string(
             self._dll.getMinimumOrderGroupDelayError
@@ -983,6 +1013,12 @@ class Attributes:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.minimum_order_group_delay_cutoff = "8GHz"
         """
         minimum_order_group_delay_cutoff_string = self._dll_interface.get_string(
             self._dll.getMinimumOrderGroupDelayCutoff
@@ -1003,6 +1039,12 @@ class Attributes:
         Returns
         -------
         int
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.ideal_minimum_order
         """
         minimum_order = c_int()
         status = self._dll.setIdealMinimumOrder(byref(minimum_order))
@@ -1018,6 +1060,12 @@ class Attributes:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.delay_time = "2ns"
         """
         delay_time_string = self._dll_interface.get_string(self._dll.getDelayTime)
         return delay_time_string
@@ -1035,6 +1083,13 @@ class Attributes:
         Returns
         -------
         :enum:`PassbandDefinition`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> from ansys.aedt.core.filtersolutions_core.attributes import PassbandDefinition
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.pass_band_definition = PassbandDefinition.CORNER_FREQUENCIES
         """
         index = c_int()
         pass_band_definition = list(PassbandDefinition)
@@ -1057,6 +1112,12 @@ class Attributes:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.pass_band_center_frequency = "950MHz"
         """
         center_freq_string = self._dll_interface.get_string(self._dll.getCenterFrequency)
         return center_freq_string
@@ -1073,6 +1134,12 @@ class Attributes:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.pass_band_width_frequency = "150MHz"
         """
         pass_band_freq_string = self._dll_interface.get_string(self._dll.getPassbandFrequency)
         return pass_band_freq_string
@@ -1090,6 +1157,12 @@ class Attributes:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.lower_frequency = "900MHz"
         """
         lower_freq_string = self._dll_interface.get_string(self._dll.getLowerFrequency)
         return lower_freq_string
@@ -1107,6 +1180,12 @@ class Attributes:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.upper_frequency = "1.1GHz"
         """
         upper_freq_string = self._dll_interface.get_string(self._dll.getUpperFrequency)
         return upper_freq_string
@@ -1124,6 +1203,12 @@ class Attributes:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.diplexer_inner_band_width = "250MHz"
         """
         diplexer_inner_band_width_string = self._dll_interface.get_string(self._dll.getDiplexerInnerPassbandWidth)
         return diplexer_inner_band_width_string
@@ -1141,6 +1226,12 @@ class Attributes:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.diplexer_outer_band_width = "2.2GHz"
         """
         diplexer_outer_band_width_string = self._dll_interface.get_string(self._dll.getDiplexerOuterPassbandWidth)
         return diplexer_outer_band_width_string
@@ -1158,6 +1249,12 @@ class Attributes:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.diplexer_lower_center_frequency = "600MHz"
         """
         diplexer_lower_center_frequency_string = self._dll_interface.get_string(
             self._dll.getDiplexerLowerCenterFrequency
@@ -1179,6 +1276,12 @@ class Attributes:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.diplexer_upper_center_frequency = "2.1GHz"
         """
         diplexer_upper_center_frequency_string = self._dll_interface.get_string(
             self._dll.getDiplexerUpperCenterFrequency
@@ -1200,6 +1303,12 @@ class Attributes:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.diplexer_lower_band_width = "450MHz"
         """
         diplexer_lower_band_width_string = self._dll_interface.get_string(self._dll.getDiplexerLowerBandwidth)
         return diplexer_lower_band_width_string
@@ -1217,6 +1326,12 @@ class Attributes:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.diplexer_upper_band_width = "1.8GHz"
         """
         diplexer_upper_band_width_string = self._dll_interface.get_string(self._dll.getDiplexerUpperBandwidth)
         return diplexer_upper_band_width_string
@@ -1234,6 +1349,13 @@ class Attributes:
         Returns
         -------
         :enum:`StopbandDefinition`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> from ansys.aedt.core.filtersolutions_core.attributes import StopbandDefinition
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.stop_band_definition = StopbandDefinition.FREQUENCY
         """
         index = c_int()
         stop_band_definition = list(StopbandDefinition)
@@ -1256,6 +1378,12 @@ class Attributes:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.stop_band_ratio = "1.4"
         """
         stop_band_ratio_string = self._dll_interface.get_string(self._dll.getStopbandRatio)
         return stop_band_ratio_string
@@ -1273,6 +1401,12 @@ class Attributes:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.stop_band_frequency = "1.3GHz"
         """
         stop_band_frequency_string = self._dll_interface.get_string(self._dll.getStopbandFrequency)
         return stop_band_frequency_string
@@ -1290,6 +1424,12 @@ class Attributes:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.stop_band_attenuation_db = "70dB"
         """
         stop_band_attenuation_db_string = self._dll_interface.get_string(self._dll.getStopbandAttenuationdB)
         return stop_band_attenuation_db_string
@@ -1305,6 +1445,12 @@ class Attributes:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.standard_pass_band_attenuation = True
         """
         standard_pass_band_attenuation = c_bool()
         status = self._dll.getStandardCutoffEnabled(byref(standard_pass_band_attenuation))
@@ -1323,6 +1469,12 @@ class Attributes:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.root_raised_cosine = True
         """
         root_raised_cosine = c_bool()
         status = self._dll.getRootRaisedCosineEnabled(byref(root_raised_cosine))
@@ -1341,6 +1493,12 @@ class Attributes:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.data_transmission_filter = True
         """
         data_transmission_filter = c_bool()
         status = self._dll.getDataTransmissionEnabled(byref(data_transmission_filter))
@@ -1361,6 +1519,13 @@ class Attributes:
         Returns
         -------
         :enum:`RaisedCosineAlphaPercentage`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> from ansys.aedt.core.filtersolutions_core.attributes import RaisedCosineAlphaPercentage
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.raised_cosine_alpha_percentage = RaisedCosineAlphaPercentage.FIFTY
         """
         index = c_int()
         raised_cosine_alpha_percentage = list(RaisedCosineAlphaPercentage)
@@ -1381,6 +1546,12 @@ class Attributes:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.equiripple_delay_enabled = True
         """
         equiripple_delay_enabled = c_bool()
         status = self._dll.getEquirippleDelayEnabled(byref(equiripple_delay_enabled))
@@ -1401,6 +1572,12 @@ class Attributes:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.group_delay_ripple_period = "3"
         """
         group_delay_ripple_period_string = self._dll_interface.get_string(self._dll.getDelayRipplePeriod)
         return group_delay_ripple_period_string
@@ -1421,6 +1598,13 @@ class Attributes:
         Returns
         -------
         int
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> from ansys.aedt.core.filtersolutions_core.attributes import BesselRipplePercentage
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.normalized_group_delay_percentage = BesselRipplePercentage.ONE
         """
         index = c_int()
         normalized_group_delay_percentage = list(BesselRipplePercentage)
@@ -1443,6 +1627,12 @@ class Attributes:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.standard_pass_band_attenuation_value_db = "2.5dB"
         """
         standard_pass_band_attenuation_value_db_string = self._dll_interface.get_string(
             self._dll.getCutoffAttenuationdB
@@ -1463,6 +1653,12 @@ class Attributes:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.bessel_normalized_delay_enabled = True
         """
         bessel_normalized_delay_enabled = c_bool()
         status = self._dll.getBesselNormalizedDelayEnabled(byref(bessel_normalized_delay_enabled))
@@ -1483,6 +1679,12 @@ class Attributes:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.bessel_normalized_delay_period = "4"
         """
         bessel_normalized_delay_period_string = self._dll_interface.get_string(self._dll.getBesselEquiRippleDelayPeriod)
         return bessel_normalized_delay_period_string
@@ -1503,6 +1705,13 @@ class Attributes:
         Returns
         -------
         int
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> from ansys.aedt.core.filtersolutions_core.attributes import BesselRipplePercentage
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.bessel_normalized_delay_percentage = BesselRipplePercentage.FIVE
         """
         index = c_int()
         bessel_normalized_delay_percentage = list(BesselRipplePercentage)
@@ -1525,6 +1734,12 @@ class Attributes:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.pass_band_ripple = "0.1dB"
         """
         pass_band_ripple_string = self._dll_interface.get_string(self._dll.getPassbandRipple)
         return pass_band_ripple_string
@@ -1540,6 +1755,12 @@ class Attributes:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.arith_symmetry = True
         """
         arith_symmetry = c_bool()
         status = self._dll.getArithSymmetry(byref(arith_symmetry))
@@ -1558,6 +1779,12 @@ class Attributes:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.asymmetric = True
         """
         asymmetric = c_bool()
         status = self._dll.getAsymmetric(byref(asymmetric))
@@ -1578,6 +1805,12 @@ class Attributes:
         Returns
         -------
         int
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.asymmetric_low_order = 3
         """
         asymmetric_low_order = c_int()
         status = self._dll.getAsymmetricLowOrder(byref(asymmetric_low_order))
@@ -1598,6 +1831,12 @@ class Attributes:
         Returns
         -------
         int
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.asymmetric_high_order = 7
         """
         asymmetric_high_order = c_int()
         status = self._dll.getAsymmetricHighOrder(byref(asymmetric_high_order))
@@ -1618,6 +1857,12 @@ class Attributes:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.asymmetric_low_stop_band_ratio = "1.1"
         """
         asymmetric_low_stop_band_ratio_string = self._dll_interface.get_string(self._dll.getAsymmetricLowStopbandRatio)
         return asymmetric_low_stop_band_ratio_string
@@ -1638,6 +1883,12 @@ class Attributes:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.asymmetric_high_stop_band_ratio = "1.5"
         """
         asymmetric_high_stop_band_ratio_string = self._dll_interface.get_string(
             self._dll.getAsymmetricHighStopbandRatio
@@ -1660,6 +1911,12 @@ class Attributes:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.asymmetric_low_stop_band_attenuation_db = "50dB"
         """
         asymmetric_low_stop_band_attenuation_db_string = self._dll_interface.get_string(
             self._dll.getAsymmetricLowStopbandAttenuationdB
@@ -1682,6 +1939,12 @@ class Attributes:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.asymmetric_high_stop_band_attenuation_db = "65dB"
         """
         asymmetric_high_stop_band_attenuation_db_string = self._dll_interface.get_string(
             self._dll.getAsymmetricHighStopbandAttenuationdB
@@ -1704,6 +1967,13 @@ class Attributes:
         Returns
         -------
         :enum:`GaussianTransition`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> from ansys.aedt.core.filtersolutions_core.attributes import GaussianTransition
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.gaussian_transition = GaussianTransition.TRANSITION_6_DB
         """
         type_string = self._dll_interface.get_string(self._dll.getGaussianTransition)
         type_string = "TRANSITION_" + type_string
@@ -1722,6 +1992,13 @@ class Attributes:
         Returns
         -------
         :enum:`GaussianBesselReflection`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> from ansys.aedt.core.filtersolutions_core.attributes import GaussianBesselReflection
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.gaussian_bessel_reflection = GaussianBesselReflection.OPTION_2
         """
         index = c_int()
         gaussian_bessel_reflection = list(GaussianBesselReflection)
@@ -1742,6 +2019,12 @@ class Attributes:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.even_order = True
         """
         even_order = c_bool()
         status = self._dll.getEvenOrderMode(byref(even_order))
@@ -1760,6 +2043,12 @@ class Attributes:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.even_order_refl_zero = True
         """
         even_order_refl_zero = c_bool()
         status = self._dll.getEvenReflZeroTo0(byref(even_order_refl_zero))
@@ -1778,6 +2067,12 @@ class Attributes:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.even_order_trn_zero = True
         """
         even_order_trn_zero = c_bool()
         status = self._dll.getEvenTrnZeroToInf(byref(even_order_trn_zero))
@@ -1796,6 +2091,12 @@ class Attributes:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.constrict_ripple = True
         """
         constrict_ripple = c_bool()
         status = self._dll.getConstrictRipple(byref(constrict_ripple))
@@ -1814,6 +2115,12 @@ class Attributes:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.single_point_ripple = True
         """
         single_point_ripple = c_bool()
         status = self._dll.getSinglePointRipple(byref(single_point_ripple))
@@ -1832,6 +2139,12 @@ class Attributes:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.half_band_ripple = True
         """
         half_band_point_ripple = c_bool()
         status = self._dll.getHalfBandRipple(byref(half_band_point_ripple))
@@ -1852,6 +2165,12 @@ class Attributes:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.constrict_ripple_percent = "40%"
         """
         constrict_ripple_percent_string = self._dll_interface.get_string(self._dll.getRippleConstrictionPercent)
         return constrict_ripple_percent_string
@@ -1869,6 +2188,13 @@ class Attributes:
         Returns
         -------
         :enum:`RippleConstrictionBandSelect`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> from ansys.aedt.core.filtersolutions_core.attributes import RippleConstrictionBandSelect
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.ripple_constriction_band = RippleConstrictionBandSelect.BOTH
         """
         type_string = self._dll_interface.get_string(self._dll.getRippleConstrictionBandSelect)
         return self._dll_interface.string_to_enum(RippleConstrictionBandSelect, type_string)
@@ -1887,6 +2213,13 @@ class Attributes:
         Returns
         -------
         :enum:`SinglePointRippleInfZeros`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> from ansys.aedt.core.filtersolutions_core.attributes import SinglePointRippleInfZeros
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.single_point_ripple_inf_zeros = SinglePointRippleInfZeros.RIPPLE_INF_ZEROS_3
         """
         type_string = self._dll_interface.get_string(self._dll.getSinglePointRippleNoninfiniteZeros)
         type_string = "RIPPLE_INF_ZEROS_" + type_string
@@ -1904,6 +2237,12 @@ class Attributes:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.delay_equalizer = True
         """
         delay_equalizer = c_bool()
         status = self._dll.getDelayEqualizer(byref(delay_equalizer))
@@ -1924,6 +2263,12 @@ class Attributes:
         Returns
         -------
         int
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.delay_equalizer_order = 3
         """
         delay_equalizer_order = c_int()
         status = self._dll.getDelayEqualizerOrder(byref(delay_equalizer_order))
@@ -1942,6 +2287,12 @@ class Attributes:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.standard_delay_equ_pass_band_attenuation = True
         """
         standard_delay_equ_cut = c_bool()
         status = self._dll.getStandardDelayEquCut(byref(standard_delay_equ_cut))
@@ -1962,6 +2313,12 @@ class Attributes:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.standard_delay_equ_pass_band_attenuation_value_db = "2.8dB"
         """
         delay_equcutoff_attenuation_db_string = self._dll_interface.get_string(self._dll.getDelayEquCutoffAttenuationdB)
         return delay_equcutoff_attenuation_db_string

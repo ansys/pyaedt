@@ -90,7 +90,7 @@ class ConfigureLayoutExtension(ExtensionHFSS3DLayoutCommon):
     def selected_edb(self):
         """Retrieve selected EDB."""
         if self.var_active_design.get() == 0:
-            return self.get_active_edb()
+            return self._get_active_edb()
         else:
             return self.__selected_design
 
@@ -115,6 +115,17 @@ class ConfigureLayoutExtension(ExtensionHFSS3DLayoutCommon):
         )
 
     def add_toggle_theme_button(self, parent, toggle_row, toggle_column):
+        """Create a button to toggle between light and dark themes.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui import (
+        ...     ConfigureLayoutExtension,
+        ... )
+        >>> extension = ConfigureLayoutExtension(withdraw=True)
+        >>> extension.add_toggle_theme_button(extension.root, 0, 0)
+
+        """
         return
 
     def add_toggle_theme_button_(self, parent):
@@ -191,7 +202,7 @@ class ConfigureLayoutExtension(ExtensionHFSS3DLayoutCommon):
 
         self.add_toggle_theme_button_(self.root)
 
-    def apply_config_to_edb(self, config_path, test_folder=None):
+    def _apply_config_to_edb(self, config_path, test_folder=None):
         settings.logger.info("Applying configuration to EDB")
         selected_edb = self.selected_edb
         settings.logger.info(f"target EDB: {selected_edb}")
@@ -210,13 +221,13 @@ class ConfigureLayoutExtension(ExtensionHFSS3DLayoutCommon):
         app.close()
         return app.edbpath
 
-    def export_config_from_edb(self):
+    def _export_config_from_edb(self):
         app = Edb(edbpath=str(self.selected_edb), version=self.aedt_info.version)
         data = app.configuration.get_data_from_db(**self.export_options.model_dump())
         app.close()
         return data
 
-    def load_edb_into_hfss3dlayout(self, edb_path: str | Path):
+    def _load_edb_into_hfss3dlayout(self, edb_path: str | Path):
         app = ansys.aedt.core.Hfss3dLayout(project=str(edb_path), **self.aedt_info.model_dump())
         if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
             app.desktop_class.release_desktop(False, False)
@@ -224,7 +235,7 @@ class ConfigureLayoutExtension(ExtensionHFSS3DLayoutCommon):
             app.close_project(save=False)
         return app
 
-    def get_active_edb(self):
+    def _get_active_edb(self):
         desktop = ansys.aedt.core.Desktop(new_desktop=False, **self.aedt_info.model_dump())
         active_project = desktop.active_project()
         if active_project:

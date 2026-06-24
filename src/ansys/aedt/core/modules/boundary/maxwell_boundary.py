@@ -486,10 +486,10 @@ class MaxwellMatrix(MaxwellParameters):
     Define matrix assignments by instantiating the MatrixElectric class.
 
     >>> matrix_args = MatrixElectric(
-    >>>             signal_sources=[voltage1.name, voltage2.name],
-    >>>             ground_sources=[voltage3.name],
-    >>>             matrix_name="test_matrix",
-    >>>         )
+    ...     signal_sources=[voltage1.name, voltage2.name],
+    ...     ground_sources=[voltage3.name],
+    ...     matrix_name="test_matrix",
+    ... )
 
     Assign matrix. The method returns a MaxwellParameters object.
 
@@ -519,7 +519,13 @@ class MaxwellMatrix(MaxwellParameters):
 
     @property
     def signal_sources(self) -> list[SourceACMagnetic] | None:
-        """Retrieve signal sources."""
+        """Retrieve signal sources.
+
+        Examples
+        --------
+        >>> matrix.signal_sources  # doctest: +SKIP
+
+        """
         if (
             isinstance(self._schema, MatrixElectric)
             or isinstance(self._schema, MatrixMagnetostatic)
@@ -530,28 +536,52 @@ class MaxwellMatrix(MaxwellParameters):
 
     @property
     def ground_sources(self) -> list[str] | None:
-        """Retrieve ground sources."""
+        """Retrieve ground sources.
+
+        Examples
+        --------
+        >>> matrix.ground_sources  # doctest: +SKIP
+
+        """
         if isinstance(self._schema, MatrixElectric):
             return self._schema.ground_sources
         return None
 
     @property
     def group_sources(self) -> list[GroupSourcesMagnetostatic] | None:
-        """Retrieve group sources."""
+        """Retrieve group sources.
+
+        Examples
+        --------
+        >>> matrix.group_sources  # doctest: +SKIP
+
+        """
         if isinstance(self._schema, MatrixMagnetostatic):
             return self._schema.group_sources
         return None
 
     @property
     def rl_sources(self) -> list[RLSourceACMagneticAPhi] | None:
-        """Retrieve rl sources."""
+        """Retrieve rl sources.
+
+        Examples
+        --------
+        >>> matrix.rl_sources  # doctest: +SKIP
+
+        """
         if isinstance(self._schema, MatrixACMagneticAPhi):
             return self._schema.rl_sources
         return None
 
     @property
     def gc_sources(self) -> list[GCSourceACMagneticAPhi] | None:
-        """Retrieve gc sources."""
+        """Retrieve gc sources.
+
+        Examples
+        --------
+        >>> matrix.gc_sources  # doctest: +SKIP
+
+        """
         if isinstance(self._schema, MatrixACMagneticAPhi):
             return self._schema.gc_sources
         return None
@@ -710,17 +740,15 @@ class MaxwellReducedMatrix:
     >>> signal_source_4 = SourceACMagnetic(name=current4.name)
 
     >>> matrix_args = MatrixACMagnetic(
-    >>>     signal_sources=[signal_source_1, signal_source_2, signal_source_3, signal_source_4],
-    >>>     matrix_name="test_matrix",
-    >>> )
+    ...     signal_sources=[signal_source_1, signal_source_2, signal_source_3, signal_source_4],
+    ...     matrix_name="test_matrix",
+    ... )
     >>> matrix = m3d.assign_matrix(matrix_args)
 
     Join sources in series to create a reduced matrix.
     >>> reduced_matrix = matrix.join_series(
-    >>>     sources=["Current1", "Current2"],
-    >>>     matrix_name="ReducedMatrix1",
-    >>>     join_name="JoinSeries1"
-    >>> )
+    ...     sources=["Current1", "Current2"], matrix_name="ReducedMatrix1", join_name="JoinSeries1"
+    ... )
     >>> m3d.release_desktop(True, True)
 
     """
@@ -793,9 +821,9 @@ class MaxwellReducedMatrix:
         >>> signal_source_3 = SourceACMagnetic(name=current3.name)
 
         >>> matrix_args = MatrixACMagnetic(
-        >>>     signal_sources=[signal_source_1, signal_source_2, signal_source_3],
-        >>>     matrix_name="test_matrix",
-        >>> )
+        ...     signal_sources=[signal_source_1, signal_source_2, signal_source_3],
+        ...     matrix_name="test_matrix",
+        ... )
         >>> matrix = m3d.assign_matrix(matrix_args)
 
         Join sources in series to create a reduced matrix.
@@ -808,13 +836,13 @@ class MaxwellReducedMatrix:
 
         Update the name of the join operation.
         >>> join_operation = reduced_matrix.update(
-        >>> name=reduced_matrix.operations_reduction[0].name, operation_type="series", new_name="my_op"
-        >>> )
+        ...     name=reduced_matrix.operations_reduction[0].name, operation_type="series", new_name="my_op"
+        ... )
 
         Update the sources of the join operation.
         >>> join_operation_1 = reduced_matrix.update(
-        >>> name=join_operation.name, operation_type="series", new_sources=["Current2", "Current3"]
-        >>> )
+        ...     name=join_operation.name, operation_type="series", new_sources=["Current2", "Current3"]
+        ... )
         >>> m3d.release_desktop(True, True)
 
         """
@@ -879,9 +907,9 @@ class MaxwellReducedMatrix:
         >>> signal_source_3 = SourceACMagnetic(name=current3.name)
 
         >>> matrix_args = MatrixACMagnetic(
-        >>>     signal_sources=[signal_source_1, signal_source_2, signal_source_3],
-        >>>     matrix_name="test_matrix",
-        >>> )
+        ...     signal_sources=[signal_source_1, signal_source_2, signal_source_3],
+        ...     matrix_name="test_matrix",
+        ... )
         >>> matrix = m3d.assign_matrix(matrix_args)
 
         Join sources in series to create a reduced matrix.

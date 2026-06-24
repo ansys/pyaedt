@@ -178,7 +178,7 @@ class MCADAssemblyFrontend(ExtensionHFSSCommon):
             button_frame,
             width=10,
             text="Run",
-            command=lambda: self.run(self.config_data),
+            command=lambda: self._run(self.config_data),
             style="PyAEDT.TButton",
             name="run",
         ).pack(anchor="w", side="left", **{"padx": 15, "pady": 10})
@@ -198,6 +198,15 @@ class MCADAssemblyFrontend(ExtensionHFSSCommon):
         self._widgets["change_theme_button"] = change_theme_button
 
     def add_extension_content(self) -> None:
+        """Add custom content to the extension UI.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssemblyFrontend
+        >>> extension = MCADAssemblyFrontend(withdraw=True)
+        >>> extension.add_extension_content()
+
+        """
         self.root.geometry("700x600")
 
         menubar = tkinter.Menu(self.root)
@@ -212,10 +221,10 @@ class MCADAssemblyFrontend(ExtensionHFSSCommon):
 
         create_tab_main(self.tab_frame_main, self)
 
-    def run(self, config_data: dict):
+    def _run(self, config_data: dict):
         hfss = ansys.aedt.core.Hfss(**self.aedt_info.model_dump())
-        app = MCADAssemblyBackend.load(data=config_data, cur_dir=self.local_path)
-        app.run(hfss)
+        app = MCADAssemblyBackend._load(data=config_data, cur_dir=self.local_path)
+        app._run(hfss)
         del app
 
         if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
@@ -342,18 +351,18 @@ class Component(BaseModel):
         extra = "forbid"
 
     @classmethod
-    def load(cls, name: str, data: dict) -> Component:
-        sub_components = {name: cls.load(name, comp) for name, comp in data.get("sub_components", {}).items()}
+    def _load(cls, name: str, data: dict) -> Component:
+        sub_components = {name: cls._load(name, comp) for name, comp in data.get("sub_components", {}).items()}
         data_ = data.copy()
         data_["sub_components"] = sub_components
         data_["name"] = name
         return cls(**data_)
 
-    def assemble_sub_components(self, hfss, cs_prefix: str = ""):
+    def _assemble_sub_components(self, hfss, cs_prefix: str = ""):
         for name, comp in self.sub_components.items():
             comp.assemble(hfss, cs_prefix)
 
-    def apply_arrange(self, hfss: "Hfss"):
+    def _apply_arrange(self, hfss: "Hfss"):
         for i in self.arranges:
             if i.operation == "rotate":
                 self.__rotate_index = self.__rotate_index + 1
@@ -426,9 +435,9 @@ class Component(BaseModel):
         if comp is False:
             raise ValueError(self.name, self.model, self.target_coordinate_system)
 
-        self.apply_arrange(hfss)
+        self._apply_arrange(hfss)
         if self.sub_components:
-            self.assemble_sub_components(hfss, cs_prefix=model_name)
+            self._assemble_sub_components(hfss, cs_prefix=model_name)
 
 
 Component.model_rebuild()
@@ -453,7 +462,7 @@ class MCADAssemblyBackend(BaseModel):
         extra = "forbid"
 
     @classmethod
-    def load(cls, data: dict, cur_dir: str) -> "MCADAssemblyBackend":
+    def _load(cls, data: dict, cur_dir: str) -> "MCADAssemblyBackend":
         cur_dir = Path(cur_dir)
 
         for name, file_path in data.get("component_models", {}).items():
@@ -467,10 +476,10 @@ class MCADAssemblyBackend(BaseModel):
             coordinate_system=data.get("coordinate_system", {}),
             component_models=data.get("component_models", {}),
             layout_component_models=data.get("layout_component_models", {}),
-            sub_components={name: Component.load(name, comp) for name, comp in data.get("assembly", {}).items()},
+            sub_components={name: Component._load(name, comp) for name, comp in data.get("assembly", {}).items()},
         )
 
-    def run(self, hfss: "Hfss"):
+    def _run(self, hfss: "Hfss"):
         for name, value in self.coordinate_system.items():
             hfss.modeler.create_coordinate_system(name=name, **value)
 

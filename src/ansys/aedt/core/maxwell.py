@@ -4053,7 +4053,15 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, PyAedtBase):
 
     @model_depth.setter
     def model_depth(self, value) -> None:
-        """Set model depth."""
+        """Set model depth.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.maxwell import Maxwell2d
+        >>> obj = Maxwell2d()
+        >>> obj.model_depth = "10mm"
+
+        """
         if isinstance(value, float) or isinstance(value, int):
             value = self.value_with_units(value, self.modeler.model_units)
         self.change_design_settings({"ModelDepth": value})

@@ -148,7 +148,7 @@ class CoilExtension(ExtensionMaxwell3DCommon):
         self.add_extension_content()
         self.root.minsize(MIN_WIDTH, MIN_HEIGHT)
 
-    def show_pictures_popup(self) -> None:
+    def _show_pictures_popup(self) -> None:
         popup = tk.Toplevel(self.root)
         popup.title("Coil Parameters")
 
@@ -202,7 +202,7 @@ class CoilExtension(ExtensionMaxwell3DCommon):
 
     def _add_export_button(self, tab, row):
         export_points_button = ttk.Button(
-            tab, text="Parameters help", command=self.show_pictures_popup, style="PyAEDT.TButton"
+            tab, text="Parameters help", command=self._show_pictures_popup, style="PyAEDT.TButton"
         )
         export_points_button.grid(row=row, column=0, sticky="e", **DEFAULT_PADDING)
 

@@ -113,6 +113,20 @@ class Coil(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_flat_path(self) -> list:
+        """Create the path for a flat coil.
+
+        Returns
+        -------
+        list
+            A list of points representing the path of the flat coil.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.coil import Coil
+        >>> obj = Coil()
+        >>> obj.create_flat_path()
+
+        """
         num_points = 13 * self.turns + 7
 
         start_x = self.centre_x + 0.25 * self.inner_width
@@ -278,6 +292,20 @@ class Coil(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_vertical_path(self) -> list:
+        """Create the path for a vertical coil.
+
+        Returns
+        -------
+        list
+            A list of points representing the path of the vertical coil.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.coil import Coil
+        >>> obj = Coil()
+        >>> obj.create_vertical_path()
+
+        """
         num_points = 12 * self.turns + 2
 
         start_x, start_y, start_z = (

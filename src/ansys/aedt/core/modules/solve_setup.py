@@ -3054,8 +3054,8 @@ class SetupHFSS(Setup, PyAedtBase):
 
         >>> setup = hfss.create_setup("LinearCountSetup")
         >>> linear_count_sweep = setup.create_linear_count_sweep(
-                name="LinearStepSweep", unit="MHz", start_frequency=1.1e3, stop_frequency=1200.1, step_size=153.8
-                )
+        ...     name="LinearStepSweep", unit="MHz", start_frequency=1.1e3, stop_frequency=1200.1, step_size=153.8
+        ... )
         >>> type(linear_count_sweep)
         <class 'from ansys.aedt.core.modules.setup_templates.SweepHFSS'>
 
@@ -3392,9 +3392,7 @@ class SetupHFSS(Setup, PyAedtBase):
         >>> import ansys.aedt.core
         >>> hfss = ansys.aedt.core.Hfss()
         >>> setup1 = hfss.create_setup(name="Setup1")
-        >>> setup1.create_frequency_sweep(
-            "GHz", 24, 24.25, 26, "Sweep1", sweep_type="Fast",
-        )
+        >>> setup1.create_frequency_sweep("GHz", 24, 24.25, 26, "Sweep1", sweep_type="Fast")
         >>> setup1.delete_sweep("Sweep1")
 
         """

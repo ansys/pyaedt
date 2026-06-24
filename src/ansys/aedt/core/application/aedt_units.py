@@ -60,6 +60,20 @@ class AedtUnits(PyAedtBase):
         self._units_by_system = {}
 
     def get_unit_by_system(self, unit_system: str) -> str | None:
+        """Get the unit for a given unit system.
+
+        Parameters
+        ----------
+        unit_system : str
+            The unit system to get the unit for.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.units.get_unit_by_system("Length")
+
+        """
         if unit_system in self._units_by_system:
             return self._units_by_system[unit_system]
         val = self._get_model_unit(unit_system)

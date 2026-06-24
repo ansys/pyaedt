@@ -567,7 +567,8 @@ class Revision:
         Examples
         --------
         >>> freqs = aedtapp.results.current_revision.get_active_frequencies(
-                'Bluetooth', 'Rx - Base Data Rate', TxRxMode.RX)
+        ...     "Bluetooth", "Rx - Base Data Rate", TxRxMode.RX
+        ... )
 
         """
         if tx_rx_mode is None or tx_rx_mode == TxRxMode.BOTH:
