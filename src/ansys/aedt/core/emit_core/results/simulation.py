@@ -183,7 +183,8 @@ class Simulation:
     @min_aedt_version("2027.1")
     def is_domain_valid(self, domain: InteractionDomain) -> str:
         """
-        Return ``True`` if the given domain is valid for the current revision.
+        Return "" if the given domain is valid for the current revision. Otherwise, return a string describing
+        why the domain is not valid.
 
         Parameters
         ----------
@@ -195,7 +196,7 @@ class Simulation:
         >>> domain = InteractionDomain(aedtapp)
         >>> sim = aedtapp.results.current_revision.get_simulation()
         >>> sim.is_domain_valid(domain)
-        True
+        ""
         """
         self._revision._load_revision()
         valid = self.emit_project._emit_com_module.CheckDomainValidity(

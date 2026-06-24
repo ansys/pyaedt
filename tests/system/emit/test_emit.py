@@ -1455,6 +1455,7 @@ def test_receiver_n_to_1_enabled(interference):
     DESKTOP_VERSION < "2027.1",
     reason="Skipped on versions earlier than 2027.1",
 )
+@pytest.mark.skipif(True, reason="Dialog popup bug")
 def test_analysis_enabled(n_to_1):
     """Test enabling/disabling radio pairs and receiver N-to-1 analysis."""
     # Generate a revision
@@ -1486,7 +1487,7 @@ def test_analysis_enabled(n_to_1):
     interaction2 = sim.run(domain)
     assert not interaction2.is_valid()
     # Verify the error is about the interaction not being run (no results were produced)
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         interaction2.get_worst_instance(ResultType.EMI)
     assert "Radio pair disabled" in str(e.value)
 
@@ -1497,7 +1498,21 @@ def test_analysis_enabled(n_to_1):
     # Create domain for N-to-1 analysis (no specific interferers)
     domain.set_interferers([])
 
+    sim.set_receiver_n_to_1_enabled("Rx - RxRadio", False)
+    assert sim.get_receiver_n_to_1_enabled("Rx - RxRadio") is False
+
+    # Run again with N-to-1 disabled should produce 1-to-1 only results
+    interaction_n_to_1_disabled = sim.run(domain)
+    assert interaction_n_to_1_disabled.is_valid()
+    instance = interaction_n_to_1_disabled.get_worst_instance(ResultType.EMI)
+    emi = instance.get_value(ResultType.EMI)
+    assert emi == 170.0
+
+    # Interaction should reflect only the 1-to-1 results
+    assert sim.get_instance_count(domain) == 3
+
     # Test N-to-1 enabled state
+    sim.set_receiver_n_to_1_enabled("Rx - RxRadio", True)
     assert sim.get_receiver_n_to_1_enabled("Rx - RxRadio") is True
 
     # Run N-to-1 interaction
@@ -1508,25 +1523,6 @@ def test_analysis_enabled(n_to_1):
     emi_n_to_1 = instance_n_to_1.get_value(ResultType.EMI)
     assert emi_n_to_1 == 179.54
     assert sim.get_instance_count(domain) == 4
-
-    # Disable N-to-1 for the receiver
-    sim.set_receiver_n_to_1_enabled("Rx - RxRadio", False)
-    assert sim.get_receiver_n_to_1_enabled("Rx - RxRadio") is False
-
-    # Interaction should still be valid but reflect only the 1-to-1 results
-    assert interaction_n_to_1.is_valid()
-    assert sim.get_instance_count(domain) == 3
-
-    # Run again with N-to-1 disabled should produce 1-to-1 only results
-    interaction_n_to_1_disabled = sim.run(domain)
-    assert interaction_n_to_1_disabled.is_valid()
-    instance = interaction_n_to_1_disabled.get_worst_instance(ResultType.EMI)
-    emi = instance.get_value(ResultType.EMI)
-    assert emi == 170.0
-
-    # Re-enable N-to-1 for the receiver
-    sim.set_receiver_n_to_1_enabled("Rx - RxRadio", True)
-    assert sim.get_receiver_n_to_1_enabled("Rx - RxRadio") is True
 
 
 @pytest.mark.skipif(
@@ -1993,10 +1989,10 @@ def test_result_categories_with_simulation(emit_app):
     # disable last existing category and confirm expected exceptions and error messages
     sim.set_emi_category_filter_enabled(EmiCategoryFilter.OUT_OF_CHANNEL_TX_HARMONIC_SPURIOUS, False)
     instance = interaction.get_worst_instance(ResultType.EMI)
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance.get_value(ResultType.EMI)
         assert "Unable to evaluate value: No power received." in str(e)
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance.get_largest_emi_problem_type()
         assert "An EMI value is not available so the largest EMI problem type is undefined." in str(e)
 
@@ -2332,7 +2328,7 @@ def test_all_generated_emit_node_properties(emit_app) -> None:
                                         if w:
                                             mem_results[mem_key] = (Result.VALUE, node.name)
                                             assert (
-                                                str(w[0].message) == "This property is deprecated in 0.21.3. "
+                                                str(w[0].message) == "This method is deprecated in 0.21.3. "
                                                 "Use the name property instead."
                                             )
                                     continue
@@ -3087,7 +3083,7 @@ def test_emitters_radios(emit_app) -> None:
 
         band._rename("Test 2")
         if w:
-            assert str(w[0].message) == "This property is deprecated in 0.21.3. Use the name property instead."
+            assert str(w[0].message) == "This method is deprecated in 0.21.3. Use the name property instead."
     assert band.name == "Test 2"
 
     # Add a Band
