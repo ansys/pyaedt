@@ -132,7 +132,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     # NOTE: Temporary pin of ansys/actions to avoid the breaking change side effect.
-    - uses: ansys/actions/doc-changelog@fc4141ba4ca3dc1672fa530cd744131b053dc419
+    - uses: ansys/actions/doc-changelog@fc4141ba4ca3dc1672fa530cd744131b053dc419 # zizmor: ignore[stale-action-refs]
       with:
         bot-email: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
         bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
