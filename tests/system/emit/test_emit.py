@@ -2095,7 +2095,7 @@ def test_all_generated_emit_node_properties(emit_app) -> None:
                                         if w:
                                             mem_results[mem_key] = (Result.VALUE, node.name)
                                             assert (
-                                                str(w[0].message) == "This property is deprecated in 0.21.3. "
+                                                str(w[0].message) == "This method is deprecated in 0.21.3. "
                                                 "Use the name property instead."
                                             )
                                     continue
@@ -2850,7 +2850,7 @@ def test_emitters_radios(emit_app) -> None:
 
         band._rename("Test 2")
         if w:
-            assert str(w[0].message) == "This property is deprecated in 0.21.3. Use the name property instead."
+            assert str(w[0].message) == "This method is deprecated in 0.21.3. Use the name property instead."
     assert band.name == "Test 2"
 
     # Add a Band
