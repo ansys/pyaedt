@@ -1488,6 +1488,15 @@ class Material(CommonMaterial, PyAedtBase):
         if "wire_type" in self._props:
             self.wire_type = self._props["wire_type"]["Choice"]
 
+        if "strand_number" in self._props:
+            self.strand_number = self._props["strand_number"]
+
+        if "wire_diameter" in self._props:
+            self.wire_diameter = self._props["wire_diameter"]
+
+        if "litz_wire_twisting_length_factor" in self._props:
+            self.twisting_length_factor = self._props["litz_wire_twisting_length_factor"]
+
         # Update the material properties
         for property in MatProperties.aedtname:
             tmods = None
