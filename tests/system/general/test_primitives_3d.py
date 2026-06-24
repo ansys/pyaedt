@@ -2563,3 +2563,24 @@ def test_delete_all_points(aedt_app) -> None:
 
     assert result
     assert [] == aedt_app.modeler.oeditor.GetPoints()
+
+
+def test_create_named_selections(aedt_app) -> None:
+    aedt_app.modeler.create_box([0, 0, 0], [1, 2, 3], name="box1")
+    aedt_app.modeler.create_box([10, 10, 10], [1, 2, 3], name="box2")
+
+    result = aedt_app.modeler.create_named_selection(name="test", objects=aedt_app.modeler.object_names)
+
+    assert result == "test"
+
+
+def test_get_named_selection_objects(aedt_app) -> None:
+    box1 = aedt_app.modeler.create_box([0, 0, 0], [1, 2, 3], name="box1")
+    box2 = aedt_app.modeler.create_box([10, 10, 10], [1, 2, 3], name="box2")
+
+    aedt_app.modeler.create_named_selection(name="test", objects=aedt_app.modeler.object_names)
+    objs = aedt_app.modeler.get_named_selection_objects(name="test")
+
+    assert isinstance(objs, list)
+    assert box1 in objs
+    assert box2 in objs
