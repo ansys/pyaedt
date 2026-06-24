@@ -54,8 +54,6 @@ jobs:
     needs: check-reference
     outputs:
       skip_tests: ${{ steps.analyze.outputs.skip_tests }}
-      doc_only: ${{ steps.analyze.outputs.doc_only }}
-      run_all: ${{ steps.analyze.outputs.run_all }}
     permissions:
       contents: read # Required to read repository content and git history
     steps:

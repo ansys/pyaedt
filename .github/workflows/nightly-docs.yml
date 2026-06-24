@@ -43,6 +43,7 @@ jobs:
     needs: doc-build
     permissions:
       contents: write   # Required to commit and push development documentation to gh-pages branch
+      pull-requests: write  # Required to create pull requests for development documentation
     steps:
       - name: Upload development documentation
         uses: ansys/actions/doc-deploy-dev@d946b24b9a765f4169bcc94afdb27bd1a0533741 # v10.3.2
@@ -51,4 +52,3 @@ jobs:
           bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          use-python-cache: false
