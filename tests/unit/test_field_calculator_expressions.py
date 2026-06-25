@@ -246,3 +246,118 @@ def test_calculator_exposes_expressions_property():
     assert isinstance(fc.expressions, FieldExpressions)
     assert fc.expressions is fc.expressions  # cached
     assert isinstance(fc.expressions.vector("E"), VectorComplex)
+
+
+# ---------------------------------------------------------------------------
+# long / heavily-stacked expressions must stay well-formed
+# ---------------------------------------------------------------------------
+def test_well_formed_chains_resolve_to_single_result(fx):
+    E, H = fx.vector("E"), fx.vector("H")
+    assert dot(E, H).stack_depth() == 1
+    flux = cross(E, H.conjugate()).real().normal().magnitude().integrate(Surface("S"))
+    assert flux.stack_depth() == 1
+    assert flux.verify() is flux
+    assert len(flux) == 10
+
+
+def test_long_unary_chain_is_balanced_and_builds(fx):
+    """A 1000-deep unary chain compiles, stays balanced, and produces a valid dict."""
+    s = fx.scalar("Phi", complex=False)
+    for _ in range(1000):
+        s = s.smooth()
+    assert len(s) == 1001
+    assert s.stack_depth() == 1  # still resolves to a single result
+    d = s.to_dict("long_smooth")
+    assert len(d["operations"]) == 1001
+
+
+def test_long_accumulation_chain_is_balanced(fx):
+    """Summing many terms keeps the stack balanced regardless of length."""
+    term = fx.scalar("Phi", complex=False).smooth()
+    total = term
+    for _ in range(200):
+        total = total + fx.scalar("Phi", complex=False)
+    assert total.stack_depth() == 1
+    assert total.verify() is total
+
+
+def test_very_long_chain_does_not_recurse(fx):
+    """No recursion: building and serializing a 5000-op chain must not raise."""
+    s = fx.scalar("Phi", complex=False)
+    for _ in range(5000):
+        s = s.smooth()
+    assert len(s) == 5001
+    assert s.stack_depth() == 1
+    assert len(s.operations) == 5001  # property copy works at scale
+
+
+def test_exponential_reuse_blows_up_but_checkpoint_mitigates():
+    """Self-combination doubles the op count; checkpoint() keeps it bounded.
+
+    This reproduces the failure mode behind 'too many stacked operations': reusing
+    a sub-expression duplicates its operations, so repeated doubling grows the
+    stack as 2^n. The expression stays *correct* (balanced), but becomes huge.
+    """
+    calc = MagicMock()
+    calc.design_type = "HFSS"
+    calc.add_expression.return_value = "cp"
+    fx = FieldExpressions(calc)
+
+    # without checkpoint: 12 doublings -> 2^13 - 1 operations, but still balanced
+    blown = fx.scalar("Phi", complex=False)
+    for _ in range(12):
+        blown = blown + blown
+    assert len(blown) == 2**13 - 1
+    assert blown.stack_depth() == 1
+
+    # with a checkpoint after each doubling: the stack stays tiny
+    bounded = fx.scalar("Phi", complex=False)
+    for _ in range(12):
+        bounded = (bounded + bounded).checkpoint()
+    assert len(bounded) == 1  # collapsed to a single NameOfExpression reference
+    assert bounded.operations[0].startswith("NameOfExpression(")
+
+
+def test_checkpoint_preserves_type_and_requires_calculator(fx):
+    # unbound expression cannot checkpoint
+    with pytest.raises(AEDTRuntimeError):
+        fx.vector("E").magnitude().checkpoint()
+    # bound checkpoint keeps the same typed class
+    calc = MagicMock()
+    calc.design_type = "HFSS"
+    calc.add_expression.return_value = "cp"
+    fxb = FieldExpressions(calc)
+    cp = fxb.vector("E").checkpoint("vec_cp")
+    assert isinstance(cp, VectorComplex)
+    assert cp.operations == ["NameOfExpression('vec_cp')"]
+
+
+def test_malformed_stack_is_detected():
+    """A hand-built unbalanced operation list is rejected with a clear error."""
+    bad = ScalarReal(["Operation('Dot')"], calculator=None)  # Dot with no operands
+    with pytest.raises(AEDTRuntimeError):
+        bad.stack_depth()
+    with pytest.raises(AEDTRuntimeError):
+        bad.verify()
+
+
+def test_unbalanced_extra_operand_detected():
+    """Two pushes with no combiner leaves depth 2 -> verify rejects it."""
+    two = ScalarReal(["Fundamental_Quantity('E')", "Fundamental_Quantity('H')"], calculator=None)
+    assert two.stack_depth() == 2
+    with pytest.raises(AEDTRuntimeError):
+        two.verify()
+
+
+def test_add_verifies_before_sending_to_aedt():
+    """add() must not forward a malformed expression to the calculator."""
+    calc = MagicMock()
+    calc.design_type = "HFSS"
+    bad = ScalarReal(["Operation('Dot')"], calculator=calc)
+    # the verify guard rejects it before reaching AEDT (raise or falsy, per error
+    # handling settings); either way add_expression must never be called
+    try:
+        bad.add("bad")
+    except AEDTRuntimeError:
+        pass
+    calc.add_expression.assert_not_called()
