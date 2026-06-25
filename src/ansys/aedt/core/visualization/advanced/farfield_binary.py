@@ -72,6 +72,41 @@ _FIELD_HDR = 8  # int32 id + int32 ndof
 
 
 @pyaedt_function_handler()
+def find_radiation_surface_folder(results_directory, frequency: float | None = None):
+    """Locate a results folder that holds decodable radiation-surface fields.
+
+    Searches an ``.aedtresults`` tree for ``current.sf_mshhdr`` (or ``..._D0``)
+    folders and, when ``frequency`` is given, returns the one whose
+    ``fields.evtrs`` frequency matches (or is closest). Returns ``None`` when no
+    such folder exists -- e.g. for a CA-DDM / 3D-component design, which persists
+    no surface fields.
+
+    Parameters
+    ----------
+    results_directory : str or :class:`pathlib.Path`
+        The project ``.aedtresults`` directory (``Hfss.results_directory``).
+    frequency : float, optional
+        Target frequency in Hz used to disambiguate multiple folders.
+
+    Returns
+    -------
+    :class:`pathlib.Path` or None
+    """
+    candidates = []
+    for header in Path(results_directory).glob("**/current.sf_mshhdr*"):
+        folder = header.parent
+        if any(folder.glob("fields.sf_fld_*")):
+            candidates.append((folder, _read_frequency(folder / "fields.evtrs")))
+    if not candidates:
+        return None
+    if frequency is not None:
+        with_frequency = [(folder, freq) for folder, freq in candidates if freq is not None]
+        if with_frequency:
+            return min(with_frequency, key=lambda item: abs(item[1] - frequency))[0]
+    return candidates[0][0]
+
+
+@pyaedt_function_handler()
 def parse_surface_mesh_header(file_name) -> dict:
     """Parse the ASCII ``current.sf_mshhdr`` surface-mesh header.
 
@@ -256,6 +291,61 @@ class RadiationSurface(PyAedtBase):
         e_field, h_field = self.combined_field(weights)
         return _near_to_far_field(self.centroids, e_field, h_field, frequency, theta, phi, self.normals, self.areas)
 
+    @pyaedt_function_handler()
+    def element_far_fields(self, frequency: float | None = None, theta=None, phi=None, reference_positions=None):
+        """Reconstruct the embedded element pattern of every source individually.
+
+        Each source is transformed on its own (the rest passive) and the per-element
+        position phase is removed (referenced to ``reference_positions``) so the
+        pattern pairs with the element ``location`` the way :class:`FfdSolutionData`
+        expects -- its array superposition and beam steering then reproduce the full
+        pattern.
+
+        Parameters
+        ----------
+        frequency : float, optional
+            Frequency in Hz. Defaults to the value read from ``fields.evtrs``.
+        theta, phi : numpy.ndarray, optional
+            Far-field angle grids in degrees.
+        reference_positions : numpy.ndarray, optional
+            ``(n_sources, 3)`` positions to reference (de-embed) each pattern to.
+            Defaults to :meth:`element_positions`. Pass the regular lattice
+            positions for a periodic array so the result is self-consistent with
+            ``FfdSolutionData`` lattice-based steering.
+
+        Returns
+        -------
+        tuple of numpy.ndarray
+            ``(rEtheta, rEphi)``, each shaped ``(n_sources, len(theta), len(phi))``.
+        """
+        frequency = self.frequency if frequency is None else frequency
+        if frequency is None:
+            raise ValueError("Frequency is unknown; pass 'frequency'.")
+        theta = np.linspace(0, 180, 91) if theta is None else np.asarray(theta, dtype=float)
+        phi = np.linspace(-180, 180, 181) if phi is None else np.asarray(phi, dtype=float)
+
+        k = 2 * np.pi * frequency / SpeedOfLight
+        points = self.centroids
+        normals, areas = self.normals, self.areas
+        j_stack = np.cross(normals[None], self.h_sources) * areas[None, :, None]
+        m_stack = -np.cross(normals[None], self.e_sources) * areas[None, :, None]
+        positions = self.element_positions() if reference_positions is None else np.asarray(reference_positions, float)
+
+        r_hat, theta_hat, phi_hat = _spherical_basis(theta, phi)
+        shape = r_hat.shape[:2]
+        e_theta = np.zeros((self.n_sources, *shape), dtype=complex)
+        e_phi = np.zeros((self.n_sources, *shape), dtype=complex)
+        for i in range(shape[0]):
+            for j_idx in range(shape[1]):
+                direction = r_hat[i, j_idx]
+                phase = np.exp(1j * k * (points @ direction))  # shared across sources
+                n_vec = np.einsum("snd,n->sd", j_stack, phase)
+                l_vec = np.einsum("snd,n->sd", m_stack, phase)
+                de_embed = np.exp(-1j * k * (positions @ direction))
+                e_theta[:, i, j_idx] = -(l_vec @ phi_hat[i, j_idx] + ETA0 * (n_vec @ theta_hat[i, j_idx])) * de_embed
+                e_phi[:, i, j_idx] = (l_vec @ theta_hat[i, j_idx] - ETA0 * (n_vec @ phi_hat[i, j_idx])) * de_embed
+        return e_theta, e_phi
+
 
 @pyaedt_function_handler()
 def far_field_data_from_aedtresults(
@@ -265,6 +355,7 @@ def far_field_data_from_aedtresults(
     theta=None,
     phi=None,
     weights=None,
+    per_element: bool = False,
 ) -> FfdSolutionData:
     """Build a :class:`FfdSolutionData` from the binary surface fields in ``.aedtresults``.
 
@@ -284,7 +375,13 @@ def far_field_data_from_aedtresults(
     theta, phi : numpy.ndarray, optional
         Far-field angle grids in degrees.
     weights : numpy.ndarray, optional
-        Complex excitation weight per source (for arrays). Defaults to uniform.
+        Complex excitation weight per source applied to the combined pattern
+        (single-element output). Defaults to uniform. Ignored when
+        ``per_element`` is ``True``.
+    per_element : bool, optional
+        For a multi-source (array) solve, write one de-embedded element-pattern
+        ``.ffd`` per source so :class:`FfdSolutionData` can superpose and steer the
+        array itself. The default is ``False`` (a single combined pattern).
 
     Returns
     -------
@@ -305,32 +402,134 @@ def far_field_data_from_aedtresults(
 
     theta = np.linspace(0, 180, 91) if theta is None else np.asarray(theta, dtype=float)
     phi = np.linspace(-180, 180, 181) if phi is None else np.asarray(phi, dtype=float)
-    e_theta, e_phi = surface.far_field(frequency, theta, phi, weights)
 
     output_dir = Path(folder if output_dir is None else output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
-    ffd_file = output_dir / "farfield.ffd"
-    _write_ffd(ffd_file, frequency, theta, phi, e_theta, e_phi)
 
-    metadata = {
-        "variation": "Nominal",
-        "touchstone_file": "",
-        "element_pattern": {
-            "antenna": {
-                "file_name": ffd_file.name,
-                "location": [0.0, 0.0, 0.0],
-                "incident_power": {frequency: 1.0},
-                "radiated_power": {frequency: 1.0},
-                "accepted_power": {frequency: 1.0},
-            }
-        },
-    }
+    if per_element and surface.n_sources > 1:
+        metadata = _build_element_metadata(surface, frequency, theta, phi, output_dir)
+    else:
+        e_theta, e_phi = surface.far_field(frequency, theta, phi, weights)
+        ffd_file = output_dir / "farfield.ffd"
+        _write_ffd(ffd_file, frequency, theta, phi, e_theta, e_phi)
+        metadata = {
+            "variation": "Nominal",
+            "touchstone_file": "",
+            "element_pattern": {"antenna": _element_entry(ffd_file.name, [0.0, 0.0, 0.0], frequency)},
+        }
+
     metadata_file = output_dir / "pyaedt_antenna_metadata.json"
-    with open(metadata_file, "w") as handle:
+    with metadata_file.open("w") as handle:
         json.dump(metadata, handle, indent=4)
 
-    logger.info(f"Far field reconstructed from binary surface fields: {ffd_file}")
+    logger.info(f"Far field reconstructed from binary surface fields in {output_dir}.")
     return FfdSolutionData(str(metadata_file))
+
+
+def _element_entry(file_name, location, frequency):
+    """Build one ``element_pattern`` metadata entry."""
+    return {
+        "file_name": file_name,
+        "location": [float(v) for v in location],
+        "incident_power": {frequency: 1.0},
+        "radiated_power": {frequency: 1.0},
+        "accepted_power": {frequency: 1.0},
+    }
+
+
+def _build_element_metadata(surface, frequency, theta, phi, output_dir):
+    """Write one de-embedded element-pattern ``.ffd`` per source and return metadata.
+
+    When the element positions fall on a rectangular lattice, the array keys
+    (``array_dimension``, ``lattice_vector``, ...) are added so
+    :class:`FfdSolutionData` can scan the beam with ``theta_scan``/``phi_scan``;
+    otherwise the elements are written as an unstructured set that can still be
+    combined with explicit per-element weights.
+    """
+    centroids = surface.element_positions()
+    grid = _fit_array_grid(centroids)
+
+    # For a periodic array, reference each element to its REGULAR lattice site so
+    # FfdSolutionData's lattice-based steering stays self-consistent (matching the
+    # solver's own scan model); otherwise reference the measured centroids.
+    if grid:
+        lattice_a = np.array(grid["lattice_vector"][:3])
+        lattice_b = np.array(grid["lattice_vector"][3:])
+        positions = np.array([column * lattice_a + row * lattice_b for column, row in grid["indices"]])
+    else:
+        positions = centroids
+
+    e_theta, e_phi = surface.element_far_fields(frequency, theta, phi, reference_positions=positions)
+
+    element_pattern = {}
+    for source in range(surface.n_sources):
+        ffd_file = output_dir / f"element_{source}.ffd"
+        _write_ffd(ffd_file, frequency, theta, phi, e_theta[source], e_phi[source])
+        if grid:
+            column, row = grid["indices"][source]
+            name = f"cell[{column + 1},{row + 1}]"
+        else:
+            name = f"port_{source}"
+        element_pattern[name] = _element_entry(ffd_file.name, positions[source], frequency)
+
+    metadata = {"variation": "Nominal", "touchstone_file": "", "element_pattern": element_pattern}
+    if grid:
+        metadata["array_dimension"] = grid["array_dimension"]
+        metadata["lattice_vector"] = grid["lattice_vector"]
+        metadata["cell_position"] = {}
+        metadata["component_objects"] = {}
+    return metadata
+
+
+def _fit_array_grid(positions, rel_tol: float = 0.25):
+    """Fit element positions to an axis-aligned rectangular lattice.
+
+    Returns a dict with ``array_dimension`` ``[n_a, n_b]``, ``lattice_vector``
+    ``[a_x, a_y, a_z, b_x, b_y, b_z]`` and the per-element ``(column, row)``
+    ``indices``; or ``None`` when the positions are not a clean grid.
+    """
+    positions = np.asarray(positions, dtype=float)
+    tolerance = rel_tol * _array_pitch(positions)
+    columns = _cluster_axis(positions[:, 0], tolerance)
+    rows = _cluster_axis(positions[:, 1], tolerance)
+    if len(columns) * len(rows) != len(positions):
+        return None
+    column_index = [int(np.argmin(np.abs(columns - x))) for x in positions[:, 0]]
+    row_index = [int(np.argmin(np.abs(rows - y))) for y in positions[:, 1]]
+    indices = list(zip(column_index, row_index))
+    if len(set(indices)) != len(positions):
+        return None
+    lattice_vector = [_axis_spacing(columns), 0.0, 0.0, 0.0, _axis_spacing(rows), 0.0]
+    return {"array_dimension": [len(columns), len(rows)], "lattice_vector": lattice_vector, "indices": indices}
+
+
+def _array_pitch(positions):
+    """Median nearest-neighbour distance between elements (the lattice pitch)."""
+    if len(positions) < 2:
+        return 1.0
+    nearest = []
+    for i, point in enumerate(positions):
+        distances = np.linalg.norm(positions - point, axis=1)
+        distances[i] = np.inf
+        nearest.append(distances.min())
+    return float(np.median(nearest))
+
+
+def _cluster_axis(values, tolerance):
+    """Cluster 1-D coordinates into lattice lines (absolute ``tolerance``)."""
+    ordered = np.sort(np.unique(values))
+    groups = [[ordered[0]]]
+    for value in ordered[1:]:
+        if value - groups[-1][-1] < tolerance:
+            groups[-1].append(value)
+        else:
+            groups.append([value])
+    return np.array([np.mean(group) for group in groups])
+
+
+def _axis_spacing(centres):
+    """Mean spacing between lattice lines (0 for a single line)."""
+    return float(np.mean(np.diff(centres))) if len(centres) > 1 else 0.0
 
 
 @pyaedt_function_handler()
@@ -377,6 +576,22 @@ def _read_frequency(file_name):
     return float(match.group(1)) if match else None
 
 
+def _spherical_basis(theta, phi):
+    """Cartesian unit vectors ``(r_hat, theta_hat, phi_hat)`` on the angle grid (deg).
+
+    Each is shaped ``(len(theta), len(phi), 3)``.
+    """
+    theta_rad = np.deg2rad(theta)[:, None]
+    phi_rad = np.deg2rad(phi)[None, :]
+    sin_t, cos_t = np.sin(theta_rad), np.cos(theta_rad)
+    sin_p, cos_p = np.sin(phi_rad), np.cos(phi_rad)
+    ones = np.ones_like(sin_p)
+    r_hat = np.stack([sin_t * cos_p, sin_t * sin_p, cos_t * ones], -1)
+    theta_hat = np.stack([cos_t * cos_p, cos_t * sin_p, -sin_t * ones], -1)
+    phi_hat = np.stack([-sin_p * np.ones_like(cos_t), cos_p * np.ones_like(cos_t), np.zeros_like(cos_t * sin_p)], -1)
+    return r_hat, theta_hat, phi_hat
+
+
 def _near_to_far_field(points, e_field, h_field, frequency, theta, phi, normals, areas):
     """Stratton-Chu / Love NF2FF over a closed surface.
 
@@ -390,15 +605,7 @@ def _near_to_far_field(points, e_field, h_field, frequency, theta, phi, normals,
     j_current = np.cross(normals, h_field) * areas[:, None]
     m_current = -np.cross(normals, e_field) * areas[:, None]
 
-    theta_rad = np.deg2rad(theta)[:, None]
-    phi_rad = np.deg2rad(phi)[None, :]
-    sin_t, cos_t = np.sin(theta_rad), np.cos(theta_rad)
-    sin_p, cos_p = np.sin(phi_rad), np.cos(phi_rad)
-    ones = np.ones_like(sin_p)
-    r_hat = np.stack([sin_t * cos_p, sin_t * sin_p, cos_t * ones], -1)
-    theta_hat = np.stack([cos_t * cos_p, cos_t * sin_p, -sin_t * ones], -1)
-    phi_hat = np.stack([-sin_p * np.ones_like(cos_t), cos_p * np.ones_like(cos_t), np.zeros_like(cos_t * sin_p)], -1)
-
+    r_hat, theta_hat, phi_hat = _spherical_basis(theta, phi)
     e_theta = np.zeros(r_hat.shape[:2], dtype=complex)
     e_phi = np.zeros(r_hat.shape[:2], dtype=complex)
     for i in range(r_hat.shape[0]):

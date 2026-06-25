@@ -29,7 +29,9 @@ import struct
 import numpy as np
 
 from ansys.aedt.core.visualization.advanced.farfield_binary import RadiationSurface
+from ansys.aedt.core.visualization.advanced.farfield_binary import _fit_array_grid
 from ansys.aedt.core.visualization.advanced.farfield_binary import far_field_data_from_aedtresults
+from ansys.aedt.core.visualization.advanced.farfield_binary import find_radiation_surface_folder
 from ansys.aedt.core.visualization.advanced.farfield_binary import parse_surface_mesh_header
 
 
@@ -137,3 +139,49 @@ def test_faddm_domain_suffix_detected(tmp_path):
     surface = RadiationSurface(tmp_path)
     assert surface.domain == "D0"
     assert surface.n_sources == 2
+
+
+def test_fit_array_grid():
+    # 2 x 2 lattice (50 mm pitch); jitter on the off axis must not split lines
+    positions = np.array([[0.0, 0.0, 0.0], [0.05, 0.001, 0.0], [-0.0005, 0.05, 0.0], [0.05, 0.0505, 0.0]])
+    grid = _fit_array_grid(positions)
+    assert grid["array_dimension"] == [2, 2]
+    assert len(grid["indices"]) == 4
+    assert len(set(grid["indices"])) == 4  # one element per cell
+    # lattice vector [a_x, a_y, a_z, b_x, b_y, b_z]; a along x, b along y
+    assert grid["lattice_vector"][0] > 0.0 and grid["lattice_vector"][4] > 0.0
+
+
+def test_fit_array_grid_non_grid_returns_none():
+    positions = np.array([[0.0, 0.0, 0.0], [0.05, 0.0, 0.0], [0.017, 0.05, 0.0]])
+    assert _fit_array_grid(positions) is None
+
+
+def test_per_element_emission(tmp_path):
+    _write_surface(tmp_path, frequency=10e9, element_x=[-0.05, 0.0, 0.05])
+    data = far_field_data_from_aedtresults(
+        tmp_path, theta=np.linspace(0, 180, 13), phi=np.linspace(-180, 180, 13), per_element=True
+    )
+    # one de-embedded .ffd per source, named on the fitted lattice
+    assert sorted(p.name for p in tmp_path.glob("element_*.ffd")) == [
+        "element_0.ffd",
+        "element_1.ffd",
+        "element_2.ffd",
+    ]
+    assert set(data.all_element_names) == {"cell[1,1]", "cell[2,1]", "cell[3,1]"}
+    # FfdSolutionData can superpose the elements (broadside)
+    combined = data.combine_farfield(0.0, 0.0)
+    assert combined["rETheta"].shape == (13, 13)
+
+
+def test_find_radiation_surface_folder(tmp_path):
+    results = tmp_path / "proj.aedtresults"
+    folder = results / "design.results" / "DV1_S1_V0_F1"
+    folder.mkdir(parents=True)
+    _write_surface(folder, frequency=10e9)
+    found = find_radiation_surface_folder(results, frequency=10e9)
+    assert found == folder
+    # a tree without surface fields (e.g. CA-DDM) returns None -> caller falls back
+    empty = tmp_path / "caddm.aedtresults" / "mf_8"
+    empty.mkdir(parents=True)
+    assert find_radiation_surface_folder(tmp_path / "caddm.aedtresults") is None
