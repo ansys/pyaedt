@@ -1950,10 +1950,13 @@ class PostProcessorCommon(PyAedtBase):
                 report_temp = TEMPLATES_BY_NAME["Spectrum"]
             elif (
                 "AMIAnalysis" in self._app.get_setup(solution_name.split(":")[0].strip()).props
-                and props["report_category"] == "Standard"
-            ):
+                or "QuickEyeAnalysis" in self._app.get_setup(solution_name.split(":")[0].strip()).props
+            ) and props["report_category"] == "Standard":
                 report_temp = TEMPLATES_BY_NAME["AMI Contour"]
-            elif "AMIAnalysis" in self._app.get_setup(solution_name.split(":")[0].strip()).props:
+            elif (
+                "AMIAnalysis" in self._app.get_setup(solution_name.split(":")[0].strip()).props
+                or "QuickEyeAnalysis" in self._app.get_setup(solution_name.split(":")[0].strip()).props
+            ):
                 report_temp = TEMPLATES_BY_NAME["Statistical Eye"]
             else:
                 report_temp = TEMPLATES_BY_NAME[props["report_category"]]
