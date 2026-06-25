@@ -137,7 +137,7 @@ def parse_surface_mesh_header(file_name) -> dict:
 
 
 class RadiationSurface(PyAedtBase):
-    """Radiation-surface mesh and tangential fields decoded from ``.aedtresults``.
+    """Provide the radiation-surface mesh and tangential fields from ``.aedtresults``.
 
     Reads the ``current.sf_msh`` triangle mesh and one ``fields.sf_fld_<k>`` per
     driven source, exposing the triangle centroids, outward unit normals, areas
@@ -233,18 +233,36 @@ class RadiationSurface(PyAedtBase):
 
     @pyaedt_function_handler()
     def element_positions(self) -> np.ndarray:
-        """Per-source element position ``(n_sources, 3)`` from the field energy centroid.
+        """Estimate the per-source element position from the field energy centroid.
 
         For an array whose elements sit at distinct lattice sites on a shared
         radiation surface, this recovers each element location -- used to build a
         scan taper with :meth:`steering_weights`.
+
+        Returns
+        -------
+        numpy.ndarray
+            Element positions shaped ``(n_sources, 3)`` in metres.
         """
         weight = (np.abs(self.e_sources) ** 2).sum(-1)
         return np.einsum("sn,nd->sd", weight, self.centroids) / weight.sum(1, keepdims=True)
 
     @pyaedt_function_handler()
     def steering_weights(self, theta_scan: float, phi_scan: float, frequency: float | None = None) -> np.ndarray:
-        """Phase weights ``exp(-j k r_s . r_e)`` that steer the beam to ``(theta, phi)`` in degrees."""
+        """Compute the phase weights ``exp(-j k r_s . r_e)`` that steer the beam to ``(theta, phi)``.
+
+        Parameters
+        ----------
+        theta_scan, phi_scan : float
+            Scan angles in degrees.
+        frequency : float, optional
+            Frequency in Hz. Defaults to the value read from ``fields.evtrs``.
+
+        Returns
+        -------
+        numpy.ndarray
+            Complex unit-magnitude weight per source shaped ``(n_sources,)``.
+        """
         frequency = self.frequency if frequency is None else frequency
         k = 2 * np.pi * frequency / SpeedOfLight
         theta, phi = np.deg2rad(theta_scan), np.deg2rad(phi_scan)
@@ -281,7 +299,7 @@ class RadiationSurface(PyAedtBase):
         Returns
         -------
         tuple of numpy.ndarray
-            ``(rEtheta, rEphi)``, each shaped ``(len(theta), len(phi))`` and complex.
+            Complex ``(rEtheta, rEphi)``, each shaped ``(len(theta), len(phi))``.
         """
         frequency = self.frequency if frequency is None else frequency
         if frequency is None:
@@ -316,7 +334,7 @@ class RadiationSurface(PyAedtBase):
         Returns
         -------
         tuple of numpy.ndarray
-            ``(rEtheta, rEphi)``, each shaped ``(n_sources, len(theta), len(phi))``.
+            Complex ``(rEtheta, rEphi)``, each shaped ``(n_sources, len(theta), len(phi))``.
         """
         frequency = self.frequency if frequency is None else frequency
         if frequency is None:
