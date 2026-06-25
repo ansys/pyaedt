@@ -111,6 +111,37 @@ class FieldsCalculator(PyAedtBase):
         """
         return list(self.expression_catalog.keys())
 
+    @property
+    def expressions(self):
+        """Typed, fluent builder for Fields Calculator expressions.
+
+        Returns a
+        :class:`~ansys.aedt.core.visualization.post.field_calculator_expressions.FieldExpressions`
+        factory that produces strongly-typed expression objects. Chaining their
+        ``.method()`` calls and the ``dot`` / ``cross`` helpers builds the
+        calculator operation stack with type safety, instead of assembling the
+        operation strings by hand.
+
+        Returns
+        -------
+        :class:`~ansys.aedt.core.visualization.post.field_calculator_expressions.FieldExpressions`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> fx = hfss.post.fields_calculator.expressions
+        >>> E = fx.vector("E")  # VectorComplex
+        >>> mag_e = E.magnitude()  # ScalarReal
+        >>> value = mag_e.maximum(Volume("MySolid")).evaluate(setup="Setup1 : LastAdaptive")
+        >>> hfss.release_desktop()
+        """
+        from ansys.aedt.core.visualization.post.field_calculator_expressions import FieldExpressions
+
+        if getattr(self, "_expressions", None) is None:
+            self._expressions = FieldExpressions(self)
+        return self._expressions
+
     @pyaedt_function_handler()
     def add_expression(self, calculation: str | dict, assignment, name: str | None = None) -> str | bool:
         """Add named expression.
