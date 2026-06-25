@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -21,6 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
 from __future__ import annotations
 
 import os
@@ -82,7 +83,7 @@ class Scratch(PyAedtBase):
         if self._cleaned:
             try:
                 self.path.mkdir(parents=True, exist_ok=True)
-                os.chmod(self.path, permission)
+                self.path.chmod(permission)
             except FileNotFoundError as fnf_error:  # Raise error if folder doesn't exist.
                 print(fnf_error)
 
