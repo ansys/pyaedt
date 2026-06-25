@@ -51,20 +51,26 @@ calculator's own operation stack.
 
 Coverage and limits
 -------------------
-The builder wraps the calculator operations whose tokens have been verified live
-against AEDT:
+The builder wraps the calculator operations whose tokens have been verified
+against AEDT (the entire shipped ``expression_catalog.toml`` is reproduced
+exactly — see the unit tests):
 
-* input: fundamental and named quantities; real / complex scalar constants.
+* input: fundamental and named quantities; real / complex scalar constants;
+  ``vector_constant``; ``function`` (a design variable / ``Scalar_Function``).
 * general: ``+ - * /`` and negation (numbers are accepted as operands, for
   example ``E * 2``); ``real`` / ``imaginary`` / ``conjugate`` / ``magnitude`` /
-  ``phase`` / ``at_phase`` / ``smooth`` / ``absolute``.
+  ``component_magnitude`` / ``phase`` / ``at_phase`` / ``smooth`` / ``absolute``;
+  ``as_complex_real`` / ``as_complex_imag`` and the :func:`cmplx` helper.
 * scalar: ``sqrt`` / ``power`` / ``ln`` / ``log10`` / ``sin`` / ``cos`` / ``tan``
   / ``asin`` / ``acos`` / ``atan`` / ``derivative`` / ``gradient`` and forming a
   vector with ``as_vector_x`` / ``as_vector_y`` / ``as_vector_z``.
 * vector: components ``scalar_x`` / ``scalar_y`` / ``scalar_z``; ``dot`` /
-  ``cross`` / ``tangent`` / ``normal`` / ``curl`` / ``divergence``.
+  ``cross`` / ``curl`` / ``divergence``; and the geometry unit vectors
+  ``FieldExpressions.tangent`` / ``FieldExpressions.normal`` (push a unit vector
+  to dot a field against, for tangential / flux quantities).
 * output: ``integrate`` / ``maximum`` / ``minimum`` / ``mean`` / ``std`` /
-  ``value`` over a :class:`Line`, :class:`Surface`, or :class:`Volume`.
+  ``value`` / ``max_position`` / ``min_position`` over a :class:`Line`,
+  :class:`Surface`, or :class:`Volume`.
 
 Curved geometry is handled by AEDT itself — the builder only references a named
 object and the solver integrates over its real (possibly curved) mesh.
@@ -72,9 +78,8 @@ object and the solver integrates over its real (possibly curved) mesh.
 Not wrapped (use the :meth:`FieldsCalculator.add_expression` dictionary API):
 inverse ``1/x`` and ``exp`` (no stack token in this AEDT version), unit-vector
 and material (``Matl``) operations (context/argument driven), cylindrical and
-spherical scalar components (require a coordinate-system transform), point
-geometry / face-by-id, and ``MaxPos`` / ``MinPos`` (do not persist as named
-expressions).
+spherical scalar components (require a coordinate-system transform), and point
+geometry / face-by-id.
 
 Long expressions
 ----------------
@@ -575,9 +580,26 @@ class ScalarReal(FieldExpression):
         """Standard deviation over a geometry (calculator ``Std``)."""
         return self._reduce(over, "Std")
 
+    def max_position(self, over: CalculatorGeometry) -> "VectorReal":
+        """Position of the maximum over a geometry (calculator ``MaxPos``)."""
+        return self._reduce(over, "MaxPos", vector=True, complex_=False)
+
+    def min_position(self, over: CalculatorGeometry) -> "VectorReal":
+        """Position of the minimum over a geometry (calculator ``MinPos``)."""
+        return self._reduce(over, "MinPos", vector=True, complex_=False)
+
     def value(self, over: CalculatorGeometry) -> "ScalarReal":
         """Sample the quantity on a geometry without integrating."""
         return self._reduce(over, "")
+
+    # build a complex scalar from this real part / imaginary part
+    def as_complex_real(self) -> "ScalarComplex":
+        """Use this real scalar as the real part of a complex number (calculator ``CmplxR``)."""
+        return self._spawn(False, True, ["Operation('CmplxR')"])
+
+    def as_complex_imag(self) -> "ScalarComplex":
+        """Use this real scalar as the imaginary part of a complex number (calculator ``CmplxI``)."""
+        return self._spawn(False, True, ["Operation('CmplxI')"])
 
 
 # ---------------------------------------------------------------------------
@@ -679,13 +701,9 @@ class VectorReal(FieldExpression):
         """Vector magnitude ``‖v‖`` (calculator ``Mag``)."""
         return self._unary("Mag", vector=False, complex_=False)
 
-    def tangent(self) -> "VectorReal":
-        """Tangential component on the active surface (calculator ``Tangent``)."""
-        return self._unary("Tangent", vector=True, complex_=False)
-
-    def normal(self) -> "VectorReal":
-        """Normal component on the active surface (calculator ``Normal``)."""
-        return self._unary("Normal", vector=True, complex_=False)
+    def smooth(self) -> "VectorReal":
+        """Smooth the quantity across the mesh (calculator ``Smooth``)."""
+        return self._unary("Smooth", vector=True, complex_=False)
 
     def curl(self) -> "VectorReal":
         """Curl ``∇×v`` (calculator ``Curl``)."""
@@ -741,17 +759,17 @@ class VectorComplex(FieldExpression):
         """Complex vector magnitude (calculator ``Mag``)."""
         return self._unary("Mag", vector=False, complex_=False)
 
+    def component_magnitude(self) -> "VectorReal":
+        """Component-wise complex magnitude as a real vector (calculator ``CmplxMag``)."""
+        return self._unary("CmplxMag", vector=True, complex_=False)
+
     def conjugate(self) -> "VectorComplex":
         """Complex conjugate, component-wise (calculator ``Conj``)."""
         return self._unary("Conj", vector=True, complex_=True)
 
-    def tangent(self) -> "VectorComplex":
-        """Tangential component on the active surface (calculator ``Tangent``)."""
-        return self._unary("Tangent", vector=True, complex_=True)
-
-    def normal(self) -> "VectorComplex":
-        """Normal component on the active surface (calculator ``Normal``)."""
-        return self._unary("Normal", vector=True, complex_=True)
+    def smooth(self) -> "VectorComplex":
+        """Smooth the quantity across the mesh (calculator ``Smooth``)."""
+        return self._unary("Smooth", vector=True, complex_=True)
 
     def curl(self) -> "VectorComplex":
         """Curl ``∇×v`` (calculator ``Curl``)."""
@@ -800,6 +818,7 @@ _PUSH_PREFIXES = (
     "Scalar_Constant",
     "Complex_Constant",
     "Vector_Constant",
+    "Scalar_Function",
 )
 #: Operations that consume two registers and push one (net -1). ``Pow`` consumes
 #: the base and the exponent constant; ``AtPhase`` consumes the field and the
@@ -807,6 +826,9 @@ _PUSH_PREFIXES = (
 _BINARY_OPS = {"+", "-", "*", "/", "Dot", "Cross", "Pow", "AtPhase"}
 #: Geometry value operations that consume the geometry register (net -1).
 _VALUE_OPS = {"LineValue", "SurfaceValue", "VolumeValue", "PointValue"}
+#: Operations that push a new register (net +1): ``Tangent`` / ``Normal`` push the
+#: geometry's unit tangent / normal vector for a subsequent ``Dot``.
+_PUSH_OPS = {"Tangent", "Normal"}
 
 
 def _operation_name(token: str) -> str | None:
@@ -822,6 +844,8 @@ def _stack_effect(token: str) -> int:
     if name is not None:
         if name in _BINARY_OPS or name in _VALUE_OPS:
             return -1
+        if name in _PUSH_OPS:
+            return 1
         return 0  # unary operation: pop one, push one
     if token.startswith(_PUSH_PREFIXES):
         return 1
@@ -933,6 +957,17 @@ def cross(u: FieldExpression, v: FieldExpression) -> FieldExpression:
     return u._binary(v, "Cross", vector=True, complex_=_both(u, v))
 
 
+def cmplx(real: "ScalarReal", imag: "ScalarReal") -> "ScalarComplex":
+    """Build a complex scalar from real and imaginary scalar parts.
+
+    Mirrors the calculator ``CmplxR`` / ``CmplxI`` idiom (``real.as_complex_real()
+    + imag.as_complex_imag()``).
+    """
+    if not (isinstance(real, ScalarReal) and isinstance(imag, ScalarReal)):
+        raise TypeError("cmplx() requires two real scalar expressions")
+    return real.as_complex_real() + imag.as_complex_imag()
+
+
 # ---------------------------------------------------------------------------
 # builder / entry point
 # ---------------------------------------------------------------------------
@@ -973,3 +1008,19 @@ class FieldExpressions(PyAedtBase):
     def complex_constant(self, real: float, imag: float) -> ScalarComplex:
         """A complex scalar constant (calculator ``Complex_Constant``)."""
         return self._seed(False, True, [f"Complex_Constant({_num(real)}, {_num(imag)})"])
+
+    def vector_constant(self, x: float, y: float, z: float) -> VectorReal:
+        """A constant real vector (calculator ``Vector_Constant``)."""
+        return self._seed(True, False, [f"Vector_Constant({_num(x)}, {_num(y)}, {_num(z)})"])
+
+    def function(self, name: str) -> ScalarReal:
+        """A scalar from a design variable or function (calculator ``Scalar_Function``)."""
+        return self._seed(False, False, [f"Scalar_Function(FuncValue='{name}')"])
+
+    def tangent(self) -> VectorReal:
+        """The geometry unit tangent vector (calculator ``Tangent``); dot a field with it."""
+        return self._seed(True, False, ["Operation('Tangent')"])
+
+    def normal(self) -> VectorReal:
+        """The geometry unit normal vector (calculator ``Normal``); dot a field with it."""
+        return self._seed(True, False, ["Operation('Normal')"])
