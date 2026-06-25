@@ -95,7 +95,7 @@ def test_main_selected_edb(mock_askopenfilename, mock_active_db, mock_aedt_app) 
 
 
 @patch(
-    "ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui.ConfigureLayoutExtension.load_edb_into_hfss3dlayout"
+    "ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui.ConfigureLayoutExtension._load_edb_into_hfss3dlayout"
 )
 @patch(
     "ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui.ConfigureLayoutExtension._apply_config_to_edb"
