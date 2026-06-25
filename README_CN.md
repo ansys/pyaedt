@@ -95,10 +95,10 @@ pip install pyaedt[all]
 
 ## 文档与反馈
 
-除了安装和使用信息外，`PyAEDT` 文档还提供了 [参考API](https://aedt.docs.pyansys.com/version/stable/API/index.html "API reference")，[示例](https://aedt.docs.pyansys.com/version/stable/examples/index.html "Examples")，和 [贡献](https://aedt.docs.pyansys.com/version/stable/Contributing.html "Contribute") 。
+除了安装和使用信息外，`PyAEDT` 文档还提供了 [参考API](https://aedt.docs.pyansys.com/version/stable/API/index.html "API reference")，[示例](https://examples.aedt.docs.pyansys.com/version/dev/index.html "Examples")，和 [贡献](https://aedt.docs.pyansys.com/version/stable/Getting_started/Contributing.html "Contribute") 。
 
 
-在 [PyAEDT Issues](https://github.com/ansys/pyaedt/issues) 页面，您可以提交所遇到的问题、反馈 bug、为新功能贡献您的想法与思路。如联系项目支持团队，请点击后面的链接发送电子邮件 [pyansys.support@ansys.com](pyansys.support@ansys.com).
+在 [PyAEDT Issues](https://github.com/ansys/pyaedt/issues) 页面，您可以提交所遇到的问题、反馈 bug、为新功能贡献您的想法与思路。如联系项目支持团队，请点击后面的链接发送电子邮件 [pyansys-core@synopsys.com](mailto:pyansys-core@synopsys.com).
 
 ## 适用范围
 
