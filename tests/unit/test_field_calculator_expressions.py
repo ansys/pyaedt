@@ -361,3 +361,123 @@ def test_add_verifies_before_sending_to_aedt():
     except AEDTRuntimeError:
         pass
     calc.add_expression.assert_not_called()
+
+
+# ---------------------------------------------------------------------------
+# numeric constants + constant arithmetic (tokens verified live against AEDT)
+# ---------------------------------------------------------------------------
+def test_builder_constants(fx):
+    assert isinstance(fx.scalar_constant(3), ScalarReal)
+    assert fx.scalar_constant(3).operations == ["Scalar_Constant(3)"]
+    assert fx.scalar_constant(2.5).operations == ["Scalar_Constant(2.5)"]
+    assert isinstance(fx.complex_constant(1, 2), ScalarComplex)
+    assert fx.complex_constant(1, 2).operations == ["Complex_Constant(1, 2)"]
+
+
+def test_number_coercion_in_arithmetic(fx):
+    s = fx.vector("E").magnitude()  # ScalarReal
+    assert (s + 2).operations[-2:] == ["Scalar_Constant(2)", "Operation('+')"]
+    assert (s * 0.5).operations[-2:] == ["Scalar_Constant(0.5)", "Operation('*')"]
+    # reflected: constant on the left keeps reverse-Polish order
+    assert (2 + s).operations[0] == "Scalar_Constant(2)"
+    assert (1 - s).operations == ["Scalar_Constant(1)"] + s.operations + ["Operation('-')"]
+    assert (2 / s).operations[0] == "Scalar_Constant(2)"
+
+
+def test_number_coercion_promotes_complex(fx):
+    s = fx.vector("E").magnitude()  # ScalarReal
+    z = s * 1j
+    assert isinstance(z, ScalarComplex)
+    assert z.operations[-2:] == ["Complex_Constant(0, 1)", "Operation('*')"]
+    assert isinstance(2 * fx.vector("E"), VectorComplex)  # scalar const * complex vector
+
+
+def test_constant_scaling_of_vector(fx):
+    E = fx.vector("E")
+    assert isinstance(E * 2, VectorComplex)
+    assert (E * 2).operations[-2:] == ["Scalar_Constant(2)", "Operation('*')"]
+
+
+def test_bad_operand_type_rejected(fx):
+    with pytest.raises(TypeError):
+        fx.vector("E").magnitude() + "not a number"
+    with pytest.raises(TypeError):
+        fx.vector("E").magnitude() + True  # bool is not a valid operand
+
+
+# ---------------------------------------------------------------------------
+# scalar math (tokens verified live against AEDT)
+# ---------------------------------------------------------------------------
+def test_scalar_math_tokens(fx):
+    s = fx.vector("E").magnitude()
+    assert s.absolute().operations[-1] == "Operation('Abs')"
+    assert s.sqrt().operations[-1] == "Operation('Sqrt')"
+    assert s.ln().operations[-1] == "Operation('ln')"  # lowercase, per AEDT serialization
+    assert s.log10().operations[-1] == "Operation('log')"
+    assert s.power(2).operations[-2:] == ["Scalar_Constant(2)", "Operation('Pow')"]
+    assert (s**3).operations[-2:] == ["Scalar_Constant(3)", "Operation('Pow')"]
+
+
+def test_trig_uses_umathfunc_two_arg_token(fx):
+    s = fx.vector("E").magnitude()
+    assert s.sin().operations[-1] == "Operation('UMathFunc', 'Sin')"
+    assert s.cos().operations[-1] == "Operation('UMathFunc', 'Cos')"
+    assert s.tan().operations[-1] == "Operation('UMathFunc', 'Tan')"
+    assert s.asin().operations[-1] == "Operation('UMathFunc', 'Asin')"
+    assert s.acos().operations[-1] == "Operation('UMathFunc', 'Acos')"
+    assert s.atan().operations[-1] == "Operation('UMathFunc', 'Atan')"
+    for m in ("sin", "cos", "tan", "asin", "acos", "atan"):
+        assert isinstance(getattr(s, m)(), ScalarReal)
+
+
+def test_derivative(fx):
+    s = fx.vector("E").magnitude()
+    assert s.derivative("x").operations[-1] == "Operation('d/dx')"
+    assert s.derivative("Y").operations[-1] == "Operation('d/dy')"  # case-insensitive
+    assert s.derivative("z").operations[-1] == "Operation('d/dz')"
+    assert isinstance(s.derivative("x"), ScalarReal)
+    with pytest.raises(ValueError):
+        s.derivative("w")
+
+
+def test_scalar_to_vector(fx):
+    s = fx.vector("E").magnitude()  # ScalarReal
+    assert isinstance(s.as_vector_z(), VectorReal)
+    assert s.as_vector_z().operations[-1] == "Operation('VecZ')"
+    assert s.as_vector_x().operations[-1] == "Operation('VecX')"
+    sc = fx.vector("E").scalar_x()  # ScalarComplex
+    assert isinstance(sc.as_vector_y(), VectorComplex)
+    assert sc.as_vector_y().operations[-1] == "Operation('VecY')"
+
+
+# ---------------------------------------------------------------------------
+# complex-scalar phase / at-phase (tokens verified live against AEDT)
+# ---------------------------------------------------------------------------
+def test_complex_phase_and_at_phase(fx):
+    sc = fx.vector("E").scalar_x()  # ScalarComplex
+    assert isinstance(sc.phase(), ScalarReal)
+    assert sc.phase().operations[-1] == "Operation('CmplxPhase')"
+    at = sc.at_phase(45)
+    assert isinstance(at, ScalarReal)
+    assert at.operations[-2:] == ["Scalar_Constant(45)", "Operation('AtPhase')"]
+
+
+# ---------------------------------------------------------------------------
+# extra geometry reductions
+# ---------------------------------------------------------------------------
+def test_mean_and_std_reductions(fx):
+    s = fx.vector("E").magnitude()
+    assert s.mean(Volume("Box")).operations[-1] == "Operation('Mean')"
+    assert s.std(Volume("Box")).operations[-1] == "Operation('Std')"
+    assert isinstance(fx.vector("E").scalar_x().mean(Surface("S")), ScalarComplex)
+
+
+# ---------------------------------------------------------------------------
+# stack balance with constant-consuming ops (Pow / AtPhase are binary)
+# ---------------------------------------------------------------------------
+def test_constant_consuming_ops_stay_balanced(fx):
+    s = fx.vector("E").magnitude()
+    assert s.power(2).stack_depth() == 1  # Pow consumes base + exponent
+    assert fx.vector("E").scalar_x().at_phase(30).stack_depth() == 1
+    full = (s.power(2) * fx.scalar_constant(0.25)).integrate(Volume("Box"))
+    assert full.verify() is full

@@ -51,18 +51,30 @@ calculator's own operation stack.
 
 Coverage and limits
 -------------------
-The builder wraps the common calculator operations: fundamental and named
-quantities; algebra (``+ - * /``, negation); ``real`` / ``imaginary`` /
-``conjugate`` / ``magnitude``; vector components and ``dot`` / ``cross`` /
-``tangent`` / ``normal`` / ``curl`` / ``divergence``; scalar ``gradient`` /
-``smooth``; and ``integrate`` / ``maximum`` / ``minimum`` / ``value`` over a
-:class:`Line`, :class:`Surface`, or :class:`Volume`. Curved geometry is handled
-by AEDT itself — the builder only references a named object and the solver
-integrates over its real (possibly curved) mesh. Not yet wrapped: numeric
-constants, point geometry / face-by-id, cylindrical and spherical scalar
-components, and the transcendental math operations (``Pow`` / ``Sqrt`` / ``Ln``
-/ ``Sin`` / ``Phase`` ...). Such operations can still be reached with the
-existing :meth:`FieldsCalculator.add_expression` dictionary API.
+The builder wraps the calculator operations whose tokens have been verified live
+against AEDT:
+
+* input: fundamental and named quantities; real / complex scalar constants.
+* general: ``+ - * /`` and negation (numbers are accepted as operands, for
+  example ``E * 2``); ``real`` / ``imaginary`` / ``conjugate`` / ``magnitude`` /
+  ``phase`` / ``at_phase`` / ``smooth`` / ``absolute``.
+* scalar: ``sqrt`` / ``power`` / ``ln`` / ``log10`` / ``sin`` / ``cos`` / ``tan``
+  / ``asin`` / ``acos`` / ``atan`` / ``derivative`` / ``gradient`` and forming a
+  vector with ``as_vector_x`` / ``as_vector_y`` / ``as_vector_z``.
+* vector: components ``scalar_x`` / ``scalar_y`` / ``scalar_z``; ``dot`` /
+  ``cross`` / ``tangent`` / ``normal`` / ``curl`` / ``divergence``.
+* output: ``integrate`` / ``maximum`` / ``minimum`` / ``mean`` / ``std`` /
+  ``value`` over a :class:`Line`, :class:`Surface`, or :class:`Volume`.
+
+Curved geometry is handled by AEDT itself — the builder only references a named
+object and the solver integrates over its real (possibly curved) mesh.
+
+Not wrapped (use the :meth:`FieldsCalculator.add_expression` dictionary API):
+inverse ``1/x`` and ``exp`` (no stack token in this AEDT version), unit-vector
+and material (``Matl``) operations (context/argument driven), cylindrical and
+spherical scalar components (require a coordinate-system transform), point
+geometry / face-by-id, and ``MaxPos`` / ``MinPos`` (do not persist as named
+expressions).
 
 Long expressions
 ----------------
@@ -114,6 +126,7 @@ class CalculatorGeometry(PyAedtBase):
         self.assignment = getattr(assignment, "name", assignment)
 
     def _operations(self) -> List[str]:
+        """Return the calculator tokens that push this geometry and its value."""
         ops = [f"{self.enter_token}('{self.assignment}')"]
         if self.value_op:
             ops.append(f"Operation('{self.value_op}')")
@@ -201,6 +214,7 @@ class FieldExpression(PyAedtBase):
         *,
         more_assignment_types: Optional[List[str]] = None,
     ) -> "FieldExpression":
+        """Build a derived expression with the appended operations."""
         cls = _LEAF[(vector, complex_)]
         ats = self._assignment_types + list(more_assignment_types or [])
         return cls(
@@ -215,9 +229,11 @@ class FieldExpression(PyAedtBase):
         )
 
     def _unary(self, op: str, *, vector: bool, complex_: bool) -> "FieldExpression":
+        """Append a unary calculator operation and return the typed result."""
         return self._spawn(vector, complex_, [f"Operation('{op}')"])
 
     def _binary(self, other: "FieldExpression", op: str, *, vector: bool, complex_: bool) -> "FieldExpression":
+        """Combine with another expression through a binary calculator operation."""
         if not isinstance(other, FieldExpression):
             raise TypeError("operand must be a FieldExpression")
         cls = _LEAF[(vector, complex_)]
@@ -232,15 +248,48 @@ class FieldExpression(PyAedtBase):
             solution_type=self._solution_type,
         )
 
-    def _reduce(self, geometry: CalculatorGeometry, final_op: str) -> "FieldExpression":
+    def _reduce(
+        self,
+        geometry: CalculatorGeometry,
+        final_op: str,
+        *,
+        vector: bool = False,
+        complex_: Optional[bool] = None,
+    ) -> "FieldExpression":
         """Geometry value + a final reduction op (Integrate / Maximum / ...)."""
+        if complex_ is None:
+            complex_ = self.is_complex
         ops = geometry._operations()
         if final_op:
             ops.append(f"Operation('{final_op}')")
-        return self._spawn(False, self.is_complex, ops, more_assignment_types=[geometry.assignment_type])
+        return self._spawn(vector, complex_, ops, more_assignment_types=[geometry.assignment_type])
+
+    def _meta(self) -> dict:
+        """Metadata kwargs to propagate when constructing sibling expressions."""
+        return {
+            "calculator": self._calculator,
+            "description": self._description,
+            "design_type": self._design_type,
+            "fields_type": self._fields_type,
+            "primary_sweep": self._primary_sweep,
+            "solution_type": self._solution_type,
+        }
 
     def __neg__(self) -> "FieldExpression":
         return self._unary("Neg", vector=self.is_vector, complex_=self.is_complex)
+
+    # reflected operators so ``2 * E`` / ``1 - s`` work (constants on the left)
+    def __radd__(self, other) -> "FieldExpression":
+        return _to_expr(other, self).__add__(self)
+
+    def __rmul__(self, other) -> "FieldExpression":
+        return _to_expr(other, self).__mul__(self)
+
+    def __rsub__(self, other) -> "FieldExpression":
+        return _to_expr(other, self).__sub__(self)
+
+    def __rtruediv__(self, other) -> "FieldExpression":
+        return _to_expr(other, self).__truediv__(self)
 
     # -- materialize (reuse the existing FieldsCalculator) -------------------
     def to_dict(self, name: str, assignment: str = "") -> dict:
@@ -327,6 +376,7 @@ class FieldExpression(PyAedtBase):
         )
 
     def _require_calculator(self):
+        """Return the bound calculator, raising if the expression has none."""
         if self._calculator is None:
             raise AEDTRuntimeError(
                 "this expression is not bound to a FieldsCalculator; build it from "
@@ -413,8 +463,8 @@ class ScalarReal(FieldExpression):
     is_complex = False
 
     def absolute(self) -> "ScalarReal":
-        """Absolute value ``|s|`` (calculator ``Mag``)."""
-        return self._unary("Mag", vector=False, complex_=False)
+        """Absolute value ``|s|`` (calculator ``Abs``)."""
+        return self._unary("Abs", vector=False, complex_=False)
 
     def smooth(self) -> "ScalarReal":
         """Smooth the quantity across the mesh (calculator ``Smooth``)."""
@@ -423,6 +473,75 @@ class ScalarReal(FieldExpression):
     def gradient(self) -> "VectorReal":
         """Gradient ``∇s`` (calculator ``Grad``)."""
         return self._unary("Grad", vector=True, complex_=False)
+
+    # scalar math
+    def sqrt(self) -> "ScalarReal":
+        """Square root (calculator ``Sqrt``)."""
+        return self._unary("Sqrt", vector=False, complex_=False)
+
+    def power(self, exponent: float) -> "ScalarReal":
+        """Raise to a (constant) power (calculator ``Pow``)."""
+        return self._spawn(False, False, [f"Scalar_Constant({_num(exponent)})", "Operation('Pow')"])
+
+    def __pow__(self, exponent: float) -> "ScalarReal":
+        return self.power(exponent)
+
+    def ln(self) -> "ScalarReal":
+        """Natural logarithm (calculator ``ln``)."""
+        return self._unary("ln", vector=False, complex_=False)
+
+    def log10(self) -> "ScalarReal":
+        """Base-10 logarithm (calculator ``log``)."""
+        return self._unary("log", vector=False, complex_=False)
+
+    def _math_func(self, name: str) -> "ScalarReal":
+        """Apply a unary math function via the two-argument ``UMathFunc`` token."""
+        return self._spawn(False, False, [f"Operation('UMathFunc', '{name}')"])
+
+    def sin(self) -> "ScalarReal":
+        """Sine (calculator trig ``Sin``)."""
+        return self._math_func("Sin")
+
+    def cos(self) -> "ScalarReal":
+        """Cosine (calculator trig ``Cos``)."""
+        return self._math_func("Cos")
+
+    def tan(self) -> "ScalarReal":
+        """Tangent (calculator trig ``Tan``)."""
+        return self._math_func("Tan")
+
+    def asin(self) -> "ScalarReal":
+        """Arcsine (calculator trig ``Asin``)."""
+        return self._math_func("Asin")
+
+    def acos(self) -> "ScalarReal":
+        """Arccosine (calculator trig ``Acos``)."""
+        return self._math_func("Acos")
+
+    def atan(self) -> "ScalarReal":
+        """Arctangent (calculator trig ``Atan``)."""
+        return self._math_func("Atan")
+
+    def derivative(self, axis: str) -> "ScalarReal":
+        """Partial derivative ``∂s/∂axis`` for ``axis`` in ``{"x", "y", "z"}``
+        (calculator ``d/dx`` / ``d/dy`` / ``d/dz``)."""
+        a = axis.lower()
+        if a not in ("x", "y", "z"):
+            raise ValueError("axis must be 'x', 'y', or 'z'")
+        return self._unary(f"d/d{a}", vector=False, complex_=False)
+
+    # form a vector from this scalar (calculator ``Vec?``)
+    def as_vector_x(self) -> "VectorReal":
+        """Place this scalar in the x component of a vector (calculator ``VecX``)."""
+        return self._unary("VecX", vector=True, complex_=False)
+
+    def as_vector_y(self) -> "VectorReal":
+        """Place this scalar in the y component of a vector (calculator ``VecY``)."""
+        return self._unary("VecY", vector=True, complex_=False)
+
+    def as_vector_z(self) -> "VectorReal":
+        """Place this scalar in the z component of a vector (calculator ``VecZ``)."""
+        return self._unary("VecZ", vector=True, complex_=False)
 
     # arithmetic
     def __add__(self, other) -> "ScalarReal":
@@ -450,6 +569,14 @@ class ScalarReal(FieldExpression):
         """Minimum over a geometry (calculator ``Minimum``)."""
         return self._reduce(over, "Minimum")
 
+    def mean(self, over: CalculatorGeometry) -> "ScalarReal":
+        """Mean over a geometry (calculator ``Mean``)."""
+        return self._reduce(over, "Mean")
+
+    def std(self, over: CalculatorGeometry) -> "ScalarReal":
+        """Standard deviation over a geometry (calculator ``Std``)."""
+        return self._reduce(over, "Std")
+
     def value(self, over: CalculatorGeometry) -> "ScalarReal":
         """Sample the quantity on a geometry without integrating."""
         return self._reduce(over, "")
@@ -476,6 +603,14 @@ class ScalarComplex(FieldExpression):
         """Complex magnitude ``|s|`` (calculator ``CmplxMag``)."""
         return self._unary("CmplxMag", vector=False, complex_=False)
 
+    def phase(self) -> "ScalarReal":
+        """Phase angle of the complex quantity (calculator ``CmplxPhase``)."""
+        return self._unary("CmplxPhase", vector=False, complex_=False)
+
+    def at_phase(self, phase_deg: float) -> "ScalarReal":
+        """Real value at a given phase angle in degrees (calculator ``AtPhase``)."""
+        return self._spawn(False, False, [f"Scalar_Constant({_num(phase_deg)})", "Operation('AtPhase')"])
+
     def conjugate(self) -> "ScalarComplex":
         """Complex conjugate (calculator ``Conj``)."""
         return self._unary("Conj", vector=False, complex_=True)
@@ -483,6 +618,18 @@ class ScalarComplex(FieldExpression):
     def smooth(self) -> "ScalarComplex":
         """Smooth the quantity across the mesh (calculator ``Smooth``)."""
         return self._unary("Smooth", vector=False, complex_=True)
+
+    def as_vector_x(self) -> "VectorComplex":
+        """Place this scalar in the x component of a vector (calculator ``VecX``)."""
+        return self._unary("VecX", vector=True, complex_=True)
+
+    def as_vector_y(self) -> "VectorComplex":
+        """Place this scalar in the y component of a vector (calculator ``VecY``)."""
+        return self._unary("VecY", vector=True, complex_=True)
+
+    def as_vector_z(self) -> "VectorComplex":
+        """Place this scalar in the z component of a vector (calculator ``VecZ``)."""
+        return self._unary("VecZ", vector=True, complex_=True)
 
     def __add__(self, other) -> "ScalarComplex":
         return _scalar_arith(self, other, "+")
@@ -499,6 +646,10 @@ class ScalarComplex(FieldExpression):
     def integrate(self, over: CalculatorGeometry) -> "ScalarComplex":
         """Integrate over a geometry ``∫ s dΩ`` (calculator ``Integrate``)."""
         return self._reduce(over, "Integrate")
+
+    def mean(self, over: CalculatorGeometry) -> "ScalarComplex":
+        """Mean over a geometry (calculator ``Mean``)."""
+        return self._reduce(over, "Mean")
 
     def value(self, over: CalculatorGeometry) -> "ScalarComplex":
         """Sample the quantity on a geometry without integrating."""
@@ -648,9 +799,14 @@ _PUSH_PREFIXES = (
     "EnterScalar",
     "EnterVector",
     "EnterComplex",
+    "Scalar_Constant",
+    "Complex_Constant",
+    "Vector_Constant",
 )
-#: Operations that consume two registers and push one (net -1).
-_BINARY_OPS = {"+", "-", "*", "/", "Dot", "Cross"}
+#: Operations that consume two registers and push one (net -1). ``Pow`` consumes
+#: the base and the exponent constant; ``AtPhase`` consumes the field and the
+#: phase constant.
+_BINARY_OPS = {"+", "-", "*", "/", "Dot", "Cross", "Pow", "AtPhase"}
 #: Geometry value operations that consume the geometry register (net -1).
 _VALUE_OPS = {"LineValue", "SurfaceValue", "VolumeValue", "PointValue"}
 
@@ -695,35 +851,65 @@ def _resolve_stack_depth(operations: Sequence[str]) -> int:
 
 
 # ---------------------------------------------------------------------------
-# binary helpers (type promotion mirrors the data-level semantics)
+# constants + binary helpers (type promotion mirrors the data-level semantics)
 # ---------------------------------------------------------------------------
+def _num(value) -> str:
+    """Format a number the way AEDT serializes calculator constants (1, 2.5)."""
+    return f"{value:g}"
+
+
+def scalar_constant(value: float, **meta) -> ScalarReal:
+    """A real scalar constant (calculator ``Scalar_Constant``)."""
+    return ScalarReal([f"Scalar_Constant({_num(value)})"], **meta)
+
+
+def complex_constant(real: float, imag: float, **meta) -> ScalarComplex:
+    """A complex scalar constant (calculator ``Complex_Constant``)."""
+    return ScalarComplex([f"Complex_Constant({_num(real)}, {_num(imag)})"], **meta)
+
+
+def _to_expr(value, proto: FieldExpression) -> FieldExpression:
+    """Coerce a Python number into a constant expression carrying proto metadata."""
+    if isinstance(value, FieldExpression):
+        return value
+    if isinstance(value, bool):
+        raise TypeError("bool is not a valid field-calculator operand")
+    if isinstance(value, complex):
+        return complex_constant(value.real, value.imag, **proto._meta())
+    if isinstance(value, (int, float)):
+        return scalar_constant(value, **proto._meta())
+    raise TypeError(f"operand must be a FieldExpression or number, got {type(value).__name__}")
+
+
 def _both(a: FieldExpression, b: FieldExpression) -> bool:
+    """Return ``True`` when either operand is complex."""
     return a.is_complex or b.is_complex
 
 
 def _scalar_arith(a: FieldExpression, b, op: str) -> FieldExpression:
-    if not isinstance(b, FieldExpression):
-        raise TypeError("operand must be a FieldExpression (constants not yet supported)")
+    """Add or subtract a scalar with another scalar or a number."""
+    b = _to_expr(b, a)
     if b.is_vector:
         raise TypeError("cannot add/subtract a scalar and a vector")
     return a._binary(b, op, vector=False, complex_=_both(a, b))
 
 
 def _scalar_mul(a: FieldExpression, b, op: str) -> FieldExpression:
-    if not isinstance(b, FieldExpression):
-        raise TypeError("operand must be a FieldExpression (constants not yet supported)")
+    """Multiply or divide starting from a scalar operand."""
+    b = _to_expr(b, a)
     return a._binary(b, op, vector=b.is_vector, complex_=_both(a, b))
 
 
 def _vector_arith(a: FieldExpression, b, op: str) -> FieldExpression:
+    """Add or subtract two vector expressions."""
     if not isinstance(b, FieldExpression) or not b.is_vector:
         raise TypeError("vector +/- requires another vector expression")
     return a._binary(b, op, vector=True, complex_=_both(a, b))
 
 
 def _vector_scale(a: FieldExpression, b, op: str) -> FieldExpression:
-    if not isinstance(b, FieldExpression):
-        raise TypeError("operand must be a FieldExpression (constants not yet supported)")
+    """Scale a vector by a scalar operand or number."""
+    b = _to_expr(b, a)
     if b.is_vector:
         raise TypeError("vector * vector is undefined; use dot() or cross()")
     return a._binary(b, op, vector=True, complex_=_both(a, b))
@@ -766,6 +952,7 @@ class FieldExpressions(PyAedtBase):
         self._design_type = [calculator.design_type] if calculator is not None else None
 
     def _seed(self, vector: bool, complex_: bool, ops: List[str]) -> FieldExpression:
+        """Create a new typed expression bound to this builder's calculator."""
         cls = _LEAF[(vector, complex_)]
         return cls(ops, calculator=self._calculator, design_type=self._design_type)
 
@@ -780,3 +967,11 @@ class FieldExpressions(PyAedtBase):
     def named_expression(self, name: str, is_vector: bool = False, is_complex: bool = True) -> FieldExpression:
         """Start from a previously defined named expression."""
         return self._seed(is_vector, is_complex, [f"NameOfExpression('{name}')"])
+
+    def scalar_constant(self, value: float) -> ScalarReal:
+        """A real scalar constant (calculator ``Scalar_Constant``)."""
+        return self._seed(False, False, [f"Scalar_Constant({_num(value)})"])
+
+    def complex_constant(self, real: float, imag: float) -> ScalarComplex:
+        """A complex scalar constant (calculator ``Complex_Constant``)."""
+        return self._seed(False, True, [f"Complex_Constant({_num(real)}, {_num(imag)})"])
