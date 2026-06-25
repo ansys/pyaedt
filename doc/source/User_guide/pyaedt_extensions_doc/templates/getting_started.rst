@@ -46,6 +46,7 @@ Command line
 The extension can also be run directly via the command line for batch processing.
 
 The script accepts the following arguments:
+
 - ``**origin_x**`` : x origin coordinate.
 - ``**origin_y**`` : y origin coordinate.
 - ``**origin_z**`` : z origin coordinate.
