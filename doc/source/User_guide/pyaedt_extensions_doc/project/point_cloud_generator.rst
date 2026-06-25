@@ -20,11 +20,9 @@ The extension first reads a mesh data from the OBJ file and loads it into a PyVi
 The mesh is then converted into a triangulated form. This means that all the faces of the mesh are broken down into triangles.
 The triangulated mesh is then used to generate a point cloud. The point cloud is created by sampling points from the surface of the mesh.
 
-When ``in_volume`` is enabled, the extension builds a second cloud made of points that lies inside the selected geometry.
+When ``in_volume`` is enabled, the extension builds a cloud made of points that lies inside the selected geometry.
 
-To do this, the exported OBJ geometry is first read and converted into a triangulated surface mesh.
-This mesh is used as the geometric reference for interior tests.
-The algorithm then computes the mesh bounding box and performs random sampling within that box.
+The algorithm computes the mesh bounding box and performs random sampling within that box.
 Because many random samples can fall outside the object, it applies a filter to keep only candidates classified as enclosed by the surface.
 
 This sampling and filtering cycle is repeated until either the requested number of interior points
