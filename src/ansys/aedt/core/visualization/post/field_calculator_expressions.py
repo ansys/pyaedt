@@ -92,7 +92,7 @@ Examples
 >>> hfss = Hfss()
 >>> fx = hfss.post.fields_calculator.expressions
 >>> # |E| integrated over a surface, as a typed chain instead of a string stack
->>> E = fx.vector("E")                  # VectorComplex
+>>> E = fx.vector("E")  # VectorComplex
 >>> energy = (E.magnitude() * E.magnitude()).integrate(Surface("MySheet"))
 >>> value = energy.evaluate(setup="Setup1 : LastAdaptive")
 >>> hfss.release_desktop()
@@ -100,10 +100,7 @@ Examples
 
 from __future__ import annotations
 
-from typing import List
-from typing import Optional
 from typing import Sequence
-from typing import Union
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -125,7 +122,7 @@ class CalculatorGeometry(PyAedtBase):
         # accept a name or any object exposing ``.name``
         self.assignment = getattr(assignment, "name", assignment)
 
-    def _operations(self) -> List[str]:
+    def _operations(self) -> list[str]:
         """Return the calculator tokens that push this geometry and its value."""
         ops = [f"{self.enter_token}('{self.assignment}')"]
         if self.value_op:
@@ -177,13 +174,13 @@ class FieldExpression(PyAedtBase):
         *,
         calculator=None,
         description: str = "",
-        design_type: Optional[List[str]] = None,
-        fields_type: Optional[List[str]] = None,
-        assignment_types: Optional[List[str]] = None,
+        design_type: list[str] | None = None,
+        fields_type: list[str] | None = None,
+        assignment_types: list[str] | None = None,
         primary_sweep: str = "Freq",
         solution_type: str = "",
     ) -> None:
-        self._operations: List[str] = list(operations)
+        self._operations: list[str] = list(operations)
         self._calculator = calculator
         self._description = description
         self._design_type = design_type
@@ -194,7 +191,7 @@ class FieldExpression(PyAedtBase):
 
     # -- introspection -------------------------------------------------------
     @property
-    def operations(self) -> List[str]:
+    def operations(self) -> list[str]:
         """Copy of the calculator operation stack this expression compiles to."""
         return list(self._operations)
 
@@ -212,7 +209,7 @@ class FieldExpression(PyAedtBase):
         complex_: bool,
         extra_ops: Sequence[str],
         *,
-        more_assignment_types: Optional[List[str]] = None,
+        more_assignment_types: list[str] | None = None,
     ) -> "FieldExpression":
         """Build a derived expression with the appended operations."""
         cls = _LEAF[(vector, complex_)]
@@ -254,7 +251,7 @@ class FieldExpression(PyAedtBase):
         final_op: str,
         *,
         vector: bool = False,
-        complex_: Optional[bool] = None,
+        complex_: bool | None = None,
     ) -> "FieldExpression":
         """Geometry value + a final reduction op (Integrate / Maximum / ...)."""
         if complex_ is None:
@@ -335,7 +332,7 @@ class FieldExpression(PyAedtBase):
         return self
 
     @pyaedt_function_handler()
-    def checkpoint(self, name: Optional[str] = None) -> "FieldExpression":
+    def checkpoint(self, name: str | None = None) -> "FieldExpression":
         """Register this expression and return a single-token reference to it.
 
         Combining a sub-expression with itself duplicates its operations every
@@ -385,7 +382,7 @@ class FieldExpression(PyAedtBase):
         return self._calculator
 
     @pyaedt_function_handler()
-    def add(self, name: str, assignment=None) -> Union[str, bool]:
+    def add(self, name: str, assignment=None) -> str | bool:
         """Register this expression as an AEDT named expression.
 
         Parameters
@@ -410,9 +407,9 @@ class FieldExpression(PyAedtBase):
     @pyaedt_function_handler()
     def evaluate(
         self,
-        name: Optional[str] = None,
-        setup: Optional[str] = None,
-        intrinsics: Optional[dict] = None,
+        name: str | None = None,
+        setup: str | None = None,
+        intrinsics: dict | None = None,
         assignment=None,
     ) -> float:
         """Register and evaluate this expression to a single value.
@@ -439,7 +436,7 @@ class FieldExpression(PyAedtBase):
         return calc.evaluate(name, setup=setup, intrinsics=intrinsics)
 
     @pyaedt_function_handler()
-    def export(self, output_file: str, name: Optional[str] = None, **kwargs):
+    def export(self, output_file: str, name: str | None = None, **kwargs):
         """Register and export this expression to a field file.
 
         Extra keyword arguments are forwarded to
@@ -524,7 +521,8 @@ class ScalarReal(FieldExpression):
 
     def derivative(self, axis: str) -> "ScalarReal":
         """Partial derivative ``∂s/∂axis`` for ``axis`` in ``{"x", "y", "z"}``
-        (calculator ``d/dx`` / ``d/dy`` / ``d/dz``)."""
+        (calculator ``d/dx`` / ``d/dy`` / ``d/dz``).
+        """
         a = axis.lower()
         if a not in ("x", "y", "z"):
             raise ValueError("axis must be 'x', 'y', or 'z'")
@@ -811,7 +809,7 @@ _BINARY_OPS = {"+", "-", "*", "/", "Dot", "Cross", "Pow", "AtPhase"}
 _VALUE_OPS = {"LineValue", "SurfaceValue", "VolumeValue", "PointValue"}
 
 
-def _operation_name(token: str) -> Optional[str]:
+def _operation_name(token: str) -> str | None:
     """Return ``X`` from ``Operation('X')``; ``None`` if not an ``Operation``."""
     if token.startswith("Operation(") and "'" in token:
         return token.split("'")[1]
@@ -951,16 +949,16 @@ class FieldExpressions(PyAedtBase):
         self._calculator = calculator
         self._design_type = [calculator.design_type] if calculator is not None else None
 
-    def _seed(self, vector: bool, complex_: bool, ops: List[str]) -> FieldExpression:
+    def _seed(self, vector: bool, complex_: bool, ops: list[str]) -> FieldExpression:
         """Create a new typed expression bound to this builder's calculator."""
         cls = _LEAF[(vector, complex_)]
         return cls(ops, calculator=self._calculator, design_type=self._design_type)
 
-    def vector(self, quantity: str = "E", complex: bool = True) -> Union[VectorReal, VectorComplex]:
+    def vector(self, quantity: str = "E", complex: bool = True) -> VectorReal | VectorComplex:
         """Start from a fundamental vector quantity (for example ``"E"``)."""
         return self._seed(True, complex, [f"Fundamental_Quantity('{quantity}')"])
 
-    def scalar(self, quantity: str, complex: bool = True) -> Union[ScalarReal, ScalarComplex]:
+    def scalar(self, quantity: str, complex: bool = True) -> ScalarReal | ScalarComplex:
         """Start from a fundamental scalar quantity."""
         return self._seed(False, complex, [f"Fundamental_Quantity('{quantity}')"])
 
