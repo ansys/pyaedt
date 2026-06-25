@@ -2824,7 +2824,7 @@ class Reports(PyAedtBase):
         """
         if not setup:
             for setup in self._post_app._app.setups:
-                if "AMIAnalysis" in setup.props:
+                if "AMIAnalysis" in setup.props or "QuickEyeAnalysis" in setup.props:
                     setup = setup.name
             if not setup:
                 self._post_app._app.logger.error("AMI analysis is needed to create this report.")
@@ -2885,7 +2885,10 @@ class Reports(PyAedtBase):
         if not setup:
             setup = self._post_app._app.nominal_sweep
         if "Eye Diagram" in self._templates:
-            if "AMIAnalysis" in self._post_app._app.get_setup(setup).props:
+            if (
+                "AMIAnalysis" in self._post_app._app.get_setup(setup).props
+                or "QuickEyeAnalysis" in self._post_app._app.get_setup(setup).props
+            ):
                 report_cat = "Eye Diagram"
                 if statistical_analysis:
                     report_cat = "Statistical Eye"
@@ -2893,7 +2896,6 @@ class Reports(PyAedtBase):
                 rep.quantity_type = quantity_type
                 rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
                 return rep
-
             else:
                 rep = report_eye.EyeDiagram(self._post_app, "Eye Diagram", setup)
             rep.unit_interval = unit_interval
