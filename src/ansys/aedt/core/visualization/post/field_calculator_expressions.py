@@ -49,6 +49,31 @@ or :meth:`FieldExpression.export`, which reuse the existing
 No raw binary field data is read — this is purely a typed front end for the
 calculator's own operation stack.
 
+Coverage and limits
+-------------------
+The builder wraps the common calculator operations: fundamental and named
+quantities; algebra (``+ - * /``, negation); ``real`` / ``imaginary`` /
+``conjugate`` / ``magnitude``; vector components and ``dot`` / ``cross`` /
+``tangent`` / ``normal`` / ``curl`` / ``divergence``; scalar ``gradient`` /
+``smooth``; and ``integrate`` / ``maximum`` / ``minimum`` / ``value`` over a
+:class:`Line`, :class:`Surface`, or :class:`Volume`. Curved geometry is handled
+by AEDT itself — the builder only references a named object and the solver
+integrates over its real (possibly curved) mesh. Not yet wrapped: numeric
+constants, point geometry / face-by-id, cylindrical and spherical scalar
+components, and the transcendental math operations (``Pow`` / ``Sqrt`` / ``Ln``
+/ ``Sin`` / ``Phase`` ...). Such operations can still be reached with the
+existing :meth:`FieldsCalculator.add_expression` dictionary API.
+
+Long expressions
+----------------
+Each method appends to a plain list, so chains of any length build correctly and
+stay balanced (use :meth:`FieldExpression.verify` to check). Two things to know
+for very large expressions: combining a sub-expression with itself duplicates its
+operations (``dot(a, a)`` repeats ``a``), so repeated reuse can grow the stack
+exponentially; and a very long stack can hit AEDT's own calculator limits. For
+both, :meth:`FieldExpression.checkpoint` registers the current expression and
+returns a single-token reference to it, keeping the operation stack short.
+
 Examples
 --------
 >>> from ansys.aedt.core import Hfss
@@ -163,6 +188,10 @@ class FieldExpression(PyAedtBase):
     def __repr__(self) -> str:
         return f"<{type(self).__name__} ops={len(self._operations)}>"
 
+    def __len__(self) -> int:
+        """Number of calculator operations this expression compiles to."""
+        return len(self._operations)
+
     # -- builders ------------------------------------------------------------
     def _spawn(
         self,
@@ -230,6 +259,73 @@ class FieldExpression(PyAedtBase):
             "report": ["Data Table"],
         }
 
+    # -- well-formedness / size management -----------------------------------
+    def stack_depth(self) -> int:
+        """Net Fields Calculator stack depth after applying all operations.
+
+        Simulates the reverse-Polish operation stack. A well-formed scalar or
+        vector expression resolves to exactly ``1``. Raises
+        :class:`~ansys.aedt.core.internal.errors.AEDTRuntimeError` if any
+        operation would pop more registers than are available (malformed chain).
+        """
+        return _resolve_stack_depth(self._operations)
+
+    def verify(self) -> "FieldExpression":
+        """Validate that the operation chain is well-formed and return ``self``.
+
+        Useful as a fast, local check before sending a long expression to AEDT,
+        where an unbalanced or oversized operation stack can otherwise fail in
+        confusing ways. Chainable: ``expr.verify().evaluate(...)``.
+        """
+        depth = self.stack_depth()
+        if depth != 1:
+            raise AEDTRuntimeError(
+                f"expression does not resolve to a single result (stack depth {depth}); "
+                "the operation chain is unbalanced"
+            )
+        return self
+
+    @pyaedt_function_handler()
+    def checkpoint(self, name: Optional[str] = None) -> "FieldExpression":
+        """Register this expression and return a single-token reference to it.
+
+        Combining a sub-expression with itself duplicates its operations every
+        time (for example ``dot(a, a)`` repeats ``a``), so heavy reuse can grow
+        the operation stack very quickly and overflow the calculator. Checkpoint
+        the sub-expression once, then continue from the returned reference, whose
+        operation stack is a single ``NameOfExpression`` token. This mirrors the
+        calculator's own named-expression / ``CopyToStack`` mechanism.
+
+        Parameters
+        ----------
+        name : str, optional
+            Named-expression name. A unique one is generated when not provided.
+
+        Returns
+        -------
+        FieldExpression
+            A new expression of the same kind referencing the registered name.
+
+        Examples
+        --------
+        >>> base = (E.magnitude() * E.magnitude()).checkpoint("e2")
+        >>> # `base` now has a single operation; reuse it without duplication
+        >>> total = base + base
+        """
+        calc = self._require_calculator()
+        name = name or generate_unique_name("fcx")
+        self.add(name)
+        cls = _LEAF[(self.is_vector, self.is_complex)]
+        return cls(
+            [f"NameOfExpression('{name}')"],
+            calculator=calc,
+            description=self._description,
+            design_type=self._design_type,
+            fields_type=self._fields_type,
+            primary_sweep=self._primary_sweep,
+            solution_type=self._solution_type,
+        )
+
     def _require_calculator(self):
         if self._calculator is None:
             raise AEDTRuntimeError(
@@ -257,7 +353,9 @@ class FieldExpression(PyAedtBase):
         str or bool
             The named-expression name when successful, ``False`` otherwise.
         """
-        return self._require_calculator().add_expression(self.to_dict(name), assignment, name=name)
+        calc = self._require_calculator()
+        self.verify()  # fail fast and clearly on a malformed/unbalanced stack
+        return calc.add_expression(self.to_dict(name), assignment, name=name)
 
     @pyaedt_function_handler()
     def evaluate(
@@ -534,6 +632,66 @@ _LEAF = {
     (True, False): VectorReal,
     (True, True): VectorComplex,
 }
+
+
+# ---------------------------------------------------------------------------
+# operation-stack simulation (well-formedness of long expressions)
+# ---------------------------------------------------------------------------
+#: Tokens that push a new register onto the calculator stack.
+_PUSH_PREFIXES = (
+    "Fundamental_Quantity",
+    "NameOfExpression",
+    "EnterLine",
+    "EnterSurface",
+    "EnterVolume",
+    "EnterPoint",
+    "EnterScalar",
+    "EnterVector",
+    "EnterComplex",
+)
+#: Operations that consume two registers and push one (net -1).
+_BINARY_OPS = {"+", "-", "*", "/", "Dot", "Cross"}
+#: Geometry value operations that consume the geometry register (net -1).
+_VALUE_OPS = {"LineValue", "SurfaceValue", "VolumeValue", "PointValue"}
+
+
+def _operation_name(token: str) -> Optional[str]:
+    """Return ``X`` from ``Operation('X')``; ``None`` if not an ``Operation``."""
+    if token.startswith("Operation(") and "'" in token:
+        return token.split("'")[1]
+    return None
+
+
+def _stack_effect(token: str) -> int:
+    """Net change a single operation token makes to the calculator stack depth."""
+    name = _operation_name(token)
+    if name is not None:
+        if name in _BINARY_OPS or name in _VALUE_OPS:
+            return -1
+        return 0  # unary operation: pop one, push one
+    if token.startswith(_PUSH_PREFIXES):
+        return 1
+    return 0  # unknown token: assume neutral
+
+
+def _resolve_stack_depth(operations: Sequence[str]) -> int:
+    """Simulate the operation stack and return the final depth.
+
+    Raises :class:`AEDTRuntimeError` if any operation would pop a register that
+    is not there (an unbalanced / malformed chain), which is how an
+    overly-stacked expression would otherwise fail confusingly in AEDT.
+    """
+    depth = 0
+    for i, token in enumerate(operations):
+        effect = _stack_effect(token)
+        needed = 2 if effect < 0 else 0
+        if depth < needed:
+            raise AEDTRuntimeError(
+                f"operation #{i} ('{token}') underflows the calculator stack "
+                f"(depth {depth}); the expression is malformed"
+            )
+        depth += effect
+    return depth
 
 
 # ---------------------------------------------------------------------------
