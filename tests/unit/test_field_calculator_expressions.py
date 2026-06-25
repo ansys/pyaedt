@@ -29,11 +29,14 @@ These exercise the pure-Python compilation to the calculator operation grammar
 mocked :class:`FieldsCalculator`.
 """
 
+from pathlib import Path
 from unittest.mock import MagicMock
 
 import pytest
 
+from ansys.aedt.core.generic.file_utils import read_configuration_file
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
+from ansys.aedt.core.visualization.post import fields_calculator as _fc_module
 from ansys.aedt.core.visualization.post.field_calculator_expressions import FieldExpressions
 from ansys.aedt.core.visualization.post.field_calculator_expressions import Line
 from ansys.aedt.core.visualization.post.field_calculator_expressions import ScalarComplex
@@ -45,6 +48,8 @@ from ansys.aedt.core.visualization.post.field_calculator_expressions import Volu
 from ansys.aedt.core.visualization.post.field_calculator_expressions import cross
 from ansys.aedt.core.visualization.post.field_calculator_expressions import dot
 from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculator
+
+CATALOG_PATH = Path(_fc_module.__file__).parent / "fields_calculator_files" / "expression_catalog.toml"
 
 
 @pytest.fixture
@@ -72,7 +77,8 @@ def test_unary_op_types_and_tokens(fx):
     assert isinstance(E.real(), VectorReal)
     assert isinstance(E.imaginary(), VectorReal)
     assert isinstance(E.conjugate(), VectorComplex)
-    assert isinstance(E.tangent(), VectorComplex)
+    assert isinstance(E.smooth(), VectorComplex)
+    assert isinstance(E.component_magnitude(), VectorReal)
     assert isinstance(E.curl(), VectorComplex)
     assert isinstance(E.divergence(), ScalarComplex)
     assert E.magnitude().operations[-1] == "Operation('Mag')"
@@ -254,7 +260,8 @@ def test_calculator_exposes_expressions_property():
 def test_well_formed_chains_resolve_to_single_result(fx):
     E, H = fx.vector("E"), fx.vector("H")
     assert dot(E, H).stack_depth() == 1
-    flux = cross(E, H.conjugate()).real().normal().magnitude().integrate(Surface("S"))
+    # power flow: integral of Re(E x H*).n over a surface
+    flux = dot(cross(E, H.conjugate()).real(), fx.normal()).integrate(Surface("S"))
     assert flux.stack_depth() == 1
     assert flux.verify() is flux
     assert len(flux) == 10
@@ -481,3 +488,121 @@ def test_constant_consuming_ops_stay_balanced(fx):
     assert fx.vector("E").scalar_x().at_phase(30).stack_depth() == 1
     full = (s.power(2) * fx.scalar_constant(0.25)).integrate(Volume("Box"))
     assert full.verify() is full
+
+
+# ---------------------------------------------------------------------------
+# tangent / normal push factories + other catalog primitives
+# ---------------------------------------------------------------------------
+def test_tangent_normal_are_push_factories(fx):
+    # Tangent / Normal push the geometry unit vector; dot a field with them
+    assert isinstance(fx.tangent(), VectorReal)
+    assert fx.tangent().operations == ["Operation('Tangent')"]
+    assert fx.normal().operations == ["Operation('Normal')"]
+    flux = dot(fx.vector("E").real(), fx.normal()).integrate(Surface("S"))
+    assert flux.stack_depth() == 1  # Normal pushes, so the chain stays balanced
+    assert isinstance(flux, ScalarReal)
+
+
+def test_builder_function_and_vector_constant(fx):
+    assert fx.function("vrm").operations == ["Scalar_Function(FuncValue='vrm')"]
+    assert isinstance(fx.function("vrm"), ScalarReal)
+    assert fx.vector_constant(1, 0, 0).operations == ["Vector_Constant(1, 0, 0)"]
+    assert isinstance(fx.vector_constant(1, 0, 0), VectorReal)
+
+
+def test_component_magnitude_and_complex_builders(fx):
+    cm = fx.vector("E").component_magnitude()
+    assert isinstance(cm, VectorReal)
+    assert cm.operations[-1] == "Operation('CmplxMag')"
+    s = fx.vector("E").magnitude()
+    assert s.as_complex_real().operations[-1] == "Operation('CmplxR')"
+    assert isinstance(s.as_complex_real(), ScalarComplex)
+    assert s.as_complex_imag().operations[-1] == "Operation('CmplxI')"
+
+
+def test_min_max_position(fx):
+    pos = fx.vector("E").magnitude().min_position(Surface("S"))
+    assert isinstance(pos, VectorReal)
+    assert pos.operations[-1] == "Operation('MinPos')"
+    assert fx.vector("E").magnitude().max_position(Volume("V")).operations[-1] == "Operation('MaxPos')"
+
+
+# ---------------------------------------------------------------------------
+# the shipped expression catalog reproduced exactly with the typed builder
+# ---------------------------------------------------------------------------
+def _catalog_builders(fx):
+    """Return {catalog_key: zero-arg builder} reproducing each shipped expression."""
+    A = "assignment"
+
+    def voltage_line(field):
+        re = dot(field.real(), fx.tangent()).integrate(Line(A)).as_complex_real()
+        im = dot(field.imaginary(), fx.tangent()).integrate(Line(A)).as_complex_imag()
+        return re + im
+
+    def wave_impedance(x, y, z):
+        unit = fx.vector_constant(x, y, z)
+        e = fx.vector("E").smooth().component_magnitude()
+        h = fx.named_expression("<Hx,Hy,Hz>", is_vector=True).smooth().component_magnitude()
+        return cross(e, unit).magnitude() / cross(h, unit).magnitude()
+
+    def hmin(component):
+        pos = fx.named_expression("<Hx,Hy,Hz>", is_vector=True).magnitude().min_position(Surface(A))
+        return getattr(pos, component)()
+
+    def b_radial():
+        b, phi = fx.vector("B"), fx.function("PHI")
+        return b.scalar_x() * phi.cos() + b.scalar_y() * phi.sin()
+
+    def b_tangential():
+        b, phi = fx.vector("B"), fx.function("PHI")
+        return -(b.scalar_x() * phi.sin()) + b.scalar_y() * phi.cos()
+
+    def radial_stress():
+        br = fx.named_expression("b_radial")
+        bt = fx.named_expression("b_tangential")
+        return (br * br + -(bt * bt)) / 1.25664e-06 / 2
+
+    def tangential_stress():
+        br = fx.named_expression("b_radial")
+        bt = fx.named_expression("b_tangential")
+        return br * bt / 1.25664e-06
+
+    return {
+        "voltage_line": lambda: voltage_line(fx.vector("E")),
+        "voltage_line_time": lambda: dot(fx.vector("E_t"), fx.tangent()).integrate(Line(A)),
+        "voltage_line_maxwell": lambda: voltage_line(fx.named_expression("<Ex,Ey,Ez>", is_vector=True)),
+        "voltage_drop": lambda: fx.scalar("dcvPhi") + fx.function("vrm"),
+        "voltage_drop_2025": lambda: fx.scalar("dcvPhi").real() + fx.function("vrm"),
+        "current_line": lambda: voltage_line(fx.named_expression("<Hx,Hy,Hz>", is_vector=True)),
+        "current_line_time": lambda: dot(fx.vector("H_t"), fx.tangent()).integrate(Line(A)),
+        "power_flow": lambda: dot(fx.named_expression("Poynting", is_vector=True).real(), fx.normal()).integrate(
+            Surface(A)
+        ),
+        "electric_charge": lambda: dot(fx.named_expression("<Dx,Dy,Dz>", is_vector=True), fx.normal()).integrate(
+            Surface(A)
+        ),
+        "e_line": lambda: dot(fx.named_expression("<Ex,Ey,0>", is_vector=True), fx.tangent()),
+        "wave_impedance_x": lambda: wave_impedance(1, 0, 0),
+        "wave_impedance_y": lambda: wave_impedance(0, 1, 0),
+        "wave_impedance_z": lambda: wave_impedance(0, 0, 1),
+        "h_field_minimum_x_position": lambda: hmin("scalar_x"),
+        "h_field_minimum_y_position": lambda: hmin("scalar_y"),
+        "h_field_minimum_z_position": lambda: hmin("scalar_z"),
+        "b_radial": b_radial,
+        "b_tangential": b_tangential,
+        "radial_stress_tensor": radial_stress,
+        "tangential_stress_tensor": tangential_stress,
+    }
+
+
+def test_typed_builder_reproduces_full_catalog(fx):
+    """Every shipped catalog expression compiles to the identical operation stack."""
+    catalog = read_configuration_file(str(CATALOG_PATH))
+    builders = _catalog_builders(fx)
+    # the builder covers every catalog entry
+    assert set(builders) == set(catalog)
+    for key, expected in catalog.items():
+        got = builders[key]().operations
+        assert got == expected["operations"], key
+        # and each reproduction is a well-formed single-result stack
+        assert builders[key]().stack_depth() == 1, key
