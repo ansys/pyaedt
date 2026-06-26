@@ -41,6 +41,14 @@ from ansys.aedt.core.cli.panels import panels_app
 from ansys.aedt.core.cli.project import project_app
 from ansys.aedt.core.cli.script import run_script
 
+# NOTE: This should be updated when new plugins are added to the CLI.
+# The key is the entry point name, and the value is the package name that provides it.
+# This allows better error messages when a plugin is not installed, by suggesting the package to install.
+MAPPING_PLUGIN_PACKAGE = {
+    "ansys.aedt.toolkits.antenna.cli:antenna_app": "ansys-aedt-toolkits-antenna",
+    "pyedb.cli:app": "pyedb",
+}
+
 app = typer.Typer(no_args_is_help=True)
 
 
@@ -113,8 +121,19 @@ try:
         try:
             plugin_app = ep.load()
             app.add_typer(plugin_app, name=ep.name)
-        except Exception as exc:
-            typer.secho(f"Skipping CLI plugin '{ep.name}' because it failed to load: {exc}", fg="yellow")
+        except Exception:
+            package = MAPPING_PLUGIN_PACKAGE.get(ep.value, "the required package")
+            msg = f"CLI plugin '{ep.name}' is not available."
+            install_msg = f"Install {package} to use this command."
+
+            @app.command(
+                name=ep.name,
+                help=f"[Plugin not installed] {install_msg}",
+                context_settings={"allow_extra_args": True, "ignore_unknown_options": True},
+            )
+            def unavailable_plugin(ctx: typer.Context, _msg: str = msg + " " + install_msg) -> None:
+                typer.secho(_msg, fg="red", err=True)
+                raise typer.Exit(code=1)
 except Exception as exc:
     typer.secho(f"Skipping CLI plugin discovery because entry-point loading failed: {exc}", fg="yellow")
 
