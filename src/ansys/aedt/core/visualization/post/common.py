@@ -1846,7 +1846,7 @@ class PostProcessorCommon(PyAedtBase):
         height: int = 450,
     ) -> (
         "Standard | AMIEyeDiagram | AMIConturEyeDiagram | EMIReceiver | EyeDiagram | CircuitNetlistReport | Fields | "
-        "FarField | NearField | Spectral | ReportPlotter"
+        "FarField | NearField | Spectral | ReportPlotter | None | bool"
     ):
         """Create a report based on a JSON file, TOML file, RPT file, or dictionary of properties.
 
@@ -1878,7 +1878,7 @@ class PostProcessorCommon(PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.report_templates.Standard`
+        :class:`ansys.aedt.core.modules.report_templates.Standard` or None
             Report object if succeeded.
 
         Examples
@@ -1905,6 +1905,7 @@ class PostProcessorCommon(PyAedtBase):
         if not report_settings and not input_file:  # pragma: no cover
             self.logger.error("Either a file or a dictionary must be passed as input.")
             return False
+
         props = {}
         if input_file:
             _, file_extension = os.path.splitext(input_file)
@@ -1937,7 +1938,9 @@ class PostProcessorCommon(PyAedtBase):
             props["expressions"] = {i: {} for i in props["expressions"]}
         elif isinstance(props.get("expressions", {}), str):  # pragma: no cover
             props["expressions"] = {props["expressions"]: {}}
+
         _dict_items_to_list_items(props, "expressions")
+
         if not solution_name:
             if "Fields" not in props.get("report_category", ""):
                 solution_name = self._app.nominal_sweep
@@ -1945,6 +1948,7 @@ class PostProcessorCommon(PyAedtBase):
                 solution_name = self._app.nominal_adaptive
         else:
             solution_name = self._get_setup_from_sweep_name(solution_name)  # If only the sweep name is passed.
+
         if props.get("report_category", None) and props["report_category"] in TEMPLATES_BY_NAME:
             if props.get("context", {"context": {}}).get("domain", "") == "Spectral":
                 report_temp = TEMPLATES_BY_NAME["Spectrum"]
@@ -1982,8 +1986,11 @@ class PostProcessorCommon(PyAedtBase):
                 "__Amplitude",
             ] and "Freq" in report._legacy_props.get("context", {}).get("variations", {}):
                 del report._legacy_props["context"]["variations"]["Freq"]
+
             _update_props(props, report._legacy_props)
+
             nominal_values = self._app.available_variations.nominal_variation(dependent_params=False)
+
             for el, k in nominal_values.items():
                 if (
                     report._legacy_props.get("context", None)
@@ -1991,7 +1998,9 @@ class PostProcessorCommon(PyAedtBase):
                     and el not in report._legacy_props["context"]["variations"]
                 ):
                     report._legacy_props["context"]["variations"][el] = k
+
             _ = report.expressions
+
             if matplotlib:
                 try:
                     return self._report_plotter(
@@ -2001,9 +2010,11 @@ class PostProcessorCommon(PyAedtBase):
                     self.logger.error("Failed to create report.")
                     return False
             report.create(name)
+
             if report.report_type != "Data Table":
                 report._update_traces()
                 self.oreportsetup.UpdateReports(report.plot_name)
+
             self.logger.info(f"Report {report.plot_name} created successfully.")
             if hide_legend:
                 report.hide_legend()
@@ -2012,6 +2023,7 @@ class PostProcessorCommon(PyAedtBase):
                 if not out:
                     self.logger.error("Failed to export report to image.")
             return report
+
         self.logger.error("Failed to create report.")
         return False  # pragma: no cover
 
@@ -2790,7 +2802,7 @@ class Reports(PyAedtBase):
     @pyaedt_function_handler()
     def statistical_eye_contour(
         self, expressions: str | list = None, setup: str | None = None, quantity_type: int = 3
-    ) -> "report_eye.AMIConturEyeDiagram":
+    ) -> "report_eye.AMIConturEyeDiagram | bool":
         """Create a standard statistical AMI contour plot.
 
         Parameters
@@ -2829,6 +2841,8 @@ class Reports(PyAedtBase):
             for setup in self._post_app._app.setups:
                 if "AMIAnalysis" in setup.props or "QuickEyeAnalysis" in setup.props:
                     setup = setup.name
+                    break
+
             if not setup:
                 self._post_app._app.logger.error("AMI analysis is needed to create this report.")
                 return False
@@ -2850,7 +2864,7 @@ class Reports(PyAedtBase):
         quantity_type: int = 3,
         statistical_analysis: bool = True,
         unit_interval: str = "1ns",
-    ) -> "report_eye.EyeDiagram" | "report_eye.AMIEyeDiagram" | None:
+    ) -> "report_eye.EyeDiagram | report_eye.AMIEyeDiagram | None":
         """Create a Standard or Default Report object.
 
         Parameters
@@ -2874,7 +2888,7 @@ class Reports(PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.report_templates.AMIEyeDiagram` | None
+        :class:`ansys.aedt.core.modules.report_templates.AMIEyeDiagram` or None
 
         Examples
         --------
@@ -2887,11 +2901,12 @@ class Reports(PyAedtBase):
         """
         if not setup:
             setup = self._post_app._app.nominal_sweep
+
+        rep = None
+        setup_props = self._post_app._app.get_setup(setup).props
+
         if "Eye Diagram" in self._templates:
-            if (
-                "AMIAnalysis" in self._post_app._app.get_setup(setup).props
-                or "QuickEyeAnalysis" in self._post_app._app.get_setup(setup).props
-            ):
+            if "AMIAnalysis" in setup_props or "QuickEyeAnalysis" in setup_props:
                 report_cat = "Eye Diagram"
                 if statistical_analysis:
                     report_cat = "Statistical Eye"
@@ -2904,8 +2919,7 @@ class Reports(PyAedtBase):
             rep.unit_interval = unit_interval
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
             return rep
-
-        return
+        return rep
 
     @pyaedt_function_handler()
     def spectral(self, expressions: str | list = None, setup: str = None) -> "report_standard.Spectral":
