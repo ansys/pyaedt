@@ -2903,9 +2903,9 @@ class Reports(PyAedtBase):
             setup = self._post_app._app.nominal_sweep
 
         rep = None
-        setup_props = self._post_app._app.get_setup(setup).props
 
         if "Eye Diagram" in self._templates:
+            setup_props = self._post_app._app.get_setup(setup).props
             if "AMIAnalysis" in setup_props or "QuickEyeAnalysis" in setup_props:
                 report_cat = "Eye Diagram"
                 if statistical_analysis:
