@@ -1068,6 +1068,11 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
 
             arg2 = ["Gravity Vector Axis:=", gva, "Positive:=", gv_pos]
         else:
+            if int(gravity_dir) != 0:
+                self.logger.warning(
+                    "'gravity_dir' is ignored by this method. To change the gravity direction, "
+                    "edit 'design_settings' directly."
+                )
             arg2 = [
                 "Gravity Vector X:=",
                 self.design_settings["XComponent"],
