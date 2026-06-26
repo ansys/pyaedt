@@ -126,8 +126,16 @@ class PostProcessorCommon(PyAedtBase):
         self,
     ) -> list[
         (
-            "Standard | AMIEyeDiagram | AMIConturEyeDiagram | EMIReceiver | EyeDiagram | CircuitNetlistReport | "
-            "Fields | FarField | NearField | Spectral"
+            Standard
+            | AMIEyeDiagram
+            | AMIConturEyeDiagram
+            | EMIReceiver
+            | EyeDiagram
+            | CircuitNetlistReport
+            | Fields
+            | FarField
+            | NearField
+            | Spectral
         )
     ]:
         """Plot list.
@@ -145,8 +153,16 @@ class PostProcessorCommon(PyAedtBase):
     def plots(
         self,
         value: list[
-            "Standard | AMIEyeDiagram | AMIConturEyeDiagram | EMIReceiver | EyeDiagram | CircuitNetlistReport | "
-            "Fields | FarField | NearField | Spectral"
+            Standard
+            | AMIEyeDiagram
+            | AMIConturEyeDiagram
+            | EMIReceiver
+            | EyeDiagram
+            | CircuitNetlistReport
+            | Fields
+            | FarField
+            | NearField
+            | Spectral
         ],
     ) -> None:
         self.__plots = value
