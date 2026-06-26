@@ -859,6 +859,7 @@ class FieldsCalculator(PyAedtBase):
         References
         ----------
         >>> oModule.GetFieldsCalculatorExpressions
+
         Example
         -------
         >>> from ansys.aedt.core import Hfss
@@ -866,6 +867,7 @@ class FieldsCalculator(PyAedtBase):
         >>> poly = hfss.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="Polyline1")
         >>> exprs = hfss.post.fields_calculator.get_expressions()
         >>> hfss.desktop_class.release_desktop(False, False)
+
         """
         expressions = {}
         field_type = field_type or ""
