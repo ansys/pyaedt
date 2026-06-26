@@ -191,6 +191,7 @@ def test_import_touchstone(aedt_app, test_tmp_dir) -> None:
     assert touchstone_data
 
 
+@pytest.mark.skipif(DESKTOP_VERSION == "2027.1", reason="WAITING BUG FIX")
 def test_export_fullwave(aedt_app, test_tmp_dir) -> None:
     aedt_app.save_project()
     touchstone_1 = shutil.copy2(TOUCHSTONE_FILE, test_tmp_dir / TOUCHSTONE)
