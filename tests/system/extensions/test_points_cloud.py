@@ -37,8 +37,8 @@ TEST_SUBFOLDER = "T45"
 def test_point_cloud_extension_logic(add_app_example, test_tmp_dir) -> None:
     # Define point cloud extension data to use for call to main
     app = add_app_example(subfolder=TEST_SUBFOLDER, project=POINT_CLOUD_GENERATOR)
-    data = PointsCloudExtensionData(choice="Torus1", points=1000, output_file=test_tmp_dir)
-    assert Path(main(data)) == test_tmp_dir / "Torus1.pts"
+    data = PointsCloudExtensionData(choice="Torus1", points=1000, output_file=test_tmp_dir, in_volume=True)
+    assert Path(main(data)) == test_tmp_dir / "Torus1_volume.pts"
     app.close_project(app.project_name, save=False)
 
 
