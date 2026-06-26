@@ -45,6 +45,36 @@ class RxSusceptibilityProfNode(EmitNode):
         """The type of this emit node."""
         return self._node_type
 
+    class ChannelType(Enum):
+        TX = "Tx"
+        RX = "Rx"
+
+    @min_aedt_version("2027.1")
+    def export_to_csv(self, file_name: str = "", channel_freq: float = 100e6) -> str:
+        """Export's the data for this node
+
+        Parameters
+        ----------
+        file_name: str[optional]
+            full path to the file to export to.
+        channel_freq: float[optional]
+            tuned channel to export the Band for.
+
+        Returns
+        -------
+        csv_data: str
+            stringified data for the node returned if file_name not specified"""
+        keys = "TraceChannelFreq|TraceChannelType"
+        vals = f"{channel_freq}|Rx"
+        return self._export_to_csv(file_name, keys, vals)
+
+    @min_aedt_version("2027.1")
+    def plot(self, channel_freq: float):
+        """Bring up a Cartesian plot for this node"""
+        keys = "TraceChannelFreq|TraceChannelType"
+        vals = f"{channel_freq}|Rx"
+        return self._plot(keys, vals)
+
     @min_aedt_version("2025.2")
     def add_rx_saturation(self) -> EmitNode:
         """Add a Saturation Profile"""

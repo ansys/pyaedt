@@ -48,6 +48,16 @@ class RxSelectivityNode(EmitNode):
         """Import a CSV File..."""
         return self._import(file_name, "CsvFile")
 
+    @min_aedt_version("2027.1")
+    def export_to_csv(self, file_name: str) -> str:
+        """Export's the data for this node"""
+        return self._export_to_csv(file_name, "", "")
+
+    @min_aedt_version("2027.1")
+    def plot(self):
+        """Bring up a Cartesian plot for this node"""
+        return self._plot("", "")
+
     @min_aedt_version("2025.2")
     def delete(self) -> None:
         """Delete this node"""

@@ -22,6 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from dataclasses import dataclass
+
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 from ansys.aedt.core.internal.checks import min_aedt_version
 
@@ -36,6 +38,51 @@ class Amplifier(EmitNode):
     def node_type(self) -> str:
         """The type of this emit node."""
         return self._node_type
+
+    @dataclass
+    class AmplifierPlotProps:
+        tone1_freq: float = 245e6
+        tone1_amp: float = -10.0
+        tone1_bandwidth: float = 50e3
+        tone2_freq: float = 255e6
+        tone2_amp: float = -10.0
+        tone2_bandwidth: float = 50e3
+        noise_level: float = -174
+
+    @min_aedt_version("2027.1")
+    def export_to_csv(self, file_name: str = "", amp_props: AmplifierPlotProps | None = None) -> str:
+        """Export's the data for this node
+
+        Parameters
+        ----------
+        file_name: str[optional]
+            full path to the file to export to.
+        amp_props: AmplifierPlotProps
+            two tone and test noise parameters to use for visualizing the amplifier's profile
+
+        Returns
+        -------
+        csv_data: str
+            stringified data for the node returned if file_name not specified"""
+        keys = "SelectedInputPort|SelectedOutputPort|TestTone1Freq|TestTone2Freq|TestTone1Amp|TestTone2Amp|TestTone1Bw|TestTone2Bw|TestNoiseLevel"
+        if amp_props is None:
+            amp_props = self.AmplifierPlotProps()
+        vals = f"1|2|{amp_props.tone1_freq}|{amp_props.tone2_freq}|{amp_props.tone1_amp}|{amp_props.tone2_amp}|{amp_props.tone1_bandwidth}|{amp_props.tone2_bandwidth}|{amp_props.noise_level}" 
+        return self._export_to_csv(file_name, keys, vals)
+
+    @min_aedt_version("2027.1")
+    def plot(self, amp_props: AmplifierPlotProps | None = None):
+        """Bring up a Cartesian plot for this node
+
+        Parameters
+        ----------
+        amp_props: AmplifierPlotProps
+            two tone and test noise parameters to use for visualizing the amplifier's profile"""
+        keys = "SelectedInputPort|SelectedOutputPort|TestTone1Freq|TestTone2Freq|TestTone1Amp|TestTone2Amp|TestTone1Bw|TestTone2Bw|TestNoiseLevel"
+        if amp_props is None:
+            amp_props = self.AmplifierPlotProps()
+        vals = f"1|2|{amp_props.tone1_freq}|{amp_props.tone2_freq}|{amp_props.tone1_amp}|{amp_props.tone2_amp}|{amp_props.tone1_bandwidth}|{amp_props.tone2_bandwidth}|{amp_props.noise_level}" 
+        return self._plot(keys, vals)
 
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
