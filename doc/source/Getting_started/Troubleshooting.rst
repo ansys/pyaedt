@@ -251,8 +251,7 @@ AEDT Student version fails to start via the default gRPC transport
 For AEDT Student 2025 R2 and earlier, launching a new session with the default secure-local (``wnua``) gRPC transport
 fails: PyAEDT reports ``Failed to start on gRPC port`` and the spawned ``ansysedtsv.exe`` process exits immediately.
 
-In that case, force the TCP *InsecureMode* transport before creating the
-``Desktop`` object:
+In that case, force the TCP *InsecureMode* transport before creating the ``Desktop`` object:
 
 .. code:: python
 
