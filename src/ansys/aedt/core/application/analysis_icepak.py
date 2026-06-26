@@ -243,7 +243,7 @@ class IcepakDesignSettingsManipulation(DesignSettingsManipulation, PyAedtBase):
         elif k == "AmbGaugePressure":
             return self.app.value_with_units(v, "n_per_meter_sq")
         elif k == "GravityVec":
-            if self.app.aedt_version_id < "2027.1":
+            if self.app.desktop_class.aedt_version_id < "2027.1":
                 if isinstance(v, (float, int)):
                     self.app.design_settings["GravityDir"] = ["Positive", "Negative"][v // 3]
                     v = f"Global::{['X', 'Y', 'Z'][v - v // 3 * 3]}"

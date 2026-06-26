@@ -1058,7 +1058,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         ----------
         >>> oDesign.SetDesignSettings
         """
-        if self.aedt_version_id < "2027.1":
+        if self.desktop_class.aedt_version_id < "2027.1":
             # Configure design settings such as gravity
             ice_gravity = ["X", "Y", "Z"]
             gv_pos = False
@@ -2207,7 +2207,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         """
         import subprocess  # nosec
 
-        version = self.aedt_version_id[-3:]
+        version = self.desktop_class.aedt_version_id[-3:]
         ansys_install_dir = os.environ.get(f"ANSYS{version}_DIR", "")
         if not ansys_install_dir:
             ansys_install_dir = os.environ.get(f"AWP_ROOT{version}", "")
@@ -2257,7 +2257,8 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         fluent_script = open(fl_uscript_file_pointer, "w")
         fluent_script.write("/file/start-transcript " + '"' + str(mesh_file_pointer) + '.trn"\n')
         fluent_script.write(
-            f'/file/set-tui-version "{self.aedt_version_id[-3:-1] + "." + self.aedt_version_id[-1:]}"\n'
+            f"/file/set-tui-version "
+            f'"{self.desktop_class.aedt_version_id[-3:-1] + "." + self.desktop_class.aedt_version_id[-1:]}"\n'
         )
         fluent_script.write("(enable-feature 'serial-hexcore-without-poly)\n")
         fluent_script.write('(cx-gui-do cx-activate-tab-index "NavigationPane*Frame1(TreeTab)" 0)\n')
