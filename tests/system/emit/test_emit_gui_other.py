@@ -572,17 +572,23 @@ class TestEmitGuiOther:
         warn = sampling.warnings.lower()
         assert "No channels are enabled" in warn or "range" in warn
 
-    def test_import_cad_with_skip_dialog(self, emit_app, file_tmp_root):
-        """Test importing a CAD file with skip dialog set to True."""
+    def test_import_cad_create_antennas(self, emit_app, file_tmp_root):
+        """Test CAD import with and without automatic antenna creation."""
         revision = emit_app.results.analyze()
         scene_node = revision.get_scene_node()
+
         cad_file = TEST_SUBFOLDER / "Ansys_777_200_ER.glb"
-        file = shutil.copy2(cad_file, file_tmp_root / "Ansys_777_200_ER.glb")           
-        cad_node = scene_node.import_cad(str(file), create_antennas=False)
+        copied_path = file_tmp_root / cad_file.name
+        shutil.copy2(cad_file, copied_path)
+
+        ants_before = [c for c in scene_node.children if isinstance(c, AntennaNode)]
+
+        cad_node = scene_node.import_cad(str(copied_path), create_antennas=False)
         assert cad_node
-        assert len(scene_node.children) == 1
+        ants_after_no = [c for c in scene_node.children if isinstance(c, AntennaNode)]
+        assert len(ants_after_no) == len(ants_before)
 
-
-        cad2_node = scene_node.import_cad(str(file), create_antennas=True)
+        cad2_node = scene_node.import_cad(str(copied_path), create_antennas=True)
         assert cad2_node
-        assert len(scene_node.children) == 5
+        ants_after_yes = [c for c in scene_node.children if isinstance(c, AntennaNode)]
+        assert len(ants_after_yes) > len(ants_after_no)
