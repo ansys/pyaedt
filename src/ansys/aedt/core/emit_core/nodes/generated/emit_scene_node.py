@@ -55,7 +55,7 @@ class EmitSceneNode(EmitNode):
 
         Parameters
         ----------
-        file_path : str
+        file_name : str
             Full path to the file to import.
         create_antennas : bool
             Whether to automatically create antennas for any mounting points
