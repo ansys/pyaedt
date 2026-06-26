@@ -24,15 +24,33 @@
 
 import pytest
 
-from ansys.aedt.core import Hfss
+import ansys.aedt.core as pyaedt
 from ansys.aedt.core.visualization.post.field_calculator_expressions import Line
 from ansys.aedt.core.visualization.post.field_calculator_expressions import ScalarReal
 from ansys.aedt.core.visualization.post.field_calculator_expressions import VectorComplex
 
 
-@pytest.fixture()
-def aedtapp(add_app):
-    app = add_app(application=Hfss)
+@pytest.fixture(
+    params=[
+        pyaedt.Circuit,
+        pyaedt.Hfss,
+        pyaedt.Maxwell2d,
+        pyaedt.Hfss3dLayout,
+        pyaedt.Rmxprt,
+        pyaedt.TwinBuilder,
+    ],
+    ids=[
+        "hfss",
+        "maxwell_3d",
+        "maxwell_2d",
+        "hfss3d_layout",
+        "rmxprt",
+        "twin_builder",
+    ],
+)
+def aedtapp(request, add_app):
+    # design_class = request.param
+    app = add_app(application=request.param)
     yield app
     app.close_project(app.project_name)
 
@@ -41,6 +59,7 @@ def test_expressions_builder_registers(aedtapp) -> None:
     """Test registering a typed Fields Calculator expression as a named expression."""
     poly = aedtapp.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="Polyline1")
     fx = aedtapp.post.fields_calculator.expressions
+    aedtapp.create_setup()
 
     field = fx.vector("E")
     assert isinstance(field, VectorComplex)

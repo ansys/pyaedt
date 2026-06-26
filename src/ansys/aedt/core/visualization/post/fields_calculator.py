@@ -134,7 +134,7 @@ class FieldsCalculator(PyAedtBase):
         >>> E = fx.vector("E")  # VectorComplex
         >>> mag_e = E.magnitude()  # ScalarReal
         >>> value = mag_e.maximum(Volume("MySolid")).evaluate(setup="Setup1 : LastAdaptive")
-        >>> hfss.release_desktop()
+
         """
         from ansys.aedt.core.visualization.post.field_calculator_expressions import FieldExpressions
 
