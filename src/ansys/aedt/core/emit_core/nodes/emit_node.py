@@ -654,7 +654,10 @@ class EmitNode:
             The node.
         """
         try:
-            node_id = self._oRevisionData.EmitNodeImport(self._result_id, self._node_id, file_path, import_type, create_antennas)
+            if import_type == "CAD":
+                node_id = self._oRevisionData.EmitNodeImport(self._result_id, self._node_id, file_path, import_type, create_antennas)
+            else:
+                node_id = self._oRevisionData.EmitNodeImport(self._result_id, self._node_id, file_path, import_type)
         except Exception as e:
             raise Exception(f'Failed to import "{file_path}" as "{import_type}": {e}') from e
         return self._get_node(node_id)
