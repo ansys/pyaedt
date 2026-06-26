@@ -634,7 +634,7 @@ class EmitNode:
         return new_component
 
     @min_aedt_version("2025.2")
-    def _import(self, file_path: str, import_type: str):
+    def _import(self, file_path: str, import_type: str, create_antennas: bool = False):
         """Imports a file into an Emit node.
 
         Parameters
@@ -644,6 +644,9 @@ class EmitNode:
         import_type : str
             Type of import. Options are: CsvFile, TxMeasurement, RxMeasurement,
             SpectralData, TouchstoneCoupling, CAD.
+        create_antennas : bool, optional
+            Whether to automatically create antennas for any mounting points
+            defined in the CAD file (only applicable to gltf/glb files).
 
         Returns
         -------
@@ -651,7 +654,7 @@ class EmitNode:
             The node.
         """
         try:
-            node_id = self._oRevisionData.EmitNodeImport(self._result_id, self._node_id, file_path, import_type)
+            node_id = self._oRevisionData.EmitNodeImport(self._result_id, self._node_id, file_path, import_type, create_antennas)
         except Exception as e:
             raise Exception(f'Failed to import "{file_path}" as "{import_type}": {e}') from e
         return self._get_node(node_id)

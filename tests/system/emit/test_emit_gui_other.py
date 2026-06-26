@@ -39,10 +39,12 @@ from __future__ import annotations
 import os
 import sys
 import tempfile
+import shutil
 
 import pytest
 
 from tests.conftest import DESKTOP_VERSION
+from tests import TESTS_EMIT_PATH
 
 if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1") or (
     (3, 10) <= sys.version_info[0:2] <= (3, 12) and DESKTOP_VERSION > "2024.2"
@@ -74,6 +76,7 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1") o
     from ansys.aedt.core.emit_core.nodes.generated import WalfischCouplingNode
     from ansys.aedt.core.emit_core.results.revision import Revision
 
+TEST_SUBFOLDER = TESTS_EMIT_PATH / "example_models/TEMIT"
 
 @pytest.fixture
 def emit_app(add_app):
@@ -569,3 +572,17 @@ class TestEmitGuiOther:
         warn = sampling.warnings.lower()
         assert "No channels are enabled" in warn or "range" in warn
 
+    def test_import_cad_with_skip_dialog(self, emit_app, file_tmp_root):
+        """Test importing a CAD file with skip dialog set to True."""
+        revision = emit_app.results.analyze()
+        scene_node = revision.get_scene_node()
+        cad_file = TEST_SUBFOLDER / "Ansys_777_200_ER.glb"
+        file = shutil.copy2(cad_file, file_tmp_root / "Ansys_777_200_ER.glb")           
+        cad_node = scene_node.import_cad(str(file), create_antennas=False)
+        assert cad_node
+        assert len(scene_node.children) == 1
+
+
+        cad2_node = scene_node.import_cad(str(file), create_antennas=True)
+        assert cad2_node
+        assert len(scene_node.children) == 5
