@@ -63,9 +63,9 @@ def fx():
 # ---------------------------------------------------------------------------
 def test_vector_and_scalar_seed_types(fx):
     assert isinstance(fx.vector("E"), VectorComplex)
-    assert isinstance(fx.vector("E", complex=False), VectorReal)
+    assert isinstance(fx.vector("E", is_complex=False), VectorReal)
     assert isinstance(fx.scalar("Phi"), ScalarComplex)
-    assert isinstance(fx.scalar("Phi", complex=False), ScalarReal)
+    assert isinstance(fx.scalar("Phi", is_complex=False), ScalarReal)
     assert fx.vector("E").operations == ["Fundamental_Quantity('E')"]
     assert fx.named_expression("Poynting", is_vector=True).operations == ["NameOfExpression('Poynting')"]
 
@@ -112,7 +112,7 @@ def test_dot_is_rpn_concatenation(fx):
 
 
 def test_cross_and_real_dot_promotion(fx):
-    Er = fx.vector("E", complex=False)
+    Er = fx.vector("E", is_complex=False)
     assert isinstance(cross(Er, Er), VectorReal)
     assert isinstance(dot(Er, Er), ScalarReal)  # real . real -> real
     assert isinstance(dot(Er, fx.vector("H")), ScalarComplex)  # any complex -> complex
@@ -174,14 +174,14 @@ def test_integration_over_geometry(fx):
     ],
 )
 def test_geometry_tokens(fx, geom, enter, value):
-    ops = fx.scalar("Phi", complex=False).integrate(geom).operations
+    ops = fx.scalar("Phi", is_complex=False).integrate(geom).operations
     assert enter in ops and value in ops and "Operation('Integrate')" in ops
 
 
 def test_geometry_accepts_object_with_name(fx):
     obj = MagicMock()
     obj.name = "MyObj"
-    expr = fx.scalar("Phi", complex=False).maximum(Volume(obj))
+    expr = fx.scalar("Phi", is_complex=False).maximum(Volume(obj))
     assert "EnterVolume('MyObj')" in expr.operations
 
 
@@ -269,7 +269,7 @@ def test_well_formed_chains_resolve_to_single_result(fx):
 
 def test_long_unary_chain_is_balanced_and_builds(fx):
     """A 1000-deep unary chain compiles, stays balanced, and produces a valid dict."""
-    s = fx.scalar("Phi", complex=False)
+    s = fx.scalar("Phi", is_complex=False)
     for _ in range(1000):
         s = s.smooth()
     assert len(s) == 1001
@@ -280,17 +280,17 @@ def test_long_unary_chain_is_balanced_and_builds(fx):
 
 def test_long_accumulation_chain_is_balanced(fx):
     """Summing many terms keeps the stack balanced regardless of length."""
-    term = fx.scalar("Phi", complex=False).smooth()
+    term = fx.scalar("Phi", is_complex=False).smooth()
     total = term
     for _ in range(200):
-        total = total + fx.scalar("Phi", complex=False)
+        total = total + fx.scalar("Phi", is_complex=False)
     assert total.stack_depth() == 1
     assert total.verify() is total
 
 
 def test_very_long_chain_does_not_recurse(fx):
     """No recursion: building and serializing a 5000-op chain must not raise."""
-    s = fx.scalar("Phi", complex=False)
+    s = fx.scalar("Phi", is_complex=False)
     for _ in range(5000):
         s = s.smooth()
     assert len(s) == 5001
@@ -311,14 +311,14 @@ def test_exponential_reuse_blows_up_but_checkpoint_mitigates():
     fx = FieldExpressions(calc)
 
     # without checkpoint: 12 doublings -> 2^13 - 1 operations, but still balanced
-    blown = fx.scalar("Phi", complex=False)
+    blown = fx.scalar("Phi", is_complex=False)
     for _ in range(12):
         blown = blown + blown
     assert len(blown) == 2**13 - 1
     assert blown.stack_depth() == 1
 
     # with a checkpoint after each doubling: the stack stays tiny
-    bounded = fx.scalar("Phi", complex=False)
+    bounded = fx.scalar("Phi", is_complex=False)
     for _ in range(12):
         bounded = (bounded + bounded).checkpoint()
     assert len(bounded) == 1  # collapsed to a single NameOfExpression reference

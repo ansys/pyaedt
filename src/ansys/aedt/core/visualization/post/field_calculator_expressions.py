@@ -22,90 +22,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""Strongly-typed, fluent builder for AEDT Fields Calculator expressions.
-
-The AEDT Fields Calculator is driven by a stack of string operations (reverse
-Polish notation), for example ``Fundamental_Quantity('E')``, ``Operation('Real')``,
-``Operation('Tangent')``, ``Operation('Dot')``. Assembling those strings by hand
-is error-prone and hides which operations are valid for a given quantity.
-
-This module wraps that operation grammar with four typed expression classes that
-mirror the calculator's register kinds:
-
-* :class:`ScalarReal`     — a real scalar quantity.
-* :class:`ScalarComplex`  — a complex scalar quantity.
-* :class:`VectorReal`     — a real 3-vector quantity.
-* :class:`VectorComplex`  — a complex 3-vector quantity.
-
-Each class exposes only the unary ``.method()`` operations that are valid for it,
-annotated with the concrete type they produce, so an editor / type checker guides
-the user. Binary operations are Python operators (``+ - * /``) and the free
-functions :func:`dot` and :func:`cross`. Every method simply appends the matching
-calculator operation token; nothing is sent to AEDT until the expression is
-materialized with :meth:`FieldExpression.add`, :meth:`FieldExpression.evaluate`,
-or :meth:`FieldExpression.export`, which reuse the existing
-:class:`~ansys.aedt.core.visualization.post.fields_calculator.FieldsCalculator`.
-
-No raw binary field data is read — this is purely a typed front end for the
-calculator's own operation stack.
-
-Coverage and limits
--------------------
-The builder wraps the calculator operations whose tokens have been verified
-against AEDT (the entire shipped ``expression_catalog.toml`` is reproduced
-exactly — see the unit tests):
-
-* input: fundamental and named quantities; real / complex scalar constants;
-  ``vector_constant``; ``function`` (a design variable / ``Scalar_Function``).
-* general: ``+ - * /`` and negation (numbers are accepted as operands, for
-  example ``E * 2``); ``real`` / ``imaginary`` / ``conjugate`` / ``magnitude`` /
-  ``component_magnitude`` / ``phase`` / ``at_phase`` / ``smooth`` / ``absolute``;
-  ``as_complex_real`` / ``as_complex_imag`` and the :func:`cmplx` helper.
-* scalar: ``sqrt`` / ``power`` / ``ln`` / ``log10`` / ``sin`` / ``cos`` / ``tan``
-  / ``asin`` / ``acos`` / ``atan`` / ``derivative`` / ``gradient`` and forming a
-  vector with ``as_vector_x`` / ``as_vector_y`` / ``as_vector_z``.
-* vector: components ``scalar_x`` / ``scalar_y`` / ``scalar_z``; ``dot`` /
-  ``cross`` / ``curl`` / ``divergence``; and the geometry unit vectors
-  ``FieldExpressions.tangent`` / ``FieldExpressions.normal`` (push a unit vector
-  to dot a field against, for tangential / flux quantities).
-* output: ``integrate`` / ``maximum`` / ``minimum`` / ``mean`` / ``std`` /
-  ``value`` / ``max_position`` / ``min_position`` over a :class:`Line`,
-  :class:`Surface`, or :class:`Volume`.
-
-Curved geometry is handled by AEDT itself — the builder only references a named
-object and the solver integrates over its real (possibly curved) mesh.
-
-Not wrapped (use the :meth:`FieldsCalculator.add_expression` dictionary API):
-inverse ``1/x`` and ``exp`` (no stack token in this AEDT version), unit-vector
-and material (``Matl``) operations (context/argument driven), cylindrical and
-spherical scalar components (require a coordinate-system transform), and point
-geometry / face-by-id.
-
-Long expressions
-----------------
-Each method appends to a plain list, so chains of any length build correctly and
-stay balanced (use :meth:`FieldExpression.verify` to check). Two things to know
-for very large expressions: combining a sub-expression with itself duplicates its
-operations (``dot(a, a)`` repeats ``a``), so repeated reuse can grow the stack
-exponentially; and a very long stack can hit AEDT's own calculator limits. For
-both, :meth:`FieldExpression.checkpoint` registers the current expression and
-returns a single-token reference to it, keeping the operation stack short.
-
-Examples
---------
->>> from ansys.aedt.core import Hfss
->>> hfss = Hfss()
->>> fx = hfss.post.fields_calculator.expressions
->>> # |E| integrated over a surface, as a typed chain instead of a string stack
->>> E = fx.vector("E")  # VectorComplex
->>> energy = (E.magnitude() * E.magnitude()).integrate(Surface("MySheet"))
->>> value = energy.evaluate(setup="Setup1 : LastAdaptive")
->>> hfss.release_desktop()
-"""
-
 from __future__ import annotations
 
+from typing import Literal
 from typing import Sequence
+from typing import overload
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -113,9 +34,6 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
-# ---------------------------------------------------------------------------
-# geometry (integration / evaluation domains)
-# ---------------------------------------------------------------------------
 class CalculatorGeometry(PyAedtBase):
     """Base class for a calculator geometry (line, surface, volume, point)."""
 
@@ -159,9 +77,6 @@ class Volume(CalculatorGeometry):
     assignment_type = "Volume"
 
 
-# ---------------------------------------------------------------------------
-# base expression
-# ---------------------------------------------------------------------------
 class FieldExpression(PyAedtBase):
     """Base class for a typed Fields Calculator expression.
 
@@ -359,9 +274,10 @@ class FieldExpression(PyAedtBase):
 
         Examples
         --------
-        >>> base = (E.magnitude() * E.magnitude()).checkpoint("e2")
-        >>> # `base` now has a single operation; reuse it without duplication
-        >>> total = base + base
+        A repeated sub-expression such as ``(E.magnitude() * E.magnitude())`` can
+        be checkpointed once and then reused through a single
+        ``NameOfExpression(...)`` token, avoiding exponential growth of the
+        operation stack.
         """
         calc = self._require_calculator()
         name = name or generate_unique_name("fcx")
@@ -455,9 +371,6 @@ class FieldExpression(PyAedtBase):
         return calc.export(quantity=name, output_file=output_file, **kwargs)
 
 
-# ---------------------------------------------------------------------------
-# scalar real
-# ---------------------------------------------------------------------------
 class ScalarReal(FieldExpression):
     """A real scalar Fields Calculator quantity."""
 
@@ -602,9 +515,6 @@ class ScalarReal(FieldExpression):
         return self._spawn(False, True, ["Operation('CmplxI')"])
 
 
-# ---------------------------------------------------------------------------
-# scalar complex
-# ---------------------------------------------------------------------------
 class ScalarComplex(FieldExpression):
     """A complex scalar Fields Calculator quantity."""
 
@@ -676,9 +586,6 @@ class ScalarComplex(FieldExpression):
         return self._reduce(over, "")
 
 
-# ---------------------------------------------------------------------------
-# vector real
-# ---------------------------------------------------------------------------
 class VectorReal(FieldExpression):
     """A real 3-vector Fields Calculator quantity."""
 
@@ -726,9 +633,6 @@ class VectorReal(FieldExpression):
         return _vector_scale(self, other, "/")
 
 
-# ---------------------------------------------------------------------------
-# vector complex
-# ---------------------------------------------------------------------------
 class VectorComplex(FieldExpression):
     """A complex 3-vector Fields Calculator quantity."""
 
@@ -801,10 +705,7 @@ _LEAF = {
 }
 
 
-# ---------------------------------------------------------------------------
-# operation-stack simulation (well-formedness of long expressions)
-# ---------------------------------------------------------------------------
-#: Tokens that push a new register onto the calculator stack.
+# Tokens that push a new register onto the calculator stack.
 _PUSH_PREFIXES = (
     "Fundamental_Quantity",
     "NameOfExpression",
@@ -820,6 +721,7 @@ _PUSH_PREFIXES = (
     "Vector_Constant",
     "Scalar_Function",
 )
+
 #: Operations that consume two registers and push one (net -1). ``Pow`` consumes
 #: the base and the exponent constant; ``AtPhase`` consumes the field and the
 #: phase constant.
@@ -872,9 +774,6 @@ def _resolve_stack_depth(operations: Sequence[str]) -> int:
     return depth
 
 
-# ---------------------------------------------------------------------------
-# constants + binary helpers (type promotion mirrors the data-level semantics)
-# ---------------------------------------------------------------------------
 def _num(value) -> str:
     """Format a number the way AEDT serializes calculator constants (1, 2.5)."""
     return f"{value:g}"
@@ -937,9 +836,6 @@ def _vector_scale(a: FieldExpression, b, op: str) -> FieldExpression:
     return a._binary(b, op, vector=True, complex_=_both(a, b))
 
 
-# ---------------------------------------------------------------------------
-# binary free functions (do not read well as methods)
-# ---------------------------------------------------------------------------
 def dot(u: FieldExpression, v: FieldExpression) -> FieldExpression:
     """Vector dot product ``u·v`` (calculator ``Dot``) -> scalar.
 
@@ -968,59 +864,253 @@ def cmplx(real: "ScalarReal", imag: "ScalarReal") -> "ScalarComplex":
     return real.as_complex_real() + imag.as_complex_imag()
 
 
-# ---------------------------------------------------------------------------
-# builder / entry point
-# ---------------------------------------------------------------------------
 class FieldExpressions(PyAedtBase):
-    """Factory for typed Fields Calculator expressions, bound to a calculator.
+    """Builder for AEDT Fields Calculator expressions.
 
-    Obtain it through ``hfss.post.fields_calculator.expressions``. The factory
-    methods seed the operation stack with a fundamental quantity, a previously
-    defined named expression, or a constant, and return the matching typed
-    expression to chain from.
+    The AEDT Fields Calculator is driven by a stack of string operations (reverse
+    Polish notation), for example ``Fundamental_Quantity('E')``, ``Operation('Real')``,
+    ``Operation('Tangent')``, ``Operation('Dot')``. Assembling those strings by hand
+    is error-prone and hides which operations are valid for a given quantity.
+
+    This class wraps that operation grammar with four typed expression classes that
+    mirror the calculator's register kinds:
+
+    * :class:`ScalarReal`, a real scalar quantity.
+    * :class:`ScalarComplex`, a complex scalar quantity.
+    * :class:`VectorReal`, a real 3-vector quantity.
+    * :class:`VectorComplex`, a complex 3-vector quantity.
+
+    The builder wraps the calculator operations:
+
+    * input: fundamental and named quantities; real / complex scalar constants;
+      ``vector_constant``; ``function`` (a design variable / ``Scalar_Function``).
+    * general: ``+ - * /`` and negation (numbers are accepted as operands, for
+      example ``E * 2``); ``real`` / ``imaginary`` / ``conjugate`` / ``magnitude`` /
+      ``component_magnitude`` / ``phase`` / ``at_phase`` / ``smooth`` / ``absolute``;
+      ``as_complex_real`` / ``as_complex_imag`` and the :func:`cmplx` helper.
+    * scalar: ``sqrt`` / ``power`` / ``ln`` / ``log10`` / ``sin`` / ``cos`` / ``tan``
+      / ``asin`` / ``acos`` / ``atan`` / ``derivative`` / ``gradient`` and forming a
+      vector with ``as_vector_x`` / ``as_vector_y`` / ``as_vector_z``.
+    * vector: components ``scalar_x`` / ``scalar_y`` / ``scalar_z``; ``dot`` /
+      ``cross`` / ``curl`` / ``divergence``; and the geometry unit vectors
+      ``FieldExpressions.tangent`` / ``FieldExpressions.normal`` (push a unit vector
+      to dot a field against, for tangential / flux quantities).
+    * output: ``integrate`` / ``maximum`` / ``minimum`` / ``mean`` / ``std`` /
+      ``value`` / ``max_position`` / ``min_position`` over a :class:`Line`,
+      :class:`Surface`, or :class:`Volume`.
+
+    Examples
+    --------
+    >>> fx = FieldExpressions(calculator=None)
+    >>> e_vector = fx.vector("E")
+    >>> energy = (e_vector.magnitude() * e_vector.magnitude()).integrate(Surface("MySheet"))
+    >>> energy.operations[-3:]
+    ["EnterSurface('MySheet')", "Operation('SurfaceValue')", "Operation('Integrate')"]
+
     """
 
     def __init__(self, calculator) -> None:
+        """Bind the expression builder to a Fields Calculator instance.
+
+        Parameters
+        ----------
+        calculator : FieldsCalculator or None
+            Calculator used later to register, evaluate, or export expressions.
+            When ``None``, expressions can still be composed and validated
+            locally, but not materialized into AEDT.
+        """
         self._calculator = calculator
         self._design_type = [calculator.design_type] if calculator is not None else None
 
-    def _seed(self, vector: bool, complex_: bool, ops: list[str]) -> FieldExpression:
-        """Create a new typed expression bound to this builder's calculator."""
+    @overload
+    def _seed(self, vector: Literal[False], complex_: Literal[False], ops: Sequence[str]) -> ScalarReal: ...
+
+    @overload
+    def _seed(self, vector: Literal[False], complex_: Literal[True], ops: Sequence[str]) -> ScalarComplex: ...
+
+    @overload
+    def _seed(self, vector: Literal[True], complex_: Literal[False], ops: Sequence[str]) -> VectorReal: ...
+
+    @overload
+    def _seed(self, vector: Literal[True], complex_: Literal[True], ops: Sequence[str]) -> VectorComplex: ...
+
+    @overload
+    def _seed(self, vector: bool, complex_: bool, ops: Sequence[str]) -> FieldExpression: ...
+
+    def _seed(self, vector: bool, complex_: bool, ops: Sequence[str]) -> FieldExpression:
+        """Create a typed root expression bound to this builder.
+
+        Parameters
+        ----------
+        vector : bool
+            Whether the seeded expression represents a vector quantity.
+        complex_ : bool
+            Whether the seeded expression represents a complex quantity.
+        ops : Sequence[str]
+            Initial calculator-operation tokens for the expression stack.
+
+        Returns
+        -------
+        FieldExpression
+            Concrete typed expression instance selected from the internal leaf
+            registry.
+        """
         cls = _LEAF[(vector, complex_)]
         return cls(ops, calculator=self._calculator, design_type=self._design_type)
 
-    def vector(self, quantity: str = "E", complex: bool = True) -> VectorReal | VectorComplex:
-        """Start from a fundamental vector quantity (for example ``"E"``)."""
-        return self._seed(True, complex, [f"Fundamental_Quantity('{quantity}')"])
+    def vector(self, quantity: str = "E", is_complex: bool = True) -> VectorReal | VectorComplex:
+        """Start from a fundamental vector quantity.
 
-    def scalar(self, quantity: str, complex: bool = True) -> ScalarReal | ScalarComplex:
-        """Start from a fundamental scalar quantity."""
-        return self._seed(False, complex, [f"Fundamental_Quantity('{quantity}')"])
+        Parameters
+        ----------
+        quantity : str, optional
+            AEDT field quantity name, for example ``"E"`` or ``"H"``.
+        is_complex : bool, optional
+            Whether the quantity should be treated as complex. The default is
+            ``True``, which matches most frequency-domain vector fields.
+
+        Returns
+        -------
+        VectorReal | VectorComplex
+            Typed vector expression seeded with
+            ``Fundamental_Quantity('<quantity>')``.
+
+        Examples
+        --------
+        >>> fx = FieldExpressions(calculator=None)
+        >>> e_vector = fx.vector("E")
+        >>> e_mag = e_vector.magnitude()
+        >>> e_mag.operations
+        ["Fundamental_Quantity('E')", "Operation('Mag')"]
+        """
+        if is_complex:
+            return self._seed(True, True, [f"Fundamental_Quantity('{quantity}')"])
+        return self._seed(True, False, [f"Fundamental_Quantity('{quantity}')"])
+
+    def scalar(self, quantity: str, is_complex: bool = True) -> ScalarReal | ScalarComplex:
+        """Start from a fundamental scalar quantity.
+
+        Parameters
+        ----------
+        quantity : str
+            AEDT scalar quantity name.
+        is_complex : bool, optional
+            Whether the quantity should be treated as complex.
+
+        Returns
+        -------
+        ScalarReal | ScalarComplex
+            Typed scalar expression seeded with
+            ``Fundamental_Quantity('<quantity>')``.
+        """
+        if is_complex:
+            return self._seed(False, True, [f"Fundamental_Quantity('{quantity}')"])
+        return self._seed(False, False, [f"Fundamental_Quantity('{quantity}')"])
 
     def named_expression(self, name: str, is_vector: bool = False, is_complex: bool = True) -> FieldExpression:
-        """Start from a previously defined named expression."""
+        """Start from a previously defined named expression.
+
+        Parameters
+        ----------
+        name : str
+            Existing AEDT named-expression name.
+        is_vector : bool, optional
+            Whether the named expression returns a vector quantity.
+        is_complex : bool, optional
+            Whether the named expression returns a complex quantity.
+
+        Returns
+        -------
+        FieldExpression
+            Typed expression seeded with ``NameOfExpression('<name>')``.
+        """
         return self._seed(is_vector, is_complex, [f"NameOfExpression('{name}')"])
 
     def scalar_constant(self, value: float) -> ScalarReal:
-        """A real scalar constant (calculator ``Scalar_Constant``)."""
+        """Create a real scalar constant.
+
+        Parameters
+        ----------
+        value : float
+            Constant value to push on the calculator stack.
+
+        Returns
+        -------
+        ScalarReal
+            Real scalar expression seeded with ``Scalar_Constant``.
+        """
         return self._seed(False, False, [f"Scalar_Constant({_num(value)})"])
 
     def complex_constant(self, real: float, imag: float) -> ScalarComplex:
-        """A complex scalar constant (calculator ``Complex_Constant``)."""
+        """Create a complex scalar constant.
+
+        Parameters
+        ----------
+        real : float
+            Real part of the constant.
+        imag : float
+            Imaginary part of the constant.
+
+        Returns
+        -------
+        ScalarComplex
+            Complex scalar expression seeded with ``Complex_Constant``.
+        """
         return self._seed(False, True, [f"Complex_Constant({_num(real)}, {_num(imag)})"])
 
     def vector_constant(self, x: float, y: float, z: float) -> VectorReal:
-        """A constant real vector (calculator ``Vector_Constant``)."""
+        """Create a constant real vector.
+
+        Parameters
+        ----------
+        x : float
+            X component.
+        y : float
+            Y component.
+        z : float
+            Z component.
+
+        Returns
+        -------
+        VectorReal
+            Real vector expression seeded with ``Vector_Constant``.
+        """
         return self._seed(True, False, [f"Vector_Constant({_num(x)}, {_num(y)}, {_num(z)})"])
 
     def function(self, name: str) -> ScalarReal:
-        """A scalar from a design variable or function (calculator ``Scalar_Function``)."""
+        """Create a scalar expression from a design variable or function.
+
+        Parameters
+        ----------
+        name : str
+            Name resolved by AEDT through ``Scalar_Function``, typically a
+            design variable or calculator function token.
+
+        Returns
+        -------
+        ScalarReal
+            Real scalar expression seeded with ``Scalar_Function``.
+        """
         return self._seed(False, False, [f"Scalar_Function(FuncValue='{name}')"])
 
     def tangent(self) -> VectorReal:
-        """The geometry unit tangent vector (calculator ``Tangent``); dot a field with it."""
+        """Push the geometry unit tangent vector.
+
+        Returns
+        -------
+        VectorReal
+            Real vector expression seeded with ``Operation('Tangent')`` for
+            use in tangential projections such as ``dot(field, fx.tangent())``.
+        """
         return self._seed(True, False, ["Operation('Tangent')"])
 
     def normal(self) -> VectorReal:
-        """The geometry unit normal vector (calculator ``Normal``); dot a field with it."""
+        """Push the geometry unit normal vector.
+
+        Returns
+        -------
+        VectorReal
+            Real vector expression seeded with ``Operation('Normal')`` for use
+            in normal-flux or projection calculations.
+        """
         return self._seed(True, False, ["Operation('Normal')"])
