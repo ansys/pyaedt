@@ -72,7 +72,7 @@ If needed, you can still override the default behavior explicitly:
         non_graphical=True,
         new_desktop=False,
         close_on_exit=False,
-    ):
+    ) as d:
         hfss = Hfss()
         maxwell = Maxwell3d()
         # Work with an existing AEDT session here.
