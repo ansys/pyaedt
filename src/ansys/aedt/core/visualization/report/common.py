@@ -1826,7 +1826,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         return write_configuration_file(output_dict, output_file)
 
     @pyaedt_function_handler()
-    def get_solution_data(self) -> "SolutionData":
+    def get_solution_data(self) -> SolutionData | bool:
         """Get the report solution data.
 
         Returns
