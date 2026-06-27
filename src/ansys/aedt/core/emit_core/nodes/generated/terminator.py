@@ -39,6 +39,16 @@ class Terminator(EmitNode):
         """The type of this emit node."""
         return self._node_type
 
+    @min_aedt_version("2027.1")
+    def export_to_csv(self, file_name: str) -> str:
+        """Export's the data for this node"""
+        return self._export_to_csv(file_name, "SelectedInputPort|SelectedOutputPort", "1|1")
+
+    @min_aedt_version("2027.1")
+    def plot(self):
+        """Bring up a Cartesian plot for this node"""
+        return self._plot("SelectedInputPort|SelectedOutputPort", "1|1")
+
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
         """Duplicate this node"""

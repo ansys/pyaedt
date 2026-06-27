@@ -34,6 +34,7 @@ from ansys.aedt.core.emit_core.nodes.generated import Band
 from ansys.aedt.core.emit_core.nodes.generated import RadioNode
 from ansys.aedt.core.emit_core.results.interaction import Interaction
 from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
+from ansys.aedt.core.emit_core.results.license_session import LicenseSession
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.checks import min_aedt_version
 
@@ -76,6 +77,9 @@ class Simulation:
 
         self.results_index = revision.results_index
         """Revision results index."""
+
+        self._emit_com_module = revision.emit_project._emit_com_module
+        """COM module."""
 
     @pyaedt_function_handler()
     @min_aedt_version("2025.2")
@@ -170,6 +174,7 @@ class Simulation:
             )
             # Create Interaction object to access results
             interaction = Interaction(self.emit_project, domain, self._revision)
+
         # save the project and revision
         self._revision.emit_project.save_project()
         return interaction
@@ -178,7 +183,8 @@ class Simulation:
     @min_aedt_version("2027.1")
     def is_domain_valid(self, domain: InteractionDomain) -> str:
         """
-        Return ``True`` if the given domain is valid for the current revision.
+        Return "" if the given domain is valid for the current revision. Otherwise, return a string describing
+        why the domain is not valid.
 
         Parameters
         ----------
@@ -190,7 +196,7 @@ class Simulation:
         >>> domain = InteractionDomain(aedtapp)
         >>> sim = aedtapp.results.current_revision.get_simulation()
         >>> sim.is_domain_valid(domain)
-        True
+        ""
         """
         self._revision._load_revision()
         valid = self.emit_project._emit_com_module.CheckDomainValidity(
@@ -300,7 +306,7 @@ class Simulation:
             int_freqs,
             continue_if_partial,
         )
-        # Skip the error if specified via continue_if_partial, 
+        # Skip the error if specified via continue_if_partial,
         # but raise it otherwise since the user likely expects the export to be complete
         if not continue_if_partial and partial:
             raise RuntimeError(
@@ -338,7 +344,7 @@ class Simulation:
             status = self.is_domain_valid(domain)
             if status != "":
                 raise RuntimeError(status)
-            count = self._revision.emit_project._emit_com_module.GetInstanceCount(
+            count = self._emit_com_module.GetInstanceCount(
                 self._revision.results_index,
                 domain.receiver_name,
                 domain.receiver_band_name,
@@ -371,7 +377,7 @@ class Simulation:
         """
         self._revision._load_revision()
         if self.aedt_version >= 271:
-            return int(self._revision.emit_project._emit_com_module.GetNto1Limit(self._revision.results_index))
+            return int(self._emit_com_module.GetNto1Limit(self._revision.results_index))
         else:
             engine = self._revision.emit_project._emit_api.get_engine()
             return engine.n_to_1_limit
@@ -381,7 +387,7 @@ class Simulation:
     def n_to_1_limit(self, max_instances: int):
         self._revision._load_revision()
         if self.aedt_version >= 271:
-            self._revision.emit_project._emit_com_module.SetNto1Limit(self._revision.results_index, max_instances)
+            self._emit_com_module.SetNto1Limit(self._revision.results_index, max_instances)
         else:
             engine = self._revision.emit_project._emit_api.get_engine()
             engine.n_to_1_limit = max_instances
@@ -481,11 +487,7 @@ class Simulation:
             engine = self._revision.emit_project._emit_api.get_engine()
             return engine.get_emi_category_filter_enabled(category)
         else:
-            return bool(
-                self._revision.emit_project._emit_com_module.GetEmiCategoryFilterEnabled(
-                    self._revision.results_index, int(category)
-                )
-            )
+            return bool(self._emit_com_module.GetEmiCategoryFilterEnabled(self._revision.results_index, int(category)))
 
     @min_aedt_version("2025.2")
     def set_emi_category_filter_enabled(self, category: EmiCategoryFilter, enabled: bool):
@@ -502,9 +504,89 @@ class Simulation:
             engine = self._revision.emit_project._emit_api.get_engine()
             engine.set_emi_category_filter_enabled(category, enabled)
         else:
-            self._revision.emit_project._emit_com_module.SetEmiCategoryFilterEnabled(
-                self._revision.results_index, int(category), enabled
+            self._emit_com_module.SetEmiCategoryFilterEnabled(self._revision.results_index, int(category), enabled)
+
+    @min_aedt_version("2027.1")
+    def get_radio_pair_enabled(self, receiver_name: str, interferer_name: str) -> bool:
+        """Get whether a radio pair interaction is enabled.
+
+        Parameters
+        ----------
+        receiver_name : str
+            Name of the receiver radio.
+        interferer_name : str
+            Name of the interferer radio.
+
+        Returns
+        -------
+        bool
+            ``True`` when the radio pair is enabled, ``False`` otherwise.
+        """
+        if self.aedt_version < 271:
+            engine = self._revision.emit_project._emit_api.get_engine()
+            return engine.get_radio_pair_enabled(receiver_name, interferer_name)
+        else:
+            return bool(
+                self._emit_com_module.GetRadioPairEnabled(self._revision.results_index, receiver_name, interferer_name)
             )
+
+    @min_aedt_version("2027.1")
+    def set_radio_pair_enabled(self, receiver_name: str, interferer_name: str, enabled: bool):
+        """Set whether a radio pair interaction is enabled.
+
+        Parameters
+        ----------
+        receiver_name : str
+            Name of the receiver radio.
+        interferer_name : str
+            Name of the interferer radio.
+        enabled : bool
+            Whether to enable the radio pair interaction.
+        """
+        if self.aedt_version < 271:
+            engine = self._revision.emit_project._emit_api.get_engine()
+            engine.set_radio_pair_enabled(receiver_name, interferer_name, enabled)
+        else:
+            self._emit_com_module.SetRadioPairEnabled(
+                self._revision.results_index, receiver_name, interferer_name, enabled
+            )
+
+    @min_aedt_version("2027.1")
+    def get_receiver_n_to_1_enabled(self, receiver_name: str) -> bool:
+        """Get whether N-to-1 analysis is enabled for a specific receiver.
+
+        Parameters
+        ----------
+        receiver_name : str
+            Name of the receiver radio.
+
+        Returns
+        -------
+        bool
+            ``True`` when N-to-1 is enabled for the receiver, ``False`` otherwise.
+        """
+        if self.aedt_version < 271:
+            engine = self._revision.emit_project._emit_api.get_engine()
+            return engine.get_receiver_n_to_1_enabled(receiver_name)
+        else:
+            return bool(self._emit_com_module.GetReceiverNto1Enabled(self._revision.results_index, receiver_name))
+
+    @min_aedt_version("2027.1")
+    def set_receiver_n_to_1_enabled(self, receiver_name: str, enabled: bool):
+        """Set whether N-to-1 analysis is enabled for a specific receiver.
+
+        Parameters
+        ----------
+        receiver_name : str
+            Name of the receiver radio.
+        enabled : bool
+            Whether to enable N-to-1 analysis for the receiver.
+        """
+        if self.aedt_version < 271:
+            engine = self._revision.emit_project._emit_api.get_engine()
+            engine.set_receiver_n_to_1_enabled(receiver_name, enabled)
+        else:
+            self._emit_com_module.SetReceiverNto1Enabled(self._revision.results_index, receiver_name, enabled)
 
     @pyaedt_function_handler()
     @min_aedt_version("2025.2")
@@ -526,8 +608,8 @@ class Simulation:
     def get_license_session(self):
         """Get a license session.
 
-        A license session can be started with checkout(), and ended with check in().
-        The `with` keyword can also be used, where checkout() is called on enter, and check in() is called on exit.
+        For AEDT 2027.1+, creating the returned object checks out a solver license immediately.
+        The `with` keyword is recommended and will check the license back in on scope exit.
 
         Avoids having to wait for license check in and checkout when doing many runs.
 
@@ -538,6 +620,9 @@ class Simulation:
             domain = InteractionDomain(aedtapp)
             sim.run(domain)
         """
+        if self.aedt_version >= 271:
+            return LicenseSession(self._emit_com_module, self._revision.results_index)
+
         engine = self._revision.emit_project._emit_api.get_engine()
         return engine.license_session()
 

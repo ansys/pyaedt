@@ -23,18 +23,19 @@
 # SOFTWARE.
 
 
-from matplotlib import lines
-import pytest
-import tempfile
 import os
+import tempfile
+
+import pytest
 
 from ansys.aedt.core import Emit
 from ansys.aedt.core.emit_core.emit_constants import ResultType
+from ansys.aedt.core.emit_core.nodes.generated.couplings_node import CouplingsNode
 from ansys.aedt.core.emit_core.results.interaction import Interaction
 from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
+from ansys.aedt.core.emit_core.results.interaction_instance import InteractionInstance
 from ansys.aedt.core.emit_core.results.revision import Revision
 from ansys.aedt.core.emit_core.results.simulation import Simulation
-from ansys.aedt.core.emit_core.nodes.generated.couplings_node import CouplingsNode
 from tests import TESTS_EMIT_PATH
 from tests.conftest import DESKTOP_VERSION
 
@@ -92,12 +93,14 @@ def n_to_1(add_app_example):
     yield app
     app.close_project(app.project_name, save=False)
 
+
 @pytest.fixture
 def export(add_app_example):
     """Fixture for export project."""
     app = add_app_example(project="Export", application=Emit, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(app.project_name, save=False)
+
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
 def test_interaction_creation(cell_phone):
@@ -108,8 +111,8 @@ def test_interaction_creation(cell_phone):
 
     # Create an interaction domain
     domain = InteractionDomain(cell_phone)
-    domain.set_receiver(name=radios[0].name)
-    domain.set_interferers(names=[radios[1].name])
+    domain.set_receiver(radio=radios[0].name)
+    domain.set_interferers(radios=[radios[1].name])
 
     # Create interaction
     interaction = Interaction(cell_phone, domain, rev)
@@ -125,31 +128,28 @@ def test_interaction_is_valid(cell_phone):
     """Test that is_valid() uses domain parameters."""
     # Get radios
     rev = cell_phone.results.analyze()
+    sim = rev.get_simulation()
 
     # Create interaction with a valid domain
     domain: InteractionDomain = InteractionDomain(cell_phone)
-    domain.set_receiver("GPS Receiver", band_name="L2")
-    domain.set_interferers(names=["GSM Mobile Station"], band_names=["Not a band"])
+    domain.set_receiver(radio="GPS Receiver", band="L2")
+    domain.set_interferers(radios=["GSM Mobile Station"], bands=["Not a band"])
 
     interaction = Interaction(cell_phone, domain, rev)
-
-    # Check invalid domain
     with pytest.raises(ValueError) as e:
         interaction.validate()
-    assert "The domain is invalid: Interferer band 'Not a band' not found in 'GSM Mobile Station'." in str(e.value)
+    assert "Interferer band 'Not a band' not found in 'GSM Mobile Station'." in str(e.value)
     assert not interaction.is_valid()
 
-    domain.set_interferers(names=["GSM Mobile Station"], band_names=["Tx GSM-850"])
-
+    domain.set_interferers(radios=["GSM Mobile Station"], bands=["Tx GSM-850"])
+    # Check invalid domain (bad band name → domain validation error)
     with pytest.raises(ValueError) as e:
         interaction.validate()
-    assert "The interaction results do not exist" in str(e.value)
+    assert "Interaction results are incomplete" in str(e.value)
     assert not interaction.is_valid()
 
-    sim = rev.get_simulation()
-    sim.run(domain)
-
-    assert interaction.is_valid()
+    interaction2 = sim.run(domain)
+    assert interaction2.is_valid()
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
@@ -166,8 +166,8 @@ def test_multiple_interactions(cell_phone):
 
     for i in range(num_interactions):
         domain = InteractionDomain(cell_phone)
-        domain.set_receiver(name=radios[0].name)
-        domain.set_interferers(names=[radios[i + 1].name])
+        domain.set_receiver(radio=radios[0].name)
+        domain.set_interferers(radios=[radios[i + 1].name])
 
         interaction = Interaction(cell_phone, domain, rev)
         interactions.append(interaction)
@@ -192,8 +192,8 @@ def test_interaction_domain_properties(cell_phone):
     rx_name = radios[0].name
     tx_name = radios[1].name
 
-    domain.set_receiver(name=rx_name)
-    domain.set_interferers(names=[tx_name])
+    domain.set_receiver(radio=rx_name)
+    domain.set_interferers(radios=[tx_name])
 
     interaction = Interaction(cell_phone, domain, rev)
 
@@ -205,11 +205,7 @@ def test_interaction_domain_properties(cell_phone):
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
 def test_run_band_pair(cell_phone):
-    """Test basic running with receiver band and worst case results.
-
-    Note: This test is translated from C++ EmitApiTest::runBandPair
-    """
-    # Constants matching C++ test
+    """Test basic running with receiver band and worst case results."""
     rx_name = "GSM Mobile Station"
     rx_band_name = "Rx GSM-850 - Other Modulations"
     tx1_name = "WiFi - 802.11-2012"
@@ -222,11 +218,11 @@ def test_run_band_pair(cell_phone):
 
     # Run with receiver band only
     domain = InteractionDomain(cell_phone)
-    domain.set_receiver(name=rx_name, band_name=rx_band_name)
+    domain.set_receiver(radio=rx_name, band=rx_band_name)
 
     interaction = sim.run(domain)
     assert interaction is not None
-    assert interaction._check_results_exist()
+    assert interaction.is_valid()
 
     # Get worst case EMI
     instance = interaction.get_worst_instance(ResultType.EMI)
@@ -236,11 +232,11 @@ def test_run_band_pair(cell_phone):
     assert value == 9.37
 
     # Verify expected errors for requests of alternative result types from worst-case EMI instance
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance.get_value(ResultType.DESENSE)
     assert "Desense and sensitivity values not available" in str(e.value)
 
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance.get_value(ResultType.SENSITIVITY)
     assert "Desense and sensitivity values not available" in str(e.value)
 
@@ -249,35 +245,32 @@ def test_run_band_pair(cell_phone):
     value = instance_desense.get_value(ResultType.DESENSE)
     assert value == 3.54
 
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance_desense.get_value(ResultType.EMI)
     assert "EMI value not available" in str(e.value)
 
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance_desense.get_largest_emi_problem_type()
     assert "An EMI value is not available so the largest EMI problem type is undefined." in str(e.value)
 
     # Test specific 1 to 1 case
     domain2 = InteractionDomain(cell_phone)
-    domain2.set_receiver(name=rx_name, band_name=rx_band_name, freq=869000000, units="Hz")
-    domain2.set_interferers(names=[tx1_name], band_names=[tx1_band_name], freqs=[2412000000], units="Hz")
+    domain2.set_receiver(radio=rx_name, band=rx_band_name, freq=869000000, units="Hz")
+    domain2.set_interferers(radios=[tx1_name], bands=[tx1_band_name], freqs=[2412000000], units="Hz")
 
     instance2 = interaction.get_instance(domain2)
     assert instance2 is not None
 
     # Test invalid domain
     domain3 = InteractionDomain(cell_phone)
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         interaction.get_instance(domain3)
     assert "The interaction domain must be fully defined" in str(e.value)
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
 def test_availability(availability):
-    """Test availability calculation and related errors.
-
-    Note: This test is translated from C++ EmitApiTest::availability
-    """
+    """Test availability calculation and related errors."""
     # Get simulation and run
     rev = availability.results.analyze()
     sim = rev.get_simulation()
@@ -297,8 +290,8 @@ def test_availability(availability):
     assert "Availability only defined for bands and channels" in str(e.value)
 
     # Test with receiver band but no interferer band
-    domain.set_receiver(name="RF System 3 - Radio", band_name="Band")
-    domain.set_interferers(names=["RF System - SelfInteracting"])
+    domain.set_receiver(radio="RF System 3 - Radio", band="Band")
+    domain.set_interferers(radios=["RF System - SelfInteracting"])
 
     assert not interaction.has_valid_availability(domain)
     warning = interaction.get_availability_warning(domain)
@@ -309,18 +302,18 @@ def test_availability(availability):
     assert "Availability only defined for bands and channels" in str(e.value)
 
     # Test radio pair disabled
-    domain.set_interferers(names=["RF System 3 - Radio"], band_names=["Band"])
+    domain.set_interferers(radios=["RF System 3 - Radio"], bands=["Band"])
 
     assert not interaction.has_valid_availability(domain)
     warning = interaction.get_availability_warning(domain)
-    assert warning == "Radio pair disabled."
+    assert "Radio pair disabled" in warning
 
     with pytest.raises(RuntimeError) as e:
         interaction.get_availability(domain)
     assert "Radio pair disabled" in str(e.value)
 
     # Test valid availability
-    domain.set_interferers(names=["RF System - SelfInteracting"], band_names=["Band"])
+    domain.set_interferers(radios=["RF System - SelfInteracting"], bands=["Band"])
 
     assert interaction.has_valid_availability(domain)
     warning = interaction.get_availability_warning(domain)
@@ -330,7 +323,7 @@ def test_availability(availability):
     assert availability == 0.94
 
     # Test with different receiver
-    domain.set_receiver(name="RF System - SelfInteracting", band_name="Band")
+    domain.set_receiver(radio="RF System - SelfInteracting", band="Band")
 
     assert interaction.has_valid_availability(domain)
     warning = interaction.get_availability_warning(domain)
@@ -340,7 +333,7 @@ def test_availability(availability):
     assert availability == 0.45
 
     # Test self-interaction availability only at band level
-    domain.set_interferers(names=["RF System - SelfInteracting"], band_names=["Band"], freqs=[101000000])
+    domain.set_interferers(radios=["RF System - SelfInteracting"], bands=["Band"], freqs=[101000000])
 
     assert not interaction.has_valid_availability(domain)
     warning = interaction.get_availability_warning(domain)
@@ -351,7 +344,7 @@ def test_availability(availability):
     assert "Self-interaction availability only at band level" in str(e.value)
 
     # Test only one channel pair
-    domain.set_receiver(name="RF System 2 - OneChannel", band_name="Band")
+    domain.set_receiver(radio="RF System 2 - OneChannel", band="Band")
 
     assert not interaction.has_valid_availability(domain)
     warning = interaction.get_availability_warning(domain)
@@ -361,7 +354,7 @@ def test_availability(availability):
         interaction.get_availability(domain)
     assert "Only one channel pair exists, availability undefined" in str(e.value)
 
-    domain.set_receiver(name="RF System 3 - Radio", band_name="Band", freq=103000000, units="Hz")
+    domain.set_receiver(radio="RF System 3 - Radio", band="Band", freq=103000000, units="Hz")
     assert not interaction.has_valid_availability(domain)
     warning = interaction.get_availability_warning(domain)
     assert warning == "Availability undefined for single channel pairs."
@@ -373,10 +366,7 @@ def test_availability(availability):
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
 def test_non_numeric_results(non_numeric_results):
-    """Test non-numeric result handling (disabled pairs, saturated amps, etc.).
-
-    Note: This test is translated from C++ EmitApiTest::nonNumericResults
-    """
+    """Test non-numeric result handling (disabled pairs, saturated amps, etc.)."""
     rev = non_numeric_results.results.analyze()
     sim = rev.get_simulation()
 
@@ -384,53 +374,53 @@ def test_non_numeric_results(non_numeric_results):
 
     # Verify total instance count
     interaction = sim.run(domain)
-    count = interaction.get_instance_count(domain)
+    count = sim.get_instance_count(domain)
     assert count == 859
 
     # Self Interaction -> Low Susc Rx: disabled pair, getInstanceCount == 0
-    domain.set_interferers(names=["Self Interaction - Self Interaction"])
-    domain.set_receiver("Low Susc Rx - Low Susc Rx")
-    count = interaction.get_instance_count(domain)
+    domain.set_interferers(radios=["Self Interaction - Self Interaction"])
+    domain.set_receiver(radio="Low Susc Rx - Low Susc Rx")
+    count = sim.get_instance_count(domain)
     assert count == 0
 
     # Run a new interaction on this domain — get_worst_instance should fail
     bad_interaction = sim.run(domain)
-    with pytest.raises((RuntimeError, ValueError)) as e:
+    with pytest.raises(ValueError) as e:
         bad_interaction.get_worst_instance(ResultType.EMI)
-    assert "The interaction results do not exist" in str(e.value)
+    assert "Radio pair disabled" in str(e.value)
 
     # Undefined instance domain should raise
     inst_domain = InteractionDomain(non_numeric_results)
-    with pytest.raises((RuntimeError, ValueError)) as e:
+    with pytest.raises(ValueError) as e:
         interaction.get_instance(inst_domain)
     assert "The interaction domain must be fully defined" in str(e.value)
 
     # Bad receiver band name
     inst_domain.set_interferer("Self Interaction - Self Interaction", "Band", 96000000, "Hz")
     inst_domain.set_receiver("Low Susc Rx - Low Susc Rx", "Bad Band", 102000000, "Hz")
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         interaction.get_instance(inst_domain)
     assert "'Bad Band' not found" in str(e.value)
 
     # Self Interaction -> Low Susc Rx: radio pair disabled
-    inst_domain.set_receiver("Low Susc Rx - Low Susc Rx", "Band", 102000000, "Hz")
+    inst_domain.set_receiver(radio="Low Susc Rx - Low Susc Rx", band="Band", freq=102000000, units="Hz")
     with pytest.raises(RuntimeError) as e:
         interaction.get_instance(inst_domain)
     assert "Radio pair disabled" in str(e.value)
 
     # High Power Tx -> Low Susc Rx: greater than 300 dB
-    inst_domain.set_interferer("High Power Tx - High Power Tx", "Band", 102000000, "Hz")
+    inst_domain.set_interferer(radio="High Power Tx - High Power Tx", band="Band", freq=102000000, units="Hz")
     instance = interaction.get_instance(inst_domain)
     assert not instance.has_valid_values()
     warning = instance.get_result_warning()
     assert warning == "Greater than 300 dB."
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance.get_value(ResultType.EMI)
     assert "Greater than 300 dB" in str(e.value)
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance.get_value(ResultType.DESENSE)
     assert "Greater than 300 dB" in str(e.value)
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance.get_value(ResultType.SENSITIVITY)
     assert "Greater than 300 dB" in str(e.value)
 
@@ -441,13 +431,13 @@ def test_non_numeric_results(non_numeric_results):
     assert not instance.has_valid_values()
     warning = instance.get_result_warning()
     assert warning == "Less than -300 dB."
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance.get_value(ResultType.EMI)
     assert "Less than -300 dB" in str(e.value)
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance.get_value(ResultType.DESENSE)
     assert "Less than -300 dB" in str(e.value)
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance.get_value(ResultType.SENSITIVITY)
     assert "Less than -300 dB" in str(e.value)
 
@@ -457,17 +447,16 @@ def test_non_numeric_results(non_numeric_results):
     assert not instance.has_valid_values()
     warning = instance.get_result_warning()
     assert warning == "An amplifier was saturated."
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance.get_value(ResultType.EMI)
     assert "An amplifier was saturated" in str(e.value)
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance.get_value(ResultType.DESENSE)
     assert "An amplifier was saturated" in str(e.value)
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance.get_value(ResultType.SENSITIVITY)
     assert "An amplifier was saturated" in str(e.value)
 
-    # Amp Sat -> Amp Sat: radio pair disabled
     inst_domain.set_receiver("Amp Sat - Amp Sat", "Band", 110000000, "Hz")
     with pytest.raises(RuntimeError) as e:
         interaction.get_instance(inst_domain)
@@ -479,13 +468,13 @@ def test_non_numeric_results(non_numeric_results):
     assert not instance.has_valid_values()
     warning = instance.get_result_warning()
     assert warning == "No path from Tx to Rx."
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance.get_value(ResultType.EMI)
     assert "No path from Tx to Rx" in str(e.value)
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance.get_value(ResultType.DESENSE)
     assert "No path from Tx to Rx" in str(e.value)
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance.get_value(ResultType.SENSITIVITY)
     assert "No path from Tx to Rx" in str(e.value)
 
@@ -495,70 +484,91 @@ def test_non_numeric_results(non_numeric_results):
     assert not instance.has_valid_values()
     warning = instance.get_result_warning()
     assert warning == "Unallowable Tx/Rx channel combination."
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance.get_value(ResultType.EMI)
     assert "Unallowable Tx/Rx channel combination" in str(e.value)
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance.get_value(ResultType.DESENSE)
     assert "Unallowable Tx/Rx channel combination" in str(e.value)
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance.get_value(ResultType.SENSITIVITY)
     assert "Unallowable Tx/Rx channel combination" in str(e.value)
 
     # Null -> Null: no channels enabled
     inst_domain.set_receiver("RF System - Null")
     inst_domain.set_interferers(names=["RF System - Null"])
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         interaction.get_instance(inst_domain)
-    assert "The interaction domain must be fully defined" in str(e.value)
+    assert "No channels are enabled in this radio" in str(e.value)
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
-def test_result_validity(availability):
-    """Test interaction and instance validity after various operations.
-
-    Note: This test is translated from C++ EmitApiTest::resultValidity.
-    """
-    # Get simulation
+# @pytest.mark.skipif(True, reason="Need to move other emit engine functions (invalidate all).")
+def test_result_validity(availability, add_app_example):
+    """Test interaction and instance validity after various operations."""
     rev = availability.results.analyze()
     sim = rev.get_simulation()
 
-    # Run and test valid interaction
+    # unrun portion of this project
+    domain2 = InteractionDomain(availability)
+    domain2.set_receiver("RF System 3 - Radio")
+    domain2.set_interferers(["RF System 2 - OneChannel"])
+    interaction2 = Interaction(availability, domain2, rev)
+    undefined_instance = InteractionInstance(availability, InteractionDomain(availability), rev)
+
+    # interaction2 is unrun
+    assert not interaction2.is_valid()
+    with pytest.raises(RuntimeError) as e:
+        interaction2.validate()
+    assert "Interaction results are incomplete" in str(e.value)
+
+    # new, undefined interaction and instance
+    interaction = Interaction(availability, InteractionDomain(availability), rev)
+
+    # Undefined interaction should be invalid
+    assert not interaction.is_valid()
+    with pytest.raises(RuntimeError) as e:
+        interaction.validate()
+    assert "Interaction results are incomplete" in str(e.value)
+
+    # Undefined instance should be invalid
+    with pytest.raises(RuntimeError) as e:
+        undefined_instance.validate()
+    assert "Instance domain is not single instance" in str(e.value)
+
+    # Trying to get worst instance on undefined interaction should fail
+    with pytest.raises(RuntimeError) as e:
+        interaction.get_worst_instance(ResultType.EMI)
+    assert "Interaction results are incomplete" in str(e.value)
+
+    # Trying to get instance on undefined domain should fail
+    with pytest.raises(RuntimeError) as e:
+        interaction.get_instance(InteractionDomain(availability))
+    assert "Interaction results are incomplete" in str(e.value)
+
+    # interaction and instance after run and get worst case
     domain = InteractionDomain(availability)
     interaction = sim.run(domain)
-
-    interaction.is_valid()  # Should not raise
-
+    assert interaction.is_valid()
     instance = interaction.get_worst_instance(ResultType.EMI)
-    # Instance validity is checked internally, no explicit is_valid() method needed
     assert instance is not None
 
-    # Create a second interaction to verify multi-interaction handling
-    domain2 = InteractionDomain(availability)
-    # Use any available radio pair
-    rev = availability.results.current_revision
-    radios = rev.get_all_radio_nodes()
-
-    domain2.set_receiver(name=radios[0].name)
-    domain2.set_interferers(names=[radios[1].name])
-
-    interaction2 = sim.run(domain2)
-    interaction2.is_valid()  # Should not raise
-
-    instance2 = interaction2.get_worst_instance(ResultType.EMI)
-    assert instance2 is not None
-
-    # Original interaction should still be valid
-    interaction.is_valid()  # Should not raise
+    # interaction and instance after a reload of the project
+    proj_name = availability.project_name
+    availability.close_project(proj_name, save=False)
+    availability = add_app_example(project="Availability", application=Emit, subfolder=TEST_SUBFOLDER)
+    rev = availability.results.analyze()
+    sim = rev.get_simulation()
+    interaction = sim.run(domain)
+    assert interaction.is_valid()
+    instance = interaction.get_worst_instance(ResultType.EMI)
+    assert instance is not None
+    assert instance.validate() is None  # Should not raise
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
 def test_n_to_1_worst_case(n_to_1):
-    """
-    Test N-1 worst case and related errors.
-
-    Note: This test is translated from C++ EmitApiTest::nTo1WorstCase.
-    """
+    """Test N-1 worst case and related errors."""
     rev = n_to_1.results.analyze()
     sim = rev.get_simulation()
 
@@ -585,8 +595,8 @@ def test_n_to_1_worst_case(n_to_1):
     assert "EMI value not available" in str(e.value)
 
     # Get specific 1-to-1 instance
-    domain.set_interferers(names=["Tx1 - TxRadio1"], band_names=["Band"], freqs=[100], units="MHz")
-    domain.set_receiver("Rx - RxRadio", band_name="Band", freq=100, units="MHz")
+    domain.set_interferers(radios=["Tx1 - TxRadio1"], bands=["Band"], freqs=[100], units="MHz")
+    domain.set_receiver(radio="Rx - RxRadio", band="Band", freq=100, units="MHz")
     interaction = sim.run(domain)
     instance = interaction.get_instance(domain)
     value = instance.get_value(ResultType.EMI)
@@ -594,8 +604,8 @@ def test_n_to_1_worst_case(n_to_1):
 
     # Multiple simultaneous interferers not allowed
     domain.set_interferers(
-        names=["Tx1 - TxRadio1", "Tx2 - TxRadio2", "Tx3 - TxRadio3"],
-        band_names=["Band", "Band", "Band"],
+        radios=["Tx1 - TxRadio1", "Tx2 - TxRadio2", "Tx3 - TxRadio3"],
+        bands=["Band", "Band", "Band"],
         freqs=[100, 100, 100],
         units="MHz",
     )
@@ -605,13 +615,14 @@ def test_n_to_1_worst_case(n_to_1):
 
     # Band count mismatch
     with pytest.raises(ValueError) as e:
-        domain.set_interferers(names=[], band_names=["Band"])
+        domain.set_interferers(radios=[], bands=["Band"])
     assert "When assigning bands you must assign one band per interferer" in str(e.value)
 
     # Channel count mismatch
     with pytest.raises(ValueError) as e:
-        domain.set_interferers(names=[], band_names=[], freqs=[23], units="Hz")
+        domain.set_interferers(radios=[], bands=[], freqs=[23], units="Hz")
     assert "When assigning channels you must assign one channel per band" in str(e.value)
+
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
 def test_export(export):
@@ -622,11 +633,10 @@ def test_export(export):
     3. Export N to 1 Results
     """
     rev: Revision = export.results.analyze()
-    radios = rev.get_all_radio_nodes()
     sim: Simulation = rev.get_simulation()
 
     # Check that export scenario matrix works with interaction domain
-    # empty domain should export all interactions    
+    # empty domain should export all interactions
     temp_dir = tempfile.mkdtemp()
     csv_path = os.path.join(temp_dir, "scenario_matrix.csv")
     domain: InteractionDomain = InteractionDomain(export)
@@ -642,11 +652,11 @@ def test_export(export):
             content = f.read()
 
         lines = content.strip().split("\n")
-        comment_lines = [l for l in lines if l.startswith("#")]
-        data_lines = [l for l in lines if not l.startswith("#")]
+        comment_lines = [line for line in lines if line.startswith("#")]
+        data_lines = [line for line in lines if not line.startswith("#")]
         assert len(comment_lines) == 9, "Expected categorization comment header"
         assert len(data_lines) == data_lines_expected, "Expected column header + 253 data rows"
-    
+
         # Data rows should reference the selected radios
         for row in data_lines[1:]:
             fields = row.split(",")
@@ -654,19 +664,19 @@ def test_export(export):
 
     # Scenario Matrix export
     # Should have 9 data lines: 1 header + 4 rows for each Rx (3 Tx + 1 Nto1)
-    validate_csv(csv_path, 9)  
+    validate_csv(csv_path, 9)
 
-    # 1 Tx Channel to 1 Rx Channel 
+    # 1 Tx Channel to 1 Rx Channel
     csv_path = os.path.join(temp_dir, "tx1_rx1.csv")
     domain.set_receiver(
-        name="Rx_MultiBands",
-        band_name="Band 2",
+        radio="Rx_MultiBands",
+        band="Band 2",
         freq=4050,
         units="MHz",
     )
     domain.set_interferer(
-        name="Tx_MultiBands",
-        band_name="Band 2",
+        radio="Tx_MultiBands",
+        band="Band 2",
         freq=305,
         units="MHz",
     )
@@ -677,14 +687,11 @@ def test_export(export):
 
     # Selection export
     # Should have 2 data lines: 1 header + 1 row for the single channel pair analyzed
-    validate_csv(csv_path, 2) 
+    validate_csv(csv_path, 2)
 
     # N Tx Channels to 1 Rx Channel
-    csv_path = os.path.join(temp_dir, "txn_rx1.csv")    
-    domain.set_interferer(
-        name="Tx_MultiBands",
-        band_name="Band 2"
-    )
+    csv_path = os.path.join(temp_dir, "txn_rx1.csv")
+    domain.set_interferer(radio="Tx_MultiBands", band="Band 2")
 
     sim.run(domain)
     interaction: Interaction = Interaction(export, domain, rev)
@@ -694,17 +701,17 @@ def test_export(export):
     # Selection export
     # Should have 23 data lines: 1 header + 22 rows for the analyzed channel pairs
     # 21 Tx vs 1 Rx channel + Tx Band vs Rx channel
-    validate_csv(csv_path, 23) 
+    validate_csv(csv_path, 23)
 
     # N Rx Channels to 1 Tx Channel
     csv_path = os.path.join(temp_dir, "tx1_rxn.csv")
     domain.set_receiver(
-        name="Rx_MultiBands",
-        band_name="Band 2",
+        radio="Rx_MultiBands",
+        band="Band 2",
     )
     domain.set_interferer(
-        name="Tx_MultiBands",
-        band_name="Band 2",
+        radio="Tx_MultiBands",
+        band="Band 2",
         freq=305,
         units="MHz",
     )
@@ -716,7 +723,7 @@ def test_export(export):
     # Selection export
     # Should have 103 data lines: 1 header + 102 rows for the analyzed channel pairs
     # 1 Tx vs 101 Rx channel + Rx Band vs 1 Tx channel
-    validate_csv(csv_path, 103) 
+    validate_csv(csv_path, 103)
 
     # Force results purge
     coupling_data: CouplingsNode = rev.get_coupling_data_node()
@@ -725,26 +732,26 @@ def test_export(export):
     # N Rx Channels to 1 Tx Channel
     csv_path = os.path.join(temp_dir, "tx1_rxn_partial.csv")
     domain.set_receiver(
-        name="Rx_MultiBands",
-        band_name="Band 2",
+        radio="Rx_MultiBands",
+        band="Band 2",
     )
     domain.set_interferer(
-        name="Tx_MultiBands",
-        band_name="Band 2",
+        radio="Tx_MultiBands",
+        band="Band 2",
         freq=305,
         units="MHz",
     )
     interaction: Interaction = Interaction(export, domain, rev)
     interaction.export_results(csv_path, False)
-    assert not os.path.isfile(csv_path) # no results should be exported since all were purged
+    assert not os.path.isfile(csv_path)  # no results should be exported since all were purged
 
     # N to 1
     csv_path = os.path.join(temp_dir, "n_to_1.csv")
     domain.set_receiver(
-        name="Rx_MultiBands",
-        band_name="Band 2",
+        radio="Rx_MultiBands",
+        band="Band 2",
     )
-    domain.set_interferer(name="")
+    domain.set_interferer(radio="")
     sim.run(domain)
     interaction: Interaction = Interaction(export, domain, rev)
     interaction.export_results(csv_path, True)
@@ -752,6 +759,79 @@ def test_export(export):
 
     # Selection export
     # Should have 4284 data lines: 1 header + 4283 rows for the analyzed channel pairs
-    validate_csv(csv_path, 4284) 
+    validate_csv(csv_path, 4284)
 
-    
+
+@pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
+def test_n_to_1_limit(cell_phone):
+    """Test get/set N-to-1 limit and verify instance count changes accordingly."""
+    rev = cell_phone.results.analyze()
+    sim = rev.get_simulation()
+
+    # Get initial N-to-1 limit value and verify it's set to 1
+    limit = sim.n_to_1_limit
+    assert limit == 1
+
+    # Get instance count for empty domain (all bands, all channels)
+    domain = InteractionDomain(cell_phone)
+    count = sim.get_instance_count(domain)
+    assert count == 17080
+
+    # Change N-to-1 limit to 2^15
+    sim.n_to_1_limit = int(2**15)
+    assert sim.n_to_1_limit == int(2**15)
+    count = sim.get_instance_count(domain)
+    assert count == 134665
+
+
+@pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
+def test_instance_count(cell_phone):
+    """Test instance count queries for various domain configurations."""
+    rev = cell_phone.results.analyze()
+    sim = rev.get_simulation()
+
+    # N-to-1
+    sim.n_to_1_limit = -1
+    domain = InteractionDomain(cell_phone)
+    count = sim.get_instance_count(domain)
+    assert count == 134665
+
+    # 1-1 count
+    sim.n_to_1_limit = 1
+    count = sim.get_instance_count(domain)
+    assert count == 17080
+
+    # Count equivalence
+    interaction = sim.run(domain)
+    domain2 = InteractionDomain(cell_phone)
+    count = sim.get_instance_count(domain2)
+    assert count == 17080
+    # Verify domains are equivalent
+    assert domain.receiver_name == domain2.receiver_name
+    assert domain.receiver_band_name == domain2.receiver_band_name
+    assert domain.receiver_channel_frequency == domain2.receiver_channel_frequency
+    assert domain.interferer_names == domain2.interferer_names
+    assert domain.interferer_band_names == domain2.interferer_band_names
+    assert domain.interferer_channel_frequencies == domain2.interferer_channel_frequencies
+
+    # Completeness check
+    assert interaction.is_valid()
+
+    # Instance Count
+    instance = interaction.get_worst_instance(ResultType.EMI)
+    assert instance is not None
+    domain3 = instance.domain
+    count = sim.get_instance_count(domain3)
+    assert count == 1
+
+    # Instance count equivalence
+    instance = interaction.get_instance(domain3)
+    assert instance is not None
+    domain4 = instance.domain
+    # Verify domains are equivalent
+    assert domain3.receiver_name == domain4.receiver_name
+    assert domain3.receiver_band_name == domain4.receiver_band_name
+    assert domain3.receiver_channel_frequency == domain4.receiver_channel_frequency
+    assert domain3.interferer_names == domain4.interferer_names
+    assert domain3.interferer_band_names == domain4.interferer_band_names
+    assert domain3.interferer_channel_frequencies == domain4.interferer_channel_frequencies
