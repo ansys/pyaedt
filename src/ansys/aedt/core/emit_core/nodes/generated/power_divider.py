@@ -39,6 +39,39 @@ class PowerDivider(EmitNode):
         """The type of this emit node."""
         return self._node_type
 
+    @min_aedt_version("2027.1")
+    def export_to_csv(self, file_name: str = "", ports: str = "1|2") -> str:
+        """Export's the data for this node
+
+        Parameters
+        ----------
+        file_name: str[optional]
+            full path to the file to export to.
+        ports: str
+            the ports to export the data for.
+            Default orientation port names: 1|2|3
+
+        Returns
+        -------
+        csv_data: str
+            stringified data for the node returned if file_name not specified"""
+        keys = "SelectedInputPort|SelectedOutputPort"
+        vals = f"{ports}"
+        return self._export_to_csv(file_name, keys, vals)
+
+    @min_aedt_version("2027.1")
+    def plot(self, ports: str = "1|2"):
+        """Bring up a Cartesian plot for this node
+
+        Parameters
+        ----------
+        ports: str
+            the ports to export the data for.
+            Default orientation port names: 1|2|3"""
+        keys = "SelectedInputPort|SelectedOutputPort"
+        vals = f"{ports}"
+        return self._plot(keys, vals)
+
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
         """Duplicate this node"""

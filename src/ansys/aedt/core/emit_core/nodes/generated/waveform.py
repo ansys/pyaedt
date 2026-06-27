@@ -46,6 +46,36 @@ class Waveform(EmitNode):
         """The type of this emit node."""
         return self._node_type
 
+    class ChannelType(Enum):
+        TX = "Tx"
+        RX = "Rx"
+
+    @min_aedt_version("2027.1")
+    def export_to_csv(self, file_name: str = "", channel_freq: float = 100e6) -> str:
+        """Export's the data for this node
+
+        Parameters
+        ----------
+        file_name: str[optional]
+            full path to the file to export to.
+        channel_freq: float[optional]
+            tuned channel to export the Band for.
+
+        Returns
+        -------
+        csv_data: str
+            stringified data for the node returned if file_name not specified"""
+        keys = "TraceChannelFreq|TraceChannelType|NarrowOrBroad"
+        vals = f"{channel_freq}|Tx|Narrowband"
+        return self._export_to_csv(file_name, keys, vals)
+
+    @min_aedt_version("2027.1")
+    def plot(self, channel_freq: float):
+        """Bring up a Cartesian plot for this node"""
+        keys = "TraceChannelFreq|TraceChannelType|NarrowOrBroad"
+        vals = f"{channel_freq}|Tx|Narrowband"
+        return self._plot(keys, vals)
+
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
         """Duplicate this node"""

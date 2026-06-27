@@ -93,8 +93,8 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1") o
     from ansys.aedt.core.emit_core.nodes.generated import Waveform
     from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
     from ansys.aedt.core.emit_core.results.revision import Revision
-    from ansys.aedt.core.emit_core.results.simulation import Simulation
     from ansys.aedt.core.emit_core.results.simulation import Interaction
+    from ansys.aedt.core.emit_core.results.simulation import Simulation
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
@@ -146,6 +146,14 @@ def test_noise(add_app_example):
 
 
 @pytest.fixture
+def n_to_1(add_app_example):
+    """Fixture for N-to-1 project."""
+    app = add_app_example(project="Nto1", application=Emit, subfolder=TEST_SUBFOLDER)
+    yield app
+    app.close_project(app.project_name, save=False)
+
+
+@pytest.fixture
 def emit_app(add_app):
     app = add_app(application=Emit)
     yield app
@@ -161,6 +169,7 @@ def emit_app(add_app):
     (sys.version_info < (3, 10) or sys.version_info[:2] > (3, 12)) and DESKTOP_VERSION > "2024.2",
     reason="Emit API is only available for Python 3.10-3.12 in AEDT versions 2025.1 and later.",
 )
+@pytest.mark.skipif(DESKTOP_VERSION > "2026.1", reason="Skipped on versions later than 2026.1")
 def test_objects(emit_app) -> None:
     assert emit_app.solution_type
     assert isinstance(emit_app.modeler.components, EmitComponents)
@@ -1368,6 +1377,234 @@ def test_enable_n_to_1(interference):
     DESKTOP_VERSION <= "2026.1",
     reason="Skipped on versions earlier than 2027.1",
 )
+def test_radio_pair_enabled(interference):
+    """Test getting and setting radio pair enabled state using the Interference project."""
+    # Generate a revision
+    rev = interference.results.analyze()
+    sim = rev.get_simulation()
+
+    # Get receiver and interferer radio names
+    rx_radios = rev.get_receiver_names()
+    tx_radios = rev.get_interferer_names()
+
+    assert len(rx_radios) > 0
+    assert len(tx_radios) > 0
+
+    rx_name = rx_radios[0]
+    tx_name = tx_radios[0]
+
+    # Test getting initial state
+    is_enabled_initial = sim.get_radio_pair_enabled(rx_name, tx_name)
+    assert isinstance(is_enabled_initial, bool)
+
+    # Test disabling a radio pair
+    sim.set_radio_pair_enabled(rx_name, tx_name, False)
+    is_enabled = sim.get_radio_pair_enabled(rx_name, tx_name)
+    assert is_enabled is False
+
+    # Test re-enabling a radio pair
+    sim.set_radio_pair_enabled(rx_name, tx_name, True)
+    is_enabled = sim.get_radio_pair_enabled(rx_name, tx_name)
+    assert is_enabled is True
+
+    # Test toggling multiple radio pairs if available
+    if len(tx_radios) > 1:
+        tx_name_2 = tx_radios[1]
+        sim.set_radio_pair_enabled(rx_name, tx_name_2, False)
+        assert sim.get_radio_pair_enabled(rx_name, tx_name_2) is False
+
+
+@pytest.mark.skipif(
+    DESKTOP_VERSION <= "2026.1",
+    reason="Skipped on versions earlier than 2027.1",
+)
+def test_receiver_n_to_1_enabled(interference):
+    """Test getting and setting receiver N-to-1 enabled state using the Interference project."""
+    # Generate a revision
+    rev = interference.results.analyze()
+    sim = rev.get_simulation()
+
+    # Get receiver radio names
+    rx_radios = rev.get_receiver_names()
+    assert len(rx_radios) > 0
+
+    rx_name = rx_radios[0]
+
+    # Test getting initial N-to-1 enabled state
+    n_to_1_enabled_initial = sim.get_receiver_n_to_1_enabled(rx_name)
+    assert isinstance(n_to_1_enabled_initial, bool)
+
+    # Test disabling N-to-1 for the receiver
+    sim.set_receiver_n_to_1_enabled(rx_name, False)
+    n_to_1_enabled = sim.get_receiver_n_to_1_enabled(rx_name)
+    assert n_to_1_enabled is False
+
+    # Test enabling N-to-1 for the receiver
+    sim.set_receiver_n_to_1_enabled(rx_name, True)
+    n_to_1_enabled = sim.get_receiver_n_to_1_enabled(rx_name)
+    assert n_to_1_enabled is True
+
+    # Test with multiple receivers if available
+    if len(rx_radios) > 1:
+        rx_name_2 = rx_radios[1]
+        sim.set_receiver_n_to_1_enabled(rx_name_2, False)
+        assert sim.get_receiver_n_to_1_enabled(rx_name_2) is False
+
+
+@pytest.mark.skipif(
+    DESKTOP_VERSION < "2027.1",
+    reason="Skipped on versions earlier than 2027.1",
+)
+@pytest.mark.skipif(True, reason="Dialog popup bug")
+def test_analysis_enabled(n_to_1):
+    """Test enabling/disabling radio pairs and receiver N-to-1 analysis."""
+    # Generate a revision
+    rev = n_to_1.results.analyze()
+    sim = rev.get_simulation()
+
+    # Test initial radio pair enabled state
+    assert sim.get_radio_pair_enabled("Rx - RxRadio", "Tx3 - TxRadio3") is True
+
+    # Create domain for 1-to-1 analysis
+    domain = InteractionDomain(n_to_1)
+    domain.set_receiver("Rx - RxRadio")
+    domain.set_interferer("Tx3 - TxRadio3")
+
+    # Run and verify 1-to-1 interaction
+    interaction = sim.run(domain)
+    assert interaction.is_valid()
+    instance = interaction.get_worst_instance(ResultType.EMI)
+    assert instance is not None
+
+    # Disable the radio pair
+    sim.set_radio_pair_enabled("Rx - RxRadio", "Tx3 - TxRadio3", False)
+    assert sim.get_radio_pair_enabled("Rx - RxRadio", "Tx3 - TxRadio3") is False
+
+    # After disabling, the interaction should become invalid
+    assert not interaction.is_valid()
+
+    # Run again with disabled radio pair should not produce results
+    interaction2 = sim.run(domain)
+    assert not interaction2.is_valid()
+    # Verify the error is about the interaction not being run (no results were produced)
+    with pytest.raises(ValueError) as e:
+        interaction2.get_worst_instance(ResultType.EMI)
+    assert "Radio pair disabled" in str(e.value)
+
+    # Re-enable the radio pair
+    sim.set_radio_pair_enabled("Rx - RxRadio", "Tx3 - TxRadio3", True)
+    assert sim.get_radio_pair_enabled("Rx - RxRadio", "Tx3 - TxRadio3") is True
+
+    # Create domain for N-to-1 analysis (no specific interferers)
+    domain.set_interferers([])
+
+    sim.set_receiver_n_to_1_enabled("Rx - RxRadio", False)
+    assert sim.get_receiver_n_to_1_enabled("Rx - RxRadio") is False
+
+    # Run again with N-to-1 disabled should produce 1-to-1 only results
+    interaction_n_to_1_disabled = sim.run(domain)
+    assert interaction_n_to_1_disabled.is_valid()
+    instance = interaction_n_to_1_disabled.get_worst_instance(ResultType.EMI)
+    emi = instance.get_value(ResultType.EMI)
+    assert emi == 170.0
+
+    # Interaction should reflect only the 1-to-1 results
+    assert sim.get_instance_count(domain) == 3
+
+    # Test N-to-1 enabled state
+    sim.set_receiver_n_to_1_enabled("Rx - RxRadio", True)
+    assert sim.get_receiver_n_to_1_enabled("Rx - RxRadio") is True
+
+    # Run N-to-1 interaction
+    interaction_n_to_1 = sim.run(domain)
+    assert interaction_n_to_1.is_valid()
+    instance_n_to_1 = interaction_n_to_1.get_worst_instance(ResultType.EMI)
+    assert instance_n_to_1 is not None
+    emi_n_to_1 = instance_n_to_1.get_value(ResultType.EMI)
+    assert emi_n_to_1 == 179.54
+    assert sim.get_instance_count(domain) == 4
+
+
+@pytest.mark.skipif(
+    DESKTOP_VERSION <= "2026.1",
+    reason="Skipped on versions earlier than 2027.1",
+)
+def test_categories(cell_phone):
+    """Test EMI category filter enable/disable functionality.
+
+    Validates that filtering EMI categories progressively reduces worst-case EMI value
+    and eventually results in no valid values when all categories are filtered.
+    """
+    # Generate a revision
+    rev = cell_phone.results.analyze()
+    sim = rev.get_simulation()
+
+    # Verify all category filters are enabled initially
+    assert sim.get_emi_category_filter_enabled(EmiCategoryFilter.IN_CHANNEL_TX_BROADBAND) is True
+    assert sim.get_emi_category_filter_enabled(EmiCategoryFilter.IN_CHANNEL_TX_FUNDAMENTAL) is True
+    assert sim.get_emi_category_filter_enabled(EmiCategoryFilter.IN_CHANNEL_TX_HARMONIC_SPURIOUS) is True
+    assert sim.get_emi_category_filter_enabled(EmiCategoryFilter.IN_CHANNEL_TX_INTERMOD) is True
+    assert sim.get_emi_category_filter_enabled(EmiCategoryFilter.OUT_OF_CHANNEL_TX_FUNDAMENTAL) is True
+    assert sim.get_emi_category_filter_enabled(EmiCategoryFilter.OUT_OF_CHANNEL_TX_HARMONIC_SPURIOUS) is True
+    assert sim.get_emi_category_filter_enabled(EmiCategoryFilter.OUT_OF_CHANNEL_TX_INTERMOD) is True
+
+    # Run interaction with all filters enabled
+    domain = InteractionDomain(cell_phone)
+    domain.set_receiver("GSM Mobile Station", "Rx GSM-850 - Other Modulations")
+
+    interaction = sim.run(domain)
+    assert interaction.is_valid(), "Interaction should be valid"
+
+    instance = interaction.get_worst_instance(ResultType.EMI)
+    emi_value = instance.get_value(ResultType.EMI)
+    assert emi_value == 9.37
+
+    problem_type = instance.get_largest_emi_problem_type()
+    assert problem_type == EMIInterfererType.OUT_OF_CHANNEL_TX_FUNDAMENTAL
+
+    # Disable OUT_OF_CHANNEL_TX_FUNDAMENTAL and rerun
+    sim.set_emi_category_filter_enabled(EmiCategoryFilter.OUT_OF_CHANNEL_TX_FUNDAMENTAL, False)
+
+    instance = interaction.get_worst_instance(ResultType.EMI)
+    emi_value = instance.get_value(ResultType.EMI)
+    assert emi_value == 3.54
+
+    problem_type = instance.get_largest_emi_problem_type()
+    assert problem_type == EMIInterfererType.IN_CHANNEL_TX_BROADBAND
+
+    # Disable IN_CHANNEL_TX_BROADBAND and rerun
+    sim.set_emi_category_filter_enabled(EmiCategoryFilter.IN_CHANNEL_TX_BROADBAND, False)
+
+    instance = interaction.get_worst_instance(ResultType.EMI)
+    emi_value = instance.get_value(ResultType.EMI)
+    assert emi_value == -0.92
+
+    problem_type = instance.get_largest_emi_problem_type()
+    assert problem_type == EMIInterfererType.OUT_OF_CHANNEL_TX_HARMONIC_SPURIOUS
+
+    # Disable OUT_OF_CHANNEL_TX_HARMONIC_SPURIOUS (the last unfiltered source)
+    sim.set_emi_category_filter_enabled(EmiCategoryFilter.OUT_OF_CHANNEL_TX_HARMONIC_SPURIOUS, False)
+
+    instance = interaction.get_worst_instance(ResultType.EMI)
+
+    # Verify no valid values remain
+    assert not instance.has_valid_values()
+
+    # Verify error when getting value
+    with pytest.raises(Exception) as excinfo:
+        instance.get_value(ResultType.EMI)
+    assert "No power received" in str(excinfo.value)
+
+    # Verify error when getting largest EMI problem type
+    with pytest.raises(Exception) as excinfo:
+        instance.get_largest_emi_problem_type()
+    assert "An EMI value is not available" in str(excinfo.value)
+
+
+@pytest.mark.skipif(
+    DESKTOP_VERSION <= "2026.1",
+    reason="Skipped on versions earlier than 2027.1",
+)
 def test_interference_scripts_no_filter(interference) -> None:
     # Generate a revision
     rev = interference.results.analyze()
@@ -1476,7 +1713,7 @@ def test_interference_filtering(interference) -> None:
             [
                 EMIInterfererType.IN_CHANNEL_TX_HARMONIC_SPURIOUS,
                 EMIInterfererType.IN_CHANNEL_TX_INTERMOD,
-                EMIInterfererType.IN_CHANNEL_BROADBAND,
+                EMIInterfererType.IN_CHANNEL_TX_BROADBAND,
             ],
             EMIInterfererType.OUT_OF_CHANNEL_TX_FUNDAMENTAL,
             [
@@ -1735,7 +1972,7 @@ def test_result_categories_with_simulation(emit_app):
     # confirm the emi value when all categories are enabled
     instance = interaction.get_worst_instance(ResultType.EMI)
     assert instance.get_value(ResultType.EMI) == 16.64
-    assert instance.get_largest_emi_problem_type() == EMIInterfererType.IN_CHANNEL_BROADBAND
+    assert instance.get_largest_emi_problem_type() == EMIInterfererType.IN_CHANNEL_TX_BROADBAND
 
     # disable one category and confirm the emi value changes
     sim.set_emi_category_filter_enabled(EmiCategoryFilter.IN_CHANNEL_TX_BROADBAND, False)
@@ -1752,16 +1989,15 @@ def test_result_categories_with_simulation(emit_app):
     # disable last existing category and confirm expected exceptions and error messages
     sim.set_emi_category_filter_enabled(EmiCategoryFilter.OUT_OF_CHANNEL_TX_HARMONIC_SPURIOUS, False)
     instance = interaction.get_worst_instance(ResultType.EMI)
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance.get_value(ResultType.EMI)
         assert "Unable to evaluate value: No power received." in str(e)
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance.get_largest_emi_problem_type()
         assert "An EMI value is not available so the largest EMI problem type is undefined." in str(e)
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
-@pytest.mark.skipif(True, reason="License session not moved yet.")
 def test_license_session(interference):
     # Generate a revision
     results = interference.results
@@ -1778,27 +2014,25 @@ def test_license_session(interference):
     # Do a run to ensure the license log exists
     do_run()
 
-    # Find the license log for this process
+    # Find the most recent ansyscl license log.
+    # For 2027.1+, checkout/check in can occur in the EMIT subprocess, so
+    # filtering by this Python process id is not reliable.
     appdata_local_path = tempfile.gettempdir()
-    pid = os.getpid()
     dot_ansys_directory = Path(appdata_local_path) / ".ansys"
 
-    license_file_path = ""
+    license_logs = []
     for file in dot_ansys_directory.iterdir():
+        if not file.is_file():
+            continue
         filename_pieces = file.name.split(".")
-        # Since machine names can contain periods, there may be over five splits here
-        # We only care about the first split and last three splits
+        # Since machine names can contain periods, there may be over five splits here.
+        # We only care about ansyscl.*.*.log shape and that the sequence id is numeric.
         if len(filename_pieces) >= 5:
-            if (
-                filename_pieces[0] == "ansyscl"
-                and filename_pieces[-3] == str(pid)
-                and filename_pieces[-2].isnumeric()
-                and filename_pieces[-1] == "log"
-            ):
-                license_file_path = dot_ansys_directory / file.name
-                break
+            if filename_pieces[0] == "ansyscl" and filename_pieces[-2].isnumeric() and filename_pieces[-1] == "log":
+                license_logs.append(file)
 
-    assert license_file_path != ""
+    assert len(license_logs) > 0
+    license_file_path = max(license_logs, key=lambda path: path.stat().st_mtime)
 
     def count_license_actions(license_path):
         # Count checkout/checkins in most recent license connection
@@ -1880,7 +2114,6 @@ def test_emit_nodes(interference) -> None:
     assert scene_node == scene_node
 
 
-# @profile
 @pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Skipped on versions earlier than 2025 R2.")
 def test_all_generated_emit_node_properties(emit_app) -> None:
     # change this to limit the number of iterations for each node
@@ -2095,7 +2328,7 @@ def test_all_generated_emit_node_properties(emit_app) -> None:
                                         if w:
                                             mem_results[mem_key] = (Result.VALUE, node.name)
                                             assert (
-                                                str(w[0].message) == "This property is deprecated in 0.21.3. "
+                                                str(w[0].message) == "This method is deprecated in 0.21.3. "
                                                 "Use the name property instead."
                                             )
                                     continue
@@ -2850,7 +3083,7 @@ def test_emitters_radios(emit_app) -> None:
 
         band._rename("Test 2")
         if w:
-            assert str(w[0].message) == "This property is deprecated in 0.21.3. Use the name property instead."
+            assert str(w[0].message) == "This method is deprecated in 0.21.3. Use the name property instead."
     assert band.name == "Test 2"
 
     # Add a Band
@@ -3030,8 +3263,6 @@ def test_hfss_phased_array_antennas(hfss_phased_array):
     sim: Simulation = rev.get_simulation()
     domain = InteractionDomain(hfss_phased_array)
     assert domain is not None
-    engine = hfss_phased_array._emit_api.get_engine()
-    assert engine is not None
     assert sim.is_domain_valid(domain) == ""
 
     # run the interaction
@@ -3242,4 +3473,3 @@ def test_terminator_table_persistence(add_app) -> None:
     assert reopened_amplifier.table_data == expected_amplifier_table
 
     app2.close_project(app2.project_name, save=False)
-

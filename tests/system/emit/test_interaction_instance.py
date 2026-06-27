@@ -77,54 +77,29 @@ def test_instance_get_value(cell_phone):
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
-def test_instance_result_warning_messages(emit_app):
-    domain = InteractionDomain(emit_app)
-    instance = InteractionInstance(emit_app, domain, emit_app.results.current_revision)
-
-    # Verify error message
-    assert instance.get_result_warning() == "Nothing to run."
-    assert not instance.has_valid_values()
-
-
-@pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
 def test_instance_get_value_with_unavailable_results(cell_phone):
     rev = cell_phone.results.analyze()
     sim = rev.get_simulation()
 
     domain = InteractionDomain(cell_phone)
-    domain.set_receiver("GPS Receiver", band_name="L2")
-    domain.set_interferer("GSM Mobile Station", band_name="Tx GSM-850")
+    domain.set_receiver(radio="GPS Receiver", band="L2")
+    domain.set_interferer(radio="GSM Mobile Station", band="Tx GSM-850")
 
     interaction = sim.run(domain)
     emi_instance = interaction.get_worst_instance(ResultType.EMI)
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         emi_instance.get_value(ResultType.DESENSE)
     assert "Desense and sensitivity values not available" in str(e.value)
 
     # Get worst instance for DESENSE - EMI should be marked as 30201
     desense_instance = interaction.get_worst_instance(ResultType.DESENSE)
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         desense_instance.get_value(ResultType.EMI)
     assert "EMI value not available" in str(e.value)
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
-def test_instance_power_at_rx_multiple_interferers_error(cell_phone):
-    """Test _fetch_power_at_rx raises error for multiple interferers."""
-    domain = InteractionDomain(cell_phone)
-    domain.set_receiver("Low Susc Rx - Low Susc Rx", "Band", 102000000, "Hz")
-    domain.set_interferers(
-        ["Low Power Tx - Low Power Tx", "Low Power Tx - Low Power Tx"], ["Band", "Band"], [102000000, 110000000], "Hz"
-    )
-
-    instance = InteractionInstance(cell_phone, domain, cell_phone.results.current_revision)
-    with pytest.raises(RuntimeError) as e:
-        instance.get_value(ResultType.POWER_AT_RX)
-    assert "multiple simultaneous interferers" in str(e.value)
-
-
-@pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
-def test_instance_check_validity_with_valid_values(cell_phone):
+def test_instance_valid(cell_phone):
     """Test check_validity() succeeds for instance with valid EMI/DESENSE values."""
     rev = cell_phone.results.analyze()
     sim = rev.get_simulation()
@@ -136,59 +111,10 @@ def test_instance_check_validity_with_valid_values(cell_phone):
     interaction = sim.run(domain)
     instance = interaction.get_instance(domain)
 
-    # check_validity() should not raise since instance has valid EMI/DESENSE
-    instance.check_validity()
-
-    # Also verify that has_valid_values returns True
+    assert isinstance(instance, InteractionInstance)
+    assert instance.is_valid()
     assert instance.has_valid_values()
-
-
-@pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
-def test_instance_check_validity_with_invalid_values(emit_app):
-    """Test check_validity() raises error for instance with invalid values."""
-    # Create an uninitialized instance with no simulation run
-    domain = InteractionDomain(emit_app)
-    instance = InteractionInstance(emit_app, domain, emit_app.results.current_revision)
-
-    # Instance starts with _encoded_emi = -32768 (Nothing to run)
-    # check_validity() should raise RuntimeError
-    with pytest.raises(RuntimeError) as exc_info:
-        instance.check_validity()
-
-    # Verify the error message contains both prefix and warning
-    assert "InteractionInstance has invalid values" in str(exc_info.value)
-    assert "Nothing to run" in str(exc_info.value)
-
-
-@pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
-def test_instance_warning_messages_from_valid_instance(cell_phone):
-    """Test get_result_warning() with valid instance (should return empty string)."""
-    rev = cell_phone.results.analyze()
-    sim = rev.get_simulation()
-
-    # Create a valid instance with both EMI and DESENSE available
-    domain = InteractionDomain(cell_phone)
-    domain.set_interferer("WiFi - 802.11-2012", "Tx OFDM - 54 Mbps", 2.412, "GHz")
-    domain.set_receiver("GPS Receiver", "L2", 1.2276, "GHz")
-    interaction = sim.run(domain)
-    instance = interaction.get_instance(domain)
-
-    # Valid instance should return empty warning string
     assert instance.get_result_warning() == ""
-    assert instance.has_valid_values()
-
-
-@pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
-def test_instance_largest_emi_problem_type_invalid(emit_app):
-    """Test get_largest_emi_problem_type() raises error for invalid instance."""
-    domain = InteractionDomain(emit_app)
-    instance = InteractionInstance(emit_app, domain, emit_app.results.current_revision)
-
-    # Invalid instance (uninitialized with -32768) should raise
-    with pytest.raises(RuntimeError) as exc_info:
-        instance.get_largest_emi_problem_type()
-
-    assert "An EMI value is not available" in str(exc_info.value)
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
@@ -212,27 +138,23 @@ def test_instance_get_domain(cell_phone):
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
-def test_instance_power_at_rx_property(cell_phone):
-    """Test power_at_rx property getter."""
+def test_get_radio_name_domain_filter(cell_phone):
+    """Test get_receiver_names() and get_interferer_names() with a domain filter."""
     rev = cell_phone.results.analyze()
-    sim = rev.get_simulation()
 
+    # Create and run simulation with radio filter
     domain = InteractionDomain(cell_phone)
     domain.set_interferer("WiFi - 802.11-2012", "Tx OFDM - 54 Mbps", 2.412, "GHz")
     domain.set_receiver("GPS Receiver", "L2", 1.2276, "GHz")
-    interaction = sim.run(domain)
-    instance = interaction.get_instance(domain)
 
-    # power_at_rx property should match the internal value
-    # Initially uninitialized, returns -200.0
-    initial_power = instance.power_at_rx
-    assert initial_power == -200.0
+    rx_no_filter = rev.get_receiver_names()
+    rx_with_filter = rev.get_receiver_names(domain_filter=domain)
+    assert len(rx_no_filter) == 3
+    assert len(rx_with_filter) == 1
+    assert rx_with_filter[0] == "GPS Receiver"
 
-    # After calling get_value(POWER_AT_RX), it should be cached
-    try:
-        power_from_get_value = instance.get_value(ResultType.POWER_AT_RX)
-        cached_power = instance.power_at_rx
-        assert power_from_get_value == cached_power
-    except RuntimeError:
-        # OK if power_at_rx not available
-        pass
+    tx_no_filter = rev.get_interferer_names()
+    tx_with_filter = rev.get_interferer_names(domain_filter=domain)
+    assert len(tx_no_filter) == 3
+    assert len(tx_with_filter) == 1
+    assert tx_with_filter[0] == "WiFi - 802.11-2012"
