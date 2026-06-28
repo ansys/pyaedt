@@ -481,6 +481,22 @@ class EmitNode:
             return
 
         try:
+            available_props = self._oRevisionData.GetEmitNodeProperties(
+                self._result_id, self._node_id, skipChecks
+            )
+        except Exception:
+            errors = self._emit_obj.logger.aedt_messages.error_level
+            msg = errors[-1] if errors else "Failed to get node properties."
+            raise ValueError(str(msg))
+        available_dict = self.props_to_dict(available_props)
+        missing = [name for name in prop_keys if name not in available_dict]
+        if missing:
+            raise ValueError(
+                f"Properties not found or not available for {self._node_type} configuration: "
+                f"{', '.join(missing)}"
+            )
+
+        try:
             self._oRevisionData.SetEmitNodeProperties(
                 self._result_id, self._node_id, prop_strings, skipChecks
             )
@@ -560,7 +576,7 @@ class EmitNode:
 
     @min_aedt_version("2025.2")
     def _get_property(
-        self, prop: str, skipChecks: bool = True, isTable: bool = False
+        self, prop: str, skipChecks: bool = False, isTable: bool = False
     ) -> str | list[str] | list[float] | list[tuple[str, ...]]:
         """Get a single property value.
 
@@ -601,7 +617,7 @@ class EmitNode:
             raise self._emit_obj.logger.aedt_messages.error_level[-1]
 
     @min_aedt_version("2025.2")
-    def _set_property(self, prop, value, skipChecks: bool = True):
+    def _set_property(self, prop, value, skipChecks: bool = False):
         """Set a single property value.
 
         Parameters
