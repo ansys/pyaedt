@@ -2121,6 +2121,16 @@ def test_all_generated_emit_node_properties(emit_app) -> None:
     # to verify that every property can be set
     max_inner_loop_iterations = 2
 
+    # Enum values that open AEDT dialogs and freeze headless CI runs.
+    enum_values_to_skip = frozenset({"PyramidalHorn", "ByFile", "HfssPhasedArray"})
+    method_prefixes_to_skip = ("plot", "import_", "add_", "export_")
+
+    def should_skip_enum_value(enum_val) -> bool:
+        if enum_val is None:
+            return False
+        value = enum_val.value if hasattr(enum_val, "value") else str(enum_val)
+        return value in enum_values_to_skip
+
     # used to give nodes a unique name on rename commands
     next_int = 0
 
@@ -2230,7 +2240,11 @@ def test_all_generated_emit_node_properties(emit_app) -> None:
                         node_bools[member] = [True, False]
                         continue
                     elif isinstance(arg_type, type) and issubclass(arg_type, Enum):
-                        node_enums[member] = list(arg_type.__members__.values())
+                        node_enums[member] = [
+                            enum_val
+                            for enum_val in arg_type.__members__.values()
+                            if not should_skip_enum_value(enum_val)
+                        ]
                         continue
 
                     mem_value = {
@@ -2254,6 +2268,8 @@ def test_all_generated_emit_node_properties(emit_app) -> None:
             else:
                 enum_vals = node_enums[enum_key]
             for enum_val in enum_vals or [None]:
+                if should_skip_enum_value(enum_val):
+                    continue
                 try:
                     if enum_val is not None:
                         class_attr = getattr(node.__class__, enum_key)
@@ -2344,7 +2360,11 @@ def test_all_generated_emit_node_properties(emit_app) -> None:
                                         mem_results[mem_key] = (Result.VALUE, str(e))
                                     continue
 
-                                # TODO: Skip Pyramidal Horn params due to warning popup that freezes the test
+                                if member.startswith(method_prefixes_to_skip):
+                                    mem_results[mem_key] = (Result.SKIPPED, "Skipping side-effect method")
+                                    continue
+
+                                # Pyramidal Horn params also trigger a warning popup that freezes the test.
                                 if (
                                     member.startswith("mouth_width")
                                     or member.startswith("mouth_height")

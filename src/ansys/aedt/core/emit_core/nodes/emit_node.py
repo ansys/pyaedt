@@ -392,7 +392,8 @@ class EmitNode:
     @staticmethod
     def _format_property_string(prop: str, value) -> str:
         """Format a property name and value into an EmitCom ``name=value`` string."""
-        return prop + "=" + EmitNode._format_property_value(prop, value)
+        formatted_value = EmitNode._format_property_value(prop, value)
+        return "=".join((prop, formatted_value))
 
     @min_aedt_version("2025.2")
     @pyaedt_function_handler()
