@@ -1,0 +1,136 @@
+{
+    "pairs": [
+        {
+            "name": "TX0",
+            "nets": [
+                {
+                    "driver_port": 1,
+                    "receiver_port": 2
+                },
+                {
+                    "driver_port": 3,
+                    "receiver_port": 4
+                }
+            ],
+            "driver": "U1",
+            "receiver": "X1"
+        },
+        {
+            "name": "TX1",
+            "nets": [
+                {
+                    "driver_port": 5,
+                    "receiver_port": 6
+                },
+                {
+                    "driver_port": 7,
+                    "receiver_port": 8
+                }
+            ],
+            "driver": "U1",
+            "receiver": "X1"
+        },
+        {
+            "name": "TX2",
+            "nets": [
+                {
+                    "net": "PCIe_Gen4_TX2_P",
+                    "driver_port": 9,
+                    "receiver_port": 10
+                },
+                {
+                    "net": "PCIe_Gen4_TX2_N",
+                    "driver_port": 11,
+                    "receiver_port": 12
+                }
+            ],
+            "driver": "U1",
+            "receiver": "X1"
+        },
+        {
+            "name": "TX3",
+            "nets": [
+                {
+                    "net": "PCIe_Gen4_TX3_P",
+                    "driver_port": 13,
+                    "receiver_port": 14
+                },
+                {
+                    "net": "PCIe_Gen4_TX3_N",
+                    "driver_port": 15,
+                    "receiver_port": 16
+                }
+            ],
+            "driver": "U1",
+            "receiver": "X1"
+        },
+        {
+            "name": "RX0",
+            "nets": [
+                {
+                    "net": "PCIe_Gen4_RX0_P",
+                    "driver_port": 17,
+                    "receiver_port": 18
+                },
+                {
+                    "net": "PCIe_Gen4_RX0_N",
+                    "driver_port": 19,
+                    "receiver_port": 20
+                }
+            ],
+            "driver": "X1",
+            "receiver": "U1"
+        },
+        {
+            "name": "RX1",
+            "nets": [
+                {
+                    "net": "PCIe_Gen4_RX1_P",
+                    "driver_port": 21,
+                    "receiver_port": 22
+                },
+                {
+                    "net": "PCIe_Gen4_RX1_N",
+                    "driver_port": 23,
+                    "receiver_port": 24
+                }
+            ],
+            "driver": "X1",
+            "receiver": "U1"
+        },
+        {
+            "name": "RX2",
+            "nets": [
+                {
+                    "net": "PCIe_Gen4_RX2_P",
+                    "driver_port": 25,
+                    "receiver_port": 26
+                },
+                {
+                    "net": "PCIe_Gen4_RX2_N",
+                    "driver_port": 27,
+                    "receiver_port": 28
+                }
+            ],
+            "driver": "X1",
+            "receiver": "U1"
+        },
+        {
+            "name": "RX3",
+            "nets": [
+                {
+                    "net": "PCIe_Gen4_RX3_P",
+                    "driver_port": 29,
+                    "receiver_port": 30
+                },
+                {
+                    "net": "PCIe_Gen4_RX3_N",
+                    "driver_port": 31,
+                    "receiver_port": 32
+                }
+            ],
+            "driver": "X1",
+            "receiver": "U1"
+        }
+    ]
+}
