@@ -588,13 +588,65 @@ class SpiSim(PyAedtBase):
             standard: int = 1,
             ):
         """Compute Channel Operating Margin (COM) from a touchstone file with THRU, FEXT, and NEXT channels.
+        FEXT and NEXT channels are extracted from the touchstone file based on the differential pair port mapping
+        defined in the port mapping file. Channels share the driver with the THRU channel are identified as FEXT
+        channels. Otherwise, they are identified as NEXT channels.
 
         Parameters
         ----------
         through : str
             Path to the through channel file.
         port_mapping_file : Path, str
-            Path to the port mapping file.
+            Path to the port mapping file in JSON format defining differential pair port mappings.
+            The file must contain SParameterPortMapping data with differential pair information.
+            
+            The JSON structure should follow this format:
+            
+            .. code-block:: json
+            
+                {
+                    "pairs": [
+                        {
+                            "name": "pair_name_1",
+                            "nets": [
+                                {
+                                    "driver_port": 1,
+                                    "receiver_port": 2
+                                },
+                                {
+                                    "driver_port": 3,
+                                    "receiver_port": 4
+                                }
+                            ],
+                            "driver": "U1",
+                            "receiver": "U2"
+                        },
+                        {
+                            "name": "pair_name_2",
+                            "nets": [
+                                {
+                                    "driver_port": 5,
+                                    "receiver_port": 6
+                                },
+                                {
+                                    "driver_port": 7,
+                                    "receiver_port": 8
+                                }
+                            ],
+                            "driver": "U1",
+                            "receiver": "U3"
+                        }
+                    ]
+                }
+            
+            Each differential pair contains:
+            - **name**: Unique identifier for the differential pair
+            - **nets**: List of two nets (positive and negative), each with driver_port and receiver_port indices
+            - **driver**: Reference designator of the driving component
+            - **receiver**: Reference designator of the receiving component
+            
+            Port indices are 1-based and correspond to S-parameter port numbers in the touchstone file.
+            
         output_folder : Path, str
             Path to the output folder.
         config_file : Path, str, optional
@@ -659,32 +711,15 @@ class SpiSim(PyAedtBase):
             out_path= thru_s4p,
         )
 
-        # base_ports = [through_ports[1], through_ports[3]]
         next_s4p = []
         fext_s4p = []
         for ch in com.pairs:
             if ch.name != through:
-                #fext_ports = copy.deepcopy(base_ports)
 
-                #next_ports = copy.deepcopy(base_ports)
                 fext_ports = []
                 next_ports = []
 
                 if ch.driver == thru.driver:
-                    next_ports.append(ch.nets[0].driver_port - 1)
-                    next_ports.append(through_ports[1])
-                    next_ports.append(ch.nets[1].driver_port - 1)
-                    next_ports.append(through_ports[3])
-
-                    s4p_path = temp_folder / f"next_{thru.name}_{ch.name}.s4p"
-
-                    extract_and_save(
-                        input_path=self.touchstone_file,
-                        port_indices=next_ports,
-                        out_path=s4p_path,
-                    )
-                    next_s4p.append(str(s4p_path))
-                else:
                     fext_ports.append(ch.nets[0].receiver_port - 1)
                     fext_ports.append(through_ports[1])
                     fext_ports.append(ch.nets[1].receiver_port - 1)
@@ -698,6 +733,20 @@ class SpiSim(PyAedtBase):
                         out_path=temp_folder /f"fext_{thru.name}_{ch.name}.s4p"
                     )
                     fext_s4p.append(str(s4p_path))
+                else:
+                    next_ports.append(ch.nets[0].driver_port - 1)
+                    next_ports.append(through_ports[1])
+                    next_ports.append(ch.nets[1].driver_port - 1)
+                    next_ports.append(through_ports[3])
+
+                    s4p_path = temp_folder / f"next_{thru.name}_{ch.name}.s4p"
+
+                    extract_and_save(
+                        input_path=self.touchstone_file,
+                        port_indices=next_ports,
+                        out_path=s4p_path,
+                    )
+                    next_s4p.append(str(s4p_path))
 
         self.touchstone_file = str(thru_s4p)
         com_0, com_1 = self.compute_com(
