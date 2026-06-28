@@ -700,14 +700,13 @@ class SpiSim(PyAedtBase):
                     )
                     fext_s4p.append(str(s4p_path))
 
-
-        spisim = SpiSim(str(thru_s4p))
-        com_0, com_1 = spisim.compute_com(
+        self.touchstone_file = str(thru_s4p)
+        com_0, com_1 = self.compute_com(
             standard=standard,
             port_order="EvenOdd",
             fext_s4p=fext_s4p,
             next_s4p=next_s4p,
-            out_folder=com_result_folder,
+            out_folder=str(com_result_folder),
         )
         return com_0, com_1
 
