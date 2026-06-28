@@ -188,8 +188,8 @@ class AdvancedReport(ReportBase):
 
 class Pair(BaseModel):
     class Net(BaseModel):
-        driver_port: str|int
-        receiver_port: str|int
+        driver_port: str | int
+        receiver_port: str | int
 
     name: str | None = Field(None, description="Differential pair name")
     nets: list[Net] | None = Field(default_factory=list)
@@ -197,12 +197,10 @@ class Pair(BaseModel):
     receiver: str | None = Field(None, description="Receiver reference designator")
 
     def add_port_idx_mapping(self, net_name, driver_port_idx, receiver_port_idx):
-        self.nets.append(
-            self.Net(net=net_name, driver_port=driver_port_idx, receiver_port=receiver_port_idx))
+        self.nets.append(self.Net(net=net_name, driver_port=driver_port_idx, receiver_port=receiver_port_idx))
 
 
 class SParameterPortMapping(BaseModel):
-
     pairs: list[Pair] = Field(default_factory=list, description="Differential pairs")
 
     def add_differential_pair(self, channel: Pair):
@@ -507,8 +505,8 @@ class SpiSim(PyAedtBase):
         standard: int = 1,
         config_file: str = None,
         port_order: str = "EvenOdd",
-        fext_s4p: str|list = "",
-        next_s4p: str|list = "",
+        fext_s4p: str | list = "",
+        next_s4p: str | list = "",
         out_folder: str = "",
     ) -> list | float:
         """Compute Channel Operating Margin. Only COM ver3.4 is supported.
@@ -577,16 +575,15 @@ class SpiSim(PyAedtBase):
         out_processing = self.__compute_spisim("COM", cfg_file)
         return self.__get_output_parameter_from_result(out_processing, "COM")
 
-
     @pyaedt_function_handler()
     def compute_com_snp(
-            self,
-            through:str,
-            port_mapping_file: Path|str,
-            output_folder: Path|str,
-            config_file: Path|str = None,
-            standard: int = 1,
-            ):
+        self,
+        through: str,
+        port_mapping_file: Path | str,
+        output_folder: Path | str,
+        config_file: Path | str = None,
+        standard: int = 1,
+    ):
         """Compute Channel Operating Margin (COM) from a touchstone file with THRU, FEXT, and NEXT channels.
         FEXT and NEXT channels are extracted from the touchstone file based on the differential pair port mapping
         defined in the port mapping file. Channels share the driver with the THRU channel are identified as FEXT
@@ -599,11 +596,11 @@ class SpiSim(PyAedtBase):
         port_mapping_file : Path, str
             Path to the port mapping file in JSON format defining differential pair port mappings.
             The file must contain SParameterPortMapping data with differential pair information.
-            
+
             The JSON structure should follow this format:
-            
+
             .. code-block:: json
-            
+
                 {
                     "pairs": [
                         {
@@ -638,15 +635,15 @@ class SpiSim(PyAedtBase):
                         }
                     ]
                 }
-            
+
             Each differential pair contains:
             - **name**: Unique identifier for the differential pair
             - **nets**: List of two nets (positive and negative), each with driver_port and receiver_port indices
             - **driver**: Reference designator of the driving component
             - **receiver**: Reference designator of the receiving component
-            
+
             Port indices are 1-based and correspond to S-parameter port numbers in the touchstone file.
-            
+
         output_folder : Path, str
             Path to the output folder.
         config_file : Path, str, optional
@@ -677,8 +674,7 @@ class SpiSim(PyAedtBase):
 
         except ImportError:
             warnings.warn(
-                "The Scikit-rf module is required to run this functionality.\n"
-                "Install with \n\npip install scikit-rf"
+                "The Scikit-rf module is required to run this functionality.\nInstall with \n\npip install scikit-rf"
             )
             return False
 
@@ -704,11 +700,11 @@ class SpiSim(PyAedtBase):
         # Extract thru s4p
         temp_folder = com_result_folder / "temp" / thru.name
         temp_folder.mkdir(parents=True, exist_ok=True)
-        thru_s4p = temp_folder/ f"thru_{thru.name}.s4p"
+        thru_s4p = temp_folder / f"thru_{thru.name}.s4p"
         extract_and_save(
             input_path=self.touchstone_file,
             port_indices=through_ports,
-            out_path= thru_s4p,
+            out_path=thru_s4p,
         )
 
         next_s4p = []
@@ -755,7 +751,7 @@ class SpiSim(PyAedtBase):
             fext_s4p=fext_s4p,
             next_s4p=next_s4p,
             out_folder=str(com_result_folder),
-            config_file=config_file
+            config_file=config_file,
         )
         return com_0, com_1
 

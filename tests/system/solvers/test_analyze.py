@@ -713,6 +713,7 @@ def test_compute_com_parameter_ver_3p4(test_tmp_dir) -> None:
     com_0, com_1 = spisim.compute_com(0, test_tmp_dir / "test.cfg")
     assert com_0 and com_1
 
+
 def test_compute_com_snp(test_tmp_dir) -> None:
     com_example_file_folder = Path(TESTS_SOLVERS_PATH) / "example_models" / TEST_SUBFOLDER / "compute_com_snp"
     s32p = shutil.copy2(com_example_file_folder / "PCIe.s32p", test_tmp_dir / "PCIe.s32p")
@@ -723,9 +724,10 @@ def test_compute_com_snp(test_tmp_dir) -> None:
         through="TX1",
         port_mapping_file=cfg,
         output_folder=test_tmp_dir,
-        standard = 5,
-        )
+        standard=5,
+    )
     assert com_0 and com_1
+
 
 def test_export_to_maxwell(add_app_example, add_app, test_tmp_dir) -> None:
     app = add_app_example(
