@@ -582,22 +582,26 @@ class SpiSim(PyAedtBase):
     @pyaedt_function_handler()
     def compute_com_snp(
             self,
-            touchstone_file:Path|str,
             through:str,
-            config_file: Path|str,
+            port_mapping_file: Path|str,
             output_folder: Path|str,
+            config_file: Path|str = None,
             standard: int = 1,
             ):
-        """Compute Channel Operating Margin (COM) from a touchstone file.
+        """Compute Channel Operating Margin (COM) from a touchstone file with THRU, FEXT, and NEXT channels.
 
         Parameters
         ----------
         through : str
             Path to the through channel file.
-        config_file : Path, str
-            Path to the configuration file.
+        port_mapping_file : Path, str
+            Path to the port mapping file.
         output_folder : Path, str
             Path to the output folder.
+        config_file : Path, str, optional
+            Path to the configuration file. Default is None.
+        standard : int, optional
+            Standard parameter. Default is 1.
 
         Returns
         -------
@@ -627,16 +631,12 @@ class SpiSim(PyAedtBase):
             )
             return False
 
-        if not Path(config_file).exists():
-            raise FileNotFoundError(f"Not found {config_file}")
+        if not Path(port_mapping_file).exists():
+            raise FileNotFoundError(f"Not found {port_mapping_file}")
         else:
-            with open(config_file, "r") as f:
+            with open(port_mapping_file, "r") as f:
                 json_str = f.read()
         com = SParameterPortMapping.model_validate_json(json_str)
-
-        touchstone = Path(touchstone_file)
-        if not touchstone.exists():
-            raise FileNotFoundError(f"Not found {touchstone}")
 
         thru = com.get_differential_pair(through)
         through_ports = [
@@ -655,7 +655,7 @@ class SpiSim(PyAedtBase):
         temp_folder.mkdir(parents=True, exist_ok=True)
         thru_s4p = temp_folder/ f"thru_{thru.name}.s4p"
         extract_and_save(
-            input_path=touchstone,
+            input_path=self.touchstone_file,
             port_indices=through_ports,
             out_path= thru_s4p,
         )
@@ -680,7 +680,7 @@ class SpiSim(PyAedtBase):
                     s4p_path = temp_folder / f"next_{thru.name}_{ch.name}.s4p"
 
                     extract_and_save(
-                        input_path=touchstone,
+                        input_path=self.touchstone_file,
                         port_indices=next_ports,
                         out_path=s4p_path,
                     )
@@ -694,7 +694,7 @@ class SpiSim(PyAedtBase):
                     s4p_path = temp_folder /f"fext_{thru.name}_{ch.name}.s4p"
 
                     extract_and_save(
-                        input_path=touchstone,
+                        input_path=self.touchstone_file,
                         port_indices=fext_ports,
                         out_path=temp_folder /f"fext_{thru.name}_{ch.name}.s4p"
                     )
@@ -707,6 +707,7 @@ class SpiSim(PyAedtBase):
             fext_s4p=fext_s4p,
             next_s4p=next_s4p,
             out_folder=str(com_result_folder),
+            config_file=config_file
         )
         return com_0, com_1
 
