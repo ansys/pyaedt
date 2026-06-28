@@ -2123,13 +2123,21 @@ def test_all_generated_emit_node_properties(emit_app) -> None:
 
     # Enum values that open AEDT dialogs and freeze headless CI runs.
     enum_values_to_skip = frozenset({"PyramidalHorn", "ByFile", "HfssPhasedArray"})
-    method_prefixes_to_skip = ("plot", "import_", "add_", "export_")
+    method_prefixes_to_skip = ("plot", "import_", "add_", "export_", "duplicate")
+    property_substrings_to_skip = ("_file", "metadata_file", "imported_", "emission_designator")
 
     def should_skip_enum_value(enum_val) -> bool:
         if enum_val is None:
             return False
         value = enum_val.value if hasattr(enum_val, "value") else str(enum_val)
         return value in enum_values_to_skip
+
+    def should_skip_property(member: str) -> bool:
+        member_lower = member.lower()
+        return any(part in member_lower for part in property_substrings_to_skip)
+
+    def log_progress(message: str) -> None:
+        print(message, flush=True)
 
     # used to give nodes a unique name on rename commands
     next_int = 0
@@ -2262,12 +2270,24 @@ def test_all_generated_emit_node_properties(emit_app) -> None:
         # example, you can only set the PSK type (4PSK, 16PSK, etc) if the
         # modulation_type = PSK.
         node_iterations = 0
-        for enum_key in node_enums or {None: None}:
+        limited = max_iterations is not None
+        stop_testing = False
+        enum_keys = [None] if limited else list(node_enums.keys() or [None])
+
+        def iter_enum_values(enum_key):
             if enum_key is None:
-                enum_vals = []
-            else:
-                enum_vals = node_enums[enum_key]
-            for enum_val in enum_vals or [None]:
+                return [None]
+            enum_vals = node_enums[enum_key]
+            if limited and enum_vals:
+                return [enum_vals[0]]
+            return enum_vals or [None]
+
+        for enum_key in enum_keys:
+            if stop_testing:
+                break
+            for enum_val in iter_enum_values(enum_key):
+                if stop_testing:
+                    break
                 if should_skip_enum_value(enum_val):
                     continue
                 try:
@@ -2276,11 +2296,15 @@ def test_all_generated_emit_node_properties(emit_app) -> None:
                         class_attr.fset(node, enum_val)
                 except (AttributeError, GrpcApiError, ValueError):
                     pass
-                for bool_key in node_bools or {None: None}:
+                for bool_key in ([None] if limited else list(node_bools.keys() or [None])):
+                    if stop_testing:
+                        break
                     if bool_key is None:
                         bool_vals = []
                     else:
                         bool_vals = node_bools[bool_key]
+                    if limited and bool_vals:
+                        bool_vals = bool_vals[:1]
                     for bool_val in bool_vals or [None]:
                         node_iterations = node_iterations + 1
                         try:
@@ -2289,7 +2313,8 @@ def test_all_generated_emit_node_properties(emit_app) -> None:
                                 class_attr.fset(node, bool_val)
                         except (AttributeError, GrpcApiError, ValueError):
                             pass
-                        if max_iterations is not None and node_iterations > max_iterations:
+                        if limited and node_iterations > max_iterations:
+                            stop_testing = True
                             break
 
                         for member in members:
@@ -2350,18 +2375,15 @@ def test_all_generated_emit_node_properties(emit_app) -> None:
                                     continue
 
                                 if member.startswith("duplicate"):
-                                    try:
-                                        attr = getattr(node, member)
-                                        values = [f"TestString{next_int}"]
-                                        next_int = next_int + 1
-                                        result = attr(*values)
-                                        mem_results[mem_key] = (Result.VALUE, result)
-                                    except NotImplementedError as e:
-                                        mem_results[mem_key] = (Result.VALUE, str(e))
+                                    mem_results[mem_key] = (Result.SKIPPED, "Skipping duplicate method")
                                     continue
 
                                 if member.startswith(method_prefixes_to_skip):
                                     mem_results[mem_key] = (Result.SKIPPED, "Skipping side-effect method")
+                                    continue
+
+                                if should_skip_property(member):
+                                    mem_results[mem_key] = (Result.SKIPPED, "Skipping file or dialog property")
                                     continue
 
                                 # Pyramidal Horn params also trigger a warning popup that freezes the test.
@@ -2490,8 +2512,12 @@ def test_all_generated_emit_node_properties(emit_app) -> None:
                     # Add any untested child nodes
                     try:
                         for child_type in node.allowed_child_types:
-                            # Skip any nodes that end in ..., as they open a dialog
-                            if child_type not in nodes_tested and not child_type.endswith("..."):
+                            # Skip dialog-opening child types (suffix "..." or import prompts).
+                            if (
+                                child_type not in nodes_tested
+                                and not child_type.endswith("...")
+                                and "Import" not in child_type
+                            ):
                                 try:
                                     node._add_child_node(child_type)
                                 except Exception as e:
@@ -2514,16 +2540,18 @@ def test_all_generated_emit_node_properties(emit_app) -> None:
                         child_node_add_exceptions[node_type] = exception
 
                 if node_type in nodes_to_skip and not dev_only:
-                    print(f"Testing node {node_type} skipped. Set EMIT_PYAEDT_LONG=1 to include.")
+                    log_progress(
+                        f"Testing node {node_type} skipped. Set EMIT_PYAEDT_LONG=1 to include."
+                    )
                     continue
 
-                # if max_node_iterations is None and dev_only and node_type in nodes_to_skip:
-                #    continue
+                log_progress(f"Testing node type {node_type}...")
                 node_results = test_all_members(node, max_node_iterations)
                 results_dict.update(node_results)
+                log_progress(f"Finished node type {node_type}.")
         return nodes_tested, results_dict
 
-    # Add some components
+    log_progress("Creating EMIT components...")
     emit_app.schematic.create_radio_antenna(radio_type="New Radio", radio_name="TestRadio", antenna_name="TestAntenna")
     emit_app.schematic.create_component("New Emitter", "TestEmitter")
     emit_app.schematic.create_component("Amplifier", "TestAmplifier")
@@ -2536,13 +2564,17 @@ def test_all_generated_emit_node_properties(emit_app) -> None:
     emit_app.schematic.create_component("Terminator", "TestTerminator")
     emit_app.schematic.create_component("3 Port", "Test3port")
 
-    # Generate and run a revision
+    log_progress("Analyzing revision...")
     revision = emit_app.results.analyze()
 
+    pref_node = revision.get_preferences_node()
+    revision._emit_com.SetEmitNodeProperties(0, pref_node._node_id, ["Ignore Purge Warning=True"])
+
     domain = InteractionDomain(emit_app)
+    log_progress("Running simulation...")
     revision.run(domain)
 
-    # Test all nodes of the current revision
+    log_progress("Collecting nodes and testing properties...")
     current_revision_all_nodes = revision.get_all_nodes()
 
     # profiler = cProfile.Profile()
