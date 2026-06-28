@@ -26,12 +26,12 @@ from __future__ import annotations
 
 import os
 import pathlib
-import warnings
 from pathlib import Path
 import re
 import shutil
 from struct import unpack
 from typing import TYPE_CHECKING
+import warnings
 
 from numpy import float64
 
@@ -188,8 +188,8 @@ class AdvancedReport(ReportBase):
 
 class Pair(BaseModel):
     class Net(BaseModel):
-        driver_port: str|int
-        receiver_port: str|int
+        driver_port: str | int
+        receiver_port: str | int
 
     name: str | None = Field(None, description="Differential pair name")
     nets: list[Net] | None = Field(default_factory=list)
@@ -197,12 +197,10 @@ class Pair(BaseModel):
     receiver: str | None = Field(None, description="Receiver reference designator")
 
     def add_port_idx_mapping(self, net_name, driver_port_idx, receiver_port_idx):
-        self.nets.append(
-            self.Net(net=net_name, driver_port=driver_port_idx, receiver_port=receiver_port_idx))
+        self.nets.append(self.Net(net=net_name, driver_port=driver_port_idx, receiver_port=receiver_port_idx))
 
 
 class SParameterPortMapping(BaseModel):
-
     pairs: list[Pair] = Field(default_factory=list, description="Differential pairs")
 
     def add_differential_pair(self, channel: Pair):
@@ -507,8 +505,8 @@ class SpiSim(PyAedtBase):
         standard: int = 1,
         config_file: str = None,
         port_order: str = "EvenOdd",
-        fext_s4p: str|list = "",
-        next_s4p: str|list = "",
+        fext_s4p: str | list = "",
+        next_s4p: str | list = "",
         out_folder: str = "",
     ) -> list | float:
         """Compute Channel Operating Margin. Only COM ver3.4 is supported.
@@ -577,16 +575,15 @@ class SpiSim(PyAedtBase):
         out_processing = self.__compute_spisim("COM", cfg_file)
         return self.__get_output_parameter_from_result(out_processing, "COM")
 
-
     @pyaedt_function_handler()
     def compute_com_snp(
-            self,
-            through:str,
-            port_mapping_file: Path|str,
-            output_folder: Path|str,
-            config_file: Path|str = None,
-            standard: int = 1,
-            ):
+        self,
+        through: str,
+        port_mapping_file: Path | str,
+        output_folder: Path | str,
+        config_file: Path | str = None,
+        standard: int = 1,
+    ):
         """Compute Channel Operating Margin (COM) from a touchstone file with THRU, FEXT, and NEXT channels.
 
         Parameters
@@ -625,8 +622,7 @@ class SpiSim(PyAedtBase):
 
         except ImportError:
             warnings.warn(
-                "The Scikit-rf module is required to run this functionality.\n"
-                "Install with \n\npip install scikit-rf"
+                "The Scikit-rf module is required to run this functionality.\nInstall with \n\npip install scikit-rf"
             )
             return False
 
@@ -652,11 +648,11 @@ class SpiSim(PyAedtBase):
         # Extract thru s4p
         temp_folder = com_result_folder / "temp" / thru.name
         temp_folder.mkdir(parents=True, exist_ok=True)
-        thru_s4p = temp_folder/ f"thru_{thru.name}.s4p"
+        thru_s4p = temp_folder / f"thru_{thru.name}.s4p"
         extract_and_save(
             input_path=self.touchstone_file,
             port_indices=through_ports,
-            out_path= thru_s4p,
+            out_path=thru_s4p,
         )
 
         # base_ports = [through_ports[1], through_ports[3]]
@@ -664,9 +660,9 @@ class SpiSim(PyAedtBase):
         fext_s4p = []
         for ch in com.pairs:
             if ch.name != through:
-                #fext_ports = copy.deepcopy(base_ports)
+                # fext_ports = copy.deepcopy(base_ports)
 
-                #next_ports = copy.deepcopy(base_ports)
+                # next_ports = copy.deepcopy(base_ports)
                 fext_ports = []
                 next_ports = []
 
@@ -690,12 +686,12 @@ class SpiSim(PyAedtBase):
                     fext_ports.append(ch.nets[1].receiver_port - 1)
                     fext_ports.append(through_ports[3])
 
-                    s4p_path = temp_folder /f"fext_{thru.name}_{ch.name}.s4p"
+                    s4p_path = temp_folder / f"fext_{thru.name}_{ch.name}.s4p"
 
                     extract_and_save(
                         input_path=self.touchstone_file,
                         port_indices=fext_ports,
-                        out_path=temp_folder /f"fext_{thru.name}_{ch.name}.s4p"
+                        out_path=temp_folder / f"fext_{thru.name}_{ch.name}.s4p",
                     )
                     fext_s4p.append(str(s4p_path))
 
@@ -706,7 +702,7 @@ class SpiSim(PyAedtBase):
             fext_s4p=fext_s4p,
             next_s4p=next_s4p,
             out_folder=str(com_result_folder),
-            config_file=config_file
+            config_file=config_file,
         )
         return com_0, com_1
 
