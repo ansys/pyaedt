@@ -26,12 +26,12 @@ from __future__ import annotations
 
 import os
 import pathlib
-import warnings
 from pathlib import Path
 import re
 import shutil
 from struct import unpack
 from typing import TYPE_CHECKING
+import warnings
 
 from numpy import float64
 
@@ -711,7 +711,6 @@ class SpiSim(PyAedtBase):
         fext_s4p = []
         for ch in com.pairs:
             if ch.name != through:
-
                 fext_ports = []
                 next_ports = []
 
@@ -721,12 +720,12 @@ class SpiSim(PyAedtBase):
                     fext_ports.append(ch.nets[1].receiver_port - 1)
                     fext_ports.append(through_ports[3])
 
-                    s4p_path = temp_folder /f"fext_{thru.name}_{ch.name}.s4p"
+                    s4p_path = temp_folder / f"fext_{thru.name}_{ch.name}.s4p"
 
                     extract_and_save(
                         input_path=self.touchstone_file,
                         port_indices=fext_ports,
-                        out_path=temp_folder /f"fext_{thru.name}_{ch.name}.s4p"
+                        out_path=temp_folder / f"fext_{thru.name}_{ch.name}.s4p",
                     )
                     fext_s4p.append(str(s4p_path))
                 else:
