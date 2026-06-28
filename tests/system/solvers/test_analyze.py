@@ -720,7 +720,6 @@ def test_compute_com_snp(test_tmp_dir) -> None:
     spisim = SpiSim(s32p)
 
     com_0, com_1 = spisim.compute_com_snp(
-        touchstone_file=s32p,
         through="TX1",
         port_mapping_file=cfg,
         output_folder=test_tmp_dir,
