@@ -724,6 +724,7 @@ def test_compute_com_snp(test_tmp_dir) -> None:
         through="TX1",
         config_file=cfg,
         output_folder=test_tmp_dir,
+        standard = 5,
         )
     assert com_0 and com_1
 

@@ -559,50 +559,25 @@ class SpiSim(PyAedtBase):
         if out_folder:
             self.working_directory = out_folder
 
-        com_param.set_parameter("THRUSNP", self.touchstone_file)
-        com_param.set_parameter("FEXTARY", fext_s4p if not isinstance(fext_s4p, list) else ";".join(fext_s4p))
-        com_param.set_parameter("NEXTARY", next_s4p if not isinstance(next_s4p, list) else ";".join(next_s4p))
+        thru_snp = self._copy_to_relative_path(self.touchstone_file)
 
+        fext_s4p = [fext_s4p] if not isinstance(fext_s4p, list) else fext_s4p
+        fext_s4p = [self._copy_to_relative_path(i) for i in fext_s4p]
+        next_s4p = [next_s4p] if not isinstance(next_s4p, list) else next_s4p
+        next_s4p = [self._copy_to_relative_path(i) for i in next_s4p]
 
-        com_param.set_parameter("RESULT_DIR", self.working_directory)
-        return self.__compute_com(com_param)
+        com_param.set_parameter("THRUSNP", thru_snp)
+        com_param.set_parameter("FEXTARY", ";".join(fext_s4p))
+        com_param.set_parameter("NEXTARY", ";".join(next_s4p))
 
-    @pyaedt_function_handler
-    def __compute_com(
-        self,
-        com_parameter,
-    ) -> list | float:
-        """Compute Channel Operating Margin (COM).
-
-        .. warning::
-
-            Do not execute this function with untrusted function argument, environment
-            variables or pyaedt global settings.
-            See the :ref:`security guide<ref_security_consideration>` for details.
-
-        Parameters
-        ----------
-        com_parameter: :class:`COMParameters`
-            COMParameters class.
-
-        Returns
-        -------
-        float or list
-        """
-        thru_snp = self._copy_to_relative_path(com_parameter.parameters["THRUSNP"])
-        fext_snp = self._copy_to_relative_path(com_parameter.parameters["FEXTARY"])
-        next_snp = self._copy_to_relative_path(com_parameter.parameters["NEXTARY"])
-
-        com_parameter.set_parameter("THRUSNP", thru_snp)
-        com_parameter.set_parameter("FEXTARY", fext_snp)
-        com_parameter.set_parameter("NEXTARY", next_snp)
-        com_parameter.set_parameter("RESULT_DIR", "./")
+        com_param.set_parameter("RESULT_DIR", "./")
 
         cfg_file = os.path.join(self.working_directory, "com_parameters.cfg")
-        com_parameter.export_spisim_cfg(cfg_file)
+        com_param.export_spisim_cfg(cfg_file)
 
         out_processing = self.__compute_spisim("COM", cfg_file)
         return self.__get_output_parameter_from_result(out_processing, "COM")
+
 
     @pyaedt_function_handler()
     def compute_com_snp(
@@ -685,17 +660,25 @@ class SpiSim(PyAedtBase):
             out_path= thru_s4p,
         )
 
-        base_ports = [through_ports[1], through_ports[3]]
+        # base_ports = [through_ports[1], through_ports[3]]
         next_s4p = []
         fext_s4p = []
         for ch in com.pairs:
             if ch.name != through:
-                fext_ports = copy.deepcopy(base_ports)
-                next_ports = copy.deepcopy(base_ports)
+                #fext_ports = copy.deepcopy(base_ports)
+
+                #next_ports = copy.deepcopy(base_ports)
+                fext_ports = []
+                next_ports = []
+
                 if ch.driver == thru.driver:
                     next_ports.append(ch.nets[0].driver_port - 1)
+                    next_ports.append(through_ports[1])
                     next_ports.append(ch.nets[1].driver_port - 1)
+                    next_ports.append(through_ports[3])
+
                     s4p_path = temp_folder / f"next_{thru.name}_{ch.name}.s4p"
+
                     extract_and_save(
                         input_path=touchstone,
                         port_indices=next_ports,
@@ -704,8 +687,12 @@ class SpiSim(PyAedtBase):
                     next_s4p.append(str(s4p_path))
                 else:
                     fext_ports.append(ch.nets[0].receiver_port - 1)
+                    fext_ports.append(through_ports[1])
                     fext_ports.append(ch.nets[1].receiver_port - 1)
+                    fext_ports.append(through_ports[3])
+
                     s4p_path = temp_folder /f"fext_{thru.name}_{ch.name}.s4p"
+
                     extract_and_save(
                         input_path=touchstone,
                         port_indices=fext_ports,
