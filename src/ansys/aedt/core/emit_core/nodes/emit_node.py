@@ -389,6 +389,11 @@ class EmitNode:
             return "|".join(str(x) for x in value)
         return str(value)
 
+    @staticmethod
+    def _format_property_string(prop: str, value) -> str:
+        """Format a property name and value into an EmitCom ``name=value`` string."""
+        return prop + "=" + EmitNode._format_property_value(prop, value)
+
     @min_aedt_version("2025.2")
     @pyaedt_function_handler()
     def get_properties(
@@ -509,11 +514,16 @@ class EmitNode:
                         "When properties is a list, each item must be a 'name=value' string."
                     )
                 key, value = item.split("=", 1)
-                prop_dict[key.strip()] = value.strip()
+                stripped_key = key.strip()
+                stripped_value = value.strip()
+                prop_dict[stripped_key] = stripped_value
         else:
             raise TypeError("properties must be a dict or list of 'name=value' strings.")
 
-        return [f"{key}={self._format_property_value(key, value)}" for key, value in prop_dict.items()], list(prop_dict.keys())
+        prop_strings = [
+            self._format_property_string(key, value) for key, value in prop_dict.items()
+        ]
+        return prop_strings, list(prop_dict.keys())
 
     def _format_set_properties_error(self, prop_strings: list[str], prop_keys: list[str]) -> str:
         """Format the error message for setting properties.
@@ -609,13 +619,13 @@ class EmitNode:
         Exception
             If an error occurs.
         """
-        formatted_value = self._format_property_value(prop, value)
+        prop_string = self._format_property_string(prop, value)
         try:
             self._oRevisionData.SetEmitNodeProperties(
-                self._result_id, self._node_id, [f"{prop}={formatted_value}"], skipChecks)
+                self._result_id, self._node_id, [prop_string], skipChecks)
         except Exception:
             raise ValueError(
-                self._format_set_properties_error([f"{prop}={formatted_value}"], [prop])
+                self._format_set_properties_error([prop_string], [prop])
             )
 
     @staticmethod
