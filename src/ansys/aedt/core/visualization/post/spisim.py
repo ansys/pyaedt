@@ -585,7 +585,7 @@ class SpiSim(PyAedtBase):
         standard: int = 1,
     ):
         """Compute Channel Operating Margin (COM) from a touchstone file with THRU, FEXT, and NEXT channels.
-        
+
         FEXT and NEXT channels are extracted from the touchstone file based on the differential pair port mapping
         defined in the port mapping file. Channels share the driver with the THRU channel are identified as FEXT
         channels. Otherwise, they are identified as NEXT channels.
