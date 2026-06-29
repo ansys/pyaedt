@@ -3279,8 +3279,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         modes: int = 2,
         name: str | None = None,
         renormalize: bool = True,
-        deembed_distance: int = 0,
-        reporter_filter: bool = True,
+        deembed_distance: int | float | str = 0,
+        reporter_filter: bool | list = True,
         lattice_cs: str = "Global",
     ) -> BoundaryObject:
         """Create a floquet port on a face.
