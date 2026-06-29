@@ -55,8 +55,7 @@ if TYPE_CHECKING:
 
 
 class FieldAnalysis3DLayout(Analysis, PyAedtBase):
-    """
-    Manages 3D field analysis setup in HFSS 3D Layout.
+    """Manages 3D field analysis setup in HFSS 3D Layout.
 
     This class is automatically initialized by an application call from this
     3D tool. See the application function for parameter definitions.
