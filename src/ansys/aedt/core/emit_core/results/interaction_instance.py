@@ -129,6 +129,12 @@ class InteractionInstance:
         if error:
             raise ValueError(f"Interaction instance is not valid: {error}")
 
+        # Check if the requested result type is valid
+        if result_type not in (ResultType.EMI, ResultType.DESENSE, ResultType.SENSITIVITY, ResultType.POWER_AT_RX):
+            raise ValueError(
+                f"Invalid result type: {result_type}. Must be one of: EMI, DESENSE, SENSITIVITY, POWER_AT_RX."
+            )
+
         # For worst-case instances, check if the requested result type is available locally
         # (a worst-case EMI instance has _encoded_desense=30201 meaning "not available")
         if result_type == ResultType.EMI and self._encoded_emi == 30201:
