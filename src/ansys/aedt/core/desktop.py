@@ -1117,11 +1117,7 @@ class Desktop(PyAedtBase):
             self.aedt_version_id.replace("SV", "") if "SV" in (self.aedt_version_id or "") else self.aedt_version_id
         )
 
-        if is_linux:
-            self.__starting_mode = "grpc"
-        elif is_windows and "pythonnet" not in modules:
-            self.__starting_mode = "grpc"
-        elif settings.remote_rpc_session:
+        if settings.remote_rpc_session:
             self.__starting_mode = "grpc"
         elif self.aedt_process_id and not self.new_desktop:  # pragma: no cover
             # connecting to an existing session has the precedence over use_grpc_api user preference
@@ -1143,6 +1139,10 @@ class Desktop(PyAedtBase):
                     f"The version specified ({self.aedt_version_id}) doesn't correspond "
                     "to the pid specified ({self.aedt_process_id})"
                 )
+        elif is_windows and "pythonnet" not in modules:
+            self.__starting_mode = "grpc"
+        elif is_linux:
+            self.__starting_mode = "grpc"
         elif float(aedt_version_id) < 2022.2:  # pragma no cover
             raise Exception("Unsupported AEDT version")
         elif float(aedt_version_id) == 2022.2:  # pragma no cover
@@ -2868,7 +2868,18 @@ class Desktop(PyAedtBase):
             raise AEDTRuntimeError("AEDT is not installed on your system. Install AEDT version 2022 R2 or higher.")
         specified_version = _normalize_version_to_string(specified_version)
         if not specified_version:
-            if student_version and self.current_student_version:
+            if self.aedt_process_id is not None:
+                specified_version = next(
+                    (
+                        installed_aedt[0:6]
+                        for installed_aedt in aedt_versions.installed_versions.keys()
+                        if is_number(installed_aedt[0:6])
+                        and self.aedt_process_id
+                        in active_sessions(installed_aedt[0:6], self.student_version, self.non_graphical)
+                    ),
+                    None,
+                )
+            elif student_version and self.current_student_version:
                 specified_version = self.current_student_version
             elif student_version and self.current_version:
                 specified_version = self.current_version
