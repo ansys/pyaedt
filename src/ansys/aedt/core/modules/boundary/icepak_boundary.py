@@ -459,12 +459,6 @@ class NetworkObject(BoundaryObject):
         --------
         >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
         >>> obj = NetworkObject()
-        >>> obj.auto_update()
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
-        >>> obj = NetworkObject()
         >>> obj.auto_update
 
         """
@@ -679,12 +673,6 @@ class NetworkObject(BoundaryObject):
         -------
         str
             Network name.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
-        >>> obj = NetworkObject()
-        >>> obj.name()
 
         Examples
         --------
@@ -948,58 +936,23 @@ class NetworkObject(BoundaryObject):
         Parameters
         ----------
         nodes : list or dict
-            A dictionary or list of dictionaries containing nodes to add to the network. Different
-            node types require different key and value pairs:
+                        One node definition or a list of node definitions to add to the network.
 
-            - Face nodes must contain the ``"ID"`` key associated with an integer containing the face ID.
-              Optional keys and values pairs are:
+                        Face-node dictionaries use ``"FaceID"`` and can optionally include
+                        ``"Name"``, ``"ThermalResistance"``, ``"Thickness"``, ``"Material"``, and
+                        ``"Resistance"``.
 
-              - ``"ThermalResistance"``: a string specifying the type of thermal resistance.
-                 Options are ``"NoResistance"`` (default), ``"Compute"``, and ``"Specified"``.
-              - ``"Thickness"``: a string with the thickness value and unit (required if ``"Compute"``
-              is selected for ``"ThermalResistance"``).
-              - ``"Material"``: a string with the name of the material (required if ``"Compute"`` is
-              selected for ``"ThermalResistance"``).
-              - ``"Resistance"``: a string with the resistance value and unit (required if
-                 ``"Specified"`` is selected for ``"ThermalResistance"``).
-              - ``"Name"``: a string with the name of the node. If not
-                 specified, a name is generated automatically.
+                        Internal-node dictionaries use ``"Name"`` and ``"Power"`` and can optionally
+                        include ``"Mass"`` and ``"SpecificHeat"``.
 
+                        Boundary-node dictionaries use ``"Name"`` and ``"ValueType"`` plus either
+                        ``"Power"`` or ``"Temperature"`` depending on the selected value type.
 
-            - Internal nodes must contain the following keys and values pairs:
-
-              - ``"Name"``: a string with the node name
-              - ``"Power"``: a string with the assigned power or a dictionary for transient or
-              temperature-dependent assignment
-              Optional keys and values pairs:
-              - ``"Mass"``: a string with the mass value and unit
-              - ``"SpecificHeat"``: a string with the specific heat value and unit
-
-            - Boundary nodes must contain the following keys and values pairs:
-
-              - ``"Name"``: a string with the node name
-              - ``"ValueType"``: a string specifying the type of value (``"Power"`` or
-              ``"Temperature"``)
-              Depending on the ``"ValueType"`` choice, one of the following keys and values pairs must
-              be used:
-              - ``"Power"``: a string with the power value and unit or a dictionary for transient or
-              temperature-dependent assignment
-              - ``"Temperature"``: a string with the temperature value and unit or a dictionary for
-              transient or temperature-dependent assignment
-              According to the ``"ValueType"`` choice, ``"Power"`` or ``"Temperature"`` key must be
-              used. Their associated value a string with the value and unit of the quantity prescribed or
-              a dictionary for transient or temperature dependent assignment.
-
-
-            All the temperature dependent or thermal dictionaries should contain three keys:
-            ``"Type"``, ``"Function"``, and ``"Values"``. Accepted ``"Type"`` values are:
-            ``"Temp Dep"`` and ``"Transient"``. Accepted ``"Function"`` are: ``"Linear"``,
-            ``"Power Law"``, ``"Exponential"``, ``"Sinusoidal"``, ``"Square Wave"``, and
-            ``"Piecewise Linear"``. ``"Temp Dep"`` only support the latter. ``"Values"``
-            contains a list of strings containing the parameters required by the ``"Function"``
-            selection (e.g. ``"Linear"`` requires two parameters: the value of the variable at t=0
-            and the slope of the line). The parameters required by each ``Function`` option is in
-            Icepak documentation. The parameters must contain the units where needed.
+                        Temperature-dependent and transient assignments are passed as dictionaries with
+                        ``"Type"``, ``"Function"``, and ``"Values"`` keys. Supported function names are
+                        ``"Linear"``, ``"Power Law"``, ``"Exponential"``, ``"Sinusoidal"``,
+                        ``"Square Wave"``, and ``"Piecewise Linear"``. ``"Temp Dep"`` supports only
+                        ``"Piecewise Linear"``.
 
         Returns
         -------

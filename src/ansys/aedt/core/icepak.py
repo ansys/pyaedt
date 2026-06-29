@@ -1202,13 +1202,11 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         harmonic_loss_sweep_coupling: bool | None = False,
         q3d_loss_type: Literal["DCVolOrACSurfLoss", "ContactResistanceLoss", "HarmonicLoss"] = "DCVolOrACSurfLoss",
     ) -> BoundaryObject:
-        """
-        Map EM losses to an Icepak design.
+        """Map EM losses to an Icepak design.
 
         Parameters
         ----------
-        assignment : str, ::class::aedt.core.modeler.cad.object_3d.Object3d,
-                     list of str, or list of ::class::aedt.core.modeler.cad.object_3d.Object3d
+        assignment : str, Object3d, list of str, or list of Object3d
             List of objects to apply EM Losses to.
         design : str
             Name of the source design from which to map losses.
@@ -1229,11 +1227,13 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
             List of objects in the source that are metals. The default is ``None``.
         parameters : list or dict, optional
             List of parameters to map between the source and Icepak design.
+
             - If ``None`` (default), variables are set to their values (no mapping).
             - If a **list** is provided, the specified variables in the Icepak design are mapped
               to variables in the source design having the same name.
             - If a **dictionary** is provided, it maps variables to the source design using
               the structure ``{"source_design_variable": "icepak_variable"}``.
+
         force_source_solve : bool, optional
             Whether to force the source design to solve if results are missing.
             The default is ``True``.

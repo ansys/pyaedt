@@ -1662,30 +1662,35 @@ class Profiles(Mapping, PyAedtBase):
 
     Examples
     --------
-    HFSS 3D Layout
+    HFSS 3D Layout:
+
     >>> app = Hfss3DLayout(project="solved_h3d_project")
     >>> profiles = app.setups[0].get_profile()
     >>> key_for_profile = list(profiles.keys())[0]
     >>> print(key_for_profile)
-        'HFSS Setup 1'
+    'HFSS Setup 1'
     >>> profiles[key_for_profile].product
-        'HFSS3DLayout'
+    'HFSS3DLayout'
     >>> print(f"Elapsed time: {profiles[key_for_profile].elapsed_time}")
-        Elapsed time: 0:01:39
+    Elapsed time: 0:01:39
     >>> print(f"Number of adaptive passes: {profiles[key_for_profile].num_adaptive_passes}")
-        Number of adaptive passes: 6
+    Number of adaptive passes: 6
     >>> fsweeps = profiles[key_for_profile].frequency_sweeps
     >>> sweep_name = list(fsweeps.keys())[0]  # Select the first sweep
     >>> print(f"Frequency sweep '{sweep_name}' calculated {len(fsweeps[sweep_name].frequencies)} frequency points.")
-        Frequency sweep 'Sweep 1' calculated 74 frequency points. Maxwell 2D (Transient)
+    Frequency sweep 'Sweep 1' calculated 74 frequency points.
+
+    Maxwell 2D (Transient):
+
     >>> app = Maxwell2d(project="solved_m2d_project")
+    >>> profiles = app.setups[0].get_profile()
     >>> profile_name = list(profiles.keys())[0]
     >>> print(f"Profile name: {profile_name}")
-        Profile name: Setup1 - fractions='4'
+    Profile name: Setup1 - fractions='4'
     >>> print(f"Elapsed time: {profiles[profile_name].elapsed_time}")
-        Elapsed time: 0:01:24
+    Elapsed time: 0:01:24
     >>> print(f"Number of time steps: {len(profiles[profile_name].time_steps)}")
-        Number of time steps: 80
+    Number of time steps: 80
 
     """
 

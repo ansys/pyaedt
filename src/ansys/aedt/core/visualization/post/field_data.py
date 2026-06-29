@@ -129,12 +129,6 @@ class ColorMapSettings(BaseFolderPlot):
         --------
         >>> from ansys.aedt.core.visualization.post.field_data import ColorMapSettings
         >>> obj = ColorMapSettings()
-        >>> obj.map_type()
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.visualization.post.field_data import ColorMapSettings
-        >>> obj = ColorMapSettings()
         >>> obj.map_type
 
         """
@@ -171,12 +165,6 @@ class ColorMapSettings(BaseFolderPlot):
         Returns
         -------
             str or list of float: The color scheme based on the map type.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.visualization.post.field_data import ColorMapSettings
-        >>> obj = ColorMapSettings()
-        >>> obj.color()
 
         Examples
         --------
@@ -551,12 +539,6 @@ class NumberFormat(BaseFolderPlot):
         --------
         >>> from ansys.aedt.core.visualization.post.field_data import NumberFormat
         >>> obj = NumberFormat()
-        >>> obj.format_type()
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.visualization.post.field_data import NumberFormat
-        >>> obj = NumberFormat()
         >>> obj.format_type
 
         """
@@ -694,12 +676,6 @@ class Scale3DSettings(BaseFolderPlot):
         --------
         >>> from ansys.aedt.core.visualization.post.field_data import Scale3DSettings
         >>> obj = Scale3DSettings()
-        >>> obj.unit()
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.visualization.post.field_data import Scale3DSettings
-        >>> obj = Scale3DSettings()
         >>> obj.unit
 
         """
@@ -730,12 +706,6 @@ class Scale3DSettings(BaseFolderPlot):
     @property
     def scale_type(self) -> str:
         """Get type of scale used for the field plot.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.visualization.post.field_data import Scale3DSettings
-        >>> obj = Scale3DSettings()
-        >>> obj.scale_type()
 
         Examples
         --------
@@ -781,12 +751,6 @@ class Scale3DSettings(BaseFolderPlot):
     @property
     def scale_settings(self) -> AutoScale | MinMaxScale | SpecifiedScale:
         """Get the current scale settings based on the scale type.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.visualization.post.field_data import Scale3DSettings
-        >>> obj = Scale3DSettings()
-        >>> obj.scale_settings()
 
         Examples
         --------
@@ -938,12 +902,6 @@ class MarkerSettings(BaseFolderPlot):
         --------
         >>> from ansys.aedt.core.visualization.post.field_data import MarkerSettings
         >>> obj = MarkerSettings()
-        >>> obj.marker_type()
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.visualization.post.field_data import MarkerSettings
-        >>> obj = MarkerSettings()
         >>> obj.marker_type
 
         """
@@ -1089,12 +1047,6 @@ class ArrowSettings(BaseFolderPlot):
     @property
     def arrow_type(self) -> str:
         """Get the type of arrows used in the field plot.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.visualization.post.field_data import ArrowSettings
-        >>> obj = ArrowSettings()
-        >>> obj.arrow_type()
 
         Examples
         --------
@@ -1428,12 +1380,6 @@ class FieldPlot(PyAedtBase):
     @property
     def folder_settings(self) -> FolderPlotSettings:
         """Get the folder settings.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.visualization.post.field_data import FieldPlot
-        >>> obj = FieldPlot()
-        >>> obj.folder_settings()
 
         Examples
         --------

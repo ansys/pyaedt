@@ -1171,12 +1171,6 @@ class MatProperty(PyAedtBase):
         --------
         >>> from ansys.aedt.core.modules.material import MatProperty
         >>> obj = MatProperty()
-        >>> obj.spatialmodifier()
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.material import MatProperty
-        >>> obj = MatProperty()
         >>> obj.spatialmodifier
 
         """

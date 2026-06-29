@@ -97,7 +97,7 @@ def test_selected_edb_property(add_app_example) -> None:
     extension = ConfigureLayoutExtension(withdraw=True)
 
     extension.var_active_design.set(0)
-    with patch.object(extension, "get_active_edb", return_value="active.aedb") as mock_get_active:
+    with patch.object(extension, "_get_active_edb", return_value="active.aedb") as mock_get_active:
         assert extension.selected_edb == "active.aedb"
         mock_get_active.assert_called_once()
 

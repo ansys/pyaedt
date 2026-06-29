@@ -93,7 +93,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is  used.
         This parameter is ignored when Script is launched within AEDT.
-        Examples of input values are ``261``, ``26.1``,``2026.1``,``"2026.1"``.
+        Examples of input values are ``261``, ``26.1``, ``2026.1``, ``"2026.1"``.
     non_graphical : bool, optional
         Whether to run AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -111,13 +111,13 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
     machine : str, optional
         Machine name to which connect the oDesktop Session. Works only in 2022 R2
         or later. The remote server must be up and running with the command
-        `"ansysedt.exe -grpcsrv portnum"`. If a machine is `"localhost"`, the
+        ``"ansysedt.exe -grpcsrv portnum"``. If a machine is ``"localhost"``, the
         server also starts if not present.
     port : int, optional
         Port number on which to start the oDesktop communication on an already existing server.
         This parameter is ignored when creating a new server. It works only in 2022 R2 or
         later. The remote server must be up and running with the command
-        `"ansysedt.exe -grpcsrv portnum"`.
+        ``"ansysedt.exe -grpcsrv portnum"``.
     aedt_process_id : int, optional
         Process ID for the instance of AEDT to point PyAEDT at. The default is
         ``None``. This parameter is only used when ``new_desktop = False``.

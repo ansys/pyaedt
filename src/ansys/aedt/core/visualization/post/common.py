@@ -3014,7 +3014,7 @@ class Reports(PyAedtBase):
             Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
             setup is used. Be sure to build a setup string in the form of
             ``"SetupName : SetupSweep"``, where ``SetupSweep`` is either the sweep
-             name to use in the export or ``LastAdaptive``.
+            name to use in the export or ``LastAdaptive``.
         quantity_type : int, optional
             For AMI analysis only, the quantity type. The default is ``3``. Options are:
 

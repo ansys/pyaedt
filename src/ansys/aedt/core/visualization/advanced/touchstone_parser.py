@@ -820,13 +820,13 @@ def read_touchstone(input_file: str) -> TouchstoneData:
 
     Returns
     -------
-    class:`ansys.aedt.core.generic.touchstone_parser.TouchstoneData`
+    :class:`ansys.aedt.core.generic.touchstone_parser.TouchstoneData`
         NPort holding data contained in the touchstone file.
 
     Examples
     --------
     >>> from ansys.aedt.core.visualization.advanced.touchstone_parser import read_touchstone
-    >>> read_touchstone(input_file=r"C:\\Temp\network.s2p")
+    >>> read_touchstone(input_file="C:/Temp/network.s2p")
 
     """
     data = TouchstoneData(touchstone_file=input_file)
@@ -863,7 +863,7 @@ def check_touchstone_files(input_dir: str = "", passivity: bool = True, causalit
     Examples
     --------
     >>> from ansys.aedt.core.visualization.advanced.touchstone_parser import check_touchstone_files
-    >>> check_touchstone_files(input_dir=r"C:\\Temp\network.s2p", passivity=True)
+    >>> check_touchstone_files(input_dir="C:/Temp", passivity=True)
 
     """
     import subprocess  # nosec
@@ -931,7 +931,7 @@ def find_touchstone_files(input_dir: str) -> dict:
     Examples
     --------
     >>> from ansys.aedt.core.visualization.advanced.touchstone_parser import find_touchstone_files
-    >>> find_touchstone_files(input_dir=r"C:\\Temp\network.s2p")
+    >>> find_touchstone_files(input_dir="C:/Temp")
 
     """
     out = {}

@@ -962,12 +962,6 @@ class CircuitComponent(PyAedtBase):
         --------
         >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
         >>> obj = CircuitComponent()
-        >>> obj.location()
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
-        >>> obj = CircuitComponent()
         >>> obj.location
 
         """
@@ -1017,12 +1011,6 @@ class CircuitComponent(PyAedtBase):
         ----------
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
-        >>> obj = CircuitComponent()
-        >>> obj.angle()
 
         Examples
         --------
@@ -1085,12 +1073,6 @@ class CircuitComponent(PyAedtBase):
         ----------
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
-        >>> obj = CircuitComponent()
-        >>> obj.mirror()
 
         Examples
         --------
@@ -1912,12 +1894,6 @@ class Excitations(CircuitComponent):
         Returns
         -------
         str
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.circuits.object_3d_circuit import Excitations
-        >>> obj = Excitations()
-        >>> obj.reference_node()
 
         Examples
         --------

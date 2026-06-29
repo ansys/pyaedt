@@ -59,7 +59,7 @@ def call_back_load_example_board(master, test_folder=None) -> None:  # pragma: n
     temp_dir = tempfile.TemporaryDirectory(suffix=".ansys", dir=test_folder).name
     Path(temp_dir).mkdir()
     example_edb = download_file(source="edb/ANSYS_SVP_V1_1.aedb", local_path=temp_dir)
-    master.load_edb_into_hfss3dlayout(example_edb)
+    master._load_edb_into_hfss3dlayout(example_edb)
 
 
 def call_back_export_template() -> None:

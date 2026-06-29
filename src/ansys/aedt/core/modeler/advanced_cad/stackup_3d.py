@@ -132,12 +132,6 @@ class NamedVariable(PyAedtBase):
         --------
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import NamedVariable
         >>> obj = NamedVariable()
-        >>> obj.expression()
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import NamedVariable
-        >>> obj = NamedVariable()
         >>> obj.expression
 
         """
@@ -149,7 +143,7 @@ class NamedVariable(PyAedtBase):
 
         Parameters
         ----------
-        expression: str
+        expression : str
             Value expression of the variable.
 
         Examples

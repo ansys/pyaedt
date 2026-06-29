@@ -710,15 +710,14 @@ class FieldsCalculator(PyAedtBase):
         """Export the field quantity at the top of the register to a file, mapping it to a grid of points.
 
         Two options are available for defining the grid points on which to export:
-        -   Input grid points from file : Maps the field quantity to a customized grid of points.
-                                          Before using this command, you must create a file containing the points
-                                          and units.
-        -   Calculate grid points : Maps the field quantity to a three-dimensional Cartesian grid.
-                                    You specify the dimensions and spacing of the grid in the x, y, and z directions,
-                                    with units. The initial units are taken from the model.
-                                    Other grid options are: Cylindrical, in which case rho, phi and z directions must be
-                                    specified, or Spherical, in which case r, theta and phi directions must be
-                                    specified.
+
+                - Input grid points from file: maps the field quantity to a customized grid of points.
+                    Before using this command, create a file containing the points and units.
+                - Calculate grid points: maps the field quantity to a three-dimensional Cartesian grid.
+                    You specify the dimensions and spacing of the grid in the x, y, and z directions,
+                    with units. The initial units are taken from the model. Other grid options are
+                    Cylindrical, in which case rho, phi and z directions must be specified, or
+                    Spherical, in which case r, theta and phi directions must be specified.
 
         If you want to adopt the first option you must provide either the file containing the grid of points
         or a list of sample points in ``sample_points``. In the latter case, a new file is created
@@ -750,10 +749,13 @@ class FieldsCalculator(PyAedtBase):
             Intrinsic variables required to compute the field before the export.
             These are typically: frequency, time and phase.
             It can be provided either as a dictionary or as a string.
+
             If it is a dictionary, keys depend on the solution type and can be expressed in lower or camel case as:
+
             - ``"Freq"`` or ``"Frequency"``
             - ``"Time"``
             - ``"Phase"``
+
             If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
             The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         sample_points : str, list
@@ -772,9 +774,11 @@ class FieldsCalculator(PyAedtBase):
             The default is ``True``.
         grid_type : str
             Type of the grid to export. The options are:
+
             - ``Cartesian``
             - ``Cylindrical``
             - ``Spherical``
+
         grid_center : list, optional
             The ``[x, y, z]`` coordinates for the center of the grid.
             The default is ``[0, 0, 0]``. This parameter is disabled if ``gridtype=

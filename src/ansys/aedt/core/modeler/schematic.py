@@ -712,12 +712,6 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
         --------
         >>> from ansys.aedt.core.modeler.schematic import ModelerNexxim
         >>> obj = ModelerNexxim()
-        >>> obj.model_units()
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.schematic import ModelerNexxim
-        >>> obj = ModelerNexxim()
         >>> obj.model_units
 
         """

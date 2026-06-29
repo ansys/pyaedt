@@ -2351,7 +2351,7 @@ class Analysis(Design, PyAedtBase):
         wait_for_license : bool, optional
              Whether to wait for the license to be validated. The default is ``True``.
         setting_file : str, optional
-            Job settings file. The file has the "*.areg" format.
+            Job settings file. The file has the ``"*.areg"`` format.
             The default value is ``None`` in which case a default template will be used.
 
         Returns

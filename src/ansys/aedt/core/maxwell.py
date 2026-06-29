@@ -1136,8 +1136,8 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         excitation_model : str, optional
             The excitation model to apply for this current excitation. Valid only A-Phi solvers.
             Possible choices are ``"Single Potential"``, ``"Double Potentials"``, and
-             ``"Double Potentials with Ground"``.
-            The default is ``Single Potential``.
+            ``"Double Potentials with Ground"``.
+            The default is ``"Single Potential"``.
         initial_current : float, optional
             The excitation's initial current. Only valid for Transient A-Phi solver.
             The default is ``0``.
@@ -1149,7 +1149,6 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         has_initial_current : bool, optional
             Whether the excitation has an initial current.
             The default is ``False``.
-
 
         Returns
         -------

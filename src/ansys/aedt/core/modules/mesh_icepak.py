@@ -575,12 +575,6 @@ class SubRegion(CommonRegion):
         --------
         >>> from ansys.aedt.core.modules.mesh_icepak import SubRegion
         >>> obj = SubRegion()
-        >>> obj.parts()
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.mesh_icepak import SubRegion
-        >>> obj = SubRegion()
         >>> obj.parts
 
         """

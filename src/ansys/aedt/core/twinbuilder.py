@@ -461,10 +461,13 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
             The default value is ``50``.
         state_space_dynamic_link_type : str, optional
             Q3D state space dynamic link type.
+
             Possible options are:
-                - ``S`` for S parameters link type.
-                - ``RLGC`` for RLGC Parameters link type.
-                - ``EQ`` for Equivalent Circuit.
+
+            - ``S`` for S parameters link type.
+            - ``RLGC`` for RLGC Parameters link type.
+            - ``EQ`` for Equivalent Circuit.
+
             The default value is ``RLGC``.
         component_name : str, optional
             Component name.

@@ -199,8 +199,8 @@ def callback_apply(master) -> bool:
     if not file_path:  # pragma: no cover
         return False
 
-    edbpath = master.apply_config_to_edb(file_path)
-    master.load_edb_into_hfss3dlayout(edbpath)
+    edbpath = master._apply_config_to_edb(file_path)
+    master._load_edb_into_hfss3dlayout(edbpath)
     return True
 
 
@@ -215,7 +215,7 @@ def callback_export(master):
         return False
 
     update_options(master)
-    config_dict = master.export_config_from_edb()
+    config_dict = master._export_config_from_edb()
     with open(file_path, "w") as f:
         json.dump(config_dict, f, indent=4)
     messagebox.showinfo("Information", f"Saved to {file_path}")

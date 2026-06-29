@@ -1333,12 +1333,6 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         --------
         >>> from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
         >>> obj = CoordinateSystem()
-        >>> obj.origin()
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
-        >>> obj = CoordinateSystem()
         >>> obj.origin
 
         """

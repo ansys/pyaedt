@@ -283,12 +283,6 @@ class UserDefinedComponent(PyAedtBase):
         --------
         >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
         >>> obj = UserDefinedComponent()
-        >>> obj.group_name()
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
-        >>> obj = UserDefinedComponent()
         >>> obj.group_name
 
         """

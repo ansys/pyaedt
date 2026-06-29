@@ -1063,12 +1063,6 @@ class Object3d(PyAedtBase):
         --------
         >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
         >>> obj = Object3d()
-        >>> obj.group_name()
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
-        >>> obj = Object3d()
         >>> obj.group_name
 
         """

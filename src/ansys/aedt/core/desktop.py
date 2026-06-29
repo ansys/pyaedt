@@ -652,7 +652,7 @@ class Desktop(PyAedtBase):
     version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case the
         active setup or latest installed version is used.
-        Examples of input values are ``261``, ``26.1``,``2026.1``,``"2026.1"``.
+        Examples of input values are ``261``, ``26.1``, ``2026.1``, ``"2026.1"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -671,7 +671,7 @@ class Desktop(PyAedtBase):
           on exit (``close_on_exit=False``).
 
         A user-specified boolean (``True`` or ``False``) always overrides the automatic behavior.
-        When ``Desktop`` is used outside a context manager, the `release_desktop` method arguments offer
+    When ``Desktop`` is used outside a context manager, the ``release_desktop`` method arguments offer
         finer control over releasing and closing behavior.
     student_version : bool, optional
         Whether to open the AEDT student version. The default is
@@ -679,12 +679,12 @@ class Desktop(PyAedtBase):
     machine : str, optional
         Machine name to connect the oDesktop session to. This parameter works only in 2022 R2
         and later. The remote server must be up and running with the command
-        ``"ansysedt.exe -grpcsrv portnum"``. If the machine is `"localhost"`, the server also
+        ``"ansysedt.exe -grpcsrv portnum"``. If the machine is ``"localhost"``, the server also
         starts if not present.
     port : int, optional
         Port number on which to start the oDesktop communication on the already existing server.
         This parameter is ignored when creating a new server. It works only in 2022 R2 and
-        later. The remote server must be up and running with the command `"ansysedt.exe -grpcsrv portnum"`.
+        later. The remote server must be up and running with the command ``"ansysedt.exe -grpcsrv portnum"``.
     aedt_process_id : int, optional
         Process ID for the instance of AEDT to point PyAEDT at. The default is
         ``None``. This parameter is only used when ``new_desktop = False``.
@@ -2686,8 +2686,8 @@ class Desktop(PyAedtBase):
         ----------
         scheduler_type : str
             Name of the scheduler.
-            Options are `"RSM"``, `""Windows HPC"``, `""HPC Platform Services``, `""Remote RSM"``,
-             `""Ansys Cloud Burst Compute"``.
+            Options are ``"RSM"``, ``"Windows HPC"``, ``"HPC Platform Services"``, ``"Remote RSM"``,
+            and ``"Ansys Cloud Burst Compute"``.
         address : str, optional
             String specifying the IP address or hostname of the head node or for the
             remote host running the RSM service.

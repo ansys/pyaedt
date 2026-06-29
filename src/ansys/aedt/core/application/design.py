@@ -2774,7 +2774,7 @@ class Design(AedtObjects, PyAedtBase):
         Parameters
         ----------
         design : str
-            Name of the target design. Possible choices are ``"Icepak"`` or``"Mechanical"``.
+            Name of the target design. Possible choices are ``"Icepak"`` or ``"Mechanical"``.
         setup : str, optional
             Name of the EM setup to link to the target design.
             The default is ``None``, in which case the ``LastAdaptive`` setup is used.
@@ -2797,9 +2797,9 @@ class Design(AedtObjects, PyAedtBase):
         >>> from ansys.aedt.core import Maxwell3d, Mechanical
         >>> from ansys.aedt.core.generic.aedt_constants import IcepakFeaConstants
         >>> m3d = Maxwell3d(version="2026.1")
-        From 2026.1 Mechanical has been renamed to IcepakFEA.
-        The target design must be passed through the IcepakFeaConstants metaclass.
-        This will automatically detect the AEDT version and pass the correct design name to the API.
+        >>> # From 2026.1, Mechanical has been renamed to IcepakFEA.
+        >>> # Pass the target design through the IcepakFeaConstants metaclass.
+        >>> # This automatically selects the correct AEDT API design name.
         >>> m3d.create_em_target_design(design=IcepakFeaConstants.NAME)
         >>> mechanical = Mechanical(version="2026.1")
         >>> mechanical.release_desktop(False, False)
@@ -4786,6 +4786,21 @@ class Design(AedtObjects, PyAedtBase):
             - Returns ``str`` for PWL dataset references or invalid expressions
             - Returns ``None`` if evaluation fails completely
 
+        Notes
+        -----
+        The method attempts multiple strategies to evaluate the expression:
+
+        * Direct variable lookup if the expression is a variable name.
+        * Check for PWL dataset references.
+        * Try direct numeric conversion.
+        * Create a temporary internal variable to leverage AEDT's expression evaluator.
+
+        For expressions containing project variables (prefixed with ``$``), AEDT restrictions apply.
+        Project variables cannot reference design variables.
+
+        The method uses an internal variable named ``"pyaedt_evaluator"`` for complex evaluations.
+        All results are returned in SI units regardless of the input unit system.
+
         Examples
         --------
         >>> from ansys.aedt.core import Hfss
@@ -4797,24 +4812,9 @@ class Design(AedtObjects, PyAedtBase):
         >>> # Evaluate value with units
         >>> result = hfss.evaluate_expression("10mm")  # Returns 0.01 (in meters)
         >>> # Evaluate expression with variables
-        >>> result = hfss.evaluate_expression("width*height")  # Returns 0.0002 (in mÂ²)
+        >>> result = hfss.evaluate_expression("width*height")  # Returns 0.0002 (in m^2)
         >>> # Evaluate mathematical expression
         >>> result = hfss.evaluate_expression("sqrt(width^2 + height^2)")
-
-        Notes
-        -----
-        The method attempts multiple strategies to evaluate the expression:
-
-        * Direct variable lookup if the expression is a variable name.
-        * Check for PWL dataset references.
-        * Try direct numeric conversion.
-        * Create temporary internal variable to leverage AEDT's expression evaluator.
-
-        For expressions containing project variables (prefixed with $), AEDT restrictions apply.
-        Project variables cannot reference design variables.
-
-        The method uses an internal variable named "pyaedt_evaluator" for complex evaluations.
-        All results are returned in SI units regardless of the input unit system.
 
         """
         # Strategy 1: Direct variable lookup

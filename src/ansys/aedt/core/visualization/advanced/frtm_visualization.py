@@ -494,12 +494,6 @@ class FRTMData(PyAedtBase):
         --------
         >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
         >>> obj = FRTMData()
-        >>> obj.receiver_position()
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
-        >>> obj = FRTMData()
         >>> obj.receiver_position
 
         """

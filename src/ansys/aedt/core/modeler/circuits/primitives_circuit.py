@@ -601,14 +601,14 @@ class CircuitComponents(PyAedtBase):
 
         References
         ----------
-        >>> oModelManager.Add
-        >>> oComponentManager.Add
+        oModelManager.Add
+        oComponentManager.Add
 
         Examples
         --------
         >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
         >>> obj = CircuitComponents()
-        >>> obj.create_model_from_touchstone(input_file=r"C:\\Temp\network.s2p")
+        >>> obj.create_model_from_touchstone(input_file="C:/Temp/network.s2p")
 
         """
         if not model_name:
@@ -1202,30 +1202,30 @@ class CircuitComponents(PyAedtBase):
 
         Parameters
         ----------
-                model_name : str, Path
-                    Name of the Touchstone model or full path to touchstone file.
-                    If full touchstone is provided then, new model will be created.
-                num_terminal : int
-                    Number of terminals in the .sss file.
-                location : list of float, optional
-                    Position on the X  and Y axis.
-                angle : float, optional
-                    Angle rotation in degrees. The default is ``0``.
-                port_names : list, optional
-                    Name of ports.
-                page: int,  optional
-                    Schematic page number. The default value is ``1``.
+        model_name : str or Path
+            Name of the Touchstone model or full path to the Touchstone file.
+            If a full Touchstone path is provided, a new model is created.
+        num_terminal : int
+            Number of terminals in the ``.sss`` file.
+        location : list of float, optional
+            Position on the X and Y axes.
+        angle : float, optional
+            Angle rotation in degrees. The default is ``0``.
+        port_names : list, optional
+            Port names.
+        page : int, optional
+            Schematic page number. The default value is ``1``.
 
         Returns
         -------
-                :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`
-                    Circuit Component Object.
+        :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`
+            Circuit component object.
 
         References
         ----------
-                >>> oModelManager.Add
-                >>> oComponentManager.Add
-                >>> oEditor.CreateComponent
+        oModelManager.Add
+        oComponentManager.Add
+        oEditor.CreateComponent
 
         Examples
         --------

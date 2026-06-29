@@ -1408,12 +1408,6 @@ class EmitComponentPropNode(PyAedtBase):
         --------
         >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponentPropNode
         >>> obj = EmitComponentPropNode()
-        >>> obj.enabled()
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponentPropNode
-        >>> obj = EmitComponentPropNode()
         >>> obj.enabled
 
         """

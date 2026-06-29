@@ -169,8 +169,15 @@ class ScatteringMethods(PyAedtBase):
             List of strings representing insertion losses of the excitations.
             For example, ``["S(1,2)"]``.
 
+        References
+        ----------
+        >>> oEditor.GetAllPorts
+
         Examples
         --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+
         >>> # Example 1: Get insertion loss between specific driver and receiver pairs
         >>> hfss.get_all_insertion_loss_list(
         ...     drivers=["Port1_TX", "Port2_TX", "Port3_TX"],
@@ -182,16 +189,6 @@ class ScatteringMethods(PyAedtBase):
         >>> # Example 2: Get insertion loss using prefix filtering
         >>> hfss.get_all_insertion_loss_list(drivers_prefix_name="DIE", receivers_prefix_name="BGA")
         ['S(DIE_Port1,BGA_Port1)', 'S(DIE_Port2,BGA_Port2)']
-
-        References
-        ----------
-        >>> oEditor.GetAllPorts
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> hfss.get_next_xtalk_list(drivers_prefix_name="TX")
 
         """
         if drivers is None:

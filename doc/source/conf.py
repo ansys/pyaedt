@@ -109,7 +109,7 @@ def directory_size(directory_path):
     for path, _, files in os.walk(directory_path):
         for f in files:
             fp = os.path.join(path, f)
-            res += Path.stat(fp).st_size
+            res += Path(fp).stat().st_size
     # Convert in megabytes
     res /= 1e6
     return res
@@ -330,7 +330,7 @@ def is_enabled_env_var(name, default="true"):
     return os.getenv(name, default).strip().lower() not in {"0", "false", "no", "off"}
 
 
-if is_enabled_env_var("PYAEDT_DOC_BUILD_CHEATSHEET"):
+if is_enabled_env_var("PYAEDT_DOC_BUILD_CHEATSHEET", default="true"):
     html_theme_options["cheatsheet"] = {
         "file": "cheatsheet/cheat_sheet.qmd",
         "pages": ["index", "Getting_started/index", "User_guide/index"],
