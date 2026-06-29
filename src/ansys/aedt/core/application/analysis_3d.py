@@ -59,8 +59,7 @@ if TYPE_CHECKING:
 
 
 class FieldAnalysis3D(Analysis, PyAedtBase):
-    """
-    Manages 3D field analysis setup in HFSS, Maxwell 3D, and Q3D.
+    """Manages 3D field analysis setup in HFSS, Maxwell 3D, and Q3D.
 
     This class is automatically initialized by an application call from one of
     the 3D tools. See the application function for parameter definitions.

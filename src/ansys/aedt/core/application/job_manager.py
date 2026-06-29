@@ -24,8 +24,7 @@
 
 
 def get_hpc_info(filename: str) -> tuple[str, str]:
-    """
-    Retrieve HPC information.
+    """Retrieve HPC information.
 
     Parameters
     ----------

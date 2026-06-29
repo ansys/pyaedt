@@ -62,8 +62,7 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
 class CSVDataset(PyAedtBase):
-    """
-    Reads in a CSV file and extracts data, which can be augmented with constant values.
+    """Reads in a CSV file and extracts data, which can be augmented with constant values.
 
     Parameters
     ----------
@@ -85,7 +84,7 @@ class CSVDataset(PyAedtBase):
     Examples
     --------
     >>> from ansys.aedt.core.application.variables import CSVDataset
-    >>> dataset = CSVDataset("C:\\Users\\user\\Documents\\results.csv")
+    >>> dataset = CSVDataset("results.csv")
     >>> dataset.number_of_rows
 
     """
@@ -991,10 +990,12 @@ class VariableManager(PyAedtBase):
 
     @pyaedt_function_handler()
     def __getitem__(self, variable_name):
+        """Implement get with array name or index."""
         return self.variables[variable_name]
 
     @pyaedt_function_handler()
     def __setitem__(self, variable, value):
+        """Set variable to value."""
         self.set_variable(variable, value)
         return True
 

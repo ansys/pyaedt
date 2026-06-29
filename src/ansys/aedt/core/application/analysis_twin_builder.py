@@ -39,8 +39,7 @@ if TYPE_CHECKING:
 
 
 class AnalysisTwinBuilder(Analysis, PyAedtBase):
-    """
-    Provides the Twin Builder Analysis Setup (TwinBuilder).
+    """Provides the Twin Builder Analysis Setup (TwinBuilder).
 
     It is automatically initialized by Application call (Twin Builder).
     Refer to Application function for inputs definition

@@ -383,7 +383,7 @@ class HFSSDesignSolution(DesignSolution, PyAedtBase):
 
 
 class Maxwell2DDesignSolution(DesignSolution, PyAedtBase):
-    """Provide maxwell 2 D design solution."""
+    """Provide Maxwell 2D design solution."""
 
     def __init__(self, odesign, design_type, aedt_version) -> None:
         DesignSolution.__init__(self, odesign, design_type, aedt_version)

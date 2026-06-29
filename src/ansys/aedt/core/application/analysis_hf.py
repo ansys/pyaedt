@@ -29,8 +29,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 
 class ScatteringMethods(PyAedtBase):
-    """
-    Class containing all methods related to scattering matrix management that are common to Hfss, Circuit and
+    """Class containing all methods related to scattering matrix management that are common to Hfss, Circuit and
     Hfss3dLayout classes.
 
     Examples
