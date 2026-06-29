@@ -407,9 +407,9 @@ def test_constant_scaling_of_vector(fx):
 
 def test_bad_operand_type_rejected(fx):
     with pytest.raises(TypeError):
-        fx.vector("E").magnitude() + "not a number"
+        _ = fx.vector("E").magnitude() + "not a number"
     with pytest.raises(TypeError):
-        fx.vector("E").magnitude() + True  # bool is not a valid operand
+        _ = fx.vector("E").magnitude() + True  # bool is not a valid operand
 
 
 # ---------------------------------------------------------------------------
