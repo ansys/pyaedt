@@ -90,7 +90,8 @@ class CalculatorGeometry(PyAedtBase):
     assignment_type: str = ""
 
     def __init__(self, assignment: str | Any) -> None:
-        """Initialize the calculator geometry assignment.
+        """
+        Initialize the calculator geometry assignment.
 
         Parameters
         ----------
@@ -110,7 +111,8 @@ class CalculatorGeometry(PyAedtBase):
         self.assignment = getattr(assignment, "name", assignment)
 
     def _operations(self) -> list[str]:
-        """Calculator entries that push this geometry and its value.
+        """
+        Calculator entries that push this geometry and its value.
 
         Returns
         -------
@@ -138,7 +140,8 @@ class CalculatorGeometry(PyAedtBase):
 
 
 class Line(CalculatorGeometry):
-    """A polyline domain (``EnterLine`` and ``LineValue``).
+    """
+    A polyline domain (``EnterLine`` and ``LineValue``).
 
     Examples
     --------
@@ -229,7 +232,8 @@ class FieldExpression(PyAedtBase):
         primary_sweep: str = "Freq",
         solution_type: str = "",
     ) -> None:
-        """Initialize a typed field expression.
+        """
+        Initialize a typed field expression.
 
         Parameters
         ----------
@@ -271,7 +275,8 @@ class FieldExpression(PyAedtBase):
 
     @property
     def operations(self) -> list[str]:
-        """Copy of the calculator operation stack this expression compiles to.
+        """
+        Copy of the calculator operation stack this expression compiles to.
 
         Returns
         -------
@@ -291,7 +296,8 @@ class FieldExpression(PyAedtBase):
         return list(self._operations)
 
     def __repr__(self) -> str:
-        """Representation showing the expression type and stack length.
+        """
+        Representation showing the expression type and stack length.
 
         Returns
         -------
@@ -311,7 +317,8 @@ class FieldExpression(PyAedtBase):
         return f"<{type(self).__name__} ops={len(self._operations)}>"
 
     def __len__(self) -> int:
-        """Number of calculator operations this expression compiles to.
+        """
+        Number of calculator operations this expression compiles to.
 
         Returns
         -------
@@ -382,7 +389,8 @@ class FieldExpression(PyAedtBase):
         )
 
     def _unary(self, operation: str, *, vector: bool, is_complex: bool) -> FieldExpression:
-        """Append a unary calculator operation and return the typed result.
+        """
+        Append a unary calculator operation and return the typed result.
 
         Parameters
         ----------
@@ -414,7 +422,8 @@ class FieldExpression(PyAedtBase):
     def _binary(
         self, expression: FieldExpression, operation: str, *, vector: bool, is_complex: bool
     ) -> FieldExpression:
-        """Combine with another expression through a binary calculator operation.
+        """
+        Combine with another expression through a binary calculator operation.
 
         Parameters
         ----------
@@ -466,7 +475,8 @@ class FieldExpression(PyAedtBase):
         vector: bool = False,
         is_complex: bool | None = None,
     ) -> FieldExpression:
-        """Append a geometry evaluation and optional reduction operation.
+        """
+        Append a geometry evaluation and optional reduction operation.
 
         Parameters
         ----------
@@ -533,7 +543,8 @@ class FieldExpression(PyAedtBase):
         }
 
     def __neg__(self) -> FieldExpression:
-        """Negate the current expression.
+        """
+        Negate the current expression.
 
         Returns
         -------
@@ -553,7 +564,8 @@ class FieldExpression(PyAedtBase):
         return self._unary("Neg", vector=self.is_vector, is_complex=self.is_complex)
 
     def __radd__(self, other) -> FieldExpression:
-        """Add this expression to a left-hand operand.
+        """
+        Add this expression to a left-hand operand.
 
         Parameters
         ----------
@@ -578,7 +590,8 @@ class FieldExpression(PyAedtBase):
         return _to_expr(other, self).__add__(self)
 
     def __rmul__(self, other) -> FieldExpression:
-        """Multiply this expression by a left-hand operand.
+        """
+        Multiply this expression by a left-hand operand.
 
         Parameters
         ----------
@@ -603,7 +616,8 @@ class FieldExpression(PyAedtBase):
         return _to_expr(other, self).__mul__(self)
 
     def __rsub__(self, other) -> FieldExpression:
-        """Subtract this expression from a left-hand operand.
+        """
+        Subtract this expression from a left-hand operand.
 
         Parameters
         ----------
@@ -628,7 +642,8 @@ class FieldExpression(PyAedtBase):
         return _to_expr(other, self).__sub__(self)
 
     def __rtruediv__(self, other) -> FieldExpression:
-        """Divide a left-hand operand by this expression.
+        """
+        Divide a left-hand operand by this expression.
 
         Parameters
         ----------
@@ -653,7 +668,8 @@ class FieldExpression(PyAedtBase):
         return _to_expr(other, self).__truediv__(self)
 
     def to_dict(self, name: str, assignment: str = "") -> dict:
-        """Compile this expression to a Fields Calculator expression dictionary.
+        """
+        Compile this expression to a Fields Calculator expression dictionary.
 
         Parameters
         ----------
@@ -693,7 +709,8 @@ class FieldExpression(PyAedtBase):
         }
 
     def stack_depth(self) -> int:
-        """Net Fields Calculator stack depth after applying all operations.
+        """
+        Net Fields Calculator stack depth after applying all operations.
 
         Simulates the reverse-Polish operation stack. A well-formed scalar or
         vector expression resolves to exactly ``1``.
@@ -831,7 +848,8 @@ class FieldExpression(PyAedtBase):
 
     @pyaedt_function_handler()
     def add(self, name: str, assignment=None) -> str | bool:
-        """Register this expression as an AEDT named expression.
+        """
+        Register this expression as an AEDT named expression.
 
         Parameters
         ----------
@@ -878,7 +896,8 @@ class FieldExpression(PyAedtBase):
         intrinsics: dict | None = None,
         assignment=None,
     ) -> float:
-        """Register and evaluate this expression to a single value.
+        """
+        Register and evaluate this expression to a single value.
 
         Parameters
         ----------
@@ -922,7 +941,8 @@ class FieldExpression(PyAedtBase):
 
     @pyaedt_function_handler()
     def export(self, output_file: str | None, name: str | None = None, **kwargs) -> str | bool:
-        """Register and export this expression to a field file.
+        """
+        Register and export this expression to a field file.
 
         Extra keyword arguments are forwarded to
         :meth:`FieldsCalculator.export`(``solution``, ``sample_points``,
@@ -969,7 +989,8 @@ class FieldExpression(PyAedtBase):
 
 
 class ScalarReal(FieldExpression):
-    """A real scalar Fields Calculator quantity.
+    """
+    A real scalar Fields Calculator quantity.
 
     Examples
     --------
@@ -1051,7 +1072,8 @@ class ScalarReal(FieldExpression):
 
     # Scalar math
     def sqrt(self) -> ScalarReal:
-        """Square root (calculator ``Sqrt``).
+        """
+        Square root (calculator ``Sqrt``).
 
         Returns
         -------
@@ -1071,7 +1093,8 @@ class ScalarReal(FieldExpression):
         return self._unary("Sqrt", vector=False, is_complex=False)
 
     def power(self, exponent: float) -> ScalarReal:
-        """Constant power (calculator ``Pow``).
+        """
+        Constant power (calculator ``Pow``).
 
         Parameters
         ----------
@@ -1096,7 +1119,8 @@ class ScalarReal(FieldExpression):
         return self._spawn(False, False, [f"Scalar_Constant({_num(exponent)})", "Operation('Pow')"])
 
     def __pow__(self, exponent: float) -> ScalarReal:
-        """Raise the scalar expression to a constant power.
+        """
+        Raise the scalar expression to a constant power.
 
         Parameters
         ----------
@@ -1142,7 +1166,8 @@ class ScalarReal(FieldExpression):
         return self._unary("ln", vector=False, is_complex=False)
 
     def log10(self) -> ScalarReal:
-        """Base-10 logarithm (calculator ``log``).
+        """
+        Base-10 logarithm (calculator ``log``).
 
         Returns
         -------
@@ -1162,7 +1187,8 @@ class ScalarReal(FieldExpression):
         return self._unary("log", vector=False, is_complex=False)
 
     def _math_func(self, name: str) -> ScalarReal:
-        """Apply a unary math function via ``UMathFunc``.
+        """
+        Apply a unary math function via ``UMathFunc``.
 
         Parameters
         ----------
@@ -1187,7 +1213,8 @@ class ScalarReal(FieldExpression):
         return self._spawn(False, False, [f"Operation('UMathFunc', '{name}')"])
 
     def sin(self) -> ScalarReal:
-        """Sine (calculator trig ``Sin``).
+        """
+        Sine (calculator trig ``Sin``).
 
         Returns
         -------
@@ -1207,7 +1234,8 @@ class ScalarReal(FieldExpression):
         return self._math_func("Sin")
 
     def cos(self) -> ScalarReal:
-        """Cosine (calculator trig ``Cos``).
+        """
+        Cosine (calculator trig ``Cos``).
 
         Returns
         -------
@@ -1227,7 +1255,8 @@ class ScalarReal(FieldExpression):
         return self._math_func("Cos")
 
     def tan(self) -> ScalarReal:
-        """Tangent (calculator trig ``Tan``).
+        """
+        Tangent (calculator trig ``Tan``).
 
         Returns
         -------
@@ -1247,7 +1276,8 @@ class ScalarReal(FieldExpression):
         return self._math_func("Tan")
 
     def asin(self) -> ScalarReal:
-        """Arcsine (calculator trig ``Asin``).
+        """
+        Arcsine (calculator trig ``Asin``).
 
         Returns
         -------
@@ -1267,7 +1297,8 @@ class ScalarReal(FieldExpression):
         return self._math_func("Asin")
 
     def acos(self) -> ScalarReal:
-        """Arccosine (calculator trig ``Acos``).
+        """
+        Arccosine (calculator trig ``Acos``).
 
         Returns
         -------
@@ -1287,7 +1318,8 @@ class ScalarReal(FieldExpression):
         return self._math_func("Acos")
 
     def atan(self) -> ScalarReal:
-        """Arctangent (calculator trig ``Atan``).
+        """
+        Arctangent (calculator trig ``Atan``).
 
         Returns
         -------
@@ -1337,7 +1369,8 @@ class ScalarReal(FieldExpression):
 
     # form a vector from this scalar (calculator ``Vec?``)
     def as_vector_x(self) -> VectorReal:
-        """Place this scalar in the x component of a vector (calculator ``VecX``).
+        """
+        Place this scalar in the x component of a vector (calculator ``VecX``).
 
         Returns
         -------
@@ -1357,7 +1390,8 @@ class ScalarReal(FieldExpression):
         return self._unary("VecX", vector=True, is_complex=False)
 
     def as_vector_y(self) -> VectorReal:
-        """Place this scalar in the y component of a vector (calculator ``VecY``).
+        """
+        Place this scalar in the y component of a vector (calculator ``VecY``).
 
         Returns
         -------
@@ -1377,7 +1411,8 @@ class ScalarReal(FieldExpression):
         return self._unary("VecY", vector=True, is_complex=False)
 
     def as_vector_z(self) -> VectorReal:
-        """Place this scalar in the z component of a vector (calculator ``VecZ``).
+        """
+        Place this scalar in the z component of a vector (calculator ``VecZ``).
 
         Returns
         -------
@@ -1398,7 +1433,8 @@ class ScalarReal(FieldExpression):
 
     # arithmetic
     def __add__(self, other) -> ScalarReal:
-        """Add a scalar expression or number.
+        """
+        Add a scalar expression or number.
 
         Parameters
         ----------
@@ -1424,7 +1460,8 @@ class ScalarReal(FieldExpression):
         return _scalar_arith(self, other, "+")
 
     def __sub__(self, other) -> ScalarReal:
-        """Subtract a scalar expression or number.
+        """
+        Subtract a scalar expression or number.
 
         Parameters
         ----------
@@ -1450,7 +1487,8 @@ class ScalarReal(FieldExpression):
         return _scalar_arith(self, other, "-")
 
     def __mul__(self, other) -> FieldExpression:
-        """Multiply by a scalar, vector, or numeric operand.
+        """
+        Multiply by a scalar, vector, or numeric operand.
 
         Parameters
         ----------
@@ -1476,7 +1514,8 @@ class ScalarReal(FieldExpression):
         return _scalar_mul(self, other, "*")
 
     def __truediv__(self, other) -> FieldExpression:
-        """Divide by a scalar, vector, or numeric operand.
+        """
+        Divide by a scalar, vector, or numeric operand.
 
         Parameters
         ----------
@@ -1502,7 +1541,8 @@ class ScalarReal(FieldExpression):
 
     # geometry reductions
     def integrate(self, over: CalculatorGeometry) -> ScalarReal:
-        """Integrate over a geometry ``∫ s dΩ`` (calculator ``Integrate``).
+        """
+        Integrate over a geometry ``∫ s dΩ`` (calculator ``Integrate``).
 
         Parameters
         ----------
@@ -1527,7 +1567,8 @@ class ScalarReal(FieldExpression):
         return self._reduce(over, "Integrate")
 
     def maximum(self, over: CalculatorGeometry) -> ScalarReal:
-        """Maximum over a geometry (calculator ``Maximum``).
+        """
+        Maximum over a geometry (calculator ``Maximum``).
 
         Parameters
         ----------
@@ -1552,7 +1593,8 @@ class ScalarReal(FieldExpression):
         return self._reduce(over, "Maximum")
 
     def minimum(self, over: CalculatorGeometry) -> ScalarReal:
-        """Minimum over a geometry (calculator ``Minimum``).
+        """
+        Minimum over a geometry (calculator ``Minimum``).
 
         Parameters
         ----------
@@ -1577,7 +1619,8 @@ class ScalarReal(FieldExpression):
         return self._reduce(over, "Minimum")
 
     def mean(self, over: CalculatorGeometry) -> ScalarReal:
-        """Mean over a geometry (calculator ``Mean``).
+        """
+        Mean over a geometry (calculator ``Mean``).
 
         Parameters
         ----------
@@ -1602,7 +1645,8 @@ class ScalarReal(FieldExpression):
         return self._reduce(over, "Mean")
 
     def std(self, over: CalculatorGeometry) -> ScalarReal:
-        """Standard deviation over a geometry (calculator ``Std``).
+        """
+        Standard deviation over a geometry (calculator ``Std``).
 
         Parameters
         ----------
@@ -1627,7 +1671,8 @@ class ScalarReal(FieldExpression):
         return self._reduce(over, "Std")
 
     def max_position(self, over: CalculatorGeometry) -> VectorReal:
-        """Position of the maximum over a geometry (calculator ``MaxPos``).
+        """
+        Position of the maximum over a geometry (calculator ``MaxPos``).
 
         Parameters
         ----------
@@ -1652,7 +1697,8 @@ class ScalarReal(FieldExpression):
         return self._reduce(over, "MaxPos", vector=True, is_complex=False)
 
     def min_position(self, over: CalculatorGeometry) -> VectorReal:
-        """Position of the minimum over a geometry (calculator ``MinPos``).
+        """
+        Position of the minimum over a geometry (calculator ``MinPos``).
 
         Parameters
         ----------
@@ -1677,7 +1723,8 @@ class ScalarReal(FieldExpression):
         return self._reduce(over, "MinPos", vector=True, is_complex=False)
 
     def value(self, over: CalculatorGeometry) -> ScalarReal:
-        """Sample the quantity on a geometry without integrating.
+        """
+        Sample the quantity on a geometry without integrating.
 
         Parameters
         ----------
@@ -1703,7 +1750,8 @@ class ScalarReal(FieldExpression):
 
     # build a complex scalar from this real part / imaginary part
     def as_complex_real(self) -> ScalarComplex:
-        """Use this real scalar as the real part of a complex number (calculator ``CmplxR``).
+        """
+        Use this real scalar as the real part of a complex number (calculator ``CmplxR``).
 
         Returns
         -------
@@ -1723,7 +1771,8 @@ class ScalarReal(FieldExpression):
         return self._spawn(False, True, ["Operation('CmplxR')"])
 
     def as_complex_imag(self) -> ScalarComplex:
-        """Use this real scalar as the imaginary part of a complex number (calculator ``CmplxI``).
+        """
+        Use this real scalar as the imaginary part of a complex number (calculator ``CmplxI``).
 
         Returns
         -------
@@ -1744,7 +1793,8 @@ class ScalarReal(FieldExpression):
 
 
 class ScalarComplex(FieldExpression):
-    """A complex scalar Fields Calculator quantity.
+    """
+    A complex scalar Fields Calculator quantity.
 
     Examples
     --------
@@ -1762,7 +1812,8 @@ class ScalarComplex(FieldExpression):
     is_complex = True
 
     def real(self) -> ScalarReal:
-        """Real part (calculator ``Real``).
+        """
+        Real part (calculator ``Real``).
 
         Returns
         -------
@@ -1782,7 +1833,8 @@ class ScalarComplex(FieldExpression):
         return self._unary("Real", vector=False, is_complex=False)
 
     def imaginary(self) -> ScalarReal:
-        """Imaginary part (calculator ``Imag``).
+        """
+        Imaginary part (calculator ``Imag``).
 
         Returns
         -------
@@ -1802,7 +1854,8 @@ class ScalarComplex(FieldExpression):
         return self._unary("Imag", vector=False, is_complex=False)
 
     def magnitude(self) -> ScalarReal:
-        """Complex magnitude ``|s|`` (calculator ``CmplxMag``).
+        """
+        Complex magnitude ``|s|`` (calculator ``CmplxMag``).
 
         Returns
         -------
@@ -1822,7 +1875,8 @@ class ScalarComplex(FieldExpression):
         return self._unary("CmplxMag", vector=False, is_complex=False)
 
     def phase(self) -> ScalarReal:
-        """Phase angle of the complex quantity (calculator ``CmplxPhase``).
+        """
+        Phase angle of the complex quantity (calculator ``CmplxPhase``).
 
         Returns
         -------
@@ -1842,7 +1896,8 @@ class ScalarComplex(FieldExpression):
         return self._unary("CmplxPhase", vector=False, is_complex=False)
 
     def at_phase(self, phase_deg: float) -> ScalarReal:
-        """Real value at a given phase angle in degrees (calculator ``AtPhase``).
+        """
+        Real value at a given phase angle in degrees (calculator ``AtPhase``).
 
         Parameters
         ----------
@@ -1867,7 +1922,8 @@ class ScalarComplex(FieldExpression):
         return self._spawn(False, False, [f"Scalar_Constant({_num(phase_deg)})", "Operation('AtPhase')"])
 
     def conjugate(self) -> ScalarComplex:
-        """Complex conjugate (calculator ``Conj``).
+        """
+        Complex conjugate (calculator ``Conj``).
 
         Returns
         -------
@@ -1887,7 +1943,8 @@ class ScalarComplex(FieldExpression):
         return self._unary("Conj", vector=False, is_complex=True)
 
     def smooth(self) -> ScalarComplex:
-        """Smooth the quantity across the mesh (calculator ``Smooth``).
+        """
+        Smooth the quantity across the mesh (calculator ``Smooth``).
 
         Returns
         -------
@@ -1907,7 +1964,8 @@ class ScalarComplex(FieldExpression):
         return self._unary("Smooth", vector=False, is_complex=True)
 
     def as_vector_x(self) -> VectorComplex:
-        """Place this scalar in the x component of a vector (calculator ``VecX``).
+        """
+        Place this scalar in the x component of a vector (calculator ``VecX``).
 
         Returns
         -------
@@ -1927,7 +1985,8 @@ class ScalarComplex(FieldExpression):
         return self._unary("VecX", vector=True, is_complex=True)
 
     def as_vector_y(self) -> VectorComplex:
-        """Place this scalar in the y component of a vector (calculator ``VecY``).
+        """
+        Place this scalar in the y component of a vector (calculator ``VecY``).
 
         Returns
         -------
@@ -1947,7 +2006,8 @@ class ScalarComplex(FieldExpression):
         return self._unary("VecY", vector=True, is_complex=True)
 
     def as_vector_z(self) -> VectorComplex:
-        """Place this scalar in the z component of a vector (calculator ``VecZ``).
+        """
+        Place this scalar in the z component of a vector (calculator ``VecZ``).
 
         Returns
         -------
@@ -1967,7 +2027,8 @@ class ScalarComplex(FieldExpression):
         return self._unary("VecZ", vector=True, is_complex=True)
 
     def __add__(self, other) -> ScalarComplex:
-        """Add a complex scalar expression or number.
+        """
+        Add a complex scalar expression or number.
 
         Parameters
         ----------
@@ -1993,7 +2054,8 @@ class ScalarComplex(FieldExpression):
         return _scalar_arith(self, other, "+")
 
     def __sub__(self, other) -> ScalarComplex:
-        """Subtract a complex scalar expression or number.
+        """
+        Subtract a complex scalar expression or number.
 
         Parameters
         ----------
@@ -2019,7 +2081,8 @@ class ScalarComplex(FieldExpression):
         return _scalar_arith(self, other, "-")
 
     def __mul__(self, other) -> FieldExpression:
-        """Multiply by a scalar, vector, or numeric operand.
+        """
+        Multiply by a scalar, vector, or numeric operand.
 
         Parameters
         ----------
@@ -2044,7 +2107,8 @@ class ScalarComplex(FieldExpression):
         return _scalar_mul(self, other, "*")
 
     def __truediv__(self, other) -> FieldExpression:
-        """Divide by a scalar, vector, or numeric operand.
+        """
+        Divide by a scalar, vector, or numeric operand.
 
         Parameters
         ----------
@@ -2069,7 +2133,8 @@ class ScalarComplex(FieldExpression):
         return _scalar_mul(self, other, "/")
 
     def integrate(self, over: CalculatorGeometry) -> ScalarComplex:
-        """Integrate over a geometry ``∫ s dΩ`` (calculator ``Integrate``).
+        """
+        Integrate over a geometry ``∫ s dΩ`` (calculator ``Integrate``).
 
         Parameters
         ----------
@@ -2094,7 +2159,8 @@ class ScalarComplex(FieldExpression):
         return self._reduce(over, "Integrate")
 
     def mean(self, over: CalculatorGeometry) -> ScalarComplex:
-        """Mean over a geometry (calculator ``Mean``).
+        """
+        Mean over a geometry (calculator ``Mean``).
 
         Parameters
         ----------
@@ -2119,7 +2185,8 @@ class ScalarComplex(FieldExpression):
         return self._reduce(over, "Mean")
 
     def value(self, over: CalculatorGeometry) -> ScalarComplex:
-        """Sample the quantity on a geometry without integrating.
+        """
+        Sample the quantity on a geometry without integrating.
 
         Parameters
         ----------
@@ -2145,7 +2212,8 @@ class ScalarComplex(FieldExpression):
 
 
 class VectorReal(FieldExpression):
-    """A real 3-vector Fields Calculator quantity.
+    """
+    A real 3-vector Fields Calculator quantity.
 
     Examples
     --------
@@ -2163,7 +2231,8 @@ class VectorReal(FieldExpression):
     is_complex = False
 
     def scalar_x(self) -> ScalarReal:
-        """X component (calculator ``ScalarX``).
+        """
+        X component (calculator ``ScalarX``).
 
         Returns
         -------
@@ -2183,7 +2252,8 @@ class VectorReal(FieldExpression):
         return self._unary("ScalarX", vector=False, is_complex=False)
 
     def scalar_y(self) -> ScalarReal:
-        """Y component (calculator ``ScalarY``).
+        """
+        Y component (calculator ``ScalarY``).
 
         Returns
         -------
@@ -2203,7 +2273,8 @@ class VectorReal(FieldExpression):
         return self._unary("ScalarY", vector=False, is_complex=False)
 
     def scalar_z(self) -> ScalarReal:
-        """Z component (calculator ``ScalarZ``).
+        """
+        Z component (calculator ``ScalarZ``).
 
         Returns
         -------
@@ -2223,7 +2294,8 @@ class VectorReal(FieldExpression):
         return self._unary("ScalarZ", vector=False, is_complex=False)
 
     def magnitude(self) -> ScalarReal:
-        """Vector magnitude ``‖v‖`` (calculator ``Mag``).
+        """
+        Vector magnitude ``‖v‖`` (calculator ``Mag``).
 
         Returns
         -------
@@ -2243,7 +2315,8 @@ class VectorReal(FieldExpression):
         return self._unary("Mag", vector=False, is_complex=False)
 
     def smooth(self) -> VectorReal:
-        """Smooth the quantity across the mesh (calculator ``Smooth``).
+        """
+        Smooth the quantity across the mesh (calculator ``Smooth``).
 
         Returns
         -------
@@ -2263,7 +2336,8 @@ class VectorReal(FieldExpression):
         return self._unary("Smooth", vector=True, is_complex=False)
 
     def curl(self) -> VectorReal:
-        """Curl ``∇×v`` (calculator ``Curl``).
+        """
+        Curl ``∇×v`` (calculator ``Curl``).
 
         Returns
         -------
@@ -2283,7 +2357,8 @@ class VectorReal(FieldExpression):
         return self._unary("Curl", vector=True, is_complex=False)
 
     def divergence(self) -> ScalarReal:
-        """Divergence ``∇·v`` (calculator ``Divg``).
+        """
+        Divergence ``∇·v`` (calculator ``Divg``).
 
         Returns
         -------
@@ -2303,7 +2378,8 @@ class VectorReal(FieldExpression):
         return self._unary("Divg", vector=False, is_complex=False)
 
     def __add__(self, other) -> VectorReal:
-        """Add another real vector expression.
+        """
+        Add another real vector expression.
 
         Parameters
         ----------
@@ -2329,7 +2405,8 @@ class VectorReal(FieldExpression):
         return _vector_arith(self, other, "+")
 
     def __sub__(self, other) -> VectorReal:
-        """Subtract another real vector expression.
+        """
+        Subtract another real vector expression.
 
         Parameters
         ----------
@@ -2355,7 +2432,8 @@ class VectorReal(FieldExpression):
         return _vector_arith(self, other, "-")
 
     def __mul__(self, other) -> VectorReal:
-        """Scale a real vector expression.
+        """
+        Scale a real vector expression.
 
         Parameters
         ----------
@@ -2380,7 +2458,8 @@ class VectorReal(FieldExpression):
         return _vector_scale(self, other, "*")
 
     def __truediv__(self, other) -> VectorReal:
-        """Divide a real vector expression by a scalar.
+        """
+        Divide a real vector expression by a scalar.
 
         Parameters
         ----------
@@ -2406,7 +2485,8 @@ class VectorReal(FieldExpression):
 
 
 class VectorComplex(FieldExpression):
-    """A complex 3-vector Fields Calculator quantity.
+    """
+    A complex 3-vector Fields Calculator quantity.
 
     Examples
     --------
@@ -2424,7 +2504,8 @@ class VectorComplex(FieldExpression):
     is_complex = True
 
     def scalar_x(self) -> ScalarComplex:
-        """X component (calculator ``ScalarX``).
+        """
+        X component (calculator ``ScalarX``).
 
         Returns
         -------
@@ -2444,7 +2525,8 @@ class VectorComplex(FieldExpression):
         return self._unary("ScalarX", vector=False, is_complex=True)
 
     def scalar_y(self) -> ScalarComplex:
-        """Y component (calculator ``ScalarY``).
+        """
+        Y component (calculator ``ScalarY``).
 
         Returns
         -------
@@ -2464,7 +2546,8 @@ class VectorComplex(FieldExpression):
         return self._unary("ScalarY", vector=False, is_complex=True)
 
     def scalar_z(self) -> ScalarComplex:
-        """Z component (calculator ``ScalarZ``).
+        """
+        Z component (calculator ``ScalarZ``).
 
         Returns
         -------
@@ -2484,7 +2567,8 @@ class VectorComplex(FieldExpression):
         return self._unary("ScalarZ", vector=False, is_complex=True)
 
     def real(self) -> VectorReal:
-        """Real part, component-wise (calculator ``Real``).
+        """
+        Real part, component-wise (calculator ``Real``).
 
         Returns
         -------
@@ -2504,7 +2588,8 @@ class VectorComplex(FieldExpression):
         return self._unary("Real", vector=True, is_complex=False)
 
     def imaginary(self) -> VectorReal:
-        """Imaginary part, component-wise (calculator ``Imag``).
+        """
+        Imaginary part, component-wise (calculator ``Imag``).
 
         Returns
         -------
@@ -2524,7 +2609,8 @@ class VectorComplex(FieldExpression):
         return self._unary("Imag", vector=True, is_complex=False)
 
     def magnitude(self) -> ScalarReal:
-        """Complex vector magnitude (calculator ``Mag``).
+        """
+        Complex vector magnitude (calculator ``Mag``).
 
         Returns
         -------
@@ -2544,7 +2630,8 @@ class VectorComplex(FieldExpression):
         return self._unary("Mag", vector=False, is_complex=False)
 
     def component_magnitude(self) -> VectorReal:
-        """Component-wise complex magnitude as a real vector (calculator ``CmplxMag``).
+        """
+        Component-wise complex magnitude as a real vector (calculator ``CmplxMag``).
 
         Returns
         -------
@@ -2564,7 +2651,8 @@ class VectorComplex(FieldExpression):
         return self._unary("CmplxMag", vector=True, is_complex=False)
 
     def conjugate(self) -> VectorComplex:
-        """Complex conjugate, component-wise (calculator ``Conj``).
+        """
+        Complex conjugate, component-wise (calculator ``Conj``).
 
         Returns
         -------
@@ -2584,7 +2672,8 @@ class VectorComplex(FieldExpression):
         return self._unary("Conj", vector=True, is_complex=True)
 
     def smooth(self) -> VectorComplex:
-        """Smooth the quantity across the mesh (calculator ``Smooth``).
+        """
+        Smooth the quantity across the mesh (calculator ``Smooth``).
 
         Returns
         -------
@@ -2604,7 +2693,8 @@ class VectorComplex(FieldExpression):
         return self._unary("Smooth", vector=True, is_complex=True)
 
     def curl(self) -> VectorComplex:
-        """Curl ``∇×v`` (calculator ``Curl``).
+        """
+        Curl ``∇×v`` (calculator ``Curl``).
 
         Returns
         -------
@@ -2624,7 +2714,8 @@ class VectorComplex(FieldExpression):
         return self._unary("Curl", vector=True, is_complex=True)
 
     def divergence(self) -> ScalarComplex:
-        """Divergence ``∇·v`` (calculator ``Divg``).
+        """
+        Divergence ``∇·v`` (calculator ``Divg``).
 
         Returns
         -------
@@ -2644,7 +2735,8 @@ class VectorComplex(FieldExpression):
         return self._unary("Divg", vector=False, is_complex=True)
 
     def __add__(self, other) -> VectorComplex:
-        """Add another complex vector expression.
+        """
+        Add another complex vector expression.
 
         Parameters
         ----------
@@ -2670,7 +2762,8 @@ class VectorComplex(FieldExpression):
         return _vector_arith(self, other, "+")
 
     def __sub__(self, other) -> VectorComplex:
-        """Subtract another complex vector expression.
+        """
+        Subtract another complex vector expression.
 
         Parameters
         ----------
@@ -2696,7 +2789,8 @@ class VectorComplex(FieldExpression):
         return _vector_arith(self, other, "-")
 
     def __mul__(self, other) -> VectorComplex:
-        """Scale a complex vector expression.
+        """
+        Scale a complex vector expression.
 
         Parameters
         ----------
@@ -2721,7 +2815,8 @@ class VectorComplex(FieldExpression):
         return _vector_scale(self, other, "*")
 
     def __truediv__(self, other) -> VectorComplex:
-        """Divide a complex vector expression by a scalar.
+        """
+        Divide a complex vector expression by a scalar.
 
         Parameters
         ----------
@@ -2758,7 +2853,8 @@ LEAF = {
 
 
 def _operation_name(entry: str) -> str | None:
-    """Return the operation name extracted from a calculator entry.
+    """
+    Return the operation name extracted from a calculator entry.
 
     Parameters
     ----------
@@ -2785,7 +2881,8 @@ def _operation_name(entry: str) -> str | None:
 
 
 def _stack_effect(entry: str) -> int:
-    """Net change a single entry makes to the calculator stack depth.
+    """
+    Net change a single entry makes to the calculator stack depth.
 
     Parameters
     ----------
@@ -2855,7 +2952,8 @@ def _resolve_stack_depth(operations: Sequence[str]) -> int:
 
 
 def _num(value) -> str:
-    """Format a number the way AEDT serializes calculator constants.
+    """
+    Format a number the way AEDT serializes calculator constants.
 
     Parameters
     ----------
@@ -2880,7 +2978,8 @@ def _num(value) -> str:
 
 
 def scalar_constant(value: float, **meta) -> ScalarReal:
-    """Create a real scalar constant (calculator ``Scalar_Constant``).
+    """
+    Create a real scalar constant (calculator ``Scalar_Constant``).
 
     Parameters
     ----------
@@ -2907,7 +3006,8 @@ def scalar_constant(value: float, **meta) -> ScalarReal:
 
 
 def complex_constant(real: float, imag: float, **meta) -> ScalarComplex:
-    """Create a complex scalar constant (calculator ``Complex_Constant``).
+    """
+    Create a complex scalar constant (calculator ``Complex_Constant``).
 
     Parameters
     ----------
@@ -2936,7 +3036,8 @@ def complex_constant(real: float, imag: float, **meta) -> ScalarComplex:
 
 
 def _to_expr(value, proto: FieldExpression) -> FieldExpression:
-    """Coerce a Python number into an expression carrying prototype metadata.
+    """
+    Coerce a Python number into an expression carrying prototype metadata.
 
     Parameters
     ----------
@@ -2972,7 +3073,8 @@ def _to_expr(value, proto: FieldExpression) -> FieldExpression:
 
 
 def _both(a: FieldExpression, b: FieldExpression) -> bool:
-    """Return ``True`` when either operand is complex.
+    """
+    Return ``True`` when either operand is complex.
 
     Parameters
     ----------
@@ -3000,7 +3102,8 @@ def _both(a: FieldExpression, b: FieldExpression) -> bool:
 
 
 def _scalar_arith(a: FieldExpression, b, op: str) -> FieldExpression:
-    """Add or subtract a scalar with another scalar or a number.
+    """
+    Add or subtract a scalar with another scalar or a number.
 
     Parameters
     ----------
@@ -3033,7 +3136,8 @@ def _scalar_arith(a: FieldExpression, b, op: str) -> FieldExpression:
 
 
 def _scalar_mul(a: FieldExpression, b, op: str) -> FieldExpression:
-    """Multiply or divide starting from a scalar operand.
+    """
+    Multiply or divide starting from a scalar operand.
 
     Parameters
     ----------
@@ -3064,7 +3168,8 @@ def _scalar_mul(a: FieldExpression, b, op: str) -> FieldExpression:
 
 
 def _vector_arith(a: FieldExpression, b, op: str) -> FieldExpression:
-    """Add or subtract two vector expressions.
+    """
+    Add or subtract two vector expressions.
 
     Parameters
     ----------
@@ -3097,7 +3202,8 @@ def _vector_arith(a: FieldExpression, b, op: str) -> FieldExpression:
 
 
 def _vector_scale(a: FieldExpression, b, op: str) -> FieldExpression:
-    """Scale a vector by a scalar operand or number.
+    """
+    Scale a vector by a scalar operand or number.
 
     Parameters
     ----------
@@ -3163,7 +3269,8 @@ def dot(u: FieldExpression, v: FieldExpression) -> FieldExpression:
 
 
 def cross(u: FieldExpression, v: FieldExpression) -> FieldExpression:
-    """Vector cross product ``u×v`` (calculator ``Cross``) -> vector.
+    """
+    Vector cross product ``u×v`` (calculator ``Cross``) -> vector.
 
     Parameters
     ----------
@@ -3194,7 +3301,8 @@ def cross(u: FieldExpression, v: FieldExpression) -> FieldExpression:
 
 
 def cmplx(real: ScalarReal, imag: ScalarReal) -> ScalarComplex:
-    """Build a complex scalar from real and imaginary scalar parts.
+    """
+    Build a complex scalar from real and imaginary scalar parts.
 
     Mirrors the calculator ``CmplxR`` / ``CmplxI`` idiom (``real.as_complex_real()
     + imag.as_complex_imag()``).
@@ -3228,7 +3336,8 @@ def cmplx(real: ScalarReal, imag: ScalarReal) -> ScalarComplex:
 
 
 class FieldExpressions(PyAedtBase):
-    """Builder for AEDT Fields Calculator expressions.
+    """
+    Builder for AEDT Fields Calculator expressions.
 
     The AEDT Fields Calculator is driven by a stack of string operations (reverse
     Polish notation), for example ``Fundamental_Quantity('E')``, ``Operation('Real')``,
@@ -3273,7 +3382,8 @@ class FieldExpressions(PyAedtBase):
     """
 
     def __init__(self, calculator) -> None:
-        """Bind the expression builder to a Fields Calculator instance.
+        """
+        Bind the expression builder to a Fields Calculator instance.
 
         Parameters
         ----------
@@ -3311,7 +3421,8 @@ class FieldExpressions(PyAedtBase):
     def _seed(self, vector: bool, complex_: bool, ops: Sequence[str]) -> FieldExpression: ...
 
     def _seed(self, vector: bool, complex_: bool, ops: Sequence[str]) -> FieldExpression:
-        """Create a typed root expression bound to this builder.
+        """
+        Create a typed root expression bound to this builder.
 
         Parameters
         ----------
@@ -3342,7 +3453,8 @@ class FieldExpressions(PyAedtBase):
         return cls(ops, calculator=self._calculator, design_type=self._design_type)
 
     def vector(self, quantity: str = "E", is_complex: bool = True) -> VectorReal | VectorComplex:
-        """Start from a fundamental vector quantity.
+        """
+        Start from a fundamental vector quantity.
 
         Parameters
         ----------
@@ -3371,7 +3483,8 @@ class FieldExpressions(PyAedtBase):
         return self._seed(True, False, [f"Fundamental_Quantity('{quantity}')"])
 
     def scalar(self, quantity: str, is_complex: bool = True) -> ScalarReal | ScalarComplex:
-        """Start from a fundamental scalar quantity.
+        """
+        Start from a fundamental scalar quantity.
 
         Parameters
         ----------
@@ -3401,7 +3514,8 @@ class FieldExpressions(PyAedtBase):
         return self._seed(False, False, [f"Fundamental_Quantity('{quantity}')"])
 
     def named_expression(self, name: str, is_vector: bool = False, is_complex: bool = True) -> FieldExpression:
-        """Start from a previously defined named expression.
+        """
+        Start from a previously defined named expression.
 
         Parameters
         ----------
@@ -3430,7 +3544,8 @@ class FieldExpressions(PyAedtBase):
         return self._seed(is_vector, is_complex, [f"NameOfExpression('{name}')"])
 
     def scalar_constant(self, value: float) -> ScalarReal:
-        """Create a real scalar constant.
+        """
+        Create a real scalar constant.
 
         Parameters
         ----------
@@ -3455,7 +3570,8 @@ class FieldExpressions(PyAedtBase):
         return self._seed(False, False, [f"Scalar_Constant({_num(value)})"])
 
     def complex_constant(self, real: float, imag: float) -> ScalarComplex:
-        """Create a complex scalar constant.
+        """
+        Create a complex scalar constant.
 
         Parameters
         ----------
@@ -3482,7 +3598,8 @@ class FieldExpressions(PyAedtBase):
         return self._seed(False, True, [f"Complex_Constant({_num(real)}, {_num(imag)})"])
 
     def vector_constant(self, x: float, y: float, z: float) -> VectorReal:
-        """Create a constant real vector.
+        """
+        Create a constant real vector.
 
         Parameters
         ----------
@@ -3511,7 +3628,8 @@ class FieldExpressions(PyAedtBase):
         return self._seed(True, False, [f"Vector_Constant({_num(x)}, {_num(y)}, {_num(z)})"])
 
     def function(self, name: str) -> ScalarReal:
-        """Create a scalar expression from a design variable or function.
+        """
+        Create a scalar expression from a design variable or function.
 
         Parameters
         ----------
@@ -3537,7 +3655,8 @@ class FieldExpressions(PyAedtBase):
         return self._seed(False, False, [f"Scalar_Function(FuncValue='{name}')"])
 
     def tangent(self) -> VectorReal:
-        """Push the geometry unit tangent vector.
+        """
+        Push the geometry unit tangent vector.
 
         Returns
         -------
@@ -3558,7 +3677,8 @@ class FieldExpressions(PyAedtBase):
         return self._seed(True, False, ["Operation('Tangent')"])
 
     def normal(self) -> VectorReal:
-        """Push the geometry unit normal vector.
+        """
+        Push the geometry unit normal vector.
 
         Returns
         -------
