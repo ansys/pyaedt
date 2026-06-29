@@ -32,8 +32,7 @@ from ansys.aedt.core.generic.general_methods import PyAedtBase
 
 
 class Help(PyAedtBase):  # pragma: no cover
-    """
-    Utility class to open PyAEDT documentation and related resources.
+    """Utility class to open PyAEDT documentation and related resources.
 
     This class provides convenience methods to open documentation, examples,
     GitHub pages, and community resources for PyAEDT.
@@ -78,6 +77,7 @@ class Help(PyAedtBase):  # pragma: no cover
         silent : bool, optional
             If ``True``, no browser windows are opened. All public methods
             only return URLs. The default is ``False``.
+
         """
         self._version = version or self._DEFAULT_VERSION
         self._browser = "default"  # will be validated by setter below

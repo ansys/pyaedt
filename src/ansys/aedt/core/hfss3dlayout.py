@@ -54,8 +54,7 @@ from ansys.aedt.core.modules.boundary.layout_boundary import BoundaryObject3dLay
 
 
 class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
-    """
-    Provides the HFSS 3D Layout application interface.
+    """Provides the HFSS 3D Layout application interface.
 
     This class inherits all objects that belong to HFSS 3D Layout, including EDB
     API queries.
@@ -346,8 +345,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         wave_vertical_extension: float | None = 3,
         wave_launcher: str | None = "1mm",
     ) -> BoundaryObject3dLayout | bool:
-        """
-        Create a single-ended wave port.
+        """Create a single-ended wave port.
 
         Parameters
         ----------

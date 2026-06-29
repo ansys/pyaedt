@@ -41,8 +41,7 @@ from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
 
 
 class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
-    """
-    Provides the Twin Builder application interface.
+    """Provides the Twin Builder application interface.
 
     Parameters
     ----------

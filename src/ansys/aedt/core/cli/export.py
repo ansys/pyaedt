@@ -22,12 +22,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-Export commands.
+r"""Export commands.
 
 Examples
 --------
-    pyaedt export screenshot --port 50051 --path "C:\\Users\\username\\Desktop\\design.jpg"
+>>> pyaedt export screenshot --port 50051 --path "C:\\Users\\username\\Desktop\\design.jpg"
 
 """
 

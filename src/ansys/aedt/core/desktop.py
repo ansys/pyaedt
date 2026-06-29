@@ -2188,6 +2188,7 @@ class Desktop(PyAedtBase):
         return True
 
     def __del__(self):
+        """Release AEDT and delete PyAEDT object."""
         self.__release_and_close_desktop(self.close_on_exit, self.close_on_exit)
 
     @pyaedt_function_handler()

@@ -71,8 +71,7 @@ class Band(EmitNode):
 
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
-        """
-        Duplicate this node
+        """Duplicate this node
 
         Examples
         --------

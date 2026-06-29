@@ -51,8 +51,7 @@ from ansys.aedt.core.filtersolutions_core.transmission_zeros import Transmission
 
 
 class FilterDesignBase(PyAedtBase):
-    """
-    Provides the `FilterSolutions` main parameters applicable for all design types.
+    """Provides the `FilterSolutions` main parameters applicable for all design types.
 
     Examples
     --------

@@ -38,8 +38,7 @@ doc_app = typer.Typer(help="Documentation commands", no_args_is_help=False)
 
 @doc_app.callback(invoke_without_command=True)
 def doc_callback(ctx: typer.Context) -> None:
-    """
-    Open the home page and display help when no subcommand is provided.
+    """Open the home page and display help when no subcommand is provided.
 
     Examples
     --------

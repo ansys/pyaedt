@@ -37,8 +37,7 @@ from ansys.aedt.core.modeler.schematic import ModelerEmit
 
 
 class Emit(Design, PyAedtBase):
-    """
-    Provides the EMIT application interface.
+    """Provides the EMIT application interface.
 
     Parameters
     ----------
@@ -394,7 +393,7 @@ class Emit(Design, PyAedtBase):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> app.save_project(file_name=r"C:\\Projects\\emit_demo.aedt")
+        >>> app.save_project(file_name="emit_demo.aedt")
 
         """
         if self.__emit_api_enabled:

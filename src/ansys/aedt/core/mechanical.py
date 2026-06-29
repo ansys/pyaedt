@@ -36,8 +36,7 @@ from ansys.aedt.core.modules.setup_templates import SetupKeys
 
 
 class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
-    """
-    Provides the Mechanical application interface.
+    """Provides the Mechanical application interface.
 
     Parameters
     ----------

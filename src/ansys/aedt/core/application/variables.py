@@ -97,7 +97,7 @@ class CSVDataset(PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core.application.variables import CSVDataset
-        >>> dataset = CSVDataset("C:\\Users\\user\\Documents\\results.csv")
+        >>> dataset = CSVDataset("results.csv")
         >>> dataset.number_of_rows
 
         """
