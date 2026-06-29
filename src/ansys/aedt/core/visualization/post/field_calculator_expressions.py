@@ -338,7 +338,8 @@ class FieldExpression(PyAedtBase):
         *,
         more_assignment_types: list[str] | None = None,
     ) -> FieldExpression:
-        """Build a derived expression with appended calculator operations.
+        """
+        Build a derived expression with appended calculator operations.
 
         Parameters
         ----------
