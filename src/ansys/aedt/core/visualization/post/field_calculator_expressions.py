@@ -77,7 +77,7 @@ class CalculatorGeometry(PyAedtBase):
 
     >>> from ansys.aedt.core.visualization.post.field_calculator_expressions import CalculatorGeometry
     >>> clc = CalculatorGeometry("my_line")
-    >>> clc.calculator_token = "EnterLine"
+    >>> clc.calculator_entry = "EnterLine"
     >>> clc.value_op = "LineValue"
     >>> clc.assignment_type = "Line"
     >>> clc.assignment
@@ -85,7 +85,7 @@ class CalculatorGeometry(PyAedtBase):
 
     """
 
-    calculator_token: str = ""
+    calculator_entry: str = ""
     value_op: str = ""
     assignment_type: str = ""
 
@@ -123,7 +123,7 @@ class CalculatorGeometry(PyAedtBase):
 
         >>> from ansys.aedt.core.visualization.post.field_calculator_expressions import CalculatorGeometry
         >>> clc = CalculatorGeometry("my_line")
-        >>> clc.calculator_token = "EnterLine"
+        >>> clc.calculator_entry = "EnterLine"
         >>> clc.value_op = "LineValue"
         >>> clc.assignment_type = "Line"
         >>> ops = clc._operations()
@@ -131,7 +131,7 @@ class CalculatorGeometry(PyAedtBase):
         ["EnterLine('my_line')", "Operation('LineValue')"]
 
         """
-        ops = [f"{self.calculator_token}('{self.assignment}')"]
+        ops = [f"{self.calculator_entry}('{self.assignment}')"]
         if self.value_op:
             ops.append(f"Operation('{self.value_op}')")
         return ops
@@ -151,7 +151,7 @@ class Line(CalculatorGeometry):
 
     """
 
-    calculator_token = "EnterLine"
+    calculator_entry = "EnterLine"
     value_op = "LineValue"
     assignment_type = "Line"
 
@@ -171,7 +171,7 @@ class Surface(CalculatorGeometry):
 
     """
 
-    calculator_token = "EnterSurface"
+    calculator_entry = "EnterSurface"
     value_op = "SurfaceValue"
     assignment_type = "Surface"
 
@@ -191,7 +191,7 @@ class Volume(CalculatorGeometry):
 
     """
 
-    calculator_token = "EnterVolume"
+    calculator_entry = "EnterVolume"
     value_op = "VolumeValue"
     assignment_type = "Volume"
 
