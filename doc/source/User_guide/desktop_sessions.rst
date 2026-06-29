@@ -53,6 +53,7 @@ Use a context manager when you want deterministic cleanup at the end of a block:
         non_graphical=True,
         new_desktop=True,
     ) as d:
+        version = d.aedt_version_id
         hfss = Hfss()
         maxwell = Maxwell3d()
         # ...
@@ -73,6 +74,7 @@ If needed, you can still override the default behavior explicitly:
         new_desktop=False,
         close_on_exit=False,
     ) as d:
+        version = d.aedt_version_id
         hfss = Hfss()
         maxwell = Maxwell3d()
         # Work with an existing AEDT session here.
