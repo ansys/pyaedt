@@ -59,6 +59,15 @@ def aedtapp(request, add_app):
     app.close_project(app.project_name)
 
 
+@pytest.fixture()
+def hfssapp(add_app):
+    app = add_app(application=pyaedt.Hfss)
+    app.solution_type = "Modal"
+    app.create_setup()
+    yield app
+    app.close_project(app.project_name)
+
+
 def test_expressions_builder_registers(aedtapp) -> None:
     """Test registering a typed Fields Calculator expression as a named expression."""
     poly = aedtapp.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="Polyline1")
@@ -104,20 +113,16 @@ def test_expressions_constants_and_math_load(aedtapp) -> None:
     assert aedtapp.post.fields_calculator.is_expression_defined("typed_energy")
 
 
-def test_expressions_verify_rejects_malformed(aedtapp) -> None:
+def test_expressions_verify_rejects_malformed(hfssapp) -> None:
     """Test that a malformed expression is rejected before reaching AEDT."""
-    fx = aedtapp.post.fields_calculator.expressions
+    fx = hfssapp.post.fields_calculator.expressions
 
     # a balanced, well-formed expression verifies successfully
-    if aedtapp.design_type == "Icepak":
-        expr = fx.scalar("Temp", is_complex=False)
-    elif aedtapp.design_type in ["Maxwell 3D", "Maxwell 2D"]:
-        expr = fx.vector("H").magnitude()
-    else:
-        expr = fx.vector("E").magnitude()
+    expr = fx.vector("E").magnitude()
 
     assert expr.verify() is expr
-    # dot() requires two vectors -> a type error, never a malformed stack
+
+    # dot() requires two vectors
     with pytest.raises(TypeError):
         from ansys.aedt.core.visualization.post.field_calculator_expressions import dot
 
