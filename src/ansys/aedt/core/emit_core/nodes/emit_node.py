@@ -380,20 +380,23 @@ class EmitNode:
             return str(value).lower()
         if prop in _FLOAT_LIST_PROPERTIES:
             if isinstance(value, list):
-                return " ".join(str(x) for x in value)
+                space = " "
+                return space.join(str(x) for x in value)
             if isinstance(value, str) and value.startswith("[") and value.endswith("]"):
                 parsed = ast.literal_eval(value)
                 if isinstance(parsed, list):
-                    return " ".join(str(x) for x in parsed)
+                    space = " "
+                    return space.join(str(x) for x in parsed)
         if isinstance(value, list):
-            return "|".join(str(x) for x in value)
+            pipe = "|"
+            return pipe.join(str(x) for x in value)
         return str(value)
 
     @staticmethod
     def _format_property_string(prop: str, value) -> str:
         """Format a property name and value into an EmitCom ``name=value`` string."""
         formatted_value = EmitNode._format_property_value(prop, value)
-        return "=".join((prop, formatted_value))
+        return prop + "=" + formatted_value
 
     @min_aedt_version("2025.2")
     @pyaedt_function_handler()
@@ -560,18 +563,15 @@ class EmitNode:
         aedt_errors = self._emit_obj.logger.aedt_messages.error_level
         error_text = str(aedt_errors[-1]) if aedt_errors else None
         if not error_text:
-            props_desc = ", ".join(f'"{key}"' for key in prop_keys)
-            return (
-                f"Failed setting properties on {self._node_type} node "
-                f'"{self.name}" ({props_desc})'
-            )
+            props_desc = ", ".join(repr(key) for key in prop_keys)
+            return f"Failed setting properties on {self._node_type} node {self.name!r} ({props_desc})"
 
         matching_keys = [key for key in prop_keys if key in error_text]
         if len(prop_keys) > 1 and not matching_keys:
-            props_desc = ", ".join(f'"{key}"' for key in prop_keys)
+            props_desc = ", ".join(repr(key) for key in prop_keys)
             return f"{error_text} (while setting {props_desc})"
         if len(prop_keys) == 1 and prop_keys[0] not in error_text:
-            return f'{error_text} (property "{prop_keys[0]}")'
+            return f"{error_text} (property {prop_keys[0]!r})"
         return error_text
 
     @min_aedt_version("2025.2")
