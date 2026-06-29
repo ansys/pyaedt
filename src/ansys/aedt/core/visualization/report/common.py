@@ -45,8 +45,7 @@ if TYPE_CHECKING:
 
 
 class LimitLine(BinaryTreeNode, PyAedtBase):
-    """
-    Line Limit Management Class.
+    """Line Limit Management Class.
 
     Examples
     --------
@@ -1297,7 +1296,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @property
     def internal_plot_name(self) -> str:
-        """
+        r"""
         Internal AEDT plot name with escaped backslashes and forward slashes.
 
         Some AEDT APIs (such as ``oReportSetup.GetChildObject`` and a few
