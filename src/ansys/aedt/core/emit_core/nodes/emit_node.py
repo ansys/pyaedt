@@ -396,7 +396,8 @@ class EmitNode:
     def _format_property_string(prop: str, value) -> str:
         """Format a property name and value into an EmitCom ``name=value`` string."""
         formatted_value = EmitNode._format_property_value(prop, value)
-        return f"{prop}={formatted_value}"
+        result = prop + chr(61) + formatted_value
+        return result
 
     @min_aedt_version("2025.2")
     @pyaedt_function_handler()
@@ -564,14 +565,19 @@ class EmitNode:
         error_text = str(aedt_errors[-1]) if aedt_errors else None
         if not error_text:
             props_desc = ", ".join(repr(key) for key in prop_keys)
-            return f"Failed setting properties on {self._node_type} node {self.name!r} ({props_desc})"
+            result = "Failed setting properties on {} node {} ({})".format(
+                self._node_type, repr(self.name), props_desc
+            )
+            return result
 
         matching_keys = [key for key in prop_keys if key in error_text]
         if len(prop_keys) > 1 and not matching_keys:
             props_desc = ", ".join(repr(key) for key in prop_keys)
-            return f"{error_text} (while setting {props_desc})"
+            result = "{} (while setting {})".format(error_text, props_desc)
+            return result
         if len(prop_keys) == 1 and prop_keys[0] not in error_text:
-            return f"{error_text} (property {prop_keys[0]!r})"
+            result = "{} (property {})".format(error_text, repr(prop_keys[0]))
+            return result
         return error_text
 
     @min_aedt_version("2025.2")
