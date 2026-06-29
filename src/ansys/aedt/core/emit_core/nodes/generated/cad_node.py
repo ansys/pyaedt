@@ -85,12 +85,12 @@ class CADNode(EmitNode):
     @min_aedt_version("2025.2")
     def delete(self) -> None:
         """
-        Delete this node
+        Delete this node.
 
         Examples
         --------
         >>> from ansys.aedt.core import Emit
-        >>> app = Emit(project="C:\\Projects\\scene.aedtz")
+        >>> app = Emit(project="scene.aedtz")
         >>> revision = app.results.analyze()
         >>> cad = [child for child in revision.get_scene_node().children if child.node_type == "CADNode"][0]
         >>> cad.delete()

@@ -27,7 +27,7 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class Amplifier(EmitNode):
-    """Provide amplifier."""
+    """Provide amplifier."""  # noqa: D203
 
     def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
@@ -50,7 +50,8 @@ class Amplifier(EmitNode):
 
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
-        """Duplicate this node.
+        """
+        Duplicate this node.
 
         Examples
         --------

@@ -88,7 +88,7 @@ class InterfererType(MutableEnum):
 
 
 class UnitType(MutableEnum):
-    """Provide unit type."""
+    """Provide unit type."""  # noqa: D203
 
     POWER = None
     """Power option."""

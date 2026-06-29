@@ -154,7 +154,7 @@ class EmitterNode(EmitNode):
     @min_aedt_version("2025.2")
     def children(self) -> list[EmitNode]:
         """
-        Overridden to return the Waveforms
+        Overridden to return the Waveforms.
 
         Returns
         -------

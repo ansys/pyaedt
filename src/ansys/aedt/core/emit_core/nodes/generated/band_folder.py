@@ -27,7 +27,7 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class BandFolder(EmitNode):
-    """Provide band folder."""
+    """Provide band folder."""  # noqa: D203
 
     def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
