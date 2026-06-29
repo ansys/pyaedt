@@ -41,8 +41,7 @@ if TYPE_CHECKING:
 
 
 class SolutionData(PyAedtBase):
-    """
-    Contains information from the :func:`GetSolutionDataPerVariation` method.
+    """Contains information from the :func:`GetSolutionDataPerVariation` method.
 
     Examples
     --------

@@ -22,8 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-Entry point to spawn a per-client RPyC GlobalService worker.
+"""Entry point to spawn a per-client RPyC GlobalService worker.
 
 This script is called by `ServiceManager.start_service()` as a subprocess.
 """

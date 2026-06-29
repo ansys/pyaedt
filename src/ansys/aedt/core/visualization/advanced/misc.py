@@ -119,8 +119,7 @@ class BoxFacePointsAndFields(PyAedtBase):
 def convert_nearfield_data(
     dat_folder: str, frequency: int = 6, invert_phase_for_lower_faces: bool = True, output_folder: str = None
 ) -> str:
-    r"""
-    Convert a near field data folder to hfss `nfd` file and link it to `and` file.
+    r"""Convert a near field data folder to hfss `nfd` file and link it to `and` file.
 
     Parameters
     ----------

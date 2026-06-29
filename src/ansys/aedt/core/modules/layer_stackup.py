@@ -1477,6 +1477,7 @@ class Layers(PyAedtBase):
     """
 
     def __init__(self, modeler, roughnessunits: str = "um") -> None:
+        """Layer stackup."""
         self._modeler = modeler
         self._app = self._modeler._app
         self._currentId = 0

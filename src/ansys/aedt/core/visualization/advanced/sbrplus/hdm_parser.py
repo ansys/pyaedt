@@ -37,8 +37,7 @@ from ansys.aedt.core.base import PyAedtBase
 
 
 class Parser(PyAedtBase):
-    """
-    Parser class that loads an HDM-format export file from HFSS SBR+, interprets its header and its binary content.
+    """Parser class that loads an HDM-format export file from HFSS SBR+, interprets its header and its binary content.
 
     Except for the header, the binary content is not parsed until an explicit call to parse_message.
 

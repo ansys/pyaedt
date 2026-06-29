@@ -47,8 +47,7 @@ from ansys.aedt.core.modules.material_workbench import MaterialWorkbench
 
 
 class Materials(PyAedtBase):
-    """
-    Contains the AEDT materials database and all methods for creating and editing materials.
+    """Contains the AEDT materials database and all methods for creating and editing materials.
 
     Parameters
     ----------
