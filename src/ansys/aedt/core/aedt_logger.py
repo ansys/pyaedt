@@ -138,7 +138,9 @@ class AppFilter(logging.Filter):
         self._extra = extra
 
     def filter(self, record: logging.LogRecord) -> bool:
-        """Modify the record sent to the logger.
+        """Filter logs.
+
+        Modify the record sent to the logger.
 
         Parameters
         ----------
