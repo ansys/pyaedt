@@ -32,8 +32,7 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 @pyaedt_function_handler()
 def change_objects_visibility(input_file: str | Path, assignment: list) -> bool:
-    """
-    Edit the project file to make only the solids that are specified visible.
+    """Edit the project file to make only the solids that are specified visible.
 
     Parameters
     ----------
