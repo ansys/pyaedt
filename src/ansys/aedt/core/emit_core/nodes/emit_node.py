@@ -380,14 +380,24 @@ class EmitNode:
             return str(value).lower()
         if prop in _FLOAT_LIST_PROPERTIES:
             if isinstance(value, list):
-                return " ".join(str(x) for x in value)
+                space = " "
+                return space.join(str(x) for x in value)
             if isinstance(value, str) and value.startswith("[") and value.endswith("]"):
                 parsed = ast.literal_eval(value)
                 if isinstance(parsed, list):
-                    return " ".join(str(x) for x in parsed)
+                    space = " "
+                    return space.join(str(x) for x in parsed)
         if isinstance(value, list):
-            return "|".join(str(x) for x in value)
+            pipe = "|"
+            return pipe.join(str(x) for x in value)
         return str(value)
+
+    @staticmethod
+    def _format_property_string(prop: str, value) -> str:
+        """Format a property name and value into an EmitCom ``name=value`` string."""
+        formatted_value = EmitNode._format_property_value(prop, value)
+        result = prop + chr(61) + formatted_value
+        return result
 
     @min_aedt_version("2025.2")
     @pyaedt_function_handler()
@@ -475,6 +485,22 @@ class EmitNode:
             return
 
         try:
+            available_props = self._oRevisionData.GetEmitNodeProperties(
+                self._result_id, self._node_id, skipChecks
+            )
+        except Exception:
+            errors = self._emit_obj.logger.aedt_messages.error_level
+            msg = errors[-1] if errors else "Failed to get node properties."
+            raise ValueError(str(msg))
+        available_dict = self.props_to_dict(available_props)
+        missing = [name for name in prop_keys if name not in available_dict]
+        if missing:
+            raise ValueError(
+                f"Properties not found or not available for {self._node_type} configuration: "
+                f"{', '.join(missing)}"
+            )
+
+        try:
             self._oRevisionData.SetEmitNodeProperties(
                 self._result_id, self._node_id, prop_strings, skipChecks
             )
@@ -509,11 +535,16 @@ class EmitNode:
                         "When properties is a list, each item must be a 'name=value' string."
                     )
                 key, value = item.split("=", 1)
-                prop_dict[key.strip()] = value.strip()
+                stripped_key = key.strip()
+                stripped_value = value.strip()
+                prop_dict[stripped_key] = stripped_value
         else:
             raise TypeError("properties must be a dict or list of 'name=value' strings.")
 
-        return [f"{key}={self._format_property_value(key, value)}" for key, value in prop_dict.items()], list(prop_dict.keys())
+        prop_strings = [
+            self._format_property_string(key, value) for key, value in prop_dict.items()
+        ]
+        return prop_strings, list(prop_dict.keys())
 
     def _format_set_properties_error(self, prop_strings: list[str], prop_keys: list[str]) -> str:
         """Format the error message for setting properties.
@@ -533,23 +564,25 @@ class EmitNode:
         aedt_errors = self._emit_obj.logger.aedt_messages.error_level
         error_text = str(aedt_errors[-1]) if aedt_errors else None
         if not error_text:
-            props_desc = ", ".join(f'"{key}"' for key in prop_keys)
-            return (
-                f"Failed setting properties on {self._node_type} node "
-                f'"{self.name}" ({props_desc})'
+            props_desc = ", ".join(repr(key) for key in prop_keys)
+            result = "Failed setting properties on {} node {} ({})".format(
+                self._node_type, repr(self.name), props_desc
             )
+            return result
 
         matching_keys = [key for key in prop_keys if key in error_text]
         if len(prop_keys) > 1 and not matching_keys:
-            props_desc = ", ".join(f'"{key}"' for key in prop_keys)
-            return f"{error_text} (while setting {props_desc})"
+            props_desc = ", ".join(repr(key) for key in prop_keys)
+            result = "{} (while setting {})".format(error_text, props_desc)
+            return result
         if len(prop_keys) == 1 and prop_keys[0] not in error_text:
-            return f'{error_text} (property "{prop_keys[0]}")'
+            result = "{} (property {})".format(error_text, repr(prop_keys[0]))
+            return result
         return error_text
 
     @min_aedt_version("2025.2")
     def _get_property(
-        self, prop: str, skipChecks: bool = True, isTable: bool = False
+        self, prop: str, skipChecks: bool = False, isTable: bool = False
     ) -> str | list[str] | list[float] | list[tuple[str, ...]]:
         """Get a single property value.
 
@@ -590,7 +623,7 @@ class EmitNode:
             raise self._emit_obj.logger.aedt_messages.error_level[-1]
 
     @min_aedt_version("2025.2")
-    def _set_property(self, prop, value, skipChecks: bool = True):
+    def _set_property(self, prop, value, skipChecks: bool = False):
         """Set a single property value.
 
         Parameters
@@ -609,13 +642,13 @@ class EmitNode:
         Exception
             If an error occurs.
         """
-        formatted_value = self._format_property_value(prop, value)
+        prop_string = self._format_property_string(prop, value)
         try:
             self._oRevisionData.SetEmitNodeProperties(
-                self._result_id, self._node_id, [f"{prop}={formatted_value}"], skipChecks)
+                self._result_id, self._node_id, [prop_string], skipChecks)
         except Exception:
             raise ValueError(
-                self._format_set_properties_error([f"{prop}={formatted_value}"], [prop])
+                self._format_set_properties_error([prop_string], [prop])
             )
 
     @staticmethod

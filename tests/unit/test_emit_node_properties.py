@@ -26,6 +26,11 @@ def test_format_property_value() -> None:
     assert EmitNode._format_property_value("Tags", ["a", "b"]) == "a|b"
 
 
+def test_format_property_string() -> None:
+    assert EmitNode._format_property_string("Enabled", True) == "Enabled=true"
+    assert EmitNode._format_property_string("Position", [1.0, 2.0, 3.0]) == "Position=1.0 2.0 3.0"
+
+
 def test_parse_property_value() -> None:
     assert EmitNode._parse_property_value("Position", "1 2 3") == [1.0, 2.0, 3.0]
     assert EmitNode._parse_property_value("Enabled", "true") == "true"
