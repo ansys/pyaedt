@@ -42,8 +42,7 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 @pytest.fixture(scope="function", autouse=False)
 def mock_desktop():
-    """
-    Fixture used to mock the creation of a Desktop instance.
+    """Fixture used to mock the creation of a Desktop instance.
 
     Patching __del__ is necessary to avoid side effects associated to the logic of
     releasing and closing the desktop.

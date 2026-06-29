@@ -34,7 +34,7 @@ import time
 from ansys.aedt.core.generic.settings import settings
 
 message_levels = {"Global": 0, "Project": 1, "Design": 2}
-"""Value for message levels."""
+"""Value for message levels."""  # noqa: D203
 
 
 class Msg:

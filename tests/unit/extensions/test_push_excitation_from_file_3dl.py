@@ -57,10 +57,7 @@ def test_main_function_exceptions() -> None:
 
 @pytest.fixture
 def mock_hfss3dl_app_with_excitations(mock_hfss_3d_layout_app):
-    """
-    Fixture to create a mock HFSS 3D Layout application with
-    excitations.
-    """
+    """Fixture to create a mock HFSS 3D Layout application with excitations."""  # noqa: D203
     mock_hfss_3d_layout_app.excitation_names = ["Port1", "Port2"]
     yield mock_hfss_3d_layout_app
 

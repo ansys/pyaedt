@@ -38,7 +38,7 @@ Examples
 
 
 class MutableEnum:
-    """Provide mutable enum."""
+    """Provide mutable enum."""  # noqa: D203
 
     @classmethod
     def members(cls):
