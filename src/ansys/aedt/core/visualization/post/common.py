@@ -60,6 +60,7 @@ if TYPE_CHECKING:
     from ansys.aedt.core.visualization.report.eye import AMIConturEyeDiagram
     from ansys.aedt.core.visualization.report.eye import AMIEyeDiagram
     from ansys.aedt.core.visualization.report.eye import EyeDiagram
+    from ansys.aedt.core.visualization.report.field import AntennaParameters
     from ansys.aedt.core.visualization.report.field import FarField
     from ansys.aedt.core.visualization.report.field import Fields
     from ansys.aedt.core.visualization.report.field import NearField
@@ -127,8 +128,16 @@ class PostProcessorCommon(PyAedtBase):
         self,
     ) -> list[
         (
-            "Standard | AMIEyeDiagram | AMIConturEyeDiagram | EMIReceiver | EyeDiagram | CircuitNetlistReport | "
-            "Fields | FarField | NearField | Spectral"
+            Standard
+            | AMIEyeDiagram
+            | AMIConturEyeDiagram
+            | EMIReceiver
+            | EyeDiagram
+            | CircuitNetlistReport
+            | Fields
+            | FarField
+            | NearField
+            | Spectral
         )
     ]:
         """Plot list.
@@ -153,8 +162,16 @@ class PostProcessorCommon(PyAedtBase):
     def plots(
         self,
         value: list[
-            "Standard | AMIEyeDiagram | AMIConturEyeDiagram | EMIReceiver | EyeDiagram | CircuitNetlistReport | "
-            "Fields | FarField | NearField | Spectral"
+            Standard
+            | AMIEyeDiagram
+            | AMIConturEyeDiagram
+            | EMIReceiver
+            | EyeDiagram
+            | CircuitNetlistReport
+            | Fields
+            | FarField
+            | NearField
+            | Spectral
         ],
     ) -> None:
         self.__plots = value
@@ -1629,8 +1646,18 @@ class PostProcessorCommon(PyAedtBase):
         width: int = 800,
         height: int = 450,
     ) -> (
-        "Standard | AMIEyeDiagram | AMIConturEyeDiagram | EMIReceiver | EyeDiagram | CircuitNetlistReport | Fields | "
-        "FarField | NearField | Spectral | ReportPlotter | bool"
+        Standard
+        | AMIEyeDiagram
+        | AMIConturEyeDiagram
+        | EMIReceiver
+        | EyeDiagram
+        | CircuitNetlistReport
+        | Fields
+        | FarField
+        | NearField
+        | Spectral
+        | ReportPlotter
+        | bool
     ):
         """Create a report in AEDT or in Matplotlib. It can be a 2D plot, 3D plot, polar plot, or a data table.
 
@@ -1835,7 +1862,7 @@ class PostProcessorCommon(PyAedtBase):
         subdesign_id: int | None = None,
         polyline_points: int = 1001,
         math_formula: str | None = None,
-    ) -> "SolutionData":
+    ) -> SolutionData | bool:
         """Get a simulation result from a solved setup and cast it in a ``SolutionData`` object.
 
         Data to be retrieved from Electronics Desktop are any simulation results available in that
@@ -1994,8 +2021,19 @@ class PostProcessorCommon(PyAedtBase):
         width: int = 800,
         height: int = 450,
     ) -> (
-        "Standard | AMIEyeDiagram | AMIConturEyeDiagram | EMIReceiver | EyeDiagram | CircuitNetlistReport | Fields | "
-        "FarField | NearField | Spectral | ReportPlotter"
+        Standard
+        | AMIEyeDiagram
+        | AMIConturEyeDiagram
+        | EMIReceiver
+        | EyeDiagram
+        | CircuitNetlistReport
+        | Fields
+        | FarField
+        | NearField
+        | Spectral
+        | ReportPlotter
+        | None
+        | bool
     ):
         """Create a report based on a JSON file, TOML file, RPT file, or dictionary of properties.
 
@@ -2027,7 +2065,7 @@ class PostProcessorCommon(PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.report_templates.Standard`
+        :class:`ansys.aedt.core.modules.report_templates.Standard` or None
             Report object if succeeded.
 
         Examples
@@ -2055,6 +2093,7 @@ class PostProcessorCommon(PyAedtBase):
         if not report_settings and not input_file:  # pragma: no cover
             self.logger.error("Either a file or a dictionary must be passed as input.")
             return False
+
         props = {}
         if input_file:
             _, file_extension = os.path.splitext(input_file)
@@ -2087,7 +2126,9 @@ class PostProcessorCommon(PyAedtBase):
             props["expressions"] = {i: {} for i in props["expressions"]}
         elif isinstance(props.get("expressions", {}), str):  # pragma: no cover
             props["expressions"] = {props["expressions"]: {}}
+
         _dict_items_to_list_items(props, "expressions")
+
         if not solution_name:
             if "Fields" not in props.get("report_category", ""):
                 solution_name = self._app.nominal_sweep
@@ -2095,15 +2136,19 @@ class PostProcessorCommon(PyAedtBase):
                 solution_name = self._app.nominal_adaptive
         else:
             solution_name = self._get_setup_from_sweep_name(solution_name)  # If only the sweep name is passed.
+
         if props.get("report_category", None) and props["report_category"] in TEMPLATES_BY_NAME:
             if props.get("context", {"context": {}}).get("domain", "") == "Spectral":
                 report_temp = TEMPLATES_BY_NAME["Spectrum"]
             elif (
                 "AMIAnalysis" in self._app.get_setup(solution_name.split(":")[0].strip()).props
-                and props["report_category"] == "Standard"
-            ):
+                or "QuickEyeAnalysis" in self._app.get_setup(solution_name.split(":")[0].strip()).props
+            ) and props["report_category"] == "Standard":
                 report_temp = TEMPLATES_BY_NAME["AMI Contour"]
-            elif "AMIAnalysis" in self._app.get_setup(solution_name.split(":")[0].strip()).props:
+            elif (
+                "AMIAnalysis" in self._app.get_setup(solution_name.split(":")[0].strip()).props
+                or "QuickEyeAnalysis" in self._app.get_setup(solution_name.split(":")[0].strip()).props
+            ):
                 report_temp = TEMPLATES_BY_NAME["Statistical Eye"]
             else:
                 report_temp = TEMPLATES_BY_NAME[props["report_category"]]
@@ -2129,8 +2174,11 @@ class PostProcessorCommon(PyAedtBase):
                 "__Amplitude",
             ] and "Freq" in report._legacy_props.get("context", {}).get("variations", {}):
                 del report._legacy_props["context"]["variations"]["Freq"]
+
             _update_props(props, report._legacy_props)
+
             nominal_values = self._app.available_variations.nominal_variation(dependent_params=False)
+
             for el, k in nominal_values.items():
                 if (
                     report._legacy_props.get("context", None)
@@ -2138,7 +2186,9 @@ class PostProcessorCommon(PyAedtBase):
                     and el not in report._legacy_props["context"]["variations"]
                 ):
                     report._legacy_props["context"]["variations"][el] = k
+
             _ = report.expressions
+
             if matplotlib:
                 try:
                     return self._report_plotter(
@@ -2148,9 +2198,11 @@ class PostProcessorCommon(PyAedtBase):
                     self.logger.error("Failed to create report.")
                     return False
             report.create(name)
+
             if report.report_type != "Data Table":
                 report._update_traces()
                 self.oreportsetup.UpdateReports(report.plot_name)
+
             self.logger.info(f"Report {report.plot_name} created successfully.")
             if hide_legend:
                 report.hide_legend()
@@ -2159,12 +2211,13 @@ class PostProcessorCommon(PyAedtBase):
                 if not out:
                     self.logger.error("Failed to export report to image.")
             return report
+
         self.logger.error("Failed to create report.")
         return False  # pragma: no cover
 
     @requires_graphical_dependency("matplotlib")
     @pyaedt_function_handler()
-    def _report_plotter(self, report, show: bool = True, snapshot_path="", width=800, height=450) -> "ReportPlotter":
+    def _report_plotter(self, report, show: bool = True, snapshot_path="", width=800, height=450) -> ReportPlotter:
         """Create a Matplotlib plot from a report.
 
         Parameters
@@ -2461,7 +2514,7 @@ class Reports(PyAedtBase):
         )
 
     @pyaedt_function_handler()
-    def standard(self, expressions: str | list = None, setup: str = None) -> "Standard":
+    def standard(self, expressions: str | list = None, setup: str = None) -> Standard:
         """Create a standard or default report object.
 
         Parameters
@@ -2501,7 +2554,7 @@ class Reports(PyAedtBase):
         return rep
 
     @pyaedt_function_handler()
-    def monitor(self, expressions: str | list = None, setup: str = None) -> "Standard":
+    def monitor(self, expressions: str | list = None, setup: str = None) -> Standard:
         """Create an Icepak Monitor Report object.
 
         Parameters
@@ -2536,7 +2589,7 @@ class Reports(PyAedtBase):
         return rep
 
     @pyaedt_function_handler()
-    def fields(self, expressions: str | list = None, setup: str = None, polyline: str = None) -> "report_field.Fields":
+    def fields(self, expressions: str | list = None, setup: str = None, polyline: str = None) -> Fields:
         """Create a Field Report object.
 
         Parameters
@@ -2578,9 +2631,7 @@ class Reports(PyAedtBase):
         return rep
 
     @pyaedt_function_handler()
-    def cg_fields(
-        self, expressions: str | list = None, setup: str | None = None, polyline: str = None
-    ) -> "report_field.Fields":
+    def cg_fields(self, expressions: str | list = None, setup: str | None = None, polyline: str = None) -> Fields:
         """Create a CG Field Report object in Q3D and Q2D.
 
         Parameters
@@ -2621,9 +2672,7 @@ class Reports(PyAedtBase):
         return rep
 
     @pyaedt_function_handler()
-    def dc_fields(
-        self, expressions: str | list = None, setup: str | None = None, polyline: str = None
-    ) -> "report_field.Fields":
+    def dc_fields(self, expressions: str | list = None, setup: str | None = None, polyline: str = None) -> Fields:
         """Create a DC Field Report object in Q3D.
 
         Parameters
@@ -2664,9 +2713,7 @@ class Reports(PyAedtBase):
         return rep
 
     @pyaedt_function_handler()
-    def rl_fields(
-        self, expressions: str | list = None, setup: str | None = None, polyline: str = None
-    ) -> "report_field.Fields":
+    def rl_fields(self, expressions: str | list = None, setup: str | None = None, polyline: str = None) -> Fields:
         """Create an AC RL Field Report object in Q3D and Q2D.
 
         Parameters
@@ -2717,7 +2764,7 @@ class Reports(PyAedtBase):
         sphere_name: str = None,
         source_context: str = None,
         **variations,
-    ) -> "report_field.FarField":
+    ) -> FarField:
         """Create a Far Field Report object.
 
         Parameters
@@ -2770,7 +2817,7 @@ class Reports(PyAedtBase):
     @pyaedt_function_handler()
     def antenna_parameters(
         self, expressions: str | list = None, setup: str | None = None, infinite_sphere: str = None
-    ) -> "report_field.AntennaParameters":
+    ) -> AntennaParameters:
         """Create an Antenna Parameters Report object.
 
         Parameters
@@ -2808,7 +2855,7 @@ class Reports(PyAedtBase):
         return rep
 
     @pyaedt_function_handler()
-    def near_field(self, expressions: str | list = None, setup: str | None = None) -> "report_field.NearField":
+    def near_field(self, expressions: str | list = None, setup: str | None = None) -> NearField:
         """Create a Field Report object.
 
         Parameters
@@ -2845,7 +2892,7 @@ class Reports(PyAedtBase):
         return rep
 
     @pyaedt_function_handler()
-    def modal_solution(self, expressions: str | list = None, setup: str | None = None) -> "report_standard.Standard":
+    def modal_solution(self, expressions: str | list = None, setup: str | None = None) -> Standard:
         """Create a Standard or Default Report object.
 
         Parameters
@@ -2881,7 +2928,7 @@ class Reports(PyAedtBase):
         return rep
 
     @pyaedt_function_handler()
-    def terminal_solution(self, expressions: str | list = None, setup: str | None = None) -> "report_standard.Standard":
+    def terminal_solution(self, expressions: str | list = None, setup: str | None = None) -> Standard:
         """Create a Standard or Default Report object.
 
         Parameters
@@ -2917,7 +2964,7 @@ class Reports(PyAedtBase):
         return rep
 
     @pyaedt_function_handler()
-    def eigenmode(self, expressions: str | list = None, setup: str | None = None) -> "report_standard.Standard":
+    def eigenmode(self, expressions: str | list = None, setup: str | None = None) -> Standard:
         """Create a Standard or Default Report object.
 
         Parameters
@@ -2955,7 +3002,7 @@ class Reports(PyAedtBase):
     @pyaedt_function_handler()
     def statistical_eye_contour(
         self, expressions: str | list = None, setup: str | None = None, quantity_type: int = 3
-    ) -> "report_eye.AMIConturEyeDiagram":
+    ) -> AMIConturEyeDiagram | bool:
         """Create a standard statistical AMI contour plot.
 
         Parameters
@@ -2992,8 +3039,10 @@ class Reports(PyAedtBase):
         """
         if not setup:
             for setup in self._post_app._app.setups:
-                if "AMIAnalysis" in setup.props:
+                if "AMIAnalysis" in setup.props or "QuickEyeAnalysis" in setup.props:
                     setup = setup.name
+                    break
+
             if not setup:
                 self._post_app._app.logger.error("AMI analysis is needed to create this report.")
                 return False
@@ -3015,7 +3064,7 @@ class Reports(PyAedtBase):
         quantity_type: int = 3,
         statistical_analysis: bool = True,
         unit_interval: str = "1ns",
-    ) -> "report_eye.EyeDiagram | report_eye.AMIEyeDiagram | None":
+    ) -> EyeDiagram | AMIEyeDiagram | None:
         """Create a Standard or Default Report object.
 
         Parameters
@@ -3039,7 +3088,7 @@ class Reports(PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.report_templates.AMIEyeDiagram` | None
+        :class:`ansys.aedt.core.modules.report_templates.AMIEyeDiagram` or None
 
         Examples
         --------
@@ -3053,8 +3102,12 @@ class Reports(PyAedtBase):
         """
         if not setup:
             setup = self._post_app._app.nominal_sweep
+
+        rep = None
+
         if "Eye Diagram" in self._templates:
-            if "AMIAnalysis" in self._post_app._app.get_setup(setup).props:
+            setup_props = self._post_app._app.get_setup(setup).props
+            if "AMIAnalysis" in setup_props or "QuickEyeAnalysis" in setup_props:
                 report_cat = "Eye Diagram"
                 if statistical_analysis:
                     report_cat = "Statistical Eye"
@@ -3062,17 +3115,15 @@ class Reports(PyAedtBase):
                 rep.quantity_type = quantity_type
                 rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
                 return rep
-
             else:
                 rep = report_eye.EyeDiagram(self._post_app, "Eye Diagram", setup)
             rep.unit_interval = unit_interval
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
             return rep
-
-        return
+        return rep
 
     @pyaedt_function_handler()
-    def spectral(self, expressions: str | list = None, setup: str = None) -> "report_standard.Spectral":
+    def spectral(self, expressions: str | list = None, setup: str = None) -> Spectral:
         """Create a Spectral Report object.
 
         Parameters
@@ -3108,7 +3159,7 @@ class Reports(PyAedtBase):
         return rep
 
     @pyaedt_function_handler()
-    def emi_receiver(self, expressions: str | list = None, setup_name: str = None) -> "report_emi.EMIReceiver":
+    def emi_receiver(self, expressions: str | list = None, setup_name: str = None) -> EMIReceiver:
         """Create an EMI receiver report.
 
         Parameters
@@ -3155,9 +3206,7 @@ class Reports(PyAedtBase):
         return rep
 
     @pyaedt_function_handler()
-    def circuit_netlist(
-        self, setup: str, expressions: str | list = None, domain: str = None
-    ) -> "report_netlist.CircuitNetlistReport":
+    def circuit_netlist(self, setup: str, expressions: str | list = None, domain: str = None) -> CircuitNetlistReport:
         """Create a Circuit Netlist Report object.
 
         Parameters

@@ -113,6 +113,8 @@ class AMIConturEyeDiagram(CommonReport):
                         new_exprs.append(f"{expr_head}AfterChannel(" + expr.lower() + ")<Bit Error Rate>")
                     elif qtype == 3:
                         new_exprs.append(f"{expr_head}AfterProbe(" + expr.lower() + ")<Bit Error Rate>")
+            elif "aeyeprobe" in expr.lower():
+                new_exprs.append(f"{expr}<Bit Error Rate>")
             elif ".int_ami" not in expr:
                 qtype = int(self.quantity_type)
                 if qtype == 0:
@@ -635,6 +637,8 @@ class AMIEyeDiagram(CommonReport):
                         new_exprs.append(f"{expr_head}AfterProbe<" + expr + ">")
                     else:
                         new_exprs.append(expr)
+            elif "eyeprobe" in expr.lower() or "eyesource" in expr.lower():
+                new_exprs.append(expr)
             elif ".int_ami" not in expr:
                 qtype = int(self.quantity_type)
                 if qtype == 0:

@@ -533,7 +533,16 @@ class Design(AedtObjects, PyAedtBase):
             if self.modeler.user_defined_components.items():
                 for component in self.modeler.user_defined_components.keys():
                     thermal_properties = self.get_oo_properties(self.oeditor, component)
-                    if thermal_properties and "Type" not in thermal_properties and thermal_properties[-1] != "Icepak":
+
+                    is_icepak_component = True
+                    if thermal_properties:
+                        # Find if "Type" is one of the properties and if "Icepak" is not the last one
+                        has_type_property = any("Type" in prop for prop in thermal_properties)
+                        is_icepak_component = not has_type_property and thermal_properties[-1] != "Icepak"
+
+                    if is_icepak_component and (self.design_properties or {}).get("BoundarySetup", {}).get(
+                        "Boundaries"
+                    ):
                         thermal_boundaries = self.design_properties["BoundarySetup"]["Boundaries"]
                         for component_boundary in thermal_boundaries:
                             if component_boundary not in bb and isinstance(

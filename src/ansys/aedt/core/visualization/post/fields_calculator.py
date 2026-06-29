@@ -625,7 +625,7 @@ class FieldsCalculator(PyAedtBase):
                 continue
             args.append(f"{k}:=")
             args.append(v)
-        if self.__app.aedt_version_id < "2026.1":
+        if self.__app.desktop_class.aedt_version_id < "2026.1":
             self.ofieldsreporter.CalculatorWrite(output_file, ["Solution:=", setup], args)
         else:
             solution_args = ["NAME:Setup", "Solution:=", setup]

@@ -22,6 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
+
 import copy
 import os
 import re
@@ -2063,7 +2065,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         return write_configuration_file(output_dict, output_file)
 
     @pyaedt_function_handler()
-    def get_solution_data(self) -> "SolutionData | bool":
+    def get_solution_data(self) -> SolutionData | bool:
         """Get the report solution data.
 
         Returns
