@@ -22,8 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-This module contains the ``CircuitNetlist`` class.
+"""The module contains the ``CircuitNetlist`` class.
 
 Examples
 --------
@@ -42,8 +41,7 @@ from ansys.aedt.core.internal.filesystem import search_files
 
 
 class CircuitNetlist(AnalysisCircuitNetlist, PyAedtBase):
-    """
-    Provides the Circuit Netlist application interface.
+    """Provides the Circuit Netlist application interface.
 
     Parameters
     ----------
