@@ -197,7 +197,8 @@ class Volume(CalculatorGeometry):
 
 
 class FieldExpression(PyAedtBase):
-    """Base class for a typed Fields Calculator expression.
+    """
+    Base class for a typed Fields Calculator expression.
 
     Holds the accumulated list of calculator operation entries plus the metadata
     needed to register the expression. Not instantiated directly, use the
@@ -694,9 +695,7 @@ class FieldExpression(PyAedtBase):
         """Net Fields Calculator stack depth after applying all operations.
 
         Simulates the reverse-Polish operation stack. A well-formed scalar or
-        vector expression resolves to exactly ``1``. Raises
-        :class:`~ansys.aedt.core.internal.errors.AEDTRuntimeError` if any
-        operation would pop more registers than are available (malformed chain).
+        vector expression resolves to exactly ``1``.
 
         Returns
         -------
@@ -2819,11 +2818,8 @@ def _stack_effect(entry: str) -> int:
 
 
 def _resolve_stack_depth(operations: Sequence[str]) -> int:
-    """Simulate the operation stack and return the final depth.
-
-    Raises :class:`AEDTRuntimeError` if any operation would pop a register that
-    is not there (an unbalanced / malformed chain), which is how an
-    overly-stacked expression would otherwise fail confusingly in AEDT.
+    """
+    Simulate the operation stack and return the final depth.
 
     Parameters
     ----------
