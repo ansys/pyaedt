@@ -113,7 +113,8 @@ class FieldsCalculator(PyAedtBase):
 
     @property
     def expressions(self):
-        """Typed, fluent builder for Fields Calculator expressions.
+        """
+        Typed, fluent builder for Fields Calculator expressions.
 
         Returns a
         :class:`~ansys.aedt.core.visualization.post.field_calculator_expressions.FieldExpressions`

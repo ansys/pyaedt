@@ -574,7 +574,8 @@ class FieldExpression(PyAedtBase):
 
     @pyaedt_function_handler()
     def checkpoint(self, name: str | None = None) -> FieldExpression:
-        """Register this expression and return a single-entry reference to it.
+        """
+        Register this expression and return a single-entry reference to it.
 
         Combining a sub-expression with itself duplicates its operations every
         time (for example ``dot(a, a)`` repeats ``a``), so heavy reuse can grow
