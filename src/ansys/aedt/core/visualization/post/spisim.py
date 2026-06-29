@@ -197,7 +197,7 @@ class Pair(BaseModel):
     receiver: str | None = Field(None, description="Receiver reference designator")
 
     def add_port_idx_mapping(self, net_name, driver_port_idx, receiver_port_idx):
-        self.nets.append(self.Net(net=net_name, driver_port=driver_port_idx, receiver_port=receiver_port_idx))
+        self.nets.append(self.Net(driver_port=driver_port_idx, receiver_port=receiver_port_idx))
 
 
 class SParameterPortMapping(BaseModel):
@@ -585,6 +585,7 @@ class SpiSim(PyAedtBase):
         standard: int = 1,
     ):
         """Compute Channel Operating Margin (COM) from a touchstone file with THRU, FEXT, and NEXT channels.
+        
         FEXT and NEXT channels are extracted from the touchstone file based on the differential pair port mapping
         defined in the port mapping file. Channels share the driver with the THRU channel are identified as FEXT
         channels. Otherwise, they are identified as NEXT channels.
