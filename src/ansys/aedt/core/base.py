@@ -26,8 +26,7 @@ import inspect
 
 
 class DirMixin:
-    """
-    Mixin that adds a `.public_dir` property as a shorthand for the built-in `dir()` function.
+    """Mixin that adds a `.public_dir` property as a shorthand for the built-in `dir()` function.
 
     This is primarily intended to make interactive exploration and autocomplete faster.
     Instead of typing `dir(obj)`, you can type `obj.public_dir`.
@@ -53,8 +52,7 @@ class DirMixin:
 
     @property
     def public_dir(self):
-        """
-        Shortcut for dir(self).
+        """Shortcut for dir(self).
 
         Examples
         --------
@@ -85,8 +83,7 @@ class DirMixin:
 
 
 class PyAedtBase(DirMixin):
-    """
-    Common base class for all PyAEDT classes.
+    """Common base class for all PyAEDT classes.
 
     Inherits from `DirMixin` to provide the `.public_dir` property for quick
     interactive exploration. This class acts as a central place to

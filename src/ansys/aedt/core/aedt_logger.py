@@ -44,8 +44,7 @@ class Msg:
 
 
 class MessageList:
-    """
-    Collects and returns messages from the AEDT message manager for a specified project name and design name.
+    """Collects and returns messages from the AEDT message manager for a specified project name and design name.
 
     Parameters
     ----------
@@ -114,8 +113,7 @@ class MessageList:
 
 
 class AppFilter(logging.Filter):
-    """
-    Specifies the destination of the logger.
+    """Specifies the destination of the logger.
 
     AEDT exposes three different loggers, which are the global, project, and design loggers.
 
@@ -140,8 +138,7 @@ class AppFilter(logging.Filter):
         self._extra = extra
 
     def filter(self, record: logging.LogRecord) -> bool:
-        """
-        Modify the record sent to the logger.
+        """Modify the record sent to the logger.
 
         Parameters
         ----------
@@ -169,8 +166,7 @@ class AppFilter(logging.Filter):
 
 
 class AedtLogger:
-    """
-    Specifies the logger to use for each AEDT logger.
+    """Specifies the logger to use for each AEDT logger.
 
     This class allows you to add a handler to write messages to a file and to indicate
     whether to write mnessages to the standard output (stdout).
@@ -554,6 +550,8 @@ class AedtLogger:
 
         Returns
         -------
+        float
+            Actual time.
 
         Examples
         --------

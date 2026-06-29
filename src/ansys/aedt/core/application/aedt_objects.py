@@ -108,7 +108,7 @@ class AedtObjects(PyAedtBase):
         >>> hfss = Hfss()
         >>> hfss.units.length
 
-        """
+        """  # noqa: D403
         return self.__aedtunits
 
     @property

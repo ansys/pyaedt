@@ -161,8 +161,7 @@ class CircuitNetlist(AnalysisCircuitNetlist, PyAedtBase):
 
     @pyaedt_function_handler()
     def browse_log_file(self, input_file: str | Path | None = None):  # pragma: no cover
-        """
-        Save the most recent log file in a new directory.
+        """Save the most recent log file in a new directory.
 
         Parameters
         ----------
