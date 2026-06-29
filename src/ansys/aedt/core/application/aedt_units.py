@@ -117,6 +117,7 @@ class AedtUnits(PyAedtBase):
     def frequency(self) -> str:
         """
         Default frequency units to be used in active design.
+
         The setter doesn't change AEDT default units.
 
         Returns
