@@ -158,3 +158,25 @@ def test_get_radio_name_domain_filter(cell_phone):
     assert len(tx_no_filter) == 3
     assert len(tx_with_filter) == 1
     assert tx_with_filter[0] == "WiFi - 802.11-2012"
+
+
+@pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
+def test_instance_get_value_invalid_result_type(cell_phone):
+    """Test get_value() raises ValueError for invalid result type."""
+    rev = cell_phone.results.analyze()
+    sim = rev.get_simulation()
+
+    # Create and run simulation
+    domain = InteractionDomain(cell_phone)
+    domain.set_interferer("WiFi - 802.11-2012", "Tx OFDM - 54 Mbps", 2.412, "GHz")
+    domain.set_receiver("GPS Receiver", "L2", 1.2276, "GHz")
+    interaction = sim.run(domain)
+    instance = interaction.get_instance(domain)
+
+    with pytest.raises(ValueError) as e:
+        instance.get_value("INVALID_RESULT_TYPE")
+    assert "Invalid result type" in str(e.value)
+
+    with pytest.raises(ValueError) as e:
+        instance.get_value(7)
+    assert "Invalid result type" in str(e.value)
