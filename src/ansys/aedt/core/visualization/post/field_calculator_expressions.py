@@ -63,7 +63,8 @@ PUSH_OPS = {"Tangent", "Normal"}
 
 
 class CalculatorGeometry(PyAedtBase):
-    """Base class for a calculator geometry (line, surface, volume, point).
+    """
+    Base class for a calculator geometry (line, surface, volume, point).
 
     Parameters
     ----------
@@ -89,6 +90,23 @@ class CalculatorGeometry(PyAedtBase):
     assignment_type: str = ""
 
     def __init__(self, assignment: str | Any) -> None:
+        """Initialize the calculator geometry assignment.
+
+        Parameters
+        ----------
+        assignment : str or object
+            Geometry name, or any object exposing a ``name`` attribute.
+
+        Examples
+        --------
+        Initialize a geometry from an explicit name.
+
+        >>> from ansys.aedt.core.visualization.post.field_calculator_expressions import CalculatorGeometry
+        >>> clc = CalculatorGeometry("my_line")
+        >>> clc.assignment
+        'my_line'
+
+        """
         self.assignment = getattr(assignment, "name", assignment)
 
     def _operations(self) -> list[str]:
@@ -139,7 +157,8 @@ class Line(CalculatorGeometry):
 
 
 class Surface(CalculatorGeometry):
-    """A surface, sheet, or face domain (``EnterSurface`` and ``SurfaceValue``).
+    """
+    A surface, sheet, or face domain (``EnterSurface`` and ``SurfaceValue``).
 
     Examples
     --------
@@ -158,7 +177,8 @@ class Surface(CalculatorGeometry):
 
 
 class Volume(CalculatorGeometry):
-    """A volume, or solid domain (``EnterVolume`` and ``VolumeValue``).
+    """
+    A volume, or solid domain (``EnterVolume`` and ``VolumeValue``).
 
     Examples
     --------
@@ -208,6 +228,37 @@ class FieldExpression(PyAedtBase):
         primary_sweep: str = "Freq",
         solution_type: str = "",
     ) -> None:
+        """Initialize a typed field expression.
+
+        Parameters
+        ----------
+        operations : Sequence[str]
+            Initial calculator operations stored in reverse-Polish order.
+        calculator : optional
+            Bound calculator used later for materialization methods.
+        description : str, optional
+            Human-readable expression description.
+        design_type : list[str], optional
+            Supported AEDT design types.
+        fields_type : list[str], optional
+            Supported AEDT field families.
+        assignment_types : list[str], optional
+            Allowed assignment categories for the expression.
+        primary_sweep : str, optional
+            Primary intrinsic sweep name.
+        solution_type : str, optional
+            AEDT solution type string.
+
+        Examples
+        --------
+        Build a scalar expression directly from one stack entry.
+
+        >>> from ansys.aedt.core.visualization.post.field_calculator_expressions import ScalarReal
+        >>> expr = ScalarReal(["Scalar_Constant(1)"])
+        >>> expr.operations
+        ['Scalar_Constant(1)']
+
+        """
         self._operations: list[str] = list(operations)
         self._calculator = calculator
         self._description = description
@@ -239,6 +290,23 @@ class FieldExpression(PyAedtBase):
         return list(self._operations)
 
     def __repr__(self) -> str:
+        """Representation showing the expression type and stack length.
+
+        Returns
+        -------
+        str
+            Debug-style representation of the expression.
+
+        Examples
+        --------
+        Display a compact representation of a compiled expression.
+
+        >>> from ansys.aedt.core.visualization.post.field_calculator_expressions import FieldExpressions
+        >>> fx = FieldExpressions(calculator=None)
+        >>> repr(fx.vector("E").magnitude())
+        '<ScalarReal ops=2>'
+
+        """
         return f"<{type(self).__name__} ops={len(self._operations)}>"
 
     def __len__(self) -> int:
@@ -434,7 +502,8 @@ class FieldExpression(PyAedtBase):
         return self._spawn(vector, is_complex, ops, more_assignment_types=[geometry.assignment_type])
 
     def _meta(self) -> dict:
-        """Metadata keyword arguments propagated to sibling expressions.
+        """
+        Metadata keyword arguments propagated to sibling expressions.
 
         Returns
         -------
@@ -462,18 +531,123 @@ class FieldExpression(PyAedtBase):
         }
 
     def __neg__(self) -> FieldExpression:
+        """Negate the current expression.
+
+        Returns
+        -------
+        FieldExpression
+            Expression with ``Operation('Neg')`` appended.
+
+        Examples
+        --------
+        Negate a vector field expression.
+
+        >>> from ansys.aedt.core.visualization.post.field_calculator_expressions import FieldExpressions
+        >>> fx = FieldExpressions(calculator=None)
+        >>> (-fx.vector("E")).operations[-1]
+        "Operation('Neg')"
+
+        """
         return self._unary("Neg", vector=self.is_vector, is_complex=self.is_complex)
 
     def __radd__(self, other) -> FieldExpression:
+        """Add this expression to a left-hand operand.
+
+        Parameters
+        ----------
+        other : FieldExpression or number
+            Left-hand operand.
+
+        Returns
+        -------
+        FieldExpression
+            Expression representing ``other + self``.
+
+        Examples
+        --------
+        Add a constant on the left-hand side.
+
+        >>> from ansys.aedt.core.visualization.post.field_calculator_expressions import FieldExpressions
+        >>> fx = FieldExpressions(calculator=None)
+        >>> (2 + fx.scalar("Phi", is_complex=False)).operations[-1]
+        "Operation('+')"
+
+        """
         return _to_expr(other, self).__add__(self)
 
     def __rmul__(self, other) -> FieldExpression:
+        """Multiply this expression by a left-hand operand.
+
+        Parameters
+        ----------
+        other : FieldExpression or number
+            Left-hand operand.
+
+        Returns
+        -------
+        FieldExpression
+            Expression representing ``other * self``.
+
+        Examples
+        --------
+        Scale a vector field with a left-hand constant.
+
+        >>> from ansys.aedt.core.visualization.post.field_calculator_expressions import FieldExpressions
+        >>> fx = FieldExpressions(calculator=None)
+        >>> (2 * fx.vector("E")).operations[-1]
+        "Operation('*')"
+
+        """
         return _to_expr(other, self).__mul__(self)
 
     def __rsub__(self, other) -> FieldExpression:
+        """Subtract this expression from a left-hand operand.
+
+        Parameters
+        ----------
+        other : FieldExpression or number
+            Left-hand operand.
+
+        Returns
+        -------
+        FieldExpression
+            Expression representing ``other - self``.
+
+        Examples
+        --------
+        Subtract a scalar field from a constant.
+
+        >>> from ansys.aedt.core.visualization.post.field_calculator_expressions import FieldExpressions
+        >>> fx = FieldExpressions(calculator=None)
+        >>> (1 - fx.scalar("Phi", is_complex=False)).operations[-1]
+        "Operation('-')"
+
+        """
         return _to_expr(other, self).__sub__(self)
 
     def __rtruediv__(self, other) -> FieldExpression:
+        """Divide a left-hand operand by this expression.
+
+        Parameters
+        ----------
+        other : FieldExpression or number
+            Left-hand operand.
+
+        Returns
+        -------
+        FieldExpression
+            Expression representing ``other / self``.
+
+        Examples
+        --------
+        Divide a constant by a scalar field.
+
+        >>> from ansys.aedt.core.visualization.post.field_calculator_expressions import FieldExpressions
+        >>> fx = FieldExpressions(calculator=None)
+        >>> (1 / fx.scalar("Phi", is_complex=False)).operations[-1]
+        "Operation('/')"
+
+        """
         return _to_expr(other, self).__truediv__(self)
 
     def to_dict(self, name: str, assignment: str = "") -> dict:
@@ -542,7 +716,8 @@ class FieldExpression(PyAedtBase):
         return _resolve_stack_depth(self._operations)
 
     def verify(self) -> FieldExpression:
-        """Validate that the operation chain is well-formed and return ``self``.
+        """
+        Validate that the operation chain is well-formed and return ``self``.
 
         Useful as a fast, local check before sending a long expression to AEDT,
         where an unbalanced or oversized operation stack can otherwise fail in
@@ -628,7 +803,8 @@ class FieldExpression(PyAedtBase):
         )
 
     def _require_calculator(self):
-        """Return the bound calculator, raising if the expression has none.
+        """
+        Return the bound calculator, raising if the expression has none.
 
         Returns
         -------
@@ -811,7 +987,8 @@ class ScalarReal(FieldExpression):
     is_complex = False
 
     def absolute(self) -> ScalarReal:
-        """Absolute value ``|s|`` (calculator ``Abs``).
+        """
+        Absolute value ``|s|`` (calculator ``Abs``).
 
         Returns
         -------
@@ -831,7 +1008,8 @@ class ScalarReal(FieldExpression):
         return self._unary("Abs", vector=False, is_complex=False)
 
     def smooth(self) -> ScalarReal:
-        """Smooth the quantity across the mesh (calculator ``Smooth``).
+        """
+        Smooth the quantity across the mesh (calculator ``Smooth``).
 
         Returns
         -------
@@ -851,7 +1029,8 @@ class ScalarReal(FieldExpression):
         return self._unary("Smooth", vector=False, is_complex=False)
 
     def gradient(self) -> VectorReal:
-        """Gradient (calculator ``Grad``).
+        """
+        Gradient (calculator ``Grad``).
 
         Returns
         -------
@@ -892,7 +1071,7 @@ class ScalarReal(FieldExpression):
         return self._unary("Sqrt", vector=False, is_complex=False)
 
     def power(self, exponent: float) -> ScalarReal:
-        """Raise to a constant power (calculator ``Pow``).
+        """Constant power (calculator ``Pow``).
 
         Parameters
         ----------
@@ -917,10 +1096,33 @@ class ScalarReal(FieldExpression):
         return self._spawn(False, False, [f"Scalar_Constant({_num(exponent)})", "Operation('Pow')"])
 
     def __pow__(self, exponent: float) -> ScalarReal:
+        """Raise the scalar expression to a constant power.
+
+        Parameters
+        ----------
+        exponent : float
+            Power exponent.
+
+        Returns
+        -------
+        ScalarReal
+            Expression representing ``self ** exponent``.
+
+        Examples
+        --------
+        Square a scalar field with the power operator.
+
+        >>> from ansys.aedt.core.visualization.post.field_calculator_expressions import FieldExpressions
+        >>> fx = FieldExpressions(calculator=None)
+        >>> (fx.scalar("Phi", is_complex=False) ** 2).operations[-1]
+        "Operation('Pow')"
+
+        """
         return self.power(exponent)
 
     def ln(self) -> ScalarReal:
-        """Natural logarithm (calculator ``ln``).
+        """
+        Natural logarithm (calculator ``ln``).
 
         Returns
         -------
@@ -1105,8 +1307,8 @@ class ScalarReal(FieldExpression):
         return self._math_func("Atan")
 
     def derivative(self, axis: str) -> ScalarReal:
-        """Partial derivative ``∂s/∂axis`` for ``axis`` in ``{"x", "y", "z"}``
-        (calculator ``d/dx`` / ``d/dy`` / ``d/dz``).
+        """
+        Partial derivative ``∂s/∂axis`` for ``axis`` in ``{"x", "y", "z"}`` (calculator ``d/dx`` / ``d/dy`` / ``d/dz``).
 
         Parameters
         ----------
@@ -1196,15 +1398,106 @@ class ScalarReal(FieldExpression):
 
     # arithmetic
     def __add__(self, other) -> ScalarReal:
+        """Add a scalar expression or number.
+
+        Parameters
+        ----------
+        other : FieldExpression or number
+            Right-hand operand.
+
+        Returns
+        -------
+        ScalarReal
+            Scalar addition result when both operands remain real scalars.
+
+        Examples
+        --------
+        Add two real scalar expressions.
+
+        >>> from ansys.aedt.core.visualization.post.field_calculator_expressions import FieldExpressions
+        >>> fx = FieldExpressions(calculator=None)
+        >>> s = fx.scalar("Phi", is_complex=False)
+        >>> (s + s).operations[-1]
+        "Operation('+')"
+
+        """
         return _scalar_arith(self, other, "+")
 
     def __sub__(self, other) -> ScalarReal:
+        """Subtract a scalar expression or number.
+
+        Parameters
+        ----------
+        other : FieldExpression or number
+            Right-hand operand.
+
+        Returns
+        -------
+        ScalarReal
+            Scalar subtraction result when both operands remain real scalars.
+
+        Examples
+        --------
+        Subtract two real scalar expressions.
+
+        >>> from ansys.aedt.core.visualization.post.field_calculator_expressions import FieldExpressions
+        >>> fx = FieldExpressions(calculator=None)
+        >>> s = fx.scalar("Phi", is_complex=False)
+        >>> (s - s).operations[-1]
+        "Operation('-')"
+
+        """
         return _scalar_arith(self, other, "-")
 
     def __mul__(self, other) -> FieldExpression:
+        """Multiply by a scalar, vector, or numeric operand.
+
+        Parameters
+        ----------
+        other : FieldExpression or number
+            Right-hand operand.
+
+        Returns
+        -------
+        FieldExpression
+            Multiplication result with scalar/vector promotion handled automatically.
+
+        Examples
+        --------
+        Scale a vector field with a scalar magnitude.
+
+        >>> from ansys.aedt.core.visualization.post.field_calculator_expressions import FieldExpressions
+        >>> fx = FieldExpressions(calculator=None)
+        >>> s = fx.scalar("Phi", is_complex=False)
+        >>> (s * 2).operations[-1]
+        "Operation('*')"
+
+        """
         return _scalar_mul(self, other, "*")
 
     def __truediv__(self, other) -> FieldExpression:
+        """Divide by a scalar, vector, or numeric operand.
+
+        Parameters
+        ----------
+        other : FieldExpression or number
+            Right-hand operand.
+
+        Returns
+        -------
+        FieldExpression
+            Division result with scalar/vector promotion handled automatically.
+
+        Examples
+        --------
+        Divide a real scalar field by a constant.
+
+        >>> from ansys.aedt.core.visualization.post.field_calculator_expressions import FieldExpressions
+        >>> fx = FieldExpressions(calculator=None)
+        >>> (fx.scalar("Phi", is_complex=False) / 2).operations[-1]
+        "Operation('/')"
+
+        """
         return _scalar_mul(self, other, "/")
 
     # geometry reductions
@@ -1674,15 +1967,105 @@ class ScalarComplex(FieldExpression):
         return self._unary("VecZ", vector=True, is_complex=True)
 
     def __add__(self, other) -> ScalarComplex:
+        """Add a complex scalar expression or number.
+
+        Parameters
+        ----------
+        other : FieldExpression or number
+            Right-hand operand.
+
+        Returns
+        -------
+        ScalarComplex
+            Complex scalar addition result.
+
+        Examples
+        --------
+        Add two complex scalar expressions.
+
+        >>> from ansys.aedt.core.visualization.post.field_calculator_expressions import FieldExpressions
+        >>> fx = FieldExpressions(calculator=None)
+        >>> s = fx.scalar("V")
+        >>> (s + s).operations[-1]
+        "Operation('+')"
+
+        """
         return _scalar_arith(self, other, "+")
 
     def __sub__(self, other) -> ScalarComplex:
+        """Subtract a complex scalar expression or number.
+
+        Parameters
+        ----------
+        other : FieldExpression or number
+            Right-hand operand.
+
+        Returns
+        -------
+        ScalarComplex
+            Complex scalar subtraction result.
+
+        Examples
+        --------
+        Subtract two complex scalar expressions.
+
+        >>> from ansys.aedt.core.visualization.post.field_calculator_expressions import FieldExpressions
+        >>> fx = FieldExpressions(calculator=None)
+        >>> s = fx.scalar("V")
+        >>> (s - s).operations[-1]
+        "Operation('-')"
+
+        """
         return _scalar_arith(self, other, "-")
 
     def __mul__(self, other) -> FieldExpression:
+        """Multiply by a scalar, vector, or numeric operand.
+
+        Parameters
+        ----------
+        other : FieldExpression or number
+            Right-hand operand.
+
+        Returns
+        -------
+        FieldExpression
+            Multiplication result with complex promotion handled automatically.
+
+        Examples
+        --------
+        Multiply a complex scalar field by a constant.
+
+        >>> from ansys.aedt.core.visualization.post.field_calculator_expressions import FieldExpressions
+        >>> fx = FieldExpressions(calculator=None)
+        >>> (fx.scalar("V") * 2).operations[-1]
+        "Operation('*')"
+
+        """
         return _scalar_mul(self, other, "*")
 
     def __truediv__(self, other) -> FieldExpression:
+        """Divide by a scalar, vector, or numeric operand.
+
+        Parameters
+        ----------
+        other : FieldExpression or number
+            Right-hand operand.
+
+        Returns
+        -------
+        FieldExpression
+            Division result with complex promotion handled automatically.
+
+        Examples
+        --------
+        Divide a complex scalar field by a constant.
+
+        >>> from ansys.aedt.core.visualization.post.field_calculator_expressions import FieldExpressions
+        >>> fx = FieldExpressions(calculator=None)
+        >>> (fx.scalar("V") / 2).operations[-1]
+        "Operation('/')"
+
+        """
         return _scalar_mul(self, other, "/")
 
     def integrate(self, over: CalculatorGeometry) -> ScalarComplex:
@@ -1920,15 +2303,105 @@ class VectorReal(FieldExpression):
         return self._unary("Divg", vector=False, is_complex=False)
 
     def __add__(self, other) -> VectorReal:
+        """Add another real vector expression.
+
+        Parameters
+        ----------
+        other : FieldExpression
+            Right-hand vector operand.
+
+        Returns
+        -------
+        VectorReal
+            Real vector addition result.
+
+        Examples
+        --------
+        Add two real vector expressions.
+
+        >>> from ansys.aedt.core.visualization.post.field_calculator_expressions import FieldExpressions
+        >>> fx = FieldExpressions(calculator=None)
+        >>> v = fx.vector("E", is_complex=False)
+        >>> (v + v).operations[-1]
+        "Operation('+')"
+
+        """
         return _vector_arith(self, other, "+")
 
     def __sub__(self, other) -> VectorReal:
+        """Subtract another real vector expression.
+
+        Parameters
+        ----------
+        other : FieldExpression
+            Right-hand vector operand.
+
+        Returns
+        -------
+        VectorReal
+            Real vector subtraction result.
+
+        Examples
+        --------
+        Subtract two real vector expressions.
+
+        >>> from ansys.aedt.core.visualization.post.field_calculator_expressions import FieldExpressions
+        >>> fx = FieldExpressions(calculator=None)
+        >>> v = fx.vector("E", is_complex=False)
+        >>> (v - v).operations[-1]
+        "Operation('-')"
+
+        """
         return _vector_arith(self, other, "-")
 
     def __mul__(self, other) -> VectorReal:
+        """Scale a real vector expression.
+
+        Parameters
+        ----------
+        other : FieldExpression or number
+            Right-hand scalar operand.
+
+        Returns
+        -------
+        VectorReal
+            Real vector scaling result.
+
+        Examples
+        --------
+        Multiply a real vector field by a constant.
+
+        >>> from ansys.aedt.core.visualization.post.field_calculator_expressions import FieldExpressions
+        >>> fx = FieldExpressions(calculator=None)
+        >>> (fx.vector("E", is_complex=False) * 2).operations[-1]
+        "Operation('*')"
+
+        """
         return _vector_scale(self, other, "*")
 
     def __truediv__(self, other) -> VectorReal:
+        """Divide a real vector expression by a scalar.
+
+        Parameters
+        ----------
+        other : FieldExpression or number
+            Right-hand scalar operand.
+
+        Returns
+        -------
+        VectorReal
+            Real vector scaling result.
+
+        Examples
+        --------
+        Divide a real vector field by a constant.
+
+        >>> from ansys.aedt.core.visualization.post.field_calculator_expressions import FieldExpressions
+        >>> fx = FieldExpressions(calculator=None)
+        >>> (fx.vector("E", is_complex=False) / 2).operations[-1]
+        "Operation('/')"
+
+        """
         return _vector_scale(self, other, "/")
 
 
@@ -2171,15 +2644,105 @@ class VectorComplex(FieldExpression):
         return self._unary("Divg", vector=False, is_complex=True)
 
     def __add__(self, other) -> VectorComplex:
+        """Add another complex vector expression.
+
+        Parameters
+        ----------
+        other : FieldExpression
+            Right-hand vector operand.
+
+        Returns
+        -------
+        VectorComplex
+            Complex vector addition result.
+
+        Examples
+        --------
+        Add two complex vector expressions.
+
+        >>> from ansys.aedt.core.visualization.post.field_calculator_expressions import FieldExpressions
+        >>> fx = FieldExpressions(calculator=None)
+        >>> v = fx.vector("E")
+        >>> (v + v).operations[-1]
+        "Operation('+')"
+
+        """
         return _vector_arith(self, other, "+")
 
     def __sub__(self, other) -> VectorComplex:
+        """Subtract another complex vector expression.
+
+        Parameters
+        ----------
+        other : FieldExpression
+            Right-hand vector operand.
+
+        Returns
+        -------
+        VectorComplex
+            Complex vector subtraction result.
+
+        Examples
+        --------
+        Subtract two complex vector expressions.
+
+        >>> from ansys.aedt.core.visualization.post.field_calculator_expressions import FieldExpressions
+        >>> fx = FieldExpressions(calculator=None)
+        >>> v = fx.vector("E")
+        >>> (v - v).operations[-1]
+        "Operation('-')"
+
+        """
         return _vector_arith(self, other, "-")
 
     def __mul__(self, other) -> VectorComplex:
+        """Scale a complex vector expression.
+
+        Parameters
+        ----------
+        other : FieldExpression or number
+            Right-hand scalar operand.
+
+        Returns
+        -------
+        VectorComplex
+            Complex vector scaling result.
+
+        Examples
+        --------
+        Multiply a complex vector field by a constant.
+
+        >>> from ansys.aedt.core.visualization.post.field_calculator_expressions import FieldExpressions
+        >>> fx = FieldExpressions(calculator=None)
+        >>> (fx.vector("E") * 2).operations[-1]
+        "Operation('*')"
+
+        """
         return _vector_scale(self, other, "*")
 
     def __truediv__(self, other) -> VectorComplex:
+        """Divide a complex vector expression by a scalar.
+
+        Parameters
+        ----------
+        other : FieldExpression or number
+            Right-hand scalar operand.
+
+        Returns
+        -------
+        VectorComplex
+            Complex vector scaling result.
+
+        Examples
+        --------
+        Divide a complex vector field by a constant.
+
+        >>> from ansys.aedt.core.visualization.post.field_calculator_expressions import FieldExpressions
+        >>> fx = FieldExpressions(calculator=None)
+        >>> (fx.vector("E") / 2).operations[-1]
+        "Operation('/')"
+
+        """
         return _vector_scale(self, other, "/")
 
 
@@ -2570,7 +3133,8 @@ def _vector_scale(a: FieldExpression, b, op: str) -> FieldExpression:
 
 
 def dot(u: FieldExpression, v: FieldExpression) -> FieldExpression:
-    """Vector dot product ``u·v`` (calculator ``Dot``) -> scalar.
+    """
+    Vector dot product ``u·v`` (calculator ``Dot``) -> scalar.
 
     Algebraic dot, no conjugation (use ``v.conjugate()`` for an inner product).
 
