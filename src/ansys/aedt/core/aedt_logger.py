@@ -1263,6 +1263,7 @@ class AedtLogger:
     def info_timer(self, msg: str, start_time: float | None = None, *args, **kwargs):
         """
         Write an info message to the global logger with elapsed time.
+
         Message will have an appendix of type Elapsed time: time.
 
         Examples
