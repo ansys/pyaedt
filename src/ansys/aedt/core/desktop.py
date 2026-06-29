@@ -2375,15 +2375,14 @@ class Desktop(PyAedtBase):
             if self.aedt_process_id is not None:
                 specified_version = next(
                     (
-                        installed_aedt
+                        installed_aedt[0:6]
                         for installed_aedt in aedt_versions.installed_versions.keys()
-                        if is_number(installed_aedt)
+                        if is_number(installed_aedt[0:6])
                         and self.aedt_process_id
-                        in active_sessions(installed_aedt, self.student_version, self.non_graphical)
+                        in active_sessions(installed_aedt[0:6], self.student_version, self.non_graphical)
                     ),
                     None,
                 )
-
             elif student_version and self.current_student_version:
                 specified_version = self.current_student_version
             elif student_version and self.current_version:
