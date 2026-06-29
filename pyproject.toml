@@ -196,6 +196,7 @@ ignore = [
     "D104", # undocumented-public-package
     "D105", # undocumented-magic-method
     "D106", # undocumented-public-nested-class
+    "D203", # blank line required before class docstring (D203)
     "D205", # missing-blank-line-after-summary
     "D210", # surrounding-whitespace
     "D301", # escape-sequence-in-docstring

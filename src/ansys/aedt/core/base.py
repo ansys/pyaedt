@@ -83,7 +83,8 @@ class DirMixin:
 
 
 class PyAedtBase(DirMixin):
-    """Common base class for all PyAEDT classes.
+    """
+    Common base class for all PyAEDT classes.
 
     Inherits from `DirMixin` to provide the `.public_dir` property for quick
     interactive exploration. This class acts as a central place to
