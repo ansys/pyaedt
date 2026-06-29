@@ -50,7 +50,8 @@ class _MatrixData:
 
 
 class InterferenceClassificationExtension(ExtensionEMITCommon):
-    """Interactive EMIT extension for Protection Level and Interference Type classification.
+    """
+    Interactive EMIT extension for Protection Level and Interference Type classification.
 
     Examples
     --------

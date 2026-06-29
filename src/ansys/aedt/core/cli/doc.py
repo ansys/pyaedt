@@ -38,7 +38,8 @@ doc_app = typer.Typer(help="Documentation commands", no_args_is_help=False)
 
 @doc_app.callback(invoke_without_command=True)
 def doc_callback(ctx: typer.Context) -> None:
-    """Open the home page and display help when no subcommand is provided.
+    """
+    Open the home page and display help when no subcommand is provided.
 
     Examples
     --------
@@ -66,7 +67,8 @@ def examples() -> None:
 
 @doc_app.command(name="github", help="Open PyAEDT repository on GitHub")
 def github() -> None:
-    """Open Github url.
+    """
+    Open Github url.
 
     Examples
     --------
@@ -81,7 +83,8 @@ def github() -> None:
 
 @doc_app.command(name="user-guide", help="Open the online user guide section of the PyAEDT documentation")
 def user_guide() -> None:
-    """Open User guide url.
+    """
+    Open User guide url.
 
     Examples
     --------
@@ -96,7 +99,8 @@ def user_guide() -> None:
 
 @doc_app.command(name="getting-started", help="Open the online getting started section of the PyAEDT documentation")
 def getting_started() -> None:
-    """Open Getting started url.
+    """
+    Open Getting started url.
 
     Examples
     --------
@@ -111,7 +115,8 @@ def getting_started() -> None:
 
 @doc_app.command(name="installation", help="Open the online installation section of the PyAEDT documentation")
 def installation() -> None:
-    """Open installation url.
+    """
+    Open installation url.
 
     Examples
     --------
@@ -126,7 +131,8 @@ def installation() -> None:
 
 @doc_app.command(name="api", help="Open the online API reference section of the PyAEDT documentation")
 def api() -> None:
-    """Open api reference url.
+    """
+    Open api reference url.
 
     Examples
     --------
@@ -141,7 +147,8 @@ def api() -> None:
 
 @doc_app.command(name="changelog", help="Open the PyAEDT changelog")
 def changelog(pyaedt_version: str = typer.Argument(None)) -> None:
-    """Open API reference changelog.
+    """
+    Open API reference changelog.
 
     Examples
     --------
@@ -156,7 +163,8 @@ def changelog(pyaedt_version: str = typer.Argument(None)) -> None:
 
 @doc_app.command(name="issues", help="Open the PyAEDT issues")
 def issues() -> None:
-    """Open api reference url.
+    """
+    Open api reference url.
 
     Examples
     --------
@@ -171,7 +179,8 @@ def issues() -> None:
 
 @doc_app.command(name="search", help="One or more search keywords for the documentation")
 def search(search_keys: list[str] = typer.Argument(None)) -> None:
-    """Search the online documentation.
+    """
+    Search the online documentation.
 
     Examples
     --------

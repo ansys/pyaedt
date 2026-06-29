@@ -146,7 +146,8 @@ Examples
 
 
 class HPCMethod(IntEnum):
-    """Enumeration for HPC settings.
+    """
+    Enumeration for HPC settings.
 
     Values specify the method used for HPC distribution in
      the ``"Job_Settings.areg"`` file.
@@ -181,7 +182,8 @@ class HPCMethod(IntEnum):
 
 
 def path_string(path: Path) -> str:
-    """Convert the path to a string.
+    """
+    Convert the path to a string.
 
     If the path has whitespace and the OS is Windows, the path will be
     enclosed in double quotes.
@@ -200,7 +202,8 @@ def path_string(path: Path) -> str:
 
 
 def get_aedt_exe(version: str | None = None) -> Path:
-    """Retrieve the full path to the Ansys AEDT executable.
+    """
+    Retrieve the full path to the Ansys AEDT executable.
 
     Parameters
     ----------
@@ -262,7 +265,8 @@ def get_aedt_exe(version: str | None = None) -> Path:
 
 
 def load_template(template_path: Path) -> str:
-    """Load the job settings template from a file.
+    """
+    Load the job settings template from a file.
 
     Examples
     --------
@@ -276,7 +280,8 @@ def load_template(template_path: Path) -> str:
 
 
 def render_template(data: JobConfigurationData, template_path: Path) -> str:
-    """Render the job settings template with the provided data.
+    """
+    Render the job settings template with the provided data.
 
     Examples
     --------
@@ -358,7 +363,8 @@ class _ResourcesConfiguration:
         return value
 
     def __validate_optional_positive_int(self, name: str, value, strict: bool = True):
-        """Validate that the value is either None or a valid integer.
+        """
+        Validate that the value is either None or a valid integer.
 
         If strict is True, the value must be > 0; otherwise, it can be >= 0.
         """
@@ -368,7 +374,8 @@ class _ResourcesConfiguration:
 
     @property
     def cores_per_task(self) -> int | None:
-        """Get the number of cores assigned to each task.
+        """
+        Get the number of cores assigned to each task.
 
         Examples
         --------
@@ -382,7 +389,8 @@ class _ResourcesConfiguration:
 
     @property
     def exclusive(self) -> bool:
-        """Get whether nodes will be reserved for exclusive use by the HPC job.
+        """
+        Get whether nodes will be reserved for exclusive use by the HPC job.
 
         Examples
         --------
@@ -396,7 +404,8 @@ class _ResourcesConfiguration:
 
     @exclusive.setter
     def exclusive(self, value: bool) -> None:
-        """Set whether nodes will be reserved for exclusive use by the HPC job.
+        """
+        Set whether nodes will be reserved for exclusive use by the HPC job.
 
         Examples
         --------
@@ -411,7 +420,8 @@ class _ResourcesConfiguration:
 
     @property
     def num_cores(self) -> int:
-        """Get the total number of compute cores to be used by the job.
+        """
+        Get the total number of compute cores to be used by the job.
 
         Examples
         --------
@@ -425,7 +435,8 @@ class _ResourcesConfiguration:
 
     @num_cores.setter
     def num_cores(self, value: int) -> None:
-        """Set the total number of compute cores to be used by the job.
+        """
+        Set the total number of compute cores to be used by the job.
 
         Examples
         --------
@@ -438,7 +449,8 @@ class _ResourcesConfiguration:
 
     @property
     def num_gpus(self) -> int | None:
-        """Get the number of GPUs to be used for the simulation.
+        """
+        Get the number of GPUs to be used for the simulation.
 
         Examples
         --------
@@ -452,7 +464,8 @@ class _ResourcesConfiguration:
 
     @num_gpus.setter
     def num_gpus(self, value: int | None) -> None:
-        """Set the number of GPUs to be used for the simulation.
+        """
+        Set the number of GPUs to be used for the simulation.
 
         Examples
         --------
@@ -465,7 +478,8 @@ class _ResourcesConfiguration:
 
     @property
     def num_nodes(self) -> int:
-        """Get the number of nodes for distribution of the HPC jobs.
+        """
+        Get the number of nodes for distribution of the HPC jobs.
 
         Examples
         --------
@@ -479,7 +493,8 @@ class _ResourcesConfiguration:
 
     @num_nodes.setter
     def num_nodes(self, value: int) -> None:
-        """Set the number of nodes for distribution of the HPC jobs.
+        """
+        Set the number of nodes for distribution of the HPC jobs.
 
         Examples
         --------
@@ -492,7 +507,8 @@ class _ResourcesConfiguration:
 
     @property
     def num_tasks(self) -> int:
-        """Get the number of tasks for the submission.
+        """
+        Get the number of tasks for the submission.
 
         Examples
         --------
@@ -506,7 +522,8 @@ class _ResourcesConfiguration:
 
     @num_tasks.setter
     def num_tasks(self, value: int) -> None:
-        """Set the number of tasks for the submission.
+        """
+        Set the number of tasks for the submission.
 
         Examples
         --------
@@ -519,7 +536,8 @@ class _ResourcesConfiguration:
 
     @property
     def max_tasks_per_node(self) -> int | None:
-        """Get the maximum number of tasks allowed to run on a single node.
+        """
+        Get the maximum number of tasks allowed to run on a single node.
 
         Examples
         --------
@@ -533,7 +551,8 @@ class _ResourcesConfiguration:
 
     @max_tasks_per_node.setter
     def max_tasks_per_node(self, value: int | None) -> None:
-        """Set the maximum number of tasks allowed to run on a single node.
+        """
+        Set the maximum number of tasks allowed to run on a single node.
 
         Examples
         --------
@@ -546,7 +565,8 @@ class _ResourcesConfiguration:
 
     @property
     def ram_limit(self) -> int:
-        """Get the fraction of available RAM to be used by the simulation.
+        """
+        Get the fraction of available RAM to be used by the simulation.
 
         Examples
         --------
@@ -560,7 +580,8 @@ class _ResourcesConfiguration:
 
     @ram_limit.setter
     def ram_limit(self, value: int) -> None:
-        """Set the fraction of available RAM to be used by the simulation.
+        """
+        Set the fraction of available RAM to be used by the simulation.
 
         Examples
         --------
@@ -573,7 +594,8 @@ class _ResourcesConfiguration:
 
     @property
     def ram_per_core(self) -> float:
-        """Get the total RAM in GB to be used per core for the simulation job.
+        """
+        Get the total RAM in GB to be used per core for the simulation job.
 
         Examples
         --------
@@ -586,7 +608,8 @@ class _ResourcesConfiguration:
 
     @ram_per_core.setter
     def ram_per_core(self, value: float) -> None:
-        """Set the total RAM in GB to be used per core for the simulation job.
+        """
+        Set the total RAM in GB to be used per core for the simulation job.
 
         Examples
         --------
@@ -598,7 +621,8 @@ class _ResourcesConfiguration:
         self.__ram_per_core = self.__validate_positive_float("ram_per_core", value)
 
     def check_consistency(self) -> None:
-        """Check the consistency of the resource configuration.
+        """
+        Check the consistency of the resource configuration.
 
         Examples
         --------
@@ -620,7 +644,8 @@ class _ResourcesConfiguration:
             )
 
     def align_dependent_attributes(self) -> None:
-        """Align dependent attributes based on the current configuration.
+        """
+        Align dependent attributes based on the current configuration.
 
         Examples
         --------
@@ -667,7 +692,8 @@ class _ResourcesConfiguration:
 
 @dataclass
 class _ExecutionConfiguration:
-    """Convert the JobConfigurationData to a dictionary.
+    """
+    Convert the JobConfigurationData to a dictionary.
 
     Examples
     --------
@@ -727,7 +753,8 @@ class JobConfigurationData(PyAedtBase):
         use_ppe: bool = True,
         wait_for_license: bool = True,
     ) -> None:
-        """Configuration data for HPC job submission.
+        """
+        Configuration data for HPC job submission.
 
         Keys
         ----
@@ -825,7 +852,8 @@ class JobConfigurationData(PyAedtBase):
 
     @property
     def use_custom_submission_string(self) -> bool:
-        """Check if a custom submission string is provided.
+        """
+        Check if a custom submission string is provided.
 
         Examples
         --------
@@ -838,7 +866,8 @@ class JobConfigurationData(PyAedtBase):
 
     @property
     def fix_job_name(self) -> bool:
-        """Check if the job name is set to the default value.
+        """
+        Check if the job name is set to the default value.
 
         Examples
         --------
@@ -853,7 +882,8 @@ class JobConfigurationData(PyAedtBase):
 
     @property
     def cores_per_task(self) -> int | None:
-        """Get the number of cores assigned to each task.
+        """
+        Get the number of cores assigned to each task.
 
         Examples
         --------
@@ -866,7 +896,8 @@ class JobConfigurationData(PyAedtBase):
 
     @property
     def exclusive(self) -> bool:
-        """Get whether nodes will be reserved for exclusive use by the HPC job.
+        """
+        Get whether nodes will be reserved for exclusive use by the HPC job.
 
         Examples
         --------
@@ -879,7 +910,8 @@ class JobConfigurationData(PyAedtBase):
 
     @exclusive.setter
     def exclusive(self, value: bool) -> None:
-        """Set whether nodes will be reserved for exclusive use by the HPC job.
+        """
+        Set whether nodes will be reserved for exclusive use by the HPC job.
 
         Examples
         --------
@@ -892,7 +924,8 @@ class JobConfigurationData(PyAedtBase):
 
     @property
     def num_cores(self) -> int:
-        """Get the total number of compute cores to be used by the job.
+        """
+        Get the total number of compute cores to be used by the job.
 
         Examples
         --------
@@ -905,7 +938,8 @@ class JobConfigurationData(PyAedtBase):
 
     @num_cores.setter
     def num_cores(self, value: int) -> None:
-        """Set the total number of compute cores to be used by the job.
+        """
+        Set the total number of compute cores to be used by the job.
 
         Examples
         --------
@@ -920,7 +954,8 @@ class JobConfigurationData(PyAedtBase):
 
     @property
     def num_gpus(self) -> int | None:
-        """Get the number of GPUs to be used for the simulation.
+        """
+        Get the number of GPUs to be used for the simulation.
 
         Examples
         --------
@@ -933,7 +968,8 @@ class JobConfigurationData(PyAedtBase):
 
     @num_gpus.setter
     def num_gpus(self, value: int | None) -> None:
-        """Set the number of GPUs to be used for the simulation.
+        """
+        Set the number of GPUs to be used for the simulation.
 
         Examples
         --------
@@ -946,7 +982,8 @@ class JobConfigurationData(PyAedtBase):
 
     @property
     def num_nodes(self) -> int:
-        """Get the number of nodes for distribution of the HPC jobs.
+        """
+        Get the number of nodes for distribution of the HPC jobs.
 
         Examples
         --------
@@ -959,7 +996,8 @@ class JobConfigurationData(PyAedtBase):
 
     @num_nodes.setter
     def num_nodes(self, value: int) -> None:
-        """Set the number of nodes for distribution of the HPC jobs.
+        """
+        Set the number of nodes for distribution of the HPC jobs.
 
         Examples
         --------
@@ -973,7 +1011,8 @@ class JobConfigurationData(PyAedtBase):
 
     @property
     def num_tasks(self) -> int:
-        """Get the number of tasks for the submission.
+        """
+        Get the number of tasks for the submission.
 
         Examples
         --------
@@ -986,7 +1025,8 @@ class JobConfigurationData(PyAedtBase):
 
     @num_tasks.setter
     def num_tasks(self, value: int) -> None:
-        """Set the number of tasks for the submission.
+        """
+        Set the number of tasks for the submission.
 
         Examples
         --------
@@ -1004,7 +1044,8 @@ class JobConfigurationData(PyAedtBase):
 
     @property
     def max_tasks_per_node(self) -> int | None:
-        """Get the maximum number of tasks allowed to run on a single node.
+        """
+        Get the maximum number of tasks allowed to run on a single node.
 
         Examples
         --------
@@ -1017,7 +1058,8 @@ class JobConfigurationData(PyAedtBase):
 
     @max_tasks_per_node.setter
     def max_tasks_per_node(self, value: int | None) -> None:
-        """Set the maximum number of tasks allowed to run on a single node.
+        """
+        Set the maximum number of tasks allowed to run on a single node.
 
         Examples
         --------
@@ -1030,7 +1072,8 @@ class JobConfigurationData(PyAedtBase):
 
     @property
     def ram_limit(self) -> int:
-        """Get the fraction of available RAM to be used by the simulation.
+        """
+        Get the fraction of available RAM to be used by the simulation.
 
         Examples
         --------
@@ -1043,7 +1086,8 @@ class JobConfigurationData(PyAedtBase):
 
     @ram_limit.setter
     def ram_limit(self, value: int) -> None:
-        """Set the fraction of available RAM to be used by the simulation.
+        """
+        Set the fraction of available RAM to be used by the simulation.
 
         Examples
         --------
@@ -1056,7 +1100,8 @@ class JobConfigurationData(PyAedtBase):
 
     @property
     def ram_per_core(self) -> float:
-        """Get the total RAM in GB to be used per core for the simulation job.
+        """
+        Get the total RAM in GB to be used per core for the simulation job.
 
         Examples
         --------
@@ -1069,7 +1114,8 @@ class JobConfigurationData(PyAedtBase):
 
     @ram_per_core.setter
     def ram_per_core(self, value: float) -> None:
-        """Set the total RAM in GB to be used per core for the simulation job.
+        """
+        Set the total RAM in GB to be used per core for the simulation job.
 
         Examples
         --------
@@ -1084,7 +1130,8 @@ class JobConfigurationData(PyAedtBase):
 
     @property
     def auto_hpc(self) -> bool:
-        """Get whether Auto HPC is enabled for the job submission.
+        """
+        Get whether Auto HPC is enabled for the job submission.
 
         Examples
         --------
@@ -1097,7 +1144,8 @@ class JobConfigurationData(PyAedtBase):
 
     @auto_hpc.setter
     def auto_hpc(self, value: bool) -> None:
-        """Set whether Auto HPC is enabled for the job submission.
+        """
+        Set whether Auto HPC is enabled for the job submission.
 
         Examples
         --------
@@ -1111,7 +1159,8 @@ class JobConfigurationData(PyAedtBase):
 
     @property
     def cluster_name(self) -> str:
-        """Get the name of the cluster to be used for the job submission.
+        """
+        Get the name of the cluster to be used for the job submission.
 
         Examples
         --------
@@ -1124,7 +1173,8 @@ class JobConfigurationData(PyAedtBase):
 
     @cluster_name.setter
     def cluster_name(self, value: str) -> None:
-        """Set the name of the cluster to be used for the job submission.
+        """
+        Set the name of the cluster to be used for the job submission.
 
         Examples
         --------
@@ -1137,7 +1187,8 @@ class JobConfigurationData(PyAedtBase):
 
     @property
     def custom_submission_string(self) -> str:
-        """Get the custom submission string for the job submission.
+        """
+        Get the custom submission string for the job submission.
 
         Examples
         --------
@@ -1150,7 +1201,8 @@ class JobConfigurationData(PyAedtBase):
 
     @custom_submission_string.setter
     def custom_submission_string(self, value: str) -> None:
-        """Set the custom submission string for the job submission.
+        """
+        Set the custom submission string for the job submission.
 
         Examples
         --------
@@ -1163,7 +1215,8 @@ class JobConfigurationData(PyAedtBase):
 
     @property
     def job_name(self) -> str:
-        """Get the name to be assigned to the HPC job when it is launched.
+        """
+        Get the name to be assigned to the HPC job when it is launched.
 
         Examples
         --------
@@ -1176,7 +1229,8 @@ class JobConfigurationData(PyAedtBase):
 
     @job_name.setter
     def job_name(self, value: str) -> None:
-        """Set the name to be assigned to the HPC job when it is launched.
+        """
+        Set the name to be assigned to the HPC job when it is launched.
 
         Examples
         --------
@@ -1189,7 +1243,8 @@ class JobConfigurationData(PyAedtBase):
 
     @property
     def monitor(self) -> bool:
-        """Get whether to open the monitor GUI after job submission.
+        """
+        Get whether to open the monitor GUI after job submission.
 
         Examples
         --------
@@ -1202,7 +1257,8 @@ class JobConfigurationData(PyAedtBase):
 
     @monitor.setter
     def monitor(self, value: bool) -> None:
-        """Set whether to open the monitor GUI after job submission.
+        """
+        Set whether to open the monitor GUI after job submission.
 
         Examples
         --------
@@ -1215,7 +1271,8 @@ class JobConfigurationData(PyAedtBase):
 
     @property
     def ng_solve(self) -> bool:
-        """Get whether to run the solve in non-graphical mode.
+        """
+        Get whether to run the solve in non-graphical mode.
 
         Examples
         --------
@@ -1228,7 +1285,8 @@ class JobConfigurationData(PyAedtBase):
 
     @ng_solve.setter
     def ng_solve(self, value: bool) -> None:
-        """Set whether to run the solve in non-graphical mode.
+        """
+        Set whether to run the solve in non-graphical mode.
 
         Examples
         --------
@@ -1241,7 +1299,8 @@ class JobConfigurationData(PyAedtBase):
 
     @property
     def product_full_path(self) -> str | None:
-        """Get the full path to the AEDT executable used for job submission.
+        """
+        Get the full path to the AEDT executable used for job submission.
 
         Examples
         --------
@@ -1254,7 +1313,8 @@ class JobConfigurationData(PyAedtBase):
 
     @product_full_path.setter
     def product_full_path(self, value: str | None) -> None:
-        """Set the full path to the AEDT executable used for job submission.
+        """
+        Set the full path to the AEDT executable used for job submission.
 
         Examples
         --------
@@ -1267,7 +1327,8 @@ class JobConfigurationData(PyAedtBase):
 
     @property
     def shared_directory_linux(self) -> str | None:
-        """Get the path to the shared directory on Linux systems.
+        """
+        Get the path to the shared directory on Linux systems.
 
         Examples
         --------
@@ -1280,7 +1341,8 @@ class JobConfigurationData(PyAedtBase):
 
     @shared_directory_linux.setter
     def shared_directory_linux(self, value: str | None) -> None:
-        """Set the path to the shared directory on Linux systems.
+        """
+        Set the path to the shared directory on Linux systems.
 
         Examples
         --------
@@ -1293,7 +1355,8 @@ class JobConfigurationData(PyAedtBase):
 
     @property
     def shared_directory_windows(self) -> str | None:
-        """Get the path to the shared directory on Windows systems.
+        """
+        Get the path to the shared directory on Windows systems.
 
         Examples
         --------
@@ -1306,7 +1369,8 @@ class JobConfigurationData(PyAedtBase):
 
     @shared_directory_windows.setter
     def shared_directory_windows(self, value: str | None) -> None:
-        """Set the path to the shared directory on Windows systems.
+        """
+        Set the path to the shared directory on Windows systems.
 
         Examples
         --------
@@ -1319,7 +1383,8 @@ class JobConfigurationData(PyAedtBase):
 
     @property
     def use_ppe(self) -> bool:
-        """Get whether to use the "Pro/Premium/Enterprise" licence type.
+        """
+        Get whether to use the "Pro/Premium/Enterprise" licence type.
 
         Examples
         --------
@@ -1332,7 +1397,8 @@ class JobConfigurationData(PyAedtBase):
 
     @use_ppe.setter
     def use_ppe(self, value: bool) -> None:
-        """Set whether to use the "Pro/Premium/Enterprise" licence type.
+        """
+        Set whether to use the "Pro/Premium/Enterprise" licence type.
 
         Examples
         --------
@@ -1345,7 +1411,8 @@ class JobConfigurationData(PyAedtBase):
 
     @property
     def wait_for_license(self) -> bool:
-        """Get whether to wait for an available license before submitting the job.
+        """
+        Get whether to wait for an available license before submitting the job.
 
         Examples
         --------
@@ -1358,7 +1425,8 @@ class JobConfigurationData(PyAedtBase):
 
     @wait_for_license.setter
     def wait_for_license(self, value: bool) -> None:
-        """Set whether to wait for an available license before submitting the job.
+        """
+        Set whether to wait for an available license before submitting the job.
 
         Examples
         --------
@@ -1373,7 +1441,8 @@ class JobConfigurationData(PyAedtBase):
 
     @classmethod
     def from_dict(cls, data: dict) -> JobConfigurationData:
-        """Create a JobConfigurationData instance from a dictionary.
+        """
+        Create a JobConfigurationData instance from a dictionary.
 
         Examples
         --------
@@ -1405,7 +1474,8 @@ class JobConfigurationData(PyAedtBase):
         )
 
     def to_dict(self) -> dict:
-        """Convert the JobConfigurationData to a dictionary.
+        """
+        Convert the JobConfigurationData to a dictionary.
 
         Examples
         --------
@@ -1437,7 +1507,8 @@ class JobConfigurationData(PyAedtBase):
         }
 
     def to_json(self, path: str | Path):
-        """Save the job configuration to a JSON file.
+        """
+        Save the job configuration to a JSON file.
 
         Examples
         --------
@@ -1451,7 +1522,8 @@ class JobConfigurationData(PyAedtBase):
 
     @classmethod
     def from_json(cls, path: str | Path) -> JobConfigurationData:
-        """Load the job configuration from a JSON file.
+        """
+        Load the job configuration from a JSON file.
 
         Examples
         --------
@@ -1464,7 +1536,8 @@ class JobConfigurationData(PyAedtBase):
         return cls.from_dict(data)
 
     def save_areg(self, file_path: str = "Job_Settings.areg") -> Path:
-        """Save the job settings to an AREG file.
+        """
+        Save the job settings to an AREG file.
 
         Examples
         --------

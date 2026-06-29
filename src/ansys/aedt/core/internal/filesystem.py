@@ -37,7 +37,8 @@ from ansys.aedt.core.generic.file_utils import _uname
 
 
 def search_files(dirname: str, pattern: str = "*") -> list:
-    """Search for files inside a directory given a specific pattern.
+    """
+    Search for files inside a directory given a specific pattern.
 
     Parameters
     ----------
@@ -114,7 +115,8 @@ class Scratch(PyAedtBase):
             logger.error(f"An error occurred while removing {self._scratch_path}")
 
     def copyfile(self, src_file: str | Path, dst_filename: str | Path = None) -> str:
-        """Copy a file to the scratch directory.
+        """
+        Copy a file to the scratch directory.
 
         The target filename is optional. If omitted, the target file name is identical to the source file name.
 
@@ -191,7 +193,8 @@ class Scratch(PyAedtBase):
             self.remove()
 
     def create_sub_folder(self, name: str = "") -> str:
-        """Create a subfolder.
+        """
+        Create a subfolder.
 
         Parameters
         ----------
@@ -238,7 +241,8 @@ def get_json_files(start_folder: str) -> list[str]:
 
 
 def is_safe_path(path: str | Path, allowed_extensions: list[str] | None = None) -> bool:
-    """Validate if a path is safe to use.
+    """
+    Validate if a path is safe to use.
 
     Examples
     --------

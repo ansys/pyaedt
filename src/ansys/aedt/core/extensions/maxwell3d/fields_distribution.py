@@ -70,7 +70,8 @@ EXTENSION_TITLE = "Fields Distribution"
 
 @dataclass
 class FieldsDistributionExtensionData(ExtensionCommonData):
-    """Data class containing user input and computed data.
+    """
+    Data class containing user input and computed data.
 
     Examples
     --------
@@ -100,7 +101,8 @@ class FieldsDistributionExtensionData(ExtensionCommonData):
 
 
 class FieldsDistributionExtension(ExtensionCommon):
-    """Extension for fields distribution in Maxwell.
+    """
+    Extension for fields distribution in Maxwell.
 
     Examples
     --------
@@ -148,7 +150,8 @@ class FieldsDistributionExtension(ExtensionCommon):
             return "Maxwell 3D"  # Default fallback
 
     def check_design_type(self) -> None:
-        """Check if the active design is a Maxwell design.
+        """
+        Check if the active design is a Maxwell design.
 
         Examples
         --------
@@ -212,7 +215,8 @@ class FieldsDistributionExtension(ExtensionCommon):
             listbox.insert(tkinter.END, item)
 
     def add_extension_content(self) -> None:
-        """Add custom content to the extension UI.
+        """
+        Add custom content to the extension UI.
 
         Examples
         --------
@@ -472,7 +476,8 @@ class FieldsDistributionExtension(ExtensionCommon):
 
 
 def main(data: FieldsDistributionExtensionData) -> bool:
-    """Main function to run the fields distribution extension.
+    """
+    Main function to run the fields distribution extension.
 
     Examples
     --------

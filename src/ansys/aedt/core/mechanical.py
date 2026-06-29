@@ -36,7 +36,8 @@ from ansys.aedt.core.modules.setup_templates import SetupKeys
 
 
 class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
-    """Provides the Mechanical application interface.
+    """
+    Provides the Mechanical application interface.
 
     Parameters
     ----------
@@ -173,7 +174,8 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
         parameters: list | None = None,
         assignment: list | None = None,
     ) -> BoundaryObject:
-        """Map EM losses to a Mechanical design.
+        """
+        Map EM losses to a Mechanical design.
 
         Parameters
         ----------
@@ -283,7 +285,8 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
         source_project_name: str | None = None,
         parameters: list | None = None,
     ) -> BoundaryObject:
-        """Map thermal losses to a Mechanical design.
+        """
+        Map thermal losses to a Mechanical design.
 
         .. note::
            This method works in 2021 R2 only when coupled with Icepak.
@@ -374,7 +377,8 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
         temperature: str | None = "AmbientTemp",
         name: str | None = "",
     ) -> BoundaryObject:
-        """Assign a uniform convection to the face list.
+        """
+        Assign a uniform convection to the face list.
 
         Parameters
         ----------
@@ -434,7 +438,8 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
     def assign_uniform_temperature(
         self, assignment: list, temperature: str | None = "AmbientTemp", name: str | None = ""
     ) -> BoundaryObject:
-        """Assign a uniform temperature boundary.
+        """
+        Assign a uniform temperature boundary.
 
         .. note::
             This method works only in a Mechanical Thermal analysis.
@@ -488,7 +493,8 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
 
     @pyaedt_function_handler()
     def assign_frictionless_support(self, assignment: list, name: str | None = "") -> BoundaryObject:
-        """Assign a Mechanical frictionless support.
+        """
+        Assign a Mechanical frictionless support.
 
         .. note::
             This method works only in a Mechanical Structural analysis.
@@ -534,7 +540,8 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
 
     @pyaedt_function_handler()
     def assign_fixed_support(self, assignment: list, name: str | None = "") -> BoundaryObject:
-        """Assign a Mechanical fixed support.
+        """
+        Assign a Mechanical fixed support.
 
         .. note::
            This method works only in a Mechanical Structural analysis.
@@ -578,7 +585,8 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
 
     @property
     def existing_analysis_sweeps(self):
-        """Existing analysis sweeps in the design.
+        """
+        Existing analysis sweeps in the design.
 
         Returns
         -------
@@ -606,7 +614,8 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
     def assign_heat_flux(
         self, assignment: list, heat_flux_type: str, value: str, name: str | None = ""
     ) -> BoundaryObject:
-        """Assign heat flux boundary condition to an object or face list.
+        """
+        Assign heat flux boundary condition to an object or face list.
 
         Parameters
         ----------
@@ -662,7 +671,8 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
 
     @pyaedt_function_handler()
     def assign_heat_generation(self, assignment: list, value: str, name: str | None = "") -> BoundaryObject:
-        """Assign a heat generation boundary condition to an object list.
+        """
+        Assign a heat generation boundary condition to an object list.
 
         Parameters
         ----------
@@ -710,7 +720,8 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
 
     @pyaedt_function_handler()
     def assign_2way_coupling(self, setup: str | None = None, number_of_iterations: int | None = 2) -> bool:
-        """Assign two-way coupling to a setup.
+        """
+        Assign two-way coupling to a setup.
 
         Parameters
         ----------
@@ -756,7 +767,8 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_setup(self, name: str = "MySetupAuto", setup_type: int | str | None = None, **kwargs):
-        """Create an analysis setup for Mechanical.
+        """
+        Create an analysis setup for Mechanical.
 
         Optional arguments are passed along with ``setup_type`` and ``name``. Keyword
         names correspond to the ``setup_type`` corresponding to the native AEDT API.  The list of

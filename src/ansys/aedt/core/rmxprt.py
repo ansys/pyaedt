@@ -35,7 +35,8 @@ from ansys.aedt.core.modules.solve_setup import SetupHFSS
 
 
 class RMXprtModule(PyAedtBase):
-    """Provides RMxprt module properties.
+    """
+    Provides RMxprt module properties.
 
     Examples
     --------
@@ -53,7 +54,8 @@ class RMXprtModule(PyAedtBase):
 
     @property
     def properties(self) -> BinaryTreeNode | bool:
-        """Object parameters.
+        """
+        Object parameters.
 
         Returns
         -------
@@ -122,7 +124,8 @@ class RMXprtModule(PyAedtBase):
 
 
 class Stator(RMXprtModule):
-    """Provides stator properties.
+    """
+    Provides stator properties.
 
     Examples
     --------
@@ -136,7 +139,8 @@ class Stator(RMXprtModule):
 
 
 class Rotor(RMXprtModule):
-    """Provides rotor properties.
+    """
+    Provides rotor properties.
 
     Examples
     --------
@@ -150,7 +154,8 @@ class Rotor(RMXprtModule):
 
 
 class Shaft(RMXprtModule):
-    """Provides rotor properties.
+    """
+    Provides rotor properties.
 
     Examples
     --------
@@ -164,7 +169,8 @@ class Shaft(RMXprtModule):
 
 
 class Machine(RMXprtModule):
-    """Provides rotor properties.
+    """
+    Provides rotor properties.
 
     Examples
     --------
@@ -178,7 +184,8 @@ class Machine(RMXprtModule):
 
 
 class Circuit(RMXprtModule):
-    """Provides rotor properties.
+    """
+    Provides rotor properties.
 
     Examples
     --------
@@ -192,7 +199,8 @@ class Circuit(RMXprtModule):
 
 
 class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
-    """Provides the RMxprt app interface.
+    """
+    Provides the RMxprt app interface.
 
     Parameters
     ----------
@@ -324,7 +332,8 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
 
     @property
     def design_type(self):
-        """Machine design type.
+        """
+        Machine design type.
 
         Examples
         --------
@@ -343,7 +352,8 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
     def create_setup(
         self, name: str | None = "MySetupAuto", setup_type: int | str | None = None, **kwargs
     ) -> SetupHFSS:
-        """Create an analysis setup for RmXport.
+        """
+        Create an analysis setup for RmXport.
 
         Optional arguments are passed along with the ``setup_type`` and ``name``
         parameters. Keyword names correspond to the ``setup_type``
@@ -395,7 +405,8 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
 
     @pyaedt_function_handler()
     def export_configuration(self, output_file: str | Path) -> str:
-        """Export Rmxprt project to config file.
+        """
+        Export Rmxprt project to config file.
 
         Parameters
         ----------
@@ -436,7 +447,8 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
 
     @pyaedt_function_handler()
     def import_configuration(self, input_file: str) -> bool:
-        """Parse a json file and assign all the properties to the Rmxprt design.
+        """
+        Parse a json file and assign all the properties to the Rmxprt design.
 
         Parameters
         ----------

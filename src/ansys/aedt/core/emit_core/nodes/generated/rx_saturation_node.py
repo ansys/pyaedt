@@ -36,7 +36,8 @@ class RxSaturationNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
-        """The parent of this emit node.
+        """
+        The parent of this emit node.
 
         Examples
         --------
@@ -48,7 +49,8 @@ class RxSaturationNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node.
+        """
+        The type of this emit node.
 
         Examples
         --------
@@ -70,7 +72,8 @@ class RxSaturationNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def table_data(self) -> list[tuple]:
-        """Rx Saturation Profile Table.
+        """
+        Rx Saturation Profile Table.
         Table consists of 2 columns.
         Frequency:
             Value should be between 1 and 100e9.

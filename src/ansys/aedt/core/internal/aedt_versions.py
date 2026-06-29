@@ -22,7 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""This module contains the ``AedtVersions`` class.
+"""
+This module contains the ``AedtVersions`` class.
 
 The constant ``CURRENT_STABLE_AEDT_VERSION`` set in this module should be updated
 every time a new stable version is released.
@@ -45,7 +46,8 @@ module_file_path = __file__
 
 
 class AedtVersions(PyAedtBase):
-    """Class to get the AEDT versions on the system.
+    """
+    Class to get the AEDT versions on the system.
 
     It caches the data to avoid inspecting the environment variables multiple times.
 
@@ -109,7 +111,8 @@ class AedtVersions(PyAedtBase):
 
     @property
     def list_installed_ansysem(self) -> list:
-        """Return a list of installed AEDT versions on ``ANSYSEM_ROOT``.
+        """
+        Return a list of installed AEDT versions on ``ANSYSEM_ROOT``.
 
         The list is ordered: first normal versions, then client versions, finally student versions.
 
@@ -143,7 +146,8 @@ class AedtVersions(PyAedtBase):
 
     @property
     def installed_versions(self) -> dict:
-        """Get the installed AEDT versions.
+        """
+        Get the installed AEDT versions.
 
         This method returns a dictionary, with the version as the key and installation path
         as the value.
@@ -209,7 +213,8 @@ class AedtVersions(PyAedtBase):
 
     @property
     def stable_versions(self) -> list:
-        """Get all stable versions installed on the system
+        """
+        Get all stable versions installed on the system
 
         Examples
         --------
@@ -229,7 +234,8 @@ class AedtVersions(PyAedtBase):
 
     @property
     def current_version(self) -> str:
-        """Get the most recent stable AEDT version.
+        """
+        Get the most recent stable AEDT version.
 
         Examples
         --------
@@ -247,7 +253,8 @@ class AedtVersions(PyAedtBase):
 
     @property
     def current_student_version(self) -> str:
-        """Get the current stable AEDT student version.
+        """
+        Get the current stable AEDT student version.
 
         Examples
         --------
@@ -266,7 +273,8 @@ class AedtVersions(PyAedtBase):
 
     @property
     def latest_version(self) -> str:
-        """Get the latest AEDT version, even if it is pre-release.
+        """
+        Get the latest AEDT version, even if it is pre-release.
 
         Examples
         --------
@@ -284,7 +292,8 @@ class AedtVersions(PyAedtBase):
 
     @staticmethod
     def get_version_env_variable(version_id: str) -> str:
-        """Get the environment variable for the AEDT version.
+        """
+        Get the environment variable for the AEDT version.
 
         Parameters
         ----------

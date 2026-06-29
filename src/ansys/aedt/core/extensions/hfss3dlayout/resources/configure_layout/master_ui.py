@@ -115,7 +115,8 @@ class ConfigureLayoutExtension(ExtensionHFSS3DLayoutCommon):
         )
 
     def add_toggle_theme_button(self, parent, toggle_row, toggle_column):
-        """Create a button to toggle between light and dark themes.
+        """
+        Create a button to toggle between light and dark themes.
 
         Examples
         --------
@@ -129,7 +130,8 @@ class ConfigureLayoutExtension(ExtensionHFSS3DLayoutCommon):
         return
 
     def add_toggle_theme_button_(self, parent):
-        """Create a button to toggle between light and dark themes.
+        """
+        Create a button to toggle between light and dark themes.
 
         Examples
         --------

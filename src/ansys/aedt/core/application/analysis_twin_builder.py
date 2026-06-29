@@ -39,7 +39,8 @@ if TYPE_CHECKING:
 
 
 class AnalysisTwinBuilder(Analysis, PyAedtBase):
-    """Provides the Twin Builder Analysis Setup (TwinBuilder).
+    """
+    Provides the Twin Builder Analysis Setup (TwinBuilder).
 
     It is automatically initialized by Application call (Twin Builder).
     Refer to Application function for inputs definition
@@ -99,7 +100,8 @@ class AnalysisTwinBuilder(Analysis, PyAedtBase):
 
     @property
     def setup_names(self) -> list[str]:
-        """Setup names.
+        """
+        Setup names.
 
         References
         ----------
@@ -156,7 +158,8 @@ class AnalysisTwinBuilder(Analysis, PyAedtBase):
 
     @property
     def modeler(self) -> ModelerTwinBuilder:
-        """Design Modeler.
+        """
+        Design Modeler.
 
         Returns
         -------
@@ -177,7 +180,8 @@ class AnalysisTwinBuilder(Analysis, PyAedtBase):
 
     @property
     def post(self) -> PostProcessorCircuit:
-        """Design Postprocessor.
+        """
+        Design Postprocessor.
 
         Returns
         -------
@@ -199,7 +203,8 @@ class AnalysisTwinBuilder(Analysis, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_setup(self, name: str = "MySetupAuto", setup_type: str = None, **kwargs) -> SetupCircuit:
-        """Create a setup.
+        """
+        Create a setup.
 
         Parameters
         ----------

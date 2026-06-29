@@ -141,7 +141,8 @@ def pyaedt_service_manager(
     aedt_version: str | None = None,
     student_version: bool | None = False,
 ) -> None:
-    """Start the PyAEDT service manager using RPyC server on CPython.
+    """
+    Start the PyAEDT service manager using RPyC server on CPython.
 
     This method, which must run on a server machine, is used as a service on the
     server machine to listen on a dedicated port for inbound requests to launch
@@ -228,7 +229,8 @@ def launch_server(
     secure: bool = True,
     listen_all: bool = False,
 ) -> bool:  # pragma: no cover
-    """Start an RPyC server and listens on a specified port.
+    """
+    Start an RPyC server and listens on a specified port.
 
     This method must run on a server machine only.
 
@@ -321,7 +323,8 @@ def create_session(
     secure: bool | None = True,
     listen_all: bool | None = False,
 ) -> Connection:  # pragma: no cover
-    """Connect to an existing server session and create a new client session from it.
+    """
+    Connect to an existing server session and create a new client session from it.
 
     Parameters
     ----------
@@ -404,7 +407,8 @@ def create_session(
 
 
 def connect(host: str, aedt_client_port: int) -> Connection:  # pragma: no cover
-    """Connect to an existing server session.
+    """
+    Connect to an existing server session.
 
     Parameters
     ----------

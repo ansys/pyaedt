@@ -52,7 +52,8 @@ is_linux = os.name == "posix"
 
 
 def sanitize_interpreter_path(interpreter_path, version):
-    """Sanitize the interpreter path.
+    """
+    Sanitize the interpreter path.
 
     Examples
     --------
@@ -72,7 +73,8 @@ def sanitize_interpreter_path(interpreter_path, version):
 
 
 def check_file(file_path, oDesktop):
-    """Check if a file exists.
+    """
+    Check if a file exists.
 
     Examples
     --------
@@ -91,7 +93,8 @@ def check_file(file_path, oDesktop):
 
 
 def get_linux_terminal():
-    """Get a Linux terminal.
+    """
+    Get a Linux terminal.
 
     Examples
     --------
@@ -107,7 +110,8 @@ def get_linux_terminal():
 
 
 def get_linux_terminal_command():
-    """Get the command to open a Linux terminal.
+    """
+    Get the command to open a Linux terminal.
 
     Examples
     --------
@@ -152,7 +156,8 @@ def which(program):
 
 
 def show_error(msg, oDesktop):
-    """Display an error message in the AEDT console and a dialog box.
+    """
+    Display an error message in the AEDT console and a dialog box.
 
     Examples
     --------
@@ -166,7 +171,8 @@ def show_error(msg, oDesktop):
 
 
 def environment_variables(oDesktop):
-    """Set environment variables for the AEDT process.
+    """
+    Set environment variables for the AEDT process.
 
     Examples
     --------
@@ -228,7 +234,8 @@ def generate_unique_name(root_name, suffix="", n=6):
 
 
 def validate_disclaimer():
-    """Display dialog box and evaluate the response to the disclaimer.
+    """
+    Display dialog box and evaluate the response to the disclaimer.
 
     Examples
     --------

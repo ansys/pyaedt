@@ -33,7 +33,8 @@ import ansys.aedt.core
 
 
 class TopologyType(Enum):
-    """Provides an enum of distributed topologies.
+    """
+    Provides an enum of distributed topologies.
 
     **Attributes:**
 
@@ -96,7 +97,8 @@ class TopologyType(Enum):
 
 
 class TapPosition(Enum):
-    """Provides an enum of position of tap points of ``Miniature Hairpin`` and ``Ring Resonator`` topologies.
+    """
+    Provides an enum of position of tap points of ``Miniature Hairpin`` and ``Ring Resonator`` topologies.
 
     **Attributes:**
 
@@ -123,7 +125,8 @@ class TapPosition(Enum):
 
 
 class DistributedTopology:
-    """Defines topology parameters of distributed filters.
+    """
+    Defines topology parameters of distributed filters.
 
     This class allows you to define and modify the topology parameters of distributed filters.
 
@@ -335,7 +338,8 @@ class DistributedTopology:
 
     @property
     def topology_type(self) -> TopologyType:
-        """Topology type of the distributed filter. The default is ``LUMPED_TRANSLATION``.
+        """
+        Topology type of the distributed filter. The default is ``LUMPED_TRANSLATION``.
         The ``TopologyType`` enum provides a list of all classes.
 
         Returns
@@ -362,7 +366,8 @@ class DistributedTopology:
 
     @property
     def source_resistance(self) -> str:
-        """Source resistance. The default is ``50``.
+        """
+        Source resistance. The default is ``50``.
 
         Returns
         -------
@@ -385,7 +390,8 @@ class DistributedTopology:
 
     @property
     def load_resistance(self) -> str:
-        """Load resistance. The default is ``50``.
+        """
+        Load resistance. The default is ``50``.
 
         Returns
         -------
@@ -408,7 +414,8 @@ class DistributedTopology:
 
     @property
     def first_shunt(self) -> bool:
-        """Flag indicating if shunt elements are first in the synthesized circuit.
+        """
+        Flag indicating if shunt elements are first in the synthesized circuit.
         This parameter is applicable for the ``Lumped Translation``, ``Inductor Translation``,
         and ``Coupled Segments`` topologies. If ``False``, series elements are first.
 
@@ -436,7 +443,8 @@ class DistributedTopology:
 
     @property
     def first_fat(self) -> bool:
-        """Flag indicating if fat segments are first in the synthesized circuit.
+        """
+        Flag indicating if fat segments are first in the synthesized circuit.
         This parameter is applicable for the ``Stepped Impedance`` topology.
         If ``False``, thin segments are first.
 
@@ -466,7 +474,8 @@ class DistributedTopology:
 
     @property
     def use_series_caps(self) -> bool:
-        """Flag indicating if lumped capacitors and inductor segments are implemented as series LC segments.
+        """
+        Flag indicating if lumped capacitors and inductor segments are implemented as series LC segments.
         Series capacitors enable capacitive coupling between resonators, which can be achieved through either
         series capacitors or coupled transmission lines.
         This parameter is applicable for the ``Lumped Translation``and ``Inductor Translation`` topologies
@@ -498,7 +507,8 @@ class DistributedTopology:
 
     @property
     def combine_stubs(self) -> bool:
-        """Flag indicating if resonators are created with only one stub.
+        """
+        Flag indicating if resonators are created with only one stub.
         This parameter is applicable for the ``Lumped Translation``and ``Inductor Translation`` topologies
         of band pass and band stop filters, and ``Dual Resonator`` and ``Spaced Dual Resonator`` topologies
         of band pass filters.
@@ -529,7 +539,8 @@ class DistributedTopology:
 
     @property
     def use_coupled_lines(self) -> bool:
-        """Flag indicating if coupled segments are used between stubs to enable capacitive coupling between resonators,
+        """
+        Flag indicating if coupled segments are used between stubs to enable capacitive coupling between resonators,
         which can be achieved through either series capacitors or coupled transmission lines.
         This parameter is applicable for the ``Lumped Translation``, ``Inductor Translation``, and ``Dual Resonator``
         topologies of band pass filters.
@@ -560,7 +571,8 @@ class DistributedTopology:
 
     @property
     def equal_width_approx(self) -> bool:
-        """Flag indicating if all stubs are set to equal width.
+        """
+        Flag indicating if all stubs are set to equal width.
         This parameter is applicable for the ``Interdigital``, ``Combline`` topologies of
         band pass filters, and ``Notch Resonators`` topology of band stop filters.
 
@@ -592,7 +604,8 @@ class DistributedTopology:
 
     @property
     def open_stub_ground(self) -> bool:
-        """Flag indicating if quarter length open stubs are implemented to simulate ground.
+        """
+        Flag indicating if quarter length open stubs are implemented to simulate ground.
         This parameter is applicable for the ``Notch Resonators`` topology of band stop filters.
 
         Returns
@@ -623,7 +636,8 @@ class DistributedTopology:
 
     @property
     def left_ground_side(self) -> bool:
-        """Flag indicating if grounded pins are placed on left side.
+        """
+        Flag indicating if grounded pins are placed on left side.
         This parameter is applicable for the ``Notch Resonators`` topology of band stop filters.
         If ``False``, right side is selected.
 
@@ -655,7 +669,8 @@ class DistributedTopology:
 
     @property
     def equal_stub_widths(self) -> bool:
-        """Flag indicating if all stubs widths are set with equal.
+        """
+        Flag indicating if all stubs widths are set with equal.
         This parameter is applicable for the ``Shunt Stub Resonators`` and
         ``Open Stub Resonators`` topologies of band pass filters.
 
@@ -687,7 +702,8 @@ class DistributedTopology:
 
     @property
     def center_z0_impedance_enabled(self) -> bool:
-        """Flag indicating if set center impedance is enabled.
+        """
+        Flag indicating if set center impedance is enabled.
         If ``True`` the center impedance value is applied to the internal resonators and couplers.
 
         Returns
@@ -718,7 +734,8 @@ class DistributedTopology:
 
     @property
     def center_z0_impedance(self) -> str:
-        """Resonator internal impedance. The default is ``75``.
+        """
+        Resonator internal impedance. The default is ``75``.
 
         This parameter is applicable for the ``Interdigital``, ``Combline``, ``Parallel Edge Coupled``,
         ``Shunt Stub Resonators``, and  ``Open Stub Resonators`` topologies of band pass filters.
@@ -756,7 +773,8 @@ class DistributedTopology:
 
     @property
     def equal_width_conductors(self) -> bool:
-        """Flag indicating if all stubs are set to equal width.
+        """
+        Flag indicating if all stubs are set to equal width.
         This parameter is applicable for the ``Parallel Edge Coupled`` topology of band pass filters.
 
         Returns
@@ -787,7 +805,8 @@ class DistributedTopology:
 
     @property
     def tapped(self) -> bool:
-        """Flag indicating if the outer couplers are removed and the remaining outer couplers are tapped.
+        """
+        Flag indicating if the outer couplers are removed and the remaining outer couplers are tapped.
         This parameter is applicable for the ``Interdigital``, ``Combline``, and ``Parallel Edge Coupled``
         topologies of band pass filters.
 
@@ -823,7 +842,8 @@ class DistributedTopology:
 
     @property
     def pinned(self) -> bool:
-        """Flag indicating if the outer couplers are replaced with hairpin resonators.
+        """
+        Flag indicating if the outer couplers are replaced with hairpin resonators.
         This parameter is applicable for the ``Interdigital``, and ``Parallel Edge Coupled``
         topologies of band pass filters.
 
@@ -859,7 +879,8 @@ class DistributedTopology:
 
     @property
     def stub_taps(self) -> bool:
-        """Flag indicating if vertical stubs are implemented at the tap points.
+        """
+        Flag indicating if vertical stubs are implemented at the tap points.
         This parameter is applicable for the ``Parallel Edge Coupled`` topology.
 
         This property is when only available ``equal_width_conductors`` option is
@@ -893,7 +914,8 @@ class DistributedTopology:
 
     @property
     def via_ends(self) -> bool:
-        """Flag indicating if resonators are terminated with vias instead of open ends.
+        """
+        Flag indicating if resonators are terminated with vias instead of open ends.
         This parameter is applicable for the ``Parallel Edge Coupled`` topology of band pass filters.
 
         This property is disabled when the ``equal_width_conductors`` option is enabled.
@@ -926,7 +948,8 @@ class DistributedTopology:
 
     @property
     def resonator_line_width_enabled(self) -> bool:
-        """Flag indicating if resonator line width is enabled.
+        """
+        Flag indicating if resonator line width is enabled.
         If ``True`` the resonator line width value is applied to the internal resonators and couplers.
 
         Returns
@@ -957,7 +980,8 @@ class DistributedTopology:
 
     @property
     def resonator_line_width(self) -> str:
-        """Line width to set in ``Hairpin``, ``Miniature Hairpin``, and ``Ring Resonator`` topologies
+        """
+        Line width to set in ``Hairpin``, ``Miniature Hairpin``, and ``Ring Resonator`` topologies
         of band pass filters. The default is ``1.27 mm``.
 
         Returns
@@ -986,7 +1010,8 @@ class DistributedTopology:
 
     @property
     def resonator_rotation_angle_enabled(self) -> bool:
-        """Flag indicating if resonator rotation angle is enabled.
+        """
+        Flag indicating if resonator rotation angle is enabled.
         If ``True`` the resonator rotation angle value is applied to the layout.
 
         Returns
@@ -1017,7 +1042,8 @@ class DistributedTopology:
 
     @property
     def resonator_rotation_angle(self) -> str:
-        """Net filter rotation angle for the ``Parallel Edge Coupled`` topology of band pass filters in degrees.
+        """
+        Net filter rotation angle for the ``Parallel Edge Coupled`` topology of band pass filters in degrees.
         The default is ``0``.
 
         Returns
@@ -1046,7 +1072,8 @@ class DistributedTopology:
 
     @property
     def mitered_corners(self) -> bool:
-        """Flag indicating if mitered corners are implemented.
+        """
+        Flag indicating if mitered corners are implemented.
         This parameter is applicable for the ``Hairpin``, ``Miniature Hairpin``, and ``Ring Resonator`` topologies
         of band pass filters.
 
@@ -1078,7 +1105,8 @@ class DistributedTopology:
 
     @property
     def hairpin_gap_width_enabled(self) -> bool:
-        """Flag indicating if hairpin gap width is enabled.
+        """
+        Flag indicating if hairpin gap width is enabled.
         If ``True`` the hairpin gap width value is applied to the ``Hairpin`` legs.
 
         Returns
@@ -1109,7 +1137,8 @@ class DistributedTopology:
 
     @property
     def hairpin_gap_width(self) -> str:
-        """Gap width to set in ``Hairpin`` topology of band pass filters. The default is ``2.54 mm``.
+        """
+        Gap width to set in ``Hairpin`` topology of band pass filters. The default is ``2.54 mm``.
 
         Returns
         -------
@@ -1137,7 +1166,8 @@ class DistributedTopology:
 
     @property
     def miniature_hairpin_gap_width_enabled(self) -> bool:
-        """Flag indicating if ``Miniature Hairpin`` or ``Ring Resonator`` gap width is enabled.
+        """
+        Flag indicating if ``Miniature Hairpin`` or ``Ring Resonator`` gap width is enabled.
         If ``True`` the miniature hairpin or ring resonator gap width value is applied to the
         ``Miniature Hairpin``  or ``Ring Resonator`` legs.
 
@@ -1169,7 +1199,8 @@ class DistributedTopology:
 
     @property
     def miniature_hairpin_gap_width(self) -> str:
-        """Gap width to set in ``Miniature Hairpin`` topology of band pass filters. The default is ``635 um``.
+        """
+        Gap width to set in ``Miniature Hairpin`` topology of band pass filters. The default is ``635 um``.
 
         Returns
         -------
@@ -1197,7 +1228,8 @@ class DistributedTopology:
 
     @property
     def ring_resonator_gap_width(self) -> str:
-        """Gap width to set in ``Ring Resonator`` topology of band pass filters. The default is ``635 um``.
+        """
+        Gap width to set in ``Ring Resonator`` topology of band pass filters. The default is ``635 um``.
 
         Returns
         -------
@@ -1225,7 +1257,8 @@ class DistributedTopology:
 
     @property
     def hairpin_extension_length(self) -> str:
-        """Extension length to set in ``Hairpin`` topology of band pass filters for tuning purpose.
+        """
+        Extension length to set in ``Hairpin`` topology of band pass filters for tuning purpose.
         The default is ``0 mm``.
 
         Returns
@@ -1253,7 +1286,8 @@ class DistributedTopology:
 
     @property
     def miniature_hairpin_end_curl_extension(self) -> str:
-        """End curl extension length to set in ``Miniature Hairpin`` topology of band pass filters for tuning purpose.
+        """
+        End curl extension length to set in ``Miniature Hairpin`` topology of band pass filters for tuning purpose.
         The default is ``0 mm``.
 
         Returns
@@ -1285,7 +1319,8 @@ class DistributedTopology:
 
     @property
     def ring_resonator_end_gap_extension(self) -> str:
-        """End gap extension length to set in ``Ring Resonator`` topology of band pass filters for tuning purpose.
+        """
+        End gap extension length to set in ``Ring Resonator`` topology of band pass filters for tuning purpose.
         The default is ``0 mm``.
 
         Returns
@@ -1317,7 +1352,8 @@ class DistributedTopology:
 
     @property
     def tuning_type_1(self) -> bool:
-        """Flag indicating if both legs of the outer hairpins are set for tuning in ``Hairpin``
+        """
+        Flag indicating if both legs of the outer hairpins are set for tuning in ``Hairpin``
         topology of band pass filters. If ``False``, only the outer legs of the outer hairpins are set.
 
         Returns
@@ -1348,7 +1384,8 @@ class DistributedTopology:
 
     @property
     def tap_position(self) -> TapPosition:
-        """Tap position of the tap points in ``Miniature Hairpin`` and ``Ring Resonator``
+        """
+        Tap position of the tap points in ``Miniature Hairpin`` and ``Ring Resonator``
         topologies of band pass filters. The default is ``AUTO``.
         The ``TapPosition`` enum provides a list of all types.
 
@@ -1379,7 +1416,8 @@ class DistributedTopology:
 
     @property
     def wide_band(self) -> bool:
-        """Flag indicating if ``Interdigital`` topology of band pass filters are optimized for wideband applications.
+        """
+        Flag indicating if ``Interdigital`` topology of band pass filters are optimized for wideband applications.
 
         Returns
         -------
@@ -1406,7 +1444,8 @@ class DistributedTopology:
 
     @property
     def open_ends(self) -> bool:
-        """Flag indicating if resonators are terminated with open ends instead of vias.
+        """
+        Flag indicating if resonators are terminated with open ends instead of vias.
         This parameter is applicable for the ``Interdigital`` topology of band pass filters.
 
         This property is disabled when the ``wide_band`` option is enabled.
@@ -1436,7 +1475,8 @@ class DistributedTopology:
 
     @property
     def combline_half_length_frequency(self) -> str:
-        """Half length frequency in ``Combline`` topology of band pass filters where open remains open.
+        """
+        Half length frequency in ``Combline`` topology of band pass filters where open remains open.
         The default is ``4G``.
 
         Returns
@@ -1465,7 +1505,8 @@ class DistributedTopology:
 
     @property
     def coupled_segments_quarter_length_frequency_enabled(self) -> bool:
-        """Flag indicating if quarter length frequency is enabled.
+        """
+        Flag indicating if quarter length frequency is enabled.
         If ``True`` the quarter length frequency value is applied to the layout.
 
         Returns
@@ -1497,7 +1538,8 @@ class DistributedTopology:
 
     @property
     def coupled_segments_quarter_length_frequency(self) -> str:
-        """Quarter length frequency in ``Coupled Segments`` topology of band pass filters where open becomes ground.
+        """
+        Quarter length frequency in ``Coupled Segments`` topology of band pass filters where open becomes ground.
         The default is ``4G``.
 
         Returns
@@ -1525,7 +1567,8 @@ class DistributedTopology:
         )
 
     def netlist(self):
-        """Calculate and generate spice netlist of the synthesized circuit.
+        """
+        Calculate and generate spice netlist of the synthesized circuit.
 
         Examples
         --------
@@ -1542,7 +1585,8 @@ class DistributedTopology:
 
     @property
     def quick_optimize(self) -> bool:
-        """Flag indicating if the quick optimization of the synthesized circuit is enabled.
+        """
+        Flag indicating if the quick optimization of the synthesized circuit is enabled.
         This option provides a more accurate solution than raw synthesis alone.
 
         Returns
@@ -1568,7 +1612,8 @@ class DistributedTopology:
 
     @property
     def resonator_length_extension(self) -> bool:
-        """Flag indicating if the resonator length extension for optimization of the synthesized circuit is enabled.
+        """
+        Flag indicating if the resonator length extension for optimization of the synthesized circuit is enabled.
         This parameter is applicable for the ``Interdigital`` topology of band pass filters.
 
         Returns

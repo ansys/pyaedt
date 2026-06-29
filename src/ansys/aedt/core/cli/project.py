@@ -22,7 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""Project and design management commands.
+"""
+Project and design management commands.
 
 Examples
 --------
@@ -82,7 +83,8 @@ class AEDTAppType(str, Enum):
 def list_projects(
     port: int = typer.Option(..., "--port", help="gRPC port of the AEDT instance"),
 ) -> None:
-    """List open projects together with their designs.
+    """
+    List open projects together with their designs.
 
     Examples
     --------
@@ -123,7 +125,8 @@ def open_project(
     port: int = typer.Option(..., "--port", help="gRPC port of the AEDT instance"),
     non_graphical: bool = typer.Option(False, "--non-graphical", "-ng", help="Open in non-graphical mode"),
 ) -> None:
-    """Open an AEDT project file.
+    """
+    Open an AEDT project file.
 
     Examples
     --------
@@ -155,7 +158,8 @@ def save_project(
     path: str = typer.Option(None, "--path", help="Save-as path ending with .aedt (omit to save in place)"),
     port: int = typer.Option(..., "--port", help="gRPC port of the AEDT instance"),
 ) -> None:
-    """Save the active AEDT project. Use --path for Save As.
+    """
+    Save the active AEDT project. Use --path for Save As.
 
     Examples
     --------
@@ -198,7 +202,8 @@ def create_project(
     design: str = typer.Option(None, "--design", "-d", help="Design name to create"),
     design_type: AEDTAppType = typer.Option(None, "--type", "-t", help="Design type (required with --design)"),
 ) -> None:
-    """Create a project, or create a design in a specified project.
+    """
+    Create a project, or create a design in a specified project.
 
     Examples
     --------
@@ -279,7 +284,8 @@ def close_project(
     port: int = typer.Option(..., "--port", help="gRPC port of the AEDT instance"),
     project: str = typer.Option(None, "--project", help="Project name to close (closes active if omitted)"),
 ) -> None:
-    """Close an AEDT project.
+    """
+    Close an AEDT project.
 
     Examples
     --------

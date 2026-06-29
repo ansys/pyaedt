@@ -43,7 +43,8 @@ json_mode = False
 
 
 def print_output(data=None, error=None):
-    """Print structured output. In JSON mode prints JSON; in human mode does nothing.
+    """
+    Print structured output. In JSON mode prints JSON; in human mode does nothing.
 
     Examples
     --------
@@ -95,7 +96,8 @@ def get_desktop(port: int):
 
 
 def get_project_designs(desktop, project_name: str) -> list[dict]:
-    """Return the designs available in a project.
+    """
+    Return the designs available in a project.
 
     Examples
     --------
@@ -112,7 +114,8 @@ def get_project_designs(desktop, project_name: str) -> list[dict]:
 
 
 def list_projects_with_designs(desktop) -> list[dict]:
-    """Return all open projects together with their designs.
+    """
+    Return all open projects together with their designs.
 
     Examples
     --------
@@ -141,7 +144,8 @@ def list_projects_with_designs(desktop) -> list[dict]:
 
 
 def resolve_project(desktop, project_name: str | None = None):
-    """Resolve a project, requiring an explicit choice when multiple are open.
+    """
+    Resolve a project, requiring an explicit choice when multiple are open.
 
     Examples
     --------
@@ -172,7 +176,8 @@ def resolve_project(desktop, project_name: str | None = None):
 
 
 def resolve_project_and_design(desktop, project_name: str | None = None, design_name: str | None = None) -> dict:
-    """Resolve a unique project and design selection for design-scoped commands.
+    """
+    Resolve a unique project and design selection for design-scoped commands.
 
     Examples
     --------
@@ -207,7 +212,8 @@ def resolve_project_and_design(desktop, project_name: str | None = None, design_
 
 
 def get_design_app(port: int, project_name: str | None = None, design_name: str | None = None):
-    """Return a Desktop and PyAEDT app for the resolved project and design.
+    """
+    Return a Desktop and PyAEDT app for the resolved project and design.
 
     Examples
     --------
@@ -244,7 +250,8 @@ DEFAULT_TEST_CONFIG = {
 
 
 def get_tests_folder() -> Path:
-    """Find the tests folder in the repository.
+    """
+    Find the tests folder in the repository.
 
     Returns
     -------
@@ -274,7 +281,8 @@ def get_tests_folder() -> Path:
 
 
 def load_config(config_path: Path) -> dict:
-    """Load configuration from JSON file.
+    """
+    Load configuration from JSON file.
 
     Parameters
     ----------
@@ -303,7 +311,8 @@ def load_config(config_path: Path) -> dict:
 
 
 def save_config(config_path: Path, config: dict) -> None:
-    """Save configuration to JSON file.
+    """
+    Save configuration to JSON file.
 
     Parameters
     ----------
@@ -326,7 +335,8 @@ def save_config(config_path: Path, config: dict) -> None:
 
 
 def prompt_config_value(key: str, current_value) -> any:
-    """Prompt user to modify a configuration value.
+    """
+    Prompt user to modify a configuration value.
 
     Parameters
     ----------
@@ -382,7 +392,8 @@ def prompt_config_value(key: str, current_value) -> any:
 
 
 def display_config(config: dict, title: str = "Configuration", descriptions: dict = None) -> None:
-    """Display configuration in a pretty formatted way.
+    """
+    Display configuration in a pretty formatted way.
 
     Parameters
     ----------

@@ -37,7 +37,8 @@ from ansys.aedt.core.base import PyAedtBase
 
 
 class Parser(PyAedtBase):
-    """Parser class that loads an HDM-format export file from HFSS SBR+, interprets its header and its binary content.
+    """
+    Parser class that loads an HDM-format export file from HFSS SBR+, interprets its header and its binary content.
 
     Except for the header, the binary content is not parsed until an explicit call to parse_message.
 
@@ -71,7 +72,8 @@ class Parser(PyAedtBase):
         self.binarycontent = binarycontent
 
     def parse_message(self):
-        """Parse the binary content of the HDM file.
+        """
+        Parse the binary content of the HDM file.
 
         Examples
         --------
@@ -92,7 +94,8 @@ class Parser(PyAedtBase):
             return self._parse_list(**self.parser_types[type_name])
 
     def _parse_simple_base_type(self, format: str = "i", size: int = 4, how_many: int = 1, final_type=None):
-        """Parser for int, float, complex, enum or flag.
+        """
+        Parser for int, float, complex, enum or flag.
 
         Can also parse a list of base types and convert them to another type if possible.
         """
@@ -122,7 +125,8 @@ class Parser(PyAedtBase):
         return res
 
     def _parse_list(self, type=None, base=None, size: int = 1):
-        """Parser for vector or list.
+        """
+        Parser for vector or list.
 
         A vector is interpreted in the linear algebra sense and converted to a NumPy array.
         A list is converted to a Python list. Only simple base types can be

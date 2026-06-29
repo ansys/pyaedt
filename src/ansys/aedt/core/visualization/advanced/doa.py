@@ -320,7 +320,8 @@ class DirectionOfArrival(PyAedtBase):
         plot_size: tuple = (1920, 1440),
         figure: "Figure" = None,
     ) -> ReportPlotter:
-        """Create angle of arrival plot.
+        """
+        Create angle of arrival plot.
 
         Parameters
         ----------

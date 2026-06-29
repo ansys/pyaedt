@@ -38,7 +38,8 @@ class Circulator(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node.
+        """
+        The type of this emit node.
 
         Examples
         --------
@@ -52,7 +53,8 @@ class Circulator(EmitNode):
 
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
-        """Duplicate this node
+        """
+        Duplicate this node
 
         Examples
         --------
@@ -66,7 +68,8 @@ class Circulator(EmitNode):
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node
+        """
+        Delete this node
 
         Examples
         --------
@@ -81,7 +84,8 @@ class Circulator(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def filename(self) -> str:
-        """Name of file defining the Isolator/Circulator.
+        """
+        Name of file defining the Isolator/Circulator.
 
         Value should be a full file path.
 
@@ -105,7 +109,8 @@ class Circulator(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def noise_temperature(self) -> float:
-        """System Noise temperature (K) of the component.
+        """
+        System Noise temperature (K) of the component.
 
         Value should be between 0 and 1000.
 
@@ -128,7 +133,8 @@ class Circulator(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def notes(self) -> str:
-        """Expand to view/edit notes stored with the project.
+        """
+        Expand to view/edit notes stored with the project.
 
         Examples
         --------
@@ -153,7 +159,8 @@ class Circulator(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def circulator_type(self) -> CirculatorTypeOption:
-        """Circulator Type.
+        """
+        Circulator Type.
 
         Type of circulator model to use. Options include: By File (measured or
         simulated) or Parametric.
@@ -178,7 +185,8 @@ class Circulator(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def insertion_loss(self) -> float:
-        """Circulator in-band loss in forward direction.
+        """
+        Circulator in-band loss in forward direction.
 
         Value should be between 0 and 100.
 
@@ -201,7 +209,8 @@ class Circulator(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def finite_reverse_isolation(self) -> bool:
-        """Finite Reverse Isolation.
+        """
+        Finite Reverse Isolation.
 
         Use a finite reverse isolation. If disabled, the  circulator model is
         ideal (infinite reverse isolation).
@@ -227,7 +236,8 @@ class Circulator(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def reverse_isolation(self) -> float:
-        """Circulator reverse isolation (i.e., loss in the reverse direction).
+        """
+        Circulator reverse isolation (i.e., loss in the reverse direction).
 
         Value should be between 0 and 100.
 
@@ -250,7 +260,8 @@ class Circulator(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def finite_bandwidth(self) -> bool:
-        """Finite Bandwidth.
+        """
+        Finite Bandwidth.
 
         Use a finite bandwidth. If disabled, the  circulator model is ideal
         (infinite bandwidth).
@@ -276,7 +287,8 @@ class Circulator(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def out_of_band_attenuation(self) -> float:
-        """Out-of-band loss (attenuation).
+        """
+        Out-of-band loss (attenuation).
 
         Value should be between 0 and 200.
 
@@ -299,7 +311,8 @@ class Circulator(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def lower_stop_band(self) -> float:
-        """Lower stop band frequency.
+        """
+        Lower stop band frequency.
 
         Value should be between 1 and 100e9.
 
@@ -324,7 +337,8 @@ class Circulator(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def lower_cutoff(self) -> float:
-        """Lower cutoff frequency.
+        """
+        Lower cutoff frequency.
 
         Value should be between 1 and 100e9.
 
@@ -349,7 +363,8 @@ class Circulator(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def higher_cutoff(self) -> float:
-        """Higher cutoff frequency.
+        """
+        Higher cutoff frequency.
 
         Value should be between 1 and 100e9.
 
@@ -374,7 +389,8 @@ class Circulator(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def higher_stop_band(self) -> float:
-        """Higher stop band frequency.
+        """
+        Higher stop band frequency.
 
         Value should be between 1 and 100e9.
         """

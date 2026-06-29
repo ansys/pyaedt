@@ -71,7 +71,8 @@ EXTENSION_TITLE = "Layout Parametrization"
 
 @dataclass
 class ParametrizeEdbExtensionData(ExtensionCommonData):
-    """Data class containing user input and computed data.
+    """
+    Data class containing user input and computed data.
 
     Examples
     --------
@@ -113,7 +114,8 @@ class ParametrizeEdbExtensionData(ExtensionCommonData):
 
 
 class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
-    """Extension for parametrizing EDB layouts in AEDT.
+    """
+    Extension for parametrizing EDB layouts in AEDT.
 
     Examples
     --------
@@ -192,7 +194,8 @@ class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
             raise AEDTRuntimeError(f"Failed to load AEDT information: {str(e)}")
 
     def add_extension_content(self) -> None:
-        """Add extension content to the UI.
+        """
+        Add extension content to the UI.
 
         Examples
         --------
@@ -311,7 +314,8 @@ class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
         self.generate_button.grid(row=5, column=1, columnspan=2, pady=20)
 
     def show_error_message(self, message: str):
-        """Show error message.
+        """
+        Show error message.
 
         Examples
         --------
@@ -325,7 +329,8 @@ class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
         tkinter.messagebox.showerror("Error", message)
 
     def generate_callback(self) -> None:
-        """Generate callback function.
+        """
+        Generate callback function.
 
         Examples
         --------
@@ -378,7 +383,8 @@ class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
 
 
 def main(data: ParametrizeEdbExtensionData) -> bool:
-    """Main function to run the parametrize EDB extension.
+    """
+    Main function to run the parametrize EDB extension.
 
     Examples
     --------

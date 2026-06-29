@@ -29,7 +29,8 @@ import ansys.aedt.core
 
 
 class DistributedParasitics:
-    """Defines parasitic parameters of distributed filters.
+    """
+    Defines parasitic parameters of distributed filters.
 
     This class allows you to define and modify the layout parasitics parameters of distributed filters.
 
@@ -115,7 +116,8 @@ class DistributedParasitics:
 
     @property
     def capacitor_q(self) -> str:
-        """Q factor value of non-ideal capacitors in the synthesized circuit.
+        """
+        Q factor value of non-ideal capacitors in the synthesized circuit.
         The default is ``infinite``.
 
         Returns
@@ -138,7 +140,8 @@ class DistributedParasitics:
 
     @property
     def capacitor_rs(self) -> str:
-        """Series resistor value of non-ideal capacitors in the synthesized circuit.
+        """
+        Series resistor value of non-ideal capacitors in the synthesized circuit.
         The default is ``0``.
 
         Returns
@@ -161,7 +164,8 @@ class DistributedParasitics:
 
     @property
     def capacitor_rp(self) -> str:
-        """Shunt resistor value of non-ideal capacitors in the synthesized circuit.
+        """
+        Shunt resistor value of non-ideal capacitors in the synthesized circuit.
         The default is ``infinite``.
 
         Returns
@@ -184,7 +188,8 @@ class DistributedParasitics:
 
     @property
     def capacitor_ls(self) -> str:
-        """Series inductance value of non-ideal capacitors in the synthesized circuit.
+        """
+        Series inductance value of non-ideal capacitors in the synthesized circuit.
         The default is ``0``.
 
         Returns
@@ -207,7 +212,8 @@ class DistributedParasitics:
 
     @property
     def inductor_q(self) -> str:
-        """Q factor value of non-ideal inductors in the synthesized circuit.
+        """
+        Q factor value of non-ideal inductors in the synthesized circuit.
         The default is ``infinite``.
 
         Returns
@@ -230,7 +236,8 @@ class DistributedParasitics:
 
     @property
     def inductor_rs(self) -> str:
-        """Series resistor value of non-ideal inductors in the synthesized circuit.
+        """
+        Series resistor value of non-ideal inductors in the synthesized circuit.
         The default is` ``0``.
 
         Returns
@@ -253,7 +260,8 @@ class DistributedParasitics:
 
     @property
     def inductor_rp(self) -> str:
-        """Shunt resistor value of non-ideal inductors in the synthesized circuit.
+        """
+        Shunt resistor value of non-ideal inductors in the synthesized circuit.
         The default is ``infinite``.
 
         Returns
@@ -276,7 +284,8 @@ class DistributedParasitics:
 
     @property
     def inductor_cp(self) -> str:
-        """Shunt capacitor value of non-ideal inductors in the synthesized circuit.
+        """
+        Shunt capacitor value of non-ideal inductors in the synthesized circuit.
         The default is ``0``.
 
         Returns
@@ -299,7 +308,8 @@ class DistributedParasitics:
 
     @property
     def line_odd_resistance(self) -> str:
-        """Odd-mode conductor resistance value of the line per unit length.
+        """
+        Odd-mode conductor resistance value of the line per unit length.
         This parameter is defined for standard ``RLGC`` transmission line model substrate types.
         The default is ``0``.
 
@@ -323,7 +333,8 @@ class DistributedParasitics:
 
     @property
     def line_even_resistance(self) -> str:
-        """Even-mode conductor resistance value of the line per unit length.
+        """
+        Even-mode conductor resistance value of the line per unit length.
         This parameter is defined for standard ``RLGC`` transmission line model substrate types.
         The default is ``0``.
 
@@ -347,7 +358,8 @@ class DistributedParasitics:
 
     @property
     def line_odd_conductance(self) -> str:
-        """Odd-mode dielectric conductance of the line per unit length.
+        """
+        Odd-mode dielectric conductance of the line per unit length.
         This parameter is defined for standard ``RLGC`` transmission line model substrate types.
         The default is ``0``.
 
@@ -371,7 +383,8 @@ class DistributedParasitics:
 
     @property
     def line_even_conductance(self) -> str:
-        """Even-mode dielectric conductance of the line per unit length.
+        """
+        Even-mode dielectric conductance of the line per unit length.
         This parameter is defined for standard ``RLGC`` transmission line model substrate types.
         The default is ``0``.
 
@@ -395,7 +408,8 @@ class DistributedParasitics:
 
     @property
     def line_min_segment_lengths(self) -> str:
-        """Default value for the minimum segment lengths between stubs.
+        """
+        Default value for the minimum segment lengths between stubs.
         This parameter is defined for standard ``RLGC`` transmission line model substrate types.
         The default is ``0``.
 

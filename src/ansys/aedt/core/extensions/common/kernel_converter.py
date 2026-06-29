@@ -94,7 +94,8 @@ EXTENSION_TITLE = "Kernel Converter"
 
 @dataclass
 class KernelConverterExtensionData(ExtensionCommonData):
-    """Data class containing user input and computed data.
+    """
+    Data class containing user input and computed data.
 
     Examples
     --------
@@ -114,7 +115,8 @@ class KernelConverterExtensionData(ExtensionCommonData):
 
 
 class KernelConverterExtension(ExtensionProjectCommon):
-    """Extension for kernel converter in AEDT.
+    """
+    Extension for kernel converter in AEDT.
 
     Examples
     --------
@@ -143,7 +145,8 @@ class KernelConverterExtension(ExtensionProjectCommon):
         self.add_extension_content()
 
     def add_extension_content(self) -> None:
-        """Add custom content to the extension UI.
+        """
+        Add custom content to the extension UI.
 
         Examples
         --------
@@ -420,7 +423,8 @@ def _convert_aedt(extension_args, output_desktop, input_desktop) -> None:
 
 
 def main(data: KernelConverterExtensionData) -> bool:  # pragma: no cover
-    """Main function to run the kernel converter extension.
+    """
+    Main function to run the kernel converter extension.
 
     Examples
     --------

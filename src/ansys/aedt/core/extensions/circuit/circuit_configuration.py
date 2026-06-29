@@ -69,7 +69,8 @@ DESIGN_TYPE_ERROR_MSG = "A Circuit design is needed for this extension."
 
 @dataclass
 class CircuitConfigurationData(ExtensionCommonData):
-    """Data class containing user input and computed data.
+    """
+    Data class containing user input and computed data.
 
     Examples
     --------
@@ -85,7 +86,8 @@ class CircuitConfigurationData(ExtensionCommonData):
 
 
 class CircuitConfigurationExtension(ExtensionCircuitCommon):
-    """Circuit configuration extension.
+    """
+    Circuit configuration extension.
 
     Examples
     --------
@@ -130,7 +132,8 @@ class CircuitConfigurationExtension(ExtensionCircuitCommon):
         self.root.destroy()
 
     def add_extension_content(self) -> None:
-        """Add custom content to the extension UI.
+        """
+        Add custom content to the extension UI.
 
         Examples
         --------
@@ -163,7 +166,8 @@ class CircuitConfigurationExtension(ExtensionCircuitCommon):
 
 
 def main(data: CircuitConfigurationData) -> bool:
-    """Main function to execute circuit configuration extension.
+    """
+    Main function to execute circuit configuration extension.
 
     Examples
     --------

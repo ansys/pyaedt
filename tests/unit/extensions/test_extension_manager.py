@@ -1016,7 +1016,8 @@ def test_extension_manager_category_matched_by_lower(mock_toolkits, mock_desktop
 
 @pytest.fixture(autouse=True)
 def _patch_log_threads(monkeypatch, request):
-    """Disable real background log-stream threads in most tests to avoid
+    """
+    Disable real background log-stream threads in most tests to avoid
     hangs and cross-thread interactions with mocks/tkinter. Tests that need
     the real behavior can opt-out by name (listed in ALLOW_REAL).
     """

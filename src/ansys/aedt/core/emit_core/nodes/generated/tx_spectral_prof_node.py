@@ -38,7 +38,8 @@ class TxSpectralProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
-        """The parent of this emit node.
+        """
+        The parent of this emit node.
 
         Examples
         --------
@@ -54,7 +55,8 @@ class TxSpectralProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node.
+        """
+        The type of this emit node.
 
         Examples
         --------
@@ -90,7 +92,8 @@ class TxSpectralProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def enabled(self) -> bool:
-        """Enabled state for this node.
+        """
+        Enabled state for this node.
 
         Examples
         --------
@@ -115,7 +118,8 @@ class TxSpectralProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def spectrum_type(self) -> SpectrumTypeOption:
-        """Specifies EMI Margins to calculate.
+        """
+        Specifies EMI Margins to calculate.
 
         Examples
         --------
@@ -142,7 +146,8 @@ class TxSpectralProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def tx_power(self) -> TxPowerOption:
-        """Method used to specify the power.
+        """
+        Method used to specify the power.
 
         Examples
         --------
@@ -165,7 +170,8 @@ class TxSpectralProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def peak_power(self) -> float:
-        """Tx's carrier frequency peak power.
+        """
+        Tx's carrier frequency peak power.
 
         Value should be between -1000 and 1000.
 
@@ -191,7 +197,8 @@ class TxSpectralProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def average_power(self) -> float:
-        """Tx's fundamental level specified by average power.
+        """
+        Tx's fundamental level specified by average power.
 
         Value should be between -1000 and 1000.
 
@@ -217,7 +224,8 @@ class TxSpectralProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def include_phase_noise(self) -> bool:
-        """Include oscillator phase noise in Tx spectral profile.
+        """
+        Include oscillator phase noise in Tx spectral profile.
 
         Value should be 'true' or 'false'.
 
@@ -241,7 +249,8 @@ class TxSpectralProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def tx_broadband_noise(self) -> float:
-        """Transmitters broadband noise level.
+        """
+        Transmitters broadband noise level.
 
         Value should be less than 1000.
 
@@ -271,7 +280,8 @@ class TxSpectralProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def harmonic_taper(self) -> HarmonicTaperOption:
-        """Taper type used to set amplitude of harmonics.
+        """
+        Taper type used to set amplitude of harmonics.
 
         Examples
         --------
@@ -294,7 +304,8 @@ class TxSpectralProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def harmonic_amplitude(self) -> float:
-        """Amplitude (relative to the carrier power) of harmonics.
+        """
+        Amplitude (relative to the carrier power) of harmonics.
 
         Value should be between -1000 and 0.
 
@@ -318,7 +329,8 @@ class TxSpectralProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def harmonic_slope(self) -> float:
-        """Rate of decrease for harmonics' amplitudes (dB/decade).
+        """
+        Rate of decrease for harmonics' amplitudes (dB/decade).
 
         Value should be between -1000 and 0.
 
@@ -342,7 +354,8 @@ class TxSpectralProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def harmonic_intercept(self) -> float:
-        """Amplitude intercept at the fundamental (dBc).
+        """
+        Amplitude intercept at the fundamental (dBc).
 
         Value should be between -1000 and 0.
 
@@ -366,7 +379,8 @@ class TxSpectralProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def enable_harmonic_bw_expansion(self) -> bool:
-        """Enable Harmonic BW Expansion.
+        """
+        Enable Harmonic BW Expansion.
 
         If (True), bandwidth of harmonics increases proportional to the harmonic
         number.
@@ -393,7 +407,8 @@ class TxSpectralProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def number_of_harmonics(self) -> int:
-        """Maximum number of harmonics modeled.
+        """
+        Maximum number of harmonics modeled.
 
         Value should be between 1 and 1000.
 
@@ -417,7 +432,8 @@ class TxSpectralProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def second_harmonic_level(self) -> float:
-        """Amplitude (relative to the carrier power) of the 2nd harmonic.
+        """
+        Amplitude (relative to the carrier power) of the 2nd harmonic.
 
         Value should be between -1000 and 0.
 
@@ -441,7 +457,8 @@ class TxSpectralProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def third_harmonic_level(self) -> float:
-        """Amplitude (relative to the carrier power) of the 3rd harmonic.
+        """
+        Amplitude (relative to the carrier power) of the 3rd harmonic.
 
         Value should be between -1000 and 0.
 
@@ -465,7 +482,8 @@ class TxSpectralProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def other_harmonic_levels(self) -> float:
-        """Other Harmonic Levels.
+        """
+        Other Harmonic Levels.
 
         Amplitude (relative to the carrier power) of the higher order harmonics.
 
@@ -491,7 +509,8 @@ class TxSpectralProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def perform_tx_intermod_analysis(self) -> bool:
-        """Performs a non-linear intermod analysis for the Tx.
+        """
+        Performs a non-linear intermod analysis for the Tx.
 
         Value should be 'true' or 'false'.
 
@@ -515,7 +534,8 @@ class TxSpectralProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def internal_amp_gain(self) -> float:
-        """Internal Tx Amplifier's Gain.
+        """
+        Internal Tx Amplifier's Gain.
 
         Value should be between -1000 and 1000.
 
@@ -539,7 +559,8 @@ class TxSpectralProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def noise_figure(self) -> float:
-        """Internal Tx Amplifier's noise figure.
+        """
+        Internal Tx Amplifier's noise figure.
 
         Value should be between 0 and 50.
 
@@ -563,7 +584,8 @@ class TxSpectralProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def amplifier_saturation_level(self) -> float:
-        """Internal Tx Amplifier's Saturation Level.
+        """
+        Internal Tx Amplifier's Saturation Level.
 
         Value should be between -200 and 200.
 
@@ -589,7 +611,8 @@ class TxSpectralProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def p1_db_point_ref_input(self) -> float:
-        """P1-dB Point, Ref. Input .
+        """
+        P1-dB Point, Ref. Input .
 
         Internal Tx Amplifier's 1 dB Compression Point - total power > P1dB
         saturates the internal Tx amplifier.
@@ -619,7 +642,8 @@ class TxSpectralProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def ip3_ref_input(self) -> float:
-        """Internal Tx Amplifier's 3rd order intercept point.
+        """
+        Internal Tx Amplifier's 3rd order intercept point.
 
         Value should be between -200 and 200.
 
@@ -646,7 +670,8 @@ class TxSpectralProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def reverse_isolation(self) -> float:
-        """Internal Tx Amplifier's Reverse Isolation.
+        """
+        Internal Tx Amplifier's Reverse Isolation.
 
         Value should be between -200 and 200.
 
@@ -671,7 +696,8 @@ class TxSpectralProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def max_intermod_order(self) -> int:
-        """Internal Tx Amplifier's maximum intermod order to compute.
+        """
+        Internal Tx Amplifier's maximum intermod order to compute.
 
         Value should be between 3 and 20.
 

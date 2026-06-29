@@ -62,7 +62,8 @@ if TYPE_CHECKING:
 
 
 class PostProcessor3D(PostProcessorCommon, PyAedtBase):
-    """Manages the main AEDT postprocessing functions.
+    """
+    Manages the main AEDT postprocessing functions.
 
     The inherited ``AEDTConfig`` class contains all ``_desktop``
     hierarchical calls needed for the class initialization data
@@ -100,7 +101,8 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
 
     @property
     def _primitives(self):  # pragma: no cover
-        """Primitives.
+        """
+        Primitives.
 
         Returns
         -------
@@ -112,7 +114,8 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
 
     @property
     def model_units(self) -> str:
-        """Model units.
+        """
+        Model units.
 
         Returns
         -------
@@ -130,7 +133,8 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
 
     @property
     def post_osolution(self):
-        """Solution.
+        """
+        Solution.
 
         Returns
         -------
@@ -148,7 +152,8 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
 
     @property
     def ofieldsreporter(self):
-        """Fields reporter.
+        """
+        Fields reporter.
 
         Returns
         -------
@@ -169,7 +174,8 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
 
     @property
     def field_plot_names(self) -> list[str]:
-        """Fields plot names.
+        """
+        Fields plot names.
 
         Returns
         -------
@@ -389,7 +395,8 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
 
     @pyaedt_function_handler()
     def change_field_property(self, plot_name: str, property_name: str, property_value: Any) -> bool:
-        """Modify a field plot property.
+        """
+        Modify a field plot property.
 
         Parameters
         ----------
@@ -440,7 +447,8 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         object_type: str = "volume",
         adjacent_side: bool = False,
     ) -> float:
-        """Use the field calculator to Compute Scalar of a Field.
+        """
+        Use the field calculator to Compute Scalar of a Field.
 
         Parameters
         ----------
@@ -589,7 +597,8 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         export_in_si_system: bool = True,
         export_field_in_reference: bool = True,
     ) -> str | bool:
-        """Use the field calculator to create a field file on a grid based on a solution and variation.
+        """
+        Use the field calculator to create a field file on a grid based on a solution and variation.
 
         Parameters
         ----------
@@ -772,7 +781,8 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         export_in_si_system: bool = True,
         export_field_in_reference: bool = True,
     ) -> bool:
-        """Use the field calculator to create a field file based on a solution and variation.
+        """
+        Use the field calculator to create a field file based on a solution and variation.
 
         Parameters
         ----------
@@ -955,7 +965,8 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
     def export_field_plot(
         self, plot_name: str, output_dir: str | Path, file_name: str = "", file_format: str = "aedtplt"
     ) -> str | bool:
-        r"""Export a field plot.
+        r"""
+        Export a field plot.
 
         .. note:
            This method works only when the plot is active when it is run.
@@ -1071,7 +1082,8 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         plot_name: str = None,
         field_type: str = "DC R/L Fields",
     ) -> FieldPlot:
-        """Create a field plot of the line.
+        """
+        Create a field plot of the line.
 
         Parameters
         ----------
@@ -1144,7 +1156,8 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         plot_name: str = None,
         field_type: str = "DC R/L Fields",
     ) -> FieldPlot:
-        """Create a field plot of surfaces.
+        """
+        Create a field plot of surfaces.
 
         Parameters
         ----------
@@ -1214,7 +1227,8 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         filter_objects: list[str] = None,
         field_type: str = "DC R/L Fields",
     ) -> FieldPlot:
-        """Create a field plot of cut planes.
+        """
+        Create a field plot of cut planes.
 
         Parameters
         ----------
@@ -1303,7 +1317,8 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         plot_name: str = None,
         field_type: str = "DC R/L Fields",
     ) -> FieldPlot:
-        """Create a field plot of volumes.
+        """
+        Create a field plot of volumes.
 
         Parameters
         ----------
@@ -1387,7 +1402,8 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         show_ruler: bool = True,
         show_region: str = "Default",
     ) -> bool:
-        r"""Export a field plot and coordinate system to a JPG file.
+        r"""
+        Export a field plot and coordinate system to a JPG file.
 
         Parameters
         ----------
@@ -1481,7 +1497,8 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
 
     @pyaedt_function_handler()
     def delete_field_plot(self, name: str) -> bool:
-        """Delete a field plot.
+        """
+        Delete a field plot.
 
         Parameters
         ----------
@@ -1522,7 +1539,8 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         width: int = 0,
         height: int = 0,
     ) -> str:
-        """Export a snapshot of the model to a ``JPG`` file.
+        """
+        Export a snapshot of the model to a ``JPG`` file.
 
         .. note::
            This method works only when AEDT is running in the graphical mode.
@@ -1637,7 +1655,8 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         export_as_multiple_objects: bool = False,
         air_objects: bool = False,
     ) -> list[str]:
-        r"""Export the model.
+        r"""
+        Export the model.
 
         Parameters
         ----------
@@ -1724,7 +1743,8 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         export_air_objects: bool = False,
         on_surfaces: bool = True,
     ) -> str | None:
-        """Export the mesh in AEDTPLT format.
+        """
+        Export the mesh in AEDTPLT format.
 
         The mesh has to be available in the selected setup.
         If a parametric model is provided, you can choose the mesh to export by providing a specific set of variations.
@@ -1800,7 +1820,8 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
 
     @pyaedt_function_handler()
     def nb_display(self, show_axis: bool = True, show_grid: bool = True, show_ruler: bool = True):
-        """Show the Jupyter Notebook display.
+        """
+        Show the Jupyter Notebook display.
 
           .. note::
               .assign_curvature_extraction Jupyter Notebook is not supported by IronPython.
@@ -1841,7 +1862,8 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_efields_data(self, setup_sweep_name: str = "", ff_setup: str = "Infinite Sphere1") -> dict[str, Any]:
-        """Compute Etheta and EPhi.
+        """
+        Compute Etheta and EPhi.
 
         .. warning::
            This method requires NumPy to be installed on your machine.
@@ -1928,7 +1950,8 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         generate_mesh: bool = True,
         get_objects_from_aedt: bool = True,
     ) -> "ModelPlotter":
-        """Initialize the Model Plotter object with actual modeler objects and return it.
+        """
+        Initialize the Model Plotter object with actual modeler objects and return it.
 
         Parameters
         ----------
@@ -2002,7 +2025,8 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         show_bounding: bool = False,
         show_grid: bool = False,
     ) -> "ModelPlotter":
-        """Plot the model or a substet of objects.
+        """
+        Plot the model or a substet of objects.
 
         Parameters
         ----------
@@ -2098,7 +2122,8 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         plot_as_separate_objects: bool = True,
         file_format: str = "case",
     ) -> "ModelPlotter":
-        """Export a field plot to an image file (JPG or PNG) using Python PyVista.
+        """
+        Export a field plot to an image file (JPG or PNG) using Python PyVista.
 
         This method does not support streamlines plot.
 
@@ -2241,7 +2266,8 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         plot_as_separate_objects: bool = True,
         file_format: str = "case",
     ) -> "ModelPlotter":
-        """Create a field plot  using Python PyVista and export to an image file (JPG or PNG).
+        """
+        Create a field plot  using Python PyVista and export to an image file (JPG or PNG).
 
         .. note::
            The PyVista module rebuilds the mesh and the overlap fields on the mesh.
@@ -2391,7 +2417,8 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         filter_objects: list[str] = None,
         file_format: str = "case",
     ) -> "ModelPlotter":
-        """Create an animated field plot using Python PyVista and export to a gif file.
+        """
+        Create an animated field plot using Python PyVista and export to a gif file.
 
         .. note::
            The PyVista module rebuilds the mesh and the overlap fields on the mesh.
@@ -2546,7 +2573,8 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         show_bounding: bool = False,
         show_grid: bool = False,
     ) -> "ModelPlotter":
-        """Generate a field plot to an image file (JPG or PNG) using PyVista.
+        """
+        Generate a field plot to an image file (JPG or PNG) using PyVista.
 
         .. note::
            The PyVista module rebuilds the mesh and the overlap fields on the mesh.
@@ -2647,7 +2675,8 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         snapshot_path: str | Path = None,
         show: bool = True,
     ) -> bool:
-        """Create a 3D plot using Matplotlib.
+        """
+        Create a 3D plot using Matplotlib.
 
         Parameters
         ----------
@@ -2701,7 +2730,8 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         convert_fields_in_db: bool = False,
         log_multiplier: float = 10.0,
     ) -> bool:
-        r"""Plot the current model 3D scene with overlapping animation coming from a file list and save the gif.
+        r"""
+        Plot the current model 3D scene with overlapping animation coming from a file list and save the gif.
 
         Parameters
         ----------

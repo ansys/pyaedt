@@ -78,7 +78,8 @@ WAITING_FOR_SELECTION = "Waiting for selection..."
 
 @dataclass
 class CutoutData(ExtensionCommonData):
-    """Data class containing user input and computed data.
+    """
+    Data class containing user input and computed data.
 
     Examples
     --------
@@ -100,7 +101,8 @@ class CutoutData(ExtensionCommonData):
 
 
 class CutoutExtension(ExtensionHFSS3DLayoutCommon):
-    """Class to create a cutout in an HFSS 3D Layout design.
+    """
+    Class to create a cutout in an HFSS 3D Layout design.
 
     Examples
     --------
@@ -121,7 +123,8 @@ class CutoutExtension(ExtensionHFSS3DLayoutCommon):
         self.add_extension_content()
 
     def add_extension_content(self) -> None:
-        """Add custom content to the extension UI.
+        """
+        Add custom content to the extension UI.
 
         Examples
         --------
@@ -225,7 +228,8 @@ class CutoutExtension(ExtensionHFSS3DLayoutCommon):
 
     @property
     def objects_net(self) -> dict:
-        """Get objects by net from the EDB modeler.
+        """
+        Get objects by net from the EDB modeler.
 
         Examples
         --------
@@ -238,7 +242,8 @@ class CutoutExtension(ExtensionHFSS3DLayoutCommon):
 
     @property
     def widgets(self) -> dict:
-        """Get mapping to the extension's widgets.
+        """
+        Get mapping to the extension's widgets.
 
         Examples
         --------
@@ -251,7 +256,8 @@ class CutoutExtension(ExtensionHFSS3DLayoutCommon):
 
     @property
     def execute_cutout(self) -> bool:
-        """Get whether the cutout should be executed.
+        """
+        Get whether the cutout should be executed.
 
         Examples
         --------
@@ -331,7 +337,8 @@ class CutoutExtension(ExtensionHFSS3DLayoutCommon):
 
 
 def main(data: CutoutData) -> Path:
-    """Main function to execute the cutout operation.
+    """
+    Main function to execute the cutout operation.
 
     Examples
     --------

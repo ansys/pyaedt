@@ -31,7 +31,8 @@ from ansys.aedt.core.modeler.cad.primitives_2d import Primitives2D
 
 
 class ModelerRMxprt(Modeler, PyAedtBase):
-    """Provides the Modeler RMxprt application interface.
+    """
+    Provides the Modeler RMxprt application interface.
 
     This class is inherited in the caller application and is accessible through the modeler variable
     object( eg. ``rmxprt.modeler``).
@@ -50,7 +51,8 @@ class ModelerRMxprt(Modeler, PyAedtBase):
 
     @property
     def oeditor(self):
-        """The oEditor Module.
+        """
+        The oEditor Module.
 
         References
         ----------
@@ -67,7 +69,8 @@ class ModelerRMxprt(Modeler, PyAedtBase):
 
 
 class Modeler2D(Primitives2D, PyAedtBase):
-    """Provides the Modeler 2D application interface.
+    """
+    Provides the Modeler 2D application interface.
 
     This class is inherited in the caller application and is accessible through the modeler variable
     object( eg. ``maxwell2d.modeler``).
@@ -91,7 +94,8 @@ class Modeler2D(Primitives2D, PyAedtBase):
 
     @pyaedt_function_handler()
     def calculate_radius_2D(self, assignment: str, inner: bool = False) -> float:
-        """Calculate the extremity of an object in the radial direction.
+        """
+        Calculate the extremity of an object in the radial direction.
 
         Parameters
         ----------
@@ -140,7 +144,8 @@ class Modeler2D(Primitives2D, PyAedtBase):
 
     @pyaedt_function_handler()
     def radial_split_2D(self, radius: float, name: str) -> bool:
-        """Split the stator and rotor for mesh refinement.
+        """
+        Split the stator and rotor for mesh refinement.
 
         Parameters
         ----------
@@ -172,7 +177,8 @@ class Modeler2D(Primitives2D, PyAedtBase):
 
     @pyaedt_function_handler()
     def objects_in_bounding_box(self, bounding_box: list, check_lines: bool = True, check_sheets: bool = True) -> list:
-        """Given a 2D bounding box, check if sheets and lines are inside it.
+        """
+        Given a 2D bounding box, check if sheets and lines are inside it.
 
         Parameters
         ----------

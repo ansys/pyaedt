@@ -26,7 +26,8 @@ import copy
 
 
 def HFSS3DLayout_AdaptiveFrequencyData(freq):
-    """Update HFSS 3D adaptive frequency data.
+    """
+    Update HFSS 3D adaptive frequency data.
 
     Parameters
     ----------
@@ -2265,7 +2266,8 @@ icepak_natural_convection_update = {
 
 
 class SetupKeys:
-    """Provides setup keys.
+    """
+    Provides setup keys.
 
     Examples
     --------

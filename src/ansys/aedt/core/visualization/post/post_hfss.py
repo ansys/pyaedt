@@ -48,7 +48,8 @@ if TYPE_CHECKING:
 
 
 class PostProcessorHFSS(PostProcessor3D, PyAedtBase):
-    """Manages the specific HFSS postprocessing functions.
+    """
+    Manages the specific HFSS postprocessing functions.
 
     .. note::
        Some functionalities are available only when AEDT is running in the graphical mode.
@@ -78,7 +79,8 @@ class PostProcessorHFSS(PostProcessor3D, PyAedtBase):
         domain: str = "Infinite Sphere1",
         sweeps: dict = None,
     ) -> "SolutionData":
-        """Generate far field data using the ``GetSolutionDataPerVariation()`` method.
+        """
+        Generate far field data using the ``GetSolutionDataPerVariation()`` method.
 
         This method returns the data ``solData``, ``ThetaVals``,
         ``PhiVals``, ``ScanPhiVals``, ``ScanThetaVals``, and
@@ -142,7 +144,8 @@ class PostProcessorHFSS(PostProcessor3D, PyAedtBase):
         incident_phi: int = 0,
         is_vertical_polarization: bool = False,
     ) -> "VRTFieldPlot":
-        """Create a Creeping Wave Plane Wave Visual Ray Tracing and return the class object.
+        """
+        Create a Creeping Wave Plane Wave Visual Ray Tracing and return the class object.
 
         Parameters
         ----------
@@ -197,7 +200,8 @@ class PostProcessorHFSS(PostProcessor3D, PyAedtBase):
         irregular_surface_tolerance: int = 50,
         custom_location: list = None,
     ) -> "VRTFieldPlot":
-        """Create a Creeping Wave Point Source Visual Ray Tracing and return the class object.
+        """
+        Create a Creeping Wave Point Source Visual Ray Tracing and return the class object.
 
         Parameters
         ----------
@@ -256,7 +260,8 @@ class PostProcessorHFSS(PostProcessor3D, PyAedtBase):
         ray_index_step: int = 1,
         ray_box: int | str = None,
     ) -> "VRTFieldPlot":
-        """Create an SBR Plane Wave Visual Ray Tracing and return the class object.
+        """
+        Create an SBR Plane Wave Visual Ray Tracing and return the class object.
 
         Parameters
         ----------
@@ -335,7 +340,8 @@ class PostProcessorHFSS(PostProcessor3D, PyAedtBase):
         ray_index_step: int = 1,
         ray_box: int | str = None,
     ) -> "VRTFieldPlot":
-        """Create an SBR Point Source Visual Ray Tracing and return the class object.
+        """
+        Create an SBR Point Source Visual Ray Tracing and return the class object.
 
         Parameters
         ----------
@@ -396,7 +402,8 @@ class PostProcessorHFSS(PostProcessor3D, PyAedtBase):
 
     @pyaedt_function_handler()
     def set_tuning_offset(self, setup: str, offsets: dict) -> bool:
-        """Set derivative variable to a specific offset value.
+        """
+        Set derivative variable to a specific offset value.
 
         Parameters
         ----------
@@ -434,7 +441,8 @@ class PostProcessorHFSS(PostProcessor3D, PyAedtBase):
         name: str | None = None,
     ) -> "FieldPlot":
         # type: (list, str, str, list, bool, dict, str) -> FieldPlot
-        """Create a field plot of stacked layer plot.
+        """
+        Create a field plot of stacked layer plot.
 
         This plot is valid from AEDT 2023 R2 and later. Nets can be used as a filter.
         Dielectrics will be included into the plot.
@@ -504,7 +512,8 @@ class PostProcessorHFSS(PostProcessor3D, PyAedtBase):
         plot_name: str = None,
     ) -> "FieldPlot":
         # type: (list, str, str, dict, bool, str) -> FieldPlot
-        """Create a field plot of stacked layer plot on specified matrix of layers and nets.
+        """
+        Create a field plot of stacked layer plot on specified matrix of layers and nets.
 
         This plot is valid from AEDT 2023 R2 and later in HFSS 3D Layout
         and any modeler where a layout component is used.

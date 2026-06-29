@@ -59,7 +59,8 @@ if TYPE_CHECKING:
 
 
 class FieldAnalysis3D(Analysis, PyAedtBase):
-    """Manages 3D field analysis setup in HFSS, Maxwell 3D, and Q3D.
+    """
+    Manages 3D field analysis setup in HFSS, Maxwell 3D, and Q3D.
 
     This class is automatically initialized by an application call from one of
     the 3D tools. See the application function for parameter definitions.
@@ -163,7 +164,8 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
 
     @property
     def configurations(self) -> Configurations:
-        """Property to import and export configuration files.
+        """
+        Property to import and export configuration files.
 
         Returns
         -------
@@ -180,7 +182,8 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
 
     @property
     def modeler(self) -> Modeler3D | Modeler2D:
-        """Modeler.
+        """
+        Modeler.
 
         Returns
         -------
@@ -206,7 +209,8 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
 
     @property
     def mesh(self) -> Mesh:
-        """Mesh.
+        """
+        Mesh.
 
         Returns
         -------
@@ -241,7 +245,8 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         | PostProcessorMaxwell
         | PostProcessorHFSS
     ):
-        """PostProcessor.
+        """
+        PostProcessor.
 
         Returns
         -------
@@ -263,7 +268,8 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
 
     @property
     def components3d(self) -> dict:
-        """3D components.
+        """
+        3D components.
 
         Returns
         -------
@@ -310,7 +316,8 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         show_grid: bool = False,
         show_bounding: bool = False,
     ) -> ModelPlotter:
-        """Plot the model or a subset of objects.
+        """
+        Plot the model or a subset of objects.
 
         Parameters
         ----------
@@ -375,7 +382,8 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
 
     @pyaedt_function_handler()
     def export_mesh_stats(self, setup: str, variations: str = "", output_file: str = None) -> str:
-        """Export mesh statistics to a file.
+        """
+        Export mesh statistics to a file.
 
         Parameters
         ----------
@@ -410,7 +418,8 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_component_variables(self, name: str | Path) -> dict:
-        """Read component file and extract variables.
+        """
+        Read component file and extract variables.
 
         Parameters
         ----------
@@ -439,7 +448,8 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_property_value(self, assignment: str, property_name: str, property_type: str = None) -> any:
-        """Retrieve a property value.
+        """
+        Retrieve a property value.
 
         Parameters
         ----------
@@ -504,7 +514,8 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         no_pec: bool = True,
         include_sheets: bool = False,
     ) -> bool:
-        """Copy a list of objects and user defined models from one design to the active design.
+        """
+        Copy a list of objects and user defined models from one design to the active design.
 
         If user defined models are selected, the project will be saved automatically. If the destination design
         is not the same application type, 3DComponents are not copied.
@@ -615,7 +626,8 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         merge_planar_faces: bool = True,
         input_file_unit: str = "Auto",
     ) -> bool:
-        """Import a CAD model.
+        """
+        Import a CAD model.
 
         Parameters
         ----------
@@ -701,7 +713,8 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         major_version: int = -1,
         minor_version: int = -1,
     ) -> bool:
-        """Export the 3D model.
+        """
+        Export the 3D model.
 
         Parameters
         ----------
@@ -748,7 +761,8 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_all_sources(self) -> list[str]:
-        """Retrieve all setup sources.
+        """
+        Retrieve all setup sources.
 
         Returns
         -------
@@ -770,7 +784,8 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_all_source_modes(self) -> list[str]:
-        """Retrieve all source modes.
+        """
+        Retrieve all source modes.
 
         Returns
         -------
@@ -792,7 +807,8 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
 
     @pyaedt_function_handler()
     def set_source_context(self, sources: list[str], number_of_modes: int = 1) -> bool:
-        """Set the source context.
+        """
+        Set the source context.
 
         Parameters
         ----------
@@ -829,7 +845,8 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
 
     @pyaedt_function_handler()
     def assign_material(self, assignment: str | list, material: str) -> bool:
-        """Assign a material to one or more objects.
+        """
+        Assign a material to one or more objects.
 
         Parameters
         ----------
@@ -936,7 +953,8 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_all_conductors_names(self) -> list[str]:
-        """Retrieve all conductors in the active design.
+        """
+        Retrieve all conductors in the active design.
 
         Returns
         -------
@@ -967,7 +985,8 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_all_dielectrics_names(self) -> list[str]:
-        """Retrieve all dielectrics in the active design.
+        """
+        Retrieve all dielectrics in the active design.
 
         Returns
         -------
@@ -1012,7 +1031,8 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
 
     @pyaedt_function_handler()
     def assignmaterial_from_sherlock_files(self, component_file: str, material_file: str) -> bool:
-        """Assign material to objects in a design based on a CSV file obtained from Sherlock.
+        """
+        Assign material to objects in a design based on a CSV file obtained from Sherlock.
 
         Parameters
         ----------
@@ -1139,7 +1159,8 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         mesh: bool = True,
         linked_data: bool = True,
     ) -> bool:
-        """Delete a set of Solution Variations or part of them.
+        """
+        Delete a set of Solution Variations or part of them.
 
         Parameters
         ----------
@@ -1179,7 +1200,8 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
 
     @pyaedt_function_handler
     def add_stackup_3d(self) -> Stackup3D:
-        """Create a stackup 3D object.
+        """
+        Create a stackup 3D object.
 
         Returns
         -------
@@ -1201,7 +1223,8 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
     def flatten_3d_components(
         self, components: str | list = None, purge_history: bool = True, password: str = None
     ) -> bool:
-        """Flatten one or multiple 3d components in the actual layout.
+        """
+        Flatten one or multiple 3d components in the actual layout.
 
         Each 3d Component is replaced with objects.
         This function will work only if the reference coordinate system of the 3d component is the global one.
@@ -1305,7 +1328,8 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
     @requires_graphical_dependency("pyvista")
     @min_aedt_version("2023.2")
     def identify_touching_conductors(self, assignment: str = None) -> dict:
-        """Identify all touching components and group in a dictionary.
+        """
+        Identify all touching components and group in a dictionary.
 
         This method requires that the ``pyvista`` package is installed.
 
@@ -1407,7 +1431,8 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         write_poly_with_width_as_filled_poly: bool = False,
         import_method: int | bool = 1,
     ) -> bool:  # pragma: no cover
-        """Import a DXF file.
+        """
+        Import a DXF file.
 
         Parameters
         ----------
@@ -1506,7 +1531,8 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
 
     @pyaedt_function_handler()
     def import_gds_3d(self, input_file: str, mapping_layers: dict, units: str = "um", import_method: int = 1) -> bool:
-        """Import a GDSII file.
+        """
+        Import a GDSII file.
 
         Parameters
         ----------

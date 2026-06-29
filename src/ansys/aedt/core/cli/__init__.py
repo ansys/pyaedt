@@ -22,7 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""PyAEDT CLI based on typer.
+"""
+PyAEDT CLI based on typer.
 
 Examples
 --------
@@ -65,7 +66,8 @@ app = typer.Typer(no_args_is_help=True)
 def main_callback(
     json_output: bool = typer.Option(False, "--json", help="Output results as JSON (agent-friendly mode)"),
 ) -> None:
-    """CLI for PyAEDT.
+    """
+    CLI for PyAEDT.
 
     Examples
     --------
@@ -80,7 +82,8 @@ def main_callback(
 
 @app.command()
 def version() -> None:
-    """Display PyAEDT version.
+    """
+    Display PyAEDT version.
 
     Examples
     --------
@@ -101,7 +104,8 @@ def version() -> None:
 
 @app.command(name="aedt-versions")
 def aedt_versions() -> None:
-    """List installed AEDT versions on this machine.
+    """
+    List installed AEDT versions on this machine.
 
     Examples
     --------

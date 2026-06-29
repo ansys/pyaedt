@@ -48,7 +48,8 @@ from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 
 class CsProps(dict):
-    """AEDT Cooardinate System Internal Parameters.
+    """
+    AEDT Cooardinate System Internal Parameters.
 
     Examples
     --------
@@ -80,7 +81,8 @@ class CsProps(dict):
 
 
 class ListsProps(dict):
-    """AEDT Lists Internal Parameters.
+    """
+    AEDT Lists Internal Parameters.
 
     Examples
     --------
@@ -112,7 +114,8 @@ class ListsProps(dict):
 
 
 class BaseCoordinateSystem(PropsManager, PyAedtBase):
-    """Base methods common to FaceCoordinateSystem and CoordinateSystem.
+    """
+    Base methods common to FaceCoordinateSystem and CoordinateSystem.
 
     Parameters
     ----------
@@ -330,7 +333,8 @@ class BaseCoordinateSystem(PropsManager, PyAedtBase):
 
     @pyaedt_function_handler()
     def set_as_working_cs(self) -> bool:
-        """Set the coordinate system as the working coordinate system.
+        """
+        Set the coordinate system as the working coordinate system.
 
         Returns
         -------
@@ -351,7 +355,8 @@ class BaseCoordinateSystem(PropsManager, PyAedtBase):
 
     @pyaedt_function_handler()
     def _change_property(self, name: str, arg):
-        """Update properties of the coordinate system.
+        """
+        Update properties of the coordinate system.
 
         Parameters
         ----------
@@ -372,7 +377,8 @@ class BaseCoordinateSystem(PropsManager, PyAedtBase):
 
     @pyaedt_function_handler()
     def rename(self, name: str) -> bool:
-        """Rename the coordinate system.
+        """
+        Rename the coordinate system.
 
         Parameters
         ----------
@@ -397,7 +403,8 @@ class BaseCoordinateSystem(PropsManager, PyAedtBase):
 
     @pyaedt_function_handler()
     def delete(self) -> bool:
-        """Delete the coordinate system.
+        """
+        Delete the coordinate system.
 
         Returns
         -------
@@ -428,7 +435,8 @@ class BaseCoordinateSystem(PropsManager, PyAedtBase):
 
 
 class FaceCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
-    """Manages face coordinate system data and execution.
+    """
+    Manages face coordinate system data and execution.
 
     Parameters
     ----------
@@ -459,7 +467,8 @@ class FaceCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
 
     @property
     def props(self) -> CsProps:
-        """Properties of the coordinate system.
+        """
+        Properties of the coordinate system.
 
         Returns
         -------
@@ -514,7 +523,8 @@ class FaceCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         rotation: int = 0,
         always_move_to_end: bool = True,
     ) -> bool:
-        """Create a face coordinate system.
+        """
+        Create a face coordinate system.
 
         The face coordinate has always the Z axis parallel to face normal.
         The X and Y axis lie on the face plane.
@@ -689,7 +699,8 @@ class FaceCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
 
     @pyaedt_function_handler()
     def update(self) -> bool:
-        """Update the coordinate system.
+        """
+        Update the coordinate system.
 
         Returns
         -------
@@ -730,7 +741,8 @@ class FaceCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
 
 
 class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
-    """Manages the coordinate system data and execution.
+    """
+    Manages the coordinate system data and execution.
 
     Parameters
     ----------
@@ -768,7 +780,8 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
 
     @property
     def mode(self) -> str:
-        """Coordinate System mode.
+        """
+        Coordinate System mode.
 
         Examples
         --------
@@ -794,7 +807,8 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
 
     @property
     def props(self) -> CsProps:
-        """Coordinate System Properties.
+        """
+        Coordinate System Properties.
 
         Returns
         -------
@@ -814,7 +828,8 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
 
     @property
     def ref_cs(self) -> str:
-        """Reference coordinate system getter and setter.
+        """
+        Reference coordinate system getter and setter.
 
         Returns
         -------
@@ -847,7 +862,8 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
 
     @pyaedt_function_handler()
     def update(self) -> bool:
-        """Update the coordinate system.
+        """
+        Update the coordinate system.
 
         Returns
         -------
@@ -920,7 +936,8 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
 
     @pyaedt_function_handler()
     def change_cs_mode(self, mode_type: int = 0) -> bool:
-        """Change the mode of the coordinate system.
+        """
+        Change the mode of the coordinate system.
 
         Parameters
         ----------
@@ -1043,7 +1060,8 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         psi: int = 0,
         u: list | None = None,
     ) -> bool:
-        """Create a coordinate system.
+        """
+        Create a coordinate system.
 
         Parameters
         ----------
@@ -1209,7 +1227,8 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
     @staticmethod
     @pyaedt_function_handler()
     def pointing_to_axis(x_pointing: list | tuple, y_pointing: list | tuple) -> tuple:
-        """Retrieve the axes from the HFSS X axis and Y pointing axis as per
+        """
+        Retrieve the axes from the HFSS X axis and Y pointing axis as per
         the definition of the AEDT interface coordinate system.
 
         Parameters
@@ -1242,7 +1261,8 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         return xp, yp, zp
 
     def _get_numeric_value(self, value=None, init: bool = False, destroy: bool = False):
-        """Get numeric value from a variable.
+        """
+        Get numeric value from a variable.
 
         Parameters
         ----------
@@ -1277,7 +1297,8 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
 
     @property
     def quaternion(self) -> Quaternion:
-        """Quaternion computed based on specific axis mode.
+        """
+        Quaternion computed based on specific axis mode.
 
         Returns
         -------
@@ -1323,7 +1344,8 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
 
     @property
     def origin(self) -> list:
-        """Coordinate system origin in model units.
+        """
+        Coordinate system origin in model units.
 
         Returns
         -------
@@ -1374,7 +1396,8 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
 
 
 class ObjectCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
-    """Manages object coordinate system data and execution.
+    """
+    Manages object coordinate system data and execution.
 
     Parameters
     ----------
@@ -1407,7 +1430,8 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
 
     @property
     def ref_cs(self) -> str:
-        """Reference coordinate system.
+        """
+        Reference coordinate system.
 
         Returns
         -------
@@ -1440,7 +1464,8 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
 
     @property
     def props(self) -> "CsProps":
-        """Properties of the coordinate system.
+        """
+        Properties of the coordinate system.
 
         Returns
         -------
@@ -1502,7 +1527,8 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         reverse_x_axis: bool = False,
         reverse_y_axis: bool = False,
     ) -> bool:
-        """Create an object coordinate system.
+        """
+        Create an object coordinate system.
 
         Parameters
         ----------
@@ -1730,7 +1756,8 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
 
     @pyaedt_function_handler()
     def update(self) -> bool:
-        """Update the coordinate system.
+        """
+        Update the coordinate system.
 
         Returns
         -------
@@ -1872,7 +1899,8 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
 
 
 class Lists(PropsManager, PyAedtBase):
-    """Manages list data and execution.
+    """
+    Manages list data and execution.
 
     Parameters
     ----------
@@ -1898,7 +1926,8 @@ class Lists(PropsManager, PyAedtBase):
 
     @pyaedt_function_handler()
     def update(self) -> bool:
-        """Update the List.
+        """
+        Update the List.
 
         Returns
         -------
@@ -1938,7 +1967,8 @@ class Lists(PropsManager, PyAedtBase):
         name: str | None = None,
         entity_type: str = "Object",
     ) -> bool:
-        """Create a List.
+        """
+        Create a List.
 
         Parameters
         ----------
@@ -1990,7 +2020,8 @@ class Lists(PropsManager, PyAedtBase):
 
     @pyaedt_function_handler()
     def delete(self) -> bool:
-        """Delete the List.
+        """
+        Delete the List.
 
         Returns
         -------
@@ -2010,7 +2041,8 @@ class Lists(PropsManager, PyAedtBase):
 
     @pyaedt_function_handler()
     def rename(self, name: str) -> bool:
-        """Rename the List.
+        """
+        Rename the List.
 
         Parameters
         ----------
@@ -2074,7 +2106,8 @@ class Lists(PropsManager, PyAedtBase):
 
 
 class Modeler(PyAedtBase):
-    """Provides the `Modeler` application class that other `Modeler` classes inherit.
+    """
+    Provides the `Modeler` application class that other `Modeler` classes inherit.
 
     This class is inherited in the caller application and is accessible through the modeler variable
     object( eg. ``hfss.modeler``).
@@ -2103,7 +2136,8 @@ class Modeler(PyAedtBase):
 
     @property
     def logger(self):
-        """Logger.
+        """
+        Logger.
 
         Examples
         --------
@@ -2126,7 +2160,8 @@ class Modeler(PyAedtBase):
 
     @property
     def projdir(self):
-        """Project directory.
+        """
+        Project directory.
 
         Examples
         --------

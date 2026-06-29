@@ -39,7 +39,8 @@ from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 
 class MultiPartComponent(PyAedtBase):
-    """Supports multi-part 3D components for HFSS SBR+.
+    """
+    Supports multi-part 3D components for HFSS SBR+.
 
     .. note::
            Forward motion is in the X-axis direction if motion is set.
@@ -103,7 +104,8 @@ class MultiPartComponent(PyAedtBase):
 
     @staticmethod
     def start(app: "Hfss") -> bool:
-        """Initialize app for SBR+ simulation.
+        """
+        Initialize app for SBR+ simulation.
 
         Parameters
         ----------
@@ -210,7 +212,8 @@ class MultiPartComponent(PyAedtBase):
 
     @property
     def cs_name(self) -> str:
-        """Coordinate system name.
+        """
+        Coordinate system name.
 
         Returns
         -------
@@ -233,7 +236,8 @@ class MultiPartComponent(PyAedtBase):
 
     @property
     def index(self) -> int:
-        """Number of multi-part components.
+        """
+        Number of multi-part components.
 
         Returns
         -------
@@ -258,7 +262,8 @@ class MultiPartComponent(PyAedtBase):
     # multi-part 3d component instance in the app.
     @property
     def offset_x_name(self) -> str:
-        """X-axis offset name.
+        """
+        X-axis offset name.
 
         Returns
         -------
@@ -277,7 +282,8 @@ class MultiPartComponent(PyAedtBase):
 
     @property
     def offset_y_name(self) -> str:
-        """Y-axis offset name.
+        """
+        Y-axis offset name.
 
         Returns
         -------
@@ -296,7 +302,8 @@ class MultiPartComponent(PyAedtBase):
 
     @property
     def offset_z_name(self) -> str:
-        """Z-axis offset name.
+        """
+        Z-axis offset name.
 
         Returns
         -------
@@ -315,7 +322,8 @@ class MultiPartComponent(PyAedtBase):
 
     @property
     def offset_names(self) -> list[str]:
-        """X-, Y-, and Z-axis offset names.
+        """
+        X-, Y-, and Z-axis offset names.
 
         Returns
         -------
@@ -334,7 +342,8 @@ class MultiPartComponent(PyAedtBase):
 
     @property
     def yaw_name(self) -> str:
-        """Yaw variable name. Yaw is the rotation about the object's Z-axis.
+        """
+        Yaw variable name. Yaw is the rotation about the object's Z-axis.
 
         Returns
         -------
@@ -353,7 +362,8 @@ class MultiPartComponent(PyAedtBase):
 
     @property
     def yaw(self) -> str:
-        """Yaw variable value.
+        """
+        Yaw variable value.
 
         Returns
         -------
@@ -380,7 +390,8 @@ class MultiPartComponent(PyAedtBase):
     @property
     # This is the name of the variable for pitch in the app.
     def pitch_name(self) -> str:
-        """Pitch variable name. Pitch is the rotation about the object's Y-axis.
+        """
+        Pitch variable name. Pitch is the rotation about the object's Y-axis.
 
         Returns
         -------
@@ -399,7 +410,8 @@ class MultiPartComponent(PyAedtBase):
 
     @property
     def pitch(self) -> str:
-        """Pitch variable value.
+        """
+        Pitch variable value.
 
         Returns
         -------
@@ -426,7 +438,8 @@ class MultiPartComponent(PyAedtBase):
     @property
     # This is the name of the variable for roll in the app.
     def roll_name(self) -> str:
-        """Roll variable name. Roll is the rotation about the object's X-axis.
+        """
+        Roll variable name. Roll is the rotation about the object's X-axis.
 
         Returns
         -------
@@ -445,7 +458,8 @@ class MultiPartComponent(PyAedtBase):
 
     @property
     def roll(self) -> str:
-        """Roll variable value.
+        """
+        Roll variable value.
 
         Returns
         -------
@@ -484,7 +498,8 @@ class MultiPartComponent(PyAedtBase):
 
     @property
     def name(self) -> str:
-        """Unique instance name.
+        """
+        Unique instance name.
 
         Returns
         -------
@@ -504,7 +519,8 @@ class MultiPartComponent(PyAedtBase):
 
     @property
     def use_global_cs(self) -> bool:
-        """Global coordinate system.
+        """
+        Global coordinate system.
 
         Returns
         -------
@@ -523,7 +539,8 @@ class MultiPartComponent(PyAedtBase):
 
     @property
     def offset(self) -> list:
-        """Offset values for the multi-part component.
+        """
+        Offset values for the multi-part component.
 
         Returns
         -------
@@ -548,7 +565,8 @@ class MultiPartComponent(PyAedtBase):
 
     @pyaedt_function_handler()
     def position_in_app(self, app: "Hfss") -> "CoordinateSystem | None":
-        """Set up design variables and values to enable motion for the multi-part 3D component.
+        """
+        Set up design variables and values to enable motion for the multi-part 3D component.
 
         Parameters
         ----------
@@ -602,7 +620,8 @@ class MultiPartComponent(PyAedtBase):
 
     @pyaedt_function_handler()
     def _insert(self, app, motion: bool = False) -> bool:
-        """Insert the multi-part 3D component.
+        """
+        Insert the multi-part 3D component.
 
         Parameters
         ----------
@@ -634,7 +653,8 @@ class MultiPartComponent(PyAedtBase):
 
     @pyaedt_function_handler()
     def insert(self, app: "Hfss", motion: bool = False) -> bool:
-        """Insert the object in HFSS SBR+.
+        """
+        Insert the object in HFSS SBR+.
 
         Returns
         -------
@@ -653,7 +673,8 @@ class MultiPartComponent(PyAedtBase):
 
 
 class Environment(MultiPartComponent, PyAedtBase):
-    """Supports multi-part 3D components without motion for HFSS SBR+.
+    """
+    Supports multi-part 3D components without motion for HFSS SBR+.
 
     This class is derived from :class:`MultiPartComponent`. Its
     call signature is identical to the parent class except
@@ -681,7 +702,8 @@ class Environment(MultiPartComponent, PyAedtBase):
 
     @property
     def cs_name(self) -> str:
-        """Coordinate system name.
+        """
+        Coordinate system name.
 
         Returns
         -------
@@ -700,7 +722,8 @@ class Environment(MultiPartComponent, PyAedtBase):
 
     @property
     def yaw(self) -> str:
-        """Yaw variable value. Yaw is the rotation about the object's Z-axis.
+        """
+        Yaw variable value. Yaw is the rotation about the object's Z-axis.
 
         Returns
         -------
@@ -723,7 +746,8 @@ class Environment(MultiPartComponent, PyAedtBase):
 
     @property
     def pitch(self) -> str:
-        """Pitch variable value. Pitch is the rotation about the object's Y-axis.
+        """
+        Pitch variable value. Pitch is the rotation about the object's Y-axis.
 
         Returns
         -------
@@ -746,7 +770,8 @@ class Environment(MultiPartComponent, PyAedtBase):
 
     @property
     def roll(self) -> str:
-        """Roll variable value. Roll is the rotation about the object's X-axis.
+        """
+        Roll variable value. Roll is the rotation about the object's X-axis.
 
         Returns
         -------
@@ -769,7 +794,8 @@ class Environment(MultiPartComponent, PyAedtBase):
 
     @property
     def offset(self) -> list:
-        """Offset for the multi-part component.
+        """
+        Offset for the multi-part component.
 
         Returns
         -------
@@ -792,7 +818,8 @@ class Environment(MultiPartComponent, PyAedtBase):
 
 
 class Actor(MultiPartComponent, PyAedtBase):
-    """Provides an instance of an actor.
+    """
+    Provides an instance of an actor.
 
     This class is derived from :class:`MultiPartComponent`.
 
@@ -825,7 +852,8 @@ class Actor(MultiPartComponent, PyAedtBase):
 
     @property
     def speed_name(self) -> str:
-        """Speed variable name.
+        """
+        Speed variable name.
 
         Returns
         -------
@@ -844,7 +872,8 @@ class Actor(MultiPartComponent, PyAedtBase):
 
     @property
     def speed_expression(self) -> str:
-        """Speed variable expression.
+        """
+        Speed variable expression.
 
         Returns
         -------

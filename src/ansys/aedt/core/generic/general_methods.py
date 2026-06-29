@@ -109,7 +109,8 @@ def _get_args_dicts(func, args, kwargs):
 
 
 def _exception(ex_info, func, args, kwargs, message: str = "Type Error") -> None:
-    """Write the trace stack to the desktop when a Python error occurs.
+    """
+    Write the trace stack to the desktop when a Python error occurs.
 
     Parameters
     ----------
@@ -272,7 +273,8 @@ def _function_handler_wrapper(user_function, **deprecated_kwargs):
 
 
 def deprecate_kwargs(func_name, kwargs, aliases):
-    """Use helper function for deprecating function arguments.
+    """
+    Use helper function for deprecating function arguments.
 
     Examples
     --------
@@ -351,7 +353,8 @@ def deprecate_argument(arg_name: str, version: str = None, message: str = None, 
 
 
 def pyaedt_function_handler(direct_func: _F | None = None, **deprecated_kwargs) -> _F:
-    """Decorator that provides exception handling, execution logging, and deprecated kwargs management.
+    """
+    Decorator that provides exception handling, execution logging, and deprecated kwargs management.
 
     On successful execution, the decorated function returns its normal return value.
 
@@ -393,7 +396,8 @@ def pyaedt_function_handler(direct_func: _F | None = None, **deprecated_kwargs) 
 
 @pyaedt_function_handler()
 def check_numeric_equivalence(a, b, relative_tolerance: float = 1e-7):
-    """Check if two numeric values are equivalent to within a relative tolerance.
+    """
+    Check if two numeric values are equivalent to within a relative tolerance.
 
     Parameters
     ----------
@@ -479,7 +483,8 @@ def _log_method(func, new_args, new_kwargs) -> None:
 
 @pyaedt_function_handler()
 def get_version_and_release(input_version: str) -> tuple:
-    """Convert the standard five-digit AEDT version format to a tuple of version and release.
+    """
+    Convert the standard five-digit AEDT version format to a tuple of version and release.
     Used for environment variable management.
 
     Examples
@@ -501,7 +506,8 @@ def get_version_and_release(input_version: str) -> tuple:
 
 @pyaedt_function_handler()
 def _normalize_version_to_string(input_version):
-    """Convert various AEDT version formats to a standard five-digit string format.
+    """
+    Convert various AEDT version formats to a standard five-digit string format.
     Used to check and convert the version user input to a standard format.
     If the input is ``None``, return ``None``.
     """
@@ -540,7 +546,8 @@ def _normalize_version_to_string(input_version):
 
 @pyaedt_function_handler()
 def _is_version_format_valid(version):
-    """Check if the internal version format is valid.
+    """
+    Check if the internal version format is valid.
     Version must be a string in the five-digit format (e.g., '2023.2').
     It can optionally end with 'SV' for student versions.
     """
@@ -551,7 +558,8 @@ def _is_version_format_valid(version):
 
 @pyaedt_function_handler()
 def env_path(input_version: str) -> str:
-    """Get the path of the version environment variable for an AEDT version.
+    """
+    Get the path of the version environment variable for an AEDT version.
 
     Parameters
     ----------
@@ -576,7 +584,8 @@ def env_path(input_version: str) -> str:
 
 @pyaedt_function_handler()
 def env_value(input_version: str) -> str:
-    """Get the name of the version environment variable for an AEDT version.
+    """
+    Get the name of the version environment variable for an AEDT version.
 
     Parameters
     ----------
@@ -599,7 +608,8 @@ def env_value(input_version: str) -> str:
 
 @pyaedt_function_handler()
 def env_path_student(input_version: str) -> str:
-    """Get the path of the version environment variable for an AEDT student version.
+    """
+    Get the path of the version environment variable for an AEDT student version.
 
     Parameters
     ----------
@@ -625,7 +635,8 @@ def env_path_student(input_version: str) -> str:
 
 @pyaedt_function_handler()
 def env_value_student(input_version: str) -> str:
-    """Get the name of the version environment variable for an AEDT student version.
+    """
+    Get the name of the version environment variable for an AEDT student version.
 
     Parameters
     ----------
@@ -647,7 +658,8 @@ def env_value_student(input_version: str) -> str:
 
 
 def _retry_ntimes(n, function, *args, **kwargs):
-    """Retry a function several times.
+    """
+    Retry a function several times.
 
     Parameters
     ----------
@@ -704,7 +716,8 @@ def time_fn(fn: callable, *args, **kwargs):
 
 @pyaedt_function_handler()
 def filter_tuple(value: str, search_key_1: str, search_key_2: str) -> bool:
-    """Filter a tuple of two elements with two search keywords.
+    """
+    Filter a tuple of two elements with two search keywords.
 
     Examples
     --------
@@ -736,7 +749,8 @@ def filter_tuple(value: str, search_key_1: str, search_key_2: str) -> bool:
 
 @pyaedt_function_handler()
 def filter_string(value: str, search_key_1: str) -> bool:
-    """Filter a string.
+    """
+    Filter a string.
 
     Examples
     --------
@@ -766,7 +780,8 @@ def filter_string(value: str, search_key_1: str) -> bool:
 
 @pyaedt_function_handler()
 def number_aware_string_key(s: str) -> tuple:
-    """Get a key for sorting strings that treats embedded digit sequences as integers.
+    """
+    Get a key for sorting strings that treats embedded digit sequences as integers.
 
     Parameters
     ----------
@@ -810,7 +825,8 @@ def number_aware_string_key(s: str) -> tuple:
 
 
 def _run_ss() -> dict[int, int]:
-    """Discover active AEDT gRPC Unix ports on Linux.
+    """
+    Discover active AEDT gRPC Unix ports on Linux.
 
     This function executes the `ss -Hnlp` command to list Unix gRPC processes and
     extracts port numbers from AEDT filenames.
@@ -954,7 +970,8 @@ def _run_ss() -> dict[int, int]:
 
 
 def _get_pids_by_name_windows(image_name: str) -> list[int]:
-    """Get a list of process IDs (PIDs) for a given executable name on Windows.
+    """
+    Get a list of process IDs (PIDs) for a given executable name on Windows.
 
     This function uses the Windows 'tasklist' command to query running processes.
 
@@ -1025,7 +1042,8 @@ def _get_pids_by_name_windows(image_name: str) -> list[int]:
 
 
 def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str]]]:
-    """Get process IDs and command line arguments for target processes.
+    """
+    Get process IDs and command line arguments for target processes.
 
     This function searches for running processes matching the specified names
     and retrieves their command line arguments.
@@ -1095,7 +1113,8 @@ def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str]]]
 
 @pyaedt_function_handler()
 def _check_psutil_connections(pids: list[int]) -> dict[int, list[str, Any]]:
-    """Retrieve network connections for specified process IDs.
+    """
+    Retrieve network connections for specified process IDs.
 
     This function collects TCP connection information for a list of process IDs,
     returning the IP address, port, and status of each connection. It uses the
@@ -1187,7 +1206,8 @@ def _check_connection_grpc_port(
     version: str | None = None,
     non_graphical: bool | None = None,
 ) -> int:
-    """Find the gRPC port for a specific process from its network connections.
+    """
+    Find the gRPC port for a specific process from its network connections.
 
     This function searches through network connections to identify the gRPC port
     that a specific process is listening on. It checks for LISTEN status on
@@ -1294,7 +1314,8 @@ def _is_port_occupied(port, host=None):
 
 @pyaedt_function_handler()
 def is_grpc_session_active(port: int, machine: str | None = None) -> bool:
-    """Check if a gRPC session is active on the specified port.
+    """
+    Check if a gRPC session is active on the specified port.
 
     This function verifies whether an AEDT session is actively listening on
     the specified gRPC port. It does not parse process command lines, instead,
@@ -1348,7 +1369,8 @@ def active_sessions(
     student_version: bool | None = False,
     non_graphical: bool | None = None,
 ) -> dict[int, int]:
-    """Get information for active AEDT sessions.
+    """
+    Get information for active AEDT sessions.
 
     This function detects running AEDT processes and identifies their gRPC ports or
     marks them as COM sessions. It works on both Windows and Linux platforms by using
@@ -1497,7 +1519,8 @@ def active_sessions(
 def com_active_sessions(
     version: str | None = None, student_version: bool | None = False, non_graphical: bool | None = False
 ):
-    """Get information for the active COM AEDT sessions.
+    """
+    Get information for the active COM AEDT sessions.
 
     Parameters
     ----------
@@ -1536,7 +1559,8 @@ def grpc_active_sessions(
     student_version: bool | None = False,
     non_graphical: bool | None = False,
 ) -> list[int]:
-    """Get information for the active gRPC AEDT sessions.
+    """
+    Get information for the active gRPC AEDT sessions.
 
     Parameters
     ----------
@@ -1573,7 +1597,8 @@ def grpc_active_sessions(
 
 @pyaedt_function_handler()
 def conversion_function(data: "list | array", function: str = None):  # pragma: no cover
-    """Convert input data based on a specified function string.
+    """
+    Convert input data based on a specified function string.
 
     The available functions are:
 
@@ -1639,7 +1664,8 @@ class PropsManager(PyAedtBase):
     """Manage props manager."""
 
     def __getitem__(self, item):
-        """Get the `self.props` key value.
+        """
+        Get the `self.props` key value.
 
         Parameters
         ----------
@@ -1667,7 +1693,8 @@ class PropsManager(PyAedtBase):
         return None
 
     def __setitem__(self, key, value):
-        """Set the `self.props` key value.
+        """
+        Set the `self.props` key value.
 
         Parameters
         ----------
@@ -1743,7 +1770,8 @@ class PropsManager(PyAedtBase):
 
     @property
     def available_properties(self):
-        """Available properties.
+        """
+        Available properties.
 
         Returns
         -------
@@ -1763,7 +1791,8 @@ class PropsManager(PyAedtBase):
 
     @pyaedt_function_handler()
     def update(self) -> None:
-        """Update method.
+        """
+        Update method.
 
         Examples
         --------
@@ -1806,7 +1835,8 @@ rgb_color_codes = {
 
 @pyaedt_function_handler()
 def _to_boolean(val):
-    """Retrieve the Boolean value of the provided input.
+    """
+    Retrieve the Boolean value of the provided input.
 
         If the value is a Boolean, return the value.
         Otherwise check to see if the value is in
@@ -1835,7 +1865,8 @@ def _to_boolean(val):
 def install_with_pip(
     package_name: str, package_path: str = None, upgrade: bool = False, uninstall: bool = False
 ):  # pragma: no cover
-    """Install a new package using pip.
+    """
+    Install a new package using pip.
 
     This method is useful for installing a package from the AEDT Console without launching the Python environment.
 

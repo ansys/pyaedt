@@ -22,7 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""This module contains the ``CircuitNetlist`` class.
+"""
+This module contains the ``CircuitNetlist`` class.
 
 Examples
 --------
@@ -41,7 +42,8 @@ from ansys.aedt.core.internal.filesystem import search_files
 
 
 class CircuitNetlist(AnalysisCircuitNetlist, PyAedtBase):
-    """Provides the Circuit Netlist application interface.
+    """
+    Provides the Circuit Netlist application interface.
 
     Parameters
     ----------
@@ -161,7 +163,8 @@ class CircuitNetlist(AnalysisCircuitNetlist, PyAedtBase):
 
     @pyaedt_function_handler()
     def browse_log_file(self, input_file: str | Path | None = None):  # pragma: no cover
-        """Save the most recent log file in a new directory.
+        """
+        Save the most recent log file in a new directory.
 
         Parameters
         ----------

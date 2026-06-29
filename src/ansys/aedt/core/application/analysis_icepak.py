@@ -40,7 +40,8 @@ if TYPE_CHECKING:
 
 
 class FieldAnalysisIcepak(FieldAnalysis3D, PyAedtBase):
-    """Manages Icepak field analysis setup.
+    """
+    Manages Icepak field analysis setup.
 
     This class is automatically initialized by an application call from one Icepak.
     See the application function for parameter definitions.
@@ -143,7 +144,8 @@ class FieldAnalysisIcepak(FieldAnalysis3D, PyAedtBase):
 
     @property
     def post(self) -> PostProcessorIcepak:
-        """Icepak post processor.
+        """
+        Icepak post processor.
 
         Returns
         -------
@@ -165,7 +167,8 @@ class FieldAnalysisIcepak(FieldAnalysis3D, PyAedtBase):
 
     @property
     def mesh(self) -> IcepakMesh:
-        """Mesh.
+        """
+        Mesh.
 
         Returns
         -------
@@ -190,7 +193,8 @@ class FieldAnalysisIcepak(FieldAnalysis3D, PyAedtBase):
 
     @property
     def monitor(self) -> Monitor:
-        """Property to handle monitor objects.
+        """
+        Property to handle monitor objects.
 
         Returns
         -------
@@ -213,7 +217,8 @@ class FieldAnalysisIcepak(FieldAnalysis3D, PyAedtBase):
 
 
 class IcepakDesignSettingsManipulation(DesignSettingsManipulation, PyAedtBase):
-    """Manages Icepak design settings.
+    """
+    Manages Icepak design settings.
 
     This class provides methods to modify specific design settings like ambient temperature,
     gauge pressure, and gravity vector. The settings are managed through key-value pairs

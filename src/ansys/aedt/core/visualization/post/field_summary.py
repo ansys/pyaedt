@@ -123,7 +123,8 @@ AVAILABLE_QUANTITIES = [
 
 
 class FieldSummary(PyAedtBase):
-    """Provides Icepak field summary methods.
+    """
+    Provides Icepak field summary methods.
 
     Examples
     --------

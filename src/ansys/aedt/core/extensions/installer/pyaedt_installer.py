@@ -22,7 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""Methods to add PyAEDT in AEDT.
+"""
+Methods to add PyAEDT in AEDT.
 
 Examples
 --------
@@ -79,7 +80,8 @@ def _install_catalog_extension(extension_key, personal_lib, odesktop=None):
 
 
 def add_extension_manager(personal_lib, odesktop=None) -> bool:
-    """Install only the Extension Manager panel in AEDT.
+    """
+    Install only the Extension Manager panel in AEDT.
 
     Parameters
     ----------
@@ -98,7 +100,8 @@ def add_extension_manager(personal_lib, odesktop=None) -> bool:
 
 
 def add_version_manager(personal_lib, odesktop=None) -> bool:
-    """Install only the Version Manager panel in AEDT.
+    """
+    Install only the Version Manager panel in AEDT.
 
     Parameters
     ----------
@@ -123,7 +126,8 @@ def add_pyaedt_to_aedt(
     light: bool = False,
     odesktop=None,
 ) -> bool:
-    """Add PyAEDT tabs in AEDT.
+    """
+    Add PyAEDT tabs in AEDT.
 
     Parameters
     ----------

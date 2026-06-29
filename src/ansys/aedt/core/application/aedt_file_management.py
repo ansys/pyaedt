@@ -32,7 +32,8 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 @pyaedt_function_handler()
 def change_objects_visibility(input_file: str | Path, assignment: list) -> bool:
-    """Edit the project file to make only the solids that are specified visible.
+    """
+    Edit the project file to make only the solids that are specified visible.
 
     Parameters
     ----------
@@ -85,7 +86,8 @@ def change_objects_visibility(input_file: str | Path, assignment: list) -> bool:
 
 @pyaedt_function_handler()
 def change_model_orientation(input_file: str | Path, bottom_dir: str) -> bool:
-    """Edit the project file to change the model orientation.
+    """
+    Edit the project file to change the model orientation.
 
     Parameters
     ----------

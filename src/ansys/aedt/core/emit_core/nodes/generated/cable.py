@@ -38,7 +38,8 @@ class Cable(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node.
+        """
+        The type of this emit node.
 
         Examples
         --------
@@ -52,7 +53,8 @@ class Cable(EmitNode):
 
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
-        """Duplicate this node
+        """
+        Duplicate this node
 
         Examples
         --------
@@ -66,7 +68,8 @@ class Cable(EmitNode):
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node
+        """
+        Delete this node
 
         Examples
         --------
@@ -81,7 +84,8 @@ class Cable(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def filename(self) -> str:
-        """Name of file defining the outboard component.
+        """
+        Name of file defining the outboard component.
 
         Value should be a full file path.
 
@@ -105,7 +109,8 @@ class Cable(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def noise_temperature(self) -> float:
-        """System Noise temperature (K) of the component.
+        """
+        System Noise temperature (K) of the component.
 
         Value should be between 0 and 1000.
 
@@ -128,7 +133,8 @@ class Cable(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def notes(self) -> str:
-        """Expand to view/edit notes stored with the project.
+        """
+        Expand to view/edit notes stored with the project.
 
         Examples
         --------
@@ -154,7 +160,8 @@ class Cable(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def cable_type(self) -> CableTypeOption:
-        """Cable Type.
+        """
+        Cable Type.
 
         Type of cable to use. Options include: By File (measured or simulated),
         Constant Loss, or Coaxial Cable.
@@ -179,7 +186,8 @@ class Cable(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def length(self) -> float:
-        """Length of cable.
+        """
+        Length of cable.
 
         Value should be between 0 and 500.
 
@@ -204,7 +212,8 @@ class Cable(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def loss_per_length(self) -> float:
-        """Cable loss per unit length (dB/meter).
+        """
+        Cable loss per unit length (dB/meter).
 
         Value should be between 0 and 20.
 
@@ -227,7 +236,8 @@ class Cable(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def measurement_length(self) -> float:
-        """Length of the cable used for the measurements.
+        """
+        Length of the cable used for the measurements.
 
         Value should be between 0 and 500.
 
@@ -252,7 +262,8 @@ class Cable(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def resistive_loss_constant(self) -> float:
-        """Coaxial cable resistive loss constant.
+        """
+        Coaxial cable resistive loss constant.
 
         Value should be between 0 and 2.
 
@@ -275,7 +286,8 @@ class Cable(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def dielectric_loss_constant(self) -> float:
-        """Coaxial cable dielectric loss constant.
+        """
+        Coaxial cable dielectric loss constant.
 
         Value should be between 0 and 1.
 
@@ -298,7 +310,8 @@ class Cable(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def warnings(self) -> str:
-        """Warning(s) for this node.
+        """
+        Warning(s) for this node.
 
         Examples
         --------

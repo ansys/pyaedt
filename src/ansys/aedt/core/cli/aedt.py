@@ -22,7 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""Session management commands: start, list, stop, attach.
+"""
+Session management commands: start, list, stop, attach.
 
 Examples
 --------
@@ -114,7 +115,8 @@ def start(
     port: int = typer.Option(50051, "--port", help="gRPC port (0 for auto)"),
     non_graphical: bool = typer.Option(False, "--non-graphical", "-ng", help="Start in non-graphical mode"),
 ) -> None:
-    """Start a new AEDT instance.
+    """
+    Start a new AEDT instance.
 
     Examples
     --------
@@ -188,7 +190,8 @@ def start(
 
 @session_app.command("list")
 def list_sessions() -> None:
-    """List all running AEDT instances.
+    """
+    List all running AEDT instances.
 
     Examples
     --------
@@ -264,7 +267,8 @@ def stop(
     port: int | None = typer.Option(None, "--port", help="Port of the AEDT instance to stop"),
     stop_all: bool = typer.Option(False, "--all", help="Stop all running AEDT instances"),
 ) -> None:
-    """Stop an AEDT instance by port or stop all running instances.
+    """
+    Stop an AEDT instance by port or stop all running instances.
 
     Examples
     --------

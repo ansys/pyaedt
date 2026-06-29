@@ -61,7 +61,8 @@ EXTENSION_TITLE = "Choke Designer"
 
 @dataclass
 class ChokeDesignerExtensionData(ExtensionCommonData):
-    """Data class containing user input and computed data for Choke Designer.
+    """
+    Data class containing user input and computed data for Choke Designer.
 
     Examples
     --------
@@ -76,7 +77,8 @@ class ChokeDesignerExtensionData(ExtensionCommonData):
 
 
 class ChokeDesignerExtension(ExtensionHFSSCommon):
-    """Extension for Choke Designer in AEDT.
+    """
+    Extension for Choke Designer in AEDT.
 
     Examples
     --------
@@ -120,7 +122,8 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
         self.add_extension_content()
 
     def validate_configuration(self, choke: Choke) -> bool:
-        """Validate choke configuration parameters.
+        """
+        Validate choke configuration parameters.
 
         Examples
         --------
@@ -157,7 +160,8 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
             return False
 
     def save_configuration(self) -> None:
-        """Save choke configuration to JSON file.
+        """
+        Save choke configuration to JSON file.
 
         Examples
         --------
@@ -187,7 +191,8 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
                 )
 
     def load_configuration(self) -> None:
-        """Load choke configuration from JSON file.
+        """
+        Load choke configuration from JSON file.
 
         Examples
         --------
@@ -222,7 +227,8 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
                 )
 
     def update_config(self, category: str, selected_option: tkinter.StringVar):
-        """Update boolean configuration options.
+        """
+        Update boolean configuration options.
 
         Examples
         --------
@@ -238,7 +244,8 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
             choke_options[key] = key == selected_option.get()
 
     def update_parameter_config(self, attr_name: str, field: str, entry_widget: tkinter.Entry):
-        """Update parameter configuration from entry widget.
+        """
+        Update parameter configuration from entry widget.
 
         Examples
         --------
@@ -258,7 +265,8 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
             pass
 
     def update_radio_buttons(self) -> None:
-        """Update radio button selections based on current choke configuration.
+        """
+        Update radio button selections based on current choke configuration.
 
         Examples
         --------
@@ -279,7 +287,8 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
                         self.selected_options[category].set(selected_option)
 
     def update_entries(self) -> None:
-        """Update entry widgets based on current choke configuration.
+        """
+        Update entry widgets based on current choke configuration.
 
         Examples
         --------
@@ -298,7 +307,8 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
                         entry_widget.insert(0, str(value))
 
     def callback(self) -> None:
-        """Callback function for Export to HFSS button.
+        """
+        Callback function for Export to HFSS button.
 
         Examples
         --------
@@ -313,7 +323,8 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
             self.root.destroy()
 
     def create_boolean_options(self, parent: tkinter.Widget):
-        """Create boolean option radio buttons.
+        """
+        Create boolean option radio buttons.
 
         Examples
         --------
@@ -353,7 +364,8 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
                         btn.pack(anchor=tkinter.W, padx=5)
 
     def create_parameter_inputs(self, parent: tkinter.Widget, category_name: str):
-        """Create parameter input widgets for a category.
+        """
+        Create parameter input widgets for a category.
 
         Examples
         --------
@@ -385,7 +397,8 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
             )
 
     def add_extension_content(self) -> None:
-        """Add custom content to the extension UI.
+        """
+        Add custom content to the extension UI.
 
         Examples
         --------
@@ -455,7 +468,8 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
 
 
 def main(data) -> bool:
-    """Main function to run the choke designer extension.
+    """
+    Main function to run the choke designer extension.
 
     Examples
     --------

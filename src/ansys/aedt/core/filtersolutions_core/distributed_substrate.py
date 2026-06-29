@@ -36,7 +36,8 @@ from ansys.aedt.core.filtersolutions_core.export_to_aedt import SubstrateType
 
 
 class DistributedSubstrate:
-    """Defines substrate parameters of distributed filters.
+    """
+    Defines substrate parameters of distributed filters.
 
     This class allows you to define and modify the substrate parameters of distributed filters.
 
@@ -113,7 +114,8 @@ class DistributedSubstrate:
 
     @property
     def substrate_type(self) -> SubstrateType:
-        """Substrate type of the filter.
+        """
+        Substrate type of the filter.
 
         The ``SubstrateType`` enum provides a list of all substrate types.
 
@@ -144,7 +146,8 @@ class DistributedSubstrate:
 
     @property
     def substrate_er(self) -> SubstrateType | str:
-        """Substrate's relative permittivity ``Er``.
+        """
+        Substrate's relative permittivity ``Er``.
 
         The value can be either a string or an instance of the ``SubstrateEr`` enum.
         The default is ``9.8`` for ``SubstrateEr.ALUMINA``.
@@ -188,7 +191,8 @@ class DistributedSubstrate:
 
     @property
     def substrate_resistivity(self) -> SubstrateResistivity | str:
-        """Substrate's resistivity.
+        """
+        Substrate's resistivity.
 
         The value can be either a string or an instance of the ``SubstrateResistivity`` enum.
         The default is ``1.43`` for ``SubstrateResistivity.GOLD``.
@@ -232,7 +236,8 @@ class DistributedSubstrate:
 
     @property
     def substrate_loss_tangent(self) -> SubstrateEr | str:
-        """Substrate's loss tangent.
+        """
+        Substrate's loss tangent.
 
         The value can be either a string or an instance of the ``SubstrateEr`` enum.
         The default is ``0.0005`` for ``SubstrateEr.ALUMINA``.
@@ -276,7 +281,8 @@ class DistributedSubstrate:
 
     @property
     def substrate_conductor_thickness(self) -> str:
-        """Substrate's conductor thickness.
+        """
+        Substrate's conductor thickness.
 
         The default is ``2.54 um``.
 
@@ -303,7 +309,8 @@ class DistributedSubstrate:
 
     @property
     def substrate_dielectric_height(self) -> str:
-        """Substrate's dielectric height.
+        """
+        Substrate's dielectric height.
 
         The default is ``1.27 mm``.
 
@@ -328,7 +335,8 @@ class DistributedSubstrate:
 
     @property
     def substrate_unbalanced_lower_dielectric_height(self) -> str:
-        """Substrate's lower dielectric height for unbalanced stripline substrate type.
+        """
+        Substrate's lower dielectric height for unbalanced stripline substrate type.
 
         The default is ``1.27 mm``.
 
@@ -362,7 +370,8 @@ class DistributedSubstrate:
 
     @property
     def substrate_suspend_dielectric_height(self) -> str:
-        """Substrate's suspend dielectric height above ground plane for suspend and inverted substrate types.
+        """
+        Substrate's suspend dielectric height above ground plane for suspend and inverted substrate types.
 
         The default is ``1.27 mm``.
 
@@ -393,7 +402,8 @@ class DistributedSubstrate:
 
     @property
     def substrate_cover_height(self) -> str:
-        """Substrate's cover height for microstrip, suspend, and inverted substrate types.
+        """
+        Substrate's cover height for microstrip, suspend, and inverted substrate types.
         The default is ``6.35 mm``.
 
         Returns
@@ -418,7 +428,8 @@ class DistributedSubstrate:
 
     @property
     def substrate_unbalanced_stripline_enabled(self) -> bool:
-        """Flag indicating if the substrate unbalanced stripline is enabled.
+        """
+        Flag indicating if the substrate unbalanced stripline is enabled.
 
         Returns
         -------
@@ -446,7 +457,8 @@ class DistributedSubstrate:
 
     @property
     def substrate_cover_height_enabled(self) -> bool:
-        """Flag indicating if the substrate cover height is enabled.
+        """
+        Flag indicating if the substrate cover height is enabled.
 
         Returns
         -------

@@ -29,7 +29,8 @@ import ansys.aedt.core
 
 
 class GraphSetup:
-    """Defines the frequency and time limits of the exported responses.
+    """
+    Defines the frequency and time limits of the exported responses.
 
     This class allows you to configure the graph limit parameters.
 
@@ -70,7 +71,8 @@ class GraphSetup:
 
     @property
     def minimum_frequency(self) -> str:
-        """Minimum frequency value for exporting frequency and S parameter responses. The default is ``200 MHz``.
+        """
+        Minimum frequency value for exporting frequency and S parameter responses. The default is ``200 MHz``.
 
         Returns
         -------
@@ -93,7 +95,8 @@ class GraphSetup:
 
     @property
     def maximum_frequency(self) -> str:
-        """Maximum frequency value for exporting frequency and S parameters responses. The default is ``5 GHz``.
+        """
+        Maximum frequency value for exporting frequency and S parameters responses. The default is ``5 GHz``.
 
         Returns
         -------
@@ -116,7 +119,8 @@ class GraphSetup:
 
     @property
     def minimum_time(self) -> str:
-        """Minimum time value for exporting time response. The default is ``0 s``.
+        """
+        Minimum time value for exporting time response. The default is ``0 s``.
 
         Returns
         -------
@@ -139,7 +143,8 @@ class GraphSetup:
 
     @property
     def maximum_time(self) -> str:
-        """Maximum time value for exporting time response. The default is ``10 ns``.
+        """
+        Maximum time value for exporting time response. The default is ``10 ns``.
 
         Returns
         -------

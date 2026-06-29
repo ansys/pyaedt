@@ -81,7 +81,8 @@ def _find_datasets(d, out_list) -> None:
 
 
 class ConfigurationsOptions(PyAedtBase):
-    """Options class for the configurations.
+    """
+    Options class for the configurations.
     User can enable or disable import export components.
 
     Examples
@@ -121,7 +122,8 @@ class ConfigurationsOptions(PyAedtBase):
 
     @property
     def object_mapping_tolerance(self) -> float:
-        """Get/Set the tolerance value to be used in the object mapping (used e.g. for boundaries).
+        """
+        Get/Set the tolerance value to be used in the object mapping (used e.g. for boundaries).
 
         Returns
         -------
@@ -142,7 +144,8 @@ class ConfigurationsOptions(PyAedtBase):
 
     @property
     def export_variables(self) -> bool:
-        """Define if the variables have to be exported into json file. Default is `True`.
+        """
+        Define if the variables have to be exported into json file. Default is `True`.
 
         Returns
         -------
@@ -163,7 +166,8 @@ class ConfigurationsOptions(PyAedtBase):
 
     @property
     def export_setups(self) -> bool:
-        """Define if the setups have to be exported to json file. Default is `True`.
+        """
+        Define if the setups have to be exported to json file. Default is `True`.
 
         Returns
         -------
@@ -184,7 +188,8 @@ class ConfigurationsOptions(PyAedtBase):
 
     @property
     def export_optimizations(self) -> bool:
-        """Define if the optimizations have to be exported to json file. Default is `True`.
+        """
+        Define if the optimizations have to be exported to json file. Default is `True`.
 
         Returns
         -------
@@ -205,7 +210,8 @@ class ConfigurationsOptions(PyAedtBase):
 
     @property
     def export_parametrics(self) -> bool:
-        """Define if the parametrics have to be exported to json file. Default is `True`.
+        """
+        Define if the parametrics have to be exported to json file. Default is `True`.
 
         Returns
         -------
@@ -226,7 +232,8 @@ class ConfigurationsOptions(PyAedtBase):
 
     @property
     def export_boundaries(self) -> bool:
-        """Define if the boundaries have to be exported to json file. Default is `True`.
+        """
+        Define if the boundaries have to be exported to json file. Default is `True`.
 
         Returns
         -------
@@ -247,7 +254,8 @@ class ConfigurationsOptions(PyAedtBase):
 
     @property
     def import_datasets(self) -> bool:
-        """Define if datasets have to be imported from json file. Default is `True`.
+        """
+        Define if datasets have to be imported from json file. Default is `True`.
 
         Returns
         -------
@@ -268,7 +276,8 @@ class ConfigurationsOptions(PyAedtBase):
 
     @property
     def export_datasets(self) -> bool:
-        """Define if datasets have to be exported to json file. Default is `True`.
+        """
+        Define if datasets have to be exported to json file. Default is `True`.
 
         Returns
         -------
@@ -289,7 +298,8 @@ class ConfigurationsOptions(PyAedtBase):
 
     @property
     def export_mesh_operations(self) -> bool:
-        """Define if the Mesh Operations have to be exported to json file. Default is `True`.
+        """
+        Define if the Mesh Operations have to be exported to json file. Default is `True`.
 
         Returns
         -------
@@ -310,7 +320,8 @@ class ConfigurationsOptions(PyAedtBase):
 
     @property
     def export_coordinate_systems(self) -> bool:
-        """Define if the Coordinate Systems have to be exported to json file. Default is `True`.
+        """
+        Define if the Coordinate Systems have to be exported to json file. Default is `True`.
 
         Returns
         -------
@@ -351,7 +362,8 @@ class ConfigurationsOptions(PyAedtBase):
 
     @property
     def export_materials(self) -> bool:
-        """Define if the materials have to be exported to json file. Default is `True`.
+        """
+        Define if the materials have to be exported to json file. Default is `True`.
 
         Returns
         -------
@@ -372,7 +384,8 @@ class ConfigurationsOptions(PyAedtBase):
 
     @property
     def export_object_properties(self) -> bool:
-        """Define if object properties have to be exported to json file. Default is `True`.
+        """
+        Define if object properties have to be exported to json file. Default is `True`.
 
         Returns
         -------
@@ -393,7 +406,8 @@ class ConfigurationsOptions(PyAedtBase):
 
     @property
     def import_variables(self) -> bool:
-        """Define if the variablbes have to be imported/created from json file. Default is `True`.
+        """
+        Define if the variablbes have to be imported/created from json file. Default is `True`.
 
         Returns
         -------
@@ -414,7 +428,8 @@ class ConfigurationsOptions(PyAedtBase):
 
     @property
     def import_setups(self) -> bool:
-        """Define if the setups have to be imported/created from json file. Default is `True`.
+        """
+        Define if the setups have to be imported/created from json file. Default is `True`.
 
         Returns
         -------
@@ -435,7 +450,8 @@ class ConfigurationsOptions(PyAedtBase):
 
     @property
     def import_optimizations(self) -> bool:
-        """Define if the optimizations have to be imported/created from json file. Default is `True`.
+        """
+        Define if the optimizations have to be imported/created from json file. Default is `True`.
 
         Returns
         -------
@@ -456,7 +472,8 @@ class ConfigurationsOptions(PyAedtBase):
 
     @property
     def import_parametrics(self) -> bool:
-        """Define if the parametrics have to be imported/created from json file. Default is `True`.
+        """
+        Define if the parametrics have to be imported/created from json file. Default is `True`.
 
         Returns
         -------
@@ -477,7 +494,8 @@ class ConfigurationsOptions(PyAedtBase):
 
     @property
     def import_boundaries(self) -> bool:
-        """Define if the boundaries have to be imported/created from json file. Default is `True`.
+        """
+        Define if the boundaries have to be imported/created from json file. Default is `True`.
 
         Returns
         -------
@@ -498,7 +516,8 @@ class ConfigurationsOptions(PyAedtBase):
 
     @property
     def import_mesh_operations(self) -> bool:
-        """Define if the Mesh Operations have to be imported/created from json file. Default is `True`.
+        """
+        Define if the Mesh Operations have to be imported/created from json file. Default is `True`.
 
         Returns
         -------
@@ -519,7 +538,8 @@ class ConfigurationsOptions(PyAedtBase):
 
     @property
     def import_coordinate_systems(self) -> bool:
-        """Define if the Coordinate Systems have to be imported/created from json file. Default is `True`.
+        """
+        Define if the Coordinate Systems have to be imported/created from json file. Default is `True`.
 
         Returns
         -------
@@ -560,7 +580,8 @@ class ConfigurationsOptions(PyAedtBase):
 
     @property
     def import_materials(self) -> bool:
-        """Define if the materials have to be imported/created from json file. Default is `True`.
+        """
+        Define if the materials have to be imported/created from json file. Default is `True`.
 
         Returns
         -------
@@ -577,7 +598,8 @@ class ConfigurationsOptions(PyAedtBase):
 
     @property
     def import_output_variables(self) -> bool:
-        """Define if the output variables have to be imported/created from json file. Default is `True`.
+        """
+        Define if the output variables have to be imported/created from json file. Default is `True`.
 
         Returns
         -------
@@ -602,7 +624,8 @@ class ConfigurationsOptions(PyAedtBase):
 
     @property
     def import_object_properties(self) -> bool:
-        """Define if object properties have to be imported/created from json file. Default is `True`.
+        """
+        Define if object properties have to be imported/created from json file. Default is `True`.
 
         Returns
         -------
@@ -623,7 +646,8 @@ class ConfigurationsOptions(PyAedtBase):
 
     @property
     def skip_import_if_exists(self) -> bool:
-        """Define if the existing boundaries or properties will be updated or not. Default is `True`.
+        """
+        Define if the existing boundaries or properties will be updated or not. Default is `True`.
 
         Returns
         -------
@@ -644,7 +668,8 @@ class ConfigurationsOptions(PyAedtBase):
 
     @property
     def _is_any_import_set(self) -> bool:
-        """Returns ``True`` if any import setting is set to ``True``. It returns ``False`` otherwise.
+        """
+        Returns ``True`` if any import setting is set to ``True``. It returns ``False`` otherwise.
 
         Returns
         -------
@@ -657,7 +682,8 @@ class ConfigurationsOptions(PyAedtBase):
 
     @pyaedt_function_handler()
     def unset_all_export(self) -> bool:
-        """Set all export properties to `False`.
+        """
+        Set all export properties to `False`.
 
         Returns
         -------
@@ -677,7 +703,8 @@ class ConfigurationsOptions(PyAedtBase):
 
     @pyaedt_function_handler()
     def set_all_export(self) -> bool:
-        """Set all export properties to `True`.
+        """
+        Set all export properties to `True`.
 
         Returns
         -------
@@ -697,7 +724,8 @@ class ConfigurationsOptions(PyAedtBase):
 
     @pyaedt_function_handler()
     def unset_all_import(self) -> bool:
-        """Set all import properties to `False`.
+        """
+        Set all import properties to `False`.
 
         Returns
         -------
@@ -717,7 +745,8 @@ class ConfigurationsOptions(PyAedtBase):
 
     @pyaedt_function_handler()
     def set_all_import(self) -> bool:
-        """Set all import properties to `True`.
+        """
+        Set all import properties to `True`.
 
         Returns
         -------
@@ -737,7 +766,8 @@ class ConfigurationsOptions(PyAedtBase):
 
 
 class ImportResults(PyAedtBase):
-    """Contains the results of the import operations.
+    """
+    Contains the results of the import operations.
 
     Each result can be ``True`` or ``False``.
 
@@ -773,7 +803,8 @@ class ImportResults(PyAedtBase):
 
     @property
     def global_import_success(self) -> bool:
-        """Returns ``True`` if all imports are successful. It returns ``False`` otherwise.
+        """
+        Returns ``True`` if all imports are successful. It returns ``False`` otherwise.
 
         Returns
         -------
@@ -794,7 +825,8 @@ class ImportResults(PyAedtBase):
 
 
 class Configurations(PyAedtBase):
-    """Enables export and import of a JSON configuration file that can be applied to a new or existing design.
+    """
+    Enables export and import of a JSON configuration file that can be applied to a new or existing design.
 
     Examples
     --------
@@ -812,7 +844,8 @@ class Configurations(PyAedtBase):
 
     @property
     def schema(self) -> dict:
-        """Schema dictionary.
+        """
+        Schema dictionary.
 
         Returns
         -------
@@ -1149,7 +1182,8 @@ class Configurations(PyAedtBase):
 
     @pyaedt_function_handler()
     def validate(self, config: str | dict) -> bool:
-        """Validate a configuration file against the schema.
+        """
+        Validate a configuration file against the schema.
 
         The default schema can be found in ``src/ansys/aedt/core/misc/config.schema.json``.
 
@@ -1196,7 +1230,8 @@ class Configurations(PyAedtBase):
 
     @pyaedt_function_handler()
     def import_config(self, config_file: str | Path, *args) -> dict:
-        """Import configuration settings from a JSON or TOML file and apply it to the current design.
+        """
+        Import configuration settings from a JSON or TOML file and apply it to the current design.
 
         The sections to be applied are defined with the ``configuration.options`` class.
         The import operation result is saved in the ``configuration.results`` class.
@@ -1593,7 +1628,8 @@ class Configurations(PyAedtBase):
 
     @pyaedt_function_handler()
     def export_config(self, config_file: str | None = None, overwrite: bool | None = False) -> str:
-        """Export current design properties to a JSON or TOML file.
+        """
+        Export current design properties to a JSON or TOML file.
 
         The sections to be exported are defined with ``configuration.options`` class.
 
@@ -1716,7 +1752,8 @@ class ConfigurationOptions3DLayout(ConfigurationsOptions, PyAedtBase):
 
 
 class Configurations3DLayout(Configurations, PyAedtBase):
-    """Enables export and import configuration options to be applied to a new or existing 3DLayout design.
+    """
+    Enables export and import configuration options to be applied to a new or existing 3DLayout design.
 
     Examples
     --------
@@ -1732,7 +1769,8 @@ class Configurations3DLayout(Configurations, PyAedtBase):
 
 
 class ConfigurationsIcepak(Configurations, PyAedtBase):
-    """Enables export and import configuration options to be applied on a new or existing design.
+    """
+    Enables export and import configuration options to be applied on a new or existing design.
 
     Examples
     --------
@@ -1880,7 +1918,8 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
 
     @pyaedt_function_handler()
     def update_monitor(self, m_case: str, m_object, m_quantity: list | str, m_name: str) -> bool:
-        """Generic method for inserting monitor object
+        """
+        Generic method for inserting monitor object
 
         Parameters
         ----------
@@ -1974,7 +2013,8 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
 
     @pyaedt_function_handler()
     def import_config(self, config_file: str, *args) -> dict:
-        """Import configuration settings from a JSON or TOML file and apply it to the current design.
+        """
+        Import configuration settings from a JSON or TOML file and apply it to the current design.
 
         The sections to be applied are defined with ``configuration.options`` class.
         The import operation result is saved in the ``configuration.results`` class.
@@ -2387,7 +2427,8 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
 
 
 class ConfigurationsNexxim(Configurations, PyAedtBase):
-    """Enables export and import configuration options to be applied to a new or existing Nexxim design.
+    """
+    Enables export and import configuration options to be applied to a new or existing Nexxim design.
 
     Examples
     --------
@@ -2399,7 +2440,8 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
 
     @pyaedt_function_handler()
     def export_config(self, config_file: str | None = None, overwrite: bool | None = False) -> str:
-        """Export current design properties to a JSON or TOML file.
+        """
+        Export current design properties to a JSON or TOML file.
 
         Parameters
         ----------
@@ -2597,7 +2639,8 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
 
     @pyaedt_function_handler()
     def import_config(self, config_file: str, *args) -> dict:
-        """Import configuration settings from a JSON or TOML file and apply it to the current design.
+        """
+        Import configuration settings from a JSON or TOML file and apply it to the current design.
 
         Parameters
         ----------

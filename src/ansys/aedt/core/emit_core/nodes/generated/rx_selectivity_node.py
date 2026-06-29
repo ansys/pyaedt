@@ -36,7 +36,8 @@ class RxSelectivityNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
-        """The parent of this emit node.
+        """
+        The parent of this emit node.
 
         Examples
         --------
@@ -48,7 +49,8 @@ class RxSelectivityNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node.
+        """
+        The type of this emit node.
 
         Examples
         --------
@@ -59,7 +61,8 @@ class RxSelectivityNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def import_csv_file(self, file_name: str) -> EmitNode:
-        """Import a CSV File...
+        """
+        Import a CSV File...
 
         Examples
         --------
@@ -70,7 +73,8 @@ class RxSelectivityNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node
+        """
+        Delete this node
 
         Examples
         --------
@@ -82,7 +86,8 @@ class RxSelectivityNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def table_data(self) -> list[tuple]:
-        """Rx Selectivity Table.
+        """
+        Rx Selectivity Table.
         Table consists of 2 columns.
         Bandwidth:
             Value should be between 0 and 100e9.
@@ -104,7 +109,8 @@ class RxSelectivityNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def enabled(self) -> bool:
-        """Enabled state for this node.
+        """
+        Enabled state for this node.
 
         Examples
         --------
@@ -121,7 +127,8 @@ class RxSelectivityNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def use_arithmetic_mean(self) -> bool:
-        """Use Arithmetic Mean.
+        """
+        Use Arithmetic Mean.
 
         Uses arithmetic mean to center bandwidths about the tuned channel
         frequency.

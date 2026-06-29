@@ -34,7 +34,8 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 
 class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
-    """Provide the Maxwell Circuit application interface.
+    """
+    Provide the Maxwell Circuit application interface.
 
     Parameters
     ----------
@@ -145,7 +146,8 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_schematic_from_netlist(self, input_file: str) -> bool:
-        """Create a circuit schematic from an HSpice net list.
+        """
+        Create a circuit schematic from an HSpice net list.
 
         Supported currently are:
 
@@ -220,7 +222,8 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
 
     @pyaedt_function_handler()
     def export_netlist_from_schematic(self, output_file: str | Path) -> str | bool:
-        """Create netlist from schematic circuit.
+        """
+        Create netlist from schematic circuit.
 
         Parameters
         ----------

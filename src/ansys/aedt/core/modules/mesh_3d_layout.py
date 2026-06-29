@@ -38,7 +38,8 @@ from ansys.aedt.core.modules.mesh import MeshProps
 
 
 class Mesh3DOperation(PropsManager, PyAedtBase):
-    """Mesh3DOperation class.
+    """
+    Mesh3DOperation class.
 
     Parameters
     ----------
@@ -67,7 +68,8 @@ class Mesh3DOperation(PropsManager, PyAedtBase):
 
     @pyaedt_function_handler()
     def _get_args(self, props=None):
-        """Retrieve arguments.
+        """
+        Retrieve arguments.
 
         Parameters
         ----------
@@ -89,7 +91,8 @@ class Mesh3DOperation(PropsManager, PyAedtBase):
 
     @pyaedt_function_handler()
     def create(self) -> bool:
-        """Create a mesh.
+        """
+        Create a mesh.
 
         Returns
         -------
@@ -112,7 +115,8 @@ class Mesh3DOperation(PropsManager, PyAedtBase):
 
     @pyaedt_function_handler()
     def update(self, *args, **kwargs) -> bool:
-        """Update the mesh.
+        """
+        Update the mesh.
 
         Returns
         -------
@@ -135,7 +139,8 @@ class Mesh3DOperation(PropsManager, PyAedtBase):
 
     @pyaedt_function_handler()
     def delete(self) -> bool:
-        """Delete the mesh.
+        """
+        Delete the mesh.
 
         Returns
         -------
@@ -162,7 +167,8 @@ class Mesh3DOperation(PropsManager, PyAedtBase):
 
 
 class Mesh3d(PyAedtBase):
-    """Manages mesh operations for HFSS 3D Layout.
+    """
+    Manages mesh operations for HFSS 3D Layout.
 
     Provides the main AEDT mesh functionality. The inherited class
     ``AEDTConfig`` contains all ``_desktop`` hierarchical calls needed by this class.
@@ -193,7 +199,8 @@ class Mesh3d(PyAedtBase):
 
     @pyaedt_function_handler()
     def generate_mesh(self, name: str) -> bool:
-        """Generate the mesh for a design.
+        """
+        Generate the mesh for a design.
 
         Parameters
         ----------
@@ -221,7 +228,8 @@ class Mesh3d(PyAedtBase):
 
     @property
     def omeshmodule(self):
-        """AEDT Mesh Module.
+        """
+        AEDT Mesh Module.
 
         References
         ----------
@@ -238,7 +246,8 @@ class Mesh3d(PyAedtBase):
 
     @pyaedt_function_handler()
     def delete_mesh_operations(self, setup: str, name: str) -> bool:
-        """Remove mesh operations from a setup.
+        """
+        Remove mesh operations from a setup.
 
         Parameters
         ----------
@@ -272,7 +281,8 @@ class Mesh3d(PyAedtBase):
 
     @pyaedt_function_handler()
     def _get_design_mesh_operations(self):
-        """Retrieve design mesh operations.
+        """
+        Retrieve design mesh operations.
 
         Returns
         -------
@@ -302,7 +312,8 @@ class Mesh3d(PyAedtBase):
         maximum_elements: int = 1000,
         name: str = None,
     ) -> Mesh3DOperation:
-        """Assign mesh length.
+        """
+        Assign mesh length.
 
         Parameters
         ----------
@@ -404,7 +415,8 @@ class Mesh3d(PyAedtBase):
         layers_number: str = "2",
         name: str = None,
     ) -> Mesh3DOperation:
-        """Assign skin depth to the mesh.
+        """
+        Assign skin depth to the mesh.
 
         Parameters
         ----------

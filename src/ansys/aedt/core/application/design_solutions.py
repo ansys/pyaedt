@@ -49,7 +49,8 @@ class DesignSolution(PyAedtBase):
 
     @property
     def solution_type(self) -> str:
-        """Get/Set the Solution Type of the active Design.
+        """
+        Get/Set the Solution Type of the active Design.
 
         Examples
         --------
@@ -109,7 +110,8 @@ class DesignSolution(PyAedtBase):
 
     @property
     def report_type(self) -> str:
-        """Return the default report type of the selected solution if present.
+        """
+        Return the default report type of the selected solution if present.
 
         Examples
         --------
@@ -122,7 +124,8 @@ class DesignSolution(PyAedtBase):
 
     @property
     def default_setup(self) -> str:
-        """Return the default setup id of the selected solution if present.
+        """
+        Return the default setup id of the selected solution if present.
 
         Examples
         --------
@@ -135,7 +138,8 @@ class DesignSolution(PyAedtBase):
 
     @property
     def default_adaptive(self) -> str:
-        """Return the default adaptive name of the selected solution if present.
+        """
+        Return the default adaptive name of the selected solution if present.
 
         Examples
         --------
@@ -148,7 +152,8 @@ class DesignSolution(PyAedtBase):
 
     @property
     def solution_types(self) -> list[str]:
-        """Return the list of all available solutions.
+        """
+        Return the list of all available solutions.
 
         Examples
         --------
@@ -161,7 +166,8 @@ class DesignSolution(PyAedtBase):
 
     @property
     def design_types(self) -> list[str]:
-        """Return the list of all available designs.
+        """
+        Return the list of all available designs.
 
         Examples
         --------
@@ -174,7 +180,8 @@ class DesignSolution(PyAedtBase):
 
     @property
     def intrinsics(self) -> list[str]:
-        """Get list of intrinsics for that specified setup.
+        """
+        Get list of intrinsics for that specified setup.
 
         Examples
         --------
@@ -198,7 +205,8 @@ class HFSSDesignSolution(DesignSolution, PyAedtBase):
 
     @property
     def solution_type(self) -> str:
-        """Get/Set the Solution Type of the active Design.
+        """
+        Get/Set the Solution Type of the active Design.
 
         Examples
         --------
@@ -276,7 +284,8 @@ class HFSSDesignSolution(DesignSolution, PyAedtBase):
 
     @property
     def hybrid(self) -> bool:
-        """HFSS hybrid mode for the active solution.
+        """
+        HFSS hybrid mode for the active solution.
 
         Examples
         --------
@@ -308,7 +317,8 @@ class HFSSDesignSolution(DesignSolution, PyAedtBase):
 
     @property
     def composite(self) -> bool:
-        """HFSS composite mode for the active solution.
+        """
+        HFSS composite mode for the active solution.
 
         Examples
         --------
@@ -340,7 +350,8 @@ class HFSSDesignSolution(DesignSolution, PyAedtBase):
 
     @pyaedt_function_handler()
     def set_auto_open(self, enable: bool = True, opening_type: str = "Radiation") -> bool:
-        """Set HFSS auto open type.
+        """
+        Set HFSS auto open type.
 
         Parameters
         ----------
@@ -380,7 +391,8 @@ class Maxwell2DDesignSolution(DesignSolution, PyAedtBase):
 
     @property
     def xy_plane(self) -> bool:
-        """Get/Set Maxwell 2d plane between `"XY"` and `"about Z"`.
+        """
+        Get/Set Maxwell 2d plane between `"XY"` and `"about Z"`.
 
         Examples
         --------
@@ -402,7 +414,8 @@ class Maxwell2DDesignSolution(DesignSolution, PyAedtBase):
 
     @property
     def solution_type(self):
-        """Get/Set the Solution Type of the active Design.
+        """
+        Get/Set the Solution Type of the active Design.
 
         Examples
         --------
@@ -458,7 +471,8 @@ class IcepakDesignSolution(DesignSolution, PyAedtBase):
 
     @property
     def problem_type(self) -> str:
-        """Get/Set the problem type of the icepak Design.
+        """
+        Get/Set the problem type of the icepak Design.
 
         It can be any of`"TemperatureAndFlow"`, `"TemperatureOnly"`,`"FlowOnly"`.
 
@@ -502,7 +516,8 @@ class IcepakDesignSolution(DesignSolution, PyAedtBase):
 
     @property
     def solution_type(self) -> str:
-        """Get/Set the Solution Type of the active Design.
+        """
+        Get/Set the Solution Type of the active Design.
 
         Examples
         --------
@@ -553,7 +568,8 @@ class RmXprtDesignSolution(DesignSolution, PyAedtBase):
 
     @property
     def solution_type(self) -> str:
-        """Get/Set the Machine Type of the active Design.
+        """
+        Get/Set the Machine Type of the active Design.
 
         Examples
         --------
@@ -577,7 +593,8 @@ class RmXprtDesignSolution(DesignSolution, PyAedtBase):
 
     @property
     def design_type(self) -> str:
-        """Get/Set the Machine Design Type.
+        """
+        Get/Set the Machine Design Type.
 
         Examples
         --------

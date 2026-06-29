@@ -22,7 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""This module contains these classes: `CouplingsEmit`.
+"""
+This module contains these classes: `CouplingsEmit`.
 
 This module provides for interacting with EMIT Analysis and Results windows.
 
@@ -38,7 +39,8 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class CouplingsEmit(object):
-    """Provides for interaction with the EMIT ```coupling`` folder.
+    """
+    Provides for interaction with the EMIT ```coupling`` folder.
 
     This class is accessible through the results variable
     object (``emit.couplings``) for the EMIT app.
@@ -67,7 +69,8 @@ class CouplingsEmit(object):
 
     @property
     def logger(self) -> object:
-        """Logger.
+        """
+        Logger.
 
         Examples
         --------
@@ -85,7 +88,8 @@ class CouplingsEmit(object):
 
     @property
     def projdir(self) -> str:
-        """Project directory.
+        """
+        Project directory.
 
         Examples
         --------
@@ -98,7 +102,8 @@ class CouplingsEmit(object):
 
     @property
     def coupling_names(self) -> list[str]:
-        """List of existing link names.
+        """
+        List of existing link names.
 
         Parameters
         ----------
@@ -119,7 +124,8 @@ class CouplingsEmit(object):
         return self._odesign.GetLinkNames()
 
     def add_link(self, new_coupling_name: str):
-        """Add a new link if it's not already there.
+        """
+        Add a new link if it's not already there.
 
         Parameters
         ----------
@@ -141,7 +147,8 @@ class CouplingsEmit(object):
             self._odesign.AddLink(new_coupling_name)
 
     def delete_link(self, coupling_link_name: str):
-        """Delete a link from the EMIT design.
+        """
+        Delete a link from the EMIT design.
 
         Parameters
         ----------
@@ -161,7 +168,8 @@ class CouplingsEmit(object):
         self._odesign.DeleteLink(coupling_link_name)
 
     def update_link(self, coupling_name: str):
-        """Update the link if it's a valid link.
+        """
+        Update the link if it's a valid link.
 
         Check if anything in the linked design has changed and retrieve updated data if it has.
 
@@ -186,7 +194,8 @@ class CouplingsEmit(object):
     @property
     @min_aedt_version("2022.2")
     def linkable_design_names(self) -> list[str]:
-        """List the available link names.
+        """
+        List the available link names.
 
         This property is only available in AEDT version 2022.2 or higher.
 
@@ -210,7 +219,8 @@ class CouplingsEmit(object):
 
     @property
     def cad_nodes(self) -> dict:
-        """Dictionary of the CAD nodes.
+        """
+        Dictionary of the CAD nodes.
 
         Parameters
         ----------
@@ -239,7 +249,8 @@ class CouplingsEmit(object):
 
     @property
     def antenna_nodes(self) -> dict:
-        """Dictionary of the antenna nodes.
+        """
+        Dictionary of the antenna nodes.
 
         Parameters
         ----------

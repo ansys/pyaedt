@@ -22,7 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""This module contains the ``Settings`` and ``_InnerProjectSettings`` classes.
+"""
+This module contains the ``Settings`` and ``_InnerProjectSettings`` classes.
 
 The first class encapsulates the settings associated with PyAEDT and AEDT including logging,
 LSF, environment variables and general settings. Most of the default values used can be modified
@@ -152,7 +153,8 @@ DEFAULT_GRPC_LISTEN_ALL: bool = False
 
 
 def generate_log_filename() -> str:
-    """Generate a log filename.
+    """
+    Generate a log filename.
 
     Examples
     --------
@@ -167,7 +169,8 @@ def generate_log_filename() -> str:
 
 
 class _InnerProjectSettings:  # pragma: no cover
-    """Global inner project settings.
+    """
+    Global inner project settings.
 
     This class is intended for internal use only.
     """
@@ -179,7 +182,8 @@ class _InnerProjectSettings:  # pragma: no cover
 
 
 class Settings(PyAedtBase):
-    """Manages all PyAEDT environment variables and global settings.
+    """
+    Manages all PyAEDT environment variables and global settings.
 
     Examples
     --------
@@ -293,7 +297,8 @@ class Settings(PyAedtBase):
 
     @property
     def enable_monitor_in_aedt(self) -> bool:
-        """Enable monitor in AEDT application during its launch.
+        """
+        Enable monitor in AEDT application during its launch.
         Default is ``False`` to guarantee back compatibility.
         """
         return self.__enable_monitor_in_aedt
@@ -304,7 +309,8 @@ class Settings(PyAedtBase):
 
     @property
     def pyedb_use_grpc(self) -> bool | None:
-        """Flag for whether to use PyEDB with gRPC or not.
+        """
+        Flag for whether to use PyEDB with gRPC or not.
         The default is ``None``.
 
         Examples
@@ -321,7 +327,8 @@ class Settings(PyAedtBase):
 
     @property
     def grpc_secure_mode(self) -> bool:
-        """Flag for whether to use secure mode for gRPC API.
+        """
+        Flag for whether to use secure mode for gRPC API.
         The default is ``True``.
 
         Examples
@@ -338,7 +345,8 @@ class Settings(PyAedtBase):
 
     @property
     def grpc_local(self) -> bool:
-        """Flag for whether to use local connection for gRPC API.
+        """
+        Flag for whether to use local connection for gRPC API.
         The default is ``True``.
 
         Examples
@@ -355,7 +363,8 @@ class Settings(PyAedtBase):
 
     @property
     def grpc_listen_all(self) -> bool:
-        """Flag for whether to listen on all interfaces for gRPC API.
+        """
+        Flag for whether to listen on all interfaces for gRPC API.
         The default is ``False``.
 
         Examples
@@ -374,7 +383,8 @@ class Settings(PyAedtBase):
 
     @property
     def logger(self) -> logging.Logger | None:
-        """Active logger.
+        """
+        Active logger.
 
         Examples
         --------
@@ -391,7 +401,8 @@ class Settings(PyAedtBase):
 
     @property
     def block_figure_plot(self) -> bool:
-        """Block matplotlib figure plot during python script run until the user close it manually.
+        """
+        Block matplotlib figure plot during python script run until the user close it manually.
 
         Default is ``False``.
 
@@ -409,7 +420,8 @@ class Settings(PyAedtBase):
 
     @property
     def enable_desktop_logs(self) -> bool:
-        """Enable or disable the logging to the AEDT message window.
+        """
+        Enable or disable the logging to the AEDT message window.
 
         Examples
         --------
@@ -425,7 +437,8 @@ class Settings(PyAedtBase):
 
     @property
     def global_log_file_size(self) -> int:
-        """Global PyAEDT log file size in MB. The default value is ``10``.
+        """
+        Global PyAEDT log file size in MB. The default value is ``10``.
 
         Examples
         --------
@@ -441,7 +454,8 @@ class Settings(PyAedtBase):
 
     @property
     def enable_global_log_file(self) -> bool:
-        """Enable or disable the global PyAEDT log file located in the global temp folder.
+        """
+        Enable or disable the global PyAEDT log file located in the global temp folder.
 
         The default is ``True``.
 
@@ -459,7 +473,8 @@ class Settings(PyAedtBase):
 
     @property
     def enable_local_log_file(self) -> bool:
-        """Enable or disable the local PyAEDT log file located in the ``projectname.pyaedt`` project folder.
+        """
+        Enable or disable the local PyAEDT log file located in the ``projectname.pyaedt`` project folder.
 
         The default is ``True``.
 
@@ -477,7 +492,8 @@ class Settings(PyAedtBase):
 
     @property
     def global_log_file_name(self) -> str:
-        """Global PyAEDT log file path. The default is ``pyaedt_username.log``.
+        """
+        Global PyAEDT log file path. The default is ``pyaedt_username.log``.
 
         Examples
         --------
@@ -494,7 +510,8 @@ class Settings(PyAedtBase):
 
     @property
     def enable_debug_methods_argument_logger(self) -> bool:
-        """Flag for whether to write out the method's arguments in the debug logger.
+        """
+        Flag for whether to write out the method's arguments in the debug logger.
 
         The default is ``False``.
 
@@ -512,7 +529,8 @@ class Settings(PyAedtBase):
 
     @property
     def enable_screen_logs(self) -> bool:
-        """Enable or disable the logging to STDOUT.
+        """
+        Enable or disable the logging to STDOUT.
 
         Examples
         --------
@@ -528,7 +546,8 @@ class Settings(PyAedtBase):
 
     @property
     def enable_file_logs(self) -> bool:
-        """Enable or disable the logging to a file.
+        """
+        Enable or disable the logging to a file.
 
         Examples
         --------
@@ -544,7 +563,8 @@ class Settings(PyAedtBase):
 
     @property
     def enable_logger(self) -> bool:
-        """Enable or disable the logging overall.
+        """
+        Enable or disable the logging overall.
 
         Examples
         --------
@@ -560,7 +580,8 @@ class Settings(PyAedtBase):
 
     @property
     def logger_file_path(self) -> str | None:
-        """PyAEDT log file path.
+        """
+        PyAEDT log file path.
 
         Examples
         --------
@@ -576,7 +597,8 @@ class Settings(PyAedtBase):
 
     @property
     def logger_formatter(self) -> str:
-        """Message format of the log entries.
+        """
+        Message format of the log entries.
 
         The default is ``'%(asctime)s:%(destination)s:%(extra)s%(levelname)-8s:%(message)s'``.
 
@@ -594,7 +616,8 @@ class Settings(PyAedtBase):
 
     @property
     def logger_datefmt(self) -> str:
-        """Date format of the log entries.
+        """
+        Date format of the log entries.
 
         The default is ``'%Y/%m/%d %H.%M.%S'``
 
@@ -612,7 +635,8 @@ class Settings(PyAedtBase):
 
     @property
     def enable_debug_edb_logger(self) -> bool:
-        """Enable or disable the logger for any EDB API methods.
+        """
+        Enable or disable the logger for any EDB API methods.
 
         Examples
         --------
@@ -628,7 +652,8 @@ class Settings(PyAedtBase):
 
     @property
     def enable_debug_grpc_api_logger(self) -> bool:
-        """Enable or disable the logging for the gRPC API calls.
+        """
+        Enable or disable the logging for the gRPC API calls.
 
         Examples
         --------
@@ -644,7 +669,8 @@ class Settings(PyAedtBase):
 
     @property
     def enable_debug_geometry_operator_logger(self) -> bool:
-        """Enable or disable the logging for the geometry operators.
+        """
+        Enable or disable the logging for the geometry operators.
 
         This setting is useful for debug purposes.
 
@@ -662,7 +688,8 @@ class Settings(PyAedtBase):
 
     @property
     def enable_debug_internal_methods_logger(self) -> bool:
-        """Enable or disable the logging for internal methods.
+        """
+        Enable or disable the logging for internal methods.
 
         This setting is useful for debug purposes.
 
@@ -680,7 +707,8 @@ class Settings(PyAedtBase):
 
     @property
     def enable_debug_logger(self) -> bool:
-        """Enable or disable the debug level logger.
+        """
+        Enable or disable the debug level logger.
 
         Examples
         --------
@@ -696,7 +724,8 @@ class Settings(PyAedtBase):
 
     @property
     def aedt_log_file(self) -> str:
-        """Path to the AEDT log file.
+        """
+        Path to the AEDT log file.
 
         Used to specify that Electronics Desktop has to be launched with ``-Logfile`` option.
 
@@ -716,7 +745,8 @@ class Settings(PyAedtBase):
 
     @property
     def lsf_queue(self) -> str:
-        """LSF queue name.
+        """
+        LSF queue name.
 
         This attribute is valid only on Linux systems running LSF Scheduler.
 
@@ -734,7 +764,8 @@ class Settings(PyAedtBase):
 
     @property
     def use_lsf_scheduler(self) -> bool:
-        """Whether to use LSF Scheduler.
+        """
+        Whether to use LSF Scheduler.
 
         This attribute is valid only on Linux systems running LSF Scheduler.
         When setting this property to ``True``, some gRPC properties are updated to align with the change.
@@ -759,7 +790,8 @@ class Settings(PyAedtBase):
 
     @property
     def lsf_aedt_command(self) -> str:
-        """Command to launch the task in the LSF Scheduler.
+        """
+        Command to launch the task in the LSF Scheduler.
 
         The default is ``"ansysedt"``.
         This attribute is valid only on Linux systems running LSF Scheduler.
@@ -778,7 +810,8 @@ class Settings(PyAedtBase):
 
     @property
     def num_cores(self) -> int:
-        """Number cores to use with the scheduler.
+        """
+        Number cores to use with the scheduler.
 
         Examples
         --------
@@ -794,7 +827,8 @@ class Settings(PyAedtBase):
 
     @property
     def lsf_ram(self) -> int:
-        """RAM allocated for the LSF job.
+        """
+        RAM allocated for the LSF job.
 
         This attribute is valid only on Linux systems running LSF Scheduler.
 
@@ -812,7 +846,8 @@ class Settings(PyAedtBase):
 
     @property
     def lsf_ui(self) -> int:
-        """Value passed in the LSF 'select' string to the ui resource.
+        """
+        Value passed in the LSF 'select' string to the ui resource.
 
         Examples
         --------
@@ -829,7 +864,8 @@ class Settings(PyAedtBase):
 
     @property
     def lsf_timeout(self) -> int:
-        """Timeout in seconds for trying to start the interactive session. The default is ``3600`` seconds.
+        """
+        Timeout in seconds for trying to start the interactive session. The default is ``3600`` seconds.
 
         Examples
         --------
@@ -845,7 +881,8 @@ class Settings(PyAedtBase):
 
     @property
     def lsf_osrel(self) -> str:
-        """Operating system string.
+        """
+        Operating system string.
         This attribute is valid only on Linux systems running LSF Scheduler.
 
         Examples
@@ -862,7 +899,8 @@ class Settings(PyAedtBase):
 
     @property
     def custom_lsf_command(self) -> str:
-        """Command to launch in the LSF Scheduler. The default is ``None``.
+        """
+        Command to launch in the LSF Scheduler. The default is ``None``.
         This attribute is valid only on Linux systems running LSF Scheduler.
 
         Examples
@@ -881,7 +919,8 @@ class Settings(PyAedtBase):
 
     @property
     def aedt_environment_variables(self) -> dict:
-        """Environment variables that are set before launching a new AEDT session,
+        """
+        Environment variables that are set before launching a new AEDT session,
         including those that enable the beta features.
 
         Examples
@@ -900,7 +939,8 @@ class Settings(PyAedtBase):
 
     @property
     def remote_api(self) -> bool:
-        """State whether remote API is used or not.
+        """
+        State whether remote API is used or not.
 
         Examples
         --------
@@ -916,7 +956,8 @@ class Settings(PyAedtBase):
 
     @property
     def formatter(self) -> logging.Formatter | None:
-        """Get the formatter.
+        """
+        Get the formatter.
 
         Examples
         --------
@@ -933,7 +974,8 @@ class Settings(PyAedtBase):
 
     @property
     def remote_rpc_session(self) -> Any | None:
-        """Get the RPyC connection.
+        """
+        Get the RPyC connection.
 
         Examples
         --------
@@ -949,7 +991,8 @@ class Settings(PyAedtBase):
 
     @property
     def remote_rpc_session_temp_folder(self) -> str | None:
-        """Get the remote RPyC session temp folder.
+        """
+        Get the remote RPyC session temp folder.
 
         Examples
         --------
@@ -965,7 +1008,8 @@ class Settings(PyAedtBase):
 
     @property
     def remote_rpc_service_manager_port(self) -> int:
-        """Get the remote RPyC service manager port.
+        """
+        Get the remote RPyC service manager port.
 
         Examples
         --------
@@ -981,7 +1025,8 @@ class Settings(PyAedtBase):
 
     @property
     def time_tick(self) -> float:
-        """Time in seconds since the 'epoch' as a floating-point number.
+        """
+        Time in seconds since the 'epoch' as a floating-point number.
 
         Examples
         --------
@@ -998,7 +1043,8 @@ class Settings(PyAedtBase):
 
     @property
     def release_on_exception(self) -> bool:
-        """Enable or disable the release of AEDT on exception.
+        """
+        Enable or disable the release of AEDT on exception.
 
         Examples
         --------
@@ -1014,7 +1060,8 @@ class Settings(PyAedtBase):
 
     @property
     def objects_lazy_load(self) -> bool:
-        """Flag for enabling and disabling the lazy load. The default value is ``True``.
+        """
+        Flag for enabling and disabling the lazy load. The default value is ``True``.
 
         Examples
         --------
@@ -1030,7 +1077,8 @@ class Settings(PyAedtBase):
 
     @property
     def lazy_load(self) -> bool:
-        """Flag for enabling and disabling the lazy load. The default value is ``True``.
+        """
+        Flag for enabling and disabling the lazy load. The default value is ``True``.
 
         Examples
         --------
@@ -1046,7 +1094,8 @@ class Settings(PyAedtBase):
 
     @property
     def wait_for_license(self) -> bool:
-        """Enable or disable the use of the flag `-waitforlicense` when launching Electronic Desktop.
+        """
+        Enable or disable the use of the flag `-waitforlicense` when launching Electronic Desktop.
 
         The default value is ``False``.
 
@@ -1064,7 +1113,8 @@ class Settings(PyAedtBase):
 
     @property
     def retry_n_times_time_interval(self) -> float:
-        """Time interval between the retries by the ``_retry_n_times`` method.
+        """
+        Time interval between the retries by the ``_retry_n_times`` method.
 
         Examples
         --------
@@ -1080,7 +1130,8 @@ class Settings(PyAedtBase):
 
     @property
     def number_of_grpc_api_retries(self) -> int:
-        """Number of gRPC API retries. The default is ``3``.
+        """
+        Number of gRPC API retries. The default is ``3``.
 
         Examples
         --------
@@ -1096,7 +1147,8 @@ class Settings(PyAedtBase):
 
     @property
     def desktop_launch_timeout(self) -> int:
-        """Timeout in seconds for trying to launch AEDT. The default is ``120`` seconds.
+        """
+        Timeout in seconds for trying to launch AEDT. The default is ``120`` seconds.
 
         Examples
         --------
@@ -1112,7 +1164,8 @@ class Settings(PyAedtBase):
 
     @property
     def aedt_version(self) -> str | None:
-        """AEDT version in the form ``"2023.x"``.
+        """
+        AEDT version in the form ``"2023.x"``.
 
         In AEDT 2022 R2 and later, evaluating a bounding box by exporting a SAT file is disabled.
 
@@ -1132,7 +1185,8 @@ class Settings(PyAedtBase):
 
     @property
     def use_multi_desktop(self) -> bool:
-        """Flag indicating if multiple desktop sessions are enabled in the same Python script.
+        """
+        Flag indicating if multiple desktop sessions are enabled in the same Python script.
 
         Current limitations follow:
         - Release without closing the desktop is not possible,
@@ -1154,7 +1208,8 @@ class Settings(PyAedtBase):
 
     @property
     def edb_dll_path(self) -> Path | None:
-        """Optional path for the EDB DLL file.
+        """
+        Optional path for the EDB DLL file.
 
         Examples
         --------
@@ -1176,7 +1231,8 @@ class Settings(PyAedtBase):
 
     @property
     def enable_pandas_output(self) -> bool:
-        """Flag for whether Pandas is being used to export dictionaries and lists.
+        """
+        Flag for whether Pandas is being used to export dictionaries and lists.
 
         This attribute applies to Solution data output.
         The default is ``False``. If ``True``, the property or method returns a Pandas object.
@@ -1196,7 +1252,8 @@ class Settings(PyAedtBase):
 
     @property
     def force_error_on_missing_project(self) -> bool:
-        """Flag for whether to check the project path.
+        """
+        Flag for whether to check the project path.
 
         The default is ``False``.
         If ``True``, when passing a project path, the project has to exist.
@@ -1216,7 +1273,8 @@ class Settings(PyAedtBase):
 
     @property
     def disable_bounding_box_sat(self) -> bool:
-        """Flag for enabling and disabling bounding box evaluation by exporting a SAT file.
+        """
+        Flag for enabling and disabling bounding box evaluation by exporting a SAT file.
 
         Examples
         --------
@@ -1232,7 +1290,8 @@ class Settings(PyAedtBase):
 
     @property
     def use_grpc_api(self) -> bool | None:
-        """Flag for whether to use the gRPC API or legacy COM object.
+        """
+        Flag for whether to use the gRPC API or legacy COM object.
 
         Examples
         --------
@@ -1248,7 +1307,8 @@ class Settings(PyAedtBase):
 
     @property
     def enable_error_handler(self) -> bool:
-        """Flag for enabling and disabling the internal PyAEDT error handling.
+        """
+        Flag for enabling and disabling the internal PyAEDT error handling.
 
         Examples
         --------
@@ -1264,7 +1324,8 @@ class Settings(PyAedtBase):
 
     @property
     def pyaedt_server_path(self) -> str:
-        """Get ``PYAEDT_SERVER_AEDT_PATH`` environment variable.
+        """
+        Get ``PYAEDT_SERVER_AEDT_PATH`` environment variable.
 
         Examples
         --------
@@ -1283,7 +1344,8 @@ class Settings(PyAedtBase):
 
     @property
     def skip_license_check(self) -> bool:
-        """Flag indicating whether to check for license availability when launching the Desktop.
+        """
+        Flag indicating whether to check for license availability when launching the Desktop.
 
         Examples
         --------
@@ -1299,7 +1361,8 @@ class Settings(PyAedtBase):
 
     @property
     def use_local_example_data(self) -> bool:
-        """Methods in downloads.py will use the local examples folder if this is set.
+        """
+        Methods in downloads.py will use the local examples folder if this is set.
 
         Examples
         --------
@@ -1315,7 +1378,8 @@ class Settings(PyAedtBase):
 
     @property
     def local_example_folder(self) -> str | None:
-        """Methods in downloads.py will use the local examples folder if this is set.
+        """
+        Methods in downloads.py will use the local examples folder if this is set.
 
         Examples
         --------
@@ -1362,7 +1426,8 @@ class Settings(PyAedtBase):
     # yaml setting file IO methods
 
     def load_yaml_configuration(self, path: Path | str, raise_on_wrong_key: bool = False):
-        """Update default settings from a YAML configuration file.
+        """
+        Update default settings from a YAML configuration file.
 
         Examples
         --------
@@ -1410,7 +1475,8 @@ class Settings(PyAedtBase):
                 self.aedt_environment_variables = settings
 
     def write_yaml_configuration(self, path: Path | str):
-        """Write the current settings into a YAML configuration file.
+        """
+        Write the current settings into a YAML configuration file.
 
         Examples
         --------

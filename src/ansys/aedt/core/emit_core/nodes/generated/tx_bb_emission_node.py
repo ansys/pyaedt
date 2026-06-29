@@ -38,7 +38,8 @@ class TxBbEmissionNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
-        """The parent of this emit node.
+        """
+        The parent of this emit node.
 
         Examples
         --------
@@ -56,7 +57,8 @@ class TxBbEmissionNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node.
+        """
+        The type of this emit node.
 
         Examples
         --------
@@ -73,7 +75,8 @@ class TxBbEmissionNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def import_csv_file(self, file_name: str) -> EmitNode:
-        """Import a CSV File...
+        """
+        Import a CSV File...
 
         Examples
         --------
@@ -90,7 +93,8 @@ class TxBbEmissionNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node
+        """
+        Delete this node
 
         Examples
         --------
@@ -108,7 +112,8 @@ class TxBbEmissionNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def table_data(self) -> list[tuple]:
-        """Tx Broadband Noise Profile Table.
+        """
+        Tx Broadband Noise Profile Table.
         Table consists of 2 columns.
         Frequency, Bandwidth, or Offset:
             Value should be between -100e9 and 100e9.
@@ -137,7 +142,8 @@ class TxBbEmissionNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def enabled(self) -> bool:
-        """Enabled state for this node.
+        """
+        Enabled state for this node.
 
         Examples
         --------
@@ -167,7 +173,8 @@ class TxBbEmissionNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def noise_behavior(self) -> NoiseBehaviorOption:
-        """Specifies the behavior of the parametric noise profile.
+        """
+        Specifies the behavior of the parametric noise profile.
 
         Examples
         --------
@@ -193,7 +200,8 @@ class TxBbEmissionNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def use_log_linear_interpolation(self) -> bool:
-        """Use Log-Linear Interpolation.
+        """
+        Use Log-Linear Interpolation.
 
         If true, linear interpolation in the log domain is used. If false,
         linear interpolation in the linear domain is used.

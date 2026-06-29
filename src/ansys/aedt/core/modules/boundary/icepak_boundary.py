@@ -33,7 +33,8 @@ from ansys.aedt.core.modules.boundary.common import BoundaryObject
 
 
 class BoundaryDictionary(PyAedtBase):
-    """Handles Icepak transient and temperature-dependent boundary condition assignments.
+    """
+    Handles Icepak transient and temperature-dependent boundary condition assignments.
 
     Parameters
     ----------
@@ -65,7 +66,8 @@ class BoundaryDictionary(PyAedtBase):
 
     @property
     def props(self) -> dict:
-        """Dictionary that defines all the boundary condition properties.
+        """
+        Dictionary that defines all the boundary condition properties.
 
         Examples
         --------
@@ -90,7 +92,8 @@ class BoundaryDictionary(PyAedtBase):
 
 
 class LinearDictionary(BoundaryDictionary):
-    """Manages linear conditions assignments, which are children of the ``BoundaryDictionary`` class.
+    """
+    Manages linear conditions assignments, which are children of the ``BoundaryDictionary`` class.
 
     This class applies a condition ``y`` dependent on the time ``t``:
         ``y=a+b*t``
@@ -122,7 +125,8 @@ class LinearDictionary(BoundaryDictionary):
 
 
 class PowerLawDictionary(BoundaryDictionary):
-    """Manages power law condition assignments, which are children of the ``BoundaryDictionary`` class.
+    """
+    Manages power law condition assignments, which are children of the ``BoundaryDictionary`` class.
 
     This class applies a condition ``y`` dependent on the time ``t``:
          ``y=a+b*t^c``
@@ -158,7 +162,8 @@ class PowerLawDictionary(BoundaryDictionary):
 
 
 class ExponentialDictionary(BoundaryDictionary):
-    """Manages exponential condition assignments, which are children of the ``BoundaryDictionary`` class.
+    """
+    Manages exponential condition assignments, which are children of the ``BoundaryDictionary`` class.
 
     This class applies a condition ``y`` dependent on the time ``t``:
         ``y=a+b*exp(c*t)``
@@ -194,7 +199,8 @@ class ExponentialDictionary(BoundaryDictionary):
 
 
 class SinusoidalDictionary(BoundaryDictionary):
-    """Manages sinusoidal condition assignments, which are children of the ``BoundaryDictionary`` class.
+    """
+    Manages sinusoidal condition assignments, which are children of the ``BoundaryDictionary`` class.
 
     This class applies a condition ``y`` dependent on the time ``t``:
         ``y=a+b*sin(2*pi(t-t0)/T)``
@@ -234,7 +240,8 @@ class SinusoidalDictionary(BoundaryDictionary):
 
 
 class SquareWaveDictionary(BoundaryDictionary):
-    """Manages square wave condition assignments, which are children of the ``BoundaryDictionary`` class.
+    """
+    Manages square wave condition assignments, which are children of the ``BoundaryDictionary`` class.
 
     Parameters
     ----------
@@ -302,7 +309,8 @@ class PieceWiseLinearDictionary(BoundaryDictionary):
 
     @property
     def dataset_name(self) -> str:
-        """Dataset name that defines the piecewise assignment.
+        """
+        Dataset name that defines the piecewise assignment.
 
         Examples
         --------
@@ -315,7 +323,8 @@ class PieceWiseLinearDictionary(BoundaryDictionary):
 
 
 class NetworkObject(BoundaryObject):
-    """Manages networks in Icepak projects.
+    """
+    Manages networks in Icepak projects.
 
     Examples
     --------
@@ -708,7 +717,8 @@ class NetworkObject(BoundaryObject):
     def add_internal_node(
         self, name: str, power: str | float | dict, mass: str | float = None, specific_heat: str | float = None
     ) -> bool:
-        """Add an internal node to the network.
+        """
+        Add an internal node to the network.
 
         Parameters
         ----------
@@ -1004,7 +1014,8 @@ class NetworkObject(BoundaryObject):
 
     @pyaedt_function_handler()
     def add_link(self, node1: str | int, node2: str | int, value: str | float, name: str = None) -> bool:
-        """Create links in the network object.
+        """
+        Create links in the network object.
 
         Parameters
         ----------
@@ -1052,7 +1063,8 @@ class NetworkObject(BoundaryObject):
 
     @pyaedt_function_handler()
     def add_links_from_dictionaries(self, connections: dict | list[dict]) -> bool:
-        """Create links in the network object.
+        """
+        Create links in the network object.
 
         Parameters
         ----------
@@ -1101,7 +1113,8 @@ class NetworkObject(BoundaryObject):
 
     @pyaedt_function_handler()
     def update(self) -> bool:
-        """Update the network in AEDT.
+        """
+        Update the network in AEDT.
 
         Returns
         -------
@@ -1131,7 +1144,8 @@ class NetworkObject(BoundaryObject):
 
     @pyaedt_function_handler()
     def update_assignment(self) -> bool:
-        """Update assignments of the network.
+        """
+        Update assignments of the network.
 
         Examples
         --------
@@ -1215,7 +1229,8 @@ class NetworkObject(BoundaryObject):
 
         @property
         def node_type(self) -> str:
-            """Get node type.
+            """
+            Get node type.
 
             Returns
             -------
@@ -1238,7 +1253,8 @@ class NetworkObject(BoundaryObject):
 
         @property
         def props(self) -> dict:
-            """Get properties of the node.
+            """
+            Get properties of the node.
 
             Returns
             -------
@@ -1249,7 +1265,8 @@ class NetworkObject(BoundaryObject):
 
         @props.setter
         def props(self, props: dict) -> None:
-            """Set properties of the node.
+            """
+            Set properties of the node.
 
             Parameters
             ----------

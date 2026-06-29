@@ -58,7 +58,8 @@ SpeedOfLight = 299792458.0
 
 
 def db20(x: float, inverse: bool = True) -> float:
-    """Convert db20 to decimal and vice versa.
+    """
+    Convert db20 to decimal and vice versa.
 
     Examples
     --------
@@ -73,7 +74,8 @@ def db20(x: float, inverse: bool = True) -> float:
 
 
 def db10(x: float, inverse: bool = True) -> float:
-    """Convert db10 to decimal and vice versa.
+    """
+    Convert db10 to decimal and vice versa.
 
     Examples
     --------
@@ -88,7 +90,8 @@ def db10(x: float, inverse: bool = True) -> float:
 
 
 def dbw(x: float, inverse: bool = True) -> float:
-    """Convert W to decimal and vice versa.
+    """
+    Convert W to decimal and vice versa.
 
     Examples
     --------
@@ -103,7 +106,8 @@ def dbw(x: float, inverse: bool = True) -> float:
 
 
 def dbm(x: float, inverse: bool = True) -> float:
-    """Convert W to decimal and vice versa.
+    """
+    Convert W to decimal and vice versa.
 
     Examples
     --------
@@ -118,7 +122,8 @@ def dbm(x: float, inverse: bool = True) -> float:
 
 
 def fah2kel(val: float, inverse: bool = True) -> float:
-    """Convert a temperature from Fahrenheit to Kelvin.
+    """
+    Convert a temperature from Fahrenheit to Kelvin.
 
     Parameters
     ----------
@@ -145,7 +150,8 @@ def fah2kel(val: float, inverse: bool = True) -> float:
 
 
 def cel2kel(val: float, inverse: bool = True) -> float:
-    """Convert a temperature from Celsius to Kelvin.
+    """
+    Convert a temperature from Celsius to Kelvin.
 
     Parameters
     ----------
@@ -172,7 +178,8 @@ def cel2kel(val: float, inverse: bool = True) -> float:
 
 
 def unit_system(units: str) -> str | bool:
-    """Retrieve the name of the unit system associated with a unit string.
+    """
+    Retrieve the name of the unit system associated with a unit string.
 
     Parameters
     ----------
@@ -199,7 +206,8 @@ def unit_system(units: str) -> str | bool:
 
 
 def _resolve_unit_system(unit_system_1: str, unit_system_2: str, operation: str) -> str:
-    """Retrieve the unit string of an arithmetic operation on ``Variable`` objects.
+    """
+    Retrieve the unit string of an arithmetic operation on ``Variable`` objects.
 
     If no resulting unit system is defined for a specific operation (in unit_system_operations),
     an empty string is returned.
@@ -229,7 +237,8 @@ def _resolve_unit_system(unit_system_1: str, unit_system_2: str, operation: str)
 def unit_converter(
     values: float | list, unit_system: str = "Length", input_units: str = "meter", output_units: str = "mm"
 ) -> float | list:
-    """Convert unit in specified unit system.
+    """
+    Convert unit in specified unit system.
 
     Parameters
     ----------
@@ -296,7 +305,8 @@ def unit_converter(
 
 
 def scale_units(scale_to_unit: str) -> float:
-    """Find the scale_to_unit into main system unit.
+    """
+    Find the scale_to_unit into main system unit.
 
     Parameters
     ----------
@@ -327,7 +337,8 @@ def scale_units(scale_to_unit: str) -> float:
 
 
 def validate_enum_class_value(cls, value: int) -> bool:
-    """Check whether the value for the class ``enumeration-class`` is valid.
+    """
+    Check whether the value for the class ``enumeration-class`` is valid.
 
     Parameters
     ----------
@@ -837,7 +848,8 @@ class DynamicMeta(type):
 
 
 class InfiniteSphereType(metaclass=DynamicMeta):
-    """Infinite sphere type enum class.
+    """
+    Infinite sphere type enum class.
 
     Examples
     --------
@@ -855,7 +867,8 @@ class InfiniteSphereType(metaclass=DynamicMeta):
 
 
 class Fillet(metaclass=DynamicMeta):
-    """Fillet enum class.
+    """
+    Fillet enum class.
 
     Examples
     --------
@@ -868,7 +881,8 @@ class Fillet(metaclass=DynamicMeta):
 
 
 class Axis(metaclass=DynamicMeta):
-    """Coordinate system axis enum class.
+    """
+    Coordinate system axis enum class.
 
     This static class defines integer constants corresponding to the
     Cartesian axes: X, Y, and Z. Attributes can be
@@ -904,7 +918,8 @@ class Axis(metaclass=DynamicMeta):
 
 
 class Plane(metaclass=DynamicMeta):
-    """Coordinate system plane enum class.
+    """
+    Coordinate system plane enum class.
 
     This static class defines integer constants corresponding to the
     Y-Z, Z-X, and X-Y planes of the current coordinate system.
@@ -931,7 +946,8 @@ class Plane(metaclass=DynamicMeta):
 
 
 class Gravity(metaclass=DynamicMeta):
-    """Gravity direction enum class.
+    """
+    Gravity direction enum class.
 
     This static class defines integer constants corresponding to the
     positive direction of gravity force.
@@ -962,7 +978,8 @@ class Gravity(metaclass=DynamicMeta):
 
 
 class View(metaclass=DynamicMeta):
-    """View enum class.
+    """
+    View enum class.
 
     This static class defines integer constants corresponding to the
     X-Y, Y-Z, and Z-X planes of the current coordinate system, and
@@ -990,7 +1007,8 @@ class View(metaclass=DynamicMeta):
 
 
 class GlobalCS(metaclass=DynamicMeta):
-    """Global coordinate system enum class.
+    """
+    Global coordinate system enum class.
 
     Examples
     --------
@@ -1003,7 +1021,8 @@ class GlobalCS(metaclass=DynamicMeta):
 
 
 class MatrixOperationsQ3D(metaclass=DynamicMeta):
-    """Matrix operations for Q3D.
+    """
+    Matrix operations for Q3D.
 
     Examples
     --------
@@ -1026,7 +1045,8 @@ class MatrixOperationsQ3D(metaclass=DynamicMeta):
 
 
 class MatrixOperationsQ2D(metaclass=DynamicMeta):
-    """Matrix operations for Q2D.
+    """
+    Matrix operations for Q2D.
 
     Examples
     --------
@@ -1045,7 +1065,8 @@ class MatrixOperationsQ2D(metaclass=DynamicMeta):
 
 
 class PlotCategoriesQ3D(metaclass=DynamicMeta):
-    """Plot categories for Q3D.
+    """
+    Plot categories for Q3D.
 
     Examples
     --------
@@ -1058,7 +1079,8 @@ class PlotCategoriesQ3D(metaclass=DynamicMeta):
 
 
 class PlotCategoriesQ2D(metaclass=DynamicMeta):
-    """Plot categories for Q2D.
+    """
+    Plot categories for Q2D.
 
     Examples
     --------
@@ -1084,7 +1106,8 @@ class PlotCategoriesQ2D(metaclass=DynamicMeta):
 
 
 class CSMode(metaclass=DynamicMeta):
-    """Coordinate system mode enum class.
+    """
+    Coordinate system mode enum class.
 
     Examples
     --------
@@ -1097,7 +1120,8 @@ class CSMode(metaclass=DynamicMeta):
 
 
 class SegmentType(metaclass=DynamicMeta):
-    """Segment type enum class.
+    """
+    Segment type enum class.
 
     Examples
     --------
@@ -1110,7 +1134,8 @@ class SegmentType(metaclass=DynamicMeta):
 
 
 class CrossSection(metaclass=DynamicMeta):
-    """Cross section enum class.
+    """
+    Cross section enum class.
 
     Examples
     --------
@@ -1123,7 +1148,8 @@ class CrossSection(metaclass=DynamicMeta):
 
 
 class SweepDraft(metaclass=DynamicMeta):
-    """Sweep draft type enum class.
+    """
+    Sweep draft type enum class.
 
     Examples
     --------
@@ -1136,7 +1162,8 @@ class SweepDraft(metaclass=DynamicMeta):
 
 
 class FlipChipOrientation(metaclass=DynamicMeta):
-    """Flip chip orientation enum class.
+    """
+    Flip chip orientation enum class.
 
     Examples
     --------
@@ -1149,7 +1176,8 @@ class FlipChipOrientation(metaclass=DynamicMeta):
 
 
 class SolverType(metaclass=DynamicMeta):
-    """Provides solver type classes.
+    """
+    Provides solver type classes.
 
     Examples
     --------
@@ -1162,7 +1190,8 @@ class SolverType(metaclass=DynamicMeta):
 
 
 class CutoutSubdesignType(metaclass=DynamicMeta):
-    """Cutout subdesign type enum class.
+    """
+    Cutout subdesign type enum class.
 
     Examples
     --------
@@ -1175,7 +1204,8 @@ class CutoutSubdesignType(metaclass=DynamicMeta):
 
 
 class RadiationBoxType(metaclass=DynamicMeta):
-    """Radiation box type enum class.
+    """
+    Radiation box type enum class.
 
     Examples
     --------
@@ -1188,7 +1218,8 @@ class RadiationBoxType(metaclass=DynamicMeta):
 
 
 class SweepType(metaclass=DynamicMeta):
-    """Sweep type enum class.
+    """
+    Sweep type enum class.
 
     Examples
     --------
@@ -1201,7 +1232,8 @@ class SweepType(metaclass=DynamicMeta):
 
 
 class BasisOrder(metaclass=DynamicMeta):
-    """HFSS basis order settings enum class.
+    """
+    HFSS basis order settings enum class.
 
     Warning: the value ``single`` has been renamed to ``Single`` for consistency. Please update references to
     ``single``.
@@ -1217,7 +1249,8 @@ class BasisOrder(metaclass=DynamicMeta):
 
 
 class NodeType(metaclass=DynamicMeta):
-    """Enum class on the type of node for source creation.
+    """
+    Enum class on the type of node for source creation.
 
     Examples
     --------
@@ -1230,7 +1263,8 @@ class NodeType(metaclass=DynamicMeta):
 
 
 class SourceType(metaclass=DynamicMeta):
-    """Type of excitation enum class.
+    """
+    Type of excitation enum class.
 
     Examples
     --------
@@ -1243,7 +1277,8 @@ class SourceType(metaclass=DynamicMeta):
 
 
 class SolutionsHfss(metaclass=DynamicMeta):
-    """HFSS solution types enum class.
+    """
+    HFSS solution types enum class.
 
     Examples
     --------
@@ -1263,7 +1298,8 @@ class SolutionsHfss(metaclass=DynamicMeta):
 
 
 class SolutionsMaxwell3D(metaclass=DynamicMeta):
-    """Maxwell 3D solution types enum class.
+    """
+    Maxwell 3D solution types enum class.
 
     Examples
     --------
@@ -1323,7 +1359,8 @@ class SolutionsMaxwell3D(metaclass=DynamicMeta):
 
 
 class SolutionsMaxwell2D(metaclass=DynamicMeta):
-    """Maxwell 2D solution types enum class.
+    """
+    Maxwell 2D solution types enum class.
 
     Examples
     --------
@@ -1396,7 +1433,8 @@ class SolutionsMaxwell2D(metaclass=DynamicMeta):
 
 
 class SolutionsIcepak(metaclass=DynamicMeta):
-    """Icepak solution types enum class.
+    """
+    Icepak solution types enum class.
 
     Examples
     --------
@@ -1412,7 +1450,8 @@ class SolutionsIcepak(metaclass=DynamicMeta):
 
 
 class SolutionsCircuit(metaclass=DynamicMeta):
-    """Circuit solution types enum class.
+    """
+    Circuit solution types enum class.
 
     Examples
     --------
@@ -1457,7 +1496,8 @@ class SolutionsCircuit(metaclass=DynamicMeta):
 
 
 class SolutionsMechanical(metaclass=DynamicMeta):
-    """Mechanical solution types enum class.
+    """
+    Mechanical solution types enum class.
 
     Examples
     --------
@@ -1476,7 +1516,8 @@ class SolutionsMechanical(metaclass=DynamicMeta):
 
 
 class Setups(metaclass=DynamicMeta):
-    """Setup types enum class.
+    """
+    Setup types enum class.
 
     Examples
     --------
@@ -1588,7 +1629,8 @@ class Setups(metaclass=DynamicMeta):
 
 
 class LineStyle(metaclass=DynamicMeta):
-    """Line style enum class.
+    """
+    Line style enum class.
 
     Examples
     --------
@@ -1611,7 +1653,8 @@ class LineStyle(metaclass=DynamicMeta):
 
 
 class TraceType(metaclass=DynamicMeta):
-    """Trace type enum class.
+    """
+    Trace type enum class.
 
     Examples
     --------
@@ -1635,7 +1678,8 @@ class TraceType(metaclass=DynamicMeta):
 
 
 class SymbolStyle(metaclass=DynamicMeta):
-    """Symbol style enum class.
+    """
+    Symbol style enum class.
 
     Examples
     --------
@@ -3763,7 +3807,8 @@ class AllowedMarkers(IntEnumProps):
 
 
 class SubstrateType(IntEnumProps):
-    """Substrate type constants for AEDT ``AddSubstrateDataBlock`` COM API.
+    """
+    Substrate type constants for AEDT ``AddSubstrateDataBlock`` COM API.
 
     The integer values map directly to the ``Type`` field accepted by
     ``oModule.AddSubstrateDataBlock``.

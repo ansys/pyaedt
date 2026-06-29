@@ -69,7 +69,8 @@ EXTENSION_TITLE = "Via Clustering Extension"
 
 @dataclass
 class ViaClusteringExtensionData(ExtensionCommonData):
-    """Data class containing user input and computed data.
+    """
+    Data class containing user input and computed data.
 
     Examples
     --------
@@ -103,7 +104,8 @@ class ViaClusteringExtensionData(ExtensionCommonData):
 
 
 class ViaClusteringExtension(ExtensionHFSS3DLayoutCommon):
-    """Extension for via clustering in AEDT.
+    """
+    Extension for via clustering in AEDT.
 
     Examples
     --------
@@ -160,7 +162,8 @@ class ViaClusteringExtension(ExtensionHFSS3DLayoutCommon):
             raise AEDTRuntimeError("No signal layers are defined in this design.")
 
     def add_extension_content(self) -> None:
-        """Add custom content to the extension UI.
+        """
+        Add custom content to the extension UI.
 
         Examples
         --------
@@ -324,7 +327,8 @@ class ViaClusteringExtension(ExtensionHFSS3DLayoutCommon):
 
 
 def main(data: ViaClusteringExtensionData) -> bool:
-    """Main function to run the via clustering extension.
+    """
+    Main function to run the via clustering extension.
 
     Examples
     --------

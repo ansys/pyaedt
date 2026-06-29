@@ -38,7 +38,8 @@ class IndoorPropagationCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
-        """The parent of this emit node.
+        """
+        The parent of this emit node.
 
         Examples
         --------
@@ -54,7 +55,8 @@ class IndoorPropagationCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node.
+        """
+        The type of this emit node.
 
         Examples
         --------
@@ -69,7 +71,8 @@ class IndoorPropagationCouplingNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
-        """Duplicate this node
+        """
+        Duplicate this node
 
         Examples
         --------
@@ -84,7 +87,8 @@ class IndoorPropagationCouplingNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node
+        """
+        Delete this node
 
         Examples
         --------
@@ -100,7 +104,8 @@ class IndoorPropagationCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def table_data(self) -> list[tuple]:
-        """Custom Building Values Table.
+        """
+        Custom Building Values Table.
         Table consists of 3 columns.
         Frequency:
             Value should be between 1.0 and 100.0e9.
@@ -129,7 +134,8 @@ class IndoorPropagationCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def enabled(self) -> bool:
-        """Enable/Disable coupling.
+        """
+        Enable/Disable coupling.
 
         Value should be 'true' or 'false'.
 
@@ -154,7 +160,8 @@ class IndoorPropagationCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def antenna_a(self) -> EmitNode:
-        """First antenna of the pair to apply the coupling values to.
+        """
+        First antenna of the pair to apply the coupling values to.
 
         Examples
         --------
@@ -177,7 +184,8 @@ class IndoorPropagationCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def antenna_b(self) -> EmitNode:
-        """Second antenna of the pair to apply the coupling values to.
+        """
+        Second antenna of the pair to apply the coupling values to.
 
         Examples
         --------
@@ -207,7 +215,8 @@ class IndoorPropagationCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def building_type(self) -> BuildingTypeOption:
-        """Specify the building type for the Indoor Propagation model.
+        """
+        Specify the building type for the Indoor Propagation model.
 
         Examples
         --------
@@ -230,7 +239,8 @@ class IndoorPropagationCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def number_of_floors(self) -> int:
-        """The number of floors separating the antennas.
+        """
+        The number of floors separating the antennas.
 
         Value should be between 1 and 3.
 
@@ -255,7 +265,8 @@ class IndoorPropagationCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def custom_fading_margin(self) -> float:
-        """Custom Fading Margin.
+        """
+        Custom Fading Margin.
 
         Sets a custom fading margin to be applied to all coupling defined by
         this node.
@@ -283,7 +294,8 @@ class IndoorPropagationCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def polarization_mismatch(self) -> float:
-        """Polarization Mismatch.
+        """
+        Polarization Mismatch.
 
         Sets a margin for polarization mismatch to be applied to all coupling
         defined by this node.
@@ -311,7 +323,8 @@ class IndoorPropagationCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def pointing_error_loss(self) -> float:
-        """Pointing Error Loss.
+        """
+        Pointing Error Loss.
 
         Sets a margin for pointing error loss to be applied to all coupling
         defined by this node.
@@ -345,7 +358,8 @@ class IndoorPropagationCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def fading_type(self) -> FadingTypeOption:
-        """Specify the type of fading to include.
+        """
+        Specify the type of fading to include.
 
         Examples
         --------
@@ -368,7 +382,8 @@ class IndoorPropagationCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def fading_availability(self) -> float:
-        """Fading Availability.
+        """
+        Fading Availability.
 
         The probability that the propagation loss in dB is below its median
         value plus the margin.
@@ -396,7 +411,8 @@ class IndoorPropagationCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def std_deviation(self) -> float:
-        """Standard deviation modeling the random amount of shadowing loss.
+        """
+        Standard deviation modeling the random amount of shadowing loss.
 
         Value should be between 0.0 and 100.0.
 
@@ -421,7 +437,8 @@ class IndoorPropagationCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def include_rain_attenuation(self) -> bool:
-        """Adds a margin for rain attenuation to the computed coupling.
+        """
+        Adds a margin for rain attenuation to the computed coupling.
 
         Value should be 'true' or 'false'.
 
@@ -446,7 +463,8 @@ class IndoorPropagationCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def rain_availability(self) -> float:
-        """Rain Availability.
+        """
+        Rain Availability.
 
         Percentage of time attenuation due to range is < computed margin (range
         from 99-99.999%).
@@ -474,7 +492,8 @@ class IndoorPropagationCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def rain_rate(self) -> float:
-        """Rain rate (mm/hr) exceeded for 0.01% of the time.
+        """
+        Rain rate (mm/hr) exceeded for 0.01% of the time.
 
         Value should be between 0.0 and 1000.0.
 
@@ -499,7 +518,8 @@ class IndoorPropagationCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def polarization_tilt_angle(self) -> float:
-        """Polarization Tilt Angle.
+        """
+        Polarization Tilt Angle.
 
         Polarization tilt angle of the transmitted signal relative to the
         horizontal.
@@ -527,7 +547,8 @@ class IndoorPropagationCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def include_atmospheric_absorption(self) -> bool:
-        """Include Atmospheric Absorption.
+        """
+        Include Atmospheric Absorption.
 
         Adds a margin for atmospheric absorption due to oxygen/water vapor to
         the computed coupling.
@@ -555,7 +576,8 @@ class IndoorPropagationCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def temperature(self) -> float:
-        """Air temperature in degrees Celsius.
+        """
+        Air temperature in degrees Celsius.
 
         Value should be between -273.0 and 100.0.
 
@@ -580,7 +602,8 @@ class IndoorPropagationCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def total_air_pressure(self) -> float:
-        """Total air pressure.
+        """
+        Total air pressure.
 
         Value should be between 0.0 and 2000.0.
 
@@ -605,7 +628,8 @@ class IndoorPropagationCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def water_vapor_concentration(self) -> float:
-        """Water vapor concentration.
+        """
+        Water vapor concentration.
 
         Value should be between 0.0 and 2000.0.
 

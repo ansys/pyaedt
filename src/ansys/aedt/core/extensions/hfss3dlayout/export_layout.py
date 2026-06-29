@@ -60,7 +60,8 @@ EXTENSION_TITLE = "Layout Exporter"
 
 @dataclass
 class ExportLayoutExtensionData(ExtensionCommonData):
-    """Data class containing user input and computed data.
+    """
+    Data class containing user input and computed data.
 
     Examples
     --------
@@ -78,7 +79,8 @@ class ExportLayoutExtensionData(ExtensionCommonData):
 
 
 class ExportLayoutExtension(ExtensionHFSS3DLayoutCommon):
-    """Extension for exporting layout data in AEDT.
+    """
+    Extension for exporting layout data in AEDT.
 
     Examples
     --------
@@ -107,7 +109,8 @@ class ExportLayoutExtension(ExtensionHFSS3DLayoutCommon):
         self.add_extension_content()
 
     def add_extension_content(self) -> None:
-        """Add custom content to the extension UI.
+        """
+        Add custom content to the extension UI.
 
         Examples
         --------
@@ -193,7 +196,8 @@ class ExportLayoutExtension(ExtensionHFSS3DLayoutCommon):
 
 
 def main(data: ExportLayoutExtensionData) -> bool:
-    """Main function to run the export layout extension.
+    """
+    Main function to run the export layout extension.
 
     Examples
     --------

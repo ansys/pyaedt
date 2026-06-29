@@ -33,7 +33,8 @@ if TYPE_CHECKING:
 
 
 class AnalysisCircuitNetlist(Analysis, PyAedtBase):
-    """Provides the Circuit Netlist (CircuitNetlist) interface.
+    """
+    Provides the Circuit Netlist (CircuitNetlist) interface.
 
     Circuit Netlist Editor has no setup, solution, analysis or postprocessor
     It is automatically initialized by Application call.
@@ -119,7 +120,8 @@ class AnalysisCircuitNetlist(Analysis, PyAedtBase):
 
     @property
     def post(self) -> "PostProcessorCircuit":
-        """PostProcessor.
+        """
+        PostProcessor.
 
         Returns
         -------
@@ -141,7 +143,8 @@ class AnalysisCircuitNetlist(Analysis, PyAedtBase):
 
     @property
     def modeler(self) -> object:
-        """Modeler object.
+        """
+        Modeler object.
 
         Examples
         --------

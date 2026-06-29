@@ -36,7 +36,8 @@ class SolutionsNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
-        """The parent of this emit node.
+        """
+        The parent of this emit node.
 
         Examples
         --------
@@ -52,7 +53,8 @@ class SolutionsNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node.
+        """
+        The type of this emit node.
 
         Examples
         --------
@@ -68,7 +70,8 @@ class SolutionsNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def enabled(self) -> bool:
-        """Enabled.
+        """
+        Enabled.
 
         Enable/Disable coupling (A setup disabled in HFSS/Layout cannot be
         enabled in EMIT).

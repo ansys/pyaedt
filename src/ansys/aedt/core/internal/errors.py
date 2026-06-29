@@ -26,7 +26,8 @@
 
 
 class GrpcApiError(RuntimeError):
-    """Exception raised for errors encountered while interacting with the gRPC API.
+    """
+    Exception raised for errors encountered while interacting with the gRPC API.
 
     Examples
     --------
@@ -38,7 +39,8 @@ class GrpcApiError(RuntimeError):
 
 
 class MethodNotSupportedError(RuntimeError):
-    """Exception raised when attempting to call a method that is not supported.
+    """
+    Exception raised when attempting to call a method that is not supported.
 
     Examples
     --------
@@ -50,7 +52,8 @@ class MethodNotSupportedError(RuntimeError):
 
 
 class AEDTRuntimeError(RuntimeError):
-    """Exception raised for errors occurring during the runtime execution of AEDT scripts.
+    """
+    Exception raised for errors occurring during the runtime execution of AEDT scripts.
 
     Examples
     --------

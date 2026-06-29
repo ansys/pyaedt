@@ -34,7 +34,8 @@ from ansys.aedt.core.internal.aedt_versions import aedt_versions
 
 
 class DllInterface:
-    """Interfaces with the FilterSolutions C++ API DLL.
+    """
+    Interfaces with the FilterSolutions C++ API DLL.
 
     Examples
     --------
@@ -49,7 +50,8 @@ class DllInterface:
         self._init_dll(show_gui)
 
     def restore_defaults(self) -> None:
-        """Restore the state of the API, including all options and values, to the initial startup state.
+        """
+        Restore the state of the API, including all options and values, to the initial startup state.
 
         Examples
         --------
@@ -116,7 +118,8 @@ class DllInterface:
         self._dll.getVersion.restype = ctypes.c_int
 
     def get_string(self, dll_function: Callable, max_size: int = 100) -> str:
-        """Call a DLL function that returns a string.
+        """
+        Call a DLL function that returns a string.
 
         Parameters
         ----------
@@ -148,7 +151,8 @@ class DllInterface:
         return text
 
     def set_string(self, dll_function: Callable, string: str) -> int:
-        """Call a DLL function that sets a string.
+        """
+        Call a DLL function that sets a string.
 
         Parameters
         ----------
@@ -171,7 +175,8 @@ class DllInterface:
         return status
 
     def string_to_enum(self, enum_type: Enum, string: str) -> Enum:
-        """Convert a string to a string defined by an enum.
+        """
+        Convert a string to a string defined by an enum.
 
         Parameters
         ----------
@@ -197,7 +202,8 @@ class DllInterface:
         return enum_type[fixed_string]
 
     def enum_to_string(self, enum_value: Enum) -> str:
-        """Convert an enum value to a string.
+        """
+        Convert an enum value to a string.
 
         Parameters
         ----------
@@ -221,7 +227,8 @@ class DllInterface:
         return fixed_string
 
     def api_version(self) -> str:
-        """Get the version of the API.
+        """
+        Get the version of the API.
 
         Returns
         -------
@@ -243,7 +250,8 @@ class DllInterface:
         return api_version
 
     def raise_error(self, error_status: int) -> None:
-        """Raise an exception if the error status is not 0.
+        """
+        Raise an exception if the error status is not 0.
 
         Parameters
         ----------

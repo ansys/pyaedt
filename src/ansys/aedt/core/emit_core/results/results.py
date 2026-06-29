@@ -65,7 +65,8 @@ class Results:
 
     @pyaedt_function_handler()
     def _add_revision(self, name: str | None = None):
-        """Add a new revision or get the current revision if it already exists.
+        """
+        Add a new revision or get the current revision if it already exists.
 
         Parameters
         ----------
@@ -101,7 +102,8 @@ class Results:
 
     @pyaedt_function_handler()
     def delete_revision(self, revision_name: str):
-        """Delete the specified revision from the results.
+        """
+        Delete the specified revision from the results.
 
         Parameters
         ----------
@@ -163,7 +165,8 @@ class Results:
 
     @pyaedt_function_handler
     def _unload_revisions(self) -> None:
-        """Convenience function to set all revisions as ``unloaded``
+        """
+        Convenience function to set all revisions as ``unloaded``
 
         Parameters
         ----------
@@ -255,7 +258,8 @@ class Results:
 
     @pyaedt_function_handler()
     def analyze(self) -> Revision:
-        """Analyze the current revision or create a new revision if the design has changed.
+        """
+        Analyze the current revision or create a new revision if the design has changed.
 
         Returns
         -------

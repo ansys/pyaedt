@@ -44,7 +44,8 @@ from ansys.aedt.core.modeler.circuits.object_3d_circuit import Wire
 
 
 class CircuitComponents(PyAedtBase):
-    """CircutComponents class.
+    """
+    CircutComponents class.
 
     Manages all circuit components for Nexxim and Twin Builder.
 
@@ -58,7 +59,8 @@ class CircuitComponents(PyAedtBase):
 
     @pyaedt_function_handler()
     def __getitem__(self, partname) -> CircuitComponent:
-        """Retrieve a part.
+        """
+        Retrieve a part.
 
         Parameters
         ----------
@@ -94,7 +96,8 @@ class CircuitComponents(PyAedtBase):
 
     @pyaedt_function_handler()
     def get_wire_by_name(self, name: str) -> Wire:
-        """Wire class by name.
+        """
+        Wire class by name.
 
         Parameters
         ----------
@@ -121,7 +124,8 @@ class CircuitComponents(PyAedtBase):
 
     @property
     def wires(self) -> dict:
-        """All schematic wires in the design.
+        """
+        All schematic wires in the design.
 
         Returns
         -------
@@ -151,7 +155,8 @@ class CircuitComponents(PyAedtBase):
 
     @property
     def o_definition_manager(self):
-        """AEDT oDefinitionManager.
+        """
+        AEDT oDefinitionManager.
 
         References
         ----------
@@ -168,7 +173,8 @@ class CircuitComponents(PyAedtBase):
 
     @property
     def ocomponent_manager(self):
-        """Component manager object.
+        """
+        Component manager object.
 
         Examples
         --------
@@ -181,7 +187,8 @@ class CircuitComponents(PyAedtBase):
 
     @property
     def osymbol_manager(self):
-        """Model manager object.
+        """
+        Model manager object.
 
         Examples
         --------
@@ -194,7 +201,8 @@ class CircuitComponents(PyAedtBase):
 
     @property
     def version(self) -> str:
-        """Version.
+        """
+        Version.
 
         Examples
         --------
@@ -207,7 +215,8 @@ class CircuitComponents(PyAedtBase):
 
     @property
     def model_units(self) -> str:
-        """Model units.
+        """
+        Model units.
 
         Examples
         --------
@@ -220,7 +229,8 @@ class CircuitComponents(PyAedtBase):
 
     @property
     def schematic_units(self) -> str:
-        """Schematic units.
+        """
+        Schematic units.
 
         Options are ``"mm"``, ``"mil"``, ``"cm"`` and all other metric and imperial units.
         The default is ``"meter"``.
@@ -240,7 +250,8 @@ class CircuitComponents(PyAedtBase):
 
     @property
     def design_type(self) -> str:
-        """Design type.
+        """
+        Design type.
 
         Examples
         --------
@@ -253,7 +264,8 @@ class CircuitComponents(PyAedtBase):
 
     @property
     def nets(self) -> list:
-        """List of all schematic nets.
+        """
+        List of all schematic nets.
 
         Examples
         --------
@@ -272,7 +284,8 @@ class CircuitComponents(PyAedtBase):
 
     @pyaedt_function_handler()
     def _convert_point_to_meter(self, point):
-        """Convert numbers automatically to mils.
+        """
+        Convert numbers automatically to mils.
 
         It is rounded to the nearest 100 mil which is minimum schematic snap unit.
         """
@@ -332,7 +345,8 @@ class CircuitComponents(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_unique_id(self) -> int:
-        """Create an unique ID.
+        """
+        Create an unique ID.
 
         Returns
         -------
@@ -360,7 +374,8 @@ class CircuitComponents(PyAedtBase):
 
     @pyaedt_function_handler()
     def add_pin_iports(self, name: str, id_num: int) -> bool:
-        """Add ports on pins.
+        """
+        Add ports on pins.
 
         Parameters
         ----------
@@ -393,7 +408,8 @@ class CircuitComponents(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_interface_port(self, name: str, location: list = None, angle: int = 0, page: int = 1) -> Excitations:
-        """Create an interface port.
+        """
+        Create an interface port.
 
         Parameters
         ----------
@@ -446,7 +462,8 @@ class CircuitComponents(PyAedtBase):
     def create_page_port(
         self, name: str, location: list = None, angle: int = 0, label_position: str = "Auto", page: int = 1
     ) -> CircuitComponent:
-        """Create a page port.
+        """
+        Create a page port.
 
         Parameters
         ----------
@@ -532,7 +549,8 @@ class CircuitComponents(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_gnd(self, location: list = None, angle: int = 0, page: int = 1) -> CircuitComponent:
-        """Create a ground.
+        """
+        Create a ground.
 
         Parameters
         ----------
@@ -580,7 +598,8 @@ class CircuitComponents(PyAedtBase):
     def create_model_from_touchstone(
         self, input_file: str | Path, model_name: str = None, show_bitmap: bool = True, image_path: str = None
     ) -> str | bool:
-        """Create a model from a Touchstone file.
+        """
+        Create a model from a Touchstone file.
 
         Parameters
         ----------
@@ -868,7 +887,8 @@ class CircuitComponents(PyAedtBase):
     def create_model_from_nexxim_state_space(
         self, input_file: str, num_terminal: int, model_name: str = None, port_names: list = None
     ) -> str | bool:
-        r"""Create a model from a Touchstone file.
+        r"""
+        Create a model from a Touchstone file.
 
         Parameters
         ----------
@@ -1122,7 +1142,8 @@ class CircuitComponents(PyAedtBase):
         page: int = 1,
         image_path: str = None,
     ) -> CircuitComponent:
-        """Create a component from a Touchstone model.
+        """
+        Create a component from a Touchstone model.
 
         Parameters
         ----------
@@ -1198,7 +1219,8 @@ class CircuitComponents(PyAedtBase):
         port_names: list[str] = None,
         page: int = 1,
     ) -> CircuitComponent:
-        """Create a component from a Touchstone model.
+        """
+        Create a component from a Touchstone model.
 
         Parameters
         ----------
@@ -1260,7 +1282,8 @@ class CircuitComponents(PyAedtBase):
         global_netlist_list: list = None,
         page: int = 1,
     ) -> CircuitComponent:
-        """Create a component from a library.
+        """
+        Create a component from a library.
 
         Parameters
         ----------
@@ -1324,7 +1347,8 @@ class CircuitComponents(PyAedtBase):
 
     @pyaedt_function_handler()
     def disable_data_netlist(self, assignment: str) -> bool:
-        """Disable the Nexxim global net list.
+        """
+        Disable the Nexxim global net list.
 
         Parameters
         ----------
@@ -1365,7 +1389,8 @@ class CircuitComponents(PyAedtBase):
 
     @pyaedt_function_handler()
     def enable_global_netlist(self, assignment: str, global_netlist_list: list = None) -> bool:
-        """Enable Nexxim global net list.
+        """
+        Enable Nexxim global net list.
 
         Parameters
         ----------
@@ -1412,7 +1437,8 @@ class CircuitComponents(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_symbol(self, name: str, pins: list) -> bool:
-        """Create a symbol.
+        """
+        Create a symbol.
 
         Parameters
         ----------
@@ -1498,7 +1524,8 @@ class CircuitComponents(PyAedtBase):
 
     @pyaedt_function_handler()
     def enable_use_instance_name(self, component_library: str = "", component_name: str = "RES_") -> bool:
-        """Enable the use of the instance name.
+        """
+        Enable the use of the instance name.
 
         Parameters
         ----------
@@ -1551,7 +1578,8 @@ class CircuitComponents(PyAedtBase):
 
     @pyaedt_function_handler()
     def refresh_all_ids(self) -> int:
-        """Refresh all IDs and return the number of components.
+        """
+        Refresh all IDs and return the number of components.
 
         References
         ----------
@@ -1592,7 +1620,8 @@ class CircuitComponents(PyAedtBase):
 
     @pyaedt_function_handler()
     def add_id_to_component(self, component_id: int, name: str = None) -> int:
-        """Add an ID to a component.
+        """
+        Add an ID to a component.
 
         Parameters
         ----------
@@ -1658,7 +1687,8 @@ class CircuitComponents(PyAedtBase):
 
     @pyaedt_function_handler()
     def get_obj_id(self, assignment: str) -> int | None:
-        """Retrieve the ID of an object.
+        """
+        Retrieve the ID of an object.
 
         Parameters
         ----------
@@ -1684,7 +1714,8 @@ class CircuitComponents(PyAedtBase):
 
     @pyaedt_function_handler()
     def get_pins(self, assignment: int | str) -> list:
-        """Retrieve one or more pins.
+        """
+        Retrieve one or more pins.
 
         Parameters
         ----------
@@ -1719,7 +1750,8 @@ class CircuitComponents(PyAedtBase):
 
     @pyaedt_function_handler()
     def get_pin_location(self, assignment: int, pin: str) -> list:
-        """Retrieve the location of a pin.
+        """
+        Retrieve the location of a pin.
 
         Parameters
         ----------
@@ -1754,7 +1786,8 @@ class CircuitComponents(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_line(self, points: list, color: int = 0, width: int = 0, page: int = 1):
-        """Draw a graphical line.
+        """
+        Draw a graphical line.
 
         Parameters
         ----------
@@ -1788,7 +1821,8 @@ class CircuitComponents(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_wire(self, points: list, name: str = "", page: int = 1) -> Wire | bool:
-        """Create a wire.
+        """
+        Create a wire.
 
         Parameters
         ----------
@@ -1837,7 +1871,8 @@ class CircuitComponents(PyAedtBase):
 
 
 class ComponentInfo(PyAedtBase):
-    """Manages Circuit Catalog info.
+    """
+    Manages Circuit Catalog info.
 
     Examples
     --------
@@ -1855,7 +1890,8 @@ class ComponentInfo(PyAedtBase):
 
     @property
     def props(self) -> dict:
-        """Retrieve the component properties.
+        """
+        Retrieve the component properties.
 
         Examples
         --------
@@ -1877,7 +1913,8 @@ class ComponentInfo(PyAedtBase):
         use_instance_id_netlist: bool = False,
         page: int = 1,
     ) -> CircuitComponent:
-        """Create a component from a library.
+        """
+        Create a component from a library.
 
         Parameters
         ----------
@@ -1923,7 +1960,8 @@ class ComponentInfo(PyAedtBase):
 
 
 class ComponentCatalog(PyAedtBase):
-    """Indexes Circuit Sys Catalog.
+    """
+    Indexes Circuit Sys Catalog.
 
     Examples
     --------
@@ -1934,7 +1972,8 @@ class ComponentCatalog(PyAedtBase):
 
     @pyaedt_function_handler()
     def __getitem__(self, compname):
-        """Get component from name.
+        """
+        Get component from name.
 
         Parameters
         ----------
@@ -1995,7 +2034,8 @@ class ComponentCatalog(PyAedtBase):
 
     @pyaedt_function_handler()
     def find_components(self, filter_str: str = "*") -> list:
-        """Find all components with given filter wildcards.
+        """
+        Find all components with given filter wildcards.
 
         Parameters
         ----------

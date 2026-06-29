@@ -55,7 +55,8 @@ EXTENSION_TITLE = "Fresnel Coefficients"
 
 
 class FresnelExtension(ExtensionHFSSCommon):
-    """Extension to generate Fresnel coefficients in AEDT.
+    """
+    Extension to generate Fresnel coefficients in AEDT.
 
     Examples
     --------
@@ -129,7 +130,8 @@ class FresnelExtension(ExtensionHFSSCommon):
         self.add_extension_content()
 
     def add_extension_content(self) -> None:
-        """Add custom content to the extension UI.
+        """
+        Add custom content to the extension UI.
 
         Examples
         --------

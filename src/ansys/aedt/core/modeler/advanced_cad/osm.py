@@ -58,7 +58,8 @@ ZONE_LETTERS = "CDEFGHJKLMNPQRSTUVWXX"
 
 
 class BuildingsPrep(PyAedtBase):
-    """Contains all basic functions needed to generate buildings stl files.
+    """
+    Contains all basic functions needed to generate buildings stl files.
 
     Examples
     --------
@@ -73,7 +74,8 @@ class BuildingsPrep(PyAedtBase):
     @staticmethod
     @pyaedt_function_handler()
     def create_building_roof(all_pos: NDArray[np.float64]) -> "PolyData":
-        """Generate a filled in polygon from outline.
+        """
+        Generate a filled in polygon from outline.
 
         Includes concave and convex shapes.
 
@@ -127,7 +129,8 @@ class BuildingsPrep(PyAedtBase):
 
     @pyaedt_function_handler()
     def generate_buildings(self, center_lat_lon: list[float], terrain_mesh, max_radius: float | int = 500) -> dict:
-        """Generate the buildings stl file.
+        """
+        Generate the buildings stl file.
 
         Parameters
         ----------
@@ -270,7 +273,8 @@ class BuildingsPrep(PyAedtBase):
 
 
 class RoadPrep(PyAedtBase):
-    """Contains all basic functions needed to generate road stl files.
+    """
+    Contains all basic functions needed to generate road stl files.
 
     Examples
     --------
@@ -292,7 +296,8 @@ class RoadPrep(PyAedtBase):
         road_step: float | int = 10,
         road_width: float | int = 5,
     ) -> dict:
-        """Generate the road stl file.
+        """
+        Generate the road stl file.
 
         Parameters
         ----------
@@ -404,7 +409,8 @@ class RoadPrep(PyAedtBase):
 
 
 class TerrainPrep(PyAedtBase):
-    """Contains all basic functions needed for creating a terrain stl mesh.
+    """
+    Contains all basic functions needed for creating a terrain stl mesh.
 
     Examples
     --------
@@ -424,7 +430,8 @@ class TerrainPrep(PyAedtBase):
         grid_size: float | int = 5,
         buffer_percent: float | int = 0,
     ) -> dict:
-        """Generate the terrain stl file.
+        """
+        Generate the terrain stl file.
 
         Parameters
         ----------
@@ -491,7 +498,8 @@ class TerrainPrep(PyAedtBase):
         max_radius: float | int = 500,
         grid_size: float | int = 3,
     ) -> tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.float64]]:
-        """Get Elevation map.
+        """
+        Get Elevation map.
 
         Parameters
         ----------
@@ -575,7 +583,8 @@ class TerrainPrep(PyAedtBase):
 def convert_latlon_to_utm(
     latitude: float, longitude: float, zone_letter: str = None, zone_number: int = None
 ) -> tuple[float, float, str, int]:
-    """Convert latitude and longitude to UTM (Universal Transverse Mercator) coordinates.
+    """
+    Convert latitude and longitude to UTM (Universal Transverse Mercator) coordinates.
 
     Parameters
     ----------
@@ -705,7 +714,8 @@ def convert_utm_to_latlon(
     zone_letter: str = None,
     northern: bool = None,
 ) -> tuple[float, float]:
-    """Convert UTM (Universal Transverse Mercator) coordinates to latitude and longitude.
+    """
+    Convert UTM (Universal Transverse Mercator) coordinates to latitude and longitude.
 
     Parameters
     ----------

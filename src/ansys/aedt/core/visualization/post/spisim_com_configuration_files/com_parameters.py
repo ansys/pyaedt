@@ -56,7 +56,8 @@ class COMStandards(Enum):
 
 
 class COMParameters:
-    """Base class to manage COM parameters.
+    """
+    Base class to manage COM parameters.
 
     Parameters
     ----------
@@ -103,7 +104,8 @@ class COMParameters:
 
     @property
     def parameters(self) -> dict:
-        """All parameters.
+        """
+        All parameters.
 
         Examples
         --------
@@ -131,7 +133,8 @@ class COMParameters:
 
     @property
     def standard(self) -> str:
-        """Standard name.
+        """
+        Standard name.
 
         Returns
         -------
@@ -155,7 +158,8 @@ class COMParameters:
 
     @pyaedt_function_handler
     def set_parameter(self, keyword: str, value: str) -> None:
-        """Set a COM parameter.
+        """
+        Set a COM parameter.
 
         Parameters
         ----------
@@ -200,7 +204,8 @@ class COMParameters:
 
     @pyaedt_function_handler
     def export(self, file_path: str) -> None:
-        r"""Export COM parameter to a JSON file.
+        r"""
+        Export COM parameter to a JSON file.
 
         Parameters
         ----------
@@ -234,7 +239,8 @@ class COMParameters:
 
     @pyaedt_function_handler
     def load(self, file_path: str) -> None:
-        r"""Load COM parameters from a JSON file.
+        r"""
+        Load COM parameters from a JSON file.
 
         Parameters
         ----------
@@ -258,7 +264,8 @@ class COMParameters:
 
     @pyaedt_function_handler
     def export_spisim_cfg(self, file_path: str) -> bool:
-        r"""Export COM parameter to a SPISim cfg file.
+        r"""
+        Export COM parameter to a SPISim cfg file.
 
         Parameters
         ----------
@@ -286,7 +293,8 @@ class COMParameters:
 
     @pyaedt_function_handler
     def load_spisim_cfg(self, file_path: str) -> bool:
-        r"""Load a SPIsim configuration file.
+        r"""
+        Load a SPIsim configuration file.
 
         Parameters
         ----------
@@ -320,7 +328,8 @@ class COMParameters:
 
 
 class COMParametersVer3p4(COMParameters):
-    """Manages COM parameters of version 3.4.
+    """
+    Manages COM parameters of version 3.4.
 
     Examples
     --------

@@ -40,7 +40,8 @@ HOSTNAME = "DummyHostName"
 
 @pytest.fixture
 def mock_service_dependencies() -> Generator:
-    """Mock common dependencies to test ServiceManager.
+    """
+    Mock common dependencies to test ServiceManager.
 
     Mocks subprocess.Popen, check_port, and time.sleep used in ServiceManager.start_service.
     """

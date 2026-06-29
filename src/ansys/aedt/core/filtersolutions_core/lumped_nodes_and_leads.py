@@ -32,7 +32,8 @@ import ansys.aedt.core
 
 
 class LumpedNodesandLeads:
-    """Defines attributes of the lumped element node capacitors and lead inductors.
+    """
+    Defines attributes of the lumped element node capacitors and lead inductors.
 
     This class allows you to define and modify the node capacitors and
     lead inductors parameters of the lumped elements used in the designed filter.
@@ -94,7 +95,8 @@ class LumpedNodesandLeads:
 
     @property
     def c_node_capacitor(self) -> str:
-        """Shunt capacitance assigned to each capacitor node.
+        """
+        Shunt capacitance assigned to each capacitor node.
         The default is ``0``.
 
         Returns
@@ -118,7 +120,8 @@ class LumpedNodesandLeads:
 
     @property
     def c_lead_inductor(self) -> str:
-        """Series inductance assigned to each capacitor lead.
+        """
+        Series inductance assigned to each capacitor lead.
         The default is ``0``.
 
         Returns
@@ -142,7 +145,8 @@ class LumpedNodesandLeads:
 
     @property
     def l_node_capacitor(self) -> str:
-        """Shunt capacitance assigned to each inductor node.
+        """
+        Shunt capacitance assigned to each inductor node.
 
         The default is` ``0``.
 
@@ -167,7 +171,8 @@ class LumpedNodesandLeads:
 
     @property
     def l_lead_inductor(self) -> str:
-        """Series inductance assigned to each inductor lead.
+        """
+        Series inductance assigned to each inductor lead.
 
         The default is ``0``.
 
@@ -192,7 +197,8 @@ class LumpedNodesandLeads:
 
     @property
     def r_node_capacitor(self) -> str:
-        """Shunt capacitance assigned to each resistor node.
+        """
+        Shunt capacitance assigned to each resistor node.
         The default is ``0``.
 
         Returns
@@ -216,7 +222,8 @@ class LumpedNodesandLeads:
 
     @property
     def r_lead_inductor(self) -> str:
-        """Series inductance assigned to each resistor lead.
+        """
+        Series inductance assigned to each resistor lead.
 
         The default is ``0``.
 
@@ -241,7 +248,8 @@ class LumpedNodesandLeads:
 
     @property
     def c_node_compensate(self) -> bool:
-        """Flag indicating if the adjusting capacitor values to compensate for node capacitance is enabled.
+        """
+        Flag indicating if the adjusting capacitor values to compensate for node capacitance is enabled.
 
         Returns
         -------
@@ -267,7 +275,8 @@ class LumpedNodesandLeads:
 
     @property
     def l_node_compensate(self) -> bool:
-        """Flag indicating if the adjusting inductor values to compensate for lead inductance is enabled.
+        """
+        Flag indicating if the adjusting inductor values to compensate for lead inductance is enabled.
 
         Returns
         -------

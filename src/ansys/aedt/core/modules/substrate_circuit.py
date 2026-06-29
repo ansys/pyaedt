@@ -33,7 +33,8 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 
 class SubstrateManager(PyAedtBase):
-    """Manages substrate data blocks for a Circuit design.
+    """
+    Manages substrate data blocks for a Circuit design.
 
     Provides methods to add, query, and delete substrate data blocks.
     Access this object via :attr:`ansys.aedt.core.Circuit.substrate`.
@@ -785,7 +786,8 @@ class SubstrateDataBlock(PyAedtBase):
 
     @property
     def auto_update(self) -> bool:
-        """Whether to push changes to AEDT immediately when a property is set.
+        """
+        Whether to push changes to AEDT immediately when a property is set.
 
         Examples
         --------
@@ -802,7 +804,8 @@ class SubstrateDataBlock(PyAedtBase):
 
     @property
     def name(self) -> str:
-        """Substrate name.
+        """
+        Substrate name.
 
         Examples
         --------
@@ -830,7 +833,8 @@ class SubstrateDataBlock(PyAedtBase):
 
     @property
     def substrate_type(self):
-        """Substrate type.
+        """
+        Substrate type.
 
         Examples
         --------
@@ -849,7 +853,8 @@ class SubstrateDataBlock(PyAedtBase):
 
     @property
     def dielectric(self) -> list:
-        """Dielectric parameters.
+        """
+        Dielectric parameters.
 
         Examples
         --------
@@ -868,7 +873,8 @@ class SubstrateDataBlock(PyAedtBase):
 
     @property
     def metal_material(self) -> str:
-        """Primary conductor material name.
+        """
+        Primary conductor material name.
 
         Examples
         --------
@@ -887,7 +893,8 @@ class SubstrateDataBlock(PyAedtBase):
 
     @property
     def metal_thickness(self) -> str:
-        """Primary conductor thickness.
+        """
+        Primary conductor thickness.
 
         Examples
         --------
@@ -906,7 +913,8 @@ class SubstrateDataBlock(PyAedtBase):
 
     @property
     def bottom_metal_material(self) -> str:
-        """Bottom conductor material name.
+        """
+        Bottom conductor material name.
 
         Examples
         --------
@@ -925,7 +933,8 @@ class SubstrateDataBlock(PyAedtBase):
 
     @property
     def bottom_metal_thickness(self) -> str:
-        """Bottom conductor thickness.
+        """
+        Bottom conductor thickness.
 
         Examples
         --------
@@ -944,7 +953,8 @@ class SubstrateDataBlock(PyAedtBase):
 
     @property
     def cover_metal_material(self) -> str:
-        """Cover conductor material name.
+        """
+        Cover conductor material name.
 
         Examples
         --------
@@ -963,7 +973,8 @@ class SubstrateDataBlock(PyAedtBase):
 
     @property
     def cover_metal_thickness(self) -> str:
-        """Cover conductor thickness.
+        """
+        Cover conductor thickness.
 
         Examples
         --------
@@ -982,7 +993,8 @@ class SubstrateDataBlock(PyAedtBase):
 
     @property
     def roughness(self) -> str:
-        """Conductor surface roughness.
+        """
+        Conductor surface roughness.
 
         Examples
         --------
@@ -1001,7 +1013,8 @@ class SubstrateDataBlock(PyAedtBase):
 
     @property
     def metal_specify_type(self) -> int:
-        """Metal specification type flag.
+        """
+        Metal specification type flag.
 
         Examples
         --------
@@ -1020,7 +1033,8 @@ class SubstrateDataBlock(PyAedtBase):
 
     @property
     def metal_temp_material(self) -> str:
-        """Temporary metal material name.
+        """
+        Temporary metal material name.
 
         Examples
         --------
@@ -1039,7 +1053,8 @@ class SubstrateDataBlock(PyAedtBase):
 
     @property
     def dielectric_temp_materials(self) -> list:
-        """Temporary dielectric material names (list of 5).
+        """
+        Temporary dielectric material names (list of 5).
 
         Examples
         --------

@@ -39,7 +39,8 @@ if TYPE_CHECKING:
 
 
 class FieldAnalysisRMxprt(Analysis, PyAedtBase):
-    """Provides the RMxprt field analysis interface.
+    """
+    Provides the RMxprt field analysis interface.
 
     This class is for RMxprt analysis setup. It is automatically
     initialized by a call from the Rmxprt application.
@@ -146,7 +147,8 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
 
     @property
     def post(self) -> PostProcessorCircuit:
-        """Post Object.
+        """
+        Post Object.
 
         Returns
         -------
@@ -168,7 +170,8 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
 
     @property
     def modeler(self) -> ModelerRMxprt:
-        """Modeler.
+        """
+        Modeler.
 
         Returns
         -------
@@ -190,7 +193,8 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
 
     @pyaedt_function_handler()
     def disable_modelcreation(self, solution_type: str | None = None) -> bool:
-        """Enable the RMxprt solution.
+        """
+        Enable the RMxprt solution.
 
         Parameters
         ----------
@@ -215,7 +219,8 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
 
     @pyaedt_function_handler()
     def enable_modelcreation(self, solution_type: str | None = None) -> bool:
-        """Enable model creation for the Maxwell model wizard.
+        """
+        Enable model creation for the Maxwell model wizard.
 
         Parameters
         ----------
@@ -242,7 +247,8 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
     def create_maxwell_design(
         self, setup_name: str, variation: str = "", maxwell_2d: bool = True
     ) -> bool | Maxwell2d | Maxwell3d:
-        """Create a Maxwell design from Rmxprt project. Setup has to be solved to run this method.
+        """
+        Create a Maxwell design from Rmxprt project. Setup has to be solved to run this method.
 
         Parameters
         ----------
@@ -280,7 +286,8 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
 
     @pyaedt_function_handler()
     def set_material_threshold(self, conductivity: float = 100000, permeability: float = 100) -> bool:
-        """Set material threshold.
+        """
+        Set material threshold.
 
         Parameters
         ----------

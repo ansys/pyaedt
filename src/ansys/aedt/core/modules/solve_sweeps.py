@@ -46,7 +46,8 @@ from ansys.aedt.core.modules.setup_templates import SweepSiwave
 
 @pyaedt_function_handler()
 def identify_setup(props: dict) -> bool:
-    """Identify if a setup's properties is based on a time or frequency domain.
+    """
+    Identify if a setup's properties is based on a time or frequency domain.
 
     Parameters
     ----------
@@ -96,7 +97,8 @@ class SweepCommon(PyAedtBase):
 
 
 class SweepHFSS(SweepCommon):
-    """Initializes, creates, and updates sweeps in HFSS.
+    """
+    Initializes, creates, and updates sweeps in HFSS.
 
     Parameters
     ----------
@@ -162,7 +164,8 @@ class SweepHFSS(SweepCommon):
 
     @property
     def is_solved(self) -> bool:
-        """Verify if solutions are available for the sweep.
+        """
+        Verify if solutions are available for the sweep.
 
         Returns
         -------
@@ -183,7 +186,8 @@ class SweepHFSS(SweepCommon):
 
     @property
     def frequencies(self) -> list[float]:
-        """List of all frequencies of the active sweep.
+        """
+        List of all frequencies of the active sweep.
 
         To see values, the project must be saved and solved.
 
@@ -207,7 +211,8 @@ class SweepHFSS(SweepCommon):
 
     @property
     def basis_frequencies(self) -> list[float]:
-        """List of all frequencies that have fields available.
+        """
+        List of all frequencies that have fields available.
 
         To see values, the project must be saved and solved.
 
@@ -266,7 +271,8 @@ class SweepHFSS(SweepCommon):
         save_single_fields: bool = False,
         clear: bool = False,
     ) -> bool:
-        """Add a range to the sweep.
+        """
+        Add a range to the sweep.
 
         Parameters
         ----------
@@ -354,7 +360,8 @@ class SweepHFSS(SweepCommon):
 
     @pyaedt_function_handler()
     def create(self) -> bool:
-        """Create a sweep.
+        """
+        Create a sweep.
 
         Returns
         -------
@@ -373,7 +380,8 @@ class SweepHFSS(SweepCommon):
 
     @pyaedt_function_handler()
     def update(self) -> bool:
-        """Update a sweep.
+        """
+        Update a sweep.
 
         Returns
         -------
@@ -393,7 +401,8 @@ class SweepHFSS(SweepCommon):
 
     @pyaedt_function_handler()
     def _get_args(self, props=None):
-        """Get arguments.
+        """
+        Get arguments.
 
         Parameters
         ----------
@@ -415,7 +424,8 @@ class SweepHFSS(SweepCommon):
 
 
 class SweepHFSS3DLayout(SweepCommon):
-    """Initializes, creates, and updates sweeps in HFSS 3D Layout.
+    """
+    Initializes, creates, and updates sweeps in HFSS 3D Layout.
 
     Parameters
     ----------
@@ -472,7 +482,8 @@ class SweepHFSS3DLayout(SweepCommon):
 
     @property
     def combined_name(self) -> str:
-        """Compute the name : sweep_name string.
+        """
+        Compute the name : sweep_name string.
 
         Returns
         -------
@@ -489,7 +500,8 @@ class SweepHFSS3DLayout(SweepCommon):
 
     @property
     def is_solved(self) -> bool:
-        """Verify if solutions are available for the sweep.
+        """
+        Verify if solutions are available for the sweep.
 
         Returns
         -------
@@ -511,7 +523,8 @@ class SweepHFSS3DLayout(SweepCommon):
 
     @pyaedt_function_handler()
     def change_type(self, sweep_type: str) -> bool:
-        """Change the type of the sweep.
+        """
+        Change the type of the sweep.
 
         Parameters
         ----------
@@ -541,7 +554,8 @@ class SweepHFSS3DLayout(SweepCommon):
 
     @pyaedt_function_handler()
     def set_save_fields(self, save_fields: bool, save_rad_fields: bool = False) -> bool:
-        """Choose whether to save fields.
+        """
+        Choose whether to save fields.
 
         Parameters
         ----------
@@ -570,7 +584,8 @@ class SweepHFSS3DLayout(SweepCommon):
     def add_subrange(
         self, range_type: str, start: float, end: float = None, count: float = None, unit: str = "GHz"
     ) -> bool:
-        """Add a subrange to the sweep.
+        """
+        Add a subrange to the sweep.
 
         Parameters
         ----------
@@ -629,7 +644,8 @@ class SweepHFSS3DLayout(SweepCommon):
     def change_range(
         self, range_type: str, start: float, end: float = None, count: float = None, unit: str = "GHz"
     ) -> bool:
-        """Change the range of the sweep.
+        """
+        Change the range of the sweep.
 
         Parameters
         ----------
@@ -675,7 +691,8 @@ class SweepHFSS3DLayout(SweepCommon):
 
     @pyaedt_function_handler()
     def create(self) -> bool:
-        """Create a sweep.
+        """
+        Create a sweep.
 
         Returns
         -------
@@ -694,7 +711,8 @@ class SweepHFSS3DLayout(SweepCommon):
 
     @pyaedt_function_handler()
     def update(self) -> bool:
-        """Update the sweep.
+        """
+        Update the sweep.
 
         Returns
         -------
@@ -713,7 +731,8 @@ class SweepHFSS3DLayout(SweepCommon):
 
     @pyaedt_function_handler()
     def _get_args(self, props=None):
-        """Retrieve properties.
+        """
+        Retrieve properties.
 
         Parameters
         ----------
@@ -735,7 +754,8 @@ class SweepHFSS3DLayout(SweepCommon):
 
 
 class SweepMatrix(SweepCommon):
-    """Initializes, creates, and updates sweeps in Q3D.
+    """
+    Initializes, creates, and updates sweeps in Q3D.
 
     Parameters
     ----------
@@ -796,7 +816,8 @@ class SweepMatrix(SweepCommon):
 
     @property
     def is_solved(self) -> bool:
-        """Verify if solutions are available for given sweep.
+        """
+        Verify if solutions are available for given sweep.
 
         Returns
         -------
@@ -815,7 +836,8 @@ class SweepMatrix(SweepCommon):
 
     @property
     def frequencies(self) -> list[float]:
-        """List of all frequencies of the active sweep.
+        """
+        List of all frequencies of the active sweep.
 
         To see values, the project must be saved and solved.
 
@@ -839,7 +861,8 @@ class SweepMatrix(SweepCommon):
 
     @property
     def basis_frequencies(self) -> list[float]:
-        """Get the list of all frequencies that have fields available.
+        """
+        Get the list of all frequencies that have fields available.
 
         The project has to be saved and solved to see values.
 
@@ -896,7 +919,8 @@ class SweepMatrix(SweepCommon):
         unit: str = "GHz",
         clear: bool = False,
     ) -> bool:
-        """Add a subrange to the sweep.
+        """
+        Add a subrange to the sweep.
 
         Parameters
         ----------
@@ -958,7 +982,8 @@ class SweepMatrix(SweepCommon):
 
     @pyaedt_function_handler()
     def create(self) -> bool:
-        """Create a sweep.
+        """
+        Create a sweep.
 
         Returns
         -------
@@ -977,7 +1002,8 @@ class SweepMatrix(SweepCommon):
 
     @pyaedt_function_handler()
     def update(self) -> bool:
-        """Update the sweep.
+        """
+        Update the sweep.
 
         Returns
         -------
@@ -997,7 +1023,8 @@ class SweepMatrix(SweepCommon):
 
     @pyaedt_function_handler()
     def _get_args(self, props=None):
-        """Get properties.
+        """
+        Get properties.
 
         Parameters
         ----------
@@ -1019,7 +1046,8 @@ class SweepMatrix(SweepCommon):
 
 
 class SweepMaxwellEC(SweepCommon):
-    """Initializes, creates, and updates sweeps in Maxwell Eddy Current.
+    """
+    Initializes, creates, and updates sweeps in Maxwell Eddy Current.
 
     Parameters
     ----------
@@ -1062,7 +1090,8 @@ class SweepMaxwellEC(SweepCommon):
 
     @property
     def name(self) -> str:
-        """Setup name.
+        """
+        Setup name.
 
         Examples
         --------
@@ -1075,7 +1104,8 @@ class SweepMaxwellEC(SweepCommon):
 
     @property
     def is_solved(self) -> bool:
-        """Verify if solutions are available for the sweep.
+        """
+        Verify if solutions are available for the sweep.
 
         Returns
         -------
@@ -1101,7 +1131,8 @@ class SweepMaxwellEC(SweepCommon):
 
     @property
     def frequencies(self) -> list[float]:
-        """List of all frequencies of the active sweep.
+        """
+        List of all frequencies of the active sweep.
 
         To see values, the project must be saved and solved.
 
@@ -1130,7 +1161,8 @@ class SweepMaxwellEC(SweepCommon):
 
     @pyaedt_function_handler()
     def create(self) -> bool:
-        """Create a Maxwell Eddy Current sweep.
+        """
+        Create a Maxwell Eddy Current sweep.
 
         Returns
         -------
@@ -1149,7 +1181,8 @@ class SweepMaxwellEC(SweepCommon):
 
     @pyaedt_function_handler()
     def update(self) -> bool:
-        """Update a Maxwell Eddy Current sweep.
+        """
+        Update a Maxwell Eddy Current sweep.
 
         Returns
         -------
@@ -1168,7 +1201,8 @@ class SweepMaxwellEC(SweepCommon):
 
     @pyaedt_function_handler()
     def delete(self) -> bool:
-        """Delete a Maxwell Eddy Current sweep.
+        """
+        Delete a Maxwell Eddy Current sweep.
 
         Returns
         -------
@@ -1195,7 +1229,8 @@ class SweepMaxwellEC(SweepCommon):
 
     @pyaedt_function_handler()
     def _get_args(self, props=None):
-        """Get arguments.
+        """
+        Get arguments.
 
         Parameters
         ----------
@@ -1217,7 +1252,8 @@ class SweepMaxwellEC(SweepCommon):
 
 
 class SetupProps(dict):
-    """Provides internal parameters for the AEDT boundary component.
+    """
+    Provides internal parameters for the AEDT boundary component.
 
     Examples
     --------
@@ -1251,7 +1287,8 @@ class SetupProps(dict):
         dict.__setitem__(self, key, value)
 
     def _export_properties_to_json(self, file_path, overwrite: bool = False) -> bool:
-        """Export all setup properties to a JSON file.
+        """
+        Export all setup properties to a JSON file.
 
         Parameters
         ----------
@@ -1274,7 +1311,8 @@ class SetupProps(dict):
             return True
 
     def _import_properties_from_json(self, file_path) -> bool:
-        """Import setup properties from a JSON file.
+        """
+        Import setup properties from a JSON file.
 
         Parameters
         ----------

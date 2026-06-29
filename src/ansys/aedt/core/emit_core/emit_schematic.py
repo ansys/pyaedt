@@ -28,7 +28,8 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
 class EmitSchematic:
-    """Represents the EMIT schematic and provides methods to interact with it.
+    """
+    Represents the EMIT schematic and provides methods to interact with it.
 
     Examples
     --------
@@ -39,7 +40,8 @@ class EmitSchematic:
     """
 
     def __init__(self, emit_instance) -> None:
-        """Initialize the EmitSchematic class.
+        """
+        Initialize the EmitSchematic class.
 
         Parameters
         ----------
@@ -50,7 +52,8 @@ class EmitSchematic:
 
     @property
     def _emit_com_module(self):
-        """Retrieve the EmitCom module from the Emit instance.
+        """
+        Retrieve the EmitCom module from the Emit instance.
 
         Returns
         -------
@@ -71,7 +74,8 @@ class EmitSchematic:
 
     @pyaedt_function_handler
     def create_component(self, component_type: str, name: str = None, library: str = None) -> EmitNode:
-        """Create a component.
+        """
+        Create a component.
 
         Parameters
         ----------
@@ -160,7 +164,8 @@ class EmitSchematic:
     def create_radio_antenna(
         self, radio_type: str, radio_name: str = None, antenna_name: str = None, library: str = None
     ) -> tuple[EmitNode, EmitNode]:
-        """Create a new radio and antenna and connect them.
+        """
+        Create a new radio and antenna and connect them.
 
         Parameters
         ----------
@@ -211,7 +216,8 @@ class EmitSchematic:
 
     @pyaedt_function_handler
     def connect_components(self, component_name_1: str, component_name_2: str):
-        """Connect two components in the schematic.
+        """
+        Connect two components in the schematic.
 
         Parameters
         ----------
@@ -247,7 +253,8 @@ class EmitSchematic:
 
     @pyaedt_function_handler
     def delete_component(self, name: str):
-        """Delete a component from the schematic.
+        """
+        Delete a component from the schematic.
 
         Parameters
         ----------

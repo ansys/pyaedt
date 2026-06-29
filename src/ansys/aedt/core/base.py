@@ -53,7 +53,8 @@ class DirMixin:
 
     @property
     def public_dir(self):
-        """Shortcut for dir(self).
+        """
+        Shortcut for dir(self).
 
         Examples
         --------

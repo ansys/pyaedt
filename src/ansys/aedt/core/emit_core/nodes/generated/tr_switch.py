@@ -41,7 +41,8 @@ class TR_Switch(EmitNode):  # noqa: N801
 
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
-        """Duplicate this node
+        """
+        Duplicate this node
 
         Examples
         --------
@@ -55,7 +56,8 @@ class TR_Switch(EmitNode):  # noqa: N801
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node
+        """
+        Delete this node
 
         Examples
         --------
@@ -70,7 +72,8 @@ class TR_Switch(EmitNode):  # noqa: N801
     @property
     @min_aedt_version("2025.2")
     def noise_temperature(self) -> float:
-        """System Noise temperature (K) of the component.
+        """
+        System Noise temperature (K) of the component.
 
         Value should be between 0 and 1000.
         """
@@ -97,7 +100,8 @@ class TR_Switch(EmitNode):  # noqa: N801
     @property
     @min_aedt_version("2025.2")
     def insertion_loss(self) -> float:
-        """TR Switch in-band loss in forward direction.
+        """
+        TR Switch in-band loss in forward direction.
 
         Value should be between 0 and 100.
         """
@@ -112,7 +116,8 @@ class TR_Switch(EmitNode):  # noqa: N801
     @property
     @min_aedt_version("2025.2")
     def finite_isolation(self) -> bool:
-        """Finite Isolation.
+        """
+        Finite Isolation.
 
         Use a finite isolation. If disabled, the  tr switch model is ideal
         (infinite isolation).
@@ -130,7 +135,8 @@ class TR_Switch(EmitNode):  # noqa: N801
     @property
     @min_aedt_version("2025.2")
     def isolation(self) -> float:
-        """TR Switch reverse isolation (i.e., loss between the Tx/Rx ports).
+        """
+        TR Switch reverse isolation (i.e., loss between the Tx/Rx ports).
 
         Value should be between 0 and 100.
         """
@@ -145,7 +151,8 @@ class TR_Switch(EmitNode):  # noqa: N801
     @property
     @min_aedt_version("2025.2")
     def finite_bandwidth(self) -> bool:
-        """Finite Bandwidth.
+        """
+        Finite Bandwidth.
 
         Use a finite bandwidth. If disabled, the  tr switch model is ideal
         (infinite bandwidth).
@@ -163,7 +170,8 @@ class TR_Switch(EmitNode):  # noqa: N801
     @property
     @min_aedt_version("2025.2")
     def out_of_band_attenuation(self) -> float:
-        """Out-of-band loss (attenuation).
+        """
+        Out-of-band loss (attenuation).
 
         Value should be between 0 and 200.
         """
@@ -178,7 +186,8 @@ class TR_Switch(EmitNode):  # noqa: N801
     @property
     @min_aedt_version("2025.2")
     def lower_stop_band(self) -> float:
-        """Lower stop band frequency.
+        """
+        Lower stop band frequency.
 
         Value should be between 1 and 100e9.
 
@@ -204,7 +213,8 @@ class TR_Switch(EmitNode):  # noqa: N801
     @property
     @min_aedt_version("2025.2")
     def lower_cutoff(self) -> float:
-        """Lower cutoff frequency.
+        """
+        Lower cutoff frequency.
 
         Value should be between 1 and 100e9.
 
@@ -230,7 +240,8 @@ class TR_Switch(EmitNode):  # noqa: N801
     @property
     @min_aedt_version("2025.2")
     def higher_cutoff(self) -> float:
-        """Higher cutoff frequency.
+        """
+        Higher cutoff frequency.
 
         Value should be between 1 and 100e9.
 
@@ -256,7 +267,8 @@ class TR_Switch(EmitNode):  # noqa: N801
     @property
     @min_aedt_version("2025.2")
     def higher_stop_band(self) -> float:
-        """Higher stop band frequency.
+        """
+        Higher stop band frequency.
 
         Value should be between 1 and 100e9.
 

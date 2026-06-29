@@ -77,7 +77,8 @@ if TYPE_CHECKING:
 
 
 class Analysis(Design, PyAedtBase):
-    """Contains all common analysis functions.
+    """
+    Contains all common analysis functions.
 
     This class is inherited in the caller application and is accessible through it ( eg. ``hfss.method_name``).
 
@@ -185,7 +186,8 @@ class Analysis(Design, PyAedtBase):
 
     @property
     def design_setups(self) -> dict[str, Setup]:
-        """All design setups ordered by name.
+        """
+        All design setups ordered by name.
 
         Returns
         -------
@@ -202,7 +204,8 @@ class Analysis(Design, PyAedtBase):
 
     @property
     def native_components(self) -> dict[str, NativeComponentObject]:
-        """Native Component dictionary.
+        """
+        Native Component dictionary.
 
         Returns
         -------
@@ -221,7 +224,8 @@ class Analysis(Design, PyAedtBase):
 
     @property
     def native_component_names(self) -> list[str]:
-        """Native component names.
+        """
+        Native component names.
 
         Returns
         -------
@@ -238,7 +242,8 @@ class Analysis(Design, PyAedtBase):
 
     @property
     def output_variables(self) -> list[str]:
-        """List of output variables.
+        """
+        List of output variables.
 
         Returns
         -------
@@ -259,7 +264,8 @@ class Analysis(Design, PyAedtBase):
 
     @property
     def materials(self) -> Materials:
-        """Materials in the project.
+        """
+        Materials in the project.
 
         Returns
         -------
@@ -286,7 +292,8 @@ class Analysis(Design, PyAedtBase):
 
     @property
     def setups(self) -> list[Setup]:
-        """Setups in the project.
+        """
+        Setups in the project.
 
         Returns
         -------
@@ -309,7 +316,8 @@ class Analysis(Design, PyAedtBase):
 
     @property
     def parametrics(self) -> ParametricSetups:
-        """Setups in the project.
+        """
+        Setups in the project.
 
         Returns
         -------
@@ -329,7 +337,8 @@ class Analysis(Design, PyAedtBase):
 
     @property
     def optimizations(self) -> OptimizationSetups:
-        """Optimizations in the project.
+        """
+        Optimizations in the project.
 
         Returns
         -------
@@ -349,7 +358,8 @@ class Analysis(Design, PyAedtBase):
 
     @property
     def Position(self) -> object:
-        """Position of the object.
+        """
+        Position of the object.
 
         Returns
         -------
@@ -369,7 +379,8 @@ class Analysis(Design, PyAedtBase):
 
     @property
     def available_variations(self) -> AvailableVariations:
-        """Available variation object.
+        """
+        Available variation object.
 
         Returns
         -------
@@ -389,7 +400,8 @@ class Analysis(Design, PyAedtBase):
 
     @property
     def active_setup(self) -> str:
-        """Get or Set the name of the active setup. If not set it will be the first analysis setup.
+        """
+        Get or Set the name of the active setup. If not set it will be the first analysis setup.
 
         Returns
         -------
@@ -428,7 +440,8 @@ class Analysis(Design, PyAedtBase):
 
     @property
     def setup_sweeps_names(self) -> dict:
-        """Get all available setup names and sweeps.
+        """
+        Get all available setup names and sweeps.
 
         Returns
         -------
@@ -485,7 +498,8 @@ class Analysis(Design, PyAedtBase):
 
     @property
     def existing_analysis_sweeps(self) -> list[str]:
-        """Existing analysis sweeps.
+        """
+        Existing analysis sweeps.
 
         Returns
         -------
@@ -516,7 +530,8 @@ class Analysis(Design, PyAedtBase):
 
     @property
     def nominal_adaptive(self) -> str:
-        """Nominal adaptive sweep.
+        """
+        Nominal adaptive sweep.
 
         Returns
         -------
@@ -544,7 +559,8 @@ class Analysis(Design, PyAedtBase):
 
     @property
     def nominal_sweep(self) -> str:
-        """Nominal sweep.
+        """
+        Nominal sweep.
 
         Returns
         -------
@@ -573,7 +589,8 @@ class Analysis(Design, PyAedtBase):
 
     @property
     def setup_names(self) -> list[str]:
-        """Setup names.
+        """
+        Setup names.
 
         Returns
         -------
@@ -598,7 +615,8 @@ class Analysis(Design, PyAedtBase):
 
     @property
     def imported_solution_names(self) -> list[str]:
-        """Return the list of the imported solution names.
+        """
+        Return the list of the imported solution names.
 
         Returns
         -------
@@ -616,7 +634,8 @@ class Analysis(Design, PyAedtBase):
 
     @property
     def excitation_names(self) -> list[str]:
-        """Get all excitation names.
+        """
+        Get all excitation names.
 
         Returns
         -------
@@ -645,7 +664,8 @@ class Analysis(Design, PyAedtBase):
 
     @property
     def design_excitations(self) -> dict[str, BoundaryObject]:
-        """Get all excitation.
+        """
+        Get all excitation.
 
         Returns
         -------
@@ -686,7 +706,8 @@ class Analysis(Design, PyAedtBase):
 
     @property
     def excitations_by_type(self) -> dict[str, list[BoundaryObject]]:
-        """Design excitations by type.
+        """
+        Design excitations by type.
 
         Returns
         -------
@@ -722,7 +743,8 @@ class Analysis(Design, PyAedtBase):
         category: str = "dB(S",
         differential_pairs: list = None,
     ) -> list:
-        """Retrieve a list of traces of specified designs ready to use in plot reports.
+        """
+        Retrieve a list of traces of specified designs ready to use in plot reports.
 
         Parameters
         ----------
@@ -787,7 +809,8 @@ class Analysis(Design, PyAedtBase):
 
     @pyaedt_function_handler()
     def list_of_variations(self, setup: str = None, sweep: str = None) -> list[str]:
-        """Retrieve a list of active variations for input setup.
+        """
+        Retrieve a list of active variations for input setup.
 
         Parameters
         ----------
@@ -853,7 +876,8 @@ class Analysis(Design, PyAedtBase):
         support_non_standard_touchstone_extension: bool = False,
         variations: list = None,
     ) -> list[str]:
-        """Export all available reports to a file, including profile, and convergence and sNp when applicable.
+        """
+        Export all available reports to a file, including profile, and convergence and sNp when applicable.
 
         Parameters
         ----------
@@ -1090,7 +1114,8 @@ class Analysis(Design, PyAedtBase):
 
     @pyaedt_function_handler()
     def export_convergence(self, setup: str, variations: str = "", output_file: str = None) -> str:
-        """Export a solution convergence to a file.
+        """
+        Export a solution convergence to a file.
 
         Parameters
         ----------
@@ -1194,7 +1219,8 @@ class Analysis(Design, PyAedtBase):
 
     @property
     def axis_directions(self):
-        """Contains constants for the axis directions.
+        """
+        Contains constants for the axis directions.
 
         Examples
         --------
@@ -1207,7 +1233,8 @@ class Analysis(Design, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_setups(self) -> list[str]:
-        """Retrieve setups.
+        """
+        Retrieve setups.
 
         Returns
         -------
@@ -1230,7 +1257,8 @@ class Analysis(Design, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_nominal_variation(self, with_values: bool = False) -> dict:
-        """Retrieve the nominal variation.
+        """
+        Retrieve the nominal variation.
 
         Parameters
         ----------
@@ -1260,7 +1288,8 @@ class Analysis(Design, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_sweeps(self, name: str) -> list[str]:
-        """Retrieve all sweeps for a setup.
+        """
+        Retrieve all sweeps for a setup.
 
         Parameters
         ----------
@@ -1288,7 +1317,8 @@ class Analysis(Design, PyAedtBase):
 
     @pyaedt_function_handler()
     def export_parametric_results(self, sweep: str, output_file: str, export_units: bool = True) -> bool:
-        """Export a list of all parametric variations solved for a sweep to a CSV file.
+        """
+        Export a list of all parametric variations solved for a sweep to a CSV file.
 
         Parameters
         ----------
@@ -1321,7 +1351,8 @@ class Analysis(Design, PyAedtBase):
 
     @pyaedt_function_handler()
     def generate_unique_setup_name(self, name: str = None) -> str:
-        """Generate a new setup with a unique name.
+        """
+        Generate a new setup with a unique name.
 
         Parameters
         ----------
@@ -1444,7 +1475,8 @@ class Analysis(Design, PyAedtBase):
 
     @pyaedt_function_handler()
     def delete_setup(self, name: str) -> bool:
-        """Delete a setup.
+        """
+        Delete a setup.
 
         Parameters
         ----------
@@ -1513,7 +1545,8 @@ class Analysis(Design, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_setup(self, name: str) -> Setup:
-        """Get the setup from the current design.
+        """
+        Get the setup from the current design.
 
         Parameters
         ----------
@@ -1542,7 +1575,8 @@ class Analysis(Design, PyAedtBase):
         context: list | str | None = None,
         is_differential: bool = False,
     ) -> bool:
-        """Create or modify an output variable.
+        """
+        Create or modify an output variable.
 
         Parameters
         ----------
@@ -1653,7 +1687,8 @@ class Analysis(Design, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_output_variable(self, variable: str, solution: str = None):
-        """Retrieve the value of the output variable.
+        """
+        Retrieve the value of the output variable.
 
         Parameters
         ----------
@@ -1692,7 +1727,8 @@ class Analysis(Design, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_object_material_properties(self, assignment: list = None, prop_names: str | list = None) -> dict:
-        """Retrieve the material properties for a list of objects and return them in a dictionary.
+        """
+        Retrieve the material properties for a list of objects and return them in a dictionary.
 
         This high-level function ignores objects with no defined material properties.
 
@@ -1754,7 +1790,8 @@ class Analysis(Design, PyAedtBase):
         revert_to_initial_mesh: bool = False,
         blocking: bool = True,
     ) -> bool:
-        """Solve the active design.
+        """
+        Solve the active design.
 
         Parameters
         ----------
@@ -1829,7 +1866,8 @@ class Analysis(Design, PyAedtBase):
 
     @pyaedt_function_handler()
     def set_hpc_from_file(self, acf_file: str | Path = None, configuration_name: str = None) -> bool:
-        """Set custom HPC options from ACF file.
+        """
+        Set custom HPC options from ACF file.
 
         Parameters
         ----------
@@ -1878,7 +1916,8 @@ class Analysis(Design, PyAedtBase):
         allowed_distribution_types: list = None,
         use_auto_settings: bool = True,
     ) -> bool:
-        """Set custom HPC options.
+        """
+        Set custom HPC options.
 
         This method creates a temporary ACF file based on the local configuration file and modifies it with
         the specified HPC options.
@@ -1995,7 +2034,8 @@ class Analysis(Design, PyAedtBase):
         revert_to_initial_mesh: bool = False,
         blocking: bool = True,
     ) -> bool:
-        """Analyze a design setup.
+        """
+        Analyze a design setup.
 
         Parameters
         ----------
@@ -2103,7 +2143,8 @@ class Analysis(Design, PyAedtBase):
 
     @property
     def are_there_simulations_running(self) -> float:
-        """Check if there are simulation running.
+        """
+        Check if there are simulation running.
 
         .. note::
            It works only for AEDT >= ``"2023.2"``.
@@ -2127,7 +2168,8 @@ class Analysis(Design, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_monitor_data(self) -> dict:
-        """Check and get monitor data of an existing analysis.
+        """
+        Check and get monitor data of an existing analysis.
 
         .. note::
            It works only for AEDT >= ``"2023.2"``.
@@ -2151,7 +2193,8 @@ class Analysis(Design, PyAedtBase):
 
     @pyaedt_function_handler()
     def stop_simulations(self, clean_stop: bool = True) -> str:
-        """Check if there are simulation running and stops them.
+        """
+        Check if there are simulation running and stops them.
 
         .. note::
            It works only for AEDT >= ``"2023.2"``.
@@ -2186,7 +2229,8 @@ class Analysis(Design, PyAedtBase):
         revert_to_initial_mesh: bool = False,
         blocking: bool = True,
     ) -> bool:  # pragma: no cover
-        """Analyze a design setup in batch mode.
+        """
+        Analyze a design setup in batch mode.
 
         .. note::
            To use this function, the project must be closed.
@@ -2335,7 +2379,8 @@ class Analysis(Design, PyAedtBase):
         wait_for_license: bool = True,
         setting_file: str = None,
     ) -> int:
-        """Submit a job to be solved on a cluster.
+        """
+        Submit a job to be solved on a cluster.
 
         Parameters
         ----------
@@ -2392,7 +2437,8 @@ class Analysis(Design, PyAedtBase):
         impedance: float = None,
         comments: bool = False,
     ) -> str | bool:
-        """Export the Touchstone file to a local folder.
+        """
+        Export the Touchstone file to a local folder.
 
         Parameters
         ----------
@@ -2525,7 +2571,8 @@ class Analysis(Design, PyAedtBase):
         units: str = None,
         units_system: str = "Length",
     ) -> str:
-        """Combine a number and a string containing the modeler length unit in a single
+        """
+        Combine a number and a string containing the modeler length unit in a single
         string e.g. "1.2mm".
         If the units are not specified, the model units are used.
         If value is a string (like containing an expression), it is returned as is.
@@ -2595,7 +2642,8 @@ class Analysis(Design, PyAedtBase):
         property_values: list,
         property_types: list = None,
     ) -> bool:
-        """Change multiple properties.
+        """
+        Change multiple properties.
 
         Parameters
         ----------
@@ -2668,7 +2716,8 @@ class Analysis(Design, PyAedtBase):
         property_name: str,
         property_value: str | list,
     ) -> bool:
-        """Change a property.
+        """
+        Change a property.
 
         Parameters
         ----------
@@ -2752,7 +2801,8 @@ class Analysis(Design, PyAedtBase):
         self,
         variation: dict,
     ) -> bool:
-        """Apply solved variation values to a property.
+        """
+        Apply solved variation values to a property.
 
         Parameters
         ----------
@@ -2842,7 +2892,8 @@ class AvailableVariations(PyAedtBase):
     """Provide available variations."""
 
     def __init__(self, app) -> None:
-        """Contains available variations.
+        """
+        Contains available variations.
 
         Parameters
         ----------
@@ -2861,7 +2912,8 @@ class AvailableVariations(PyAedtBase):
 
     @property
     def all(self) -> dict:
-        """Create a dictionary with variables names associated to ``"All"``.
+        """
+        Create a dictionary with variables names associated to ``"All"``.
 
         Returns
         -------
@@ -2879,7 +2931,8 @@ class AvailableVariations(PyAedtBase):
 
     @property
     def nominal(self) -> dict:
-        """Create a dictionary with variables names associated to ``"Nominal"``.
+        """
+        Create a dictionary with variables names associated to ``"Nominal"``.
 
         Returns
         -------
@@ -2897,7 +2950,8 @@ class AvailableVariations(PyAedtBase):
 
     @property
     def nominal_values(self) -> dict:
-        """All variables with nominal values.
+        """
+        All variables with nominal values.
 
         Returns
         -------
@@ -2916,7 +2970,8 @@ class AvailableVariations(PyAedtBase):
 
     @pyaedt_function_handler()
     def variation_string(self, variation: dict) -> str:
-        """Convert a variation dictionary to a string.
+        """
+        Convert a variation dictionary to a string.
         This method is useful because AEDT API methods require this format.
 
         Parameters
@@ -2945,7 +3000,8 @@ class AvailableVariations(PyAedtBase):
 
     @pyaedt_function_handler()
     def variations(self, setup_sweep: str, output_as_dict: bool = False) -> list[list] | list[dict]:
-        """Retrieve variations for a given setup.
+        """
+        Retrieve variations for a given setup.
 
         Parameters
         ----------
@@ -3008,7 +3064,8 @@ class AvailableVariations(PyAedtBase):
 
     @pyaedt_function_handler()
     def nominal_variation(self, dependent_params: bool = True, expressions: bool = False) -> dict:
-        """Retrieve variations for a given setup.
+        """
+        Retrieve variations for a given setup.
 
         Parameters
         ----------
@@ -3044,7 +3101,8 @@ class AvailableVariations(PyAedtBase):
 
     @pyaedt_function_handler()
     def _get_variation_strings(self, setup_sweep):
-        """Return variation strings.
+        """
+        Return variation strings.
 
         Parameters
         ----------

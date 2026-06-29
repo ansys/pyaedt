@@ -63,7 +63,8 @@ def test_get_latest_version_success_and_failure(mock_get) -> None:
 
 
 def _make_vm():
-    """Create a VersionManager with UI fully stubbed so no real windows appear.
+    """
+    Create a VersionManager with UI fully stubbed so no real windows appear.
 
     Replace only the modules referenced inside version_manager (tkinter, ttk, PIL, messagebox)
     so other tests using real Tk aren’t affected.

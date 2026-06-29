@@ -501,7 +501,8 @@ class Revision:
 
     @pyaedt_function_handler()
     def get_band_names(self, radio_node: RadioNode | None = None, tx_rx_mode: TxRxMode | None = None) -> list[str]:
-        """Get a list of all enabled ``tx`` or ``rx`` bands (or waveforms) in a given radio/emitter.
+        """
+        Get a list of all enabled ``tx`` or ``rx`` bands (or waveforms) in a given radio/emitter.
 
         Parameters
         ----------
@@ -645,7 +646,8 @@ class Revision:
         use_filter: bool = False,
         filter_list: list[str] | None = None,
     ) -> tuple[list, list]:  # pragma: no cover
-        """Classify interference type as according to inband/inband,
+        """
+        Classify interference type as according to inband/inband,
         out of band/in band, inband/out of band, and out of band/out of band.
 
         Parameters
@@ -963,7 +965,8 @@ class Revision:
         return all_colors, power_matrix
 
     def get_emi_category_filter_enabled(self, category: EmiCategoryFilter) -> bool:
-        """Get whether the EMI category filter is enabled.
+        """
+        Get whether the EMI category filter is enabled.
 
         Parameters
         ----------
@@ -990,7 +993,8 @@ class Revision:
         return engine.get_emi_category_filter_enabled(category)
 
     def set_emi_category_filter_enabled(self, category: EmiCategoryFilter, enabled: bool):
-        """Set whether the EMI category filter is enabled.
+        """
+        Set whether the EMI category filter is enabled.
 
         Parameters
         ----------
@@ -1015,7 +1019,8 @@ class Revision:
 
     @pyaedt_function_handler
     def get_license_session(self) -> object:
-        """Get a license session.
+        """
+        Get a license session.
 
         A license session can be started with checkout(), and ended with check in().
         The `with` keyword can also be used, where checkout() is called on enter, and check in() is called on exit.
@@ -1037,7 +1042,8 @@ class Revision:
     @pyaedt_function_handler
     @min_aedt_version("2025.2")
     def _get_all_component_names(self) -> list[str]:
-        """Gets all component names from this revision.
+        """
+        Gets all component names from this revision.
 
         Returns
         -------
@@ -1055,7 +1061,8 @@ class Revision:
     @pyaedt_function_handler
     @min_aedt_version("2025.2")
     def _get_all_top_level_node_ids(self) -> list[int]:
-        """Gets all top level node ids from this revision.
+        """
+        Gets all top level node ids from this revision.
 
         Returns
         -------
@@ -1100,7 +1107,8 @@ class Revision:
     @pyaedt_function_handler
     @min_aedt_version("2025.2")
     def get_all_top_level_nodes(self) -> list[EmitNode]:
-        """Gets all top level nodes from this revision.
+        """
+        Gets all top level nodes from this revision.
 
         Returns
         -------
@@ -1119,7 +1127,8 @@ class Revision:
     @pyaedt_function_handler
     @min_aedt_version("2025.2")
     def get_all_component_nodes(self) -> list[EmitNode]:
-        """Gets all component nodes from this revision.
+        """
+        Gets all component nodes from this revision.
 
         Returns
         -------
@@ -1141,7 +1150,8 @@ class Revision:
     def get_all_radio_nodes(
         self, tx_rx_mode: TxRxMode | None = None, include_emitters: bool = False
     ) -> list[RadioNode]:
-        """Gets all Radio nodes from this revision.
+        """
+        Gets all Radio nodes from this revision.
 
         Parameters
         ----------
@@ -1183,7 +1193,8 @@ class Revision:
     @pyaedt_function_handler
     @min_aedt_version("2025.2")
     def get_all_emitter_radios(self) -> list[RadioNode]:
-        """Gets all Emitter Radio nodes from this revision.
+        """
+        Gets all Emitter Radio nodes from this revision.
 
         Returns
         -------
@@ -1209,7 +1220,8 @@ class Revision:
     @pyaedt_function_handler
     @min_aedt_version("2025.2")
     def get_component_node(self, component_name: str) -> EmitNode | None:
-        """Gets the component node.
+        """
+        Gets the component node.
 
         Parameters
         ----------
@@ -1234,7 +1246,8 @@ class Revision:
     @pyaedt_function_handler
     @min_aedt_version("2025.2")
     def _get_all_node_ids(self) -> list[int]:
-        """Gets all node ids from this revision.
+        """
+        Gets all node ids from this revision.
 
         Returns
         -------
@@ -1273,7 +1286,8 @@ class Revision:
     @pyaedt_function_handler
     @min_aedt_version("2025.2")
     def _get_node(self, node_id: int) -> EmitNode:
-        """Gets a node for this revision with the given id.
+        """
+        Gets a node for this revision with the given id.
 
         Parameters
         ----------
@@ -1330,7 +1344,8 @@ class Revision:
     @pyaedt_function_handler
     @min_aedt_version("2025.2")
     def get_all_nodes(self) -> list[EmitNode]:
-        """Gets all nodes for this revision.
+        """
+        Gets all nodes for this revision.
 
         Returns
         -------
@@ -1350,7 +1365,8 @@ class Revision:
     @pyaedt_function_handler
     @min_aedt_version("2025.2")
     def get_scene_node(self) -> EmitSceneNode:
-        """Gets the Scene node for this revision.
+        """
+        Gets the Scene node for this revision.
 
         Returns
         -------
@@ -1369,7 +1385,8 @@ class Revision:
     @pyaedt_function_handler
     @min_aedt_version("2025.2")
     def get_coupling_data_node(self) -> CouplingsNode:
-        """Gets the Coupling Data node for this revision.
+        """
+        Gets the Coupling Data node for this revision.
 
         Returns
         -------
@@ -1388,7 +1405,8 @@ class Revision:
     @pyaedt_function_handler
     @min_aedt_version("2025.2")
     def get_simulation_node(self) -> EmitNode:
-        """Gets the Simulation node for this revision.
+        """
+        Gets the Simulation node for this revision.
 
         Returns
         -------
@@ -1407,7 +1425,8 @@ class Revision:
     @pyaedt_function_handler
     @min_aedt_version("2025.2")
     def get_preferences_node(self) -> EmitNode:
-        """Gets the Preferences node for this revision.
+        """
+        Gets the Preferences node for this revision.
 
         Returns
         -------
@@ -1426,7 +1445,8 @@ class Revision:
     @pyaedt_function_handler
     @min_aedt_version("2025.2")
     def get_result_plot_node(self) -> ResultPlotNode:
-        """Gets the Result Plot node for this revision.
+        """
+        Gets the Result Plot node for this revision.
 
         Returns
         -------
@@ -1445,7 +1465,8 @@ class Revision:
     @pyaedt_function_handler
     @min_aedt_version("2025.2")
     def get_result_categorization_node(self) -> EmitNode:
-        """Gets the Result Categorization node for this revision.
+        """
+        Gets the Result Categorization node for this revision.
 
         Returns
         -------
@@ -1466,7 +1487,8 @@ class Revision:
     @pyaedt_function_handler
     @min_aedt_version("2025.2")
     def _get_disconnected_radios(self) -> list[str]:
-        """Gets a list of disconnected radios for this revision.
+        """
+        Gets a list of disconnected radios for this revision.
 
         Returns
         -------

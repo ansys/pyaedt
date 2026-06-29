@@ -79,7 +79,8 @@ class CommonTemplate(PyAedtBase):
 
     @property
     def name(self) -> str:
-        """Report name.
+        """
+        Report name.
 
         Returns
         -------
@@ -96,7 +97,8 @@ class CommonTemplate(PyAedtBase):
 
     @property
     def project_name(self) -> str:
-        """Project name.
+        """
+        Project name.
 
         Returns
         -------
@@ -121,7 +123,8 @@ class CommonTemplate(PyAedtBase):
 
     @property
     def project(self) -> str:
-        """Project path.
+        """
+        Project path.
 
         Examples
         --------
@@ -138,7 +141,8 @@ class CommonTemplate(PyAedtBase):
 
     @property
     def report_type(self) -> str:
-        """Report type.
+        """
+        Report type.
 
         Returns
         -------
@@ -159,7 +163,8 @@ class CommonTemplate(PyAedtBase):
 
     @property
     def config_file(self) -> str:
-        """Configuration file.
+        """
+        Configuration file.
 
         Returns
         -------
@@ -180,7 +185,8 @@ class CommonTemplate(PyAedtBase):
 
     @property
     def design_name(self) -> str:
-        """Design name in AEDT.
+        """
+        Design name in AEDT.
 
         Returns
         -------
@@ -201,7 +207,8 @@ class CommonTemplate(PyAedtBase):
 
     @property
     def traces(self) -> list:
-        """Trace list.
+        """
+        Trace list.
 
         Returns
         -------
@@ -225,7 +232,8 @@ class CommonTemplate(PyAedtBase):
 
     @property
     def pass_fail(self) -> bool:
-        """Flag indicating if pass/fail criteria is applied.
+        """
+        Flag indicating if pass/fail criteria is applied.
 
         Returns
         -------
@@ -246,7 +254,8 @@ class CommonTemplate(PyAedtBase):
 
     @property
     def pass_fail_criteria(self) -> float | int:
-        """Pass/fail criteria.
+        """
+        Pass/fail criteria.
 
         Returns
         -------
@@ -275,7 +284,8 @@ class ReportTemplate(CommonTemplate):
 
     @property
     def group_plots(self) -> bool:
-        """Flag indicating if plots are grouped into a single chart or kept independent.
+        """
+        Flag indicating if plots are grouped into a single chart or kept independent.
 
         Returns
         -------
@@ -305,7 +315,8 @@ class ReportParametersTemplate(CommonTemplate):
 
     @property
     def parameter_name(self) -> str:
-        """Parameter name.
+        """
+        Parameter name.
 
         Returns
         -------
@@ -335,7 +346,8 @@ class ParametersTemplate(CommonTemplate):
 
     @property
     def trace_pins(self) -> list:
-        """Trace pin coupling list.
+        """
+        Trace pin coupling list.
 
         Returns
         -------
@@ -356,7 +368,8 @@ class ParametersTemplate(CommonTemplate):
 
 
 class VirtualComplianceGenerator(PyAedtBase):
-    """Class to generate a Virtual Compliance configuration.
+    """
+    Class to generate a Virtual Compliance configuration.
 
     Examples
     --------
@@ -400,7 +413,8 @@ class VirtualComplianceGenerator(PyAedtBase):
 
     @property
     def project_file(self) -> str:
-        """Project file.
+        """
+        Project file.
 
         Examples
         --------
@@ -427,7 +441,8 @@ class VirtualComplianceGenerator(PyAedtBase):
         name: str = "ERL",
         project: str | None = None,
     ) -> None:
-        r"""Add Com parameters computed by SpiSim into the configuration.
+        r"""
+        Add Com parameters computed by SpiSim into the configuration.
 
         Parameters
         ----------
@@ -485,7 +500,8 @@ class VirtualComplianceGenerator(PyAedtBase):
         name: str,
         project: str | None = None,
     ) -> None:
-        r"""Add report derived parameters computed by AEDT and python into the configuration.
+        r"""
+        Add report derived parameters computed by AEDT and python into the configuration.
 
         Parameters
         ----------
@@ -548,7 +564,8 @@ class VirtualComplianceGenerator(PyAedtBase):
         name: str,
         project: str | None = None,
     ) -> None:
-        r"""Add Com parameters computed by SpiSim into the configuration.
+        r"""
+        Add Com parameters computed by SpiSim into the configuration.
 
         Parameters
         ----------
@@ -602,7 +619,8 @@ class VirtualComplianceGenerator(PyAedtBase):
     def add_report_from_folder(
         self, input_folder: str | Path, design_name: str, group_plots: bool = False, project: str = None
     ) -> None:
-        r"""Add multiple reports from a folder.
+        r"""
+        Add multiple reports from a folder.
 
         Parameters
         ----------
@@ -643,7 +661,8 @@ class VirtualComplianceGenerator(PyAedtBase):
 
     @pyaedt_function_handler()
     def save_configuration(self, output_file: str | Path) -> bool:
-        r"""Save the configuration to a json file.
+        r"""
+        Save the configuration to a json file.
 
         Parameters
         ----------
@@ -673,7 +692,8 @@ class VirtualComplianceChaptersData(PyAedtBase):
         self.content = []
 
     def add_content(self, content: dict, content_type: int = 0) -> dict:
-        """Add content to the chapter.
+        """
+        Add content to the chapter.
 
         Parameters
         ----------
@@ -693,7 +713,8 @@ class VirtualComplianceChaptersData(PyAedtBase):
         return self.content[-1]
 
     def add_section(self) -> dict:
-        """Add a section to the chapter.
+        """
+        Add a section to the chapter.
 
         Examples
         --------
@@ -705,7 +726,8 @@ class VirtualComplianceChaptersData(PyAedtBase):
         return self.add_content("", 4)
 
     def add_subchapter(self, text: str) -> dict:
-        """Add a subchapter to the chapter.
+        """
+        Add a subchapter to the chapter.
 
         Examples
         --------
@@ -717,7 +739,8 @@ class VirtualComplianceChaptersData(PyAedtBase):
         return self.add_content(text, 0)
 
     def add_text(self, text: str) -> dict:
-        """Add text to the chapter.
+        """
+        Add text to the chapter.
 
         Examples
         --------
@@ -729,7 +752,8 @@ class VirtualComplianceChaptersData(PyAedtBase):
         return self.add_content(text, 1)
 
     def add_image(self, image_data: str) -> dict:
-        """Add image to the chapter.
+        """
+        Add image to the chapter.
 
         Examples
         --------
@@ -741,7 +765,8 @@ class VirtualComplianceChaptersData(PyAedtBase):
         return self.add_content(image_data, 2)
 
     def add_table(self, table_data: dict) -> dict:
-        """Add table to the chapter.
+        """
+        Add table to the chapter.
 
         Examples
         --------
@@ -754,7 +779,8 @@ class VirtualComplianceChaptersData(PyAedtBase):
 
 
 class VirtualComplianceData(PyAedtBase):
-    """Virtual compliance data class.
+    """
+    Virtual compliance data class.
 
     Examples
     --------
@@ -768,7 +794,8 @@ class VirtualComplianceData(PyAedtBase):
 
     @property
     def chapters(self) -> list[VirtualComplianceChaptersData]:
-        """Chapters list.
+        """
+        Chapters list.
 
         Returns
         -------
@@ -788,7 +815,8 @@ class VirtualComplianceData(PyAedtBase):
         self._chapters = val
 
     def add_chapter(self, chapter: str, position: int = None) -> VirtualComplianceChaptersData:
-        """Add a new chapter to the compliance data.
+        """
+        Add a new chapter to the compliance data.
 
         Returns
         -------
@@ -810,7 +838,8 @@ class VirtualComplianceData(PyAedtBase):
 
 
 class VirtualCompliance(PyAedtBase):
-    """Provides automatic report generation with pass/fail criteria on virtual compliance.
+    """
+    Provides automatic report generation with pass/fail criteria on virtual compliance.
 
     Parameters
     ----------
@@ -852,7 +881,8 @@ class VirtualCompliance(PyAedtBase):
 
     @property
     def image_width(self) -> int:
-        """Image width resolution during export.
+        """
+        Image width resolution during export.
 
         Examples
         --------
@@ -869,7 +899,8 @@ class VirtualCompliance(PyAedtBase):
 
     @property
     def image_height(self) -> int:
-        """Image height resolution during export.
+        """
+        Image height resolution during export.
 
         Examples
         --------
@@ -886,7 +917,8 @@ class VirtualCompliance(PyAedtBase):
 
     @property
     def dut_image(self) -> str:
-        """DUT image.
+        """
+        DUT image.
 
         Returns
         -------
@@ -907,7 +939,8 @@ class VirtualCompliance(PyAedtBase):
 
     @pyaedt_function_handler()
     def load_project(self) -> bool:
-        """Open the aedt project in Electronics Desktop.
+        """
+        Open the aedt project in Electronics Desktop.
 
         Returns
         -------
@@ -935,7 +968,8 @@ class VirtualCompliance(PyAedtBase):
 
     @property
     def reports(self) -> dict[str, ReportTemplate]:
-        """Reports available in the virtual compliance.
+        """
+        Reports available in the virtual compliance.
 
         Returns
         -------
@@ -956,7 +990,8 @@ class VirtualCompliance(PyAedtBase):
 
     @property
     def parameters(self) -> dict[str, ParametersTemplate]:
-        """Parameters available in the Virtual compliance.
+        """
+        Parameters available in the Virtual compliance.
 
         Returns
         -------
@@ -977,7 +1012,8 @@ class VirtualCompliance(PyAedtBase):
 
     @property
     def add_project_info(self) -> bool:
-        """Add project information.
+        """
+        Add project information.
 
         Examples
         --------
@@ -994,7 +1030,8 @@ class VirtualCompliance(PyAedtBase):
 
     @property
     def add_specs_info(self) -> bool:
-        """Add specification information.
+        """
+        Add specification information.
 
         Examples
         --------
@@ -1011,7 +1048,8 @@ class VirtualCompliance(PyAedtBase):
 
     @property
     def specs_folder(self) -> str:
-        """Add specification folder.
+        """
+        Add specification folder.
 
         Examples
         --------
@@ -1030,7 +1068,8 @@ class VirtualCompliance(PyAedtBase):
 
     @property
     def template_name(self) -> str:
-        """Template name.
+        """
+        Template name.
 
         Examples
         --------
@@ -1047,7 +1086,8 @@ class VirtualCompliance(PyAedtBase):
 
     @property
     def project_file(self) -> str:
-        """Project file.
+        """
+        Project file.
 
         Examples
         --------
@@ -1064,7 +1104,8 @@ class VirtualCompliance(PyAedtBase):
 
     @property
     def project_name(self) -> str:
-        """Project name.
+        """
+        Project name.
 
         Examples
         --------
@@ -1077,7 +1118,8 @@ class VirtualCompliance(PyAedtBase):
 
     @property
     def use_portrait(self) -> bool:
-        """Use portrait.
+        """
+        Use portrait.
 
         Examples
         --------
@@ -1169,7 +1211,8 @@ class VirtualCompliance(PyAedtBase):
         pass_fail: bool = True,
         pass_fail_criteria=None,
     ) -> None:
-        r"""Add a new custom aedt report to the compliance.
+        r"""
+        Add a new custom aedt report to the compliance.
 
         Parameters
         ----------
@@ -1998,7 +2041,8 @@ class VirtualCompliance(PyAedtBase):
 
     @pyaedt_function_handler()
     def add_specs_to_report(self, folder: str):
-        r"""Add specs to the report from a given folder.
+        r"""
+        Add specs to the report from a given folder.
 
         All images in such folder will be added to the report.
 
@@ -2061,7 +2105,8 @@ class VirtualCompliance(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_compliance_report(self, file_name: str = "compliance_test.pdf", close_project: bool = True) -> str:
-        r"""Create the Virtual Compliance report.
+        r"""
+        Create the Virtual Compliance report.
 
         Parameters
         ----------
@@ -2086,7 +2131,8 @@ class VirtualCompliance(PyAedtBase):
         return self.create_pdf(file_name=file_name, close_project=close_project)
 
     def compute_report_data(self) -> VirtualComplianceData:
-        """Compute the report data and exports all the images and table without creating the pdf.
+        """
+        Compute the report data and exports all the images and table without creating the pdf.
 
         Examples
         --------
@@ -2139,7 +2185,8 @@ class VirtualCompliance(PyAedtBase):
         return self.report_data
 
     def create_pdf(self, file_name: str, close_project: bool = True) -> str:
-        r"""Create the PDF report after the method ``compute_report_data`` is called.
+        r"""
+        Create the PDF report after the method ``compute_report_data`` is called.
 
         Parameters
         ----------

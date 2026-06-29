@@ -22,7 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""This module contains the ``Desktop`` class.
+"""
+This module contains the ``Desktop`` class.
 
 This module is used to initialize AEDT and the message manager for managing AEDT.
 You can initialize this module before launching an app or
@@ -103,7 +104,8 @@ modules = [tup[1] for tup in pkgutil.iter_modules()]
 
 
 class TransportMode(str, Enum):
-    """Enum containing the different modes of connection.
+    """
+    Enum containing the different modes of connection.
 
     Examples
     --------
@@ -151,14 +153,16 @@ def _get_design_display_name(design: object | None) -> str | None:
 
 
 class _ServerArgs:
-    """Class handling gRPC server arguments (server command line).
+    """
+    Class handling gRPC server arguments (server command line).
 
     This class should not be instantiated directly. Use the
     :func:`_get_grpcsrv_args<ansys.aedt.core.desktop._get_grpcsrv_args>` function instead.
     """
 
     def __init__(self, mode: "TransportMode", host: str | None = None, port: int | None = None) -> None:
-        """Initialize server arguments.
+        """
+        Initialize server arguments.
 
         Parameters
         ----------
@@ -175,7 +179,8 @@ class _ServerArgs:
 
     @property
     def mode(self) -> "TransportMode":
-        """Get transport mode.
+        """
+        Get transport mode.
 
         Examples
         --------
@@ -187,7 +192,8 @@ class _ServerArgs:
 
     @property
     def host(self) -> str:
-        """Get host.
+        """
+        Get host.
 
         Examples
         --------
@@ -199,7 +205,8 @@ class _ServerArgs:
 
     @property
     def port(self) -> int:
-        """Get port.
+        """
+        Get port.
 
         Examples
         --------
@@ -211,7 +218,8 @@ class _ServerArgs:
 
     @property
     def host_ip(self) -> str:
-        """Get host ip.
+        """
+        Get host ip.
 
         Examples
         --------
@@ -223,7 +231,8 @@ class _ServerArgs:
 
     @property
     def client_machine(self) -> str:
-        """Get client machine.
+        """
+        Get client machine.
 
         Examples
         --------
@@ -310,7 +319,8 @@ def launch_aedt(
     student_version: bool,
     host: str | None = None,
 ):  # pragma: no cover
-    """Launch AEDT in gRPC mode.
+    """
+    Launch AEDT in gRPC mode.
 
     This function starts an AEDT session with gRPC communication enabled. It supports
     multiple transport modes (INSECURE, UDS, MTLS, WNUA) based on the current settings
@@ -472,7 +482,8 @@ def launch_aedt(
 
 @pyaedt_function_handler()
 def launch_aedt_in_lsf(non_graphical: bool, port: int, host: str | None = None):  # pragma: no cover
-    """Launch AEDT in LSF in gRPC mode.
+    """
+    Launch AEDT in LSF in gRPC mode.
 
     .. warning::
 
@@ -608,7 +619,8 @@ def _find_free_port():
 
 
 def exception_to_desktop(ex_value: str, tb_data: str) -> None:  # pragma: no cover
-    """Write the trace stack to AEDT when a Python error occurs.
+    """
+    Write the trace stack to AEDT when a Python error occurs.
 
     The message is added to the AEDT global logger and to the log file (if present).
 
@@ -645,7 +657,8 @@ def is_student_version(oDesktop: object) -> bool:
 
 
 class Desktop(PyAedtBase):
-    """Provides the Ansys Electronics Desktop (AEDT) interface.
+    """
+    Provides the Ansys Electronics Desktop (AEDT) interface.
 
     Parameters
     ----------
@@ -930,7 +943,8 @@ class Desktop(PyAedtBase):
 
     @property
     def launched_by_pyaedt(self) -> bool:
-        """Flag to check if AEDT was launched by PyAEDT.
+        """
+        Flag to check if AEDT was launched by PyAEDT.
 
         Examples
         --------
@@ -947,7 +961,8 @@ class Desktop(PyAedtBase):
 
     @property
     def non_graphical(self) -> bool:
-        """Whether AEDT is running in non-graphical mode.
+        """
+        Whether AEDT is running in non-graphical mode.
 
         Examples
         --------
@@ -964,7 +979,8 @@ class Desktop(PyAedtBase):
 
     @property
     def close_on_exit(self) -> bool:
-        """Whether AEDT will close on exit.
+        """
+        Whether AEDT will close on exit.
 
         Examples
         --------
@@ -981,7 +997,8 @@ class Desktop(PyAedtBase):
 
     @property
     def machine(self) -> str:
-        """Machine name.
+        """
+        Machine name.
 
         Examples
         --------
@@ -1000,7 +1017,8 @@ class Desktop(PyAedtBase):
 
     @property
     def port(self) -> int:
-        """Port number.
+        """
+        Port number.
 
         Examples
         --------
@@ -1019,7 +1037,8 @@ class Desktop(PyAedtBase):
 
     @property
     def is_grpc_api(self) -> bool:
-        """Whether the connection is through gRPC API.
+        """
+        Whether the connection is through gRPC API.
 
         Examples
         --------
@@ -1036,7 +1055,8 @@ class Desktop(PyAedtBase):
 
     @property
     def student_version(self) -> bool:
-        """Whether AEDT is the student version.
+        """
+        Whether AEDT is the student version.
 
         Examples
         --------
@@ -1053,7 +1073,8 @@ class Desktop(PyAedtBase):
 
     @property
     def new_desktop(self) -> bool:
-        """Whether a new session will be started or not.
+        """
+        Whether a new session will be started or not.
 
         Examples
         --------
@@ -1070,7 +1091,8 @@ class Desktop(PyAedtBase):
 
     @property
     def aedt_version_string(self) -> str:
-        """AEDT version string.
+        """
+        AEDT version string.
 
         Examples
         --------
@@ -1143,7 +1165,8 @@ class Desktop(PyAedtBase):
 
     @property
     def aedt_install_dir(self):
-        """AEDT installation path.
+        """
+        AEDT installation path.
 
         Examples
         --------
@@ -1198,7 +1221,8 @@ class Desktop(PyAedtBase):
 
     @pyaedt_function_handler()
     def __getitem__(self, project_design_name):
-        """Get the application interface object (Hfss, Icepak, Maxwell3D...) for a given project name and design name.
+        """
+        Get the application interface object (Hfss, Icepak, Maxwell3D...) for a given project name and design name.
 
         Parameters
         ----------
@@ -1242,7 +1266,8 @@ class Desktop(PyAedtBase):
     @property
     @min_aedt_version("2023.2")
     def are_there_simulations_running(self) -> float:
-        """Check if there are simulation running.
+        """
+        Check if there are simulation running.
 
         Returns
         -------
@@ -1259,7 +1284,8 @@ class Desktop(PyAedtBase):
 
     @property
     def current_version(self) -> str:
-        """Current AEDT version.
+        """
+        Current AEDT version.
 
         Examples
         --------
@@ -1272,7 +1298,8 @@ class Desktop(PyAedtBase):
 
     @property
     def current_student_version(self) -> str:
-        """Current AEDT student  version.
+        """
+        Current AEDT student  version.
 
         Examples
         --------
@@ -1285,7 +1312,8 @@ class Desktop(PyAedtBase):
 
     @property
     def installed_versions(self) -> dict:
-        """Dictionary of AEDT versions installed on the system and their installation paths.
+        """
+        Dictionary of AEDT versions installed on the system and their installation paths.
 
         Examples
         --------
@@ -1298,7 +1326,8 @@ class Desktop(PyAedtBase):
 
     @property
     def install_path(self) -> str:
-        """Installation path for AEDT.
+        """
+        Installation path for AEDT.
 
         Examples
         --------
@@ -1315,7 +1344,8 @@ class Desktop(PyAedtBase):
 
     @pyaedt_function_handler()
     def get_example(self, example_name: str, folder_name: str | None = ".") -> Path:
-        """Retrieve the path to a built-in example project.
+        """
+        Retrieve the path to a built-in example project.
 
         Parameters
         ----------
@@ -1367,7 +1397,8 @@ class Desktop(PyAedtBase):
 
     @property
     def logger(self) -> Logger:
-        """AEDT logger.
+        """
+        AEDT logger.
 
         Examples
         --------
@@ -1394,7 +1425,8 @@ class Desktop(PyAedtBase):
 
     @property
     def odesktop(self) -> object:
-        """AEDT instance containing all projects and designs.
+        """
+        AEDT instance containing all projects and designs.
 
         Examples
         --------
@@ -1425,7 +1457,8 @@ class Desktop(PyAedtBase):
 
     @property
     def messenger(self) -> Logger:
-        """Messenger manager for the AEDT logger.
+        """
+        Messenger manager for the AEDT logger.
 
         Examples
         --------
@@ -1438,7 +1471,8 @@ class Desktop(PyAedtBase):
 
     @property
     def personallib(self) -> str:
-        """PersonalLib directory.
+        """
+        PersonalLib directory.
 
         Returns
         -------
@@ -1456,7 +1490,8 @@ class Desktop(PyAedtBase):
 
     @property
     def global_project_directory(self) -> str:
-        """AEDT project directory.
+        """
+        AEDT project directory.
 
         Returns
         -------
@@ -1478,7 +1513,8 @@ class Desktop(PyAedtBase):
 
     @property
     def temp_directory(self) -> str:
-        """AEDT temp directory.
+        """
+        AEDT temp directory.
 
         Returns
         -------
@@ -1500,7 +1536,8 @@ class Desktop(PyAedtBase):
 
     @property
     def src_dir(self) -> str:
-        """Python source directory.
+        """
+        Python source directory.
 
         Returns
         -------
@@ -1518,7 +1555,8 @@ class Desktop(PyAedtBase):
 
     @property
     def syslib(self) -> str:
-        """SysLib directory.
+        """
+        SysLib directory.
 
         Returns
         -------
@@ -1536,7 +1574,8 @@ class Desktop(PyAedtBase):
 
     @property
     def pyaedt_dir(self) -> str:
-        """PyAEDT directory.
+        """
+        PyAEDT directory.
 
         Returns
         -------
@@ -1554,7 +1593,8 @@ class Desktop(PyAedtBase):
 
     @property
     def userlib(self) -> str:
-        """UserLib directory.
+        """
+        UserLib directory.
 
         Returns
         -------
@@ -1584,7 +1624,8 @@ class Desktop(PyAedtBase):
     def active_design(
         self, project_object: object | None = None, name: str | None = None, design_type: str | None = None
     ) -> object | None:
-        """Get the active design.
+        """
+        Get the active design.
 
         Parameters
         ----------
@@ -1639,7 +1680,8 @@ class Desktop(PyAedtBase):
 
     @pyaedt_function_handler()
     def active_project(self, name: str | None = None) -> object | None:
-        """Get the active project.
+        """
+        Get the active project.
 
         Parameters
         ----------
@@ -1677,7 +1719,8 @@ class Desktop(PyAedtBase):
 
     @property
     def active_project_name(self) -> str | None:
-        """Get the name of the active project.
+        """
+        Get the name of the active project.
 
         Examples
         --------
@@ -1697,7 +1740,8 @@ class Desktop(PyAedtBase):
 
     @property
     def active_design_name(self) -> str | None:
-        """Get the display name of the active design.
+        """
+        Get the display name of the active design.
 
         Examples
         --------
@@ -1718,7 +1762,8 @@ class Desktop(PyAedtBase):
 
     @pyaedt_function_handler()
     def close_windows(self) -> bool:
-        """Close all windows.
+        """
+        Close all windows.
 
         Returns
         -------
@@ -1741,7 +1786,8 @@ class Desktop(PyAedtBase):
 
     @property
     def project_list(self):
-        """Get a list of projects.
+        """
+        Get a list of projects.
 
         Returns
         -------
@@ -1759,7 +1805,8 @@ class Desktop(PyAedtBase):
 
     @pyaedt_function_handler()
     def analyze_all(self, project: str | None = None, design: str | None = None) -> bool:  # pragma: no cover
-        """Analyze all setups in a project.
+        """
+        Analyze all setups in a project.
 
         Parameters
         ----------
@@ -1797,7 +1844,8 @@ class Desktop(PyAedtBase):
 
     @pyaedt_function_handler()
     def clear_messages(self) -> bool:
-        """Clear all AEDT messages.
+        """
+        Clear all AEDT messages.
 
         Returns
         -------
@@ -1816,7 +1864,8 @@ class Desktop(PyAedtBase):
 
     @pyaedt_function_handler()
     def save_project(self, project_name: str | None = None, project_path: str | Path | None = None) -> bool:
-        """Save the project.
+        """
+        Save the project.
 
         Parameters
         ----------
@@ -1858,7 +1907,8 @@ class Desktop(PyAedtBase):
 
     @pyaedt_function_handler()
     def project_path(self, project_name: str | None = None) -> str | None:
-        """Get the path to the project.
+        """
+        Get the path to the project.
 
         Parameters
         ----------
@@ -1888,7 +1938,8 @@ class Desktop(PyAedtBase):
 
     @pyaedt_function_handler()
     def design_list(self, project: str | None = None) -> list[str]:
-        """Get a list of the designs.
+        """
+        Get a list of the designs.
 
         Parameters
         ----------
@@ -1922,7 +1973,8 @@ class Desktop(PyAedtBase):
 
     @pyaedt_function_handler()
     def design_type(self, project_name: str | None = None, design_name: str | None = None) -> str:
-        """Get the type of design.
+        """
+        Get the type of design.
 
         Parameters
         ----------
@@ -1961,7 +2013,8 @@ class Desktop(PyAedtBase):
             return ""
 
     def __exception(self, ex_value, tb_data):  # pragma: no cover
-        """Write the trace stack to AEDT when a Python error occurs.
+        """
+        Write the trace stack to AEDT when a Python error occurs.
 
         Parameters
         ----------
@@ -1987,7 +2040,8 @@ class Desktop(PyAedtBase):
 
     @pyaedt_function_handler()
     def load_project(self, project_file: str, design_name: str | None = None) -> bool | object:
-        """Open an AEDT project based on a project and optional design.
+        """
+        Open an AEDT project based on a project and optional design.
 
         Parameters
         ----------
@@ -2031,7 +2085,8 @@ class Desktop(PyAedtBase):
 
     @pyaedt_function_handler()
     def __release_aedt_application(self, pid, is_grpc_api) -> bool:
-        """Release the AEDT API.
+        """
+        Release the AEDT API.
 
         Parameters
         ----------
@@ -2069,7 +2124,8 @@ class Desktop(PyAedtBase):
 
     @pyaedt_function_handler()
     def __close_aedt_application(self, pid, is_grpc_api) -> bool:
-        """Close the AEDT application.
+        """
+        Close the AEDT application.
 
         Parameters
         ----------
@@ -2136,7 +2192,8 @@ class Desktop(PyAedtBase):
 
     @pyaedt_function_handler()
     def __release_and_close_desktop(self, close_projects, close_aedt_app):
-        """Internal method performing common operations when releasing or closing AEDT.
+        """
+        Internal method performing common operations when releasing or closing AEDT.
 
         Parameters
         ----------
@@ -2204,7 +2261,8 @@ class Desktop(PyAedtBase):
 
     @pyaedt_function_handler()
     def release_desktop(self, close_projects: bool | None = True, close_on_exit: bool | None = True) -> bool:
-        """Release AEDT.
+        """
+        Release AEDT.
 
         Parameters
         ----------
@@ -2232,7 +2290,8 @@ class Desktop(PyAedtBase):
         return self.__release_and_close_desktop(close_projects, close_on_exit)
 
     def close_desktop(self) -> bool:
-        """Close all projects and shut down AEDT.
+        """
+        Close all projects and shut down AEDT.
 
         Returns
         -------
@@ -2251,7 +2310,8 @@ class Desktop(PyAedtBase):
         return self.__release_and_close_desktop(close_projects=True, close_aedt_app=True)
 
     def enable_autosave(self) -> None:
-        """Enable the autosave option.
+        """
+        Enable the autosave option.
 
         Examples
         --------
@@ -2265,7 +2325,8 @@ class Desktop(PyAedtBase):
         self.odesktop.EnableAutoSave(True)
 
     def disable_autosave(self) -> None:
-        """Disable the autosave option.
+        """
+        Disable the autosave option.
 
         Examples
         --------
@@ -2279,7 +2340,8 @@ class Desktop(PyAedtBase):
         self.odesktop.EnableAutoSave(False)
 
     def change_license_type(self, license_type: str | None = "Pool") -> bool:  # pragma: no cover
-        """Change the license type.
+        """
+        Change the license type.
 
         Parameters
         ----------
@@ -2309,7 +2371,8 @@ class Desktop(PyAedtBase):
             return False
 
     def enable_optimetrics(self) -> bool:  # pragma: no cover
-        """Enable optimetrics.
+        """
+        Enable optimetrics.
 
         Returns
         -------
@@ -2330,7 +2393,8 @@ class Desktop(PyAedtBase):
             return False
 
     def disable_optimetrics(self) -> bool:  # pragma: no cover
-        """Disable optimetrics.
+        """
+        Disable optimetrics.
 
         Returns
         -------
@@ -2351,7 +2415,8 @@ class Desktop(PyAedtBase):
             return False
 
     def change_registry_key(self, key_full_name: str, key_value: str | int) -> bool:
-        """Change an AEDT registry key to a new value.
+        """
+        Change an AEDT registry key to a new value.
 
         Parameters
         ----------
@@ -2395,7 +2460,8 @@ class Desktop(PyAedtBase):
     def change_active_dso_config_name(
         self, product_name: str | None = "HFSS", config_name: str | None = "Local"
     ) -> bool:  # pragma: no cover
-        """Change a specific registry key to a new value.
+        """
+        Change a specific registry key to a new value.
 
         Parameters
         ----------
@@ -2428,7 +2494,8 @@ class Desktop(PyAedtBase):
     def change_registry_from_file(
         self, registry_file: str, make_active: bool | None = True
     ) -> bool:  # pragma: no cover
-        """Apply desktop registry settings from an ACF file.
+        """
+        Apply desktop registry settings from an ACF file.
 
         One way to get an ACF file is to export a configuration from the AEDT UI and then edit and reuse it.
 
@@ -2471,7 +2538,8 @@ class Desktop(PyAedtBase):
     @staticmethod
     @pyaedt_function_handler()
     def get_available_toolkits() -> list[str]:
-        """Get toolkit ready for installation.
+        """
+        Get toolkit ready for installation.
 
         Returns
         -------
@@ -2499,7 +2567,8 @@ class Desktop(PyAedtBase):
         wait_for_license: bool | None = True,
         setting_file: str | None = None,
     ) -> int:  # pragma: no cover
-        """Submit a job to be solved on a cluster.
+        """
+        Submit a job to be solved on a cluster.
 
         Parameters
         ----------
@@ -2625,7 +2694,8 @@ class Desktop(PyAedtBase):
         self,
         input_file: str | Path,
     ) -> bool:  # pragma: no cover
-        """Launch job monitor. This method is opening the job monitor tool.
+        """
+        Launch job monitor. This method is opening the job monitor tool.
 
         Parameters
         ----------
@@ -2652,7 +2722,8 @@ class Desktop(PyAedtBase):
 
     @pyaedt_function_handler()
     def job_status(self) -> str:  # pragma: no cover
-        """Get job status from job monitor. Job monitor has to be opened.
+        """
+        Get job status from job monitor. Job monitor has to be opened.
 
         Returns
         -------
@@ -2680,7 +2751,8 @@ class Desktop(PyAedtBase):
         username: str | None = None,
         force_password_entry: bool | None = False,
     ) -> str:  # pragma: no cover
-        """Select a scheduler to submit the job.
+        """
+        Select a scheduler to submit the job.
 
         Parameters
         ----------
@@ -2726,7 +2798,8 @@ class Desktop(PyAedtBase):
     @pyaedt_function_handler()
     @min_aedt_version("2023.2")
     def get_monitor_data(self) -> dict:  # pragma: no cover
-        """Check and get monitor data of an existing analysis.
+        """
+        Check and get monitor data of an existing analysis.
 
         Returns
         -------
@@ -2763,7 +2836,8 @@ class Desktop(PyAedtBase):
     @pyaedt_function_handler()
     @min_aedt_version("2023.2")
     def stop_simulations(self, clean_stop: bool = True) -> str:
-        """Check if there are simulation running and stops them.
+        """
+        Check if there are simulation running and stops them.
 
         Returns
         -------
@@ -2930,7 +3004,8 @@ class Desktop(PyAedtBase):
         self.is_grpc_api = False
 
     def __initialize(self, new_desktop_required=None):
-        """Initialize connection to a new or existing AEDT desktop instance.
+        """
+        Initialize connection to a new or existing AEDT desktop instance.
 
         This internal method handles the initialization of AEDT desktop connections,
         supporting both COM (Windows) and gRPC (cross-platform) modes. It manages:
@@ -3046,7 +3121,8 @@ class Desktop(PyAedtBase):
 
     @pyaedt_function_handler()
     def _validate_port(self, port, machine=None):
-        """Validate the specified gRPC port.
+        """
+        Validate the specified gRPC port.
 
         On top of checking the port, this method also determines if a new AEDT session
         needs to be launched.
@@ -3100,7 +3176,8 @@ class Desktop(PyAedtBase):
                 self.new_desktop = True
 
     def _on_ci_generate_lock_file(self) -> Path:
-        """Generate a lock file to prevent concurrent AEDT gRPC launches in CI environment.
+        """
+        Generate a lock file to prevent concurrent AEDT gRPC launches in CI environment.
 
         Returns
         -------
@@ -3152,7 +3229,8 @@ class Desktop(PyAedtBase):
         return lock_file
 
     def _on_ci_release_grpc_lock(self, lock_file: Path):
-        """Release the gRPC launch lock file in CI environment.
+        """
+        Release the gRPC launch lock file in CI environment.
 
         Parameters
         ----------
@@ -3170,7 +3248,8 @@ class Desktop(PyAedtBase):
             self.logger.warning(f"Could not remove lock file {lock_file}.")
 
     def __init_grpc(self):
-        """Initialize AEDT connection using gRPC API.
+        """
+        Initialize AEDT connection using gRPC API.
 
         This internal method manages the gRPC connection process, including:
         - Starting a new AEDT instance with gRPC server (if needed)

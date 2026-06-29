@@ -41,7 +41,8 @@ from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
 
 
 class BoxFacePointsAndFields(PyAedtBase):
-    """Data model class containing field component and coordinates.
+    """
+    Data model class containing field component and coordinates.
 
     Examples
     --------
@@ -58,7 +59,8 @@ class BoxFacePointsAndFields(PyAedtBase):
         self.im = {"Ex": [], "Ey": [], "Ez": [], "Hx": [], "Hy": [], "Hz": []}
 
     def set_xyz_points(self, x: float, y: float, z: float) -> None:
-        """Set X, Y, Z coordinates.
+        """
+        Set X, Y, Z coordinates.
 
         Examples
         --------
@@ -72,7 +74,8 @@ class BoxFacePointsAndFields(PyAedtBase):
         self.z = z
 
     def set_field_component(self, field_component: str, real: list, imag: list, invert: bool) -> None:
-        """Set Field component Real and imaginary parts.
+        """
+        Set Field component Real and imaginary parts.
 
         Examples
         --------
@@ -92,7 +95,8 @@ class BoxFacePointsAndFields(PyAedtBase):
             print("Error in set_field_component function.")
 
     def fill_empty_data(self) -> None:
-        """Fill empty data with zeros.
+        """
+        Fill empty data with zeros.
 
         Examples
         --------
@@ -115,7 +119,8 @@ class BoxFacePointsAndFields(PyAedtBase):
 def convert_nearfield_data(
     dat_folder: str, frequency: int = 6, invert_phase_for_lower_faces: bool = True, output_folder: str = None
 ) -> str:
-    r"""Convert a near field data folder to hfss `nfd` file and link it to `and` file.
+    r"""
+    Convert a near field data folder to hfss `nfd` file and link it to `and` file.
 
     Parameters
     ----------
@@ -253,7 +258,8 @@ def convert_nearfield_data(
 
 @pyaedt_function_handler()
 def convert_farfield_data(input_file: str | Path, output_file: str | Path = None) -> str:
-    r"""Convert a far field data file to hfss `ffd` file.
+    r"""
+    Convert a far field data file to hfss `ffd` file.
 
     Parameters
     ----------
@@ -580,7 +586,8 @@ def preview_pyvista(dict_in: dict, decimation: int = 0, output_stls: list = None
 def simplify_and_preview_stl(
     input_file: str, output_file: str = None, decimation: float = 0.5, preview: bool = False
 ) -> str:
-    r"""Import and simplify a stl file using pyvista and fast-simplification.
+    r"""
+    Import and simplify a stl file using pyvista and fast-simplification.
 
     Parameters
     ----------

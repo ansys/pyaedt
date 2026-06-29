@@ -47,7 +47,8 @@ class AntennaPassband(EmitNode):
 
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
-        """Duplicate this node
+        """
+        Duplicate this node
 
         Examples
         --------
@@ -65,7 +66,8 @@ class AntennaPassband(EmitNode):
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node
+        """
+        Delete this node
 
         Examples
         --------
@@ -92,7 +94,8 @@ class AntennaPassband(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def passband_loss(self) -> float:
-        """Passband loss.
+        """
+        Passband loss.
 
         Value should be between 0 and 100.
         """
@@ -107,7 +110,8 @@ class AntennaPassband(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def out_of_band_attenuation(self) -> float:
-        """Out of band antenna loss.
+        """
+        Out of band antenna loss.
 
         Value should be between 0 and 200.
 
@@ -131,7 +135,8 @@ class AntennaPassband(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def lower_stop_band(self) -> float:
-        """Lower stop band frequency.
+        """
+        Lower stop band frequency.
 
         Value should be between 1 and 100e9.
 
@@ -157,7 +162,8 @@ class AntennaPassband(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def lower_cutoff(self) -> float:
-        """Lower cutoff frequency.
+        """
+        Lower cutoff frequency.
 
         Value should be between 1 and 100e9.
 
@@ -183,7 +189,8 @@ class AntennaPassband(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def higher_cutoff(self) -> float:
-        """Higher cutoff frequency.
+        """
+        Higher cutoff frequency.
 
         Value should be between 1 and 100e9.
 
@@ -209,7 +216,8 @@ class AntennaPassband(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def higher_stop_band(self) -> float:
-        """Higher stop band frequency.
+        """
+        Higher stop band frequency.
 
         Value should be between 1 and 100e9.
 
@@ -235,7 +243,8 @@ class AntennaPassband(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def notes(self) -> str:
-        """Expand to view/edit notes stored with the project.
+        """
+        Expand to view/edit notes stored with the project.
 
         Examples
         --------

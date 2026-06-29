@@ -29,7 +29,8 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 
 class VRTFieldPlot(PyAedtBase):
-    """Creates and edits VRT field plots for SBR+ and Creeping Waves.
+    """
+    Creates and edits VRT field plots for SBR+ and Creeping Waves.
 
     Parameters
     ----------
@@ -97,7 +98,8 @@ class VRTFieldPlot(PyAedtBase):
 
     @property
     def intrinsicVar(self) -> str:
-        """Intrinsic variable.
+        """
+        Intrinsic variable.
 
         Returns
         -------
@@ -232,7 +234,8 @@ class VRTFieldPlot(PyAedtBase):
 
     @pyaedt_function_handler()
     def create(self) -> bool:
-        """Create a field plot.
+        """
+        Create a field plot.
 
         Returns
         -------
@@ -257,7 +260,8 @@ class VRTFieldPlot(PyAedtBase):
 
     @pyaedt_function_handler()
     def update(self) -> bool:
-        """Update the field plot.
+        """
+        Update the field plot.
 
         Returns
         -------
@@ -283,7 +287,8 @@ class VRTFieldPlot(PyAedtBase):
 
     @pyaedt_function_handler()
     def delete(self) -> bool:
-        """Delete the field plot.
+        """
+        Delete the field plot.
 
         Examples
         --------
@@ -297,7 +302,8 @@ class VRTFieldPlot(PyAedtBase):
 
     @pyaedt_function_handler()
     def export(self, path: str = None) -> str:
-        r"""Export the Visual Ray Tracing to ``hdm`` file.
+        r"""
+        Export the Visual Ray Tracing to ``hdm`` file.
 
         Parameters
         ----------

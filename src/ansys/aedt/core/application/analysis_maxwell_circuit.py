@@ -35,7 +35,8 @@ if TYPE_CHECKING:
 
 
 class AnalysisMaxwellCircuit(Analysis, PyAedtBase):
-    """Provides the Maxwell Circuit (MaxwellCircuit) interface.
+    """
+    Provides the Maxwell Circuit (MaxwellCircuit) interface.
 
     Maxwell Circuit Editor has no setup, solution, analysis or postprocessor
     It is automatically initialized by Application call (Maxwell Circuit).
@@ -121,7 +122,8 @@ class AnalysisMaxwellCircuit(Analysis, PyAedtBase):
 
     @property
     def modeler(self) -> ModelerMaxwellCircuit:
-        """Design oModeler.
+        """
+        Design oModeler.
 
         Returns
         -------

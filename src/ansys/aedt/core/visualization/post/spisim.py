@@ -54,7 +54,8 @@ from ansys.aedt.core.visualization.post.spisim_com_configuration_files.com_param
 
 
 class ReportBase(BaseModel, PyAedtBase):
-    """Provide report base.
+    """
+    Provide report base.
 
     Examples
     --------
@@ -68,7 +69,8 @@ class ReportBase(BaseModel, PyAedtBase):
 
 
 class FrequencyFigure(ReportBase):
-    """Provide frequency figure.
+    """
+    Provide frequency figure.
 
     Examples
     --------
@@ -104,7 +106,8 @@ class FrequencyFigure(ReportBase):
 
 
 class AdvancedReport(ReportBase):
-    """Provide advanced report.
+    """
+    Provide advanced report.
 
     Examples
     --------
@@ -165,7 +168,8 @@ class AdvancedReport(ReportBase):
 
     @classmethod
     def from_spisim_cfg(cls, file_path: str | Path) -> "AdvancedReport":  # pragma: no cover
-        r"""Load SPIsim configuration file.
+        r"""
+        Load SPIsim configuration file.
 
         Examples
         --------
@@ -237,7 +241,8 @@ class AdvancedReport(ReportBase):
         return cls(**config)
 
     def dump_spisim_cfg(self, file_path: str | Path) -> str:
-        r"""Create a SPIsim configuration file.
+        r"""
+        Create a SPIsim configuration file.
 
         Examples
         --------
@@ -265,7 +270,8 @@ class AdvancedReport(ReportBase):
 
 
 class SpiSim(PyAedtBase):
-    """Provides support to SpiSim batch mode.
+    """
+    Provides support to SpiSim batch mode.
 
     Examples
     --------
@@ -286,7 +292,8 @@ class SpiSim(PyAedtBase):
 
     @property
     def working_directory(self) -> str:
-        """Working directory.
+        """
+        Working directory.
 
         Returns
         -------
@@ -322,7 +329,8 @@ class SpiSim(PyAedtBase):
 
     @staticmethod
     def __parser_spisim_cfg(file_path):
-        """Load a SPIsim configuration file.
+        """
+        Load a SPIsim configuration file.
 
         Parameters
         ----------
@@ -436,7 +444,8 @@ class SpiSim(PyAedtBase):
         reflections_length: float = None,
         modulation_type: str = None,
     ) -> bool | float:
-        r"""Compute effective return loss (ERL) using Ansys SPISIM from S-parameter file.
+        r"""
+        Compute effective return loss (ERL) using Ansys SPISIM from S-parameter file.
 
         .. warning::
 
@@ -580,7 +589,8 @@ class SpiSim(PyAedtBase):
         next_s4p: str = "",
         out_folder: str = "",
     ) -> list | float:
-        r"""Compute Channel Operating Margin. Only COM ver3.4 is supported.
+        r"""
+        Compute Channel Operating Margin. Only COM ver3.4 is supported.
 
         .. warning::
 
@@ -645,7 +655,8 @@ class SpiSim(PyAedtBase):
         self,
         com_parameter,
     ) -> list | float:
-        """Compute Channel Operating Margin (COM).
+        """
+        Compute Channel Operating Margin (COM).
 
         .. warning::
 
@@ -679,7 +690,8 @@ class SpiSim(PyAedtBase):
 
     @pyaedt_function_handler()
     def export_com_configure_file(self, file_path: str, standard: int = 1) -> bool:
-        r"""Generate a configuration file for SpiSim.
+        r"""
+        Generate a configuration file for SpiSim.
 
         Parameters
         ----------
@@ -715,7 +727,8 @@ class SpiSim(PyAedtBase):
         data_rate: str = "GTS04",
         report_directory: str = None,
     ) -> bool:
-        """Universal Chiplet Interface Express (UCIe) Compliance support.
+        """
+        Universal Chiplet Interface Express (UCIe) Compliance support.
 
         Parameters
         ----------
@@ -840,7 +853,8 @@ class SpiSim(PyAedtBase):
 
 
 def detect_encoding(file_path: str, expected_pattern: str = "", re_flags: int = 0) -> str:
-    r"""Check encoding of a file.
+    r"""
+    Check encoding of a file.
 
     Examples
     --------
@@ -871,7 +885,8 @@ def detect_encoding(file_path: str, expected_pattern: str = "", re_flags: int = 
 
 
 class DataSet(PyAedtBase):
-    """Base class for storing all traces of a RAW file. Returned by the get_trace() or by the get_axis() methods.
+    """
+    Base class for storing all traces of a RAW file. Returned by the get_trace() or by the get_axis() methods.
 
     Normally the user doesn't have to be aware of this class. It is only used internally to encapsulate the different
     implementations of the wave population.
@@ -893,7 +908,8 @@ class DataSet(PyAedtBase):
         whattype,
         datalen,
     ) -> None:
-        """Base Class for both Axis and Trace Classes.
+        """
+        Base Class for both Axis and Trace Classes.
 
         Defines the common operations between both.
         """
@@ -912,7 +928,8 @@ class DataSet(PyAedtBase):
 
     @property
     def wave(self) -> ndarray:
-        """Retrieves the trace data.
+        """
+        Retrieves the trace data.
 
         Returns
         -------
@@ -930,7 +947,8 @@ class DataSet(PyAedtBase):
 
 
 class Trace(DataSet):
-    """This class is used to represent a trace.
+    """
+    This class is used to represent a trace.
 
     This class is constructed by the get_trace() command.
     The get_wave() method will return a numpy array.
@@ -953,7 +971,8 @@ class Trace(DataSet):
         self.axis = axis
 
     def __len__(self) -> int:
-        """Return the length of the axis.
+        """
+        Return the length of the axis.
 
         Returns
         -------
@@ -964,7 +983,8 @@ class Trace(DataSet):
 
 
 class SpiSimRawError(Exception):
-    """Custom class for exception handling.
+    """
+    Custom class for exception handling.
 
     Examples
     --------
@@ -981,7 +1001,8 @@ SpiSimRawException = SpiSimRawError
 
 
 class SpiSimRawRead(PyAedtBase):
-    """Class for reading SPISim wave Files. It can read all types of Files.
+    """
+    Class for reading SPISim wave Files. It can read all types of Files.
 
     Examples
     --------
@@ -1109,7 +1130,8 @@ class SpiSimRawRead(PyAedtBase):
 
     @property
     def trace_names(self) -> list:
-        """Returns a list of exiting trace names of the RAW file.
+        """
+        Returns a list of exiting trace names of the RAW file.
 
         Returns
         -------
@@ -1126,7 +1148,8 @@ class SpiSimRawRead(PyAedtBase):
         return [trace.name for trace in self._traces]
 
     def get_trace(self, trace_ref: str | int) -> Trace:
-        """Retrieve the trace with the requested name (trace_ref).
+        """
+        Retrieve the trace with the requested name (trace_ref).
 
         Parameters
         ----------
@@ -1152,7 +1175,8 @@ class SpiSimRawRead(PyAedtBase):
             return self._traces[trace_ref]
 
     def get_wave(self, trace_ref: str | int) -> ndarray:
-        """Retrieve the wave data with the requested name (trace_ref).
+        """
+        Retrieve the wave data with the requested name (trace_ref).
 
         Parameters
         ----------
@@ -1174,7 +1198,8 @@ class SpiSimRawRead(PyAedtBase):
         return self.get_trace(trace_ref).wave
 
     def get_axis(self) -> array:
-        """Function equivalent to get_trace(0).wave instruction.
+        """
+        Function equivalent to get_trace(0).wave instruction.
 
         Returns
         -------
@@ -1194,7 +1219,8 @@ class SpiSimRawRead(PyAedtBase):
             raise RuntimeError("This RAW file does not have an axis.")
 
     def __len__(self) -> int:
-        """Compute the length of the data.
+        """
+        Compute the length of the data.
 
         Returns
         -------

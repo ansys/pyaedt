@@ -66,7 +66,8 @@ EXTENSION_TITLE = "Layout Design Toolkit"
 
 @dataclass
 class PostLayoutDesignExtensionData(ExtensionCommonData):
-    """Data class containing user input and computed data.
+    """
+    Data class containing user input and computed data.
 
     Examples
     --------
@@ -96,7 +97,8 @@ class PostLayoutDesignExtensionData(ExtensionCommonData):
 
 
 class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
-    """Extension for post-layout design operations in AEDT.
+    """
+    Extension for post-layout design operations in AEDT.
 
     Examples
     --------
@@ -163,7 +165,8 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
             self._pedb.close()
 
     def add_extension_content(self) -> None:
-        """Add custom content to the extension UI.
+        """
+        Add custom content to the extension UI.
 
         Examples
         --------
@@ -381,7 +384,8 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
 
 
 def main(data: PostLayoutDesignExtensionData) -> bool:
-    """Main function to run the post layout design extension.
+    """
+    Main function to run the post layout design extension.
 
     Examples
     --------

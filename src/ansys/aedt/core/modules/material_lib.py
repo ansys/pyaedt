@@ -47,7 +47,8 @@ from ansys.aedt.core.modules.material_workbench import MaterialWorkbench
 
 
 class Materials(PyAedtBase):
-    """Contains the AEDT materials database and all methods for creating and editing materials.
+    """
+    Contains the AEDT materials database and all methods for creating and editing materials.
 
     Parameters
     ----------
@@ -76,7 +77,8 @@ class Materials(PyAedtBase):
 
     @property
     def material_keys(self) -> dict[str, Material]:
-        """Material dictionary available in current project.
+        """
+        Material dictionary available in current project.
 
         Examples
         --------
@@ -89,7 +91,8 @@ class Materials(PyAedtBase):
 
     @property
     def odefinition_manager(self):
-        """Definition Manager from AEDT.
+        """
+        Definition Manager from AEDT.
 
         Examples
         --------
@@ -102,7 +105,8 @@ class Materials(PyAedtBase):
 
     @property
     def omaterial_manager(self):
-        """Material Manager from AEDT.
+        """
+        Material Manager from AEDT.
 
         Examples
         --------
@@ -129,7 +133,8 @@ class Materials(PyAedtBase):
 
     @property
     def surface_material_keys(self) -> dict[str, SurfaceMaterial]:
-        """Dictionary of Surface Material in the project.
+        """
+        Dictionary of Surface Material in the project.
 
         Returns
         -------
@@ -148,7 +153,8 @@ class Materials(PyAedtBase):
 
     @property
     def liquids(self) -> list[str]:
-        """Return the liquids materials. A liquid is a fluid with density greater or equal to 100Kg/m3.
+        """
+        Return the liquids materials. A liquid is a fluid with density greater or equal to 100Kg/m3.
 
         Returns
         -------
@@ -170,7 +176,8 @@ class Materials(PyAedtBase):
 
     @property
     def gases(self) -> list[str]:
-        """Return the gas materials. A gas is a fluid with density lower than 100Kg/m3.
+        """
+        Return the gas materials. A gas is a fluid with density lower than 100Kg/m3.
 
         Returns
         -------
@@ -204,7 +211,8 @@ class Materials(PyAedtBase):
 
     @property
     def mat_names_aedt(self) -> list[str]:
-        """List material names.
+        """
+        List material names.
 
         Examples
         --------
@@ -217,7 +225,8 @@ class Materials(PyAedtBase):
 
     @property
     def mat_names_aedt_lower(self) -> list[str]:
-        """List material names with lower case.
+        """
+        List material names with lower case.
 
         Examples
         --------
@@ -305,7 +314,8 @@ class Materials(PyAedtBase):
 
     @pyaedt_function_handler()
     def exists_material(self, material: str) -> Material | bool:
-        """Check if a material exists in AEDT or PyAEDT Definitions.
+        """
+        Check if a material exists in AEDT or PyAEDT Definitions.
 
         Parameters
         ----------
@@ -349,7 +359,8 @@ class Materials(PyAedtBase):
 
     @pyaedt_function_handler()
     def check_thermal_modifier(self, material: str) -> bool:
-        """Check a material to see if it has any thermal modifiers.
+        """
+        Check a material to see if it has any thermal modifiers.
 
         Parameters
         ----------
@@ -378,7 +389,8 @@ class Materials(PyAedtBase):
 
     @pyaedt_function_handler()
     def add_material(self, name: str, properties: dict = None) -> Material | bool:
-        """Add a material with default values.
+        """
+        Add a material with default values.
 
         When the added material object is returned, you can customize
         the material. This method does not update the material.
@@ -428,7 +440,8 @@ class Materials(PyAedtBase):
 
     @pyaedt_function_handler()
     def add_surface_material(self, name: str, emissivity: float = None) -> SurfaceMaterial | bool:
-        """Add a surface material.
+        """
+        Add a surface material.
 
         In AEDT, base properties are loaded from the XML database file ``amat.xml``
         or from the emissivity.
@@ -493,7 +506,8 @@ class Materials(PyAedtBase):
 
     @pyaedt_function_handler()
     def add_material_sweep(self, assignment: list[str], name: str) -> int:
-        """Create a sweep material made of an array of materials.
+        """
+        Create a sweep material made of an array of materials.
 
         Parameters
         ----------
@@ -545,7 +559,8 @@ class Materials(PyAedtBase):
 
     @pyaedt_function_handler()
     def duplicate_material(self, material: str, name: str = None, properties: list[str] = None) -> Material | bool:
-        """Duplicate a material.
+        """
+        Duplicate a material.
 
         Parameters
         ----------
@@ -629,7 +644,8 @@ class Materials(PyAedtBase):
 
     @pyaedt_function_handler()
     def duplicate_surface_material(self, material: str, name: str = None) -> SurfaceMaterial | bool:
-        """Duplicate a surface material.
+        """
+        Duplicate a surface material.
 
         Parameters
         ----------
@@ -667,7 +683,8 @@ class Materials(PyAedtBase):
 
     @pyaedt_function_handler()
     def remove_material(self, material: str, library: str = "Project") -> bool:
-        """Remove a material.
+        """
+        Remove a material.
 
         Parameters
         ----------
@@ -704,7 +721,8 @@ class Materials(PyAedtBase):
 
     @property
     def conductors(self) -> list[str]:
-        """Conductors in the material database.
+        """
+        Conductors in the material database.
 
         Returns
         -------
@@ -726,7 +744,8 @@ class Materials(PyAedtBase):
 
     @property
     def dielectrics(self) -> list[str]:
-        """Dielectrics in the material database.
+        """
+        Dielectrics in the material database.
 
         Returns
         -------
@@ -760,7 +779,8 @@ class Materials(PyAedtBase):
 
     @pyaedt_function_handler()
     def _aedmattolibrary(self, matname):
-        """Get and convert Material Properties from AEDT to Dictionary.
+        """
+        Get and convert Material Properties from AEDT to Dictionary.
 
         Parameters
         ----------
@@ -786,7 +806,8 @@ class Materials(PyAedtBase):
 
     @pyaedt_function_handler()
     def export_materials_to_file(self, output_file: str) -> bool:
-        r"""Export all materials to a JSON or TOML file.
+        r"""
+        Export all materials to a JSON or TOML file.
 
         Parameters
         ----------
@@ -858,7 +879,8 @@ class Materials(PyAedtBase):
 
     @pyaedt_function_handler()
     def import_materials_from_file(self, input_file: str | None = None) -> list[Material] | bool:
-        r"""Import and create materials from a JSON or AMAT file.
+        r"""
+        Import and create materials from a JSON or AMAT file.
 
         Parameters
         ----------
@@ -965,7 +987,8 @@ class Materials(PyAedtBase):
 
     @pyaedt_function_handler()
     def import_materials_from_excel(self, input_file: str) -> list[Material] | bool:
-        r"""Import and create materials from a csv or excel file.
+        r"""
+        Import and create materials from a csv or excel file.
 
         Parameters
         ----------
@@ -1023,7 +1046,8 @@ class Materials(PyAedtBase):
 
     @pyaedt_function_handler
     def get_used_project_material_names(self) -> list[str]:
-        """Get list of material names in current project.
+        """
+        Get list of material names in current project.
 
         Returns
         -------
@@ -1045,7 +1069,8 @@ class Materials(PyAedtBase):
 
     @pyaedt_function_handler
     def import_materials_from_workbench(self, input_file: str, name_suffix: str = None) -> list[Material] | bool:
-        r"""Import and create materials from Workbench Engineering Data XML file.
+        r"""
+        Import and create materials from Workbench Engineering Data XML file.
 
         Parameters
         ----------

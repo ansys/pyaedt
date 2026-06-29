@@ -37,7 +37,8 @@ if TYPE_CHECKING:
 
 
 class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
-    """Manages the main schematic postprocessing functions.
+    """
+    Manages the main schematic postprocessing functions.
 
     .. note::
        Some functionalities are available only when AEDT is running in the graphical mode.
@@ -186,7 +187,8 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
 
     @pyaedt_function_handler()
     def compute_power_by_layer(self, layers: list = None, solution: str = None) -> dict:
-        """Compute the power by layer.
+        """
+        Compute the power by layer.
 
         This applies only to SIwave DC Analysis.
 
@@ -222,7 +224,8 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
 
     @pyaedt_function_handler()
     def compute_power_by_net(self, nets: list = None, solution: str = None) -> dict:
-        """Compute the power by nets. This applies only to SIwave DC Analysis.
+        """
+        Compute the power by nets. This applies only to SIwave DC Analysis.
 
         Parameters
         ----------
@@ -333,7 +336,8 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
         name: str = None,
     ) -> "FieldPlot":
         # type: (list, str, str, list, bool, dict, str) -> FieldPlot
-        """Create a field plot of stacked layer plot.
+        """
+        Create a field plot of stacked layer plot.
 
         This plot is valid from AEDT 2023 R2 and later in HFSS 3D Layout. Nets can be used as a filter.
         Dielectrics will be included into the plot.
@@ -446,7 +450,8 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
         name: str = None,
     ) -> "FieldPlot":
         # type: (list, str, str, list, bool, dict, str) -> FieldPlot
-        """Create a field plot of stacked layer plot based on a net selections.
+        """
+        Create a field plot of stacked layer plot based on a net selections.
 
         Layers can be used as a filter.
         Dielectrics will be excluded from the plot.
@@ -538,7 +543,8 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
         plot_name: str = None,
     ) -> "FieldPlot":
         # type: (list, str, str, dict, bool, str) -> FieldPlot
-        """Create a field plot of stacked layer plot on specified matrix of layers and nets.
+        """
+        Create a field plot of stacked layer plot on specified matrix of layers and nets.
 
         This plot is valid from AEDT 2023 R2 and later in HFSS 3D Layout
         and any modeler where a layout component is used.

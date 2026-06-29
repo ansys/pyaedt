@@ -47,7 +47,8 @@ class TxMeasNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node
+        """
+        Delete this node
 
         Examples
         --------
@@ -63,7 +64,8 @@ class TxMeasNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def file(self) -> str:
-        """Name of the measurement source.
+        """
+        Name of the measurement source.
 
         Value should be a full file path.
         """
@@ -81,7 +83,8 @@ class TxMeasNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def exclude_harmonics_below_noise(self) -> bool:
-        """Include/Exclude Harmonics below the noise.
+        """
+        Include/Exclude Harmonics below the noise.
 
         Value should be 'true' or 'false'.
         """

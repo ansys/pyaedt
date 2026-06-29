@@ -32,7 +32,8 @@ import ansys.aedt.core
 
 
 class DistributedRadial:
-    """Defines radial parameters of distributed filters.
+    """
+    Defines radial parameters of distributed filters.
 
     This class allows you to define and modify the radial and delta stub parameters of distributed filters.
     These parameter changes are applicable exclusively to low-pass filters that include stub resonators.
@@ -123,7 +124,8 @@ class DistributedRadial:
 
     @property
     def radial_stubs(self) -> bool:
-        """Flag indicating if the distributed radial stubs is enabled.
+        """
+        Flag indicating if the distributed radial stubs is enabled.
         If true, radial stubs are used for open lines.
 
         Returns
@@ -148,7 +150,8 @@ class DistributedRadial:
 
     @property
     def fixed_angle_enabled(self) -> bool:
-        """Flag indicating if the fixed angle for all radial or delta stubs is enabled.
+        """
+        Flag indicating if the fixed angle for all radial or delta stubs is enabled.
 
         Returns
         -------
@@ -172,7 +175,8 @@ class DistributedRadial:
 
     @property
     def fixed_angle(self) -> str:
-        """Fixed angle in degrees for all radial or delta stubs. The default is ``90``.
+        """
+        Fixed angle in degrees for all radial or delta stubs. The default is ``90``.
 
         Returns
         -------
@@ -193,7 +197,8 @@ class DistributedRadial:
 
     @property
     def delta_stubs(self) -> bool:
-        """Flag indicating if the distributed delta stubs is enabled.
+        """
+        Flag indicating if the distributed delta stubs is enabled.
         If true, delta stubs are used for open lines.
 
         Returns
@@ -218,7 +223,8 @@ class DistributedRadial:
 
     @property
     def split_wide_angle_enabled(self) -> bool:
-        """Flag indicating if the splitting of the wide radial or delta stubs is enabled.
+        """
+        Flag indicating if the splitting of the wide radial or delta stubs is enabled.
 
         Returns
         -------
@@ -242,7 +248,8 @@ class DistributedRadial:
 
     @property
     def split_wide_angle(self) -> str:
-        """Angle in degrees that triggers the splitting of the wide radial or delta stubs.
+        """
+        Angle in degrees that triggers the splitting of the wide radial or delta stubs.
 
         This parameter controls the splitting of wide stubs into upper and lower sections,
         which helps reduce the overall stub thickness.
@@ -268,7 +275,8 @@ class DistributedRadial:
 
     @property
     def offset_from_feedline_enabled(self) -> bool:
-        """Flag indicating if the distance from the radial or delta stub base to the feedline is enabled.
+        """
+        Flag indicating if the distance from the radial or delta stub base to the feedline is enabled.
 
         Returns
         -------
@@ -292,7 +300,8 @@ class DistributedRadial:
 
     @property
     def offset_from_feedline(self) -> str:
-        """Distance from radial or delta stub base to feedline. The default is ``200 um``.
+        """
+        Distance from radial or delta stub base to feedline. The default is ``200 um``.
 
         Returns
         -------
@@ -313,7 +322,8 @@ class DistributedRadial:
 
     @property
     def alternate_radial_delta_orientation(self) -> bool:
-        """Flag indicating if the alternate vertical orientation of radial or delta stubs is enabled.
+        """
+        Flag indicating if the alternate vertical orientation of radial or delta stubs is enabled.
         The orintation alternates between up and down to minimize interference between adjacent stubs.
 
         Returns
@@ -338,7 +348,8 @@ class DistributedRadial:
 
     @property
     def adjust_width_max(self) -> bool:
-        """Flag indicating if the adjustment of radial or delta width to the upper angle limit is enabled.
+        """
+        Flag indicating if the adjustment of radial or delta width to the upper angle limit is enabled.
 
         Returns
         -------
@@ -362,7 +373,8 @@ class DistributedRadial:
 
     @property
     def max_radial_delta_angle(self) -> str:
-        """Maximum angle of radial or delta stubs.
+        """
+        Maximum angle of radial or delta stubs.
 
         Returns
         -------
@@ -383,7 +395,8 @@ class DistributedRadial:
 
     @property
     def adjust_length_max(self) -> bool:
-        """Flag indicating if the adjustment of radial or delta length to the upper angle limit is enabled.
+        """
+        Flag indicating if the adjustment of radial or delta length to the upper angle limit is enabled.
 
         Returns
         -------
@@ -407,7 +420,8 @@ class DistributedRadial:
 
     @property
     def min_radial_delta_angle(self) -> str:
-        """Minimum angle of radial or delta stubs.
+        """
+        Minimum angle of radial or delta stubs.
 
         Returns
         -------
@@ -428,7 +442,8 @@ class DistributedRadial:
 
     @property
     def apply_limits_radial_delta(self) -> bool:
-        """Flag indicating if the radial or delta minimum and maximum angle limits are applied.
+        """
+        Flag indicating if the radial or delta minimum and maximum angle limits are applied.
 
         Returns
         -------

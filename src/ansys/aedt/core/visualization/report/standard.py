@@ -45,7 +45,8 @@ from ansys.aedt.core.visualization.report.common import CommonReport
 
 
 class Standard(CommonReport, PyAedtBase):
-    """Provides a reporting class that fits most of the app's standard reports.
+    """
+    Provides a reporting class that fits most of the app's standard reports.
 
     Examples
     --------
@@ -59,7 +60,8 @@ class Standard(CommonReport, PyAedtBase):
 
     @property
     def sub_design_id(self) -> int:
-        """Sub design ID for a Circuit or HFSS 3D Layout sub design.
+        """
+        Sub design ID for a Circuit or HFSS 3D Layout sub design.
 
         Returns
         -------
@@ -81,7 +83,8 @@ class Standard(CommonReport, PyAedtBase):
 
     @property
     def time_start(self) -> str:
-        """Time start value.
+        """
+        Time start value.
 
         Returns
         -------
@@ -103,7 +106,8 @@ class Standard(CommonReport, PyAedtBase):
 
     @property
     def thinning(self) -> int:
-        """Transient windowing.
+        """
+        Transient windowing.
 
         Returns
         -------
@@ -124,7 +128,8 @@ class Standard(CommonReport, PyAedtBase):
 
     @property
     def thinning_points(self) -> int:
-        """Transient thinning points.
+        """
+        Transient thinning points.
 
         Returns
         -------
@@ -145,7 +150,8 @@ class Standard(CommonReport, PyAedtBase):
 
     @property
     def dy_dx_tolerance(self) -> int:
-        """Transient thinning points.
+        """
+        Transient thinning points.
 
         Returns
         -------
@@ -166,7 +172,8 @@ class Standard(CommonReport, PyAedtBase):
 
     @property
     def time_stop(self) -> str:
-        """Time stop value.
+        """
+        Time stop value.
 
         Returns
         -------
@@ -203,7 +210,8 @@ class Standard(CommonReport, PyAedtBase):
 
     @property
     def pulse_rise_time(self) -> float:
-        """Value of Pulse rise time for TDR plot.
+        """
+        Value of Pulse rise time for TDR plot.
 
         Returns
         -------
@@ -227,7 +235,8 @@ class Standard(CommonReport, PyAedtBase):
 
     @property
     def maximum_time(self) -> float:
-        """Value of maximum time for TDR plot.
+        """
+        Value of maximum time for TDR plot.
 
         Returns
         -------
@@ -249,7 +258,8 @@ class Standard(CommonReport, PyAedtBase):
 
     @property
     def step_time(self) -> float:
-        """Value of step time for TDR plot.
+        """
+        Value of step time for TDR plot.
 
         Returns
         -------
@@ -271,7 +281,8 @@ class Standard(CommonReport, PyAedtBase):
 
     @property
     def time_windowing(self) -> int:
-        """Returns the TDR time windowing.
+        """
+        Returns the TDR time windowing.
 
         Options are:
             * ``0`` : Rectangular
@@ -624,7 +635,8 @@ class Standard(CommonReport, PyAedtBase):
 
 
 class Spectral(CommonReport, PyAedtBase):
-    """Provides for managing spectral reports from transient data.
+    """
+    Provides for managing spectral reports from transient data.
 
     Examples
     --------
@@ -649,7 +661,8 @@ class Spectral(CommonReport, PyAedtBase):
 
     @property
     def time_start(self) -> str:
-        """Time start value.
+        """
+        Time start value.
 
         Returns
         -------
@@ -671,7 +684,8 @@ class Spectral(CommonReport, PyAedtBase):
 
     @property
     def time_stop(self) -> str:
-        """Time stop value.
+        """
+        Time stop value.
 
         Returns
         -------
@@ -693,7 +707,8 @@ class Spectral(CommonReport, PyAedtBase):
 
     @property
     def window(self) -> str:
-        """Window value.
+        """
+        Window value.
 
         Returns
         -------
@@ -715,7 +730,8 @@ class Spectral(CommonReport, PyAedtBase):
 
     @property
     def kaiser_coeff(self) -> str:
-        """Kaiser value.
+        """
+        Kaiser value.
 
         Returns
         -------
@@ -737,7 +753,8 @@ class Spectral(CommonReport, PyAedtBase):
 
     @property
     def adjust_coherent_gain(self) -> bool:
-        """Coherent gain flag.
+        """
+        Coherent gain flag.
 
         Returns
         -------
@@ -759,7 +776,8 @@ class Spectral(CommonReport, PyAedtBase):
 
     @property
     def plot_continous_spectrum(self) -> bool:
-        """Continuous spectrum flag.
+        """
+        Continuous spectrum flag.
 
         Returns
         -------
@@ -781,7 +799,8 @@ class Spectral(CommonReport, PyAedtBase):
 
     @property
     def max_frequency(self):
-        """Maximum spectrum frequency.
+        """
+        Maximum spectrum frequency.
 
         Returns
         -------
@@ -803,7 +822,8 @@ class Spectral(CommonReport, PyAedtBase):
 
     @property
     def noise_threshold(self) -> str:
-        """Noise Threshold in dB.
+        """
+        Noise Threshold in dB.
 
         Returns
         -------
@@ -952,7 +972,8 @@ class Spectral(CommonReport, PyAedtBase):
 
     @pyaedt_function_handler()
     def create(self, name: str = None) -> bool:
-        """Create an eye diagram report.
+        """
+        Create an eye diagram report.
 
         Parameters
         ----------

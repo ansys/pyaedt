@@ -53,7 +53,8 @@ from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
 
 
 class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
-    """Manages the specific Icepak postprocessing functions.
+    """
+    Manages the specific Icepak postprocessing functions.
 
     .. note::
        Some functionalities are available only when AEDT is running in the graphical mode.
@@ -96,7 +97,8 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
     def get_fans_operating_point(
         self, export_file: str = None, setup_name: str = None, time_step: str = None, variation: str = None
     ) -> list:
-        """Get the operating point of the fans in the design.
+        """
+        Get the operating point of the fans in the design.
 
         Parameters
         ----------
@@ -203,7 +205,8 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         ref_temperature: str = "",
         time: str = "0s",
     ) -> dict:
-        """Export the field surface output.
+        """
+        Export the field surface output.
 
         Parameters
         ----------
@@ -268,7 +271,8 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         ref_temperature: str = "",
         time: str = "0s",
     ) -> dict:
-        """Export the field output on a boundary.
+        """
+        Export the field output on a boundary.
 
         Parameters
         ----------
@@ -338,7 +342,8 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         ref_temperature: str = "",
         time: str = "0s",
     ) -> dict:
-        """Export monitor field output.
+        """
+        Export monitor field output.
 
         Parameters
         ----------
@@ -405,7 +410,8 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         ref_temperature: str = "",
         time: str = "0s",
     ) -> dict:
-        """Export the field output on or in an object.
+        """
+        Export the field output on or in an object.
 
         Parameters
         ----------
@@ -470,7 +476,8 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         setup: str = None,
         time: str = None,
     ) -> tuple[tuple[float, float, float], float]:
-        """Calculate the position and value of the temperature maximum or minimum.
+        """
+        Calculate the position and value of the temperature maximum or minimum.
 
         Parameters
         ----------
@@ -504,7 +511,8 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
 
     @pyaedt_function_handler()
     def power_budget(self, units: str = "W", temperature: int = 22, output_type: str = "component") -> dict:
-        """Power budget calculation.
+        """
+        Power budget calculation.
 
         Parameters
         ----------

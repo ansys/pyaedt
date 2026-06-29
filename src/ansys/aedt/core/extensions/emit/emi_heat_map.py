@@ -22,7 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""EMIT EMI Heat Map Extension.
+"""
+EMIT EMI Heat Map Extension.
 
 Examples
 --------
@@ -57,7 +58,8 @@ EXTENSION_DEFAULT_ARGUMENTS = {}
 
 @dataclass
 class EMIHeatmapExtensionData(ExtensionCommonData):
-    """Data class containing EMI heat map analysis results.
+    """
+    Data class containing EMI heat map analysis results.
 
     Examples
     --------
@@ -85,7 +87,8 @@ class EMIHeatmapExtensionData(ExtensionCommonData):
 
 
 class EMIHeatmapExtension(ExtensionEMITCommon):
-    """Interactive EMIT extension for EMI heat map analysis.
+    """
+    Interactive EMIT extension for EMI heat map analysis.
 
     Examples
     --------
@@ -120,7 +123,8 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
         )
 
     def add_extension_content(self) -> None:
-        """Build the UI for the EMI heat map extension.
+        """
+        Build the UI for the EMI heat map extension.
 
         Examples
         --------
@@ -433,7 +437,8 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
             messagebox.showerror("Export Error", f"Failed to export CSV: {e}")
 
     def _plot_matrix_heatmap(self, red_threshold=0, yellow_threshold=-10):
-        """Create a 2D heatmap visualization of a matrix using green-yellow-red color scheme.
+        """
+        Create a 2D heatmap visualization of a matrix using green-yellow-red color scheme.
 
         Color mapping:
         - Green: values <= yellow_threshold

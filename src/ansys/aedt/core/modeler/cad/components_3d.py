@@ -69,7 +69,8 @@ class UserDefinedComponentParameters(dict):
 
 
 class UserDefinedComponentProps(dict):
-    """User Defined Component Internal Parameters.
+    """
+    User Defined Component Internal Parameters.
 
     Examples
     --------
@@ -101,7 +102,8 @@ class UserDefinedComponentProps(dict):
 
 
 class UserDefinedComponent(PyAedtBase):
-    """Manages object attributes for 3DComponent and User Defined Model.
+    """
+    Manages object attributes for 3DComponent and User Defined Model.
 
     Parameters
     ----------
@@ -212,7 +214,8 @@ class UserDefinedComponent(PyAedtBase):
 
     @property
     def layout_component(self) -> "LayoutComponent":
-        """Layout component object.
+        """
+        Layout component object.
 
         Returns
         -------
@@ -239,7 +242,8 @@ class UserDefinedComponent(PyAedtBase):
 
     @pyaedt_function_handler()
     def history(self) -> "BinaryTreeNode":
-        """Component history.
+        """
+        Component history.
 
         Returns
         -------
@@ -267,7 +271,8 @@ class UserDefinedComponent(PyAedtBase):
 
     @property
     def group_name(self) -> str:
-        """Group the component belongs to.
+        """
+        Group the component belongs to.
 
         Returns
         -------
@@ -295,7 +300,8 @@ class UserDefinedComponent(PyAedtBase):
 
     @group_name.setter
     def group_name(self, name: str) -> str:
-        """Assign component to a specific group. A new group is created if the specified group doesn't exist.
+        """
+        Assign component to a specific group. A new group is created if the specified group doesn't exist.
 
         Parameters
         ----------
@@ -346,7 +352,8 @@ class UserDefinedComponent(PyAedtBase):
 
     @property
     def is_3d_component(self) -> bool:
-        """3DComponent flag.
+        """
+        3DComponent flag.
 
         Returns
         -------
@@ -370,7 +377,8 @@ class UserDefinedComponent(PyAedtBase):
 
     @property
     def mesh_assembly(self) -> bool | None:
-        """Mesh assembly flag.
+        """
+        Mesh assembly flag.
 
         Returns
         -------
@@ -405,7 +413,8 @@ class UserDefinedComponent(PyAedtBase):
 
     @property
     def name(self) -> str:
-        """Name of the object.
+        """
+        Name of the object.
 
         Returns
         -------
@@ -443,7 +452,8 @@ class UserDefinedComponent(PyAedtBase):
 
     @property
     def parameters(self) -> "UserDefinedComponentParameters":
-        """Component parameters.
+        """
+        Component parameters.
 
         Returns
         -------
@@ -483,7 +493,8 @@ class UserDefinedComponent(PyAedtBase):
 
     @property
     def parts(self) -> dict[str, "Object3d"]:
-        """Dictionary of objects that belong to the user-defined component.
+        """
+        Dictionary of objects that belong to the user-defined component.
 
         Returns
         -------
@@ -511,7 +522,8 @@ class UserDefinedComponent(PyAedtBase):
 
     @property
     def target_coordinate_system(self) -> str | None:
-        """Target coordinate system.
+        """
+        Target coordinate system.
 
         Returns
         -------
@@ -554,7 +566,8 @@ class UserDefinedComponent(PyAedtBase):
 
     @pyaedt_function_handler()
     def delete(self) -> None:
-        """Delete the object.
+        """
+        Delete the object.
 
         The project must be saved after the operation to update the list
         of names for user-defined components.
@@ -581,7 +594,8 @@ class UserDefinedComponent(PyAedtBase):
 
     @pyaedt_function_handler()
     def duplicate_and_mirror(self, origin: list | object, vector: list | object) -> list:
-        """Duplicate and mirror a selection.
+        """
+        Duplicate and mirror a selection.
 
         Parameters
         ----------
@@ -612,7 +626,8 @@ class UserDefinedComponent(PyAedtBase):
 
     @pyaedt_function_handler()
     def mirror(self, origin: list | object, vector: list | object) -> "UserDefinedComponent | bool":
-        """Mirror a selection.
+        """
+        Mirror a selection.
 
         Parameters
         ----------
@@ -650,7 +665,8 @@ class UserDefinedComponent(PyAedtBase):
 
     @pyaedt_function_handler()
     def rotate(self, axis: "Axis", angle: float = 90.0, units: str = "deg") -> "UserDefinedComponent | bool":
-        """Rotate the selection.
+        """
+        Rotate the selection.
 
         Parameters
         ----------
@@ -690,7 +706,8 @@ class UserDefinedComponent(PyAedtBase):
 
     @pyaedt_function_handler()
     def move(self, vector: list | object) -> "UserDefinedComponent | bool":
-        """Move component from a list.
+        """
+        Move component from a list.
 
         Parameters
         ----------
@@ -728,7 +745,8 @@ class UserDefinedComponent(PyAedtBase):
     def duplicate_around_axis(
         self, axis: "Axis", angle: int = 90, clones: int = 2, create_new_objects: bool = True
     ) -> list | bool:
-        """Duplicate the component around the axis.
+        """
+        Duplicate the component around the axis.
 
         Parameters
         ----------
@@ -769,7 +787,8 @@ class UserDefinedComponent(PyAedtBase):
     def duplicate_along_line(
         self, vector: list | object, clones: int = 2, attach: bool = False, **kwargs
     ) -> list | bool:
-        """Duplicate the object along a line.
+        """
+        Duplicate the object along a line.
 
         Parameters
         ----------
@@ -807,7 +826,8 @@ class UserDefinedComponent(PyAedtBase):
 
     @pyaedt_function_handler()
     def update_native(self) -> bool:
-        """Update the Native Component in AEDT.
+        """
+        Update the Native Component in AEDT.
 
         Returns
         -------
@@ -844,7 +864,8 @@ class UserDefinedComponent(PyAedtBase):
 
     @property
     def bounding_box(self) -> list:
-        """Get bounding dimension of a user defined model.
+        """
+        Get bounding dimension of a user defined model.
 
         Returns
         -------
@@ -866,7 +887,8 @@ class UserDefinedComponent(PyAedtBase):
 
     @property
     def center(self) -> list:
-        """Get center coordinates of a user defined model.
+        """
+        Get center coordinates of a user defined model.
 
         Returns
         -------
@@ -916,7 +938,8 @@ class UserDefinedComponent(PyAedtBase):
 
     @property
     def _m_Editor(self):
-        """Pointer to the oEditor object in the AEDT API. This property is
+        """
+        Pointer to the oEditor object in the AEDT API. This property is
         intended primarily to be used by FacePrimitive, EdgePrimitive, and
         VertexPrimitive child objects.
 
@@ -941,7 +964,8 @@ class UserDefinedComponent(PyAedtBase):
 
     @pyaedt_function_handler()
     def get_component_filepath(self) -> str:
-        """Get 3d component file path.
+        """
+        Get 3d component file path.
 
         Returns
         -------
@@ -961,7 +985,8 @@ class UserDefinedComponent(PyAedtBase):
 
     @pyaedt_function_handler()
     def update_definition(self, password: str = None, output_file: str = "", local_update: bool = False) -> bool:
-        r"""Update 3d component definition.
+        r"""
+        Update 3d component definition.
 
         Parameters
         ----------
@@ -1005,7 +1030,8 @@ class UserDefinedComponent(PyAedtBase):
 
     @pyaedt_function_handler()
     def edit_definition(self, password: str = None) -> "Hfss | bool":
-        """Edit 3d Definition. Open AEDT Project and return Pyaedt Object.
+        """
+        Edit 3d Definition. Open AEDT Project and return Pyaedt Object.
 
         Parameters
         ----------
@@ -1058,7 +1084,8 @@ class UserDefinedComponent(PyAedtBase):
 
 
 class LayoutComponent(PyAedtBase):
-    """Manages object attributes for Layout components.
+    """
+    Manages object attributes for Layout components.
 
     Parameters
     ----------
@@ -1093,7 +1120,8 @@ class LayoutComponent(PyAedtBase):
 
     @property
     def edb_path(self) -> str:
-        """EDB path.
+        """
+        EDB path.
 
         Returns
         -------
@@ -1111,7 +1139,8 @@ class LayoutComponent(PyAedtBase):
 
     @property
     def edb_object(self) -> Edb | bool:
-        """EDB object.
+        """
+        EDB object.
 
         Returns
         -------
@@ -1151,7 +1180,8 @@ class LayoutComponent(PyAedtBase):
 
     @property
     def edb_definition(self) -> str | None:
-        """Edb definition.
+        """
+        Edb definition.
 
         Returns
         -------
@@ -1191,7 +1221,8 @@ class LayoutComponent(PyAedtBase):
 
     @property
     def show_layout(self) -> bool | None:
-        """Show layout flag.
+        """
+        Show layout flag.
 
         Returns
         -------
@@ -1224,7 +1255,8 @@ class LayoutComponent(PyAedtBase):
 
     @property
     def fast_transformation(self) -> bool | None:
-        """Show layout flag.
+        """
+        Show layout flag.
 
         Returns
         -------
@@ -1257,7 +1289,8 @@ class LayoutComponent(PyAedtBase):
 
     @property
     def show_dielectric(self) -> bool | None:
-        """Show dielectric flag.
+        """
+        Show dielectric flag.
 
         Returns
         -------
@@ -1291,7 +1324,8 @@ class LayoutComponent(PyAedtBase):
 
     @property
     def display_mode(self) -> int | None:
-        """Show layout flag.
+        """
+        Show layout flag.
 
         Returns
         -------
@@ -1328,7 +1362,8 @@ class LayoutComponent(PyAedtBase):
 
     @pyaedt_function_handler()
     def close_edb_object(self) -> bool:
-        """Close EDB object.
+        """
+        Close EDB object.
 
         Examples
         --------
@@ -1361,7 +1396,8 @@ class LayoutComponent(PyAedtBase):
 
     @pyaedt_function_handler()
     def update_visibility(self) -> bool:
-        """Update layer visibility.
+        """
+        Update layer visibility.
 
         Returns
         -------

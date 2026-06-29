@@ -36,7 +36,8 @@ class CouplingLinkNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
-        """The parent of this emit node.
+        """
+        The parent of this emit node.
 
         Examples
         --------
@@ -53,7 +54,8 @@ class CouplingLinkNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node.
+        """
+        The type of this emit node.
 
         Examples
         --------
@@ -70,7 +72,8 @@ class CouplingLinkNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def enabled(self) -> bool:
-        """Enable/Disable coupling link.
+        """
+        Enable/Disable coupling link.
 
         Value should be 'true' or 'false'.
 
@@ -95,7 +98,8 @@ class CouplingLinkNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def ports(self) -> list[str]:
-        """Maps each port in the link to an antenna in the project.
+        """
+        Maps each port in the link to an antenna in the project.
 
         Examples
         --------

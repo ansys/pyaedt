@@ -41,7 +41,8 @@ from ansys.aedt.core.visualization.report.common import CommonReport
 
 
 class CircuitNetlistReport(CommonReport):
-    """Provides a reporting class that fits Circuit Netlist reports.
+    """
+    Provides a reporting class that fits Circuit Netlist reports.
 
     Examples
     --------
@@ -64,7 +65,8 @@ class CircuitNetlistReport(CommonReport):
 
     @property
     def maximum_time(self) -> float:
-        """Value of maximum time for TDR plot.
+        """
+        Value of maximum time for TDR plot.
 
         Returns
         -------
@@ -86,7 +88,8 @@ class CircuitNetlistReport(CommonReport):
 
     @property
     def thinning(self) -> int:
-        """Transient windowing.
+        """
+        Transient windowing.
 
         Returns
         -------
@@ -107,7 +110,8 @@ class CircuitNetlistReport(CommonReport):
 
     @property
     def thinning_points(self) -> int:
-        """Transient thinning points.
+        """
+        Transient thinning points.
 
         Returns
         -------
@@ -128,7 +132,8 @@ class CircuitNetlistReport(CommonReport):
 
     @property
     def dy_dx_tolerance(self) -> float:
-        """Transient thinning points.
+        """
+        Transient thinning points.
 
         Returns
         -------
@@ -149,7 +154,8 @@ class CircuitNetlistReport(CommonReport):
 
     @property
     def time_start(self) -> str:
-        """Time start value.
+        """
+        Time start value.
 
         Returns
         -------
@@ -171,7 +177,8 @@ class CircuitNetlistReport(CommonReport):
 
     @property
     def time_stop(self) -> str:
-        """Time stop value.
+        """
+        Time stop value.
 
         Returns
         -------
@@ -193,7 +200,8 @@ class CircuitNetlistReport(CommonReport):
 
     @property
     def step_time(self) -> float:
-        """Value of step time for TDR plot.
+        """
+        Value of step time for TDR plot.
 
         Returns
         -------
@@ -271,7 +279,8 @@ class CircuitNetlistReport(CommonReport):
 
     @pyaedt_function_handler()
     def create(self, name: str = None) -> bool:
-        """Create a report.
+        """
+        Create a report.
 
         Parameters
         ----------

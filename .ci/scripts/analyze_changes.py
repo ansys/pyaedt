@@ -162,7 +162,8 @@ def get_changed_files(base_ref: str = "origin/main"):
 
 
 def _write_github_output(name: str, value: str):
-    """Write output for GitHub Actions.
+    """
+    Write output for GitHub Actions.
 
     Parameters
     ----------

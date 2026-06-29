@@ -94,7 +94,8 @@ quantities_type_dict = {  # pragma: no cover
 
 
 class Monitor(PyAedtBase):
-    """Provides Icepak monitor methods.
+    """
+    Provides Icepak monitor methods.
 
     Examples
     --------
@@ -147,7 +148,8 @@ class Monitor(PyAedtBase):
 
     @pyaedt_function_handler
     def _generate_monitor_names(self, name: str, n):
-        """Create a list of names for monitor objects following Icepak naming rules.
+        """
+        Create a list of names for monitor objects following Icepak naming rules.
 
         Parameters
         ----------
@@ -234,7 +236,8 @@ class Monitor(PyAedtBase):
 
     @pyaedt_function_handler
     def get_icepak_monitor_object(self, monitor_name: str):
-        """Get Icepak monitor object.
+        """
+        Get Icepak monitor object.
 
         Returns
         -------
@@ -251,7 +254,8 @@ class Monitor(PyAedtBase):
 
     @property
     def face_monitors(self) -> dict:
-        """Get point monitor objects.
+        """
+        Get point monitor objects.
 
         Returns
         -------
@@ -269,7 +273,8 @@ class Monitor(PyAedtBase):
 
     @property
     def point_monitors(self) -> dict:
-        """Get face monitor objects.
+        """
+        Get face monitor objects.
 
         Returns
         -------
@@ -287,7 +292,8 @@ class Monitor(PyAedtBase):
 
     @property
     def all_monitors(self) -> dict:
-        """Get all monitor objects.
+        """
+        Get all monitor objects.
 
         Returns
         -------
@@ -310,7 +316,8 @@ class Monitor(PyAedtBase):
     def assign_point_monitor(
         self, point_position: list | str, monitor_quantity: str = "Temperature", monitor_name: str = None
     ) -> str | list | bool:
-        """Create and assign a point monitor.
+        """
+        Create and assign a point monitor.
 
         Parameters
         ----------
@@ -392,7 +399,8 @@ class Monitor(PyAedtBase):
     def assign_point_monitor_to_vertex(
         self, vertex_id: int | list, monitor_quantity: str = "Temperature", monitor_name: str = None
     ) -> str | list | bool:
-        """Create and assign a point monitor to a vertex.
+        """
+        Create and assign a point monitor to a vertex.
 
         Parameters
         ----------
@@ -446,7 +454,8 @@ class Monitor(PyAedtBase):
     def assign_surface_monitor(
         self, surface_name: str | list, monitor_quantity: str = "Temperature", monitor_name: str = None
     ) -> str | list | bool:
-        """Assign a surface monitor.
+        """
+        Assign a surface monitor.
 
         Parameters
         ----------
@@ -504,7 +513,8 @@ class Monitor(PyAedtBase):
     def assign_face_monitor(
         self, face_id: int | list, monitor_quantity: str = "Temperature", monitor_name: str = None
     ) -> str | list | bool:
-        """Assign a face monitor.
+        """
+        Assign a face monitor.
 
         Parameters
         ----------
@@ -559,7 +569,8 @@ class Monitor(PyAedtBase):
     def assign_point_monitor_in_object(
         self, name: str | list, monitor_quantity: str = "Temperature", monitor_name: str = None
     ) -> str | list | bool:
-        """Assign a point monitor in the centroid of a specific object.
+        """
+        Assign a point monitor in the centroid of a specific object.
 
         Parameters
         ----------
@@ -625,7 +636,8 @@ class Monitor(PyAedtBase):
 
     @pyaedt_function_handler()
     def delete_monitor(self, monitor_name: str) -> bool:
-        """Delete monitor object.
+        """
+        Delete monitor object.
 
         Parameters
         ----------
@@ -702,7 +714,8 @@ class Monitor(PyAedtBase):
 
     @pyaedt_function_handler()
     def insert_monitor_object_from_dict(self, monitor_dict: dict, mode: int = 0) -> str | bool:
-        """Insert a monitor.
+        """
+        Insert a monitor.
 
         Parameters
         ----------
@@ -760,7 +773,8 @@ class Monitor(PyAedtBase):
 
 
 class ObjectMonitor(PyAedtBase):
-    """Provides Icepak Monitor methods and properties.
+    """
+    Provides Icepak Monitor methods and properties.
 
     Examples
     --------
@@ -920,7 +934,8 @@ class ObjectMonitor(PyAedtBase):
         design_variation_dict: dict | None = None,
         si_out: bool = True,
     ) -> dict:
-        """Get a list of values obtained from the monitor object.
+        """
+        Get a list of values obtained from the monitor object.
 
         If the simulation is steady state, the list will contain just one element.
 
@@ -997,7 +1012,8 @@ class ObjectMonitor(PyAedtBase):
 
 
 class PointMonitor(ObjectMonitor):
-    """Provides Icepak point monitor methods and properties.
+    """
+    Provides Icepak point monitor methods and properties.
 
     Examples
     --------
@@ -1035,7 +1051,8 @@ class PointMonitor(ObjectMonitor):
 
 
 class FaceMonitor(ObjectMonitor):
-    """Provides Icepak face monitor properties and methods.
+    """
+    Provides Icepak face monitor properties and methods.
 
     Examples
     --------

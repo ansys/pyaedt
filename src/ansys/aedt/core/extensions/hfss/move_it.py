@@ -61,7 +61,8 @@ EXTENSION_TITLE = "Move It"
 
 @dataclass
 class MoveItExtensionData(ExtensionCommonData):
-    """Data class containing user input and computed data.
+    """
+    Data class containing user input and computed data.
 
     Examples
     --------
@@ -81,7 +82,8 @@ class MoveItExtensionData(ExtensionCommonData):
 
 
 class MoveItExtension(ExtensionHFSSCommon):
-    """Extension for move it in AEDT.
+    """
+    Extension for move it in AEDT.
 
     Examples
     --------
@@ -121,7 +123,8 @@ class MoveItExtension(ExtensionHFSSCommon):
         self.__assignments = aedt_lines
 
     def add_extension_content(self) -> None:
-        """Add custom content to the extension UI.
+        """
+        Add custom content to the extension UI.
 
         Examples
         --------
@@ -203,7 +206,8 @@ class MoveItExtension(ExtensionHFSSCommon):
 
 
 def main(data: MoveItExtensionData) -> bool:
-    """Main function to run the move it extension.
+    """
+    Main function to run the move it extension.
 
     Examples
     --------

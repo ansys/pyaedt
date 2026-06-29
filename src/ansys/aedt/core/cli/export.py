@@ -22,7 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""Export commands.
+"""
+Export commands.
 
 Examples
 --------
@@ -56,7 +57,8 @@ def screenshot(
     project: str = typer.Option(None, "--project", help="Project containing the design to capture"),
     design: str = typer.Option(None, "--design", "-d", help="Design to capture"),
 ) -> None:
-    """Capture a screenshot of the AEDT design view.
+    """
+    Capture a screenshot of the AEDT design view.
 
     Examples
     --------
@@ -96,7 +98,8 @@ def export_config(
     design: str = typer.Option(None, "--design", "-d", help="Design to export config from"),
     overwrite: bool = typer.Option(False, "--overwrite", help="Overwrite existing config file"),
 ) -> None:
-    """Export design configuration (parameters, setup, etc.) as JSON.
+    """
+    Export design configuration (parameters, setup, etc.) as JSON.
 
     Examples
     --------

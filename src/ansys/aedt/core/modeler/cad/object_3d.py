@@ -64,7 +64,8 @@ if TYPE_CHECKING:
 
 
 class Object3d(PyAedtBase):
-    """Manages object attributes for the AEDT 3D Modeler.
+    """
+    Manages object attributes for the AEDT 3D Modeler.
 
     Parameters
     ----------
@@ -122,7 +123,8 @@ class Object3d(PyAedtBase):
 
     @property
     def is_polyline(self) -> bool:
-        """Get or set if the body is originated by a polyline.
+        """
+        Get or set if the body is originated by a polyline.
 
         Returns
         -------
@@ -149,7 +151,8 @@ class Object3d(PyAedtBase):
 
     @pyaedt_function_handler()
     def _bounding_box_unmodel(self):
-        """Bounding box of a part, unmodel/undo method.
+        """
+        Bounding box of a part, unmodel/undo method.
 
         This is done by setting all other objects as unmodel and getting the model bounding box.
         Then an undo operation restore the design.
@@ -185,7 +188,8 @@ class Object3d(PyAedtBase):
 
     @pyaedt_function_handler()
     def _bounding_box_sat(self):
-        """Bounding box of a part.
+        """
+        Bounding box of a part.
 
         This is done by exporting a part as a SAT file and reading the bounding box information from the SAT file.
         A list of six 3D position vectors is returned.
@@ -237,7 +241,8 @@ class Object3d(PyAedtBase):
 
     @property
     def bounding_box(self) -> list[list[float]]:
-        """Bounding box of a part.
+        """
+        Bounding box of a part.
 
         A list of six 3D position vectors is returned.
 
@@ -273,7 +278,8 @@ class Object3d(PyAedtBase):
 
     @property
     def bounding_dimension(self) -> list[float]:
-        """Retrieve the dimension array of the bounding box.
+        """
+        Retrieve the dimension array of the bounding box.
 
         Returns
         -------
@@ -307,7 +313,8 @@ class Object3d(PyAedtBase):
     @pyaedt_function_handler()
     @min_aedt_version("2021.2")
     def plot(self, show: bool = True) -> "ModelPlotter":
-        """Plot model with PyVista.
+        """
+        Plot model with PyVista.
 
         Parameters
         ----------
@@ -340,7 +347,8 @@ class Object3d(PyAedtBase):
     @pyaedt_function_handler()
     @min_aedt_version("2021.2")
     def export_image(self, output_file: str | Path | None = None) -> str:
-        r"""Export the current object to a specified file path.
+        r"""
+        Export the current object to a specified file path.
 
         .. note::
            Works from AEDT 2021.2 in CPython only. PyVista has to be installed.
@@ -378,7 +386,8 @@ class Object3d(PyAedtBase):
 
     @pyaedt_function_handler()
     def touching_conductors(self) -> list:
-        """Get the conductors of given object.
+        """
+        Get the conductors of given object.
 
         See :func:`ansys.aedt.core.application.analysis_3d.FieldAnalysis3D.identify_touching_conductors`.
 
@@ -398,7 +407,8 @@ class Object3d(PyAedtBase):
 
     @property
     def touching_objects(self) -> list:
-        """Get the objects that touch a vertex, edge midpoint, or face of the object.
+        """
+        Get the objects that touch a vertex, edge midpoint, or face of the object.
 
         Examples
         --------
@@ -429,7 +439,8 @@ class Object3d(PyAedtBase):
 
     @pyaedt_function_handler()
     def get_touching_faces(self, assignment: str | Object3d = None) -> list:
-        """Get the objects that touch one of the face center of each face of the object.
+        """
+        Get the objects that touch one of the face center of each face of the object.
 
         Parameters
         ----------
@@ -459,7 +470,8 @@ class Object3d(PyAedtBase):
 
     @property
     def faces(self) -> list[FacePrimitive]:
-        """Information for each face in the given part.
+        """
+        Information for each face in the given part.
 
         Returns
         -------
@@ -490,7 +502,8 @@ class Object3d(PyAedtBase):
 
     @property
     def faces_on_bounding_box(self) -> list[FacePrimitive]:
-        """Return only the face ids of the faces touching the bounding box.
+        """
+        Return only the face ids of the faces touching the bounding box.
 
         Returns
         -------
@@ -511,7 +524,8 @@ class Object3d(PyAedtBase):
 
     @property
     def face_closest_to_bounding_box(self) -> FacePrimitive:
-        """Return only the face ids of the face closest to the bounding box.
+        """
+        Return only the face ids of the face closest to the bounding box.
 
         Returns
         -------
@@ -547,7 +561,8 @@ class Object3d(PyAedtBase):
 
     @pyaedt_function_handler()
     def largest_face(self, n: int = 1) -> list[FacePrimitive]:
-        """Return only the face with the greatest area.
+        """
+        Return only the face with the greatest area.
 
         Returns
         -------
@@ -569,7 +584,8 @@ class Object3d(PyAedtBase):
 
     @pyaedt_function_handler()
     def longest_edge(self, n: int = 1) -> list[EdgePrimitive]:
-        """Return only the edge with the greatest length.
+        """
+        Return only the edge with the greatest length.
 
         Returns
         -------
@@ -591,7 +607,8 @@ class Object3d(PyAedtBase):
 
     @pyaedt_function_handler()
     def smallest_face(self, n: int = 1) -> list[FacePrimitive]:
-        """Return only the face with the smallest area.
+        """
+        Return only the face with the smallest area.
 
         Returns
         -------
@@ -613,7 +630,8 @@ class Object3d(PyAedtBase):
 
     @pyaedt_function_handler()
     def shortest_edge(self, n: int = 1) -> list[EdgePrimitive]:
-        """Return only the edge with the smallest length.
+        """
+        Return only the edge with the smallest length.
 
         Returns
         -------
@@ -637,7 +655,8 @@ class Object3d(PyAedtBase):
 
     @property
     def top_face_z(self) -> FacePrimitive:
-        """Top face in the Z direction of the object.
+        """
+        Top face in the Z direction of the object.
 
         Returns
         -------
@@ -663,7 +682,8 @@ class Object3d(PyAedtBase):
 
     @property
     def bottom_face_z(self) -> FacePrimitive:
-        """Bottom face in the Z direction of the object.
+        """
+        Bottom face in the Z direction of the object.
 
         Returns
         -------
@@ -689,7 +709,8 @@ class Object3d(PyAedtBase):
 
     @property
     def top_face_x(self) -> FacePrimitive:
-        """Top face in the X direction of the object.
+        """
+        Top face in the X direction of the object.
 
         Returns
         -------
@@ -715,7 +736,8 @@ class Object3d(PyAedtBase):
 
     @property
     def bottom_face_x(self) -> FacePrimitive:
-        """Bottom face in the X direction of the object.
+        """
+        Bottom face in the X direction of the object.
 
         Returns
         -------
@@ -741,7 +763,8 @@ class Object3d(PyAedtBase):
 
     @property
     def top_face_y(self) -> FacePrimitive:
-        """Top face in the Y direction of the object.
+        """
+        Top face in the Y direction of the object.
 
         Returns
         -------
@@ -767,7 +790,8 @@ class Object3d(PyAedtBase):
 
     @property
     def bottom_face_y(self) -> FacePrimitive:
-        """Bottom face in the X direction of the object.
+        """
+        Bottom face in the X direction of the object.
 
         Returns
         -------
@@ -793,7 +817,8 @@ class Object3d(PyAedtBase):
 
     @property
     def top_edge_z(self) -> EdgePrimitive:
-        """Top edge in the Z direction of the object. Midpoint is used as criteria to find the edge.
+        """
+        Top edge in the Z direction of the object. Midpoint is used as criteria to find the edge.
 
         Returns
         -------
@@ -819,7 +844,8 @@ class Object3d(PyAedtBase):
 
     @property
     def bottom_edge_z(self) -> EdgePrimitive:
-        """Bottom edge in the Z direction of the object. Midpoint is used as criteria to find the edge.
+        """
+        Bottom edge in the Z direction of the object. Midpoint is used as criteria to find the edge.
 
         Returns
         -------
@@ -841,7 +867,8 @@ class Object3d(PyAedtBase):
 
     @property
     def top_edge_x(self) -> EdgePrimitive:
-        """Top edge in the X direction of the object. Midpoint is used as criteria to find the edge.
+        """
+        Top edge in the X direction of the object. Midpoint is used as criteria to find the edge.
 
         Returns
         -------
@@ -863,7 +890,8 @@ class Object3d(PyAedtBase):
 
     @property
     def bottom_edge_x(self) -> EdgePrimitive:
-        """Bottom edge in the X direction of the object. Midpoint is used as criteria to find the edge.
+        """
+        Bottom edge in the X direction of the object. Midpoint is used as criteria to find the edge.
 
         Returns
         -------
@@ -885,7 +913,8 @@ class Object3d(PyAedtBase):
 
     @property
     def top_edge_y(self) -> EdgePrimitive:
-        """Top edge in the Y direction of the object. Midpoint is used as criteria to find the edge.
+        """
+        Top edge in the Y direction of the object. Midpoint is used as criteria to find the edge.
 
         Returns
         -------
@@ -907,7 +936,8 @@ class Object3d(PyAedtBase):
 
     @property
     def bottom_edge_y(self) -> EdgePrimitive:
-        """Bottom edge in the Y direction of the object. Midpoint is used as criteria to find the edge.
+        """
+        Bottom edge in the Y direction of the object. Midpoint is used as criteria to find the edge.
 
         Returns
         -------
@@ -929,7 +959,8 @@ class Object3d(PyAedtBase):
 
     @property
     def edges(self) -> list[EdgePrimitive]:
-        """Information for each edge in the given part.
+        """
+        Information for each edge in the given part.
 
         Returns
         -------
@@ -956,7 +987,8 @@ class Object3d(PyAedtBase):
 
     @property
     def vertices(self) -> list[VertexPrimitive]:
-        """Information for each vertex in the given part.
+        """
+        Information for each vertex in the given part.
 
         Returns
         -------
@@ -991,7 +1023,8 @@ class Object3d(PyAedtBase):
 
     @property
     def _oeditor(self):
-        """Pointer to the oEditor object in the AEDT API.
+        """
+        Pointer to the oEditor object in the AEDT API.
 
         This property is intended primarily for use by FacePrimitive, EdgePrimitive, and
         VertexPrimitive child objects.
@@ -1005,7 +1038,8 @@ class Object3d(PyAedtBase):
 
     @property
     def logger(self):
-        """Logger.
+        """
+        Logger.
 
         Examples
         --------
@@ -1018,7 +1052,8 @@ class Object3d(PyAedtBase):
 
     @property
     def surface_material_name(self) -> str | None:
-        """Surface material name of the object.
+        """
+        Surface material name of the object.
 
         Returns
         -------
@@ -1047,7 +1082,8 @@ class Object3d(PyAedtBase):
 
     @property
     def group_name(self) -> str:
-        """Group the object belongs to.
+        """
+        Group the object belongs to.
 
         Returns
         -------
@@ -1075,7 +1111,8 @@ class Object3d(PyAedtBase):
 
     @group_name.setter
     def group_name(self, name: str) -> str:
-        """Assign Object to a specific group. It creates a new group if the group doesn't exist.
+        """
+        Assign Object to a specific group. It creates a new group if the group doesn't exist.
 
         Parameters
         ----------
@@ -1125,7 +1162,8 @@ class Object3d(PyAedtBase):
 
     @property
     def is_conductor(self) -> bool:
-        """Check if the object is a conductor.
+        """
+        Check if the object is a conductor.
 
         Examples
         --------
@@ -1140,7 +1178,8 @@ class Object3d(PyAedtBase):
 
     @property
     def material_name(self) -> str | None:
-        """Material name of the object.
+        """
+        Material name of the object.
 
         Returns
         -------
@@ -1201,7 +1240,8 @@ class Object3d(PyAedtBase):
 
     @property
     def id(self) -> int | None:
-        """ID of the object.
+        """
+        ID of the object.
 
         Returns
         -------
@@ -1228,7 +1268,8 @@ class Object3d(PyAedtBase):
 
     @property
     def object_type(self) -> str:
-        """Type of the object.
+        """
+        Type of the object.
 
         Options are:
              * Solid
@@ -1261,7 +1302,8 @@ class Object3d(PyAedtBase):
 
     @property
     def is_3d(self) -> bool:
-        """Check if the object is a 3D solid object.
+        """
+        Check if the object is a 3D solid object.
 
         This method determines whether the current object represents a
         three-dimensional solid geometry by checking its object type.
@@ -1283,7 +1325,8 @@ class Object3d(PyAedtBase):
 
     @property
     def mass(self) -> float | None:
-        """Object mass.
+        """
+        Object mass.
 
         Returns
         -------
@@ -1317,7 +1360,8 @@ class Object3d(PyAedtBase):
 
     @property
     def volume(self) -> float:
-        """Object volume.
+        """
+        Object volume.
 
         Returns
         -------
@@ -1343,7 +1387,8 @@ class Object3d(PyAedtBase):
 
     @property
     def name(self) -> str:
-        """Name of the object as a string value.
+        """
+        Name of the object as a string value.
 
         Returns
         -------
@@ -1381,7 +1426,8 @@ class Object3d(PyAedtBase):
 
     @property
     def valid_properties(self) -> list[str]:
-        """Valid properties.
+        """
+        Valid properties.
 
         References
         ----------
@@ -1400,7 +1446,8 @@ class Object3d(PyAedtBase):
 
     @property
     def color(self) -> tuple[int, int, int]:
-        """Part color as a tuple of integer values for `(Red, Green, Blue)` color values.
+        """
+        Part color as a tuple of integer values for `(Red, Green, Blue)` color values.
 
         If the integer values are outside the range 0-255, then limit the values. Invalid inputs are ignored.
 
@@ -1429,7 +1476,8 @@ class Object3d(PyAedtBase):
 
     @property
     def color_string(self) -> str:
-        """Color tuple as a string in the format '(Red, Green, Blue)'.
+        """
+        Color tuple as a string in the format '(Red, Green, Blue)'.
 
         References
         ----------
@@ -1477,7 +1525,8 @@ class Object3d(PyAedtBase):
 
     @property
     def transparency(self) -> float:
-        """Part transparency as a value between 0.0 and 1.0.
+        """
+        Part transparency as a value between 0.0 and 1.0.
 
         If the value is outside the range, then apply a limit. If the value is not a valid number, set to ``0.0``.
 
@@ -1522,7 +1571,8 @@ class Object3d(PyAedtBase):
 
     @property
     def object_units(self) -> str:
-        """Object units.
+        """
+        Object units.
 
         Examples
         --------
@@ -1535,7 +1585,8 @@ class Object3d(PyAedtBase):
 
     @property
     def part_coordinate_system(self) -> str:
-        """Part coordinate system.
+        """
+        Part coordinate system.
 
         Returns
         -------
@@ -1570,7 +1621,8 @@ class Object3d(PyAedtBase):
 
     @property
     def solve_inside(self) -> bool:
-        """Part solve inside flag.
+        """
+        Part solve inside flag.
 
         Returns
         -------
@@ -1615,7 +1667,8 @@ class Object3d(PyAedtBase):
 
     @property
     def display_wireframe(self) -> bool:
-        """Wireframe property of the part.
+        """
+        Wireframe property of the part.
 
         Returns
         -------
@@ -1654,7 +1707,8 @@ class Object3d(PyAedtBase):
 
     @property
     def material_appearance(self) -> bool:
-        """Material appearance property of the part.
+        """
+        Material appearance property of the part.
 
         Returns
         -------
@@ -1698,7 +1752,8 @@ class Object3d(PyAedtBase):
 
     @pyaedt_function_handler()
     def history(self) -> BinaryTreeNode | bool:
-        """Object history.
+        """
+        Object history.
 
         Returns
         -------
@@ -1721,7 +1776,8 @@ class Object3d(PyAedtBase):
 
     @property
     def is_model(self) -> bool | None:
-        """Part model or non-model property.
+        """
+        Part model or non-model property.
 
         Returns
         -------
@@ -1760,7 +1816,8 @@ class Object3d(PyAedtBase):
 
     @pyaedt_function_handler()
     def unite(self, assignment: list[str] | list[Object3d]) -> Object3d:
-        """Unite a list of objects with this object.
+        """
+        Unite a list of objects with this object.
 
         Parameters
         ----------
@@ -1789,7 +1846,8 @@ class Object3d(PyAedtBase):
 
     @pyaedt_function_handler()
     def intersect(self, assignment: list[str] | list[Object3d], keep_originals: bool = False) -> Object3d:
-        """Intersect the active object with a given list.
+        """
+        Intersect the active object with a given list.
 
         Parameters
         ----------
@@ -1820,7 +1878,8 @@ class Object3d(PyAedtBase):
 
     @pyaedt_function_handler()
     def split(self, plane: str, sides: str = "Both") -> list[str]:
-        """Split the active object.
+        """
+        Split the active object.
 
         Parameters
         ----------
@@ -1854,7 +1913,8 @@ class Object3d(PyAedtBase):
     def mirror(
         self, origin: list[float] | object, vector: list[float] | object, duplicate: bool = False
     ) -> Object3d | bool:
-        """Mirror a selection.
+        """
+        Mirror a selection.
 
         Parameters
         ----------
@@ -1891,7 +1951,8 @@ class Object3d(PyAedtBase):
 
     @pyaedt_function_handler()
     def rotate(self, axis: int, angle: float = 90.0, units: str = "deg") -> Object3d | bool:
-        """Rotate the selection.
+        """
+        Rotate the selection.
 
         Parameters
         ----------
@@ -1926,7 +1987,8 @@ class Object3d(PyAedtBase):
 
     @pyaedt_function_handler()
     def move(self, vector: list[float] | object) -> Object3d | bool:
-        """Move objects from a list.
+        """
+        Move objects from a list.
 
         Parameters
         ----------
@@ -1959,7 +2021,8 @@ class Object3d(PyAedtBase):
     def duplicate_around_axis(
         self, axis: int, angle: int = 90, clones: int = 2, create_new_objects: bool = True
     ) -> list[Object3d]:
-        """Duplicate the object around the axis.
+        """
+        Duplicate the object around the axis.
 
         Parameters
         ----------
@@ -1997,7 +2060,8 @@ class Object3d(PyAedtBase):
     def duplicate_along_line(
         self, vector: list[float] | object, clones: int = 2, attach: bool = False
     ) -> list[Object3d]:
-        """Duplicate the object along a line.
+        """
+        Duplicate the object along a line.
 
         Parameters
         ----------
@@ -2031,7 +2095,8 @@ class Object3d(PyAedtBase):
     def sweep_along_vector(
         self, sweep_vector: list[float] | object, draft_angle: int = 0, draft_type: str = "Round"
     ) -> Object3d | bool:
-        """Sweep the selection along a vector.
+        """
+        Sweep the selection along a vector.
 
         Parameters
         ----------
@@ -2071,7 +2136,8 @@ class Object3d(PyAedtBase):
         is_check_face_intersection: bool = False,
         twist_angle: int = 0,
     ) -> Object3d | bool:
-        """Sweep the selection along a vector.
+        """
+        Sweep the selection along a vector.
 
         Parameters
         ----------
@@ -2110,7 +2176,8 @@ class Object3d(PyAedtBase):
 
     @pyaedt_function_handler()
     def sweep_around_axis(self, axis: int, sweep_angle: int = 360, draft_angle: int = 0) -> Object3d | bool:
-        """Sweep around an axis.
+        """
+        Sweep around an axis.
 
         Parameters
         ----------
@@ -2142,7 +2209,8 @@ class Object3d(PyAedtBase):
 
     @pyaedt_function_handler()
     def section(self, plane: int, create_new: bool = True, section_cross_object: bool = False) -> Object3d | bool:
-        """Section the object.
+        """
+        Section the object.
 
         Parameters
         ----------
@@ -2174,7 +2242,8 @@ class Object3d(PyAedtBase):
 
     @pyaedt_function_handler()
     def detach_faces(self, faces: list[FacePrimitive] | list[int] | int | FacePrimitive) -> list[Object3d]:
-        """Section the object.
+        """
+        Section the object.
 
         Parameters
         ----------
@@ -2201,7 +2270,8 @@ class Object3d(PyAedtBase):
 
     @pyaedt_function_handler()
     def clone(self) -> Object3d:
-        """Clone the object and return the new 3D object.
+        """
+        Clone the object and return the new 3D object.
 
         Returns
         -------
@@ -2231,7 +2301,8 @@ class Object3d(PyAedtBase):
     def subtract(
         self, tool_list: str | Object3d | list[str | Object3d], keep_originals: bool = True
     ) -> Object3d | bool:
-        """Subtract one or more parts from the object.
+        """
+        Subtract one or more parts from the object.
 
         Parameters
         ----------
@@ -2262,7 +2333,8 @@ class Object3d(PyAedtBase):
 
     @pyaedt_function_handler()
     def wrap_sheet(self, object_name: str | Object3d, imprinted: bool = False) -> bool:
-        """Execute the sheet wrapping around an object. This object can be either the sheet or the object.
+        """
+        Execute the sheet wrapping around an object. This object can be either the sheet or the object.
         If wrapping produces an unclassified operation it will be reverted.
 
         Parameters
@@ -2297,7 +2369,8 @@ class Object3d(PyAedtBase):
 
     @pyaedt_function_handler()
     def delete(self) -> None:
-        """Delete the object.
+        """
+        Delete the object.
 
         References
         ----------
@@ -2317,7 +2390,8 @@ class Object3d(PyAedtBase):
 
     @pyaedt_function_handler()
     def faces_by_area(self, area: float, area_filter: str = "==", tolerance: float = 1e-12) -> list[FacePrimitive]:
-        """Filter faces by area.
+        """
+        Filter faces by area.
 
         Parameters
         ----------
@@ -2369,7 +2443,8 @@ class Object3d(PyAedtBase):
     def edges_by_length(
         self, length: float, length_filter: str = "==", tolerance: float = 1e-12
     ) -> list[EdgePrimitive]:
-        """Filter edges by length.
+        """
+        Filter edges by length.
 
         Parameters
         ----------
@@ -2423,7 +2498,8 @@ class Object3d(PyAedtBase):
 
     @pyaedt_function_handler()
     def fillet(self, vertices: list = None, edges: list = None, radius: float = 0.1, setback: float = 0.0) -> bool:
-        """Add a fillet to the selected edges in 3D/vertices in 2D.
+        """
+        Add a fillet to the selected edges in 3D/vertices in 2D.
 
         Parameters
         ----------
@@ -2484,7 +2560,8 @@ class Object3d(PyAedtBase):
         angle: int = 45,
         chamfer_type: int = 0,
     ) -> bool:
-        """Add a chamfer to the selected edges in 3D/vertices in 2D.
+        """
+        Add a chamfer to the selected edges in 3D/vertices in 2D.
 
         Parameters
         ----------
@@ -2570,7 +2647,8 @@ class Object3d(PyAedtBase):
 
     @property
     def start_point(self) -> list | None:
-        """Get the starting point in the polyline object.
+        """
+        Get the starting point in the polyline object.
 
         This is a list of the ``[x, y, z]`` coordinates for the starting point in the polyline
         object in the object's coordinate system
@@ -2595,7 +2673,8 @@ class Object3d(PyAedtBase):
 
     @property
     def end_point(self) -> list | None:
-        """List of the ``[x, y, z]`` coordinates for the ending point in the polyline
+        """
+        List of the ``[x, y, z]`` coordinates for the ending point in the polyline
         object in the object's coordinate system.
 
         Returns
@@ -2622,7 +2701,8 @@ class Object3d(PyAedtBase):
             return
 
     def _update_segments_and_points(self):
-        """Update the self._segment_types and the self._positions from the history.
+        """
+        Update the self._segment_types and the self._positions from the history.
 
         This internal method is called by properties ``points`` and ``segment_types``.
         It will be called only once after opening a new project, then the internal
@@ -2745,7 +2825,8 @@ class Object3d(PyAedtBase):
 
     @property
     def points(self) -> list | None:
-        """Polyline Points.
+        """
+        Polyline Points.
 
         Examples
         --------
@@ -2764,7 +2845,8 @@ class Object3d(PyAedtBase):
 
     @property
     def segment_types(self) -> list | None:
-        """List of the segment types of the polyline.
+        """
+        List of the segment types of the polyline.
 
         Examples
         --------
@@ -2783,7 +2865,8 @@ class Object3d(PyAedtBase):
 
     @property
     def vertex_positions(self) -> list | None:
-        """List of the ``[x, y, z]`` coordinates for all vertex positions in the
+        """
+        List of the ``[x, y, z]`` coordinates for all vertex positions in the
         polyline object in the object's coordinate system.
 
         Returns
@@ -2823,7 +2906,8 @@ class Object3d(PyAedtBase):
 
     @pyaedt_function_handler()
     def _point_segment_string_array(self):
-        """Retrieve the parameter arrays for specifying the points and segments of a polyline
+        """
+        Retrieve the parameter arrays for specifying the points and segments of a polyline
         used in the :class:`ansys.aedt.core.modeler.cad.primitives.Polyline` constructor.
 
         Returns
@@ -2906,7 +2990,8 @@ class Object3d(PyAedtBase):
 
     @pyaedt_function_handler()
     def _evaluate_arc_angle_extra_points(self, segment, start_point) -> bool:
-        """Evaluate the extra points for the ArcAngle segment type.
+        """
+        Evaluate the extra points for the ArcAngle segment type.
 
         It also auto evaluates the arc_plane if it was not specified by the user.
         segment.extra_points[0] contains the arc mid point (on the arc).
@@ -2963,7 +3048,8 @@ class Object3d(PyAedtBase):
 
     @pyaedt_function_handler()
     def _segment_array(self, segment_data, start_index: int = 0, start_point=None):
-        """Retrieve a property array for a polyline segment for use in the
+        """
+        Retrieve a property array for a polyline segment for use in the
         :class:`ansys.aedt.core.modeler.cad.primitives.Polyline` constructor.
 
         Parameters
@@ -3023,7 +3109,8 @@ class Object3d(PyAedtBase):
 
     @pyaedt_function_handler()
     def remove_point(self, position: list, tolerance: float = 1e-9) -> bool:
-        """Remove a point from an existing polyline by position.
+        """
+        Remove a point from an existing polyline by position.
 
         You must enter the exact position of the vertex as a list
         of ``[x, y, z]`` coordinates in the object's coordinate system.
@@ -3110,7 +3197,8 @@ class Object3d(PyAedtBase):
 
     @pyaedt_function_handler()
     def remove_segments(self, assignment: int | list[int]) -> bool:
-        """Remove a segment from an existing polyline by segment id.
+        """
+        Remove a segment from an existing polyline by segment id.
 
         You must enter the segment id or the list of the segment ids you want to remove.
 
@@ -3181,7 +3269,8 @@ class Object3d(PyAedtBase):
         num_seg: int = 0,
         bend_type: str = None,
     ) -> bool:
-        """Set the properties of an existing polyline object.
+        """
+        Set the properties of an existing polyline object.
 
         Parameters
         ----------
@@ -3270,7 +3359,8 @@ class Object3d(PyAedtBase):
 
     @pyaedt_function_handler()
     def _get_point_slice_from_segment_id(self, segment_id, at_start: bool = True):
-        """Get the points belonging to the segment from the segment id.
+        """
+        Get the points belonging to the segment from the segment id.
 
         The points are returned as list slice by returning the indexes.
 
@@ -3308,7 +3398,8 @@ class Object3d(PyAedtBase):
 
     @pyaedt_function_handler()
     def _get_segment_id_from_point_n(self, pn, at_start, allow_inner_points: bool = False):
-        """Get the segment id for a given point index considering the segment types in the polyline.
+        """
+        Get the segment id for a given point index considering the segment types in the polyline.
 
         If a segment cannot be found with the specified rules, the function returns False.
 
@@ -3350,7 +3441,8 @@ class Object3d(PyAedtBase):
 
     @pyaedt_function_handler()
     def insert_segment(self, points: list, segment: str | PolylineSegment = None) -> bool:
-        """Add a segment to an existing polyline.
+        """
+        Add a segment to an existing polyline.
 
         Parameters
         ----------
@@ -3532,7 +3624,8 @@ class Object3d(PyAedtBase):
 
 
 class PolylineSegment(PyAedtBase):
-    """Creates and manipulates a segment of a polyline.
+    """
+    Creates and manipulates a segment of a polyline.
 
     Parameters
     ----------

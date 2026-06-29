@@ -29,7 +29,8 @@ from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponent
 
 
 class MaxwellCircuitComponents(CircuitComponents, PyAedtBase):
-    """MaxwellCircuitComponents class.
+    """
+    MaxwellCircuitComponents class.
 
     This class is for managing all circuit components for MaxwellCircuit.
 
@@ -45,7 +46,8 @@ class MaxwellCircuitComponents(CircuitComponents, PyAedtBase):
 
     @property
     def design_libray(self) -> str:
-        """Design Library.
+        """
+        Design Library.
 
         Examples
         --------
@@ -58,7 +60,8 @@ class MaxwellCircuitComponents(CircuitComponents, PyAedtBase):
 
     @property
     def tab_name(self) -> str:
-        """Tab name.
+        """
+        Tab name.
 
         Examples
         --------
@@ -71,7 +74,8 @@ class MaxwellCircuitComponents(CircuitComponents, PyAedtBase):
 
     @pyaedt_function_handler()
     def __getitem__(self, partname):
-        """Get object id from a string or integer.
+        """
+        Get object id from a string or integer.
 
         Parameters
         ----------
@@ -107,7 +111,8 @@ class MaxwellCircuitComponents(CircuitComponents, PyAedtBase):
         angle: float = 0.0,
         use_instance_id_netlist: bool = False,
     ) -> "CircuitComponent":
-        """Create a resistor.
+        """
+        Create a resistor.
 
         Parameters
         ----------
@@ -166,7 +171,8 @@ class MaxwellCircuitComponents(CircuitComponents, PyAedtBase):
         angle: float = 0.0,
         use_instance_id_netlist: bool = False,
     ) -> "CircuitComponent":
-        """Create an inductor.
+        """
+        Create an inductor.
 
         Parameters
         ----------
@@ -225,7 +231,8 @@ class MaxwellCircuitComponents(CircuitComponents, PyAedtBase):
         angle: float = 0.0,
         use_instance_id_netlist: bool = False,
     ) -> "CircuitComponent":
-        """Create a capacitor.
+        """
+        Create a capacitor.
 
         Parameters
         ----------
@@ -278,7 +285,8 @@ class MaxwellCircuitComponents(CircuitComponents, PyAedtBase):
     def create_diode(
         self, name: str = None, location: list[float] = None, angle: float = 0.0, use_instance_id_netlist: bool = False
     ) -> "CircuitComponent":
-        """Create a diode.
+        """
+        Create a diode.
 
         Parameters
         ----------
@@ -333,7 +341,8 @@ class MaxwellCircuitComponents(CircuitComponents, PyAedtBase):
         angle: float = 0.0,
         use_instance_id_netlist: bool = False,
     ) -> "CircuitComponent":
-        """Create a winding linked to a Maxwell design.
+        """
+        Create a winding linked to a Maxwell design.
 
         Parameters
         ----------

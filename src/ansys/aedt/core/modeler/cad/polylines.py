@@ -35,7 +35,8 @@ if TYPE_CHECKING:
 
 
 class Polyline(Object3d, PyAedtBase):
-    """Creates and manipulates a polyline.
+    """
+    Creates and manipulates a polyline.
 
     The constructor for this class is intended to be called from the
     :func:`ansys.aedt.core.modeler.cad.primitives.Primitives.create_polyline` method.

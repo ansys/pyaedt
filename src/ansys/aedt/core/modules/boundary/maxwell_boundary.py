@@ -40,7 +40,8 @@ from ansys.aedt.core.modules.boundary.common import BoundaryProps
 
 @dataclass
 class MatrixElectric:
-    """Matrix assignment for electric solvers.
+    """
+    Matrix assignment for electric solvers.
 
     Parameters
     ----------
@@ -68,7 +69,8 @@ class MatrixElectric:
 
 @dataclass
 class SourceMagnetostatic:
-    """Source definition for magnetostatic solver.
+    """
+    Source definition for magnetostatic solver.
 
     Parameters
     ----------
@@ -98,7 +100,8 @@ class SourceMagnetostatic:
 
 @dataclass
 class GroupSourcesMagnetostatic:
-    """Group sources definition for magnetostatic solver.
+    """
+    Group sources definition for magnetostatic solver.
 
     Parameters
     ----------
@@ -128,7 +131,8 @@ class GroupSourcesMagnetostatic:
 
 @dataclass
 class MatrixMagnetostatic:
-    """Matrix assignment for magnetostatic solver.
+    """
+    Matrix assignment for magnetostatic solver.
 
     Parameters
     ----------
@@ -156,7 +160,8 @@ class MatrixMagnetostatic:
 
 @dataclass
 class SourceACMagnetic:
-    """Sources for AC Magnetic solver.
+    """
+    Sources for AC Magnetic solver.
 
     Parameters
     ----------
@@ -182,7 +187,8 @@ class SourceACMagnetic:
 
 @dataclass
 class MatrixACMagnetic:
-    """Matrix assignment for AC Magnetic solver.
+    """
+    Matrix assignment for AC Magnetic solver.
 
     Parameters
     ----------
@@ -206,7 +212,8 @@ class MatrixACMagnetic:
 
 @dataclass
 class RLSourceACMagneticAPhi:
-    """RL sources for AC Magnetic A-Phi solver.
+    """
+    RL sources for AC Magnetic A-Phi solver.
 
     Parameters
     ----------
@@ -230,7 +237,8 @@ class RLSourceACMagneticAPhi:
 
 @dataclass
 class GCSourceACMagneticAPhi:
-    """GC sources for AC Magnetic A-Phi solver.
+    """
+    GC sources for AC Magnetic A-Phi solver.
 
     Parameters
     ----------
@@ -254,7 +262,8 @@ class GCSourceACMagneticAPhi:
 
 @dataclass
 class MatrixACMagneticAPhi:
-    """Matrix assignment for AC Magnetic A-Phi solver.
+    """
+    Matrix assignment for AC Magnetic A-Phi solver.
 
     Parameters
     ----------
@@ -294,7 +303,8 @@ MaxwellMatrixSchema = MatrixElectric | MatrixMagnetostatic | MatrixACMagnetic | 
 
 
 class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
-    """Manages parameters data and execution.
+    """
+    Manages parameters data and execution.
 
     Parameters
     ----------
@@ -333,7 +343,8 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
     @property
     def props(self) -> BoundaryProps:
-        """Maxwell parameter data.
+        """
+        Maxwell parameter data.
 
         Returns
         -------
@@ -357,7 +368,8 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
     @property
     def name(self) -> str:
-        """Boundary Name.
+        """
+        Boundary Name.
 
         Examples
         --------
@@ -380,7 +392,8 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
     @pyaedt_function_handler()
     def _get_args(self, props=None):
-        """Retrieve arguments.
+        """
+        Retrieve arguments.
 
         Parameters
         ----------
@@ -401,7 +414,8 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
     @pyaedt_function_handler()
     def create(self) -> bool:
-        """Create a boundary.
+        """
+        Create a boundary.
 
         Returns
         -------
@@ -429,7 +443,8 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
     @pyaedt_function_handler()
     def update(self) -> bool:
-        """Update the boundary.
+        """
+        Update the boundary.
 
         Returns
         -------
@@ -455,7 +470,8 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
 
 class MaxwellMatrix(MaxwellParameters):
-    """Provides methods to interact with matrices in Maxwell.
+    """
+    Provides methods to interact with matrices in Maxwell.
 
     This class allows sources in a reduced matrix to be listed, updated, and deleted.
 
@@ -499,7 +515,8 @@ class MaxwellMatrix(MaxwellParameters):
     """
 
     def __init__(self, app, name, props=None, schema: MaxwellMatrixSchema | None = None) -> None:
-        """Initialize Maxwell matrix.
+        """
+        Initialize Maxwell matrix.
 
         Parameters
         ----------
@@ -519,7 +536,8 @@ class MaxwellMatrix(MaxwellParameters):
 
     @property
     def signal_sources(self) -> list[SourceACMagnetic] | None:
-        """Retrieve signal sources.
+        """
+        Retrieve signal sources.
 
         Examples
         --------
@@ -536,7 +554,8 @@ class MaxwellMatrix(MaxwellParameters):
 
     @property
     def ground_sources(self) -> list[str] | None:
-        """Retrieve ground sources.
+        """
+        Retrieve ground sources.
 
         Examples
         --------
@@ -549,7 +568,8 @@ class MaxwellMatrix(MaxwellParameters):
 
     @property
     def group_sources(self) -> list[GroupSourcesMagnetostatic] | None:
-        """Retrieve group sources.
+        """
+        Retrieve group sources.
 
         Examples
         --------
@@ -562,7 +582,8 @@ class MaxwellMatrix(MaxwellParameters):
 
     @property
     def rl_sources(self) -> list[RLSourceACMagneticAPhi] | None:
-        """Retrieve rl sources.
+        """
+        Retrieve rl sources.
 
         Examples
         --------
@@ -575,7 +596,8 @@ class MaxwellMatrix(MaxwellParameters):
 
     @property
     def gc_sources(self) -> list[GCSourceACMagneticAPhi] | None:
-        """Retrieve gc sources.
+        """
+        Retrieve gc sources.
 
         Examples
         --------
@@ -588,7 +610,8 @@ class MaxwellMatrix(MaxwellParameters):
 
     @property
     def reduced_matrices(self) -> list[MaxwellReducedMatrix]:
-        """List of reduced matrix groups for the parent matrix.
+        """
+        List of reduced matrix groups for the parent matrix.
 
         Returns
         -------
@@ -620,7 +643,8 @@ class MaxwellMatrix(MaxwellParameters):
 
     @pyaedt_function_handler()
     def join_series(self, sources: list, matrix_name: str = None, join_name: str = None) -> MaxwellReducedMatrix:
-        """Create matrix reduction by joining sources in series.
+        """
+        Create matrix reduction by joining sources in series.
 
         Parameters
         ----------
@@ -649,7 +673,8 @@ class MaxwellMatrix(MaxwellParameters):
 
     @pyaedt_function_handler()
     def join_parallel(self, sources: list, matrix_name: str = None, join_name: str = None) -> MaxwellReducedMatrix:
-        """Create matrix reduction by joining sources in parallel.
+        """
+        Create matrix reduction by joining sources in parallel.
 
         Parameters
         ----------
@@ -696,7 +721,8 @@ class MaxwellMatrix(MaxwellParameters):
 
 
 class MaxwellReducedMatrix:
-    """Provides methods to interact with reduced matrices in Maxwell.
+    """
+    Provides methods to interact with reduced matrices in Maxwell.
 
     Parameters
     ----------
@@ -774,7 +800,8 @@ class MaxwellReducedMatrix:
     def update(
         self, name: str, operation_type: str, new_name: str | None = None, new_sources: list | None = None
     ) -> MaxwellReducedMatrixOperation:
-        """Update the reduced matrix.
+        """
+        Update the reduced matrix.
 
         Parameters
         ----------
@@ -868,7 +895,8 @@ class MaxwellReducedMatrix:
 
     @pyaedt_function_handler()
     def delete(self, name: str) -> bool:
-        """Delete a specific reduction operation.
+        """
+        Delete a specific reduction operation.
 
         Parameters
         ----------
@@ -933,7 +961,8 @@ class MaxwellReducedMatrix:
 
 
 class MaxwellReducedMatrixOperation:
-    """Represent a reduced matrix operation in Maxwell (join in series or parallel).
+    """
+    Represent a reduced matrix operation in Maxwell (join in series or parallel).
 
     Examples
     --------
@@ -950,7 +979,8 @@ class MaxwellReducedMatrixOperation:
 
 
 class MaxwellForce(MaxwellParameters):
-    """Initialize Maxwell force.
+    """
+    Initialize Maxwell force.
 
     Examples
     --------
@@ -965,7 +995,8 @@ class MaxwellForce(MaxwellParameters):
 
 
 class MaxwellTorque(MaxwellParameters):
-    """Initialize Maxwell torque.
+    """
+    Initialize Maxwell torque.
 
     Examples
     --------
@@ -980,7 +1011,8 @@ class MaxwellTorque(MaxwellParameters):
 
 
 class MaxwellLayoutForce(MaxwellParameters):
-    """Initialize Maxwell layout force.
+    """
+    Initialize Maxwell layout force.
 
     Examples
     --------

@@ -70,7 +70,8 @@ class Quaternion(PyAedtBase):
     """
 
     def __init__(self, a: int = 0, b: int = 0, c: int = 0, d: int = 0) -> None:
-        """Initialize the quaternion.
+        """
+        Initialize the quaternion.
 
         Quaternions are created using ``Quaternion(a, b, c, d)``, representing the form q = a + bi + cj + dk.
 
@@ -145,7 +146,8 @@ class Quaternion(PyAedtBase):
     def from_euler(
         cls, angles: list[float] | tuple[float, float, float], sequence: str, extrinsic: bool = False
     ) -> "Quaternion":
-        """Creates a normalized rotation quaternion from the Euler angles using the specified rotation sequence.
+        """
+        Creates a normalized rotation quaternion from the Euler angles using the specified rotation sequence.
 
         Parameters
         ----------
@@ -330,7 +332,8 @@ class Quaternion(PyAedtBase):
     @classmethod
     @pyaedt_function_handler()
     def from_axis_angle(cls, axis: list[float] | tuple[float, float, float], angle: float) -> "Quaternion":
-        """Creates a normalized rotation quaternion from a given axis and rotation angle.
+        """
+        Creates a normalized rotation quaternion from a given axis and rotation angle.
 
         Parameters
         ----------
@@ -367,7 +370,8 @@ class Quaternion(PyAedtBase):
 
     @pyaedt_function_handler()
     def to_axis_angle(self):
-        """Convert a quaternion to the axis angle rotation formulation.
+        """
+        Convert a quaternion to the axis angle rotation formulation.
 
         Returns
         -------
@@ -411,7 +415,8 @@ class Quaternion(PyAedtBase):
     @classmethod
     @pyaedt_function_handler()
     def from_rotation_matrix(cls, rotation_matrix: list | tuple) -> "Quaternion":
-        """Converts a 3x3 rotation matrix to a quaternion.
+        """
+        Converts a 3x3 rotation matrix to a quaternion.
         It uses the method described in [1].
 
         Parameters
@@ -492,7 +497,8 @@ class Quaternion(PyAedtBase):
 
     @pyaedt_function_handler()
     def to_rotation_matrix(self) -> tuple:
-        """Returns the rotation matrix corresponding to the quaternion.
+        """
+        Returns the rotation matrix corresponding to the quaternion.
 
         Returns
         -------
@@ -537,7 +543,8 @@ class Quaternion(PyAedtBase):
     @staticmethod
     @pyaedt_function_handler()
     def rotation_matrix_to_axis(rotation_matrix: list | tuple) -> tuple:
-        """Convert a rotation matrix to the corresponding axis of rotation.
+        """
+        Convert a rotation matrix to the corresponding axis of rotation.
 
         Parameters
         ----------
@@ -583,7 +590,8 @@ class Quaternion(PyAedtBase):
     @staticmethod
     @pyaedt_function_handler()
     def axis_to_rotation_matrix(x_axis: tuple | list, y_axis: tuple | list, z_axis: tuple | list) -> tuple:
-        """Construct a rotation matrix from three orthonormal axes.
+        """
+        Construct a rotation matrix from three orthonormal axes.
 
         Parameters
         ----------
@@ -622,7 +630,8 @@ class Quaternion(PyAedtBase):
 
     @pyaedt_function_handler()
     def rotate_vector(self, v: tuple | list) -> tuple:
-        """Evaluate the rotation of a vector, defined by a quaternion.
+        """
+        Evaluate the rotation of a vector, defined by a quaternion.
 
         Evaluated as:
         ``"q = q0 + q' = q0 + q1i + q2j + q3k"``,
@@ -654,7 +663,8 @@ class Quaternion(PyAedtBase):
 
     @pyaedt_function_handler()
     def inverse_rotate_vector(self, v: tuple | list) -> tuple:
-        """Evaluate the inverse rotation of a vector that is defined by a quaternion.
+        """
+        Evaluate the inverse rotation of a vector that is defined by a quaternion.
         It can also be the rotation of the coordinate frame with respect to the vector.
 
             q = q0 + q' = q0 + iq1 + jq2 + kq3
@@ -726,7 +736,8 @@ class Quaternion(PyAedtBase):
 
     @pyaedt_function_handler()
     def add(self, other: "Quaternion" | list | tuple | float | int) -> "Quaternion":
-        """Adds another quaternion or compatible value to this quaternion.
+        """
+        Adds another quaternion or compatible value to this quaternion.
 
         Parameters
         ----------
@@ -762,7 +773,8 @@ class Quaternion(PyAedtBase):
 
     @pyaedt_function_handler()
     def mul(self, other: "Quaternion" | list | tuple | float | int) -> "Quaternion":
-        """Performs quaternion multiplication with another quaternion or compatible value.
+        """
+        Performs quaternion multiplication with another quaternion or compatible value.
 
         Parameters
         ----------
@@ -792,7 +804,8 @@ class Quaternion(PyAedtBase):
     @staticmethod
     @pyaedt_function_handler()
     def _q_prod(q1, q2):
-        """Performs quaternion multiplication with another quaternion or compatible value.
+        """
+        Performs quaternion multiplication with another quaternion or compatible value.
         This internal method has the purpose to deal with cases where one of the two factors is a scalar
         """
         # fmt: off
@@ -814,7 +827,8 @@ class Quaternion(PyAedtBase):
     @staticmethod
     @pyaedt_function_handler()
     def hamilton_prod(q1: "Quaternion" | list | tuple, q2: "Quaternion" | list | tuple) -> "Quaternion":
-        """Evaluate the Hamilton product of two quaternions, ``q1`` and ``q2``, defined as:
+        """
+        Evaluate the Hamilton product of two quaternions, ``q1`` and ``q2``, defined as:
                 q1 = p0 + p' = p0 + ip1 + jp2 + kp3
                 q2 = q0 + q' = q0 + iq1 + jq2 + kq3
                 m = q1*q2 = p0q0 - p' • q' + p0q' + q0p' + p' x q'
@@ -858,7 +872,8 @@ class Quaternion(PyAedtBase):
 
     @pyaedt_function_handler()
     def conjugate(self) -> "Quaternion":
-        """Returns the conjugate of the quaternion.
+        """
+        Returns the conjugate of the quaternion.
 
         Examples
         --------
@@ -872,7 +887,8 @@ class Quaternion(PyAedtBase):
 
     @pyaedt_function_handler()
     def norm(self) -> float:
-        """Returns the norm of the quaternion.
+        """
+        Returns the norm of the quaternion.
 
         Examples
         --------
@@ -888,7 +904,8 @@ class Quaternion(PyAedtBase):
 
     @pyaedt_function_handler()
     def normalize(self) -> "Quaternion":
-        """Returns the normalized form of the quaternion.
+        """
+        Returns the normalized form of the quaternion.
 
         Examples
         --------
@@ -906,7 +923,8 @@ class Quaternion(PyAedtBase):
 
     @pyaedt_function_handler()
     def inverse(self) -> "Quaternion":
-        """Returns the inverse of the quaternion.
+        """
+        Returns the inverse of the quaternion.
 
         Examples
         --------
@@ -924,7 +942,8 @@ class Quaternion(PyAedtBase):
 
     @pyaedt_function_handler()
     def div(self, other: "Quaternion" | list | tuple | float | int) -> "Quaternion":
-        """Performs quaternion division with another quaternion or compatible value.
+        """
+        Performs quaternion division with another quaternion or compatible value.
 
         Parameters
         ----------
@@ -954,7 +973,8 @@ class Quaternion(PyAedtBase):
     @staticmethod
     @pyaedt_function_handler()
     def _q_div(q1, q2):
-        """Performs quaternion division with another quaternion or compatible value.
+        """
+        Performs quaternion division with another quaternion or compatible value.
         This internal method has the purpose to deal with cases where one of the two factors is a scalar
         """
         # fmt: off
@@ -975,7 +995,8 @@ class Quaternion(PyAedtBase):
 
     @pyaedt_function_handler()
     def coefficients(self) -> tuple[float, float, float, float]:
-        """Returns the coefficients of the quaternion as a tuple.
+        """
+        Returns the coefficients of the quaternion as a tuple.
 
         Examples
         --------

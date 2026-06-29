@@ -65,7 +65,8 @@ EXTENSION_TITLE = "Create Report"
 
 @dataclass
 class CreateReportExtensionData(ExtensionCommonData):
-    """Data class containing user input and computed data.
+    """
+    Data class containing user input and computed data.
 
     Examples
     --------
@@ -83,7 +84,8 @@ class CreateReportExtensionData(ExtensionCommonData):
 
 
 class CreateReportExtension(ExtensionProjectCommon):
-    """Extension for creating PDF reports in AEDT.
+    """
+    Extension for creating PDF reports in AEDT.
 
     Examples
     --------
@@ -112,7 +114,8 @@ class CreateReportExtension(ExtensionProjectCommon):
         self.add_extension_content()
 
     def add_extension_content(self) -> None:
-        """Add custom content to the extension UI.
+        """
+        Add custom content to the extension UI.
 
         Examples
         --------
@@ -201,7 +204,8 @@ class CreateReportExtension(ExtensionProjectCommon):
 
 
 def main(data: CreateReportExtensionData) -> bool:
-    """Main function to run the create report extension.
+    """
+    Main function to run the create report extension.
 
     Examples
     --------

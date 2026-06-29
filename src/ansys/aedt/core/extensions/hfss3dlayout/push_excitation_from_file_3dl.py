@@ -58,7 +58,8 @@ EXTENSION_TITLE = "Push Excitation From File - 3D Layout"
 
 @dataclass
 class PushExcitation3DLayoutExtensionData(ExtensionCommonData):
-    """Data class for Push Excitation 3D Layout extension.
+    """
+    Data class for Push Excitation 3D Layout extension.
 
     Examples
     --------
@@ -76,7 +77,8 @@ class PushExcitation3DLayoutExtensionData(ExtensionCommonData):
 
 
 class PushExcitation3DLayoutExtension(ExtensionHFSS3DLayoutCommon):
-    """Extension for push excitation from file in HFSS 3D Layout.
+    """
+    Extension for push excitation from file in HFSS 3D Layout.
 
     Examples
     --------
@@ -123,7 +125,8 @@ class PushExcitation3DLayoutExtension(ExtensionHFSS3DLayoutCommon):
         self.excitation_names = excitation_names
 
     def add_extension_content(self) -> None:
-        """Add content to the extension UI.
+        """
+        Add content to the extension UI.
 
         Examples
         --------
@@ -191,7 +194,8 @@ class PushExcitation3DLayoutExtension(ExtensionHFSS3DLayoutCommon):
         self.root.grid_columnconfigure(1, weight=1)
 
     def browse_files(self) -> None:
-        """Open file dialog to browse for excitation files.
+        """
+        Open file dialog to browse for excitation files.
 
         Examples
         --------
@@ -216,7 +220,8 @@ class PushExcitation3DLayoutExtension(ExtensionHFSS3DLayoutCommon):
 
 
 def main(data: PushExcitation3DLayoutExtensionData) -> bool:
-    """Main function to run the push excitation extension.
+    """
+    Main function to run the push excitation extension.
 
     Examples
     --------

@@ -446,7 +446,8 @@ class VersionManager:
 
     @staticmethod
     def is_git_available() -> bool:
-        """Check if git is available in the system PATH.
+        """
+        Check if git is available in the system PATH.
 
         Examples
         --------
@@ -464,7 +465,8 @@ class VersionManager:
         return res
 
     def activate_venv(self) -> None:
-        """Prepare a subprocess environment that has the virtual environment activated.
+        """
+        Prepare a subprocess environment that has the virtual environment activated.
 
         Examples
         --------
@@ -493,7 +495,8 @@ class VersionManager:
             self.activated_env = os.environ.copy()
 
     def run_pip(self, pip_args: list, capture_output: bool = False, check: bool = True) -> str | None:
-        """Run pip using python -m pip.
+        """
+        Run pip using python -m pip.
 
         Arguments:
             pip_args: list of arguments to pip after the pip keyword, e.g. ['install', '-U', 'pyaedt']
@@ -517,7 +520,8 @@ class VersionManager:
             subprocess.run(cmd, check=check, env=self.activated_env)  # nosec
 
     def show_loading(self, key: str):
-        """Show loading indicator for a specific operation.
+        """
+        Show loading indicator for a specific operation.
 
         Examples
         --------
@@ -534,7 +538,8 @@ class VersionManager:
             self.root.update_idletasks()
 
     def hide_loading(self, key: str):
-        """Hide loading indicator for a specific operation.
+        """
+        Hide loading indicator for a specific operation.
 
         Examples
         --------
@@ -551,7 +556,8 @@ class VersionManager:
             self.root.update_idletasks()
 
     def update_and_reload(self, pip_args: list, loading_key: str | None = None):  # pragma: no cover
-        """Run pip install/upgrade and refresh the UI.
+        """
+        Run pip install/upgrade and refresh the UI.
 
         Examples
         --------
@@ -590,7 +596,8 @@ class VersionManager:
         messagebox.showinfo("Message", "Update completed successfully. Module versions have been refreshed.")
 
     def update_pyaedt(self) -> None:
-        """Update pyaedt package to the latest version.
+        """
+        Update pyaedt package to the latest version.
 
         Examples
         --------
@@ -631,7 +638,8 @@ class VersionManager:
             self.update_and_reload(pip_args, loading_key="pyaedt[all]")
 
     def update_pyedb(self) -> None:
-        """Update pyedb package to the latest version.
+        """
+        Update pyedb package to the latest version.
 
         Examples
         --------
@@ -673,7 +681,8 @@ class VersionManager:
             self.update_and_reload(pip_args, loading_key="pyedb")
 
     def update_all(self) -> None:  # pragma: no cover
-        """Update both pyaedt and pyedb together.
+        """
+        Update both pyaedt and pyedb together.
 
         Examples
         --------
@@ -726,7 +735,8 @@ class VersionManager:
         self.update_and_reload(pip_args, loading_key="update_all")
 
     def get_pyaedt_branch(self) -> None:
-        """Get a specific branch of pyaedt from GitHub.
+        """
+        Get a specific branch of pyaedt from GitHub.
 
         Examples
         --------
@@ -749,7 +759,8 @@ class VersionManager:
             self.update_and_reload(pip_args, loading_key="pyaedt_branch")
 
     def get_pyedb_branch(self) -> None:
-        """Get a specific branch of pyedb from GitHub.
+        """
+        Get a specific branch of pyedb from GitHub.
 
         Examples
         --------
@@ -772,7 +783,8 @@ class VersionManager:
             self.update_and_reload(pip_args, loading_key="pyedb_branch")
 
     def update_from_wheelhouse(self) -> None:
-        """Update pyaedt and pyedb from a wheelhouse zip file.
+        """
+        Update pyaedt and pyedb from a wheelhouse zip file.
 
         Examples
         --------
@@ -865,7 +877,8 @@ class VersionManager:
             self._clicked_refresh(need_restart=True)
 
     def get_installed_version(self, package_name: str) -> str:
-        """Return the installed version of package_name inside the virtualenv.
+        """
+        Return the installed version of package_name inside the virtualenv.
 
         This runs the venv Python to query the package metadata so we can show
         the updated version without restarting the current process.
@@ -924,7 +937,8 @@ class VersionManager:
             messagebox.showinfo("Message", "Done")
 
     def _on_close(self) -> None:
-        """Best-effort cleanup when the extension window is closed.
+        """
+        Best-effort cleanup when the extension window is closed.
 
         If a Desktop instance was provided, attempt to release it (without
         closing AEDT). Finally, destroy the Tk root window.
@@ -947,7 +961,8 @@ class VersionManager:
                 logging.getLogger("Global").debug("Failed to destroy root window", exc_info=True)
 
     def show_pyaedt_update_notification(self, latest_version: str, declined_file_path: Path):  # pragma: no cover
-        """Display a notification dialog informing the user about a new PyAEDT version.
+        """
+        Display a notification dialog informing the user about a new PyAEDT version.
 
         Examples
         --------

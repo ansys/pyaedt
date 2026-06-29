@@ -35,7 +35,8 @@ def bin_to_grid(
     xlim: "tuple[float, float] | None" = None,
     ylim: "tuple[float, float] | None" = None,
 ) -> "tuple[np.ndarray, np.ndarray, np.ndarray]":
-    """Convert scattered (x, y, z) sample data to a regular 2-D grid.
+    """
+    Convert scattered (x, y, z) sample data to a regular 2-D grid.
 
     Parameters
     ----------
@@ -173,7 +174,8 @@ def extract_eye_opening_contour_by_center(
     prefer_contains: bool = True,
     connectivity: int = 4,
 ) -> np.ndarray:
-    """Extract the eye-opening contour closest to a reference center point.
+    """
+    Extract the eye-opening contour closest to a reference center point.
 
     Identifies connected zero-valued regions in the density grid ``Z``
     (which correspond to eye openings), selects the region that best
@@ -274,7 +276,8 @@ def prepare_and_extract(
     prefer_contains: bool = True,
     connectivity: int = 4,
 ) -> np.ndarray:
-    """Convert scattered sample arrays to a grid and extract the eye-opening contour.
+    """
+    Convert scattered sample arrays to a grid and extract the eye-opening contour.
 
     This is a convenience wrapper that calls :func:`bin_to_grid` followed by
     :func:`extract_eye_opening_contour_by_center`.

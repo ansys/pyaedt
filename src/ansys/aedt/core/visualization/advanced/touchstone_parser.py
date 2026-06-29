@@ -77,7 +77,8 @@ keys = {REAL_IMAG: ("real", "imag"), MAG_ANGLE: ("mag", "deg"), DB_ANGLE: ("db20
 
 
 class TouchstoneData(_TouchstoneBase, PyAedtBase):
-    """Contains data information from Touchstone Read call.
+    """
+    Contains data information from Touchstone Read call.
 
     Parameters
     ----------
@@ -159,7 +160,8 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
     def reduce(
         self, ports: list[str] | list[int], output_file: str | Path | None = None, reordered: bool = True
     ) -> str:
-        """Reduce the Touchstone file and export it.
+        """
+        Reduce the Touchstone file and export it.
 
         Parameters
         ----------
@@ -226,7 +228,8 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
         frequency_sample: int = 5,
         output_file: str | Path | None = None,
     ) -> list[tuple]:
-        """Get coupling losses, excluding return loss, that has at least one frequency point between a range of
+        """
+        Get coupling losses, excluding return loss, that has at least one frequency point between a range of
         losses.
 
         Parameters
@@ -352,7 +355,8 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_insertion_loss_index(self, threshold: float = -3) -> list:
-        """Get all insertion losses.
+        """
+        Get all insertion losses.
 
         The first frequency point is used to determine whether two ports are shorted.
 
@@ -388,7 +392,8 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
 
     @requires_graphical_dependency("matplotlib")
     def plot_insertion_losses(self, threshold: float = -3, plot: bool = True):
-        """Plot all insertion losses.
+        """
+        Plot all insertion losses.
 
         The first frequency point is used to determine whether two ports are shorted.
 
@@ -422,7 +427,8 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
 
     @requires_graphical_dependency("matplotlib")
     def plot(self, index_couples: list = None, show: bool = True) -> bool:
-        """Plot a list of curves.
+        """
+        Plot a list of curves.
 
         Parameters
         ----------
@@ -455,7 +461,8 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
 
     @requires_graphical_dependency("matplotlib")
     def plot_return_losses(self) -> bool:
-        """Plot all return losses.
+        """
+        Plot all return losses.
 
         Returns
         -------
@@ -478,7 +485,8 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
     def get_mixed_mode_touchstone_data(
         self, num_of_diff_ports: int = None, port_ordering: str = "1234"
     ) -> "TouchstoneData":
-        """Transform network from single ended parameters to generalized mixed mode parameters.
+        """
+        Transform network from single ended parameters to generalized mixed mode parameters.
 
         Parameters
         ----------
@@ -533,7 +541,8 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_return_loss_index(self, excitation_name_prefix: str = "") -> list:
-        """Get the list of all the return loss from a list of excitations.
+        """
+        Get the list of all the return loss from a list of excitations.
 
         If no excitation is provided it will provide a full list of return losses.
 
@@ -568,7 +577,8 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_insertion_loss_index_from_prefix(self, tx_prefix: str, rx_prefix: str) -> list:
-        """Get the list of all the insertion losses from prefix.
+        """
+        Get the list of all the insertion losses from prefix.
 
         Parameters
         ----------
@@ -601,7 +611,8 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_next_xtalk_index(self, tx_prefix: str = "") -> list:
-        """Get the list of all the Near End XTalk a list of excitation.
+        """
+        Get the list of all the Near End XTalk a list of excitation.
 
         Optionally prefix can be used to retrieve driver names.
         Example: excitation_names ["1", "2", "3"] output ["S(1,2)", "S(1,3)", "S(2,3)"].
@@ -639,7 +650,8 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
     def get_fext_xtalk_index_from_prefix(
         self, tx_prefix: str, rx_prefix: str, skip_same_index_couples: bool = True
     ) -> list:
-        """Get the list of all the Far End XTalk from a list of excitations and a prefix that will
+        """
+        Get the list of all the Far End XTalk from a list of excitations and a prefix that will
         be used to retrieve driver and receivers names.
         If skip_same_index_couples is true, the tx and rx with same index
         position will be considered insertion losses and excluded from the list.
@@ -676,7 +688,8 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
 
     @requires_graphical_dependency("matplotlib")
     def plot_next_xtalk_losses(self, tx_prefix: str = "") -> bool:
-        """Plot all next crosstalk curves.
+        """
+        Plot all next crosstalk curves.
 
         Parameters
         ----------
@@ -705,7 +718,8 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
 
     @requires_graphical_dependency("matplotlib")
     def plot_fext_xtalk_losses(self, tx_prefix: str, rx_prefix: str, skip_same_index_couples: bool = True) -> bool:
-        """Plot all fext crosstalk curves.
+        """
+        Plot all fext crosstalk curves.
 
         Parameters
         ----------
@@ -747,7 +761,8 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
         curve_list: list = None,
         plot: bool = True,
     ) -> tuple:
-        """Analyze a solution data object with multiple curves and find the worst curve.
+        """
+        Analyze a solution data object with multiple curves and find the worst curve.
 
         Take the mean of the magnitude over the frequency range.
 
@@ -811,7 +826,8 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
 
 @pyaedt_function_handler()
 def read_touchstone(input_file: str) -> TouchstoneData:
-    """Load the contents of a Touchstone file into an NPort.
+    """
+    Load the contents of a Touchstone file into an NPort.
 
     Parameters
     ----------
@@ -835,7 +851,8 @@ def read_touchstone(input_file: str) -> TouchstoneData:
 
 @pyaedt_function_handler()
 def check_touchstone_files(input_dir: str = "", passivity: bool = True, causality: bool = True) -> dict:
-    """Check passivity and causality for all Touchstone files included in the folder.
+    """
+    Check passivity and causality for all Touchstone files included in the folder.
 
     .. warning::
 
@@ -916,7 +933,8 @@ def check_touchstone_files(input_dir: str = "", passivity: bool = True, causalit
 
 @pyaedt_function_handler()
 def find_touchstone_files(input_dir: str) -> dict:
-    """Get all Touchstone files in a directory.
+    """
+    Get all Touchstone files in a directory.
 
     Parameters
     ----------

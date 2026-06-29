@@ -38,7 +38,8 @@ class MultiplexerBand(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
-        """The parent of this emit node.
+        """
+        The parent of this emit node.
 
         Examples
         --------
@@ -54,7 +55,8 @@ class MultiplexerBand(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node.
+        """
+        The type of this emit node.
 
         Examples
         --------
@@ -69,7 +71,8 @@ class MultiplexerBand(EmitNode):
 
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
-        """Duplicate this node
+        """
+        Duplicate this node
 
         Examples
         --------
@@ -84,7 +87,8 @@ class MultiplexerBand(EmitNode):
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node
+        """
+        Delete this node
 
         Examples
         --------
@@ -106,7 +110,8 @@ class MultiplexerBand(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def passband_type(self) -> PassbandTypeOption:
-        """Passband Type.
+        """
+        Passband Type.
 
         Type of multiplexer pass band to define. The pass band can be defined by
         file (measured or simulated data) or using one of EMIT's parametric
@@ -133,7 +138,8 @@ class MultiplexerBand(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def filename(self) -> str:
-        """Name of file defining the multiplexer band.
+        """
+        Name of file defining the multiplexer band.
 
         Value should be a full file path.
 
@@ -157,7 +163,8 @@ class MultiplexerBand(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def insertion_loss(self) -> float:
-        """Multiplexer pass band insertion loss.
+        """
+        Multiplexer pass band insertion loss.
 
         Value should be between 0 and 100.
 
@@ -181,7 +188,8 @@ class MultiplexerBand(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def stop_band_attenuation(self) -> float:
-        """Stop-band loss (attenuation).
+        """
+        Stop-band loss (attenuation).
 
         Value should be between 0 and 200.
 
@@ -205,7 +213,8 @@ class MultiplexerBand(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def max_pass_band(self) -> float:
-        """Maximum pass band frequency.
+        """
+        Maximum pass band frequency.
 
         Value should be between 1 and 100e9.
 
@@ -231,7 +240,8 @@ class MultiplexerBand(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def min_stop_band(self) -> float:
-        """Minimum stop band frequency.
+        """
+        Minimum stop band frequency.
 
         Value should be between 1 and 100e9.
 
@@ -257,7 +267,8 @@ class MultiplexerBand(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def max_stop_band(self) -> float:
-        """Maximum stop band frequency.
+        """
+        Maximum stop band frequency.
 
         Value should be between 1 and 100e9.
 
@@ -283,7 +294,8 @@ class MultiplexerBand(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def min_pass_band(self) -> float:
-        """Minimum pass band frequency.
+        """
+        Minimum pass band frequency.
 
         Value should be between 1 and 100e9.
 
@@ -309,7 +321,8 @@ class MultiplexerBand(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def lower_stop_band(self) -> float:
-        """Lower stop band frequency.
+        """
+        Lower stop band frequency.
 
         Value should be between 1 and 100e9.
 
@@ -335,7 +348,8 @@ class MultiplexerBand(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def lower_cutoff(self) -> float:
-        """Lower cutoff frequency.
+        """
+        Lower cutoff frequency.
 
         Value should be between 1 and 100e9.
 
@@ -361,7 +375,8 @@ class MultiplexerBand(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def higher_cutoff(self) -> float:
-        """Higher cutoff frequency.
+        """
+        Higher cutoff frequency.
 
         Value should be between 1 and 100e9.
 
@@ -387,7 +402,8 @@ class MultiplexerBand(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def higher_stop_band(self) -> float:
-        """Higher stop band frequency.
+        """
+        Higher stop band frequency.
 
         Value should be between 1 and 100e9.
 
@@ -413,7 +429,8 @@ class MultiplexerBand(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def warnings(self) -> str:
-        """Warning(s) for this node.
+        """
+        Warning(s) for this node.
 
         Examples
         --------

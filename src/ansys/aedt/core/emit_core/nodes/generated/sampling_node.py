@@ -38,7 +38,8 @@ class SamplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
-        """The parent of this emit node.
+        """
+        The parent of this emit node.
 
         Examples
         --------
@@ -50,7 +51,8 @@ class SamplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node.
+        """
+        The type of this emit node.
 
         Examples
         --------
@@ -62,7 +64,8 @@ class SamplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def table_data(self) -> list[tuple]:
-        """Frequency Ranges Table.
+        """
+        Frequency Ranges Table.
         Table consists of 2 columns.
         Min:
             Value should be between 1.0 and 100e9.
@@ -89,7 +92,8 @@ class SamplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def sampling_type(self) -> SamplingTypeOption:
-        """Sampling to apply to this configuration.
+        """
+        Sampling to apply to this configuration.
 
         Examples
         --------
@@ -109,7 +113,8 @@ class SamplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def specify_percentage(self) -> bool:
-        """Specify Percentage.
+        """
+        Specify Percentage.
 
         Specify the number of channels to simulate via a percentage of the total
         available band channels.
@@ -132,7 +137,8 @@ class SamplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def percentage_of_channels(self) -> float:
-        """Percentage of the Band Channels to simulate.
+        """
+        Percentage of the Band Channels to simulate.
 
         Value should be between 1 and 100.
 
@@ -152,7 +158,8 @@ class SamplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def max_channels_range_band(self) -> int:
-        """Maximum number of Band Channels to simulate.
+        """
+        Maximum number of Band Channels to simulate.
 
         Value should be between 1 and 100000.
 
@@ -172,7 +179,8 @@ class SamplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def seed(self) -> int:
-        """Seed for random channel generator.
+        """
+        Seed for random channel generator.
 
         Value should be greater than 0.
 
@@ -192,7 +200,8 @@ class SamplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def total_tx_channels(self) -> int:
-        """Total Tx Channels.
+        """
+        Total Tx Channels.
 
         Total number of transmit channels this configuration is capable of
         operating on.
@@ -208,7 +217,8 @@ class SamplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def total_rx_channels(self) -> int:
-        """Total Rx Channels.
+        """
+        Total Rx Channels.
 
         Total number of receive channels this configuration is capable of
         operating on.
@@ -224,7 +234,8 @@ class SamplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def warnings(self) -> str:
-        """Warning(s) for this node.
+        """
+        Warning(s) for this node.
 
         Examples
         --------

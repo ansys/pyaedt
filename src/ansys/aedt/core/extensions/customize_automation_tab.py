@@ -94,7 +94,8 @@ def add_automation_tab(
     gallery_imagewidth: int = 80,
     gallery_imageheight: int = 72,
 ) -> str | None:
-    """Add an automation tab in AEDT.
+    """
+    Add an automation tab in AEDT.
 
     Parameters
     ----------
@@ -240,7 +241,8 @@ def add_automation_tab(
 
 
 def is_extension_in_panel(toolkit_dir: str, product: str, name: str, panel: str = "Panel_PyAEDT_Extensions") -> bool:
-    """Check if a toolkit configuration exists in the panel.
+    """
+    Check if a toolkit configuration exists in the panel.
 
     Parameters
     ----------
@@ -301,7 +303,8 @@ def add_script_to_menu(
     group_name: str = None,
     group_icon: str = None,
 ) -> bool:
-    """Add a script to the ribbon menu.
+    """
+    Add a script to the ribbon menu.
 
     .. note::
        This method is available in AEDT 2023 R2 and later. PyAEDT must be installed
@@ -439,7 +442,8 @@ def add_script_to_menu(
 
 
 def tab_map(product: str) -> str:  # pragma: no cover
-    """Map exceptions in AEDT applications.
+    """
+    Map exceptions in AEDT applications.
 
     Examples
     --------
@@ -464,7 +468,8 @@ def tab_map(product: str) -> str:  # pragma: no cover
 
 
 def run_command(command: list[str], desktop_object: object) -> int:  # pragma: no cover
-    """Run a command through subprocess.
+    """
+    Run a command through subprocess.
 
     .. warning::
 
@@ -493,7 +498,8 @@ def run_command(command: list[str], desktop_object: object) -> int:  # pragma: n
 def add_custom_toolkit(
     desktop_object: object, toolkit_name: str, wheel_toolkit: str = None, install: bool = True
 ) -> bool:  # pragma: no cover
-    """Add toolkit to AEDT Automation Tab.
+    """
+    Add toolkit to AEDT Automation Tab.
 
     .. warning::
 
@@ -708,7 +714,8 @@ def add_custom_toolkit(
 
 
 def remove_script_from_menu(desktop_object: object, name: str, product: str = "Project") -> bool:
-    """Remove a toolkit script from the menu.
+    """
+    Remove a toolkit script from the menu.
 
     Parameters
     ----------
@@ -759,7 +766,8 @@ def __exe() -> str:
 def get_custom_extensions_from_tabconfig(
     tabconfig_path: str, toml_names: list, options: dict, logger: object = None
 ) -> dict:
-    """Add custom extensions from TabConfig.xml not in TOML.
+    """
+    Add custom extensions from TabConfig.xml not in TOML.
 
     Examples
     --------
@@ -778,7 +786,8 @@ def get_custom_extensions_from_tabconfig(
 
 
 def get_custom_extension_script(tabconfig_path: str, label: str, logger: object = None) -> str | None:
-    """Get script path for a custom extension from TabConfig.xml.
+    """
+    Get script path for a custom extension from TabConfig.xml.
 
     Examples
     --------
@@ -797,7 +806,8 @@ def get_custom_extension_script(tabconfig_path: str, label: str, logger: object 
 
 
 def get_custom_extension_image(tabconfig_path: str, label: str, logger: object = None) -> str:
-    """Get image path for a custom extension from TabConfig.xml.
+    """
+    Get image path for a custom extension from TabConfig.xml.
 
     Examples
     --------

@@ -57,7 +57,8 @@ EXTENSION_TITLE = "Push Excitation From File"
 
 @dataclass
 class PushExcitationExtensionData(ExtensionCommonData):
-    """Data class for Push Excitation extension.
+    """
+    Data class for Push Excitation extension.
 
     Examples
     --------
@@ -73,7 +74,8 @@ class PushExcitationExtensionData(ExtensionCommonData):
 
 
 class PushExcitationExtension(ExtensionHFSSCommon):
-    """Extension for push excitation from file in AEDT.
+    """
+    Extension for push excitation from file in AEDT.
 
     Examples
     --------
@@ -118,7 +120,8 @@ class PushExcitationExtension(ExtensionHFSSCommon):
         self.excitation_names = excitation_names
 
     def add_extension_content(self) -> None:
-        """Add content to the extension UI.
+        """
+        Add content to the extension UI.
 
         Examples
         --------
@@ -180,7 +183,8 @@ class PushExcitationExtension(ExtensionHFSSCommon):
         self.root.grid_columnconfigure(1, weight=1)
 
     def browse_files(self) -> None:
-        """Open file dialog to browse for excitation files.
+        """
+        Open file dialog to browse for excitation files.
 
         Examples
         --------
@@ -200,7 +204,8 @@ class PushExcitationExtension(ExtensionHFSSCommon):
 
 
 def main(data: PushExcitationExtensionData) -> bool:
-    """Main function to run the push excitation extension.
+    """
+    Main function to run the push excitation extension.
 
     Examples
     --------

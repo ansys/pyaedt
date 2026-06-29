@@ -32,7 +32,8 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 
 class TransmissionLine(PyAedtBase):
-    """Provides base methods common to transmission line calculation.
+    """
+    Provides base methods common to transmission line calculation.
 
     Parameters
     ----------
@@ -66,7 +67,8 @@ class TransmissionLine(PyAedtBase):
         impedance: str | float = 50.0,
         electrical_length: str | float = 150.0,
     ) -> tuple[float, float]:
-        """Micro strip calculator.
+        """
+        Micro strip calculator.
 
         Parameters
         ----------
@@ -130,7 +132,8 @@ class TransmissionLine(PyAedtBase):
     def microstrip_analysis(
         self, substrate_height: float, permittivity: float, width: float, thickness: float
     ) -> float:
-        """Micro strip calculator.
+        """
+        Micro strip calculator.
 
         Parameters
         ----------
@@ -166,7 +169,8 @@ class TransmissionLine(PyAedtBase):
     def differential_microstrip_analysis(
         self, substrate_height: float, permittivity: float, width: float, separation: float, thickness: float
     ) -> tuple[float, float]:
-        """Differential micro strip calculator.
+        """
+        Differential micro strip calculator.
 
         Parameters
         ----------
@@ -203,7 +207,8 @@ class TransmissionLine(PyAedtBase):
 
     @pyaedt_function_handler()
     def stripline_synthesis(self, substrate_height: float, permittivity: float, impedance: str | float = 50.0) -> float:
-        """Strip line calculator.
+        """
+        Strip line calculator.
 
         Parameters
         ----------
@@ -240,7 +245,8 @@ class TransmissionLine(PyAedtBase):
     def suspended_strip_synthesis(
         self, substrate_height: float, permittivity: float, w1: float, units: str = "mm"
     ) -> float:
-        """Suspended stripline calculator.
+        """
+        Suspended stripline calculator.
 
         Parameters
         ----------
@@ -293,7 +299,8 @@ class TransmissionLine(PyAedtBase):
 
 
 class StandardWaveguide(PyAedtBase):
-    """Provides base methods common to standard waveguides.
+    """
+    Provides base methods common to standard waveguides.
 
     Parameters
     ----------
@@ -357,7 +364,8 @@ class StandardWaveguide(PyAedtBase):
 
     @property
     def waveguide_list(self) -> list:
-        """Waveguide lists.
+        """
+        Waveguide lists.
 
         Examples
         --------
@@ -370,7 +378,8 @@ class StandardWaveguide(PyAedtBase):
 
     @pyaedt_function_handler()
     def get_waveguide_dimensions(self, name: str, units: str = "mm") -> list | bool:
-        """Strip line calculator.
+        """
+        Strip line calculator.
 
         Parameters
         ----------
@@ -401,7 +410,8 @@ class StandardWaveguide(PyAedtBase):
 
     @pyaedt_function_handler()
     def find_waveguide(self, freq: float, units: str = "GHz") -> str | None:  # pragma: no cover
-        """Find the closest standard waveguide for the operational frequency.
+        """
+        Find the closest standard waveguide for the operational frequency.
 
         Parameters
         ----------

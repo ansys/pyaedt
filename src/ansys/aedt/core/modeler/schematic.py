@@ -47,7 +47,8 @@ from ansys.aedt.core.modules.layer_stackup import Layers
 
 
 class ModelerCircuit(Modeler, PyAedtBase):
-    """ModelerCircuit class.
+    """
+    ModelerCircuit class.
 
     Parameters
     ----------
@@ -71,7 +72,8 @@ class ModelerCircuit(Modeler, PyAedtBase):
 
     @property
     def o_def_manager(self):
-        """AEDT Definition manager.
+        """
+        AEDT Definition manager.
 
         Examples
         --------
@@ -84,7 +86,8 @@ class ModelerCircuit(Modeler, PyAedtBase):
 
     @property
     def schematic_units(self) -> str:
-        """Schematic units.
+        """
+        Schematic units.
 
         Options are ``"mm"``, ``"mil"``, ``"cm"`` and all other metric and imperial units.
         The default is ``"meter"``.
@@ -107,7 +110,8 @@ class ModelerCircuit(Modeler, PyAedtBase):
 
     @property
     def ocomponent_manager(self):
-        """Component manager object.
+        """
+        Component manager object.
 
         Examples
         --------
@@ -120,7 +124,8 @@ class ModelerCircuit(Modeler, PyAedtBase):
 
     @property
     def omodel_manager(self):
-        """Model manager object.
+        """
+        Model manager object.
 
         Examples
         --------
@@ -133,7 +138,8 @@ class ModelerCircuit(Modeler, PyAedtBase):
 
     @property
     def oeditor(self):
-        """Oeditor Module.
+        """
+        Oeditor Module.
 
         References
         ----------
@@ -150,7 +156,8 @@ class ModelerCircuit(Modeler, PyAedtBase):
 
     @pyaedt_function_handler()
     def zoom_to_fit(self) -> None:
-        """Zoom To Fit.
+        """
+        Zoom To Fit.
 
         References
         ----------
@@ -174,7 +181,8 @@ class ModelerCircuit(Modeler, PyAedtBase):
         pin_ending: int = 1,
         use_wire: bool = True,
     ) -> bool:
-        """Connect schematic components.
+        """
+        Connect schematic components.
 
         Parameters
         ----------
@@ -248,7 +256,8 @@ class ModelerCircuit(Modeler, PyAedtBase):
         rect_fill: int = 0,
         rect_color: int = 0,
     ) -> str | bool:
-        """Draw Text.
+        """
+        Draw Text.
 
         Parameters
         ----------
@@ -409,7 +418,8 @@ class ModelerCircuit(Modeler, PyAedtBase):
 
     @pyaedt_function_handler()
     def change_text_property(self, assignment: str, name: str, value) -> bool:
-        """Change an oeditor property.
+        """
+        Change an oeditor property.
 
         Parameters
         ----------
@@ -527,7 +537,8 @@ class ModelerCircuit(Modeler, PyAedtBase):
 
 
 class ModelerNexxim(ModelerCircuit, PyAedtBase):
-    """ModelerNexxim class.
+    """
+    ModelerNexxim class.
 
     Parameters
     ----------
@@ -553,7 +564,8 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
 
     @property
     def layouteditor(self):
-        """Return the Circuit Layout Editor.
+        """
+        Return the Circuit Layout Editor.
 
         References
         ----------
@@ -570,7 +582,8 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
 
     @property
     def schematic(self) -> NexximComponents:
-        """Schematic Component.
+        """
+        Schematic Component.
 
         Returns
         -------
@@ -587,7 +600,8 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
 
     @property
     def pages(self) -> int:
-        """Return the number of pages of the current schematic.
+        """
+        Return the number of pages of the current schematic.
 
         Returns
         -------
@@ -607,7 +621,8 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
 
     @property
     def page_names(self) -> list[str]:
-        """Page names in the schematic.
+        """
+        Page names in the schematic.
 
         Examples
         --------
@@ -627,7 +642,8 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
 
     @pyaedt_function_handler()
     def add_page(self, name: str) -> int:
-        """Add a page to the schematic.
+        """
+        Add a page to the schematic.
 
         Parameters
         ----------
@@ -657,7 +673,8 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
 
     @pyaedt_function_handler()
     def rename_page(self, page: str | int, name: str) -> bool:
-        """Rename a page in the schematic.
+        """
+        Rename a page in the schematic.
 
         Examples
         --------
@@ -682,7 +699,8 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
 
     @property
     def edb(self) -> "Edb":
-        """EDB.
+        """
+        EDB.
 
         Returns
         -------
@@ -701,7 +719,8 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
 
     @property
     def model_units(self) -> str:
-        """Layout model units.
+        """
+        Layout model units.
 
         References
         ----------
@@ -719,7 +738,8 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
 
     @property
     def layout(self) -> Primitives3DLayout:
-        """Primitives.
+        """
+        Primitives.
 
         Returns
         -------
@@ -743,7 +763,8 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
 
     @pyaedt_function_handler()
     def move(self, assignment: list, offset: list, units: str = None) -> bool:
-        """Move the selections by the specified ``[x, y]`` coordinates.
+        """
+        Move the selections by the specified ``[x, y]`` coordinates.
 
         Parameters
         ----------
@@ -802,7 +823,8 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
 
     @pyaedt_function_handler()
     def rotate(self, assignment: list, degrees: int = 90) -> bool:
-        """Rotate the selections by degrees.
+        """
+        Rotate the selections by degrees.
 
         Parameters
         ----------
@@ -848,7 +870,8 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
 
 
 class ModelerTwinBuilder(ModelerCircuit, PyAedtBase):
-    """ModelerTwinBuilder class.
+    """
+    ModelerTwinBuilder class.
 
     Parameters
     ----------
@@ -869,7 +892,8 @@ class ModelerTwinBuilder(ModelerCircuit, PyAedtBase):
 
     @property
     def schematic(self) -> TwinBuilderComponents:
-        """Schematic Object.
+        """
+        Schematic Object.
 
         Returns
         -------
@@ -886,7 +910,8 @@ class ModelerTwinBuilder(ModelerCircuit, PyAedtBase):
 
 
 class ModelerEmit(ModelerCircuit, PyAedtBase):
-    """ModelerEmit class.
+    """
+    ModelerEmit class.
 
     Parameters
     ----------
@@ -931,7 +956,8 @@ class ModelerEmit(ModelerCircuit, PyAedtBase):
 
 
 class ModelerMaxwellCircuit(ModelerCircuit, PyAedtBase):
-    """ModelerMaxwellCircuit class.
+    """
+    ModelerMaxwellCircuit class.
 
     Parameters
     ----------
@@ -952,7 +978,8 @@ class ModelerMaxwellCircuit(ModelerCircuit, PyAedtBase):
 
     @property
     def schematic(self) -> MaxwellCircuitComponents:
-        """Schematic Object.
+        """
+        Schematic Object.
 
         Returns
         -------

@@ -51,7 +51,8 @@ def Edb(
     use_ppe: bool | None = False,
     technology_file: str | None = None,
 ) -> "EdbApp":
-    """Provides the EDB application interface.
+    """
+    Provides the EDB application interface.
 
     This module inherits all objects that belong to EDB.
 
@@ -160,7 +161,8 @@ def Edb(
 def Siwave(
     specified_version: str | None = None,
 ) -> "Siwave":
-    """Siwave Class.
+    """
+    Siwave Class.
 
     Examples
     --------

@@ -36,7 +36,8 @@ from ansys.aedt.core.internal.load_aedt_file import load_entire_aedt_file
 
 
 class Cable(PyAedtBase):
-    """Contains all common Cable features.
+    """
+    Contains all common Cable features.
 
     Parameters
     ----------
@@ -137,7 +138,8 @@ class Cable(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_cable(self) -> bool:
-        """Create a cable.
+        """
+        Create a cable.
 
         Returns
         -------
@@ -266,7 +268,8 @@ class Cable(PyAedtBase):
 
     @pyaedt_function_handler()
     def update_cable_properties(self) -> bool:
-        """Update cable properties for all cable types.
+        """
+        Update cable properties for all cable types.
 
         Returns
         -------
@@ -347,7 +350,8 @@ class Cable(PyAedtBase):
 
     @pyaedt_function_handler()
     def update_shielding(self) -> bool:
-        """Create jacket type when cable type is bundle and jacket type is braid shield.
+        """
+        Create jacket type when cable type is bundle and jacket type is braid shield.
 
         Returns
         -------
@@ -402,7 +406,8 @@ class Cable(PyAedtBase):
 
     @pyaedt_function_handler()
     def remove_cables(self) -> bool:
-        """Remove a list of cables.
+        """
+        Remove a list of cables.
 
         Returns
         -------
@@ -434,7 +439,8 @@ class Cable(PyAedtBase):
 
     @pyaedt_function_handler()
     def add_cable_to_bundle(self) -> bool:
-        """Add a cable to an existing cable bundle.
+        """
+        Add a cable to an existing cable bundle.
 
         Returns
         -------
@@ -468,7 +474,8 @@ class Cable(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_clock_source(self) -> bool:
-        """Create a clock source.
+        """
+        Create a clock source.
 
         Returns
         -------
@@ -508,7 +515,8 @@ class Cable(PyAedtBase):
 
     @pyaedt_function_handler()
     def update_clock_source(self) -> bool:
-        """Update clock source.
+        """
+        Update clock source.
 
         Returns
         -------
@@ -549,7 +557,8 @@ class Cable(PyAedtBase):
 
     @pyaedt_function_handler()
     def remove_source(self) -> bool:
-        """Remove source.
+        """
+        Remove source.
 
         Returns
         -------
@@ -572,7 +581,8 @@ class Cable(PyAedtBase):
 
     @pyaedt_function_handler()
     def remove_all_sources(self) -> bool:
-        """Remove all sources.
+        """
+        Remove all sources.
 
         Returns
         -------
@@ -597,7 +607,8 @@ class Cable(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_pwl_source(self) -> bool:
-        """Create a clock source.
+        """
+        Create a clock source.
 
         Returns
         -------
@@ -631,7 +642,8 @@ class Cable(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_pwl_source_from_file(self) -> bool:
-        """Create a pwl source from file.
+        """
+        Create a pwl source from file.
 
         Returns
         -------
@@ -656,7 +668,8 @@ class Cable(PyAedtBase):
 
     @pyaedt_function_handler()
     def update_pwl_source(self) -> bool:
-        """Update pwl source.
+        """
+        Update pwl source.
 
         Returns
         -------
@@ -705,7 +718,8 @@ class Cable(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_cable_harness(self) -> bool:
-        """Create cable harness.
+        """
+        Create cable harness.
 
         Returns
         -------

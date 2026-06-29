@@ -53,7 +53,8 @@ class CommonRegion(PyAedtBase):
 
     @property
     def padding_types(self) -> list[str]:
-        """Get a list of strings containing the padding types used.
+        """
+        Get a list of strings containing the padding types used.
 
         One for each direction in the following order:
         +X, -X, +Y, -Y, +Z, -Z.
@@ -74,7 +75,8 @@ class CommonRegion(PyAedtBase):
 
     @property
     def padding_values(self) -> list[float]:
-        """Get a list of padding values (string or float) used.
+        """
+        Get a list of padding values (string or float) used.
 
         Get one for each direction, in the following order:
         +X, -X, +Y, -Y, +Z, -Z.
@@ -457,7 +459,8 @@ class CommonRegion(PyAedtBase):
 
 
 class Region(CommonRegion):
-    """Provides Icepak global mesh region properties and methods.
+    """
+    Provides Icepak global mesh region properties and methods.
 
     Examples
     --------
@@ -475,7 +478,8 @@ class Region(CommonRegion):
 
 
 class SubRegion(CommonRegion):
-    """Provides Icepak mesh subregions properties and methods.
+    """
+    Provides Icepak mesh subregions properties and methods.
 
     Examples
     --------
@@ -586,7 +590,8 @@ class SubRegion(CommonRegion):
 
     @parts.setter
     def parts(self, parts: list[str]) -> None:
-        """Parts included in the subregion.
+        """
+        Parts included in the subregion.
 
         Parameters
         ----------
@@ -597,7 +602,8 @@ class SubRegion(CommonRegion):
 
 
 class MeshSettings(PyAedtBase):
-    """Manages mesh settings.
+    """
+    Manages mesh settings.
 
     It can be used like a dictionary. Available keys change according
     to the type of settings chosen (manual or automatic).
@@ -665,7 +671,8 @@ class MeshSettings(PyAedtBase):
                 del self._instance_settings[arg]
 
     def parse_settings_as_args(self) -> list:
-        """Parse mesh region settings.
+        """
+        Parse mesh region settings.
 
         Returns
         -------
@@ -689,7 +696,8 @@ class MeshSettings(PyAedtBase):
         return out
 
     def parse_settings_as_dictionary(self) -> dict:
-        """Parse mesh region settings.
+        """
+        Parse mesh region settings.
 
         Returns
         -------
@@ -712,7 +720,8 @@ class MeshSettings(PyAedtBase):
         return out
 
     def keys(self) -> set:
-        """Get mesh region settings keys.
+        """
+        Get mesh region settings keys.
 
         Returns
         -------
@@ -732,7 +741,8 @@ class MeshSettings(PyAedtBase):
             return set(self._automatic_mesh_settings.keys()) | set(self._common_mesh_settings.keys())
 
     def values(self):
-        """Get mesh region settings values.
+        """
+        Get mesh region settings values.
 
         Returns
         -------
@@ -844,7 +854,8 @@ class MeshRegionCommon(BinaryTreeNode, PyAedtBase):
 
     @property
     def _child_object(self):
-        """Object-oriented properties.
+        """
+        Object-oriented properties.
 
         Returns
         -------
@@ -863,7 +874,8 @@ class MeshRegionCommon(BinaryTreeNode, PyAedtBase):
 
     @abstractmethod
     def update(self) -> bool:
-        """Update the mesh region object.
+        """
+        Update the mesh region object.
 
         Examples
         --------
@@ -875,7 +887,8 @@ class MeshRegionCommon(BinaryTreeNode, PyAedtBase):
 
     @abstractmethod
     def delete(self) -> bool:
-        """Delete the mesh region object.
+        """
+        Delete the mesh region object.
 
         Examples
         --------
@@ -887,7 +900,8 @@ class MeshRegionCommon(BinaryTreeNode, PyAedtBase):
 
     @abstractmethod
     def create(self) -> bool:
-        """Create the mesh region object.
+        """
+        Create the mesh region object.
 
         Examples
         --------
@@ -957,7 +971,8 @@ class MeshRegionCommon(BinaryTreeNode, PyAedtBase):
 
 
 class GlobalMeshRegion(MeshRegionCommon):
-    """Provides Icepak global mesh properties and methods.
+    """
+    Provides Icepak global mesh properties and methods.
 
     Examples
     --------
@@ -976,7 +991,8 @@ class GlobalMeshRegion(MeshRegionCommon):
 
     @property
     def name(self) -> str:
-        """Mesh region name.
+        """
+        Mesh region name.
 
         Examples
         --------
@@ -989,7 +1005,8 @@ class GlobalMeshRegion(MeshRegionCommon):
 
     @pyaedt_function_handler
     def update(self) -> bool:
-        """Update mesh region settings with the settings in the object variable.
+        """
+        Update mesh region settings with the settings in the object variable.
 
         Returns
         -------
@@ -1020,7 +1037,8 @@ class GlobalMeshRegion(MeshRegionCommon):
 
     @property
     def Objects(self) -> str:
-        """Get the region object from the modeler.
+        """
+        Get the region object from the modeler.
 
         Examples
         --------
@@ -1032,7 +1050,8 @@ class GlobalMeshRegion(MeshRegionCommon):
         return self.global_region.name
 
     def delete(self) -> None:
-        """Delete the region object in the modeler.
+        """
+        Delete the region object in the modeler.
 
         Examples
         --------
@@ -1045,7 +1064,8 @@ class GlobalMeshRegion(MeshRegionCommon):
         self.global_region = None
 
     def create(self) -> bool:
-        """Create the region object in the modeler.
+        """
+        Create the region object in the modeler.
 
         Examples
         --------
@@ -1061,7 +1081,8 @@ class GlobalMeshRegion(MeshRegionCommon):
 
 
 class MeshRegion(MeshRegionCommon):
-    """Provides Icepak subregions mesh properties and methods.
+    """
+    Provides Icepak subregions mesh properties and methods.
 
     Examples
     --------
@@ -1151,7 +1172,8 @@ class MeshRegion(MeshRegionCommon):
 
     @pyaedt_function_handler
     def update(self) -> bool:
-        """Update mesh region settings with the settings in the object variable.
+        """
+        Update mesh region settings with the settings in the object variable.
 
         Returns
         -------
@@ -1181,7 +1203,8 @@ class MeshRegion(MeshRegionCommon):
 
     @pyaedt_function_handler()
     def delete(self) -> bool:
-        """Delete the mesh region.
+        """
+        Delete the mesh region.
 
         Returns
         -------
@@ -1270,7 +1293,8 @@ class MeshRegion(MeshRegionCommon):
 
     @pyaedt_function_handler()
     def create(self) -> bool:
-        """Create a mesh region.
+        """
+        Create a mesh region.
 
         Returns
         -------
@@ -1304,7 +1328,8 @@ class MeshRegion(MeshRegionCommon):
 
 
 class IcepakMesh(PyAedtBase):
-    """Manages Icepak meshes.
+    """
+    Manages Icepak meshes.
 
     Parameters
     ----------
@@ -1372,7 +1397,8 @@ class IcepakMesh(PyAedtBase):
 
     @property
     def omeshmodule(self):
-        """Icepak Mesh Module.
+        """
+        Icepak Mesh Module.
 
         References
         ----------
@@ -1389,7 +1415,8 @@ class IcepakMesh(PyAedtBase):
 
     @property
     def boundingdimension(self) -> list:
-        """Bounding dimension.
+        """
+        Bounding dimension.
 
         Examples
         --------
@@ -1486,7 +1513,8 @@ class IcepakMesh(PyAedtBase):
 
     @pyaedt_function_handler()
     def assign_mesh_level(self, mesh_order: dict, name: str = None) -> list[MeshOperation] | bool:
-        """Assign a mesh level to objects.
+        """
+        Assign a mesh level to objects.
 
         Parameters
         ----------
@@ -1532,7 +1560,8 @@ class IcepakMesh(PyAedtBase):
 
     @pyaedt_function_handler()
     def assign_mesh_from_file(self, assignment: list, file_name: str, name: str = None) -> MeshOperation | bool:
-        r"""Assign a mesh from a file to objects.
+        r"""
+        Assign a mesh from a file to objects.
 
         Parameters
         ----------
@@ -1582,7 +1611,8 @@ class IcepakMesh(PyAedtBase):
 
     @pyaedt_function_handler()
     def assign_priorities(self, assignment: list[list[Object3d | UserDefinedComponent | str]]) -> bool:
-        """Set objects priorities.
+        """
+        Set objects priorities.
 
         Parameters
         ----------
@@ -1665,7 +1695,8 @@ class IcepakMesh(PyAedtBase):
     def assign_mesh_region(
         self, assignment: list = None, level: int = 5, name: str = None, **kwargs
     ) -> MeshRegion | bool:
-        """Assign a predefined surface mesh level to an object.
+        """
+        Assign a predefined surface mesh level to an object.
 
         Parameters
         ----------
@@ -1717,7 +1748,8 @@ class IcepakMesh(PyAedtBase):
 
     @pyaedt_function_handler()
     def generate_mesh(self, name: str = None) -> bool:
-        """Generate the mesh for a given setup name.
+        """
+        Generate the mesh for a given setup name.
 
         Parameters
         ----------
@@ -1753,7 +1785,8 @@ class IcepakMesh(PyAedtBase):
         local_mesh_parameters: str = "No local mesh parameters",
         name: str = None,
     ) -> MeshOperation:
-        """Assign a mesh level to a group.
+        """
+        Assign a mesh level to a group.
 
         Parameters
         ----------
@@ -1805,7 +1838,8 @@ class IcepakMesh(PyAedtBase):
         return mop
 
     def assign_mesh_reuse(self, assignment: list, mesh_file: str, name: str = None) -> MeshOperation | bool:
-        r"""Assign a mesh file to objects.
+        r"""
+        Assign a mesh file to objects.
 
         Parameters
         ----------

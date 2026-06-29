@@ -36,7 +36,8 @@ class Amplifier(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node.
+        """
+        The type of this emit node.
 
         Examples
         --------
@@ -50,7 +51,8 @@ class Amplifier(EmitNode):
 
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
-        """Duplicate this node.
+        """
+        Duplicate this node.
 
         Examples
         --------
@@ -64,7 +66,8 @@ class Amplifier(EmitNode):
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node.
+        """
+        Delete this node.
 
         Examples
         --------
@@ -79,7 +82,8 @@ class Amplifier(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def table_data(self) -> list[tuple]:
-        """Harmonic Intercept Points, Ref. Input Table.
+        """
+        Harmonic Intercept Points, Ref. Input Table.
         Table consists of 2 columns.
         Harmonic:
             Value should be between 2 and 20.
@@ -104,7 +108,8 @@ class Amplifier(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def noise_temperature(self) -> float:
-        """System Noise temperature (K) of the component.
+        """
+        System Noise temperature (K) of the component.
 
         Value should be between 0 and 1000.
 
@@ -127,7 +132,8 @@ class Amplifier(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def notes(self) -> str:
-        """Expand to view/edit notes stored with the project.
+        """
+        Expand to view/edit notes stored with the project.
 
         Examples
         --------
@@ -148,7 +154,8 @@ class Amplifier(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def gain(self) -> float:
-        """Amplifier in-band gain.
+        """
+        Amplifier in-band gain.
 
         Value should be between 0 and 100.
 
@@ -171,7 +178,8 @@ class Amplifier(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def center_frequency(self) -> float:
-        """Center frequency of amplifiers operational bandwidth.
+        """
+        Center frequency of amplifiers operational bandwidth.
 
         Value should be between 1 and 100e9.
 
@@ -196,7 +204,8 @@ class Amplifier(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def bandwidth(self) -> float:
-        """Frequency region where the gain applies.
+        """
+        Frequency region where the gain applies.
 
         Value should be between 1 and 100e9.
 
@@ -221,7 +230,8 @@ class Amplifier(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def noise_figure(self) -> float:
-        """Amplifier noise figure.
+        """
+        Amplifier noise figure.
 
         Value should be between 0 and 100.
 
@@ -244,7 +254,8 @@ class Amplifier(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def saturation_level(self) -> float:
-        """Saturation level.
+        """
+        Saturation level.
 
         Value should be between -200 and 200.
 
@@ -269,7 +280,8 @@ class Amplifier(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def p1_db_point_ref_input(self) -> float:
-        """Incoming signals > this value saturate the amplifier.
+        """
+        Incoming signals > this value saturate the amplifier.
 
         Value should be between -200 and 200.
 
@@ -294,7 +306,8 @@ class Amplifier(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def ip3_ref_input(self) -> float:
-        """3rd order intercept point.
+        """
+        3rd order intercept point.
 
         Value should be between -200 and 200.
 
@@ -319,7 +332,8 @@ class Amplifier(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def shape_factor(self) -> float:
-        """Ratio defining the selectivity of the amplifier.
+        """
+        Ratio defining the selectivity of the amplifier.
 
         Value should be between 1 and 100.
 
@@ -342,7 +356,8 @@ class Amplifier(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def reverse_isolation(self) -> float:
-        """Amplifier reverse isolation.
+        """
+        Amplifier reverse isolation.
 
         Value should be between 0 and 200.
 
@@ -365,7 +380,8 @@ class Amplifier(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def max_intermod_order(self) -> int:
-        """Maximum order of intermods to compute.
+        """
+        Maximum order of intermods to compute.
 
         Value should be between 3 and 20.
 

@@ -67,7 +67,8 @@ class HDMPlotter(CommonPlotter, PyAedtBase):
 
     @property
     def hdm_data(self):
-        """Return the ``hds`` Data parsed.
+        """
+        Return the ``hds`` Data parsed.
 
         Examples
         --------
@@ -80,7 +81,8 @@ class HDMPlotter(CommonPlotter, PyAedtBase):
 
     @pyaedt_function_handler()
     def add_cad_model(self, filename: str, cad_color: str = "dodgerblue", opacity: int = 1, units: str = "mm") -> bool:
-        r"""Add a ``stl`` file to the scenario.
+        r"""
+        Add a ``stl`` file to the scenario.
 
         Parameters
         ----------
@@ -107,7 +109,8 @@ class HDMPlotter(CommonPlotter, PyAedtBase):
 
     @pyaedt_function_handler()
     def add_hdm_bundle_from_file(self, filename: str, units: str = None):
-        r"""Add hdm bundle from file.
+        r"""
+        Add hdm bundle from file.
 
         Examples
         --------
@@ -162,7 +165,8 @@ class HDMPlotter(CommonPlotter, PyAedtBase):
     @pyaedt_function_handler()
     @requires_graphical_dependency("pyvista")
     def plot_rays(self, snapshot_path: str = None) -> "Plotter":
-        r"""Plot Rays read from an ``hdm`` file.
+        r"""
+        Plot Rays read from an ``hdm`` file.
 
         Parameters
         ----------
@@ -235,7 +239,8 @@ class HDMPlotter(CommonPlotter, PyAedtBase):
     @pyaedt_function_handler()
     @requires_graphical_dependency("pyvista")
     def plot_first_bounce_currents(self, snapshot_path: str = None) -> "Plotter":
-        r"""Plot First bounce of currents read from an ``hdm`` file.
+        r"""
+        Plot First bounce of currents read from an ``hdm`` file.
 
         Parameters
         ----------

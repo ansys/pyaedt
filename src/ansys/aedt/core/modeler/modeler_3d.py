@@ -49,7 +49,8 @@ if TYPE_CHECKING:
 
 
 class Modeler3D(Primitives3D, PyAedtBase):
-    """Provides the Modeler 3D application interface.
+    """
+    Provides the Modeler 3D application interface.
 
     This class is inherited in the caller application and is accessible through the modeler variable
     object. For example, ``hfss.modeler``.
@@ -99,7 +100,8 @@ class Modeler3D(Primitives3D, PyAedtBase):
         native_components: list = None,
         create_folder: bool = True,
     ) -> bool:
-        r"""Create a 3D component file.
+        r"""
+        Create a 3D component file.
 
         Parameters
         ----------
@@ -421,7 +423,8 @@ class Modeler3D(Primitives3D, PyAedtBase):
         coordinate_systems: list = None,
         reference_coordinate_system: str = "Global",
     ) -> "UserDefinedComponent":
-        """Replace with 3D component.
+        """
+        Replace with 3D component.
 
         Parameters
         ----------
@@ -590,7 +593,8 @@ class Modeler3D(Primitives3D, PyAedtBase):
         mat_outer: str = "copper",
         mat_diel: str = "teflon_based",
     ) -> tuple["Object3d", "Object3d", "Object3d"]:
-        """Create a coaxial.
+        """
+        Create a coaxial.
 
         Parameters
         ----------
@@ -665,7 +669,8 @@ class Modeler3D(Primitives3D, PyAedtBase):
         create_sheets_on_openings: bool = False,
         name: str = None,
     ) -> tuple["Object3d", "Object3d"]:
-        """Create a standard waveguide and optionally parametrize `W` and `H`.
+        """
+        Create a standard waveguide and optionally parametrize `W` and `H`.
 
         Available models are WG0.0, WG0, WG1, WG2, WG3, WG4, WG5, WG6,
         WG7, WG8, WG9, WG9A, WG10, WG11, WG11A, WG12, WG13, WG14,
@@ -847,7 +852,8 @@ class Modeler3D(Primitives3D, PyAedtBase):
         thickness: float = None,
         name: str = None,
     ) -> list["Object3d"] | bool:
-        """Create rings in a conical shape.
+        """
+        Create rings in a conical shape.
 
         Parameters
         ----------
@@ -942,7 +948,8 @@ class Modeler3D(Primitives3D, PyAedtBase):
     def objects_in_bounding_box(
         self, bounding_box: list, check_solids: bool = True, check_lines: bool = True, check_sheets: bool = True
     ) -> list["Object3d"]:
-        """Given a bounding box checks if objects, sheets and lines are inside it.
+        """
+        Given a bounding box checks if objects, sheets and lines are inside it.
 
         Parameters
         ----------
@@ -1027,7 +1034,8 @@ class Modeler3D(Primitives3D, PyAedtBase):
         merge_angle: float = 1e-3,
         remove_multiple_connections: bool = False,
     ) -> tuple[list["Object3d"], dict] | tuple[list[str], dict]:
-        r"""Import Nastran file into 3D Modeler by converting the faces to stl and reading it.
+        r"""
+        Import Nastran file into 3D Modeler by converting the faces to stl and reading it.
 
         The solids are translated directly to AEDT format.
 
@@ -1220,7 +1228,8 @@ class Modeler3D(Primitives3D, PyAedtBase):
         road_width: float | int = 8,
         create_lightweight_part: bool = True,
     ) -> dict:
-        """Import OpenStreet Maps into AEDT.
+        """
+        Import OpenStreet Maps into AEDT.
 
         Parameters
         ----------
@@ -1395,7 +1404,8 @@ class Modeler3D(Primitives3D, PyAedtBase):
         apply_mesh_sheets: bool = False,
         mesh_sheets: int = 2,
     ) -> dict | tuple | bool:
-        """Get segmentation of an object given the segmentation thickness or number of segments.
+        """
+        Get segmentation of an object given the segmentation thickness or number of segments.
 
         Parameters
         ----------

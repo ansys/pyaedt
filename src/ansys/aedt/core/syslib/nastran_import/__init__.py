@@ -68,7 +68,8 @@ def _get_nastran_import_lib():
 
 @pyaedt_function_handler()
 def nastran_to_stl(*args, **kwargs):
-    """Convert a Nastran file to STL format.
+    """
+    Convert a Nastran file to STL format.
 
     Parameters
     ----------

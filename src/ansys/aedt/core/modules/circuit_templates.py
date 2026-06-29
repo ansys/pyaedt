@@ -587,7 +587,8 @@ DCProps = [
 
 
 class SourceKeys:
-    """Provides source keys.
+    """
+    Provides source keys.
 
     Examples
     --------

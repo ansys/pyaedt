@@ -37,7 +37,8 @@ from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
 
 
 class CircuitPins(PyAedtBase):
-    """Manages circuit component pins.
+    """
+    Manages circuit component pins.
 
     Examples
     --------
@@ -54,7 +55,8 @@ class CircuitPins(PyAedtBase):
 
     @property
     def units(self) -> str:
-        """Length units.
+        """
+        Length units.
 
         Examples
         --------
@@ -67,7 +69,8 @@ class CircuitPins(PyAedtBase):
 
     @property
     def total_angle(self) -> int:
-        """Return the pin orientation in the schematic.
+        """
+        Return the pin orientation in the schematic.
 
         Examples
         --------
@@ -97,7 +100,8 @@ class CircuitPins(PyAedtBase):
 
     @property
     def location(self) -> list:
-        """Pin Position in [x,y] format.
+        """
+        Pin Position in [x,y] format.
 
         References
         ----------
@@ -139,7 +143,8 @@ class CircuitPins(PyAedtBase):
 
     @property
     def net(self) -> str:
-        """Get pin net.
+        """
+        Get pin net.
 
         Examples
         --------
@@ -159,7 +164,8 @@ class CircuitPins(PyAedtBase):
 
     @property
     def angle(self) -> float:
-        """Pin angle.
+        """
+        Pin angle.
 
         Examples
         --------
@@ -231,7 +237,8 @@ class CircuitPins(PyAedtBase):
         page_port_angle: int = None,
         offset: float = 0.00254,
     ) -> bool:
-        """Connect schematic components.
+        """
+        Connect schematic components.
 
         Parameters
         ----------
@@ -423,7 +430,8 @@ class CircuitPins(PyAedtBase):
 
 
 class ComponentParameters(dict):
-    """Manages component parameters.
+    """
+    Manages component parameters.
 
     Examples
     --------
@@ -468,7 +476,8 @@ class ComponentParameters(dict):
 
 
 class ModelParameters(PyAedtBase):
-    """Manages model parameters.
+    """
+    Manages model parameters.
 
     Examples
     --------
@@ -478,7 +487,8 @@ class ModelParameters(PyAedtBase):
     """
 
     def update(self) -> bool:
-        """Update the model properties.
+        """
+        Update the model properties.
 
         Returns
         -------
@@ -509,7 +519,8 @@ class ModelParameters(PyAedtBase):
 
 
 class CircuitComponent(PyAedtBase):
-    """Manages circuit components.
+    """
+    Manages circuit components.
 
     Examples
     --------
@@ -528,7 +539,8 @@ class CircuitComponent(PyAedtBase):
 
     @property
     def composed_name(self) -> str:
-        """Composed names.
+        """
+        Composed names.
 
         Examples
         --------
@@ -572,7 +584,8 @@ class CircuitComponent(PyAedtBase):
 
     @property
     def instance_name(self) -> str:
-        """Instance name.
+        """
+        Instance name.
 
         Examples
         --------
@@ -595,7 +608,8 @@ class CircuitComponent(PyAedtBase):
 
     @pyaedt_function_handler()
     def _get_property_value(self, prop_name, tab_name=None):
-        """Get the value of a property.
+        """
+        Get the value of a property.
 
         Parameters
         ----------
@@ -611,7 +625,8 @@ class CircuitComponent(PyAedtBase):
 
     @pyaedt_function_handler()
     def _change_property(self, prop_name, prop_value, tab_name=None, value_name: str = "Value"):
-        """Change the value of a property.
+        """
+        Change the value of a property.
 
         Parameters
         ----------
@@ -662,7 +677,8 @@ class CircuitComponent(PyAedtBase):
 
     @pyaedt_function_handler()
     def delete(self) -> bool:
-        """Delete the component.
+        """
+        Delete the component.
 
         Returns
         -------
@@ -684,7 +700,8 @@ class CircuitComponent(PyAedtBase):
 
     @property
     def name(self) -> str:
-        """Name of the component.
+        """
+        Name of the component.
 
         Examples
         --------
@@ -701,7 +718,8 @@ class CircuitComponent(PyAedtBase):
 
     @property
     def refdes(self) -> str:
-        """Reference designator.
+        """
+        Reference designator.
 
         Examples
         --------
@@ -718,7 +736,8 @@ class CircuitComponent(PyAedtBase):
 
     @property
     def units(self) -> str:
-        """Length units.
+        """
+        Length units.
 
         Examples
         --------
@@ -739,7 +758,8 @@ class CircuitComponent(PyAedtBase):
 
     @property
     def model_name(self) -> str:
-        """Return Model Name if present.
+        """
+        Return Model Name if present.
 
         Returns
         -------
@@ -758,7 +778,8 @@ class CircuitComponent(PyAedtBase):
 
     @property
     def model_data(self) -> ModelParameters:
-        """Return the model data if the component has one.
+        """
+        Return the model data if the component has one.
 
         Returns
         -------
@@ -781,7 +802,8 @@ class CircuitComponent(PyAedtBase):
 
     @property
     def parameters(self) -> ComponentParameters:
-        """Circuit Parameters.
+        """
+        Circuit Parameters.
 
         References
         ----------
@@ -825,7 +847,8 @@ class CircuitComponent(PyAedtBase):
 
     @property
     def component_info(self) -> ComponentParameters:
-        """Component parameters.
+        """
+        Component parameters.
 
         References
         ----------
@@ -853,7 +876,8 @@ class CircuitComponent(PyAedtBase):
 
     @property
     def bounding_box(self) -> list[float]:
-        """Component bounding box.
+        """
+        Component bounding box.
 
         Examples
         --------
@@ -888,7 +912,8 @@ class CircuitComponent(PyAedtBase):
 
     @property
     def pins(self) -> list["CircuitPins"]:
-        """Pins of the component.
+        """
+        Pins of the component.
 
         Returns
         -------
@@ -924,7 +949,8 @@ class CircuitComponent(PyAedtBase):
 
     @property
     def page(self):
-        """Get the page where the component is located.
+        """
+        Get the page where the component is located.
 
         Returns
         -------
@@ -951,7 +977,8 @@ class CircuitComponent(PyAedtBase):
 
     @property
     def location(self) -> list:
-        """Get the part location.
+        """
+        Get the part location.
 
         References
         ----------
@@ -980,7 +1007,8 @@ class CircuitComponent(PyAedtBase):
 
     @location.setter
     def location(self, location_xy: list[float | str]) -> None:
-        """Set the part location.
+        """
+        Set the part location.
 
         Parameters
         ----------
@@ -1005,7 +1033,8 @@ class CircuitComponent(PyAedtBase):
 
     @property
     def angle(self) -> float:
-        """Get the part angle.
+        """
+        Get the part angle.
 
         References
         ----------
@@ -1067,7 +1096,8 @@ class CircuitComponent(PyAedtBase):
 
     @property
     def mirror(self) -> bool:
-        """Get the part mirror.
+        """
+        Get the part mirror.
 
         References
         ----------
@@ -1093,7 +1123,8 @@ class CircuitComponent(PyAedtBase):
 
     @mirror.setter
     def mirror(self, mirror_value: bool = True) -> None:
-        """Mirror part.
+        """
+        Mirror part.
 
         Parameters
         ----------
@@ -1109,7 +1140,8 @@ class CircuitComponent(PyAedtBase):
 
     @pyaedt_function_handler()
     def set_use_symbol_color(self, color: bool = None) -> bool:
-        """Set symbol color usage.
+        """
+        Set symbol color usage.
 
         Parameters
         ----------
@@ -1140,7 +1172,8 @@ class CircuitComponent(PyAedtBase):
 
     @pyaedt_function_handler()
     def set_color(self, red: int = 255, green: int = 128, blue: int = 0) -> bool:
-        """Set symbol color.
+        """
+        Set symbol color.
 
         Parameters
         ----------
@@ -1173,7 +1206,8 @@ class CircuitComponent(PyAedtBase):
 
     @pyaedt_function_handler()
     def set_property(self, name: str, value) -> bool:
-        """Set a part property.
+        """
+        Set a part property.
 
         Parameters
         ----------
@@ -1219,7 +1253,8 @@ class CircuitComponent(PyAedtBase):
 
     @pyaedt_function_handler()
     def _add_property(self, property_name, property_value) -> bool:
-        """Add a property.
+        """
+        Add a property.
 
         Parameters
         ----------
@@ -1240,7 +1275,8 @@ class CircuitComponent(PyAedtBase):
 
     @pyaedt_function_handler()
     def change_property(self, property_name: list, names: list = None) -> bool:
-        """Modify a property.
+        """
+        Modify a property.
 
         Parameters
         ----------
@@ -1289,7 +1325,8 @@ class CircuitComponent(PyAedtBase):
 
     @pyaedt_function_handler()
     def enforce_touchstone_model_passive(self) -> bool:
-        """Enforce touchstone model passive.
+        """
+        Enforce touchstone model passive.
 
         Returns
         -------
@@ -1327,7 +1364,8 @@ class CircuitComponent(PyAedtBase):
 
     @pyaedt_function_handler()
     def change_symbol_pin_locations(self, pin_locations: dict, keep_original_size: bool = True) -> bool:
-        """Change the locations of symbol pins.
+        """
+        Change the locations of symbol pins.
 
         Parameters
         ----------
@@ -1497,7 +1535,8 @@ class CircuitComponent(PyAedtBase):
 
     @property
     def component_path(self) -> str | None:
-        """Component definition path.
+        """
+        Component definition path.
 
         Examples
         --------
@@ -1532,7 +1571,8 @@ class CircuitComponent(PyAedtBase):
 
 
 class Wire(PyAedtBase):
-    """Creates and manipulates a wire.
+    """
+    Creates and manipulates a wire.
 
     Examples
     --------
@@ -1551,7 +1591,8 @@ class Wire(PyAedtBase):
 
     @property
     def points_in_segment(self) -> dict:
-        """Points in segment.
+        """
+        Points in segment.
 
         Examples
         --------
@@ -1578,7 +1619,8 @@ class Wire(PyAedtBase):
 
     @property
     def logger(self):
-        """Logger.
+        """
+        Logger.
 
         Examples
         --------
@@ -1591,7 +1633,8 @@ class Wire(PyAedtBase):
 
     @property
     def wires(self) -> list:
-        """List of all schematic wires in the design.
+        """
+        List of all schematic wires in the design.
 
         Examples
         --------
@@ -1677,7 +1720,8 @@ class Wire(PyAedtBase):
 
     @pyaedt_function_handler()
     def get_net_name(self) -> str:
-        """Get the wire net name.
+        """
+        Get the wire net name.
 
         Returns
         -------
@@ -1695,7 +1739,8 @@ class Wire(PyAedtBase):
 
     @pyaedt_function_handler()
     def set_net_name(self, name: str, split_wires: bool = False) -> bool:
-        """Set wire net name.
+        """
+        Set wire net name.
 
         Parameters
         ----------
@@ -1734,7 +1779,8 @@ class Wire(PyAedtBase):
 
 
 class Excitations(CircuitComponent):
-    """Manages Excitations in Circuit Projects.
+    """
+    Manages Excitations in Circuit Projects.
 
     Examples
     --------
@@ -1752,7 +1798,8 @@ class Excitations(CircuitComponent):
 
     @property
     def name(self) -> str:
-        """Excitation name.
+        """
+        Excitation name.
 
         Returns
         -------
@@ -1780,7 +1827,8 @@ class Excitations(CircuitComponent):
 
     @property
     def composed_name(self) -> str:
-        """Composed names.
+        """
+        Composed names.
 
         Examples
         --------
@@ -1793,7 +1841,8 @@ class Excitations(CircuitComponent):
 
     @property
     def impedance(self) -> list:
-        """Port termination.
+        """
+        Port termination.
 
         Returns
         -------
@@ -1817,7 +1866,8 @@ class Excitations(CircuitComponent):
 
     @property
     def enable_noise(self) -> bool:
-        """Enable noise.
+        """
+        Enable noise.
 
         Returns
         -------
@@ -1839,7 +1889,8 @@ class Excitations(CircuitComponent):
 
     @property
     def noise_temperature(self) -> str:
-        """Enable noise.
+        """
+        Enable noise.
 
         Returns
         -------
@@ -1861,7 +1912,8 @@ class Excitations(CircuitComponent):
 
     @property
     def microwave_symbol(self) -> bool:
-        """Enable microwave symbol.
+        """
+        Enable microwave symbol.
 
         Returns
         -------
@@ -1889,7 +1941,8 @@ class Excitations(CircuitComponent):
 
     @property
     def reference_node(self) -> str:
-        """Reference node.
+        """
+        Reference node.
 
         Returns
         -------
@@ -1913,7 +1966,8 @@ class Excitations(CircuitComponent):
 
     @reference_node.setter
     def reference_node(self, value: str) -> None:
-        """Set the reference node of the port.
+        """
+        Set the reference node of the port.
 
         Parameters
         ----------
@@ -1950,7 +2004,8 @@ class Excitations(CircuitComponent):
 
     @property
     def enabled_sources(self) -> list:
-        """Enabled sources.
+        """
+        Enabled sources.
 
         Returns
         -------
@@ -1972,7 +2027,8 @@ class Excitations(CircuitComponent):
 
     @property
     def enabled_analyses(self) -> dict:
-        """Enabled analyses.
+        """
+        Enabled analyses.
 
         Returns
         -------
@@ -2074,7 +2130,8 @@ class Excitations(CircuitComponent):
 
     @property
     def parameters(self) -> ComponentParameters:
-        """Circuit Parameters.
+        """
+        Circuit Parameters.
 
         References
         ----------
@@ -2119,7 +2176,8 @@ class Excitations(CircuitComponent):
 
     @pyaedt_function_handler()
     def update(self) -> bool:
-        """Update the excitation in AEDT.
+        """
+        Update the excitation in AEDT.
 
         Returns
         -------
@@ -2196,7 +2254,8 @@ class Excitations(CircuitComponent):
 
     @pyaedt_function_handler()
     def delete(self) -> bool:
-        """Delete the port in AEDT.
+        """
+        Delete the port in AEDT.
 
         Returns
         -------

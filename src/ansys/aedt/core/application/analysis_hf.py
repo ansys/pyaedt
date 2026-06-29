@@ -29,7 +29,8 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 
 class ScatteringMethods(PyAedtBase):
-    """Class containing all methods related to scattering matrix management that are common to Hfss, Circuit and
+    """
+    Class containing all methods related to scattering matrix management that are common to Hfss, Circuit and
     Hfss3dLayout classes.
 
     Examples
@@ -45,7 +46,8 @@ class ScatteringMethods(PyAedtBase):
 
     @property
     def get_all_sparameter_list(self, excitation_names: list | None = None) -> list:
-        """List of all S parameters for a list of excitations.
+        """
+        List of all S parameters for a list of excitations.
 
         Parameters
         ----------
@@ -86,7 +88,8 @@ class ScatteringMethods(PyAedtBase):
         math_formula: str = "",
         nets: list | None = None,
     ) -> list:
-        """Get a list of all return losses for a list of excitations.
+        """
+        Get a list of all return losses for a list of excitations.
 
         Parameters
         ----------
@@ -144,7 +147,8 @@ class ScatteringMethods(PyAedtBase):
         math_formula: str = "",
         nets: list | None = None,
     ) -> list[str]:
-        """Get a list of all insertion losses from two lists of excitations (driver and receiver).
+        """
+        Get a list of all insertion losses from two lists of excitations (driver and receiver).
 
         Parameters
         ----------
@@ -245,7 +249,8 @@ class ScatteringMethods(PyAedtBase):
         math_formula: str = "",
         nets: list | None = None,
     ) -> list[str]:
-        """Get a list of all the near end XTalks from a list of excitations (driver and receiver).
+        """
+        Get a list of all the near end XTalks from a list of excitations (driver and receiver).
 
         Parameters
         ----------
@@ -302,7 +307,8 @@ class ScatteringMethods(PyAedtBase):
         math_formula: str = "",
         nets: list | None = None,
     ) -> list[str]:
-        """Geta list of all the far end XTalks from two lists of excitations (driver and receiver).
+        """
+        Geta list of all the far end XTalks from two lists of excitations (driver and receiver).
 
         Parameters
         ----------
@@ -416,7 +422,8 @@ class ScatteringMethods(PyAedtBase):
         impedance: float | None = None,
         gamma_impedance_comments: bool = False,
     ) -> str | bool:
-        """Export a Touchstone file.
+        """
+        Export a Touchstone file.
 
         Parameters
         ----------

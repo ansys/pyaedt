@@ -30,7 +30,8 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 
 class MathUtils(PyAedtBase):
-    """MathUtils is a utility class that provides methods for numerical comparisons and checks.
+    """
+    MathUtils is a utility class that provides methods for numerical comparisons and checks.
 
     Examples
     --------
@@ -46,7 +47,8 @@ class MathUtils(PyAedtBase):
     @staticmethod
     @pyaedt_function_handler()
     def is_zero(x: float, eps: float = EPSILON) -> bool:
-        """Check if a number is close to zero within a small epsilon tolerance.
+        """
+        Check if a number is close to zero within a small epsilon tolerance.
 
         Parameters
         ----------
@@ -72,7 +74,8 @@ class MathUtils(PyAedtBase):
     @staticmethod
     @pyaedt_function_handler()
     def is_close(a: float, b: float, relative_tolerance: float = 1e-9, absolute_tolerance: float = 0.0) -> bool:
-        """Whether two numbers are close to each other given relative and absolute tolerances.
+        """
+        Whether two numbers are close to each other given relative and absolute tolerances.
 
         Parameters
         ----------
@@ -131,7 +134,8 @@ class MathUtils(PyAedtBase):
     @staticmethod
     @pyaedt_function_handler()
     def atan2(y: float, x: float) -> float:
-        """Implementation of atan2 that does not suffer from the following issues:
+        """
+        Implementation of atan2 that does not suffer from the following issues:
         math.atan2(0.0, 0.0) = 0.0
         math.atan2(-0.0, 0.0) = -0.0
         math.atan2(0.0, -0.0) = 3.141592653589793
@@ -166,7 +170,8 @@ class MathUtils(PyAedtBase):
     @staticmethod
     @pyaedt_function_handler()
     def is_scalar_number(x: object) -> bool:
-        """Check if a value is a scalar number (int or float).
+        """
+        Check if a value is a scalar number (int or float).
 
         Parameters
         ----------
@@ -190,7 +195,8 @@ class MathUtils(PyAedtBase):
     @staticmethod
     @pyaedt_function_handler()
     def fix_negative_zero(value: object) -> object:
-        """Fix the negative zero.
+        """
+        Fix the negative zero.
         It supports lists (and nested lists).
 
         Parameters

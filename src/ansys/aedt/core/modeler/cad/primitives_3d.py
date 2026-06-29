@@ -81,7 +81,8 @@ ERROR_MSG_END = "The ``end`` argument must be a valid three-element list."
 
 
 class Primitives3D(GeometryModeler, PyAedtBase):
-    """Manages primitives in applications using the 3D modeler.
+    """
+    Manages primitives in applications using the 3D modeler.
 
     Each Electonics Desktop application uses an instance of this class
     as a property to allow creation and manipulation of geometry.  For example,
@@ -139,7 +140,8 @@ class Primitives3D(GeometryModeler, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_box(self, origin: list, sizes: list, name: str = None, material: str = None, **kwargs) -> "Object3d":
-        """Create a box.
+        """
+        Create a box.
 
         Parameters
         ----------
@@ -220,7 +222,8 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         material: str = None,
         **kwargs,
     ) -> "Object3d":
-        """Create a cylinder.
+        """
+        Create a cylinder.
 
         Parameters
         ----------
@@ -318,7 +321,8 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         material: str = None,
         **kwargs
     ) -> "Object3d":  # fmt: on
-        """Create a regular polyhedron.
+        """
+        Create a regular polyhedron.
 
         Parameters
         ----------
@@ -409,7 +413,8 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         material: str = None,
         **kwargs
     ) -> "Object3d":
-        """Create a cone.
+        """
+        Create a cone.
 
         Parameters
         ----------
@@ -499,7 +504,8 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         material: str = None,
         **kwargs
     ) -> "Object3d":
-        """Create a sphere.
+        """
+        Create a sphere.
 
         Parameters
         ----------
@@ -570,7 +576,8 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         material: str = None,
         **kwargs
     ) -> "Object3d":
-        """Create a torus.
+        """
+        Create a torus.
 
         Parameters
         ----------
@@ -662,7 +669,8 @@ class Primitives3D(GeometryModeler, PyAedtBase):
     ) -> "Object3d":
         # type : (list, list, float|str=0.2, float|str=0, float=80, float=5, int=0, float|str=0.025, int=6, str=None,
         # str=None) -> Object3d
-        """Create a bondwire.
+        """
+        Create a bondwire.
 
         Parameters
         ----------
@@ -814,7 +822,8 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         is_covered: bool=True,
         **kwargs
     ) -> "Object3d":
-        """Create a rectangle.
+        """
+        Create a rectangle.
 
         Parameters
         ----------
@@ -890,7 +899,8 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         non_model: bool = False,
         **kwargs
     ) -> "Object3d":  # fmt: on
-        """Create a circle.
+        """
+        Create a circle.
 
         Parameters
         ----------
@@ -983,7 +993,8 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             segments: int = 0,
             **kwargs
     ) -> "Object3d":
-        """Create an ellipse.
+        """
+        Create an ellipse.
 
         Parameters
         ----------
@@ -1085,7 +1096,8 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         xsection_bend_type: str = None,
         **kwargs
     ) -> "Object3d":
-        """Create an equation-based curve.
+        """
+        Create an equation-based curve.
 
         Parameters
         ----------
@@ -1212,7 +1224,8 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         name: str = None,
         **kwargs
     ) -> "Object3d":
-        """Create an equation-based surface.
+        """
+        Create an equation-based surface.
 
         Parameters
         ----------
@@ -1299,7 +1312,8 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         thread: int = 1,
         **kwargs
     ) -> "Object3d":  # fmt: on
-        """Create a helix from a polyline.
+        """
+        Create a helix from a polyline.
 
         Parameters
         ----------
@@ -1390,7 +1404,8 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             library: str = "syslib",
             name: str = None,
     ) -> "UserDefinedComponent | bool":
-        """Create a user-defined model.
+        """
+        Create a user-defined model.
 
         Parameters
         ----------
@@ -1485,7 +1500,8 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         name: str = None,
         **kwargs
     ) -> "Polyline | bool":
-        """Create a spiral inductor from a polyline.
+        """
+        Create a spiral inductor from a polyline.
 
         Parameters
         ----------
@@ -1556,7 +1572,8 @@ class Primitives3D(GeometryModeler, PyAedtBase):
 
     @pyaedt_function_handler()
     def _create_reference_cs_from_3dcomp(self, assignment, password):
-        """Create a new coordinate system from the 3d component reference one.
+        """
+        Create a new coordinate system from the 3d component reference one.
 
         Returns
         -------
@@ -1715,7 +1732,8 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             password = None,
             auxiliary_parameters: bool = False,
     ) -> "UserDefinedComponent | bool":
-        r"""Insert a new 3D component.
+        r"""
+        Insert a new 3D component.
 
         Parameters
         ----------
@@ -1923,7 +1941,8 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             file_path: str | Path,
             name: str="",
     ) -> str:
-        r"""Add a layout submodel definition to the design.
+        r"""
+        Add a layout submodel definition to the design.
 
         Parameters
         ----------
@@ -2099,7 +2118,8 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             layout_coordinate_systems: list = None,
             reference_coordinate_system: str = "Global"
     ) -> "UserDefinedComponent | bool":
-        """Insert a new layout component.
+        """
+        Insert a new layout component.
 
         Parameters
         ----------
@@ -2300,7 +2320,8 @@ class Primitives3D(GeometryModeler, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_3d_component_object_list(self, name: str) -> list:
-        """Retrieve all objects belonging to a 3D component.
+        """
+        Retrieve all objects belonging to a 3D component.
 
         Parameters
         ----------
@@ -2362,7 +2383,8 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             coordinate_system = None,
             name: str = None,
     ) -> "Person" | bool:
-        r"""Add a Walking Person Multipart from 3D Components.
+        r"""
+        Add a Walking Person Multipart from 3D Components.
 
         It requires a json file in the folder containing person
         infos. An example json file follows:
@@ -2476,7 +2498,8 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             coordinate_system: str = None,
             name: str = None,
     ) -> "Vehicle" | bool:
-        r"""Add a Moving Vehicle Multipart from 3D Components.
+        r"""
+        Add a Moving Vehicle Multipart from 3D Components.
 
         It requires a json file in the folder containing vehicle
         infos. An example json file follows:
@@ -2573,7 +2596,8 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             coordinate_system: str = None,
             name: str = None,
     ) -> "Bird" | bool:
-        """Add a Bird Multipart from 3D Components.
+        """
+        Add a Bird Multipart from 3D Components.
 
         It requires a json file in the folder containing bird infos. An example json file is showed here.
 
@@ -2686,7 +2710,8 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             coordinate_system: str=None,
             name: str = None
     ) -> "Environment" | bool:
-        r"""Add an Environment Multipart Component from JSON file.
+        r"""
+        Add an Environment Multipart Component from JSON file.
 
          .. code-block:: json
 
@@ -2756,7 +2781,8 @@ class Primitives3D(GeometryModeler, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_choke(self, input_file: str) -> list:
-        """Create a choke from a JSON setting file.
+        """
+        Create a choke from a JSON setting file.
 
         Parameters
         ----------
@@ -3289,7 +3315,8 @@ class Primitives3D(GeometryModeler, PyAedtBase):
 
     @pyaedt_function_handler()
     def check_choke_values(self, input_dir: str, create_another_file: bool=True) -> list:
-        """Verify the values in the json file and create another one with corrected values next to the first one.
+        """
+        Verify the values in the json file and create another one with corrected values next to the first one.
 
         Parameters
         ----------
