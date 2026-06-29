@@ -23,9 +23,9 @@
 # SOFTWARE.
 
 """
-This module contains this class: `EMIReceiver`.
+The module contains this class: `EMIReceiver`.
 
-This module provides all functionalities for creating and editing reports.
+The module provides all functionalities for creating and editing reports.
 
 Examples
 --------

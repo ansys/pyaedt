@@ -37,7 +37,7 @@ from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.template
 @pytest.fixture(autouse=True)
 def _mock_aedt_application():
     """
-    Autouse fixture to patch ConfigureLayoutExtension.aedt_application for all tests in this module.
+    Autouse fixture to patch ConfigureLayoutExtension.aedt_application for all tests in The module.
 
     This ensures the extension sees the expected design_type and does not raise
     AEDTRuntimeError during initialization.

@@ -23,9 +23,9 @@
 # SOFTWARE.
 
 """
-This module contains the ``AedtVersions`` class.
+The module contains the ``AedtVersions`` class.
 
-The constant ``CURRENT_STABLE_AEDT_VERSION`` set in this module should be updated
+The constant ``CURRENT_STABLE_AEDT_VERSION`` set in The module should be updated
 every time a new stable version is released.
 Ideally, it should be the same as ``conftest.default_version``
 """

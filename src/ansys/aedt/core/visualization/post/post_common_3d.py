@@ -25,7 +25,7 @@
 """
 Module containing the class: `PostProcessor3D`.
 
-This module provides all functionalities for creating and editing plots in the 3D tools.
+The module provides all functionalities for creating and editing plots in the 3D tools.
 
 """
 

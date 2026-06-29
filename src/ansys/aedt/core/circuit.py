@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 """
-This module contains the ``Circuit`` class.
+The module contains the ``Circuit`` class.
 
 Examples
 --------

@@ -58,8 +58,7 @@ def get_hpc_info(filename: str) -> tuple[str, str]:
 def update_hpc_option(
     filnename: str, propertyname: str, propertyvalue: str, isvaluestring: bool = True, separator: str = "="
 ) -> bool:
-    """
-    Update an HPC option in the configuration file.
+    """Update an HPC option in the configuration file.
 
     Parameters
     ----------
@@ -81,7 +80,7 @@ def update_hpc_option(
     Examples
     --------
     >>> from ansys.aedt.core.application.job_manager import update_hpc_option
-    >>> update_hpc_option("C:\\Users\\user\\Documents\\hpc_config.acf", "ConfigName", "Local")
+    >>> update_hpc_option("hpc_config.acf", "ConfigName", "Local")
 
     """
     line_number = None

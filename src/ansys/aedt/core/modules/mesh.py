@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""This module contains the `Mesh` class."""
+"""The module contains the `Mesh` class."""
 
 import os
 import shutil

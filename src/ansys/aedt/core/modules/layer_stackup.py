@@ -23,9 +23,9 @@
 # SOFTWARE.
 
 """
-This module contains these classes: `Layer` and `Layers`.
+The module contains these classes: `Layer` and `Layers`.
 
-This module provides all layer stackup functionalities for the Circuit and HFSS 3D Layout tools.
+The module provides all layer stackup functionalities for the Circuit and HFSS 3D Layout tools.
 """
 
 from ansys.aedt.core.base import PyAedtBase

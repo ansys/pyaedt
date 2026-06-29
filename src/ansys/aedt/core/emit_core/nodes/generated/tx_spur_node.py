@@ -38,8 +38,7 @@ class TxSpurNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
-        """
-        The parent of this emit node.
+        """The parent of this emit node.
 
         Examples
         --------
@@ -57,8 +56,7 @@ class TxSpurNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """
-        The type of this emit node.
+        """The type of this emit node.
 
         Examples
         --------
@@ -94,7 +92,7 @@ class TxSpurNode(EmitNode):
     @min_aedt_version("2025.2")
     def delete(self) -> None:
         """
-        Delete this node
+        Delete this node.
 
         Examples
         --------
@@ -114,7 +112,8 @@ class TxSpurNode(EmitNode):
     def table_data(self) -> list[tuple]:
         """
         Spurs Table.
-        Table consists of 3 columns.
+
+        Table consists of 3 columns:
         Frequency (MHz):
             Value should be a mathematical expression.
         Bandwidth:

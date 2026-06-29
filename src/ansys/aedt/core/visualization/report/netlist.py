@@ -23,9 +23,9 @@
 # SOFTWARE.
 
 """
-This module contains the `CircuitNetlistReport` class.
+The module contains the `CircuitNetlistReport` class.
 
-This module provides all functionalities for creating and editing Circuit Netlist reports.
+The module provides all functionalities for creating and editing Circuit Netlist reports.
 
 Examples
 --------

@@ -23,9 +23,9 @@
 # SOFTWARE.
 
 """
-This module contains these classes: `AntennaParameters`, `Fields`, `NearField`, `FarField`, and `Emission`.
+The module contains these classes: `AntennaParameters`, `Fields`, `NearField`, `FarField`, and `Emission`.
 
-This module provides all functionalities for creating and editing reports.
+The module provides all functionalities for creating and editing reports.
 
 Examples
 --------

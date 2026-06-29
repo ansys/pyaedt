@@ -181,6 +181,7 @@ class AedtUnits(PyAedtBase):
     def angle(self) -> str | None:
         """
         Default angle unit to be used in active design.
+
         The setter doesn't change AEDT default units.
 
         Returns

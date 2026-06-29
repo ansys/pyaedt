@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""This module contains these Primitives classes: `Polyline` and `Primitives`."""
+"""The module contains these Primitives classes: `Polyline` and `Primitives`."""
 
 from __future__ import annotations
 

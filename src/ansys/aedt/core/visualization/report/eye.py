@@ -23,9 +23,9 @@
 # SOFTWARE.
 
 """
-This module contains these classes: `AMIConturEyeDiagram`, `AMIEyeDiagram`, and `EyeDiagram`.
+The module contains these classes: `AMIConturEyeDiagram`, `AMIEyeDiagram`, and `EyeDiagram`.
 
-This module provides all functionalities for creating and editing reports.
+The module provides all functionalities for creating and editing reports.
 
 Examples
 --------

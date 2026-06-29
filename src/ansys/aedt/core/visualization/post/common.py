@@ -23,9 +23,9 @@
 # SOFTWARE.
 
 """
-This module contains this class: `PostProcessorCommon`.
+The module contains this class: `PostProcessorCommon`.
 
-This module provides all functionalities for common AEDT post processing.
+The module provides all functionalities for common AEDT post processing.
 
 """
 

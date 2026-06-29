@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 """
-This module contains these data classes for creating a material library:
+The module contains these data classes for creating a material library:
 
 * `BasicValue`
 * `ClosedFormTM`

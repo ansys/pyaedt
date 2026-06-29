@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 """
-This module contains the ``Settings`` and ``_InnerProjectSettings`` classes.
+The module contains the ``Settings`` and ``_InnerProjectSettings`` classes.
 
 The first class encapsulates the settings associated with PyAEDT and AEDT including logging,
 LSF, environment variables and general settings. Most of the default values used can be modified

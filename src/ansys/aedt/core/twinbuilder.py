@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""This module contains the ``TwinBuilder`` class."""
+"""The module contains the ``TwinBuilder`` class."""
 
 import math
 from pathlib import Path

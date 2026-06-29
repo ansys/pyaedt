@@ -1562,7 +1562,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         --------
         Import a GDS file in an HFSS 3D project.
 
-        >>> gds_path = r"C:\\temp\\gds1.gds"
+        >>> gds_path = r"gds1.gds"
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> gds_number = {7: (100, 10), 9: [(110, 5), "my_layer"]}

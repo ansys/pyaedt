@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 """
-This module provides methods and data structures for managing all properties of
+The module provides methods and data structures for managing all properties of
 objects (points, lines, sheeets, and solids) within the AEDT 3D Layout Modeler.
 """
 

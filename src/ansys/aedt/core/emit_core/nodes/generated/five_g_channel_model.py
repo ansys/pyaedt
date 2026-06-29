@@ -38,8 +38,7 @@ class FiveGChannelModel(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
-        """
-        The parent of this emit node.
+        """The parent of this emit node.
 
         Examples
         --------
@@ -57,8 +56,7 @@ class FiveGChannelModel(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """
-        The type of this emit node.
+        """The type of this emit node.
 
         Examples
         --------

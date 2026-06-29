@@ -23,9 +23,9 @@
 # SOFTWARE.
 
 """
-This module contains these classes: `Standard`, and `Spectral`.
+The module contains these classes: `Standard`, and `Spectral`.
 
-This module provides all functionalities for creating and editing reports.
+The module provides all functionalities for creating and editing reports.
 
 Examples
 --------

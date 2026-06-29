@@ -23,10 +23,10 @@
 # SOFTWARE.
 
 """
-This module contains the ``Desktop`` class.
+The module contains the ``Desktop`` class.
 
-This module is used to initialize AEDT and the message manager for managing AEDT.
-You can initialize this module before launching an app or
+The module is used to initialize AEDT and the message manager for managing AEDT.
+You can initialize The module before launching an app or
 have the app automatically initialize it to the latest installed AEDT version.
 
 Examples

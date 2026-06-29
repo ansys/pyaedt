@@ -702,7 +702,7 @@ class ReportPlotter(PyAedtBase):
     def __init__(self, solution_data=None) -> None:
         rc_params = {
             "axes.titlesize": 26,  # Use these default settings for Matplotlb axes.
-            "axes.labelsize": 20,  # Apply the settings only in this module.
+            "axes.labelsize": 20,  # Apply the settings only in The module.
             "xtick.labelsize": 18,
             "ytick.labelsize": 18,
         }

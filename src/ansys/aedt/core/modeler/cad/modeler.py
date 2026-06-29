@@ -23,10 +23,10 @@
 # SOFTWARE.
 
 """
-This module contains these classes: `BaseCoordinateSystem`, `FaceCoordinateSystem`, `CoordinateSystem`, `Modeler`,
+The module contains these classes: `BaseCoordinateSystem`, `FaceCoordinateSystem`, `CoordinateSystem`, `Modeler`,
 `Position`, and `SweepOptions`.
 
-This modules provides functionalities for the 3D Modeler, 2D Modeler,
+The modules provides functionalities for the 3D Modeler, 2D Modeler,
 3D Layout Modeler, and Circuit Modeler.
 """
 

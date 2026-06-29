@@ -23,9 +23,9 @@
 # SOFTWARE.
 
 """
-This module contains these classes: `CouplingsEmit`.
+The module contains these classes: `CouplingsEmit`.
 
-This module provides for interacting with EMIT Analysis and Results windows.
+The module provides for interacting with EMIT Analysis and Results windows.
 
 Examples
 --------

@@ -38,8 +38,7 @@ class TxHarmonicNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
-        """
-        The parent of this emit node.
+        """The parent of this emit node.
 
         Examples
         --------
@@ -57,8 +56,7 @@ class TxHarmonicNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """
-        The type of this emit node.
+        """The type of this emit node.
 
         Examples
         --------
@@ -75,8 +73,12 @@ class TxHarmonicNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def import_csv_file(self, file_name: str) -> EmitNode:
-        """
-        Import a CSV File...
+        """Import a CSV File.
+
+        Parameters
+        ----------
+        file_name : str
+            File name.
 
         Examples
         --------
@@ -112,9 +114,9 @@ class TxHarmonicNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def table_data(self) -> list[tuple]:
-        """
-        Edit Harmonics Table.
-        Table consists of 2 columns.
+        """Edit Harmonics Table.
+
+        Table consists of 2 columns:
         Harmonic:
             Value should be between 2 and 1000.
         Power (Relative or Absolute):

@@ -23,9 +23,9 @@
 # SOFTWARE.
 
 """
-This module contains these classes: `CSVDataset`, `DataSet`, `Expression`, `Variable`, and `VariableManager`.
+The module contains these classes: `CSVDataset`, `DataSet`, `Expression`, `Variable`, and `VariableManager`.
 
-This module is used to create and edit design and project variables in the 3D tools.
+The module is used to create and edit design and project variables in the 3D tools.
 
 Examples
 --------

@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""This module contains these classes: ``Q2d``, ``Q3d``, and ``QExtractor``."""
+"""The module contains these classes: ``Q2d``, ``Q3d``, and ``QExtractor``."""
 
 from pathlib import Path
 import re

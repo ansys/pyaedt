@@ -425,6 +425,10 @@ class EmitNode:
         ----------
         prop : str
             Name of the property.
+        skipChecks : bool, optional
+            Skip checks. The default is ``False``.
+        isTable : bool, optional
+            Skip checks. The default is ``False``.
 
         Returns
         -------

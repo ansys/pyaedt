@@ -23,9 +23,9 @@
 # SOFTWARE.
 
 """
-This module contains these classes: `Setup`, `Setup3DLayout`, and `SetupCircuit`.
+The module contains these classes: `Setup`, `Setup3DLayout`, and `SetupCircuit`.
 
-This module provides all functionalities for creating and editing setups in AEDT.
+The module provides all functionalities for creating and editing setups in AEDT.
 It is based on templates to allow for easy creation and modification of setup properties.
 """
 

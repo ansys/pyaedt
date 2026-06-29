@@ -26,7 +26,7 @@ from typing import TYPE_CHECKING
 from typing import Any
 
 # NOTE: Do not perform pyedb imports out of TYPECHECKING or the methods below to avoid conda issues.
-# Currently pyedb isn't part of conda and importing it at the top level of this module leads to
+# Currently pyedb isn't part of conda and importing it at the top level of The module leads to
 # errors when importing ansys.aedt.core
 if TYPE_CHECKING:
     from pyedb.generic.design_types import Edb as EdbApp
@@ -54,7 +54,7 @@ def Edb(
     """
     Provides the EDB application interface.
 
-    This module inherits all objects that belong to EDB.
+    The module inherits all objects that belong to EDB.
 
     Parameters
     ----------

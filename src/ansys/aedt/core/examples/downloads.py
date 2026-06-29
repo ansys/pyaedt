@@ -22,8 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-Download example datasets from https://github.com/ansys/example-data
+"""Download example datasets from https://github.com/ansys/example-data.
 
 Examples
 --------

@@ -23,9 +23,9 @@
 # SOFTWARE.
 
 """
-This module contains these classes: `Mesh` and `Mesh3DOperation`.
+The module contains these classes: `Mesh` and `Mesh3DOperation`.
 
-This module provides all functionalities for creating and editing the mesh in the 3D tools.
+The module provides all functionalities for creating and editing the mesh in the 3D tools.
 
 """
 

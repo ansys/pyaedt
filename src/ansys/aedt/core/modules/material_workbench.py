@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 """
-This module contains the ``MaterialWorkbench`` class.
+The module contains the ``MaterialWorkbench`` class.
 
 It includes a method to import materials from a Workbench Engineering Data XML file.
 """

@@ -23,9 +23,9 @@
 # SOFTWARE.
 
 """
-This module contains these classes: ``Design``.
+The module contains these classes: ``Design``.
 
-This module provides all functionalities for basic project information and objects.
+The module provides all functionalities for basic project information and objects.
 These classes are inherited in the main tool class.
 
 """

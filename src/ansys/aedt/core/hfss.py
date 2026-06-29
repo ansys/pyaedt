@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 """
-This module contains the ``Hfss`` class.
+The module contains the ``Hfss`` class.
 
 Examples
 --------

@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 """
-This module contains the `PostProcessor` class.
+The module contains the `PostProcessor` class.
 
 It contains all advanced postprocessing functionalities that require Python 3.x packages like NumPy and Matplotlib.
 

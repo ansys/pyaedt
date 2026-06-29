@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""This module contains the ``MaxwellCircuit`` class."""
+"""The module contains the ``MaxwellCircuit`` class."""
 
 import math
 from pathlib import Path
