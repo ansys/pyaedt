@@ -32,8 +32,7 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
 class Matrix(PyAedtBase):
-    """
-    Manages Matrix in Q3d and Q2d Projects.
+    """Manages Matrix in Q3d and Q2d Projects.
 
     Examples
     --------
@@ -54,8 +53,7 @@ class Matrix(PyAedtBase):
 
     @pyaedt_function_handler()
     def sources(self, is_gc_sources: bool = True) -> list:
-        """
-        List of matrix sources.
+        """List of matrix sources.
 
         Parameters
         ----------
@@ -89,8 +87,7 @@ class Matrix(PyAedtBase):
         second_element_filter: str = None,
         category: str | MatrixOperationsQ3D = "C",
     ) -> list:
-        """
-        Return a list of source of specified matrix ready to be used in plot reports.
+        """Return a list of source of specified matrix ready to be used in plot reports.
 
         Parameters
         ----------
@@ -143,8 +140,7 @@ class Matrix(PyAedtBase):
 
     @property
     def operations(self) -> list:
-        """
-        List of matrix operations.
+        """List of matrix operations.
 
         Returns
         -------
@@ -169,8 +165,7 @@ class Matrix(PyAedtBase):
         new_source_name: str = None,
         new_sink_name: str = None,
     ) -> bool:
-        """
-        Create a new matrix.
+        """Create a new matrix.
 
         Parameters
         ----------
@@ -204,8 +199,7 @@ class Matrix(PyAedtBase):
 
     @pyaedt_function_handler()
     def delete(self) -> bool:
-        """
-        Delete current matrix.
+        """Delete current matrix.
 
         Returns
         -------
@@ -234,8 +228,7 @@ class Matrix(PyAedtBase):
         new_source_name: str = None,
         new_sink_name: str = None,
     ) -> bool:
-        """
-        Add a new operation to existing matrix.
+        """Add a new operation to existing matrix.
 
         Parameters
         ----------

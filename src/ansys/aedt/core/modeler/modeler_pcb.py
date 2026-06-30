@@ -44,8 +44,7 @@ if TYPE_CHECKING:
 
 
 class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
-    """
-    Manages Modeler 3D layouts.
+    """Manages Modeler 3D layouts.
 
     This class is inherited in the caller application and is accessible through the modeler variable
     object (for example, ``hfss3dlayout.modeler``).
@@ -77,8 +76,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
 
     @property
     def o_def_manager(self):
-        """
-        AEDT Definition manager.
+        """AEDT Definition manager.
 
         Examples
         --------
@@ -91,8 +89,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
 
     @property
     def stackup(self) -> Layers:
-        """
-        Get the Stackup class and its methods.
+        """Get the Stackup class and its methods.
 
         Returns
         -------
@@ -109,8 +106,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
 
     @property
     def oeditor(self):
-        """
-        Oeditor Module.
+        """Oeditor Module.
 
         References
         ----------
@@ -127,8 +123,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
 
     @property
     def ocomponent_manager(self):
-        """
-        Component manager object.
+        """Component manager object.
 
         Examples
         --------
@@ -141,8 +136,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
 
     @property
     def omodel_manager(self):
-        """
-        Model manager object.
+        """Model manager object.
 
         Examples
         --------
@@ -163,8 +157,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
 
     @property
     def edb(self) -> "Edb":
-        """
-        EBD. Supported only in IronPython.
+        """EBD. Supported only in IronPython.
 
         Returns
         -------
@@ -198,8 +191,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
 
     @property
     def logger(self):
-        """
-        Logger.
+        """Logger.
 
         Examples
         --------
@@ -212,8 +204,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
 
     @pyaedt_function_handler()
     def fit_all(self) -> None:
-        """
-        Fit all.
+        """Fit all.
 
         References
         ----------
@@ -234,8 +225,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
 
     @property
     def model_units(self) -> str:
-        """
-        Model units as a string (for example, "mm").
+        """Model units as a string (for example, "mm").
 
         References
         ----------
@@ -257,8 +247,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
 
     @pyaedt_function_handler()
     def obounding_box(self, assignment: str) -> list:
-        """
-        Bounding box of a specified object.
+        """Bounding box of a specified object.
 
         Returns
         -------
@@ -296,8 +285,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
 
     @pyaedt_function_handler()
     def change_property(self, assignment: str, name: str, value, aedt_tab: str = "BaseElementTab") -> bool:
-        """
-        Change an oeditor property.
+        """Change an oeditor property.
 
         Parameters
         ----------
@@ -390,8 +378,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         z: str = "0.0",
         rotation: str = "0.0",
     ) -> ComponentsSubCircuit3DLayout | bool:
-        """
-        Merge a design into another.
+        """Merge a design into another.
 
         Parameters
         ----------
@@ -446,8 +433,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
 
     @pyaedt_function_handler()
     def change_clip_plane_position(self, name: str, location: list) -> bool:
-        """
-        Change the clip plane position.
+        """Change the clip plane position.
 
         Parameters
         ----------
@@ -476,8 +462,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
 
     @pyaedt_function_handler()
     def colinear_heal(self, assignment: str | list, tolerance: float = 0.1) -> bool:
-        """
-        Remove small edges of one or more primitives.
+        """Remove small edges of one or more primitives.
 
         Parameters
         ----------
@@ -528,8 +513,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
     def expand(
         self, assignment: str | list, size: int = 1, expand_type: str = "ROUND", replace_original: bool = False
     ) -> str | list:
-        """
-        Expand the object by a specific size.
+        """Expand the object by a specific size.
 
         Parameters
         ----------
@@ -631,8 +615,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
 
     @pyaedt_function_handler()
     def modeler_variable(self, value: str | int | float) -> str:
-        """
-        Retrieve a modeler variable.
+        """Retrieve a modeler variable.
 
         Parameters
         ----------
@@ -699,8 +682,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
 
     @pyaedt_function_handler()
     def subtract(self, blank: str | list, tool: str | list) -> bool:
-        """
-        Subtract objects from one or more names.
+        """Subtract objects from one or more names.
 
         Parameters
         ----------
@@ -738,8 +720,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
 
     @pyaedt_function_handler()
     def convert_to_selections(self, assignment: str | int | list, return_list: bool = False) -> str | list:
-        """
-        Convert one or more object to selections.
+        """Convert one or more object to selections.
 
         Parameters
         ----------
@@ -778,8 +759,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
 
     @pyaedt_function_handler()
     def unite(self, assignment: str | list) -> bool:
-        """
-        Unite objects from names.
+        """Unite objects from names.
 
         Parameters
         ----------
@@ -817,8 +797,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
 
     @pyaedt_function_handler()
     def intersect(self, assignment: str | list) -> bool:
-        """
-        Intersect objects from names.
+        """Intersect objects from names.
 
         Parameters
         ----------
@@ -856,8 +835,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
 
     @pyaedt_function_handler()
     def duplicate(self, assignment: str | list, count: int, vector: list) -> tuple:
-        """
-        Duplicate one or more elements along a vector.
+        """Duplicate one or more elements along a vector.
 
         Parameters
         ----------
@@ -892,8 +870,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
 
     @pyaedt_function_handler()
     def duplicate_across_layers(self, assignment: str | list, layers: str | list) -> bool:
-        """
-        Duplicate one or more elements along a vector.
+        """Duplicate one or more elements along a vector.
 
         Parameters
         ----------
@@ -937,8 +914,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         ambient_temp: int = 22,
         create_project_var: bool = False,
     ) -> bool:
-        """
-        Set the temperature dependence for the design.
+        """Set the temperature dependence for the design.
 
         Parameters
         ----------
@@ -1001,8 +977,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         subcircuit_name: str | None = None,
         pin_map: list | None = None,
     ) -> bool:
-        """
-        Assign a Spice model to a component.
+        """Assign a Spice model to a component.
 
         Parameters
         ----------
@@ -1110,8 +1085,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
 
     @pyaedt_function_handler()
     def set_touchstone_model(self, assignment: str, input_file: str | Path = None, model_name: str = None) -> bool:
-        """
-        Assign a Touchstone model to a component.
+        """Assign a Touchstone model to a component.
 
         Parameters
         ----------
@@ -1417,8 +1391,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
 
     @pyaedt_function_handler()
     def clip_plane(self) -> str:
-        """
-        Create a clip plane in the layout.
+        """Create a clip plane in the layout.
 
         .. note::
             This method works only in AEDT 2022 R2 and later.
@@ -1443,8 +1416,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
 
     @property
     def clip_planes(self) -> list[str]:
-        """
-        All available clip planes. To be considered a clip plane, the name must follow this
+        """All available clip planes. To be considered a clip plane, the name must follow this
         naming convention: "VCP_xxx".
 
         Returns
@@ -1465,8 +1437,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         self,
         min_area: float = 2e-6,
     ) -> bool:
-        """
-        Run Geometry Check.
+        """Run Geometry Check.
 
         All checks are used and all auto fix options are enabled.
 

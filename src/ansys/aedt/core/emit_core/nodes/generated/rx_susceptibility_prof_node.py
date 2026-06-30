@@ -61,8 +61,7 @@ class RxSusceptibilityProfNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def add_rx_saturation(self) -> EmitNode:
-        """
-        Add a Saturation Profile
+        """Add a Saturation Profile
 
         Examples
         --------
@@ -73,8 +72,7 @@ class RxSusceptibilityProfNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def add_rx_selectivity(self) -> EmitNode:
-        """
-        Add a Selectivity Profile
+        """Add a Selectivity Profile
 
         Examples
         --------
@@ -85,8 +83,7 @@ class RxSusceptibilityProfNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def add_mixer_products(self) -> EmitNode:
-        """
-        Add a Receiver Mixer Product Node
+        """Add a Receiver Mixer Product Node
 
         Examples
         --------
@@ -97,8 +94,7 @@ class RxSusceptibilityProfNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def add_spurious_responses(self) -> EmitNode:
-        """
-        Add Receiver Spurs
+        """Add Receiver Spurs
 
         Examples
         --------
@@ -110,8 +106,7 @@ class RxSusceptibilityProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def enabled(self) -> bool:
-        """
-        Enabled state for this node.
+        """Enabled state for this node.
 
         Examples
         --------
@@ -134,8 +129,7 @@ class RxSusceptibilityProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def sensitivity_units(self) -> SensitivityUnitsOption:
-        """
-        Units to use for the Rx Sensitivity.
+        """Units to use for the Rx Sensitivity.
 
         Examples
         --------
@@ -155,8 +149,7 @@ class RxSusceptibilityProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def min_receive_signal_pwr(self) -> float:
-        """
-        Received signal power level at the Rx's antenna terminal.
+        """Received signal power level at the Rx's antenna terminal.
 
         Value should be between -1000 and 1000.
 
@@ -176,8 +169,7 @@ class RxSusceptibilityProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def snr_at_rx_signal_pwr(self) -> float:
-        """
-        SNR at Rx Signal Pwr.
+        """SNR at Rx Signal Pwr.
 
         Signal-to-Noise Ratio (dB) at specified received signal power at the
         Rx's antenna terminal.
@@ -200,8 +192,7 @@ class RxSusceptibilityProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def processing_gain(self) -> float:
-        """
-        Rx processing gain (dB) of (optional) despreader.
+        """Rx processing gain (dB) of (optional) despreader.
 
         Value should be between -1000 and 1000.
 
@@ -221,8 +212,7 @@ class RxSusceptibilityProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def apply_pg_to_narrowband_only(self) -> bool:
-        """
-        Apply PG to Narrowband Only.
+        """Apply PG to Narrowband Only.
 
         Processing gain captures the despreading effect and applies to NB
         signals only (not BB noise) when enabled.
@@ -245,8 +235,7 @@ class RxSusceptibilityProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def saturation_level(self) -> float:
-        """
-        Rx input saturation level.
+        """Rx input saturation level.
 
         Value should be between -1000 and 1000.
 
@@ -268,8 +257,7 @@ class RxSusceptibilityProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def rx_noise_figure(self) -> float:
-        """
-        Rx noise figure (dB).
+        """Rx noise figure (dB).
 
         Value should be between 0 and 1000.
 
@@ -289,8 +277,7 @@ class RxSusceptibilityProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def receiver_sensitivity(self) -> float:
-        """
-        Rx minimum sensitivity level (dBm).
+        """Rx minimum sensitivity level (dBm).
 
         Value should be between -1000 and 1000.
 
@@ -312,8 +299,7 @@ class RxSusceptibilityProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def snrsinad_at_sensitivity(self) -> float:
-        """
-        SNR or SINAD at the specified sensitivity level.
+        """SNR or SINAD at the specified sensitivity level.
 
         Value should be between -1000 and 1000.
 
@@ -333,8 +319,7 @@ class RxSusceptibilityProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def perform_rx_intermod_analysis(self) -> bool:
-        """
-        Performs a non-linear intermod analysis for the Rx.
+        """Performs a non-linear intermod analysis for the Rx.
 
         Value should be 'true' or 'false'.
 
@@ -354,8 +339,7 @@ class RxSusceptibilityProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def amplifier_saturation_level(self) -> float:
-        """
-        Internal Rx Amplifier's Saturation Level.
+        """Internal Rx Amplifier's Saturation Level.
 
         Value should be between -200 and 200.
 
@@ -377,8 +361,7 @@ class RxSusceptibilityProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def p1_db_point_ref_input(self) -> float:
-        """
-        P1-dB Point, Ref. Input.
+        """P1-dB Point, Ref. Input.
 
         Rx's 1 dB Compression Point - total power > P1dB saturates the receiver.
 
@@ -402,8 +385,7 @@ class RxSusceptibilityProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def ip3_ref_input(self) -> float:
-        """
-        Internal Rx Amplifier's 3rd order intercept point.
+        """Internal Rx Amplifier's 3rd order intercept point.
 
         Value should be between -1000 and 1000.
 
@@ -425,8 +407,7 @@ class RxSusceptibilityProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def max_intermod_order(self) -> int:
-        """
-        Internal Rx Amplifier's maximum intermod order to compute.
+        """Internal Rx Amplifier's maximum intermod order to compute.
 
         Value should be between 3 and 20.
 

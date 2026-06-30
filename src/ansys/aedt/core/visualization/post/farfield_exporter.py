@@ -40,8 +40,7 @@ from ansys.aedt.core.visualization.advanced.farfield_visualization import export
 
 
 class FfdSolutionDataExporter(PyAedtBase):
-    """
-    Class to enable export of embedded element pattern data from HFSS.
+    """Class to enable export of embedded element pattern data from HFSS.
 
     An instance of this class is returned from the
     :meth:`ansys.aedt.core.Hfss.get_antenna_data` method. This method allows creation of
@@ -132,8 +131,7 @@ class FfdSolutionDataExporter(PyAedtBase):
 
     @property
     def model_info(self) -> dict:
-        """
-        List of models.
+        """List of models.
 
         Examples
         --------
@@ -146,8 +144,7 @@ class FfdSolutionDataExporter(PyAedtBase):
 
     @property
     def farfield_data(self) -> FfdSolutionData | None:
-        """
-        Farfield data.
+        """Farfield data.
 
         Examples
         --------
@@ -160,8 +157,7 @@ class FfdSolutionDataExporter(PyAedtBase):
 
     @property
     def metadata_file(self) -> str:
-        """
-        Metadata file.
+        """Metadata file.
 
         Examples
         --------
@@ -174,8 +170,7 @@ class FfdSolutionDataExporter(PyAedtBase):
 
     @pyaedt_function_handler()
     def export_farfield(self) -> bool:
-        """
-        Export far field solution data of each element.
+        """Export far field solution data of each element.
 
         Examples
         --------

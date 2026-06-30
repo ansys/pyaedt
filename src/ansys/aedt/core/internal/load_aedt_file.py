@@ -35,8 +35,7 @@ from ansys.aedt.core.generic.general_methods import settings
 
 
 def load_entire_aedt_file(filename: str | Path) -> dict:
-    """
-    Load the entire AEDT file and return the dictionary
+    """Load the entire AEDT file and return the dictionary
 
     Parameters
     ----------
@@ -62,8 +61,7 @@ def load_entire_aedt_file(filename: str | Path) -> dict:
 
 
 def load_keyword_in_aedt_file(filename: str | Path, keyword: str, design_name: str | None = None) -> dict:
-    """
-    Load s specific keyword in the AEDT file and return the dictionary
+    """Load s specific keyword in the AEDT file and return the dictionary
 
     Parameters
     ----------
@@ -121,8 +119,7 @@ _count = 0
 
 
 def get_designs(filename: str | Path) -> list[str]:
-    """
-    Get the list of designs in an AEDT file.
+    """Get the list of designs in an AEDT file.
 
     Parameters
     ----------
@@ -170,9 +167,7 @@ def _parse_value(v):
 
 
 def _separate_list_elements(v):
-    """
-
-    Parameters
+    """Parameters
     ----------
     v :
 
@@ -190,8 +185,7 @@ def _separate_list_elements(v):
 
 
 def _decode_recognized_subkeys(sk, d) -> bool:
-    """
-    Special decodings for sub-keys belonging to _recognized_subkeys.
+    """Special decodings for sub-keys belonging to _recognized_subkeys.
 
     Parameters
     ----------
@@ -252,8 +246,7 @@ def _decode_recognized_subkeys(sk, d) -> bool:
 
 
 def _decode_recognized_key(keyword, line, d) -> bool:
-    """
-    Special decodings for keys belonging to _recognized_keywords
+    """Special decodings for keys belonging to _recognized_keywords
 
     Parameters
     ----------
@@ -355,9 +348,7 @@ def _decode_recognized_key(keyword, line, d) -> bool:
 
 
 def _decode_subkey(line, d) -> None:
-    """
-
-    Parameters
+    """Parameters
     ----------
     line : str
         Line.
@@ -434,9 +425,7 @@ def _decode_subkey(line, d) -> None:
 
 
 def _walk_through_structure(keyword, save_dict, design_name=None):
-    """
-
-    Parameters
+    """Parameters
     ----------
     keyword :
 
@@ -496,8 +485,7 @@ def _walk_through_structure(keyword, save_dict, design_name=None):
 
 
 def _read_aedt_file(filename: str | Path) -> None:
-    """
-    Read the entire AEDT file discard binary and put ascii line in a list.
+    """Read the entire AEDT file discard binary and put ascii line in a list.
 
     Parameters
     ----------
@@ -531,8 +519,7 @@ def _read_aedt_file(filename: str | Path) -> None:
 
 
 def _load_entire_aedt_file(filename):
-    """
-    Load the entire AEDT file and return the dictionary.
+    """Load the entire AEDT file and return the dictionary.
 
     Parameters
     ----------
@@ -563,8 +550,7 @@ def _load_entire_aedt_file(filename):
 
 
 def _load_keyword_in_aedt_file(filename, keyword, design_name=None):
-    """
-    Load a specific keyword in the AEDT file and return the dictionary.
+    """Load a specific keyword in the AEDT file and return the dictionary.
 
     Parameters
     ----------

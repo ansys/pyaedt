@@ -45,8 +45,7 @@ DEFAULT_EXPRESSION = "ComplexMonostaticRCSTheta"
 
 
 class MonostaticRCSExporter(PyAedtBase):
-    """
-    Class to enable export of radar cross-section (RCS) data from HFSS.
+    """Class to enable export of radar cross-section (RCS) data from HFSS.
 
     An instance of this class is returned from the
     :meth:`ansys.aedt.core.Hfss.get_monostatic_rcs` method. This class creates a
@@ -131,8 +130,7 @@ class MonostaticRCSExporter(PyAedtBase):
 
     @property
     def model_info(self) -> dict[str, Any]:
-        """
-        List of models.
+        """List of models.
 
         Examples
         --------
@@ -145,8 +143,7 @@ class MonostaticRCSExporter(PyAedtBase):
 
     @property
     def metadata_file(self) -> str | Path:
-        """
-        Metadata file.
+        """Metadata file.
 
         Examples
         --------
@@ -159,8 +156,7 @@ class MonostaticRCSExporter(PyAedtBase):
 
     @property
     def column_name(self) -> str:
-        """
-        Column name.
+        """Column name.
 
         Examples
         --------
@@ -173,8 +169,7 @@ class MonostaticRCSExporter(PyAedtBase):
 
     @column_name.setter
     def column_name(self, value: str) -> None:
-        """
-        Column name.
+        """Column name.
 
         Examples
         --------
@@ -187,8 +182,7 @@ class MonostaticRCSExporter(PyAedtBase):
 
     @pyaedt_function_handler()
     def get_monostatic_rcs(self) -> "SolutionData":
-        """
-        Get RCS solution data.
+        """Get RCS solution data.
 
         Returns
         -------
@@ -227,8 +221,7 @@ class MonostaticRCSExporter(PyAedtBase):
     def export_rcs(
         self, name: str = "rcs_data", metadata_name: str = "pyaedt_rcs_metadata", only_geometry: bool = False
     ) -> Path:
-        """
-        Export RCS solution data.
+        """Export RCS solution data.
 
         Parameters
         ----------

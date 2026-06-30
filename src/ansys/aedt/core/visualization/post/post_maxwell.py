@@ -22,8 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-Defines the `PostProcessor3D` class.
+"""Defines the `PostProcessor3D` class.
 
 It contains all advanced postprocessing functionalities for creating and editing plots in the 3D tools.
 
@@ -48,8 +47,7 @@ from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
 
 
 class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
-    """
-    Manages the specific Maxwell postprocessing functions.
+    """Manages the specific Maxwell postprocessing functions.
 
     .. note::
        Some functionalities are available only when AEDT is running in the graphical mode.
@@ -132,8 +130,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         plot_name: str = None,
         field_type: str = "DC R/L Fields",
     ) -> FieldPlot | bool:
-        """
-        Create a field plot of the line.
+        """Create a field plot of the line.
 
         Parameters
         ----------
@@ -254,8 +251,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         name: str = None,
     ) -> FieldPlot:
         # type: (list, str, str, list, bool, dict, str) -> FieldPlot
-        """
-        Create a field plot of stacked layer plot.
+        """Create a field plot of stacked layer plot.
 
         This plot is valid from AEDT 2023 R2 and later. Nets can be used as a filter.
         Dielectrics will be included into the plot.
@@ -325,8 +321,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         plot_name: str = None,
     ) -> FieldPlot:
         # type: (list, str, str, dict, bool, str) -> FieldPlot
-        """
-        Create a field plot of stacked layer plot on specified matrix of layers and nets.
+        """Create a field plot of stacked layer plot on specified matrix of layers and nets.
 
         This plot is valid from AEDT 2023 R2 and later in HFSS 3D Layout
         and any modeler where a layout component is used.
@@ -386,8 +381,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
     @pyaedt_function_handler()
     @min_aedt_version("2026.1")
     def evaluate_inception_voltage(self, plot_name: str, field_line_number: list = None) -> bool:  # pragma: no cover
-        """
-        Perform Inception voltage evaluation on selected field line traces.
+        """Perform Inception voltage evaluation on selected field line traces.
 
         .. note::
             This method requires field line traces to be computed beforehand.
@@ -449,8 +443,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
     def export_inception_voltage(
         self, plot_name: str, output_file: str, field_line_number: list = None
     ) -> bool:  # pragma: no cover
-        """
-        Export inception voltage evaluation results to a TXT file.
+        """Export inception voltage evaluation results to a TXT file.
 
         .. note::
             This method requires field line traces and inception voltage evaluation to be performed beforehand.
@@ -528,8 +521,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         ionization_equation: str = "x",
         ionization_dataset: list | None = None,
     ) -> bool:  # pragma: no cover
-        """
-        Modify inception voltage evaluation parameters.
+        """Modify inception voltage evaluation parameters.
 
         .. note::
             This method requires field line traces to be computed beforehand to enable inception voltage evaluation.

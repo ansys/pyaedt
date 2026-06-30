@@ -52,8 +52,7 @@ if TYPE_CHECKING:
 
 
 class FieldAnalysisCircuit(Analysis, PyAedtBase):
-    """
-    Provides the Field Analysis Circuit interface for Nexxim.
+    """Provides the Field Analysis Circuit interface for Nexxim.
 
     This class is for circuit analysis setup in Nexxim. It is automatically
     initialized by a call from an application such as Circuit, Twin Builder,
@@ -166,8 +165,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
 
     @property
     def configurations(self) -> ConfigurationsNexxim:
-        """
-        Property to import and export configuration files.
+        """Property to import and export configuration files.
 
         Returns
         -------
@@ -184,8 +182,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
 
     @pyaedt_function_handler()
     def delete_setup(self, name: str) -> bool:
-        """
-        Delete a setup.
+        """Delete a setup.
 
         Parameters
         ----------
@@ -218,8 +215,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
 
     @pyaedt_function_handler()
     def push_down(self, component: CircuitComponent | str) -> bool:
-        """
-        Push-down to the child component and reinitialize the Circuit object.
+        """Push-down to the child component and reinitialize the Circuit object.
 
         Parameters
         ----------
@@ -258,8 +254,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
 
     @pyaedt_function_handler()
     def pop_up(self) -> bool:
-        """
-        Pop-up to parent Circuit design and reinitialize Circuit object.
+        """Pop-up to parent Circuit design and reinitialize Circuit object.
 
         Returns
         -------
@@ -305,8 +300,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
 
     @property
     def modeler(self) -> "ModelerNexxim":
-        """
-        Modeler object.
+        """Modeler object.
 
         Returns
         -------
@@ -330,8 +324,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
 
     @property
     def setup_names(self) -> list:
-        """
-        Setup names.
+        """Setup names.
 
         References
         ----------
@@ -348,8 +341,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
 
     @property
     def source_names(self) -> list:
-        """
-        Get all source names.
+        """Get all source names.
 
         Returns
         -------
@@ -371,8 +363,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
 
     @property
     def source_objects(self) -> list:
-        """
-        Get all source objects.
+        """Get all source objects.
 
         Returns
         -------
@@ -390,8 +381,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
 
     @property
     def sources(self) -> list[Sources]:
-        """
-        Get all sources.
+        """Get all sources.
 
         Returns
         -------
@@ -442,8 +432,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
 
     @property
     def excitation_names(self) -> list[str]:
-        """
-        Get all excitation names.
+        """Get all excitation names.
 
         Returns
         -------
@@ -466,8 +455,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
 
     @property
     def design_excitations(self) -> dict[str, BoundaryObject]:
-        """
-        Get all excitation.
+        """Get all excitation.
 
         Returns
         -------
@@ -516,8 +504,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_setup(self, name: str = "MySetupAuto", setup_type: str | None = None, **kwargs) -> SetupCircuit:
-        """
-        Create a setup.
+        """Create a setup.
 
         Parameters
         ----------
@@ -589,8 +576,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         property_values: list,
         property_types: list = None,
     ) -> bool:
-        """
-        Change multiple properties.
+        """Change multiple properties.
 
         Parameters
         ----------

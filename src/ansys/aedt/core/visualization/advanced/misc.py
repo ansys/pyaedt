@@ -41,8 +41,7 @@ from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
 
 
 class BoxFacePointsAndFields(PyAedtBase):
-    """
-    Data model class containing field component and coordinates.
+    """Data model class containing field component and coordinates.
 
     Examples
     --------
@@ -59,8 +58,7 @@ class BoxFacePointsAndFields(PyAedtBase):
         self.im = {"Ex": [], "Ey": [], "Ez": [], "Hx": [], "Hy": [], "Hz": []}
 
     def set_xyz_points(self, x: float, y: float, z: float) -> None:
-        """
-        Set X, Y, Z coordinates.
+        """Set X, Y, Z coordinates.
 
         Examples
         --------
@@ -74,8 +72,7 @@ class BoxFacePointsAndFields(PyAedtBase):
         self.z = z
 
     def set_field_component(self, field_component: str, real: list, imag: list, invert: bool) -> None:
-        """
-        Set Field component Real and imaginary parts.
+        """Set Field component Real and imaginary parts.
 
         Examples
         --------
@@ -95,8 +92,7 @@ class BoxFacePointsAndFields(PyAedtBase):
             print("Error in set_field_component function.")
 
     def fill_empty_data(self) -> None:
-        """
-        Fill empty data with zeros.
+        """Fill empty data with zeros.
 
         Examples
         --------

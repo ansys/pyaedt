@@ -1065,8 +1065,7 @@ class CircuitNetlistConstants(metaclass=DynamicMeta):
 
 
 class DesignType(metaclass=DynamicMeta):
-    """
-    Design Type class.
+    """Design Type class.
 
     Examples
     --------

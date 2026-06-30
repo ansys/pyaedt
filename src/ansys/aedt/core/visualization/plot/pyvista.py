@@ -74,8 +74,7 @@ def get_structured_mesh(theta: list, phi: list, ff_data: np.ndarray) -> pv.Struc
 
 
 def is_float(istring: str) -> float:
-    """
-    Convert a string to a float.
+    """Convert a string to a float.
 
     Parameters
     ----------
@@ -283,8 +282,7 @@ def _parse_streamline(filepath):
 
 
 class ObjClass(PyAedtBase):
-    """
-    Manages mesh files to be plotted in pyvista.
+    """Manages mesh files to be plotted in pyvista.
 
     Parameters
     ----------
@@ -316,8 +314,7 @@ class ObjClass(PyAedtBase):
 
     @property
     def color(self):
-        """
-        Color.
+        """Color.
 
         Examples
         --------
@@ -338,8 +335,7 @@ class ObjClass(PyAedtBase):
 
 
 class FieldClass(PyAedtBase):
-    """
-    Class to manage Field data to be plotted in pyvista.
+    """Class to manage Field data to be plotted in pyvista.
 
     Parameters
     ----------
@@ -452,8 +448,7 @@ class CommonPlotter(PyAedtBase):
 
     @property
     def vector_field_scale(self) -> float:
-        """
-        Field scale.
+        """Field scale.
 
         Returns
         -------
@@ -474,8 +469,7 @@ class CommonPlotter(PyAedtBase):
 
     @property
     def convert_fields_in_db(self) -> bool:
-        """
-        Either if convert the fields before plotting in dB. Log scale will be disabled.
+        """Either if convert the fields before plotting in dB. Log scale will be disabled.
 
         Returns
         -------
@@ -500,8 +494,7 @@ class CommonPlotter(PyAedtBase):
 
     @property
     def log_multiplier(self) -> float:
-        """
-        Multiply the log value.
+        """Multiply the log value.
 
         Returns
         -------
@@ -522,8 +515,7 @@ class CommonPlotter(PyAedtBase):
 
     @property
     def x_scale(self) -> float:
-        """
-        Scale plot on X.
+        """Scale plot on X.
 
         Returns
         -------
@@ -544,8 +536,7 @@ class CommonPlotter(PyAedtBase):
 
     @property
     def y_scale(self) -> float:
-        """
-        Scale plot on Y.
+        """Scale plot on Y.
 
         Returns
         -------
@@ -566,8 +557,7 @@ class CommonPlotter(PyAedtBase):
 
     @property
     def z_scale(self) -> float:
-        """
-        Scale plot on Z.
+        """Scale plot on Z.
 
         Returns
         -------
@@ -588,8 +578,7 @@ class CommonPlotter(PyAedtBase):
 
     @property
     def isometric_view(self) -> bool:
-        """
-        Enable or disable the default iso view.
+        """Enable or disable the default iso view.
 
         Parameters
         ----------
@@ -615,8 +604,7 @@ class CommonPlotter(PyAedtBase):
 
     @property
     def view_up(self) -> tuple:
-        """
-        Get/Set the camera view axis. It disables the default iso view.
+        """Get/Set the camera view axis. It disables the default iso view.
 
         Parameters
         ----------
@@ -646,8 +634,7 @@ class CommonPlotter(PyAedtBase):
 
     @property
     def focal_point(self) -> tuple:
-        """
-        Get/Set the camera focal point value. It disables the default iso view.
+        """Get/Set the camera focal point value. It disables the default iso view.
 
         Parameters
         ----------
@@ -677,8 +664,7 @@ class CommonPlotter(PyAedtBase):
 
     @property
     def camera_position(self) -> str:
-        """
-        Get or set the camera position value. This parameter disables the default iso view.
+        """Get or set the camera position value. This parameter disables the default iso view.
 
         Value for the camera position. The value is for ``"xy"``, ``"xz"`` or ``"yz"``.
 
@@ -705,8 +691,7 @@ class CommonPlotter(PyAedtBase):
 
     @property
     def roll_angle(self) -> float:
-        """
-        Get/Set the roll angle value. It disables the default iso view.
+        """Get/Set the roll angle value. It disables the default iso view.
 
         Parameters
         ----------
@@ -733,8 +718,7 @@ class CommonPlotter(PyAedtBase):
 
     @property
     def azimuth_angle(self) -> float:
-        """
-        Get/Set the azimuth angle value. It disables the default iso view.
+        """Get/Set the azimuth angle value. It disables the default iso view.
 
         Parameters
         ----------
@@ -761,8 +745,7 @@ class CommonPlotter(PyAedtBase):
 
     @property
     def elevation_angle(self) -> float:
-        """
-        Get/Set the elevation angle value. It disables the default iso view.
+        """Get/Set the elevation angle value. It disables the default iso view.
 
         Parameters
         ----------
@@ -789,8 +772,7 @@ class CommonPlotter(PyAedtBase):
 
     @property
     def zoom(self) -> float:
-        """
-        Get/Set the zoom value.
+        """Get/Set the zoom value.
 
         Parameters
         ----------
@@ -818,8 +800,7 @@ class CommonPlotter(PyAedtBase):
     def set_orientation(
         self, camera_position: str = "xy", roll_angle: float = 0, azimuth_angle: float = 45, elevation_angle: float = 20
     ) -> bool:
-        """
-        Change the plot default orientation.
+        """Change the plot default orientation.
 
         Parameters
         ----------
@@ -855,8 +836,7 @@ class CommonPlotter(PyAedtBase):
 
     @property
     def background_color(self) -> tuple:
-        """
-        Background color.
+        """Background color.
 
         It can be a tuple of (r,g,b)  or color name.
 
@@ -879,8 +859,7 @@ class CommonPlotter(PyAedtBase):
 
     @property
     def background_image(self) -> str:
-        """
-        Background image.
+        """Background image.
 
         Returns
         -------
@@ -902,8 +881,7 @@ class CommonPlotter(PyAedtBase):
 
 
 class ModelPlotter(CommonPlotter):
-    """
-    Manages the data to be plotted with ``pyvista``.
+    """Manages the data to be plotted with ``pyvista``.
 
     Examples
     --------
@@ -940,8 +918,7 @@ class ModelPlotter(CommonPlotter):
 
     @property
     def fields(self) -> list[FieldClass]:
-        """
-        List of fields object.
+        """List of fields object.
 
         Returns
         -------
@@ -958,8 +935,7 @@ class ModelPlotter(CommonPlotter):
 
     @property
     def frames(self) -> list[FieldClass]:
-        """
-        Frames list for animation.
+        """Frames list for animation.
 
         Returns
         -------
@@ -976,8 +952,7 @@ class ModelPlotter(CommonPlotter):
 
     @property
     def objects(self) -> list[ObjClass]:
-        """
-        List of class objects.
+        """List of class objects.
 
         Returns
         -------
@@ -1163,8 +1138,7 @@ class ModelPlotter(CommonPlotter):
         surface_mapping_tolerance: float = 1e-3,
         show_edges: bool = True,
     ) -> None:
-        """
-        Add field data to the scenario.
+        """Add field data to the scenario.
 
         Parameters
         ----------
@@ -1454,8 +1428,7 @@ class ModelPlotter(CommonPlotter):
 
     @pyaedt_function_handler()
     def populate_pyvista_object(self) -> None:
-        """
-        Populate pyvista object with geometry and fields added to the model plotter.
+        """Populate pyvista object with geometry and fields added to the model plotter.
 
         Examples
         --------
@@ -1634,8 +1607,7 @@ class ModelPlotter(CommonPlotter):
     def clean_cache_and_files(
         self, remove_objs: bool = True, remove_fields: bool = True, clean_cache: bool = False
     ) -> bool:
-        """
-        Clean downloaded files, and, on demand, also the cached meshes.
+        """Clean downloaded files, and, on demand, also the cached meshes.
 
         Parameters
         ----------
@@ -1676,8 +1648,7 @@ class ModelPlotter(CommonPlotter):
     @pyaedt_function_handler()
     @requires_graphical_dependency("imageio")
     def animate(self, show: bool = True) -> bool:
-        """
-        Animate the current field plot.
+        """Animate the current field plot.
 
         show : bool, optional
             Whether to display the pyvista plot.
@@ -1902,8 +1873,7 @@ class ModelPlotter(CommonPlotter):
 
     @pyaedt_function_handler()
     def generate_geometry_mesh(self) -> "Mesh":
-        """
-        Generate mesh for objects only.
+        """Generate mesh for objects only.
 
         Returns
         -------
@@ -1929,8 +1899,7 @@ class ModelPlotter(CommonPlotter):
 
     @pyaedt_function_handler()
     def point_cloud(self, points: int = 10) -> dict:
-        """
-        Generate point cloud with available objects.
+        """Generate point cloud with available objects.
 
         Parameters
         ----------
@@ -2003,8 +1972,7 @@ class ModelPlotter(CommonPlotter):
         return point_cloud
 
     def close(self) -> None:
-        """
-        Close the render window.
+        """Close the render window.
 
         Examples
         --------

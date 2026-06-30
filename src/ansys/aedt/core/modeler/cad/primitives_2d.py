@@ -33,8 +33,7 @@ if TYPE_CHECKING:
 
 
 class Primitives2D(GeometryModeler, PyAedtBase):
-    """
-    Manages primitives in 2D tools.
+    """Manages primitives in 2D tools.
 
     This class is inherited in the caller application and is accessible through the primitives variable part
     of the modeler object (for example, ``hfss.modeler`` or ``icepak.modeler``).
@@ -52,8 +51,7 @@ class Primitives2D(GeometryModeler, PyAedtBase):
 
     @property
     def plane2d(self) -> str:
-        """
-        Create a 2D plane.
+        """Create a 2D plane.
 
         Examples
         --------
@@ -83,8 +81,7 @@ class Primitives2D(GeometryModeler, PyAedtBase):
         non_model: bool = False,
         **kwargs,
     ) -> "Object3d":
-        """
-        Create a circle.
+        """Create a circle.
 
         Parameters
         ----------
@@ -174,8 +171,7 @@ class Primitives2D(GeometryModeler, PyAedtBase):
         segments: int=0,
         **kwargs
     ) -> "Object3d":  # fmt: on
-        """
-        Create an ellipse.
+        """Create an ellipse.
 
         Parameters
         ----------
@@ -248,8 +244,7 @@ class Primitives2D(GeometryModeler, PyAedtBase):
         non_model: bool = False,
         **kwargs
     ) -> "Object3d":
-        """
-        Create a rectangle.
+        """Create a rectangle.
 
         Parameters
         ----------
@@ -315,8 +310,7 @@ class Primitives2D(GeometryModeler, PyAedtBase):
         non_model: bool = False,
         **kwargs
     ) -> "Object3d":
-        """
-        Create a rectangle.
+        """Create a rectangle.
 
         Parameters
         ----------
@@ -385,8 +379,7 @@ class Primitives2D(GeometryModeler, PyAedtBase):
         pad_type: str = "Percentage Offset",
         name: str = "Region", **kwarg
     ) -> "Object3d":
-        """
-        Create an air region.
+        """Create an air region.
 
         Parameters
         ----------

@@ -158,8 +158,7 @@ class MCADAssemblyFrontend(ExtensionHFSSCommon):
     def add_toggle_theme_button(
         self, parent: tkinter.Widget, toggle_row: int | None = None, toggle_column: int | None = None
     ) -> None:
-        """
-        Create a button to toggle between light and dark themes.
+        """Create a button to toggle between light and dark themes.
 
         Examples
         --------
@@ -199,8 +198,7 @@ class MCADAssemblyFrontend(ExtensionHFSSCommon):
         self._widgets["change_theme_button"] = change_theme_button
 
     def add_extension_content(self) -> None:
-        """
-        Add custom content to the extension UI.
+        """Add custom content to the extension UI.
 
         Examples
         --------
@@ -383,8 +381,7 @@ class Component(BaseModel):
                 hfss.modeler.move(self.name, i.vector)
 
     def assemble(self, hfss: "Hfss", cs_prefix: str | None = None):
-        """
-        Parameters
+        """Parameters
         ----------
          cs_prefix : str
             This is the name of the component definition.

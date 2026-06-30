@@ -81,8 +81,7 @@ class Terminator(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def table_data(self) -> list[tuple]:
-        """
-        Parametric VSWR Table.
+        """Parametric VSWR Table.
         Table consists of 3 columns.
         Min:
             Value should be between 1 and 100e9.
@@ -110,8 +109,7 @@ class Terminator(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def filename(self) -> str:
-        """
-        Name of file defining the Terminator.
+        """Name of file defining the Terminator.
 
         Value should be a full file path.
 
@@ -135,8 +133,7 @@ class Terminator(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def noise_temperature(self) -> float:
-        """
-        System Noise temperature (K) of the component.
+        """System Noise temperature (K) of the component.
 
         Value should be between 0 and 1000.
 
@@ -160,8 +157,7 @@ class Terminator(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def notes(self) -> str:
-        """
-        Expand to view/edit notes stored with the project.
+        """Expand to view/edit notes stored with the project.
 
         Examples
         --------
@@ -187,8 +183,7 @@ class Terminator(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def terminator_type(self) -> TerminatorTypeOption:
-        """
-        Terminator Type.
+        """Terminator Type.
 
         Type of terminator model to use. Options include: By File (measured or
         simulated) or Parametric.
@@ -214,8 +209,7 @@ class Terminator(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def vswr(self) -> float:
-        """
-        VSWR.
+        """VSWR.
 
         The Voltage Standing Wave Ratio (VSWR) due to the impedance mismatch
         between the terminator and the connected component (RF System, Antenna,
@@ -243,8 +237,7 @@ class Terminator(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def warnings(self) -> str:
-        """
-        Warning(s) for this node.
+        """Warning(s) for this node.
 
         Examples
         --------

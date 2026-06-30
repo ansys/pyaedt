@@ -53,8 +53,7 @@ if TYPE_CHECKING:
 
 
 class NexximComponents(CircuitComponents, PyAedtBase):
-    """
-    Manages circuit components for Nexxim.
+    """Manages circuit components for Nexxim.
 
     Parameters
     ----------
@@ -71,8 +70,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
 
     @property
     def design_libray(self) -> str:
-        """
-        Design library.
+        """Design library.
 
         Examples
         --------
@@ -85,8 +83,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
 
     @property
     def tab_name(self) -> str:
-        """
-        Tab name.
+        """Tab name.
 
         Examples
         --------
@@ -99,8 +96,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
 
     @pyaedt_function_handler()
     def __getitem__(self, partname):
-        """
-        Get the object ID if the part name is an integer or the object name if it is a string.
+        """Get the object ID if the part name is an integer or the object name if it is a string.
 
         Parameters
         ----------
@@ -141,8 +137,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_component(self, name: str) -> CircuitComponent | bool:
-        """
-        Get a component.
+        """Get a component.
 
         Parameters
         ----------
@@ -178,8 +173,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
 
     @pyaedt_function_handler()
     def delete_component(self, name: str) -> bool:
-        """
-        Get and delete a component.
+        """Get and delete a component.
 
         Parameters
         ----------
@@ -206,8 +200,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
 
     @property
     def components_catalog(self) -> "ComponentCatalog":
-        """
-        System library component catalog with all information.
+        """System library component catalog with all information.
 
         Returns
         -------
@@ -232,8 +225,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         name: str | None = None,
         nested_subcircuit_id: str | None = None,
     ) -> "CircuitComponent":
-        """
-        Add a new Circuit subcircuit to the design.
+        """Add a new Circuit subcircuit to the design.
 
         Parameters
         ----------
@@ -305,8 +297,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
     def duplicate(
         self, assignment: "CircuitComponent", location: list[float] = None, angle: int = 0, flip: bool = False
     ) -> "CircuitComponent":  # pragma: no cover
-        """
-        Add a new subcircuit to the design.
+        """Add a new subcircuit to the design.
 
         .. note::
             This works only in graphical mode.
@@ -353,8 +344,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
 
     @pyaedt_function_handler()
     def connect_components_in_series(self, assignment: list["CircuitComponent"], use_wire: bool = True) -> bool:
-        """
-        Connect schematic components in series.
+        """Connect schematic components in series.
 
         Parameters
         ----------
@@ -399,8 +389,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
 
     @pyaedt_function_handler()
     def connect_components_in_parallel(self, assignment: list["CircuitComponent"]) -> bool:
-        """
-        Connect schematic components in parallel.
+        """Connect schematic components in parallel.
 
         Parameters
         ----------
@@ -440,8 +429,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
 
     @pyaedt_function_handler()
     def add_subcircuit_3dlayout(self, name: str) -> CircuitComponent | bool:
-        """
-        Add a subcircuit from a HFSS 3DLayout.
+        """Add a subcircuit from a HFSS 3DLayout.
 
         Parameters
         ----------
@@ -480,8 +468,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
     def create_field_model(
         self, design_name: str, solution_name: str, pin_names: list[str], model_type: str = "hfss"
     ) -> tuple[CircuitComponent, str] | bool:
-        """
-        Create a field model.
+        """Create a field model.
 
         Parameters
         ----------
@@ -747,8 +734,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         use_instance_id_netlist: bool = False,
         page: int = 1,
     ) -> "CircuitComponent":
-        """
-        Create a resistor.
+        """Create a resistor.
 
         Parameters
         ----------
@@ -805,8 +791,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         use_instance_id_netlist: bool = False,
         page: int = 1,
     ) -> "CircuitComponent":
-        """
-        Create an inductor.
+        """Create an inductor.
 
         Parameters
         ----------
@@ -866,8 +851,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         use_instance_id_netlist: bool = False,
         page: int = 1,
     ) -> "CircuitComponent":
-        """
-        Create a capacitor.
+        """Create a capacitor.
 
         Parameters
         ----------
@@ -927,8 +911,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         use_instance_id_netlist: bool = False,
         page: int = 1,
     ) -> "CircuitComponent":
-        """
-        Create a voltage DC source.
+        """Create a voltage DC source.
 
         Parameters
         ----------
@@ -988,8 +971,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         use_instance_id_netlist: bool = False,
         page: int = 1,
     ) -> "CircuitComponent":
-        """
-        Create a voltage probe.
+        """Create a voltage probe.
 
         Parameters
         ----------
@@ -1041,8 +1023,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         use_instance_id_netlist: bool = False,
         page: int = 1,
     ) -> "CircuitComponent":
-        """
-        Create a current probe.
+        """Create a current probe.
 
         Parameters
         ----------
@@ -1129,8 +1110,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         use_instance_id_netlist: bool = False,
         page: int = 1,
     ) -> "CircuitComponent":
-        """
-        Create a current pulse.
+        """Create a current pulse.
 
         Parameters
         ----------
@@ -1205,8 +1185,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         use_instance_id_netlist: bool = False,
         page: int = 1,
     ) -> "CircuitComponent":
-        """
-        Create a voltage pulse.
+        """Create a voltage pulse.
 
         Parameters
         ----------
@@ -1282,8 +1261,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         use_instance_id_netlist: bool = False,
         page: int = 1,
     ) -> "CircuitComponent":
-        """
-        Create a pwl voltage source.
+        """Create a pwl voltage source.
 
         Parameters
         ----------
@@ -1353,8 +1331,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         use_instance_id_netlist: bool = False,
         page: int = 1,
     ) -> "CircuitComponent":
-        """
-        Create a current DC source.
+        """Create a current DC source.
 
         Parameters
         ----------
@@ -1414,8 +1391,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         use_instance_id_netlist: bool = False,
         page: int = 1,
     ) -> "CircuitComponent":
-        """
-        Create a coupling inductor.
+        """Create a coupling inductor.
 
         Parameters
         ----------
@@ -1479,8 +1455,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         use_instance_id_netlist: bool = False,
         page: int = 1,
     ) -> "CircuitComponent":
-        """
-        Create a diode.
+        """Create a diode.
 
         Parameters
         ----------
@@ -1539,8 +1514,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         use_instance_id_netlist: bool = False,
         page: int = 1,
     ) -> "CircuitComponent":
-        """
-        Create an NPN transistor.
+        """Create an NPN transistor.
 
         Parameters
         ----------
@@ -1599,8 +1573,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         use_instance_id_netlist: bool = False,
         page: int = 1,
     ) -> "CircuitComponent":
-        """
-        Create a PNP transistor.
+        """Create a PNP transistor.
 
         Parameters
         ----------
@@ -1662,8 +1635,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         values: list[float] = None,
         gref: str = "",
     ) -> bool:
-        """
-        Create a component from a symbol.
+        """Create a component from a symbol.
 
         Parameters
         ----------
@@ -1835,8 +1807,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         opt: str = "",
         data_type: int = 1,
     ):
-        """
-        Retrieve custom settings for a resistor.
+        """Retrieve custom settings for a resistor.
 
         Parameters
         ----------
@@ -1906,8 +1877,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         tline_port: str = "",
         name: str | None = None,
     ) -> "CircuitComponent":
-        """
-        Add a subcircuit from `HFSS`, `Q3d` or `2D Extractor` in circuit design.
+        """Add a subcircuit from `HFSS`, `Q3d` or `2D Extractor` in circuit design.
 
         Parameters
         ----------
@@ -1991,8 +1961,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         default_matrix: str = "Original",
         simulate_solutions: bool = False,
     ):
-        """
-        Add a subcircuit HFSS link.
+        """Add a subcircuit HFSS link.
 
         Parameters
         ----------
@@ -2278,8 +2247,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
 
     @pyaedt_function_handler()
     def set_sim_option_on_hfss_subcircuit(self, component: "CircuitComponent", option: str = "simulate") -> bool:
-        """
-        Set the simulation option on the HFSS subscircuit.
+        """Set the simulation option on the HFSS subscircuit.
 
         Parameters
         ----------
@@ -2318,8 +2286,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
     def set_sim_solution_on_hfss_subcircuit(
         self, component: "CircuitComponent", solution_name: str = "Setup1 : Sweep"
     ) -> bool:
-        """
-        Set the simulation solution on the HFSS subcircuit.
+        """Set the simulation solution on the HFSS subcircuit.
 
         Parameters
         ----------
@@ -2378,8 +2345,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
 
     @pyaedt_function_handler()
     def refresh_dynamic_link(self, name: str) -> bool:
-        """
-        Refresh a dynamic link component.
+        """Refresh a dynamic link component.
 
         Parameters
         ----------
@@ -2430,8 +2396,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         page: int = 1,
         angle: int = 0,
     ) -> "CircuitComponent | bool":
-        """
-        Create and place a new component based on a spice .lib file.
+        """Create and place a new component based on a spice .lib file.
 
         Parameters
         ----------
@@ -2566,8 +2531,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         matrix: str = "Original",
         name: str | None = None,
     ) -> "CircuitComponent":
-        """
-        Add a Q3D RLGC dynamic link to a circuit design.
+        """Add a Q3D RLGC dynamic link to a circuit design.
 
         Parameters
         ----------

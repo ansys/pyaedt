@@ -45,8 +45,7 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class Revision:
-    """
-    Provides the ``Revision`` object.
+    """Provides the ``Revision`` object.
 
     Parameters
     ----------
@@ -147,8 +146,7 @@ class Revision:
 
     @pyaedt_function_handler()
     def _load_revision(self) -> None:
-        """
-        Load this revision.
+        """Load this revision.
 
         Examples
         --------
@@ -163,8 +161,7 @@ class Revision:
 
     @staticmethod
     def result_mode_error() -> str:
-        """
-        Print the function mode error message.
+        """Print the function mode error message.
 
         Returns
         -------
@@ -183,8 +180,7 @@ class Revision:
 
     @pyaedt_function_handler()
     def get_interaction(self, domain: object) -> object:
-        """
-        Create a new interaction for a domain.
+        """Create a new interaction for a domain.
 
         Parameters
         ----------
@@ -212,8 +208,7 @@ class Revision:
 
     @pyaedt_function_handler()
     def run(self, domain: object) -> object:
-        """
-        Load the revision and then analyze along the given domain.
+        """Load the revision and then analyze along the given domain.
 
         Parameters
         ----------
@@ -260,8 +255,7 @@ class Revision:
 
     @pyaedt_function_handler()
     def is_domain_valid(self, domain: object) -> bool:
-        """
-        Return ``True`` if the given domain is valid for the current revision.
+        """Return ``True`` if the given domain is valid for the current revision.
 
         Parameters
         ----------
@@ -281,8 +275,7 @@ class Revision:
 
     @pyaedt_function_handler()
     def get_instance_count(self, domain: object) -> int:
-        """
-        Return the number of instances in the domain for the current revision.
+        """Return the number of instances in the domain for the current revision.
 
         Parameters
         ----------
@@ -308,8 +301,7 @@ class Revision:
     def get_all_band_nodes(
         self, radio: RadioNode, tx_rx_mode: TxRxMode = None, enabled_only: bool = False
     ) -> list[Band]:
-        """
-        Returns all the Bands within a Radio
+        """Returns all the Bands within a Radio
 
         Parameters
         ----------
@@ -381,8 +373,7 @@ class Revision:
 
     @pyaedt_function_handler()
     def _is_receiver(self, radio: RadioNode):
-        """
-        Check if a given radio is a receiver.
+        """Check if a given radio is a receiver.
 
         Parameters
         ----------
@@ -399,8 +390,7 @@ class Revision:
 
     @pyaedt_function_handler()
     def _is_transmitter(self, radio: RadioNode):
-        """
-        Check if a given radio is a transmitter.
+        """Check if a given radio is a transmitter.
 
         Parameters
         ----------
@@ -417,8 +407,7 @@ class Revision:
 
     @pyaedt_function_handler()
     def get_receiver_names(self) -> list[str]:
-        """
-        Get a list of all receivers in the project.
+        """Get a list of all receivers in the project.
 
         Parameters
         ----------
@@ -451,8 +440,7 @@ class Revision:
 
     @pyaedt_function_handler()
     def get_interferer_names(self, interferer_type: object = None) -> list[str]:
-        """
-        Get a list of all interfering transmitters/emitters in the project.
+        """Get a list of all interfering transmitters/emitters in the project.
 
         Parameters
         ----------
@@ -501,8 +489,7 @@ class Revision:
 
     @pyaedt_function_handler()
     def get_band_names(self, radio_node: RadioNode | None = None, tx_rx_mode: TxRxMode | None = None) -> list[str]:
-        """
-        Get a list of all enabled ``tx`` or ``rx`` bands (or waveforms) in a given radio/emitter.
+        """Get a list of all enabled ``tx`` or ``rx`` bands (or waveforms) in a given radio/emitter.
 
         Parameters
         ----------
@@ -545,8 +532,7 @@ class Revision:
     def get_active_frequencies(
         self, radio_name: str, band_name: str, tx_rx_mode: TxRxMode, units: str = ""
     ) -> list[float]:
-        """
-        Get a list of active frequencies for a ``tx`` or ``rx`` band in a radio/emitter.
+        """Get a list of active frequencies for a ``tx`` or ``rx`` band in a radio/emitter.
 
         Parameters
         ----------
@@ -584,8 +570,7 @@ class Revision:
 
     @property
     def notes(self) -> str:
-        """
-        Add notes to the revision.
+        """Add notes to the revision.
 
         Examples
         --------
@@ -604,8 +589,7 @@ class Revision:
 
     @property
     def n_to_1_limit(self) -> int:
-        """
-        Maximum number of interference combinations to run per receiver for N to 1.
+        """Maximum number of interference combinations to run per receiver for N to 1.
 
         - A value of ``0`` disables N to 1 entirely.
         - A value of  ``-1`` allows unlimited N to 1. (N is set to the maximum.)
@@ -646,8 +630,7 @@ class Revision:
         use_filter: bool = False,
         filter_list: list[str] | None = None,
     ) -> tuple[list, list]:  # pragma: no cover
-        """
-        Classify interference type as according to inband/inband,
+        """Classify interference type as according to inband/inband,
         out of band/in band, inband/out of band, and out of band/out of band.
 
         Parameters
@@ -806,8 +789,7 @@ class Revision:
         use_filter: bool = False,
         filter_list: list[str] | None = None,
     ) -> tuple[list, list]:  # pragma: no cover
-        """
-        Classify worst-case power at each Rx radio according to interference type.
+        """Classify worst-case power at each Rx radio according to interference type.
 
         Options for interference type are `inband/inband, out of band/in band,
         inband/out of band, and out of band/out of band.
@@ -965,8 +947,7 @@ class Revision:
         return all_colors, power_matrix
 
     def get_emi_category_filter_enabled(self, category: EmiCategoryFilter) -> bool:
-        """
-        Get whether the EMI category filter is enabled.
+        """Get whether the EMI category filter is enabled.
 
         Parameters
         ----------
@@ -993,8 +974,7 @@ class Revision:
         return engine.get_emi_category_filter_enabled(category)
 
     def set_emi_category_filter_enabled(self, category: EmiCategoryFilter, enabled: bool):
-        """
-        Set whether the EMI category filter is enabled.
+        """Set whether the EMI category filter is enabled.
 
         Parameters
         ----------
@@ -1019,8 +999,7 @@ class Revision:
 
     @pyaedt_function_handler
     def get_license_session(self) -> object:
-        """
-        Get a license session.
+        """Get a license session.
 
         A license session can be started with checkout(), and ended with check in().
         The `with` keyword can also be used, where checkout() is called on enter, and check in() is called on exit.
@@ -1042,8 +1021,7 @@ class Revision:
     @pyaedt_function_handler
     @min_aedt_version("2025.2")
     def _get_all_component_names(self) -> list[str]:
-        """
-        Gets all component names from this revision.
+        """Gets all component names from this revision.
 
         Returns
         -------
@@ -1061,8 +1039,7 @@ class Revision:
     @pyaedt_function_handler
     @min_aedt_version("2025.2")
     def _get_all_top_level_node_ids(self) -> list[int]:
-        """
-        Gets all top level node ids from this revision.
+        """Gets all top level node ids from this revision.
 
         Returns
         -------
@@ -1107,8 +1084,7 @@ class Revision:
     @pyaedt_function_handler
     @min_aedt_version("2025.2")
     def get_all_top_level_nodes(self) -> list[EmitNode]:
-        """
-        Gets all top level nodes from this revision.
+        """Gets all top level nodes from this revision.
 
         Returns
         -------
@@ -1127,8 +1103,7 @@ class Revision:
     @pyaedt_function_handler
     @min_aedt_version("2025.2")
     def get_all_component_nodes(self) -> list[EmitNode]:
-        """
-        Gets all component nodes from this revision.
+        """Gets all component nodes from this revision.
 
         Returns
         -------
@@ -1150,8 +1125,7 @@ class Revision:
     def get_all_radio_nodes(
         self, tx_rx_mode: TxRxMode | None = None, include_emitters: bool = False
     ) -> list[RadioNode]:
-        """
-        Gets all Radio nodes from this revision.
+        """Gets all Radio nodes from this revision.
 
         Parameters
         ----------
@@ -1193,8 +1167,7 @@ class Revision:
     @pyaedt_function_handler
     @min_aedt_version("2025.2")
     def get_all_emitter_radios(self) -> list[RadioNode]:
-        """
-        Gets all Emitter Radio nodes from this revision.
+        """Gets all Emitter Radio nodes from this revision.
 
         Returns
         -------
@@ -1220,8 +1193,7 @@ class Revision:
     @pyaedt_function_handler
     @min_aedt_version("2025.2")
     def get_component_node(self, component_name: str) -> EmitNode | None:
-        """
-        Gets the component node.
+        """Gets the component node.
 
         Parameters
         ----------
@@ -1246,8 +1218,7 @@ class Revision:
     @pyaedt_function_handler
     @min_aedt_version("2025.2")
     def _get_all_node_ids(self) -> list[int]:
-        """
-        Gets all node ids from this revision.
+        """Gets all node ids from this revision.
 
         Returns
         -------
@@ -1286,8 +1257,7 @@ class Revision:
     @pyaedt_function_handler
     @min_aedt_version("2025.2")
     def _get_node(self, node_id: int) -> EmitNode:
-        """
-        Gets a node for this revision with the given id.
+        """Gets a node for this revision with the given id.
 
         Parameters
         ----------
@@ -1344,8 +1314,7 @@ class Revision:
     @pyaedt_function_handler
     @min_aedt_version("2025.2")
     def get_all_nodes(self) -> list[EmitNode]:
-        """
-        Gets all nodes for this revision.
+        """Gets all nodes for this revision.
 
         Returns
         -------
@@ -1365,8 +1334,7 @@ class Revision:
     @pyaedt_function_handler
     @min_aedt_version("2025.2")
     def get_scene_node(self) -> EmitSceneNode:
-        """
-        Gets the Scene node for this revision.
+        """Gets the Scene node for this revision.
 
         Returns
         -------
@@ -1385,8 +1353,7 @@ class Revision:
     @pyaedt_function_handler
     @min_aedt_version("2025.2")
     def get_coupling_data_node(self) -> CouplingsNode:
-        """
-        Gets the Coupling Data node for this revision.
+        """Gets the Coupling Data node for this revision.
 
         Returns
         -------
@@ -1405,8 +1372,7 @@ class Revision:
     @pyaedt_function_handler
     @min_aedt_version("2025.2")
     def get_simulation_node(self) -> EmitNode:
-        """
-        Gets the Simulation node for this revision.
+        """Gets the Simulation node for this revision.
 
         Returns
         -------
@@ -1425,8 +1391,7 @@ class Revision:
     @pyaedt_function_handler
     @min_aedt_version("2025.2")
     def get_preferences_node(self) -> EmitNode:
-        """
-        Gets the Preferences node for this revision.
+        """Gets the Preferences node for this revision.
 
         Returns
         -------
@@ -1445,8 +1410,7 @@ class Revision:
     @pyaedt_function_handler
     @min_aedt_version("2025.2")
     def get_result_plot_node(self) -> ResultPlotNode:
-        """
-        Gets the Result Plot node for this revision.
+        """Gets the Result Plot node for this revision.
 
         Returns
         -------
@@ -1465,8 +1429,7 @@ class Revision:
     @pyaedt_function_handler
     @min_aedt_version("2025.2")
     def get_result_categorization_node(self) -> EmitNode:
-        """
-        Gets the Result Categorization node for this revision.
+        """Gets the Result Categorization node for this revision.
 
         Returns
         -------
@@ -1487,8 +1450,7 @@ class Revision:
     @pyaedt_function_handler
     @min_aedt_version("2025.2")
     def _get_disconnected_radios(self) -> list[str]:
-        """
-        Gets a list of disconnected radios for this revision.
+        """Gets a list of disconnected radios for this revision.
 
         Returns
         -------

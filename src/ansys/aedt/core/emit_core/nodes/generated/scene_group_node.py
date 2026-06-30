@@ -59,8 +59,7 @@ class SceneGroupNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def add_emitter(self) -> EmitNode:
-        """
-        Add a new emitter.
+        """Add a new emitter.
 
         Examples
         --------
@@ -75,8 +74,7 @@ class SceneGroupNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def add_group(self) -> EmitNode:
-        """
-        Add a new scene group.
+        """Add a new scene group.
 
         Examples
         --------
@@ -91,8 +89,7 @@ class SceneGroupNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def import_cad(self, file_name: str) -> EmitNode:
-        """
-        Add an existing CAD file.
+        """Add an existing CAD file.
 
         Examples
         --------
@@ -107,8 +104,7 @@ class SceneGroupNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def add_antenna(self) -> EmitNode:
-        """
-        Add a new antenna.
+        """Add a new antenna.
 
         Examples
         --------
@@ -154,8 +150,7 @@ class SceneGroupNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def show_relative_coordinates(self) -> bool:
-        """
-        Show Relative Coordinates.
+        """Show Relative Coordinates.
 
         Show Scene Group position and orientation in parent-node coords (False)
         or relative to placement coords (True).
@@ -183,8 +178,7 @@ class SceneGroupNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def position(self) -> list[float]:
-        """
-        Set position of the Scene Group in parent-node coordinates.
+        """Set position of the Scene Group in parent-node coordinates.
 
         Value should be a list of 3 floats.
 
@@ -209,8 +203,7 @@ class SceneGroupNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def relative_position(self) -> list[float]:
-        """
-        Set position of the Scene Group relative to placement coordinates.
+        """Set position of the Scene Group relative to placement coordinates.
 
         Value should be a list of 3 floats.
 
@@ -239,8 +232,7 @@ class SceneGroupNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def orientation_mode(self) -> OrientationModeOption:
-        """
-        Orientation Mode.
+        """Orientation Mode.
 
         Select the convention (order of rotations) for configuring orientation.
 
@@ -266,8 +258,7 @@ class SceneGroupNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def orientation(self) -> list[float]:
-        """
-        Orientation.
+        """Orientation.
 
         Set orientation of the Scene Group relative to parent-node coordinates.
 
@@ -294,8 +285,7 @@ class SceneGroupNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def relative_orientation(self) -> list[float]:
-        """
-        Relative Orientation.
+        """Relative Orientation.
 
         Set orientation of the Scene Group relative to placement coordinates.
 
@@ -322,8 +312,7 @@ class SceneGroupNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def show_axes(self) -> bool:
-        """
-        Show Axes.
+        """Show Axes.
 
         Toggle (on/off) display of Scene Group coordinate axes in 3-D window.
 
@@ -350,8 +339,7 @@ class SceneGroupNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def box_color(self) -> str:
-        """
-        Set color of the bounding box of the Scene Group.
+        """Set color of the bounding box of the Scene Group.
 
         Color should be in RGB form: #RRGGBB.
 
@@ -376,8 +364,7 @@ class SceneGroupNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def notes(self) -> str:
-        """
-        Expand to view/edit notes stored with the project.
+        """Expand to view/edit notes stored with the project.
 
         Examples
         --------

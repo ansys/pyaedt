@@ -54,8 +54,7 @@ except ImportError as e:
 
 
 def is_ipython() -> bool:
-    """
-    Check if pyaedt is running in Jupyter or not.
+    """Check if pyaedt is running in Jupyter or not.
 
     Returns
     -------
@@ -95,8 +94,7 @@ class Note(PyAedtBase):
 
     @property
     def text(self) -> str:
-        """
-        Note text.
+        """Note text.
 
         Returns
         -------
@@ -117,8 +115,7 @@ class Note(PyAedtBase):
 
     @property
     def background_color(self) -> tuple | list:
-        """
-        Note color.
+        """Note color.
 
         Returns
         -------
@@ -139,8 +136,7 @@ class Note(PyAedtBase):
 
     @property
     def background_visibility(self) -> bool:
-        """
-        Note background visibility.
+        """Note background visibility.
 
         Returns
         -------
@@ -161,8 +157,7 @@ class Note(PyAedtBase):
 
     @property
     def border_visibility(self) -> bool:
-        """
-        Note border visibility.
+        """Note border visibility.
 
         Returns
         -------
@@ -183,8 +178,7 @@ class Note(PyAedtBase):
 
     @property
     def border_width(self) -> float:
-        """
-        Note border width.
+        """Note border width.
 
         Returns
         -------
@@ -205,8 +199,7 @@ class Note(PyAedtBase):
 
     @property
     def font(self) -> str:
-        """
-        Note font.
+        """Note font.
 
         Returns
         -------
@@ -227,8 +220,7 @@ class Note(PyAedtBase):
 
     @property
     def font_size(self) -> int:
-        """
-        Note font size.
+        """Note font size.
 
         Returns
         -------
@@ -249,8 +241,7 @@ class Note(PyAedtBase):
 
     @property
     def color(self) -> tuple | list:
-        """
-        Note font color.
+        """Note font color.
 
         Returns
         -------
@@ -271,8 +262,7 @@ class Note(PyAedtBase):
 
     @property
     def bold(self) -> bool:
-        """
-        Note font bold.
+        """Note font bold.
 
         Returns
         -------
@@ -293,8 +283,7 @@ class Note(PyAedtBase):
 
     @property
     def italic(self) -> bool:
-        """
-        Note font italic.
+        """Note font italic.
 
         Returns
         -------
@@ -315,8 +304,7 @@ class Note(PyAedtBase):
 
 
 class Trace(PyAedtBase):
-    """
-    Trace class.
+    """Trace class.
 
     Examples
     --------
@@ -342,8 +330,7 @@ class Trace(PyAedtBase):
 
     @property
     def show_symbol(self) -> bool:
-        """
-        Whether to show symbol.
+        """Whether to show symbol.
 
         Examples
         --------
@@ -360,8 +347,7 @@ class Trace(PyAedtBase):
 
     @property
     def symbol_color(self) -> list | tuple:
-        """
-        Symbol color.
+        """Symbol color.
 
         Examples
         --------
@@ -378,8 +364,7 @@ class Trace(PyAedtBase):
 
     @property
     def trace_style(self) -> str:
-        """
-        Matplotlib trace style.
+        """Matplotlib trace style.
 
         Returns
         -------
@@ -396,8 +381,7 @@ class Trace(PyAedtBase):
 
     @property
     def trace_width(self) -> float:
-        """
-        Trace width.
+        """Trace width.
 
         Returns
         -------
@@ -414,8 +398,7 @@ class Trace(PyAedtBase):
 
     @property
     def trace_color(self) -> tuple | str | None:
-        """
-        Matplotlib trace color. It can be a tuple or a string of allowed colors.
+        """Matplotlib trace color. It can be a tuple or a string of allowed colors.
 
         Returns
         -------
@@ -432,8 +415,7 @@ class Trace(PyAedtBase):
 
     @property
     def symbol_style(self) -> str:
-        """
-        Matplotlib symbol style.
+        """Matplotlib symbol style.
 
         Returns
         -------
@@ -450,8 +432,7 @@ class Trace(PyAedtBase):
 
     @property
     def fill_symbol(self) -> bool:
-        """
-        Fill symbol.
+        """Fill symbol.
 
         Returns
         -------
@@ -488,8 +469,7 @@ class Trace(PyAedtBase):
 
     @property
     def cartesian_data(self) -> list[np.ndarray] | None:
-        """
-        Cartesian data [x,y,z].
+        """Cartesian data [x,y,z].
 
         Returns
         -------
@@ -519,8 +499,7 @@ class Trace(PyAedtBase):
 
     @property
     def spherical_data(self) -> list[np.ndarray] | None:
-        """
-        Spherical data [r, theta, phi]. Angles are in degrees.
+        """Spherical data [r, theta, phi]. Angles are in degrees.
 
         Returns
         -------
@@ -548,8 +527,7 @@ class Trace(PyAedtBase):
 
     @pyaedt_function_handler()
     def car2polar(self, x: list | np.ndarray, y: list | np.ndarray, is_degree: bool = False) -> list:
-        """
-        Convert cartesian data to polar.
+        """Convert cartesian data to polar.
 
         Parameters
         ----------
@@ -583,8 +561,7 @@ class Trace(PyAedtBase):
 
     @pyaedt_function_handler()
     def car2spherical(self) -> None:
-        """
-        Convert cartesian data to spherical and assigns to property spherical data.
+        """Convert cartesian data to spherical and assigns to property spherical data.
 
         Examples
         --------
@@ -609,8 +586,7 @@ class Trace(PyAedtBase):
 
     @pyaedt_function_handler()
     def spherical2car(self) -> None:
-        """
-        Convert spherical data to cartesian data and assign to cartesian data property.
+        """Convert spherical data to cartesian data and assign to cartesian data property.
 
         Examples
         --------
@@ -629,8 +605,7 @@ class Trace(PyAedtBase):
 
     @pyaedt_function_handler()
     def polar2car(self, r: list | np.ndarray, theta: list | np.ndarray) -> list[np.ndarray]:
-        """
-        Convert polar data to cartesian data.
+        """Convert polar data to cartesian data.
 
         Parameters
         ----------
@@ -657,8 +632,7 @@ class Trace(PyAedtBase):
 
 
 class LimitLine(Trace):
-    """
-    Limit Line class.
+    """Limit Line class.
 
     Examples
     --------
@@ -689,8 +663,7 @@ class EyeMask:
 
 
 class ReportPlotter(PyAedtBase):
-    """
-    Matplotlib Report manager.
+    """Matplotlib Report manager.
 
     Examples
     --------
@@ -745,8 +718,7 @@ class ReportPlotter(PyAedtBase):
 
     @property
     def dpi(self) -> int:
-        """
-        Figure dpi.
+        """Figure dpi.
 
         Examples
         --------
@@ -763,8 +735,7 @@ class ReportPlotter(PyAedtBase):
 
     @property
     def width(self) -> int:
-        """
-        Figure width.
+        """Figure width.
 
         Examples
         --------
@@ -781,8 +752,7 @@ class ReportPlotter(PyAedtBase):
 
     @property
     def height(self) -> int:
-        """
-        Figure height.
+        """Figure height.
 
         Examples
         --------
@@ -799,8 +769,7 @@ class ReportPlotter(PyAedtBase):
 
     @property
     def text_size(self) -> int:
-        """
-        Text font size.
+        """Text font size.
 
         Examples
         --------
@@ -817,8 +786,7 @@ class ReportPlotter(PyAedtBase):
 
     @property
     def title_size(self) -> int:
-        """
-        Title font size.
+        """Title font size.
 
         Examples
         --------
@@ -834,8 +802,7 @@ class ReportPlotter(PyAedtBase):
         self.__title_size = size
 
     def get_solution_data(self):
-        """
-        Mimic the report method to retrieve solution data if available.
+        """Mimic the report method to retrieve solution data if available.
 
         Examples
         --------
@@ -848,8 +815,7 @@ class ReportPlotter(PyAedtBase):
 
     @property
     def traces(self) -> dict[str, Trace]:
-        """
-        Traces.
+        """Traces.
 
         Returns
         -------
@@ -866,8 +832,7 @@ class ReportPlotter(PyAedtBase):
 
     @property
     def traces_by_index(self) -> list[Trace]:
-        """
-        Traces.
+        """Traces.
 
         Returns
         -------
@@ -884,8 +849,7 @@ class ReportPlotter(PyAedtBase):
 
     @property
     def trace_names(self) -> list[str]:
-        """
-        Trace names.
+        """Trace names.
 
         Returns
         -------
@@ -902,8 +866,7 @@ class ReportPlotter(PyAedtBase):
 
     @property
     def limit_lines(self) -> dict[str, LimitLine]:
-        """
-        Limit Lines.
+        """Limit Lines.
 
         Returns
         -------
@@ -920,8 +883,7 @@ class ReportPlotter(PyAedtBase):
 
     @pyaedt_function_handler()
     def apply_style(self, style_name: str) -> bool:
-        """
-        Apply a custom matplotlib style (e.g. background_dark).
+        """Apply a custom matplotlib style (e.g. background_dark).
 
         Parameters
         ----------
@@ -946,8 +908,7 @@ class ReportPlotter(PyAedtBase):
 
     @property
     def grid_style(self) -> str:
-        """
-        Grid style.
+        """Grid style.
 
         Returns
         -------
@@ -968,8 +929,7 @@ class ReportPlotter(PyAedtBase):
 
     @property
     def grid_enable_major_x(self) -> bool:
-        """
-        Enable the major grid on x axis.
+        """Enable the major grid on x axis.
 
         Returns
         -------
@@ -990,8 +950,7 @@ class ReportPlotter(PyAedtBase):
 
     @property
     def grid_enable_major_y(self) -> bool:
-        """
-        Enable the major grid on y axis.
+        """Enable the major grid on y axis.
 
         Returns
         -------
@@ -1012,8 +971,7 @@ class ReportPlotter(PyAedtBase):
 
     @property
     def grid_enable_minor_x(self) -> bool:
-        """
-        Enable the minor grid on x axis.
+        """Enable the minor grid on x axis.
 
         Returns
         -------
@@ -1034,8 +992,7 @@ class ReportPlotter(PyAedtBase):
 
     @property
     def grid_enable_minor_y(self) -> bool:
-        """
-        Enable the minor grid on y axis.
+        """Enable the minor grid on y axis.
 
         Returns
         -------
@@ -1056,8 +1013,7 @@ class ReportPlotter(PyAedtBase):
 
     @property
     def grid_color(self) -> tuple | str:
-        """
-        Grid color.
+        """Grid color.
 
         Returns
         -------
@@ -1082,8 +1038,7 @@ class ReportPlotter(PyAedtBase):
 
     @property
     def general_back_color(self) -> tuple | str:
-        """
-        General background color.
+        """General background color.
 
         Returns
         -------
@@ -1107,8 +1062,7 @@ class ReportPlotter(PyAedtBase):
 
     @property
     def general_plot_color(self) -> tuple | str:
-        """
-        General plot color.
+        """General plot color.
 
         Returns
         -------
@@ -1230,8 +1184,7 @@ class ReportPlotter(PyAedtBase):
 
     @property
     def y_scale(self) -> str:
-        """
-        Y axis scale. It can be linear or log.
+        """Y axis scale. It can be linear or log.
 
         Returns
         -------
@@ -1252,8 +1205,7 @@ class ReportPlotter(PyAedtBase):
 
     @property
     def x_scale(self) -> str:
-        """
-        X axis scale. It can be linear or log.
+        """X axis scale. It can be linear or log.
 
         Returns
         -------
@@ -1274,8 +1226,7 @@ class ReportPlotter(PyAedtBase):
 
     @property
     def interactive(self) -> bool:
-        """
-        Enable interactive mode.
+        """Enable interactive mode.
 
         Returns
         -------
@@ -1310,8 +1261,7 @@ class ReportPlotter(PyAedtBase):
         bold: bool = False,
         color: tuple = (0.2, 0.2, 0.2),
     ) -> None:
-        """
-        Add a note to the report.
+        """Add a note to the report.
 
         Parameters
         ----------
@@ -1354,8 +1304,7 @@ class ReportPlotter(PyAedtBase):
     def add_limit_line(
         self, plot_data: list, hatch_above: bool = True, properties: dict = None, name: str = ""
     ) -> bool:
-        """
-        Add a new limit_line to the chart.
+        """Add a new limit_line to the chart.
 
         Parameters
         ----------
@@ -1402,8 +1351,7 @@ class ReportPlotter(PyAedtBase):
         return True
 
     def add_eye_mask(self, properties):
-        """
-        Add a new eye mask to the chart.
+        """Add a new eye mask to the chart.
 
         Parameters
         ----------
@@ -1431,8 +1379,7 @@ class ReportPlotter(PyAedtBase):
 
     @pyaedt_function_handler()
     def add_trace(self, plot_data: list, data_type: int = 0, properties: dict = None, name: str = "") -> bool:
-        """
-        Add a new trace to the chart.
+        """Add a new trace to the chart.
 
         Parameters
         ----------
@@ -1488,8 +1435,7 @@ class ReportPlotter(PyAedtBase):
 
     @property
     def size(self) -> list:
-        """
-        Figure size.
+        """Figure size.
 
         Returns
         -------
@@ -1601,8 +1547,7 @@ class ReportPlotter(PyAedtBase):
         is_degree: bool = True,
         figure: plt.Figure = None,
     ) -> plt.Figure | bool:
-        """
-        Create a Matplotlib polar plot based on a list of data.
+        """Create a Matplotlib polar plot based on a list of data.
 
         Parameters
         ----------
@@ -1688,8 +1633,7 @@ class ReportPlotter(PyAedtBase):
         color_map_limits: list = None,
         is_polar: bool = True,
     ) -> plt.Figure | bool:
-        """
-        Create a Matplotlib 3D plot based on a list of data.
+        """Create a Matplotlib 3D plot based on a list of data.
 
         Parameters
         ----------
@@ -1809,8 +1753,7 @@ class ReportPlotter(PyAedtBase):
     def plot_2d(
         self, traces: list | int | str = None, snapshot_path: str = None, show: bool = True, figure: plt.Figure = None
     ) -> plt.Figure | bool:
-        """
-        Create a Matplotlib figure based on a list of data.
+        """Create a Matplotlib figure based on a list of data.
 
         Parameters
         ----------
@@ -1912,8 +1855,7 @@ class ReportPlotter(PyAedtBase):
     def animate_2d(
         self, traces: list | int | str = None, snapshot_path: str = None, show: bool = True, figure: plt.Figure = None
     ) -> plt.Figure | bool:
-        """
-        Create an animated Matplotlib figure based on a list of data.
+        """Create an animated Matplotlib figure based on a list of data.
 
         Parameters
         ----------
@@ -1994,8 +1936,7 @@ class ReportPlotter(PyAedtBase):
         plot_max_height=True,
         plot_eye_mask=True,
     ):
-        """
-        Plot Eye diagram and contour plot.
+        """Plot Eye diagram and contour plot.
 
         Parameters
         ----------
@@ -2291,8 +2232,7 @@ class ReportPlotter(PyAedtBase):
         is_spherical: bool = True,
         normalize: list = None,
     ) -> plt.Figure | bool:
-        """
-        Create a Matplotlib figure contour based on a list of data.
+        """Create a Matplotlib figure contour based on a list of data.
 
         Parameters
         ----------
@@ -2396,8 +2336,7 @@ class ReportPlotter(PyAedtBase):
         show: bool = True,
         figure: plt.Figure = None,
     ) -> plt.Figure | bool:
-        """
-        Create a Matplotlib figure pseudo color plot with a non-regular rectangular grid based on a list of data.
+        """Create a Matplotlib figure pseudo color plot with a non-regular rectangular grid based on a list of data.
 
         Parameters
         ----------
@@ -2477,8 +2416,7 @@ class ReportPlotter(PyAedtBase):
         is_spherical: bool = True,
         normalize: list = None,
     ) -> plt.Figure | bool:
-        """
-        Create an animated Matplotlib figure contour based on a list of data.
+        """Create an animated Matplotlib figure contour based on a list of data.
 
         Parameters
         ----------
@@ -2605,8 +2543,7 @@ def plot_matplotlib(
     annotations: list = None,
     show: bool = True,
 ) -> plt.Figure:  # pragma: no cover
-    """
-    Create a matplotlib plot based on a list of data.
+    """Create a matplotlib plot based on a list of data.
 
     Parameters
     ----------

@@ -89,8 +89,7 @@ EXPORT_EXAMPLES = [
 
 
 class ViaDesignExtension(ExtensionHFSS3DLayoutCommon):
-    """
-    Extension for advanced fields calculator in AEDT.
+    """Extension for advanced fields calculator in AEDT.
 
     Examples
     --------
@@ -114,8 +113,7 @@ class ViaDesignExtension(ExtensionHFSS3DLayoutCommon):
         self.add_extension_content()
 
     def add_extension_content(self) -> None:
-        """
-        Add custom content to the extension UI.
+        """Add custom content to the extension UI.
 
         Examples
         --------
@@ -194,8 +192,7 @@ class ViaDesignExtension(ExtensionHFSS3DLayoutCommon):
         change_theme_button.grid(row=0, column=1)
 
     def create_design(self, create_design_path: Path | None = None) -> bool:
-        """
-        Create via design in AEDT.
+        """Create via design in AEDT.
 
         Parameters
         ----------

@@ -61,8 +61,7 @@ class RxSpurNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def import_csv_file(self, file_name: str) -> EmitNode:
-        """
-        Import a CSV File...
+        """Import a CSV File.
 
         Examples
         --------
@@ -85,8 +84,7 @@ class RxSpurNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def table_data(self) -> list[tuple]:
-        """
-        Spurs Table.
+        """Spurs Table.
         Table consists of 3 columns.
         Frequency (MHz):
             Value should be a mathematical expression.
@@ -110,8 +108,7 @@ class RxSpurNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def enabled(self) -> bool:
-        """
-        Enabled state for this node.
+        """Enabled state for this node.
 
         Examples
         --------
@@ -132,8 +129,7 @@ class RxSpurNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def spur_table_units(self) -> SpurTableUnitsOption:
-        """
-        Specifies the units for the Spurs.
+        """Specifies the units for the Spurs.
 
         Examples
         --------

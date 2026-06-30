@@ -43,8 +43,7 @@ if current_python_version < (3, 10):  # pragma: no cover
 
 
 class DirectionOfArrival(PyAedtBase):
-    """
-    Class for direction of arrival (DoA) estimation using 2D planar antenna arrays
+    """Class for direction of arrival (DoA) estimation using 2D planar antenna arrays
     with coordinates in meters and user-defined frequency.
 
     Examples
@@ -55,8 +54,7 @@ class DirectionOfArrival(PyAedtBase):
     """
 
     def __init__(self, x_position: np.array, y_position: np.array, frequency: float) -> None:
-        """
-        Initialize with antenna element positions in meters and signal frequency in Hertz.
+        """Initialize with antenna element positions in meters and signal frequency in Hertz.
 
         Parameters
         ----------
@@ -79,8 +77,7 @@ class DirectionOfArrival(PyAedtBase):
 
     @pyaedt_function_handler()
     def get_scanning_vectors(self, azimuth_angles: np.ndarray) -> np.ndarray:
-        """
-        Generate scanning vectors for the given azimuth angles in degrees.
+        """Generate scanning vectors for the given azimuth angles in degrees.
 
         Parameters
         ----------
@@ -114,8 +111,7 @@ class DirectionOfArrival(PyAedtBase):
     def bartlett(
         self, data: np.ndarray, scanning_vectors: np.ndarray, range_bins: int = None, cross_range_bins: int = None
     ) -> np.ndarray:
-        """
-        Estimate the direction of arrival (DoA) using the Bartlett (classical beamforming) method.
+        """Estimate the direction of arrival (DoA) using the Bartlett (classical beamforming) method.
 
         Parameters
         ----------
@@ -172,8 +168,7 @@ class DirectionOfArrival(PyAedtBase):
     def capon(
         self, data: np.ndarray, scanning_vectors: np.ndarray, range_bins: int = None, cross_range_bins: int = None
     ) -> np.ndarray:
-        """
-        Estimate the direction of arrival using the Capon (Minimum variance distortion less response)
+        """Estimate the direction of arrival using the Capon (Minimum variance distortion less response)
         beamforming method.
 
         Parameters
@@ -240,8 +235,7 @@ class DirectionOfArrival(PyAedtBase):
         range_bins: int = None,
         cross_range_bins: int = None,
     ) -> np.ndarray:
-        """
-        Estimate the direction of arrival (DoA) using the MUSIC method.
+        """Estimate the direction of arrival (DoA) using the MUSIC method.
 
         Parameters
         ----------
@@ -320,8 +314,7 @@ class DirectionOfArrival(PyAedtBase):
         plot_size: tuple = (1920, 1440),
         figure: "Figure" = None,
     ) -> ReportPlotter:
-        """
-        Create angle of arrival plot.
+        """Create angle of arrival plot.
 
         Parameters
         ----------

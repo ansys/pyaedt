@@ -65,8 +65,7 @@ class _AEDTGrpcInfo:
 
 
 class FileManagement(PyAedtBase):
-    """
-    Class to manage file transfer.
+    """Class to manage file transfer.
 
     Examples
     --------
@@ -79,8 +78,7 @@ class FileManagement(PyAedtBase):
         self.client = client
 
     def upload(self, localpath: str, remotepath: str, overwrite: bool = False) -> None:
-        """
-        Upload a file or a directory to the given remote path.
+        """Upload a file or a directory to the given remote path.
 
         Parameters
         ----------
@@ -104,8 +102,7 @@ class FileManagement(PyAedtBase):
             self._upload_file(localpath, remotepath)
 
     def download_folder(self, remotepath: str, localpath: str, overwrite: bool = True) -> None:
-        """
-        Download a directory from a given remote path to the local path.
+        """Download a directory from a given remote path to the local path.
 
         Parameters
         ----------
@@ -126,8 +123,7 @@ class FileManagement(PyAedtBase):
         self._download_dir(remotepath, localpath, overwrite=True)
 
     def download_file(self, remotepath: str, localpath: str, overwrite: bool = True) -> None:
-        """
-        Download a file from a given remote path to the local path.
+        """Download a file from a given remote path to the local path.
 
         Parameters
         ----------
@@ -245,8 +241,7 @@ class FileManagement(PyAedtBase):
 
 
 def check_port(port: int) -> int:
-    """
-    Check for an available port on the machine starting from input port.
+    """Check for an available port on the machine starting from input port.
 
     Parameters
     ----------
@@ -280,8 +275,7 @@ def check_port(port: int) -> int:
 
 
 class GlobalService(rpyc.Service, PyAedtBase):
-    """
-    RPyC service dedicated to a single client session.
+    """RPyC service dedicated to a single client session.
 
     Each ``GlobalService`` runs in its own subprocess (spawned by ``ServiceManager``)
     and exposes AEDT launch and remote file operations to the connected client.
@@ -294,8 +288,7 @@ class GlobalService(rpyc.Service, PyAedtBase):
     """
 
     def on_connect(self, connection):
-        """
-        Initiate the service when a connection is created.
+        """Initiate the service when a connection is created.
 
         This method is called when the connection is established.
 
@@ -310,8 +303,7 @@ class GlobalService(rpyc.Service, PyAedtBase):
         self.connection = connection
 
     def on_disconnect(self, connection):
-        """
-        Finalize the service when the connection is closed.
+        """Finalize the service when the connection is closed.
 
         This method is called when the connection had already terminated for cleanup.
 
@@ -351,8 +343,7 @@ class GlobalService(rpyc.Service, PyAedtBase):
         secure: bool = True,
         listen_all: bool = False,
     ) -> _AEDTGrpcInfo:
-        """
-        Start a new AEDT session on a specified gRPC port.
+        """Start a new AEDT session on a specified gRPC port.
 
         .. warning::
 
@@ -474,8 +465,7 @@ class GlobalService(rpyc.Service, PyAedtBase):
 
     @property
     def aedt_port(self) -> int:
-        """
-        AEDT active port.
+        """AEDT active port.
 
         Returns
         -------
@@ -496,8 +486,7 @@ class GlobalService(rpyc.Service, PyAedtBase):
 
     @property
     def aedt_version(self) -> str:
-        """
-        AEDT Version.
+        """AEDT Version.
 
         Returns
         -------
@@ -518,8 +507,7 @@ class GlobalService(rpyc.Service, PyAedtBase):
 
     @property
     def student_version(self) -> bool:
-        """
-        Student version flag.
+        """Student version flag.
 
         Returns
         -------
@@ -540,8 +528,7 @@ class GlobalService(rpyc.Service, PyAedtBase):
 
     @property
     def host(self) -> str:
-        """
-        Machine name.
+        """Machine name.
 
         Returns
         -------
@@ -609,8 +596,7 @@ class GlobalService(rpyc.Service, PyAedtBase):
 
 
 class ServiceManager(rpyc.Service, PyAedtBase):
-    """
-    RPyC service that acts as a dispatcher for PyAEDT remote sessions.
+    """RPyC service that acts as a dispatcher for PyAEDT remote sessions.
 
     The ``ServiceManager`` listens on a well-known port (default 17878) and
     handles requests to spawn or stop per-client ``GlobalService`` workers,
@@ -624,8 +610,7 @@ class ServiceManager(rpyc.Service, PyAedtBase):
     """
 
     def on_connect(self, connection):
-        """
-        Initiate the service when a connection is created.
+        """Initiate the service when a connection is created.
 
         This method is called when the connection is established.
 
@@ -641,8 +626,7 @@ class ServiceManager(rpyc.Service, PyAedtBase):
         self.__processes: dict[int, subprocess.Popen] = {}
 
     def on_disconnect(self, connection):
-        """
-        Finalize the service when the connection is closed.
+        """Finalize the service when the connection is closed.
 
         This method is called when the connection had already terminated for cleanup.
 
@@ -661,8 +645,7 @@ class ServiceManager(rpyc.Service, PyAedtBase):
                 logger.error(f"Error terminating process with PID {process.pid}: {e}")
 
     def start_service(self, host: str, port: int, secure: bool = True, listen_all: bool = False) -> int | bool:
-        """
-        Connect to remove service manager and run a new server on specified port.
+        """Connect to remove service manager and run a new server on specified port.
 
         .. warning::
 
@@ -736,8 +719,7 @@ class ServiceManager(rpyc.Service, PyAedtBase):
             return False
 
     def stop_service(self, port: int) -> bool:
-        """
-        Stops a given Pyaedt Service on specified port.
+        """Stops a given Pyaedt Service on specified port.
 
         Parameters
         ----------
@@ -766,8 +748,7 @@ class ServiceManager(rpyc.Service, PyAedtBase):
 
     @staticmethod
     def exposed_check_port() -> int:
-        """
-        Check if a random port is available.
+        """Check if a random port is available.
 
         Examples
         --------

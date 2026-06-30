@@ -22,8 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-The module contains these classes: `Layer` and `Layers`.
+"""The module contains these classes: `Layer` and `Layers`.
 
 The module provides all layer stackup functionalities for the Circuit and HFSS 3D Layout tools.
 """
@@ -38,8 +37,7 @@ from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 
 @pyaedt_function_handler()
 def _getIfromRGB(rgb):
-    """
-    Retrieve if from a specific layer color.
+    """Retrieve if from a specific layer color.
 
     Parameters
     ----------
@@ -60,8 +58,7 @@ def _getIfromRGB(rgb):
 
 @pyaedt_function_handler()
 def _getRGBfromI(value):
-    """
-    Retrieve the Integer from a specific layer color.
+    """Retrieve the Integer from a specific layer color.
 
     Parameters
     ----------
@@ -80,8 +77,7 @@ def _getRGBfromI(value):
 
 
 class Layer(PyAedtBase):
-    """
-    Manages the stackup layer for the Circuit and HFSS 3D Layout tools.
+    """Manages the stackup layer for the Circuit and HFSS 3D Layout tools.
 
     Parameters
     ----------
@@ -154,8 +150,7 @@ class Layer(PyAedtBase):
 
     @property
     def color(self) -> list:
-        """
-        Return or set the property of the active layer. Color it is list of rgb values (0,255).
+        """Return or set the property of the active layer. Color it is list of rgb values (0,255).
 
         Returns
         -------
@@ -184,8 +179,7 @@ class Layer(PyAedtBase):
 
     @property
     def transparency(self) -> int:
-        """
-        Get/Set the property to the active layer.
+        """Get/Set the property to the active layer.
 
         Returns
         -------
@@ -207,8 +201,7 @@ class Layer(PyAedtBase):
 
     @property
     def is_visible(self) -> bool:
-        """
-        Get/Set the active layer visibility.
+        """Get/Set the active layer visibility.
 
         Returns
         -------
@@ -230,8 +223,7 @@ class Layer(PyAedtBase):
 
     @property
     def is_visible_shape(self) -> bool:
-        """
-        Get/Set the active layer shape visibility.
+        """Get/Set the active layer shape visibility.
 
         Returns
         -------
@@ -253,8 +245,7 @@ class Layer(PyAedtBase):
 
     @property
     def is_visible_path(self) -> bool:
-        """
-        Get/Set the active layer paths visibility.
+        """Get/Set the active layer paths visibility.
 
         Returns
         -------
@@ -276,8 +267,7 @@ class Layer(PyAedtBase):
 
     @property
     def is_visible_pad(self) -> bool:
-        """
-        Get/Set the active layer pad visibility.
+        """Get/Set the active layer pad visibility.
 
         Returns
         -------
@@ -299,8 +289,7 @@ class Layer(PyAedtBase):
 
     @property
     def is_visible_hole(self) -> bool:
-        """
-        Get/Set the active layer hole visibility.
+        """Get/Set the active layer hole visibility.
 
         Returns
         -------
@@ -322,8 +311,7 @@ class Layer(PyAedtBase):
 
     @property
     def is_visible_component(self) -> bool:
-        """
-        Get/Set the active layer component visibility.
+        """Get/Set the active layer component visibility.
 
         Returns
         -------
@@ -345,8 +333,7 @@ class Layer(PyAedtBase):
 
     @property
     def is_mesh_background(self) -> bool:
-        """
-        Get/Set the active layer mesh backgraound.
+        """Get/Set the active layer mesh backgraound.
 
         Returns
         -------
@@ -368,8 +355,7 @@ class Layer(PyAedtBase):
 
     @property
     def is_mesh_overlay(self) -> bool:
-        """
-        Get/Set the active layer mesh overlay.
+        """Get/Set the active layer mesh overlay.
 
         Returns
         -------
@@ -391,8 +377,7 @@ class Layer(PyAedtBase):
 
     @property
     def locked(self) -> bool:
-        """
-        Get/Set the active layer lock flag.
+        """Get/Set the active layer lock flag.
 
         Returns
         -------
@@ -414,8 +399,7 @@ class Layer(PyAedtBase):
 
     @property
     def top_bottom(self) -> str:
-        """
-        Get/Set the active layer top bottom alignment.
+        """Get/Set the active layer top bottom alignment.
 
         Returns
         -------
@@ -437,8 +421,7 @@ class Layer(PyAedtBase):
 
     @property
     def pattern(self) -> float:
-        """
-        Get/Set the active layer pattern.
+        """Get/Set the active layer pattern.
 
         Returns
         -------
@@ -460,8 +443,7 @@ class Layer(PyAedtBase):
 
     @property
     def draw_override(self) -> float:
-        """
-        Get/Set the active layer draw override value.
+        """Get/Set the active layer draw override value.
 
         Returns
         -------
@@ -483,8 +465,7 @@ class Layer(PyAedtBase):
 
     @property
     def thickness(self) -> float:
-        """
-        Get/Set the active layer thickness value.
+        """Get/Set the active layer thickness value.
 
         Returns
         -------
@@ -509,8 +490,7 @@ class Layer(PyAedtBase):
 
     @property
     def upper_elevation(self) -> float:
-        """
-        Get the active layer upper elevation value with units.
+        """Get the active layer upper elevation value with units.
 
         Returns
         -------
@@ -530,8 +510,7 @@ class Layer(PyAedtBase):
 
     @property
     def thickness_units(self) -> str:
-        """
-        Get the active layer thickness units value.
+        """Get the active layer thickness units value.
 
         Returns
         -------
@@ -548,8 +527,7 @@ class Layer(PyAedtBase):
 
     @property
     def lower_elevation(self) -> float:
-        """
-        Get/Set the active layer lower elevation.
+        """Get/Set the active layer lower elevation.
 
         Returns
         -------
@@ -571,8 +549,7 @@ class Layer(PyAedtBase):
 
     @property
     def roughness(self) -> str:
-        """
-        Return or set the active layer roughness (with units).
+        """Return or set the active layer roughness (with units).
 
         Returns
         -------
@@ -594,8 +571,7 @@ class Layer(PyAedtBase):
 
     @property
     def bottom_roughness(self) -> str:
-        """
-        Return or set the active layer bottom roughness (with units).
+        """Return or set the active layer bottom roughness (with units).
 
         Returns
         -------
@@ -617,8 +593,7 @@ class Layer(PyAedtBase):
 
     @property
     def top_roughness(self) -> str:
-        """
-        Get/Set the active layer top roughness (with units).
+        """Get/Set the active layer top roughness (with units).
 
         Returns
         -------
@@ -640,8 +615,7 @@ class Layer(PyAedtBase):
 
     @property
     def side_roughness(self) -> str:
-        """
-        Get/Set the active layer side roughness (with units).
+        """Get/Set the active layer side roughness (with units).
 
         Returns
         -------
@@ -663,8 +637,7 @@ class Layer(PyAedtBase):
 
     @property
     def material(self) -> str:
-        """
-        Get/Set the active layer material name.
+        """Get/Set the active layer material name.
 
         Returns
         -------
@@ -686,8 +659,7 @@ class Layer(PyAedtBase):
 
     @property
     def fill_material(self) -> str:
-        """
-        Get/Set the active layer filling material.
+        """Get/Set the active layer filling material.
 
         Returns
         -------
@@ -709,8 +681,7 @@ class Layer(PyAedtBase):
 
     @property
     def index(self) -> int:
-        """
-        Get/Set the active layer index.
+        """Get/Set the active layer index.
 
         Returns
         -------
@@ -732,8 +703,7 @@ class Layer(PyAedtBase):
 
     @property
     def is_negative(self) -> bool:
-        """
-        Get/Set the active layer negative flag. When `True` the layer will be negative.
+        """Get/Set the active layer negative flag. When `True` the layer will be negative.
 
         Returns
         -------
@@ -755,8 +725,7 @@ class Layer(PyAedtBase):
 
     @property
     def use_etch(self) -> bool:
-        """
-        Get/Set the active layer etiching flag. When `True` the layer will use etch.
+        """Get/Set the active layer etiching flag. When `True` the layer will use etch.
 
         Returns
         -------
@@ -778,8 +747,7 @@ class Layer(PyAedtBase):
 
     @property
     def etch(self) -> float:
-        """
-        Get/Set the active layer etch value.
+        """Get/Set the active layer etch value.
 
         Returns
         -------
@@ -801,8 +769,7 @@ class Layer(PyAedtBase):
 
     @property
     def user(self) -> bool:
-        """
-        Get/Set the active layer user flag.
+        """Get/Set the active layer user flag.
 
         Returns
         -------
@@ -824,8 +791,7 @@ class Layer(PyAedtBase):
 
     @property
     def top_roughness_model(self) -> str:
-        """
-        Get/Set the active layer top roughness model.
+        """Get/Set the active layer top roughness model.
 
         Returns
         -------
@@ -847,8 +813,7 @@ class Layer(PyAedtBase):
 
     @property
     def top_nodule_radius(self) -> float:
-        """
-        Get/Set the active layer top roughness radius.
+        """Get/Set the active layer top roughness radius.
 
         Returns
         -------
@@ -870,8 +835,7 @@ class Layer(PyAedtBase):
 
     @property
     def top_huray_ratio(self) -> float:
-        """
-        Get/Set the active layer top roughness ratio.
+        """Get/Set the active layer top roughness ratio.
 
         Returns
         -------
@@ -893,8 +857,7 @@ class Layer(PyAedtBase):
 
     @property
     def bottom_roughness_model(self) -> str:
-        """
-        Get/Set the active layer bottom roughness model.
+        """Get/Set the active layer bottom roughness model.
 
         Returns
         -------
@@ -916,8 +879,7 @@ class Layer(PyAedtBase):
 
     @property
     def bottom_nodule_radius(self) -> float:
-        """
-        Get/Set the active layer bottom roughness radius.
+        """Get/Set the active layer bottom roughness radius.
 
         Returns
         -------
@@ -939,8 +901,7 @@ class Layer(PyAedtBase):
 
     @property
     def bottom_huray_ratio(self) -> float:
-        """
-        Get/Set the active layer bottom roughness ratio.
+        """Get/Set the active layer bottom roughness ratio.
 
         Returns
         -------
@@ -962,8 +923,7 @@ class Layer(PyAedtBase):
 
     @property
     def side_model(self) -> str:
-        """
-        Get/Set the active layer side roughness model.
+        """Get/Set the active layer side roughness model.
 
         Returns
         -------
@@ -985,8 +945,7 @@ class Layer(PyAedtBase):
 
     @property
     def side_nodule_radius(self) -> float:
-        """
-        Get/Set the active layer side roughness radius.
+        """Get/Set the active layer side roughness radius.
 
         Returns
         -------
@@ -1008,8 +967,7 @@ class Layer(PyAedtBase):
 
     @property
     def side_huray_ratio(self) -> float:
-        """
-        Get/Set the active layer bottom roughness ratio.
+        """Get/Set the active layer bottom roughness ratio.
 
         Returns
         -------
@@ -1031,8 +989,7 @@ class Layer(PyAedtBase):
 
     @property
     def usp(self) -> bool:
-        """
-        Get/Set the active layer usp flag.
+        """Get/Set the active layer usp flag.
 
         Returns
         -------
@@ -1054,8 +1011,7 @@ class Layer(PyAedtBase):
 
     @property
     def hfss_solver_settings(self) -> dict:
-        """
-        Get/Set the active layer hfss solver settings.
+        """Get/Set the active layer hfss solver settings.
 
         Returns
         -------
@@ -1077,8 +1033,7 @@ class Layer(PyAedtBase):
 
     @property
     def planar_em_solver_settings(self) -> dict:
-        """
-        Get/Set the active layer PlanarEm solver settings.
+        """Get/Set the active layer PlanarEm solver settings.
 
         Returns
         -------
@@ -1100,8 +1055,7 @@ class Layer(PyAedtBase):
 
     @property
     def zones(self) -> list:
-        """
-        Get/Set the active layer zoness.
+        """Get/Set the active layer zoness.
 
         Returns
         -------
@@ -1125,8 +1079,7 @@ class Layer(PyAedtBase):
 
     @property
     def oeditor(self):
-        """
-        Oeditor Module.
+        """Oeditor Module.
 
         Examples
         --------
@@ -1139,8 +1092,7 @@ class Layer(PyAedtBase):
 
     @property
     def visflag(self) -> int:
-        """
-        Visibility flag for objects on the layer.
+        """Visibility flag for objects on the layer.
 
         Examples
         --------
@@ -1171,8 +1123,7 @@ class Layer(PyAedtBase):
 
     @pyaedt_function_handler()
     def set_layer_color(self, r: int, g: int, b: int) -> bool:
-        """
-        Update the color of the layer.
+        """Update the color of the layer.
 
         Parameters
         ----------
@@ -1205,8 +1156,7 @@ class Layer(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_stackup_layer(self) -> bool:
-        """
-        Create a stackup layer.
+        """Create a stackup layer.
 
         Returns
         -------
@@ -1404,8 +1354,7 @@ class Layer(PyAedtBase):
 
     @pyaedt_function_handler()
     def update_stackup_layer(self) -> bool:
-        """
-        Update the stackup layer.
+        """Update the stackup layer.
 
         .. note::
            This method is valid for release 2021 R1 and later.
@@ -1432,8 +1381,7 @@ class Layer(PyAedtBase):
 
     @pyaedt_function_handler()
     def remove_stackup_layer(self) -> bool:
-        """
-        Remove the stackup layer.
+        """Remove the stackup layer.
 
         Returns
         -------
@@ -1458,8 +1406,7 @@ class Layer(PyAedtBase):
 
 
 class Layers(PyAedtBase):
-    """
-    Manages stackup for the Circuit and HFSS 3D Layout tools.
+    """Manages stackup for the Circuit and HFSS 3D Layout tools.
 
     Parameters
     ----------
@@ -1486,8 +1433,7 @@ class Layers(PyAedtBase):
 
     @property
     def oeditor(self):
-        """
-        Editor.
+        """Editor.
 
         References
         ----------
@@ -1504,8 +1450,7 @@ class Layers(PyAedtBase):
 
     @property
     def zones(self) -> list:
-        """
-        List of all available zones.
+        """List of all available zones.
 
         Returns
         -------
@@ -1527,8 +1472,7 @@ class Layers(PyAedtBase):
 
     @property
     def LengthUnit(self) -> str:
-        """
-        Length units.
+        """Length units.
 
         Examples
         --------
@@ -1541,8 +1485,7 @@ class Layers(PyAedtBase):
 
     @property
     def all_layers(self) -> list:
-        """
-        All stackup layers.
+        """All stackup layers.
 
         Returns
         -------
@@ -1564,8 +1507,7 @@ class Layers(PyAedtBase):
 
     @property
     def drawing_layers(self) -> list:
-        """
-        All drawing layers.
+        """All drawing layers.
 
         Returns
         -------
@@ -1587,8 +1529,7 @@ class Layers(PyAedtBase):
 
     @property
     def stackup_layers(self) -> list:
-        """
-        All stackup layers.
+        """All stackup layers.
 
         Returns
         -------
@@ -1610,8 +1551,7 @@ class Layers(PyAedtBase):
 
     @property
     def all_signal_layers(self) -> list[Layer]:
-        """
-        All signal layers.
+        """All signal layers.
 
         Returns
         -------
@@ -1629,8 +1569,7 @@ class Layers(PyAedtBase):
 
     @property
     def signals(self) -> dict[str, Layer]:
-        """
-        All signal layers.
+        """All signal layers.
 
         Returns
         -------
@@ -1652,8 +1591,7 @@ class Layers(PyAedtBase):
 
     @property
     def dielectrics(self) -> dict[str, Layer]:
-        """
-        All dielectric layers.
+        """All dielectric layers.
 
         Returns
         -------
@@ -1675,8 +1613,7 @@ class Layers(PyAedtBase):
 
     @property
     def drawings(self) -> dict[str, Layer]:
-        """
-        All stackup layers.
+        """All stackup layers.
 
         Returns
         -------
@@ -1698,8 +1635,7 @@ class Layers(PyAedtBase):
 
     @property
     def all_diel_layers(self) -> list[Layer]:
-        """
-        All dielectric layers.
+        """All dielectric layers.
 
         Returns
         -------
@@ -1717,8 +1653,7 @@ class Layers(PyAedtBase):
 
     @pyaedt_function_handler()
     def layer_id(self, name: str) -> int | None:
-        """
-        Retrieve a layer ID.
+        """Retrieve a layer ID.
 
         Parameters
         ----------
@@ -1744,8 +1679,7 @@ class Layers(PyAedtBase):
 
     @property
     def layers(self) -> dict[int, Layer]:
-        """
-        Refresh all layers in the current stackup.
+        """Refresh all layers in the current stackup.
 
         Returns
         -------
@@ -1825,8 +1759,7 @@ class Layers(PyAedtBase):
         material: str = "copper",
         isnegative: bool = False,
     ) -> Layer:
-        """
-        Add a layer.
+        """Add a layer.
 
         Parameters
         ----------
@@ -1878,8 +1811,7 @@ class Layers(PyAedtBase):
 
     @pyaedt_function_handler()
     def change_stackup_type(self, mode: str = "MultiZone", number_zones: int = 3) -> bool:
-        """
-        Change the stackup type between Multizone, Overlap and Laminate.
+        """Change the stackup type between Multizone, Overlap and Laminate.
 
         Parameters
         ----------

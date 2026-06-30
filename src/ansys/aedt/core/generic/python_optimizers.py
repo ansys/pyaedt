@@ -31,8 +31,7 @@ from ansys.aedt.core.base import PyAedtBase
 
 
 class ThreadTrace(threading.Thread):
-    """
-    Control a thread with python.
+    """Control a thread with python.
 
     Examples
     --------
@@ -74,8 +73,7 @@ class ThreadTrace(threading.Thread):
 
 
 class GeneticAlgorithm(PyAedtBase):
-    """
-    Genetic Algorithm for Python
+    """Genetic Algorithm for Python
 
     Basic implementation of elitist genetic algorithm for solving problems with integers, continuous, boolean
     or mixed variables.
@@ -279,8 +277,7 @@ class GeneticAlgorithm(PyAedtBase):
         self.evaluate_val = 1e10
 
     def run(self) -> bool:
-        """
-        Implement the genetic algorithm.
+        """Implement the genetic algorithm.
 
         Examples
         --------
@@ -462,8 +459,7 @@ class GeneticAlgorithm(PyAedtBase):
         return True
 
     def cross(self, x: np.ndarray, y: np.ndarray, c_type: str) -> np.ndarray:
-        """
-        Crossover two parents to create two children.
+        """Crossover two parents to create two children.
 
         Parameters
         ----------
@@ -516,8 +512,7 @@ class GeneticAlgorithm(PyAedtBase):
         return np.array([ofs1, ofs2])
 
     def mut(self, x: np.ndarray) -> np.ndarray:
-        """
-        Mutate a child by randomly changing its genes.
+        """Mutate a child by randomly changing its genes.
 
         Parameters
         ----------
@@ -549,8 +544,7 @@ class GeneticAlgorithm(PyAedtBase):
         return x
 
     def mutmiddle(self, x: np.ndarray, p1: np.ndarray, p2: np.ndarray) -> np.ndarray:
-        """
-        Mutate a child by randomly changing its genes based on the middle point of two parents.
+        """Mutate a child by randomly changing its genes based on the middle point of two parents.
 
         Parameters
         ----------
@@ -599,8 +593,7 @@ class GeneticAlgorithm(PyAedtBase):
         return x
 
     def evaluate(self) -> bool:
-        """
-        Evaluate the current solution.
+        """Evaluate the current solution.
 
         Returns
         -------
@@ -615,8 +608,7 @@ class GeneticAlgorithm(PyAedtBase):
             return True
 
     def sim(self, X: np.ndarray) -> np.ndarray:
-        """
-        Simulate the current solution.
+        """Simulate the current solution.
 
         Parameters
         ----------
@@ -655,8 +647,7 @@ class GeneticAlgorithm(PyAedtBase):
         return self.evaluate_val
 
     def progress(self, count: int, total: int, status: str = ""):
-        """
-        Display the progress of the optimization.
+        """Display the progress of the optimization.
 
         Parameters
         ----------

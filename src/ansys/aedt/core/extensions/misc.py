@@ -76,8 +76,7 @@ DEFAULT_BORDERWIDTH: int = 0
 
 
 def get_process_id() -> int | None:
-    """
-    Get process ID from environment variable.
+    """Get process ID from environment variable.
 
     Examples
     --------
@@ -92,8 +91,7 @@ def get_process_id() -> int | None:
 
 
 def get_port() -> int:
-    """
-    Get gRPC port from environment variable.
+    """Get gRPC port from environment variable.
 
     Examples
     --------
@@ -108,8 +106,7 @@ def get_port() -> int:
 
 
 def get_aedt_version() -> str:
-    """
-    Get AEDT release from environment variable.
+    """Get AEDT release from environment variable.
 
     Examples
     --------
@@ -124,8 +121,7 @@ def get_aedt_version() -> str:
 
 
 def is_student() -> bool:
-    """
-    Get if AEDT student is opened from environment variable.
+    """Get if AEDT student is opened from environment variable.
 
     Examples
     --------
@@ -140,8 +136,7 @@ def is_student() -> bool:
 
 
 def get_aedt_path() -> str | None:
-    """
-    Get AEDT path from environment variable.
+    """Get AEDT path from environment variable.
 
     Examples
     --------
@@ -159,8 +154,7 @@ def get_aedt_path() -> str | None:
 
 
 def get_aedt_theme() -> str:
-    """
-    Get AEDT theme from environment variable.
+    """Get AEDT theme from environment variable.
 
     Examples
     --------
@@ -175,8 +169,7 @@ def get_aedt_theme() -> str:
 
 
 def get_latest_version(package_name: str, timeout: int = (2, 2)) -> str:
-    """
-    Return latest version string from PyPI or 'Unknown' on failure.
+    """Return latest version string from PyPI or 'Unknown' on failure.
 
     Examples
     --------
@@ -196,8 +189,7 @@ def get_latest_version(package_name: str, timeout: int = (2, 2)) -> str:
 
 
 def check_for_pyaedt_update(personallib: str) -> tuple[str | None, Path | None]:
-    """
-    Check PyPI for a newer PyAEDT release and whether the user should be prompted.
+    """Check PyPI for a newer PyAEDT release and whether the user should be prompted.
 
     Returns
     -------
@@ -234,8 +226,7 @@ def check_for_pyaedt_update(personallib: str) -> tuple[str | None, Path | None]:
             return False
 
     def read_version_file(file_path: Path) -> tuple[str | None, bool]:
-        """
-        Read version file and return (last_known_version, show_updates).
+        """Read version file and return (last_known_version, show_updates).
 
         File format:
         Line 1: last known version
@@ -331,8 +322,7 @@ def check_for_pyaedt_update_on_startup(
     personallib: str,
     show_update_callback: Callable[[str, Path], None],
 ) -> None:
-    """
-    Spawn a background thread to check PyPI and schedule an optional UI prompt.
+    """Spawn a background thread to check PyPI and schedule an optional UI prompt.
 
     The network check is skipped when running in the EDT sandbox.
 
@@ -388,8 +378,7 @@ class ExtensionCommon(PyAedtBase):
         toggle_column: int | None = None,
         use_edb: bool = False,
     ) -> None:
-        """
-        Create and initialize a themed Tkinter UI window.
+        """Create and initialize a themed Tkinter UI window.
 
         This function creates a Tkinter root window, applies a theme, sets the
         application icon, and configures error handling behavior. It also allows for
@@ -457,8 +446,7 @@ class ExtensionCommon(PyAedtBase):
         self.apply_theme(self.theme_color)
 
     def add_toggle_theme_button(self, parent: tkinter.Widget, toggle_row: int, toggle_column: int):
-        """
-        Create a button to toggle between light and dark themes.
+        """Create a button to toggle between light and dark themes.
 
         Examples
         --------
@@ -542,8 +530,7 @@ class ExtensionCommon(PyAedtBase):
         self.log_message("Welcome to the PyAEDT Extension Manager!")
 
     def toggle_theme(self) -> None:
-        """
-        Toggle between light and dark themes.
+        """Toggle between light and dark themes.
 
         Examples
         --------
@@ -558,8 +545,7 @@ class ExtensionCommon(PyAedtBase):
             raise ValueError(f"Unknown theme: {self.root.theme}. Use 'light' or 'dark'.")
 
     def log_message(self, message: str):
-        """
-        Append a message to the log text box.
+        """Append a message to the log text box.
 
         Examples
         --------
@@ -647,8 +633,7 @@ class ExtensionCommon(PyAedtBase):
         return root
 
     def apply_theme(self, theme_color: str):
-        """
-        Apply a theme to the UI.
+        """Apply a theme to the UI.
 
         Examples
         --------
@@ -718,8 +703,7 @@ class ExtensionCommon(PyAedtBase):
 
     @property
     def change_theme_button(self) -> tkinter.Widget:
-        """
-        Return the theme toggle button.
+        """Return the theme toggle button.
 
         Examples
         --------
@@ -731,8 +715,7 @@ class ExtensionCommon(PyAedtBase):
 
     @property
     def browse_button(self) -> tkinter.Widget:
-        """
-        Return the browse button.
+        """Return the browse button.
 
         Examples
         --------
@@ -744,8 +727,7 @@ class ExtensionCommon(PyAedtBase):
 
     @property
     def desktop(self) -> Desktop:
-        """
-        Return the AEDT Desktop instance.
+        """Return the AEDT Desktop instance.
 
         Examples
         --------
@@ -783,8 +765,7 @@ class ExtensionCommon(PyAedtBase):
 
     @property
     def aedt_application(self) -> object:
-        """
-        Return the active AEDT application instance.
+        """Return the active AEDT application instance.
 
         Examples
         --------
@@ -808,8 +789,7 @@ class ExtensionCommon(PyAedtBase):
         return self.__aedt_application
 
     def release_desktop(self) -> bool:
-        """
-        Release AEDT desktop instance.
+        """Release AEDT desktop instance.
 
         Examples
         --------
@@ -822,8 +802,7 @@ class ExtensionCommon(PyAedtBase):
 
     @property
     def data(self) -> ExtensionCommonData | None:
-        """
-        Retrieve data.
+        """Retrieve data.
 
         Examples
         --------
@@ -840,8 +819,7 @@ class ExtensionCommon(PyAedtBase):
 
     @property
     def active_project_name(self) -> str:
-        """
-        Return the name of the active project.
+        """Return the name of the active project.
 
         Examples
         --------
@@ -852,8 +830,7 @@ class ExtensionCommon(PyAedtBase):
 
     @property
     def active_design_name(self) -> str:
-        """
-        Return the name of the active design.
+        """Return the name of the active design.
 
         Examples
         --------
@@ -864,8 +841,7 @@ class ExtensionCommon(PyAedtBase):
 
     @abstractmethod
     def add_extension_content(self) -> None:
-        """
-        Add content to the extension UI.
+        """Add content to the extension UI.
 
         This method should be implemented by subclasses to add specific content
         to the extension UI.
@@ -881,8 +857,7 @@ class ExtensionCommon(PyAedtBase):
 
     @abstractmethod
     def check_design_type(self):
-        """
-        Check the design type.
+        """Check the design type.
 
         This method should be implemented by subclasses to add specific content
         to the extension UI.
@@ -896,8 +871,7 @@ class ExtensionCommon(PyAedtBase):
 
 
 class ExtensionIcepakCommon(ExtensionCommon):
-    """
-    Common methods for Icepak extensions.
+    """Common methods for Icepak extensions.
 
     Examples
     --------
@@ -909,8 +883,7 @@ class ExtensionIcepakCommon(ExtensionCommon):
     """
 
     def check_design_type(self) -> None:
-        """
-        Check if the active design is an Icepak design.
+        """Check if the active design is an Icepak design.
 
         Examples
         --------
@@ -923,8 +896,7 @@ class ExtensionIcepakCommon(ExtensionCommon):
 
 
 class ExtensionHFSSCommon(ExtensionCommon):
-    """
-    Common methods for HFSS extensions.
+    """Common methods for HFSS extensions.
 
     Examples
     --------
@@ -936,8 +908,7 @@ class ExtensionHFSSCommon(ExtensionCommon):
     """
 
     def check_design_type(self) -> None:
-        """
-        Check if the active design is an HFSS design.
+        """Check if the active design is an HFSS design.
 
         Examples
         --------
@@ -950,8 +921,7 @@ class ExtensionHFSSCommon(ExtensionCommon):
 
 
 class ExtensionHFSS3DLayoutCommon(ExtensionCommon):
-    """
-    Common methods for HFSS 3D Layout extensions.
+    """Common methods for HFSS 3D Layout extensions.
 
     Examples
     --------
@@ -963,8 +933,7 @@ class ExtensionHFSS3DLayoutCommon(ExtensionCommon):
     """
 
     def check_design_type(self) -> None:
-        """
-        Check if the active design is an HFSS 3D Layout design.
+        """Check if the active design is an HFSS 3D Layout design.
 
         Examples
         --------
@@ -977,8 +946,7 @@ class ExtensionHFSS3DLayoutCommon(ExtensionCommon):
 
 
 class ExtensionMaxwell2DCommon(ExtensionCommon):
-    """
-    Common methods for Maxwell 2D extensions.
+    """Common methods for Maxwell 2D extensions.
 
     Examples
     --------
@@ -990,8 +958,7 @@ class ExtensionMaxwell2DCommon(ExtensionCommon):
     """
 
     def check_design_type(self) -> None:
-        """
-        Check if the active design is a Maxwell 2D design.
+        """Check if the active design is a Maxwell 2D design.
 
         Examples
         --------
@@ -1004,8 +971,7 @@ class ExtensionMaxwell2DCommon(ExtensionCommon):
 
 
 class ExtensionMaxwell3DCommon(ExtensionCommon):
-    """
-    Common methods for Maxwell 3D extensions.
+    """Common methods for Maxwell 3D extensions.
 
     Examples
     --------
@@ -1017,8 +983,7 @@ class ExtensionMaxwell3DCommon(ExtensionCommon):
     """
 
     def check_design_type(self) -> None:
-        """
-        Check if the active design is a Maxwell 3D design.
+        """Check if the active design is a Maxwell 3D design.
 
         Examples
         --------
@@ -1031,8 +996,7 @@ class ExtensionMaxwell3DCommon(ExtensionCommon):
 
 
 class ExtensionCircuitCommon(ExtensionCommon):
-    """
-    Common methods for Circuit extensions.
+    """Common methods for Circuit extensions.
 
     Examples
     --------
@@ -1044,8 +1008,7 @@ class ExtensionCircuitCommon(ExtensionCommon):
     """
 
     def check_design_type(self) -> None:
-        """
-        Check if the active design is an Circuit design.
+        """Check if the active design is an Circuit design.
 
         Examples
         --------
@@ -1058,8 +1021,7 @@ class ExtensionCircuitCommon(ExtensionCommon):
 
 
 class ExtensionTwinBuilderCommon(ExtensionCommon):
-    """
-    Common methods for TwinBuilder extensions.
+    """Common methods for TwinBuilder extensions.
 
     Examples
     --------
@@ -1071,8 +1033,7 @@ class ExtensionTwinBuilderCommon(ExtensionCommon):
     """
 
     def check_design_type(self) -> None:
-        """
-        Check if the active design is a TwinBuilder design.
+        """Check if the active design is a TwinBuilder design.
 
         Examples
         --------
@@ -1085,8 +1046,7 @@ class ExtensionTwinBuilderCommon(ExtensionCommon):
 
 
 class ExtensionEMITCommon(ExtensionCommon):
-    """
-    Common methods for EMIT extensions.
+    """Common methods for EMIT extensions.
 
     Examples
     --------
@@ -1098,8 +1058,7 @@ class ExtensionEMITCommon(ExtensionCommon):
     """
 
     def check_design_type(self) -> None:
-        """
-        Check if the active design is an EMIT design.
+        """Check if the active design is an EMIT design.
 
         Examples
         --------
@@ -1112,8 +1071,7 @@ class ExtensionEMITCommon(ExtensionCommon):
 
 
 class ExtensionProjectCommon(ExtensionCommon):
-    """
-    Common methods for project-level extensions.
+    """Common methods for project-level extensions.
 
     Examples
     --------
@@ -1125,8 +1083,7 @@ class ExtensionProjectCommon(ExtensionCommon):
     """
 
     def check_design_type(self) -> None:
-        """
-        Check the active design type.
+        """Check the active design type.
 
         Not required for extension at project level.
 
@@ -1139,8 +1096,7 @@ class ExtensionProjectCommon(ExtensionCommon):
 
 
 def create_default_ui(title: str, withdraw: bool = False) -> tuple[tkinter.Tk, ExtensionTheme, ttk.Style]:
-    """
-    Create default UI.
+    """Create default UI.
 
     Examples
     --------
@@ -1197,8 +1153,7 @@ def create_default_ui(title: str, withdraw: bool = False) -> tuple[tkinter.Tk, E
 
 
 def get_arguments(args=None, description: str = "") -> dict:  # pragma: no cover
-    """
-    Get extension arguments.
+    """Get extension arguments.
 
     Examples
     --------
@@ -1222,8 +1177,7 @@ def get_arguments(args=None, description: str = "") -> dict:  # pragma: no cover
 
 
 class ExtensionTheme(PyAedtBase):  # pragma: no cover
-    """
-    Theme definition for PyAEDT extension UIs.
+    """Theme definition for PyAEDT extension UIs.
 
     Provides light and dark color palettes, a default font, and methods
     to apply the chosen palette to a ``ttk.Style`` instance.  All colours
@@ -1317,8 +1271,7 @@ class ExtensionTheme(PyAedtBase):  # pragma: no cover
         self.default_font = ("Segoe UI", 10)
 
     def apply_light_theme(self, style: ttk.Style):
-        """
-        Apply light theme.
+        """Apply light theme.
 
         Examples
         --------
@@ -1333,8 +1286,7 @@ class ExtensionTheme(PyAedtBase):  # pragma: no cover
         self._apply_theme(style, self.light)
 
     def apply_dark_theme(self, style: ttk.Style):
-        """
-        Apply dark theme.
+        """Apply dark theme.
 
         Examples
         --------
@@ -1685,8 +1637,7 @@ def __parse_arguments(args=None, description: str = ""):  # pragma: no cover
 
 
 class ToolTip:
-    """
-    Create a tooltip for a given widget.
+    """Create a tooltip for a given widget.
 
     Examples
     --------
@@ -1721,8 +1672,7 @@ class ToolTip:
         return self._COLORS.get(theme, self._COLORS["light"])
 
     def enter(self, event=None):
-        """
-        Show tooltip on mouse enter.
+        """Show tooltip on mouse enter.
 
         Examples
         --------
@@ -1737,8 +1687,7 @@ class ToolTip:
         self.show_tooltip()
 
     def leave(self, event=None):
-        """
-        Hide tooltip on mouse leave.
+        """Hide tooltip on mouse leave.
 
         Examples
         --------
@@ -1753,8 +1702,7 @@ class ToolTip:
         self.hide_tooltip()
 
     def show_tooltip(self) -> None:  # pragma: no cover
-        """
-        Display tooltip.
+        """Display tooltip.
 
         Examples
         --------
@@ -1790,8 +1738,7 @@ class ToolTip:
         label.pack(ipadx=1)
 
     def hide_tooltip(self) -> None:  # pragma: no cover
-        """
-        Hide tooltip.
+        """Hide tooltip.
 
         Examples
         --------
@@ -1810,8 +1757,7 @@ class ToolTip:
 
 
 def decline_pyaedt_update(declined_file_path: Path, latest_version: str) -> None:
-    """
-    Record that the user declined the update notification.
+    """Record that the user declined the update notification.
 
     Examples
     --------

@@ -145,8 +145,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_schematic_from_netlist(self, input_file: str) -> bool:
-        """
-        Create a circuit schematic from an HSpice net list.
+        """Create a circuit schematic from an HSpice net list.
 
         Supported currently are:
 
@@ -221,8 +220,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
 
     @pyaedt_function_handler()
     def export_netlist_from_schematic(self, output_file: str | Path) -> str | bool:
-        """
-        Create netlist from schematic circuit.
+        """Create netlist from schematic circuit.
 
         Parameters
         ----------

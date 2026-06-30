@@ -46,8 +46,7 @@ _GRAPHICS_DEPENDENCIES = {
 
 
 def install_message(dependency: str | list[str], target: str, level: str = "method") -> str:
-    """
-    Generate an installation message for missing dependencies.
+    """Generate an installation message for missing dependencies.
 
     Examples
     --------
@@ -66,8 +65,7 @@ def install_message(dependency: str | list[str], target: str, level: str = "meth
 
 
 def min_aedt_version(min_version: str) -> callable:
-    """
-    Compare a minimum required version to the current AEDT version.
+    """Compare a minimum required version to the current AEDT version.
 
     This decorator should only be used on methods where the associated object can reach the desktop instance.
     Otherwise, there is no way to check version compatibility and an error is raised.
@@ -139,8 +137,7 @@ def min_aedt_version(min_version: str) -> callable:
 
 
 def check_dependency_available(dependency: str, warning: bool = False) -> bool | None:
-    """
-    Check if a specific graphics dependency is available.
+    """Check if a specific graphics dependency is available.
 
     Parameters
     ----------
@@ -202,8 +199,7 @@ def check_dependency_available(dependency: str, warning: bool = False) -> bool |
 
 
 def requires_graphical_dependency(*dependencies: str) -> callable:
-    """
-    Decorate a method as requiring specific graphics dependencies.
+    """Decorate a method as requiring specific graphics dependencies.
 
     The main goal of this decorator is to isolate the logic around checking graphics
     dependencies and providing consistent error messages across methods that require
@@ -246,8 +242,7 @@ def requires_graphical_dependency(*dependencies: str) -> callable:
 
 
 def is_notebook() -> bool:
-    """
-    Check if pyaedt is running in Jupyter or not.
+    """Check if pyaedt is running in Jupyter or not.
 
     Returns
     -------

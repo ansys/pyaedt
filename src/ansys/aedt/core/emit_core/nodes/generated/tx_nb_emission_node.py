@@ -71,8 +71,7 @@ class TxNbEmissionNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def import_csv_file(self, file_name: str) -> EmitNode:
-        """
-        Import a CSV File...
+        """Import a CSV File.
 
         Examples
         --------
@@ -105,8 +104,7 @@ class TxNbEmissionNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def table_data(self) -> list[tuple]:
-        """
-        Tx Emissions Profile Table.
+        """Tx Emissions Profile Table.
         Table consists of 2 columns.
         Bandwidth or Frequency:
             Value should be between 1 and 100e9.
@@ -133,8 +131,7 @@ class TxNbEmissionNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def enabled(self) -> bool:
-        """
-        Enabled state for this node.
+        """Enabled state for this node.
 
         Examples
         --------
@@ -160,8 +157,7 @@ class TxNbEmissionNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def narrowband_behavior(self) -> NarrowbandBehaviorOption:
-        """
-        Specifies the behavior of the parametric narrowband emissions mask.
+        """Specifies the behavior of the parametric narrowband emissions mask.
 
         Examples
         --------
@@ -185,8 +181,7 @@ class TxNbEmissionNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def measurement_frequency(self) -> float:
-        """
-        Measurement frequency for the absolute freq/amp pairs.
+        """Measurement frequency for the absolute freq/amp pairs.
 
         Examples
         --------

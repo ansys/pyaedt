@@ -22,8 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-Defines these classes: `FieldPlot`, `PostProcessor`, and `SolutionData`.
+"""Defines these classes: `FieldPlot`, `PostProcessor`, and `SolutionData`.
 
 The module provides all functionalities for creating and editing plots in the 3D tools.
 
@@ -123,8 +122,7 @@ AVAILABLE_QUANTITIES = [
 
 
 class FieldSummary(PyAedtBase):
-    """
-    Provides Icepak field summary methods.
+    """Provides Icepak field summary methods.
 
     Examples
     --------
@@ -150,8 +148,7 @@ class FieldSummary(PyAedtBase):
         ref_temperature: str = "AmbientTemp",
         time: str = "0s",
     ) -> bool:
-        """
-        Add an entry in the field summary calculation requests.
+        """Add an entry in the field summary calculation requests.
 
         Parameters
         ----------
@@ -226,8 +223,7 @@ class FieldSummary(PyAedtBase):
     def get_field_summary_data(
         self, setup: str | None = None, variation: dict | None = None, intrinsics: str = "", pandas_output: bool = False
     ):
-        """
-        Get  field summary output computation.
+        """Get  field summary output computation.
 
         Parameters
         ----------

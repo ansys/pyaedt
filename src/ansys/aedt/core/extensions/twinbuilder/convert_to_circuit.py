@@ -59,8 +59,7 @@ EXTENSION_TITLE = "Convert to Circuit"
 
 @dataclass
 class ConvertToCircuitExtensionData(ExtensionCommonData):
-    """
-    Data class containing user input and computed data.
+    """Data class containing user input and computed data.
 
     Examples
     --------
@@ -74,8 +73,7 @@ class ConvertToCircuitExtensionData(ExtensionCommonData):
 
 
 class ConvertToCircuitExtension(ExtensionTwinBuilderCommon):
-    """
-    Extension for converting TwinBuilder designs to Circuit.
+    """Extension for converting TwinBuilder designs to Circuit.
 
     Examples
     --------
@@ -120,8 +118,7 @@ class ConvertToCircuitExtension(ExtensionTwinBuilderCommon):
             raise AEDTRuntimeError(f"Failed to load Twin Builder designs: {str(e)}")
 
     def add_extension_content(self) -> None:
-        """
-        Add custom content to the extension UI.
+        """Add custom content to the extension UI.
 
         Examples
         --------
@@ -175,8 +172,7 @@ class ConvertToCircuitExtension(ExtensionTwinBuilderCommon):
 
 
 def main(data: ConvertToCircuitExtensionData) -> bool:
-    """
-    Main function to run the convert to circuit extension.
+    """Main function to run the convert to circuit extension.
 
     Examples
     --------

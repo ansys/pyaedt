@@ -44,8 +44,7 @@ from ansys.aedt.core.modeler.circuits.object_3d_circuit import Wire
 
 
 class CircuitComponents(PyAedtBase):
-    """
-    Circuit components class.
+    """Circuit components class.
 
     Manages all circuit components for Nexxim and Twin Builder.
 
@@ -111,8 +110,7 @@ class CircuitComponents(PyAedtBase):
 
     @pyaedt_function_handler()
     def get_wire_by_name(self, name: str) -> Wire | None:
-        """
-        Wire class by name.
+        """Wire class by name.
 
         Parameters
         ----------
@@ -261,8 +259,7 @@ class CircuitComponents(PyAedtBase):
 
     @property
     def design_type(self) -> str:
-        """
-        Design type.
+        """Design type.
 
         Examples
         --------

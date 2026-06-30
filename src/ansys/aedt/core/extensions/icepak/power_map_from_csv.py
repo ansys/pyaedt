@@ -74,8 +74,7 @@ PARSING_ERROR_MSG = "Missing information in the CSV file. Please provide both ge
 
 
 class IcepakCSVFormatError(AEDTRuntimeError):
-    """
-    Raised when the CSV file does not follow the expected Icepak classic format.
+    """Raised when the CSV file does not follow the expected Icepak classic format.
 
     Examples
     --------
@@ -89,8 +88,7 @@ class IcepakCSVFormatError(AEDTRuntimeError):
 
 @dataclass
 class PowerMapFromCSVExtensionData(ExtensionCommonData):
-    """
-    Data class containing user input and computed data.
+    """Data class containing user input and computed data.
 
     Examples
     --------
@@ -113,8 +111,7 @@ class PowerMapFromCSVExtensionData(ExtensionCommonData):
 
 
 class PowerMapFromCSVExtension(ExtensionIcepakCommon):
-    """
-    Class to create a cutout in an HFSS 3D Layout design.
+    """Class to create a cutout in an HFSS 3D Layout design.
 
     Examples
     --------
@@ -147,8 +144,7 @@ class PowerMapFromCSVExtension(ExtensionIcepakCommon):
         self.data.file_path = Path(filename)
 
     def add_extension_content(self) -> None:
-        """
-        Add custom content to the extension UI.
+        """Add custom content to the extension UI.
 
         Examples
         --------
@@ -196,8 +192,7 @@ class PowerMapFromCSVExtension(ExtensionIcepakCommon):
 
 
 def create_powermaps_from_csv(ipk: Icepak, csv_path: Path) -> None:
-    """
-    Create powermap from an Icepak classic CSV file.
+    """Create powermap from an Icepak classic CSV file.
 
     Parameters
     ----------
@@ -224,8 +219,7 @@ def create_powermaps_from_csv(ipk: Icepak, csv_path: Path) -> None:
 
 
 def create_powermaps_from_data(ipk: Icepak, data: PowerMapFromCSVExtensionData) -> None:
-    """
-    Create power maps from geometric and source information.
+    """Create power maps from geometric and source information.
 
     Parameters
     ----------
@@ -272,8 +266,7 @@ def create_powermaps_from_data(ipk: Icepak, data: PowerMapFromCSVExtensionData) 
 
 
 def extract_info(csv_file: Path) -> tuple[list, dict, dict]:
-    """
-    Extract source and geometric information from an Icepak classic CSV file.
+    """Extract source and geometric information from an Icepak classic CSV file.
 
     Parameters
     ----------
@@ -347,8 +340,7 @@ def extract_info(csv_file: Path) -> tuple[list, dict, dict]:
 
 
 def main(data: PowerMapFromCSVExtensionData) -> bool:
-    """
-    Main function to execute the cutout operation.
+    """Main function to execute the cutout operation.
 
     Examples
     --------

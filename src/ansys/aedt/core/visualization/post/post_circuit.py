@@ -40,8 +40,7 @@ from ansys.aedt.core.visualization.post.common import PostProcessorCommon
 
 
 class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
-    """
-    Manages the main schematic postprocessing functions.
+    """Manages the main schematic postprocessing functions.
 
     .. note::
        Some functionalities are available only when AEDT is running in the graphical mode.
@@ -70,8 +69,7 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
         width: int = 1920,
         height: int = 1080,
     ) -> str:
-        """
-        Export a snapshot of the schematic to a ``JPG`` file.
+        """Export a snapshot of the schematic to a ``JPG`` file.
 
         Parameters
         ----------
@@ -122,8 +120,7 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
         plot_final_response: bool = False,
         plot_name: str = None,
     ) -> str:
-        """
-        Create an AMI initial response plot.
+        """Create an AMI initial response plot.
 
         Parameters
         ----------
@@ -241,8 +238,7 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
         ami_plot_type: str = "InitialEye",
         plot_name: str = None,
     ) -> str:
-        """
-        Create an AMI statistical eye plot.
+        """Create an AMI statistical eye plot.
 
         Parameters
         ----------
@@ -362,8 +358,7 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
     def create_statistical_eye_plot(
         self, setup: str, probe_names: str | list, variation_list_w_value: list | dict, plot_name: str = None
     ) -> str:
-        """
-        Create a statistical QuickEye, VerifEye, and/or Statistical Eye plot.
+        """Create a statistical QuickEye, VerifEye, and/or Statistical Eye plot.
 
         Parameters
         ----------
@@ -478,8 +473,7 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
         clock_tics: list = None,
         pandas_enabled: bool = False,
     ) -> "list | Series":
-        """
-        Sampling a waveform at clock times plus half unit interval.
+        """Sampling a waveform at clock times plus half unit interval.
 
         Parameters
         ----------
@@ -578,8 +572,7 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
         plot_type: str = None,
         clock_tics: list = None,
     ) -> list | None:
-        """
-        Sampling a waveform at clock times plus half unit interval.
+        """Sampling a waveform at clock times plus half unit interval.
 
         Parameters
         ----------

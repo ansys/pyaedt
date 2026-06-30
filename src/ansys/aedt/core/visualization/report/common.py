@@ -83,8 +83,7 @@ class LimitLine(BinaryTreeNode, PyAedtBase):
         hatch_pixels: int = None,
         color: tuple = None,
     ) -> bool:
-        """
-        Set trace properties.
+        """Set trace properties.
 
         Parameters
         ----------
@@ -137,8 +136,7 @@ class LimitLine(BinaryTreeNode, PyAedtBase):
 
 
 class Note(BinaryTreeNode, PyAedtBase):
-    """
-    Note Management Class.
+    """Note Management Class.
 
     Examples
     --------
@@ -177,8 +175,7 @@ class Note(BinaryTreeNode, PyAedtBase):
         bold: bool = False,
         color: tuple = (0, 0, 0),
     ) -> bool:
-        """
-        Set note properties.
+        """Set note properties.
 
         Parameters
         ----------
@@ -281,8 +278,7 @@ class Note(BinaryTreeNode, PyAedtBase):
 
 
 class Trace(BinaryTreeNode, PyAedtBase):
-    """
-    Provides trace management.
+    """Provides trace management.
 
     Examples
     --------
@@ -327,8 +323,7 @@ class Trace(BinaryTreeNode, PyAedtBase):
 
     @property
     def curve_properties(self) -> dict:
-        """
-        All curve graphical properties. It includes colors, trace and symbol settings.
+        """All curve graphical properties. It includes colors, trace and symbol settings.
 
         Returns
         -------
@@ -348,8 +343,7 @@ class Trace(BinaryTreeNode, PyAedtBase):
 
     @property
     def name(self) -> str:
-        """
-        Trace name.
+        """Trace name.
 
         Returns
         -------
@@ -399,8 +393,7 @@ class Trace(BinaryTreeNode, PyAedtBase):
     def set_trace_properties(
         self, style: str = None, width: int = None, trace_type: str = None, color: tuple = None
     ) -> bool:
-        """
-        Set trace properties.
+        """Set trace properties.
 
         Parameters
         ----------
@@ -445,8 +438,7 @@ class Trace(BinaryTreeNode, PyAedtBase):
     def set_symbol_properties(
         self, show: bool = True, style: str = None, show_arrows: bool = None, fill: bool = None, color: tuple = None
     ) -> bool:
-        """
-        Set symbol properties.
+        """Set symbol properties.
 
         Parameters
         ----------
@@ -488,8 +480,7 @@ class Trace(BinaryTreeNode, PyAedtBase):
 
 
 class CommonReport(BinaryTreeNode, PyAedtBase):
-    """
-    Provides common reports.
+    """Provides common reports.
 
     Examples
     --------
@@ -561,8 +552,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @pyaedt_function_handler()
     def delete(self) -> bool:
-        """
-        Delete current report.
+        """Delete current report.
 
         Examples
         --------
@@ -580,8 +570,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @property
     def differential_pairs(self) -> bool:
-        """
-        Differential pairs flag.
+        """Differential pairs flag.
 
         Returns
         -------
@@ -603,8 +592,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @property
     def matrix(self) -> str:
-        """
-        Maxwell 2D/3D or Q2D/Q3D matrix name.
+        """Maxwell 2D/3D or Q2D/Q3D matrix name.
 
         Returns
         -------
@@ -640,8 +628,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @property
     def reduced_matrix(self) -> str:
-        """
-        Maxwell 2D/3D reduced matrix name for eddy current solvers.
+        """Maxwell 2D/3D reduced matrix name for eddy current solvers.
 
         Returns
         -------
@@ -663,8 +650,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @property
     def polyline(self) -> str:
-        """
-        Polyline name for the field report.
+        """Polyline name for the field report.
 
         Returns
         -------
@@ -691,8 +677,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @property
     def expressions(self) -> list:
-        """
-        Expressions.
+        """Expressions.
 
         Returns
         -------
@@ -730,8 +715,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @property
     def report_category(self) -> str:
-        """
-        Report category.
+        """Report category.
 
         Returns
         -------
@@ -759,8 +743,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @property
     def report_type(self) -> str:
-        """
-        Report type. Options are ``"3D Polar Plot"``, ``"3D Spherical Plot"``,
+        """Report type. Options are ``"3D Polar Plot"``, ``"3D Spherical Plot"``,
         ``"Radiation Pattern"``, ``"Rectangular Plot"``, ``"Data Table"``,
         ``"Smith Chart"``, and ``"Rectangular Contour Plot"``.
 
@@ -800,8 +783,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @property
     def traces(self) -> list:
-        """
-        List of available traces in the report.
+        """List of available traces in the report.
 
         .. note::
             This property works in version 2022 R1 and later. However, it works only in
@@ -1195,8 +1177,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @property
     def limit_lines(self) -> list:
-        """
-        List of available limit lines in the report.
+        """List of available limit lines in the report.
 
         .. note::
             This property works in version 2022 R1 and later. However, it works only in
@@ -1231,8 +1212,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @property
     def notes(self) -> list:
-        """
-        List of available notes in the report.
+        """List of available notes in the report.
 
         .. note::
             This property works in version 2022 R1 and later. However, it works only in
@@ -1270,8 +1250,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @property
     def plot_name(self) -> str:
-        """
-        Plot name.
+        """Plot name.
 
         Returns
         -------
@@ -1323,8 +1302,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @property
     def variations(self) -> dict:
-        """
-        Variations.
+        """Variations.
 
         Returns
         -------
@@ -1377,8 +1355,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @property
     def primary_sweep(self) -> str:
-        """
-        Primary sweep report.
+        """Primary sweep report.
 
         Returns
         -------
@@ -1413,8 +1390,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @property
     def secondary_sweep(self) -> str:
-        """
-        Secondary sweep report.
+        """Secondary sweep report.
 
         Returns
         -------
@@ -1448,8 +1424,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @property
     def primary_sweep_range(self) -> str:
-        """
-        Primary sweep range report.
+        """Primary sweep range report.
 
         Returns
         -------
@@ -1471,8 +1446,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @property
     def secondary_sweep_range(self) -> str:
-        """
-        Secondary sweep range report.
+        """Secondary sweep range report.
 
         Returns
         -------
@@ -1498,8 +1472,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @pyaedt_function_handler()
     def update_expressions_with_defaults(self, quantities_category: str = None) -> bool:
-        """
-        Update the list of expressions by taking all quantities from a given category.
+        """Update the list of expressions by taking all quantities from a given category.
 
         Parameters
         ----------
@@ -1560,8 +1533,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @property
     def display_families_type(self) -> str:
-        """
-        Display families type for reports with X and Y components.
+        """Display families type for reports with X and Y components.
 
         Options are ``DisplayFamiliesType.Histogram``, ``DisplayFamiliesType.Statistics``,
         and ``DisplayFamiliesType.Cumulative``.
@@ -1593,8 +1565,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @property
     def display_families_options(self) -> dict:
-        """
-        Options for the display families type.
+        """Options for the display families type.
 
         Default values are populated automatically when ``display_families_type``
         is set:
@@ -1615,8 +1586,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         self._display_families_options = value if value else {}
 
     def _display_families_arg(self):
-        """
-        Build the display families argument for CreateReport.
+        """Build the display families argument for CreateReport.
 
         Returns
         -------
@@ -1645,8 +1615,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @property
     def domain(self) -> str:
-        """
-        Plot domain.
+        """Plot domain.
 
         Returns
         -------
@@ -1690,8 +1659,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @property
     def use_pulse_in_tdr(self) -> bool:
-        """
-        Defines if the TDR should use a pulse or step.
+        """Defines if the TDR should use a pulse or step.
 
         Returns
         -------
@@ -1746,8 +1714,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @pyaedt_function_handler()
     def create(self, name: str = None) -> bool:
-        """
-        Create a report.
+        """Create a report.
 
         Parameters
         ----------
@@ -2066,8 +2033,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @pyaedt_function_handler()
     def export_config(self, output_file: str) -> bool:
-        """
-        Generate a configuration file from active report.
+        """Generate a configuration file from active report.
 
         Parameters
         ----------
@@ -2101,8 +2067,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_solution_data(self) -> SolutionData | bool:
-        """
-        Get the report solution data.
+        """Get the report solution data.
 
         Returns
         -------
@@ -2140,8 +2105,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
     def add_limit_line_from_points(
         self, x_list: list, y_list: list, x_units: str = "", y_units: str = "", y_axis: str = "Y1"
     ) -> bool:  # pragma: no cover
-        """
-        Add a Cartesian limit line from point lists. This method works only in graphical mode.
+        """Add a Cartesian limit line from point lists. This method works only in graphical mode.
 
         Parameters
         ----------
@@ -2196,8 +2160,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
     def add_limit_line_from_equation(
         self, start_x: float, stop_x: float, step: float, equation: str = "x", units: str = "GHz", y_axis: int = 1
     ) -> bool:  # pragma: no cover
-        """
-        Add a Cartesian limit line from point lists. This method works only in graphical mode.
+        """Add a Cartesian limit line from point lists. This method works only in graphical mode.
 
         Parameters
         ----------
@@ -2248,8 +2211,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @pyaedt_function_handler()
     def add_note(self, text: str, x_position: float = 0.0, y_position: float = 0.0) -> bool:  # pragma: no cover
-        """
-        Add a note at a position.
+        """Add a note at a position.
 
         Parameters
         ----------
@@ -2298,8 +2260,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @pyaedt_function_handler()
     def add_cartesian_x_marker(self, value: str, name: str | None = None) -> str:  # pragma: no cover
-        """
-        Add a cartesian X marker.
+        """Add a cartesian X marker.
 
         .. note::
            This method only works in graphical mode.
@@ -2331,8 +2292,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @pyaedt_function_handler()
     def add_cartesian_y_marker(self, value: str, name: str | None = None, y_axis: int = 1) -> str:  # pragma: no cover
-        """
-        Add a cartesian Y marker.
+        """Add a cartesian Y marker.
 
         .. note::
            This method only works in graphical mode.
@@ -2390,8 +2350,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         minor_color: tuple = (0, 0, 0),
         major_color: tuple = (0, 0, 0),
     ) -> bool:
-        """
-        Edit the grid settings for the plot.
+        """Edit the grid settings for the plot.
 
         Parameters
         ----------
@@ -2450,8 +2409,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         label: str = None,
         display_units: bool = True,
     ) -> bool:
-        """
-        Edit the X-axis settings.
+        """Edit the X-axis settings.
 
         Parameters
         ----------
@@ -2540,8 +2498,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         min_spacing: str = None,
         units: str = None,
     ) -> bool:
-        """
-        Edit the X-axis scaling settings.
+        """Edit the X-axis scaling settings.
 
         Parameters
         ----------
@@ -2597,8 +2554,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         back_color: tuple = (255, 255, 255),
         font_color: tuple = (0, 0, 0),
     ) -> bool:
-        """
-        Edit the plot legend.
+        """Edit the plot legend.
 
         Parameters
         ----------
@@ -2641,8 +2597,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
     def hide_legend(
         self, solution_name: bool = True, trace_name: bool = True, variation_key: bool = True, font_size: int = 1
     ) -> bool:
-        """
-        Hide the Legend.
+        """Hide the Legend.
 
         Parameters
         ----------
@@ -2692,8 +2647,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         label: str = None,
         display_units: bool = True,
     ) -> bool:
-        """
-        Edit the Y-axis settings.
+        """Edit the Y-axis settings.
 
         Parameters
         ----------
@@ -2784,8 +2738,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         min_spacing: str = None,
         units: str = None,
     ) -> bool:
-        """
-        Edit the Y-axis scaling settings.
+        """Edit the Y-axis scaling settings.
 
         Parameters
         ----------
@@ -2844,8 +2797,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         precision: int = 4,
         use_scientific_notation: bool = True,
     ) -> bool:
-        """
-        Edit general settings for the plot.
+        """Edit general settings for the plot.
 
         Parameters
         ----------
@@ -2909,8 +2861,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         bold: bool = False,
         color: tuple = (0, 0, 0),
     ) -> bool:
-        """
-        Edit the plot header.
+        """Edit the plot header.
 
         Parameters
         ----------
@@ -3027,8 +2978,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @pyaedt_function_handler()
     def import_traces(self, input_file: str, plot_name: str) -> bool:
-        """
-        Import report data from a file into a specified report.
+        """Import report data from a file into a specified report.
 
         Parameters
         ----------
@@ -3082,8 +3032,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @pyaedt_function_handler()
     def delete_traces(self, plot_name: str, traces_list: list) -> bool:
-        """
-        Delete an existing trace or traces.
+        """Delete an existing trace or traces.
 
         Parameters
         ----------
@@ -3123,8 +3072,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
     def add_trace_to_report(
         self, traces: list, setup_name: str = None, variations: dict | None = None, context: list | None = None
     ) -> bool:
-        """
-        Add a trace to a specific report.
+        """Add a trace to a specific report.
 
         Parameters
         ----------
@@ -3168,8 +3116,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
     def update_trace_in_report(
         self, traces: list, setup_name: str = None, variations: dict | None = None, context: list | None = None
     ) -> bool:
-        """
-        Update a trace in a specific report.
+        """Update a trace in a specific report.
 
         Parameters
         ----------
@@ -3214,8 +3161,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @pyaedt_function_handler()
     def apply_report_template(self, input_file: str, property_type: str = "Graphical") -> bool:  # pragma: no cover
-        """
-        Apply report template.
+        """Apply report template.
 
         .. note::
             This method works in only in graphical mode.
@@ -3266,8 +3212,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @pyaedt_function_handler()
     def add_trace_characteristics(self, name: str, arguments: list = None, solution_range: list = None) -> bool:
-        """
-        Add a trace characteristic to the plot.
+        """Add a trace characteristic to the plot.
 
         Parameters
         ----------
@@ -3300,8 +3245,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @pyaedt_function_handler()
     def export_table_to_file(self, plot_name: str, output_file: str, table_type: str = "Marker") -> bool:
-        """
-        Export a marker table or a legend (with trace characteristics result) from a report to a file.
+        """Export a marker table or a legend (with trace characteristics result) from a report to a file.
 
         Parameters
         ----------

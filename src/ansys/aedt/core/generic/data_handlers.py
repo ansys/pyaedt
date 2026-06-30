@@ -62,9 +62,7 @@ def _dict_items_to_list_items(d, k, idx: str = "name") -> None:
 
 @pyaedt_function_handler()
 def _tuple2dict(t, d) -> None:
-    """
-
-    Parameters
+    """Parameters
     ----------
     t :
 
@@ -101,8 +99,7 @@ def _tuple2dict(t, d) -> None:
 
 @pyaedt_function_handler()
 def _dict2arg(d, arg_out) -> None:
-    """
-    Create a valid string of name-value pairs for the native AEDT API.
+    """Create a valid string of name-value pairs for the native AEDT API.
 
     Prepend the argument string in `arg_out` using the dictionary ``d``
     to create a valid input string as an argument for the native AEDT API.
@@ -235,8 +232,7 @@ def _arg2dict(arg, dict_out):
 
 @pyaedt_function_handler()
 def format_decimals(el: float | int | str) -> str:
-    """
-    Provide a formatted string for a decimal number.
+    """Provide a formatted string for a decimal number.
 
     Parameters
     ----------
@@ -264,8 +260,7 @@ def format_decimals(el: float | int | str) -> str:
 
 @pyaedt_function_handler()
 def random_string(length: int = 6, only_digits: bool = False, char_set: str = None) -> str:
-    """
-    Generate a random string.
+    """Generate a random string.
 
     Parameters
     ----------
@@ -300,8 +295,7 @@ def random_string(length: int = 6, only_digits: bool = False, char_set: str = No
 
 @pyaedt_function_handler()
 def unique_string_list(element_list: list | str, only_string: bool = True) -> list:
-    """
-    Return a unique list of strings from an element list.
+    """Return a unique list of strings from an element list.
 
     Parameters
     ----------
@@ -331,8 +325,7 @@ def unique_string_list(element_list: list | str, only_string: bool = True) -> li
 
 @pyaedt_function_handler()
 def string_list(element_list: list | str) -> list:
-    """
-    Convert a string to a list if it is not already a list.
+    """Convert a string to a list if it is not already a list.
 
     Input must be a list or a string.
 
@@ -361,8 +354,7 @@ def string_list(element_list: list | str) -> list:
 
 @pyaedt_function_handler()
 def ensure_list(element_list: object) -> list:
-    """
-    Ensure that an object is a list.
+    """Ensure that an object is a list.
 
     If it is not, it will be converted to a list.
 
@@ -388,8 +380,7 @@ def ensure_list(element_list: object) -> list:
 
 @pyaedt_function_handler()
 def variation_string_to_dict(variation_string: str, separator: str = "=") -> dict:
-    """
-    Helper function to convert a list of "="-separated strings into a dictionary
+    """Helper function to convert a list of "="-separated strings into a dictionary
 
     Returns
     -------
@@ -458,8 +449,7 @@ AEDT_MAPS = {"μ": "u"}
 
 @pyaedt_function_handler()
 def from_rkm(code: str) -> str:
-    """
-    Convert an RKM code string to a string with a decimal point.
+    """Convert an RKM code string to a string with a decimal point.
 
     Parameters
     ----------
@@ -525,9 +515,7 @@ def from_rkm(code: str) -> str:
 
 @pyaedt_function_handler()
 def to_aedt(code: str) -> str:
-    """
-
-    Parameters
+    """Parameters
     ----------
     code : str
 
@@ -549,8 +537,7 @@ def to_aedt(code: str) -> str:
 
 
 def str_to_bool(s: str | int) -> bool | str:
-    """
-    Convert a ``"True"`` or ``"False"`` string to its corresponding Boolean value.
+    """Convert a ``"True"`` or ``"False"`` string to its corresponding Boolean value.
 
     If the passed arguments are not relevant in the context of conversion, the argument
     itself is returned. This method can be called using the ``map()`` function to
@@ -590,9 +577,7 @@ def str_to_bool(s: str | int) -> bool | str:
 
 @pyaedt_function_handler()
 def from_rkm_to_aedt(code: str) -> str:
-    """
-
-    Parameters
+    """Parameters
     ----------
     code : str
 
@@ -641,8 +626,7 @@ unit_val = {
     "km": 1e3,
 }
 """Value for unit val."""
-resynch_maxwell2D_control_program_for_design = """
-from ansys.aedt.core.desktop import Desktop
+resynch_maxwell2D_control_program_for_design = """from ansys.aedt.core.desktop import Desktop
 from ansys.aedt.core.maxwell import Maxwell2d
 design_name = os.getenv('design')
 setup = os.getenv('setup')
@@ -657,8 +641,7 @@ Value for resynch maxwell2D control program for design."""
 
 @pyaedt_function_handler()
 def float_units(val_str: str, units: str = "") -> float:
-    """
-    Retrieve units for a value.
+    """Retrieve units for a value.
 
     Parameters
     ----------

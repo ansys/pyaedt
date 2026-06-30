@@ -40,8 +40,7 @@ defusedxml.defuse_stdlib()
 
 @dataclass
 class ButtonSpec:
-    """
-    Button definition for TabConfig.xml.
+    """Button definition for TabConfig.xml.
 
     Parameters
     ----------
@@ -76,8 +75,7 @@ class ButtonSpec:
 
 @dataclass
 class GroupSpec:
-    """
-    Group definition inside a gallery.
+    """Group definition inside a gallery.
 
     Examples
     --------
@@ -112,8 +110,7 @@ class GroupSpec:
 
 @dataclass
 class GallerySpec:
-    """
-    Gallery definition containing a header button and grouped buttons.
+    """Gallery definition containing a header button and grouped buttons.
 
     Examples
     --------
@@ -159,8 +156,7 @@ class GallerySpec:
 
 @dataclass
 class PanelSpec:
-    """
-    Panel definition with direct buttons and galleries.
+    """Panel definition with direct buttons and galleries.
 
     Examples
     --------
@@ -193,8 +189,7 @@ class PanelSpec:
 
 
 class TabConfigParser:
-    """
-    Parser for AEDT TabConfig.xml with add/remove/insert support.
+    """Parser for AEDT TabConfig.xml with add/remove/insert support.
 
     The supported structure is:
         TabConfig -> panel -> button
@@ -325,8 +320,7 @@ class TabConfigParser:
         return removed
 
     def has_button(self, panel_label: str, label: str) -> bool:
-        """
-        Return ``True`` if a button label exists anywhere in a panel.
+        """Return ``True`` if a button label exists anywhere in a panel.
 
         Examples
         --------

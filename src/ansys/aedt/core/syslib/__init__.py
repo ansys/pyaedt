@@ -30,8 +30,8 @@ from ansys.aedt.core.generic.general_methods import is_windows
 
 
 def load_native_module(module_name: str, base_dir: Path | str) -> object:
-    """
-    Dynamically load a compiled native Python module (.pyd or .so) from a base directory.
+    """Dynamically load a compiled native Python module (.pyd or .so) from a base directory.
+
     Automatically choose the correct file extension based on the platform and Python version.
 
     The module name must end with '_lib' or '_dynload'.

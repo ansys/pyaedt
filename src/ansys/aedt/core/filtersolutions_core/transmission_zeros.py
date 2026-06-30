@@ -34,8 +34,7 @@ import ansys.aedt.core
 
 
 class TableFormat(Enum):
-    """
-    Enumeration of transmission zeros table.
+    """Enumeration of transmission zeros table.
 
     **Attributes:**
 
@@ -56,8 +55,7 @@ class TableFormat(Enum):
 
 
 class TransmissionZeros:
-    """
-    Manipulates access to ratio and bandwidth entries in the tranmsission zeros table.
+    """Manipulates access to ratio and bandwidth entries in the tranmsission zeros table.
 
     This class lets you to enter, edit, or remove ratio and bandwidth entries
     in the tranmsission zeros table.
@@ -128,8 +126,7 @@ class TransmissionZeros:
         self._dll.defaultPositionEnabled.restype = c_int
 
     def table_format_to_bool(self) -> bool:
-        """
-        Check if the entry format of the transmission zeros tables is ratio.
+        """Check if the entry format of the transmission zeros tables is ratio.
         If ``False``, the entry format is bandwidth.
 
         Returns
@@ -155,8 +152,7 @@ class TransmissionZeros:
 
     @property
     def row_count(self) -> int:
-        """
-        Number of transmission zeros in the transmission zeros table.
+        """Number of transmission zeros in the transmission zeros table.
 
         The default is ``2``.
 
@@ -177,8 +173,7 @@ class TransmissionZeros:
         return int(table_row_count.value)
 
     def row(self, row_index: int) -> tuple[str, str]:
-        """
-        Get the transmission zero ratio or bandwidth and the position of the element
+        """Get the transmission zero ratio or bandwidth and the position of the element
         causing the transmission zero from a row in the transmission zeros table.
 
         Parameters
@@ -214,8 +209,7 @@ class TransmissionZeros:
         return zero_value_string, position_value_string
 
     def update_row(self, row_index: int, zero: str = None, position: str = None) -> None:
-        """
-        Update the transmission zero ratio or bandwidth and its position for a row in the transmission zeros table.
+        """Update the transmission zero ratio or bandwidth and its position for a row in the transmission zeros table.
 
         Parameters
         ----------
@@ -244,8 +238,7 @@ class TransmissionZeros:
         self._dll_interface.raise_error(status)
 
     def append_row(self, zero: str = None, position: str = None) -> None:
-        """
-        Append a new row that includes the ratio or bandwidth and position.
+        """Append a new row that includes the ratio or bandwidth and position.
 
         Parameters
         ----------
@@ -269,8 +262,7 @@ class TransmissionZeros:
         self._dll_interface.raise_error(status)
 
     def insert_row(self, row_index: int, zero: str = None, position: str = None) -> None:
-        """
-        Insert a new row that includes the ratio or bandwidth and the position.
+        """Insert a new row that includes the ratio or bandwidth and the position.
 
         Parameters
         ----------
@@ -297,8 +289,7 @@ class TransmissionZeros:
         self._dll_interface.raise_error(status)
 
     def remove_row(self, row_index: int) -> None:
-        """
-        Remove a row, including the ratio or bandwidth and the position.
+        """Remove a row, including the ratio or bandwidth and the position.
 
         Parameters
         ----------
@@ -316,8 +307,7 @@ class TransmissionZeros:
         self._dll_interface.raise_error(status)
 
     def clear_table(self) -> None:
-        """
-        Clear all entries in the transmission zeros table.
+        """Clear all entries in the transmission zeros table.
 
         Examples
         --------
@@ -330,8 +320,7 @@ class TransmissionZeros:
         self._dll_interface.raise_error(status)
 
     def restore_default_positions(self) -> None:
-        """
-        Restore default positions of transmissison zeros.
+        """Restore default positions of transmissison zeros.
 
         Examples
         --------

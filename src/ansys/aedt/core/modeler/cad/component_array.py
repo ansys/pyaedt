@@ -41,8 +41,7 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
 class ComponentArray(PyAedtBase):
-    """
-    Manages object attributes for a 3D component array.
+    """Manages object attributes for a 3D component array.
 
     Parameters
     ----------
@@ -94,8 +93,7 @@ class ComponentArray(PyAedtBase):
 
     @classmethod
     def create(cls, app: "Hfss", input_data: dict, name: str | None = None) -> "ComponentArray":
-        """
-        Create a component array.
+        """Create a component array.
 
         Parameters
         ----------
@@ -250,8 +248,7 @@ class ComponentArray(PyAedtBase):
 
     @pyaedt_function_handler()
     def __getitem__(self, key):
-        """
-        Get cell object corresponding to a key (row, column).
+        """Get cell object corresponding to a key (row, column).
 
         Parameters
         ----------
@@ -274,8 +271,7 @@ class ComponentArray(PyAedtBase):
 
     @property
     def component_names(self) -> list:
-        """
-        List of component names.
+        """List of component names.
 
         Examples
         --------
@@ -288,8 +284,7 @@ class ComponentArray(PyAedtBase):
 
     @property
     def cells(self) -> list:
-        """
-        List of :class:`ansys.aedt.core.modeler.cad.component_array.CellArray` objects.
+        """List of :class:`ansys.aedt.core.modeler.cad.component_array.CellArray` objects.
 
         Examples
         --------
@@ -316,8 +311,7 @@ class ComponentArray(PyAedtBase):
 
     @property
     def name(self) -> str:
-        """
-        Name of the array.
+        """Name of the array.
 
         Examples
         --------
@@ -342,8 +336,7 @@ class ComponentArray(PyAedtBase):
 
     @property
     def properties(self) -> dict:
-        """
-        Ordered dictionary of the properties of the component array.
+        """Ordered dictionary of the properties of the component array.
 
         Examples
         --------
@@ -361,8 +354,7 @@ class ComponentArray(PyAedtBase):
 
     @property
     def post_processing_cells(self) -> dict:
-        """
-        Dictionary of each component's postprocessing cells.
+        """Dictionary of each component's postprocessing cells.
 
         Examples
         --------
@@ -395,8 +387,7 @@ class ComponentArray(PyAedtBase):
 
     @property
     def visible(self) -> bool:
-        """
-        Flag indicating if the array is visible.
+        """Flag indicating if the array is visible.
 
         Examples
         --------
@@ -413,8 +404,7 @@ class ComponentArray(PyAedtBase):
 
     @property
     def show_cell_number(self) -> bool:
-        """
-        Flag indicating if the array cell number is shown.
+        """Flag indicating if the array cell number is shown.
 
         Examples
         --------
@@ -431,8 +421,7 @@ class ComponentArray(PyAedtBase):
 
     @property
     def render_choices(self) -> list:
-        """
-        List of rendered name choices.
+        """List of rendered name choices.
 
         Examples
         --------
@@ -445,8 +434,7 @@ class ComponentArray(PyAedtBase):
 
     @property
     def render(self) -> str:
-        """
-        Array rendering.
+        """Array rendering.
 
         Examples
         --------
@@ -466,8 +454,7 @@ class ComponentArray(PyAedtBase):
 
     @property
     def render_id(self) -> int:
-        """
-        Array rendering ID.
+        """Array rendering ID.
 
         Examples
         --------
@@ -481,8 +468,7 @@ class ComponentArray(PyAedtBase):
 
     @property
     def a_vector_choices(self) -> list:
-        """
-        List of name choices for vector A.
+        """List of name choices for vector A.
 
         Examples
         --------
@@ -495,8 +481,7 @@ class ComponentArray(PyAedtBase):
 
     @property
     def b_vector_choices(self) -> list:
-        """
-        List of name choices for vector B.
+        """List of name choices for vector B.
 
         Examples
         --------
@@ -509,8 +494,7 @@ class ComponentArray(PyAedtBase):
 
     @property
     def a_vector_name(self) -> str:
-        """
-        Name of vector A.
+        """Name of vector A.
 
         Examples
         --------
@@ -530,8 +514,7 @@ class ComponentArray(PyAedtBase):
 
     @property
     def b_vector_name(self) -> str:
-        """
-        Name of vector B.
+        """Name of vector B.
 
         Examples
         --------
@@ -551,8 +534,7 @@ class ComponentArray(PyAedtBase):
 
     @property
     def a_size(self) -> int:
-        """
-        Number of cells in the vector A direction.
+        """Number of cells in the vector A direction.
 
         Examples
         --------
@@ -571,8 +553,7 @@ class ComponentArray(PyAedtBase):
 
     @property
     def b_size(self) -> int:
-        """
-        Number of cells in the vector B direction.
+        """Number of cells in the vector B direction.
 
         Examples
         --------
@@ -591,8 +572,7 @@ class ComponentArray(PyAedtBase):
 
     @property
     def a_length(self) -> float:
-        """
-        Length of the array in A direction.
+        """Length of the array in A direction.
 
         Examples
         --------
@@ -611,8 +591,7 @@ class ComponentArray(PyAedtBase):
 
     @property
     def b_length(self) -> float:
-        """
-        Length of the array in B direction.
+        """Length of the array in B direction.
 
         Examples
         --------
@@ -631,8 +610,7 @@ class ComponentArray(PyAedtBase):
 
     @property
     def padding_cells(self) -> int:
-        """
-        Number of padding cells.
+        """Number of padding cells.
 
         Examples
         --------
@@ -649,8 +627,7 @@ class ComponentArray(PyAedtBase):
 
     @property
     def coordinate_system(self) -> str:
-        """
-        Coordinate system name.
+        """Coordinate system name.
 
         Examples
         --------
@@ -679,8 +656,7 @@ class ComponentArray(PyAedtBase):
 
     @pyaedt_function_handler()
     def update_properties(self) -> dict:
-        """
-        Update component array properties.
+        """Update component array properties.
 
         Returns
         -------
@@ -709,8 +685,7 @@ class ComponentArray(PyAedtBase):
 
     @pyaedt_function_handler()
     def delete(self) -> None:
-        """
-        Delete the component array.
+        """Delete the component array.
 
         References
         ----------
@@ -756,8 +731,7 @@ class ComponentArray(PyAedtBase):
 
     @pyaedt_function_handler()
     def parse_array_info_from_csv(self, input_file: str) -> dict:  # pragma: no cover
-        """
-        Parse component array information from the CSV file.
+        """Parse component array information from the CSV file.
 
         Parameters
         ----------
@@ -859,8 +833,7 @@ class ComponentArray(PyAedtBase):
 
     @pyaedt_function_handler()
     def edit_array(self) -> bool:
-        """
-        Edit component array.
+        """Edit component array.
 
         Returns
         -------
@@ -958,8 +931,7 @@ class ComponentArray(PyAedtBase):
 
     @pyaedt_function_handler()
     def get_cell(self, row: int, col: int) -> "CellArray":
-        """
-        Get cell object corresponding to a row and column.
+        """Get cell object corresponding to a row and column.
 
         Returns
         -------
@@ -976,8 +948,7 @@ class ComponentArray(PyAedtBase):
 
     @pyaedt_function_handler()
     def lattice_vector(self) -> list:
-        """
-        Get model lattice vector.
+        """Get model lattice vector.
 
         Returns
         -------
@@ -1002,8 +973,7 @@ class ComponentArray(PyAedtBase):
 
     @pyaedt_function_handler()
     def get_component_objects(self) -> dict:
-        """
-        Get 3D component center.
+        """Get 3D component center.
 
         Returns
         -------
@@ -1040,8 +1010,7 @@ class ComponentArray(PyAedtBase):
 
     @pyaedt_function_handler()
     def get_cell_position(self) -> list:
-        """
-        Get cell position.
+        """Get cell position.
 
         Returns
         -------
@@ -1091,8 +1060,7 @@ class ComponentArray(PyAedtBase):
 
     @pyaedt_function_handler()
     def __get_properties_from_aedt(self):
-        """
-        Get array properties from an AEDT file.
+        """Get array properties from an AEDT file.
 
         Returns
         -------
@@ -1124,8 +1092,7 @@ class ComponentArray(PyAedtBase):
 
     @pyaedt_function_handler()
     def __map_coordinate_system_to_id(self):
-        """
-        Map coordinate system to ID.
+        """Map coordinate system to ID.
 
         Returns
         -------
@@ -1149,8 +1116,7 @@ class ComponentArray(PyAedtBase):
 
 
 class CellArray(PyAedtBase):
-    """
-    Manages object attributes for a 3D component and a user-defined model.
+    """Manages object attributes for a 3D component and a user-defined model.
 
     Parameters
     ----------
@@ -1193,8 +1159,7 @@ class CellArray(PyAedtBase):
 
     @property
     def rotation(self) -> int:
-        """
-        Rotation value of the cell object.
+        """Rotation value of the cell object.
 
         Examples
         --------
@@ -1217,8 +1182,7 @@ class CellArray(PyAedtBase):
 
     @property
     def component(self):
-        """
-        Component name of the cell object.
+        """Component name of the cell object.
 
         Examples
         --------
@@ -1252,8 +1216,7 @@ class CellArray(PyAedtBase):
 
     @property
     def is_active(self) -> bool:
-        """
-        Flag indicating if the cell object is active or passive.
+        """Flag indicating if the cell object is active or passive.
 
         Examples
         --------

@@ -22,8 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-The module contains these classes: `AntennaParameters`, `Fields`, `NearField`, `FarField`, and `Emission`.
+"""The module contains these classes: `AntennaParameters`, `Fields`, `NearField`, `FarField`, and `Emission`.
 
 The module provides all functionalities for creating and editing reports.
 
@@ -44,8 +43,7 @@ from ansys.aedt.core.visualization.report.standard import Standard
 
 
 class AntennaParameters(Standard):
-    """
-    Provides a reporting class that fits antenna parameter reports in an HFSS plot.
+    """Provides a reporting class that fits antenna parameter reports in an HFSS plot.
 
     Examples
     --------
@@ -60,8 +58,7 @@ class AntennaParameters(Standard):
 
     @property
     def far_field_sphere(self) -> str:
-        """
-        Far field sphere name.
+        """Far field sphere name.
 
         Returns
         -------
@@ -94,8 +91,7 @@ class AntennaParameters(Standard):
 
 
 class Fields(CommonReport):
-    """
-    Handler to manage fields.
+    """Handler to manage fields.
 
     Examples
     --------
@@ -112,8 +108,7 @@ class Fields(CommonReport):
 
     @property
     def point_number(self) -> int:
-        """
-        Polygon point number.
+        """Polygon point number.
 
         Returns
         -------
@@ -144,8 +139,7 @@ class Fields(CommonReport):
 
 
 class NearField(CommonReport):
-    """
-    Provides for managing near field reports.
+    """Provides for managing near field reports.
 
     Examples
     --------
@@ -164,8 +158,7 @@ class NearField(CommonReport):
 
     @property
     def near_field(self) -> str:
-        """
-        Near field name.
+        """Near field name.
 
         Returns
         -------
@@ -187,8 +180,7 @@ class NearField(CommonReport):
 
 
 class FarField(CommonReport):
-    """
-    Provides for managing far field reports.
+    """Provides for managing far field reports.
 
     Examples
     --------
@@ -213,8 +205,7 @@ class FarField(CommonReport):
 
     @property
     def far_field_sphere(self) -> str:
-        """
-        Far field sphere name.
+        """Far field sphere name.
 
         Returns
         -------
@@ -249,8 +240,7 @@ class FarField(CommonReport):
 
 
 class Emission(CommonReport):
-    """
-    Provides for managing emission reports.
+    """Provides for managing emission reports.
 
     Examples
     --------

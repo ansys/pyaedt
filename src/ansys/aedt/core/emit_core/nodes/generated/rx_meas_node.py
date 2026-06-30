@@ -71,8 +71,7 @@ class RxMeasNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def file(self) -> str:
-        """
-        Name of the measurement source.
+        """Name of the measurement source.
 
         Value should be a full file path.
 
@@ -87,8 +86,7 @@ class RxMeasNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def receive_frequency(self) -> float:
-        """
-        Channel associated with the measurement file.
+        """Channel associated with the measurement file.
 
         Examples
         --------
@@ -102,8 +100,7 @@ class RxMeasNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def exclude_mixer_products_below_noise(self) -> bool:
-        """
-        Include/Exclude Mixer Products below the noise.
+        """Include/Exclude Mixer Products below the noise.
 
         Value should be 'true' or 'false'.
 
@@ -123,8 +120,7 @@ class RxMeasNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def enabled(self) -> bool:
-        """
-        Enabled state for this node.
+        """Enabled state for this node.
 
         Examples
         --------

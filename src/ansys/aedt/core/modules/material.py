@@ -22,8 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-The module contains these data classes for creating a material library:
+"""The module contains these data classes for creating a material library:
 
 * `BasicValue`
 * `ClosedFormTM`
@@ -51,8 +50,7 @@ from ansys.aedt.core.generic.numbers_utils import is_number
 
 
 class MatProperties(PyAedtBase):
-    """
-    Contains a list of constant names for all materials with mappings to their internal XML names.
+    """Contains a list of constant names for all materials with mappings to their internal XML names.
 
     Internal names are used in scripts, and XML names are used in the XML syntax.
 
@@ -162,8 +160,7 @@ class MatProperties(PyAedtBase):
 
     @classmethod
     def wb_to_aedt_name(cls, wb_name: str) -> str:
-        """
-        Retrieve the corresponding AEDT property name for the specified Workbench property name.
+        """Retrieve the corresponding AEDT property name for the specified Workbench property name.
 
         The Workbench names are specified in ``MatProperties.workbench_name``.
         The AEDT names are specified in ``MatProperties.aedtname``.
@@ -189,8 +186,7 @@ class MatProperties(PyAedtBase):
 
     @classmethod
     def get_defaultunit(cls, aedtname: str = None) -> str:
-        """
-        Retrieve the default unit for a full name or a category name.
+        """Retrieve the default unit for a full name or a category name.
 
         Parameters
         ----------
@@ -216,8 +212,7 @@ class MatProperties(PyAedtBase):
 
     @classmethod
     def get_defaultvalue(cls, aedtname: str = None) -> float:
-        """
-        Retrieve the default value for a full name or a category name.
+        """Retrieve the default value for a full name or a category name.
 
         Parameters
         ----------
@@ -268,8 +263,7 @@ class SurfMatProperties(PyAedtBase):
 
     @classmethod
     def get_defaultunit(cls, aedtname: str = None) -> str:
-        """
-        Retrieve the default unit for a full name or a category name.
+        """Retrieve the default unit for a full name or a category name.
 
         Parameters
         ----------
@@ -295,8 +289,7 @@ class SurfMatProperties(PyAedtBase):
 
     @classmethod
     def get_defaultvalue(cls, aedtname: str = None) -> float:
-        """
-        Get the default value for a full name or a category name.
+        """Get the default value for a full name or a category name.
 
         Parameters
         ----------
@@ -322,8 +315,7 @@ class SurfMatProperties(PyAedtBase):
 
 
 class ClosedFormTM:
-    """
-    Manages closed-form thermal modifiers.
+    """Manages closed-form thermal modifiers.
 
     Examples
     --------
@@ -351,8 +343,7 @@ class ClosedFormTM:
 
 
 class Dataset:
-    """
-    Manages datasets.
+    """Manages datasets.
 
     Examples
     --------
@@ -380,8 +371,7 @@ class Dataset:
 
 
 class BasicValue:
-    """
-    Manages thermal and spatial modifier calculations.
+    """Manages thermal and spatial modifier calculations.
 
     Examples
     --------
@@ -398,8 +388,7 @@ class BasicValue:
 
 
 class MatProperty(PyAedtBase):
-    """
-    Manages simple, anisotropic, tensor, and non-linear properties.
+    """Manages simple, anisotropic, tensor, and non-linear properties.
 
     Parameters
     ----------
@@ -487,8 +476,7 @@ class MatProperty(PyAedtBase):
 
     @property
     def type(self) -> str:
-        """
-        Type of the material property.
+        """Type of the material property.
 
         Parameters
         ----------
@@ -525,8 +513,7 @@ class MatProperty(PyAedtBase):
 
     @property
     def evaluated_value(self) -> list[float] | float:
-        """
-        Evaluated value.
+        """Evaluated value.
 
         Examples
         --------
@@ -544,8 +531,7 @@ class MatProperty(PyAedtBase):
 
     @property
     def value(self) -> list[float] | float:
-        """
-        Value for a material property.
+        """Value for a material property.
 
         Examples
         --------
@@ -605,8 +591,7 @@ class MatProperty(PyAedtBase):
 
     @property
     def unit(self) -> str:
-        """
-        Units for a material property value.
+        """Units for a material property value.
 
         Examples
         --------
@@ -623,8 +608,7 @@ class MatProperty(PyAedtBase):
 
     @property
     def data_set(self) -> list[str] | str:
-        """
-        Dataset.
+        """Dataset.
 
         Examples
         --------
@@ -640,8 +624,7 @@ class MatProperty(PyAedtBase):
 
     @property
     def thermalmodifier(self) -> list[str] | str:
-        """
-        Thermal modifier.
+        """Thermal modifier.
 
         Examples
         --------
@@ -657,8 +640,7 @@ class MatProperty(PyAedtBase):
 
     @thermalmodifier.setter
     def thermalmodifier(self, thermal_value: list[str] | str | None) -> None:
-        """
-        Thermal modifier.
+        """Thermal modifier.
 
         References
         ----------
@@ -687,8 +669,7 @@ class MatProperty(PyAedtBase):
                     self._property_value[i].thermalmodifier = value
 
     def _add_thermal_modifier(self, formula, index):
-        """
-        Add a thermal modifier.
+        """Add a thermal modifier.
 
         Parameters
         ----------
@@ -828,8 +809,7 @@ class MatProperty(PyAedtBase):
         return self._material.update()
 
     def _reset_thermal_modifier(self):
-        """
-        Set the thermal modifier to None.
+        """Set the thermal modifier to None.
 
         Returns
         -------
@@ -859,8 +839,7 @@ class MatProperty(PyAedtBase):
 
     @pyaedt_function_handler()
     def add_thermal_modifier_free_form(self, formula: str, index: int = 0) -> bool:
-        """
-        Add a thermal modifier to a material property using a free-form formula.
+        """Add a thermal modifier to a material property using a free-form formula.
 
         Parameters
         ----------
@@ -891,8 +870,7 @@ class MatProperty(PyAedtBase):
 
     @pyaedt_function_handler()
     def add_thermal_modifier_dataset(self, dataset: str, index: int = 0) -> bool:
-        """
-        Add a thermal modifier to a material property using an existing dataset.
+        """Add a thermal modifier to a material property using an existing dataset.
 
         Parameters
         ----------
@@ -937,8 +915,7 @@ class MatProperty(PyAedtBase):
         tmu: int = 1000,
         index: int = 0,
     ) -> bool:
-        """
-        Add a thermal modifier to a material property using a closed-form formula.
+        """Add a thermal modifier to a material property using a closed-form formula.
 
         Parameters
         ----------
@@ -1125,8 +1102,7 @@ class MatProperty(PyAedtBase):
 
     @pyaedt_function_handler()
     def set_non_linear(self, x_unit: str = None, y_unit: str = None) -> bool:
-        """
-        Enable non-linear material.
+        """Enable non-linear material.
 
          This is a private method, and should not be used directly.
 
@@ -1188,8 +1164,7 @@ class MatProperty(PyAedtBase):
 
     @property
     def spatialmodifier(self) -> list[str] | str:
-        """
-        Spatial modifier.
+        """Spatial modifier.
 
         Examples
         --------
@@ -1205,8 +1180,7 @@ class MatProperty(PyAedtBase):
 
     @spatialmodifier.setter
     def spatialmodifier(self, spatial_value: str | list[str] | None) -> None:
-        """
-        Spatial modifier.
+        """Spatial modifier.
 
         References
         ----------
@@ -1228,8 +1202,7 @@ class MatProperty(PyAedtBase):
                     self._property_value[i].spatialmodifier = value
 
     def _add_spatial_modifier(self, formula, index):
-        """
-        Add a spatial modifier.
+        """Add a spatial modifier.
 
         Parameters
         ----------
@@ -1342,8 +1315,7 @@ class MatProperty(PyAedtBase):
         return self._material.update()
 
     def _reset_spatial_modifier(self):
-        """
-        Set the spatial modifier to None.
+        """Set the spatial modifier to None.
 
         Returns
         -------
@@ -1373,8 +1345,7 @@ class MatProperty(PyAedtBase):
 
     @pyaedt_function_handler()
     def add_spatial_modifier_free_form(self, formula: str, index: int = 0) -> bool:
-        """
-        Add a spatial modifier to a material property using a free-form formula.
+        """Add a spatial modifier to a material property using a free-form formula.
 
         Parameters
         ----------
@@ -1405,8 +1376,7 @@ class MatProperty(PyAedtBase):
 
     @pyaedt_function_handler()
     def add_spatial_modifier_dataset(self, dataset: str, index: int = 0) -> bool:
-        """
-        Add a spatial modifier to a material property using an existing dataset.
+        """Add a spatial modifier to a material property using an existing dataset.
 
         Parameters
         ----------
@@ -1439,8 +1409,7 @@ class MatProperty(PyAedtBase):
 
 
 class CommonMaterial(PyAedtBase):
-    """
-    Manages datasets with frequency-dependent materials.
+    """Manages datasets with frequency-dependent materials.
 
     Parameters
     ----------
@@ -1491,8 +1460,7 @@ class CommonMaterial(PyAedtBase):
 
     @property
     def is_used(self) -> bool:
-        """
-        Checks if a project material is in use.
+        """Checks if a project material is in use.
 
         Examples
         --------
@@ -1508,8 +1476,7 @@ class CommonMaterial(PyAedtBase):
 
     @property
     def coordinate_system(self) -> str:
-        """
-        Material coordinate system.
+        """Material coordinate system.
 
         Examples
         --------
@@ -1528,8 +1495,7 @@ class CommonMaterial(PyAedtBase):
 
     @pyaedt_function_handler()
     def _get_args(self, props=None):
-        """
-        Retrieve the arguments for a property.
+        """Retrieve the arguments for a property.
 
         Parameters
         ----------
@@ -1543,8 +1509,7 @@ class CommonMaterial(PyAedtBase):
         return arg
 
     def _update_props(self, propname, propvalue, update_aedt: bool = True):
-        """
-        Update properties.
+        """Update properties.
 
         Parameters
         ----------
@@ -1622,8 +1587,7 @@ class CommonMaterial(PyAedtBase):
 
 
 class Material(CommonMaterial, PyAedtBase):
-    """
-    Manages material properties.
+    """Manages material properties.
 
     Parameters
     ----------
@@ -1755,8 +1719,7 @@ class Material(CommonMaterial, PyAedtBase):
 
     @property
     def material_appearance(self) -> list[float | int]:
-        """
-        Material appearance specified as a list.
+        """Material appearance specified as a list.
 
         The first three items are RGB color and the fourth one is transparency.
 
@@ -1821,8 +1784,7 @@ class Material(CommonMaterial, PyAedtBase):
 
     @property
     def permittivity(self) -> MatProperty:
-        """
-        Permittivity.
+        """Permittivity.
 
         Returns
         -------
@@ -1848,8 +1810,7 @@ class Material(CommonMaterial, PyAedtBase):
 
     @property
     def permeability(self) -> MatProperty:
-        """
-        Permeability.
+        """Permeability.
 
         Returns
         -------
@@ -1875,8 +1836,7 @@ class Material(CommonMaterial, PyAedtBase):
 
     @property
     def conductivity(self) -> MatProperty:
-        """
-        Conductivity.
+        """Conductivity.
 
         Returns
         -------
@@ -1902,8 +1862,7 @@ class Material(CommonMaterial, PyAedtBase):
 
     @property
     def dielectric_loss_tangent(self) -> MatProperty:
-        """
-        Dielectric loss tangent.
+        """Dielectric loss tangent.
 
         Returns
         -------
@@ -1925,8 +1884,7 @@ class Material(CommonMaterial, PyAedtBase):
 
     @property
     def magnetic_loss_tangent(self) -> MatProperty:
-        """
-        Magnetic loss tangent.
+        """Magnetic loss tangent.
 
         Returns
         -------
@@ -1952,8 +1910,7 @@ class Material(CommonMaterial, PyAedtBase):
 
     @property
     def thermal_conductivity(self) -> MatProperty:
-        """
-        Thermal conductivity.
+        """Thermal conductivity.
 
         Returns
         -------
@@ -1981,8 +1938,7 @@ class Material(CommonMaterial, PyAedtBase):
 
     @property
     def mass_density(self) -> MatProperty:
-        """
-        Mass density.
+        """Mass density.
 
         Returns
         -------
@@ -2008,8 +1964,7 @@ class Material(CommonMaterial, PyAedtBase):
 
     @property
     def specific_heat(self) -> MatProperty:
-        """
-        Specific heat.
+        """Specific heat.
 
         Returns
         -------
@@ -2035,8 +1990,7 @@ class Material(CommonMaterial, PyAedtBase):
 
     @property
     def thermal_expansion_coefficient(self) -> MatProperty:
-        """
-        Thermal expansion coefficient.
+        """Thermal expansion coefficient.
 
         Returns
         -------
@@ -2062,8 +2016,7 @@ class Material(CommonMaterial, PyAedtBase):
 
     @property
     def youngs_modulus(self) -> MatProperty:
-        """
-        Young's modulus.
+        """Young's modulus.
 
         Returns
         -------
@@ -2091,8 +2044,7 @@ class Material(CommonMaterial, PyAedtBase):
 
     @property
     def poissons_ratio(self) -> MatProperty:
-        """
-        Poisson's ratio.
+        """Poisson's ratio.
 
         Returns
         -------
@@ -2120,8 +2072,7 @@ class Material(CommonMaterial, PyAedtBase):
 
     @property
     def diffusivity(self) -> MatProperty:
-        """
-        Diffusivity.
+        """Diffusivity.
 
         Returns
         -------
@@ -2147,8 +2098,7 @@ class Material(CommonMaterial, PyAedtBase):
 
     @property
     def magnetic_coercivity(self) -> MatProperty:
-        """
-        Magnetic coercivity.
+        """Magnetic coercivity.
 
         Returns
         -------
@@ -2176,8 +2126,7 @@ class Material(CommonMaterial, PyAedtBase):
 
     @property
     def molecular_mass(self) -> MatProperty:
-        """
-        Molecular mass.
+        """Molecular mass.
 
         Returns
         -------
@@ -2203,8 +2152,7 @@ class Material(CommonMaterial, PyAedtBase):
 
     @property
     def viscosity(self) -> MatProperty:
-        """
-        Viscosity.
+        """Viscosity.
 
         Returns
         -------
@@ -2230,8 +2178,7 @@ class Material(CommonMaterial, PyAedtBase):
 
     @property
     def stacking_type(self) -> str:
-        """
-        Composition of the wire can either be "Solid", "Lamination" or "Litz Wire".
+        """Composition of the wire can either be "Solid", "Lamination" or "Litz Wire".
 
         Returns
         -------
@@ -2270,8 +2217,7 @@ class Material(CommonMaterial, PyAedtBase):
 
     @property
     def wire_type(self) -> str:
-        """
-        The type of the wire can either be "Round", "Square" or "Rectangular".
+        """The type of the wire can either be "Round", "Square" or "Rectangular".
 
         Returns
         -------
@@ -2302,8 +2248,7 @@ class Material(CommonMaterial, PyAedtBase):
 
     @property
     def wire_thickness_direction(self) -> str:
-        """
-        Thickness direction of the wire can either be "V(1)", "V(2)" or "V(3)".
+        """Thickness direction of the wire can either be "V(1)", "V(2)" or "V(3)".
 
         Returns
         -------
@@ -2334,8 +2279,7 @@ class Material(CommonMaterial, PyAedtBase):
 
     @property
     def wire_width_direction(self) -> str:
-        """
-        Width direction of the wire can either be "V(1)", "V(2)" or "V(3)".
+        """Width direction of the wire can either be "V(1)", "V(2)" or "V(3)".
 
         Returns
         -------
@@ -2366,8 +2310,7 @@ class Material(CommonMaterial, PyAedtBase):
 
     @property
     def strand_number(self) -> MatProperty:
-        """
-        Strand number for litz wire.
+        """Strand number for litz wire.
 
         Returns
         -------
@@ -2395,8 +2338,7 @@ class Material(CommonMaterial, PyAedtBase):
 
     @property
     def wire_thickness(self) -> MatProperty:
-        """
-        Thickness of rectangular litz wire.
+        """Thickness of rectangular litz wire.
 
         Returns
         -------
@@ -2424,8 +2366,7 @@ class Material(CommonMaterial, PyAedtBase):
 
     @property
     def wire_diameter(self) -> MatProperty:
-        """
-        Diameter of the round litz wire.
+        """Diameter of the round litz wire.
 
         Returns
         -------
@@ -2453,8 +2394,7 @@ class Material(CommonMaterial, PyAedtBase):
 
     @property
     def wire_width(self) -> MatProperty:
-        """
-        Width of the rectangular or square litz wire.
+        """Width of the rectangular or square litz wire.
 
         Returns
         -------
@@ -2482,8 +2422,7 @@ class Material(CommonMaterial, PyAedtBase):
 
     @property
     def stacking_factor(self) -> MatProperty:
-        """
-        Stacking factor for lamination.
+        """Stacking factor for lamination.
 
         Returns
         -------
@@ -2511,8 +2450,7 @@ class Material(CommonMaterial, PyAedtBase):
 
     @property
     def stacking_direction(self) -> str:
-        """
-        Stacking direction for the lamination can either be "V(1)", "V(2)" or "V(3)".
+        """Stacking direction for the lamination can either be "V(1)", "V(2)" or "V(3)".
 
         Returns
         -------
@@ -2543,8 +2481,7 @@ class Material(CommonMaterial, PyAedtBase):
 
     @property
     def twisting_length_factor(self) -> MatProperty:
-        """
-        Ratio of the twisted-strand length to the bundle length for Litz Wire.
+        """Ratio of the twisted-strand length to the bundle length for Litz Wire.
 
         Returns
         -------
@@ -2565,8 +2502,7 @@ class Material(CommonMaterial, PyAedtBase):
 
     @pyaedt_function_handler()
     def set_magnetic_coercivity(self, value: int = 0, x: int = 1, y: int = 0, z: int = 0) -> bool:
-        """
-        Set magnetic coercivity for material.
+        """Set magnetic coercivity for material.
 
         Parameters
         ----------
@@ -2610,8 +2546,7 @@ class Material(CommonMaterial, PyAedtBase):
         conductivity: int = 0,
         coefficient_setup: str = "w_per_cubic_meter",
     ) -> list:
-        """
-        Get electrical steel or power ferrite core loss coefficients at a given frequency.
+        """Get electrical steel or power ferrite core loss coefficients at a given frequency.
 
         Parameters
         ----------
@@ -2722,8 +2657,7 @@ class Material(CommonMaterial, PyAedtBase):
         coefficient_setup: str = "w_per_cubic_meter",
         core_loss_model_type: str = "Electrical Steel",
     ) -> bool:
-        """
-        Set electrical steel or power ferrite core loss model at one single frequency or at multiple frequencies.
+        """Set electrical steel or power ferrite core loss model at one single frequency or at multiple frequencies.
 
         Parameters
         ----------
@@ -2866,8 +2800,7 @@ class Material(CommonMaterial, PyAedtBase):
     def set_electrical_steel_coreloss(
         self, kh: int = 0, kc: int = 0, ke: int = 0, kdc: int = 0, cut_depth: str = "1mm"
     ) -> bool:
-        """
-        Set electrical steel core loss.
+        """Set electrical steel core loss.
 
         Parameters
         ----------
@@ -2920,8 +2853,7 @@ class Material(CommonMaterial, PyAedtBase):
     def set_hysteresis_coreloss(
         self, kdc: int = 0, hci: int = 0, br: int = 0, hkc: int = 0, cut_depth: float = 0.0001
     ) -> bool:
-        """
-        Set Hysteresis Type Core Loss.
+        """Set Hysteresis Type Core Loss.
 
         Parameters
         ----------
@@ -2967,8 +2899,7 @@ class Material(CommonMaterial, PyAedtBase):
     def set_power_ferrite_coreloss(
         self, cm: int = 0, x: int = 0, y: int = 0, kdc: int = 0, cut_depth: float = 0.0001
     ) -> bool:
-        """
-        Set Power Ferrite Type Core Loss.
+        """Set Power Ferrite Type Core Loss.
 
         Parameters
         ----------
@@ -3021,8 +2952,7 @@ class Material(CommonMaterial, PyAedtBase):
         frequency: int = 60,
         thickness: str = "0.5mm",
     ) -> bool:
-        """
-        Set B-P Type Core Loss.
+        """Set B-P Type Core Loss.
 
         Parameters
         ----------
@@ -3081,8 +3011,7 @@ class Material(CommonMaterial, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_curve_coreloss_type(self) -> str:
-        """
-        Return the curve core loss type assigned to material.
+        """Return the curve core loss type assigned to material.
 
         Returns
         -------
@@ -3101,8 +3030,7 @@ class Material(CommonMaterial, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_curve_coreloss_values(self) -> dict:
-        """
-        Return the curve core values type assigned to material.
+        """Return the curve core values type assigned to material.
 
         Returns
         -------
@@ -3143,8 +3071,7 @@ class Material(CommonMaterial, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_magnetic_coercivity(self) -> tuple:
-        """
-        Get the magnetic coercivity values.
+        """Get the magnetic coercivity values.
 
         Returns
         -------
@@ -3169,8 +3096,7 @@ class Material(CommonMaterial, PyAedtBase):
 
     @pyaedt_function_handler()
     def is_conductor(self, threshold: float = 100000) -> bool:
-        """
-        Check if the material is a conductor.
+        """Check if the material is a conductor.
 
         Parameters
         ----------
@@ -3206,8 +3132,7 @@ class Material(CommonMaterial, PyAedtBase):
 
     @pyaedt_function_handler()
     def is_dielectric(self, threshold: float = 100000) -> bool:
-        """
-        Check if the material is dielectric.
+        """Check if the material is dielectric.
 
         Parameters
         ----------
@@ -3240,8 +3165,7 @@ class Material(CommonMaterial, PyAedtBase):
         sigma_dc: float = 1e-12,
         freq_hi: float = 159.15494e9,
     ) -> bool:
-        """
-        Set Djordjevic-Sarkar model.
+        """Set Djordjevic-Sarkar model.
 
         Parameters
         ----------
@@ -3283,8 +3207,7 @@ class Material(CommonMaterial, PyAedtBase):
 
     @pyaedt_function_handler()
     def update(self) -> bool:
-        """
-        Update the material in AEDT.
+        """Update the material in AEDT.
 
         Returns
         -------
@@ -3320,8 +3243,7 @@ class Material(CommonMaterial, PyAedtBase):
 
 
 class SurfaceMaterial(CommonMaterial, PyAedtBase):
-    """
-    Manages surface material properties for Icepak only.
+    """Manages surface material properties for Icepak only.
 
     Parameters
     ----------
@@ -3379,8 +3301,7 @@ class SurfaceMaterial(CommonMaterial, PyAedtBase):
 
     @property
     def emissivity(self) -> MatProperty:
-        """
-        Emissivity.
+        """Emissivity.
 
         Returns
         -------
@@ -3408,8 +3329,7 @@ class SurfaceMaterial(CommonMaterial, PyAedtBase):
 
     @property
     def surface_diffuse_absorptance(self) -> MatProperty:
-        """
-        Surface diffuse absorptance.
+        """Surface diffuse absorptance.
 
         Returns
         -------
@@ -3437,8 +3357,7 @@ class SurfaceMaterial(CommonMaterial, PyAedtBase):
 
     @property
     def surface_incident_absorptance(self) -> MatProperty:
-        """
-        Surface incident absorptance.
+        """Surface incident absorptance.
 
         Returns
         -------
@@ -3466,8 +3385,7 @@ class SurfaceMaterial(CommonMaterial, PyAedtBase):
 
     @property
     def surface_roughness(self) -> MatProperty:
-        """
-        Surface roughness.
+        """Surface roughness.
 
         Returns
         -------
@@ -3495,8 +3413,7 @@ class SurfaceMaterial(CommonMaterial, PyAedtBase):
 
     @pyaedt_function_handler()
     def update(self) -> bool:
-        """
-        Update the surface material in AEDT.
+        """Update the surface material in AEDT.
 
         Returns
         -------

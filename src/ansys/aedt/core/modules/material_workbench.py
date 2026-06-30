@@ -22,8 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-The module contains the ``MaterialWorkbench`` class.
+"""The module contains the ``MaterialWorkbench`` class.
 
 It includes a method to import materials from a Workbench Engineering Data XML file.
 """
@@ -44,8 +43,7 @@ defusedxml.defuse_stdlib()
 
 
 class MaterialWorkbench(PyAedtBase):
-    """
-    Manages the import of materials from a Workbench Engineering Data XML file.
+    """Manages the import of materials from a Workbench Engineering Data XML file.
 
     Parameters
     ----------

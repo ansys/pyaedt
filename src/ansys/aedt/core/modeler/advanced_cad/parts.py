@@ -34,8 +34,7 @@ from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 
 class Part(PyAedtBase):
-    """
-    Manages 3D component placement and definition.
+    """Manages 3D component placement and definition.
 
     Parameters
     ----------
@@ -165,8 +164,7 @@ class Part(PyAedtBase):
 
     @pyaedt_function_handler()
     def zero_offset(self, kw: str) -> bool:  # Returns True if cs at kw is at [0, 0, 0]
-        """
-        Check if the coordinate system defined by kw is [0, 0, 0].
+        """Check if the coordinate system defined by kw is [0, 0, 0].
 
         Parameters
         ----------
@@ -197,8 +195,7 @@ class Part(PyAedtBase):
 
     @property
     def file_name(self) -> str:
-        """
-        Antenna file name.
+        """Antenna file name.
 
         Returns
         -------
@@ -217,8 +214,7 @@ class Part(PyAedtBase):
     # Create a unique coordinate system name for the part.
     @property
     def cs_name(self) -> str:
-        """
-        Coordinate system name.
+        """Coordinate system name.
 
         Returns
         -------
@@ -240,8 +236,7 @@ class Part(PyAedtBase):
     # Define the variable names for angles in the app:
     @property
     def yaw_name(self) -> str:
-        """
-        Yaw variable name. Yaw is the rotation about the object's Z-axis.
+        """Yaw variable name. Yaw is the rotation about the object's Z-axis.
 
         Returns
         -------
@@ -259,8 +254,7 @@ class Part(PyAedtBase):
 
     @property
     def pitch_name(self) -> str:
-        """
-        Pitch variable name. Pitch is the rotation about the object's Y-axis.
+        """Pitch variable name. Pitch is the rotation about the object's Y-axis.
 
         Returns
         -------
@@ -278,8 +272,7 @@ class Part(PyAedtBase):
 
     @property
     def roll_name(self) -> str:
-        """
-        Roll variable name. Roll is the rotation about the object's X-axis.
+        """Roll variable name. Roll is the rotation about the object's X-axis.
 
         Returns
         -------
@@ -298,8 +291,7 @@ class Part(PyAedtBase):
     # Always return the local origin as a list:
     @property
     def local_origin(self) -> list:
-        """
-        Local part offset values.
+        """Local part offset values.
 
         Returns
         -------
@@ -329,8 +321,7 @@ class Part(PyAedtBase):
 
     @property
     def rotate_origin(self) -> list:
-        """
-        Origin rotation list.
+        """Origin rotation list.
 
         Returns
         -------
@@ -364,8 +355,7 @@ class Part(PyAedtBase):
     # or numerical value.
     @property
     def yaw(self) -> str:
-        """
-        Yaw variable value.
+        """Yaw variable value.
 
         Returns
         -------
@@ -387,8 +377,7 @@ class Part(PyAedtBase):
 
     @property
     def pitch(self) -> str:
-        """
-        Pitch variable value.
+        """Pitch variable value.
 
         Returns
         -------
@@ -410,8 +399,7 @@ class Part(PyAedtBase):
 
     @property
     def roll(self) -> str:
-        """
-        Roll variable value.
+        """Roll variable value.
 
         Returns
         -------
@@ -433,8 +421,7 @@ class Part(PyAedtBase):
 
     @property
     def name(self) -> str:
-        """
-        Part name.
+        """Part name.
 
         Returns
         -------
@@ -452,8 +439,7 @@ class Part(PyAedtBase):
 
     @pyaedt_function_handler()
     def set_relative_cs(self, app: "Hfss") -> bool:
-        """
-        Create a parametric coordinate system.
+        """Create a parametric coordinate system.
 
         Parameters
         ----------
@@ -488,8 +474,7 @@ class Part(PyAedtBase):
 
     @property
     def rot_cs_name(self) -> str:
-        """
-        Rotation coordinate system name.
+        """Rotation coordinate system name.
 
         Returns
         -------
@@ -507,8 +492,7 @@ class Part(PyAedtBase):
 
     @pyaedt_function_handler()
     def do_rotate(self, app: "Hfss", aedt_object: str) -> bool:
-        """
-        Set the rotation coordinate system relative to the parent coordinate system.
+        """Set the rotation coordinate system relative to the parent coordinate system.
 
         This method should only be called if there is rotation in the component.
         The rotation coordinate system is offset from the parent coordinate system.
@@ -551,8 +535,7 @@ class Part(PyAedtBase):
 
     @pyaedt_function_handler()
     def insert(self, app: "Hfss") -> list:
-        """
-        Insert 3D component in AEDT.
+        """Insert 3D component in AEDT.
 
         Parameters
         ----------
@@ -596,8 +579,7 @@ class Part(PyAedtBase):
 
 
 class Antenna(Part, PyAedtBase):
-    """
-    Manages antennas.
+    """Manages antennas.
 
     This class is derived from :class:`Part`.
 
@@ -630,8 +612,7 @@ class Antenna(Part, PyAedtBase):
 
     @property
     def params(self) -> dict:
-        """
-        Multi-part component parameters.
+        """Multi-part component parameters.
 
         Returns
         -------
@@ -672,8 +653,7 @@ class Antenna(Part, PyAedtBase):
 
     @pyaedt_function_handler()
     def insert(self, app: "Hfss", units=None) -> list:
-        """
-        Insert antenna in HFSS SBR+.
+        """Insert antenna in HFSS SBR+.
 
         Parameters
         ----------

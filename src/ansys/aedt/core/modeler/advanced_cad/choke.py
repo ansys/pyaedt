@@ -95,8 +95,7 @@ CHOKE_DEFAULT_PARAMETERS = {
 
 @dataclass
 class Choke(PyAedtBase):
-    """
-    Class to create chokes in AEDT.
+    """Class to create chokes in AEDT.
 
     Parameters
     ----------
@@ -228,8 +227,7 @@ class Choke(PyAedtBase):
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "Choke":
-        """
-        Create a Choke instance from a dictionary.
+        """Create a Choke instance from a dictionary.
 
         Parameters
         ----------
@@ -265,8 +263,7 @@ class Choke(PyAedtBase):
 
     @property
     def choke_parameters(self) -> dict:
-        """
-        Get the choke parameters as a dictionary
+        """Get the choke parameters as a dictionary
 
         Returns
         -------
@@ -297,8 +294,7 @@ class Choke(PyAedtBase):
         }
 
     def export_to_json(self, file_path: str) -> bool:
-        """
-        Export choke configuration to JSON file.
+        """Export choke configuration to JSON file.
 
         Parameters
         ----------
@@ -331,8 +327,7 @@ class Choke(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_choke(self, app: "Hfss" = None) -> list:
-        """
-        Create a choke.
+        """Create a choke.
 
         Returns
         -------
@@ -362,8 +357,7 @@ class Choke(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_ground(self, app: "Hfss") -> object:
-        """
-        Create the ground plane.
+        """Create the ground plane.
 
         Returns
         -------
@@ -396,8 +390,7 @@ class Choke(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_mesh(self, app: "Hfss") -> "MeshOperation":
-        """
-        Create the mesh.
+        """Create the mesh.
 
         Returns
         -------
@@ -436,8 +429,7 @@ class Choke(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_ports(self, ground: "Object3d", app: "Hfss") -> list:
-        """
-        Create the ports.
+        """Create the ports.
 
         Parameters
         ----------

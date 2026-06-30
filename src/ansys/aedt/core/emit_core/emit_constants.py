@@ -201,8 +201,7 @@ EMIT_FN_ALLOWED_OPS = {"+", "-", "*", "/"}
 
 
 def data_rate_conv(value: float, units: str, to_internal: bool = True) -> float:
-    """
-    Converts the data rate to (from) the internal units from the
+    """Converts the data rate to (from) the internal units from the
     specified units.
 
     Args:

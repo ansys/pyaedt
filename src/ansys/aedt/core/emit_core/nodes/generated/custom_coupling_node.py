@@ -69,8 +69,7 @@ class CustomCouplingNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def import_csv_file(self, file_name: str) -> EmitNode:
-        """
-        Import a CSV File...
+        """Import a CSV File.
 
         Examples
         --------
@@ -119,8 +118,7 @@ class CustomCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def table_data(self) -> list[tuple]:
-        """
-        Custom Coupling Values Table.
+        """Custom Coupling Values Table.
         Table consists of 2 columns.
         Frequency:
             Value should be between 1.0 and 100.0e9.
@@ -147,8 +145,7 @@ class CustomCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def enabled(self) -> bool:
-        """
-        Enable/Disable coupling.
+        """Enable/Disable coupling.
 
         Value should be 'true' or 'false'.
 
@@ -173,8 +170,7 @@ class CustomCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def antenna_a(self) -> EmitNode:
-        """
-        First antenna of the pair to apply the coupling values to.
+        """First antenna of the pair to apply the coupling values to.
 
         Examples
         --------
@@ -197,8 +193,7 @@ class CustomCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def antenna_b(self) -> EmitNode:
-        """
-        Second antenna of the pair to apply the coupling values to.
+        """Second antenna of the pair to apply the coupling values to.
 
         Examples
         --------

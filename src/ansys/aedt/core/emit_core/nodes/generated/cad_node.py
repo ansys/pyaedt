@@ -100,8 +100,7 @@ class CADNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def file(self) -> str:
-        """
-        Name of the imported CAD file.
+        """Name of the imported CAD file.
 
         Value should be a full file path.
 
@@ -120,8 +119,7 @@ class CADNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def show_relative_coordinates(self) -> bool:
-        """
-        Show Relative Coordinates.
+        """Show Relative Coordinates.
 
         Show CAD model node position and orientation in parent-node coords
         (False) or relative to placement coords (True).
@@ -148,8 +146,7 @@ class CADNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def position(self) -> list[float]:
-        """
-        Set position of the CAD node in parent-node coordinates.
+        """Set position of the CAD node in parent-node coordinates.
 
         Value should be a list of 3 floats.
 
@@ -173,8 +170,7 @@ class CADNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def relative_position(self) -> list[float]:
-        """
-        Relative Position.
+        """Relative Position.
 
         Set position of the CAD model node relative to placement coordinates.
 
@@ -204,8 +200,7 @@ class CADNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def orientation_mode(self) -> OrientationModeOption:
-        """
-        Orientation Mode.
+        """Orientation Mode.
 
         Select the convention (order of rotations) for configuring orientation.
 
@@ -230,8 +225,7 @@ class CADNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def orientation(self) -> list[float]:
-        """
-        Set orientation of the CAD node in parent-node coordinates.
+        """Set orientation of the CAD node in parent-node coordinates.
 
         Value format is determined by 'Orientation Mode', in degrees and delimited by spaces.
 
@@ -255,8 +249,7 @@ class CADNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def relative_orientation(self) -> list[float]:
-        """
-        Relative Orientation.
+        """Relative Orientation.
 
         Set orientation of the CAD model node relative to placement coordinates.
 
@@ -282,8 +275,7 @@ class CADNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def visible(self) -> bool:
-        """
-        Toggle (on/off) display of CAD model in 3-D window.
+        """Toggle (on/off) display of CAD model in 3-D window.
 
         Value should be 'true' or 'false'.
 
@@ -313,8 +305,7 @@ class CADNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def render_mode(self) -> RenderModeOption:
-        """
-        Select drawing style for surfaces.
+        """Select drawing style for surfaces.
 
         Examples
         --------
@@ -337,8 +328,7 @@ class CADNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def show_axes(self) -> bool:
-        """
-        Toggle (on/off) display of CAD model coordinate axes in 3-D window.
+        """Toggle (on/off) display of CAD model coordinate axes in 3-D window.
 
         Value should be 'true' or 'false'.
 
@@ -362,8 +352,7 @@ class CADNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def min(self) -> list[float]:
-        """
-        Minimum x,y,z extents of CAD model in local coordinates.
+        """Minimum x,y,z extents of CAD model in local coordinates.
 
         Value should be a list of 3 floats.
 
@@ -382,8 +371,7 @@ class CADNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def max(self) -> list[float]:
-        """
-        Maximum x,y,z extents of CAD model in local coordinates.
+        """Maximum x,y,z extents of CAD model in local coordinates.
 
         Value should be a list of 3 floats.
 
@@ -402,8 +390,7 @@ class CADNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def number_of_surfaces(self) -> int:
-        """
-        Number of surfaces in the model.
+        """Number of surfaces in the model.
 
         Examples
         --------
@@ -420,8 +407,7 @@ class CADNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def color(self) -> str:
-        """
-        Defines the CAD nodes color.
+        """Defines the CAD nodes color.
 
         Color should be in RGB form: #RRGGBB.
 
@@ -445,8 +431,7 @@ class CADNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def notes(self) -> str:
-        """
-        Expand to view/edit notes stored with the project.
+        """Expand to view/edit notes stored with the project.
 
         Examples
         --------

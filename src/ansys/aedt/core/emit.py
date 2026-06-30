@@ -187,8 +187,7 @@ class Emit(Design, PyAedtBase):
 
     @property
     def modeler(self) -> ModelerEmit:
-        """
-        Modeler.
+        """Modeler.
 
         Returns
         -------
@@ -206,8 +205,7 @@ class Emit(Design, PyAedtBase):
 
     @property
     def couplings(self) -> CouplingsEmit:
-        """
-        EMIT Couplings.
+        """EMIT Couplings.
 
         Returns
         -------
@@ -225,8 +223,7 @@ class Emit(Design, PyAedtBase):
 
     @property
     def schematic(self) -> EmitSchematic:
-        """
-        EMIT Schematic.
+        """EMIT Schematic.
 
         Returns
         -------
@@ -244,8 +241,7 @@ class Emit(Design, PyAedtBase):
 
     @pyaedt_function_handler()
     def version(self, detailed: bool = False) -> str:
-        """
-        Get version information.
+        """Get version information.
 
         Parameters
         ----------
@@ -268,8 +264,7 @@ class Emit(Design, PyAedtBase):
 
     @pyaedt_function_handler()
     def set_units(self, unit_type: str, unit_value: str) -> bool:
-        """
-        Set units for the EMIT design.
+        """Set units for the EMIT design.
 
         Parameters
         ----------
@@ -331,8 +326,7 @@ class Emit(Design, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_units(self, unit_type: str | None = "") -> str | dict | None:
-        """
-        Get units for the EMIT design.
+        """Get units for the EMIT design.
 
         Parameters
         ----------
@@ -368,8 +362,7 @@ class Emit(Design, PyAedtBase):
     def save_project(
         self, file_name: str | None = None, overwrite: bool | None = True, refresh_ids: bool | None = False
     ) -> bool:
-        """
-        Save the AEDT project and the current EMIT revision.
+        """Save the AEDT project and the current EMIT revision.
 
         Parameters
         ----------

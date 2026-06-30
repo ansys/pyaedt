@@ -22,8 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-The module contains these classes: `CSVDataset`, `DataSet`, `Expression`, `Variable`, and `VariableManager`.
+"""The module contains these classes: `CSVDataset`, `DataSet`, `Expression`, `Variable`, and `VariableManager`.
 
 The module is used to create and edit design and project variables in the 3D tools.
 
@@ -91,8 +90,7 @@ class CSVDataset(PyAedtBase):
 
     @property
     def number_of_rows(self) -> int | None:
-        """
-        Number of rows.
+        """Number of rows.
 
         Examples
         --------
@@ -109,8 +107,7 @@ class CSVDataset(PyAedtBase):
 
     @property
     def number_of_columns(self) -> int:
-        """
-        Number of columns.
+        """Number of columns.
 
         Examples
         --------
@@ -123,8 +120,7 @@ class CSVDataset(PyAedtBase):
 
     @property
     def header(self) -> list:
-        """
-        Header.
+        """Header.
 
         Examples
         --------
@@ -137,8 +133,7 @@ class CSVDataset(PyAedtBase):
 
     @property
     def data(self) -> dict:
-        """
-        Data.
+        """Data.
 
         Examples
         --------
@@ -151,8 +146,7 @@ class CSVDataset(PyAedtBase):
 
     @property
     def path(self) -> str:
-        """
-        Path.
+        """Path.
 
         Examples
         --------
@@ -2358,8 +2352,7 @@ class Variable(PyAedtBase):
 
     @property
     def units(self) -> str:
-        """
-        Unit string associated with the expression.
+        """Unit string associated with the expression.
 
         Examples
         --------
@@ -2605,8 +2598,7 @@ class Variable(PyAedtBase):
 
     @pyaedt_function_handler()
     def __rtruediv__(self, other: Variable | float | int) -> Variable:
-        """
-        Right-division: divide *other* by this variable.
+        """Right-division: divide *other* by this variable.
 
         Parameters
         ----------

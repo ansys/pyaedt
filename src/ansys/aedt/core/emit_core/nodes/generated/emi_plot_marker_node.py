@@ -72,8 +72,7 @@ class EmiPlotMarkerNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def visible(self) -> bool:
-        """
-        Toggle (on/off) this marker.
+        """Toggle (on/off) this marker.
 
         Value should be 'true' or 'false'.
 
@@ -98,8 +97,7 @@ class EmiPlotMarkerNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def position_x(self) -> float:
-        """
-        Position of the marker on the X-axis (frequency axis).
+        """Position of the marker on the X-axis (frequency axis).
 
         Examples
         --------
@@ -117,8 +115,7 @@ class EmiPlotMarkerNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def position_y(self) -> float:
-        """
-        Position of the marker on the Y-axis (result axis).
+        """Position of the marker on the Y-axis (result axis).
 
         Examples
         --------
@@ -136,8 +133,7 @@ class EmiPlotMarkerNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def floating_label(self) -> bool:
-        """
-        Floating Label.
+        """Floating Label.
 
         Allow marker label to be positioned at a fixed point on the plot window
         (the marker symbol remains fixed to the specified X-Y point).
@@ -165,8 +161,7 @@ class EmiPlotMarkerNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def position_from_left(self) -> float:
-        """
-        Position from Left.
+        """Position from Left.
 
         Set position of label from left to right as a percentage of the width of
         the plot window.
@@ -194,8 +189,7 @@ class EmiPlotMarkerNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def position_from_top(self) -> float:
-        """
-        Position from Top.
+        """Position from Top.
 
         Set position of label from top to bottom as a percentage of the height
         of the plot window.
@@ -223,8 +217,7 @@ class EmiPlotMarkerNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def text(self) -> str:
-        """
-        Set the text of the label.
+        """Set the text of the label.
 
         Examples
         --------
@@ -252,8 +245,7 @@ class EmiPlotMarkerNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def horizontal_position(self) -> HorizontalPositionOption:
-        """
-        Specify horizontal position of the label as compared to the symbol.
+        """Specify horizontal position of the label as compared to the symbol.
 
         Examples
         --------
@@ -282,8 +274,7 @@ class EmiPlotMarkerNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def vertical_position(self) -> VerticalPositionOption:
-        """
-        Specify vertical position of the label as compared to the symbol.
+        """Specify vertical position of the label as compared to the symbol.
 
         Examples
         --------
@@ -312,8 +303,7 @@ class EmiPlotMarkerNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def text_alignment(self) -> TextAlignmentOption:
-        """
-        Specify justification applied to multi-line text.
+        """Specify justification applied to multi-line text.
 
         Examples
         --------
@@ -337,8 +327,7 @@ class EmiPlotMarkerNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def font(self) -> str:
-        """
-        Specify font used for the label.
+        """Specify font used for the label.
 
         Value formatted like 'Sans Serif,10,-1,5,50,0,0,0,0,0'.
 
@@ -363,8 +352,7 @@ class EmiPlotMarkerNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def color(self) -> str:
-        """
-        Specify color of the label text.
+        """Specify color of the label text.
 
         Color should be in RGB form: #RRGGBB.
 
@@ -389,8 +377,7 @@ class EmiPlotMarkerNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def background_color(self) -> str:
-        """
-        Set color of the label text background.
+        """Set color of the label text background.
 
         Color should be in RGBA form: #AARRGGBB.
 
@@ -415,8 +402,7 @@ class EmiPlotMarkerNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def border(self) -> bool:
-        """
-        Display a border around the label text.
+        """Display a border around the label text.
 
         Value should be 'true' or 'false'.
 
@@ -441,8 +427,7 @@ class EmiPlotMarkerNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def border_width(self) -> int:
-        """
-        Set the width of the border around the label text.
+        """Set the width of the border around the label text.
 
         Value should be between 1 and 20.
 
@@ -467,8 +452,7 @@ class EmiPlotMarkerNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def border_color(self) -> str:
-        """
-        Set color of the border around the label text.
+        """Set color of the border around the label text.
 
         Color should be in RGB form: #RRGGBB.
 
@@ -511,8 +495,7 @@ class EmiPlotMarkerNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def symbol(self) -> SymbolOption:
-        """
-        Specify symbol displayed next to the label.
+        """Specify symbol displayed next to the label.
 
         Examples
         --------
@@ -536,8 +519,7 @@ class EmiPlotMarkerNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def arrow_direction(self) -> int:
-        """
-        Set direction of the arrow; zero degrees is up.
+        """Set direction of the arrow; zero degrees is up.
 
         Value should be between -360 and 360.
 
@@ -562,8 +544,7 @@ class EmiPlotMarkerNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def symbol_size(self) -> int:
-        """
-        Set size of the symbol used for this marker.
+        """Set size of the symbol used for this marker.
 
         Value should be between 1 and 1000.
 
@@ -588,8 +569,7 @@ class EmiPlotMarkerNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def symbol_color(self) -> str:
-        """
-        Set color of the symbol used for this marker.
+        """Set color of the symbol used for this marker.
 
         Color should be in RGB form: #RRGGBB.
 
@@ -614,8 +594,7 @@ class EmiPlotMarkerNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def line_width(self) -> int:
-        """
-        Set the width of the line used to draw the symbol.
+        """Set the width of the line used to draw the symbol.
 
         Value should be between 1 and 20.
 
@@ -640,8 +619,7 @@ class EmiPlotMarkerNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def filled(self) -> bool:
-        """
-        Filled.
+        """Filled.
 
         If true, the interior of the symbol is filled - has no effect for some
         symbol types.

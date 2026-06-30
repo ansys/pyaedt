@@ -107,8 +107,7 @@ def add_panels(
         help="Delete existing Toolkits directory before installing",
     ),
 ):
-    """
-    Add PyAEDT panels to AEDT installation.
+    """Add PyAEDT panels to AEDT installation.
 
     This command installs PyAEDT tabs (Console, Jupyter, Run Script, optional Extension Manager,
     and optional Version Manager) into your AEDT installation.

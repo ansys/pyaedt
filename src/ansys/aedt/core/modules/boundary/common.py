@@ -36,8 +36,7 @@ from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
 
 
 class BoundaryProps(dict):
-    """
-    AEDT Boundary Component Internal Parameters.
+    """AEDT Boundary Component Internal Parameters.
 
     Examples
     --------
@@ -90,8 +89,7 @@ class BoundaryCommon(PropsManager, PyAedtBase):
 
     @pyaedt_function_handler()
     def _get_args(self, props=None):
-        """
-        Retrieve boundary properties.
+        """Retrieve boundary properties.
 
         Parameters
         ----------
@@ -119,8 +117,7 @@ class BoundaryCommon(PropsManager, PyAedtBase):
 
     @pyaedt_function_handler()
     def delete(self) -> bool:
-        """
-        Delete the boundary.
+        """Delete the boundary.
 
         Returns
         -------
@@ -195,8 +192,7 @@ class BoundaryCommon(PropsManager, PyAedtBase):
 
 
 def disable_auto_update(func: callable) -> callable:
-    """
-    Decorator used to disable automatic update.
+    """Decorator used to disable automatic update.
 
     Examples
     --------
@@ -222,8 +218,7 @@ def disable_auto_update(func: callable) -> callable:
 
 
 class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
-    """
-    Manages boundary data and execution.
+    """Manages boundary data and execution.
 
     Parameters
     ----------
@@ -265,8 +260,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
     @property
     def _child_object(self):
-        """
-        Object-oriented properties.
+        """Object-oriented properties.
 
         Returns
         -------
@@ -320,8 +314,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
     @property
     def props(self) -> BoundaryProps:
-        """
-        Boundary data.
+        """Boundary data.
 
         Returns
         -------
@@ -345,8 +338,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
     @property
     def type(self) -> str:
-        """
-        Boundary type.
+        """Boundary type.
 
         Returns
         -------
@@ -380,8 +372,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
     @property
     def name(self) -> str:
-        """
-        Boundary Name.
+        """Boundary Name.
 
         Examples
         --------
@@ -405,8 +396,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
     @pyaedt_function_handler()
     def _get_args(self, props=None):
-        """
-        Retrieve arguments.
+        """Retrieve arguments.
 
         Parameters
         ----------
@@ -427,8 +417,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
     @pyaedt_function_handler()
     def create(self) -> bool:
-        """
-        Create a boundary.
+        """Create a boundary.
 
         Returns
         -------
@@ -627,8 +616,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
     @pyaedt_function_handler()
     def update(self) -> bool:
-        """
-        Update the boundary.
+        """Update the boundary.
 
         Returns
         -------
@@ -780,8 +768,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
     @pyaedt_function_handler()
     def update_assignment(self) -> bool:
-        """
-        Update the boundary assignment.
+        """Update the boundary assignment.
 
         Returns
         -------

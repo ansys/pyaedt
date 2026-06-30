@@ -47,8 +47,7 @@ from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 
 
 def string_to_time(time_string: str) -> timedelta:
-    """
-    Convert a string to a :class:`datetime.timedelta` object.
+    """Convert a string to a :class:`datetime.timedelta` object.
 
     Parameters
     ----------
@@ -73,8 +72,7 @@ def string_to_time(time_string: str) -> timedelta:
 
 
 def format_timedelta(time_delta: str | timedelta | None) -> str:
-    """
-    Format :class:`datetime.timedelta` for tables.
+    """Format :class:`datetime.timedelta` for tables.
 
     Parameters
     ----------
@@ -114,8 +112,7 @@ def _find_common_string(s1, s2):
 
 
 def merge_dict(d1: dict, d2: dict) -> dict:
-    """
-    Recursively merge two dictionaries using type-aware rules.
+    """Recursively merge two dictionaries using type-aware rules.
 
     The merge follows these rules when a key exists in both:
 
@@ -187,8 +184,7 @@ def merge_dict(d1: dict, d2: dict) -> dict:
 
 @total_ordering
 class MemoryGB(PyAedtBase):
-    """
-    Represent memory with conversion to *gigabytes* and arithmetic.
+    """Represent memory with conversion to *gigabytes* and arithmetic.
 
     Parameters
     ----------
@@ -221,8 +217,7 @@ class MemoryGB(PyAedtBase):
 
     @pyaedt_function_handler()
     def __call__(self) -> float:
-        """
-        Return the numeric value in gigabytes.
+        """Return the numeric value in gigabytes.
 
         Returns
         -------
@@ -232,8 +227,7 @@ class MemoryGB(PyAedtBase):
 
     @property
     def value(self) -> float:
-        """
-        Value expressed in gigabytes.
+        """Value expressed in gigabytes.
 
         Returns
         -------
@@ -250,8 +244,7 @@ class MemoryGB(PyAedtBase):
         return float(num) * self._convert_mem[suffix]
 
     def __str__(self) -> str:
-        """
-        Return the canonical memory string.
+        """Return the canonical memory string.
 
         Returns
         -------
@@ -261,8 +254,7 @@ class MemoryGB(PyAedtBase):
 
     @pyaedt_function_handler()
     def __add__(self, new_memory):
-        """
-        Add two :class:`MemoryGB` values.
+        """Add two :class:`MemoryGB` values.
 
         Parameters
         ----------
@@ -280,8 +272,7 @@ class MemoryGB(PyAedtBase):
 
     @pyaedt_function_handler()
     def __radd__(self, new_memory):
-        """
-        Right-addition to support :func:`sum` and similar.
+        """Right-addition to support :func:`sum` and similar.
 
         When ``new_memory`` is ``0``, return ``self``.
         """
@@ -354,8 +345,7 @@ PROFILE_PROP_MAPPING = MappingProxyType(
 
 
 def step_name_map(input_name: str) -> str | None:
-    """
-    Map verbose AEDT step labels to compact names.
+    """Map verbose AEDT step labels to compact names.
 
     Currently, recognizes labels like ``"Frequency - <value>Hz"`` and
     reduces them to ``"<value>Hz"``. Falls back to the original string if
@@ -431,8 +421,7 @@ ATTR_MAPPING = {
 
 
 class ProfileStepSummary(PyAedtBase):
-    """
-    Summary information for a single profile step.
+    """Summary information for a single profile step.
 
     This light-weight container extracts a small set of common metrics
     (CPU time, real time, memory) from a ``properties`` dictionary.
@@ -480,8 +469,7 @@ class ProfileStepSummary(PyAedtBase):
 
 
 class ProfileStep(PyAedtBase):
-    """
-    A profile step possibly containing nested sub-steps.
+    """A profile step possibly containing nested sub-steps.
 
     Parameters
     ----------
@@ -530,8 +518,7 @@ class ProfileStep(PyAedtBase):
 
     @property
     def process_steps(self) -> list[str] | None:
-        """
-        Names of nested process steps, if any.
+        """Names of nested process steps, if any.
 
         Returns
         -------
@@ -551,8 +538,7 @@ class ProfileStep(PyAedtBase):
 
     @property
     def cpu_time(self) -> timedelta:
-        """
-        CPU time for this step.
+        """CPU time for this step.
 
         Returns
         -------
@@ -575,8 +561,7 @@ class ProfileStep(PyAedtBase):
 
     @property
     def real_time(self) -> timedelta:
-        """
-        Real time for this step.
+        """Real time for this step.
 
         Returns
         -------
@@ -599,8 +584,7 @@ class ProfileStep(PyAedtBase):
 
     @staticmethod
     def _clean_key_name(long_key_name: str) -> str:
-        """
-        Normalize verbose keys from the profile tree.
+        """Normalize verbose keys from the profile tree.
 
         Removes "Group" suffixes and the prefix "Time - ".
 
@@ -618,8 +602,7 @@ class ProfileStep(PyAedtBase):
 
     @property
     def max_memory(self) -> MemoryGB:
-        """
-        Maximum memory over this step and all descendants.
+        """Maximum memory over this step and all descendants.
 
         Returns
         -------
@@ -644,8 +627,7 @@ class ProfileStep(PyAedtBase):
 
     @pyaedt_function_handler()
     def table(self, columns: list = None) -> "pd.DataFrame":
-        """
-        Return a summary of profile step metrics.
+        """Return a summary of profile step metrics.
 
         Parameters
         ----------
@@ -723,8 +705,7 @@ class ProfileStep(PyAedtBase):
         return table_out
 
     def __add__(self, other):
-        """
-        Merge two :class:`ProfileStep` instances.
+        """Merge two :class:`ProfileStep` instances.
 
         The merge combines attributes using :data:`merge_operator` when
         defined; otherwise identical values are kept, or a best-effort
@@ -763,8 +744,7 @@ class ProfileStep(PyAedtBase):
 
 
 class TransientProfile(ProfileStep):
-    """
-    Profile data for a transient solution.
+    """Profile data for a transient solution.
 
     Parameters
     ----------
@@ -795,8 +775,7 @@ class TransientProfile(ProfileStep):
         return sorted([float(t.replace("s", "")) for t in self._time_step_keys])
 
     def time_step_keys(self, max_time: float) -> list[str]:
-        """
-        Return time-step labels up to a limit.
+        """Return time-step labels up to a limit.
 
         Parameters
         ----------
@@ -822,8 +801,7 @@ class TransientProfile(ProfileStep):
 
     @property
     def max_time(self) -> float | None:
-        """
-        Largest time step in seconds, if any.
+        """Largest time step in seconds, if any.
 
         Returns
         -------
@@ -846,8 +824,7 @@ class TransientProfile(ProfileStep):
 
 
 class FrequencySweepProfile(ProfileStep):
-    """
-    Profile data for a frequency sweep.
+    """Profile data for a frequency sweep.
 
     Parameters
     ----------
@@ -891,8 +868,7 @@ class FrequencySweepProfile(ProfileStep):
 
     @pyaedt_function_handler()
     def _create_summary(self, data: dict):
-        """
-        Parse the sweep summary ``Info`` block and start time.
+        """Parse the sweep summary ``Info`` block and start time.
 
         Parameters
         ----------
@@ -925,8 +901,7 @@ class FrequencySweepProfile(ProfileStep):
 
     @property
     def frequencies(self) -> list[Quantity]:
-        """
-        Frequencies extracted from child groups or summary.
+        """Frequencies extracted from child groups or summary.
 
         Returns
         -------
@@ -955,8 +930,7 @@ class FrequencySweepProfile(ProfileStep):
 
     @pyaedt_function_handler()
     def _freq_key(self, freq_str: str) -> str:
-        """
-        Build the child group key for a frequency.
+        """Build the child group key for a frequency.
 
         Parameters
         ----------
@@ -971,8 +945,7 @@ class FrequencySweepProfile(ProfileStep):
 
     @pyaedt_function_handler()
     def keys(self) -> list[str] | None:
-        """
-        Frequency strings for quick iteration.
+        """Frequency strings for quick iteration.
 
         Returns
         -------
@@ -989,8 +962,7 @@ class FrequencySweepProfile(ProfileStep):
 
     @pyaedt_function_handler()
     def __getitem__(self, key: str) -> ProfileStep:
-        """
-        Return the profile step for a given frequency.
+        """Return the profile step for a given frequency.
 
         Parameters
         ----------
@@ -1009,8 +981,7 @@ class FrequencySweepProfile(ProfileStep):
 
 
 class AdaptivePass(ProfileStep):
-    """
-    Information for a single adaptive pass.
+    """Information for a single adaptive pass.
 
     Examples
     --------
@@ -1027,8 +998,7 @@ class AdaptivePass(ProfileStep):
 
     @property
     def adapt_frequency(self) -> Quantity | None:
-        """
-        Frequency used in this adaptive pass.
+        """Frequency used in this adaptive pass.
 
         Examples
         --------
@@ -1042,8 +1012,7 @@ class AdaptivePass(ProfileStep):
 
 @pyaedt_function_handler()
 def get_mesh_process_name(group_data: BinaryTreeNode) -> str | None:
-    """
-    Return the name of the meshing process group if present.
+    """Return the name of the meshing process group if present.
 
     Parameters
     ----------
@@ -1070,8 +1039,7 @@ def get_mesh_process_name(group_data: BinaryTreeNode) -> str | None:
 
 
 def convert_icepak_info(info_str: str) -> tuple:
-    """
-    Convert the ``"Info"`` block of the profile ``Summary`` to (timedelta, MemoryGB).
+    """Convert the ``"Info"`` block of the profile ``Summary`` to (timedelta, MemoryGB).
 
     Parameters
     ----------
@@ -1113,8 +1081,7 @@ def convert_icepak_info(info_str: str) -> tuple:
 
 
 class SimulationProfile(PyAedtBase):
-    """
-    Container for all profile data from a single simulation.
+    """Container for all profile data from a single simulation.
 
     This class parses a *Solution Process Group* and exposes convenience
     accessors for common metrics such as times, memory, passes, sweeps and
@@ -1215,8 +1182,7 @@ class SimulationProfile(PyAedtBase):
 
     @pyaedt_function_handler()
     def __add__(self, new_profile):
-        """
-        Combine two profiles field-by-field.
+        """Combine two profiles field-by-field.
 
         Attributes listed in :data:`merge_operator` use that rule, others
         attempt ``+`` or keep the left value. Empty values (``None``, ``{}``,
@@ -1273,8 +1239,7 @@ class SimulationProfile(PyAedtBase):
 
     @pyaedt_function_handler()
     def _update_props_from_dict(self, props_dict: dict):
-        """
-        Populate attributes from a properties dict.
+        """Populate attributes from a properties dict.
 
         Parameters
         ----------
@@ -1287,8 +1252,7 @@ class SimulationProfile(PyAedtBase):
 
     @property
     def product(self) -> str | None:
-        """
-        Product name parsed from the ``Product`` field.
+        """Product name parsed from the ``Product`` field.
 
         Returns
         -------
@@ -1311,8 +1275,7 @@ class SimulationProfile(PyAedtBase):
 
     @property
     def product_version(self) -> str:
-        """
-        Product version string parsed from ``Product``.
+        """Product version string parsed from ``Product``.
 
         Returns
         -------
@@ -1329,8 +1292,7 @@ class SimulationProfile(PyAedtBase):
 
     @pyaedt_function_handler()
     def cpu_time(self, num_passes: int = None, max_time: float = None) -> timedelta:
-        """
-        Total CPU time for adaptive refinement or transient simulations.
+        """Total CPU time for adaptive refinement or transient simulations.
 
            The total CPU time is the sum of execution time for
            all solution process steps and cores. By default, all adaptive passes (for
@@ -1372,8 +1334,7 @@ class SimulationProfile(PyAedtBase):
 
     @pyaedt_function_handler()
     def real_time(self, num_passes: int = None, max_time: float = None) -> timedelta:
-        """
-        Total real time for adaptive refinement or transient simulations.
+        """Total real time for adaptive refinement or transient simulations.
 
            The total real time is calculated as the sum of execution time from
            all solution process steps. By default, all adaptive passes (for
@@ -1412,8 +1373,7 @@ class SimulationProfile(PyAedtBase):
 
     @pyaedt_function_handler()
     def _time_calc(self, attr_name, num_passes, max_time):
-        """
-        Calculate the total time for the simulation.
+        """Calculate the total time for the simulation.
 
         Total time excluding meshing and validation.
         """
@@ -1440,8 +1400,7 @@ class SimulationProfile(PyAedtBase):
 
     @property
     def num_adaptive_passes(self) -> int:
-        """
-        Number of adaptive passes available.
+        """Number of adaptive passes available.
 
         Returns
         -------
@@ -1461,8 +1420,7 @@ class SimulationProfile(PyAedtBase):
 
     @property
     def is_transient(self) -> bool:
-        """
-        Transient profile is available.
+        """Transient profile is available.
 
         Returns
         -------
@@ -1479,8 +1437,7 @@ class SimulationProfile(PyAedtBase):
 
     @property
     def has_frequency_sweep(self) -> bool:
-        """
-        Frequency sweep available.
+        """Frequency sweep available.
 
         Returns
         -------
@@ -1500,8 +1457,7 @@ class SimulationProfile(PyAedtBase):
 
     @pyaedt_function_handler()
     def max_memory(self, num_passes: int = None) -> MemoryGB:
-        """
-        Maximum memory used in the solve process.
+        """Maximum memory used in the solve process.
 
         Parameters
         ----------
@@ -1545,8 +1501,7 @@ class SimulationProfile(PyAedtBase):
 
     @pyaedt_function_handler()
     def _check_num_passes(self, num_passes: int) -> int:
-        """
-        Return a valid value for the number of adaptive passes.
+        """Return a valid value for the number of adaptive passes.
 
         Given an integer, return a valid
         value for the total number of adaptive passes.
@@ -1585,8 +1540,7 @@ class SimulationProfile(PyAedtBase):
 
     @property
     def max_time(self) -> float | None:
-        """
-        Maximum transient time in seconds.
+        """Maximum transient time in seconds.
 
         Returns
         -------
@@ -1609,8 +1563,7 @@ class SimulationProfile(PyAedtBase):
 
     @property
     def time_steps(self) -> list[float] | None:
-        """
-        List of transient time steps.
+        """List of transient time steps.
 
         Returns
         -------
@@ -1630,8 +1583,7 @@ class SimulationProfile(PyAedtBase):
 
     @pyaedt_function_handler()
     def time_keys(self, max_time: float) -> list[str]:
-        """
-        Return labels for transient steps not exceeding ``max_time``.
+        """Return labels for transient steps not exceeding ``max_time``.
 
         Parameters
         ----------
@@ -1654,8 +1606,7 @@ class SimulationProfile(PyAedtBase):
 
 @pyaedt_function_handler()
 def _merge_profiles(profiles: list) -> SimulationProfile:
-    """
-    Merge a list of :class:`SimulationProfile` into one.
+    """Merge a list of :class:`SimulationProfile` into one.
 
     Parameters
     ----------
@@ -1676,8 +1627,7 @@ def _merge_profiles(profiles: list) -> SimulationProfile:
 
 @pyaedt_function_handler()
 def _parse_profile_data(profile_data: BinaryTreeNode) -> SimulationProfile:
-    """
-    Generate the SimulationProfile object from the profile data.
+    """Generate the SimulationProfile object from the profile data.
 
     Parameters
     ----------
@@ -1702,8 +1652,7 @@ def _parse_profile_data(profile_data: BinaryTreeNode) -> SimulationProfile:
 
 
 class Profiles(Mapping, PyAedtBase):
-    """
-    Provide an interface to solver profiles.
+    """Provide an interface to solver profiles.
 
     The Profiles class is iterable. Individual profiles are accessed via the unique
     key made up of "setup_name - variation". If there are no variations available, the
@@ -1799,8 +1748,7 @@ class Profiles(Mapping, PyAedtBase):
 
     @pyaedt_function_handler()
     def keys(self):
-        """
-        Expose the keys of the underlying mapping.
+        """Expose the keys of the underlying mapping.
 
         Examples
         --------

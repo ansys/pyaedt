@@ -102,8 +102,7 @@ class Band(EmitNode):
 
     @min_aedt_version("2025.2")
     def import_rx_measurement(self, file_name: str) -> EmitNode:
-        """
-        Import a Measurement from a File...
+        """Import a Measurement from a File.
 
         Examples
         --------
@@ -118,8 +117,7 @@ class Band(EmitNode):
 
     @min_aedt_version("2025.2")
     def import_tx_measurement(self, file_name: str) -> EmitNode:
-        """
-        Import a Measurement from a File...
+        """Import a Measurement from a File.
 
         Examples
         --------
@@ -135,8 +133,7 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def enabled(self) -> bool:
-        """
-        Enabled state for this node.
+        """Enabled state for this node.
 
         Examples
         --------
@@ -157,8 +154,7 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def use_dd_1494_mode(self) -> bool:
-        """
-        Uses DD-1494 parameters to define the Tx/Rx spectrum.
+        """Uses DD-1494 parameters to define the Tx/Rx spectrum.
 
         Value should be 'true' or 'false'.
 
@@ -182,8 +178,7 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def use_emission_designator(self) -> bool:
-        """
-        Use Emission Designator.
+        """Use Emission Designator.
 
         Uses the Emission Designator to define the bandwidth and modulation.
 
@@ -209,8 +204,7 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def emission_designator(self) -> str:
-        """
-        Emission Designator.
+        """Emission Designator.
 
         Enter the Emission Designator to define the bandwidth and modulation.
 
@@ -234,8 +228,7 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def emission_designator_ch_bw(self) -> float:
-        """
-        Channel Bandwidth based off the emission designator.
+        """Channel Bandwidth based off the emission designator.
 
         Examples
         --------
@@ -253,8 +246,7 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def emit_modulation_type(self) -> str:
-        """
-        Modulation based off the emission designator.
+        """Modulation based off the emission designator.
 
         Examples
         --------
@@ -271,8 +263,7 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def override_emission_designator_bw(self) -> bool:
-        """
-        Override Emission Designator BW.
+        """Override Emission Designator BW.
 
         Enables the 3 dB channel bandwidth to equal a value < emission
         designator bandwidth.
@@ -299,8 +290,7 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def channel_bandwidth(self) -> float:
-        """
-        Channel Bandwidth.
+        """Channel Bandwidth.
 
         Value should be greater than 1.
 
@@ -339,8 +329,7 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def modulation(self) -> ModulationOption:
-        """
-        Modulation used for the transmitted/received signal.
+        """Modulation used for the transmitted/received signal.
 
         Examples
         --------
@@ -363,8 +352,7 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def max_modulating_freq(self) -> float:
-        """
-        Maximum modulating frequency: helps determine spectral profile.
+        """Maximum modulating frequency: helps determine spectral profile.
 
         Value should be greater than 1.
 
@@ -390,8 +378,7 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def modulation_index(self) -> float:
-        """
-        AM modulation index: helps determine spectral profile.
+        """AM modulation index: helps determine spectral profile.
 
         Value should be between 0.01 and 1.
 
@@ -415,8 +402,7 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def bit_rate(self) -> float:
-        """
-        Maximum bit rate: helps determine width of spectral profile.
+        """Maximum bit rate: helps determine width of spectral profile.
 
         Value should be greater than 1.
 
@@ -442,8 +428,7 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def sidelobes(self) -> int:
-        """
-        Number of sidelobes in spectral profile.
+        """Number of sidelobes in spectral profile.
 
         Value should be greater than 0.
 
@@ -467,8 +452,7 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def freq_deviation(self) -> float:
-        """
-        FM/FSK frequency deviation: helps determine spectral profile.
+        """FM/FSK frequency deviation: helps determine spectral profile.
 
         Value should be greater than 1.
 
@@ -508,8 +492,7 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def psk_type(self) -> PSKTypeOption:
-        """
-        PSK modulation order: helps determine spectral profile.
+        """PSK modulation order: helps determine spectral profile.
 
         Examples
         --------
@@ -538,8 +521,7 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def fsk_type(self) -> FSKTypeOption:
-        """
-        FSK modulation order: helps determine spectral profile.
+        """FSK modulation order: helps determine spectral profile.
 
         Examples
         --------
@@ -570,8 +552,7 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def qam_type(self) -> QAMTypeOption:
-        """
-        QAM modulation order: helps determine spectral profile.
+        """QAM modulation order: helps determine spectral profile.
 
         Examples
         --------
@@ -602,8 +583,7 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def apsk_type(self) -> APSKTypeOption:
-        """
-        APSK modulation order: helps determine spectral profile.
+        """APSK modulation order: helps determine spectral profile.
 
         Examples
         --------
@@ -627,8 +607,7 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def start_frequency(self) -> float:
-        """
-        First frequency for this band.
+        """First frequency for this band.
 
         Value should be between 1 and 100e9.
 
@@ -654,8 +633,7 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def stop_frequency(self) -> float:
-        """
-        Last frequency for this band.
+        """Last frequency for this band.
 
         Value should be between 1 and 100e9.
 
@@ -681,8 +659,7 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def channel_spacing(self) -> float:
-        """
-        Spacing between channels within this band.
+        """Spacing between channels within this band.
 
         Value should be between 1 and 100e9.
 
@@ -708,8 +685,7 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def tx_offset(self) -> float:
-        """
-        Frequency offset between Tx and Rx channels.
+        """Frequency offset between Tx and Rx channels.
 
         Value should be less than 100e9.
 
@@ -742,8 +718,7 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def radar_type(self) -> RadarTypeOption:
-        """
-        Radar type: helps determine spectral profile.
+        """Radar type: helps determine spectral profile.
 
         Examples
         --------
@@ -766,8 +741,7 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def hopping_radar(self) -> bool:
-        """
-        True for hopping radars; false otherwise.
+        """True for hopping radars; false otherwise.
 
         Value should be 'true' or 'false'.
 
@@ -791,8 +765,7 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def post_october_2020_procurement(self) -> bool:
-        """
-        Post October 2020 Procurement.
+        """Post October 2020 Procurement.
 
         Procurement date: helps determine spectral profile, particularly the
         roll-off.
@@ -819,8 +792,7 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def hop_range_min_freq(self) -> float:
-        """
-        Sets the minimum frequency of the hopping range.
+        """Sets the minimum frequency of the hopping range.
 
         Value should be between 1.0 and 100.0e9.
 
@@ -846,8 +818,7 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def hop_range_max_freq(self) -> float:
-        """
-        Sets the maximum frequency of the hopping range.
+        """Sets the maximum frequency of the hopping range.
 
         Value should be between 1.0 and 100.0e9.
 
@@ -873,8 +844,7 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def pulse_duration(self) -> float:
-        """
-        Pulse duration.
+        """Pulse duration.
 
         Value should be greater than 0.0.
 
@@ -900,8 +870,7 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def pulse_rise_time(self) -> float:
-        """
-        Pulse rise time.
+        """Pulse rise time.
 
         Value should be greater than 0.0.
 
@@ -927,8 +896,7 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def pulse_fall_time(self) -> float:
-        """
-        Pulse fall time.
+        """Pulse fall time.
 
         Value should be greater than 0.0.
 
@@ -954,8 +922,7 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def pulse_repetition_rate(self) -> float:
-        """
-        Pulse repetition rate [pulses/sec].
+        """Pulse repetition rate [pulses/sec].
 
         Value should be greater than 1.0.
 
@@ -979,8 +946,7 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def number_of_chips(self) -> float:
-        """
-        Total number of chips (subpulses) contained in the pulse.
+        """Total number of chips (subpulses) contained in the pulse.
 
         Value should be greater than 1.0.
 
@@ -1004,8 +970,7 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def pulse_compression_ratio(self) -> float:
-        """
-        Pulse compression ratio.
+        """Pulse compression ratio.
 
         Value should be greater than 1.0.
 
@@ -1029,8 +994,7 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def fm_chirp_period(self) -> float:
-        """
-        FM Chirp period for the FM/CW radar.
+        """FM Chirp period for the FM/CW radar.
 
         Value should be greater than 0.0.
 
@@ -1056,8 +1020,7 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def fm_freq_deviation(self) -> float:
-        """
-        FM Freq Deviation.
+        """FM Freq Deviation.
 
         Total frequency deviation for the carrier frequency for the FM/CW radar.
 
@@ -1085,8 +1048,7 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def fm_freq_dev_bandwidth(self) -> float:
-        """
-        FM Freq Dev Bandwidth.
+        """FM Freq Dev Bandwidth.
 
         Bandwidth of freq deviation for FM modulated pulsed waveform (total freq
         shift during pulse duration).

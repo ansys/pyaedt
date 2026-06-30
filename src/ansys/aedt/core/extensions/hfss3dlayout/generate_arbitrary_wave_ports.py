@@ -67,8 +67,7 @@ EXTENSION_TITLE = "Arbitrary wave port creator"
 
 @dataclass
 class ArbitraryWavePortExtensionData(ExtensionCommonData):
-    """
-    Data class containing user input and computed data.
+    """Data class containing user input and computed data.
 
     Examples
     --------
@@ -93,8 +92,7 @@ class ArbitraryWavePortExtensionData(ExtensionCommonData):
 
 
 class ArbitraryWavePortExtension(ExtensionHFSS3DLayoutCommon):
-    """
-    Extension for generating arbitrary wave ports in HFSS 3D Layout.
+    """Extension for generating arbitrary wave ports in HFSS 3D Layout.
 
     Examples
     --------
@@ -129,8 +127,7 @@ class ArbitraryWavePortExtension(ExtensionHFSS3DLayoutCommon):
         self.add_extension_content()
 
     def add_extension_content(self) -> None:
-        """
-        Add custom content to the extension UI.
+        """Add custom content to the extension UI.
 
         Examples
         --------
@@ -240,8 +237,7 @@ class ArbitraryWavePortExtension(ExtensionHFSS3DLayoutCommon):
 
 
 def main(data: ArbitraryWavePortExtensionData) -> bool:
-    """
-    Main function to run the arbitrary wave port extension.
+    """Main function to run the arbitrary wave port extension.
 
     Examples
     --------

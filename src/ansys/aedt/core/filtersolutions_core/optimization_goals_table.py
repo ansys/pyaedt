@@ -33,8 +33,7 @@ import ansys.aedt.core
 
 
 class OptimizationGoalParameter(Enum):
-    """
-    Enumeration of optimization goals parameters table.
+    """Enumeration of optimization goals parameters table.
 
     **Attributes:**
 
@@ -80,8 +79,7 @@ class OptimizationGoalParameter(Enum):
 
 
 class OptimizationGoalsTable:
-    """
-    Provides management of optimization goals within a table structure.
+    """Provides management of optimization goals within a table structure.
 
     This class offers functionality to add, update, or delete entries in the optimization goals table,
     facilitating the manipulation of optimization parameters for simulation tasks.
@@ -160,8 +158,7 @@ class OptimizationGoalsTable:
 
     @property
     def row_count(self) -> int:
-        """
-        Number of goals in the optimization goals table.
+        """Number of goals in the optimization goals table.
 
         The default is `0`.
 
@@ -183,8 +180,7 @@ class OptimizationGoalsTable:
         return int(table_row_count.value)
 
     def row(self, row_index: int) -> list:
-        """
-        Get the values for one row of the optimization goals table.
+        """Get the values for one row of the optimization goals table.
 
         The values are returned as a list: [value1, value2, ..., value7].
 
@@ -225,8 +221,7 @@ class OptimizationGoalsTable:
         weight: str = None,
         enabled: str = None,
     ) -> None:
-        """
-        Update the row parameters for an existing row in the optimization goals table.
+        """Update the row parameters for an existing row in the optimization goals table.
 
         Parameters
         ----------
@@ -284,8 +279,7 @@ class OptimizationGoalsTable:
         weight: str = None,
         enabled: str = None,
     ) -> None:
-        """
-        Append a new row of parameters to the optimization goals table,
+        """Append a new row of parameters to the optimization goals table,
         ensuring the total does not exceed 50 entries.
 
         Parameters
@@ -335,8 +329,7 @@ class OptimizationGoalsTable:
         weight: str = None,
         enabled: str = None,
     ) -> None:
-        """
-        Insert a new row of parameters to the optimization goals table,
+        """Insert a new row of parameters to the optimization goals table,
         ensuring the total does not exceed 50 entries.
 
         Parameters
@@ -381,8 +374,7 @@ class OptimizationGoalsTable:
         self._dll_interface.raise_error(status)
 
     def remove_row(self, row_index: int) -> None:
-        """
-        Remove a row from the optimization goals table.
+        """Remove a row from the optimization goals table.
 
         Parameters
         ----------
@@ -401,8 +393,7 @@ class OptimizationGoalsTable:
         self._dll_interface.raise_error(status)
 
     def restore_design_goals(self) -> None:
-        """
-        Configure the optimization goal table according to the recommended goals for the current design.
+        """Configure the optimization goal table according to the recommended goals for the current design.
 
         Examples
         --------
@@ -415,8 +406,7 @@ class OptimizationGoalsTable:
         self._dll_interface.raise_error(status)
 
     def save_goals(self, file_path: str) -> str:
-        """
-        Save the optimization goals from a design's optimization goals table to a config file.
+        """Save the optimization goals from a design's optimization goals table to a config file.
 
         Parameters
         ----------
@@ -438,8 +428,7 @@ class OptimizationGoalsTable:
                 file.write(slash_separated + "\n")
 
     def load_goals(self, file_path: str) -> str:
-        """
-        Load optimization goals from a config file into this optimization goals table.
+        """Load optimization goals from a config file into this optimization goals table.
 
         Parameters
         ----------
@@ -461,8 +450,7 @@ class OptimizationGoalsTable:
                 self.append_row(*row)
 
     def adjust_goal_frequency(self, adjust_goal_frequency_string: str) -> None:
-        """
-        Adjust all goal frequencies in the table by the adjusting
+        """Adjust all goal frequencies in the table by the adjusting
         frequency value which can be positive or negative.
 
         Examples
@@ -475,8 +463,7 @@ class OptimizationGoalsTable:
         self._dll_interface.set_string(self._dll.adjustGoalFrequency, adjust_goal_frequency_string)
 
     def clear_goal_entries(self) -> None:
-        """
-        Clear the goal entries from optimization goals table.
+        """Clear the goal entries from optimization goals table.
 
         Examples
         --------

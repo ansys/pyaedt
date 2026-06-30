@@ -37,8 +37,7 @@ from ansys.aedt.core.generic.file_utils import _uname
 
 
 def search_files(dirname: str, pattern: str = "*") -> list:
-    """
-    Search for files inside a directory given a specific pattern.
+    """Search for files inside a directory given a specific pattern.
 
     Parameters
     ----------
@@ -185,9 +184,7 @@ class Scratch(PyAedtBase):
         return str(dst_file)
 
     def copyfolder(self, src_folder: str | Path, destfolder: str | Path) -> bool:
-        """
-
-        Parameters
+        """Parameters
         ----------
         src_folder : str or :class:`pathlib.Path`
             Source directory with fullpath.
@@ -224,8 +221,7 @@ class Scratch(PyAedtBase):
             self.remove()
 
     def create_sub_folder(self, name: str = "") -> str:
-        """
-        Create a subfolder.
+        """Create a subfolder.
 
         Parameters
         ----------

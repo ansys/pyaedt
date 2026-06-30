@@ -44,8 +44,7 @@ T = TypeVar("T", bound="EmitNode")
 
 
 class EmitNode:
-    """
-    Emit node class for managing and interacting with EMIT nodes.
+    """Emit node class for managing and interacting with EMIT nodes.
 
     Examples
     --------
@@ -69,8 +68,7 @@ class EmitNode:
 
     @property
     def odesktop(self):
-        """
-        Desktop instance used for version checking.
+        """Desktop instance used for version checking.
 
         Examples
         --------
@@ -84,8 +82,7 @@ class EmitNode:
 
     @staticmethod
     def props_to_dict(props: list[str]) -> dict:
-        """
-        Converts a list of key/value pairs to a dictionary.
+        """Converts a list of key/value pairs to a dictionary.
 
         Parameters
         ----------
@@ -113,8 +110,7 @@ class EmitNode:
     @property
     @min_aedt_version("2025.2")
     def valid(self) -> bool:
-        """
-        Indicates if this object is still valid (not detached from EMIT node).
+        """Indicates if this object is still valid (not detached from EMIT node).
 
         Returns
         -------
@@ -134,8 +130,7 @@ class EmitNode:
     @property
     @min_aedt_version("2025.2")
     def name(self) -> str:
-        """
-        Name of the node.
+        """Name of the node.
 
         Returns
         -------
@@ -155,8 +150,7 @@ class EmitNode:
     @name.setter
     @min_aedt_version("2025.2")
     def name(self, requested_name: str) -> None:
-        """
-        Renames the node/component.
+        """Renames the node/component.
 
         Parameters
         ----------
@@ -190,8 +184,7 @@ class EmitNode:
     @property
     @min_aedt_version("2025.2")
     def _node_type(self) -> str:
-        """
-        Type of the node.
+        """Type of the node.
 
         Returns
         -------
@@ -203,8 +196,7 @@ class EmitNode:
     @property
     @min_aedt_version("2025.2")
     def _parent(self) -> EmitNode:
-        """
-        Parent node of this node.
+        """Parent node of this node.
 
         Returns
         -------
@@ -219,8 +211,7 @@ class EmitNode:
     @property
     @min_aedt_version("2025.2")
     def parent_name(self):
-        """
-        Full node name of the parent node including the entire tree structure
+        """Full node name of the parent node including the entire tree structure
 
         Returns
         -------
@@ -239,8 +230,7 @@ class EmitNode:
 
     @min_aedt_version("2025.2")
     def _full_node_name(self, name="") -> str:
-        """
-        Convert a Component's short name to a full name with the format: NODE-*-{name}.
+        """Convert a Component's short name to a full name with the format: NODE-*-{name}.
 
         If name is ``""`` then the method converts the node's name to a full name.
 
@@ -269,8 +259,7 @@ class EmitNode:
     @property
     @min_aedt_version("2025.2")
     def properties(self) -> dict:
-        """
-        Node properties.
+        """Node properties.
 
         Returns
         -------
@@ -292,8 +281,7 @@ class EmitNode:
     @property
     @min_aedt_version("2025.2")
     def warnings(self) -> str:
-        """
-        Warnings for the node, if any.
+        """Warnings for the node, if any.
 
         Returns
         -------
@@ -321,8 +309,7 @@ class EmitNode:
     @property
     @min_aedt_version("2025.2")
     def allowed_child_types(self) -> list[str]:
-        """
-        Child types allowed for this node.
+        """Child types allowed for this node.
 
         Returns
         -------
@@ -341,8 +328,7 @@ class EmitNode:
 
     @min_aedt_version("2025.2")
     def _get_node(self, node_id: int) -> EmitNode:
-        """
-        Gets a node for this node's revision with the given id.
+        """Gets a node for this node's revision with the given id.
 
         Parameters
         ----------
@@ -395,8 +381,7 @@ class EmitNode:
     @property
     @min_aedt_version("2025.2")
     def children(self) -> list[EmitNode]:
-        """
-        Child nodes of this node.
+        """Child nodes of this node.
 
         Returns
         -------
@@ -418,8 +403,7 @@ class EmitNode:
 
     @min_aedt_version("2025.2")
     def _get_property(self, prop: str, skipChecks: bool = False, isTable: bool = False) -> str | list[str]:
-        """
-        Fetch the value of a given property.
+        """Fetch the value of a given property.
 
         Parameters
         ----------
@@ -503,8 +487,7 @@ class EmitNode:
 
     @staticmethod
     def _string_to_value_units(value) -> tuple[float, str]:
-        """
-        Splits a value into its numeric and unit components.
+        """Splits a value into its numeric and unit components.
 
         Parameters
         ----------
@@ -545,8 +528,7 @@ class EmitNode:
 
     @min_aedt_version("2025.2")
     def _convert_to_internal_units(self, value: float | str, unit_system: str) -> float:
-        """
-        Takes a value and converts to internal EMIT units used for storing values.
+        """Takes a value and converts to internal EMIT units used for storing values.
 
         Parameters
         ----------
@@ -589,8 +571,7 @@ class EmitNode:
 
     @staticmethod
     def _convert_from_internal_units(value: float, unit_system: str) -> float:
-        """
-        Takes a value and converts from internal EMIT units to SI units.
+        """Takes a value and converts from internal EMIT units to SI units.
 
         Parameters
         ----------
@@ -623,8 +604,7 @@ class EmitNode:
 
     @min_aedt_version("2025.2")
     def _duplicate(self: T, new_name: str = "") -> T:
-        """
-        Duplicate component using oEditor's Copy/Paste.
+        """Duplicate component using oEditor's Copy/Paste.
         New component is placed under existing components in the schematic window.
 
         Parameters
@@ -702,8 +682,7 @@ class EmitNode:
 
     @min_aedt_version("2025.2")
     def _import(self, file_path: str, import_type: str):
-        """
-        Imports a file into an Emit node.
+        """Imports a file into an Emit node.
 
         Parameters
         ----------
@@ -733,8 +712,7 @@ class EmitNode:
 
     @min_aedt_version("2025.2")
     def _export_model(self, file_path: str) -> None:
-        """
-        Exports an Emit node's model to a file.
+        """Exports an Emit node's model to a file.
 
         Parameters
         ----------
@@ -745,8 +723,7 @@ class EmitNode:
 
     @min_aedt_version("2025.2")
     def get_is_component(self) -> bool:
-        """
-        Check if node is also a component.
+        """Check if node is also a component.
 
         Returns
         -------
@@ -765,8 +742,7 @@ class EmitNode:
 
     @min_aedt_version("2025.2")
     def _get_child_node_id(self, child_name: str) -> int:
-        """
-        Returns the node ID for the specified child node.
+        """Returns the node ID for the specified child node.
 
         Parameters
         ----------
@@ -782,8 +758,7 @@ class EmitNode:
 
     @min_aedt_version("2025.2")
     def _is_column_data_table(self) -> bool:
-        """
-        Returns true if the node uses column data tables.
+        """Returns true if the node uses column data tables.
 
         Returns
         -------
@@ -810,8 +785,7 @@ class EmitNode:
 
     @min_aedt_version("2025.2")
     def _check_column_table_data(self, data):
-        """
-        Converts user inputted int or string table data to SI units.
+        """Converts user inputted int or string table data to SI units.
 
         The table nodes affected are:
         TxHarmonicNode, TxNbEmissionNode,
@@ -902,8 +876,7 @@ class EmitNode:
 
     @min_aedt_version("2025.2")
     def _check_valid_function(self, expr: str) -> None:
-        """
-        Validates a function expression for use in table data.
+        """Validates a function expression for use in table data.
 
         Parameters
         ----------
@@ -926,8 +899,7 @@ class EmitNode:
 
     @min_aedt_version("2025.2")
     def _check_node_prop_table_data(self, data):
-        """
-        Converts user inputted int or string table data to SI units or ColumnUnits.
+        """Converts user inputted int or string table data to SI units or ColumnUnits.
 
         The table nodes affected are:
         SamplingNode, TxSpurNode,
@@ -1025,8 +997,7 @@ class EmitNode:
 
     @min_aedt_version("2025.2")
     def _get_table_data(self):
-        """
-        Returns the node's table data.
+        """Returns the node's table data.
 
         Returns
         -------
@@ -1065,8 +1036,7 @@ class EmitNode:
 
     @min_aedt_version("2025.2")
     def _set_table_data(self, table):
-        """
-        Sets the table data for the node.
+        """Sets the table data for the node.
 
         Parameters
         ----------
@@ -1103,8 +1073,7 @@ class EmitNode:
 
     @min_aedt_version("2025.2")
     def _add_child_node(self, child_type, child_name=None):
-        """
-        Creates a child node of the given type and name.
+        """Creates a child node of the given type and name.
 
         Parameters
         ----------

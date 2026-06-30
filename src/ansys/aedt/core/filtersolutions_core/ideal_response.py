@@ -36,8 +36,7 @@ from ansys.aedt.core.filtersolutions_core.graph_setup import GraphSetup
 
 
 class FrequencyResponseColumn(Enum):
-    """
-    Provides an enum of frequency response parameters.
+    """Provides an enum of frequency response parameters.
 
     **Attributes:**
 
@@ -82,8 +81,7 @@ class FrequencyResponseColumn(Enum):
 
 
 class TimeResponseColumn(Enum):
-    """
-    Provides an enum of time response parameters.
+    """Provides an enum of time response parameters.
 
     **Attributes:**
 
@@ -119,8 +117,7 @@ class TimeResponseColumn(Enum):
 
 
 class SParametersResponseColumn(Enum):
-    """
-    Provides an enum of S parameters.
+    """Provides an enum of S parameters.
 
     **Attributes:**
 
@@ -150,8 +147,7 @@ class SParametersResponseColumn(Enum):
 
 
 class PoleZerosResponseColumn(Enum):
-    """
-    Provides an enum of pole zero x and y coordinates of transmission (TX) or reflection (RX) zeros.
+    """Provides an enum of pole zero x and y coordinates of transmission (TX) or reflection (RX) zeros.
 
     **Attributes:**
 
@@ -214,8 +210,7 @@ class PoleZerosResponseColumn(Enum):
 
 
 class IdealResponse:
-    """
-    Returns the data for available ideal filter responses.
+    """Returns the data for available ideal filter responses.
 
     Types of responses Include ``frequency``, ``time``, ``S parameters``, ``transfer function``,
     and ``pole zero location``.
@@ -273,8 +268,7 @@ class IdealResponse:
         self._dll.getVSGAnalsyis.restype = c_int
 
     def _frequency_response_getter(self, column: FrequencyResponseColumn):
-        """
-        Get the ideal filter frequency response.
+        """Get the ideal filter frequency response.
 
         Parameters
         ----------
@@ -296,8 +290,7 @@ class IdealResponse:
         return values
 
     def _time_response_getter(self, column: TimeResponseColumn):
-        """
-        Get the ideal filter time response.
+        """Get the ideal filter time response.
 
         Parameters
         ----------
@@ -319,8 +312,7 @@ class IdealResponse:
         return values
 
     def _sparamaters_response_getter(self, column: SParametersResponseColumn):
-        """
-        Get the ideal filter S parameter's response.
+        """Get the ideal filter S parameter's response.
 
         Parameters
         ----------
@@ -342,8 +334,7 @@ class IdealResponse:
         return values
 
     def _pole_zeros_response_getter(self, column: PoleZerosResponseColumn):
-        """
-        Get the ideal pole zero's location parameters (such as the x coordinate of
+        """Get the ideal pole zero's location parameters (such as the x coordinate of
         the denominator of transmission zeros).
 
         Parameters
@@ -366,8 +357,7 @@ class IdealResponse:
         return values
 
     def transfer_function_response(self) -> str:
-        """
-        Get the ideal filter transfer function's parameters.
+        """Get the ideal filter transfer function's parameters.
 
         Returns
         -------
@@ -396,8 +386,7 @@ class IdealResponse:
 
     @property
     def vsg_analysis_enabled(self) -> bool:
-        """
-        Flag indicating if the offset due to source resistor in frequency and time responses is enabled.
+        """Flag indicating if the offset due to source resistor in frequency and time responses is enabled.
 
         Returns
         -------
@@ -428,8 +417,7 @@ class IdealResponse:
         maximum_frequency: str = None,
         vsg_analysis_enabled: bool = False,
     ) -> tuple:
-        """
-        Get the ideal filter frequency response for the given parameters.
+        """Get the ideal filter frequency response for the given parameters.
 
         Parameters
         ----------
@@ -478,8 +466,7 @@ class IdealResponse:
         maximum_time: str = None,
         vsg_analysis_enabled: bool = False,
     ) -> tuple:
-        """
-        Get the ideal filter time response for the given parameters.
+        """Get the ideal filter time response for the given parameters.
 
         Parameters
         ----------
@@ -524,8 +511,7 @@ class IdealResponse:
         minimum_frequency: str = None,
         maximum_frequency: str = None,
     ) -> tuple:
-        """
-        Get the ideal filter S parameters response for the given parameters.
+        """Get the ideal filter S parameters response for the given parameters.
 
         Parameters
         ----------
@@ -571,8 +557,7 @@ class IdealResponse:
         x_axis_parameter: PoleZerosResponseColumn = PoleZerosResponseColumn.TX_ZERO_DEN_X,
         y_axis_parameter: PoleZerosResponseColumn = PoleZerosResponseColumn.TX_ZERO_DEN_Y,
     ) -> tuple:
-        """
-        Get the ideal pole zero location for the given parameters.
+        """Get the ideal pole zero location for the given parameters.
 
         Parameters
         ----------

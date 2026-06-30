@@ -55,8 +55,7 @@ EXTENSION_TITLE = "Fresnel Coefficients"
 
 
 class FresnelExtension(ExtensionHFSSCommon):
-    """
-    Extension to generate Fresnel coefficients in AEDT.
+    """Extension to generate Fresnel coefficients in AEDT.
 
     Examples
     --------
@@ -130,8 +129,7 @@ class FresnelExtension(ExtensionHFSSCommon):
         self.add_extension_content()
 
     def add_extension_content(self) -> None:
-        """
-        Add custom content to the extension UI.
+        """Add custom content to the extension UI.
 
         Examples
         --------
@@ -940,8 +938,7 @@ class FresnelExtension(ExtensionHFSSCommon):
         float_precision: float = 1e-5,
         min_step_possible: float = 0.01,
     ) -> tuple[bool, float | None, list[float]]:
-        """
-        Validate and extract an evenly-spaced theta sequence in [0, 90] that divides 90.
+        """Validate and extract an evenly-spaced theta sequence in [0, 90] that divides 90.
 
         It sorts and filters values to [0, 90]. Requires that 0.0 is present. It searches for a step size `step` such
         that a sequence starting at 0deg is (approximately) on a uniform grid, and that 90° is a multiple of `step`.

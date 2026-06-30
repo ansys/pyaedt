@@ -35,8 +35,7 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class EmitterNode(EmitNode):
-    """
-    Provides the EmitterNode object.
+    """Provides the EmitterNode object.
 
     Parameters
     ----------

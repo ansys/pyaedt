@@ -48,8 +48,7 @@ if current_python_version < (3, 10):  # pragma: no cover
 
 
 class FRTMData(PyAedtBase):
-    """
-    Provides FRTM data.
+    """Provides FRTM data.
 
     Read FRTM data and return the Python interface to analyze the data. All units are in SI.
 
@@ -112,8 +111,7 @@ class FRTMData(PyAedtBase):
 
     @property
     def dlxcd_version(self) -> str:
-        """
-        DlxCd version.
+        """DlxCd version.
 
         Examples
         --------
@@ -126,8 +124,7 @@ class FRTMData(PyAedtBase):
 
     @property
     def row_count(self) -> int:
-        """
-        Number of rows in the dataset.
+        """Number of rows in the dataset.
 
         Examples
         --------
@@ -140,8 +137,7 @@ class FRTMData(PyAedtBase):
 
     @property
     def col_count(self) -> int:
-        """
-        Number of columns in the dataset.
+        """Number of columns in the dataset.
 
         Examples
         --------
@@ -154,8 +150,7 @@ class FRTMData(PyAedtBase):
 
     @property
     def col_header1(self) -> list:
-        """
-        Primary column header names.
+        """Primary column header names.
 
         Examples
         --------
@@ -168,8 +163,7 @@ class FRTMData(PyAedtBase):
 
     @property
     def col_header2(self) -> list:
-        """
-        Secondary column header names.
+        """Secondary column header names.
 
         Examples
         --------
@@ -182,8 +176,7 @@ class FRTMData(PyAedtBase):
 
     @property
     def binary_record_length(self) -> int:
-        """
-        Length of each binary record.
+        """Length of each binary record.
 
         Examples
         --------
@@ -196,8 +189,7 @@ class FRTMData(PyAedtBase):
 
     @property
     def binary_start_byte(self) -> int:
-        """
-        Start byte index for binary data.
+        """Start byte index for binary data.
 
         Examples
         --------
@@ -210,8 +202,7 @@ class FRTMData(PyAedtBase):
 
     @property
     def binary_byte_type_line(self) -> str:
-        """
-        Byte type definition line for binary parsing.
+        """Byte type definition line for binary parsing.
 
         Examples
         --------
@@ -224,8 +215,7 @@ class FRTMData(PyAedtBase):
 
     @property
     def radar_waveform(self) -> str:
-        """
-        Radar waveform configuration.
+        """Radar waveform configuration.
 
         Examples
         --------
@@ -238,8 +228,7 @@ class FRTMData(PyAedtBase):
 
     @property
     def radar_channels(self) -> list:
-        """
-        List of radar channel configurations.
+        """List of radar channel configurations.
 
         Examples
         --------
@@ -252,8 +241,7 @@ class FRTMData(PyAedtBase):
 
     @property
     def time_start(self) -> float:
-        """
-        Start time of the radar data collection.
+        """Start time of the radar data collection.
 
         Examples
         --------
@@ -266,8 +254,7 @@ class FRTMData(PyAedtBase):
 
     @property
     def time_stop(self) -> float:
-        """
-        Stop time of the radar data collection.
+        """Stop time of the radar data collection.
 
         Examples
         --------
@@ -280,8 +267,7 @@ class FRTMData(PyAedtBase):
 
     @property
     def cpi_frames(self) -> int:
-        """
-        Number of coherent processing interval frames.
+        """Number of coherent processing interval frames.
 
         Examples
         --------
@@ -294,8 +280,7 @@ class FRTMData(PyAedtBase):
 
     @property
     def time_sweep(self) -> float:
-        """
-        Sweep duration for each pulse.
+        """Sweep duration for each pulse.
 
         Examples
         --------
@@ -308,8 +293,7 @@ class FRTMData(PyAedtBase):
 
     @property
     def cpi_duration(self) -> float:
-        """
-        Coherent processing interval duration.
+        """Coherent processing interval duration.
 
         Examples
         --------
@@ -322,8 +306,7 @@ class FRTMData(PyAedtBase):
 
     @property
     def pulse_repetition_frequency(self) -> float:
-        """
-        Pulse repetition frequency (Hz).
+        """Pulse repetition frequency (Hz).
 
         Examples
         --------
@@ -336,8 +319,7 @@ class FRTMData(PyAedtBase):
 
     @property
     def time_duration(self) -> float:
-        """
-        Total time duration of signal capture.
+        """Total time duration of signal capture.
 
         Examples
         --------
@@ -350,8 +332,7 @@ class FRTMData(PyAedtBase):
 
     @property
     def frequency_domain_type(self) -> str:
-        """
-        Type of frequency domain representation.
+        """Type of frequency domain representation.
 
         Examples
         --------
@@ -364,8 +345,7 @@ class FRTMData(PyAedtBase):
 
     @property
     def frequency_start(self) -> float:
-        """
-        Start frequency (Hz).
+        """Start frequency (Hz).
 
         Examples
         --------
@@ -378,8 +358,7 @@ class FRTMData(PyAedtBase):
 
     @property
     def frequency_stop(self) -> float:
-        """
-        Stop frequency (Hz).
+        """Stop frequency (Hz).
 
         Examples
         --------
@@ -392,8 +371,7 @@ class FRTMData(PyAedtBase):
 
     @property
     def frequency_number(self) -> int:
-        """
-        Number of frequency steps.
+        """Number of frequency steps.
 
         Examples
         --------
@@ -406,8 +384,7 @@ class FRTMData(PyAedtBase):
 
     @property
     def frequency_sweep(self) -> list:
-        """
-        Available frequencies.
+        """Available frequencies.
 
         Examples
         --------
@@ -420,8 +397,7 @@ class FRTMData(PyAedtBase):
 
     @property
     def frequency_delta(self) -> float:
-        """
-        Frequency step size.
+        """Frequency step size.
 
         Examples
         --------
@@ -434,8 +410,7 @@ class FRTMData(PyAedtBase):
 
     @property
     def frequency_bandwidth(self) -> float:
-        """
-        Total bandwidth of frequency sweep.
+        """Total bandwidth of frequency sweep.
 
         Examples
         --------
@@ -448,8 +423,7 @@ class FRTMData(PyAedtBase):
 
     @property
     def frequency_center(self) -> float:
-        """
-        Center frequency of the sweep.
+        """Center frequency of the sweep.
 
         Examples
         --------
@@ -462,8 +436,7 @@ class FRTMData(PyAedtBase):
 
     @property
     def antenna_names(self) -> list:
-        """
-        Names of the antennas used.
+        """Names of the antennas used.
 
         Examples
         --------
@@ -476,8 +449,7 @@ class FRTMData(PyAedtBase):
 
     @property
     def channel_number(self) -> int:
-        """
-        Number of radar channels.
+        """Number of radar channels.
 
         Examples
         --------
@@ -490,8 +462,7 @@ class FRTMData(PyAedtBase):
 
     @property
     def coupling_combos(self) -> list:
-        """
-        List of transmit-receive antenna combinations.
+        """List of transmit-receive antenna combinations.
 
         Examples
         --------
@@ -504,8 +475,7 @@ class FRTMData(PyAedtBase):
 
     @property
     def channel_names(self) -> list:
-        """
-        Names assigned to radar channels.
+        """Names assigned to radar channels.
 
         Examples
         --------
@@ -518,8 +488,7 @@ class FRTMData(PyAedtBase):
 
     @property
     def receiver_position(self) -> list:
-        """
-        Position of receivers respected the transmitters.
+        """Position of receivers respected the transmitters.
 
         Examples
         --------
@@ -537,8 +506,7 @@ class FRTMData(PyAedtBase):
 
     @property
     def all_data(self) -> dict:
-        """
-        Complete dataset.
+        """Complete dataset.
 
         Examples
         --------
@@ -551,8 +519,7 @@ class FRTMData(PyAedtBase):
 
     @property
     def range_resolution(self) -> float:
-        """
-        Radar range resolution (meters).
+        """Radar range resolution (meters).
 
         Examples
         --------
@@ -567,8 +534,7 @@ class FRTMData(PyAedtBase):
 
     @property
     def range_maximum(self) -> float:
-        """
-        Maximum detectable range (meters).
+        """Maximum detectable range (meters).
 
         Examples
         --------
@@ -585,8 +551,7 @@ class FRTMData(PyAedtBase):
 
     @property
     def velocity_resolution(self) -> float:
-        """
-        Velocity resolution (m/s).
+        """Velocity resolution (m/s).
 
         Examples
         --------
@@ -602,8 +567,7 @@ class FRTMData(PyAedtBase):
 
     @property
     def velocity_maximum(self) -> float:
-        """
-        Maximum measurable velocity (m/s).
+        """Maximum measurable velocity (m/s).
 
         Examples
         --------
@@ -619,8 +583,7 @@ class FRTMData(PyAedtBase):
 
     @property
     def data_conversion_function(self) -> str:
-        """
-        RCS data conversion function.
+        """RCS data conversion function.
 
         The available functions are:
 
@@ -650,8 +613,7 @@ class FRTMData(PyAedtBase):
 
     @pyaedt_function_handler()
     def get_data_pulse(self, pulse: int = None) -> np.ndarray:
-        """
-        Get the data for a specified pulse.
+        """Get the data for a specified pulse.
 
         Parameters
         ----------
@@ -685,8 +647,7 @@ class FRTMData(PyAedtBase):
 
     @pyaedt_function_handler()
     def convert_frequency_range(self, pulse: int = None, window: str = None, size: int = None) -> np.ndarray:
-        """
-        Convert frequency domain radar data to range domain using IFFT with optional windowing and resampling.
+        """Convert frequency domain radar data to range domain using IFFT with optional windowing and resampling.
 
         This method applies a window to the frequency-domain radar data, scales it for energy preservation,
         and then computes the IFFT to convert to range domain. It supports optional up and down-sampling
@@ -746,8 +707,7 @@ class FRTMData(PyAedtBase):
 
     @pyaedt_function_handler()
     def range_profile(self, data: np.ndarray, window: str = None, size: int = None) -> np.ndarray:
-        """
-        Calculate the range profile of a specific CPI frame.
+        """Calculate the range profile of a specific CPI frame.
 
         Parameters
         ----------
@@ -806,8 +766,7 @@ class FRTMData(PyAedtBase):
     def range_doppler(
         self, channel: str = None, window: str = "Hann", range_bins: int = None, doppler_bins: int = None
     ) -> np.ndarray:
-        """
-        Calculate the range-Doppler map of a frame.
+        """Calculate the range-Doppler map of a frame.
 
         Parameters
         ----------
@@ -909,8 +868,7 @@ class FRTMData(PyAedtBase):
         field_of_view: list = None,
         range_bin_index: int = None,
     ) -> np.ndarray:
-        """
-        Compute the range-angle map using direction of arrival estimation methods.
+        """Compute the range-angle map using direction of arrival estimation methods.
 
         Parameters
         ----------
@@ -1001,8 +959,7 @@ class FRTMData(PyAedtBase):
 
     @staticmethod
     def window_function(window: str = "Flat", size: int = 512) -> np.ndarray:
-        """
-        Window function.
+        """Window function.
 
         Parameters
         ----------
@@ -1194,8 +1151,7 @@ class FRTMData(PyAedtBase):
 
 
 class FRTMPlotter(PyAedtBase):
-    """
-    Provides range doppler data.
+    """Provides range doppler data.
 
     Read FRTM data and return the Python interface to analyze the range doppler data. All units are in SI.
 
@@ -1222,8 +1178,7 @@ class FRTMPlotter(PyAedtBase):
 
     @property
     def all_data(self) -> dict:
-        """
-        RCS data object.
+        """RCS data object.
 
         Examples
         --------
@@ -1236,8 +1191,7 @@ class FRTMPlotter(PyAedtBase):
 
     @property
     def frames(self) -> list:
-        """
-        Frames.
+        """Frames.
 
         Examples
         --------
@@ -1265,8 +1219,7 @@ class FRTMPlotter(PyAedtBase):
         animation: bool = True,
         figure: "Figure" = None,
     ) -> "ReportPlotter":
-        """
-        Create a 2D plot of the range profile.
+        """Create a 2D plot of the range profile.
 
         Parameters
         ----------
@@ -1402,8 +1355,7 @@ class FRTMPlotter(PyAedtBase):
         size: tuple = (1920, 1440),
         figure: "Figure" = None,
     ) -> "ReportPlotter":
-        """
-        Create range-Doppler contour plot.
+        """Create range-Doppler contour plot.
 
         Parameters
         ----------
@@ -1558,8 +1510,7 @@ class FRTMPlotter(PyAedtBase):
         size: tuple = (1920, 1440),
         figure: "Figure" = None,
     ) -> "ReportPlotter":
-        """
-        Create range-angle map contour plot.
+        """Create range-angle map contour plot.
 
         Parameters
         ----------

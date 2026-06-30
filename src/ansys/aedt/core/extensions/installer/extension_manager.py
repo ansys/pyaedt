@@ -110,8 +110,7 @@ AEDT_EXTENSION_APPLICATIONS = [
 
 
 class ExtensionManager(ExtensionProjectCommon):
-    """
-    Extension for move it in AEDT.
+    """Extension for move it in AEDT.
 
     Examples
     --------
@@ -124,8 +123,7 @@ class ExtensionManager(ExtensionProjectCommon):
     """Optional extension tooltip."""
 
     def _resolve_category_folder(self, category: str) -> str:
-        """
-        Resolve the extension folder name from a category or product name.
+        """Resolve the extension folder name from a category or product name.
 
         This normalizes AEDT product names (e.g. Project, Q3DExtractor)
         back to the folder names used under EXTENSIONS_PATH.
@@ -209,8 +207,7 @@ class ExtensionManager(ExtensionProjectCommon):
             logging.getLogger("Global").debug("Failed to start pyaedt update checker", exc_info=True)
 
     def add_extension_content(self) -> None:
-        """
-        Add custom content to the extension.
+        """Add custom content to the extension.
 
         Examples
         --------
@@ -312,8 +309,7 @@ class ExtensionManager(ExtensionProjectCommon):
             self.load_extensions(self.current_category)
 
     def load_extensions(self, category: str):
-        """
-        Load application extensions.
+        """Load application extensions.
 
         Examples
         --------
@@ -665,8 +661,7 @@ class ExtensionManager(ExtensionProjectCommon):
             scroll_frame.grid_columnconfigure(col, weight=1, uniform="card")
 
     def launch_extension(self, category: str, option: str):
-        """
-        Launch extension without pinning it to AEDT top bar.
+        """Launch extension without pinning it to AEDT top bar.
 
         Examples
         --------
@@ -958,8 +953,7 @@ class ExtensionManager(ExtensionProjectCommon):
             messagebox.showerror("Export Logs", f"Failed to save logs: {e}")
 
     def pin_extension(self, category: str, option: str):
-        """
-        Pin extension to AEDT to bar.
+        """Pin extension to AEDT to bar.
 
         Examples
         --------
@@ -1032,8 +1026,7 @@ class ExtensionManager(ExtensionProjectCommon):
         self.load_extensions(category)
 
     def handle_custom_extension(self):
-        """
-        Handle custom extension pin to the top bar.
+        """Handle custom extension pin to the top bar.
 
         Examples
         --------
@@ -1176,8 +1169,7 @@ class ExtensionManager(ExtensionProjectCommon):
     def create_theme_background_image(
         self, img: PIL.ImageTk.PhotoImage, target_size: tuple = None
     ) -> PIL.ImageTk.PhotoImage:
-        """
-        Create a background image with theme color for transparency.
+        """Create a background image with theme color for transparency.
 
         Parameters
         ----------
@@ -1228,8 +1220,7 @@ class ExtensionManager(ExtensionProjectCommon):
         size=(20, 20),
         disabled: bool = False,
     ) -> ttk.Label:
-        """
-        Create a pin icon based on extension installation status.
+        """Create a pin icon based on extension installation status.
 
         Parameters
         ----------
@@ -1303,8 +1294,7 @@ class ExtensionManager(ExtensionProjectCommon):
         return pin_label
 
     def on_pin_click(self, category: str, option: str):
-        """
-        Handle pin icon click events.
+        """Handle pin icon click events.
 
         Parameters
         ----------
@@ -1331,8 +1321,7 @@ class ExtensionManager(ExtensionProjectCommon):
             self.pin_extension(category, option)
 
     def apply_canvas_theme(self, canvas: tkinter.Canvas):
-        """
-        Apply theme to a specific canvas widget.
+        """Apply theme to a specific canvas widget.
 
         Examples
         --------
@@ -1351,8 +1340,7 @@ class ExtensionManager(ExtensionProjectCommon):
         )
 
     def toggle_theme(self) -> None:
-        """
-        Toggle between light and dark themes and refresh UI.
+        """Toggle between light and dark themes and refresh UI.
 
         Examples
         --------
@@ -1420,8 +1408,7 @@ class ExtensionManager(ExtensionProjectCommon):
                 messagebox.showerror("Error", "Extension could not be removed.")
 
     def check_extension_pinned(self, category: str, option: str) -> bool:
-        """
-        Check if an extension is pined in AEDT.
+        """Check if an extension is pined in AEDT.
 
         Parameters
         ----------
@@ -1453,8 +1440,7 @@ class ExtensionManager(ExtensionProjectCommon):
             return False
 
     def launch_web_url(self, category: str, option: str) -> bool:
-        """
-        Launch web URL for an extension or toolkit.
+        """Launch web URL for an extension or toolkit.
 
         Examples
         --------
@@ -1499,8 +1485,7 @@ class ExtensionManager(ExtensionProjectCommon):
 
     @property
     def optional_extensions(self) -> bool:
-        """
-        Whether optional extensions are enabled for interaction.
+        """Whether optional extensions are enabled for interaction.
 
         Examples
         --------
@@ -1517,8 +1502,7 @@ class ExtensionManager(ExtensionProjectCommon):
 
     @optional_extensions.setter
     def optional_extensions(self, value: bool) -> None:
-        """
-        Enable or disable optional extensions globally.
+        """Enable or disable optional extensions globally.
 
         Examples
         --------
@@ -1530,8 +1514,7 @@ class ExtensionManager(ExtensionProjectCommon):
         self._optional_extensions = bool(value)
 
     def is_optional_extension(self, category: str, option: str) -> bool:
-        """
-        Whether the extension entry is marked optional in the catalog.
+        """Whether the extension entry is marked optional in the catalog.
 
         Examples
         --------
@@ -1543,8 +1526,7 @@ class ExtensionManager(ExtensionProjectCommon):
         return bool(self._get_extension_info(category, option).get("optional", False))
 
     def is_optional_extension_disabled(self, category: str, option: str) -> bool:
-        """
-        Whether an optional extension should be shown as disabled.
+        """Whether an optional extension should be shown as disabled.
 
         Examples
         --------
@@ -1562,8 +1544,7 @@ class ExtensionManager(ExtensionProjectCommon):
         self.log_message(msg)
 
     def show_pyaedt_update_popup(self, latest_version: str, declined_file_path: Path):  # pragma: no cover
-        """
-        Display a modal dialog offering Decline or Remind later and instruct user to open Version Manager.
+        """Display a modal dialog offering Decline or Remind later and instruct user to open Version Manager.
 
         Examples
         --------

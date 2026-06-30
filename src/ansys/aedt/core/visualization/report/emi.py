@@ -22,8 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-The module contains this class: `EMIReceiver`.
+"""The module contains this class: `EMIReceiver`.
 
 The module provides all functionalities for creating and editing reports.
 
@@ -40,8 +39,7 @@ from ansys.aedt.core.visualization.report.common import CommonReport
 
 
 class EMIReceiver(CommonReport):
-    """
-    Provides for managing EMI receiver reports.
+    """Provides for managing EMI receiver reports.
 
     Examples
     --------
@@ -68,8 +66,7 @@ class EMIReceiver(CommonReport):
 
     @property
     def net(self) -> str:
-        """
-        Net attached to the EMI receiver.
+        """Net attached to the EMI receiver.
 
         Returns
         -------
@@ -103,8 +100,7 @@ class EMIReceiver(CommonReport):
 
     @property
     def overlap_rate(self) -> int:
-        """
-        Overlap rate to the EMI receiver.
+        """Overlap rate to the EMI receiver.
 
         Returns
         -------
@@ -126,8 +122,7 @@ class EMIReceiver(CommonReport):
 
     @property
     def band(self) -> str:
-        """
-        Band attached to the EMI receiver.
+        """Band attached to the EMI receiver.
 
         Returns
         -------
@@ -149,8 +144,7 @@ class EMIReceiver(CommonReport):
 
     @property
     def rbw(self) -> str:
-        """
-        RBW attached to the EMI receiver.
+        """RBW attached to the EMI receiver.
 
         Returns
         -------
@@ -172,8 +166,7 @@ class EMIReceiver(CommonReport):
 
     @property
     def rbw_factor(self) -> str:
-        """
-        RBW Factor attached to the EMI receiver.
+        """RBW Factor attached to the EMI receiver.
 
         Returns
         -------
@@ -195,8 +188,7 @@ class EMIReceiver(CommonReport):
 
     @property
     def emission(self) -> str:
-        """
-        Emission test.
+        """Emission test.
 
         Options are ``"CE"`` and ``"RE"``.
 
@@ -227,8 +219,7 @@ class EMIReceiver(CommonReport):
 
     @property
     def time_start(self) -> str:
-        """
-        Time start value.
+        """Time start value.
 
         Returns
         -------
@@ -250,8 +241,7 @@ class EMIReceiver(CommonReport):
 
     @property
     def time_stop(self) -> str:
-        """
-        Time stop value.
+        """Time stop value.
 
         Returns
         -------
@@ -356,8 +346,7 @@ class EMIReceiver(CommonReport):
 
     @pyaedt_function_handler()
     def create(self, name: str = None) -> "EMIReceiver":
-        """
-        Create an EMI receiver report.
+        """Create an EMI receiver report.
 
         Parameters
         ----------

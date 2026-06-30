@@ -247,8 +247,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
 
     @pyaedt_function_handler()
     def set_end_time(self, expression: Variable) -> bool:
-        """
-        Set the end time.
+        """Set the end time.
 
         Parameters
         ----------
@@ -276,8 +275,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
 
     @pyaedt_function_handler()
     def set_hmin(self, expression: Variable) -> bool:
-        """
-        Set hmin.
+        """Set hmin.
 
         Parameters
         ----------
@@ -305,8 +303,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
 
     @pyaedt_function_handler()
     def set_hmax(self, expression: Variable) -> bool:
-        """
-        Set hmax.
+        """Set hmax.
 
         Parameters
         ----------
@@ -336,8 +333,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
     def set_sim_setup_parameter(
         self, variable: Variable, expression: Variable, analysis_name: str | None = "TR"
     ) -> bool:
-        """
-        Set simulation setup parameters.
+        """Set simulation setup parameters.
 
         Parameters
         ----------
@@ -386,8 +382,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_subsheet(self, name: str, design_name: str | None = None) -> bool:
-        """
-        Create a subsheet from a parent design.
+        """Create a subsheet from a parent design.
 
         If the parent design does not exist, it will add at top level.
         Nested subsheets are currently not supported.
@@ -436,8 +431,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         component_name: str | None = None,
         save_project: bool | None = True,
     ) -> CircuitComponent | bool:
-        """
-        Add a Q2D or Q3D dynamic component to a Twin Builder design.
+        """Add a Q2D or Q3D dynamic component to a Twin Builder design.
 
         Parameters
         ----------
@@ -702,8 +696,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         export_uniform_points_step: float | None = 1e-5,
         excitations: dict | None = None,
     ) -> CircuitComponent | bool:
-        """
-        Use the excitation component to assign output quantities
+        """Use the excitation component to assign output quantities
 
         This works in a Twin Builder design to a windings in a Maxwell design.
         This method works only with AEDT 2025 R1 and later.

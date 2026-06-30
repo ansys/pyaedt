@@ -58,8 +58,7 @@ SUFFIXES = {"Export to HFSS": "HFSS", "Export to Q3D": "Q3D", "Export to Maxwell
 
 @dataclass
 class ExportTo3DExtensionData(ExtensionCommonData):
-    """
-    Data class containing user input and computed data.
+    """Data class containing user input and computed data.
 
     Examples
     --------
@@ -73,8 +72,7 @@ class ExportTo3DExtensionData(ExtensionCommonData):
 
 
 class ExportTo3DExtension(ExtensionHFSS3DLayoutCommon):
-    """
-    Extension for exporting to 3D in AEDT.
+    """Extension for exporting to 3D in AEDT.
 
     Examples
     --------
@@ -112,8 +110,7 @@ class ExportTo3DExtension(ExtensionHFSS3DLayoutCommon):
             raise AEDTRuntimeError(msg)
 
     def add_extension_content(self) -> None:
-        """
-        Add custom content to the extension UI.
+        """Add custom content to the extension UI.
 
         Examples
         --------
@@ -154,8 +151,7 @@ class ExportTo3DExtension(ExtensionHFSS3DLayoutCommon):
 
 
 def main(data: ExportTo3DExtensionData) -> bool:
-    """
-    Main function to run the export to 3D extension.
+    """Main function to run the export to 3D extension.
 
     Examples
     --------

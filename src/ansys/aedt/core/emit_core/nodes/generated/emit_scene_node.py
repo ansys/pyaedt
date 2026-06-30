@@ -53,8 +53,7 @@ class EmitSceneNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def add_emitter(self) -> EmitNode:
-        """
-        Add a new emitter
+        """Add a new emitter
 
         Examples
         --------
@@ -69,8 +68,7 @@ class EmitSceneNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def add_group(self) -> EmitNode:
-        """
-        Add a new scene group
+        """Add a new scene group
 
         Examples
         --------
@@ -85,8 +83,7 @@ class EmitSceneNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def import_cad(self, file_name: str) -> EmitNode:
-        """
-        Add an existing CAD file
+        """Add an existing CAD file
 
         Examples
         --------
@@ -101,8 +98,7 @@ class EmitSceneNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def add_antenna(self) -> EmitNode:
-        """
-        Add a new antenna
+        """Add a new antenna
 
         Examples
         --------
@@ -118,8 +114,7 @@ class EmitSceneNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def notes(self) -> str:
-        """
-        Expand to view/edit notes stored with the project.
+        """Expand to view/edit notes stored with the project.
 
         Examples
         --------
@@ -146,8 +141,7 @@ class EmitSceneNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def ground_plane_normal(self) -> GroundPlaneNormalOption:
-        """
-        Specifies the axis of the normal to the ground plane.
+        """Specifies the axis of the normal to the ground plane.
 
         Examples
         --------
@@ -170,8 +164,7 @@ class EmitSceneNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def gp_position_along_normal(self) -> float:
-        """
-        GP Position Along Normal.
+        """GP Position Along Normal.
 
         Offset of ground plane in direction normal to the ground planes
         orientation.

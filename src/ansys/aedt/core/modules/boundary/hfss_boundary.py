@@ -31,8 +31,7 @@ from ansys.aedt.core.modules.boundary.common import BoundaryProps
 
 
 class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
-    """
-    Manages far field and near field component data and execution.
+    """Manages far field and near field component data and execution.
 
     Examples
     --------
@@ -58,8 +57,7 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
     @property
     def _child_object(self):
-        """
-        Object-oriented properties.
+        """Object-oriented properties.
 
         Returns
         -------
@@ -81,8 +79,7 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
     @property
     def props(self) -> BoundaryProps:
-        """
-        Field Properties.
+        """Field Properties.
 
         Examples
         --------
@@ -109,8 +106,7 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
     @property
     def name(self) -> str:
-        """
-        Boundary Name.
+        """Boundary Name.
 
         Examples
         --------
@@ -141,8 +137,7 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
     @pyaedt_function_handler()
     def create(self) -> bool:
-        """
-        Create a Field Setup Component in HFSS.
+        """Create a Field Setup Component in HFSS.
 
         Returns
         -------
@@ -176,8 +171,7 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
     @pyaedt_function_handler()
     def update(self) -> bool:
-        """
-        Update the Field Setup in AEDT.
+        """Update the Field Setup in AEDT.
 
         Returns
         -------
@@ -209,8 +203,7 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
     @pyaedt_function_handler()
     def delete(self) -> bool:
-        """
-        Delete the Field Setup in AEDT.
+        """Delete the Field Setup in AEDT.
 
         Returns
         -------
@@ -232,8 +225,7 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
 
 class FarFieldSetup(FieldSetup):
-    """
-    Manages Far Field Component data and execution.
+    """Manages Far Field Component data and execution.
 
     Examples
     --------
@@ -254,8 +246,7 @@ class FarFieldSetup(FieldSetup):
 
     @property
     def definition(self) -> str:
-        """
-        Set/Get the Far Field Angle Definition.
+        """Set/Get the Far Field Angle Definition.
 
         Examples
         --------
@@ -325,8 +316,7 @@ class FarFieldSetup(FieldSetup):
 
     @property
     def use_custom_radiation_surface(self) -> bool:
-        """
-        Set/Get the Far Field Radiation Surface Enable.
+        """Set/Get the Far Field Radiation Surface Enable.
 
         Examples
         --------
@@ -344,8 +334,7 @@ class FarFieldSetup(FieldSetup):
 
     @property
     def custom_radiation_surface(self) -> str:
-        """
-        Set/Get the Far Field Radiation Surface FaceList.
+        """Set/Get the Far Field Radiation Surface FaceList.
 
         Examples
         --------
@@ -368,8 +357,7 @@ class FarFieldSetup(FieldSetup):
 
     @property
     def use_local_coordinate_system(self) -> bool:
-        """
-        Set/Get the usage of a custom Coordinate System.
+        """Set/Get the usage of a custom Coordinate System.
 
         Examples
         --------
@@ -387,8 +375,7 @@ class FarFieldSetup(FieldSetup):
 
     @property
     def local_coordinate_system(self) -> str:
-        """
-        Set/Get the custom Coordinate System name.
+        """Set/Get the custom Coordinate System name.
 
         Examples
         --------
@@ -414,8 +401,7 @@ class FarFieldSetup(FieldSetup):
 
     @property
     def polarization(self) -> str:
-        """
-        Set/Get the Far Field Polarization.
+        """Set/Get the Far Field Polarization.
 
         Examples
         --------
@@ -433,8 +419,7 @@ class FarFieldSetup(FieldSetup):
 
     @property
     def slant_angle(self) -> float:
-        """
-        Set/Get the Far Field Slant Angle if Polarization is Set to `Slant`.
+        """Set/Get the Far Field Slant Angle if Polarization is Set to `Slant`.
 
         Examples
         --------
@@ -456,8 +441,7 @@ class FarFieldSetup(FieldSetup):
 
     @property
     def theta_start(self) -> float:
-        """
-        Set/Get the Far Field Theta Start Angle if Definition is Set to `Theta-Phi`.
+        """Set/Get the Far Field Theta Start Angle if Definition is Set to `Theta-Phi`.
 
         Examples
         --------
@@ -473,8 +457,7 @@ class FarFieldSetup(FieldSetup):
 
     @property
     def theta_stop(self) -> float:
-        """
-        Set/Get the Far Field Theta Stop Angle if Definition is Set to `Theta-Phi`.
+        """Set/Get the Far Field Theta Stop Angle if Definition is Set to `Theta-Phi`.
 
         Examples
         --------
@@ -490,8 +473,7 @@ class FarFieldSetup(FieldSetup):
 
     @property
     def theta_step(self) -> float:
-        """
-        Set/Get the Far Field Theta Step Angle if Definition is Set to `Theta-Phi`.
+        """Set/Get the Far Field Theta Step Angle if Definition is Set to `Theta-Phi`.
 
         Examples
         --------
@@ -507,8 +489,7 @@ class FarFieldSetup(FieldSetup):
 
     @property
     def phi_start(self) -> float:
-        """
-        Set/Get the Far Field Phi Start Angle if Definition is Set to `Theta-Phi`.
+        """Set/Get the Far Field Phi Start Angle if Definition is Set to `Theta-Phi`.
 
         Examples
         --------
@@ -524,8 +505,7 @@ class FarFieldSetup(FieldSetup):
 
     @property
     def phi_stop(self) -> float:
-        """
-        Set/Get the Far Field Phi Stop Angle if Definition is Set to `Theta-Phi`.
+        """Set/Get the Far Field Phi Stop Angle if Definition is Set to `Theta-Phi`.
 
         Examples
         --------
@@ -541,8 +521,7 @@ class FarFieldSetup(FieldSetup):
 
     @property
     def phi_step(self) -> float:
-        """
-        Set/Get the Far Field Phi Step Angle if Definition is Set to `Theta-Phi`.
+        """Set/Get the Far Field Phi Step Angle if Definition is Set to `Theta-Phi`.
 
         Examples
         --------
@@ -558,8 +537,7 @@ class FarFieldSetup(FieldSetup):
 
     @property
     def azimuth_start(self) -> float:
-        """
-        Set/Get the Far Field Azimuth Start Angle if Definition is Set to `Az Over El` or `El Over Az`.
+        """Set/Get the Far Field Azimuth Start Angle if Definition is Set to `Az Over El` or `El Over Az`.
 
         Examples
         --------
@@ -575,8 +553,7 @@ class FarFieldSetup(FieldSetup):
 
     @property
     def azimuth_stop(self) -> float:
-        """
-        Set/Get the Far Field Azimuth Stop Angle if Definition is Set to `Az Over El` or `El Over Az`.
+        """Set/Get the Far Field Azimuth Stop Angle if Definition is Set to `Az Over El` or `El Over Az`.
 
         Examples
         --------
@@ -592,8 +569,7 @@ class FarFieldSetup(FieldSetup):
 
     @property
     def azimuth_step(self) -> float:
-        """
-        Set/Get the Far Field Azimuth Step Angle if Definition is Set to `Az Over El` or `El Over Az`.
+        """Set/Get the Far Field Azimuth Step Angle if Definition is Set to `Az Over El` or `El Over Az`.
 
         Examples
         --------
@@ -609,8 +585,7 @@ class FarFieldSetup(FieldSetup):
 
     @property
     def elevation_start(self) -> float:
-        """
-        Set/Get the Far Field Elevation Start Angle if Definition is Set to `Az Over El` or `El Over Az`.
+        """Set/Get the Far Field Elevation Start Angle if Definition is Set to `Az Over El` or `El Over Az`.
 
         Examples
         --------
@@ -626,8 +601,7 @@ class FarFieldSetup(FieldSetup):
 
     @property
     def elevation_stop(self) -> float:
-        """
-        Set/Get the Far Field Elevation Stop Angle if Definition is Set to `Az Over El` or `El Over Az`.
+        """Set/Get the Far Field Elevation Stop Angle if Definition is Set to `Az Over El` or `El Over Az`.
 
         Examples
         --------
@@ -643,8 +617,7 @@ class FarFieldSetup(FieldSetup):
 
     @property
     def elevation_step(self) -> float:
-        """
-        Set/Get the Far Field Elevation Step Angle if Definition is Set to `Az Over El` or `El Over Az`.
+        """Set/Get the Far Field Elevation Step Angle if Definition is Set to `Az Over El` or `El Over Az`.
 
         Examples
         --------
@@ -732,8 +705,7 @@ class FarFieldSetup(FieldSetup):
 
 
 class NearFieldSetup(FieldSetup):
-    """
-    Manages Near Field Component data and execution.
+    """Manages Near Field Component data and execution.
 
     Examples
     --------

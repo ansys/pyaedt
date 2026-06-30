@@ -62,8 +62,7 @@ EXTENSION_TITLE = "Advanced fields calculator"
 
 @dataclass
 class AdvancedFieldsCalculatorExtensionData(ExtensionCommonData):
-    """
-    Data class containing user input and computed data.
+    """Data class containing user input and computed data.
 
     Examples
     --------
@@ -81,8 +80,7 @@ class AdvancedFieldsCalculatorExtensionData(ExtensionCommonData):
 
 
 class AdvancedFieldsCalculatorExtension(ExtensionProjectCommon):
-    """
-    Extension for advanced fields calculator in AEDT.
+    """Extension for advanced fields calculator in AEDT.
 
     Examples
     --------
@@ -108,8 +106,7 @@ class AdvancedFieldsCalculatorExtension(ExtensionProjectCommon):
         self.add_extension_content()
 
     def check_design_type(self) -> None:
-        """
-        Check if the design type is HFSS, Icepak, HFSS 3D, Maxwell 3D, Q3D, Maxwell 2D, Q2D, Mechanical
+        """Check if the design type is HFSS, Icepak, HFSS 3D, Maxwell 3D, Q3D, Maxwell 2D, Q2D, Mechanical
 
         Examples
         --------
@@ -176,8 +173,7 @@ class AdvancedFieldsCalculatorExtension(ExtensionProjectCommon):
         self.__available_descriptions = available_descriptions
 
     def add_extension_content(self) -> None:
-        """
-        Add custom content to the extension UI.
+        """Add custom content to the extension UI.
 
         Examples
         --------
@@ -226,8 +222,7 @@ class AdvancedFieldsCalculatorExtension(ExtensionProjectCommon):
 
     @property
     def available_descriptions(self) -> dict:
-        """
-        Get available descriptions for fields calculator expressions.
+        """Get available descriptions for fields calculator expressions.
 
         Examples
         --------
@@ -240,8 +235,7 @@ class AdvancedFieldsCalculatorExtension(ExtensionProjectCommon):
 
 
 def main(data: AdvancedFieldsCalculatorExtensionData) -> bool:
-    """
-    Main function to run the advanced fields calculator extension.
+    """Main function to run the advanced fields calculator extension.
 
     Examples
     --------

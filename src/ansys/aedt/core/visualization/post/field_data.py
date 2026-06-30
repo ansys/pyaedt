@@ -54,8 +54,7 @@ class BaseFolderPlot(PyAedtBase):
 
     @abstractmethod
     def to_dict(self) -> dict:
-        """
-        Convert the settings to a dictionary.
+        """Convert the settings to a dictionary.
 
         Returns
         -------
@@ -72,8 +71,7 @@ class BaseFolderPlot(PyAedtBase):
 
     @abstractmethod
     def from_dict(self, dictionary: dict) -> None:
-        """
-        Initialize the settings from a dictionary.
+        """Initialize the settings from a dictionary.
 
         Parameters
         ----------
@@ -92,8 +90,7 @@ class BaseFolderPlot(PyAedtBase):
 
 
 class ColorMapSettings(BaseFolderPlot):
-    """
-    Provides methods and variables for editing color map folder settings.
+    """Provides methods and variables for editing color map folder settings.
 
     Parameters
     ----------
@@ -126,8 +123,7 @@ class ColorMapSettings(BaseFolderPlot):
 
     @property
     def map_type(self) -> str:
-        """
-        Get the color map type for the field plot.
+        """Get the color map type for the field plot.
 
         Examples
         --------
@@ -140,8 +136,7 @@ class ColorMapSettings(BaseFolderPlot):
 
     @map_type.setter
     def map_type(self, value: str) -> None:
-        """
-        Set the type of color mapping for the field plot.
+        """Set the type of color mapping for the field plot.
 
         Parameters
         ----------
@@ -165,8 +160,7 @@ class ColorMapSettings(BaseFolderPlot):
 
     @property
     def color(self) -> str | list[float]:
-        """
-        Get the color based on the map type.
+        """Get the color based on the map type.
 
         Returns
         -------
@@ -188,8 +182,7 @@ class ColorMapSettings(BaseFolderPlot):
 
     @color.setter
     def color(self, v: str | list[float]) -> None:
-        """
-        Set the colormap based on the map type.
+        """Set the colormap based on the map type.
 
         Parameters
         ----------
@@ -241,8 +234,7 @@ class ColorMapSettings(BaseFolderPlot):
         return f"ColorMapSettings(map_type='{self.map_type}', color={color_repr})"
 
     def to_dict(self) -> dict:
-        """
-        Convert the color map settings to a dictionary.
+        """Convert the color map settings to a dictionary.
 
         Returns
         -------
@@ -265,8 +257,7 @@ class ColorMapSettings(BaseFolderPlot):
         }
 
     def from_dict(self, settings: dict) -> None:
-        """
-        Initialize the number format settings of the colormap settings from a dictionary.
+        """Initialize the number format settings of the colormap settings from a dictionary.
 
         Parameters
         ----------
@@ -288,8 +279,7 @@ class ColorMapSettings(BaseFolderPlot):
 
 
 class AutoScale(BaseFolderPlot):
-    """
-    Provides methods and variables for editing automatic scale folder settings.
+    """Provides methods and variables for editing automatic scale folder settings.
 
     Parameters
     ----------
@@ -338,8 +328,7 @@ class AutoScale(BaseFolderPlot):
         )
 
     def to_dict(self) -> dict:
-        """
-        Convert the auto-scale settings to a dictionary.
+        """Convert the auto-scale settings to a dictionary.
 
         Returns
         -------
@@ -362,8 +351,7 @@ class AutoScale(BaseFolderPlot):
         }
 
     def from_dict(self, dictionary: dict) -> None:
-        """
-        Initialize the auto-scale settings from a dictionary.
+        """Initialize the auto-scale settings from a dictionary.
 
         Parameters
         ----------
@@ -385,8 +373,7 @@ class AutoScale(BaseFolderPlot):
 
 
 class MinMaxScale(BaseFolderPlot):
-    """
-    Provides methods and variables for editing min-max scale folder settings.
+    """Provides methods and variables for editing min-max scale folder settings.
 
     Parameters
     ----------
@@ -416,8 +403,7 @@ class MinMaxScale(BaseFolderPlot):
         return f"MinMaxScale(n_levels={self.n_levels}, min_value={self.min_value}, max_value={self.max_value})"
 
     def to_dict(self) -> dict:
-        """
-        Convert the min-max scale settings to a dictionary.
+        """Convert the min-max scale settings to a dictionary.
 
         Returns
         -------
@@ -435,8 +421,7 @@ class MinMaxScale(BaseFolderPlot):
         return {"minvalue": self.min_value, "maxvalue": self.max_value, "m_nLevels": self.n_levels}
 
     def from_dict(self, dictionary: dict) -> None:
-        """
-        Initialize the min-max scale settings from a dictionary.
+        """Initialize the min-max scale settings from a dictionary.
 
         Parameters
         ----------
@@ -457,8 +442,7 @@ class MinMaxScale(BaseFolderPlot):
 
 
 class SpecifiedScale(PyAedtBase):
-    """
-    Provides methods and variables for editing min-max scale folder settings.
+    """Provides methods and variables for editing min-max scale folder settings.
 
     Parameters
     ----------
@@ -486,8 +470,7 @@ class SpecifiedScale(PyAedtBase):
         return f"SpecifiedScale(scale_values={self.scale_values})"
 
     def to_dict(self) -> dict:
-        """
-        Convert the specified scale settings to a dictionary.
+        """Convert the specified scale settings to a dictionary.
 
         Returns
         -------
@@ -505,8 +488,7 @@ class SpecifiedScale(PyAedtBase):
         return {"UserSpecifyValues": [len(self.scale_values)] + self.scale_values}
 
     def from_dict(self, dictionary: dict) -> None:
-        """
-        Initialize the specified scale settings from a dictionary.
+        """Initialize the specified scale settings from a dictionary.
 
         Parameters
         ----------
@@ -525,8 +507,7 @@ class SpecifiedScale(PyAedtBase):
 
 
 class NumberFormat(BaseFolderPlot):
-    """
-    Provides methods and variables for editing number format folder settings.
+    """Provides methods and variables for editing number format folder settings.
 
     Parameters
     ----------
@@ -552,8 +533,7 @@ class NumberFormat(BaseFolderPlot):
 
     @property
     def format_type(self) -> str:
-        """
-        Get the current number format type.
+        """Get the current number format type.
 
         Examples
         --------
@@ -566,8 +546,7 @@ class NumberFormat(BaseFolderPlot):
 
     @format_type.setter
     def format_type(self, v: str) -> None:
-        """
-        Set the numeric format type of the scale.
+        """Set the numeric format type of the scale.
 
         Parameters
         ----------
@@ -596,8 +575,7 @@ class NumberFormat(BaseFolderPlot):
         return f"NumberFormat(format_type={self.format_type}, width={self.width}, precision={self.precision})"
 
     def to_dict(self) -> dict:
-        """
-        Convert the number format settings to a dictionary.
+        """Convert the number format settings to a dictionary.
 
         Returns
         -------
@@ -620,8 +598,7 @@ class NumberFormat(BaseFolderPlot):
         }
 
     def from_dict(self, dictionary: dict) -> None:
-        """
-        Initialize the number format settings of the field plot settings from a dictionary.
+        """Initialize the number format settings of the field plot settings from a dictionary.
 
         Parameters
         ----------
@@ -642,8 +619,7 @@ class NumberFormat(BaseFolderPlot):
 
 
 class Scale3DSettings(BaseFolderPlot):
-    """
-    Provides methods and variables for editing scale folder settings.
+    """Provides methods and variables for editing scale folder settings.
 
     Parameters
     ----------
@@ -694,8 +670,7 @@ class Scale3DSettings(BaseFolderPlot):
 
     @property
     def unit(self) -> str:
-        """
-        Get unit used in the plot.
+        """Get unit used in the plot.
 
         Examples
         --------
@@ -708,8 +683,7 @@ class Scale3DSettings(BaseFolderPlot):
 
     @unit.setter
     def unit(self, v: str) -> None:
-        """
-        Set unit used in the plot.
+        """Set unit used in the plot.
 
         Parameters
         ----------
@@ -731,8 +705,7 @@ class Scale3DSettings(BaseFolderPlot):
 
     @property
     def scale_type(self) -> str:
-        """
-        Get type of scale used for the field plot.
+        """Get type of scale used for the field plot.
 
         Examples
         --------
@@ -745,8 +718,7 @@ class Scale3DSettings(BaseFolderPlot):
 
     @scale_type.setter
     def scale_type(self, value: str) -> None:
-        """
-        Set the scale type used for the field plot.
+        """Set the scale type used for the field plot.
 
         Parameters
         ----------
@@ -778,8 +750,7 @@ class Scale3DSettings(BaseFolderPlot):
 
     @property
     def scale_settings(self) -> AutoScale | MinMaxScale | SpecifiedScale:
-        """
-        Get the current scale settings based on the scale type.
+        """Get the current scale settings based on the scale type.
 
         Examples
         --------
@@ -793,8 +764,7 @@ class Scale3DSettings(BaseFolderPlot):
 
     @scale_settings.setter
     def scale_settings(self, value: AutoScale | MinMaxScale | SpecifiedScale) -> None:
-        """
-        Set the current scale settings based on the scale type.
+        """Set the current scale settings based on the scale type.
 
         Parameters
         ----------
@@ -835,8 +805,7 @@ class Scale3DSettings(BaseFolderPlot):
         )
 
     def to_dict(self) -> dict:
-        """
-        Convert the scale settings to a dictionary.
+        """Convert the scale settings to a dictionary.
 
         Returns
         -------
@@ -864,8 +833,7 @@ class Scale3DSettings(BaseFolderPlot):
         return arg_out
 
     def from_dict(self, dictionary: dict) -> None:
-        """
-        Initialize the scale settings of the field plot settings from a dictionary.
+        """Initialize the scale settings of the field plot settings from a dictionary.
 
         Parameters
         ----------
@@ -895,8 +863,7 @@ class Scale3DSettings(BaseFolderPlot):
 
 
 class MarkerSettings(BaseFolderPlot):
-    """
-    Provides methods and variables for editing marker folder settings.
+    """Provides methods and variables for editing marker folder settings.
 
     Parameters
     ----------
@@ -929,8 +896,7 @@ class MarkerSettings(BaseFolderPlot):
 
     @property
     def marker_type(self) -> str:
-        """
-        Get the type of maker to use.
+        """Get the type of maker to use.
 
         Examples
         --------
@@ -943,8 +909,7 @@ class MarkerSettings(BaseFolderPlot):
 
     @marker_type.setter
     def marker_type(self, v: str) -> None:
-        """
-        Set the type of maker to use.
+        """Set the type of maker to use.
 
         Parameters
         ----------
@@ -977,8 +942,7 @@ class MarkerSettings(BaseFolderPlot):
         )
 
     def to_dict(self) -> dict:
-        """
-        Convert the marker settings to a dictionary.
+        """Convert the marker settings to a dictionary.
 
         Returns
         -------
@@ -1003,8 +967,7 @@ class MarkerSettings(BaseFolderPlot):
         }
 
     def from_dict(self, dictionary: dict) -> None:
-        """
-        Initialize the marker settings of the field plot settings from a dictionary.
+        """Initialize the marker settings of the field plot settings from a dictionary.
 
         Parameters
         ----------
@@ -1026,8 +989,7 @@ class MarkerSettings(BaseFolderPlot):
 
 
 class ArrowSettings(BaseFolderPlot):
-    """
-    Provides methods and variables for editing arrow folder settings.
+    """Provides methods and variables for editing arrow folder settings.
 
     Parameters
     ----------
@@ -1084,8 +1046,7 @@ class ArrowSettings(BaseFolderPlot):
 
     @property
     def arrow_type(self) -> str:
-        """
-        Get the type of arrows used in the field plot.
+        """Get the type of arrows used in the field plot.
 
         Examples
         --------
@@ -1098,8 +1059,7 @@ class ArrowSettings(BaseFolderPlot):
 
     @arrow_type.setter
     def arrow_type(self, v: str) -> None:
-        """
-        Set the type of arrows for the field plot.
+        """Set the type of arrows for the field plot.
 
         Parameters
         ----------
@@ -1141,8 +1101,7 @@ class ArrowSettings(BaseFolderPlot):
         )
 
     def to_dict(self) -> dict:
-        """
-        Convert the arrow settings to a dictionary.
+        """Convert the arrow settings to a dictionary.
 
         Returns
         -------
@@ -1172,8 +1131,7 @@ class ArrowSettings(BaseFolderPlot):
         }
 
     def from_dict(self, dictionary: dict) -> None:
-        """
-        Initialize the arrow settings of the field plot settings from a dictionary.
+        """Initialize the arrow settings of the field plot settings from a dictionary.
 
         Parameters
         ----------
@@ -1200,8 +1158,7 @@ class ArrowSettings(BaseFolderPlot):
 
 
 class FolderPlotSettings(BaseFolderPlot):
-    """
-    Provides methods and variables for editing field plots folder settings.
+    """Provides methods and variables for editing field plots folder settings.
 
     Parameters
     ----------
@@ -1241,8 +1198,7 @@ class FolderPlotSettings(BaseFolderPlot):
         self._folder_name = folder_name
 
     def update(self) -> None:
-        """
-        Update folder plot settings.
+        """Update folder plot settings.
 
         Examples
         --------
@@ -1256,8 +1212,7 @@ class FolderPlotSettings(BaseFolderPlot):
         self._postprocessor.ofieldsreporter.SetPlotFolderSettings(self._folder_name, out[0])
 
     def to_dict(self) -> dict:
-        """
-        Convert the field plot settings to a dictionary.
+        """Convert the field plot settings to a dictionary.
 
         Returns
         -------
@@ -1281,8 +1236,7 @@ class FolderPlotSettings(BaseFolderPlot):
         return {"FieldsPlotSettings": out}
 
     def from_dict(self, dictionary: dict) -> None:
-        """
-        Initialize the field plot settings from a dictionary.
+        """Initialize the field plot settings from a dictionary.
 
         Parameters
         ----------
@@ -1313,8 +1267,7 @@ class FolderPlotSettings(BaseFolderPlot):
 
 
 class FieldPlot(PyAedtBase):
-    """
-    Provides for creating and editing field plots.
+    """Provides for creating and editing field plots.
 
     Parameters
     ----------
@@ -1396,8 +1349,7 @@ class FieldPlot(PyAedtBase):
         self._folder_settings = None
 
     def _parse_folder_settings(self):
-        """
-        Parse the folder settings for the field plot from the AEDT file.
+        """Parse the folder settings for the field plot from the AEDT file.
 
         Returns
         -------
@@ -1427,8 +1379,7 @@ class FieldPlot(PyAedtBase):
 
     @property
     def folder_settings(self) -> FolderPlotSettings:
-        """
-        Get the folder settings.
+        """Get the folder settings.
 
         Examples
         --------
@@ -1443,8 +1394,7 @@ class FieldPlot(PyAedtBase):
 
     @folder_settings.setter
     def folder_settings(self, v: FolderPlotSettings) -> None:
-        """
-        Set the fieldplot folder settings.
+        """Set the fieldplot folder settings.
 
         Parameters
         ----------
@@ -1470,8 +1420,7 @@ class FieldPlot(PyAedtBase):
 
     @property
     def filter_boxes(self) -> list:
-        """
-        Volumes on which filter the plot.
+        """Volumes on which filter the plot.
 
         Examples
         --------
@@ -1490,8 +1439,7 @@ class FieldPlot(PyAedtBase):
 
     @property
     def plotGeomInfo(self) -> list:
-        """
-        Plot geometry information.
+        """Plot geometry information.
 
         Examples
         --------
@@ -1575,8 +1523,7 @@ class FieldPlot(PyAedtBase):
 
     @property
     def intrinsicVar(self) -> str:
-        """
-        Intrinsic variable.
+        """Intrinsic variable.
 
         Returns
         -------
@@ -1597,8 +1544,7 @@ class FieldPlot(PyAedtBase):
 
     @property
     def plotsettings(self) -> list:
-        """
-        Plot settings.
+        """Plot settings.
 
         Returns
         -------
@@ -1693,8 +1639,7 @@ class FieldPlot(PyAedtBase):
     def get_points_value(
         self, points: list | dict, filename: str | None = None, visibility: bool = False
     ) -> "dict | pd.DataFrame":  # pragma: no cover
-        """
-        Get points data from field plot.
+        """Get points data from field plot.
 
         .. note::
            This method is working only if the associated field plot is currently visible.
@@ -1810,8 +1755,7 @@ class FieldPlot(PyAedtBase):
 
     @property
     def surfacePlotInstruction(self) -> list:
-        """
-        Surface plot settings.
+        """Surface plot settings.
 
         Returns
         -------
@@ -1865,8 +1809,7 @@ class FieldPlot(PyAedtBase):
 
     @property
     def surfacePlotInstructionLineTraces(self) -> list:
-        """
-        Surface plot settings for field line traces.
+        """Surface plot settings for field line traces.
 
         ..note::
             ``Specify seeding points on selections`` is by default set to ``by sampling``.
@@ -1944,8 +1887,7 @@ class FieldPlot(PyAedtBase):
 
     @property
     def field_plot_settings(self) -> list:
-        """
-        Field Plot Settings.
+        """Field Plot Settings.
 
         Returns
         -------
@@ -1997,8 +1939,7 @@ class FieldPlot(PyAedtBase):
 
     @property
     def field_line_trace_plot_settings(self) -> list:
-        """
-        Settings for the field line traces in the plot.
+        """Settings for the field line traces in the plot.
 
         Returns
         -------
@@ -2021,8 +1962,7 @@ class FieldPlot(PyAedtBase):
 
     @pyaedt_function_handler()
     def create(self) -> bool:
-        """
-        Create a field plot.
+        """Create a field plot.
 
         Returns
         -------
@@ -2057,8 +1997,7 @@ class FieldPlot(PyAedtBase):
 
     @pyaedt_function_handler()
     def update(self) -> bool:
-        """
-        Update the field plot.
+        """Update the field plot.
 
         .. note::
            This method works on any plot created inside PyAEDT.
@@ -2120,8 +2059,7 @@ class FieldPlot(PyAedtBase):
 
     @pyaedt_function_handler()
     def update_field_plot_settings(self) -> bool:
-        """
-        Modify the field plot settings.
+        """Modify the field plot settings.
 
         .. note::
             This method is not available for field plot line traces.
@@ -2143,8 +2081,7 @@ class FieldPlot(PyAedtBase):
 
     @pyaedt_function_handler()
     def delete(self) -> None:
-        """
-        Delete the field plot.
+        """Delete the field plot.
 
         Examples
         --------

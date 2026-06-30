@@ -63,8 +63,7 @@ class Help(PyAedtBase):  # pragma: no cover
         browser: str = "default",
         silent: bool = False,
     ) -> None:
-        """
-        Initialize the Help utility.
+        """Initialize the Help utility.
 
         Parameters
         ----------
@@ -87,8 +86,7 @@ class Help(PyAedtBase):  # pragma: no cover
 
     @property
     def version(self) -> str:
-        """
-        Documentation version currently configured.
+        """Documentation version currently configured.
 
         Examples
         --------
@@ -101,8 +99,7 @@ class Help(PyAedtBase):  # pragma: no cover
 
     @version.setter
     def version(self, value: str) -> None:
-        """
-        Set the documentation version.
+        """Set the documentation version.
 
         Examples
         --------
@@ -117,8 +114,7 @@ class Help(PyAedtBase):  # pragma: no cover
 
     @property
     def base_path(self) -> str:
-        """
-        Base URL of the PyAEDT documentation for the selected version.
+        """Base URL of the PyAEDT documentation for the selected version.
 
         Examples
         --------
@@ -131,8 +127,7 @@ class Help(PyAedtBase):  # pragma: no cover
 
     @property
     def examples_base(self) -> str:
-        """
-        Base URL of the PyAEDT examples site.
+        """Base URL of the PyAEDT examples site.
 
         Examples
         --------
@@ -145,8 +140,7 @@ class Help(PyAedtBase):  # pragma: no cover
 
     @property
     def browser(self) -> str:
-        """
-        Browser currently configured for URL launching.
+        """Browser currently configured for URL launching.
 
         Examples
         --------
@@ -159,8 +153,7 @@ class Help(PyAedtBase):  # pragma: no cover
 
     @browser.setter
     def browser(self, value: str) -> None:
-        """
-        Set the browser used to open URLs.
+        """Set the browser used to open URLs.
 
         Parameters
         ----------
@@ -189,8 +182,7 @@ class Help(PyAedtBase):  # pragma: no cover
 
     @property
     def silent(self) -> bool:
-        """
-        Whether URL opening is suppressed.
+        """Whether URL opening is suppressed.
 
         If ``True``, URL-opening methods do not open the browser and only
         return the constructed URLs.
@@ -206,8 +198,7 @@ class Help(PyAedtBase):  # pragma: no cover
 
     @silent.setter
     def silent(self, value: bool) -> None:
-        """
-        Enable or disable silent mode.
+        """Enable or disable silent mode.
 
         Examples
         --------
@@ -223,8 +214,7 @@ class Help(PyAedtBase):  # pragma: no cover
         url: str,
         new_tab: bool = True,
     ) -> None:
-        """
-        Open a URL in the configured browser unless silent mode is enabled.
+        """Open a URL in the configured browser unless silent mode is enabled.
 
         Parameters
         ----------
@@ -248,8 +238,7 @@ class Help(PyAedtBase):  # pragma: no cover
     def _build_search_query(
         keywords: str | Iterable[str],
     ) -> str:
-        """
-        Build a Sphinx-style search query string.
+        """Build a Sphinx-style search query string.
 
         Parameters
         ----------
@@ -278,8 +267,7 @@ class Help(PyAedtBase):  # pragma: no cover
         self,
         keywords: str | Iterable[str],
     ) -> str:
-        """
-        Search the PyAEDT documentation.
+        """Search the PyAEDT documentation.
 
         Parameters
         ----------
@@ -305,8 +293,7 @@ class Help(PyAedtBase):  # pragma: no cover
         return url
 
     def home(self) -> str:
-        """
-        Open the top-level documentation page for the selected version.
+        """Open the top-level documentation page for the selected version.
 
         Returns
         -------
@@ -326,8 +313,7 @@ class Help(PyAedtBase):  # pragma: no cover
         return url
 
     def user_guide(self) -> str:
-        """
-        Open the PyAEDT User Guide.
+        """Open the PyAEDT User Guide.
 
         Returns
         -------
@@ -347,8 +333,7 @@ class Help(PyAedtBase):  # pragma: no cover
         return url
 
     def getting_started(self) -> str:
-        """
-        Open the PyAEDT Getting Started guide.
+        """Open the PyAEDT Getting Started guide.
 
         Returns
         -------
@@ -368,8 +353,7 @@ class Help(PyAedtBase):  # pragma: no cover
         return url
 
     def installation_guide(self) -> str:
-        """
-        Open the PyAEDT installation instructions.
+        """Open the PyAEDT installation instructions.
 
         Returns
         -------
@@ -389,8 +373,7 @@ class Help(PyAedtBase):  # pragma: no cover
         return url
 
     def api_reference(self) -> str:
-        """
-        Open the PyAEDT API Reference page.
+        """Open the PyAEDT API Reference page.
 
         Returns
         -------
@@ -410,8 +393,7 @@ class Help(PyAedtBase):  # pragma: no cover
         return url
 
     def release_notes(self) -> str:
-        """
-        Open the PyAEDT release notes page.
+        """Open the PyAEDT release notes page.
 
         Returns
         -------
@@ -431,8 +413,7 @@ class Help(PyAedtBase):  # pragma: no cover
         return url
 
     def examples(self) -> str:
-        """
-        Open the official PyAEDT examples website.
+        """Open the official PyAEDT examples website.
 
         Returns
         -------
@@ -452,8 +433,7 @@ class Help(PyAedtBase):  # pragma: no cover
         return url
 
     def github(self) -> str:
-        """
-        Open the PyAEDT GitHub repository.
+        """Open the PyAEDT GitHub repository.
 
         Returns
         -------
@@ -476,8 +456,7 @@ class Help(PyAedtBase):  # pragma: no cover
         self,
         release: str | None = None,
     ) -> str:
-        """
-        Open the GitHub changelog page for a specific release.
+        """Open the GitHub changelog page for a specific release.
 
         Parameters
         ----------
@@ -505,8 +484,7 @@ class Help(PyAedtBase):  # pragma: no cover
         return url
 
     def issues(self) -> str:
-        """
-        Open the PyAEDT GitHub issues page.
+        """Open the PyAEDT GitHub issues page.
 
         Returns
         -------
@@ -526,8 +504,7 @@ class Help(PyAedtBase):  # pragma: no cover
         return url
 
     def ansys_forum(self) -> str:
-        """
-        Open the Ansys forum filtered to the PyAEDT tag.
+        """Open the Ansys forum filtered to the PyAEDT tag.
 
         Returns
         -------
@@ -547,8 +524,7 @@ class Help(PyAedtBase):  # pragma: no cover
         return url
 
     def developer_forum(self) -> str:
-        """
-        Open the Ansys Developer portal.
+        """Open the Ansys Developer portal.
 
         Returns
         -------

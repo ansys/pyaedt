@@ -67,8 +67,7 @@ class BandFolder(EmitNode):
 
     @min_aedt_version("2025.2")
     def add_band(self) -> EmitNode:
-        """
-        Create a New Band
+        """Create a New Band
 
         Examples
         --------

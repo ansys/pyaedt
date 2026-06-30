@@ -22,8 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-* * * This script is meant to run in CPython. * * *
+"""* * * This script is meant to run in CPython. * * *
 
 Wrapper that executes an extension script and displays a dialog with the
 error traceback when the script exits with a non-zero return code.

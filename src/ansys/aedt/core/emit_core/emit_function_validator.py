@@ -22,8 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-EMIT function validator for restricted math expressions.
+"""EMIT function validator for restricted math expressions.
 
 Examples
 --------
@@ -40,8 +39,7 @@ from ansys.aedt.core.emit_core.emit_constants import EMIT_FN_ALLOWED_VARS
 
 
 class FunctionValidator(ast.NodeVisitor):
-    """
-    AST validator for a restricted math expression grammar.
+    """AST validator for a restricted math expression grammar.
 
     This class validates mathematical expressions using an Abstract Syntax Tree (AST)
     visitor pattern. It enforces a restricted grammar that only allows specific
@@ -63,8 +61,7 @@ class FunctionValidator(ast.NodeVisitor):
     """
 
     def visit_Module(self, node: ast.Module):
-        """
-        Visit a Module node.
+        """Visit a Module node.
 
         Parameters
         ----------
@@ -83,8 +80,7 @@ class FunctionValidator(ast.NodeVisitor):
             self.visit(stmt)
 
     def visit_Expr(self, node: ast.Expr):
-        """
-        Visit an Expr node.
+        """Visit an Expr node.
 
         Parameters
         ----------
@@ -101,8 +97,7 @@ class FunctionValidator(ast.NodeVisitor):
         self.visit(node.value)
 
     def visit_BinOp(self, node: ast.BinOp):
-        """
-        Visit a BinOp node.
+        """Visit a BinOp node.
 
         Only allows addition, subtraction, multiplication, and division operators.
 
@@ -129,8 +124,7 @@ class FunctionValidator(ast.NodeVisitor):
         self.visit(node.right)
 
     def visit_Call(self, node: ast.Call):
-        """
-        Visit a Call node.
+        """Visit a Call node.
 
         Only allows simple function calls with bare function names (e.g., abs(), trunc()).
         Functions must be in the allowed list and accept exactly one positional argument.
@@ -166,8 +160,7 @@ class FunctionValidator(ast.NodeVisitor):
         self.visit(node.args[0])
 
     def visit_Name(self, node: ast.Name):
-        """
-        Visit a Name node.
+        """Visit a Name node.
 
         Only allows specific variable names defined in the allowed variables list.
 
@@ -192,8 +185,7 @@ class FunctionValidator(ast.NodeVisitor):
             raise ValueError(f"Unknown variable: {node.id}")
 
     def visit_Constant(self, node: ast.Constant):
-        """
-        Visit a Constant node.
+        """Visit a Constant node.
 
         Only allows numeric constants (integers and floats).
 
@@ -218,8 +210,7 @@ class FunctionValidator(ast.NodeVisitor):
             raise ValueError("Only numeric constants allowed")
 
     def generic_visit(self, node: ast.AST):
-        """
-        Visit any other node type.
+        """Visit any other node type.
 
         This method is called for node types not explicitly handled by other
         visit methods. It delegates to the parent class implementation.

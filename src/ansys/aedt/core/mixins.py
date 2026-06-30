@@ -29,8 +29,7 @@ from ansys.aedt.core.modules.boundary.common import BoundaryObject
 
 
 class CreateBoundaryMixin:
-    """
-    Mixin that provides methods to apply boundary conditions.
+    """Mixin that provides methods to apply boundary conditions.
 
     This mixin is designed to be used in classes that require boundary condition.
     Methods provided by this mixin should be implemented or extended by subclasses
@@ -58,8 +57,7 @@ class CreateBoundaryMixin:
 
     @pyaedt_function_handler()
     def _create_boundary(self, name: str, props, boundary_type) -> BoundaryObject:
-        """
-        Create a boundary.
+        """Create a boundary.
 
         Parameters
         ----------

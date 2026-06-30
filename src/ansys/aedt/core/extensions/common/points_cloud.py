@@ -66,8 +66,7 @@ EXTENSION_NB_COLUMN = 3
 
 @dataclass
 class PointsCloudExtensionData(ExtensionCommonData):
-    """
-    Data class containing user input and computed data.
+    """Data class containing user input and computed data.
 
     Examples
     --------
@@ -85,8 +84,7 @@ class PointsCloudExtensionData(ExtensionCommonData):
 
 
 class PointsCloudExtension(ExtensionProjectCommon):
-    """
-    Extension for point cloud generator in AEDT.
+    """Extension for point cloud generator in AEDT.
 
     Examples
     --------
@@ -111,8 +109,7 @@ class PointsCloudExtension(ExtensionProjectCommon):
         self.add_extension_content()
 
     def check_design_type(self) -> None:
-        """
-        Check if the design type is HFSS, Icepak, HFSS 3D, Maxwell 3D, Maxwell 2D, Q3D, Mechanical
+        """Check if the design type is HFSS, Icepak, HFSS 3D, Maxwell 3D, Maxwell 2D, Q3D, Mechanical
 
         Examples
         --------
@@ -148,8 +145,7 @@ class PointsCloudExtension(ExtensionProjectCommon):
         self.__aedt_sheets = sheets
 
     def add_extension_content(self) -> None:
-        """
-        Add custom content to the extension UI.
+        """Add custom content to the extension UI.
 
         Examples
         --------
@@ -322,8 +318,7 @@ class PointsCloudExtension(ExtensionProjectCommon):
         self.add_toggle_theme_button(buttons_frame, 0, 2)
 
     def check_and_format_extension_data(self) -> tuple[list[str], int, str]:
-        """
-        Perform checks and formatting on extension input data.
+        """Perform checks and formatting on extension input data.
 
         Examples
         --------
@@ -355,8 +350,7 @@ class PointsCloudExtension(ExtensionProjectCommon):
 
 
 def main(data: PointsCloudExtensionData):
-    """
-    Main function to run the point cloud generator extension.
+    """Main function to run the point cloud generator extension.
 
     Examples
     --------
@@ -426,8 +420,7 @@ def main(data: PointsCloudExtensionData):
 
 
 def generate_point_cloud(aedtapp: Desktop, selected_objects: list[str], num_points: int, output_file: str = None):
-    """
-    Generate point cloud from selected objects
+    """Generate point cloud from selected objects
 
     Examples
     --------

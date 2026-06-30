@@ -61,8 +61,7 @@ class RxMixerProductNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def import_csv_file(self, file_name: str) -> EmitNode:
-        """
-        Import a CSV File...
+        """Import a CSV File.
 
         Examples
         --------
@@ -85,8 +84,7 @@ class RxMixerProductNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def table_data(self) -> list[tuple]:
-        """
-        Edit Mixer Products Table.
+        """Edit Mixer Products Table.
         Table consists of 3 columns.
         RF Harmonic Order:
             Value should be between -100 and 100.
@@ -110,8 +108,7 @@ class RxMixerProductNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def enabled(self) -> bool:
-        """
-        Enabled state for this node.
+        """Enabled state for this node.
 
         Examples
         --------
@@ -133,8 +130,7 @@ class RxMixerProductNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def mixer_product_taper(self) -> MixerProductTaperOption:
-        """
-        Taper for setting amplitude of mixer products.
+        """Taper for setting amplitude of mixer products.
 
         Examples
         --------
@@ -154,8 +150,7 @@ class RxMixerProductNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def mixer_product_susceptibility(self) -> float:
-        """
-        Mixer product amplitudes (relative to the in-band susceptibility).
+        """Mixer product amplitudes (relative to the in-band susceptibility).
 
         Value should be between -200 and 200.
 
@@ -175,8 +170,7 @@ class RxMixerProductNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def spurious_rejection(self) -> float:
-        """
-        Mixer product amplitudes (relative to the in-band susceptibility).
+        """Mixer product amplitudes (relative to the in-band susceptibility).
 
         Value should be between -200 and 200.
 
@@ -196,8 +190,7 @@ class RxMixerProductNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def minimum_tuning_frequency(self) -> float:
-        """
-        Minimum tuning frequency of Rx's local oscillator.
+        """Minimum tuning frequency of Rx's local oscillator.
 
         Value should be between 1 and 100e9.
 
@@ -219,8 +212,7 @@ class RxMixerProductNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def maximum_tuning_frequency(self) -> float:
-        """
-        Maximum tuning frequency of Rx's local oscillator.
+        """Maximum tuning frequency of Rx's local oscillator.
 
         Value should be between 1 and 100e9.
 
@@ -242,8 +234,7 @@ class RxMixerProductNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def mixer_product_slope(self) -> float:
-        """
-        Mixer Product Slope.
+        """Mixer Product Slope.
 
         Rate of decrease for amplitude of Rx's local oscillator harmonics
         (dB/decade).
@@ -266,8 +257,7 @@ class RxMixerProductNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def mixer_product_intercept(self) -> float:
-        """
-        Mixer product intercept (dBc).
+        """Mixer product intercept (dBc).
 
         Value should be between 0 and 100.
 
@@ -287,8 +277,7 @@ class RxMixerProductNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def bandwidth_80_db(self) -> float:
-        """
-        Bandwidth 80 dB.
+        """Bandwidth 80 dB.
 
         Bandwidth where Rx's susceptibility envelope is 80 dB above in-band
         susceptibility level.
@@ -313,8 +302,7 @@ class RxMixerProductNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def image_rejection(self) -> float:
-        """
-        Image frequency amplitude (relative to the in-band susceptibility).
+        """Image frequency amplitude (relative to the in-band susceptibility).
 
         Value should be between -200 and 200.
 
@@ -334,8 +322,7 @@ class RxMixerProductNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def maximum_rf_harmonic_order(self) -> int:
-        """
-        Maximum order of RF frequency.
+        """Maximum order of RF frequency.
 
         Value should be between 1 and 100.
 
@@ -355,8 +342,7 @@ class RxMixerProductNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def maximum_lo_harmonic_order(self) -> int:
-        """
-        Maximum order of the LO frequency.
+        """Maximum order of the LO frequency.
 
         Value should be between 1 and 100.
 
@@ -381,8 +367,7 @@ class RxMixerProductNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def mixing_mode(self) -> MixingModeOption:
-        """
-        Specifies whether the IF frequency is > or < RF channel frequency.
+        """Specifies whether the IF frequency is > or < RF channel frequency.
 
         Examples
         --------
@@ -402,8 +387,7 @@ class RxMixerProductNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def first_if_frequency(self) -> str:
-        """
-        Intermediate frequency for Rx's 1st conversion stage.
+        """Intermediate frequency for Rx's 1st conversion stage.
 
         Value should be a mathematical expression.
 
@@ -423,8 +407,7 @@ class RxMixerProductNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def rf_transition_frequency(self) -> float:
-        """
-        RF Frequency Transition point.
+        """RF Frequency Transition point.
 
         Examples
         --------
@@ -448,8 +431,7 @@ class RxMixerProductNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def use_high_lo(self) -> UseHighLOOption:
-        """
-        Use High LO above/below the transition frequency.
+        """Use High LO above/below the transition frequency.
 
         Examples
         --------
@@ -473,8 +455,7 @@ class RxMixerProductNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def mixer_product_table_units(self) -> MixerProductTableUnitsOption:
-        """
-        Specifies the units for the Mixer Products.
+        """Specifies the units for the Mixer Products.
 
         Examples
         --------

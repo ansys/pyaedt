@@ -37,8 +37,7 @@ from ansys.aedt.core.modeler.advanced_cad.multiparts import MultiPartComponent
 
 
 def read_actors(fn: str, actor_lib: str) -> dict:
-    """
-    Read and map actors in a JSON file to a list of actor objects.
+    """Read and map actors in a JSON file to a list of actor objects.
 
     Parameters
     ----------
@@ -66,8 +65,7 @@ def read_actors(fn: str, actor_lib: str) -> dict:
 
 
 class Generic(Actor, PyAedtBase):
-    """
-    Provides an instance of an actor.
+    """Provides an instance of an actor.
 
     This class is derived from :class:`ansys.aedt.core.modeler.multiparts.MultiPartComponent`.
 
@@ -99,8 +97,7 @@ class Generic(Actor, PyAedtBase):
 
 
 class Person(Actor, PyAedtBase):
-    """
-    Provides an instance of a person.
+    """Provides an instance of a person.
 
     This class is derived from :class:`ansys.aedt.core.modeler.multiparts.MultiPartComponent`.
 
@@ -139,8 +136,7 @@ class Person(Actor, PyAedtBase):
 
     @property
     def stride(self) -> str:
-        """
-        Stride in meters.
+        """Stride in meters.
 
         Returns
         -------
@@ -185,8 +181,7 @@ class Person(Actor, PyAedtBase):
 
     @pyaedt_function_handler()
     def insert(self, app: "Hfss", motion: bool = True) -> bool:
-        """
-        Insert the person in HFSS SBR+.
+        """Insert the person in HFSS SBR+.
 
         Parameters
         ----------
@@ -220,8 +215,7 @@ class Person(Actor, PyAedtBase):
 
 
 class Bird(Actor, PyAedtBase):
-    """
-    Provides an instance of a bird.
+    """Provides an instance of a bird.
 
     This class is derived from :class:`ansys.aedt.core.modeler.multiparts.MultiPartComponent`.
 
@@ -267,8 +261,7 @@ class Bird(Actor, PyAedtBase):
 
     @pyaedt_function_handler()
     def insert(self, app: "Hfss", motion: bool = True) -> bool:
-        """
-        Insert the bird in HFSS SBR+.
+        """Insert the bird in HFSS SBR+.
 
         Parameters
         ----------
@@ -300,8 +293,7 @@ class Bird(Actor, PyAedtBase):
 
 
 class Vehicle(Actor, PyAedtBase):
-    """
-    Provides an instance of a vehicle.
+    """Provides an instance of a vehicle.
 
     This class is derived from :class:`ansys.aedt.core.modeler.multiparts.MultiPartComponent`.
 
@@ -350,8 +342,7 @@ class Vehicle(Actor, PyAedtBase):
 
     @pyaedt_function_handler()
     def insert(self, app: "Hfss", motion: bool = True) -> bool:
-        """
-        Insert the vehicle in HFSS SBR+.
+        """Insert the vehicle in HFSS SBR+.
 
         Parameters
         ----------
@@ -383,8 +374,7 @@ class Vehicle(Actor, PyAedtBase):
 
 
 class Radar(MultiPartComponent, PyAedtBase):
-    """
-    Manages the radar definition and placement in the HFSS design.
+    """Manages the radar definition and placement in the HFSS design.
 
     Parameters
     ----------
@@ -440,8 +430,7 @@ class Radar(MultiPartComponent, PyAedtBase):
 
     @property
     def units(self) -> str | None:
-        """
-        Multi-part units.
+        """Multi-part units.
 
         Returns
         -------
@@ -460,8 +449,7 @@ class Radar(MultiPartComponent, PyAedtBase):
 
     @property
     def speed_name(self) -> str:
-        """
-        Speed variable name.
+        """Speed variable name.
 
         Returns
         -------
@@ -480,8 +468,7 @@ class Radar(MultiPartComponent, PyAedtBase):
 
     @property
     def speed_expression(self) -> str:
-        """
-        Speed variable expression.
+        """Speed variable expression.
 
         Returns
         -------
@@ -518,8 +505,7 @@ class Radar(MultiPartComponent, PyAedtBase):
 
     @pyaedt_function_handler()
     def insert(self, app: "Hfss", motion: bool = False) -> list:
-        """
-        Insert radar in the HFSS application instance.
+        """Insert radar in the HFSS application instance.
 
         Parameters
         ----------

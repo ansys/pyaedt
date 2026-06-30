@@ -97,8 +97,7 @@ class VRTFieldPlot(PyAedtBase):
 
     @property
     def intrinsicVar(self) -> str:
-        """
-        Intrinsic variable.
+        """Intrinsic variable.
 
         Returns
         -------
@@ -233,8 +232,7 @@ class VRTFieldPlot(PyAedtBase):
 
     @pyaedt_function_handler()
     def create(self) -> bool:
-        """
-        Create a field plot.
+        """Create a field plot.
 
         Returns
         -------
@@ -259,8 +257,7 @@ class VRTFieldPlot(PyAedtBase):
 
     @pyaedt_function_handler()
     def update(self) -> bool:
-        """
-        Update the field plot.
+        """Update the field plot.
 
         Returns
         -------
@@ -286,8 +283,7 @@ class VRTFieldPlot(PyAedtBase):
 
     @pyaedt_function_handler()
     def delete(self) -> bool:
-        """
-        Delete the field plot.
+        """Delete the field plot.
 
         Examples
         --------

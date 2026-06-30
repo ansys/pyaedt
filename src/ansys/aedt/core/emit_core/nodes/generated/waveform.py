@@ -99,8 +99,7 @@ class Waveform(EmitNode):
 
     @min_aedt_version("2025.2")
     def import_tx_measurement(self, file_name: str) -> EmitNode:
-        """
-        Import a Measurement from a File...
+        """Import a Measurement from a File.
 
         Examples
         --------
@@ -116,8 +115,7 @@ class Waveform(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def enabled(self) -> bool:
-        """
-        Enabled state for this node.
+        """Enabled state for this node.
 
         Examples
         --------
@@ -145,8 +143,7 @@ class Waveform(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def waveform(self) -> WaveformOption:
-        """
-        Modulation used for the transmitted/received signal.
+        """Modulation used for the transmitted/received signal.
 
         Examples
         --------
@@ -169,8 +166,7 @@ class Waveform(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def start_frequency(self) -> float:
-        """
-        First frequency for this band.
+        """First frequency for this band.
 
         Value should be between 1 and 100e9.
 
@@ -196,8 +192,7 @@ class Waveform(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def clock_duty_cycle(self) -> float:
-        """
-        Clock signals duty cycle.
+        """Clock signals duty cycle.
 
         Value should be between 0.001 and 1.0.
 
@@ -221,8 +216,7 @@ class Waveform(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def clock_risefall_time(self) -> float:
-        """
-        Clock signals rise/fall time.
+        """Clock signals rise/fall time.
 
         Value should be greater than 0.0.
 
@@ -253,8 +247,7 @@ class Waveform(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def spreading_type(self) -> SpreadingTypeOption:
-        """
-        Type of spreading employed by the Spread Spectrum Clock.
+        """Type of spreading employed by the Spread Spectrum Clock.
 
         Examples
         --------
@@ -277,8 +270,7 @@ class Waveform(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def spread_percentage(self) -> float:
-        """
-        Peak-to-peak spread percentage.
+        """Peak-to-peak spread percentage.
 
         Value should be between 0 and 100.
 
@@ -302,8 +294,7 @@ class Waveform(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def imported_spectrum(self) -> str:
-        """
-        Imported Spectrum.
+        """Imported Spectrum.
 
         Examples
         --------
@@ -325,8 +316,7 @@ class Waveform(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def raw_data_format(self) -> str:
-        """
-        Format of the imported raw data.
+        """Format of the imported raw data.
 
         Examples
         --------
@@ -343,8 +333,7 @@ class Waveform(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def system_impedance(self) -> float:
-        """
-        System impedance for the imported data.
+        """System impedance for the imported data.
 
         Value should be between 0.0 and 1.0e6.
 
@@ -370,8 +359,7 @@ class Waveform(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def advanced_extraction_params(self) -> bool:
-        """
-        Show/hide advanced extraction params.
+        """Show/hide advanced extraction params.
 
         Value should be 'true' or 'false'.
 
@@ -395,8 +383,7 @@ class Waveform(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def nb_window_size(self) -> float:
-        """
-        NB Window Size.
+        """NB Window Size.
 
         Window size for computing the moving average during narrowband signal
         detection.
@@ -423,8 +410,7 @@ class Waveform(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def bb_smoothing_factor(self) -> float:
-        """
-        BB Smoothing Factor.
+        """BB Smoothing Factor.
 
         Reduces the number of frequency points used for the broadband noise.
 
@@ -450,8 +436,7 @@ class Waveform(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def nb_detector_threshold(self) -> float:
-        """
-        Narrowband Detector threshold standard deviation.
+        """Narrowband Detector threshold standard deviation.
 
         Value should be between 2 and 10.
 
@@ -479,8 +464,7 @@ class Waveform(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def algorithm(self) -> AlgorithmOption:
-        """
-        Algorithm used to transform the imported time domain spectrum.
+        """Algorithm used to transform the imported time domain spectrum.
 
         Examples
         --------
@@ -503,8 +487,7 @@ class Waveform(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def start_time(self) -> float:
-        """
-        Initial time of the imported spectrum.
+        """Initial time of the imported spectrum.
 
         Value should be greater than 0.0.
 
@@ -530,8 +513,7 @@ class Waveform(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def stop_time(self) -> float:
-        """
-        Final time of the imported time domain spectrum.
+        """Final time of the imported time domain spectrum.
 
         Examples
         --------
@@ -555,8 +537,7 @@ class Waveform(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def max_frequency(self) -> float:
-        """
-        Frequency cutoff of the imported time domain spectrum.
+        """Frequency cutoff of the imported time domain spectrum.
 
         Value should be between 1.0 and 100.0e9.
 
@@ -593,8 +574,7 @@ class Waveform(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def window_type(self) -> WindowTypeOption:
-        """
-        Windowing scheme used for importing time domain spectrum.
+        """Windowing scheme used for importing time domain spectrum.
 
         Examples
         --------
@@ -617,8 +597,7 @@ class Waveform(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def kaiser_parameter(self) -> float:
-        """
-        Shape factor applied to the transform.
+        """Shape factor applied to the transform.
 
         Value should be greater than 0.0.
 
@@ -642,8 +621,7 @@ class Waveform(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def adjust_coherent_gain(self) -> bool:
-        """
-        Shape factor applied to the transform.
+        """Shape factor applied to the transform.
 
         Value should be 'true' or 'false'.
 
@@ -667,8 +645,7 @@ class Waveform(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def data_rate(self) -> float:
-        """
-        Maximum data rate: helps determine shape of spectral profile.
+        """Maximum data rate: helps determine shape of spectral profile.
 
         Value should be greater than 1.
 
@@ -694,8 +671,7 @@ class Waveform(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def num_of_bits(self) -> int:
-        """
-        Length of the Pseudo Random Binary Sequence.
+        """Length of the Pseudo Random Binary Sequence.
 
         Value should be between 1 and 1000.
 
@@ -719,8 +695,7 @@ class Waveform(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def use_envelope(self) -> bool:
-        """
-        Model the waveform as a worst case envelope.
+        """Model the waveform as a worst case envelope.
 
         Value should be 'true' or 'false'.
 
@@ -744,8 +719,7 @@ class Waveform(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def min_ptsnull(self) -> int:
-        """
-        Minimum number of points to use between each null frequency.
+        """Minimum number of points to use between each null frequency.
 
         Value should be between 2 and 50.
 

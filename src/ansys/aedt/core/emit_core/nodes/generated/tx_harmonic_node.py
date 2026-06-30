@@ -143,8 +143,7 @@ class TxHarmonicNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def enabled(self) -> bool:
-        """
-        Enabled state for this node.
+        """Enabled state for this node.
 
         Examples
         --------
@@ -172,8 +171,7 @@ class TxHarmonicNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def harmonic_table_units(self) -> HarmonicTableUnitsOption:
-        """
-        Specifies the units for the Harmonics.
+        """Specifies the units for the Harmonics.
 
         Examples
         --------

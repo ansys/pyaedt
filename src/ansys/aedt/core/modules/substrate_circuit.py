@@ -33,8 +33,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 
 class SubstrateManager(PyAedtBase):
-    """
-    Manages substrate data blocks for a Circuit design.
+    """Manages substrate data blocks for a Circuit design.
 
     Provides methods to add, query, and delete substrate data blocks.
     Access this object via :attr:`ansys.aedt.core.Circuit.substrate`.
@@ -56,8 +55,7 @@ class SubstrateManager(PyAedtBase):
     """
 
     def __init__(self, app) -> None:
-        """
-        Initialize SubstrateManager.
+        """Initialize SubstrateManager.
 
         Parameters
         ----------
@@ -70,8 +68,7 @@ class SubstrateManager(PyAedtBase):
 
     @property
     def names(self) -> list[str]:
-        """
-        Return the names of all substrate data blocks in the active Circuit design.
+        """Return the names of all substrate data blocks in the active Circuit design.
 
         Returns
         -------
@@ -89,8 +86,7 @@ class SubstrateManager(PyAedtBase):
 
     @property
     def all(self) -> dict[str, "SubstrateDataBlock"]:
-        """
-        Get all substrates.
+        """Get all substrates.
 
         Returns
         -------
@@ -118,8 +114,7 @@ class SubstrateManager(PyAedtBase):
 
     @pyaedt_function_handler()
     def delete(self, name: str) -> bool:
-        """
-        Delete a substrate data block.
+        """Delete a substrate data block.
 
         Parameters
         ----------
@@ -164,8 +159,7 @@ class SubstrateManager(PyAedtBase):
         metal_thickness: str = "0.7mil",
         name: str | None = None,
     ) -> "SubstrateDataBlock":
-        """
-        Add a microstrip substrate data block to the circuit design.
+        """Add a microstrip substrate data block to the circuit design.
 
         Parameters
         ----------
@@ -221,8 +215,7 @@ class SubstrateManager(PyAedtBase):
         bottom_metal_thickness: str = "",
         name: str | None = None,
     ) -> "SubstrateDataBlock":
-        """
-        Add a stripline substrate data block to the circuit design.
+        """Add a stripline substrate data block to the circuit design.
 
         Parameters
         ----------
@@ -281,8 +274,7 @@ class SubstrateManager(PyAedtBase):
         metal_thickness: str = "0.7mil",
         name: str | None = None,
     ) -> "SubstrateDataBlock":
-        """
-        Add a suspended stripline substrate data block to the circuit design.
+        """Add a suspended stripline substrate data block to the circuit design.
 
         Parameters
         ----------
@@ -338,8 +330,7 @@ class SubstrateManager(PyAedtBase):
         metal_thickness: str = "0.7mil",
         name: str | None = None,
     ) -> "SubstrateDataBlock":
-        """
-        Add an offset stripline substrate data block to the circuit design.
+        """Add an offset stripline substrate data block to the circuit design.
 
         Parameters
         ----------
@@ -399,8 +390,7 @@ class SubstrateManager(PyAedtBase):
         cover_metal_thickness: str = "",
         name: str | None = None,
     ) -> "SubstrateDataBlock":
-        """
-        Add a coplanar waveguide (CPW) substrate data block to the circuit design.
+        """Add a coplanar waveguide (CPW) substrate data block to the circuit design.
 
         Parameters
         ----------
@@ -462,8 +452,7 @@ class SubstrateManager(PyAedtBase):
         metal_thickness: str = "0.7mil",
         name: str | None = None,
     ) -> "SubstrateDataBlock":
-        """
-        Add a grounded coplanar waveguide (GCPW) substrate data block to the circuit design.
+        """Add a grounded coplanar waveguide (GCPW) substrate data block to the circuit design.
 
         Parameters
         ----------
@@ -522,8 +511,7 @@ class SubstrateManager(PyAedtBase):
         metal_thickness: str = "0.7mil",
         name: str | None = None,
     ) -> "SubstrateDataBlock":
-        """
-        Add a slotline substrate data block to the circuit design.
+        """Add a slotline substrate data block to the circuit design.
 
         Parameters
         ----------
@@ -578,8 +566,7 @@ class SubstrateManager(PyAedtBase):
         metal_thickness: str = "0.7mil",
         name: str | None = None,
     ) -> "SubstrateDataBlock":
-        """
-        Add a rectangular waveguide substrate data block to the circuit design.
+        """Add a rectangular waveguide substrate data block to the circuit design.
 
         Parameters
         ----------
@@ -625,8 +612,7 @@ class SubstrateManager(PyAedtBase):
         metal_thickness: str = "0.7mil",
         name: str | None = None,
     ) -> "SubstrateDataBlock":
-        """
-        Add a substrate reference data block to the circuit design.
+        """Add a substrate reference data block to the circuit design.
 
         A substrate reference is a named substrate used as a reference by
         transmission-line models in the schematic.
@@ -675,8 +661,7 @@ class SubstrateManager(PyAedtBase):
 
 
 class SubstrateDataBlock(PyAedtBase):
-    """
-    Represents a substrate data block and provides the API to create it.
+    """Represents a substrate data block and provides the API to create it.
 
     Use the class-level factory methods (``microstrip``, ``stripline``, ...) to
     instantiate a correctly-configured object and immediately push it to AEDT.
@@ -786,8 +771,7 @@ class SubstrateDataBlock(PyAedtBase):
 
     @property
     def auto_update(self) -> bool:
-        """
-        Whether to push changes to AEDT immediately when a property is set.
+        """Whether to push changes to AEDT immediately when a property is set.
 
         Examples
         --------
@@ -804,8 +788,7 @@ class SubstrateDataBlock(PyAedtBase):
 
     @property
     def name(self) -> str:
-        """
-        Substrate name.
+        """Substrate name.
 
         Examples
         --------
@@ -833,8 +816,7 @@ class SubstrateDataBlock(PyAedtBase):
 
     @property
     def substrate_type(self):
-        """
-        Substrate type.
+        """Substrate type.
 
         Examples
         --------
@@ -853,8 +835,7 @@ class SubstrateDataBlock(PyAedtBase):
 
     @property
     def dielectric(self) -> list:
-        """
-        Dielectric parameters.
+        """Dielectric parameters.
 
         Examples
         --------
@@ -873,8 +854,7 @@ class SubstrateDataBlock(PyAedtBase):
 
     @property
     def metal_material(self) -> str:
-        """
-        Primary conductor material name.
+        """Primary conductor material name.
 
         Examples
         --------
@@ -893,8 +873,7 @@ class SubstrateDataBlock(PyAedtBase):
 
     @property
     def metal_thickness(self) -> str:
-        """
-        Primary conductor thickness.
+        """Primary conductor thickness.
 
         Examples
         --------
@@ -913,8 +892,7 @@ class SubstrateDataBlock(PyAedtBase):
 
     @property
     def bottom_metal_material(self) -> str:
-        """
-        Bottom conductor material name.
+        """Bottom conductor material name.
 
         Examples
         --------
@@ -933,8 +911,7 @@ class SubstrateDataBlock(PyAedtBase):
 
     @property
     def bottom_metal_thickness(self) -> str:
-        """
-        Bottom conductor thickness.
+        """Bottom conductor thickness.
 
         Examples
         --------
@@ -953,8 +930,7 @@ class SubstrateDataBlock(PyAedtBase):
 
     @property
     def cover_metal_material(self) -> str:
-        """
-        Cover conductor material name.
+        """Cover conductor material name.
 
         Examples
         --------
@@ -973,8 +949,7 @@ class SubstrateDataBlock(PyAedtBase):
 
     @property
     def cover_metal_thickness(self) -> str:
-        """
-        Cover conductor thickness.
+        """Cover conductor thickness.
 
         Examples
         --------
@@ -993,8 +968,7 @@ class SubstrateDataBlock(PyAedtBase):
 
     @property
     def roughness(self) -> str:
-        """
-        Conductor surface roughness.
+        """Conductor surface roughness.
 
         Examples
         --------
@@ -1013,8 +987,7 @@ class SubstrateDataBlock(PyAedtBase):
 
     @property
     def metal_specify_type(self) -> int:
-        """
-        Metal specification type flag.
+        """Metal specification type flag.
 
         Examples
         --------
@@ -1033,8 +1006,7 @@ class SubstrateDataBlock(PyAedtBase):
 
     @property
     def metal_temp_material(self) -> str:
-        """
-        Temporary metal material name.
+        """Temporary metal material name.
 
         Examples
         --------
@@ -1053,8 +1025,7 @@ class SubstrateDataBlock(PyAedtBase):
 
     @property
     def dielectric_temp_materials(self) -> list:
-        """
-        Temporary dielectric material names (list of 5).
+        """Temporary dielectric material names (list of 5).
 
         Examples
         --------
@@ -1084,8 +1055,7 @@ class SubstrateDataBlock(PyAedtBase):
         metal_thickness: str = "0.7mil",
         name: str | None = None,
     ) -> "SubstrateDataBlock":
-        """
-        Create and push a microstrip substrate to AEDT.
+        """Create and push a microstrip substrate to AEDT.
 
         Parameters
         ----------
@@ -1146,8 +1116,7 @@ class SubstrateDataBlock(PyAedtBase):
         bottom_metal_thickness: str = "",
         name: str | None = None,
     ) -> "SubstrateDataBlock":
-        """
-        Create and push a stripline substrate (Type 1) to AEDT.
+        """Create and push a stripline substrate (Type 1) to AEDT.
 
         Parameters
         ----------
@@ -1211,8 +1180,7 @@ class SubstrateDataBlock(PyAedtBase):
         metal_thickness: str = "0.7mil",
         name: str | None = None,
     ) -> "SubstrateDataBlock":
-        """
-        Create and push a suspended stripline substrate (Type 2) to AEDT.
+        """Create and push a suspended stripline substrate (Type 2) to AEDT.
 
         Parameters
         ----------
@@ -1273,8 +1241,7 @@ class SubstrateDataBlock(PyAedtBase):
         metal_thickness: str = "0.7mil",
         name: str | None = None,
     ) -> "SubstrateDataBlock":
-        """
-        Create and push an offset stripline substrate (Type 3) to AEDT.
+        """Create and push an offset stripline substrate (Type 3) to AEDT.
 
         Parameters
         ----------
@@ -1338,8 +1305,7 @@ class SubstrateDataBlock(PyAedtBase):
         cover_metal_thickness: str = "",
         name: str | None = None,
     ) -> "SubstrateDataBlock":
-        """
-        Create and push a coplanar waveguide (CPW) substrate (Type 4) to AEDT.
+        """Create and push a coplanar waveguide (CPW) substrate (Type 4) to AEDT.
 
         Parameters
         ----------
@@ -1406,8 +1372,7 @@ class SubstrateDataBlock(PyAedtBase):
         metal_thickness: str = "0.7mil",
         name: str | None = None,
     ) -> "SubstrateDataBlock":
-        """
-        Create and push a grounded coplanar waveguide (GCPW) substrate (Type 5) to AEDT.
+        """Create and push a grounded coplanar waveguide (GCPW) substrate (Type 5) to AEDT.
 
         Parameters
         ----------
@@ -1470,8 +1435,7 @@ class SubstrateDataBlock(PyAedtBase):
         metal_thickness: str = "0.7mil",
         name: str | None = None,
     ) -> "SubstrateDataBlock":
-        """
-        Create and push a slotline substrate (Type 6) to AEDT.
+        """Create and push a slotline substrate (Type 6) to AEDT.
 
         Parameters
         ----------
@@ -1530,8 +1494,7 @@ class SubstrateDataBlock(PyAedtBase):
         metal_thickness: str = "0.7mil",
         name: str | None = None,
     ) -> "SubstrateDataBlock":
-        """
-        Create and push a rectangular waveguide substrate (Type 9) to AEDT.
+        """Create and push a rectangular waveguide substrate (Type 9) to AEDT.
 
         Parameters
         ----------
@@ -1585,8 +1548,7 @@ class SubstrateDataBlock(PyAedtBase):
         metal_thickness: str = "0.7mil",
         name: str | None = None,
     ) -> "SubstrateDataBlock":
-        """
-        Create and push a substrate reference (Type 10) to AEDT.
+        """Create and push a substrate reference (Type 10) to AEDT.
 
         A substrate reference is a named substrate used as a reference by
         transmission-line models in the schematic.
@@ -1638,8 +1600,7 @@ class SubstrateDataBlock(PyAedtBase):
 
     @classmethod
     def from_dict(cls, app, data: dict) -> "SubstrateDataBlock":
-        """
-        Build `SubstrateDataBlock` from ``design_properties`` dict entry.
+        """Build `SubstrateDataBlock` from ``design_properties`` dict entry.
 
         Parameters
         ----------
@@ -1778,8 +1739,7 @@ class SubstrateDataBlock(PyAedtBase):
 
     @pyaedt_function_handler()
     def create(self) -> None:
-        """
-        Push the substrate data block to the active Circuit design.
+        """Push the substrate data block to the active Circuit design.
 
         Examples
         --------
@@ -1807,8 +1767,7 @@ class SubstrateDataBlock(PyAedtBase):
 
     @pyaedt_function_handler()
     def update(self) -> bool:
-        """
-        Push the current state of this substrate data block to AEDT.
+        """Push the current state of this substrate data block to AEDT.
 
         Use this method to apply changes after setting one or more properties
         with :attr:`auto_update` set to ``False``, or to force a refresh at

@@ -30,8 +30,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 
 class Results:
-    """
-    Provides the ``Results`` object.
+    """Provides the ``Results`` object.
 
     Parameters
     ----------
@@ -65,8 +64,7 @@ class Results:
 
     @pyaedt_function_handler()
     def _add_revision(self, name: str | None = None):
-        """
-        Add a new revision or get the current revision if it already exists.
+        """Add a new revision or get the current revision if it already exists.
 
         Parameters
         ----------
@@ -102,8 +100,7 @@ class Results:
 
     @pyaedt_function_handler()
     def delete_revision(self, revision_name: str):
-        """
-        Delete the specified revision from the results.
+        """Delete the specified revision from the results.
 
         Parameters
         ----------
@@ -144,8 +141,7 @@ class Results:
 
     @staticmethod
     def interaction_domain() -> "emit_core.emit_api_python().InteractionDomain":
-        """
-        Get an ``InteractionDomain`` object.
+        """Get an ``InteractionDomain`` object.
 
         Returns
         -------
@@ -165,8 +161,7 @@ class Results:
 
     @pyaedt_function_handler
     def _unload_revisions(self) -> None:
-        """
-        Convenience function to set all revisions as ``unloaded``
+        """Convenience function to set all revisions as ``unloaded``
 
         Parameters
         ----------
@@ -181,8 +176,7 @@ class Results:
 
     @pyaedt_function_handler()
     def revision_names(self) -> list[str]:
-        """
-        Return a list of all the revision names.
+        """Return a list of all the revision names.
 
         Parameters
         ----------
@@ -204,8 +198,7 @@ class Results:
 
     @pyaedt_function_handler
     def get_revision(self, revision_name: str = None) -> Revision:
-        """
-        Load the specified revision.
+        """Load the specified revision.
 
         Parameters
         ----------
@@ -258,8 +251,7 @@ class Results:
 
     @pyaedt_function_handler()
     def analyze(self) -> Revision:
-        """
-        Analyze the current revision or create a new revision if the design has changed.
+        """Analyze the current revision or create a new revision if the design has changed.
 
         Returns
         -------

@@ -58,8 +58,7 @@ EXTENSION_TITLE = "Import schematic to Circuit"
 
 @dataclass
 class ImportSchematicData(ExtensionCommonData):
-    """
-    Data class for import schematic extension.
+    """Data class for import schematic extension.
 
     Examples
     --------
@@ -73,8 +72,7 @@ class ImportSchematicData(ExtensionCommonData):
 
 
 class ImportSchematicExtension(ExtensionCircuitCommon):
-    """
-    Extension for importing schematic into Circuit.
+    """Extension for importing schematic into Circuit.
 
     Examples
     --------
@@ -95,8 +93,7 @@ class ImportSchematicExtension(ExtensionCircuitCommon):
         self.add_extension_content()
 
     def add_extension_content(self) -> None:
-        """
-        Add UI elements for file selection and import action.
+        """Add UI elements for file selection and import action.
 
         Examples
         --------
@@ -168,8 +165,7 @@ class ImportSchematicExtension(ExtensionCircuitCommon):
 
 
 def main(data: ImportSchematicData) -> bool:
-    """
-    Execute schematic import based on provided data.
+    """Execute schematic import based on provided data.
 
     Examples
     --------

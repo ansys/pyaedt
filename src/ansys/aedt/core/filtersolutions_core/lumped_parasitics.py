@@ -29,8 +29,7 @@ import ansys.aedt.core
 
 
 class LumpedParasitics:
-    """
-    Defines attributes of the lumped element parasitics.
+    """Defines attributes of the lumped element parasitics.
 
     This class allows you to define and modify the parasitic
     parameters of the lumped elements used in designed filter.
@@ -92,8 +91,7 @@ class LumpedParasitics:
 
     @property
     def capacitor_q(self) -> str:
-        """
-        Q factor value of non-ideal capacitors in the synthesized circuit.
+        """Q factor value of non-ideal capacitors in the synthesized circuit.
 
         The default is ``infinite``.
 
@@ -118,8 +116,7 @@ class LumpedParasitics:
 
     @property
     def capacitor_rs(self) -> str:
-        """
-        Series resistor value of non-ideal capacitors in the synthesized circuit.
+        """Series resistor value of non-ideal capacitors in the synthesized circuit.
 
         The default is ``0``.
 
@@ -144,8 +141,7 @@ class LumpedParasitics:
 
     @property
     def capacitor_rp(self) -> str:
-        """
-        Shunt resistor value of non-ideal capacitors in the synthesized circuit.
+        """Shunt resistor value of non-ideal capacitors in the synthesized circuit.
         The default is ``infinite``.
 
         Returns
@@ -169,8 +165,7 @@ class LumpedParasitics:
 
     @property
     def capacitor_ls(self) -> str:
-        """
-        Series inductance value of non-ideal capacitors in the synthesized circuit.
+        """Series inductance value of non-ideal capacitors in the synthesized circuit.
 
         The default is ``0``.
 
@@ -195,8 +190,7 @@ class LumpedParasitics:
 
     @property
     def inductor_q(self) -> str:
-        """
-        Q factor value of non-ideal inductors in the synthesized circuit.
+        """Q factor value of non-ideal inductors in the synthesized circuit.
         The default is ``infinite``.
 
         Returns
@@ -220,8 +214,7 @@ class LumpedParasitics:
 
     @property
     def inductor_rs(self) -> str:
-        """
-        Series resistor value of non-ideal inductors in the synthesized circuit.
+        """Series resistor value of non-ideal inductors in the synthesized circuit.
 
         The default is` ``0``.
 
@@ -246,8 +239,7 @@ class LumpedParasitics:
 
     @property
     def inductor_rp(self) -> str:
-        """
-        Shunt resistor value of non-ideal inductors in the synthesized circuit.
+        """Shunt resistor value of non-ideal inductors in the synthesized circuit.
 
         The default is ``infinite``.
 
@@ -272,8 +264,7 @@ class LumpedParasitics:
 
     @property
     def inductor_cp(self) -> str:
-        """
-        Shunt capacitor value of non-ideal inductors in the synthesized circuit.
+        """Shunt capacitor value of non-ideal inductors in the synthesized circuit.
 
         The default is ``0``.
 

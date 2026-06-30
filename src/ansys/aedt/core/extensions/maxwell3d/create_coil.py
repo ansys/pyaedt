@@ -259,8 +259,7 @@ class CoilExtension(ExtensionMaxwell3DCommon):
 
 
 def main(data: CoilExtensionData) -> bool:
-    """
-    Main function to create coils in AEDT.
+    """Main function to create coils in AEDT.
 
     Examples
     --------

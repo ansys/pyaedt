@@ -72,8 +72,7 @@ EXTENSION_TITLE = "Shielding Effectiveness"
 
 @dataclass
 class ShieldingEffectivenessExtensionData(ExtensionCommonData):
-    """
-    Data class containing user input and computed data.
+    """Data class containing user input and computed data.
 
     Examples
     --------
@@ -105,8 +104,7 @@ class ShieldingEffectivenessExtensionData(ExtensionCommonData):
 
 
 class ShieldingEffectivenessExtension(ExtensionHFSSCommon):
-    """
-    Extension for shielding effectiveness in AEDT.
+    """Extension for shielding effectiveness in AEDT.
 
     Examples
     --------
@@ -152,8 +150,7 @@ class ShieldingEffectivenessExtension(ExtensionHFSSCommon):
             raise AEDTRuntimeError("There should be only one object in the design.")
 
     def add_extension_content(self) -> None:
-        """
-        Add custom content to the extension UI.
+        """Add custom content to the extension UI.
 
         Examples
         --------
@@ -314,8 +311,7 @@ class ShieldingEffectivenessExtension(ExtensionHFSSCommon):
 
 
 def main(data: ShieldingEffectivenessExtensionData) -> bool:
-    """
-    Main function to run the shielding effectiveness extension.
+    """Main function to run the shielding effectiveness extension.
 
     Examples
     --------

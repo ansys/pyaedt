@@ -51,8 +51,7 @@ if TYPE_CHECKING:
 
 
 class CommonOptimetrics(PropsManager, PyAedtBase):
-    """
-    Creates and sets up optimizations.
+    """Creates and sets up optimizations.
 
     Parameters
     ----------
@@ -301,8 +300,7 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
 
     @pyaedt_function_handler()
     def update(self, update_dictionary: dict = None) -> bool:
-        """
-        Update the setup based on stored properties.
+        """Update the setup based on stored properties.
 
         Parameters
         ----------
@@ -343,8 +341,7 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
 
     @pyaedt_function_handler()
     def create(self) -> bool:
-        """
-        Create a setup.
+        """Create a setup.
 
         Returns
         -------
@@ -379,8 +376,7 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
         polyline_points: int = 1001,
         report_type: str = None,
     ) -> bool:
-        """
-        Add a calculation to the setup.
+        """Add a calculation to the setup.
 
         Parameters
         ----------
@@ -542,8 +538,7 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
         revert_to_initial_mesh: bool = False,
         blocking: bool = True,
     ) -> bool:
-        """
-        Solve the active design.
+        """Solve the active design.
 
         Parameters
         ----------
@@ -604,8 +599,7 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
 
 
 class SetupOpti(CommonOptimetrics, PyAedtBase):
-    """
-    Sets up an optimization in Opimetrics.
+    """Sets up an optimization in Opimetrics.
 
     Examples
     --------
@@ -619,8 +613,7 @@ class SetupOpti(CommonOptimetrics, PyAedtBase):
 
     @pyaedt_function_handler()
     def delete(self) -> bool:
-        """
-        Delete a defined Optimetrics Setup.
+        """Delete a defined Optimetrics Setup.
 
         Parameters
         ----------
@@ -658,8 +651,7 @@ class SetupOpti(CommonOptimetrics, PyAedtBase):
         goal_value: int = 1,
         goal_weight: int = 1,
     ) -> bool:
-        """
-        Add a goal to the setup.
+        """Add a goal to the setup.
 
         Parameters
         ----------
@@ -732,8 +724,7 @@ class SetupOpti(CommonOptimetrics, PyAedtBase):
         use_manufacturable: bool = False,
         levels: list = None,
     ) -> bool:
-        """
-        Add a new variable as input for the optimization and defines its ranges.
+        """Add a new variable as input for the optimization and defines its ranges.
 
         Parameters
         ----------
@@ -860,8 +851,7 @@ class SetupOpti(CommonOptimetrics, PyAedtBase):
 
 
 class SetupParam(CommonOptimetrics, PyAedtBase):
-    """
-    Sets up a parametric analysis in Optimetrics.
+    """Sets up a parametric analysis in Optimetrics.
 
     Examples
     --------
@@ -876,8 +866,7 @@ class SetupParam(CommonOptimetrics, PyAedtBase):
 
     @pyaedt_function_handler()
     def delete(self) -> bool:
-        """
-        Delete a defined Optimetrics Setup.
+        """Delete a defined Optimetrics Setup.
 
         Returns
         -------
@@ -905,8 +894,7 @@ class SetupParam(CommonOptimetrics, PyAedtBase):
         units: str = None,
         variation_type: str = "LinearCount",
     ) -> bool:
-        """
-        Add a variation to an existing parametric setup.
+        """Add a variation to an existing parametric setup.
 
         Parameters
         ----------
@@ -990,8 +978,7 @@ class SetupParam(CommonOptimetrics, PyAedtBase):
 
     @pyaedt_function_handler()
     def sync_variables(self, variables: list, sync_n: int = 1) -> bool:
-        """
-        Sync variable variations in an existing parametric setup.
+        """Sync variable variations in an existing parametric setup.
         Setting the sync number to `0` will effectively unsync the variables.
 
         Parameters
@@ -1075,8 +1062,7 @@ class SetupParam(CommonOptimetrics, PyAedtBase):
 
 
 class ParametricSetups(PyAedtBase):
-    """
-    Sets up Parametrics analyses. It includes Parametrics, Sensitivity and Statistical Analysis.
+    """Sets up Parametrics analyses. It includes Parametrics, Sensitivity and Statistical Analysis.
 
     Examples
     --------
@@ -1102,8 +1088,7 @@ class ParametricSetups(PyAedtBase):
 
     @property
     def design_setups(self):
-        """
-        All design setups ordered by name.
+        """All design setups ordered by name.
 
         Returns
         -------
@@ -1120,8 +1105,7 @@ class ParametricSetups(PyAedtBase):
 
     @property
     def p_app(self):
-        """
-        Parent.
+        """Parent.
 
         Examples
         --------
@@ -1134,8 +1118,7 @@ class ParametricSetups(PyAedtBase):
 
     @property
     def optimodule(self):
-        """
-        Optimetrics module.
+        """Optimetrics module.
 
         Returns
         -------
@@ -1161,8 +1144,7 @@ class ParametricSetups(PyAedtBase):
         solution: str = None,
         name: str = None,
     ) -> SetupParam | bool:
-        """
-        Add a basic sensitivity analysis.
+        """Add a basic sensitivity analysis.
         You can customize all options after the analysis is added.
 
         Parameters
@@ -1228,8 +1210,7 @@ class ParametricSetups(PyAedtBase):
 
     @pyaedt_function_handler()
     def delete(self, name: str) -> bool:
-        """
-        Delete a defined Parametric Setup.
+        """Delete a defined Parametric Setup.
 
         Parameters
         ----------
@@ -1319,8 +1300,7 @@ class ParametricSetups(PyAedtBase):
 
 
 class OptimizationSetups(PyAedtBase):
-    """
-    Sets up optimizations. It includes Optimization, DOE and DesignXplorer Analysis.
+    """Sets up optimizations. It includes Optimization, DOE and DesignXplorer Analysis.
 
     Examples
     --------
@@ -1354,8 +1334,7 @@ class OptimizationSetups(PyAedtBase):
 
     @property
     def p_app(self):
-        """
-        Parent.
+        """Parent.
 
         Examples
         --------
@@ -1368,8 +1347,7 @@ class OptimizationSetups(PyAedtBase):
 
     @property
     def design_setups(self) -> dict["Setup"]:
-        """
-        All design setups ordered by name.
+        """All design setups ordered by name.
 
         Returns
         -------
@@ -1386,8 +1364,7 @@ class OptimizationSetups(PyAedtBase):
 
     @property
     def optimodule(self):
-        """
-        Optimetrics module.
+        """Optimetrics module.
 
         Returns
         -------
@@ -1404,8 +1381,7 @@ class OptimizationSetups(PyAedtBase):
 
     @pyaedt_function_handler()
     def delete(self, name: str) -> bool:
-        """
-        Delete a defined Optimetrics Setup.
+        """Delete a defined Optimetrics Setup.
 
         Parameters
         ----------
@@ -1447,8 +1423,7 @@ class OptimizationSetups(PyAedtBase):
         polyline_points: int = 1001,
         report_type: str = None,
     ) -> SetupOpti | bool:
-        """
-        Add a basic optimization analysis.
+        """Add a basic optimization analysis.
         You can customize all options after the analysis is added.
 
         Parameters

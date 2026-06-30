@@ -22,8 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-The module provides methods and data structures for managing all properties of
+"""The module provides methods and data structures for managing all properties of
 objects (points, lines, sheeets, and solids) within the AEDT 3D Layout Modeler.
 """
 
@@ -41,8 +40,7 @@ from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 
 class Object3DLayout(PyAedtBase):
-    """
-    Manages properties of objects in HFSS 3D Layout.
+    """Manages properties of objects in HFSS 3D Layout.
 
     Parameters
     ----------
@@ -65,8 +63,7 @@ class Object3DLayout(PyAedtBase):
 
     @property
     def object_units(self) -> str:
-        """
-        Object units.
+        """Object units.
 
         Returns
         -------
@@ -83,8 +80,7 @@ class Object3DLayout(PyAedtBase):
 
     @pyaedt_function_handler()
     def change_property(self, value: list, names: list = None) -> bool:
-        """
-        Modify a property.
+        """Modify a property.
 
         Parameters
         ----------
@@ -125,8 +121,7 @@ class Object3DLayout(PyAedtBase):
 
     @pyaedt_function_handler()
     def set_property_value(self, name: str, value: str) -> bool:
-        """
-        Set a property value.
+        """Set a property value.
 
         Parameters
         ----------
@@ -160,8 +155,7 @@ class Object3DLayout(PyAedtBase):
 
     @property
     def angle(self) -> str | None:
-        """
-        Get/Set the circle radius.
+        """Get/Set the circle radius.
 
         Returns
         -------
@@ -190,8 +184,7 @@ class Object3DLayout(PyAedtBase):
 
     @property
     def absolute_angle(self) -> float:
-        """
-        Get the absolute angle location for 2 pins components.
+        """Get the absolute angle location for 2 pins components.
 
         Returns
         -------
@@ -232,8 +225,7 @@ class Object3DLayout(PyAedtBase):
 
     @property
     def net_name(self) -> str:
-        """
-        Get/Set the net name.
+        """Get/Set the net name.
 
         Returns
         -------
@@ -262,8 +254,7 @@ class Object3DLayout(PyAedtBase):
 
     @property
     def placement_layer(self) -> str:
-        """
-        Get/Set the placement layer of the object.
+        """Get/Set the placement layer of the object.
 
         Returns
         -------
@@ -292,8 +283,7 @@ class Object3DLayout(PyAedtBase):
 
     @property
     def bounding_box(self) -> list[float]:
-        """
-        Get component bounding box.
+        """Get component bounding box.
 
         Returns
         -------
@@ -326,8 +316,7 @@ class Object3DLayout(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_clearance_on_component(self, extra_soldermask_clearance: float = 5e-3) -> bool:
-        """
-        Create a Clearance on Soldermask layer by drawing a rectangle.
+        """Create a Clearance on Soldermask layer by drawing a rectangle.
 
         Parameters
         ----------
@@ -379,8 +368,7 @@ class Object3DLayout(PyAedtBase):
 
     @property
     def location(self) -> list[float] | None:
-        """
-        Retrieve/Set the absolute location in model units.
+        """Retrieve/Set the absolute location in model units.
 
         Location is computed with combination of 3d Layout location and model center.
 
@@ -471,8 +459,7 @@ class Object3DLayout(PyAedtBase):
 
     @property
     def lock_position(self) -> bool:
-        """
-        Get/Set the lock position.
+        """Get/Set the lock position.
 
         Parameters
         ----------
@@ -561,8 +548,7 @@ class ModelInfoRlc(PyAedtBase):
 
 
 class Components3DLayout(Object3DLayout, PyAedtBase):
-    """
-    Contains components in HFSS 3D Layout.
+    """Contains components in HFSS 3D Layout.
 
     Examples
     --------
@@ -610,8 +596,7 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
 
     @property
     def part(self) -> str:
-        """
-        Retrieve the component part.
+        """Retrieve the component part.
 
         Returns
         -------
@@ -633,8 +618,7 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
 
     @property
     def part_type(self) -> str:
-        """
-        Retrieve the component part type.
+        """Retrieve the component part type.
 
         Returns
         -------
@@ -662,8 +646,7 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
 
     @property
     def enabled(self) -> bool:
-        """
-        Enable or Disable the RLC Component.
+        """Enable or Disable the RLC Component.
 
         Parameters
         ----------
@@ -698,8 +681,7 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
 
     @property
     def die_properties(self) -> tuple[int, int, str, int] | None:
-        """
-        Get die properties from component.
+        """Get die properties from component.
 
         Returns
         -------
@@ -723,8 +705,7 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
 
     @property
     def port_properties(self) -> tuple[str, bool, str, str] | None:
-        """
-        Get port properties from component.
+        """Get port properties from component.
 
         Returns
         -------
@@ -787,8 +768,7 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
 
     @property
     def solderball_enabled(self) -> bool:
-        """
-        Check if solderball is enabled.
+        """Check if solderball is enabled.
 
         Returns
         -------
@@ -811,8 +791,7 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
 
     @property
     def die_enabled(self) -> bool:
-        """
-        Check if the die is enabled. This method is valid for integrated circuits only.
+        """Check if the die is enabled. This method is valid for integrated circuits only.
 
         Returns
         -------
@@ -835,8 +814,7 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
 
     @property
     def die_type(self):
-        """
-        Die type.
+        """Die type.
 
         Returns
         -------
@@ -869,8 +847,7 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
         reference_x: str = "0.1mm",
         reference_y: str = "0.1mm",
     ) -> bool:
-        """
-        Set the die type.
+        """Set the die type.
 
         Parameters
         ----------
@@ -948,8 +925,7 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
         material: str | None = "solder",
         reference_offset: str | None = None,
     ) -> bool:
-        """
-        Set solderball on the active component.
+        """Set solderball on the active component.
 
         The method applies to these component types: ``Other``, ``IC`` and ``IO``.
 
@@ -1060,8 +1036,7 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
 
     @property
     def pins(self) -> dict:
-        """
-        Component pins.
+        """Component pins.
 
         Returns
         -------
@@ -1082,8 +1057,7 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
 
     @property
     def model(self) -> "ModelInfoRlc":
-        """
-        RLC model if available.
+        """RLC model if available.
 
         Returns
         -------
@@ -1101,8 +1075,7 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
 
 
 class Nets3DLayout(PyAedtBase):
-    """
-    Contains Nets in HFSS 3D Layout.
+    """Contains Nets in HFSS 3D Layout.
 
     Examples
     --------
@@ -1119,8 +1092,7 @@ class Nets3DLayout(PyAedtBase):
 
     @property
     def components(self) -> "Components3DLayout":
-        """
-        Components that belongs to the Nets.
+        """Components that belongs to the Nets.
 
         Returns
         -------
@@ -1140,8 +1112,7 @@ class Nets3DLayout(PyAedtBase):
 
     @property
     def geometry_names(self) -> list:
-        """
-        List of geometry names.
+        """List of geometry names.
 
         Returns
         -------
@@ -1171,8 +1142,7 @@ class Nets3DLayout(PyAedtBase):
         plot_components_on_bottom: bool = False,
         show: bool = True,
     ):
-        """
-        Plot a Net to Matplotlib 2D Chart.
+        """Plot a Net to Matplotlib 2D Chart.
 
         Parameters
         ----------
@@ -1221,8 +1191,7 @@ class Nets3DLayout(PyAedtBase):
 
 
 class Pins3DLayout(Object3DLayout, PyAedtBase):
-    """
-    Contains the pins in HFSS 3D Layout.
+    """Contains the pins in HFSS 3D Layout.
 
     Examples
     --------
@@ -1239,8 +1208,7 @@ class Pins3DLayout(Object3DLayout, PyAedtBase):
 
     @property
     def start_layer(self):
-        """
-        Retrieve the starting layer of the pin.
+        """Retrieve the starting layer of the pin.
 
         Returns
         -------
@@ -1262,8 +1230,7 @@ class Pins3DLayout(Object3DLayout, PyAedtBase):
 
     @property
     def stop_layer(self):
-        """
-        Retrieve the starting layer of the pin.
+        """Retrieve the starting layer of the pin.
 
         Returns
         -------
@@ -1285,8 +1252,7 @@ class Pins3DLayout(Object3DLayout, PyAedtBase):
 
     @property
     def holediam(self):
-        """
-        Retrieve the hole diameter of the pin.
+        """Retrieve the hole diameter of the pin.
 
         Returns
         -------
@@ -1308,8 +1274,7 @@ class Pins3DLayout(Object3DLayout, PyAedtBase):
 
 
 class Geometries3DLayout(Object3DLayout, PyAedtBase):
-    """
-    Contains geometries in HFSS 3D Layout.
+    """Contains geometries in HFSS 3D Layout.
 
     Examples
     --------
@@ -1325,8 +1290,7 @@ class Geometries3DLayout(Object3DLayout, PyAedtBase):
 
     @property
     def obounding_box(self):
-        """
-        Bounding box of a specified object.
+        """Bounding box of a specified object.
 
         Returns
         -------
@@ -1348,8 +1312,7 @@ class Geometries3DLayout(Object3DLayout, PyAedtBase):
 
     @property
     def name(self):
-        """
-        Name of Primitive.
+        """Name of Primitive.
 
         Examples
         --------
@@ -1373,8 +1336,7 @@ class Geometries3DLayout(Object3DLayout, PyAedtBase):
 
     @property
     def is_closed(self) -> bool:
-        """
-        Either if the Geometry is closed or not.
+        """Either if the Geometry is closed or not.
 
         Returns
         -------
@@ -1391,8 +1353,7 @@ class Geometries3DLayout(Object3DLayout, PyAedtBase):
 
     @property
     def points(self):
-        """
-        Provide the polygon points. For Lines it returns the center line.
+        """Provide the polygon points. For Lines it returns the center line.
 
         Returns
         -------
@@ -1415,8 +1376,7 @@ class Geometries3DLayout(Object3DLayout, PyAedtBase):
 
     @property
     def edges(self):
-        """
-        Edges list.
+        """Edges list.
 
         Returns
         -------
@@ -1464,8 +1424,7 @@ class Geometries3DLayout(Object3DLayout, PyAedtBase):
 
     @pyaedt_function_handler()
     def edge_by_point(self, point: list[float | int]):
-        """
-        Return the index of the closest edge to the specified point.
+        """Return the index of the closest edge to the specified point.
 
         Parameters
         ----------
@@ -1496,8 +1455,7 @@ class Geometries3DLayout(Object3DLayout, PyAedtBase):
 
     @property
     def bottom_edge_x(self):
-        """
-        Compute the lower edge in the layout on x direction.
+        """Compute the lower edge in the layout on x direction.
 
         Returns
         -------
@@ -1516,8 +1474,7 @@ class Geometries3DLayout(Object3DLayout, PyAedtBase):
 
     @property
     def top_edge_x(self):
-        """
-        Compute the upper edge in the layout on x direction.
+        """Compute the upper edge in the layout on x direction.
 
         Returns
         -------
@@ -1536,8 +1493,7 @@ class Geometries3DLayout(Object3DLayout, PyAedtBase):
 
     @property
     def bottom_edge_y(self):
-        """
-        Compute the lower edge in the layout on y direction.
+        """Compute the lower edge in the layout on y direction.
 
         Returns
         -------
@@ -1556,8 +1512,7 @@ class Geometries3DLayout(Object3DLayout, PyAedtBase):
 
     @property
     def top_edge_y(self):
-        """
-        Compute the upper edge in the layout on y direction.
+        """Compute the upper edge in the layout on y direction.
 
         Returns
         -------
@@ -1576,8 +1531,7 @@ class Geometries3DLayout(Object3DLayout, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_property_value(self, name: str):
-        """
-        Retrieve a property value.
+        """Retrieve a property value.
 
         Parameters
         ----------
@@ -1604,8 +1558,7 @@ class Geometries3DLayout(Object3DLayout, PyAedtBase):
 
     @property
     def negative(self):
-        """
-        Get/Set the negative.
+        """Get/Set the negative.
 
         Parameters
         ----------
@@ -1641,8 +1594,7 @@ class Geometries3DLayout(Object3DLayout, PyAedtBase):
 
     @property
     def net_name(self):
-        """
-        Get/Set the net name.
+        """Get/Set the net name.
 
         Returns
         -------
@@ -1673,8 +1625,7 @@ class Geometries3DLayout(Object3DLayout, PyAedtBase):
 
 
 class Polygons3DLayout(Geometries3DLayout, PyAedtBase):
-    """
-    Manages Hfss 3D Layout polygons.
+    """Manages Hfss 3D Layout polygons.
 
     Examples
     --------
@@ -1689,8 +1640,7 @@ class Polygons3DLayout(Geometries3DLayout, PyAedtBase):
 
     @property
     def is_closed(self):
-        """
-        Either if the Geometry is closed or not.
+        """Either if the Geometry is closed or not.
 
         Returns
         -------
@@ -1708,8 +1658,7 @@ class Polygons3DLayout(Geometries3DLayout, PyAedtBase):
 
     @property
     def polygon_voids(self):
-        """
-        All Polygon Voids.
+        """All Polygon Voids.
 
         Returns
         -------
@@ -1731,8 +1680,7 @@ class Polygons3DLayout(Geometries3DLayout, PyAedtBase):
 
 
 class Circle3dLayout(Geometries3DLayout, PyAedtBase):
-    """
-    Manages Hfss 3D Layout circles.
+    """Manages Hfss 3D Layout circles.
 
     Examples
     --------
@@ -1746,8 +1694,7 @@ class Circle3dLayout(Geometries3DLayout, PyAedtBase):
 
     @property
     def center(self):
-        """
-        Get/Set the circle center.
+        """Get/Set the circle center.
 
         Returns
         -------
@@ -1776,8 +1723,7 @@ class Circle3dLayout(Geometries3DLayout, PyAedtBase):
 
     @property
     def radius(self):
-        """
-        Get/Set the circle radius.
+        """Get/Set the circle radius.
 
         Returns
         -------
@@ -1804,8 +1750,7 @@ class Circle3dLayout(Geometries3DLayout, PyAedtBase):
 
 
 class Rect3dLayout(Geometries3DLayout, PyAedtBase):
-    """
-    Manages Hfss 3D Layout rectangles.
+    """Manages Hfss 3D Layout rectangles.
 
     Examples
     --------
@@ -1819,8 +1764,7 @@ class Rect3dLayout(Geometries3DLayout, PyAedtBase):
 
     @property
     def corner_radius(self):
-        """
-        Get/Set the circle radius.
+        """Get/Set the circle radius.
 
         Returns
         -------
@@ -1847,8 +1791,7 @@ class Rect3dLayout(Geometries3DLayout, PyAedtBase):
 
     @property
     def two_point_description(self):
-        """
-        Get/Set the circle radius.
+        """Get/Set the circle radius.
 
         Returns
         -------
@@ -1879,8 +1822,7 @@ class Rect3dLayout(Geometries3DLayout, PyAedtBase):
 
     @property
     def center(self):
-        """
-        Get/Set the rectangle center.
+        """Get/Set the rectangle center.
 
         Returns
         -------
@@ -1911,8 +1853,7 @@ class Rect3dLayout(Geometries3DLayout, PyAedtBase):
 
     @property
     def width(self):
-        """
-        Get/Set the circle radius.
+        """Get/Set the circle radius.
 
         Returns
         -------
@@ -1941,8 +1882,7 @@ class Rect3dLayout(Geometries3DLayout, PyAedtBase):
 
     @property
     def height(self):
-        """
-        Get/Set the circle radius.
+        """Get/Set the circle radius.
 
         Returns
         -------
@@ -1971,8 +1911,7 @@ class Rect3dLayout(Geometries3DLayout, PyAedtBase):
 
     @property
     def point_a(self):
-        """
-        Get/Set the Point A value if 2Point Description is enabled.
+        """Get/Set the Point A value if 2Point Description is enabled.
 
         Returns
         -------
@@ -2003,8 +1942,7 @@ class Rect3dLayout(Geometries3DLayout, PyAedtBase):
 
     @property
     def point_b(self):
-        """
-        Get/Set the Point A value if 2Point Description is enabled.
+        """Get/Set the Point A value if 2Point Description is enabled.
 
         Returns
         -------
@@ -2035,8 +1973,7 @@ class Rect3dLayout(Geometries3DLayout, PyAedtBase):
 
 
 class Line3dLayout(Geometries3DLayout, PyAedtBase):
-    """
-    Manages Hfss 3D Layout lines.
+    """Manages Hfss 3D Layout lines.
 
     Examples
     --------
@@ -2052,8 +1989,7 @@ class Line3dLayout(Geometries3DLayout, PyAedtBase):
 
     @property
     def bend_type(self):
-        """
-        Get/Set the line bend type.
+        """Get/Set the line bend type.
 
         Returns
         -------
@@ -2080,8 +2016,7 @@ class Line3dLayout(Geometries3DLayout, PyAedtBase):
 
     @property
     def start_cap_type(self):
-        """
-        Get/Set the line start type.
+        """Get/Set the line start type.
 
         Returns
         -------
@@ -2108,8 +2043,7 @@ class Line3dLayout(Geometries3DLayout, PyAedtBase):
 
     @property
     def end_cap_type(self):
-        """
-        Get/Set the line end type.
+        """Get/Set the line end type.
 
         Returns
         -------
@@ -2136,8 +2070,7 @@ class Line3dLayout(Geometries3DLayout, PyAedtBase):
 
     @property
     def width(self):
-        """
-        Get/Set the line width.
+        """Get/Set the line width.
 
         Returns
         -------
@@ -2164,8 +2097,7 @@ class Line3dLayout(Geometries3DLayout, PyAedtBase):
 
     @property
     def length(self):
-        """
-        Get the line length.
+        """Get the line length.
 
         Returns
         -------
@@ -2187,8 +2119,7 @@ class Line3dLayout(Geometries3DLayout, PyAedtBase):
 
     @property
     def center_line(self):
-        """
-        Get the center line points and arc height.
+        """Get the center line points and arc height.
 
         Returns
         -------
@@ -2235,8 +2166,7 @@ class Line3dLayout(Geometries3DLayout, PyAedtBase):
 
     @pyaedt_function_handler()
     def add(self, point, position: int = 0):
-        """
-        Add a new point to the center line.
+        """Add a new point to the center line.
 
         Parameters
         ----------
@@ -2270,8 +2200,7 @@ class Line3dLayout(Geometries3DLayout, PyAedtBase):
 
     @pyaedt_function_handler()
     def remove(self, point):
-        """
-        Remove one or more points from the center line.
+        """Remove one or more points from the center line.
 
         Parameters
         ----------
@@ -2338,8 +2267,7 @@ class Line3dLayout(Geometries3DLayout, PyAedtBase):
 
 
 class Points3dLayout(PyAedtBase):
-    """
-    Manages HFSS 3D Layout points.
+    """Manages HFSS 3D Layout points.
 
     Examples
     --------
@@ -2354,8 +2282,7 @@ class Points3dLayout(PyAedtBase):
 
     @property
     def is_arc(self):
-        """
-        Either if the Point is an arc or not.
+        """Either if the Point is an arc or not.
 
         Returns
         -------
@@ -2372,8 +2299,7 @@ class Points3dLayout(PyAedtBase):
 
     @property
     def position(self):
-        """
-        Points x and y coordinate.
+        """Points x and y coordinate.
 
         Returns
         -------
@@ -2393,8 +2319,7 @@ class Points3dLayout(PyAedtBase):
 
     @pyaedt_function_handler()
     def move(self, location) -> bool:
-        """
-        Move actual point to new location.
+        """Move actual point to new location.
 
         Parameters
         ----------
@@ -2418,8 +2343,7 @@ class Points3dLayout(PyAedtBase):
 
 
 class ComponentsSubCircuit3DLayout(Object3DLayout, PyAedtBase):
-    """
-    Contains 3d Components in HFSS 3D Layout.
+    """Contains 3d Components in HFSS 3D Layout.
 
     Parameters
     ----------
@@ -2441,8 +2365,7 @@ class ComponentsSubCircuit3DLayout(Object3DLayout, PyAedtBase):
 
     @property
     def component_info(self):
-        """
-        Retrieve all component info.
+        """Retrieve all component info.
 
         Examples
         --------
@@ -2455,8 +2378,7 @@ class ComponentsSubCircuit3DLayout(Object3DLayout, PyAedtBase):
 
     @property
     def component_name(self):
-        """
-        Retrieve the component name.
+        """Retrieve the component name.
 
         Examples
         --------
@@ -2472,8 +2394,7 @@ class ComponentsSubCircuit3DLayout(Object3DLayout, PyAedtBase):
 
     @property
     def angle(self):
-        """
-        Retrieve/Set the component angle.
+        """Retrieve/Set the component angle.
 
         Returns
         -------
@@ -2513,8 +2434,7 @@ class ComponentsSubCircuit3DLayout(Object3DLayout, PyAedtBase):
 
     @property
     def is_3d_placement(self) -> bool:
-        """
-        Retrieve if the component has 3d placement.
+        """Retrieve if the component has 3d placement.
 
         Examples
         --------
@@ -2535,8 +2455,7 @@ class ComponentsSubCircuit3DLayout(Object3DLayout, PyAedtBase):
 
     @property
     def is_flipped(self) -> bool:
-        """
-        Retrieve if the component is flipped or not.
+        """Retrieve if the component is flipped or not.
 
         Examples
         --------
@@ -2557,8 +2476,7 @@ class ComponentsSubCircuit3DLayout(Object3DLayout, PyAedtBase):
 
     @property
     def rotation_axis(self):
-        """
-        Rotation axis around which the component is rotated.
+        """Rotation axis around which the component is rotated.
 
         Examples
         --------
@@ -2579,8 +2497,7 @@ class ComponentsSubCircuit3DLayout(Object3DLayout, PyAedtBase):
 
     @property
     def rotation_axis_direction(self):
-        """
-        Axis direction of the rotation.
+        """Axis direction of the rotation.
 
         Examples
         --------
@@ -2606,8 +2523,7 @@ class ComponentsSubCircuit3DLayout(Object3DLayout, PyAedtBase):
 
     @property
     def local_origin(self):
-        """
-        Retrieve if the component has 3d placement, the local origin.
+        """Retrieve if the component has 3d placement, the local origin.
 
         Returns
         -------
@@ -2634,8 +2550,7 @@ class ComponentsSubCircuit3DLayout(Object3DLayout, PyAedtBase):
 
     @property
     def location(self):
-        """
-        Retrieve/Set the absolute location in model units.
+        """Retrieve/Set the absolute location in model units.
         Location is computed with combination of 3d Layout location and model center.
 
         Returns
@@ -2682,8 +2597,7 @@ class ComponentsSubCircuit3DLayout(Object3DLayout, PyAedtBase):
 
 
 class Padstack(PyAedtBase):
-    """
-    Manages properties of a padstack.
+    """Manages properties of a padstack.
 
     Parameters
     ----------
@@ -2719,8 +2633,7 @@ class Padstack(PyAedtBase):
         self.layerid = 1
 
     class PDSHole(PyAedtBase):
-        """
-        Manages properties of a padstack hole.
+        """Manages properties of a padstack hole.
 
         Parameters
         ----------
@@ -2802,8 +2715,7 @@ class Padstack(PyAedtBase):
 
     @property
     def pads_args(self):
-        """
-        Pad properties.
+        """Pad properties.
 
         Examples
         --------
@@ -2931,8 +2843,7 @@ class Padstack(PyAedtBase):
         conndir: int = 0,
         layer_id=None,
     ) -> bool:
-        """
-        Create a layer in the padstack.
+        """Create a layer in the padstack.
 
         Parameters
         ----------
@@ -2983,8 +2894,7 @@ class Padstack(PyAedtBase):
 
     @pyaedt_function_handler()
     def add_hole(self, hole_type: str = "Cir", sizes=None, x: int = 0, y: int = 0, rotation: int = 0):
-        """
-        Add a hole.
+        """Add a hole.
 
         Parameters
         ----------
@@ -3039,8 +2949,7 @@ class Padstack(PyAedtBase):
 
     @pyaedt_function_handler()
     def create(self) -> bool:
-        """
-        Create a padstack in AEDT.
+        """Create a padstack in AEDT.
 
         Returns
         -------
@@ -3063,8 +2972,7 @@ class Padstack(PyAedtBase):
 
     @pyaedt_function_handler()
     def update(self) -> None:
-        """
-        Update the padstack in AEDT.
+        """Update the padstack in AEDT.
 
         Returns
         -------
@@ -3086,8 +2994,7 @@ class Padstack(PyAedtBase):
 
     @pyaedt_function_handler()
     def remove(self) -> None:
-        """
-        Remove the padstack in AEDT.
+        """Remove the padstack in AEDT.
 
         Returns
         -------
@@ -3109,8 +3016,7 @@ class Padstack(PyAedtBase):
 
 
 class CoordinateSystems3DLayout(PyAedtBase):
-    """
-    Coordinate systems in HFSS 3D Layout.
+    """Coordinate systems in HFSS 3D Layout.
 
     Examples
     --------
@@ -3139,8 +3045,7 @@ class CoordinateSystems3DLayout(PyAedtBase):
 
     @property
     def valid_properties(self):
-        """
-        Valid properties.
+        """Valid properties.
 
         References
         ----------
@@ -3160,8 +3065,7 @@ class CoordinateSystems3DLayout(PyAedtBase):
 
     @property
     def name(self):
-        """
-        Name of the coordinate system as a string value.
+        """Name of the coordinate system as a string value.
 
         Returns
         -------
@@ -3200,8 +3104,7 @@ class CoordinateSystems3DLayout(PyAedtBase):
 
     @property
     def origin(self):
-        """
-        Location of the coordinate system.
+        """Location of the coordinate system.
 
         Returns
         -------
@@ -3235,8 +3138,7 @@ class CoordinateSystems3DLayout(PyAedtBase):
 
     @pyaedt_function_handler()
     def create(self) -> bool:
-        """
-        Create coordinate systems in HFSS 3D Layout.
+        """Create coordinate systems in HFSS 3D Layout.
 
         Returns
         -------
@@ -3277,8 +3179,7 @@ class CoordinateSystems3DLayout(PyAedtBase):
 
     @pyaedt_function_handler()
     def get_property_value(self, property_name: str):
-        """
-        Retrieve a property value.
+        """Retrieve a property value.
 
         Parameters
         ----------
@@ -3308,8 +3209,7 @@ class CoordinateSystems3DLayout(PyAedtBase):
 
     @pyaedt_function_handler()
     def change_property(self, value: list) -> bool:
-        """
-        Modify a property.
+        """Modify a property.
 
         Parameters
         ----------
@@ -3342,8 +3242,7 @@ class CoordinateSystems3DLayout(PyAedtBase):
 
     @pyaedt_function_handler()
     def delete(self) -> bool:
-        """
-        Delete the coordinate system.
+        """Delete the coordinate system.
 
         Returns
         -------

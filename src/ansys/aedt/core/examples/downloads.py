@@ -49,8 +49,7 @@ EXAMPLES_PATH = Path(tempfile.gettempdir()) / "PyAEDTExamples"
 
 
 def delete_downloads() -> None:
-    """
-    Delete all downloaded examples to free space or update the files.
+    """Delete all downloaded examples to free space or update the files.
 
     Examples
     --------
@@ -68,8 +67,7 @@ def _download_file(
     strip_prefix: str | Path = None,
     force: bool = False,
 ) -> Path:
-    """
-    Download a file from a URL.
+    """Download a file from a URL.
 
     Parameters
     ----------
@@ -149,8 +147,7 @@ def _copy_local_example(
 
 
 def list_examples_files(folder) -> list:
-    """
-    List all files in a folder of the example-data repository.
+    """List all files in a folder of the example-data repository.
 
     Parameters
     ----------
@@ -193,8 +190,7 @@ def _download_folder(
     strip_prefix: str | Path = None,
     force: bool = False,
 ) -> Path:
-    """
-    Download a folder from the example data repository.
+    """Download a folder from the example data repository.
 
     Parameters
     ----------
@@ -238,8 +234,7 @@ def _download_folder(
 
 @pyaedt_function_handler()
 def download_aedb(local_path: str | Path = None) -> str:
-    """
-    Download an example of AEDB file and return the def path.
+    """Download an example of AEDB file and return the def path.
 
     If example files have already been downloaded, the download is
     skipped.
@@ -272,8 +267,7 @@ def download_aedb(local_path: str | Path = None) -> str:
 
 @pyaedt_function_handler()
 def download_edb_merge_utility(force_download: bool = False, local_path: str | Path = None) -> str:  # pragma: no cover
-    """
-    Download an example of WPF Project which allows to merge 2aedb files.
+    """Download an example of WPF Project which allows to merge 2aedb files.
 
     If example files have already been downloaded, the download is
     skipped.
@@ -318,8 +312,7 @@ def download_edb_merge_utility(force_download: bool = False, local_path: str | P
 
 @pyaedt_function_handler()
 def download_netlist(local_path: str | Path = None) -> str:
-    """
-    Download an example of netlist File and return the def path.
+    """Download an example of netlist File and return the def path.
 
     If example files have already been downloaded, the download is
     skipped.
@@ -352,8 +345,7 @@ def download_netlist(local_path: str | Path = None) -> str:
 
 @pyaedt_function_handler()
 def download_antenna_array(local_path: str | Path = None) -> str:
-    """
-    Download an example of Antenna Array and return the def path.
+    """Download an example of Antenna Array and return the def path.
 
     If example files have already been downloaded, the download is
     skipped.
@@ -386,8 +378,7 @@ def download_antenna_array(local_path: str | Path = None) -> str:
 
 @pyaedt_function_handler()
 def download_sbr(local_path: str | Path = None) -> str:
-    """
-    Download an example of SBR+ Array and return the def path.
+    """Download an example of SBR+ Array and return the def path.
 
     If example files have already been downloaded, the download is
     skipped.
@@ -418,8 +409,7 @@ def download_sbr(local_path: str | Path = None) -> str:
 
 @pyaedt_function_handler()
 def download_sbr_time(local_path: str | Path = None) -> str:
-    """
-    Download an example of SBR+ Time domain animation and return the def path.
+    """Download an example of SBR+ Time domain animation and return the def path.
 
     If example files have already been downloaded, the download is
     skipped.
@@ -450,8 +440,7 @@ def download_sbr_time(local_path: str | Path = None) -> str:
 
 @pyaedt_function_handler()
 def download_icepak(local_path: str | Path = None) -> str:
-    """
-    Download an example of Icepak Array and return the def path.
+    """Download an example of Icepak Array and return the def path.
 
     If example files have already been downloaded, the download is
     skipped.
@@ -484,8 +473,7 @@ def download_icepak(local_path: str | Path = None) -> str:
 
 @pyaedt_function_handler()
 def download_icepak_3d_component(local_path: str | Path = None) -> str:  # pragma: no cover
-    """
-    Download an example of Icepak Array and return the def pathsw.
+    """Download an example of Icepak Array and return the def pathsw.
 
     If example files have already been downloaded, the download is
     skipped.
@@ -520,8 +508,7 @@ def download_icepak_3d_component(local_path: str | Path = None) -> str:  # pragm
 
 @pyaedt_function_handler()
 def download_via_wizard(local_path: str | Path = None) -> str:
-    """
-    Download an example of Hfss Via Wizard and return the def path.
+    """Download an example of Hfss Via Wizard and return the def path.
 
     If example files have already been downloaded, the download is
     skipped.
@@ -554,8 +541,7 @@ def download_via_wizard(local_path: str | Path = None) -> str:
 
 @pyaedt_function_handler()
 def download_touchstone(local_path: str | Path = None) -> str:
-    """
-    Download an example of touchstone File and return the def path.
+    """Download an example of touchstone File and return the def path.
 
     If example files have already been downloaded, the download is
     skipped.
@@ -585,8 +571,7 @@ def download_touchstone(local_path: str | Path = None) -> str:
 
 @pyaedt_function_handler()
 def download_sherlock(local_path: str | Path = None) -> str:
-    """
-    Download an example of sherlock needed files and return the def path.
+    """Download an example of sherlock needed files and return the def path.
 
     If example files have already been downloaded, the download is
     skipped.
@@ -619,8 +604,7 @@ def download_sherlock(local_path: str | Path = None) -> str:
 
 @pyaedt_function_handler()
 def download_leaf(local_path: str | Path = None) -> tuple[str, str]:
-    """
-    Download an example of Nissan leaf files and return the def path.
+    """Download an example of Nissan leaf files and return the def path.
 
     If example files have already been downloaded, the download is
     skipped.
@@ -654,8 +638,7 @@ def download_leaf(local_path: str | Path = None) -> tuple[str, str]:
 
 @pyaedt_function_handler()
 def download_custom_reports(force_download: bool = False, local_path: str | Path = None) -> str:
-    """
-    Download an example of CISPR25 with customer reports json template files.
+    """Download an example of CISPR25 with customer reports json template files.
 
     If example files have already been downloaded, the download is
     skipped.
@@ -698,8 +681,7 @@ def download_custom_reports(force_download: bool = False, local_path: str | Path
 
 @pyaedt_function_handler()
 def download_3dcomponent(force_download: bool = False, local_path: str | Path = None) -> str:
-    """
-    Download an example of 3d component array with json template files.
+    """Download an example of 3d component array with json template files.
 
     If example files have already been downloaded, the download is
     skipped.
@@ -741,8 +723,7 @@ def download_3dcomponent(force_download: bool = False, local_path: str | Path = 
 
 @pyaedt_function_handler()
 def download_fss_3dcomponent(force_download: bool = False, local_path: str | Path = None) -> str:
-    """
-    Download an example of 3d component array with json template files.
+    """Download an example of 3d component array with json template files.
 
     If example files have already been downloaded, the download is
     skipped.
@@ -784,8 +765,7 @@ def download_fss_3dcomponent(force_download: bool = False, local_path: str | Pat
 
 @pyaedt_function_handler()
 def download_multiparts(local_path: str | Path = None) -> str:
-    """
-    Download an example of 3DComponents Multiparts.
+    """Download an example of 3DComponents Multiparts.
 
     If example files have already been downloaded, the download is
     skipped.
@@ -827,8 +807,7 @@ def download_multiparts(local_path: str | Path = None) -> str:
 def download_twin_builder_data(
     file_name: str = None, force_download: bool = False, local_path: str | Path = None
 ) -> str:
-    """
-    Download a Twin Builder example data file.
+    """Download a Twin Builder example data file.
 
     Examples files are downloaded to a persistent cache to avoid
     downloading the same file twice.
@@ -882,8 +861,7 @@ def download_twin_builder_data(
 
 @pyaedt_function_handler()
 def download_file(source: str, name: str = None, local_path: str | Path = None, force: bool = False) -> str:
-    """
-    Download a file or files from the online examples repository.
+    """Download a file or files from the online examples repository.
 
     Files are downloaded from the
     :ref:`example-data<https://github.com/ansys/example-data/tree/main/pyaedt>`_ repository

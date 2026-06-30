@@ -72,8 +72,7 @@ class PowerDivider(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def filename(self) -> str:
-        """
-        Name of file defining the Power Divider.
+        """Name of file defining the Power Divider.
 
         Value should be a full file path.
 
@@ -96,8 +95,7 @@ class PowerDivider(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def noise_temperature(self) -> float:
-        """
-        System Noise temperature (K) of the component.
+        """System Noise temperature (K) of the component.
 
         Value should be between 0 and 1000.
 
@@ -120,8 +118,7 @@ class PowerDivider(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def notes(self) -> str:
-        """
-        Expand to view/edit notes stored with the project.
+        """Expand to view/edit notes stored with the project.
 
         Examples
         --------
@@ -147,8 +144,7 @@ class PowerDivider(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def power_divider_type(self) -> PowerDividerTypeOption:
-        """
-        Power Divider Type.
+        """Power Divider Type.
 
         Type of Power Divider model to use. Options include: By File (measured
         or simulated), 3 dB (parametric), and Resistive (parametric).
@@ -174,8 +170,7 @@ class PowerDivider(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def insertion_loss_above_ideal(self) -> float:
-        """
-        Insertion Loss Above Ideal.
+        """Insertion Loss Above Ideal.
 
         Additional loss beyond the ideal insertion loss. The ideal insertion
         loss is 3 dB for the 3 dB Divider and 6 dB for the Resistive Divider.
@@ -201,8 +196,7 @@ class PowerDivider(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def finite_isolation(self) -> bool:
-        """
-        Finite Isolation.
+        """Finite Isolation.
 
         Use a finite isolation between output ports. If disabled, the Power
         Divider isolation is ideal (infinite isolation between output ports).
@@ -228,8 +222,7 @@ class PowerDivider(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def isolation(self) -> float:
-        """
-        Power Divider isolation between output ports.
+        """Power Divider isolation between output ports.
 
         Value should be between 0 and 100.
 
@@ -252,8 +245,7 @@ class PowerDivider(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def finite_bandwidth(self) -> bool:
-        """
-        Finite Bandwidth.
+        """Finite Bandwidth.
 
         Use a finite bandwidth. If disabled, the  Power Divider model is ideal
         (infinite bandwidth).
@@ -279,8 +271,7 @@ class PowerDivider(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def out_of_band_attenuation(self) -> float:
-        """
-        Out-of-band loss (attenuation).
+        """Out-of-band loss (attenuation).
 
         Value should be between 0 and 200.
 
@@ -303,8 +294,7 @@ class PowerDivider(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def lower_stop_band(self) -> float:
-        """
-        Lower stop band frequency.
+        """Lower stop band frequency.
 
         Value should be between 1 and 100e9.
 
@@ -329,8 +319,7 @@ class PowerDivider(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def lower_cutoff(self) -> float:
-        """
-        Lower cutoff frequency.
+        """Lower cutoff frequency.
 
         Value should be between 1 and 100e9.
 
@@ -355,8 +344,7 @@ class PowerDivider(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def higher_cutoff(self) -> float:
-        """
-        Higher cutoff frequency.
+        """Higher cutoff frequency.
 
         Value should be between 1 and 100e9.
 
@@ -381,8 +369,7 @@ class PowerDivider(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def higher_stop_band(self) -> float:
-        """
-        Higher stop band frequency.
+        """Higher stop band frequency.
 
         Value should be between 1 and 100e9.
 
@@ -407,8 +394,7 @@ class PowerDivider(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def warnings(self) -> str:
-        """
-        Warning(s) for this node.
+        """Warning(s) for this node.
 
         Examples
         --------

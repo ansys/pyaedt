@@ -51,8 +51,7 @@ class CouplingsNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def import_touchstone(self, file_name: str) -> EmitNode:
-        """
-        Open an Existing S-Matrix Data File.
+        """Open an Existing S-Matrix Data File.
 
         Examples
         --------
@@ -67,8 +66,7 @@ class CouplingsNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def add_custom_coupling(self) -> EmitNode:
-        """
-        Add a new node to define custom coupling between antennas
+        """Add a new node to define custom coupling between antennas
 
         Examples
         --------
@@ -83,8 +81,7 @@ class CouplingsNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def add_path_loss_coupling(self) -> EmitNode:
-        """
-        Add a new node to define path loss coupling between antennas
+        """Add a new node to define path loss coupling between antennas
 
         Examples
         --------
@@ -99,8 +96,7 @@ class CouplingsNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def add_two_ray_path_loss_coupling(self) -> EmitNode:
-        """
-        Add a new node to define two ray ground reflection coupling between antennas
+        """Add a new node to define two ray ground reflection coupling between antennas
 
         Examples
         --------
@@ -115,8 +111,7 @@ class CouplingsNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def add_log_distance_coupling(self) -> EmitNode:
-        """
-        Add a new node to define coupling between antennas using the Log Distance model
+        """Add a new node to define coupling between antennas using the Log Distance model
 
         Examples
         --------
@@ -131,8 +126,7 @@ class CouplingsNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def add_hata_coupling(self) -> EmitNode:
-        """
-        Add a new node to define coupling between antennas using the Hata COST 231 model
+        """Add a new node to define coupling between antennas using the Hata COST 231 model
 
         Examples
         --------
@@ -147,8 +141,7 @@ class CouplingsNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def add_walfisch_ikegami_coupling(self) -> EmitNode:
-        """
-        Add a new node to define coupling between antennas using the Walfisch-Ikegami model
+        """Add a new node to define coupling between antennas using the Walfisch-Ikegami model
 
         Examples
         --------
@@ -163,8 +156,7 @@ class CouplingsNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def add_erceg_coupling(self) -> EmitNode:
-        """
-        Add a new node to define coupling between antennas using the Erceg coupling model
+        """Add a new node to define coupling between antennas using the Erceg coupling model
 
         Examples
         --------
@@ -179,8 +171,7 @@ class CouplingsNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def add_indoor_propagation_coupling(self) -> EmitNode:
-        """
-        Add a new node to define coupling between antennas using the ITU Indoor Propagation model
+        """Add a new node to define coupling between antennas using the ITU Indoor Propagation model
 
         Examples
         --------
@@ -195,8 +186,7 @@ class CouplingsNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def add_5g_channel_model_coupling(self) -> EmitNode:
-        """
-        Add a new node to define coupling between antennas using the 5G channel coupling model
+        """Add a new node to define coupling between antennas using the 5G channel coupling model
 
         Examples
         --------
@@ -212,8 +202,7 @@ class CouplingsNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def minimum_allowed_coupling(self) -> float:
-        """
-        Minimum Allowed Coupling.
+        """Minimum Allowed Coupling.
 
         Global minimum allowed coupling value. All computed coupling within this
         project will be >= this value.
@@ -240,8 +229,7 @@ class CouplingsNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def global_default_coupling(self) -> float:
-        """
-        Default antenna-to-antenna coupling loss value.
+        """Default antenna-to-antenna coupling loss value.
 
         Value should be between -1000 and 0.
 
@@ -265,8 +253,7 @@ class CouplingsNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def antenna_tags(self) -> str:
-        """
-        All tags currently used by all antennas in the project.
+        """All tags currently used by all antennas in the project.
 
         Examples
         --------

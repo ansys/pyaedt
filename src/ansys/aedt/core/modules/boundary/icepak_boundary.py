@@ -33,8 +33,7 @@ from ansys.aedt.core.modules.boundary.common import BoundaryObject
 
 
 class BoundaryDictionary(PyAedtBase):
-    """
-    Handles Icepak transient and temperature-dependent boundary condition assignments.
+    """Handles Icepak transient and temperature-dependent boundary condition assignments.
 
     Parameters
     ----------
@@ -66,8 +65,7 @@ class BoundaryDictionary(PyAedtBase):
 
     @property
     def props(self) -> dict:
-        """
-        Dictionary that defines all the boundary condition properties.
+        """Dictionary that defines all the boundary condition properties.
 
         Examples
         --------
@@ -92,8 +90,7 @@ class BoundaryDictionary(PyAedtBase):
 
 
 class LinearDictionary(BoundaryDictionary):
-    """
-    Manages linear conditions assignments, which are children of the ``BoundaryDictionary`` class.
+    """Manages linear conditions assignments, which are children of the ``BoundaryDictionary`` class.
 
     This class applies a condition ``y`` dependent on the time ``t``:
         ``y=a+b*t``
@@ -125,8 +122,7 @@ class LinearDictionary(BoundaryDictionary):
 
 
 class PowerLawDictionary(BoundaryDictionary):
-    """
-    Manages power law condition assignments, which are children of the ``BoundaryDictionary`` class.
+    """Manages power law condition assignments, which are children of the ``BoundaryDictionary`` class.
 
     This class applies a condition ``y`` dependent on the time ``t``:
          ``y=a+b*t^c``
@@ -162,8 +158,7 @@ class PowerLawDictionary(BoundaryDictionary):
 
 
 class ExponentialDictionary(BoundaryDictionary):
-    """
-    Manages exponential condition assignments, which are children of the ``BoundaryDictionary`` class.
+    """Manages exponential condition assignments, which are children of the ``BoundaryDictionary`` class.
 
     This class applies a condition ``y`` dependent on the time ``t``:
         ``y=a+b*exp(c*t)``
@@ -199,8 +194,7 @@ class ExponentialDictionary(BoundaryDictionary):
 
 
 class SinusoidalDictionary(BoundaryDictionary):
-    """
-    Manages sinusoidal condition assignments, which are children of the ``BoundaryDictionary`` class.
+    """Manages sinusoidal condition assignments, which are children of the ``BoundaryDictionary`` class.
 
     This class applies a condition ``y`` dependent on the time ``t``:
         ``y=a+b*sin(2*pi(t-t0)/T)``
@@ -240,8 +234,7 @@ class SinusoidalDictionary(BoundaryDictionary):
 
 
 class SquareWaveDictionary(BoundaryDictionary):
-    """
-    Manages square wave condition assignments, which are children of the ``BoundaryDictionary`` class.
+    """Manages square wave condition assignments, which are children of the ``BoundaryDictionary`` class.
 
     Parameters
     ----------
@@ -277,8 +270,7 @@ class SquareWaveDictionary(BoundaryDictionary):
 
 
 class PieceWiseLinearDictionary(BoundaryDictionary):
-    """
-    Manages dataset condition assignments, which are children of the ``BoundaryDictionary`` class.
+    """Manages dataset condition assignments, which are children of the ``BoundaryDictionary`` class.
 
     Parameters
     ----------
@@ -309,8 +301,7 @@ class PieceWiseLinearDictionary(BoundaryDictionary):
 
     @property
     def dataset_name(self) -> str:
-        """
-        Dataset name that defines the piecewise assignment.
+        """Dataset name that defines the piecewise assignment.
 
         Examples
         --------
@@ -323,8 +314,7 @@ class PieceWiseLinearDictionary(BoundaryDictionary):
 
 
 class NetworkObject(BoundaryObject):
-    """
-    Manages networks in Icepak projects.
+    """Manages networks in Icepak projects.
 
     Examples
     --------
@@ -373,8 +363,7 @@ class NetworkObject(BoundaryObject):
 
     @pyaedt_function_handler()
     def create(self) -> bool:
-        """
-        Create network in AEDT.
+        """Create network in AEDT.
 
         Returns
         -------
@@ -456,8 +445,7 @@ class NetworkObject(BoundaryObject):
 
     @property
     def auto_update(self) -> bool:
-        """
-        Get if auto-update is enabled.
+        """Get if auto-update is enabled.
 
         Returns
         -------
@@ -475,8 +463,7 @@ class NetworkObject(BoundaryObject):
 
     @auto_update.setter
     def auto_update(self, b: bool) -> None:
-        """
-        Set auto-update on or off.
+        """Set auto-update on or off.
 
         Parameters
         ----------
@@ -491,8 +478,7 @@ class NetworkObject(BoundaryObject):
 
     @property
     def links(self) -> dict:
-        """
-        Get links of the network.
+        """Get links of the network.
 
         Returns
         -------
@@ -511,8 +497,7 @@ class NetworkObject(BoundaryObject):
 
     @property
     def r_links(self) -> dict:
-        """
-        Get r-links of the network.
+        """Get r-links of the network.
 
         Returns
         -------
@@ -531,8 +516,7 @@ class NetworkObject(BoundaryObject):
 
     @property
     def c_links(self) -> dict:
-        """
-        Get c-links of the network.
+        """Get c-links of the network.
 
         Returns
         -------
@@ -551,8 +535,7 @@ class NetworkObject(BoundaryObject):
 
     @property
     def nodes(self) -> dict:
-        """
-        Get nodes of the network.
+        """Get nodes of the network.
 
         Returns
         -------
@@ -571,8 +554,7 @@ class NetworkObject(BoundaryObject):
 
     @property
     def face_nodes(self) -> dict:
-        """
-        Get face nodes of the network.
+        """Get face nodes of the network.
 
         Returns
         -------
@@ -591,8 +573,7 @@ class NetworkObject(BoundaryObject):
 
     @property
     def faces_ids_in_network(self) -> list:
-        """
-        Get ID of faces included in the network.
+        """Get ID of faces included in the network.
 
         Returns
         -------
@@ -613,8 +594,7 @@ class NetworkObject(BoundaryObject):
 
     @property
     def objects_in_network(self) -> list:
-        """
-        Get objects included in the network.
+        """Get objects included in the network.
 
         Returns
         -------
@@ -635,8 +615,7 @@ class NetworkObject(BoundaryObject):
 
     @property
     def internal_nodes(self) -> dict:
-        """
-        Get internal nodes.
+        """Get internal nodes.
 
         Returns
         -------
@@ -655,8 +634,7 @@ class NetworkObject(BoundaryObject):
 
     @property
     def boundary_nodes(self) -> dict:
-        """
-        Get boundary nodes.
+        """Get boundary nodes.
 
         Returns
         -------
@@ -675,8 +653,7 @@ class NetworkObject(BoundaryObject):
 
     @property
     def name(self) -> str:
-        """
-        Get network name.
+        """Get network name.
 
         Returns
         -------
@@ -694,8 +671,7 @@ class NetworkObject(BoundaryObject):
 
     @name.setter
     def name(self, new_network_name: str) -> None:
-        """
-        Set new name of the network.
+        """Set new name of the network.
 
         Parameters
         ----------
@@ -717,8 +693,7 @@ class NetworkObject(BoundaryObject):
     def add_internal_node(
         self, name: str, power: str | float | dict, mass: str | float = None, specific_heat: str | float = None
     ) -> bool:
-        """
-        Add an internal node to the network.
+        """Add an internal node to the network.
 
         Parameters
         ----------
@@ -779,8 +754,7 @@ class NetworkObject(BoundaryObject):
 
     @pyaedt_function_handler()
     def add_boundary_node(self, name: str, assignment_type: str, value: str | float | dict) -> bool:
-        """
-        Add a boundary node to the network.
+        """Add a boundary node to the network.
 
         Parameters
         ----------
@@ -855,8 +829,7 @@ class NetworkObject(BoundaryObject):
         thickness: str | float = None,
         resistance: str | float = None,
     ) -> bool:
-        """
-        Create a face node in the network.
+        """Create a face node in the network.
 
         Parameters
         ----------
@@ -940,8 +913,7 @@ class NetworkObject(BoundaryObject):
 
     @pyaedt_function_handler()
     def add_nodes_from_dictionaries(self, nodes: list | dict) -> bool:
-        """
-        Add nodes to the network from dictionary.
+        """Add nodes to the network from dictionary.
 
         Parameters
         ----------
@@ -1014,8 +986,7 @@ class NetworkObject(BoundaryObject):
 
     @pyaedt_function_handler()
     def add_link(self, node1: str | int, node2: str | int, value: str | float, name: str = None) -> bool:
-        """
-        Create links in the network object.
+        """Create links in the network object.
 
         Parameters
         ----------
@@ -1063,8 +1034,7 @@ class NetworkObject(BoundaryObject):
 
     @pyaedt_function_handler()
     def add_links_from_dictionaries(self, connections: dict | list[dict]) -> bool:
-        """
-        Create links in the network object.
+        """Create links in the network object.
 
         Parameters
         ----------
@@ -1113,8 +1083,7 @@ class NetworkObject(BoundaryObject):
 
     @pyaedt_function_handler()
     def update(self) -> bool:
-        """
-        Update the network in AEDT.
+        """Update the network in AEDT.
 
         Returns
         -------
@@ -1144,8 +1113,7 @@ class NetworkObject(BoundaryObject):
 
     @pyaedt_function_handler()
     def update_assignment(self) -> bool:
-        """
-        Update assignments of the network.
+        """Update assignments of the network.
 
         Examples
         --------
@@ -1194,8 +1162,7 @@ class NetworkObject(BoundaryObject):
 
         @property
         def props(self) -> list:
-            """
-            Get link properties.
+            """Get link properties.
 
             Returns
             -------
@@ -1229,8 +1196,7 @@ class NetworkObject(BoundaryObject):
 
         @property
         def node_type(self) -> str:
-            """
-            Get node type.
+            """Get node type.
 
             Returns
             -------
@@ -1253,8 +1219,7 @@ class NetworkObject(BoundaryObject):
 
         @property
         def props(self) -> dict:
-            """
-            Get properties of the node.
+            """Get properties of the node.
 
             Returns
             -------
@@ -1265,8 +1230,7 @@ class NetworkObject(BoundaryObject):
 
         @props.setter
         def props(self, props: dict) -> None:
-            """
-            Set properties of the node.
+            """Set properties of the node.
 
             Parameters
             ----------

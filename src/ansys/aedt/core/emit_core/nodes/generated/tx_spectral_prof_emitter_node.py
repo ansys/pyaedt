@@ -71,8 +71,7 @@ class TxSpectralProfEmitterNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def add_narrowband_emissions_mask(self) -> EmitNode:
-        """
-        Add a Transmitter Narrowband Emission Profile
+        """Add a Transmitter Narrowband Emission Profile
 
         Examples
         --------
@@ -89,8 +88,7 @@ class TxSpectralProfEmitterNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def add_tx_broadband_noise_profile(self) -> EmitNode:
-        """
-        Add a Transmitter Broadband Emission Profile
+        """Add a Transmitter Broadband Emission Profile
 
         Examples
         --------
@@ -107,8 +105,7 @@ class TxSpectralProfEmitterNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def add_custom_tx_harmonics(self) -> EmitNode:
-        """
-        Add Custom Tx Harmonics
+        """Add Custom Tx Harmonics
 
         Examples
         --------
@@ -125,8 +122,7 @@ class TxSpectralProfEmitterNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def add_spurious_emissions(self) -> EmitNode:
-        """
-        Add Transmitter Spurs
+        """Add Transmitter Spurs
 
         Examples
         --------
@@ -144,8 +140,7 @@ class TxSpectralProfEmitterNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def enabled(self) -> bool:
-        """
-        Enabled state for this node.
+        """Enabled state for this node.
 
         Examples
         --------
@@ -168,8 +163,7 @@ class TxSpectralProfEmitterNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def output_voltage_peak(self) -> float:
-        """
-        Output High Voltage Level: maximum voltage of the digital signal.
+        """Output High Voltage Level: maximum voltage of the digital signal.
 
         Examples
         --------
@@ -195,8 +189,7 @@ class TxSpectralProfEmitterNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def include_phase_noise(self) -> bool:
-        """
-        Include oscillator phase noise in Tx spectral profile.
+        """Include oscillator phase noise in Tx spectral profile.
 
         Value should be 'true' or 'false'.
 
@@ -222,8 +215,7 @@ class TxSpectralProfEmitterNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def tx_broadband_noise(self) -> float:
-        """
-        Transmitters broadband noise level.
+        """Transmitters broadband noise level.
 
         Value should be less than 1000.
 
@@ -249,8 +241,7 @@ class TxSpectralProfEmitterNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def number_of_harmonics(self) -> int:
-        """
-        Maximum number of harmonics modeled.
+        """Maximum number of harmonics modeled.
 
         Value should be between 1 and 1000.
 
@@ -276,8 +267,7 @@ class TxSpectralProfEmitterNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def perform_tx_intermod_analysis(self) -> bool:
-        """
-        Performs a non-linear intermod analysis for the Tx.
+        """Performs a non-linear intermod analysis for the Tx.
 
         Value should be 'true' or 'false'.
 
@@ -303,8 +293,7 @@ class TxSpectralProfEmitterNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def internal_amp_gain(self) -> float:
-        """
-        Internal Tx Amplifier's Gain.
+        """Internal Tx Amplifier's Gain.
 
         Value should be between -1000 and 1000.
 
@@ -330,8 +319,7 @@ class TxSpectralProfEmitterNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def noise_figure(self) -> float:
-        """
-        Internal Tx Amplifier's noise figure.
+        """Internal Tx Amplifier's noise figure.
 
         Value should be between 0 and 50.
 
@@ -357,8 +345,7 @@ class TxSpectralProfEmitterNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def amplifier_saturation_level(self) -> float:
-        """
-        Internal Tx Amplifier's Saturation Level.
+        """Internal Tx Amplifier's Saturation Level.
 
         Value should be between -200 and 200.
 
@@ -386,8 +373,7 @@ class TxSpectralProfEmitterNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def p1_db_point_ref_input(self) -> float:
-        """
-        P1-dB Point, Ref. Input .
+        """P1-dB Point, Ref. Input .
 
         Internal Tx Amplifier's 1 dB Compression Point - total power > P1dB
         saturates the internal Tx amplifier.
@@ -418,8 +404,7 @@ class TxSpectralProfEmitterNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def ip3_ref_input(self) -> float:
-        """
-        Internal Tx Amplifier's 3rd order intercept point.
+        """Internal Tx Amplifier's 3rd order intercept point.
 
         Value should be between -200 and 200.
 
@@ -447,8 +432,7 @@ class TxSpectralProfEmitterNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def reverse_isolation(self) -> float:
-        """
-        Internal Tx Amplifier's Reverse Isolation.
+        """Internal Tx Amplifier's Reverse Isolation.
 
         Value should be between -200 and 200.
 
@@ -474,8 +458,7 @@ class TxSpectralProfEmitterNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def max_intermod_order(self) -> int:
-        """
-        Internal Tx Amplifier's maximum intermod order to compute.
+        """Internal Tx Amplifier's maximum intermod order to compute.
 
         Value should be between 3 and 20.
 

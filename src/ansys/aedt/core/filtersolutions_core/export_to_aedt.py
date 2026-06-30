@@ -43,8 +43,7 @@ if TYPE_CHECKING:
 
 
 class ExportFormat(Enum):
-    """
-    Provides an enum of export format types.
+    """Provides an enum of export format types.
 
     **Attributes:**
 
@@ -65,8 +64,7 @@ class ExportFormat(Enum):
 
 
 class ExportCreationMode(Enum):
-    """
-    Provides an enum of export creation modes.
+    """Provides an enum of export creation modes.
 
     **Attributes:**
 
@@ -87,8 +85,7 @@ class ExportCreationMode(Enum):
 
 
 class PartLibraries(Enum):
-    """
-    Provides an enum of export format types.
+    """Provides an enum of export format types.
 
     **Attributes:**
 
@@ -112,8 +109,7 @@ class PartLibraries(Enum):
 
 
 class SubstrateType(Enum):
-    """
-    Provides an enum of substrate types for various materials.
+    """Provides an enum of substrate types for various materials.
 
     **Attributes:**
 
@@ -143,8 +139,7 @@ class SubstrateType(Enum):
 
 
 class SubstrateEr(Enum):
-    """
-    Provides an enum of substrate relative permitivity (``Er``) for various materials.
+    """Provides an enum of substrate relative permitivity (``Er``) for various materials.
 
     The enum values represent common materials used in substrates and their associated ``Er`` value.
 
@@ -212,8 +207,7 @@ class SubstrateEr(Enum):
 
 
 class SubstrateResistivity(Enum):
-    """
-    Provides an enum of substrate resistivity types for various materials.
+    """Provides an enum of substrate resistivity types for various materials.
 
     The enum values represent common materials used in substrates and their associated resistivity index.
 
@@ -263,8 +257,7 @@ class SubstrateResistivity(Enum):
 
 
 class ExportToAedt:
-    """
-    Defines attributes and parameters for exporting filter .
+    """Defines attributes and parameters for exporting filter .
 
     This class allows you to define and modify the parameters for exporting a designed filter to ``AEDT``.
 
@@ -600,8 +593,7 @@ class ExportToAedt:
         self._dll.removeModelithicsResistorsFamily.restype = c_int
 
     def define_export_to_desktop_distributed_dll_functions(self) -> None:
-        """
-        Define C++ API DLL functions for distributed filter.
+        """Define C++ API DLL functions for distributed filter.
 
         Examples
         --------
@@ -658,8 +650,7 @@ class ExportToAedt:
 
     @property
     def schematic_name(self) -> str:
-        """
-        Name of the exported schematic in ``AEDT``, displayed as the project and design names.
+        """Name of the exported schematic in ``AEDT``, displayed as the project and design names.
 
         The default name is ``FilterSolutions`` if not specified.
 
@@ -683,8 +674,7 @@ class ExportToAedt:
 
     @property
     def simulate_after_export_enabled(self) -> bool:
-        """
-        Flag indicating if the simulation will be initiated upon export to ``AEDT``.
+        """Flag indicating if the simulation will be initiated upon export to ``AEDT``.
 
         Returns
         -------
@@ -709,8 +699,7 @@ class ExportToAedt:
 
     @property
     def include_group_delay_enabled(self) -> bool:
-        """
-        Flag indicating if the group delay report will be created upon export to ``AEDT``.
+        """Flag indicating if the group delay report will be created upon export to ``AEDT``.
 
         Returns
         -------
@@ -735,8 +724,7 @@ class ExportToAedt:
 
     @property
     def include_gt_gain_enabled(self) -> bool:
-        """
-        Flag indicating if the total voltage gain report will be created upon export to ``AEDT``.
+        """Flag indicating if the total voltage gain report will be created upon export to ``AEDT``.
 
         Returns
         -------
@@ -761,8 +749,7 @@ class ExportToAedt:
 
     @property
     def include_vgsl_enabled(self) -> bool:
-        """
-        Flag indicating if the voltage gain source load report will be created upon export to ``AEDT``.
+        """Flag indicating if the voltage gain source load report will be created upon export to ``AEDT``.
 
         Returns
         -------
@@ -787,8 +774,7 @@ class ExportToAedt:
 
     @property
     def include_vgin_enabled(self) -> bool:
-        """
-        Flag indicating if the voltage gain insertion report will be created upon export to ``AEDT``.
+        """Flag indicating if the voltage gain insertion report will be created upon export to ``AEDT``.
 
         Returns
         -------
@@ -813,8 +799,7 @@ class ExportToAedt:
 
     @property
     def include_input_return_loss_s11_enabled(self) -> bool:
-        """
-        Flag indicating if the input return loss report will be created upon
+        """Flag indicating if the input return loss report will be created upon
         export to ``AEDT``.
 
         Returns
@@ -840,8 +825,7 @@ class ExportToAedt:
 
     @property
     def include_forward_transfer_s21_enabled(self) -> bool:
-        """
-        Flag indicating if the forward transfer gain report will be created upon export to ``AEDT``.
+        """Flag indicating if the forward transfer gain report will be created upon export to ``AEDT``.
 
         Returns
         -------
@@ -866,8 +850,7 @@ class ExportToAedt:
 
     @property
     def include_reverse_transfer_s12_enabled(self) -> bool:
-        """
-        Flag indicating if the reverse transfer gain report will be created upon export to ``AEDT``.
+        """Flag indicating if the reverse transfer gain report will be created upon export to ``AEDT``.
 
         Returns
         -------
@@ -892,8 +875,7 @@ class ExportToAedt:
 
     @property
     def include_output_return_loss_s22_enabled(self) -> bool:
-        """
-        Flag indicating if the output return loss report will be created upon export to ``AEDT``.
+        """Flag indicating if the output return loss report will be created upon export to ``AEDT``.
 
         Returns
         -------
@@ -918,8 +900,7 @@ class ExportToAedt:
 
     @property
     def db_format_enabled(self) -> bool:
-        """
-        Flag indicating if the report format in dB in the exported filter to ``AEDT`` is enabled.
+        """Flag indicating if the report format in dB in the exported filter to ``AEDT`` is enabled.
 
         Returns
         -------
@@ -944,8 +925,7 @@ class ExportToAedt:
 
     @property
     def rectangular_plot_enabled(self) -> bool:
-        """
-        Flag indicating if the rectangular report format in the
+        """Flag indicating if the rectangular report format in the
          exported filter to ``AEDT`` is enabled.
 
         Returns
@@ -971,8 +951,7 @@ class ExportToAedt:
 
     @property
     def smith_plot_enabled(self) -> bool:
-        """
-        Flag indicating if the ``Smith Chart`` report format in the
+        """Flag indicating if the ``Smith Chart`` report format in the
          exported filter to ``AEDT`` is enabled.
 
         Returns
@@ -998,8 +977,7 @@ class ExportToAedt:
 
     @property
     def polar_plot_enabled(self) -> bool:
-        """
-        Flag indicating if the polar report format in the exported filter to ``AEDT`` is enabled.
+        """Flag indicating if the polar report format in the exported filter to ``AEDT`` is enabled.
 
         Returns
         -------
@@ -1024,8 +1002,7 @@ class ExportToAedt:
 
     @property
     def table_data_enabled(self) -> bool:
-        """
-        Flag indicating if the table data format in the exported filter to ``AEDT`` is enabled.
+        """Flag indicating if the table data format in the exported filter to ``AEDT`` is enabled.
 
         Returns
         -------
@@ -1050,8 +1027,7 @@ class ExportToAedt:
 
     @property
     def optimitrics_enabled(self) -> bool:
-        """
-        Flag indicating if the optimitric parameters in the exported filter to ``AEDT`` is enabled.
+        """Flag indicating if the optimitric parameters in the exported filter to ``AEDT`` is enabled.
 
         Returns
         -------
@@ -1076,8 +1052,7 @@ class ExportToAedt:
 
     @property
     def optimize_after_export_enabled(self) -> bool:
-        """
-        Flag indicating if the optimization after exporting to ``AEDT`` is enabled.
+        """Flag indicating if the optimization after exporting to ``AEDT`` is enabled.
 
         Returns
         -------
@@ -1106,8 +1081,7 @@ class ExportToAedt:
         export_creation_mode: ExportCreationMode = None,
         export_path: str = None,
     ) -> "Circuit | Hfss | Hfss3dLayout | None":
-        """
-        Export the design directly to ``AEDT`` or generate a ``Python`` script for exporting.
+        """Export the design directly to ``AEDT`` or generate a ``Python`` script for exporting.
 
         When exporting to ``AEDT``, the design can either be appended to an existing project or overwrite it.
         When generating a Python script, the script is created and saved to the specified file location.
@@ -1177,8 +1151,7 @@ class ExportToAedt:
         self._dll_interface.set_string(self._dll.saveLibraryPartsConf, save_library_parts_config_string)
 
     def import_tuned_variables(self):
-        """
-        Imported ``AEDT`` tuned parameter variables back into the ``FilterSolutions`` project.
+        """Imported ``AEDT`` tuned parameter variables back into the ``FilterSolutions`` project.
 
         Examples
         --------
@@ -1196,8 +1169,7 @@ class ExportToAedt:
 
     @property
     def part_libraries(self) -> PartLibraries:
-        """
-        Part libraries selection. The default is ``LUMPED`` if not specified.
+        """Part libraries selection. The default is ``LUMPED`` if not specified.
 
         The ``PartLibraries`` enum provides a list of all options.
 
@@ -1227,8 +1199,7 @@ class ExportToAedt:
 
     @property
     def interconnect_length_to_width_ratio(self) -> str:
-        """
-        Length to width ratio of interconnect line.
+        """Length to width ratio of interconnect line.
 
         The length to width ratio is a measure of the proportion between the length and width of the interconnect line.
         This ratio is important for determining the electrical characteristics of the interconnect, such as impedance
@@ -1255,8 +1226,7 @@ class ExportToAedt:
 
     @property
     def interconnect_minimum_length_to_width_ratio(self) -> str:
-        """
-        Minimum length to width ratio of interconnect line.
+        """Minimum length to width ratio of interconnect line.
 
         The minimum length to width ratio is a measure of the smallest proportion between the length and width
         of the interconnect line that is allowed. This parameter is used to determine the minimum dimensions of
@@ -1289,8 +1259,7 @@ class ExportToAedt:
 
     @property
     def interconnect_maximum_length_to_width_ratio(self) -> str:
-        """
-        Maximum length to width ratio of interconnect line.
+        """Maximum length to width ratio of interconnect line.
 
         The maximum length to width ratio is a measure of the largest proportion between the length and width
         of the interconnect line that is allowed. This parameter is used to determine the maximum dimensions of
@@ -1323,8 +1292,7 @@ class ExportToAedt:
 
     @property
     def interconnect_line_to_termination_width_ratio(self) -> str:
-        """
-        Line width to termination width ratio of interconnect line.
+        """Line width to termination width ratio of interconnect line.
 
         The line width to termination width ratio is a measure of the proportion between the width of the
         interconnect line and the width of its termination. This ratio is crucial for ensuring proper
@@ -1358,8 +1326,7 @@ class ExportToAedt:
 
     @property
     def interconnect_minimum_line_to_termination_width_ratio(self) -> str:
-        """
-        Minimum line width to termination width ratio of interconnect line.
+        """Minimum line width to termination width ratio of interconnect line.
 
         The minimum line width to termination width ratio is a measure of the smallest proportion between the
         width of the interconnect line and the width of its termination that is allowed. This parameter is used
@@ -1392,8 +1359,7 @@ class ExportToAedt:
 
     @property
     def interconnect_maximum_line_to_termination_width_ratio(self) -> str:
-        """
-        Maximum line width to termination width ratio of interconnect line.
+        """Maximum line width to termination width ratio of interconnect line.
 
         The maximum line width to termination width ratio is a measure of the largest proportion between the
         width of the interconnect line and the width of its termination that is allowed. This parameter is used
@@ -1426,8 +1392,7 @@ class ExportToAedt:
 
     @property
     def interconnect_length_value(self) -> str:
-        """
-        Interconnect physical length value.
+        """Interconnect physical length value.
 
         The interconnect physical length value represents the actual length of the interconnect line in the design.
         This value is crucial for determining the electrical characteristics of the interconnect, such as signal delay,
@@ -1455,8 +1420,7 @@ class ExportToAedt:
 
     @property
     def interconnect_minimum_length_value(self) -> str:
-        """
-        Minimum value of interconnect physical length.
+        """Minimum value of interconnect physical length.
 
         The minimum value of the interconnect physical length represents the smallest length that the interconnect
         line can have in the design. This value is used to determine the minimum dimensions of interconnect lines
@@ -1487,8 +1451,7 @@ class ExportToAedt:
 
     @property
     def interconnect_maximum_length_value(self) -> str:
-        """
-        Maximum value of interconnect physical length.
+        """Maximum value of interconnect physical length.
         The maximum value of the interconnect physical length represents the largest length that the interconnect
         line can have in the design. This value is used to determine the maximum dimensions of interconnect lines
         for optimization purposes.
@@ -1518,8 +1481,7 @@ class ExportToAedt:
 
     @property
     def interconnect_line_width_value(self) -> str:
-        """
-        Interconnect conductor width value.
+        """Interconnect conductor width value.
 
         The interconnect conductor width value represents the actual width of the interconnect line in the design.
         This value is crucial for determining the electrical characteristics of the interconnect, such as impedance,
@@ -1552,8 +1514,7 @@ class ExportToAedt:
 
     @property
     def interconnect_minimum_width_value(self) -> str:
-        """
-        Minimum value of interconnect conductor width.
+        """Minimum value of interconnect conductor width.
 
         The minimum value of the interconnect conductor width represents the smallest width that the interconnect
         line can have in the design. This value is used to determine the minimum dimensions of interconnect lines
@@ -1585,8 +1546,7 @@ class ExportToAedt:
 
     @property
     def interconnect_maximum_width_value(self) -> str:
-        """
-        Maximum value of interconnect conductor width.
+        """Maximum value of interconnect conductor width.
 
         The maximum value of the interconnect conductor width represents the largest width that the interconnect
         line can have in the design. This value is used to determine the maximum dimensions of interconnect lines
@@ -1618,8 +1578,7 @@ class ExportToAedt:
 
     @property
     def interconnect_inductor_tolerance_value(self) -> str:
-        """
-        Tolerance value of interconnect inductor in ``%``.
+        """Tolerance value of interconnect inductor in ``%``.
 
         The default is ``1``.
 
@@ -1648,8 +1607,7 @@ class ExportToAedt:
 
     @property
     def interconnect_capacitor_tolerance_value(self) -> str:
-        """
-        Tolerance value of interconnect capacitor in ``%``.
+        """Tolerance value of interconnect capacitor in ``%``.
 
         The default is ``1``.
 
@@ -1678,8 +1636,7 @@ class ExportToAedt:
 
     @property
     def interconnect_geometry_optimization_enabled(self) -> bool:
-        """
-        Flag indicating if the interconnect geometry optimization is enabled.
+        """Flag indicating if the interconnect geometry optimization is enabled.
 
         Returns
         -------
@@ -1704,8 +1661,7 @@ class ExportToAedt:
         self._dll_interface.raise_error(status)
 
     def update_interconncet_parameters(self) -> None:  # pragma: no cover
-        """
-        Update interconnect geometry equations with entered and selected parameters
+        """Update interconnect geometry equations with entered and selected parameters
 
         Examples
         --------
@@ -1720,8 +1676,7 @@ class ExportToAedt:
         self._dll_interface.raise_error(status)
 
     def update_inductor_capacitor_tolerances(self) -> None:  # pragma: no cover
-        """
-        Update interconnect inductor and capacitor tolerances with entered values
+        """Update interconnect inductor and capacitor tolerances with entered values
 
         Examples
         --------
@@ -1737,8 +1692,7 @@ class ExportToAedt:
 
     @property
     def substrate_type(self) -> SubstrateType:
-        """
-        Substrate type of the filter. The default is ``MICROSTRIP`` if not specified.
+        """Substrate type of the filter. The default is ``MICROSTRIP`` if not specified.
 
         The ``SubstrateType`` enum provides a list of all substrate types.
 
@@ -1781,8 +1735,7 @@ class ExportToAedt:
 
     @property
     def substrate_er(self) -> SubstrateType | str:
-        """
-        Substrate's relative permittivity ``Er``.
+        """Substrate's relative permittivity ``Er``.
 
         The value can be either a string or an instance of the ``SubstrateEr`` enum.
         The default is ``9.8`` for ``SubstrateEr.ALUMINA``.
@@ -1826,8 +1779,7 @@ class ExportToAedt:
 
     @property
     def substrate_resistivity(self) -> SubstrateResistivity | str:
-        """
-        Substrate's resistivity.
+        """Substrate's resistivity.
 
         The value can be either a string or an instance of the ``SubstrateResistivity`` enum.
         The default is ``1.43`` for ``SubstrateResistivity.GOLD``.
@@ -1870,8 +1822,7 @@ class ExportToAedt:
 
     @property
     def substrate_loss_tangent(self) -> SubstrateEr | str:
-        """
-        Substrate's loss tangent.
+        """Substrate's loss tangent.
 
         The value can be either a string or an instance of the ``SubstrateEr`` enum.
         The default is ``0.0005`` for ``SubstrateEr.ALUMINA``.
@@ -1914,8 +1865,7 @@ class ExportToAedt:
 
     @property
     def substrate_conductor_thickness(self) -> str:
-        """
-        Substrate's conductor thickness.
+        """Substrate's conductor thickness.
 
         The default is ``2.54 um``.
 
@@ -1940,8 +1890,7 @@ class ExportToAedt:
 
     @property
     def substrate_dielectric_height(self) -> str:
-        """
-        Substrate's dielectric height.
+        """Substrate's dielectric height.
 
         The default is ``1.27 mm``.
 
@@ -1966,8 +1915,7 @@ class ExportToAedt:
 
     @property
     def substrate_unbalanced_lower_dielectric_height(self) -> str:
-        """
-        Substrate's lower dielectric height for unbalanced stripline substrate type.
+        """Substrate's lower dielectric height for unbalanced stripline substrate type.
 
         The default is ``6.35 mm``.
 
@@ -1998,8 +1946,7 @@ class ExportToAedt:
 
     @property
     def substrate_suspend_dielectric_height(self) -> str:
-        """
-        Substrate's suspend dielectric height above ground plane for suspend and inverted substrate types.
+        """Substrate's suspend dielectric height above ground plane for suspend and inverted substrate types.
 
         The default is ``1.27 mm``.
 
@@ -2026,8 +1973,7 @@ class ExportToAedt:
 
     @property
     def substrate_cover_height(self) -> str:
-        """
-        Substrate's cover height for microstrip, suspend, and inverted substrate types.
+        """Substrate's cover height for microstrip, suspend, and inverted substrate types.
         The default is ``6.35 mm``.
 
         Returns
@@ -2051,8 +1997,7 @@ class ExportToAedt:
 
     @property
     def substrate_unbalanced_stripline_enabled(self) -> bool:
-        """
-        Flag indicating if the substrate unbalanced stripline is enabled.
+        """Flag indicating if the substrate unbalanced stripline is enabled.
 
         Returns
         -------
@@ -2078,8 +2023,7 @@ class ExportToAedt:
 
     @property
     def substrate_cover_height_enabled(self) -> bool:
-        """
-        Flag indicating if the substrate cover height is enabled.
+        """Flag indicating if the substrate cover height is enabled.
 
         Returns
         -------
@@ -2104,8 +2048,7 @@ class ExportToAedt:
         self._dll_interface.raise_error(status)
 
     def load_modelithics_models(self) -> None:
-        """
-        Load ``Modelithics`` models from ``AEDT``.
+        """Load ``Modelithics`` models from ``AEDT``.
 
         Examples
         --------
@@ -2120,8 +2063,7 @@ class ExportToAedt:
 
     @property
     def modelithics_include_interconnect_enabled(self) -> bool:
-        """
-        Flag indicating if the inclusion of interconnects is enabled for ``Modelithics`` export.
+        """Flag indicating if the inclusion of interconnects is enabled for ``Modelithics`` export.
 
         Returns
         -------
@@ -2147,8 +2089,7 @@ class ExportToAedt:
 
     @property
     def modelithics_inductor_list_count(self) -> int:
-        """
-        Total count of ``Modelithics`` inductor families that have been loaded into the current design.
+        """Total count of ``Modelithics`` inductor families that have been loaded into the current design.
 
         Returns
         -------
@@ -2169,8 +2110,7 @@ class ExportToAedt:
         return int(count.value)
 
     def modelithics_inductor_list(self, row_index: int) -> str:
-        """
-        Get the name of the ``Modelithics`` inductor family model from the loaded list based
+        """Get the name of the ``Modelithics`` inductor family model from the loaded list based
         on the specified index.
 
         Examples
@@ -2190,8 +2130,7 @@ class ExportToAedt:
 
     @property
     def modelithics_inductor_selection(self) -> str:
-        """
-        Selected ``Modelithics`` inductor family from the loaded list.
+        """Selected ``Modelithics`` inductor family from the loaded list.
 
         The Modelithics inductor family selection allows you to choose a specific inductor model from the
         Modelithics library.
@@ -2218,8 +2157,7 @@ class ExportToAedt:
 
     @property
     def modelithics_inductor_family_list_count(self) -> int:
-        """
-        Total count of ``Modelithics`` family inductors added to the inductor family list.
+        """Total count of ``Modelithics`` family inductors added to the inductor family list.
 
         Returns
         -------
@@ -2242,8 +2180,7 @@ class ExportToAedt:
         return int(count.value)
 
     def modelithics_inductor_family_list(self, index: int) -> str:
-        """
-        Get the name of ``Modelithics`` inductor family from the inductor family list based on the specified index.
+        """Get the name of ``Modelithics`` inductor family from the inductor family list based on the specified index.
 
         Parameters
         ----------
@@ -2272,8 +2209,7 @@ class ExportToAedt:
         return modelithics_inductor_family
 
     def modelithics_inductor_add_family(self, modelithics_inductor: str) -> str:
-        """
-        Add a specified ``Modelithics`` inductor family to the inductor family list.
+        """Add a specified ``Modelithics`` inductor family to the inductor family list.
 
         Parameters
         ----------
@@ -2293,8 +2229,7 @@ class ExportToAedt:
         self._dll_interface.set_string(self._dll.addModelithicsInductorsFamily, modelithics_inductor)
 
     def modelithics_inductor_remove_family(self, modelithics_inductor: str) -> str:
-        """
-        Remove a specified ``Modelithics`` inductor family from the inductor family list.
+        """Remove a specified ``Modelithics`` inductor family from the inductor family list.
 
         Parameters
         ----------
@@ -2316,8 +2251,7 @@ class ExportToAedt:
 
     @property
     def modelithics_capacitor_list_count(self) -> int:
-        """
-        Total count of ``Modelithics`` capacitor families that have been loaded into the current design.
+        """Total count of ``Modelithics`` capacitor families that have been loaded into the current design.
 
         Returns
         -------
@@ -2338,8 +2272,7 @@ class ExportToAedt:
         return int(count.value)
 
     def modelithics_capacitor_list(self, row_index: int) -> str:
-        """
-        Get the name of the ``Modelithics`` capacitor family model from the loaded list based on
+        """Get the name of the ``Modelithics`` capacitor family model from the loaded list based on
         the specified index.
 
         Examples
@@ -2359,8 +2292,7 @@ class ExportToAedt:
 
     @property
     def modelithics_capacitor_selection(self) -> str:
-        """
-        Selected ``Modelithics`` capacitor family from the loaded list.
+        """Selected ``Modelithics`` capacitor family from the loaded list.
 
         The Modelithics capacitor family selection allows you to choose a specific capacitor model from the
         Modelithics library.
@@ -2387,8 +2319,7 @@ class ExportToAedt:
 
     @property
     def modelithics_capacitor_family_list_count(self) -> int:
-        """
-        Total count of ``Modelithics`` family capacitors added to the capacitor family list.
+        """Total count of ``Modelithics`` family capacitors added to the capacitor family list.
 
         Returns
         -------
@@ -2411,8 +2342,7 @@ class ExportToAedt:
         return int(count.value)
 
     def modelithics_capacitor_family_list(self, index: int) -> str:
-        """
-        Get the name of ``Modelithics`` capacitor family from the capacitor family list based on the specified index.
+        """Get the name of ``Modelithics`` capacitor family from the capacitor family list based on the specified index.
 
         Parameters
         ----------
@@ -2441,8 +2371,7 @@ class ExportToAedt:
         return modelithics_capacitor_family
 
     def modelithics_capacitor_add_family(self, modelithics_capacitor: str) -> str:
-        """
-        Add a specified ``Modelithics`` capacitor family to the capacitor family list.
+        """Add a specified ``Modelithics`` capacitor family to the capacitor family list.
 
         Parameters
         ----------
@@ -2462,8 +2391,7 @@ class ExportToAedt:
         self._dll_interface.set_string(self._dll.addModelithicsCapacitorsFamily, modelithics_capacitor)
 
     def modelithics_capacitor_remove_family(self, modelithics_capacitor: str) -> str:
-        """
-        Remove a specified ``Modelithics`` capacitor family from the capacitor family list.
+        """Remove a specified ``Modelithics`` capacitor family from the capacitor family list.
 
         Parameters
         ----------
@@ -2485,8 +2413,7 @@ class ExportToAedt:
 
     @property
     def modelithics_resistor_list_count(self) -> int:
-        """
-        Total count of ``Modelithics`` resistor families that have been loaded into the current design.
+        """Total count of ``Modelithics`` resistor families that have been loaded into the current design.
 
         Returns
         -------
@@ -2507,8 +2434,7 @@ class ExportToAedt:
         return int(count.value)
 
     def modelithics_resistor_list(self, row_index: int) -> str:
-        """
-        Get the name of the ``Modelithics`` resistor family model from the loaded list based on the
+        """Get the name of the ``Modelithics`` resistor family model from the loaded list based on the
         specified index.
 
         Examples
@@ -2528,8 +2454,7 @@ class ExportToAedt:
 
     @property
     def modelithics_resistor_selection(self) -> str:
-        """
-        Selected ``Modelithics`` resistor family from the loaded list.
+        """Selected ``Modelithics`` resistor family from the loaded list.
 
         The Modelithics resistor family selection allows you to choose a specific resistor model from the
         Modelithics library.
@@ -2556,8 +2481,7 @@ class ExportToAedt:
 
     @property
     def modelithics_resistor_family_list_count(self) -> int:
-        """
-        Total count of ``Modelithics`` family resistors added to the resistor family list.
+        """Total count of ``Modelithics`` family resistors added to the resistor family list.
 
         Returns
         -------
@@ -2578,8 +2502,7 @@ class ExportToAedt:
         return int(count.value)
 
     def modelithics_resistor_family_list(self, index: int) -> str:
-        """
-        Get the name of ``Modelithics`` resistor family from the resistor family list based on
+        """Get the name of ``Modelithics`` resistor family from the resistor family list based on
         the specified index.
 
         Parameters
@@ -2609,8 +2532,7 @@ class ExportToAedt:
         return modelithics_resistor_family
 
     def modelithics_resistor_add_family(self, modelithics_resistor: str) -> str:
-        """
-        Add a specified ``Modelithics`` resistor family to the resistor family list.
+        """Add a specified ``Modelithics`` resistor family to the resistor family list.
 
         Parameters
         ----------
@@ -2630,8 +2552,7 @@ class ExportToAedt:
         self._dll_interface.set_string(self._dll.addModelithicsResistorsFamily, modelithics_resistor)
 
     def modelithics_resistor_remove_family(self, modelithics_resistor: str) -> str:
-        """
-        Remove a specified ``Modelithics`` resistor family from the resistor family list.
+        """Remove a specified ``Modelithics`` resistor family from the resistor family list.
 
         Parameters
         ----------
@@ -2653,8 +2574,7 @@ class ExportToAedt:
 
     @property
     def insert_circuit_design(self) -> bool:
-        """
-        Flag indicating if the filter is inserted as an ``AEDT Circuit Design``.
+        """Flag indicating if the filter is inserted as an ``AEDT Circuit Design``.
 
         Returns
         -------
@@ -2680,8 +2600,7 @@ class ExportToAedt:
 
     @property
     def insert_hfss_design(self) -> bool:
-        """
-        Flag indicating if the filter is inserted as an ``AEDT HFSS Design``.
+        """Flag indicating if the filter is inserted as an ``AEDT HFSS Design``.
 
         Returns
         -------
@@ -2707,8 +2626,7 @@ class ExportToAedt:
 
     @property
     def insert_hfss_3dl_design(self) -> bool:
-        """
-        Flag indicating if the filter is inserted as an ``AEDT HFSS 3D Layout Design``.
+        """Flag indicating if the filter is inserted as an ``AEDT HFSS 3D Layout Design``.
 
         Returns
         -------
@@ -2734,8 +2652,7 @@ class ExportToAedt:
 
     @property
     def full_parametrization_enabled(self) -> bool:
-        """
-        Flag indicating if the parameter equations are used to define layout geometries for
+        """Flag indicating if the parameter equations are used to define layout geometries for
         tuning and optimizating purpose in ``HFSS``.
 
         Returns
@@ -2762,8 +2679,7 @@ class ExportToAedt:
 
     @property
     def ports_always_on_sides_enabled(self) -> bool:
-        """
-        Flag indicating if the ports are always placed on the side walls.
+        """Flag indicating if the ports are always placed on the side walls.
 
         Returns
         -------
@@ -2789,8 +2705,7 @@ class ExportToAedt:
 
     @property
     def reverse_x_axis_enabled(self) -> bool:
-        """
-        Flag indicating if the layout is mirrored along the x-axis.
+        """Flag indicating if the layout is mirrored along the x-axis.
 
         Returns
         -------
@@ -2816,8 +2731,7 @@ class ExportToAedt:
 
     @property
     def reverse_y_axis_enabled(self) -> bool:
-        """
-        Flag indicating if the layout is mirrored along the y-axis.
+        """Flag indicating if the layout is mirrored along the y-axis.
 
         Returns
         -------
@@ -2843,8 +2757,7 @@ class ExportToAedt:
 
     @property
     def export_with_tuning_port_format_enabled(self) -> bool:
-        """
-        Flag indicating if the export with tuning port format is enabled.
+        """Flag indicating if the export with tuning port format is enabled.
 
         Returns
         -------
@@ -2870,8 +2783,7 @@ class ExportToAedt:
 
     @property
     def use_series_horizontal_ports_enabled(self) -> bool:
-        """
-        Flag indicating if  horizontal ports are used for series element only cases.
+        """Flag indicating if  horizontal ports are used for series element only cases.
 
         Returns
         -------
@@ -2896,8 +2808,7 @@ class ExportToAedt:
         self._dll_interface.raise_error(status)
 
     def import_tuned_variables_port_tuning(self) -> None:
-        """
-        Import tuned variables from the port tuning project.
+        """Import tuned variables from the port tuning project.
 
         Examples
         --------
@@ -2911,8 +2822,7 @@ class ExportToAedt:
         self._dll_interface.raise_error(status)
 
     def import_and_reexport_over_port_tuning(self) -> None:
-        """
-        Import tuned variables and export back over the port tuning project.
+        """Import tuned variables and export back over the port tuning project.
 
         Examples
         --------
@@ -2926,8 +2836,7 @@ class ExportToAedt:
         self._dll_interface.raise_error(status)
 
     def simulate_full_port_tuning(self) -> None:
-        """
-        Simulate the port tuning project and the linked circuits schematic.
+        """Simulate the port tuning project and the linked circuits schematic.
 
         Examples
         --------
@@ -2941,8 +2850,7 @@ class ExportToAedt:
         self._dll_interface.raise_error(status)
 
     def simulate_tuning_circuit_port_tuning(self) -> None:
-        """
-        Simulate only the linked circuits schematic of the port tuning project.
+        """Simulate only the linked circuits schematic of the port tuning project.
 
         Examples
         --------
@@ -2956,8 +2864,7 @@ class ExportToAedt:
         self._dll_interface.raise_error(status)
 
     def optimize_port_tuning(self) -> None:
-        """
-        Simulate the ``HFSS Design`` or ``HFSS 3D Layout Design`` of the port tuning project.
+        """Simulate the ``HFSS Design`` or ``HFSS 3D Layout Design`` of the port tuning project.
 
         Examples
         --------

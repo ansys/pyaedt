@@ -108,8 +108,7 @@ def update_hpc_option(
 
 
 def update_simulation_cores(name: str, nc: int | str) -> None:
-    """
-    Update the HPC number of cores in the configuration file.
+    """Update the HPC number of cores in the configuration file.
 
     Parameters
     ----------
@@ -136,8 +135,7 @@ def update_simulation_cores(name: str, nc: int | str) -> None:
 
 
 def update_simulation_engines(name: str, nc: int | str) -> None:
-    """
-    Update the HPC number of simulaton engines in the configuration file.
+    """Update the HPC number of simulaton engines in the configuration file.
 
     Parameters
     ----------
@@ -164,8 +162,7 @@ def update_simulation_engines(name: str, nc: int | str) -> None:
 
 
 def update_machine_name(name: str, machinename: str) -> None:
-    """
-    Update the machine name.
+    """Update the machine name.
 
     Parameters
     ----------
@@ -192,8 +189,7 @@ def update_machine_name(name: str, machinename: str) -> None:
 
 
 def update_config_name(name: str, machinename: str) -> None:
-    """
-    Update the name of the configuration.
+    """Update the name of the configuration.
 
     Parameters
     ----------
@@ -222,8 +218,7 @@ def update_config_name(name: str, machinename: str) -> None:
 
 
 def update_cluster_cores(file_name: str, param_name, param_val) -> None:
-    """
-    Update the number of cluster cores in the configuration file.
+    """Update the number of cluster cores in the configuration file.
 
     Parameters
     ----------
@@ -252,8 +247,7 @@ def update_cluster_cores(file_name: str, param_name, param_val) -> None:
 
 
 def update_hpc_template(file_name: str, param_name: str, param_val: int) -> None:
-    """
-    Update a parameter in the HPC template file.
+    """Update a parameter in the HPC template file.
 
     Parameters
     ----------

@@ -65,8 +65,7 @@ EXTENSION_TITLE = "Import Nastran"
 
 @dataclass
 class ImportNastranExtensionData(ExtensionCommonData):
-    """
-    Data class containing user input and computed data.
+    """Data class containing user input and computed data.
 
     Examples
     --------
@@ -88,8 +87,7 @@ class ImportNastranExtensionData(ExtensionCommonData):
 
 
 class ImportNastranExtension(ExtensionProjectCommon):
-    """
-    Extension for importing Nastran or STL files in AEDT.
+    """Extension for importing Nastran or STL files in AEDT.
 
     Examples
     --------
@@ -118,8 +116,7 @@ class ImportNastranExtension(ExtensionProjectCommon):
         self.add_extension_content()
 
     def check_design_type(self) -> None:
-        """
-        Check if the design type is HFSS, Icepak, HFSS 3D, Maxwell 3D, Q3D, Mechanical
+        """Check if the design type is HFSS, Icepak, HFSS 3D, Maxwell 3D, Q3D, Mechanical
 
         Examples
         --------
@@ -142,8 +139,7 @@ class ImportNastranExtension(ExtensionProjectCommon):
             )
 
     def add_extension_content(self) -> None:
-        """
-        Add custom content to the extension UI.
+        """Add custom content to the extension UI.
 
         Examples
         --------
@@ -310,8 +306,7 @@ class ImportNastranExtension(ExtensionProjectCommon):
 
 
 def main(data: ImportNastranExtensionData) -> bool:
-    """
-    Main function to run the import nastran extension.
+    """Main function to run the import nastran extension.
 
     Examples
     --------

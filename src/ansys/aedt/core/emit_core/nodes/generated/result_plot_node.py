@@ -54,8 +54,7 @@ class ResultPlotNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def title(self) -> str:
-        """
-        Enter title at the top of the plot, room will be made for it.
+        """Enter title at the top of the plot, room will be made for it.
 
         Examples
         --------
@@ -77,8 +76,7 @@ class ResultPlotNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def title_font(self) -> str:
-        """
-        Configure title font family, typeface, and size.
+        """Configure title font family, typeface, and size.
 
         Value formatted like 'Sans Serif,10,-1,5,50,0,0,0,0,0'.
 
@@ -102,8 +100,7 @@ class ResultPlotNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def show_legend(self) -> bool:
-        """
-        Toggle (on/off) display of plot legend.
+        """Toggle (on/off) display of plot legend.
 
         Value should be 'true' or 'false'.
 
@@ -127,8 +124,7 @@ class ResultPlotNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def legend_font(self) -> str:
-        """
-        Configure legend font family, typeface, and size.
+        """Configure legend font family, typeface, and size.
 
         Value formatted like 'Sans Serif,10,-1,5,50,0,0,0,0,0'.
 
@@ -152,8 +148,7 @@ class ResultPlotNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def show_emi_thresholds(self) -> bool:
-        """
-        Toggles on/off visibility of the EMI Thresholds.
+        """Toggles on/off visibility of the EMI Thresholds.
 
         Value should be 'true' or 'false'.
 
@@ -177,8 +172,7 @@ class ResultPlotNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def lock_axes(self) -> bool:
-        """
-        Lock Axes.
+        """Lock Axes.
 
         Allow or prevent changing of axes when displayed plot traces are
         updated.
@@ -253,8 +247,7 @@ class ResultPlotNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def max_major_ticks_x(self) -> int:
-        """
-        Max Major Ticks X.
+        """Max Major Ticks X.
 
         Set maximum number of major tick-mark intervals along horizontal axis.
 
@@ -271,8 +264,7 @@ class ResultPlotNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def max_minor_ticks_x(self) -> int:
-        """
-        Max Minor Ticks X.
+        """Max Minor Ticks X.
 
         Set maximum number of minor tick-mark intervals between major ticks
         along horizontal axis.
@@ -290,8 +282,7 @@ class ResultPlotNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def max_major_ticks_y(self) -> int:
-        """
-        Max Major Ticks Y.
+        """Max Major Ticks Y.
 
         Set maximum number of major tick-mark intervals along vertical axis.
 
@@ -308,8 +299,7 @@ class ResultPlotNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def max_minor_ticks_y(self) -> int:
-        """
-        Max Minor Ticks Y.
+        """Max Minor Ticks Y.
 
         Set maximum number of minor tick-mark intervals between major ticks
         along vertical axis.
@@ -327,8 +317,7 @@ class ResultPlotNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def axis_label_font(self) -> str:
-        """
-        Configure axis text labels font family, typeface, and size.
+        """Configure axis text labels font family, typeface, and size.
 
         Value formatted like 'Sans Serif,10,-1,5,50,0,0,0,0,0'.
         """
@@ -343,8 +332,7 @@ class ResultPlotNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def axis_tick_label_font(self) -> str:
-        """
-        Configure axis tick numeric labels font family, typeface, and size.
+        """Configure axis tick numeric labels font family, typeface, and size.
 
         Value formatted like 'Sans Serif,10,-1,5,50,0,0,0,0,0'.
         """
@@ -380,8 +368,7 @@ class ResultPlotNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def major_grid_color(self) -> str:
-        """
-        Set color of major-tick grid lines.
+        """Set color of major-tick grid lines.
 
         Color should be in RGB form: #RRGGBB.
         """
@@ -417,8 +404,7 @@ class ResultPlotNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def minor_grid_color(self) -> str:
-        """
-        Set color of minor-tick grid lines.
+        """Set color of minor-tick grid lines.
 
         Color should be in RGB form: #RRGGBB.
         """
@@ -433,8 +419,7 @@ class ResultPlotNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def background_color(self) -> str:
-        """
-        Set background color of entire plot.
+        """Set background color of entire plot.
 
         Color should be in RGB form: #RRGGBB.
         """
@@ -468,8 +453,7 @@ class ResultPlotNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def bb_power_bandwidth(self) -> float:
-        """
-        Resolution bandwidth for broadband power.
+        """Resolution bandwidth for broadband power.
 
         Value should be between 1.0 and 100e9.
         """
@@ -486,8 +470,7 @@ class ResultPlotNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def log_scale(self) -> bool:
-        """
-        Toggles on/off using a log scale for the X-Axis.
+        """Toggles on/off using a log scale for the X-Axis.
 
         Value should be 'true' or 'false'.
         """

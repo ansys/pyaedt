@@ -32,8 +32,7 @@ import ansys.aedt.core
 
 
 class MultipleBandsTable:
-    """
-    Manipulates access to the entries of multiple bands table.
+    """Manipulates access to the entries of multiple bands table.
 
     This class allows you to enter, edit, or remove entries in the multiple bands table.
     The table includes the lower and upper frequencies of the bands.
@@ -81,8 +80,7 @@ class MultipleBandsTable:
 
     @property
     def row_count(self) -> int:
-        """
-        Total number of rows present in the multiple bands table.
+        """Total number of rows present in the multiple bands table.
 
         The default is ``2``.
 
@@ -105,8 +103,7 @@ class MultipleBandsTable:
         return int(table_row_count.value)
 
     def row(self, row_index: int) -> tuple[str, str]:
-        """
-        Get the lower and upper frequency values for a row in the multiple bands table.
+        """Get the lower and upper frequency values for a row in the multiple bands table.
 
         Parameters
         ----------
@@ -138,8 +135,7 @@ class MultipleBandsTable:
         return lower_value_string, upper_value_string
 
     def update_row(self, row_index: int, lower_frequency: str = None, upper_frequency: str = None) -> None:
-        """
-        Update lower and upper frequency values for a row in the multiple bands table.
+        """Update lower and upper frequency values for a row in the multiple bands table.
 
         Parameters
         ----------
@@ -168,8 +164,7 @@ class MultipleBandsTable:
         self._dll_interface.raise_error(status)
 
     def append_row(self, lower_frequency: str = None, upper_frequency: str = None) -> None:
-        """
-        Append a new row with specified lower and upper frequency values to the end of the multiple bands table.
+        """Append a new row with specified lower and upper frequency values to the end of the multiple bands table.
 
         Parameters
         ----------
@@ -193,8 +188,7 @@ class MultipleBandsTable:
         self._dll_interface.raise_error(status)
 
     def insert_row(self, row_index: int, lower_frequency: str = None, upper_frequency: str = None) -> None:
-        """
-        Insert lower and upper frequencies in a given row.
+        """Insert lower and upper frequencies in a given row.
 
         Parameters
         ----------
@@ -221,8 +215,7 @@ class MultipleBandsTable:
         self._dll_interface.raise_error(status)
 
     def remove_row(self, row_index: int) -> None:
-        """
-        Remove a row specified by its index from the multiple bands table.
+        """Remove a row specified by its index from the multiple bands table.
 
         Parameters
         ----------
@@ -242,8 +235,7 @@ class MultipleBandsTable:
         self._dll_interface.raise_error(status)
 
     def clear_table(self) -> None:
-        """
-        Remove all rows from the multiple bands table.
+        """Remove all rows from the multiple bands table.
 
         Examples
         --------

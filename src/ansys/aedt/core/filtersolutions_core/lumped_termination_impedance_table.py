@@ -34,8 +34,7 @@ import ansys.aedt.core
 
 
 class ComplexTerminationDefinition(Enum):
-    """
-    Selects type of complex presentation.
+    """Selects type of complex presentation.
 
     **Attributes:**
 
@@ -62,8 +61,7 @@ class ComplexTerminationDefinition(Enum):
 
 
 class ComplexReactanceType(Enum):
-    """
-    Selects type of complex impedance as reactance, equivalent inductance, or equivalent capacitance.
+    """Selects type of complex impedance as reactance, equivalent inductance, or equivalent capacitance.
 
     **Attributes:**
 
@@ -87,8 +85,7 @@ class ComplexReactanceType(Enum):
 
 
 class TerminationType(Enum):
-    """
-    Selects either source or load complex impedance table.
+    """Selects either source or load complex impedance table.
 
     **Attributes:**
 
@@ -109,8 +106,7 @@ class TerminationType(Enum):
 
 
 class LumpedTerminationImpedance:
-    """
-    Manipulates access to the entries of source and load complex impedance table.
+    """Manipulates access to the entries of source and load complex impedance table.
 
     This class allows you to enter, edit, or remove the entries of source and load complex impedance table.
 
@@ -206,8 +202,7 @@ class LumpedTerminationImpedance:
         return None
 
     def table_type_to_bool(self) -> bool:
-        """
-        Set a flag to recognize source and load complex table.
+        """Set a flag to recognize source and load complex table.
 
         Returns
         -------
@@ -227,8 +222,7 @@ class LumpedTerminationImpedance:
 
     @property
     def row_count(self) -> int:
-        """
-        Count of the accumulated complex impedances in the complex impedances's table.
+        """Count of the accumulated complex impedances in the complex impedances's table.
 
         The default is ``3``.
 
@@ -249,8 +243,7 @@ class LumpedTerminationImpedance:
         return int(table_row_count.value)
 
     def row(self, row_index: int) -> tuple[str, str, str]:
-        """
-        Get frequency and complex impedance values from a row in the complex impedance table.
+        """Get frequency and complex impedance values from a row in the complex impedance table.
 
         Parameters
         ----------
@@ -290,8 +283,7 @@ class LumpedTerminationImpedance:
         return frequency_value_string, real_value_string, imag_value_string
 
     def update_row(self, row_index: int, frequency: str = None, real: str = None, imag: str = None) -> None:
-        """
-        Update frequency and complex impedance at a specified index in the complex impedance table.
+        """Update frequency and complex impedance at a specified index in the complex impedance table.
 
         Parameters
         ----------
@@ -322,8 +314,7 @@ class LumpedTerminationImpedance:
         self._dll_interface.raise_error(status)
 
     def append_row(self, frequency: str = None, real: str = None, imag: str = None) -> None:
-        """
-        Append frequency and complex impedance values to the last row of
+        """Append frequency and complex impedance values to the last row of
         both the source and load complex impedance table.
 
 
@@ -353,8 +344,7 @@ class LumpedTerminationImpedance:
         self._dll_interface.raise_error(status)
 
     def insert_row(self, row_index: int, frequency: str = None, real: str = None, imag: str = None) -> None:
-        """
-        Insert frequency and complex impedance values at a specified index in the complex impedance table.
+        """Insert frequency and complex impedance values at a specified index in the complex impedance table.
 
         Parameters
         ----------
@@ -385,8 +375,7 @@ class LumpedTerminationImpedance:
         self._dll_interface.raise_error(status)
 
     def remove_row(self, row_index: int) -> None:
-        """
-        Remove frequency and complex impedance at a specified index from the complex impedance table.
+        """Remove frequency and complex impedance at a specified index from the complex impedance table.
 
         Parameters
         ----------
@@ -406,8 +395,7 @@ class LumpedTerminationImpedance:
 
     @property
     def complex_definition(self) -> ComplexTerminationDefinition:
-        """
-        Definition type of complex impedance in the complex impedance table.
+        """Definition type of complex impedance in the complex impedance table.
         The default is ``Cartesian``.
 
         Returns
@@ -444,8 +432,7 @@ class LumpedTerminationImpedance:
 
     @property
     def reactance_type(self) -> ComplexReactanceType:
-        """
-        Reactance type of complex impedance in the complex impedance table.
+        """Reactance type of complex impedance in the complex impedance table.
 
         The default is ``reactance``.
 
@@ -481,8 +468,7 @@ class LumpedTerminationImpedance:
 
     @property
     def element_tune_enabled(self) -> bool:
-        """
-        Flag indicating if the element tune is enabled.
+        """Flag indicating if the element tune is enabled.
 
         Returns
         -------
@@ -508,8 +494,7 @@ class LumpedTerminationImpedance:
 
     @property
     def compensation_enabled(self) -> bool:
-        """
-        Flag indicating if the impedance compensation is enabled.
+        """Flag indicating if the impedance compensation is enabled.
 
         Returns
         -------
@@ -535,8 +520,7 @@ class LumpedTerminationImpedance:
 
     @property
     def compensation_order(self) -> int:
-        """
-        Order of impedance compensation.
+        """Order of impedance compensation.
 
         The default is` ``2``.
 

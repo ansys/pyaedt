@@ -59,8 +59,7 @@ COIL_PARAMETERS = {
 
 
 class Coil(PyAedtBase):
-    """
-    Class to create coils in AEDT.
+    """Class to create coils in AEDT.
 
     Parameters
     ----------
@@ -114,8 +113,7 @@ class Coil(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_flat_path(self) -> list:
-        """
-        Create the path for a flat coil.
+        """Create the path for a flat coil.
 
         Returns
         -------
@@ -294,8 +292,7 @@ class Coil(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_vertical_path(self) -> list:
-        """
-        Create the path for a vertical coil.
+        """Create the path for a vertical coil.
 
         Returns
         -------
@@ -413,8 +410,7 @@ class Coil(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_sweep_profile(self, polyline: "Object3d") -> str:
-        """
-        Create the profile to sweep along the coil path and perform the sweep operation.
+        """Create the profile to sweep along the coil path and perform the sweep operation.
 
         Parameters
         ----------

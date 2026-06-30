@@ -42,8 +42,7 @@ from ansys.aedt.core.visualization.plot.pyvista import ObjClass
 
 
 class HDMPlotter(CommonPlotter, PyAedtBase):
-    """
-    Manages Hdm data to be plotted with ``pyvista``.
+    """Manages Hdm data to be plotted with ``pyvista``.
 
     Note: the methods in this class are just examples and subject
     to improvement and changes.
@@ -67,8 +66,7 @@ class HDMPlotter(CommonPlotter, PyAedtBase):
 
     @property
     def hdm_data(self):
-        """
-        Return the ``hds`` Data parsed.
+        """Return the ``hds`` Data parsed.
 
         Examples
         --------

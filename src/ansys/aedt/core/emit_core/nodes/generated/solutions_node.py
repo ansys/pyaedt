@@ -68,8 +68,7 @@ class SolutionsNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def enabled(self) -> bool:
-        """
-        Enabled.
+        """Enabled.
 
         Enable/Disable coupling (A setup disabled in HFSS/Layout cannot be
         enabled in EMIT).

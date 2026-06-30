@@ -22,8 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-The module contains these classes: `AMIConturEyeDiagram`, `AMIEyeDiagram`, and `EyeDiagram`.
+"""The module contains these classes: `AMIConturEyeDiagram`, `AMIEyeDiagram`, and `EyeDiagram`.
 
 The module provides all functionalities for creating and editing reports.
 
@@ -43,8 +42,7 @@ from ansys.aedt.core.visualization.report.common import CommonReport
 
 
 class AMIConturEyeDiagram(CommonReport):
-    """
-    Provides for managing eye contour diagram reports in AMI analysis.
+    """Provides for managing eye contour diagram reports in AMI analysis.
 
     Examples
     --------
@@ -78,8 +76,7 @@ class AMIConturEyeDiagram(CommonReport):
 
     @property
     def expressions(self) -> list:
-        """
-        Get the expressions for the eye diagram.
+        """Get the expressions for the eye diagram.
 
         Returns
         -------
@@ -150,8 +147,7 @@ class AMIConturEyeDiagram(CommonReport):
 
     @property
     def quantity_type(self) -> int:
-        """
-        Quantity type used in the AMI analysis plot.
+        """Quantity type used in the AMI analysis plot.
 
         Returns
         -------
@@ -338,8 +334,7 @@ class AMIConturEyeDiagram(CommonReport):
 
     @pyaedt_function_handler()
     def create(self, name: str = None) -> bool:
-        """
-        Create an eye diagram report.
+        """Create an eye diagram report.
 
         Parameters
         ----------
@@ -393,8 +388,7 @@ class AMIConturEyeDiagram(CommonReport):
         y_offset: str = "0V",
         transparency: float = 0.3,
     ) -> bool:
-        """
-        Create an eye diagram in the plot.
+        """Create an eye diagram in the plot.
 
         Parameters
         ----------
@@ -475,8 +469,7 @@ class AMIConturEyeDiagram(CommonReport):
 
     @pyaedt_function_handler()
     def rectangular_plot(self, enable: bool = True) -> bool:
-        """
-        Enable or disable the rectangular plot on the chart.
+        """Enable or disable the rectangular plot on the chart.
 
         Parameters
         ----------
@@ -508,8 +501,7 @@ class AMIConturEyeDiagram(CommonReport):
 
     @pyaedt_function_handler()
     def add_all_eye_measurements(self) -> bool:
-        """
-        Add all eye measurements to the plot.
+        """Add all eye measurements to the plot.
 
         Returns
         -------
@@ -528,8 +520,7 @@ class AMIConturEyeDiagram(CommonReport):
 
     @pyaedt_function_handler()
     def clear_all_eye_measurements(self) -> bool:
-        """
-        Clear all eye measurements from the plot.
+        """Clear all eye measurements from the plot.
 
         Returns
         -------
@@ -548,8 +539,7 @@ class AMIConturEyeDiagram(CommonReport):
 
     @pyaedt_function_handler()
     def export_mask_violation(self, output_file: str = None) -> str:
-        """
-        Export the eye diagram mask violations to a TAB file.
+        """Export the eye diagram mask violations to a TAB file.
 
         Parameters
         ----------
@@ -576,8 +566,7 @@ class AMIConturEyeDiagram(CommonReport):
 
 
 class AMIEyeDiagram(CommonReport):
-    """
-    Provides for managing eye diagram reports.
+    """Provides for managing eye diagram reports.
 
     Examples
     --------
@@ -608,8 +597,7 @@ class AMIEyeDiagram(CommonReport):
 
     @property
     def expressions(self) -> list:
-        """
-        Expressions.
+        """Expressions.
 
         Returns
         -------
@@ -685,8 +673,7 @@ class AMIEyeDiagram(CommonReport):
 
     @property
     def quantity_type(self):
-        """
-        Quantity type used in the AMI analysis plot.
+        """Quantity type used in the AMI analysis plot.
 
         Returns
         -------
@@ -716,8 +703,7 @@ class AMIEyeDiagram(CommonReport):
 
     @property
     def report_category(self) -> str:
-        """
-        Report category.
+        """Report category.
 
         Returns
         -------
@@ -756,8 +742,7 @@ class AMIEyeDiagram(CommonReport):
 
     @property
     def unit_interval(self) -> str:
-        """
-        Unit interval value.
+        """Unit interval value.
 
         Returns
         -------
@@ -781,8 +766,7 @@ class AMIEyeDiagram(CommonReport):
 
     @property
     def offset(self) -> str:
-        """
-        Offset value.
+        """Offset value.
 
         Returns
         -------
@@ -806,8 +790,7 @@ class AMIEyeDiagram(CommonReport):
 
     @property
     def auto_delay(self) -> bool:
-        """
-        Auto-delay flag.
+        """Auto-delay flag.
 
         Returns
         -------
@@ -831,8 +814,7 @@ class AMIEyeDiagram(CommonReport):
 
     @property
     def manual_delay(self) -> str:
-        """
-        Manual delay value when ``auto_delay=False``.
+        """Manual delay value when ``auto_delay=False``.
 
         Returns
         -------
@@ -856,8 +838,7 @@ class AMIEyeDiagram(CommonReport):
 
     @property
     def auto_cross_amplitude(self) -> bool:
-        """
-        Auto-cross amplitude flag.
+        """Auto-cross amplitude flag.
 
         Returns
         -------
@@ -881,8 +862,7 @@ class AMIEyeDiagram(CommonReport):
 
     @property
     def cross_amplitude(self) -> str:
-        """
-        Cross-amplitude value when ``auto_cross_amplitude=False``.
+        """Cross-amplitude value when ``auto_cross_amplitude=False``.
 
         Returns
         -------
@@ -906,8 +886,7 @@ class AMIEyeDiagram(CommonReport):
 
     @property
     def auto_compute_eye_meas(self) -> bool:
-        """
-        Flag for automatically computing eye measurements.
+        """Flag for automatically computing eye measurements.
 
         Returns
         -------
@@ -931,8 +910,7 @@ class AMIEyeDiagram(CommonReport):
 
     @property
     def eye_measurement_point(self) -> str:
-        """
-        Eye measurement point.
+        """Eye measurement point.
 
         Returns
         -------
@@ -1085,8 +1063,7 @@ class AMIEyeDiagram(CommonReport):
 
     @pyaedt_function_handler()
     def create(self, name: str = None) -> bool:
-        """
-        Create an eye diagram report.
+        """Create an eye diagram report.
 
         Parameters
         ----------
@@ -1174,8 +1151,7 @@ class AMIEyeDiagram(CommonReport):
         y_offset: str = "0V",
         transparency: float = 0.3,
     ) -> bool:
-        """
-        Create an eye diagram in the plot.
+        """Create an eye diagram in the plot.
 
         Parameters
         ----------
@@ -1252,8 +1228,7 @@ class AMIEyeDiagram(CommonReport):
 
     @pyaedt_function_handler()
     def rectangular_plot(self, enable: bool = True) -> bool:
-        """
-        Enable or disable the rectangular plot on the chart.
+        """Enable or disable the rectangular plot on the chart.
 
         Parameters
         ----------
@@ -1286,8 +1261,7 @@ class AMIEyeDiagram(CommonReport):
 
     @pyaedt_function_handler()
     def add_all_eye_measurements(self) -> bool:
-        """
-        Add all eye measurements to the plot.
+        """Add all eye measurements to the plot.
 
         Returns
         -------
@@ -1308,8 +1282,7 @@ class AMIEyeDiagram(CommonReport):
 
     @pyaedt_function_handler()
     def clear_all_eye_measurements(self) -> bool:
-        """
-        Clear all eye measurements from the plot.
+        """Clear all eye measurements from the plot.
 
         Returns
         -------
@@ -1330,8 +1303,7 @@ class AMIEyeDiagram(CommonReport):
 
     @pyaedt_function_handler()
     def export_mask_violation(self, output_file: str = None) -> str:
-        """
-        Export the eye diagram mask violations to a TAB file.
+        """Export the eye diagram mask violations to a TAB file.
 
         Parameters
         ----------
@@ -1360,8 +1332,7 @@ class AMIEyeDiagram(CommonReport):
 
 
 class EyeDiagram(AMIEyeDiagram):
-    """
-    Provides for managing eye diagram reports.
+    """Provides for managing eye diagram reports.
 
     Examples
     --------
@@ -1380,8 +1351,7 @@ class EyeDiagram(AMIEyeDiagram):
 
     @property
     def expressions(self) -> list:
-        """
-        Expressions.
+        """Expressions.
 
         Returns
         -------
@@ -1420,8 +1390,7 @@ class EyeDiagram(AMIEyeDiagram):
 
     @property
     def time_start(self) -> str:
-        """
-        Time start value.
+        """Time start value.
 
         Returns
         -------
@@ -1443,8 +1412,7 @@ class EyeDiagram(AMIEyeDiagram):
 
     @property
     def time_stop(self) -> str:
-        """
-        Time stop value.
+        """Time stop value.
 
         Returns
         -------
@@ -1466,8 +1434,7 @@ class EyeDiagram(AMIEyeDiagram):
 
     @property
     def thinning(self) -> bool:
-        """
-        Thinning flag.
+        """Thinning flag.
 
         Returns
         -------
@@ -1489,8 +1456,7 @@ class EyeDiagram(AMIEyeDiagram):
 
     @property
     def dy_dx_tolerance(self) -> float:
-        """
-        DY DX tolerance.
+        """DY DX tolerance.
 
         Returns
         -------
@@ -1512,8 +1478,7 @@ class EyeDiagram(AMIEyeDiagram):
 
     @property
     def thinning_points(self) -> int:
-        """
-        Number of thinning points.
+        """Number of thinning points.
 
         Returns
         -------

@@ -44,8 +44,7 @@ def create_tab_main(tab_frame, master) -> None:
 
 
 def create_sub_frame0(parent, master) -> None:
-    """
-    Import frame.
+    """Import frame.
 
     Examples
     --------
@@ -103,8 +102,7 @@ def create_sub_frame0(parent, master) -> None:
 
 
 def create_sub_frame1(parent, master) -> None:
-    """
-    Export frame.
+    """Export frame.
 
     Examples
     --------
@@ -157,8 +155,7 @@ def create_sub_frame1(parent, master) -> None:
 
 
 def callback_select_design(master) -> None:
-    """
-    Select design to apply configuration.
+    """Select design to apply configuration.
 
     Examples
     --------
@@ -226,8 +223,7 @@ def callback_export(master):
 
 
 def update_options(master) -> None:
-    """
-    Update export options based on the selected checkboxes.
+    """Update export options based on the selected checkboxes.
 
     Examples
     --------

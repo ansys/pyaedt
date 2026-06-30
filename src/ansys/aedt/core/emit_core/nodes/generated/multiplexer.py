@@ -52,8 +52,7 @@ class Multiplexer(EmitNode):
 
     @min_aedt_version("2025.2")
     def add_multiplexer_pass_band(self) -> EmitNode:
-        """
-        Add a New Multiplexer Band to this Multiplexer
+        """Add a New Multiplexer Band to this Multiplexer
 
         Examples
         --------
@@ -96,8 +95,7 @@ class Multiplexer(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def filename(self) -> str:
-        """
-        Name of file defining the multiplexer.
+        """Name of file defining the multiplexer.
 
         Value should be a full file path.
 
@@ -120,8 +118,7 @@ class Multiplexer(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def noise_temperature(self) -> float:
-        """
-        System Noise temperature (K) of the component.
+        """System Noise temperature (K) of the component.
 
         Value should be between 0 and 1000.
 
@@ -144,8 +141,7 @@ class Multiplexer(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def notes(self) -> str:
-        """
-        Expand to view/edit notes stored with the project.
+        """Expand to view/edit notes stored with the project.
 
         Examples
         --------
@@ -170,8 +166,7 @@ class Multiplexer(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def multiplexer_type(self) -> MultiplexerTypeOption:
-        """
-        Multiplexer Type.
+        """Multiplexer Type.
 
         Type of multiplexer model. Options include: By File (one measured or
         simulated file for the device) or By Pass Band (parametric or file-based
@@ -197,8 +192,7 @@ class Multiplexer(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def ports(self) -> list[str]:
-        """
-        Assigns the child port nodes to the multiplexers ports.
+        """Assigns the child port nodes to the multiplexers ports.
 
         Examples
         --------
@@ -221,8 +215,7 @@ class Multiplexer(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def warnings(self) -> str:
-        """
-        Warning(s) for this node.
+        """Warning(s) for this node.
 
         Examples
         --------

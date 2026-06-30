@@ -22,8 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-Launches an interactive shell with an instance of HFSS.
+"""Launches an interactive shell with an instance of HFSS.
 
 This file can also serve as a template to modify PyAEDT scripts to take advantage of the command line arguments
 provided by the launcher
@@ -187,8 +186,7 @@ if version > "2023.1":
         f.write("from ansys.aedt.core import *\n")
 
     def log_successful_command(result) -> None:
-        """
-        IPython Hook: Executes after every command (cell).
+        """IPython Hook: Executes after every command (cell).
         Logs the input command only if 'result.error_in_exec' is False (no exception).
         """
         # Check for execution error

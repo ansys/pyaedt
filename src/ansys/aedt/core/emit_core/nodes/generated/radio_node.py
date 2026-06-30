@@ -50,8 +50,7 @@ class RadioNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def add_band(self) -> EmitNode:
-        """
-        Create a New Band
+        """Create a New Band
 
         Examples
         --------
@@ -65,8 +64,7 @@ class RadioNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def add_folder(self) -> EmitNode:
-        """
-        Create a New Folder to Organize Bands
+        """Create a New Folder to Organize Bands
 
         Examples
         --------
@@ -109,8 +107,7 @@ class RadioNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def notes(self) -> str:
-        """
-        Expand to view/edit notes stored with the project.
+        """Expand to view/edit notes stored with the project.
 
         Examples
         --------

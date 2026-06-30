@@ -31,8 +31,7 @@ from ansys.aedt.core.modules.circuit_templates import SourceKeys
 
 
 class Sources(PyAedtBase):
-    """
-    Manages sources in Circuit projects.
+    """Manages sources in Circuit projects.
 
     Examples
     --------
@@ -52,8 +51,7 @@ class Sources(PyAedtBase):
 
     @property
     def name(self) -> str:
-        """
-        Source name.
+        """Source name.
 
         Returns
         -------
@@ -207,8 +205,7 @@ class Sources(PyAedtBase):
 
     @pyaedt_function_handler()
     def update(self, original_name: str = None, new_source: str = None) -> bool:
-        """
-        Update the source in AEDT.
+        """Update the source in AEDT.
 
         Parameters
         ----------
@@ -319,8 +316,7 @@ class Sources(PyAedtBase):
 
     @pyaedt_function_handler()
     def delete(self) -> bool:
-        """
-        Delete the source in AEDT.
+        """Delete the source in AEDT.
 
         Returns
         -------
@@ -344,8 +340,7 @@ class Sources(PyAedtBase):
 
     @pyaedt_function_handler()
     def create(self) -> bool:
-        """
-        Create a new source in AEDT.
+        """Create a new source in AEDT.
 
         Returns
         -------
@@ -364,8 +359,7 @@ class Sources(PyAedtBase):
 
 
 class PowerSinSource(Sources):
-    """
-    Power Sinusoidal Class.
+    """Power Sinusoidal Class.
 
     Examples
     --------
@@ -386,8 +380,7 @@ class PowerSinSource(Sources):
 
     @property
     def ac_magnitude(self) -> str:
-        """
-        AC magnitude value.
+        """AC magnitude value.
 
         Returns
         -------
@@ -413,8 +406,7 @@ class PowerSinSource(Sources):
 
     @property
     def ac_phase(self) -> str:
-        """
-        AC phase value.
+        """AC phase value.
 
         Returns
         -------
@@ -440,8 +432,7 @@ class PowerSinSource(Sources):
 
     @property
     def dc_magnitude(self) -> str:
-        """
-        DC voltage value.
+        """DC voltage value.
 
         Returns
         -------
@@ -467,8 +458,7 @@ class PowerSinSource(Sources):
 
     @property
     def power_offset(self) -> str:
-        """
-        Power offset from zero watts.
+        """Power offset from zero watts.
 
         Returns
         -------
@@ -494,8 +484,7 @@ class PowerSinSource(Sources):
 
     @property
     def power_magnitude(self) -> str:
-        """
-        Available power of the source above power offset.
+        """Available power of the source above power offset.
 
         Returns
         -------
@@ -521,8 +510,7 @@ class PowerSinSource(Sources):
 
     @property
     def frequency(self) -> str:
-        """
-        Frequency.
+        """Frequency.
 
         Returns
         -------
@@ -548,8 +536,7 @@ class PowerSinSource(Sources):
 
     @property
     def delay(self) -> str:
-        """
-        Delay to start of sine wave.
+        """Delay to start of sine wave.
 
         Returns
         -------
@@ -575,8 +562,7 @@ class PowerSinSource(Sources):
 
     @property
     def damping_factor(self) -> str:
-        """
-        Damping factor.
+        """Damping factor.
 
         Returns
         -------
@@ -602,8 +588,7 @@ class PowerSinSource(Sources):
 
     @property
     def phase_delay(self) -> str:
-        """
-        Phase delay.
+        """Phase delay.
 
         Returns
         -------
@@ -629,8 +614,7 @@ class PowerSinSource(Sources):
 
     @property
     def tone(self) -> str:
-        """
-        Frequency to use for harmonic balance.
+        """Frequency to use for harmonic balance.
 
         Returns
         -------
@@ -656,8 +640,7 @@ class PowerSinSource(Sources):
 
 
 class PowerIQSource(Sources):
-    """
-    Power IQ Class.
+    """Power IQ Class.
 
     Examples
     --------
@@ -678,8 +661,7 @@ class PowerIQSource(Sources):
 
     @property
     def carrier_frequency(self) -> str:
-        """
-        Carrier frequency value.
+        """Carrier frequency value.
 
         Returns
         -------
@@ -705,8 +687,7 @@ class PowerIQSource(Sources):
 
     @property
     def sampling_time(self) -> str:
-        """
-        Sampling time value.
+        """Sampling time value.
 
         Returns
         -------
@@ -732,8 +713,7 @@ class PowerIQSource(Sources):
 
     @property
     def dc_magnitude(self) -> str:
-        """
-        DC voltage value.
+        """DC voltage value.
 
         Returns
         -------
@@ -759,8 +739,7 @@ class PowerIQSource(Sources):
 
     @property
     def repeat_from(self) -> str:
-        """
-        Repeat from time.
+        """Repeat from time.
 
         Returns
         -------
@@ -786,8 +765,7 @@ class PowerIQSource(Sources):
 
     @property
     def delay(self) -> str:
-        """
-        Delay to start of sine wave.
+        """Delay to start of sine wave.
 
         Returns
         -------
@@ -813,8 +791,7 @@ class PowerIQSource(Sources):
 
     @property
     def carrier_amplitude_voltage(self) -> str:
-        """
-        Carrier amplitude value, voltage-based.
+        """Carrier amplitude value, voltage-based.
 
         Returns
         -------
@@ -838,8 +815,7 @@ class PowerIQSource(Sources):
 
     @property
     def carrier_amplitude_power(self) -> str:
-        """
-        Carrier amplitude value, power-based.
+        """Carrier amplitude value, power-based.
 
         Returns
         -------
@@ -863,8 +839,7 @@ class PowerIQSource(Sources):
 
     @property
     def carrier_offset(self) -> str:
-        """
-        Carrier offset.
+        """Carrier offset.
 
         Returns
         -------
@@ -888,8 +863,7 @@ class PowerIQSource(Sources):
 
     @property
     def real_impedance(self) -> str:
-        """
-        Real carrier impedance.
+        """Real carrier impedance.
 
         Returns
         -------
@@ -913,8 +887,7 @@ class PowerIQSource(Sources):
 
     @property
     def imaginary_impedance(self) -> str:
-        """
-        Imaginary carrier impedance.
+        """Imaginary carrier impedance.
 
         Returns
         -------
@@ -938,8 +911,7 @@ class PowerIQSource(Sources):
 
     @property
     def damping_factor(self) -> str:
-        """
-        Damping factor.
+        """Damping factor.
 
         Returns
         -------
@@ -963,8 +935,7 @@ class PowerIQSource(Sources):
 
     @property
     def phase_delay(self) -> str:
-        """
-        Phase delay.
+        """Phase delay.
 
         Returns
         -------
@@ -988,8 +959,7 @@ class PowerIQSource(Sources):
 
     @property
     def tone(self) -> str:
-        """
-        Frequency to use for harmonic balance.
+        """Frequency to use for harmonic balance.
 
         Returns
         -------
@@ -1013,8 +983,7 @@ class PowerIQSource(Sources):
 
     @property
     def i_q_values(self) -> str:
-        """
-        I and Q value at each timepoint.
+        """I and Q value at each timepoint.
 
         Returns
         -------
@@ -1052,8 +1021,7 @@ class PowerIQSource(Sources):
     def file(
         self,
     ) -> str:
-        """
-        File path with I and Q values.
+        """File path with I and Q values.
 
         Returns
         -------
@@ -1077,8 +1045,7 @@ class PowerIQSource(Sources):
 
 
 class VoltageFrequencyDependentSource(Sources):
-    """
-    Voltage Frequency Dependent Class.
+    """Voltage Frequency Dependent Class.
 
     Examples
     --------
@@ -1099,8 +1066,7 @@ class VoltageFrequencyDependentSource(Sources):
 
     @property
     def frequencies(self) -> list:
-        """
-        List of frequencies in ``Hz``.
+        """List of frequencies in ``Hz``.
 
         Returns
         -------
@@ -1124,8 +1090,7 @@ class VoltageFrequencyDependentSource(Sources):
 
     @property
     def vmag(self) -> list:
-        """
-        List of magnitudes in ``V``.
+        """List of magnitudes in ``V``.
 
         Returns
         -------
@@ -1149,8 +1114,7 @@ class VoltageFrequencyDependentSource(Sources):
 
     @property
     def vang(self) -> list:
-        """
-        List of angles in ``rad``.
+        """List of angles in ``rad``.
 
         Returns
         -------
@@ -1174,8 +1138,7 @@ class VoltageFrequencyDependentSource(Sources):
 
     @property
     def vreal(self) -> list:
-        """
-        List of real values in ``V``.
+        """List of real values in ``V``.
 
         Returns
         -------
@@ -1199,8 +1162,7 @@ class VoltageFrequencyDependentSource(Sources):
 
     @property
     def vimag(self) -> list:
-        """
-        List of imaginary values in ``V``.
+        """List of imaginary values in ``V``.
 
         Returns
         -------
@@ -1224,8 +1186,7 @@ class VoltageFrequencyDependentSource(Sources):
 
     @property
     def magnitude_angle(self) -> bool:
-        """
-        Enable magnitude and angle data.
+        """Enable magnitude and angle data.
 
         Returns
         -------
@@ -1249,8 +1210,7 @@ class VoltageFrequencyDependentSource(Sources):
 
     @property
     def fds_filename(self) -> str:
-        """
-        FDS file path.
+        """FDS file path.
 
         Returns
         -------
@@ -1320,8 +1280,7 @@ class VoltageFrequencyDependentSource(Sources):
 
 
 class VoltageDCSource(Sources):
-    """
-    Power Sinusoidal Class.
+    """Power Sinusoidal Class.
 
     Examples
     --------
@@ -1342,8 +1301,7 @@ class VoltageDCSource(Sources):
 
     @property
     def ac_magnitude(self) -> str:
-        """
-        AC magnitude value.
+        """AC magnitude value.
 
         Returns
         -------
@@ -1367,8 +1325,7 @@ class VoltageDCSource(Sources):
 
     @property
     def ac_phase(self) -> str:
-        """
-        AC phase value.
+        """AC phase value.
 
         Returns
         -------
@@ -1392,8 +1349,7 @@ class VoltageDCSource(Sources):
 
     @property
     def dc_magnitude(self) -> str:
-        """
-        DC voltage value.
+        """DC voltage value.
 
         Returns
         -------
@@ -1417,8 +1373,7 @@ class VoltageDCSource(Sources):
 
 
 class VoltageSinSource(Sources):
-    """
-    Power Sinusoidal Class.
+    """Power Sinusoidal Class.
 
     Examples
     --------
@@ -1439,8 +1394,7 @@ class VoltageSinSource(Sources):
 
     @property
     def ac_magnitude(self) -> str:
-        """
-        AC magnitude value.
+        """AC magnitude value.
 
         Returns
         -------
@@ -1464,8 +1418,7 @@ class VoltageSinSource(Sources):
 
     @property
     def ac_phase(self) -> str:
-        """
-        AC phase value.
+        """AC phase value.
 
         Returns
         -------
@@ -1489,8 +1442,7 @@ class VoltageSinSource(Sources):
 
     @property
     def dc_magnitude(self) -> str:
-        """
-        DC voltage value.
+        """DC voltage value.
 
         Returns
         -------
@@ -1514,8 +1466,7 @@ class VoltageSinSource(Sources):
 
     @property
     def voltage_amplitude(self) -> str:
-        """
-        Voltage amplitude.
+        """Voltage amplitude.
 
         Returns
         -------
@@ -1539,8 +1490,7 @@ class VoltageSinSource(Sources):
 
     @property
     def voltage_offset(self) -> str:
-        """
-        Voltage offset from zero watts.
+        """Voltage offset from zero watts.
 
         Returns
         -------
@@ -1564,8 +1514,7 @@ class VoltageSinSource(Sources):
 
     @property
     def frequency(self) -> str:
-        """
-        Frequency.
+        """Frequency.
 
         Returns
         -------
@@ -1589,8 +1538,7 @@ class VoltageSinSource(Sources):
 
     @property
     def delay(self) -> str:
-        """
-        Delay to start of sine wave.
+        """Delay to start of sine wave.
 
         Returns
         -------
@@ -1614,8 +1562,7 @@ class VoltageSinSource(Sources):
 
     @property
     def damping_factor(self) -> str:
-        """
-        Damping factor.
+        """Damping factor.
 
         Returns
         -------
@@ -1639,8 +1586,7 @@ class VoltageSinSource(Sources):
 
     @property
     def phase_delay(self) -> str:
-        """
-        Phase delay.
+        """Phase delay.
 
         Returns
         -------
@@ -1664,8 +1610,7 @@ class VoltageSinSource(Sources):
 
     @property
     def tone(self) -> str:
-        """
-        Frequency to use for harmonic balance.
+        """Frequency to use for harmonic balance.
 
         Returns
         -------
@@ -1689,8 +1634,7 @@ class VoltageSinSource(Sources):
 
 
 class CurrentSinSource(Sources):
-    """
-    Current Sinusoidal Class.
+    """Current Sinusoidal Class.
 
     Examples
     --------
@@ -1711,8 +1655,7 @@ class CurrentSinSource(Sources):
 
     @property
     def ac_magnitude(self):
-        """
-        AC magnitude value.
+        """AC magnitude value.
 
         Returns
         -------
@@ -1736,8 +1679,7 @@ class CurrentSinSource(Sources):
 
     @property
     def ac_phase(self) -> str:
-        """
-        AC phase value.
+        """AC phase value.
 
         Returns
         -------
@@ -1761,8 +1703,7 @@ class CurrentSinSource(Sources):
 
     @property
     def dc_magnitude(self) -> str:
-        """
-        DC current value.
+        """DC current value.
 
         Returns
         -------
@@ -1786,8 +1727,7 @@ class CurrentSinSource(Sources):
 
     @property
     def current_amplitude(self) -> str:
-        """
-        Current amplitude.
+        """Current amplitude.
 
         Returns
         -------
@@ -1811,8 +1751,7 @@ class CurrentSinSource(Sources):
 
     @property
     def current_offset(self) -> str:
-        """
-        Current offset.
+        """Current offset.
 
         Returns
         -------
@@ -1836,8 +1775,7 @@ class CurrentSinSource(Sources):
 
     @property
     def frequency(self) -> str:
-        """
-        Frequency.
+        """Frequency.
 
         Returns
         -------
@@ -1861,8 +1799,7 @@ class CurrentSinSource(Sources):
 
     @property
     def delay(self) -> str:
-        """
-        Delay to start of sine wave.
+        """Delay to start of sine wave.
 
         Returns
         -------
@@ -1886,8 +1823,7 @@ class CurrentSinSource(Sources):
 
     @property
     def damping_factor(self) -> str:
-        """
-        Damping factor.
+        """Damping factor.
 
         Returns
         -------
@@ -1911,8 +1847,7 @@ class CurrentSinSource(Sources):
 
     @property
     def phase_delay(self) -> str:
-        """
-        Phase delay.
+        """Phase delay.
 
         Returns
         -------
@@ -1936,8 +1871,7 @@ class CurrentSinSource(Sources):
 
     @property
     def multiplier(self) -> str:
-        """
-        Multiplier for simulating multiple parallel current sources.
+        """Multiplier for simulating multiple parallel current sources.
 
         Returns
         -------
@@ -1961,8 +1895,7 @@ class CurrentSinSource(Sources):
 
     @property
     def tone(self) -> str:
-        """
-        Frequency to use for harmonic balance.
+        """Frequency to use for harmonic balance.
 
         Returns
         -------

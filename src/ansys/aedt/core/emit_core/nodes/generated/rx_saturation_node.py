@@ -59,7 +59,7 @@ class RxSaturationNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def import_csv_file(self, file_name: str) -> EmitNode:
-        """Import a CSV File..."""
+        """Import a CSV File."""
         return self._import(file_name, "Csv")
 
     @min_aedt_version("2025.2")
@@ -70,8 +70,8 @@ class RxSaturationNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def table_data(self) -> list[tuple]:
-        """
-        Rx Saturation Profile Table.
+        """Rx Saturation Profile Table.
+
         Table consists of 2 columns.
         Frequency:
             Value should be between 1 and 100e9.

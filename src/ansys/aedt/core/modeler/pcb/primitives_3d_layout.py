@@ -47,8 +47,7 @@ if TYPE_CHECKING:
 
 
 class Primitives3DLayout(PyAedtBase):
-    """
-    Manages primitives in HFSS 3D Layout.
+    """Manages primitives in HFSS 3D Layout.
 
     This class is inherited in the caller application and is accessible through the primitives variable part
     of modeler object( eg. ``hfss3dlayout.modeler``).
@@ -70,8 +69,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @pyaedt_function_handler()
     def __getitem__(self, partname):
-        """
-        Retrieve a part.
+        """Retrieve a part.
 
         Parameters
         ----------
@@ -124,8 +122,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @property
     def opadstack_manager(self):
-        """
-        AEDT padstack manager.
+        """AEDT padstack manager.
 
         References
         ----------
@@ -142,8 +139,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @property
     def components(self) -> dict[str, Components3DLayout]:
-        """
-        Components.
+        """Components.
 
         Returns
         -------
@@ -166,8 +162,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @property
     def coordinate_systems(self) -> dict[str, CoordinateSystems3DLayout]:
-        """
-        Coordinate systems.
+        """Coordinate systems.
 
         Returns
         -------
@@ -191,8 +186,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @property
     def coordinate_system_names(self) -> list[str]:
-        """
-        Coordinate system names.
+        """Coordinate system names.
 
         Returns
         -------
@@ -210,8 +204,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @property
     def geometries(self) -> dict[str, Object3DLayout]:
-        """
-        All Geometries including voids.
+        """All Geometries including voids.
 
         Returns
         -------
@@ -240,8 +233,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @property
     def voids(self) -> dict[str, Object3DLayout]:
-        """
-        All voids.
+        """All voids.
 
         Returns
         -------
@@ -268,8 +260,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @pyaedt_function_handler()
     def objects_by_polygon(self, polygon: list | object, layer: str) -> list:
-        """
-        Retrieve the list of objects that belongs to a specific polygon.
+        """Retrieve the list of objects that belongs to a specific polygon.
 
         Parameters
         ----------
@@ -303,8 +294,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @pyaedt_function_handler()
     def objects_by_layer(self, layer: str, object_filter: str | list = None, include_voids: bool = False) -> list:
-        """
-        Retrieve the list of objects that belongs to a specific layer.
+        """Retrieve the list of objects that belongs to a specific layer.
 
         Parameters
         ----------
@@ -348,8 +338,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @pyaedt_function_handler()
     def objects_by_net(self, net: str, object_filter: str | list = None, include_voids: bool = False) -> list:
-        """
-        Retrieve the list of objects that belongs to a specific net.
+        """Retrieve the list of objects that belongs to a specific net.
 
         Parameters
         ----------
@@ -398,8 +387,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @property
     def polygon_names(self) -> list[str]:
-        """
-        Get the list of all polygons in layout.
+        """Get the list of all polygons in layout.
 
         Returns
         -------
@@ -416,8 +404,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @property
     def polygon_voids_names(self) -> list[str]:
-        """
-        Get the list of all void polygons in layout.
+        """Get the list of all void polygons in layout.
 
         Returns
         -------
@@ -434,8 +421,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @property
     def line_names(self) -> list[str]:
-        """
-        Get the list of all lines in layout.
+        """Get the list of all lines in layout.
 
         Returns
         -------
@@ -452,8 +438,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @property
     def line_voids_names(self) -> list[str]:
-        """
-        Get the list of all void lines in layout.
+        """Get the list of all void lines in layout.
 
         Returns
         -------
@@ -470,8 +455,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @property
     def rectangle_names(self) -> list[str]:
-        """
-        Get the list of all rectangles in layout.
+        """Get the list of all rectangles in layout.
 
         Returns
         -------
@@ -488,8 +472,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @property
     def rectangle_void_names(self) -> list[str]:
-        """
-        Get the list of all void rectangles in layout.
+        """Get the list of all void rectangles in layout.
 
         Returns
         -------
@@ -506,8 +489,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @property
     def circle_names(self) -> list[str]:
-        """
-        Get the list of all circles in layout.
+        """Get the list of all circles in layout.
 
         Returns
         -------
@@ -524,8 +506,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @property
     def circle_voids_names(self) -> list[str]:
-        """
-        Get the list of all void circles in layout.
+        """Get the list of all void circles in layout.
 
         Returns
         -------
@@ -542,8 +523,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @property
     def via_names(self) -> list[str]:
-        """
-        Get the list of all vias in layout.
+        """Get the list of all vias in layout.
 
         Returns
         -------
@@ -560,8 +540,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @pyaedt_function_handler()
     def cleanup_objects(self) -> tuple[list, list]:
-        """
-        Clean up all 3D Layout geometries.
+        """Clean up all 3D Layout geometries.
 
         Clean up all 3D Layout geometries (circle, rectangles, polygons, lines and voids)
         that have been added or no longer exist in the modeler because they were removed by previous operations.
@@ -622,8 +601,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @property
     def polygons(self) -> dict[str, Polygons3DLayout]:
-        """
-        Polygons.
+        """Polygons.
 
         Returns
         -------
@@ -645,8 +623,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @property
     def lines(self) -> dict[str, Line3dLayout]:
-        """
-        Lines.
+        """Lines.
 
         Returns
         -------
@@ -669,8 +646,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @property
     def circles(self) -> dict[str, Circle3dLayout]:
-        """
-        Circles.
+        """Circles.
 
         Returns
         -------
@@ -692,8 +668,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @property
     def rectangles(self) -> dict[str, Rect3dLayout]:
-        """
-        Rectangles.
+        """Rectangles.
 
         Returns
         -------
@@ -715,8 +690,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @property
     def polygons_voids(self) -> dict[str, Polygons3DLayout]:
-        """
-        Void Polygons.
+        """Void Polygons.
 
         Returns
         -------
@@ -738,8 +712,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @property
     def lines_voids(self) -> dict[str, Line3dLayout]:
-        """
-        Void Lines.
+        """Void Lines.
 
         Returns
         -------
@@ -761,8 +734,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @property
     def circles_voids(self) -> dict[str, Circle3dLayout]:
-        """
-        Void Circles.
+        """Void Circles.
 
         Returns
         -------
@@ -784,8 +756,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @property
     def rectangles_voids(self) -> dict[str, Rect3dLayout]:
-        """
-        Void Rectangles.
+        """Void Rectangles.
 
         Returns
         -------
@@ -807,8 +778,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @property
     def components_3d(self) -> dict[str, Components3DLayout]:
-        """
-        Components.
+        """Components.
 
         Returns
         -------
@@ -856,8 +826,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @property
     def pins(self) -> dict[str, Pins3DLayout]:
-        """
-        Pins.
+        """Pins.
 
         Returns
         -------
@@ -878,8 +847,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @property
     def vias(self) -> dict[str, Pins3DLayout]:
-        """
-        Vias.
+        """Vias.
 
         Returns
         -------
@@ -901,8 +869,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @property
     def nets(self) -> dict[str, Nets3DLayout]:
-        """
-        Nets.
+        """Nets.
 
         Returns
         -------
@@ -927,8 +894,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @property
     def power_nets(self) -> dict[str, Nets3DLayout]:
-        """
-        Nets.
+        """Nets.
 
         Returns
         -------
@@ -952,8 +918,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @property
     def signal_nets(self) -> dict[str, Nets3DLayout]:
-        """
-        Nets.
+        """Nets.
 
         Returns
         -------
@@ -977,8 +942,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @property
     def no_nets(self) -> dict[str, Nets3DLayout]:
-        """
-        Nets without class type.
+        """Nets without class type.
 
         Returns
         -------
@@ -1003,8 +967,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @property
     def defaultmaterial(self) -> list:
-        """
-        Default materials.
+        """Default materials.
 
         Returns
         -------
@@ -1022,8 +985,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @property
     def logger(self):
-        """
-        Logger.
+        """Logger.
 
         Examples
         --------
@@ -1036,8 +998,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @property
     def version(self) -> str:
-        """
-        AEDT version.
+        """AEDT version.
 
         Returns
         -------
@@ -1055,8 +1016,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @property
     def modeler(self) -> "Modeler3DLayout":
-        """
-        Modeler.
+        """Modeler.
 
         Examples
         --------
@@ -1069,8 +1029,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @property
     def model_units(self) -> str:
-        """
-        Model units.
+        """Model units.
 
         Examples
         --------
@@ -1083,8 +1042,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @property
     def Padstack(self) -> "Padstack":
-        """
-        Padstack.
+        """Padstack.
 
         Examples
         --------
@@ -1097,8 +1055,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @pyaedt_function_handler()
     def new_padstack(self, name: str = "Padstack") -> "Padstack | None":
-        """
-        Create a `Padstack` object that can be used to create a padstack.
+        """Create a `Padstack` object that can be used to create a padstack.
 
         Parameters
         ----------
@@ -1125,8 +1082,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @property
     def padstacks(self) -> dict[str, "Padstack"]:
-        """
-        Read all definitions from HFSS 3D Layout.
+        """Read all definitions from HFSS 3D Layout.
 
         Returns
         -------
@@ -1211,8 +1167,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @pyaedt_function_handler()
     def change_net_visibility(self, assignment: str | list = None, visible: bool = False) -> bool:
-        """
-        Change the visibility of one or more nets.
+        """Change the visibility of one or more nets.
 
         Parameters
         ----------
@@ -1293,8 +1248,7 @@ class Primitives3DLayout(PyAedtBase):
         net: str = None,
     ) -> "Pins3DLayout | bool":
         # type: (str, float | str, float | str, float, float, str, str, str, str) -> Pins3DLayout
-        """
-        Create a via based on an existing padstack.
+        """Create a via based on an existing padstack.
 
         Parameters
         ----------
@@ -1390,8 +1344,7 @@ class Primitives3DLayout(PyAedtBase):
     def create_circle(
         self, layer: str, x: float, y: float, radius: float, name: str = None, net: str = None, **kwargs
     ) -> Circle3dLayout:
-        """
-        Create a circle on a layer.
+        """Create a circle on a layer.
 
         Parameters
         ----------
@@ -1463,8 +1416,7 @@ class Primitives3DLayout(PyAedtBase):
         net: str = None,
         **kwargs,
     ) -> Rect3dLayout:
-        """
-        Create a rectangle on a layer.
+        """Create a rectangle on a layer.
 
         Parameters
         ----------
@@ -1539,8 +1491,7 @@ class Primitives3DLayout(PyAedtBase):
     def create_polygon(
         self, layer: str, point_list: list, units: str = None, name: str = None, net: str = None
     ) -> Polygons3DLayout:
-        """
-        Create a polygon on a specified layer.
+        """Create a polygon on a specified layer.
 
         Parameters
         ----------
@@ -1604,8 +1555,7 @@ class Primitives3DLayout(PyAedtBase):
     def create_polygon_void(
         self, layer: str, points: list, assignment: str, units: str = None, name: str = None
     ) -> Polygons3DLayout:
-        """
-        Create a polygon void on a specified layer.
+        """Create a polygon void on a specified layer.
 
         Parameters
         ----------
@@ -1677,8 +1627,7 @@ class Primitives3DLayout(PyAedtBase):
         **kwargs,
     ) -> Line3dLayout:
         # type: (str, list, float|str, int, int, str, str, any) -> Line3dLayout
-        """
-        Create a line based on a list of points.
+        """Create a line based on a list of points.
 
         Parameters
         ----------
@@ -1920,8 +1869,7 @@ class Primitives3DLayout(PyAedtBase):
         component_type: str = "Other",
         ref_des: str = "U100",
     ) -> Components3DLayout:
-        """
-        Create a component based on a pin list.
+        """Create a component based on a pin list.
 
         Parameters
         ----------
@@ -1977,8 +1925,7 @@ class Primitives3DLayout(PyAedtBase):
     def create_text(
         self, text: str, position: list, layer: str = "PostProcessing", angle: int = 0, font_size: int = 12
     ) -> str:
-        """
-        Create a text primitive object.
+        """Create a text primitive object.
 
         Parameters
         ----------
@@ -2040,8 +1987,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_coordinate_system(self, origin: list = None, name: str = None) -> CoordinateSystems3DLayout:
-        """
-        Create a coordinate system.
+        """Create a coordinate system.
 
         Parameters
         ----------

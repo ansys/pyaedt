@@ -60,8 +60,7 @@ result = None
 
 @dataclass
 class ExtensionData:
-    """
-    Data class containing user input.
+    """Data class containing user input.
 
     Examples
     --------
@@ -83,8 +82,7 @@ class ExtensionData:
 
 
 class TemplateExtension(ExtensionProjectCommon):
-    """
-    Extension template to help get started.
+    """Extension template to help get started.
 
     Examples
     --------
@@ -103,8 +101,7 @@ class TemplateExtension(ExtensionProjectCommon):
         )
 
     def add_extension_content(self) -> None:
-        """
-        Add custom content to the extension UI.
+        """Add custom content to the extension UI.
 
         Examples
         --------

@@ -39,8 +39,7 @@ PARENT_DIR = Path(__file__).parent
 
 
 class FieldsCalculator(PyAedtBase):
-    """
-    Provides the Advanced fields calculator methods.
+    """Provides the Advanced fields calculator methods.
 
     Provide methods to add, load and delete named expressions on top of the
     already existing ones in AEDT Fields calculator.
@@ -104,8 +103,7 @@ class FieldsCalculator(PyAedtBase):
 
     @property
     def expression_names(self) -> list:
-        """
-        List of available expressions.
+        """List of available expressions.
 
         Returns
         -------
@@ -123,8 +121,7 @@ class FieldsCalculator(PyAedtBase):
 
     @pyaedt_function_handler()
     def add_expression(self, calculation: str | dict, assignment, name: str | None = None) -> str | bool:
-        """
-        Add named expression.
+        """Add named expression.
 
         Parameters
         ----------
@@ -260,8 +257,7 @@ class FieldsCalculator(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_expression_file(self, name: str, operations: list) -> str | bool:
-        """
-        Create a calculator expression file.
+        """Create a calculator expression file.
 
         Parameters
         ----------
@@ -301,8 +297,7 @@ class FieldsCalculator(PyAedtBase):
 
     @pyaedt_function_handler()
     def expression_plot(self, calculation: str, assignment: list, names: list, setup: str = None) -> list | bool:
-        """
-        Create plots defined in the expression catalog.
+        """Create plots defined in the expression catalog.
 
         Parameters
         ----------
@@ -396,8 +391,7 @@ class FieldsCalculator(PyAedtBase):
 
     @pyaedt_function_handler()
     def delete_expression(self, name: str | None = None) -> bool:
-        """
-        Delete a named expression.
+        """Delete a named expression.
 
         Parameters
         ----------
@@ -429,8 +423,7 @@ class FieldsCalculator(PyAedtBase):
 
     @pyaedt_function_handler()
     def is_expression_defined(self, name: str) -> bool:
-        """
-        Check if a named expression exists.
+        """Check if a named expression exists.
 
         Parameters
         ----------
@@ -456,8 +449,7 @@ class FieldsCalculator(PyAedtBase):
 
     @pyaedt_function_handler()
     def is_general_expression(self, name: str) -> bool:
-        """
-        Check if a named expression is general.
+        """Check if a named expression is general.
 
         Parameters
         ----------
@@ -488,8 +480,7 @@ class FieldsCalculator(PyAedtBase):
 
     @pyaedt_function_handler()
     def load_expression_file(self, input_file: str) -> dict | bool:
-        """
-        Load expressions from an external TOML file.
+        """Load expressions from an external TOML file.
 
         Parameters
         ----------
@@ -524,8 +515,7 @@ class FieldsCalculator(PyAedtBase):
 
     @pyaedt_function_handler()
     def validate_expression(self, expression: dict) -> dict | bool:
-        """
-        Validate expression file against the schema.
+        """Validate expression file against the schema.
 
         The default schema can be found in ``src/ansys/aedt/core/misc/config.schema.json``.
 
@@ -568,8 +558,7 @@ class FieldsCalculator(PyAedtBase):
     def write(
         self, expression: str, output_file: str, setup: str | None = None, intrinsics: dict | None = None
     ) -> bool:
-        """
-        Save the content of the stack register for future reuse in a later Field Calculator session.
+        """Save the content of the stack register for future reuse in a later Field Calculator session.
 
         Parameters
         ----------
@@ -647,8 +636,7 @@ class FieldsCalculator(PyAedtBase):
 
     @pyaedt_function_handler()
     def evaluate(self, expression: str, setup: str | None = None, intrinsics: dict | None = None) -> float:
-        """
-        Evaluate an expression and return the value.
+        """Evaluate an expression and return the value.
 
         Parameters
         ----------
@@ -719,8 +707,7 @@ class FieldsCalculator(PyAedtBase):
         assignment: str = "AllObjects",
         objects_type: str = "Vol",
     ) -> str | bool:
-        """
-        Export the field quantity at the top of the register to a file, mapping it to a grid of points.
+        """Export the field quantity at the top of the register to a file, mapping it to a grid of points.
 
         Two options are available for defining the grid points on which to export:
 
@@ -883,8 +870,7 @@ class FieldsCalculator(PyAedtBase):
     @pyaedt_function_handler()
     @min_aedt_version("2026.1")
     def get_expressions(self, field_type: str = None) -> dict:  # pragma: no cover
-        """
-        Get dictionary of available Field Calculator expressions.
+        """Get dictionary of available Field Calculator expressions.
 
         Parameters
         ----------

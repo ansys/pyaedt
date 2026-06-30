@@ -83,8 +83,7 @@ class Filter(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def filename(self) -> str:
-        """
-        Name of file defining the outboard component.
+        """Name of file defining the outboard component.
 
         Value should be a full file path.
 
@@ -109,8 +108,7 @@ class Filter(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def noise_temperature(self) -> float:
-        """
-        System Noise temperature (K) of the component.
+        """System Noise temperature (K) of the component.
 
         Value should be between 0 and 1000.
 
@@ -135,8 +133,7 @@ class Filter(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def notes(self) -> str:
-        """
-        Expand to view/edit notes stored with the project.
+        """Expand to view/edit notes stored with the project.
 
         Examples
         --------
@@ -168,8 +165,7 @@ class Filter(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def filter_type(self) -> FilterTypeOption:
-        """
-        Filter Type.
+        """Filter Type.
 
         Type of filter to define. The filter can be defined by file (measured or
         simulated data) or using one of EMIT's parametric models.
@@ -196,8 +192,7 @@ class Filter(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def insertion_loss(self) -> float:
-        """
-        Filter pass band loss.
+        """Filter pass band loss.
 
         Value should be between 0 and 100.
 
@@ -222,8 +217,7 @@ class Filter(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def stop_band_attenuation(self) -> float:
-        """
-        Filter stop band loss (attenuation).
+        """Filter stop band loss (attenuation).
 
         Value should be less than 200.
 
@@ -248,8 +242,7 @@ class Filter(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def max_pass_band(self) -> float:
-        """
-        Maximum pass band frequency.
+        """Maximum pass band frequency.
 
         Value should be between 1 and 100e9.
 
@@ -276,8 +269,7 @@ class Filter(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def min_stop_band(self) -> float:
-        """
-        Minimum stop band frequency.
+        """Minimum stop band frequency.
 
         Value should be between 1 and 100e9.
 
@@ -304,8 +296,7 @@ class Filter(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def max_stop_band(self) -> float:
-        """
-        Maximum stop band frequency.
+        """Maximum stop band frequency.
 
         Value should be between 1 and 100e9.
 
@@ -332,8 +323,7 @@ class Filter(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def min_pass_band(self) -> float:
-        """
-        Minimum pass band frequency.
+        """Minimum pass band frequency.
 
         Value should be between 1 and 100e9.
 
@@ -360,8 +350,7 @@ class Filter(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def bp_lower_stop_band(self) -> float:
-        """
-        Bandpass filter lower stop band frequency.
+        """Bandpass filter lower stop band frequency.
 
         Value should be between 1 and 100e9.
 
@@ -391,8 +380,7 @@ class Filter(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def bp_lower_cutoff(self) -> float:
-        """
-        Bandpass filter lower cutoff frequency.
+        """Bandpass filter lower cutoff frequency.
 
         Value should be between 1 and 100e9.
 
@@ -422,8 +410,7 @@ class Filter(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def bp_higher_cutoff(self) -> float:
-        """
-        Bandpass filter higher cutoff frequency.
+        """Bandpass filter higher cutoff frequency.
 
         Value should be between 1 and 100e9.
 
@@ -453,8 +440,7 @@ class Filter(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def bp_higher_stop_band(self) -> float:
-        """
-        Bandpass filter higher stop band frequency.
+        """Bandpass filter higher stop band frequency.
 
         Value should be between 1 and 100e9.
 
@@ -484,8 +470,7 @@ class Filter(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def bs_lower_cutoff(self) -> float:
-        """
-        Band stop filter lower cutoff frequency.
+        """Band stop filter lower cutoff frequency.
 
         Value should be between 1 and 100e9.
 
@@ -514,8 +499,7 @@ class Filter(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def bs_lower_stop_band(self) -> float:
-        """
-        Band stop filter lower stop band frequency.
+        """Band stop filter lower stop band frequency.
 
         Value should be between 1 and 100e9.
 
@@ -544,8 +528,7 @@ class Filter(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def bs_higher_stop_band(self) -> float:
-        """
-        Band stop filter higher stop band frequency.
+        """Band stop filter higher stop band frequency.
 
         Value should be between 1 and 100e9.
 
@@ -574,8 +557,7 @@ class Filter(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def bs_higher_cutoff(self) -> float:
-        """
-        Band stop filter higher cutoff frequency.
+        """Band stop filter higher cutoff frequency.
 
         Value should be between 1 and 100e9.
 
@@ -604,8 +586,7 @@ class Filter(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def lowest_tuned_frequency(self) -> float:
-        """
-        Lowest tuned frequency.
+        """Lowest tuned frequency.
 
         Value should be between 1 and 100e9.
 
@@ -631,8 +612,7 @@ class Filter(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def highest_tuned_frequency(self) -> float:
-        """
-        Highest tuned frequency.
+        """Highest tuned frequency.
 
         Value should be between 1 and 100e9.
 
@@ -658,8 +638,7 @@ class Filter(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def percent_bandwidth(self) -> float:
-        """
-        Tunable filter 3-dB bandwidth.
+        """Tunable filter 3-dB bandwidth.
 
         Value should be between 0.001 and 100.
 
@@ -683,8 +662,7 @@ class Filter(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def shape_factor(self) -> float:
-        """
-        Ratio defining the filter rolloff.
+        """Ratio defining the filter rolloff.
 
         Value should be between 1 and 100.
 
@@ -708,8 +686,7 @@ class Filter(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def warnings(self) -> str:
-        """
-        Warning(s) for this node.
+        """Warning(s) for this node.
 
         Examples
         --------

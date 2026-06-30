@@ -87,8 +87,7 @@ class FilterDesignBase(PyAedtBase):
         self.export_to_aedt = ExportToAedt()
 
     def close(self) -> None:
-        """
-        Closes the current design and clears the active design.
+        """Closes the current design and clears the active design.
 
         Examples
         --------
@@ -123,8 +122,7 @@ class FilterDesignBase(PyAedtBase):
         self.radial = None
 
     def _create_design(self, desktop_version, desktop_process_id):
-        """
-        Create a new design in AEDT.
+        """Create a new design in AEDT.
         This method is called to create an ``AEDT`` object when the design is exported to ``AEDT``.
 
         Parameters
@@ -152,8 +150,7 @@ class FilterDesignBase(PyAedtBase):
 
 
 class LumpedDesign(FilterDesignBase):
-    """
-    Provides the `FilterSolutions` application interface for lumped filter designs.
+    """Provides the `FilterSolutions` application interface for lumped filter designs.
     This class provides access to lumped filter design parameters.
 
     Parameters
@@ -189,8 +186,7 @@ class LumpedDesign(FilterDesignBase):
 
 
 class DistributedDesign(FilterDesignBase):
-    """
-    Provides the `FilterSolutions` application interface for distributed filter designs.
+    """Provides the `FilterSolutions` application interface for distributed filter designs.
     This class provides access to distributed filter design parameters.
 
     Parameters

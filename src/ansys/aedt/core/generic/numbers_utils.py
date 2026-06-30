@@ -36,8 +36,7 @@ from ansys.aedt.core.generic.constants import unit_system
 
 
 class Quantity(float, PyAedtBase):
-    """
-    Stores a number with its unit.
+    """Stores a number with its unit.
 
     Parameters
     ----------
@@ -80,8 +79,7 @@ class Quantity(float, PyAedtBase):
                 self._parse_units(_unit)
 
     def to(self, unit: str) -> Quantity:
-        """
-        Convert the actual number to new unit.
+        """Convert the actual number to new unit.
 
         Examples
         --------
@@ -120,8 +118,7 @@ class Quantity(float, PyAedtBase):
 
     @expression.setter
     def expression(self, value: str) -> None:
-        """
-        Value number with unit.
+        """Value number with unit.
 
         Returns
         -------
@@ -142,8 +139,7 @@ class Quantity(float, PyAedtBase):
 
     @property
     def unit_system(self) -> str:
-        """
-        Value unit system.
+        """Value unit system.
 
         Returns
         -------
@@ -160,8 +156,7 @@ class Quantity(float, PyAedtBase):
 
     @property
     def unit(self) -> str:
-        """
-        Value unit.
+        """Value unit.
 
         Returns
         -------
@@ -183,8 +178,7 @@ class Quantity(float, PyAedtBase):
 
     @property
     def value(self) -> float:
-        """
-        Value number.
+        """Value number.
 
         Returns
         -------
@@ -358,8 +352,7 @@ class Quantity(float, PyAedtBase):
         return np.array(self.value, dtype=dtype)
 
     def sqrt(self) -> Quantity:
-        """
-        Square root of the value.
+        """Square root of the value.
 
         Examples
         --------
@@ -371,8 +364,7 @@ class Quantity(float, PyAedtBase):
         return Quantity(self.value**0.5, self.unit)
 
     def log10(self) -> Quantity:
-        """
-        Logarithm base 10 of the value.
+        """Logarithm base 10 of the value.
 
         Examples
         --------
@@ -386,8 +378,7 @@ class Quantity(float, PyAedtBase):
         return Quantity(np.log10(self.value), self.unit)
 
     def sin(self) -> Quantity:
-        """
-        Sine of the value.
+        """Sine of the value.
 
         Examples
         --------
@@ -401,8 +392,7 @@ class Quantity(float, PyAedtBase):
         return Quantity(np.sin(self.value), self.unit)
 
     def cos(self) -> Quantity:
-        """
-        Cosine of the value.
+        """Cosine of the value.
 
         Examples
         --------
@@ -416,8 +406,7 @@ class Quantity(float, PyAedtBase):
         return Quantity(np.cos(self.value), self.unit)
 
     def arcsin(self) -> Quantity:
-        """
-        Arcsine of the value.
+        """Arcsine of the value.
 
         Examples
         --------
@@ -431,8 +420,7 @@ class Quantity(float, PyAedtBase):
         return Quantity(np.arcsin(self.value), self.unit)
 
     def arccos(self) -> Quantity:
-        """
-        Arccosine of the value.
+        """Arccosine of the value.
 
         Examples
         --------
@@ -446,8 +434,7 @@ class Quantity(float, PyAedtBase):
         return Quantity(np.arccos(self.value), self.unit)
 
     def tan(self) -> Quantity:
-        """
-        Tangent of the value.
+        """Tangent of the value.
 
         Examples
         --------
@@ -461,8 +448,7 @@ class Quantity(float, PyAedtBase):
         return Quantity(np.tan(self.value), self.unit)
 
     def arctan2(self, other: Quantity) -> Quantity:
-        """
-        Arctangent of the value and another quantity.
+        """Arctangent of the value and another quantity.
 
         Examples
         --------
@@ -481,8 +467,7 @@ class Quantity(float, PyAedtBase):
 
 
 def decompose_variable_value(variable_value: str, full_variables: dict[str, Any] = None) -> tuple:
-    """
-    Decompose a variable value.
+    """Decompose a variable value.
 
     Parameters
     ----------
@@ -536,8 +521,7 @@ def decompose_variable_value(variable_value: str, full_variables: dict[str, Any]
 
 
 def is_close(a: float, b: float, relative_tolerance: float = 1e-9, absolute_tolerance: float = 0.0) -> bool:
-    """
-    Whether two numbers are close to each other given relative and absolute tolerances.
+    """Whether two numbers are close to each other given relative and absolute tolerances.
 
     Parameters
     ----------
@@ -566,8 +550,7 @@ def is_close(a: float, b: float, relative_tolerance: float = 1e-9, absolute_tole
 
 
 def is_number(a: Any) -> bool:
-    """
-    Whether the given input is a number.
+    """Whether the given input is a number.
 
     Parameters
     ----------
@@ -599,8 +582,7 @@ def is_number(a: Any) -> bool:
 
 
 def is_array(a: Any) -> bool:
-    """
-    Whether the given input is an array.
+    """Whether the given input is an array.
 
     Parameters
     ----------

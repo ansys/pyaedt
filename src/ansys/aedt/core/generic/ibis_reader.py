@@ -40,8 +40,7 @@ if TYPE_CHECKING:
 
 
 class Component(PyAedtBase):
-    """
-    Component extracted from ibis model.
+    """Component extracted from ibis model.
 
     Examples
     --------
@@ -62,8 +61,7 @@ class Component(PyAedtBase):
 
     @property
     def name(self):
-        """
-        Name of the component.
+        """Name of the component.
 
         Examples
         --------
@@ -81,8 +79,7 @@ class Component(PyAedtBase):
 
     @property
     def manufacturer(self):
-        """
-        Manufacturer of the component.
+        """Manufacturer of the component.
 
         Examples
         --------
@@ -100,8 +97,7 @@ class Component(PyAedtBase):
 
     @property
     def pins(self):
-        """
-        Pins of the component.
+        """Pins of the component.
 
         Examples
         --------
@@ -119,8 +115,7 @@ class Component(PyAedtBase):
 
     @property
     def differential_pins(self):
-        """
-        Pins of the component.
+        """Pins of the component.
 
         Examples
         --------
@@ -138,8 +133,7 @@ class Component(PyAedtBase):
 
 
 class Pin(PyAedtBase):
-    """
-    Pin from a component with all its data feature.
+    """Pin from a component with all its data feature.
 
     Parameters
     ----------
@@ -174,8 +168,7 @@ class Pin(PyAedtBase):
 
     @property
     def is_differential(self) -> bool:
-        """
-        Flag indicating if the pin is differential.
+        """Flag indicating if the pin is differential.
 
         Returns
         -------
@@ -199,8 +192,7 @@ class Pin(PyAedtBase):
 
     @property
     def name(self) -> str:
-        """
-        Full name of the pin including the component name and the ibis filename.
+        """Full name of the pin including the component name and the ibis filename.
 
         Examples
         --------
@@ -214,8 +206,7 @@ class Pin(PyAedtBase):
 
     @property
     def buffer_name(self) -> str:
-        """
-        Full name of the buffer including the component name and the ibis filename.
+        """Full name of the buffer including the component name and the ibis filename.
 
         Examples
         --------
@@ -231,8 +222,7 @@ class Pin(PyAedtBase):
 
     @property
     def short_name(self) -> str:
-        """
-        Name of the pin without the name of the component.
+        """Name of the pin without the name of the component.
 
         Examples
         --------
@@ -250,8 +240,7 @@ class Pin(PyAedtBase):
 
     @property
     def signal(self) -> str:
-        """
-        Signal of the pin.
+        """Signal of the pin.
 
         Examples
         --------
@@ -269,8 +258,7 @@ class Pin(PyAedtBase):
 
     @property
     def model(self) -> str:
-        """
-        Model of the pin.
+        """Model of the pin.
 
         Examples
         --------
@@ -288,8 +276,7 @@ class Pin(PyAedtBase):
 
     @property
     def r_value(self) -> float:
-        """
-        Resistance value in ohms.
+        """Resistance value in ohms.
 
         Examples
         --------
@@ -307,8 +294,7 @@ class Pin(PyAedtBase):
 
     @property
     def l_value(self) -> float:
-        """
-        Inductance value in H.
+        """Inductance value in H.
 
         Examples
         --------
@@ -326,8 +312,7 @@ class Pin(PyAedtBase):
 
     @property
     def c_value(self) -> float:
-        """
-        Capacitance value in F.
+        """Capacitance value in F.
 
         Examples
         --------
@@ -344,8 +329,7 @@ class Pin(PyAedtBase):
         self._c_value = value
 
     def add(self) -> None:
-        """
-        Add a pin to the list of components in the Project Manager.
+        """Add a pin to the list of components in the Project Manager.
 
         Examples
         --------
@@ -385,8 +369,7 @@ class Pin(PyAedtBase):
             return False
 
     def insert(self, x: float, y: float, angle: float = 0.0, page: int = 1) -> "CircuitComponent":
-        """
-        Insert a pin at a defined location inside the graphical window.
+        """Insert a pin at a defined location inside the graphical window.
 
         Parameters
         ----------
@@ -427,8 +410,7 @@ class Pin(PyAedtBase):
 
 
 class DifferentialPin(PyAedtBase):
-    """
-    Provides the differential pin from a component with all its data feature.
+    """Provides the differential pin from a component with all its data feature.
 
     Parameters
     ----------
@@ -462,8 +444,7 @@ class DifferentialPin(PyAedtBase):
 
     @property
     def model(self) -> str:
-        """
-        Model of the pin.
+        """Model of the pin.
 
         Examples
         --------
@@ -481,8 +462,7 @@ class DifferentialPin(PyAedtBase):
 
     @property
     def buffer_name(self) -> str:
-        """
-        Full name of the buffer including the component name and Ibis filename.
+        """Full name of the buffer including the component name and Ibis filename.
 
         Examples
         --------
@@ -499,8 +479,7 @@ class DifferentialPin(PyAedtBase):
 
     @property
     def short_name(self) -> str:
-        """
-        Short name of the buffer, which excludes the Ibis filename.
+        """Short name of the buffer, which excludes the Ibis filename.
 
         Examples
         --------
@@ -517,8 +496,7 @@ class DifferentialPin(PyAedtBase):
 
     @property
     def negative_pin(self) -> str:
-        """
-        Negative pin.
+        """Negative pin.
 
         Returns
         -------
@@ -539,8 +517,7 @@ class DifferentialPin(PyAedtBase):
 
     @property
     def vdiff(self) -> float:
-        """
-        Differential voltage.
+        """Differential voltage.
 
         Returns
         -------
@@ -561,8 +538,7 @@ class DifferentialPin(PyAedtBase):
 
     @property
     def tdelay_min(self) -> float:
-        """
-        Minimum delay.
+        """Minimum delay.
 
         Returns
         -------
@@ -583,8 +559,7 @@ class DifferentialPin(PyAedtBase):
 
     @property
     def tdelay_max(self) -> float:
-        """
-        Maximum delay.
+        """Maximum delay.
 
         Returns
         -------
@@ -605,8 +580,7 @@ class DifferentialPin(PyAedtBase):
 
     @property
     def tdelay_typ(self) -> float:
-        """
-        Typical delay.
+        """Typical delay.
 
         Returns
         -------
@@ -627,8 +601,7 @@ class DifferentialPin(PyAedtBase):
 
     @property
     def name(self) -> str:
-        """
-        Full name of the pin including the component name and Ibis filename.
+        """Full name of the pin including the component name and Ibis filename.
 
         Examples
         --------
@@ -641,8 +614,7 @@ class DifferentialPin(PyAedtBase):
         return self._name
 
     def add(self) -> None:
-        """
-        Add a pin to the list of components in the Project Manager.
+        """Add a pin to the list of components in the Project Manager.
 
         Examples
         --------
@@ -682,8 +654,7 @@ class DifferentialPin(PyAedtBase):
             return False
 
     def insert(self, x: float, y: float, angle: float = 0.0, page: int = 1) -> "CircuitComponent":
-        """
-        Insert a pin at a defined location inside the graphical window.
+        """Insert a pin at a defined location inside the graphical window.
 
         Parameters
         ----------
@@ -734,8 +705,7 @@ class Buffer(PyAedtBase):
 
     @property
     def name(self) -> str:
-        """
-        Full name of the buffer including the ibis filename.
+        """Full name of the buffer including the ibis filename.
 
         Examples
         --------
@@ -751,8 +721,7 @@ class Buffer(PyAedtBase):
 
     @property
     def short_name(self) -> str:
-        """
-        Short name of the buffer without the ibis filename included.
+        """Short name of the buffer without the ibis filename included.
 
         Examples
         --------
@@ -767,8 +736,7 @@ class Buffer(PyAedtBase):
         return self._short_name
 
     def add(self) -> None:
-        """
-        Add a buffer to the list of components in the Project Manager.
+        """Add a buffer to the list of components in the Project Manager.
 
         Examples
         --------
@@ -803,8 +771,7 @@ class Buffer(PyAedtBase):
         )
 
     def insert(self, x: float, y: float, angle: float = 0.0, page: int = 1) -> "CircuitComponent":
-        """
-        Insert a buffer at a defined location inside the graphical window.
+        """Insert a buffer at a defined location inside the graphical window.
 
         Parameters
         ----------
@@ -851,8 +818,7 @@ class ModelSelector(PyAedtBase):
 
     @property
     def model_selector_items(self) -> list:
-        """
-        Model selector items.
+        """Model selector items.
 
         Examples
         --------
@@ -871,8 +837,7 @@ class ModelSelector(PyAedtBase):
 
     @property
     def name(self) -> str:
-        """
-        Name of the model selector.
+        """Name of the model selector.
 
         Examples
         --------
@@ -899,8 +864,7 @@ class ModelSelectorItem(PyAedtBase):
 
     @property
     def description(self) -> list:
-        """
-        Description of the item.
+        """Description of the item.
 
         Examples
         --------
@@ -919,8 +883,7 @@ class ModelSelectorItem(PyAedtBase):
 
     @property
     def name(self) -> str:
-        """
-        Name of the item.
+        """Name of the item.
 
         Examples
         --------
@@ -952,8 +915,7 @@ class Model(PyAedtBase):
 
     @property
     def name(self) -> str:
-        """
-        Name of the item.
+        """Name of the item.
 
         Examples
         --------
@@ -972,8 +934,7 @@ class Model(PyAedtBase):
 
     @property
     def model_type(self) -> str:
-        """
-        Type of the model.
+        """Type of the model.
 
         Examples
         --------
@@ -992,8 +953,7 @@ class Model(PyAedtBase):
 
     @property
     def clamp(self) -> str:
-        """
-        Clamp.
+        """Clamp.
 
         Examples
         --------
@@ -1012,8 +972,7 @@ class Model(PyAedtBase):
 
     @property
     def enable(self) -> bool:
-        """
-        Is model enabled or not.
+        """Is model enabled or not.
 
         Examples
         --------
@@ -1032,8 +991,7 @@ class Model(PyAedtBase):
 
     @property
     def ami(self) -> bool:
-        """
-        Is model enabled or not.
+        """Is model enabled or not.
 
         Examples
         --------
@@ -1052,8 +1010,7 @@ class Model(PyAedtBase):
 
     @property
     def c_comp(self) -> bool:
-        """
-        Is model enabled or not.
+        """Is model enabled or not.
 
         Examples
         --------
@@ -1072,8 +1029,7 @@ class Model(PyAedtBase):
 
 
 class Ibis(PyAedtBase):
-    """
-    Ibis model with all data extracted: name, components, models.
+    """Ibis model with all data extracted: name, components, models.
 
     Parameters
     ----------
@@ -1105,8 +1061,7 @@ class Ibis(PyAedtBase):
 
     @property
     def name(self) -> str:
-        """
-        Name of the ibis model.
+        """Name of the ibis model.
 
         Examples
         --------
@@ -1123,8 +1078,7 @@ class Ibis(PyAedtBase):
 
     @property
     def components(self) -> dict:
-        """
-        List of all components included in the ibis file.
+        """List of all components included in the ibis file.
 
         Examples
         --------
@@ -1145,8 +1099,7 @@ class Ibis(PyAedtBase):
 
     @property
     def model_selectors(self) -> list:
-        """
-        List of all model selectors included in the ibis file.
+        """List of all model selectors included in the ibis file.
 
         Examples
         --------
@@ -1167,8 +1120,7 @@ class Ibis(PyAedtBase):
 
     @property
     def models(self) -> list:
-        """
-        List of all models included in the ibis file.
+        """List of all models included in the ibis file.
 
         Examples
         --------
@@ -1189,8 +1141,7 @@ class Ibis(PyAedtBase):
 
     @property
     def buffers(self) -> list:
-        """
-        Buffers included into the ibis model.
+        """Buffers included into the ibis model.
 
         Examples
         --------
@@ -1211,8 +1162,7 @@ class Ibis(PyAedtBase):
 
 
 class AMI(PyAedtBase):
-    """
-    Ibis-AMI model with all data extracted: name, components, models.
+    """Ibis-AMI model with all data extracted: name, components, models.
 
     Parameters
     ----------
@@ -1244,8 +1194,7 @@ class AMI(PyAedtBase):
 
     @property
     def name(self) -> str:
-        """
-        Name of the ibis model.
+        """Name of the ibis model.
 
         Examples
         --------
@@ -1262,8 +1211,7 @@ class AMI(PyAedtBase):
 
     @property
     def components(self) -> dict:
-        """
-        List of all components included in the ibis file.
+        """List of all components included in the ibis file.
 
         Examples
         --------
@@ -1284,8 +1232,7 @@ class AMI(PyAedtBase):
 
     @property
     def model_selectors(self) -> list:
-        """
-        List of all model selectors included in the ibis file.
+        """List of all model selectors included in the ibis file.
 
         Examples
         --------
@@ -1306,8 +1253,7 @@ class AMI(PyAedtBase):
 
     @property
     def models(self) -> list:
-        """
-        List of all models included in the ibis file.
+        """List of all models included in the ibis file.
 
         Examples
         --------
@@ -1328,8 +1274,7 @@ class AMI(PyAedtBase):
 
     @property
     def buffers(self) -> list:
-        """
-        Buffers included into the ibis model.
+        """Buffers included into the ibis model.
 
         Examples
         --------
@@ -1350,8 +1295,7 @@ class AMI(PyAedtBase):
 
 
 class IbisReader(PyAedtBase):
-    """
-    Reads *.ibis file content.
+    """Reads *.ibis file content.
 
     Setup an Ibis object exposing all the extracted data.
 
@@ -1380,8 +1324,7 @@ class IbisReader(PyAedtBase):
 
     @property
     def ibis_model(self) -> Ibis:
-        """
-        Ibis model gathering the entire set of data extracted from the \\*.ibis file.
+        """Ibis model gathering the entire set of data extracted from the \\*.ibis file.
 
         Examples
         --------
@@ -1397,8 +1340,7 @@ class IbisReader(PyAedtBase):
         return self._ibis_model
 
     def parse_ibis_file(self) -> dict:
-        """
-        Read \\*.ibis file content.
+        """Read \\*.ibis file content.
 
         Returns
         -------
@@ -1455,8 +1397,7 @@ class IbisReader(PyAedtBase):
         return ibis_info
 
     def import_model_in_aedt(self, pins: list = None, buffers: list = None) -> bool:
-        """
-        Check and import the ibis model in AEDT.
+        """Check and import the ibis model in AEDT.
 
         Parameters
         ----------
@@ -1548,8 +1489,7 @@ class IbisReader(PyAedtBase):
 
     # Model
     def read_model(self, ibis: Ibis, model_list: list):
-        """
-        Extract model's info.
+        """Extract model's info.
 
         Parameters
         ----------
@@ -1607,8 +1547,7 @@ class IbisReader(PyAedtBase):
 
     # Model Selector
     def read_model_selector(self, ibis: Ibis, model_selector_list: list):
-        """
-        Extract model selector's info.
+        """Extract model selector's info.
 
         Parameters
         ----------
@@ -1645,8 +1584,7 @@ class IbisReader(PyAedtBase):
 
     @classmethod
     def make_model(cls, current_line: str) -> ModelSelectorItem:
-        """
-        Create model object.
+        """Create model object.
 
         Parameters
         ----------
@@ -1677,8 +1615,7 @@ class IbisReader(PyAedtBase):
 
     # Component
     def read_component(self, ibis: Ibis, comp_infos: list):
-        """
-        Extracts component's info.
+        """Extracts component's info.
 
         Parameters
         ----------
@@ -1726,8 +1663,7 @@ class IbisReader(PyAedtBase):
 
     @classmethod
     def fill_package_info(cls, component: Component, pkg_info: str) -> None:
-        """
-        Extract model's info.
+        """Extract model's info.
 
         Parameters
         ----------
@@ -1754,8 +1690,7 @@ class IbisReader(PyAedtBase):
 
     @classmethod
     def get_component_name(cls, line: str) -> str:
-        """
-        Get the name of the component.
+        """Get the name of the component.
 
         Parameters
         ----------
@@ -1777,8 +1712,7 @@ class IbisReader(PyAedtBase):
         return line.replace("[Component]", "").strip()
 
     def make_diff_pin_object(self, line: str, component: Component, ibis: Ibis) -> Pin:
-        """
-        Extract the model's differential pin information.
+        """Extract the model's differential pin information.
 
         Parameters
         ----------
@@ -1846,8 +1780,7 @@ class IbisReader(PyAedtBase):
         return
 
     def make_pin_object(self, line: str, component_name: str, ibis: Ibis) -> Pin:
-        """
-        Extract model's info.
+        """Extract model's info.
 
         Parameters
         ----------
@@ -1911,8 +1844,7 @@ class IbisReader(PyAedtBase):
 
     @classmethod
     def get_first_parameter(cls, line: str) -> str:
-        """
-        Get first parameter string value.
+        """Get first parameter string value.
 
         Parameters
         ----------
@@ -1939,8 +1871,7 @@ class IbisReader(PyAedtBase):
 
 
 class AMIReader(IbisReader, PyAedtBase):
-    """
-    Reads *.ibis file content.
+    """Reads *.ibis file content.
     Setup an Ibis object exposing all the extracted data.
 
     Parameters
@@ -1967,8 +1898,7 @@ class AMIReader(IbisReader, PyAedtBase):
 
     @property
     def ami_model(self) -> AMI:
-        """
-        Ibis-AMI model gathering the entire set of data extracted from the \\*.ami file.
+        """Ibis-AMI model gathering the entire set of data extracted from the \\*.ami file.
 
         Examples
         --------
@@ -1984,8 +1914,7 @@ class AMIReader(IbisReader, PyAedtBase):
         return self._ami_model
 
     def parse_ibis_file(self) -> dict:
-        """
-        Reads \\*.ami file content.
+        """Reads \\*.ami file content.
 
         Returns
         -------
@@ -2041,8 +1970,7 @@ class AMIReader(IbisReader, PyAedtBase):
         return ibis_info
 
     def import_model_in_aedt(self, pins: list = None, buffers: list = None) -> bool:
-        """
-        Check and import the ibis model in AEDT.
+        """Check and import the ibis model in AEDT.
 
         Returns
         -------
@@ -2132,8 +2060,7 @@ class AMIReader(IbisReader, PyAedtBase):
 
 
 def is_started_with(src: str, find: str, ignore_case: bool = True) -> bool:
-    """
-    Verify if a string content starts with a specific string or not.
+    """Verify if a string content starts with a specific string or not.
 
     This is identical to ``str.startswith``, except that it includes
     the ``ignore_case`` parameter.
@@ -2165,8 +2092,7 @@ def is_started_with(src: str, find: str, ignore_case: bool = True) -> bool:
 
 
 def lowercase_json(json_data):
-    """
-    Convert a json structure to lower case.
+    """Convert a json structure to lower case.
 
     Examples
     --------
@@ -2186,8 +2112,7 @@ def lowercase_json(json_data):
 
 
 def ibis_parsing(file: str) -> dict:
-    """
-    Open and parse ibis file using json Ibis template.
+    """Open and parse ibis file using json Ibis template.
 
     Parameters
     ----------
