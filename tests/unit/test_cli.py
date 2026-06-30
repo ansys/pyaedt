@@ -763,6 +763,40 @@ def test_panels_add_success(cli_runner, temp_personal_lib, mock_installed_versio
     mock_add.assert_called_once()
 
 
+def test_panels_add_uses_open_session_personal_lib(cli_runner, temp_personal_lib, mock_installed_versions):
+    with (
+        patch(
+            "ansys.aedt.core.cli.panels._get_personal_lib_from_open_session",
+            return_value=temp_personal_lib,
+        ),
+        patch(
+            "ansys.aedt.core.extensions.installer.pyaedt_installer.add_pyaedt_to_aedt",
+            return_value=True,
+        ) as mock_add,
+    ):
+        result = cli_runner.invoke(app, ["panels", "add"])
+
+    assert result.exit_code == 0
+    assert "Using PersonalLib from running AEDT session" in result.stdout
+    assert mock_add.call_args.kwargs["personal_lib"] == str(temp_personal_lib)
+
+
+def test_panels_add_prompts_when_no_open_session(cli_runner, temp_personal_lib, mock_installed_versions):
+    with (
+        patch("ansys.aedt.core.cli.panels._get_personal_lib_from_open_session", return_value=None),
+        patch("ansys.aedt.core.cli.panels.typer.prompt", return_value=str(temp_personal_lib)) as mock_prompt,
+        patch(
+            "ansys.aedt.core.extensions.installer.pyaedt_installer.add_pyaedt_to_aedt",
+            return_value=True,
+        ) as mock_add,
+    ):
+        result = cli_runner.invoke(app, ["panels", "add"])
+
+    assert result.exit_code == 0
+    mock_prompt.assert_called_once()
+    assert mock_add.call_args.kwargs["personal_lib"] == str(temp_personal_lib)
+
+
 def test_panels_add_nonexistent_personal_lib(cli_runner, mock_installed_versions):
     result = cli_runner.invoke(app, ["panels", "add", "--personal-lib", "/nonexistent/path/PersonalLib"])
     assert result.exit_code == 1
