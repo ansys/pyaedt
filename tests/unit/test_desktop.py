@@ -117,6 +117,7 @@ def test_desktop_odesktop_retries(mock_settings, mock_sleep, mock_desktop) -> No
 def test_desktop_odesktop_setter(mock_desktop) -> None:
     """Test Desktop.odesktop property retries to get the odesktop object."""
     desktop = Desktop()
+    desktop.is_grpc_api = False
     aedt_app = MagicMock()
 
     desktop.grpc_plugin = MagicMock()
