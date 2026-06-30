@@ -35,7 +35,6 @@ from ansys.aedt.core.filtersolutions_core.export_to_aedt import SubstrateType
 from ansys.aedt.core.generic.settings import is_linux
 from tests.conftest import DESKTOP_VERSION
 from tests.conftest import SKIP_MODELITHICS
-from tests.system.filter_solutions.resources import read_resource_file
 from tests.system.filter_solutions.resources import resource_path
 
 ON_CI = os.getenv("ON_CI", "false").lower() == "true"
