@@ -24,8 +24,11 @@
 
 # -*- coding: utf-8 -*-
 import os
+import sys
 import tempfile
+import time
 
+import psutil
 import pytest
 
 from ansys.aedt.core import Emit
@@ -699,3 +702,59 @@ def test_defect_1442777_csv_import_bounds_validation(emit_app) -> None:
         for p in csv_paths:
             if os.path.exists(p):
                 os.remove(p)
+
+
+def _count_iemit_children(aedt_pid: int) -> int:
+    """Count iemit.exe child processes of the given AEDT process."""
+    if sys.platform != "win32":
+        return 0
+    try:
+        parent = psutil.Process(aedt_pid)
+    except psutil.NoSuchProcess:
+        return 0
+    count = 0
+    for child in parent.children(recursive=True):
+        try:
+            if child.name().lower() == "iemit.exe":
+                count += 1
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            continue
+    return count
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="iemit.exe only runs on Windows.")
+@pytest.mark.skipif(not DESKTOP_VERSION or DESKTOP_VERSION < "2027.1", reason="Regression test for defect 1475694.")
+def test_defect_1475694_iemit_dies_when_design_deleted(desktop, add_app) -> None:
+    """Regression test for TFS defect 1475694.
+
+    iemit process doesn't die when emit design is deleted
+    https://tfs.ansys.com:8443/tfs/ANSYS_Development/Portfolio/_workitems/edit/1475694
+
+    Severity: Class 2 - Minor Problem
+
+    Before the fix, deleting an EMIT design left orphaned iemit.exe processes
+    because OnDeleteItem did not stop the subprocess managers. The fix stops
+    all iemit subprocesses (main + kept results) when the design is deleted.
+    """
+    aedt_pid = desktop.aedt_process_id
+
+    app = add_app(application=Emit)
+    design_name = app.design_name
+
+    radio = app.schematic.create_component("New Radio")
+    app.results.analyze()
+
+    time.sleep(2)
+    iemit_before = _count_iemit_children(aedt_pid)
+    assert iemit_before > 0, "Expected at least one iemit.exe after analyze"
+
+    app.delete_design(design_name)
+
+    time.sleep(3)
+    iemit_after = _count_iemit_children(aedt_pid)
+    assert iemit_after < iemit_before, (
+        f"iemit.exe processes were not cleaned up after design delete "
+        f"(before={iemit_before}, after={iemit_after})"
+    )
+
+    app.close_project(app.project_name, save=False)
