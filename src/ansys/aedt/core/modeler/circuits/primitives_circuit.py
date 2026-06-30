@@ -1632,9 +1632,38 @@ class CircuitComponents(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_nport_multi(
-            self, component_name, num_ports_or_lines, array_name, array_id_name, files, location=None, page=1,
+            self, component_name, num_ports, array_name, array_id_name, files, location=None, page=1,
             angle=0.0, flip=False
     ):
+        """Create an N-port multi-component by importing a Sand W component file.
+
+        Parameters
+        ----------
+        component_name : str
+            Name of the component to create.
+        num_ports : int
+            Number of ports or transmission lines.
+        array_name : str
+            Name of the array variable.
+        array_id_name : str
+            Name of the array ID variable.
+        files : list
+            List of touchstone file paths to import.
+        location : tuple, optional
+            Tuple of ``(x, y)`` coordinates for component location. 
+            If ``None``, default location is used. Default is ``None``.
+        page : int, optional
+            Schematics page number. Default is ``1``.
+        angle : float, optional
+            Rotation angle in degrees. Default is ``0.0``.
+        flip : bool, optional
+            Whether to flip the component. Default is ``False``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.Component`
+            Component object.
+        """
 
         def convert_to_meter(value):
             """Convert numbers automatically to mils.
@@ -1732,7 +1761,7 @@ class CircuitComponents(PyAedtBase):
 
         files_args = Files.create(files=[str(f) for f in files]).to_aedt_args()
         options_args = Options.create(
-            num_ports_or_lines=num_ports_or_lines,
+            num_ports_or_lines=num_ports,
             array_name=array_name,
             array_id_name=array_id_name,
             comp_name=component_name,
