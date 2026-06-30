@@ -824,8 +824,7 @@ def parse_excitation_file(
     out_mag: str = "Voltage",
     window: str = "hamming",
 ) -> tuple | bool:
-    """
-    Parse a csv file and convert data in list that can be applied to Hfss and Hfss3dLayout sources.
+    """Parse a csv file and convert data in list that can be applied to Hfss and Hfss3dLayout sources.
 
     Parameters
     ----------

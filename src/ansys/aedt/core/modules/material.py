@@ -243,8 +243,7 @@ class MatProperties(PyAedtBase):
 
 
 class SurfMatProperties(PyAedtBase):
-    """
-    Contains a list of constant names for all surface materials with mappings to their internal XML names.
+    """Contains a list of constant names for all surface materials with mappings to their internal XML names.
 
     Internal names are used in scripts, and XML names are used in the XML syntax.
 
