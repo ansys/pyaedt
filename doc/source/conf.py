@@ -109,7 +109,7 @@ def directory_size(directory_path):
     for path, _, files in os.walk(directory_path):
         for f in files:
             fp = os.path.join(path, f)
-            res += Path(fp).stat().st_size
+            res += Path.stat(fp).st_size
     # Convert in megabytes
     res /= 1e6
     return res

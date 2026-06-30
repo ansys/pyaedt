@@ -231,8 +231,7 @@ def parse_arguments_for_pyaedt_installer(args=None):
 
 
 def unzip_if_zip(path):
-    """
-    Unzip path if it is a ZIP file into a temporary directory.
+    """Unzip path if it is a ZIP file into a temporary directory.
 
     If the zip contains nested zip files, extract them recursively until there
     are no more zip files inside. Returns the deepest directory that contains

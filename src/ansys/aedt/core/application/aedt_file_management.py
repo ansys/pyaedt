@@ -85,8 +85,7 @@ def change_objects_visibility(input_file: str | Path, assignment: list) -> bool:
 
 @pyaedt_function_handler()
 def change_model_orientation(input_file: str | Path, bottom_dir: str) -> bool:
-    """
-    Edit the project file to change the model orientation.
+    """Edit the project file to change the model orientation.
 
     Parameters
     ----------

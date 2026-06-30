@@ -95,8 +95,7 @@ class AedtObjects(PyAedtBase):
 
     @property
     def units(self) -> AedtUnits:
-        """
-        PyAEDT default units.
+        """PyAEDT default units.
 
         Returns
         -------
@@ -108,13 +107,12 @@ class AedtObjects(PyAedtBase):
         >>> hfss = Hfss()
         >>> hfss.units.length
 
-        """  # noqa: D403
+        """
         return self.__aedtunits
 
     @property
     def oradfield(self) -> object:
-        """
-        AEDT radiation field object.
+        """AEDT radiation field object.
 
         References
         ----------
@@ -138,8 +136,7 @@ class AedtObjects(PyAedtBase):
 
     @pyaedt_function_handler()
     def get_module(self, module_name: str) -> object:
-        """
-        AEDT module object.
+        """AEDT module object.
 
         Examples
         --------
@@ -157,8 +154,7 @@ class AedtObjects(PyAedtBase):
 
     @property
     def osymbol_manager(self) -> object:
-        """
-        AEDT symbol manager.
+        """AEDT symbol manager.
 
         References
         ----------
@@ -177,8 +173,7 @@ class AedtObjects(PyAedtBase):
 
     @property
     def opadstack_manager(self) -> object:
-        """
-        AEDT padstack manager.
+        """AEDT padstack manager.
 
         References
         ----------
@@ -197,13 +192,20 @@ class AedtObjects(PyAedtBase):
 
     @property
     def design_type(self) -> object:
-        """Retrieve design type."""
+        """Retrieve design type.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.design_type
+
+        """
         return self._odesign.GetDesignType()
 
     @property
     def oboundary(self) -> object:
-        """
-        Boundary Object.
+        """Boundary Object.
 
         Examples
         --------
@@ -223,8 +225,7 @@ class AedtObjects(PyAedtBase):
 
     @property
     def oimport_export(self) -> object:
-        """
-        Import/Export Manager Module.
+        """Import/Export Manager Module.
 
         References
         ----------
@@ -243,8 +244,7 @@ class AedtObjects(PyAedtBase):
 
     @property
     def ooptimetrics(self) -> object:
-        """
-        AEDT Optimetrics Module.
+        """AEDT Optimetrics Module.
 
         References
         ----------
@@ -263,8 +263,7 @@ class AedtObjects(PyAedtBase):
 
     @property
     def ooutput_variable(self) -> object:
-        """
-        AEDT Output Variable Module.
+        """AEDT Output Variable Module.
 
         References
         ----------
@@ -283,8 +282,7 @@ class AedtObjects(PyAedtBase):
 
     @property
     def oanalysis(self) -> object:
-        """
-        Analysis AEDT Module.
+        """Analysis AEDT Module.
 
         References
         ----------
@@ -313,8 +311,7 @@ class AedtObjects(PyAedtBase):
 
     @property
     def odefinition_manager(self) -> object:
-        """
-        Definition Manager Module.
+        """Definition Manager Module.
 
         References
         ----------
@@ -333,8 +330,7 @@ class AedtObjects(PyAedtBase):
 
     @property
     def omaterial_manager(self) -> object:
-        """
-        Material Manager Module.
+        """Material Manager Module.
 
         References
         ----------
@@ -353,8 +349,7 @@ class AedtObjects(PyAedtBase):
 
     @property
     def omodelsetup(self) -> object:
-        """
-        AEDT Model Setup Object.
+        """AEDT Model Setup Object.
 
         References
         ----------
@@ -380,8 +375,7 @@ class AedtObjects(PyAedtBase):
 
     @property
     def omaxwell_parameters(self) -> object:
-        """
-        AEDT Maxwell Parameter Setup Object.
+        """AEDT Maxwell Parameter Setup Object.
 
         References
         ----------
@@ -402,8 +396,7 @@ class AedtObjects(PyAedtBase):
 
     @property
     def omonitor(self) -> object:
-        """
-        AEDT Monitor Object.
+        """AEDT Monitor Object.
 
         Examples
         --------
@@ -420,8 +413,7 @@ class AedtObjects(PyAedtBase):
 
     @property
     def osolution(self) -> object:
-        """
-        Solution Module.
+        """Solution Module.
 
         References
         ----------
@@ -452,8 +444,7 @@ class AedtObjects(PyAedtBase):
 
     @property
     def oexcitation(self) -> object:
-        """
-        Solution Module.
+        """Solution Module.
 
         References
         ----------
@@ -475,8 +466,7 @@ class AedtObjects(PyAedtBase):
 
     @property
     def omatrix(self) -> object:
-        """
-        Matrix Object.
+        """Matrix Object.
 
         Examples
         --------
@@ -493,8 +483,7 @@ class AedtObjects(PyAedtBase):
 
     @property
     def ofieldsreporter(self) -> object:
-        """
-        Fields reporter.
+        """Fields reporter.
 
         Returns
         -------
@@ -527,8 +516,7 @@ class AedtObjects(PyAedtBase):
 
     @property
     def oreportsetup(self) -> object:
-        """
-        Report setup.
+        """Report setup.
 
         Returns
         -------
@@ -551,8 +539,7 @@ class AedtObjects(PyAedtBase):
 
     @property
     def omeshmodule(self) -> object:
-        """
-        Icepak Mesh Module.
+        """Icepak Mesh Module.
 
         References
         ----------
@@ -571,8 +558,7 @@ class AedtObjects(PyAedtBase):
 
     @property
     def oeditor(self) -> object:
-        """
-        Oeditor Module.
+        """Oeditor Module.
 
         References
         ----------
@@ -608,8 +594,7 @@ class AedtObjects(PyAedtBase):
 
     @property
     def layouteditor(self) -> object:
-        """
-        Return the Circuit Layout Editor.
+        """Return the Circuit Layout Editor.
 
         References
         ----------
@@ -628,8 +613,7 @@ class AedtObjects(PyAedtBase):
 
     @property
     def ocomponent_manager(self) -> object:
-        """
-        Component manager object.
+        """Component manager object.
 
         Examples
         --------
@@ -644,8 +628,7 @@ class AedtObjects(PyAedtBase):
 
     @property
     def omodel_manager(self) -> object:
-        """
-        Model manager object.
+        """Model manager object.
 
         Examples
         --------
@@ -660,8 +643,7 @@ class AedtObjects(PyAedtBase):
 
     @property
     def onetwork_data_explorer(self) -> object:
-        """
-        Network data explorer module.
+        """Network data explorer module.
 
         References
         ----------
@@ -680,8 +662,7 @@ class AedtObjects(PyAedtBase):
 
     @property
     def odata_block(self) -> object:
-        """
-        Data block module only available in Circuit designs.
+        """Data block module only available in Circuit designs.
 
         References
         ----------
