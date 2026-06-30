@@ -65,13 +65,17 @@ class DllInterface:
             )
         self.dll_path = os.path.join(aedt_versions.installed_versions[version], "nuhertz", "FilterSolutionsAPI.dll")
         print("DLL Path:", self.dll_path)
+        # Ensure the DLL directory is in PATH so Borland BPL dependencies are found
+        dll_dir = os.path.dirname(self.dll_path)
+        if dll_dir not in os.environ.get("PATH", ""):
+            os.environ["PATH"] = dll_dir + os.pathsep + os.environ.get("PATH", "")
         if not os.path.isfile(self.dll_path):
             raise RuntimeError(f"The 'FilterSolutions' API DLL was not found at {self.dll_path}.")  # pragma: no cover
         self._version = version
 
     def _init_dll(self, show_gui) -> None:
         """Load DLL and initialize application parameters to default values."""
-        self._dll = ctypes.cdll.LoadLibrary(self.dll_path)
+        self._dll = ctypes.CDLL(self.dll_path, winmode=0)
         self._define_dll_functions()
         self.show_gui = show_gui
         if show_gui:  # pragma: no cover

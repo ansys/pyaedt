@@ -64,10 +64,6 @@ class FilterDesignBase(PyAedtBase):
             )
             FilterDesignBase._active_design.close()
 
-        if version is not None:
-            # Clear global state before initialization
-            settings.aedt_version = None
-
         FilterDesignBase._active_design = self
 
         self.version = version if version else settings.aedt_version
@@ -122,16 +118,23 @@ class FilterDesignBase(PyAedtBase):
         -------
         :class:``AEDT`` design object
         """
-        settings.use_grpc_api = None
-        if isinstance(FilterDesignBase._active_design, LumpedDesign):
-            return Circuit(version=desktop_version, aedt_process_id=desktop_process_id)
-        elif isinstance(FilterDesignBase._active_design, DistributedDesign):
-            if getattr(self, "insert_hfss_3dl_design", True):
-                return Hfss3dLayout(version=desktop_version, aedt_process_id=desktop_process_id)
-            elif getattr(self, "insert_hfss_design", True):
-                return Hfss(version=desktop_version, aedt_process_id=desktop_process_id)
-            elif getattr(self, "insert_circuit_design", True):
+        # Preserve the current version to ensure proper session reconnection.
+        original_version = settings.aedt_version
+        try:
+            settings.aedt_version = desktop_version
+            if isinstance(FilterDesignBase._active_design, LumpedDesign):
                 return Circuit(version=desktop_version, aedt_process_id=desktop_process_id)
+            elif isinstance(FilterDesignBase._active_design, DistributedDesign):
+                if getattr(self, "insert_hfss_3dl_design", True):
+                    return Hfss3dLayout(version=desktop_version, aedt_process_id=desktop_process_id)
+                elif getattr(self, "insert_hfss_design", True):
+                    return Hfss(version=desktop_version, aedt_process_id=desktop_process_id)
+                elif getattr(self, "insert_circuit_design", True):
+                    return Circuit(version=desktop_version, aedt_process_id=desktop_process_id)
+            return None
+        finally:
+            # Restore the original version in case of early exit or exception.
+            settings.aedt_version = original_version
 
 
 class LumpedDesign(FilterDesignBase):
