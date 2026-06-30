@@ -22,7 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""The module contains the ``Desktop`` class.
+"""
+The module contains the ``Desktop`` class.
 
 The module is used to initialize AEDT and the message manager for managing AEDT.
 You can initialize The module before launching an app or

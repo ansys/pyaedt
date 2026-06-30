@@ -39,7 +39,7 @@ class DirMixin:
     >>> e = Example()
     >>> e.public_dir  # same as dir(e)
 
-    """
+    """  # noqa: D203
 
     def __dir__(self):
         # Get default attribute list, there is a fallback for Python 2 or weird metaclasses
