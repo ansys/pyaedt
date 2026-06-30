@@ -534,6 +534,48 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
             name = generate_unique_name("Temp")
         return self._create_boundary(name, props, "FixedSupport")
 
+    @pyaedt_function_handler()
+    def assign_thermal_condition_uniform(self, assignment: list, uniform_temp: str,name: str | None = "") -> BoundaryObject:
+        """Assign a Mechanical excitation as thermal condition, with uniform temperature.
+
+        .. note::
+           This method works only in a Mechanical Structural analysis.
+
+        Parameters
+        ----------
+        assignment : list
+            List of faces to apply to the fixed support.
+        name : str, optional
+            Name of the boundary. The default is ``""``, in which case
+            the default name is used.
+        uniform_temp: str
+            Temperature of the thermal condition with units
+
+        Returns
+        -------
+        aedt.modules.boundary.Boundary
+            Boundary object.
+
+        References
+        ----------
+        >>> oModule.AssignThermalCondition
+        """
+        if self.solution_type not in (SolutionsMechanical.Structural, SolutionsMechanical.Modal):
+            raise AEDTRuntimeError("This method works only in a Mechanical Structural analysis.")
+
+        props = {}
+        assignment = self.modeler.convert_to_selections(assignment, True)
+
+        if type(assignment) is list:
+            props["Objects"] = assignment
+
+        props["Uniform"] = True
+        props["ThermalCondition"] = uniform_temp
+
+        if not name:
+            name = generate_unique_name("ThermalCondition_Uniform")
+        return self._create_boundary(name, props, "ThermalCondition")
+
     @property
     def existing_analysis_sweeps(self):
         """Existing analysis sweeps in the design.

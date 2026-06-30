@@ -165,3 +165,13 @@ def test_add_mesh_link(aedt_app, test_tmp_dir) -> None:
     assert setup.add_mesh_link(design="MechanicalDesign2", project=str(example_project_copy))
     aedt_app.close_project(example_project)
     example_project_copy.unlink(missing_ok=True)
+
+def test_assign_thermal_condition_uniform(aedt_app):
+    aedt_app.insert_design("Str_test", "Structural")
+    aedt_app.modeler.create_box([0, 0, 0], [10, 10, 3], "Box_warm", "copper")
+    th1 = aedt_app.assign_thermal_condition_uniform(assignment=["Box_warm"], name="ThermalCond_Box", uniform_temp="100cel")
+    assert th1.props["Objects"] == ["Box_warm"]
+    assert th1.props["Uniform"] == True
+    assert th1.props["ThermalCondition"] == "100cel"
+
+
