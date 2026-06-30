@@ -90,7 +90,7 @@ class CSVDataset(PyAedtBase):
     """
 
     @property
-    def number_of_rows(self) -> int:
+    def number_of_rows(self) -> int | None:
         """
         Number of rows.
 
@@ -259,8 +259,7 @@ class CSVDataset(PyAedtBase):
         return new_dataset
 
     def __iadd__(self, other):
-        """
-        Incrementally add the dataset in one CSV file to a dataset in another CSV file.
+        """Incrementally add the dataset in one CSV file to a dataset in another CSV file.
 
         .. note:
            This assumes that the number of columns in both datasets are the same,
@@ -304,13 +303,12 @@ class CSVDataset(PyAedtBase):
         return output_string
 
     def next(self):
-        """
-        Yield the next row.
+        """Yield the next row.
 
         Examples
         --------
         >>> from ansys.aedt.core.application.variables import CSVDataset
-        >>> dataset = CSVDataset("C:\\Users\\user\\Documents\\results.csv")
+        >>> dataset = CSVDataset("results.csv")
         >>> dataset.next()
 
         """
@@ -336,8 +334,7 @@ def _generate_property_validation_errors(property_name, expected, actual):
 def generate_validation_errors(
     property_names: list[str], expected_settings: list[str], actual_settings: list[str]
 ) -> list[str]:
-    """
-    From the given property names, expected settings and actual settings, return a list of validation errors.
+    """From the given property names, expected settings and actual settings, return a list of validation errors.
 
     If no errors are found, an empty list is returned. The validation of values such as "10mm"
     ensures that they are close to within a relative tolerance.
@@ -355,7 +352,7 @@ def generate_validation_errors(
 
     Returns
     -------
-    List[str]
+    list[str]
         A list of validation errors for the given settings.
 
     Examples
@@ -373,8 +370,7 @@ def generate_validation_errors(
 
 
 class VariableManager(PyAedtBase):
-    """
-    Manages design properties and project variables.
+    """Manages design properties and project variables.
 
     Design properties are the local variables in a design. Project
     variables are defined at the project level and start with ``$``.
@@ -469,8 +465,7 @@ class VariableManager(PyAedtBase):
 
     @property
     def variables(self):
-        """
-        Variables.
+        """Variables.
 
         Returns
         -------
@@ -497,8 +492,7 @@ class VariableManager(PyAedtBase):
 
     @pyaedt_function_handler()
     def decompose(self, variable: str) -> tuple[float, str]:
-        """
-        Decompose a variable string to a floating with its unit.
+        """Decompose a variable string to a floating with its unit.
 
         Parameters
         ----------
@@ -532,8 +526,7 @@ class VariableManager(PyAedtBase):
 
     @property
     def design_variables(self) -> dict:
-        """
-        Design variables.
+        """Design variables.
 
         Returns
         -------
@@ -556,8 +549,7 @@ class VariableManager(PyAedtBase):
 
     @property
     def project_variables(self) -> dict:
-        """
-        Project variables.
+        """Project variables.
 
         Returns
         -------
@@ -580,8 +572,7 @@ class VariableManager(PyAedtBase):
 
     @property
     def post_processing_variables(self) -> dict:
-        """
-        Post Processing variables.
+        """Post Processing variables.
 
         Returns
         -------
@@ -617,8 +608,7 @@ class VariableManager(PyAedtBase):
 
     @property
     def independent_variables(self) -> dict:
-        """
-        Independent variables.
+        """Independent variables.
 
         Returns
         -------
@@ -644,8 +634,7 @@ class VariableManager(PyAedtBase):
 
     @property
     def independent_project_variables(self) -> dict:
-        """
-        Independent project variables.
+        """Independent project variables.
 
         Returns
         -------
@@ -668,8 +657,7 @@ class VariableManager(PyAedtBase):
 
     @property
     def independent_design_variables(self) -> dict:
-        """
-        Independent design variables.
+        """Independent design variables.
 
         Returns
         -------
@@ -693,8 +681,7 @@ class VariableManager(PyAedtBase):
 
     @property
     def dependent_variables(self) -> dict:
-        """
-        Dependent variables.
+        """Dependent variables.
 
         Returns
         -------
@@ -720,8 +707,7 @@ class VariableManager(PyAedtBase):
 
     @property
     def dependent_project_variables(self) -> dict:
-        """
-        Dependent project variables.
+        """Dependent project variables.
 
         Returns
         -------
@@ -744,8 +730,7 @@ class VariableManager(PyAedtBase):
 
     @property
     def dependent_design_variables(self) -> dict:
-        """
-        Dependent design variables.
+        """Dependent design variables.
 
         Returns
         -------
@@ -769,8 +754,7 @@ class VariableManager(PyAedtBase):
 
     @property
     def variable_names(self) -> list[str]:
-        """
-        List of variables.
+        """List of variables.
 
         Examples
         --------
@@ -783,8 +767,7 @@ class VariableManager(PyAedtBase):
 
     @property
     def project_variable_names(self) -> list[str]:
-        """
-        List of project variables.
+        """List of project variables.
 
         References
         ----------
@@ -802,8 +785,7 @@ class VariableManager(PyAedtBase):
 
     @property
     def design_variable_names(self) -> list[str]:
-        """
-        List of design variables.
+        """List of design variables.
 
         References
         ----------
@@ -821,8 +803,7 @@ class VariableManager(PyAedtBase):
 
     @property
     def independent_project_variable_names(self) -> list[str]:
-        """
-        List of independent project variables.
+        """List of independent project variables.
 
         References
         ----------
@@ -840,8 +821,7 @@ class VariableManager(PyAedtBase):
 
     @property
     def independent_design_variable_names(self) -> list[str]:
-        """
-        List of independent design variables.
+        """List of independent design variables.
 
         References
         ----------
@@ -859,8 +839,7 @@ class VariableManager(PyAedtBase):
 
     @property
     def independent_variable_names(self) -> list[str]:
-        """
-        List of independent variables.
+        """List of independent variables.
 
         References
         ----------
@@ -880,8 +859,7 @@ class VariableManager(PyAedtBase):
 
     @property
     def dependent_project_variable_names(self) -> list[str]:
-        """
-        List of dependent project variables.
+        """List of dependent project variables.
 
         References
         ----------
@@ -899,8 +877,7 @@ class VariableManager(PyAedtBase):
 
     @property
     def dependent_design_variable_names(self) -> list[str]:
-        """
-        List of dependent design variables.
+        """List of dependent design variables.
 
         References
         ----------
@@ -918,8 +895,7 @@ class VariableManager(PyAedtBase):
 
     @property
     def dependent_variable_names(self) -> list[str]:
-        """
-        List of dependent variables.
+        """List of dependent variables.
 
         References
         ----------
@@ -1015,8 +991,7 @@ class VariableManager(PyAedtBase):
 
     @pyaedt_function_handler()
     def _update_variable_dict(self, object_list):
-        """
-        Update variable dictionary.
+        """Update variable dictionary.
 
         Parameters
         ----------
@@ -1045,8 +1020,7 @@ class VariableManager(PyAedtBase):
 
     @pyaedt_function_handler()
     def _variable_dict(self, object_list, dependent: bool = True, independent: bool = True):
-        """
-        Retrieve the variable dictionary.
+        """Retrieve the variable dictionary.
 
         Parameters
         ----------
@@ -1084,8 +1058,7 @@ class VariableManager(PyAedtBase):
 
     @pyaedt_function_handler()
     def get_expression(self, name: str) -> str:  # TODO: Should be renamed to "evaluate"
-        """
-        Retrieve the variable value of a project or design variable as a string.
+        """Retrieve the variable value of a project or design variable as a string.
 
         Parameters
         ----------
@@ -1115,8 +1088,7 @@ class VariableManager(PyAedtBase):
 
     @pyaedt_function_handler()
     def aedt_object(self, name: str) -> object:
-        """
-        Retrieve an AEDT object.
+        """Retrieve an AEDT object.
 
         Parameters
         ----------
@@ -1148,8 +1120,7 @@ class VariableManager(PyAedtBase):
         is_post_processing: bool = False,
         circuit_parameter: bool = True,
     ) -> bool:
-        """
-        Set the value of a design property or project variable.
+        """Set the value of a design property or project variable.
 
         Parameters
         ----------
@@ -1389,8 +1360,7 @@ class VariableManager(PyAedtBase):
 
     @pyaedt_function_handler()
     def delete_separator(self, name: str) -> bool:
-        """
-        Delete a separator from either the active project or design.
+        """Delete a separator from either the active project or design.
 
         Parameters
         ----------
@@ -1437,8 +1407,7 @@ class VariableManager(PyAedtBase):
 
     @pyaedt_function_handler()
     def delete_variable(self, name: str) -> bool:
-        """
-        Delete a variable.
+        """Delete a variable.
 
         Parameters
         ----------
@@ -1505,8 +1474,7 @@ class VariableManager(PyAedtBase):
 
     @pyaedt_function_handler()
     def is_used(self, name: str) -> bool:
-        """
-        Find if a variable is used.
+        """Find if a variable is used.
 
         Parameters
         ----------
@@ -1543,8 +1511,7 @@ class VariableManager(PyAedtBase):
         return used
 
     def _find_used_variable_history(self, history, var_name):
-        """
-        Find if a variable is used.
+        """Find if a variable is used.
 
         Parameters
         ----------
@@ -1572,8 +1539,7 @@ class VariableManager(PyAedtBase):
 
     @pyaedt_function_handler()
     def delete_unused_variables(self) -> bool:
-        """
-        Delete unused design and project variables.
+        """Delete unused design and project variables.
 
         Returns
         -------
@@ -1633,8 +1599,7 @@ class VariableManager(PyAedtBase):
 
 
 class Variable(PyAedtBase):
-    """
-    Stores design properties and project variables and provides operations to perform on them.
+    """Stores design properties and project variables and provides operations to perform on them.
 
     Parameters
     ----------
@@ -1682,9 +1647,11 @@ class Variable(PyAedtBase):
     """
 
     def __repr__(self) -> str:
+        """Variable representation."""
         return self.expression
 
     def __str__(self) -> str:
+        """Variable string representation."""
         return self.expression
 
     def __init__(
@@ -1702,6 +1669,7 @@ class Variable(PyAedtBase):
         postprocessing: bool = False,
         circuit_parameter: bool = True,
     ):
+        """Variable constructor."""
         full_variables = full_variables or {}
 
         self._variable_name = name
@@ -1753,8 +1721,7 @@ class Variable(PyAedtBase):
     # Low-level property read/write
     @pyaedt_function_handler()
     def update_var(self) -> bool:
-        """
-        Push the current variable state to AEDT via variable manager.
+        """Push the current variable state to AEDT via variable manager.
 
         Examples
         --------
@@ -1893,17 +1860,18 @@ class Variable(PyAedtBase):
 
     @pyaedt_function_handler()
     def _get_prop_val(self, prop=None):
+        """Get property value with retries, handling AEDT containers automatically."""
         return self._get_prop_generic(prop, evaluated=False)
 
     @pyaedt_function_handler()
     def _get_prop_evaluated_val(self, prop=None):
+        """Get property value with retries, handling AEDT containers automatically."""
         return self._get_prop_generic(prop, evaluated=True)
 
     # Public properties
     @property
     def name(self) -> str:
-        """
-        Variable name.
+        """Variable name.
 
         Examples
         --------
@@ -1925,8 +1893,7 @@ class Variable(PyAedtBase):
 
     @property
     def has_definition_parameters(self) -> bool:
-        """
-        Whether the design type has DefinitionParameters or only LocalVariables.
+        """Whether the design type has DefinitionParameters or only LocalVariables.
 
         Examples
         --------
@@ -1948,8 +1915,7 @@ class Variable(PyAedtBase):
 
     @property
     def is_optimization_enabled(self) -> bool:
-        """
-        Whether optimization is enabled for this variable.
+        """Whether optimization is enabled for this variable.
 
         Examples
         --------
@@ -1968,8 +1934,7 @@ class Variable(PyAedtBase):
 
     @property
     def optimization_min_value(self) -> bool:
-        """
-        Optimization lower bound.
+        """Optimization lower bound.
 
         Examples
         --------
@@ -1988,8 +1953,7 @@ class Variable(PyAedtBase):
 
     @property
     def optimization_max_value(self) -> bool:
-        """
-        Optimization upper bound.
+        """Optimization upper bound.
 
         Examples
         --------
@@ -2008,8 +1972,7 @@ class Variable(PyAedtBase):
 
     @property
     def is_sensitivity_enabled(self) -> bool:
-        """
-        Whether sensitivity analysis is enabled.
+        """Whether sensitivity analysis is enabled.
 
         Examples
         --------
@@ -2028,8 +1991,7 @@ class Variable(PyAedtBase):
 
     @property
     def sensitivity_min_value(self) -> bool:
-        """
-        Sensitivity lower bound.
+        """Sensitivity lower bound.
 
         Examples
         --------
@@ -2048,8 +2010,7 @@ class Variable(PyAedtBase):
 
     @property
     def sensitivity_max_value(self) -> bool:
-        """
-        Sensitivity upper bound.
+        """Sensitivity upper bound.
 
         Examples
         --------
@@ -2068,8 +2029,7 @@ class Variable(PyAedtBase):
 
     @property
     def sensitivity_initial_disp(self) -> bool:
-        """
-        Sensitivity initial displacement (if applicable).
+        """Sensitivity initial displacement (if applicable).
 
         Examples
         --------
@@ -2087,9 +2047,8 @@ class Variable(PyAedtBase):
         self._set_prop_val("Sensitivity/IDisp", value, 10)
 
     @property
-    def is_tuning_enabled(self) -> bool:
-        """
-        Whether tuning is enabled.
+    def is_tuning_enabled(self) -> bool | None:
+        """Whether tuning is enabled.
 
         Examples
         --------
@@ -2107,9 +2066,8 @@ class Variable(PyAedtBase):
         self._set_prop_val("Tuning/Included", value, 10)
 
     @property
-    def tuning_min_value(self) -> bool:
-        """
-        Tuning lower bound.
+    def tuning_min_value(self) -> bool | None:
+        """Tuning lower bound.
 
         Examples
         --------
@@ -2127,9 +2085,8 @@ class Variable(PyAedtBase):
         self._set_prop_val("Tuning/Min", value, 10)
 
     @property
-    def tuning_max_value(self) -> bool:
-        """
-        Tuning upper bound.
+    def tuning_max_value(self) -> bool | None:
+        """Tuning upper bound.
 
         Examples
         --------
@@ -2147,9 +2104,8 @@ class Variable(PyAedtBase):
         self._set_prop_val("Tuning/Max", value, 10)
 
     @property
-    def tuning_step_value(self) -> bool:
-        """
-        Tuning step value.
+    def tuning_step_value(self) -> bool | None:
+        """Tuning step value.
 
         Examples
         --------
@@ -2167,9 +2123,8 @@ class Variable(PyAedtBase):
         self._set_prop_val("Tuning/Step", value, 10)
 
     @property
-    def is_statistical_enabled(self) -> bool:
-        """
-        Whether statistical analysis is enabled.
+    def is_statistical_enabled(self) -> bool | None:
+        """Whether statistical analysis is enabled.
 
         Examples
         --------
@@ -2187,9 +2142,8 @@ class Variable(PyAedtBase):
         self._set_prop_val("Statistical/Included", value, 10)
 
     @property
-    def read_only(self) -> bool:
-        """
-        Current read-only flag.
+    def read_only(self) -> bool | None:
+        """Current read-only flag.
 
         Examples
         --------
@@ -2213,9 +2167,8 @@ class Variable(PyAedtBase):
                 self._app.logger.error('Failed to update property "read_only".')
 
     @property
-    def hidden(self) -> bool:
-        """
-        Current hidden flag.
+    def hidden(self) -> bool | None:
+        """Current hidden flag.
 
         Examples
         --------
@@ -2239,9 +2192,8 @@ class Variable(PyAedtBase):
                 self._app.logger.error('Failed to update property "hidden".')
 
     @property
-    def sweep(self) -> bool:
-        """
-        Current sweep flag.
+    def sweep(self) -> bool | None:
+        """Current sweep flag.
 
         Examples
         --------
@@ -2265,9 +2217,8 @@ class Variable(PyAedtBase):
                 self._app.logger.error('Failed to update property "sweep".')
 
     @property
-    def description(self) -> str:
-        """
-        Current description.
+    def description(self) -> str | None:
+        """Current description.
 
         Examples
         --------
@@ -2292,8 +2243,7 @@ class Variable(PyAedtBase):
 
     @property
     def post_processing(self) -> bool:
-        """
-        Whether this variable is a post-processing variable.
+        """Whether this variable is a post-processing variable.
 
         Examples
         --------
@@ -2310,8 +2260,7 @@ class Variable(PyAedtBase):
 
     @property
     def is_circuit_parameter(self) -> bool:
-        """
-        Whether this variable is a circuit parameter (for supported design types).
+        """Whether this variable is a circuit parameter (for supported design types).
 
         Examples
         --------
@@ -2339,9 +2288,8 @@ class Variable(PyAedtBase):
         return False
 
     @property
-    def expression(self) -> str:
-        """
-        Raw AEDT expression.
+    def expression(self) -> str | None | float:
+        """Raw AEDT expression.
 
         Examples
         --------
@@ -2367,8 +2315,7 @@ class Variable(PyAedtBase):
     # Values and units
     @property
     def numeric_value(self) -> float | list[Any] | Any:
-        """
-        Numeric value of the expression in current units.
+        """Numeric value of the expression in current units.
 
         If the expression is an array-like string ("[1, 2, 3]"), returns a list.
 
@@ -2398,8 +2345,7 @@ class Variable(PyAedtBase):
 
     @property
     def unit_system(self) -> str:
-        """
-        Unit system name.
+        """Unit system name.
 
         Examples
         --------
@@ -2434,8 +2380,7 @@ class Variable(PyAedtBase):
 
     @property
     def si_value(self) -> float:
-        """
-        Current value in SI units (float).
+        """Current value in SI units (float).
 
         This getter keeps the cached SI value in sync with the AEDT backend.
         It queries the evaluated variable value from AEDT, converts it to SI
@@ -2485,8 +2430,7 @@ class Variable(PyAedtBase):
 
     @property
     def evaluated_value(self) -> str:
-        """
-        Concatenated numeric value and unit string.
+        """Concatenated numeric value and unit string.
 
         Examples
         --------
@@ -2501,8 +2445,7 @@ class Variable(PyAedtBase):
 
     @pyaedt_function_handler()
     def decompose(self) -> tuple:
-        """
-        Decompose the evaluated expression into a floating-point number and units.
+        """Decompose the evaluated expression into a floating-point number and units.
 
         Returns
         -------
@@ -2520,8 +2463,7 @@ class Variable(PyAedtBase):
 
     @pyaedt_function_handler()
     def rescale_to(self, units: str) -> Variable:
-        """
-        Rescale the expression to the provided *units* within the same unit system.
+        """Rescale the expression to the provided *units* within the same unit system.
 
         Returns
         -------
@@ -2544,8 +2486,7 @@ class Variable(PyAedtBase):
 
     @pyaedt_function_handler()
     def format(self, fmt: str) -> str:
-        """
-        Return the string value using the specified numeric format ('06.2f').
+        """Return the string value using the specified numeric format ('06.2f').
 
         Returns
         -------
@@ -2563,8 +2504,7 @@ class Variable(PyAedtBase):
     # Arithmetic operators
     @pyaedt_function_handler()
     def __mul__(self, other: Variable | float | int) -> Variable:
-        """
-        Multiply this variable by a number or another variable.
+        """Multiply this variable by a number or another variable.
 
         Parameters
         ----------
@@ -2595,8 +2535,7 @@ class Variable(PyAedtBase):
 
     @pyaedt_function_handler()
     def __add__(self, other: Variable | float | int) -> Variable:
-        """
-        Add two variables with the same unit system.
+        """Add two variables with the same unit system.
 
         Parameters
         ----------
@@ -2620,8 +2559,7 @@ class Variable(PyAedtBase):
 
     @pyaedt_function_handler()
     def __sub__(self, other: Variable | float | int) -> Variable:
-        """
-        Subtract two variables with the same unit system.
+        """Subtract two variables with the same unit system.
 
         Parameters
         ----------
@@ -2645,8 +2583,7 @@ class Variable(PyAedtBase):
 
     @pyaedt_function_handler()
     def __truediv__(self, other: Variable | float | int) -> Variable:
-        """
-        Divide this variable by a number or another variable.
+        """Divide this variable by a number or another variable.
 
         Parameters
         ----------
@@ -2709,8 +2646,7 @@ class Variable(PyAedtBase):
 
     @pyaedt_function_handler()
     def __to_si(self, numeric: float, units: str = None) -> float:
-        """
-        Convert a numeric value from the given units to SI units.
+        """Convert a numeric value from the given units to SI units.
 
         Parameters
         ----------
@@ -2745,8 +2681,7 @@ class Variable(PyAedtBase):
 
     @pyaedt_function_handler()
     def __from_si(self, si_numeric: float, units: str = None) -> float:
-        """
-        Convert a numeric value from SI units to the given units.
+        """Convert a numeric value from SI units to the given units.
 
         Parameters
         ----------
@@ -2781,8 +2716,7 @@ class Variable(PyAedtBase):
 
 
 class DataSet(PyAedtBase):
-    """
-    Manages datasets.
+    """Manages datasets.
 
     Parameters
     ----------
@@ -2893,8 +2827,7 @@ class DataSet(PyAedtBase):
 
     @pyaedt_function_handler()
     def create(self) -> bool:
-        """
-        Create a dataset.
+        """Create a dataset.
 
         Returns
         -------
@@ -2923,8 +2856,7 @@ class DataSet(PyAedtBase):
 
     @pyaedt_function_handler()
     def add_point(self, x: float, y: float, z: float = None, v: float = None) -> bool:
-        """
-        Add a point to the dataset.
+        """Add a point to the dataset.
 
         Parameters
         ----------
@@ -2965,8 +2897,7 @@ class DataSet(PyAedtBase):
 
     @pyaedt_function_handler()
     def remove_point_from_x(self, x: float) -> bool:
-        """
-        Remove a point from an X-axis value.
+        """Remove a point from an X-axis value.
 
         Parameters
         ----------
@@ -2998,8 +2929,7 @@ class DataSet(PyAedtBase):
 
     @pyaedt_function_handler()
     def remove_point_from_index(self, id_to_remove: int) -> bool:
-        """
-        Remove a point from an index.
+        """Remove a point from an index.
 
         Parameters
         ----------
@@ -3036,8 +2966,7 @@ class DataSet(PyAedtBase):
 
     @pyaedt_function_handler()
     def update(self) -> bool:
-        """
-        Update the dataset.
+        """Update the dataset.
 
         Returns
         -------
@@ -3068,8 +2997,7 @@ class DataSet(PyAedtBase):
 
     @pyaedt_function_handler()
     def delete(self) -> bool:
-        """
-        Delete the dataset.
+        """Delete the dataset.
 
         Returns
         -------
@@ -3099,8 +3027,7 @@ class DataSet(PyAedtBase):
 
     @pyaedt_function_handler()
     def export(self, output_dir: str = None) -> bool:
-        """
-        Export the dataset.
+        """Export the dataset.
 
         Parameters
         ----------

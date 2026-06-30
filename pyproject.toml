@@ -196,9 +196,10 @@ ignore = [
     "D104", # undocumented-public-package
     "D105", # undocumented-magic-method
     "D106", # undocumented-public-nested-class
-    "D203", # blank line required before class docstring (D203)
+    "D203", # blank line required before class docstring
     "D205", # missing-blank-line-after-summary
     "D210", # surrounding-whitespace
+    "D213", # Multi-line docstring summary should start at the second line
     "D301", # escape-sequence-in-docstring
     "D400", # missing-trailing-period
     "D401", # non-imperative-mood

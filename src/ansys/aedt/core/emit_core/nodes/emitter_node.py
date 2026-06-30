@@ -103,8 +103,7 @@ class EmitterNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """
-        Delete this node.
+        """Delete this node.
 
         Examples
         --------
@@ -118,8 +117,7 @@ class EmitterNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def get_radio(self) -> RadioNode:
-        """
-        Get the radio associated with this Emitter.
+        """Get the radio associated with this Emitter.
 
         Returns
         -------
@@ -135,8 +133,7 @@ class EmitterNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def get_antenna(self) -> AntennaNode:
-        """
-        Get the antenna associated with this Emitter.
+        """Get the antenna associated with this Emitter.
 
         Returns
         -------
@@ -153,8 +150,7 @@ class EmitterNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def children(self) -> list[EmitNode]:
-        """
-        Overridden to return the Waveforms.
+        """Overridden to return the Waveforms.
 
         Returns
         -------
@@ -170,8 +166,7 @@ class EmitterNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def get_waveforms(self) -> list[Waveform]:
-        """
-        Get the waveform nodes for the Emitter.
+        """Get the waveform nodes for the Emitter.
 
         Returns
         -------

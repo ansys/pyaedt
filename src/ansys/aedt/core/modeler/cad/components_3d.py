@@ -566,8 +566,7 @@ class UserDefinedComponent(PyAedtBase):
 
     @pyaedt_function_handler()
     def delete(self) -> None:
-        """
-        Delete the object.
+        """Delete the object.
 
         The project must be saved after the operation to update the list
         of names for user-defined components.

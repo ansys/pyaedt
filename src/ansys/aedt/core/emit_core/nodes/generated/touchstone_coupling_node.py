@@ -85,8 +85,7 @@ class TouchstoneCouplingNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """
-        Delete this node.
+        """Delete this node.
 
         Examples
         --------

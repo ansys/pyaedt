@@ -33,8 +33,7 @@ if TYPE_CHECKING:
 
 
 class AnalysisCircuitNetlist(Analysis, PyAedtBase):
-    """
-    Provides the Circuit Netlist (CircuitNetlist) interface.
+    """Provides the Circuit Netlist (CircuitNetlist) interface.
 
     Circuit Netlist Editor has no setup, solution, analysis or postprocessor
     It is automatically initialized by Application call.
