@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -21,6 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
 from pathlib import Path
 import shutil
 import time
@@ -48,6 +49,7 @@ TOUCHSTONE = "SSN_1.5_ssn.s6p"
 TOUCHSTONE_CUSTOM = "SSN_custom.s6p"
 TOUCHSTONE2 = "V3P3S0.ts"
 AMI_PROJECT = "AMI_Example"
+PROBE_NAMES_PROJECT = "probe_names_pytest"
 NETLIST_FILE2 = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / NETLIST2
 NETLIST_FILE1 = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / NETLIST1
 TOUCHSTONE_FILE = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / TOUCHSTONE
@@ -80,6 +82,13 @@ def substrate_app(add_app_example):
 @pytest.fixture
 def ami_model(add_app_example):
     app = add_app_example(project=AMI_PROJECT, application=Circuit, subfolder="T01")
+    yield app
+    app.close_project(app.project_name, save=False)
+
+
+@pytest.fixture
+def probe_names_app(add_app_example):
+    app = add_app_example(project=PROBE_NAMES_PROJECT, application=Circuit, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(app.project_name, save=False)
 
@@ -182,6 +191,7 @@ def test_import_touchstone(aedt_app, test_tmp_dir) -> None:
     assert touchstone_data
 
 
+@pytest.mark.skipif(DESKTOP_VERSION == "2027.1", reason="WAITING BUG FIX")
 def test_export_fullwave(aedt_app, test_tmp_dir) -> None:
     aedt_app.save_project()
     touchstone_1 = shutil.copy2(TOUCHSTONE_FILE, test_tmp_dir / TOUCHSTONE)
@@ -382,6 +392,87 @@ def test_create_ami_plots_b(aedt_app) -> None:
         )
         == "MyReportV"
     )
+
+
+def test_eye_probe_expression_non_ami_ibis(probe_names_app) -> None:
+    """Test that AMI eye expressions correctly handle amiprobe/amisource for non-AMI IBIS models."""
+    setup_name = "AMIAnalysis"
+    probe_expr = "AMIProbe1"
+    source_expr = "AMISource1"
+
+    # AMIConturEyeDiagram: verify amiprobe expression formatting per quantity_type
+    rep_contour = probe_names_app.post.reports_by_category.statistical_eye_contour(
+        setup=setup_name, expressions=[probe_expr]
+    )
+
+    rep_contour.quantity_type = 0
+    exprs = rep_contour.expressions
+    assert len(exprs) > 0
+    assert exprs[0] == f"InitialEye({probe_expr.lower()})<Bit Error Rate>"
+
+    rep_contour.quantity_type = 1
+    exprs = rep_contour.expressions
+    assert exprs[0] == f"EyeAfterSource({probe_expr.lower()})<Bit Error Rate>"
+
+    rep_contour.quantity_type = 2
+    exprs = rep_contour.expressions
+    assert exprs[0] == f"EyeAfterChannel({probe_expr.lower()})<Bit Error Rate>"
+
+    rep_contour.quantity_type = 3
+    exprs = rep_contour.expressions
+    assert exprs[0] == f"EyeAfterProbe({probe_expr.lower()})<Bit Error Rate>"
+
+    # AMIConturEyeDiagram: verify amisource expression formatting
+    rep_contour_src = probe_names_app.post.reports_by_category.statistical_eye_contour(
+        setup=setup_name, expressions=[source_expr]
+    )
+    rep_contour_src.quantity_type = 0
+    exprs = rep_contour_src.expressions
+    assert exprs[0] == f"InitialEye({source_expr.lower()})<Bit Error Rate>"
+
+    # AMIEyeDiagram (Statistical Eye): verify amiprobe expression formatting per quantity_type
+    rep_eye = probe_names_app.post.reports_by_category.eye_diagram(
+        setup=setup_name, expressions=[probe_expr], statistical_analysis=True
+    )
+
+    rep_eye.quantity_type = 0
+    exprs = rep_eye.expressions
+    assert len(exprs) > 0
+    assert exprs[0] == f"InitialEye<{probe_expr}>"
+
+    rep_eye.quantity_type = 1
+    exprs = rep_eye.expressions
+    assert exprs[0] == f"EyeAfterSource<{probe_expr}>"
+
+    rep_eye.quantity_type = 2
+    exprs = rep_eye.expressions
+    assert exprs[0] == f"EyeAfterChannel<{probe_expr}>"
+
+    rep_eye.quantity_type = 3
+    exprs = rep_eye.expressions
+    assert exprs[0] == f"EyeAfterProbe<{probe_expr}>"
+
+    # AMIEyeDiagram (Eye Diagram / transient): verify amiprobe with Wave prefix
+    rep_eye_transient = probe_names_app.post.reports_by_category.eye_diagram(
+        setup=setup_name, expressions=[probe_expr], statistical_analysis=False
+    )
+
+    rep_eye_transient.quantity_type = 0
+    exprs = rep_eye_transient.expressions
+    assert len(exprs) > 0
+    assert exprs[0] == f"InitialWave<{probe_expr}>"
+
+    rep_eye_transient.quantity_type = 3
+    exprs = rep_eye_transient.expressions
+    assert exprs[0] == f"WaveAfterProbe<{probe_expr}>"
+
+    # AMIEyeDiagram: verify amisource expression formatting
+    rep_eye_src = probe_names_app.post.reports_by_category.eye_diagram(
+        setup=setup_name, expressions=[source_expr], statistical_analysis=True
+    )
+    rep_eye_src.quantity_type = 0
+    exprs = rep_eye_src.expressions
+    assert exprs[0] == f"InitialEye<{source_expr}>"
 
 
 def test_assign_voltage_sinusoidal_excitation_to_ports(aedt_app) -> None:
@@ -988,7 +1079,6 @@ def test_automatic_lna(aedt_app, test_tmp_dir) -> None:
         auto_assign_diff_pairs=True,
         separation=".",
         pattern=["component", "pin", "net"],
-        analyze=False,
     )
     assert status
 
@@ -996,7 +1086,7 @@ def test_automatic_lna(aedt_app, test_tmp_dir) -> None:
 @pytest.mark.skipif(NON_GRAPHICAL and is_linux, reason="Method is not working in Linux and non-graphical mode.")
 def test_automatic_tdr(aedt_app, test_tmp_dir) -> None:
     touchstone_1 = shutil.copy2(TOUCHSTONE_FILE_CUSTOM, test_tmp_dir / TOUCHSTONE_CUSTOM)
-    result, _ = aedt_app.create_tdr_schematic_from_snp(
+    result = aedt_app.create_tdr_schematic_from_snp(
         input_file=touchstone_1,
         tx_schematic_pins=["A-MII-RXD1_30.SQFP28X28_208.P"],
         tx_schematic_differential_pins=["A-MII-RXD1_65.SQFP20X20_144.N"],
@@ -1004,11 +1094,10 @@ def test_automatic_tdr(aedt_app, test_tmp_dir) -> None:
         differential=True,
         rise_time=35,
         use_convolution=True,
-        analyze=False,
         design_name="TDR",
     )
-    assert result
-    result, _ = aedt_app.create_tdr_schematic_from_snp(
+    assert isinstance(result, list)
+    result = aedt_app.create_tdr_schematic_from_snp(
         input_file=touchstone_1,
         tx_schematic_pins=[
             "A-MII-RXD1_30.SQFP28X28_208.P",
@@ -1024,10 +1113,11 @@ def test_automatic_tdr(aedt_app, test_tmp_dir) -> None:
         differential=False,
         rise_time=35,
         use_convolution=True,
-        analyze=False,
         design_name="TDR_Single",
+        time_step="2ns",
+        time_stop="10ns",
     )
-    assert result
+    assert isinstance(result, list)
 
 
 @pytest.mark.skipif(NON_GRAPHICAL and is_linux, reason="Method not working in Linux and Non graphical.")
@@ -1054,7 +1144,6 @@ def test_automatic_ami(aedt_app, test_tmp_dir) -> None:
         bit_pattern="random_bit_count=2.5e3 random_seed=1",
         unit_interval="31.25ps",
         use_convolution=True,
-        analyze=False,
         design_name="AMI",
     )
     assert result
@@ -1073,7 +1162,6 @@ def test_automatic_ami(aedt_app, test_tmp_dir) -> None:
         bit_pattern="random_bit_count=2.5e3 random_seed=1",
         unit_interval="31.25ps",
         use_convolution=True,
-        analyze=False,
         design_name="AMI_Differential",
     )
     assert result
@@ -1096,7 +1184,6 @@ def test_automatic_ibis(aedt_app, test_tmp_dir) -> None:
         bit_pattern="random_bit_count=2.5e3 random_seed=1",
         unit_interval="31.25ps",
         use_convolution=True,
-        analyze=False,
         design_name="AMI",
     )
     assert result

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -21,6 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
 from __future__ import annotations
 
 import codecs
@@ -700,9 +701,11 @@ def parse_excitation_file(
 
     try:
         import pandas
-    except ImportError:  # pragma: no cover
-        pyaedt_logger.error("Pandas is not available. Install it.")
-        return False
+    except ImportError as e:  # pragma: no cover
+        from ansys.aedt.core.internal.checks import install_message
+
+        msg = install_message("pandas", "all", level="module")
+        raise ImportError(msg) from e
 
     input_file = Path(input_file)
     df = read_csv_pandas(input_file, encoding=encoding)

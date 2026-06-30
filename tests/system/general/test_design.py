@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -168,7 +168,7 @@ def test_libs(aedt_app) -> None:
 def test_set_objects_temperature_deformation(coaxial) -> None:
     assert coaxial.modeler.set_objects_deformation(["inner"])
     ambient_temp = 22
-    objects = [o for o in coaxial.modeler.solid_names if coaxial.modeler[o].model]
+    objects = [o for o in coaxial.modeler.solid_names if coaxial.modeler[o].is_model]
     assert coaxial.modeler.set_objects_temperature(objects, ambient_temperature=ambient_temp, create_project_var=True)
 
 
@@ -507,7 +507,12 @@ def test_get_design_settings(add_app) -> None:
     assert "AmbTemp" in design_settings_dict
     assert "AmbRadTemp" in design_settings_dict
     assert "GravityVec" in design_settings_dict
-    assert "GravityDir" in design_settings_dict
+    if DESKTOP_VERSION < "2027.1":
+        assert "GravityDir" in design_settings_dict
+    else:
+        assert "XComponent" in design_settings_dict
+        assert "YComponent" in design_settings_dict
+        assert "ZComponent" in design_settings_dict
     ipk.close_project()
 
 

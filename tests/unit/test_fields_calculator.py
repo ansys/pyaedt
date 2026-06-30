@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -35,13 +35,16 @@ from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculato
 @pytest.fixture
 def mock_app(tmp_path_factory, request):
     app = MagicMock()
+    desktop_class = MagicMock()
+    app.desktop_class = desktop_class
+    app.desktop_class.aedt_version_id = getattr(request, "param", "2026.1")
     app.aedt_version_id = getattr(request, "param", "2026.1")
     app.nominal_adaptive = "Setup1 : LastAdaptive"
     app.setup_names = ["Setup1"]
     app.logger = MagicMock()
     app.variable_manager.design_variables = {}
     app.variable_manager.project_variables = {}
-    app.post._check_intrinsics([])
+    app.post._check_intrinsics.return_value = {}
     app.working_directory = tmp_path_factory.mktemp("aedt_working_dir")
     return app
 
@@ -49,6 +52,7 @@ def mock_app(tmp_path_factory, request):
 @pytest.fixture
 def mock_app_array(tmp_path_factory, request):
     app = MagicMock()
+    app.desktop_class.aedt_version_id = getattr(request, "param", "2026.1")
     app.aedt_version_id = getattr(request, "param", "2026.1")
     app.nominal_adaptive = "Setup1 : LastAdaptive"
     app.setup_names = ["Setup1"]
@@ -57,7 +61,7 @@ def mock_app_array(tmp_path_factory, request):
     v.evaluated_value = "[1,2,3]mm"
     app.variable_manager.design_variables = {"test_array": v}
     app.variable_manager.project_variables = {}
-    app.post._check_intrinsics([])
+    app.post._check_intrinsics.return_value = {}
     app.working_directory = tmp_path_factory.mktemp("aedt_working_dir")
     return app
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -811,7 +811,6 @@ class SweepMatrix(SweepCommon):
             sweep_range["RangeStep"] = str(count) + unit
         elif range_type == "LogScale":
             sweep_range["RangeEnd"] = str(end) + unit
-            sweep_range["RangeCount"] = self.props["RangeCount"]
             sweep_range["RangeSamples"] = count
         if not self.props.get("SweepRanges") or not self.props["SweepRanges"].get("Subrange"):
             self.props["SweepRanges"] = {"Subrange": []}

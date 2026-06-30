@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -713,15 +713,6 @@ class ModelerTwinBuilder(ModelerCircuit, PyAedtBase):
         ModelerCircuit.__init__(self, app)
         self._components = TwinBuilderComponents(self)
         self.logger.info("ModelerTwinBuilder class has been initialized!")
-
-    @property
-    def components(self) -> TwinBuilderComponents:
-        """
-        .. deprecated:: 0.4.13
-           Use :func:`TwinBuilder.modeler.schematic` instead.
-
-        """
-        return self._components
 
     @property
     def schematic(self) -> TwinBuilderComponents:

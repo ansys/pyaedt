@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -989,7 +989,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def edit_design_settings(
         self,
-        gravity_dir: int | None = 0,
+        gravity_dir: int = 0,
         ambient_temperature: float | str | BoundaryDictionary | dict = 20,
         perform_validation: bool | None = False,
         check_level: str | None = "None",
@@ -998,7 +998,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         default_surface: str | None = "Steel-oxidised-surface",
         export_monitor: bool | None = False,
         export_sherlock: bool | None = False,
-        export_directory: str | None = os.getcwd(),
+        export_directory: str | None = Path.cwd(),
         gauge_pressure: int | None = 0,
         radiation_temperature: int | None = 20,
         ignore_unclassified_objects: bool | None = False,
@@ -1010,7 +1010,8 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         ----------
         gravity_dir : int, optional
             Gravity direction from -X to +Z. Options are ``0`` to ``5``.
-            The default is ``0``.
+            The default is ``0``. From 2027R1, this parameter is not used because the gravity property has a different
+            definition.
         ambient_temperature : float, str, BoundaryDict or dict optional
             Ambient temperature. The default is ``20``.
             The default unit is Celsius for a float or string value.
@@ -1057,13 +1058,30 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         ----------
         >>> oDesign.SetDesignSettings
         """
-        #
-        # Configure design settings such as gravity
-        ice_gravity = ["X", "Y", "Z"]
-        gv_pos = False
-        if int(gravity_dir) > 2:
-            gv_pos = True
-        gva = ice_gravity[int(gravity_dir) - 3]
+        if self.desktop_class.aedt_version_id < "2027.1":
+            # Configure design settings such as gravity
+            ice_gravity = ["X", "Y", "Z"]
+            gv_pos = False
+            if int(gravity_dir) > 2:
+                gv_pos = True
+            gva = ice_gravity[int(gravity_dir) - 3]
+
+            arg2 = ["Gravity Vector Axis:=", gva, "Positive:=", gv_pos]
+        else:
+            if int(gravity_dir) != 0:
+                self.logger.warning(
+                    "'gravity_dir' is ignored by this method. To change the gravity direction, "
+                    "edit 'design_settings' directly."
+                )
+            arg2 = [
+                "Gravity Vector X:=",
+                self.design_settings["XComponent"],
+                "Gravity Vector Y:=",
+                self.design_settings["YComponent"],
+                "Gravity Vector Z:=",
+                self.design_settings["ZComponent"],
+            ]
+
         arg1 = [
             "NAME:Design Settings Data",
             "Perform Minimal validation:=",
@@ -1086,15 +1104,13 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
             self.value_with_units(radiation_temperature, "cel"),
             "Gravity Vector CS ID:=",
             1,
-            "Gravity Vector Axis:=",
-            gva,
-            "Positive:=",
-            gv_pos,
             "ExportOnSimulationComplete:=",
             export_monitor,
             "ExportDirectory:=",
             str(export_directory),
         ]
+        arg1.extend(arg2)
+
         if not isinstance(ambient_temperature, (BoundaryDictionary, dict)):
             arg1.append("AmbientTemperature:=")
             arg1.append(self.value_with_units(ambient_temperature, "cel"))
@@ -1484,7 +1500,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
             output_dir = self.working_directory
         self.osolution.EditFieldsSummarySetting(arg)
         if not Path(output_dir).exists():
-            os.mkdir(output_dir)
+            Path(output_dir).mkdir(parents=True, exist_ok=True)
         if not solution_name:
             solution_name = self.nominal_sweep
         if variation:
@@ -2191,7 +2207,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         """
         import subprocess  # nosec
 
-        version = self.aedt_version_id[-3:]
+        version = self.desktop_class.aedt_version_id[-3:]
         ansys_install_dir = os.environ.get(f"ANSYS{version}_DIR", "")
         if not ansys_install_dir:
             ansys_install_dir = os.environ.get(f"AWP_ROOT{version}", "")
@@ -2241,7 +2257,8 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         fluent_script = open(fl_uscript_file_pointer, "w")
         fluent_script.write("/file/start-transcript " + '"' + str(mesh_file_pointer) + '.trn"\n')
         fluent_script.write(
-            f'/file/set-tui-version "{self.aedt_version_id[-3:-1] + "." + self.aedt_version_id[-1:]}"\n'
+            f"/file/set-tui-version "
+            f'"{self.desktop_class.aedt_version_id[-3:-1] + "." + self.desktop_class.aedt_version_id[-1:]}"\n'
         )
         fluent_script.write("(enable-feature 'serial-hexcore-without-poly)\n")
         fluent_script.write('(cx-gui-do cx-activate-tab-index "NavigationPane*Frame1(TreeTab)" 0)\n')

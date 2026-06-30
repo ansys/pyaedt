@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -39,13 +39,51 @@ from ansys.aedt.core.internal.aedt_versions import aedt_versions
 panels_app = typer.Typer(help="Manage PyAEDT panels in AEDT", no_args_is_help=True)
 
 
+def _get_personal_lib_from_open_session() -> Path | None:
+    """Return the PersonalLib path from the first running gRPC AEDT session."""
+    from ansys.aedt.core.cli import common
+    from ansys.aedt.core.cli.aedt import _discover_aedt_sessions
+
+    for session in _discover_aedt_sessions():
+        port = session.get("port")
+        if port is None:
+            continue
+
+        desktop = common.get_desktop(port=port)
+        return Path(desktop.personallib)
+
+    return None
+
+
+def _resolve_personal_lib_path(personal_lib: str | None) -> Path | None:
+    """Resolve PersonalLib from CLI input, a running AEDT session, or a manual prompt."""
+    if personal_lib:
+        return Path(personal_lib.strip()).expanduser()
+
+    personal_lib_path = _get_personal_lib_from_open_session()
+    if personal_lib_path is not None:
+        typer.secho(
+            f"Using PersonalLib from running AEDT session: {personal_lib_path}",
+            fg=typer.colors.CYAN,
+        )
+        return personal_lib_path.expanduser()
+
+    typer.secho(
+        "No opened AEDT session was found. Enter the PersonalLib folder manually.",
+        fg=typer.colors.YELLOW,
+    )
+    manual_path = typer.prompt("Enter path to PersonalLib folder", default="").strip()
+    if not manual_path:
+        return None
+    return Path(manual_path).expanduser()
+
+
 @panels_app.command("add")
 def add_panels(
     personal_lib: str = typer.Option(
         None,
         "--personal-lib",
         help="Path to AEDT PersonalLib folder",
-        prompt="Enter path to PersonalLib folder",
     ),
     skip_version_manager: bool = typer.Option(
         False,
@@ -95,25 +133,16 @@ def add_panels(
             typer.echo("\nPlease install AEDT before running this command.")
             raise typer.Exit(code=1)
 
+        personal_lib_path = _resolve_personal_lib_path(personal_lib)
+
         # Validate personal_lib path
-        if not personal_lib or not isinstance(personal_lib, str):
+        if personal_lib_path is None:
             typer.secho(
                 "✗ the 'personal_lib' path is invalid. Provide a valid path",
                 fg=typer.colors.RED,
                 bold=True,
             )
             raise typer.Exit(code=1)
-
-        personal_lib = personal_lib.strip()
-        if not personal_lib:
-            typer.secho(
-                "✗ The 'personal_lib' path is invalid. Provide a valid path.",
-                fg=typer.colors.RED,
-                bold=True,
-            )
-            raise typer.Exit(code=1)
-
-        personal_lib_path = Path(personal_lib)
 
         if not personal_lib_path.exists():
             typer.secho(

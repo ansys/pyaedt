@@ -246,6 +246,25 @@ Now run the PyAEDT script, (making sure it connects to the same port as the gRPC
 Capture the output in a file. For example *client.txt*. Then send all the logs
 to `Ansys Support <https://www.ansys.com/it-solutions/contacting-technical-support>`_.
 
+AEDT Student version fails to start via the default gRPC transport
+------------------------------------------------------------------
+For AEDT Student 2025 R2 and earlier, launching a new session with the default secure-local (``wnua``) gRPC transport
+fails: PyAEDT reports ``Failed to start on gRPC port`` and the spawned ``ansysedtsv.exe`` process exits immediately.
+
+In that case, force the TCP *InsecureMode* transport before creating the ``Desktop`` object:
+
+.. code:: python
+
+    import os
+    from ansys.aedt.core import settings, Desktop
+
+    os.environ["PYAEDT_USE_PRE_GRPC_ARGS"] = "True"
+
+    settings.grpc_secure_mode = False
+
+    desktop = Desktop(version="2025.2", student_version=True, new_desktop=True)
+
+For more information about gRPC transport modes, see the :ref:`Client-server <client_server>` section.
 
 Numpy compatibility
 -------------------
@@ -317,3 +336,15 @@ package management:
 
     # Now you can use uv for package management
     uv pip install pyaedt
+
+
+Ansys developer ecosystem resources
+-----------------------------------
+
+Ansys has an extensive developer ecosystem where you can find assistance for a variety of issues.
+
+- `Developer Portal <https://developer.ansys.com/>`: Blog posts, documentation, and guide
+  - `Developer Forum <https://discuss.ansys.com/>`: Scripting and usage support for PyAnsys and other Ansys developer tools
+- `Ansys Innovation Space <https://innovationspace.ansys.com/>`: Product support forum and training materials
+- `GitHub <https://github.com/ansys/pyaedt>`: Development support, bug reporting, feature requests, and more.
+- `Ansys Learning Hub <https://learninghub.ansys.com/>`: Training, courses and learning plans

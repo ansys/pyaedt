@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -54,6 +54,7 @@ if TYPE_CHECKING:
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
 from ansys.aedt.core.base import PyAedtBase
+from ansys.aedt.core.generic.constants import IncidentWaveType
 from ansys.aedt.core.generic.constants import InfiniteSphereType
 from ansys.aedt.core.generic.constants import SolutionsHfss
 from ansys.aedt.core.generic.data_handlers import _dict2arg
@@ -4142,6 +4143,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         max_available_power: str | None = None,
         use_incident_voltage: bool | None = False,
         eigenmode_stored_energy: bool | None = True,
+        incident_wave: str | None = None,
     ) -> bool:
         """Set up the power loaded for HFSS postprocessing in multiple sources simultaneously.
 
@@ -4164,6 +4166,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         eigenmode_stored_energy : bool, optional
             Use stored energy definition. The default is ``True``.
             This argument applies only to the Eigenmode solution type.
+        incident_wave : str, optional
+            Incident wave type. The default is `None``, in which case the current type is not modified.
+            Options are ``IncidentWaveType.Scattered``, ``IncidentWaveType.Incident``, and ``IncidentWaveType.Total``.
 
         Returns
         -------
@@ -4265,6 +4270,21 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             if max_available_power:
                 argument.append("Incident Power:=")
                 argument.append(max_available_power)
+
+            available_incident_wave = vars(IncidentWaveType).values()
+            if incident_wave and incident_wave in available_incident_wave:
+                argument.extend(
+                    [
+                        "FieldType:=",
+                        incident_wave,
+                    ]
+                )
+            elif incident_wave and incident_wave not in available_incident_wave:
+                raise AttributeError(
+                    f"{incident_wave} is not a valid option for incident_wave. "
+                    f"Valid options are {available_incident_wave}"
+                )
+
         else:
             eigenmode_type_definition = "EigenStoredEnergy" if eigenmode_stored_energy else "EigenPeakElectricField"
             argument = ["FieldType:=", eigenmode_type_definition]
@@ -5361,12 +5381,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             defs = ["AzimuthStart", "AzimuthStop", "AzimuthStep", "ElevationStart", "ElevationStop", "ElevationStep"]
         else:
             defs = ["ElevationStart", "ElevationStop", "ElevationStep", "AzimuthStart", "AzimuthStop", "AzimuthStep"]
-        props[defs[0]] = self.value_with_units(phi_start, units)
-        props[defs[1]] = self.value_with_units(phi_stop, units)
-        props[defs[2]] = self.value_with_units(phi_step, units)
-        props[defs[3]] = self.value_with_units(theta_start, units)
-        props[defs[4]] = self.value_with_units(theta_stop, units)
-        props[defs[5]] = self.value_with_units(theta_step, units)
+        props[defs[0]] = self.value_with_units(theta_start, units)
+        props[defs[1]] = self.value_with_units(theta_stop, units)
+        props[defs[2]] = self.value_with_units(theta_step, units)
+        props[defs[3]] = self.value_with_units(phi_start, units)
+        props[defs[4]] = self.value_with_units(phi_stop, units)
+        props[defs[5]] = self.value_with_units(phi_step, units)
         props["UseLocalCS"] = custom_coordinate_system is not None
         if custom_coordinate_system:
             props["CoordSystem"] = custom_coordinate_system
@@ -7496,7 +7516,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             self.logger.info("Disabling Export On Completion")
         if not output_dir:
             output_dir = ""
-        props = {"ExportAfterSolve": export, "ExportDir": output_dir}
+        props = {"Export After Simulation": export, "Export Dir": output_dir}
         return self.change_design_settings(props)
 
     @pyaedt_function_handler()
@@ -8021,7 +8041,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             ofile.write("# Frequency domain\n")
             if len(frequencies) > 1:
                 ofile.write("# MultiFreq <freq_start_ghz> <freq_stop_ghz> <num_freq_steps>\n")
-                ofile.write(f"MultiFreq {frequencies[0]} {frequencies[1]} {len(frequencies) - 1}\n")
+                ofile.write(f"MultiFreq {frequencies[0]} {frequencies[-1]} {len(frequencies) - 1}\n")
             else:
                 freq = frequencies[0]
                 ofile.write(f"# Frequency-independent dataset. Simulated at {freq} {frequency_units}.\n")

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -21,6 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
 from __future__ import annotations
 
 import math
@@ -314,7 +315,6 @@ class Quaternion(PyAedtBase):
     def from_axis_angle(cls, axis: list[float] | tuple[float, float, float], angle: float) -> "Quaternion":
         """Creates a normalized rotation quaternion from a given axis and rotation angle.
 
-
         Parameters
         ----------
         axis : List or tuple of float
@@ -475,7 +475,6 @@ class Quaternion(PyAedtBase):
     @pyaedt_function_handler()
     def to_rotation_matrix(self) -> tuple:
         """Returns the rotation matrix corresponding to the quaternion.
-
 
         Returns
         -------

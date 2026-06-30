@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -509,33 +509,6 @@ class EmitNode:
             self._oRevisionData.DeleteEmitComponent(self._result_id, self._node_id)
         else:
             self._oRevisionData.DeleteEmitNode(self._result_id, self._node_id)
-
-    @min_aedt_version("2025.2")
-    def _rename(self, requested_name: str) -> str:
-        """Renames the node/component.
-
-        .. deprecated: 0.21.3
-            Use name property instead
-
-        Parameters
-        ----------
-        requested_name : str
-            New name for the node/component.
-
-        Returns
-        -------
-        str
-            New name of the node/component.
-
-        Raises
-        ------
-        ValueError
-            If the node is read-only and cannot be renamed.
-        """
-        warnings.warn("This property is deprecated in 0.21.3. Use the name property instead.", DeprecationWarning)
-        self.name = requested_name
-
-        return self.name
 
     @min_aedt_version("2025.2")
     def _duplicate(self: T, new_name: str = "") -> T:

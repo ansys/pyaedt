@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -43,7 +43,6 @@ from ansys.aedt.core.generic.data_handlers import from_rkm_to_aedt
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.file_utils import read_configuration_file
-from ansys.aedt.core.generic.general_methods import deprecate_argument
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
@@ -1732,10 +1731,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return hfss_3d_layout_model
 
     @pyaedt_function_handler()
-    @deprecate_argument(
-        arg_name="analyze",
-        message="The ``analyze`` argument will be removed in future versions. Analyze before exporting results.",
-    )
     def create_tdr_schematic_from_snp(
         self,
         input_file: str | Hfss3dLayout | Path,
@@ -1744,11 +1739,12 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         termination_pins: list | None = None,
         differential: bool | None = True,
         rise_time: float | int = 30,
-        use_convolution: bool | None = True,
-        analyze: bool | None = False,
+        use_convolution: bool = True,
         design_name: str | None = "LNA",
         impedance: float | None = 50,
-    ) -> None:
+        time_step: str | None = None,
+        time_stop: str | None = None,
+    ) -> list[str]:
         """Create a schematic from a Touchstone file and automatically setup a TDR transient analysis.
 
         Parameters
@@ -1770,16 +1766,23 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         use_convolution : bool, optional
             Whether to use convolution for the Touchstone file. The default is ``True``.
             If ``False``, state-space is used.
-        analyze : bool
-             Whether to automatically assign differential pairs. The default is ``False``.
         design_name : str, optional
             New schematic name. The default is ``"LNA"``.
         impedance : float, optional
             TDR single ended impedance. The default is ``50``. For differential tdr, it will be computed by PyAEDT.
+        time_step : str, optional
+            Transient analysis step size, including units (for example ``"10ps"``). The default
+            is ``None``, which derives ``rise_time / 4`` in nanoseconds. The recommended range
+            for the step size is 2-15 ps depending on the frequency content of the model.
+        time_stop : str, optional
+            Transient analysis stop time, including units (for example ``"35ns"``). The default
+            is ``None``, which derives ``rise_time * 1000`` in nanoseconds. The stop time should
+            be chosen based on the flight time of the signal under test.
 
         Returns
         -------
-
+        list
+            List of TDR probe traces when successful.
         """
         if design_name in self.design_list:
             self.logger.warning("Design already exists. renaming.")
@@ -1819,8 +1822,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
                     if differential:
                         n_pin = [k for k in sub.pins if k.name == tx_schematic_differential_pins[i]][0]
             except IndexError:
-                self.logger.error("Failed to retrieve the pins.")
-                return False
+                raise IndexError("Failed to retrieve the pins.")
 
             _, first, second = new_tdr_comp.pins[0].connect_to_component(p_pin)
             self.modeler.move(first, [0, 100], "mil")
@@ -1852,7 +1854,9 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
                 p1.pins[0].connect_to_component(pin, use_wire=True)
                 p1.impedance = [f"{impedance}ohm", "0ohm"]
         setup = self.create_setup(name="Transient_TDR", setup_type=Setups.NexximTransient)
-        setup.props["TransientData"] = [f"{rise_time / 4}ns", f"{rise_time * 1000}ns"]
+        step_value = time_step if time_step is not None else f"{rise_time / 4}ns"
+        stop_value = time_stop if time_stop is not None else f"{rise_time * 1000}ns"
+        setup.props["TransientData"] = [step_value, stop_value]
         if use_convolution:
             self.oanalysis.AddAnalysisOptions(
                 [
@@ -1869,17 +1873,9 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
                 ]
             )
             setup.props["OptionName"] = "Nexxim Options"
-        if analyze:
-            self.analyze()
-            for trace in tdr_probe_names:
-                self.post.create_report(trace)
-        return True, tdr_probe_names
+        return tdr_probe_names
 
     @pyaedt_function_handler()
-    @deprecate_argument(
-        arg_name="analyze",
-        message="The ``analyze`` argument will be removed in future versions. Analyze before exporting results.",
-    )
     def create_lna_schematic_from_snp(
         self,
         input_file: str,
@@ -1888,7 +1884,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         auto_assign_diff_pairs: bool = False,
         separation: str | None = ".",
         pattern: list | None = None,
-        analyze: bool | None = False,
         design_name: str | None = "LNA",
     ) -> tuple[bool, list, list]:
         """Create a schematic from a Touchstone file and automatically set up an LNA analysis.
@@ -1909,8 +1904,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
             Character to use to separate port names. The default is ``"."``.
         pattern : list, optional
             Port name pattern. The default is ``["component", "pin", "net"]``.
-        analyze : bool
-             Whether to automatically assign differential pairs. The default is ``False``.
         design_name : str, optional
             New schematic name. The default is ``"LNA"``.
 
@@ -1982,15 +1975,9 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
                             break
         setup1 = self.create_setup()
         setup1.props["SweepDefinition"]["Data"] = f"LINC {start_frequency}GHz {stop_frequency}GHz 1001"
-        if analyze:
-            self.analyze()
         return True, diff_pairs, comm_pairs
 
     @pyaedt_function_handler()
-    @deprecate_argument(
-        arg_name="analyze",
-        message="The ``analyze`` argument will be removed in future versions. Analyze before exporting results.",
-    )
     def create_ami_schematic_from_snp(
         self,
         input_file: str,
@@ -2007,8 +1994,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         differential: bool | None = True,
         bit_pattern: str | None = None,
         unit_interval: str | None = None,
-        use_convolution: bool | None = True,
-        analyze: bool | None = True,
+        use_convolution: bool = True,
         design_name: str | None = "AMI",
         ibis_rx_file: str | None = None,
         create_setup: bool | None = True,
@@ -2053,8 +2039,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         use_convolution : bool, optional
             Whether to use convolution for the Touchstone file. The default is
             ``True``. If ``False``, state-space is used.
-        analyze : bool
-             Whether to automatically assign differential pairs. The default is ``False``.
         design_name : str, optional
             New schematic name. The default is ``"LNA"``.
         ibis_rx_file : str, optional
@@ -2085,17 +2069,12 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
             bit_pattern=bit_pattern,
             unit_interval=unit_interval,
             use_convolution=use_convolution,
-            analyze=analyze,
             design_name=design_name,
             is_ami=True,
             create_setup=create_setup,
         )
 
     @pyaedt_function_handler()
-    @deprecate_argument(
-        arg_name="analyze",
-        message="The ``analyze`` argument will be removed in future versions. Analyze before exporting results.",
-    )
     def create_ibis_schematic_from_snp(
         self,
         input_file: str,
@@ -2114,7 +2093,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         bit_pattern: str | None = None,
         unit_interval: str | None = None,
         use_convolution: bool = True,
-        analyze: bool | None = False,
         design_name: str | None = "IBIS",
         is_ami: bool | None = False,
         create_setup: bool | None = True,
@@ -2160,8 +2138,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         use_convolution : bool, optional
             Whether to use convolution for the Touchstone file. The default is
             ``True``. If ``False``, state-space is used.
-        analyze : bool
-             Whether to automatically assign differential pairs. The default is ``False``.
         design_name : str, optional
             New schematic name. The default is ``"IBIS"``.
         is_ami : bool, optional
@@ -2204,20 +2180,15 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
             bit_pattern=bit_pattern,
             unit_interval=unit_interval,
             use_convolution=use_convolution,
-            analyze=analyze,
             is_ami=is_ami,
             create_setup=create_setup,
         )
 
     @pyaedt_function_handler()
-    @deprecate_argument(
-        arg_name="analyze",
-        message="The ``analyze`` argument will be removed in future versions. Analyze before exporting results.",
-    )
     def create_ibis_schematic_from_pins(
         self,
-        ibis_tx_file,
-        ibis_rx_file=None,
+        ibis_tx_file: str,
+        ibis_rx_file: str | None = None,
         tx_buffer_name: str = "",
         rx_buffer_name: str = "",
         tx_schematic_pins: list | None = None,
@@ -2232,8 +2203,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         differential: bool | None = True,
         bit_pattern: str | None = None,
         unit_interval: str | None = None,
-        use_convolution: bool | None = True,
-        analyze: bool | None = False,
+        use_convolution: bool = True,
         is_ami: bool | None = False,
         create_setup: bool | None = True,
     ) -> tuple[bool, list, list]:
@@ -2243,21 +2213,21 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         ----------
         ibis_tx_file : str
             Full path to the IBIS file for transmitters.
-        ibis_rx_file : str
+        ibis_rx_file : str, optional
             Full path to the IBIS file for receiver.
-        tx_buffer_name : str
+        tx_buffer_name : str, optional
             Transmission buffer name. It can be a buffer or a ibis pin name.
             In this last case the user has to provide also the component_name.
-        rx_buffer_name : str
+        rx_buffer_name : str, optional
             Receiver buffer name.
-        tx_schematic_pins : list
+        tx_schematic_pins : list, optional
             Pins to assign to the transmitter IBIS.
         rx_schematic_pins : list, optional
             Pins to assign to the receiver IBIS.
         tx_schematic_differential_pins : list, optional
             Reference pins to assign to the transmitter IBIS. This parameter is only used in
             a differential configuration.
-        rx_schematic_differential_pins : list
+        rx_schematic_differential_pins : list, optional
             Reference pins to assign to the receiver IBIS. This parameter is only used
             in a differential configuration.
         tx_component_name : str, optional
@@ -2282,8 +2252,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         use_convolution : bool, optional
             Whether to use convolution for the Touchstone file. The default is
             ``True``. If ``False``, state-space is used.
-        analyze : bool
-             Whether to automatically assign differential pairs. The default is ``False``.
         is_ami : bool, optional
             Whether the ibis is AMI. The default is ``False``.
         create_setup : bool, optional
@@ -2452,8 +2420,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
                     ]
                 )
                 setup_ibis.props["OptionName"] = "Nexxim Options"
-            if analyze:
-                setup_ibis.analyze()
         return True, tx_eye_names, rx_eye_names
 
     @pyaedt_function_handler()

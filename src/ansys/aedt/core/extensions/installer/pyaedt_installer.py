@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
+#
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -28,9 +29,7 @@ import os
 
 from ansys.aedt.core.extensions import customize_automation_tab
 from ansys.aedt.core.generic.file_utils import read_toml
-from ansys.aedt.core.internal.desktop_sessions import (
-    _desktop_sessions,
-)
+from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 
 
 def _resolve_personal_lib(personal_lib):
@@ -143,7 +142,9 @@ def add_pyaedt_to_aedt(
         extension_info = extensions_catalog.get(extension_key)
         if not extension_info:
             return
-        script_path = os.path.join(project_workflows_dir, extension_info["script"]) if extension_info["script"] else None
+        script_path = (
+            os.path.join(project_workflows_dir, extension_info["script"]) if extension_info["script"] else None
+        )
         icon_file = os.path.join(project_workflows_dir, "images", "large", extension_info["icon"])
         menu_kwargs = {
             "icon_file": icon_file,

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import os
+from pathlib import Path
 import shutil
 import time
 
@@ -218,10 +219,10 @@ class FfdSolutionDataExporter(PyAedtBase):
 
         # Export geometry
         if os.path.isfile(input_file):
-            geometry_path = os.path.join(export_path, "geometry")
-            if not os.path.exists(geometry_path):
-                os.mkdir(geometry_path)
-            obj_list = self.__create_geometries(geometry_path)
+            geometry_path = Path(export_path) / "geometry"
+            if not geometry_path.exists():
+                geometry_path.mkdir(parents=True, exist_ok=True)
+            obj_list = self.__create_geometries(str(geometry_path))
             if obj_list:
                 self.__model_info["object_list"] = obj_list
 

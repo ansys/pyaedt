@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -30,7 +30,6 @@ import ansys.aedt.core
 
 class LumpedParasitics:
     """Defines attributes of the lumped element parasitics.
-
 
     This class allows you to define and modify the parasitic
     parameters of the lumped elements used in designed filter.

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -768,7 +768,7 @@ class SetupOpti(CommonOptimetrics, PyAedtBase):
                 "UseManufacturableValues:=",
                 use_manufacturable,
             ]
-            if self._app.aedt_version_id > "2023.2":
+            if self._app.desktop_class.aedt_version_id > "2023.2":
                 arg.extend(["Level:=", levels])
             if not self.props.get("Variables", None):
                 self.props["Variables"] = {}

@@ -1,8 +1,6 @@
-#!/ekm/software/anaconda3/bin/python
-
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -23,7 +21,6 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
 
 import pytest
 
@@ -121,7 +118,7 @@ def test_create_region(aedt_app) -> None:
     #
     region = aedt_app.modeler.create_region([100, 100, 100, 100])
     assert region.solve_inside
-    assert region.model
+    assert region.is_model
     assert region.display_wireframe
     assert region.object_type == "Sheet"
     assert region.solve_inside

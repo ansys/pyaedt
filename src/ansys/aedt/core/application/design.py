@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -485,7 +485,16 @@ class Design(AedtObjects, PyAedtBase):
             if self.modeler.user_defined_components.items():
                 for component in self.modeler.user_defined_components.keys():
                     thermal_properties = self.get_oo_properties(self.oeditor, component)
-                    if thermal_properties and "Type" not in thermal_properties and thermal_properties[-1] != "Icepak":
+
+                    is_icepak_component = True
+                    if thermal_properties:
+                        # Find if "Type" is one of the properties and if "Icepak" is not the last one
+                        has_type_property = any("Type" in prop for prop in thermal_properties)
+                        is_icepak_component = not has_type_property and thermal_properties[-1] != "Icepak"
+
+                    if is_icepak_component and (self.design_properties or {}).get("BoundarySetup", {}).get(
+                        "Boundaries"
+                    ):
                         thermal_boundaries = self.design_properties["BoundarySetup"]["Boundaries"]
                         for component_boundary in thermal_boundaries:
                             if component_boundary not in bb and isinstance(
@@ -1047,7 +1056,7 @@ class Design(AedtObjects, PyAedtBase):
             Full absolute path for the ``temp`` directory.
 
         """
-        return self.odesktop.GetTempDirectory()
+        return self.desktop_class.temp_directory
 
     @property
     def toolkit_directory(self) -> str:
@@ -1270,15 +1279,20 @@ class Design(AedtObjects, PyAedtBase):
             ):
                 if ".aedtz" in proj_name:
                     p = Path(proj_name)
-                    save_to_file = available_file_name(p.parent / f"{p.stem}.aedt")
+                    directory_name = p.parent
+                    # If file is inside the installation directory
+                    if directory_name.is_relative_to(Path(self.desktop_class.aedt_install_dir)):
+                        directory_name = Path(self.desktop_class.global_project_directory)
+                    save_to_file = available_file_name(directory_name / f"{p.stem}.aedt")
                     if str(p.stem) in self.desktop_class.project_list:
-                        save_to_file = available_file_name(p.parent / f"{generate_unique_name(str(p.stem))}.aedt")
+                        save_to_file = available_file_name(directory_name / f"{generate_unique_name(str(p.stem))}.aedt")
                     self.odesktop.RestoreProjectArchive(str(p), str(save_to_file), True, True)
                     time.sleep(0.5)
                     proj_name = save_to_file.stem
                     self._oproject = self.desktop_class.active_project(proj_name)
                     self._add_handler()
                     self.logger.info(f"Archive {proj_name} has been restored to project {self._oproject.GetName()}")
+
                 elif ".def" in proj_name or proj_name[-5:] == ".aedb":
                     if ".def" in proj_name:
                         project = str(Path(proj_name).parent)[:-5] + ".aedt"
@@ -2578,9 +2592,6 @@ class Design(AedtObjects, PyAedtBase):
     @pyaedt_function_handler()
     def release_desktop(self, close_projects: bool = True, close_desktop: bool = True) -> bool:
         """Release AEDT.
-
-        .. deprecated:: 0.19.1
-            This method is deprecated. Use the ``ansys.aedt.core.desktop.release_desktop()`` method instead.
 
         Parameters
         ----------
@@ -4352,7 +4363,7 @@ class Design(AedtObjects, PyAedtBase):
         >>> oDesktop.SetTempDirectory()
         """
         path = Path(path)
-        self.odesktop.SetTempDirectory(str(path))
+        self.desktop_class.temp_directory = path
         return True
 
     @pyaedt_function_handler()

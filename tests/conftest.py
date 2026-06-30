@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -242,8 +242,8 @@ def desktop(tmp_path_factory, request):
 
     desktop_app = Desktop(DESKTOP_VERSION, NON_GRAPHICAL, NEW_THREAD)
 
-    desktop_app.odesktop.SetTempDirectory(str(base))
-    desktop_app.odesktop.SetProjectDirectory(str(base))
+    desktop_app.temp_directory = base
+    desktop_app.global_project_directory = base
 
     desktop_app.disable_autosave()
     yield desktop_app

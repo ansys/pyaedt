@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -205,6 +205,37 @@ def test_circuit_create_report(circuit_test) -> None:
 
     report.plot_name = r"foo\bar/baz"
     assert report.expressions[0] == "mag(S(Port1, Port1)) / mag(S(Port1, Port1))"
+
+
+def test_circuit_create_report_display_families_type(circuit_test) -> None:
+    from ansys.aedt.core.generic.constants import DisplayFamiliesType
+
+    # Test DisplayHistogram
+    report = circuit_test.post.reports_by_category.standard(["dB(S(Port1, Port1))"], "LNA")
+    report.display_families_type = DisplayFamiliesType.Histogram
+    report.display_families_options = {"val_to_sample_at": "5GHz", "num_bins": 10}
+    assert report.create()
+
+    # Test DisplayStatistics
+    report2 = circuit_test.post.reports_by_category.standard(["dB(S(Port1, Port1))"], "LNA")
+    report2.display_families_type = DisplayFamiliesType.Statistics
+    report2.display_families_options = {"functions": ["Min", "Max", "Avg", "Mean", "Variance", "StdDev", "Sum"]}
+    assert report2.create()
+
+    # Test CumulativeDistribute
+    report3 = circuit_test.post.reports_by_category.standard(["dB(S(Port1, Port1))"], "LNA")
+    report3.display_families_type = DisplayFamiliesType.Cumulative
+    assert report3.create()
+
+    # Test invalid value raises ValueError
+    report4 = circuit_test.post.reports_by_category.standard(["dB(S(Port1, Port1))"], "LNA")
+    with pytest.raises(ValueError):
+        report4.display_families_type = "InvalidType"
+
+    # Test None (default, no display families arg)
+    report5 = circuit_test.post.reports_by_category.standard(["dB(S(Port1, Port1))"], "LNA")
+    report5.display_families_type = None
+    assert report5.create()
 
 
 def test_circuit_reports_by_category_standard(circuit_test) -> None:
@@ -528,7 +559,9 @@ def test_eye_diagram(eye_test) -> None:
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2022.2", reason="Not working in non graphical in version lower than 2022.2")
 def test_mask(eye_test) -> None:
-    rep = eye_test.post.reports_by_category.eye_diagram("AEYEPROBE(OutputEye)", "QuickEyeAnalysis")
+    rep = eye_test.post.reports_by_category.eye_diagram(
+        "AEYEPROBE(OutputEye)", "QuickEyeAnalysis", statistical_analysis=False
+    )
     rep.time_start = "0ps"
     rep.time_stop = "50us"
     rep.unit_interval = "1e-9"
@@ -740,7 +773,6 @@ def test_ipk_get_scalar_field_value(icepak_post) -> None:
         variations={"power_block": "0.25W", "power_source": "0.075W"},
         is_vector=False,
         intrinsics=None,
-        phase=None,
         object_name="cube2",
         object_type="surface",
         adjacent_side=False,
@@ -755,7 +787,6 @@ def test_ipk_get_scalar_field_value_1(icepak_post) -> None:
         variations={"power_block": "0.6W", "power_source": "0.15W"},
         is_vector=False,
         intrinsics=None,
-        phase=None,
         object_name="cube2",
         object_type="surface",
         adjacent_side=False,
@@ -770,7 +801,6 @@ def test_ipk_get_scalar_field_value_2(icepak_post) -> None:
         variations={"power_block": "0.6W", "power_source": "0.15W"},
         is_vector=False,
         intrinsics=None,
-        phase=None,
         object_name="cube2",
         object_type="surface",
         adjacent_side=True,
@@ -785,7 +815,6 @@ def test_ipk_get_scalar_field_valu_3(icepak_post) -> None:
         variations={"power_block": "0.6W", "power_source": "0.15W"},
         is_vector=False,
         intrinsics=None,
-        phase=None,
         object_name="cube1",
         object_type="volume",
         adjacent_side=False,
@@ -800,7 +829,6 @@ def test_ipk_get_scalar_field_value_4(icepak_post) -> None:
         variations={"power_block": "0.6W", "power_source": "0.15W"},
         is_vector=False,
         intrinsics=None,
-        phase=None,
         object_name="cube2",
         object_type="surface",
         adjacent_side=False,
@@ -815,7 +843,6 @@ def test_ipk_get_scalar_field_value_5(icepak_post) -> None:
         variations=None,
         is_vector=False,
         intrinsics=None,
-        phase=None,
         object_name="Point1",
         object_type="point",
         adjacent_side=False,

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -30,6 +30,7 @@ import shutil
 import pytest
 
 from ansys.aedt.core.generic.constants import Axis
+from ansys.aedt.core.generic.constants import IncidentWaveType
 from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.generic.file_utils import get_dxf_layers
 from ansys.aedt.core.hfss import Hfss
@@ -599,6 +600,19 @@ def test_edit_sources_modal(aedt_app) -> None:
         include_port_post_processing=True,
         max_available_power="40W",
     )
+
+
+def test_edit_sources_plane_wave(aedt_app) -> None:
+    aedt_app.solution_type = "Modal"
+    sphere = aedt_app.modeler.create_sphere([0, 0, 0], 10)
+    sphere2 = aedt_app.modeler.create_sphere([10, 100, 0], 10)
+    assignment = [sphere, sphere2.faces[0].id]
+    p = aedt_app.plane_wave(assignment=assignment, wave_type="Evanescent")
+
+    assert aedt_app.edit_sources({f"{p.name}": "2V_per_meter"}, incident_wave=IncidentWaveType.Incident)
+
+    with pytest.raises(AttributeError):
+        aedt_app.edit_sources({f"{p.name}": "2V_per_meter"}, incident_wave="invented")
 
 
 def test_create_circuit_port_from_edges(aedt_app):
@@ -1242,17 +1256,28 @@ def test_create_infinite_sphere(aedt_app) -> None:
         polarization_angle=30,
     )
     assert bound
-    assert bound.azimuth_start == "1deg"
-    assert bound.azimuth_stop == "91deg"
-    assert bound.azimuth_step == "45deg"
-    assert bound.elevation_start == "2deg"
-    assert bound.elevation_stop == "92deg"
-    assert bound.elevation_step == "10deg"
+    assert bound.azimuth_start == "2deg"
+    assert bound.properties["Start Azimuth"] == "2deg"
+    assert bound.azimuth_stop == "92deg"
+    assert bound.properties["Stop Azimuth"] == "92deg"
+    assert bound.azimuth_step == "10deg"
+    assert bound.properties["Azimuth Step"] == "10deg"
+    assert bound.elevation_start == "1deg"
+    assert bound.properties["Start Elevation"] == "1deg"
+    assert bound.elevation_stop == "91deg"
+    assert bound.properties["Stop Elevation"] == "91deg"
+    assert bound.elevation_step == "45deg"
+    assert bound.properties["Elevation Step"] == "45deg"
     assert bound.slant_angle == "30deg"
+    assert bound.properties["Slant Angle"] == "30deg"
     assert bound.polarization == "Slant"
+    assert bound.properties["Polarization"] == "Slant"
+
     bound.azimuth_start = 20
     assert bound.azimuth_start == "20deg"
+    assert bound.properties["Start Azimuth"] == "20deg"
     assert bound.delete()
+
     bound = aedt_app.insert_infinite_sphere(
         definition="Az Over El",
         phi_start=1,
@@ -1264,14 +1289,16 @@ def test_create_infinite_sphere(aedt_app) -> None:
         use_slant_polarization=True,
         polarization_angle=30,
     )
-    assert bound.azimuth_start == "2deg"
+    assert bound.azimuth_start == "1deg"
+    assert bound.properties["Start Azimuth"] == "1deg"
     assert bound.delete()
+
     # Test with default "Theta-Phi" definition
     bound = aedt_app.insert_infinite_sphere(
         definition="Theta-Phi",
         phi_start=0,
         phi_stop=180,
-        phi_step=10,
+        phi_step=7,
         theta_start=-180,
         theta_stop=180,
         theta_step=10,
@@ -1279,13 +1306,20 @@ def test_create_infinite_sphere(aedt_app) -> None:
         polarization_angle=0,
     )
     assert bound
-    assert bound.theta_start == "0deg"
+    assert bound.theta_start == "-180deg"
+    assert bound.properties["Start Theta"] == "-180deg"
     assert bound.theta_stop == "180deg"
+    assert bound.properties["Stop Theta"] == "180deg"
     assert bound.theta_step == "10deg"
-    assert bound.phi_start == "-180deg"
+    assert bound.properties["Theta step"] == "10deg"
+    assert bound.phi_start == "0deg"
+    assert bound.properties["Start Phi"] == "0deg"
     assert bound.phi_stop == "180deg"
-    assert bound.phi_step == "10deg"
+    assert bound.properties["Stop Phi"] == "180deg"
+    assert bound.phi_step == "7deg"
+    assert bound.properties["Phi Step"] == "7deg"
     assert bound.polarization == "Linear"
+    assert bound.properties["Polarization"] == "Linear"
 
     air = aedt_app.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", material="vacuum")
     aedt_app.assign_radiation_boundary_to_objects(air)
@@ -2022,13 +2056,21 @@ def test_import_gds_3d(aedt_app, test_tmp_dir) -> None:
     assert aedt_app.import_gds_3d(str(gds_file), {7: (100, 10), 9: (110, 5)})
     assert len(aedt_app.modeler.solid_names) == 3
     assert len(aedt_app.modeler.sheet_names) == 0
-    assert aedt_app.import_gds_3d(str(gds_file), {7: (0, 0), 9: (0, 0)})
+    assert aedt_app.import_gds_3d(str(gds_file), {7: [(0, 0), "hola"], 9: (0, 0)})
+    assert "hola" in list(aedt_app.modeler.objects.values())[3].name
     assert len(aedt_app.modeler.sheet_names) == 3
     assert aedt_app.import_gds_3d(str(gds_file), {7: (100e-3, 10e-3), 9: (110e-3, 5e-3)}, "mm", 0)
     assert len(aedt_app.modeler.solid_names) == 6
-    assert not aedt_app.import_gds_3d(str(gds_file), {})
-    gds_file = TESTS_GENERAL_PATH / "example_models" / "cad" / "GDS" / "gds1not.gds"
-    assert not aedt_app.import_gds_3d(str(gds_file), {7: (100, 10), 9: (110, 5)})
+
+    with pytest.raises(ValueError):
+        aedt_app.import_gds_3d(str(gds_file), {})
+
+    gds_file2 = TESTS_GENERAL_PATH / "example_models" / "cad" / "GDS" / "gds1not.gds"
+    with pytest.raises(FileNotFoundError):
+        aedt_app.import_gds_3d(str(gds_file2), {7: (100, 10), 9: (110, 5)})
+
+    with pytest.raises(TypeError):
+        aedt_app.import_gds_3d(str(gds_file), {7: [(0, 0)]})
 
 
 def test_plane_wave(aedt_app) -> None:

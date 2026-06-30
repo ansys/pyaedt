@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -21,6 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
 from __future__ import annotations
 
 from abc import abstractmethod
@@ -1267,14 +1268,14 @@ class IcepakMesh(PyAedtBase):
             obj_3d = [
                 o
                 for o in objects
-                if (isinstance(o, Object3d) and o.is3d)
-                or (isinstance(o, UserDefinedComponent) and any(p.is3d for p in o.parts.values()))
+                if (isinstance(o, Object3d) and o.is_3d)
+                or (isinstance(o, UserDefinedComponent) and any(p.is_3d for p in o.parts.values()))
             ]
             obj_2d = [
                 o
                 for o in objects
-                if (isinstance(o, Object3d) and not o.is3d)
-                or (isinstance(o, UserDefinedComponent) and any(not p.is3d for p in o.parts.values()))
+                if (isinstance(o, Object3d) and not o.is_3d)
+                or (isinstance(o, UserDefinedComponent) and any(not p.is_3d for p in o.parts.values()))
             ]
             if obj_3d:
                 level_3d = {

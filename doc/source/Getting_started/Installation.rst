@@ -174,7 +174,15 @@ There are several available options:
 
 Install on CPython from PyPI
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-You can install PyAEDT on CPython from PyPI:
+
+.. note::
+   These instructions assume you are familiar
+   with ``pip``, ``conda``, and the command line. If they are new to you, you should consider reading
+   the `Python Packaging User Guide Tutorial on pip <https://packaging.python.org/en/latest/tutorials/installing-packages/>`
+   and `Getting started with conda <https://docs.conda.io/projects/conda/en/latest/user-guide/getting-started.html#managing-python>`.
+   before proceeding.
+
+You can install PyAEDT on CPython from PyPI.
 
 .. code:: bash
 
@@ -225,12 +233,36 @@ Linux support
 ~~~~~~~~~~~~~
 
 PyAEDT works with CPython 3.10 through 3.13 on Linux in AEDT 2022 R2 and later.
-However, you must set up the following environment variables:
+However, you must set up the following environment variables before launching Python.
+Replace the version number and path with your actual AEDT installation:
 
-.. code::
+.. code:: bash
 
-    export ANSYSEM_ROOT261=/path/to/Ansys Inc/v261/AnsysEM
-    export LD_LIBRARY_PATH=/path/to/Ansys Inc/v261/AnsysEM
+    export ANSYSEM_ROOT261=/path/to/AnsysEM/v261/AnsysEM
+    export LD_LIBRARY_PATH=$ANSYSEM_ROOT261:$LD_LIBRARY_PATH
+
+The version suffix in ``ANSYSEM_ROOT<XYZ>`` must match your installed AEDT release
+(for example, ``251`` for 2025 R1, ``252`` for 2025 R2, ``261`` for 2026 R1).
+The default installation path on Linux is typically
+``/opt/AnsysEM/v<XYZ>/AnsysEM`` or ``/usr/ansys_inc/v<XYZ>/AnsysEM``.
+
+.. note::
+
+    On some Linux distributions (such as RHEL/CentOS 8), the ``ss`` utility used
+    for session discovery lives in ``/usr/sbin/ss``, which may not be included in
+    ``$PATH`` by default for non-root users. PyAEDT automatically probes
+    ``/usr/sbin/ss`` and, if ``ss`` is still unavailable or cannot resolve every
+    AEDT process, falls back to ``psutil``,
+    so session detection works in most cases without any configuration changes.
+
+    If you still experience issues with PyAEDT opening a new AEDT session instead
+    of connecting to an existing one, you can add ``/usr/sbin`` to your ``$PATH``
+    permanently:
+
+    .. code::
+
+        export PATH=$PATH:/usr/sbin
+        source ~/.bashrc
 
 
 Install offline from a wheelhouse
@@ -251,6 +283,11 @@ For example, on Windows with Python 3.10, install PyAEDT and all its dependencie
 
     pip install --no-cache-dir --no-index --find-links=file:///<path_to_wheelhouse>/PyAEDT-v<release_version>-wheelhouse-Windows-3.10 pyaedt[all]
 
+
+.. note::
+  If you need dotnet dependencies, replace ``pyaedt[all]`` with ``pyaedt[all-dotnet]``. This is needed to use PyEDB before AEDT 2026R1.
+
+
 Finally, in the Python console, run the following commands:
 
 .. code::
@@ -269,6 +306,10 @@ Finally, in the Python console, run the following commands:
 
 Using uv to manage virtual environments
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. note::
+  `uv` is an extremely fast Python package and project manager, written in Rust. If you aren't familiar with `uv` you can read more about it here: `Introduction to uv <https://docs.astral.sh/uv/>`.
+
 The project and the PyAEDT installer support using the `uv` tool to manage
 package installation and speed up installs.
 `uv` can be used inside a virtual environment to perform pip installs, to
