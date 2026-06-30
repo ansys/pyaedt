@@ -160,8 +160,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
 
     @property
     def configurations(self) -> Configurations3DLayout:
-        """
-        Property to import and export configuration files.
+        """Property to import and export configuration files.
 
         Returns
         -------
@@ -180,8 +179,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
     def post(
         self,
     ) -> "PostProcessorType":
-        """
-        PostProcessor.
+        """PostProcessor.
 
         Returns
         -------
@@ -203,8 +201,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
 
     @property
     def mesh(self) -> "Mesh3d":
-        """
-        Mesh.
+        """Mesh.
 
         Returns
         -------
@@ -225,8 +222,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
 
     @property
     def excitation_names(self) -> list:
-        """
-        Get all excitation names.
+        """Get all excitation names.
 
         Returns
         -------
@@ -276,8 +272,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
 
     @pyaedt_function_handler()
     def export_mesh_stats(self, setup: str, variations: str = "", output_file: str | None = None) -> str:
-        """
-        Export mesh statistics to a file.
+        """Export mesh statistics to a file.
 
         Parameters
         ----------
@@ -311,8 +306,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
 
     @property
     def modeler(self) -> "Modeler3DLayout":
-        """
-        Modeler object.
+        """Modeler object.
 
         Returns
         -------
@@ -336,8 +330,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
 
     @property
     def port_list(self) -> list:
-        """
-        Port list.
+        """Port list.
 
         References
         ----------
@@ -354,8 +347,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_setup(self, name: str = "MySetupAuto", setup_type: str | None = None, **kwargs) -> Setup3DLayout:
-        """
-        Create a setup.
+        """Create a setup.
 
         Parameters
         ----------
@@ -411,8 +403,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
 
     @pyaedt_function_handler()
     def delete_setup(self, name: str) -> bool:
-        """
-        Delete a setup.
+        """Delete a setup.
 
         Parameters
         ----------
