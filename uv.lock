@@ -3728,6 +3728,8 @@ tests = [
     { name = "pytest-testmon", specifier = ">=2.0.0" },
     { name = "pytest-timeout", specifier = ">=2.3.0" },
     { name = "pytest-xdist", specifier = ">=3.5.0" },
+    { name = "ansys-pythonnet", marker = "sys_platform == 'win32'", specifier = ">=3.1.0rc3" },
+    { name = "pywin32", marker = "sys_platform == 'win32'", specifier = ">=303" },
 ]
 
 [[package]]

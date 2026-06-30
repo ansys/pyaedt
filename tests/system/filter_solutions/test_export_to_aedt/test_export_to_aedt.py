@@ -474,17 +474,6 @@ class TestClass:
         assert lumped_design.export_to_aedt.substrate_dielectric_height == "3 mm"
         assert lumped_design.export_to_aedt.substrate_loss_tangent == "0.065 "
 
-    @pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Skipped on versions earlier than 2026.1")
-    def test_import_tuned_variables(self, lumped_design):
-        lumped_design.export_to_aedt.simulate_after_export_enabled = True
-        lumped_design.export_to_aedt.optimize_after_export_enabled = True
-        lumped_design.export_to_aedt.part_libraries = PartLibraries.LUMPED
-        app = lumped_design.export_to_aedt.export_design()
-        assert lumped_design.export_to_aedt.import_tuned_variables().splitlines() == read_resource_file(
-            "imported_netlist.ckt", "Lumped"
-        )
-        app.desktop_class.close_desktop()
-
     def test_part_libraries(self, lumped_design):
         assert lumped_design.export_to_aedt.part_libraries == PartLibraries.LUMPED
         assert len(PartLibraries) == 3

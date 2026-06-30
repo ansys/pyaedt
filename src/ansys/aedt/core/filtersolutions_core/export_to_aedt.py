@@ -1371,15 +1371,15 @@ class ExportToAedt:
         substrate_er_value_str = create_string_buffer(100)
         status = self._dll.getEr(substrate_er_value_str, byref(substrate_er_index), 100)
         self._dll_interface.raise_error(status)
-        if substrate_er_index.value in [e.value for e in SubstrateEr]:
+        if substrate_er_index.value in SubstrateEr._value2member_map_:
             return SubstrateEr(substrate_er_index.value)
         else:
             return substrate_er_value_str.value.decode("ascii")
 
     @substrate_er.setter
     def substrate_er(self, substrate_input: SubstrateEr | str) -> None:
-        if substrate_input in list(SubstrateEr):
-            substrate_er_index = SubstrateEr(substrate_input).value
+        if isinstance(substrate_input, SubstrateEr):
+            substrate_er_index = substrate_input.value
             substrate_er_value = ""
         elif isinstance(substrate_input, str):
             substrate_er_value = substrate_input
@@ -1405,15 +1405,15 @@ class ExportToAedt:
         substrate_resistivity_value_str = create_string_buffer(100)
         status = self._dll.getResistivity(substrate_resistivity_value_str, byref(substrate_resistivity_index), 100)
         self._dll_interface.raise_error(status)
-        if substrate_resistivity_index.value in [e.value for e in SubstrateResistivity]:
+        if substrate_resistivity_index.value in SubstrateResistivity._value2member_map_:
             return SubstrateResistivity(substrate_resistivity_index.value)
         else:
             return substrate_resistivity_value_str.value.decode("ascii")
 
     @substrate_resistivity.setter
     def substrate_resistivity(self, substrate_input: SubstrateResistivity | str) -> None:
-        if substrate_input in list(SubstrateResistivity):
-            substrate_resistivity_index = SubstrateResistivity(substrate_input).value
+        if isinstance(substrate_input, SubstrateResistivity):
+            substrate_resistivity_index = substrate_input.value
             substrate_resistivity_value = ""
         elif isinstance(substrate_input, str):
             substrate_resistivity_value = substrate_input
@@ -1439,15 +1439,15 @@ class ExportToAedt:
         substrate_loss_tangent_value_str = create_string_buffer(100)
         status = self._dll.getLossTangent(substrate_loss_tangent_value_str, byref(substrate_loss_tangent_index), 100)
         self._dll_interface.raise_error(status)
-        if substrate_loss_tangent_index.value in [e.value for e in SubstrateEr]:
+        if substrate_loss_tangent_index.value in SubstrateEr._value2member_map_:
             return SubstrateEr(substrate_loss_tangent_index.value)
         else:
             return substrate_loss_tangent_value_str.value.decode("ascii")
 
     @substrate_loss_tangent.setter
     def substrate_loss_tangent(self, substrate_input: SubstrateEr | str) -> None:
-        if substrate_input in list(SubstrateEr):
-            substrate_loss_tangent_index = SubstrateEr(substrate_input).value
+        if isinstance(substrate_input, SubstrateEr):
+            substrate_loss_tangent_index = substrate_input.value
             substrate_loss_tangent_value = ""
         elif isinstance(substrate_input, str):
             substrate_loss_tangent_value = substrate_input

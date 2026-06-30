@@ -131,6 +131,8 @@ tests = [
     "pytest-xdist>=3.5.0",
     "pytest-testmon>=2.0.0",
     "cryptography",
+    "ansys-pythonnet>=3.1.0rc3; platform_system=='Windows'",
+    "pywin32>=303; platform_system=='Windows'",
 ]
 doc = [
     "ansys-sphinx-theme>=1.0.0",
@@ -365,3 +367,9 @@ directory = "test"
 name = "Test"
 showcontent = true
 
+[tool.pyright]
+include = ["src", "tests"]
+venvPath = "."
+venv = ".venv"
+pythonVersion = "3.10"
+extraPaths = ["src"]
