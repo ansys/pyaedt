@@ -126,6 +126,9 @@ class EmitterNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
         >>> node = emitter.get_radio()
 
         """
@@ -142,6 +145,9 @@ class EmitterNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
         >>> node = emitter.get_antenna()
 
         """
@@ -159,6 +165,9 @@ class EmitterNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
         >>> waveforms = emitter.get_waveforms()
 
         """
@@ -175,6 +184,9 @@ class EmitterNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
         >>> waveforms = emitter.get_waveforms()
 
         """
