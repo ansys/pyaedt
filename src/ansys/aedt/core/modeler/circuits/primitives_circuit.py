@@ -1633,16 +1633,17 @@ class CircuitComponents(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_nport_multi(
-            self, component_name:str,
-            num_ports:str,
-            array_name:str,
-            array_id_name:str,
-            files:list,
-            location=tuple|list|None,
-            page:int=1,
-            angle:float=0.0,
-            flip:bool=False
-    )->CircuitComponent:
+        self,
+        component_name: str,
+        num_ports: str,
+        array_name: str,
+        array_id_name: str,
+        files: list,
+        location=tuple | list | None,
+        page: int = 1,
+        angle: float = 0.0,
+        flip: bool = False,
+    ) -> CircuitComponent:
         """Create an N-port multi-component by importing a Sand W component file.
 
         Parameters
