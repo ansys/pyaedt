@@ -58,7 +58,7 @@ Post issues
 Use the `PyAEDT Issues <https://github.com/ansys/pyaedt/issues>`_
 page to submit questions, report bugs, and request new features.
 
-To reach the product support team, email `pyansys.core@ansys.com <pyansys.core@ansys.com>`_.
+To reach the product support team, email `pyansys-core@synopsys.com <pyansys-core@synopsys.com>`_.
 
 View PyAEDT documentation
 -------------------------

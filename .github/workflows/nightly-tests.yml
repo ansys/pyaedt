@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
@@ -82,7 +82,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
@@ -137,7 +137,7 @@ jobs:
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
@@ -151,6 +151,10 @@ jobs:
         with:
           enable-cache: false
           prune-cache: true
+          save-cache: false
+
+      - name: Clean uv cache
+        run: uv cache clean
 
       - name: Create virtual environment
         run: uv venv .venv
@@ -206,7 +210,7 @@ jobs:
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
@@ -220,6 +224,10 @@ jobs:
         with:
           enable-cache: false
           prune-cache: true
+          save-cache: false
+
+      - name: Clean uv cache
+        run: uv cache clean
 
       - name: Create virtual environment
         run: uv venv .venv
@@ -268,7 +276,7 @@ jobs:
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
@@ -282,6 +290,10 @@ jobs:
         with:
           enable-cache: false
           prune-cache: true
+          save-cache: false
+
+      - name: Clean uv cache
+        run: uv cache clean
 
       - name: Set up headless display
         uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
@@ -340,7 +352,7 @@ jobs:
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
@@ -354,6 +366,10 @@ jobs:
         with:
           enable-cache: false
           prune-cache: true
+          save-cache: false
+
+      - name: Clean uv cache
+        run: uv cache clean
 
       - name: Set up headless display
         uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
@@ -405,7 +421,7 @@ jobs:
       MPLBACKEND: 'Agg'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
@@ -419,6 +435,10 @@ jobs:
         with:
           enable-cache: false
           prune-cache: true
+          save-cache: false
+
+      - name: Clean uv cache
+        run: uv cache clean
 
       - name: Set up headless display
         uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
@@ -478,7 +498,7 @@ jobs:
       MPLBACKEND: 'Agg'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
@@ -492,6 +512,10 @@ jobs:
         with:
           enable-cache: false
           prune-cache: true
+          save-cache: false
+
+      - name: Clean uv cache
+        run: uv cache clean
 
       - name: Set up headless display
         uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
@@ -541,7 +565,7 @@ jobs:
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
@@ -555,6 +579,10 @@ jobs:
         with:
           enable-cache: false
           prune-cache: true
+          save-cache: false
+
+      - name: Clean uv cache
+        run: uv cache clean
 
       - name: Create virtual environment
         run: uv venv .venv
@@ -610,7 +638,7 @@ jobs:
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
@@ -624,6 +652,10 @@ jobs:
         with:
           enable-cache: false
           prune-cache: true
+          save-cache: false
+
+      - name: Clean uv cache
+        run: uv cache clean
 
       - name: Create virtual environment
         run: uv venv .venv
@@ -672,7 +704,7 @@ jobs:
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
@@ -686,6 +718,10 @@ jobs:
         with:
           enable-cache: false
           prune-cache: true
+          save-cache: false
+
+      - name: Clean uv cache
+        run: uv cache clean
 
       - name: Create virtual environment
         run: uv venv .venv
@@ -741,7 +777,7 @@ jobs:
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
@@ -755,6 +791,10 @@ jobs:
         with:
           enable-cache: false
           prune-cache: true
+          save-cache: false
+
+      - name: Clean uv cache
+        run: uv cache clean
 
       - name: Create virtual environment
         run: uv venv .venv
@@ -803,7 +843,7 @@ jobs:
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
@@ -818,6 +858,10 @@ jobs:
         with:
           enable-cache: false
           prune-cache: true
+          save-cache: false
+
+      - name: Clean uv cache
+        run: uv cache clean
 
       - name: Set up headless display
         uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
@@ -876,7 +920,7 @@ jobs:
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
@@ -890,6 +934,10 @@ jobs:
         with:
           enable-cache: false
           prune-cache: true
+          save-cache: false
+
+      - name: Clean uv cache
+        run: uv cache clean
 
       - name: Set up headless display
         uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
@@ -939,7 +987,7 @@ jobs:
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
@@ -954,6 +1002,10 @@ jobs:
         with:
           enable-cache: false
           prune-cache: true
+          save-cache: false
+
+      - name: Clean uv cache
+        run: uv cache clean
 
       - name: Create virtual environment
         run: uv venv .venv
@@ -1006,7 +1058,7 @@ jobs:
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
@@ -1021,6 +1073,10 @@ jobs:
         with:
           enable-cache: false
           prune-cache: true
+          save-cache: false
+
+      - name: Clean uv cache
+        run: uv cache clean
 
       - name: Create virtual environment
         run: uv venv .venv
