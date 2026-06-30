@@ -1573,3 +1573,17 @@ def test_datablock_get_all_substrates(aedt_app) -> None:
     all_subs = aedt_app.substrate.names
     assert sub1.name in all_subs
     assert sub2.name in all_subs
+
+
+def test_nport_multi(aedt_app, test_tmp_dir):
+    touch_original = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / TOUCHSTONE
+    ts_1 = shutil.copy2(touch_original, test_tmp_dir / TOUCHSTONE)
+    ts_2 = shutil.copy2(touch_original, test_tmp_dir / TOUCHSTONE_CUSTOM)
+    comp = aedt_app.modeler.schematic.create_nport_multi(
+        component_name="nport",
+        num_ports_or_lines=6,
+        array_name="Element",
+        array_id_name="Element_id",
+        files= [ts_1, ts_2],
+    )
+    assert comp.parameters["FileName"] == 'Element[Element_id]'
