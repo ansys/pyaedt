@@ -712,6 +712,7 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           pip install . --group tests
+          pip install "pywin32>=303" "ansys-pythonnet>=3.1.0rc3"
 
       - name: Remove Ansys processes (if any)
         shell: powershell
