@@ -535,7 +535,9 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
         return self._create_boundary(name, props, "FixedSupport")
 
     @pyaedt_function_handler()
-    def assign_thermal_condition_uniform(self, assignment: list, uniform_temp: str,name: str | None = "") -> BoundaryObject:
+    def assign_thermal_condition_uniform(
+        self, assignment: list, uniform_temp: str, name: str | None = ""
+    ) -> BoundaryObject:
         """Assign a Mechanical excitation as thermal condition, with uniform temperature.
 
         .. note::
