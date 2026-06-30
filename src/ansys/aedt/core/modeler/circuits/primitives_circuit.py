@@ -1641,7 +1641,7 @@ class CircuitComponents(PyAedtBase):
             page:int=1,
             angle:float=0.0,
             flip:bool=False
-    ):
+    )->CircuitComponent:
         """Create an N-port multi-component by importing a Sand W component file.
 
         Parameters
@@ -1668,7 +1668,7 @@ class CircuitComponents(PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.Component`
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
             Component object.
         """
 
