@@ -384,7 +384,7 @@ def generate_point_cloud(
     aedtapp: Desktop,
     selected_objects: list[str],
     num_points: int,
-    output_file: str = None,
+    output_file: str | None = None,
     include_volume: bool = False,
 ):
     """Generate point cloud from selected objects
