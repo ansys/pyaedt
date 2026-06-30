@@ -83,7 +83,7 @@ class EmitSceneNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def import_cad(self, file_name: str) -> EmitNode:
-        """Add an existing CAD file
+        """Add an existing CAD file.
 
         Examples
         --------
