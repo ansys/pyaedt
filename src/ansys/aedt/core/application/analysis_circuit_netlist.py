@@ -118,9 +118,8 @@ class AnalysisCircuitNetlist(Analysis, PyAedtBase):
             self._post = self.post
 
     @property
-    def post(self) -> "PostProcessorCircuit":
-        """
-        PostProcessor.
+    def post(self) -> PostProcessorCircuit:
+        """PostProcessor.
 
         Returns
         -------
@@ -142,8 +141,7 @@ class AnalysisCircuitNetlist(Analysis, PyAedtBase):
 
     @property
     def modeler(self) -> object:
-        """
-        Modeler object.
+        """Modeler object.
 
         Examples
         --------

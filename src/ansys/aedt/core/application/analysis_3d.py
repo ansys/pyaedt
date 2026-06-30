@@ -244,8 +244,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         | PostProcessorMaxwell
         | PostProcessorHFSS
     ):
-        """
-        PostProcessor.
+        """PostProcessor.
 
         Returns
         -------

@@ -283,8 +283,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
 
     @property
     def post(self) -> PostProcessorCircuit:
-        """
-        PostProcessor.
+        """PostProcessor.
 
         Returns
         -------
