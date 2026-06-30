@@ -652,8 +652,7 @@ with Desktop() as d:
     maxwell_2d.setup_ctrlprog(keep_modifications=True )
     d.logger.info("Successfully updated project definitions")
     maxwell_2d.save_project()
-"""
-"""Value for resynch maxwell2D control program for design."""
+Value for resynch maxwell2D control program for design."""
 
 
 @pyaedt_function_handler()

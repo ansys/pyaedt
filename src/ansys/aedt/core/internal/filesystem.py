@@ -43,7 +43,9 @@ def search_files(dirname: str, pattern: str = "*") -> list:
     Parameters
     ----------
     dirname : str
-    pattern :str, optional
+        Directory name.
+    pattern : str, optional
+        Pattern to search for. The default is ``"*"``.
 
     Returns
     -------
@@ -52,37 +54,62 @@ def search_files(dirname: str, pattern: str = "*") -> list:
     Examples
     --------
     >>> from ansys.aedt.core.internal.filesystem import search_files
-    >>> search_files(r"C:\\Projects", "*.aedt")
+    >>> search_files("dirname", "*.aedt")
 
     """
     return [Path(i).absolute() for i in Path(dirname).glob(pattern)]
 
 
 def my_location() -> Path:
-    """Return my location."""
+    """Return my location.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.internal.filesystem import my_location
+    >>> my_location()
+
+    """
     return Path(__file__).parent.resolve(strict=False)
 
 
 class Scratch(PyAedtBase):
-    """Provide scratch."""
+    """Provide scratch.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.internal.filesystem import Scratch
+    >>> Scratch(local_path="my_path")
+
+    """
 
     @property
-    def path(self) -> str:
-        """Retrieve path."""
-        """
+    def path(self) -> str | Path:
+        """Retrieve path.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.internal.filesystem import Scratch
+        >>> sc = Scratch(local_path="my_path")
+        >>> sc.path
 
         """
         return self._scratch_path
 
     @property
     def is_empty(self) -> bool:
-        """Flag indicating whether empty is enabled."""
-        """
+        """Flag indicating whether empty is enabled.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.internal.filesystem import Scratch
+        >>> sc = Scratch(local_path="my_path")
+        >>> sc.is_empty
 
         """
         return self._cleaned
 
     def __init__(self, local_path: str, permission: int = 0o777, volatile: bool = False) -> None:
+        """Scratch constructor."""
         self._volatile = volatile
         self._cleaned = True
         char_set = string.ascii_uppercase + string.digits
@@ -101,15 +128,22 @@ class Scratch(PyAedtBase):
                 print(fnf_error)
 
     def remove(self) -> None:
-        """ """
+        """Remove directory.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.internal.filesystem import Scratch
+        >>> sc = Scratch(local_path="my_path")
+        >>> sc.remove()
+
+        """
         try:
             shutil.rmtree(self._scratch_path, ignore_errors=True)
         except Exception:
             logger.error(f"An error occurred while removing {self._scratch_path}")
 
     def copyfile(self, src_file: str | Path, dst_filename: str | Path = None) -> str:
-        """
-        Copy a file to the scratch directory.
+        """Copy a file to the scratch directory.
 
         The target filename is optional. If omitted, the target file name is identical to the source file name.
 
@@ -130,8 +164,8 @@ class Scratch(PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core.internal.filesystem import Scratch
-        >>> obj = Scratch(r"C:\\Temp")
-        >>> obj.copyfile(r"C:\\Temp\\source.txt", "copied_source.txt")
+        >>> obj = Scratch("my_path")
+        >>> obj.copyfile(r"source.txt", "copied_source.txt")
 
         """
         if dst_filename:
@@ -155,25 +189,28 @@ class Scratch(PyAedtBase):
 
         Parameters
         ----------
-        src_folder :
-
-        destfolder :
-
+        src_folder : str or :class:`pathlib.Path`
+            Source directory with fullpath.
+        destfolder : str or :class:`pathlib.Path`
+            Destination directory
 
         Returns
         -------
+        bool
+            ``True`` if the folder is copied successfully.
 
         Examples
         --------
         >>> from ansys.aedt.core.internal.filesystem import Scratch
-        >>> obj = Scratch(r"C:\\Temp")
-        >>> obj.copyfolder(r"C:\\Temp\\input_folder", r"C:\\Temp\\output_folder")
+        >>> obj = Scratch("my_path")
+        >>> obj.copyfolder("input_folder", "output_folder")
 
         """
         shutil.copytree(src_folder, destfolder, dirs_exist_ok=True)
         return True
 
     def __enter__(self):
+        """Enter context manager."""
         return self
 
     def __exit__(
@@ -182,6 +219,7 @@ class Scratch(PyAedtBase):
         ex_value: BaseException | None,
         ex_traceback: TracebackType | None,
     ) -> None:
+        """Exit context manager."""
         if ex_type or self._volatile:
             self.remove()
 
@@ -201,7 +239,7 @@ class Scratch(PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core.internal.filesystem import Scratch
-        >>> obj = Scratch(r"C:\\Temp")
+        >>> obj = Scratch("my_path")
         >>> obj.create_sub_folder("results")
 
         """
@@ -211,12 +249,11 @@ class Scratch(PyAedtBase):
 
 
 def get_json_files(start_folder: str) -> list[str]:
-    """
-    Get the absolute path to all *.json files in start_folder.
+    """Get the absolute path to all *.json files in start_folder.
 
     Parameters
     ----------
-    start_folder, str
+    start_folder : str
         Path to the folder where the json files are located.
 
     Returns
@@ -227,20 +264,19 @@ def get_json_files(start_folder: str) -> list[str]:
     Examples
     --------
     >>> from ansys.aedt.core.internal.filesystem import get_json_files
-    >>> get_json_files(r"C:\\Temp")
+    >>> get_json_files("my_path")
 
     """
     return [y for x in os.walk(start_folder) for y in search_files(x[0], "*.json")]
 
 
 def is_safe_path(path: str | Path, allowed_extensions: list[str] | None = None) -> bool:
-    """
-    Validate if a path is safe to use.
+    """Validate if a path is safe to use.
 
     Examples
     --------
     >>> from ansys.aedt.core.internal.filesystem import is_safe_path
-    >>> is_safe_path(r"C:\\Temp\\settings.json", allowed_extensions=[".json"])
+    >>> is_safe_path("settings.json", allowed_extensions=[".json"])
 
     """
     # Ensure path is an existing file or directory
