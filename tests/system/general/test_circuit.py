@@ -1584,6 +1584,6 @@ def test_nport_multi(aedt_app, test_tmp_dir):
         num_ports_or_lines=6,
         array_name="Element",
         array_id_name="Element_id",
-        files= [ts_1, ts_2],
+        files=[ts_1, ts_2],
     )
-    assert comp.parameters["FileName"] == 'Element[Element_id]'
+    assert comp.parameters["FileName"] == "Element[Element_id]"

@@ -28,7 +28,8 @@ from pathlib import Path
 import re
 import secrets
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
+from pydantic import Field
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
@@ -469,7 +470,7 @@ class CircuitComponents(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_model_from_touchstone(
-            self, input_file: str | Path, model_name: str = None, show_bitmap: bool = True, image_path: str = None
+        self, input_file: str | Path, model_name: str = None, show_bitmap: bool = True, image_path: str = None
     ) -> str | bool:
         """Create a model from a Touchstone file.
 
@@ -991,13 +992,13 @@ class CircuitComponents(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_touchstone_component(
-            self,
-            model_name: str,
-            location: list[float] = None,
-            angle: int = 0,
-            show_bitmap: bool = True,
-            page: int = 1,
-            image_path: str = None,
+        self,
+        model_name: str,
+        location: list[float] = None,
+        angle: int = 0,
+        show_bitmap: bool = True,
+        page: int = 1,
+        image_path: str = None,
     ) -> CircuitComponent:
         """Create a component from a Touchstone model.
 
@@ -1120,15 +1121,15 @@ class CircuitComponents(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_component(
-            self,
-            name: str | None = None,
-            component_library: str | None = "Resistors",
-            component_name: str = "RES_",
-            location: list[float] = None,
-            angle: int = 0,
-            use_instance_id_netlist: bool = False,
-            global_netlist_list: list = None,
-            page: int = 1,
+        self,
+        name: str | None = None,
+        component_library: str | None = "Resistors",
+        component_name: str = "RES_",
+        location: list[float] = None,
+        angle: int = 0,
+        use_instance_id_netlist: bool = False,
+        global_netlist_list: list = None,
+        page: int = 1,
     ) -> CircuitComponent:
         """Create a component from a library.
 
@@ -1632,8 +1633,7 @@ class CircuitComponents(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_nport_multi(
-            self, component_name, num_ports, array_name, array_id_name, files, location=None, page=1,
-            angle=0.0, flip=False
+        self, component_name, num_ports, array_name, array_id_name, files, location=None, page=1, angle=0.0, flip=False
     ):
         """Create an N-port multi-component by importing a Sand W component file.
 
@@ -1650,7 +1650,7 @@ class CircuitComponents(PyAedtBase):
         files : list
             List of touchstone file paths to import.
         location : tuple, optional
-            Tuple of ``(x, y)`` coordinates for component location. 
+            Tuple of ``(x, y)`` coordinates for component location.
             If ``None``, default location is used. Default is ``None``.
         page : int, optional
             Schematics page number. Default is ``1``.
@@ -1796,12 +1796,12 @@ class ComponentInfo(PyAedtBase):
 
     @pyaedt_function_handler()
     def place(
-            self,
-            assignment: str = None,
-            location: list = None,
-            angle: int = 0,
-            use_instance_id_netlist: bool = False,
-            page: int = 1,
+        self,
+        assignment: str = None,
+        location: list = None,
+        angle: int = 0,
+        use_instance_id_netlist: bool = False,
+        page: int = 1,
     ) -> CircuitComponent:
         """Create a component from a library.
 
