@@ -274,7 +274,7 @@ class ScatteringMethods(PyAedtBase):
         --------
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
-        >>> hfss.get_fext_xtalk_list(drivers_prefix_name="TX", receivers_prefix_name="RX")
+        >>> hfss.get_next_xtalk_list()
 
         """
         next_xtalks = []
@@ -336,6 +336,13 @@ class ScatteringMethods(PyAedtBase):
         References
         ----------
         >>> oEditor.GetAllPorts
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.get_fext_xtalk_list(drivers_prefix_name="TX", receivers_prefix_name="RX")
+
         """
         fext = []
         if drivers is None:

@@ -289,8 +289,7 @@ class COMParameters:
 
     @pyaedt_function_handler
     def load_spisim_cfg(self, file_path: str) -> bool:
-        r"""
-        Load a SPIsim configuration file.
+        """Load a SPIsim configuration file.
 
         Parameters
         ----------
@@ -306,7 +305,7 @@ class COMParameters:
         --------
         >>> from ansys.aedt.core.visualization.post.spisim_com_configuration_files.com_parameters import COMParameters
         >>> obj = COMParameters()
-        >>> obj.load_spisim_cfg(file_path=r"C:\Temp\example.txt")
+        >>> obj.load_spisim_cfg(file_path="example.txt")
 
         """
         reverse_map = {j: i for i, j in spimsim_matlab_keywords_mapping.items()}

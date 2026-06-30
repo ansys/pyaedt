@@ -335,6 +335,7 @@ class SpiSim(PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
         """
         temp = {}
         with open(file_path, "r") as fp:

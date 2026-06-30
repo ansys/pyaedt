@@ -41,7 +41,7 @@ class TR_Switch(EmitNode):  # noqa: N801
 
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
-        """Duplicate this node
+        """Duplicate this node.
 
         Examples
         --------

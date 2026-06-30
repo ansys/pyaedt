@@ -41,11 +41,11 @@ def load_native_module(module_name: str, base_dir: Path | str) -> object:
 
     Parameters
     ----------
-        module_name: str
-            The name of the module to load (e.g. 'nastran_import').
+    module_name: str
+        The name of the module to load (e.g. 'nastran_import').
 
-        base_dir: Path, str
-            Path to the directory containing the compiled module.
+    base_dir: Path, str
+        Path to the directory containing the compiled module.
 
     Returns
     -------
