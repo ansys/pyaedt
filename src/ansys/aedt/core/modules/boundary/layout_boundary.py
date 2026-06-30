@@ -890,6 +890,7 @@ class NativeComponentPCB(NativeComponentObject):
         ----------
         value : bool
             Whether to force source solution.
+
         """
         if not isinstance(val, bool):
             self._app.logger.add_message(

@@ -249,8 +249,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
 
     @pyaedt_function_handler()
     def change_design_settings(self, settings) -> bool:
-        """
-        Set HFSS 3D Layout Design Settings.
+        """Set HFSS 3D Layout Design Settings.
 
         Parameters
         ----------

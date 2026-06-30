@@ -406,11 +406,11 @@ class EdgePrimitive(ModifiablePrimitive, PyAedtBase):
 
     @property
     def segment_info(self) -> dict:
-        """
-        Compute segment information using the object-oriented method (from AEDT 2021 R2
-        with beta options). The method manages segment info for lines, circles and ellipse
-        providing information about all of those.
+        """Compute segment information using the object-oriented method (from AEDT 2021 R2
+        with beta options).
 
+        The method manages segment info for lines, circles and ellipse
+        providing information about all of those.
 
         Returns
         -------
