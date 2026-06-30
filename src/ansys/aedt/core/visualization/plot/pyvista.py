@@ -1680,8 +1680,6 @@ class ModelPlotter(CommonPlotter):
             Dictionary containing the point cloud for each object. Each entry has the object name as the key and a list
             with two elements: the path to the output ``.pts`` file and the ``pyvista.PolyData`` object.
         """
-        # Initialize random generator and output container.
-        rng = np.random.default_rng()
         point_cloud = {}
 
         # Iterate over all loaded geometry objects.
@@ -1698,81 +1696,18 @@ class ModelPlotter(CommonPlotter):
                 pyaedt_logger.warning(f"Unknown length unit '{source_unit}'. Writing points without unit conversion.")
                 to_meter = 1.0
 
-            # Write tab-separated points after converting from source unit to meters.
-            def _write_pts_file(out_path: Path, pts_array: np.ndarray):
-                pts_in_meter = pts_array * to_meter
-                with out_path.open("w", newline="") as file:
-                    writer = csv.writer(file, delimiter="\t")
-                    writer.writerows(pts_in_meter)
-
-            # Sample points on the surface using area-weighted triangle selection.
-            def _sample_surface_points(src_mesh, n_points: int):
-                triangle_areas = src_mesh.compute_cell_sizes()["Area"]
-                area_sum = float(np.sum(triangle_areas))
-                if area_sum <= 0:
-                    return np.empty((0, 3), dtype=float)
-
-                probabilities = triangle_areas / area_sum
-                sampled_triangle_indices = rng.choice(len(probabilities), size=n_points, p=probabilities)
-
-                sampled = []
-                for idx in sampled_triangle_indices:
-                    triangle = src_mesh.extract_cells(int(idx))
-                    vertices = triangle.points
-                    if len(vertices) < 3:
-                        continue
-
-                    r1, r2 = rng.random(2)
-                    sqrt_r1 = np.sqrt(r1)
-                    u = 1.0 - sqrt_r1
-                    v = r2 * sqrt_r1
-                    w = 1.0 - u - v
-                    sampled.append(u * vertices[0] + v * vertices[1] + w * vertices[2])
-
-                if not sampled:
-                    return np.empty((0, 3), dtype=float)
-                return np.asarray(sampled, dtype=float)
-
-            # Sample points inside volume using bounded rejection sampling.
-            def _sample_volume_points(src_mesh, n_points: int):
-                surface_mesh = src_mesh.extract_surface().triangulate().clean()
-                xmin, xmax, ymin, ymax, zmin, zmax = surface_mesh.bounds
-                inside_points = np.empty((0, 3), dtype=float)
-
-                attempts = 0
-                max_attempts = 30
-                while inside_points.shape[0] < n_points and attempts < max_attempts:
-                    missing = n_points - inside_points.shape[0]
-                    batch = max(missing * 4, 1000)
-
-                    candidates = np.column_stack(
-                        (
-                            rng.uniform(xmin, xmax, batch),
-                            rng.uniform(ymin, ymax, batch),
-                            rng.uniform(zmin, zmax, batch),
-                        )
-                    )
-
-                    selected = pv.PolyData(candidates).select_enclosed_points(surface_mesh, check_surface=True)
-                    mask = selected["SelectedPoints"].astype(bool)
-                    if np.any(mask):
-                        inside_points = np.vstack((inside_points, candidates[mask]))
-                    attempts += 1
-
-                return inside_points[:n_points]
-
             # Execute selected sampling path and define output naming.
             if in_volume:
-                sampled_points = _sample_volume_points(mesh, points)
+                sampled_points = self._sample_volume_points(mesh, points)
                 suffix = "_volume"
             else:
-                sampled_points = _sample_surface_points(mesh, points)
+                sampled_points = self._sample_surface_points(mesh, points)
                 suffix = "_surface"
 
             # Build polydata, write output file, and store per-object result.
             pcd = pv.PolyData(sampled_points)
             pts_file = mesh_path.with_name(f"{mesh_path.stem}{suffix}.pts")
-            _write_pts_file(pts_file, np.asarray(pcd.points))
+            self._write_pts_file(pts_file, np.asarray(pcd.points), to_meter)
             point_cloud[pyvista_object.name] = [pts_file, pcd]
 
         # Return generated point-cloud results keyed by object name.
@@ -1791,3 +1726,72 @@ class ModelPlotter(CommonPlotter):
         # are not used during the documentation build (see pvista.BUILDING_GALLERY)
         if _ALL_PLOTTERS is not None:
             _ALL_PLOTTERS.pop(self.pv._id_name, None)
+
+    # Write tab-separated points after converting from source unit to meters.
+    def _write_pts_file(self, out_path: Path, pts_array: np.ndarray, conversion_factor: float) -> None:
+        pts_in_meter = pts_array * conversion_factor
+        with out_path.open("w", newline="") as file:
+            writer = csv.writer(file, delimiter="\t")
+            writer.writerows(pts_in_meter)
+
+    # Sample points on the surface using area-weighted triangle selection.
+    def _sample_surface_points(self, src_mesh, n_points: int):
+        # Initialize random generator and output container.
+        rng = np.random.default_rng()
+
+        triangle_areas = src_mesh.compute_cell_sizes()["Area"]
+        area_sum = float(np.sum(triangle_areas))
+        if area_sum <= 0:
+            return np.empty((0, 3), dtype=float)
+
+        probabilities = triangle_areas / area_sum
+        sampled_triangle_indices = rng.choice(len(probabilities), size=n_points, p=probabilities)
+
+        sampled = []
+        for idx in sampled_triangle_indices:
+            triangle = src_mesh.extract_cells(int(idx))
+            vertices = triangle.points
+            if len(vertices) < 3:
+                continue
+
+            r1, r2 = rng.random(2)
+            sqrt_r1 = np.sqrt(r1)
+            u = 1.0 - sqrt_r1
+            v = r2 * sqrt_r1
+            w = 1.0 - u - v
+            sampled.append(u * vertices[0] + v * vertices[1] + w * vertices[2])
+
+        if not sampled:
+            return np.empty((0, 3), dtype=float)
+        return np.asarray(sampled, dtype=float)
+
+    # Sample points inside volume using bounded rejection sampling.
+    def _sample_volume_points(self, src_mesh, n_points: int):
+        # Initialize random generator and output container.
+        rng = np.random.default_rng()
+
+        surface_mesh = src_mesh.extract_surface().triangulate().clean()
+        xmin, xmax, ymin, ymax, zmin, zmax = surface_mesh.bounds
+        inside_points = np.empty((0, 3), dtype=float)
+
+        attempts = 0
+        max_attempts = 30
+        while inside_points.shape[0] < n_points and attempts < max_attempts:
+            missing = n_points - inside_points.shape[0]
+            batch = max(missing * 4, 1000)
+
+            candidates = np.column_stack(
+                (
+                    rng.uniform(xmin, xmax, batch),
+                    rng.uniform(ymin, ymax, batch),
+                    rng.uniform(zmin, zmax, batch),
+                )
+            )
+
+            selected = pv.PolyData(candidates).select_enclosed_points(surface_mesh, check_surface=True)
+            mask = selected["SelectedPoints"].astype(bool)
+            if np.any(mask):
+                inside_points = np.vstack((inside_points, candidates[mask]))
+            attempts += 1
+
+        return inside_points[:n_points]

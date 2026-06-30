@@ -52,7 +52,7 @@ AEDT_PROCESS_ID = get_process_id()
 IS_STUDENT = is_student()
 
 # Extension batch arguments
-EXTENSION_DEFAULT_ARGUMENTS = {"choice": "", "points": 1000, "output_file": "", "in_volume": True}
+EXTENSION_DEFAULT_ARGUMENTS = {"choice": "", "points": 1000, "output_file": "", "in_volume": False}
 EXTENSION_TITLE = "Point cloud generator"
 EXTENSION_NB_COLUMN = 3
 
@@ -232,7 +232,7 @@ class PointsCloudExtension(ExtensionProjectCommon):
             input_frame, variable=self._widgets["in_volume_entry"], style="PyAEDT.TCheckbutton"
         )
         self.in_volume_checkbox.grid(row=3, column=1, pady=10, padx=5)
-        self._widgets["in_volume_entry"].set(1)
+        self._widgets["in_volume_entry"].set(0)
 
         @requires_graphical_dependency("pyvista")
         def preview() -> None:
