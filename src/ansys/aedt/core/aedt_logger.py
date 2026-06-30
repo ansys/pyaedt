@@ -44,7 +44,9 @@ class Msg:
 
 
 class MessageList:
-    """Collects and returns messages from the AEDT message manager for a specified project name and design name.
+    """Collection of messages extracted from AEDT.
+
+    Collects and returns messages from the AEDT message manager for a specified project name and design name.
 
     Parameters
     ----------
