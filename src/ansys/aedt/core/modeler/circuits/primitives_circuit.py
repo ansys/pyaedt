@@ -45,7 +45,7 @@ from ansys.aedt.core.modeler.circuits.object_3d_circuit import Wire
 
 class CircuitComponents(PyAedtBase):
     """
-    CircutComponents class.
+    Circuit components class.
 
     Manages all circuit components for Nexxim and Twin Builder.
 
@@ -53,14 +53,14 @@ class CircuitComponents(PyAedtBase):
     --------
     >>> from ansys.aedt.core import Circuit
     >>> aedtapp = Circuit()
-    >>> prim = aedtapp.modeler.schematic
+    >>> c = aedtapp.modeler.schematic.create_capacitor()
+    >>> schematic_object = aedtapp.modeler.schematic
 
     """
 
     @pyaedt_function_handler()
-    def __getitem__(self, partname) -> CircuitComponent:
-        """
-        Retrieve a part.
+    def __getitem__(self, partname: int | str) -> CircuitComponent:
+        """Retrieve a part.
 
         Parameters
         ----------
@@ -71,6 +71,16 @@ class CircuitComponents(PyAedtBase):
         -------
         :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`
             Part object details.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> aedtapp = Circuit()
+        >>> c = aedtapp.modeler.schematic.create_capacitor()
+        >>> schematic_object = aedtapp.modeler.schematic
+        >>> capacitor1 = aedtapp.modeler.schematic[c.name]
+        >>> capacitor2 = aedtapp.modeler.schematic[c.schematic_id]
+
         """
         if isinstance(partname, int):
             return self.components[partname]
@@ -95,7 +105,7 @@ class CircuitComponents(PyAedtBase):
         self.limits_mils = 20000
 
     @pyaedt_function_handler()
-    def get_wire_by_name(self, name: str) -> Wire:
+    def get_wire_by_name(self, name: str) -> Wire | None:
         """
         Wire class by name.
 

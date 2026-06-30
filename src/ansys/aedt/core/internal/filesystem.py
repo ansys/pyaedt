@@ -60,18 +60,11 @@ def search_files(dirname: str, pattern: str = "*") -> list:
 
 def my_location() -> Path:
     """Return my location."""
-    """
-
-    """
     return Path(__file__).parent.resolve(strict=False)
 
 
 class Scratch(PyAedtBase):
     """Provide scratch."""
-
-    """
-
-    """
 
     @property
     def path(self) -> str:

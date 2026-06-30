@@ -72,10 +72,6 @@ EXTENSION_NB_COLUMN = 3
 class ExportExampleData:
     """Store export example data."""
 
-    """
-
-    """
-
     picture_path: Path
     """Path to picture."""
     toml_file_path: Path

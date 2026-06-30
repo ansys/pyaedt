@@ -393,7 +393,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             self._widgets["advanced_tab"],
             text="Apply and Validate",
             width=40,
-            command=lambda: self._apply_validate(),
+            command=lambda: self._apply_validate(),  # noqa
             style="PyAEDT.TButton",
         )
         self._widgets["apply_validate_button"].grid(row=4, column=0, padx=15, pady=10, columnspan=2)
@@ -437,7 +437,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             self._widgets["advanced_tab"],
             text="Start",
             width=40,
-            command=lambda: self._start_extraction(),
+            command=lambda: self._start_extraction(),  # noqa
             style="PyAEDT.TButton",
         )
         self._widgets["start_button"].grid(row=6, column=0, padx=15, pady=10, columnspan=2)
@@ -467,7 +467,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             self._widgets["extraction_tab"],
             text="Validate",
             width=40,
-            command=lambda: self._validate(),
+            command=lambda: self._validate(),  # noqa
             style="PyAEDT.TButton",
         )
         self._widgets["validate_button"].grid(row=1, column=0, padx=15, pady=10, columnspan=2)
@@ -510,7 +510,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             self._widgets["extraction_tab"],
             text="Start",
             width=40,
-            command=lambda: self._get_coefficients(),
+            command=lambda: self._get_coefficients(),  # noqa
             style="PyAEDT.TButton",
         )
         self._widgets["start_button_extraction"].grid(row=4, column=0, padx=15, pady=10, columnspan=2)
