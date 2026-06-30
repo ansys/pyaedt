@@ -45,8 +45,7 @@ class ScatteringMethods(PyAedtBase):
 
     @property
     def get_all_sparameter_list(self, excitation_names: list | None = None) -> list:
-        """
-        List of all S parameters for a list of excitations.
+        """List of all S parameters for a list of excitations.
 
         Parameters
         ----------
@@ -87,8 +86,7 @@ class ScatteringMethods(PyAedtBase):
         math_formula: str = "",
         nets: list | None = None,
     ) -> list:
-        """
-        Get a list of all return losses for a list of excitations.
+        """Get a list of all return losses for a list of excitations.
 
         Parameters
         ----------
@@ -146,8 +144,7 @@ class ScatteringMethods(PyAedtBase):
         math_formula: str = "",
         nets: list | None = None,
     ) -> list[str]:
-        """
-        Get a list of all insertion losses from two lists of excitations (driver and receiver).
+        """Get a list of all insertion losses from two lists of excitations (driver and receiver).
 
         Parameters
         ----------
@@ -248,8 +245,7 @@ class ScatteringMethods(PyAedtBase):
         math_formula: str = "",
         nets: list | None = None,
     ) -> list[str]:
-        """
-        Get a list of all the near end XTalks from a list of excitations (driver and receiver).
+        """Get a list of all the near end XTalks from a list of excitations (driver and receiver).
 
         Parameters
         ----------
@@ -306,8 +302,7 @@ class ScatteringMethods(PyAedtBase):
         math_formula: str = "",
         nets: list | None = None,
     ) -> list[str]:
-        """
-        Geta list of all the far end XTalks from two lists of excitations (driver and receiver).
+        """Get a list of all the far end XTalks from two lists of excitations (driver and receiver).
 
         Parameters
         ----------
@@ -361,8 +356,7 @@ class ScatteringMethods(PyAedtBase):
     def get_touchstone_data(
         self, setup: str | None = None, sweep: str | None = None, variations: dict | None = None
     ) -> list:
-        """
-        Return a Touchstone data plot.
+        """Return a Touchstone data plot.
 
         Parameters
         ----------
@@ -421,8 +415,7 @@ class ScatteringMethods(PyAedtBase):
         impedance: float | None = None,
         gamma_impedance_comments: bool = False,
     ) -> str | bool:
-        """
-        Export a Touchstone file.
+        """Export a Touchstone file.
 
         Parameters
         ----------
