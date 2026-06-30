@@ -50,9 +50,22 @@ class EmitSceneNode(EmitNode):
         return self._add_child_node("Group")
 
     @min_aedt_version("2025.2")
-    def import_cad(self, file_name: str) -> EmitNode:
-        """Add an existing CAD file"""
-        return self._import(file_name, "CAD")
+    def import_cad(self, file_name: str, create_antennas: bool = False) -> EmitNode:
+        """Add an existing CAD file
+
+        Parameters
+        ----------
+        file_name : str
+            Full path to the file to import.
+        create_antennas : bool
+            Whether to automatically create antennas for any mounting points
+            defined in the CAD file (only applicable to gltf/glb files).
+
+        Returns
+        ------
+        node : EmitNode
+            The node."""
+        return self._import(file_name, "CAD", create_antennas=create_antennas)
 
     @min_aedt_version("2025.2")
     def add_antenna(self) -> EmitNode:

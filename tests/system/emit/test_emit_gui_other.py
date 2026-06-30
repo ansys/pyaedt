@@ -39,10 +39,12 @@ from __future__ import annotations
 import os
 import sys
 import tempfile
+import shutil
 
 import pytest
 
 from tests.conftest import DESKTOP_VERSION
+from tests import TESTS_EMIT_PATH
 
 if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1") or (
     (3, 10) <= sys.version_info[0:2] <= (3, 12) and DESKTOP_VERSION > "2024.2"
@@ -74,6 +76,7 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1") o
     from ansys.aedt.core.emit_core.nodes.generated import WalfischCouplingNode
     from ansys.aedt.core.emit_core.results.revision import Revision
 
+TEST_SUBFOLDER = TESTS_EMIT_PATH / "example_models/TEMIT"
 
 @pytest.fixture
 def emit_app(add_app):
@@ -569,3 +572,23 @@ class TestEmitGuiOther:
         warn = sampling.warnings.lower()
         assert "No channels are enabled" in warn or "range" in warn
 
+    def test_import_cad_create_antennas(self, emit_app, file_tmp_root):
+        """Test CAD import with and without automatic antenna creation."""
+        revision = emit_app.results.analyze()
+        scene_node = revision.get_scene_node()
+
+        cad_file = TEST_SUBFOLDER / "Ansys_777_200_ER.glb"
+        copied_path = file_tmp_root / cad_file.name
+        shutil.copy2(cad_file, copied_path)
+
+        ants_before = [c for c in scene_node.children if isinstance(c, AntennaNode)]
+
+        cad_node = scene_node.import_cad(str(copied_path), create_antennas=False)
+        assert cad_node
+        ants_after_no = [c for c in scene_node.children if isinstance(c, AntennaNode)]
+        assert len(ants_after_no) == len(ants_before)
+
+        cad2_node = scene_node.import_cad(str(copied_path), create_antennas=True)
+        assert cad2_node
+        ants_after_yes = [c for c in scene_node.children if isinstance(c, AntennaNode)]
+        assert len(ants_after_yes) > len(ants_after_no)
