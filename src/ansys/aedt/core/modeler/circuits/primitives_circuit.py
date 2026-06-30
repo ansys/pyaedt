@@ -59,12 +59,12 @@ class CircuitComponents(PyAedtBase):
     """
 
     @pyaedt_function_handler()
-    def __getitem__(self, partname: int | str) -> CircuitComponent:
-        """Retrieve a part.
+    def __getitem__(self, part_name: int | str) -> CircuitComponent | None:
+        """Retrieve a component object by name or schematic id.
 
         Parameters
         ----------
-        partname : int or str
+        part_name : int or str
            Part ID or part name.
 
         Returns
@@ -82,15 +82,20 @@ class CircuitComponents(PyAedtBase):
         >>> capacitor2 = aedtapp.modeler.schematic[c.schematic_id]
 
         """
-        if isinstance(partname, int):
-            return self.components[partname]
+        if isinstance(part_name, int):
+            return self.components[part_name]
         for el in self.components:
-            if self.components[el].name == partname or self.components[el].composed_name == partname or el == partname:
+            if (
+                self.components[el].name == part_name
+                or self.components[el].composed_name == part_name
+                or el == part_name
+            ):
                 return self.components[el]
 
         return None
 
     def __init__(self, modeler) -> None:
+        """Circuit components class."""
         self._app = modeler._app
         self._modeler = modeler
         self.logger = self._app.logger
@@ -120,9 +125,10 @@ class CircuitComponents(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
-        >>> obj = CircuitComponents()
-        >>> obj.get_wire_by_name(name="MyObject")
+        >>> from ansys.aedt.core import Circuit
+        >>> aedtapp = Circuit()
+        >>> w1 = aedtapp.modeler.schematic.create_wire([[0, 0], [1, 1]])
+        >>> w2 = aedtapp.modeler.schematic.get_wire_by_name("net_1")
 
         """
         for _, w in self.wires.items():
@@ -131,11 +137,11 @@ class CircuitComponents(PyAedtBase):
             wname = w.name.split(";")[0].split("@")[0]
             if name == wname:
                 return w
+        return None
 
     @property
     def wires(self) -> dict:
-        """
-        All schematic wires in the design.
+        """All schematic wires in the design.
 
         Returns
         -------
@@ -144,9 +150,10 @@ class CircuitComponents(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
-        >>> obj = CircuitComponents()
-        >>> obj.wires
+        >>> from ansys.aedt.core import Circuit
+        >>> aedtapp = Circuit()
+        >>> w1 = aedtapp.modeler.schematic.create_wire([[0, 0], [1, 1]])
+        >>> wires = aedtapp.modeler.schematic.wires
 
         """
         wire_names = {}
@@ -165,8 +172,7 @@ class CircuitComponents(PyAedtBase):
 
     @property
     def o_definition_manager(self):
-        """
-        AEDT oDefinitionManager.
+        """AEDT oDefinitionManager.
 
         References
         ----------
@@ -174,82 +180,77 @@ class CircuitComponents(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
-        >>> obj = CircuitComponents()
-        >>> obj.o_definition_manager
+        >>> from ansys.aedt.core import Circuit
+        >>> aedtapp = Circuit()
+        >>> o = aedtapp.modeler.schematic.o_definition_manager
 
         """
         return self._app.oproject.GetDefinitionManager()
 
     @property
     def ocomponent_manager(self):
-        """
-        Component manager object.
+        """Component manager object.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
-        >>> obj = CircuitComponents()
-        >>> obj.ocomponent_manager
+        >>> from ansys.aedt.core import Circuit
+        >>> aedtapp = Circuit()
+        >>> o = aedtapp.modeler.schematic.ocomponent_manager
 
         """
         return self._app.ocomponent_manager
 
     @property
     def osymbol_manager(self):
-        """
-        Model manager object.
+        """Model manager object.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
-        >>> obj = CircuitComponents()
-        >>> obj.osymbol_manager
+        >>> from ansys.aedt.core import Circuit
+        >>> aedtapp = Circuit()
+        >>> o = aedtapp.modeler.schematic.osymbol_manager
 
         """
         return self._app.osymbol_manager
 
     @property
     def version(self) -> str:
-        """
-        Version.
+        """Version.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
-        >>> obj = CircuitComponents()
-        >>> obj.version
+        >>> from ansys.aedt.core import Circuit
+        >>> aedtapp = Circuit()
+        >>> o = aedtapp.modeler.schematic.version
 
         """
         return self._app._aedt_version
 
     @property
     def model_units(self) -> str:
-        """
-        Model units.
+        """Model units.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
-        >>> obj = CircuitComponents()
-        >>> obj.model_units
+        >>> from ansys.aedt.core import Circuit
+        >>> aedtapp = Circuit()
+        >>> o = aedtapp.modeler.schematic.model_units
 
         """
         return self._app.units.length
 
     @property
     def schematic_units(self) -> str:
-        """
-        Schematic units.
+        """Schematic units.
 
         Options are ``"mm"``, ``"mil"``, ``"cm"`` and all other metric and imperial units.
         The default is ``"meter"``.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
-        >>> obj = CircuitComponents()
-        >>> obj.schematic_units
+        >>> from ansys.aedt.core import Circuit
+        >>> aedtapp = Circuit()
+        >>> o = aedtapp.modeler.schematic.model_units
 
         """
         return self._modeler.schematic_units
@@ -265,23 +266,22 @@ class CircuitComponents(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
-        >>> obj = CircuitComponents()
-        >>> obj.design_type
+        >>> from ansys.aedt.core import Circuit
+        >>> aedtapp = Circuit()
+        >>> o = aedtapp.modeler.schematic.design_type
 
         """
         return self._app.design_type
 
     @property
     def nets(self) -> list:
-        """
-        List of all schematic nets.
+        """List of all schematic nets.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
-        >>> obj = CircuitComponents()
-        >>> obj.nets
+        >>> from ansys.aedt.core import Circuit
+        >>> aedtapp = Circuit()
+        >>> n = aedtapp.modeler.schematic.nets
 
         """
         nets_comp = self.oeditor.GetAllNets()
@@ -293,11 +293,17 @@ class CircuitComponents(PyAedtBase):
         return nets
 
     @pyaedt_function_handler()
-    def _convert_point_to_meter(self, point):
-        """
-        Convert numbers automatically to mils.
+    def _convert_point_to_meter(self, point: list) -> tuple:
+        """Convert numbers automatically to meters.
 
         It is rounded to the nearest 100 mil which is minimum schematic snap unit.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> aedtapp = Circuit()
+        >>> x, y = aedtapp.modeler.schematic._convert_point_to_meter([1, 2])
+
         """
         xpos = point[0]
         ypos = point[1]
@@ -330,12 +336,31 @@ class CircuitComponents(PyAedtBase):
         return xpos.value, ypos.value
 
     @pyaedt_function_handler()
-    def _convert_point_to_units(self, point):
-        """Numbers are automatically converted and rounded to 100mil."""
+    def _convert_point_to_units(self, point: list) -> list:
+        """Convert numbers automatically to AEDT units.
+
+        Numbers are automatically converted and rounded to 100mil.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> aedtapp = Circuit()
+        >>> x, y = aedtapp.modeler.schematic._convert_point_to_units([1, 2])
+
+        """
         return [i / AEDT_UNITS["Length"][self.schematic_units] for i in self._convert_point_to_meter(point)]
 
     @pyaedt_function_handler()
     def _get_location(self, location=None, update_current_location: bool = True):
+        """Get current location.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> aedtapp = Circuit()
+        >>> x, y = aedtapp.modeler.schematic._get_location()
+
+        """
         locale.setlocale(locale.LC_ALL, "en_US.UTF-8")
         if not location:
             xpos = self.current_position[0]
@@ -355,8 +380,7 @@ class CircuitComponents(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_unique_id(self) -> int:
-        """
-        Create an unique ID.
+        """Create an unique ID.
 
         Returns
         -------
@@ -365,9 +389,9 @@ class CircuitComponents(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
-        >>> obj = CircuitComponents()
-        >>> obj.create_unique_id()
+        >>> from ansys.aedt.core import Circuit
+        >>> aedtapp = Circuit()
+        >>> x, y = aedtapp.modeler.schematic.create_unique_id()
 
         """
         element_ids = []
@@ -384,8 +408,7 @@ class CircuitComponents(PyAedtBase):
 
     @pyaedt_function_handler()
     def add_pin_iports(self, name: str, id_num: int) -> bool:
-        """
-        Add ports on pins.
+        """Add ports on pins.
 
         Parameters
         ----------
@@ -405,9 +428,10 @@ class CircuitComponents(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
-        >>> obj = CircuitComponents()
-        >>> obj.add_pin_iports(name="MyObject", id_num=1)
+        >>> from ansys.aedt.core import Circuit
+        >>> aedtapp = Circuit()
+        >>> mycap = aedt_app.modeler.schematic.create_capacitor(value=1e-12)
+        >>> aedt_app.modeler.schematic.add_pin_iports(mycap.name, mycap.id)
 
         """
         comp_id = "CompInst@" + name + ";" + str(id_num) + ";395"
@@ -418,8 +442,7 @@ class CircuitComponents(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_interface_port(self, name: str, location: list = None, angle: int = 0, page: int = 1) -> Excitations:
-        """
-        Create an interface port.
+        """Create an interface port.
 
         Parameters
         ----------
@@ -443,9 +466,9 @@ class CircuitComponents(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
-        >>> obj = CircuitComponents()
-        >>> obj.create_interface_port(name="MyObject")
+        >>> from ansys.aedt.core import Circuit
+        >>> aedtapp = Circuit()
+        >>> p = aedtapp.modeler.schematic.create_interface_port("my_port")
 
         """
         if location is None:
@@ -472,8 +495,7 @@ class CircuitComponents(PyAedtBase):
     def create_page_port(
         self, name: str, location: list = None, angle: int = 0, label_position: str = "Auto", page: int = 1
     ) -> CircuitComponent:
-        """
-        Create a page port.
+        """Create a page port.
 
         Parameters
         ----------
@@ -501,9 +523,9 @@ class CircuitComponents(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
-        >>> obj = CircuitComponents()
-        >>> obj.create_page_port(name="MyObject")
+        >>> from ansys.aedt.core import Circuit
+        >>> aedtapp = Circuit()
+        >>> p = aedtapp.modeler.schematic.create_page_port("my_port")
 
         """
         location = [] if location is None else location
@@ -558,9 +580,8 @@ class CircuitComponents(PyAedtBase):
         return self.components[comp_id]
 
     @pyaedt_function_handler()
-    def create_gnd(self, location: list = None, angle: int = 0, page: int = 1) -> CircuitComponent:
-        """
-        Create a ground.
+    def create_gnd(self, location: list = None, angle: int = 0, page: int = 1) -> CircuitComponent | None:
+        """Create a ground.
 
         Parameters
         ----------
@@ -582,9 +603,9 @@ class CircuitComponents(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
-        >>> obj = CircuitComponents()
-        >>> obj.create_gnd(location=["Box1"], angle=45)
+        >>> from ansys.aedt.core import Circuit
+        >>> aedtapp = Circuit()
+        >>> p = aedtapp.modeler.schematic.create_gnd()
 
         """
         if location is None:
@@ -608,8 +629,7 @@ class CircuitComponents(PyAedtBase):
     def create_model_from_touchstone(
         self, input_file: str | Path, model_name: str = None, show_bitmap: bool = True, image_path: str = None
     ) -> str | bool:
-        """
-        Create a model from a Touchstone file.
+        """Create a model from a touchstone file.
 
         Parameters
         ----------
@@ -635,9 +655,9 @@ class CircuitComponents(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
-        >>> obj = CircuitComponents()
-        >>> obj.create_model_from_touchstone(input_file="C:/Temp/network.s2p")
+        >>> from ansys.aedt.core import Circuit
+        >>> aedtapp = Circuit()
+        >>> new_model = aedtapp.modeler.schematic.create_model_from_nexxim_state_space("my_file.s4p")
 
         """
         if not model_name:
@@ -897,8 +917,7 @@ class CircuitComponents(PyAedtBase):
     def create_model_from_nexxim_state_space(
         self, input_file: str, num_terminal: int, model_name: str = None, port_names: list = None
     ) -> str | bool:
-        r"""
-        Create a model from a Touchstone file.
+        """Create a model from a Touchstone file.
 
         Parameters
         ----------
@@ -926,9 +945,10 @@ class CircuitComponents(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
-        >>> obj = CircuitComponents()
-        >>> obj.create_model_from_nexxim_state_space(input_file=r"C:\Temp\example.txt", num_terminal=1)
+        >>> from ansys.aedt.core import Circuit
+        >>> aedtapp = Circuit()
+        >>> schematic = aedtapp.modeler.schematic
+        >>> new_model = schematic.create_model_from_nexxim_state_space(input_file="example.txt", num_terminal=1)
 
         """
         if not model_name:
@@ -1152,8 +1172,7 @@ class CircuitComponents(PyAedtBase):
         page: int = 1,
         image_path: str = None,
     ) -> CircuitComponent:
-        """
-        Create a component from a Touchstone model.
+        """Create a component from a touchstone model.
 
         Parameters
         ----------
@@ -1188,9 +1207,9 @@ class CircuitComponents(PyAedtBase):
         >>> from ansys.aedt.core import Circuit
         >>> from pathlib import Path
         >>> cir = Circuit()
-        >>> comps = cir.modeler.components
-        >>> s_parameter_path = Path("your_path") / "s_param_file_name.s4p"
-        >>> circuit_comp = comps.create_touchstone_component(s_parameter_path, location=[0.0, 0.0], show_bitmap=False)
+        >>> sch = cir.modeler.schematic
+        >>> s_parameter_path = str(Path("your_path") / "s_param_file_name.s4p")
+        >>> circuit_comp = sch.create_touchstone_component(s_parameter_path, location=[0.0, 0.0], show_bitmap=False)
 
         """
         if not Path(model_name):
@@ -1229,8 +1248,7 @@ class CircuitComponents(PyAedtBase):
         port_names: list[str] = None,
         page: int = 1,
     ) -> CircuitComponent:
-        """
-        Create a component from a Touchstone model.
+        """Create a component from a touchstone model.
 
         Parameters
         ----------
@@ -1261,9 +1279,11 @@ class CircuitComponents(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
-        >>> obj = CircuitComponents()
-        >>> obj.create_nexxim_state_space_component(model_name=1, num_terminal=1)
+        >>> from ansys.aedt.core import Circuit
+        >>> aedtapp = Circuit()
+        >>> sch = aedtapp.modeler.schematic
+        >>> s_parameter_path = str(Path("your_path") / "s_param_file_name.s4p")
+        >>> model = sch.create_nexxim_state_space_component(s_parameter_path, 4)
 
         """
         if not Path(model_name):
@@ -1292,8 +1312,7 @@ class CircuitComponents(PyAedtBase):
         global_netlist_list: list = None,
         page: int = 1,
     ) -> CircuitComponent:
-        """
-        Create a component from a library.
+        """Create a component from a library.
 
         Parameters
         ----------
@@ -1331,7 +1350,6 @@ class CircuitComponents(PyAedtBase):
         >>> aedtapp = TwinBuilder()
         >>> cmp = aedtapp.modeler.schematic.create_component(component_library="", component_name="ExcitationComponent")
         >>> cmp.set_property("ShowPin", True)
-        >>> aedtapp.desktop_class.close_desktop()
 
         """
         # id = self.create_unique_id()
@@ -1357,8 +1375,7 @@ class CircuitComponents(PyAedtBase):
 
     @pyaedt_function_handler()
     def disable_data_netlist(self, assignment: str) -> bool:
-        """
-        Disable the Nexxim global net list.
+        """Disable the Nexxim global net list.
 
         Parameters
         ----------
@@ -1377,9 +1394,10 @@ class CircuitComponents(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
-        >>> obj = CircuitComponents()
-        >>> obj.disable_data_netlist(assignment="Box1")
+        >>> from ansys.aedt.core import Circuit
+        >>> aedtapp = Circuit()
+        >>> sch = aedtapp.modeler.schematic
+        >>> sch.disable_data_netlist(assignment="Box1")
 
         """
         name = assignment
@@ -1399,8 +1417,7 @@ class CircuitComponents(PyAedtBase):
 
     @pyaedt_function_handler()
     def enable_global_netlist(self, assignment: str, global_netlist_list: list = None) -> bool:
-        """
-        Enable Nexxim global net list.
+        """Enable Nexxim global net list.
 
         Parameters
         ----------
@@ -1421,9 +1438,10 @@ class CircuitComponents(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
-        >>> obj = CircuitComponents()
-        >>> obj.enable_global_netlist(assignment="Box1")
+        >>> from ansys.aedt.core import Circuit
+        >>> aedtapp = Circuit()
+        >>> sch = aedtapp.modeler.schematic
+        >>> sch.enable_global_netlist(assignment="Box1")
 
         """
         if global_netlist_list is None:
@@ -1447,8 +1465,7 @@ class CircuitComponents(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_symbol(self, name: str, pins: list) -> bool:
-        """
-        Create a symbol.
+        """Create a symbol.
 
         Parameters
         ----------
@@ -1468,9 +1485,10 @@ class CircuitComponents(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
-        >>> obj = CircuitComponents()
-        >>> obj.create_symbol(name="MyObject", pins=["Box1"])
+        >>> from ansys.aedt.core import Circuit
+        >>> aedtapp = Circuit()
+        >>> sch = aedtapp.modeler.schematic
+        >>> sch.create_symbol("my_symbol", [1, 2])
 
         """
         numpins = len(pins)
@@ -1534,8 +1552,7 @@ class CircuitComponents(PyAedtBase):
 
     @pyaedt_function_handler()
     def enable_use_instance_name(self, component_library: str = "", component_name: str = "RES_") -> bool:
-        """
-        Enable the use of the instance name.
+        """Enable the use of the instance name.
 
         Parameters
         ----------
@@ -1556,9 +1573,10 @@ class CircuitComponents(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
-        >>> obj = CircuitComponents()
-        >>> obj.enable_use_instance_name(component_library=1, component_name=1)
+        >>> from ansys.aedt.core import Circuit
+        >>> aedtapp = Circuit()
+        >>> sch = aedtapp.modeler.schematic
+        >>> sch.enable_use_instance_name()
 
         """
         if component_library:
@@ -1588,8 +1606,7 @@ class CircuitComponents(PyAedtBase):
 
     @pyaedt_function_handler()
     def refresh_all_ids(self) -> int:
-        """
-        Refresh all IDs and return the number of components.
+        """Refresh all IDs and return the number of components.
 
         References
         ----------
@@ -1597,9 +1614,10 @@ class CircuitComponents(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
-        >>> obj = CircuitComponents()
-        >>> obj.refresh_all_ids()
+        >>> from ansys.aedt.core import Circuit
+        >>> aedtapp = Circuit()
+        >>> sch = aedtapp.modeler.schematic
+        >>> sch.refresh_all_ids()
 
         """
         obj = self.oeditor.GetAllElements()
@@ -1630,8 +1648,7 @@ class CircuitComponents(PyAedtBase):
 
     @pyaedt_function_handler()
     def add_id_to_component(self, component_id: int, name: str = None) -> int:
-        """
-        Add an ID to a component.
+        """Add an ID to a component.
 
         Parameters
         ----------
@@ -1647,9 +1664,10 @@ class CircuitComponents(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
-        >>> obj = CircuitComponents()
-        >>> obj.add_id_to_component(component_id=1)
+        >>> from ansys.aedt.core import Circuit
+        >>> aedtapp = Circuit()
+        >>> sch = aedtapp.modeler.schematic
+        >>> sch.add_id_to_component(1)
 
         """
         if name:
@@ -1697,8 +1715,7 @@ class CircuitComponents(PyAedtBase):
 
     @pyaedt_function_handler()
     def get_obj_id(self, assignment: str) -> int | None:
-        """
-        Retrieve the ID of an object.
+        """Retrieve the ID of an object.
 
         Parameters
         ----------
@@ -1712,9 +1729,11 @@ class CircuitComponents(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
-        >>> obj = CircuitComponents()
-        >>> obj.get_obj_id(assignment="Box1")
+        >>> from ansys.aedt.core import Circuit
+        >>> aedtapp = Circuit()
+        >>> sch = aedtapp.modeler.schematic
+        >>> c = sch.create_capacitor(value=1e-12)
+        >>> c_id = sch.get_obj_id(c.name)
 
         """
         for el in self.components:
@@ -1724,8 +1743,7 @@ class CircuitComponents(PyAedtBase):
 
     @pyaedt_function_handler()
     def get_pins(self, assignment: int | str) -> list:
-        """
-        Retrieve one or more pins.
+        """Retrieve one or more pins.
 
         Parameters
         ----------
@@ -1743,9 +1761,11 @@ class CircuitComponents(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
-        >>> obj = CircuitComponents()
-        >>> obj.get_pins(assignment="Box1")
+        >>> from ansys.aedt.core import Circuit
+        >>> aedtapp = Circuit()
+        >>> sch = aedtapp.modeler.schematic
+        >>> c = sch.create_capacitor(value=1e-12)
+        >>> c_pins = sch.get_pins(c.name)
 
         """
         if isinstance(assignment, CircuitComponent):
@@ -1760,8 +1780,7 @@ class CircuitComponents(PyAedtBase):
 
     @pyaedt_function_handler()
     def get_pin_location(self, assignment: int, pin: str) -> list:
-        """
-        Retrieve the location of a pin.
+        """Retrieve the location of a pin.
 
         Parameters
         ----------
@@ -1781,9 +1800,12 @@ class CircuitComponents(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
-        >>> obj = CircuitComponents()
-        >>> obj.get_pin_location(assignment="Box1", pin=1)
+        >>> from ansys.aedt.core import Circuit
+        >>> aedtapp = Circuit()
+        >>> sch = aedtapp.modeler.schematic
+        >>> components = aedtapp.modeler.schematic.components
+        >>> c = components[1]
+        >>> c_location = sch.get_pin_location(c.id, c.name)
 
         """
         if isinstance(assignment, str):
@@ -1795,9 +1817,8 @@ class CircuitComponents(PyAedtBase):
         return self._convert_point_to_units([x, y])
 
     @pyaedt_function_handler()
-    def create_line(self, points: list, color: int = 0, width: int = 0, page: int = 1):
-        """
-        Draw a graphical line.
+    def create_line(self, points: list, color: int = 0, width: int = 0, page: int = 1) -> None:
+        """Draw a graphical line.
 
         Parameters
         ----------
@@ -1817,9 +1838,10 @@ class CircuitComponents(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
-        >>> obj = CircuitComponents()
-        >>> obj.create_line(points=[0, 0, 0])
+        >>> from ansys.aedt.core import Circuit
+        >>> aedtapp = Circuit()
+        >>> sch = aedtapp.modeler.schematic
+        >>> sch.create_line([[0,0], [1, 1])
 
         """
         points = [str(tuple(self._convert_point_to_meter(i))) for i in points]
@@ -1831,8 +1853,7 @@ class CircuitComponents(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_wire(self, points: list, name: str = "", page: int = 1) -> Wire | bool:
-        """
-        Create a wire.
+        """Create a wire.
 
         Parameters
         ----------
@@ -1855,9 +1876,10 @@ class CircuitComponents(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
-        >>> obj = CircuitComponents()
-        >>> obj.create_wire(points=[0, 0, 0])
+        >>> from ansys.aedt.core import Circuit
+        >>> aedtapp = Circuit()
+        >>> sch = aedtapp.modeler.schematic
+        >>> sch.create_wire([[0,0], [1, 1])
 
         """
         points = [str(tuple(self._convert_point_to_meter(i))) for i in points]
@@ -1881,17 +1903,21 @@ class CircuitComponents(PyAedtBase):
 
 
 class ComponentInfo(PyAedtBase):
-    """
-    Manages Circuit Catalog info.
+    """Manages Circuit Catalog info.
 
     Examples
     --------
-    >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import ComponentInfo
-    >>> obj = ComponentInfo()
+    >>> from ansys.aedt.core import Circuit
+    >>> aedtapp = Circuit()
+    >>> sch = aedtapp.modeler.schematic
+    >>> catalog = sch.components_catalog
+    >>> components = catalog.components
+    >>> component_info = components["BJTs:Level01_NPN"]
 
     """
 
     def __init__(self, name: str, component_manager, file_name: str, component_library) -> None:
+        """ComponentInfo class."""
         self._component_manager = component_manager
         self.file_name = file_name
         self.name = name
@@ -1900,14 +1926,17 @@ class ComponentInfo(PyAedtBase):
 
     @property
     def props(self) -> dict:
-        """
-        Retrieve the component properties.
+        """Retrieve the component properties.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import ComponentInfo
-        >>> obj = ComponentInfo()
-        >>> obj.props
+        >>> from ansys.aedt.core import Circuit
+        >>> aedtapp = Circuit()
+        >>> sch = aedtapp.modeler.schematic
+        >>> catalog = sch.components_catalog
+        >>> components = catalog.components
+        >>> component_info = components["BJTs:Level01_NPN"]
+        >>> component_info.props
 
         """
         if not self._props:
@@ -1923,8 +1952,7 @@ class ComponentInfo(PyAedtBase):
         use_instance_id_netlist: bool = False,
         page: int = 1,
     ) -> CircuitComponent:
-        """
-        Create a component from a library.
+        """Create a component from a library.
 
         Parameters
         ----------
@@ -1951,9 +1979,13 @@ class ComponentInfo(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import ComponentInfo
-        >>> obj = ComponentInfo()
-        >>> obj.place(assignment="Box1", location=["Box1"])
+        >>> from ansys.aedt.core import Circuit
+        >>> aedtapp = Circuit()
+        >>> sch = aedtapp.modeler.schematic
+        >>> catalog = sch.components_catalog
+        >>> components = catalog.components
+        >>> component_info = components["BJTs:Level01_NPN"]
+        >>> component_info.place()
 
         """
         if location is None:
@@ -1970,24 +2002,24 @@ class ComponentInfo(PyAedtBase):
 
 
 class ComponentCatalog(PyAedtBase):
-    """
-    Indexes Circuit Sys Catalog.
+    """Indexes Circuit Sys Catalog.
 
     Examples
     --------
-    >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import ComponentCatalog
-    >>> obj = ComponentCatalog()
+    >>> from ansys.aedt.core import Circuit
+    >>> aedtapp = Circuit()
+    >>> sch = aedtapp.modeler.schematic
+    >>> catalog = sch.components_catalog
 
     """
 
     @pyaedt_function_handler()
-    def __getitem__(self, compname):
-        """
-        Get component from name.
+    def __getitem__(self, name: str) -> ComponentInfo | list[ComponentInfo] | None:
+        """Get component from name.
 
         Parameters
         ----------
-        compname : str
+        name : str
             ID or name of the object.
 
         Returns
@@ -1995,13 +2027,21 @@ class ComponentCatalog(PyAedtBase):
         :class:`ansys.aedt.core.modeler.cad.primitivesCircuit.ComponentInfo`
             Circuit Component Info.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> aedtapp = Circuit()
+        >>> sch = aedtapp.modeler.schematic
+        >>> catalog = sch.components_catalog
+        >>> catalog["BJTs:Level01_NPN"]
+
         """
         if self._component_manager.design_type == "EMIT":
-            items = self.find_components("*" + compname + "*")
+            items = self.find_components("*" + name + "*")
             # Return a list of components
             return [self.components[item] for item in items] if items else []
         else:
-            items = self.find_components("*" + compname)
+            items = self.find_components("*" + name)
             # Return a single component or None
             if items and len(items) == 1:
                 return self.components[items[0]]
@@ -2013,6 +2053,7 @@ class ComponentCatalog(PyAedtBase):
                 return None
 
     def __init__(self, component_manager) -> None:
+        """Initialize the Circuit Component Manager."""
         self._component_manager = component_manager
         self._app = self._component_manager._app
         self.components = {}
@@ -2044,8 +2085,7 @@ class ComponentCatalog(PyAedtBase):
 
     @pyaedt_function_handler()
     def find_components(self, filter_str: str = "*") -> list:
-        """
-        Find all components with given filter wildcards.
+        """Find all components with given filter wildcards.
 
         Parameters
         ----------
@@ -2059,9 +2099,11 @@ class ComponentCatalog(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.circuits.primitives_circuit import ComponentCatalog
-        >>> obj = ComponentCatalog()
-        >>> obj.find_components(filter_str=1)
+        >>> from ansys.aedt.core import Circuit
+        >>> aedtapp = Circuit()
+        >>> sch = aedtapp.modeler.schematic
+        >>> catalog = sch.components_catalog
+        >>> catalog.find_components()
 
         """
         c = []
