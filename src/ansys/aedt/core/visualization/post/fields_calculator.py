@@ -118,7 +118,7 @@ class FieldsCalculator(PyAedtBase):
 
         Returns a
         :class:`~ansys.aedt.core.visualization.post.field_calculator_expressions.FieldExpressions`
-        factory that produces strongly-typed expression objects. Chaining their
+        factory that produces strongly typed expression objects. Chaining their
         ``.method()`` calls and the ``dot`` / ``cross`` helpers builds the
         calculator operation stack with type safety, instead of assembling the
         operation strings by hand.

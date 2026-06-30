@@ -261,7 +261,7 @@ def test_well_formed_chains_resolve_to_single_result(fx):
     E, H = fx.vector("E"), fx.vector("H")
     assert dot(E, H).stack_depth() == 1
     # power flow: integral of Re(E x H*).n over a surface
-    flux = dot(cross(E, H.conjugate()).real(), fx.normal()).integrate(Surface("S"))
+    flux = dot(cross(E, H.conjugate()).real(), fx.normal_vector()).integrate(Surface("S"))
     assert flux.stack_depth() == 1
     assert flux.verify() is flux
     assert len(flux) == 10
@@ -495,10 +495,10 @@ def test_constant_consuming_ops_stay_balanced(fx):
 # ---------------------------------------------------------------------------
 def test_tangent_normal_are_push_factories(fx):
     # Tangent / Normal push the geometry unit vector; dot a field with them
-    assert isinstance(fx.tangent(), VectorReal)
-    assert fx.tangent().operations == ["Operation('Tangent')"]
-    assert fx.normal().operations == ["Operation('Normal')"]
-    flux = dot(fx.vector("E").real(), fx.normal()).integrate(Surface("S"))
+    assert isinstance(fx.tangent_vector(), VectorReal)
+    assert fx.tangent_vector().operations == ["Operation('Tangent')"]
+    assert fx.normal_vector().operations == ["Operation('Normal')"]
+    flux = dot(fx.vector("E").real(), fx.normal_vector()).integrate(Surface("S"))
     assert flux.stack_depth() == 1  # Normal pushes, so the chain stays balanced
     assert isinstance(flux, ScalarReal)
 
@@ -535,8 +535,8 @@ def _catalog_builders(fx):
     A = "assignment"
 
     def voltage_line(field):
-        re = dot(field.real(), fx.tangent()).integrate(Line(A)).as_complex_real()
-        im = dot(field.imaginary(), fx.tangent()).integrate(Line(A)).as_complex_imag()
+        re = dot(field.real(), fx.tangent_vector()).integrate(Line(A)).as_complex_real()
+        im = dot(field.imaginary(), fx.tangent_vector()).integrate(Line(A)).as_complex_imag()
         return re + im
 
     def wave_impedance(x, y, z):
@@ -569,19 +569,19 @@ def _catalog_builders(fx):
 
     return {
         "voltage_line": lambda: voltage_line(fx.vector("E")),
-        "voltage_line_time": lambda: dot(fx.vector("E_t"), fx.tangent()).integrate(Line(A)),
+        "voltage_line_time": lambda: dot(fx.vector("E_t"), fx.tangent_vector()).integrate(Line(A)),
         "voltage_line_maxwell": lambda: voltage_line(fx.named_expression("<Ex,Ey,Ez>", is_vector=True)),
         "voltage_drop": lambda: fx.scalar("dcvPhi") + fx.function("vrm"),
         "voltage_drop_2025": lambda: fx.scalar("dcvPhi").real() + fx.function("vrm"),
         "current_line": lambda: voltage_line(fx.named_expression("<Hx,Hy,Hz>", is_vector=True)),
-        "current_line_time": lambda: dot(fx.vector("H_t"), fx.tangent()).integrate(Line(A)),
-        "power_flow": lambda: dot(fx.named_expression("Poynting", is_vector=True).real(), fx.normal()).integrate(
+        "current_line_time": lambda: dot(fx.vector("H_t"), fx.tangent_vector()).integrate(Line(A)),
+        "power_flow": lambda: dot(fx.named_expression("Poynting", is_vector=True).real(), fx.normal_vector()).integrate(
             Surface(A)
         ),
-        "electric_charge": lambda: dot(fx.named_expression("<Dx,Dy,Dz>", is_vector=True), fx.normal()).integrate(
+        "electric_charge": lambda: dot(fx.named_expression("<Dx,Dy,Dz>", is_vector=True), fx.normal_vector()).integrate(
             Surface(A)
         ),
-        "e_line": lambda: dot(fx.named_expression("<Ex,Ey,0>", is_vector=True), fx.tangent()),
+        "e_line": lambda: dot(fx.named_expression("<Ex,Ey,0>", is_vector=True), fx.tangent_vector()),
         "wave_impedance_x": lambda: wave_impedance(1, 0, 0),
         "wave_impedance_y": lambda: wave_impedance(0, 1, 0),
         "wave_impedance_z": lambda: wave_impedance(0, 0, 1),

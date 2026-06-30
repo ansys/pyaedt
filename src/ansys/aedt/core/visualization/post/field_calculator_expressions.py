@@ -394,7 +394,7 @@ class FieldExpression(PyAedtBase):
 
         Parameters
         ----------
-        op : str
+        operation : str
             Calculator operation name.
         vector : bool
             Whether the result is vector-valued.
@@ -3654,7 +3654,7 @@ class FieldExpressions(PyAedtBase):
         """
         return self._seed(False, False, [f"Scalar_Function(FuncValue='{name}')"])
 
-    def tangent(self) -> VectorReal:
+    def tangent_vector(self) -> VectorReal:
         """
         Push the geometry unit tangent vector.
 
@@ -3670,13 +3670,13 @@ class FieldExpressions(PyAedtBase):
 
         >>> from ansys.aedt.core.visualization.post.field_calculator_expressions import FieldExpressions
         >>> fx = FieldExpressions(calculator=None)
-        >>> fx.tangent().operations
+        >>> fx.tangent_vector().operations
         ["Operation('Tangent')"]
 
         """
         return self._seed(True, False, ["Operation('Tangent')"])
 
-    def normal(self) -> VectorReal:
+    def normal_vector(self) -> VectorReal:
         """
         Push the geometry unit normal vector.
 
@@ -3692,7 +3692,7 @@ class FieldExpressions(PyAedtBase):
 
         >>> from ansys.aedt.core.visualization.post.field_calculator_expressions import FieldExpressions
         >>> fx = FieldExpressions(calculator=None)
-        >>> fx.normal().operations
+        >>> fx.normal_vector().operations
         ["Operation('Normal')"]
 
         """

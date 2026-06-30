@@ -190,7 +190,7 @@ It provides methods to interact with AEDT Fields Calculator by adding, loading a
 
    FieldsCalculator
 
-The ``field_calculator_expressions`` module provides a strongly-typed, fluent builder
+The ``field_calculator_expressions`` module provides a strongly typed, fluent builder
 that wraps the Fields Calculator operation stack. Obtain it through
 ``hfss.post.fields_calculator.expressions``. Chaining the typed expression methods and
 the ``dot`` / ``cross`` helpers builds the calculator operations with type safety,

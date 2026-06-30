@@ -4,7 +4,7 @@ Field expression builder
 The AEDT Fields Calculator is driven by a stack of string operations in reverse
 Polish notation. Assembling those strings by hand is error-prone and hides which
 operations are valid for a given quantity. The **field expression builder** wraps
-that operation grammar with four strongly-typed expression classes
+that operation grammar with four strongly typed expression classes
 (``ScalarReal``, ``ScalarComplex``, ``VectorReal``, ``VectorComplex``) so that an
 editor or type checker guides you, and a readable Python chain replaces the raw
 operation list.
@@ -253,7 +253,7 @@ A built expression is materialized through the underlying calculator:
 
 Use ``verify()`` to check a chain locally before sending it to AEDT (a malformed
 or unbalanced stack raises a clear error), and ``checkpoint()`` to keep very long
-or heavily-reused expressions short by registering an intermediate named
+or heavily reused expressions short by registering an intermediate named
 expression and continuing from a single-token reference to it.
 
 Coverage
