@@ -6095,8 +6095,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return True
 
     def import_discovery_model(self, input_file: str) -> bool:
-        r"""
-        Import a Discovery file.
+        """Import a Discovery file.
 
         Parameters
         ----------
