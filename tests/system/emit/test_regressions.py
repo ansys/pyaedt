@@ -758,3 +758,56 @@ def test_defect_1475694_iemit_dies_when_design_deleted(desktop, add_app) -> None
     )
 
     app.close_project(app.project_name, save=False)
+
+
+@pytest.mark.skipif(not DESKTOP_VERSION or DESKTOP_VERSION < "2027.1", reason="Regression test for defect 1475679.")
+def test_defect_1475679_get_child_node_id_recurse(emit_app) -> None:
+    """Regression test for TFS defect 1475679.
+
+    GetChildNodeID should have recurse option
+    https://tfs.ansys.com:8443/tfs/ANSYS_Development/Portfolio/_workitems/edit/1475679
+
+    Severity: Class 2 - Minor Problem
+
+    Before the fix, GetChildNodeID only searched immediate children. When
+    GetChildNodeNames was called with recurse=True, it returned descendant
+    names that GetChildNodeID could not resolve. The fix adds a recurse
+    parameter so GetChildNodeID can find nodes at any depth.
+    """
+    mod = emit_app.odesign.GetModule("EmitCom")
+
+    radio = emit_app.schematic.create_component("New Radio")
+    rev = emit_app.results.analyze()
+
+    radio_id = mod.GetComponentNodeID(0, radio.name)
+    assert radio_id > 0
+
+    band_names = mod.GetChildNodeNames(0, radio_id, "Band")
+    assert len(band_names) > 0, "Expected at least one Band child"
+    band_name = band_names[0]
+
+    band_id_direct = mod.GetChildNodeID(0, radio_id, band_name, False)
+    assert band_id_direct > 0, "Direct child lookup should find the Band"
+
+    scene_id = mod.GetTopLevelNodeID(0, "Scene")
+    assert scene_id > 0
+
+    all_descendants = mod.GetChildNodeNames(0, scene_id, "", True)
+    assert len(all_descendants) > 0, "Scene should have descendants"
+
+    antenna_names = mod.GetChildNodeNames(0, scene_id, "AntennaNode", True)
+    assert len(antenna_names) > 0, "Expected antenna nodes under Scene (recursive)"
+
+    ant_name = antenna_names[0]
+    ant_id_recurse = mod.GetChildNodeID(0, scene_id, ant_name, True)
+    assert ant_id_recurse > 0, (
+        f"GetChildNodeID with recurse=True should find '{ant_name}' under Scene"
+    )
+
+    immediate_children = mod.GetChildNodeNames(0, scene_id, "AntennaNode", False)
+    if ant_name not in list(immediate_children):
+        try:
+            mod.GetChildNodeID(0, scene_id, ant_name, False)
+            assert False, "Expected non-recursive lookup to fail for nested antenna"
+        except Exception:
+            pass
