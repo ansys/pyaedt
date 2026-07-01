@@ -2703,8 +2703,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         convert_fields_in_db: bool = False,
         log_multiplier: float = 10.0,
     ) -> bool:
-        r"""
-        Plot the current model 3D scene with overlapping animation coming from a file list and save the gif.
+        """Plot the current model 3D scene with overlapping animation coming from a file list and save the gif.
 
         Parameters
         ----------
