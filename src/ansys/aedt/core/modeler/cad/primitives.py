@@ -5701,7 +5701,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         --------
         >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
         >>> obj = GeometryModeler()
-        >>> obj.export_3d_model(file_path=r"C:\Temp\example.txt", file_name=r"C:\Temp\example.txt")
+        >>> obj.export_3d_model(file_path="example.txt", file_name="example.txt")
 
         """
         if not file_name:
@@ -5779,7 +5779,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         merge_angle: float = 0.02,
         input_file_unit: str = "Auto",
     ) -> bool:
-       """Import a CAD model.
+        """Import a CAD model.
 
         Parameters
         ----------
@@ -5832,7 +5832,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         --------
         >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
         >>> obj = GeometryModeler()
-        >>> obj.import_3d_cad(input_file=r"C:\Temp\example.txt")
+        >>> obj.import_3d_cad(input_file="example.txt")
 
         """
         input_file = Path(input_file)
@@ -5888,7 +5888,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         --------
         >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
         >>> obj = GeometryModeler()
-        >>> obj.import_spaceclaim_document(input_file=r"C:\Temp\example.txt")
+        >>> obj.import_spaceclaim_document(input_file="example.txt")
 
         """
         env_var = os.environ
@@ -6115,7 +6115,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         --------
         >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
         >>> obj = GeometryModeler()
-        >>> obj.import_discovery_model(input_file=r"C:\Temp\example.txt")
+        >>> obj.import_discovery_model(input_file="example.txt")
 
         """
         if is_linux:  # pragma: no cover
@@ -6193,7 +6193,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         --------
         >>> from ansys.aedt.core import Icepak
         >>> aedtapp = Icepak()
-        >>> aedtapp.modeler.import_primitives_from_file(r"C:\\temp\\primitives.json")
+        >>> aedtapp.modeler.import_primitives_from_file("primitives.json")
 
         """
         primitives_builder = PrimitivesBuilder(self._app, input_file, primitives)
@@ -6274,7 +6274,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         --------
         >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
         >>> obj = GeometryModeler()
-        >>> obj.load_scdm_in_hfss(input_file=r"C:\Temp\example.txt")
+        >>> obj.load_scdm_in_hfss(input_file="example.txt")
 
         """
         self.import_spaceclaim_document(input_file)
