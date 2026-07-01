@@ -2043,7 +2043,7 @@ class PostProcessorCommon(PyAedtBase):
             Dictionary containing report settings.
         solution_name : str, optional
             Setup name to use.
-        name: str, optional
+        name : str, optional
             Report name. The default is ``None``, in which case the
             default name is used.
         matplotlib : bool, optional

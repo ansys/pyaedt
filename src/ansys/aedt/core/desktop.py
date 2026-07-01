@@ -1087,6 +1087,15 @@ class Desktop(PyAedtBase):
 
     @pyaedt_function_handler()
     def check_starting_mode(self) -> None:
+        """Check the starting mode.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> d = Desktop(non_graphical=True)
+        >>> d.check_starting_mode()
+
+        """
         # start the AEDT opening decision tree
         # starting_mode can be one of these: "grpc", "com", "console_in", "console_out"
 
@@ -2519,7 +2528,7 @@ class Desktop(PyAedtBase):
         wait_for_license : bool, optional
              Whether to wait for a license to become available. The default is ``True``.
         setting_file : str, optional
-            Job settings file. The file has the "*.areg" format.
+            Job settings file. The file has the ``.areg`` format.
             The default value is ``None`` in which case a default template will be used.
 
         Returns
@@ -2537,15 +2546,13 @@ class Desktop(PyAedtBase):
         >>> desktop = Desktop(version="2024.2")
         Use template
         >>> job_id1 = desktop.submit_job(
-        ...     project_file="C:/projects/my_project.aedt",
+        ...     project_file="my_project.aedt",
         ...     cluster_name="my_cluster",
         ...     nodes=2,
         ...     cores=64,
         ... )
-        >>> job_id2 = desktop.submit_job(
-        ...     project_file="C:/projects/my_project2.aedt", setting_file="my_settings_file.areg"
-        ... )
-        >>> desktop.launch_job_monitor("C:/projects/my_project.aedt")
+        >>> job_id2 = desktop.submit_job(project_file="my_project2.aedt", setting_file="my_settings_file.areg")
+        >>> desktop.launch_job_monitor("my_project.aedt")
 
         """
         # Save and close project if opened before submitting

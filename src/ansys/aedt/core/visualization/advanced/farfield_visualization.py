@@ -1318,7 +1318,7 @@ class FfdSolutionData(PyAedtBase):
         scale_farfield: list = None,
         show_beam_slider: bool = True,
         show_geometry: bool = True,
-    ) -> "bool | Plotter":
+    ) -> bool | Plotter:
         """Create a 3D polar plot of the geometry with a radiation pattern in PyVista.
 
         Parameters

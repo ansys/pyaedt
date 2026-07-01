@@ -2786,7 +2786,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         setup: str = None,
         intrinsics: dict[str, str] | None = None,
     ) -> tuple[tuple[float, float, float], float]:
-        """Calculates the position and value of the field maximum or minimum.
+        """Calculate the position and value of the field maximum or minimum.
 
         Parameters
         ----------
