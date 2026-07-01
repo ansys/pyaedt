@@ -1588,6 +1588,7 @@ def test_touchstone_component_multi(aedt_app, test_tmp_dir):
     )
     assert comp.parameters["FileName"] == "SElement[SElement_id]"
 
+
 def test_state_space_component_multi(aedt_app, test_tmp_dir):
     sss_1_o = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "channel_4.sss"
     sss_1 = shutil.copy2(sss_1_o, test_tmp_dir / sss_1_o.name)

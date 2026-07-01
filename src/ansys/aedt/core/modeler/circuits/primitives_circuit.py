@@ -1633,18 +1633,18 @@ class CircuitComponents(PyAedtBase):
 
     @pyaedt_function_handler()
     def __create_nport_multi(
-            self,
-            component_type:int,
-            component_name:str,
-            num_ports:str,
-            array_name:str,
-            array_id_name:str,
-            files:list,
-            location:tuple|list|None=None,
-            page:int=1,
-            angle:float=0.0,
-            flip:bool=False
-    )->CircuitComponent:
+        self,
+        component_type: int,
+        component_name: str,
+        num_ports: str,
+        array_name: str,
+        array_id_name: str,
+        files: list,
+        location: tuple | list | None = None,
+        page: int = 1,
+        angle: float = 0.0,
+        flip: bool = False,
+    ) -> CircuitComponent:
         """Create an N-port multi-component by importing a Sand W component file.
 
         Parameters
@@ -1791,17 +1791,17 @@ class CircuitComponents(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_touchstone_component_multi(
-            self,
-            component_name:str,
-            num_ports:str,
-            array_name:str,
-            array_id_name:str,
-            files:list,
-            location:tuple|list|None=None,
-            page:int=1,
-            angle:float=0.0,
-            flip:bool=False
-    )->CircuitComponent:
+        self,
+        component_name: str,
+        num_ports: str,
+        array_name: str,
+        array_id_name: str,
+        files: list,
+        location: tuple | list | None = None,
+        page: int = 1,
+        angle: float = 0.0,
+        flip: bool = False,
+    ) -> CircuitComponent:
         """Create an N-port multi-component by importing touchstone files.
 
         Parameters
@@ -1841,21 +1841,21 @@ class CircuitComponents(PyAedtBase):
             location=location,
             page=page,
             angle=angle,
-            flip=flip
+            flip=flip,
         )
 
     @pyaedt_function_handler()
     def create_state_space_component_multi(
-            self,
-            component_name: str,
-            num_ports: str,
-            array_name: str,
-            array_id_name: str,
-            files: list,
-            location: tuple | list | None = None,
-            page: int = 1,
-            angle: float = 0.0,
-            flip: bool = False
+        self,
+        component_name: str,
+        num_ports: str,
+        array_name: str,
+        array_id_name: str,
+        files: list,
+        location: tuple | list | None = None,
+        page: int = 1,
+        angle: float = 0.0,
+        flip: bool = False,
     ) -> CircuitComponent:
         """Create an N-port multi-component by importing state space files.
 
@@ -1896,8 +1896,9 @@ class CircuitComponents(PyAedtBase):
             location=location,
             page=page,
             angle=angle,
-            flip=flip
+            flip=flip,
         )
+
 
 class ComponentInfo(PyAedtBase):
     """Manages Circuit Catalog info."""
