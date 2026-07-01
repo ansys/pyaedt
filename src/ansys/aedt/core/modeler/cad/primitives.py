@@ -6252,8 +6252,7 @@ class GeometryModeler(Modeler, PyAedtBase):
 
     @pyaedt_function_handler()
     def load_scdm_in_hfss(self, input_file: str) -> bool:
-        r"""
-        Load a SpaceClaim file in HFSS.
+        """Load a SpaceClaim file in HFSS.
 
         Parameters
         ----------
