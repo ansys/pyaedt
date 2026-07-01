@@ -1813,8 +1813,7 @@ class Design(AedtObjects, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_oo_properties(self, aedt_object: object, object_name: str) -> list[str]:
-        r"""
-        Return the Object Oriented AEDT Object Properties.
+        """Return the Object Oriented AEDT Object Properties.
 
         Parameters
         ----------
