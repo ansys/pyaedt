@@ -77,8 +77,7 @@ def test_push_excitation_3dlayout_extension_default(
 def test_push_excitation_3dlayout_extension_generate_button(
     mock_hfss3dl_app_with_excitations,
 ) -> None:
-    """
-    Test the generate button in the Push Excitation 3D Layout
+   """Test the generate button in the Push Excitation 3D Layout
     extension.
     """
     extension = PushExcitation3DLayoutExtension(withdraw=True)

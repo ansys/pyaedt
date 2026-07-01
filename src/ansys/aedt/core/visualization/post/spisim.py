@@ -165,8 +165,7 @@ class AdvancedReport(ReportBase):
 
     @classmethod
     def from_spisim_cfg(cls, file_path: str | Path) -> "AdvancedReport":  # pragma: no cover
-        r"""
-        Load SPIsim configuration file.
+        """Load SPIsim configuration file.
 
         Examples
         --------
@@ -238,8 +237,7 @@ class AdvancedReport(ReportBase):
         return cls(**config)
 
     def dump_spisim_cfg(self, file_path: str | Path) -> str:
-        r"""
-        Create a SPIsim configuration file.
+        """Create a SPIsim configuration file.
 
         Examples
         --------
@@ -439,8 +437,7 @@ class SpiSim(PyAedtBase):
         reflections_length: float = None,
         modulation_type: str = None,
     ) -> bool | float:
-        r"""
-        Compute effective return loss (ERL) using Ansys SPISIM from S-parameter file.
+        """Compute effective return loss (ERL) using Ansys SPISIM from S-parameter file.
 
         .. warning::
 
@@ -584,8 +581,7 @@ class SpiSim(PyAedtBase):
         next_s4p: str = "",
         out_folder: str = "",
     ) -> list | float:
-        r"""
-        Compute Channel Operating Margin. Only COM ver3.4 is supported.
+        """Compute Channel Operating Margin. Only COM ver3.4 is supported.
 
         .. warning::
 
@@ -684,8 +680,7 @@ class SpiSim(PyAedtBase):
 
     @pyaedt_function_handler()
     def export_com_configure_file(self, file_path: str, standard: int = 1) -> bool:
-        r"""
-        Generate a configuration file for SpiSim.
+        """Generate a configuration file for SpiSim.
 
         Parameters
         ----------
@@ -846,8 +841,7 @@ class SpiSim(PyAedtBase):
 
 
 def detect_encoding(file_path: str, expected_pattern: str = "", re_flags: int = 0) -> str:
-    r"""
-    Check encoding of a file.
+    """Check encoding of a file.
 
     Examples
     --------

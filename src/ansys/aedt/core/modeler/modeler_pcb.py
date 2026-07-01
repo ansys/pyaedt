@@ -571,8 +571,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
 
     @pyaedt_function_handler()
     def import_cadence_brd(self, input_file: str, output_dir: str = None, name: str | None = None) -> bool:
-        r"""
-        Import a cadence board.
+        """Import a cadence board.
 
         Parameters
         ----------

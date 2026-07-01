@@ -48,8 +48,7 @@ PORT_SERVER_MANAGER = _find_free_port()
 
 
 def find_client_and_aedt_ports():
-    """
-    Find distinct free ports for the client and AEDT.
+    """Find distinct free ports for the client and AEDT.
 
     These ports should not conflict with the server manager port.
     """

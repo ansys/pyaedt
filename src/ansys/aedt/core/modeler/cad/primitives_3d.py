@@ -1715,8 +1715,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             password = None,
             auxiliary_parameters: bool = False,
     ) -> "UserDefinedComponent | bool":
-        r"""
-        Insert a new 3D component.
+        """Insert a new 3D component.
 
         Parameters
         ----------
@@ -1924,8 +1923,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             file_path: str | Path,
             name: str="",
     ) -> str:
-        r"""
-        Add a layout submodel definition to the design.
+        """Add a layout submodel definition to the design.
 
         Parameters
         ----------
@@ -2363,8 +2361,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             coordinate_system = None,
             name: str = None,
     ) -> "Person" | bool:
-        r"""
-        Add a Walking Person Multipart from 3D Components.
+       """Add a Walking Person Multipart from 3D Components.
 
         It requires a json file in the folder containing person
         infos. An example json file follows:
@@ -2478,8 +2475,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             coordinate_system: str = None,
             name: str = None,
     ) -> "Vehicle" | bool:
-        r"""
-        Add a Moving Vehicle Multipart from 3D Components.
+        """Add a Moving Vehicle Multipart from 3D Components.
 
         It requires a json file in the folder containing vehicle
         infos. An example json file follows:
@@ -2689,8 +2685,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             coordinate_system: str=None,
             name: str = None
     ) -> "Environment" | bool:
-        r"""
-        Add an Environment Multipart Component from JSON file.
+        """Add an Environment Multipart Component from JSON file.
 
          .. code-block:: json
 

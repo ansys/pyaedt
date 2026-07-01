@@ -1275,8 +1275,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @property
     def internal_plot_name(self) -> str:
-        r"""
-        Internal AEDT plot name with escaped backslashes and forward slashes.
+        """Internal AEDT plot name with escaped backslashes and forward slashes.
 
         Some AEDT APIs (such as ``oReportSetup.GetChildObject`` and a few
         report-related operations) require special characters in the plot

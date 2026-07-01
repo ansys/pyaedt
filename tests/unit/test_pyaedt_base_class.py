@@ -151,8 +151,7 @@ def test_public_dir_with_deprecated_method() -> None:
             """Method that is not deprecated."""
 
         def position_deprecated(self) -> None:
-            """
-            Method that is deprecated.
+            """Method that is deprecated.
 
             .. deprecated:: X.Y.Z
                 This method is deprecated. Use something else instead.

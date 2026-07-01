@@ -99,8 +99,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         native_components: list = None,
         create_folder: bool = True,
     ) -> bool:
-        r"""
-        Create a 3D component file.
+        """Create a 3D component file.
 
         Parameters
         ----------
