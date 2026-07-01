@@ -38,9 +38,8 @@ from ansys.aedt.core.emit_core.emit_function_validator import FunctionValidator
 import ansys.aedt.core.generic.constants as consts
 from ansys.aedt.core.internal.checks import min_aedt_version
 
-# Type variable to be used in methods that might receive a subclass of EmitNode
 T = TypeVar("T", bound="EmitNode")
-"""T."""
+"""Type variable to be used in methods that might receive a subclass of EmitNode."""
 
 
 class EmitNode:
