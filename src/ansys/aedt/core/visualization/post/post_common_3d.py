@@ -1638,8 +1638,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         export_as_multiple_objects: bool = False,
         air_objects: bool = False,
     ) -> list[str]:
-        r"""
-        Export the model.
+        """Export the model.
 
         Parameters
         ----------
