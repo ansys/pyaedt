@@ -1389,7 +1389,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             parameters: list,
             library: str = "syslib",
             name: str = None,
-    ) -> "UserDefinedComponent | bool":
+    ) -> UserDefinedComponent | bool:
         """Create a user-defined model.
 
         Parameters
@@ -1714,7 +1714,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             name: str = None,
             password = None,
             auxiliary_parameters: bool = False,
-    ) -> "UserDefinedComponent | bool":
+    ) -> UserDefinedComponent | bool:
         """Insert a new 3D component.
 
         Parameters
@@ -1750,7 +1750,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         --------
         >>> from ansys.aedt.core.modeler.cad.primitives_3d import Primitives3D
         >>> obj = Primitives3D()
-        >>> obj.insert_3d_component(input_file=r"C:\Temp\example.txt")
+        >>> obj.insert_3d_component(input_file="example.txt")
 
         """
         if isinstance(input_file, Path):
@@ -1941,7 +1941,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         --------
         >>> from ansys.aedt.core.modeler.cad.primitives_3d import Primitives3D
         >>> obj = Primitives3D()
-        >>> obj.add_layout_component_definition(file_path=r"C:\Temp\example.txt")
+        >>> obj.add_layout_component_definition(file_path="example.txt")
 
         """
         name = Path(file_path).stem if not name else name
@@ -2097,7 +2097,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             parameter_mapping: bool = False,
             layout_coordinate_systems: list = None,
             reference_coordinate_system: str = "Global"
-    ) -> "UserDefinedComponent | bool":
+    ) -> UserDefinedComponent | bool:
         """Insert a new layout component.
 
         Parameters
@@ -2360,8 +2360,8 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             roll: int = 0,
             coordinate_system = None,
             name: str = None,
-    ) -> "Person" | bool:
-       """Add a Walking Person Multipart from 3D Components.
+    ) -> Person | bool:
+        """Add a Walking Person Multipart from 3D Components.
 
         It requires a json file in the folder containing person
         infos. An example json file follows:
@@ -2446,7 +2446,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         --------
         >>> from ansys.aedt.core.modeler.cad.primitives_3d import Primitives3D
         >>> obj = Primitives3D()
-        >>> obj.add_person(input_dir=r"C:\Temp\example.txt")
+        >>> obj.add_person(input_dir="example.txt")
 
         """
         self._initialize_multipart()
@@ -2474,7 +2474,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             roll: int=0,
             coordinate_system: str = None,
             name: str = None,
-    ) -> "Vehicle" | bool:
+    ) -> Vehicle | bool:
         """Add a Moving Vehicle Multipart from 3D Components.
 
         It requires a json file in the folder containing vehicle
@@ -2526,8 +2526,10 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             Pitch Rotation from Global Coordinate System in deg.
         roll : float, optional
             Roll Rotation from Global Coordinate System in deg.
-        coordinate_system : str
+        coordinate_system : str, optional
             Relative CS Name of the actor. ``None`` for Global CS.
+        name : str, optional
+            Vehicle name.
 
         Returns
         -------
@@ -2541,7 +2543,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         --------
         >>> from ansys.aedt.core.modeler.cad.primitives_3d import Primitives3D
         >>> obj = Primitives3D()
-        >>> obj.add_vehicle(input_dir=r"C:\Temp\example.txt")
+        >>> obj.add_vehicle(input_dir="example.txt")
 
         """
         self._initialize_multipart()
@@ -2684,7 +2686,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             roll: float=0.0,
             coordinate_system: str=None,
             name: str = None
-    ) -> "Environment" | bool:
+    ) -> Environment | bool:
         """Add an Environment Multipart Component from JSON file.
 
          .. code-block:: json
@@ -2736,7 +2738,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         --------
         >>> from ansys.aedt.core.modeler.cad.primitives_3d import Primitives3D
         >>> obj = Primitives3D()
-        >>> obj.add_environment(input_dir=r"C:\Temp\example.txt")
+        >>> obj.add_environment(input_dir="example.txt")
 
         """
         self._initialize_multipart()
