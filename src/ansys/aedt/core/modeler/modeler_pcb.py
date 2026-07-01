@@ -637,7 +637,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
 
     @pyaedt_function_handler()
     def import_ipc2581(self, input_file: str, output_dir: str = None, name: str | None = None) -> bool:
-        """Import an IPC file.
+        r"""Import an IPC file.
 
         Parameters
         ----------
