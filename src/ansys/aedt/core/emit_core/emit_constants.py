@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""Enums from the ``EmitApiPython`` module are defined as ``None`` until The module initializes.
+"""Enums from the ``EmitApiPython`` module are defined as ``None`` until the module initializes.
 
 This allows IDE auto-complete to find them and ``emit_constants`` to import before the
 ``EmitApiPython`` module has loaded (typically when a ``ansys.aedt.core.Emit()`` object is created).
