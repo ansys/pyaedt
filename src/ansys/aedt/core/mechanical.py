@@ -536,7 +536,7 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
 
     @pyaedt_function_handler()
     def assign_thermal_condition_uniform(
-        self, assignment: list, uniform_temp: str, name: str | None = ""
+        self, assignment: list, temperature: str, name: str | None = ""
     ) -> BoundaryObject:
         """Assign a Mechanical excitation as thermal condition, with uniform temperature.
 
@@ -547,20 +547,28 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
         ----------
         assignment : list
             List of faces to apply to the fixed support.
+        temperature : str
+            Temperature of the thermal condition with units.
         name : str, optional
             Name of the boundary. The default is ``""``, in which case
             the default name is used.
-        uniform_temp: str
-            Temperature of the thermal condition with units
 
         Returns
         -------
-        aedt.modules.boundary.Boundary
+        :class:`aedt.modules.boundary.Boundary object`
             Boundary object.
 
         References
         ----------
         >>> oModule.AssignThermalCondition
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Mechanical
+        >>> from ansys.aedt.core.generic.constants import SolutionsMechanical
+        >>> obj = Mechanical(solution_type=SolutionsMechanical.Structural)
+        >>> obj.assign_thermal_condition_uniform(assignment=["Bracket"], temperature="100C")
+
         """
         if self.solution_type not in (SolutionsMechanical.Structural, SolutionsMechanical.Modal):
             raise AEDTRuntimeError("This method works only in a Mechanical Structural analysis.")
@@ -572,7 +580,7 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
             props["Objects"] = assignment
 
         props["Uniform"] = True
-        props["ThermalCondition"] = uniform_temp
+        props["ThermalCondition"] = temperature
 
         if not name:
             name = generate_unique_name("ThermalCondition_Uniform")
