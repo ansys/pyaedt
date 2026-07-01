@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml-stylesheet type="text/xsl" href="ami_std_parameters.xsl"?>
+<File isChecked="true">  <Name >IBIS_AMI_EXAMPLE</Name>
+  <Parameter_group >
+    <Name >Reserved_Parameters</Name>
+      <Parameter  Type="Value" Data_type="String"  isReserved="true">
+        <Name >AMI_Version</Name>
+        <Parameter_info >
+          <Name >Usage</Name>
+          <Parameter_info >Info</Parameter_info>
+        </Parameter_info>
+        <Parameter_info >
+          <Name >Type</Name>
+          <Parameter_info >String</Parameter_info>
+        </Parameter_info>
+        <Parameter_info >
+          <Name >Format</Name>
+            <Parameter_info >Value</Parameter_info>
+            <Value_item >5.1</Value_item>
+        </Parameter_info>
+        <Parameter_info >
+          <Name >Description</Name>
+          <Parameter_info >Valid for AMI_Version 5.1 and above</Parameter_info>
+        </Parameter_info>
+      </Parameter>
+      <Parameter Default="4"  Data_type="Int"  isReserved="true">
+        <Name >Ignore_Bits</Name>
+        <Parameter_info >
+          <Name >Usage</Name>
+          <Parameter_info >Info</Parameter_info>
+        </Parameter_info>
+        <Parameter_info >
+          <Name >Type</Name>
+          <Parameter_info >Integer</Parameter_info>
+        </Parameter_info>
+        <Parameter_info >
+          <Name >Default</Name>
+          <Parameter_info >4</Parameter_info>
+        </Parameter_info>
+        <Parameter_info >
+          <Name >Description</Name>
+          <Parameter_info >Ignore 4 bits to fill up tapped delay line</Parameter_info>
+        </Parameter_info>
+      </Parameter>
+      <Parameter Default="10"  Data_type="Int"  isReserved="true">
+        <Name >Max_Init_Aggressors</Name>
+        <Parameter_info >
+          <Name >Usage</Name>
+          <Parameter_info >Info</Parameter_info>
+        </Parameter_info>
+        <Parameter_info >
+          <Name >Type</Name>
+          <Parameter_info >Integer</Parameter_info>
+        </Parameter_info>
+        <Parameter_info >
+          <Name >Default</Name>
+          <Parameter_info >10</Parameter_info>
+        </Parameter_info>
+        <Parameter_info >
+          <Name >Description</Name>
+          <Parameter_info >Number of aggressors supported by the model</Parameter_info>
+        </Parameter_info>
+      </Parameter>
+      <Parameter Default="True"  Data_type="Bool"  isReserved="true">
+        <Name >Init_Returns_Impulse</Name>
+        <Parameter_info >
+          <Name >Usage</Name>
+          <Parameter_info >Info</Parameter_info>
+        </Parameter_info>
+        <Parameter_info >
+          <Name >Type</Name>
+          <Parameter_info >Boolean</Parameter_info>
+        </Parameter_info>
+        <Parameter_info >
+          <Name >Default</Name>
+          <Parameter_info >True</Parameter_info>
+        </Parameter_info>
+        <Parameter_info >
+          <Name >Description</Name>
+          <Parameter_info >AMI_Init function returns impulse and parameters_out</Parameter_info>
+        </Parameter_info>
+      </Parameter>
+      <Parameter Default="True"  Data_type="Bool"  isReserved="true">
+        <Name >GetWave_Exists</Name>
+        <Parameter_info >
+          <Name >Usage</Name>
+          <Parameter_info >Info</Parameter_info>
+        </Parameter_info>
+        <Parameter_info >
+          <Name >Type</Name>
+          <Parameter_info >Boolean</Parameter_info>
+        </Parameter_info>
+        <Parameter_info >
+          <Name >Default</Name>
+          <Parameter_info >True</Parameter_info>
+        </Parameter_info>
+        <Parameter_info >
+          <Name >Description</Name>
+          <Parameter_info >yes, it exists</Parameter_info>
+        </Parameter_info>
+      </Parameter>
+  </Parameter_group>
+  <Parameter_group >
+    <Name >Model_Specific</Name>
+      <Parameter Default="1"  Data_type="Int" isChecked="true" isChangeable="true" isIn="true">
+        <Name >method</Name>
+        <Parameter_info >
+          <Name >Usage</Name>
+          <Parameter_info >In</Parameter_info>
+        </Parameter_info>
+        <Parameter_info >
+          <Name >Type</Name>
+          <Parameter_info >Integer</Parameter_info>
+        </Parameter_info>
+        <Parameter_info >
+          <Name >Default</Name>
+          <Parameter_info >1</Parameter_info>
+        </Parameter_info>
+      </Parameter>
+      <Parameter Default="1.0"  Data_type="Float" isChecked="true" isChangeable="true" isIn="true">
+        <Name >ffe_weight_1</Name>
+        <Parameter_info >
+          <Name >Usage</Name>
+          <Parameter_info >In</Parameter_info>
+        </Parameter_info>
+        <Parameter_info >
+          <Name >Type</Name>
+          <Parameter_info >Float</Parameter_info>
+        </Parameter_info>
+        <Parameter_info >
+          <Name >Default</Name>
+          <Parameter_info >1.0</Parameter_info>
+        </Parameter_info>
+      </Parameter>
+      <Parameter Default="0.0"  Data_type="Float" isChecked="true" isChangeable="true" isIn="true">
+        <Name >ffe_weight_2</Name>
+        <Parameter_info >
+          <Name >Usage</Name>
+          <Parameter_info >In</Parameter_info>
+        </Parameter_info>
+        <Parameter_info >
+          <Name >Type</Name>
+          <Parameter_info >Float</Parameter_info>
+        </Parameter_info>
+        <Parameter_info >
+          <Name >Default</Name>
+          <Parameter_info >0.0</Parameter_info>
+        </Parameter_info>
+      </Parameter>
+      <Parameter Default="0.0"  Data_type="Float" isChecked="true" isChangeable="true" isIn="true">
+        <Name >ffe_weight_3</Name>
+        <Parameter_info >
+          <Name >Usage</Name>
+          <Parameter_info >In</Parameter_info>
+        </Parameter_info>
+        <Parameter_info >
+          <Name >Type</Name>
+          <Parameter_info >Float</Parameter_info>
+        </Parameter_info>
+        <Parameter_info >
+          <Name >Default</Name>
+          <Parameter_info >0.0</Parameter_info>
+        </Parameter_info>
+      </Parameter>
+  </Parameter_group>
+</File>

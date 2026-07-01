@@ -1,0 +1,16 @@
+genequiv:progress 0:
+genequiv:message Reading input data:
+genequiv:progress 5:
+genequiv:message starting:
+genequiv:progress 95:
+genequiv:message ending:
+genequiv:progress 96:
+genequiv:message Writing circuit model:
+genequiv:message Final fitting error: 0.00398596
+
+genequiv:message Final model order: 900
+
+genequiv:progress 100:
+genequiv:message Successful completion.:
+genequiv:progress 100:
+genequiv:message Exiting with return code 0:

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml-stylesheet type="text/xsl" href="ami_std_log.xsl"?>
+<Log>
+<Event ><Type >Info</Type>
+<Group ></Group>
+<Description >Nexxim version: 2026.1.0 WIN64, build time: Jan 12 2026, 02:25:54
+</Description>
+</Event>
+
+<Event ><Type >Info</Type>
+<Group ></Group>
+<Description >Parameters File :C:/ansysdev/repos/pyaedt/tests/system/general/example_models/T15/ibis_ami_example_tx.ami</Description>
+</Event>
+
+<Event ><Type >Info</Type>
+<Group >PARSE</Group>
+<Description >
+... Reading C:/ansysdev/repos/pyaedt/tests/system/general/example_models/T15/ibis_ami_example_tx.ami
+</Description>
+</Event>
+
+<Event ><Type >Info</Type>
+<Group >PARSE</Group>
+<Description >Parse *.ami: Passed
+</Description>
+</Event>
+
+</Log>
