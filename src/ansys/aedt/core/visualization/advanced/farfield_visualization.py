@@ -1886,7 +1886,7 @@ def export_pyaedt_antenna_metadata(
     power: dict = None,
     touchstone_file: str = None,
 ) -> str:
-    """Obtain PyAEDT metadata JSON file from AEDT metadata XML file or embedded element pattern TXT file.
+    r"""Obtain PyAEDT metadata JSON file from AEDT metadata XML file or embedded element pattern TXT file.
 
     Parameters
     ----------
@@ -2063,7 +2063,7 @@ def export_pyaedt_antenna_metadata(
 
 @pyaedt_function_handler()
 def antenna_metadata_from_xml(input_file: str) -> dict:
-    """Obtain metadata information from metadata XML file.
+    r"""Obtain metadata information from metadata XML file.
 
     Parameters
     ----------

@@ -427,7 +427,7 @@ class VirtualComplianceGenerator(PyAedtBase):
         name: str = "ERL",
         project: str | None = None,
     ) -> None:
-        """Add Com parameters computed by SpiSim into the configuration.
+        r"""Add Com parameters computed by SpiSim into the configuration.
 
         Parameters
         ----------
@@ -485,7 +485,7 @@ class VirtualComplianceGenerator(PyAedtBase):
         name: str,
         project: str | None = None,
     ) -> None:
-        """Add report derived parameters computed by AEDT and python into the configuration.
+        r"""Add report derived parameters computed by AEDT and python into the configuration.
 
         Parameters
         ----------
@@ -548,7 +548,7 @@ class VirtualComplianceGenerator(PyAedtBase):
         name: str,
         project: str | None = None,
     ) -> None:
-        """Add Com parameters computed by SpiSim into the configuration.
+        r"""Add Com parameters computed by SpiSim into the configuration.
 
         Parameters
         ----------
@@ -602,7 +602,7 @@ class VirtualComplianceGenerator(PyAedtBase):
     def add_report_from_folder(
         self, input_folder: str | Path, design_name: str, group_plots: bool = False, project: str = None
     ) -> None:
-        """Add multiple reports from a folder.
+        r"""Add multiple reports from a folder.
 
         Parameters
         ----------
@@ -643,7 +643,7 @@ class VirtualComplianceGenerator(PyAedtBase):
 
     @pyaedt_function_handler()
     def save_configuration(self, output_file: str | Path) -> bool:
-        """Save the configuration to a json file.
+        r"""Save the configuration to a json file.
 
         Parameters
         ----------
@@ -1169,7 +1169,7 @@ class VirtualCompliance(PyAedtBase):
         pass_fail: bool = True,
         pass_fail_criteria=None,
     ) -> None:
-        """Add a new custom aedt report to the compliance.
+        r"""Add a new custom aedt report to the compliance.
 
         Parameters
         ----------
@@ -1998,7 +1998,7 @@ class VirtualCompliance(PyAedtBase):
 
     @pyaedt_function_handler()
     def add_specs_to_report(self, folder: str):
-        """Add specs to the report from a given folder.
+        r"""Add specs to the report from a given folder.
 
         All images in such folder will be added to the report.
 
@@ -2061,7 +2061,7 @@ class VirtualCompliance(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_compliance_report(self, file_name: str = "compliance_test.pdf", close_project: bool = True) -> str:
-        """Create the Virtual Compliance report.
+        r"""Create the Virtual Compliance report.
 
         Parameters
         ----------
@@ -2139,7 +2139,7 @@ class VirtualCompliance(PyAedtBase):
         return self.report_data
 
     def create_pdf(self, file_name: str, close_project: bool = True) -> str:
-        """Create the PDF report after the method ``compute_report_data`` is called.
+        r"""Create the PDF report after the method ``compute_report_data`` is called.
 
         Parameters
         ----------

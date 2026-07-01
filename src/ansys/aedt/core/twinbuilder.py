@@ -162,7 +162,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_schematic_from_netlist(self, input_file: str) -> bool:
-        """Create a circuit schematic from an HSpice net list.
+        r"""Create a circuit schematic from an HSpice net list.
 
         Supported currently are:
 

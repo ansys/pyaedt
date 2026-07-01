@@ -128,7 +128,7 @@ class MaterialWorkbench(PyAedtBase):
         return f"{normalize_string_format(wb_material_name)}{self.mat_name_suffix}"
 
     def import_materials_from_workbench(self, filename: str) -> list[str] | bool:
-        """Import materials from Workbench Engineering Data XML file.
+        r"""Import materials from Workbench Engineering Data XML file.
 
         Parameters
         ----------

@@ -1387,7 +1387,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         show_ruler: bool = True,
         show_region: str = "Default",
     ) -> bool:
-        """Export a field plot and coordinate system to a JPG file.
+        r"""Export a field plot and coordinate system to a JPG file.
 
         Parameters
         ----------
@@ -1637,7 +1637,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         export_as_multiple_objects: bool = False,
         air_objects: bool = False,
     ) -> list[str]:
-        """Export the model.
+        r"""Export the model.
 
         Parameters
         ----------
@@ -2701,7 +2701,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         convert_fields_in_db: bool = False,
         log_multiplier: float = 10.0,
     ) -> bool:
-        """Plot the current model 3D scene with overlapping animation coming from a file list and save the gif.
+        r"""Plot the current model 3D scene with overlapping animation coming from a file list and save the gif.
 
         Parameters
         ----------
