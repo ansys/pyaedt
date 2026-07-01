@@ -151,6 +151,10 @@ jobs:
         with:
           enable-cache: false
           prune-cache: true
+          save-cache: false
+
+      - name: Clean uv cache
+        run: uv cache clean
 
       - name: Create virtual environment
         run: uv venv .venv
@@ -220,6 +224,10 @@ jobs:
         with:
           enable-cache: false
           prune-cache: true
+          save-cache: false
+
+      - name: Clean uv cache
+        run: uv cache clean
 
       - name: Create virtual environment
         run: uv venv .venv
@@ -282,6 +290,10 @@ jobs:
         with:
           enable-cache: false
           prune-cache: true
+          save-cache: false
+
+      - name: Clean uv cache
+        run: uv cache clean
 
       - name: Set up headless display
         uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
@@ -354,6 +366,10 @@ jobs:
         with:
           enable-cache: false
           prune-cache: true
+          save-cache: false
+
+      - name: Clean uv cache
+        run: uv cache clean
 
       - name: Set up headless display
         uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
@@ -419,6 +435,10 @@ jobs:
         with:
           enable-cache: false
           prune-cache: true
+          save-cache: false
+
+      - name: Clean uv cache
+        run: uv cache clean
 
       - name: Set up headless display
         uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
@@ -492,6 +512,10 @@ jobs:
         with:
           enable-cache: false
           prune-cache: true
+          save-cache: false
+
+      - name: Clean uv cache
+        run: uv cache clean
 
       - name: Set up headless display
         uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
@@ -555,6 +579,10 @@ jobs:
         with:
           enable-cache: false
           prune-cache: true
+          save-cache: false
+
+      - name: Clean uv cache
+        run: uv cache clean
 
       - name: Create virtual environment
         run: uv venv .venv
@@ -624,6 +652,10 @@ jobs:
         with:
           enable-cache: false
           prune-cache: true
+          save-cache: false
+
+      - name: Clean uv cache
+        run: uv cache clean
 
       - name: Create virtual environment
         run: uv venv .venv
@@ -686,6 +718,10 @@ jobs:
         with:
           enable-cache: false
           prune-cache: true
+          save-cache: false
+
+      - name: Clean uv cache
+        run: uv cache clean
 
       - name: Create virtual environment
         run: uv venv .venv
@@ -755,6 +791,10 @@ jobs:
         with:
           enable-cache: false
           prune-cache: true
+          save-cache: false
+
+      - name: Clean uv cache
+        run: uv cache clean
 
       - name: Create virtual environment
         run: uv venv .venv
@@ -818,6 +858,10 @@ jobs:
         with:
           enable-cache: false
           prune-cache: true
+          save-cache: false
+
+      - name: Clean uv cache
+        run: uv cache clean
 
       - name: Set up headless display
         uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
@@ -890,6 +934,10 @@ jobs:
         with:
           enable-cache: false
           prune-cache: true
+          save-cache: false
+
+      - name: Clean uv cache
+        run: uv cache clean
 
       - name: Set up headless display
         uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
@@ -954,6 +1002,10 @@ jobs:
         with:
           enable-cache: false
           prune-cache: true
+          save-cache: false
+
+      - name: Clean uv cache
+        run: uv cache clean
 
       - name: Create virtual environment
         run: uv venv .venv
@@ -1021,6 +1073,10 @@ jobs:
         with:
           enable-cache: false
           prune-cache: true
+          save-cache: false
+
+      - name: Clean uv cache
+        run: uv cache clean
 
       - name: Create virtual environment
         run: uv venv .venv

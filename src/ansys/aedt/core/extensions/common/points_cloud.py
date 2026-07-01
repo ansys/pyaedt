@@ -52,7 +52,7 @@ AEDT_PROCESS_ID = get_process_id()
 IS_STUDENT = is_student()
 
 # Extension batch arguments
-EXTENSION_DEFAULT_ARGUMENTS = {"choice": "", "points": 1000, "output_file": ""}
+EXTENSION_DEFAULT_ARGUMENTS = {"choice": "", "points": 1000, "output_file": "", "in_volume": False}
 EXTENSION_TITLE = "Point cloud generator"
 EXTENSION_NB_COLUMN = 3
 
@@ -64,6 +64,7 @@ class PointsCloudExtensionData(ExtensionCommonData):
     choice: str | list[str] = EXTENSION_DEFAULT_ARGUMENTS["choice"]
     points: int = EXTENSION_DEFAULT_ARGUMENTS["points"]
     output_file: str = EXTENSION_DEFAULT_ARGUMENTS["output_file"]
+    in_volume: bool = EXTENSION_DEFAULT_ARGUMENTS["in_volume"]
 
 
 class PointsCloudExtension(ExtensionProjectCommon):
@@ -222,15 +223,28 @@ class PointsCloudExtension(ExtensionProjectCommon):
         )
         output_file_button.grid(row=2, column=2, **DEFAULT_PADDING)
 
+        # In volume checkbox
+        ttk.Label(input_frame, text="Generate in volume:", style="PyAEDT.TLabel").grid(
+            row=3, column=0, pady=10, sticky="w"
+        )
+        self._widgets["in_volume_entry"] = tkinter.IntVar()
+        self.in_volume_checkbox = ttk.Checkbutton(
+            input_frame, variable=self._widgets["in_volume_entry"], style="PyAEDT.TCheckbutton"
+        )
+        self.in_volume_checkbox.grid(row=3, column=1, pady=10, padx=5)
+        self._widgets["in_volume_entry"].set(0)
+
         @requires_graphical_dependency("pyvista")
         def preview() -> None:
             """Generate and visualize the point cloud."""
             import pyvista as pv
 
-            selected_objects, num_points, _ = self.check_and_format_extension_data()
+            selected_objects, num_points, _, in_volume = self.check_and_format_extension_data()
             try:
                 # Generate point cloud
-                point_cloud = generate_point_cloud(self.aedt_application, selected_objects, num_points)
+                point_cloud = generate_point_cloud(
+                    self.aedt_application, selected_objects, num_points, include_volume=in_volume
+                )
 
                 # Visualize the point cloud
                 plotter = pv.Plotter()
@@ -255,12 +269,13 @@ class PointsCloudExtension(ExtensionProjectCommon):
 
         def callback(extension: PointsCloudExtension) -> None:
             """Collect extension data."""
-            selected_objects, num_points, output_file = self.check_and_format_extension_data()
+            selected_objects, num_points, output_file, in_volume = self.check_and_format_extension_data()
 
             extension.data = PointsCloudExtensionData(
                 choice=selected_objects,
                 points=num_points,
                 output_file=output_file,
+                in_volume=in_volume,
             )
             self.root.destroy()
 
@@ -277,7 +292,7 @@ class PointsCloudExtension(ExtensionProjectCommon):
         # Toggle theme button
         self.add_toggle_theme_button(buttons_frame, 0, 2)
 
-    def check_and_format_extension_data(self) -> tuple[list[str], int, str]:
+    def check_and_format_extension_data(self) -> tuple[list[str], int, str, bool]:
         """Perform checks and formatting on extension input data."""
         selected_objects = [self._widgets["objects_list"].get(i) for i in self._widgets["objects_list"].curselection()]
         if not selected_objects or any(
@@ -297,7 +312,9 @@ class PointsCloudExtension(ExtensionProjectCommon):
             self.release_desktop()
             raise AEDTRuntimeError("Path to the specified output file does not exist.")
 
-        return selected_objects, num_points, output_file
+        in_volume = bool(self._widgets["in_volume_entry"].get())
+
+        return selected_objects, num_points, output_file, in_volume
 
 
 def main(data: PointsCloudExtensionData):
@@ -344,10 +361,11 @@ def main(data: PointsCloudExtensionData):
     assignment = data.choice
     points = data.points
     output_file = data.output_file
+    in_volume = data.in_volume
 
     try:
         # Generate point cloud
-        point_cloud = generate_point_cloud(aedtapp, assignment, points, output_file)
+        point_cloud = generate_point_cloud(aedtapp, assignment, points, output_file, in_volume)
     except Exception as e:  # pragma: no cover
         app.release_desktop(False, False)
         raise AEDTRuntimeError(str(e))
@@ -362,9 +380,19 @@ def main(data: PointsCloudExtensionData):
     return str(point_cloud[list(point_cloud.keys())[0]][0])
 
 
-def generate_point_cloud(aedtapp: Desktop, selected_objects: list[str], num_points: int, output_file: str = None):
-    """Generate point cloud from selected objects"""
+def generate_point_cloud(
+    aedtapp: Desktop,
+    selected_objects: list[str],
+    num_points: int,
+    output_file: str | None = None,
+    include_volume: bool = False,
+):
+    """Generate point cloud from selected objects
+
+    Returns surface points and, when possible, additional volume points for closed solids.
+    """
     # Export the mesh (export_model_obj expects a file name with the .obj extension passed as a str)
+
     if not output_file or Path(output_file).is_dir():
         file_name = "_".join(selected_objects) + ".obj"
         export_path = Path(aedtapp.working_directory) if not output_file else Path(output_file)
@@ -381,7 +409,7 @@ def generate_point_cloud(aedtapp: Desktop, selected_objects: list[str], num_poin
     geometry_file = export_model[0][0]  # The str path to the .obj file generated by the export_model_obj() method
     model_plotter = ModelPlotter()
     model_plotter.add_object(geometry_file)
-    point_cloud = model_plotter.point_cloud(points=num_points)  # Generates the .pts file
+    point_cloud = model_plotter.point_cloud(points=num_points, in_volume=include_volume)  # Generates the .pts file
 
     # Delete .mtl and .obj files generated by the export_model_obj() method
     Path.unlink(output_file)
