@@ -46,15 +46,16 @@ Use a context manager when you want deterministic cleanup at the end of a block:
 
 .. code:: python
 
-    import ansys.aedt.core
+    from ansys.aedt.core import Desktop, Hfss, Maxwell3d
 
-    with ansys.aedt.core.Desktop(
+    with Desktop(
         version="2026.1",
         non_graphical=True,
         new_desktop=True,
-    ):
-        hfss = ansys.aedt.core.Hfss()
-        maxwell = ansys.aedt.core.Maxwell3d()
+    ) as d:
+        version = d.aedt_version_id
+        hfss = Hfss()
+        maxwell = Maxwell3d()
         # ...
         # Work with AEDT here.
         # ...
@@ -65,16 +66,17 @@ If needed, you can still override the default behavior explicitly:
 
 .. code:: python
 
-    import ansys.aedt.core
+    from ansys.aedt.core import Desktop, Hfss, Maxwell3d
 
-    with ansys.aedt.core.Desktop(
+    with Desktop(
         version="2026.1",
         non_graphical=True,
         new_desktop=False,
         close_on_exit=False,
-    ):
-        hfss = ansys.aedt.core.Hfss()
-        maxwell = ansys.aedt.core.Maxwell3d()
+    ) as d:
+        version = d.aedt_version_id
+        hfss = Hfss()
+        maxwell = Maxwell3d()
         # Work with an existing AEDT session here.
 
     # The AEDT session remains open here.

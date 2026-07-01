@@ -28,6 +28,9 @@ from pathlib import Path
 import re
 import secrets
 
+from pydantic import BaseModel
+from pydantic import Field
+
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -1627,6 +1630,274 @@ class CircuitComponents(PyAedtBase):
             return w
         except Exception:
             return False
+
+    @pyaedt_function_handler()
+    def __create_nport_multi(
+        self,
+        component_type: int,
+        component_name: str,
+        num_ports: str,
+        array_name: str,
+        array_id_name: str,
+        files: list,
+        location: tuple | list | None = None,
+        page: int = 1,
+        angle: float = 0.0,
+        flip: bool = False,
+    ) -> CircuitComponent:
+        """Create an N-port multi-component by importing a Sand W component file.
+
+        Parameters
+        ----------
+        component_name : str
+            Name of the component to create.
+        num_ports : int
+            Number of ports or transmission lines.
+        array_name : str
+            Name of the array variable.
+        array_id_name : str
+            Name of the array ID variable.
+        files : list
+            List of touchstone file paths to import.
+        location : tuple, optional
+            Tuple of ``(x, y)`` coordinates for component location.
+            If ``None``, default location is used. Default is ``None``.
+        page : int, optional
+            Schematics page number. Default is ``1``.
+        angle : float, optional
+            Rotation angle in degrees. Default is ``0.0``.
+        flip : bool, optional
+            Whether to flip the component. Default is ``False``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
+            Component object.
+        """
+
+        def convert_to_meter(value):
+            """Convert numbers automatically to mils.
+
+            It is rounded to the nearest 100 mil which is minimum schematic snap unit.
+            """
+            value = Quantity(value, "mil")
+
+            value = value.to("mil")
+            value.value = round(value.value, -2)
+            value = value.to("meter")
+            return value.value
+
+        class Files(BaseModel):
+            files: list[str] = Field(..., min_length=1)
+
+            @classmethod
+            def create(cls, **kwargs):
+                return cls.model_validate(kwargs)
+
+            def to_aedt_args(self):
+                args = ["NAME:Files"]
+                if self.files is not None:
+                    args.extend(["Files:=", self.files])
+                return args
+
+        class Options(BaseModel):
+            num_ports_or_lines: int = Field(..., ge=1)
+            array_name: str
+            array_id_name: str
+            comp_name: str
+
+            @classmethod
+            def create(cls, **kwargs):
+                return cls.model_validate(kwargs)
+
+            def to_aedt_args(self):
+                args = ["NAME:Options"]
+                if self.num_ports_or_lines is not None:
+                    args.extend(["NumPortsOrLines:=", self.num_ports_or_lines])
+                args.extend(["CreateArray:=", True])
+                if self.array_name is not None:
+                    args.extend(["ArrayName:=", self.array_name])
+                if self.array_id_name is not None:
+                    args.extend(["ArrayIdName:=", self.array_id_name])
+                args.extend(["CompType:=", component_type])
+                if self.comp_name is not None:
+                    args.extend(["CompName:=", self.comp_name])
+                return args
+
+        class ComponentProps(BaseModel):
+            name: str
+
+            @classmethod
+            def create(cls, **kwargs):
+                return cls.model_validate(kwargs)
+
+            def to_aedt_args(self):
+                args = ["NAME:ComponentProps"]
+                if self.name is not None:
+                    args.extend(["Name:=", self.name])
+                return args
+
+        class Attributes(BaseModel):
+            page: int = 1
+            x: float
+            y: float
+            angle: float = 0.0
+            flip: bool = False
+
+            @classmethod
+            def create(cls, **kwargs):
+                kwargs["x"] = convert_to_meter(kwargs.pop("x"))
+                kwargs["y"] = convert_to_meter(kwargs.pop("y"))
+                return cls.model_validate(kwargs)
+
+            def to_aedt_args(self):
+                args = ["NAME:Attributes"]
+                if self.page is not None:
+                    args.extend(["Page:=", self.page])
+                if self.x is not None:
+                    args.extend(["X:=", self.x])
+                if self.y is not None:
+                    args.extend(["Y:=", self.y])
+                if self.angle is not None:
+                    args.extend(["Angle:=", self.angle])
+                if self.flip is not None:
+                    args.extend(["Flip:=", self.flip])
+                return args
+
+        if location is None:
+            x, y = self._get_location(location)
+        else:
+            x, y = location
+        for f in files:
+            if not Path(f).exists():
+                raise FileNotFoundError(f"Cannot find file: {str(f)}")
+
+        files_args = Files.create(files=[str(f) for f in files]).to_aedt_args()
+        options_args = Options.create(
+            num_ports_or_lines=num_ports,
+            array_name=array_name,
+            array_id_name=array_id_name,
+            comp_name=component_name,
+        ).to_aedt_args()
+        self.ocomponent_manager.ImportSandWComponent(files_args, options_args)
+
+        props_args = ComponentProps.create(name=component_name).to_aedt_args()
+        attributes_args = Attributes.create(x=x, y=y, page=page, flip=flip, angle=angle).to_aedt_args()
+
+        comp_name = self.oeditor.CreateComponent(props_args, attributes_args)
+        comp_id = int(comp_name.split(";")[-1])
+        self.add_id_to_component(comp_id, comp_name)
+        return self.components[comp_id]
+
+    @pyaedt_function_handler()
+    def create_touchstone_component_multi(
+        self,
+        component_name: str,
+        num_ports: str,
+        array_name: str,
+        array_id_name: str,
+        files: list,
+        location: tuple | list | None = None,
+        page: int = 1,
+        angle: float = 0.0,
+        flip: bool = False,
+    ) -> CircuitComponent:
+        """Create an N-port multi-component by importing touchstone files.
+
+        Parameters
+        ----------
+        component_name : str
+            Name of the component to create.
+        num_ports : int
+            Number of ports or transmission lines.
+        array_name : str
+            Name of the array variable.
+        array_id_name : str
+            Name of the array ID variable.
+        files : list
+            List of touchstone file paths to import.
+        location : tuple, optional
+            Tuple of ``(x, y)`` coordinates for component location.
+            If ``None``, default location is used. Default is ``None``.
+        page : int, optional
+            Schematics page number. Default is ``1``.
+        angle : float, optional
+            Rotation angle in degrees. Default is ``0.0``.
+        flip : bool, optional
+            Whether to flip the component. Default is ``False``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
+            Component object.
+        """
+        return self.__create_nport_multi(
+            component_type=2,
+            component_name=component_name,
+            num_ports=num_ports,
+            array_name=array_name,
+            array_id_name=array_id_name,
+            files=files,
+            location=location,
+            page=page,
+            angle=angle,
+            flip=flip,
+        )
+
+    @pyaedt_function_handler()
+    def create_state_space_component_multi(
+        self,
+        component_name: str,
+        num_ports: str,
+        array_name: str,
+        array_id_name: str,
+        files: list,
+        location: tuple | list | None = None,
+        page: int = 1,
+        angle: float = 0.0,
+        flip: bool = False,
+    ) -> CircuitComponent:
+        """Create an N-port multi-component by importing state space files.
+
+        Parameters
+        ----------
+        component_name : str
+            Name of the component to create.
+        num_ports : int
+            Number of ports or transmission lines.
+        array_name : str
+            Name of the array variable.
+        array_id_name : str
+            Name of the array ID variable.
+        files : list
+            List of state space file paths to import.
+        location : tuple, optional
+            Tuple of ``(x, y)`` coordinates for component location.
+            If ``None``, default location is used. Default is ``None``.
+        page : int, optional
+            Schematics page number. Default is ``1``.
+        angle : float, optional
+            Rotation angle in degrees. Default is ``0.0``.
+        flip : bool, optional
+            Whether to flip the component. Default is ``False``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
+            Component object.
+        """
+        return self.__create_nport_multi(
+            component_type=1,
+            component_name=component_name,
+            num_ports=num_ports,
+            array_name=array_name,
+            array_id_name=array_id_name,
+            files=files,
+            location=location,
+            page=page,
+            angle=angle,
+            flip=flip,
+        )
 
 
 class ComponentInfo(PyAedtBase):
