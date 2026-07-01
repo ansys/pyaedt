@@ -32,7 +32,10 @@ import psutil
 import pytest
 
 from ansys.aedt.core import Emit
+from ansys.aedt.core.emit_core.nodes.generated import AntennaNode
+from ansys.aedt.core.emit_core.nodes.emitter_node import EmitterNode
 from ansys.aedt.core.emit_core.nodes.generated import CouplingsNode
+from ansys.aedt.core.emit_core.nodes.generated import SceneGroupNode
 from ansys.aedt.core.emit_core.nodes.generated import CustomCouplingNode
 from ansys.aedt.core.emit_core.nodes.generated import RxMixerProductNode
 from ansys.aedt.core.emit_core.nodes.generated import RxSaturationNode
@@ -44,6 +47,8 @@ from ansys.aedt.core.emit_core.nodes.generated import TxHarmonicNode
 from ansys.aedt.core.emit_core.nodes.generated import TxNbEmissionNode
 from ansys.aedt.core.emit_core.nodes.generated import TxSpectralProfNode
 from ansys.aedt.core.emit_core.nodes.generated import TxSpurNode
+from ansys.aedt.core.emit_core.nodes.generated import EmitSceneNode
+from ansys.aedt.core.emit_core.results.revision import Revision
 from tests.conftest import DESKTOP_VERSION
 
 
@@ -775,39 +780,41 @@ def test_defect_1475679_get_child_node_id_recurse(emit_app) -> None:
     parameter so GetChildNodeID can find nodes at any depth.
     """
     mod = emit_app.odesign.GetModule("EmitCom")
+    rev: Revision = emit_app.results.analyze()
 
-    radio = emit_app.schematic.create_component("New Radio")
-    rev = emit_app.results.analyze()
+    scene_node: EmitSceneNode = rev.get_scene_node()
 
-    radio_id = mod.GetComponentNodeID(0, radio.name)
-    assert radio_id > 0
+    # add an antenna directly under the scene
+    ant1_node: AntennaNode = scene_node.add_antenna("Antenna1")
+    assert ant1_node
 
-    band_names = mod.GetChildNodeNames(0, radio_id, "Band")
-    assert len(band_names) > 0, "Expected at least one Band child"
-    band_name = band_names[0]
+    # add a group node directly under the scene
+    group_node: SceneGroupNode = scene_node.add_group("Group1")
+    assert group_node
 
-    band_id_direct = mod.GetChildNodeID(0, radio_id, band_name, False)
-    assert band_id_direct > 0, "Direct child lookup should find the Band"
+    # add an emitter directly under the group
+    emitter_node: EmitterNode = group_node.add_emitter("Emitter1")
+    assert emitter_node
 
-    scene_id = mod.GetTopLevelNodeID(0, "Scene")
-    assert scene_id > 0
+    # get the emitter's antenna
+    ant2_node: AntennaNode = emitter_node.get_antenna()
+    assert ant2_node
 
-    all_descendants = mod.GetChildNodeNames(0, scene_id, "", True)
-    assert len(all_descendants) > 0, "Scene should have descendants"
+    # add an antenna directly under the group
+    ant3_node: AntennaNode = group_node.add_antenna("Antenna2")
+    assert ant3_node
 
-    antenna_names = mod.GetChildNodeNames(0, scene_id, "AntennaNode", True)
-    assert len(antenna_names) > 0, "Expected antenna nodes under Scene (recursive)"
+    antennas = mod.GetChildNodeNames(0, scene_node._node_id, "AntennaNode", False)
+    assert len(antennas) == 1
+    assert ant1_node.name in antennas
+    
+    antennas_recurse = mod.GetChildNodeNames(0, scene_node._node_id, "AntennaNode", True)
+    assert len(antennas_recurse) == 3
+    assert ant1_node.name in antennas_recurse
+    assert ant2_node.name in antennas_recurse
+    assert ant3_node.name in antennas_recurse
 
-    ant_name = antenna_names[0]
-    ant_id_recurse = mod.GetChildNodeID(0, scene_id, ant_name, True)
-    assert ant_id_recurse > 0, (
-        f"GetChildNodeID with recurse=True should find '{ant_name}' under Scene"
-    )
+    for ant in antennas_recurse:
+        ant_id_recurse = mod.GetChildNodeID(0, scene_node._node_id, ant, True)
+        assert ant_id_recurse > 0
 
-    immediate_children = mod.GetChildNodeNames(0, scene_id, "AntennaNode", False)
-    if ant_name not in list(immediate_children):
-        try:
-            mod.GetChildNodeID(0, scene_id, ant_name, False)
-            assert False, "Expected non-recursive lookup to fail for nested antenna"
-        except Exception:
-            pass
