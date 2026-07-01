@@ -1027,7 +1027,7 @@ class ModelPlotter(CommonPlotter):
         coordinate_units : str
             Fields coordinates units.
         opacity : float
-            Value between 0 to 1 of opacity.
+            Value between 0 and 1 of opacity.
         color_map : str
             Color map of field plot. Default rainbow.
         label_name : str, optional
