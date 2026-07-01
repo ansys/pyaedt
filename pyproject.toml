@@ -174,69 +174,123 @@ indent-style = "space"
 docstring-code-format = true
 
 [tool.ruff.lint]
+# "D", pydocstyle, see https://docs.astral.sh/ruff/rules/#pydocstyle-d
+# "E", pycodestyle, see https://docs.astral.sh/ruff/rules/#pycodestyle-e-w
+# "F", pyflakes, see https://docs.astral.sh/ruff/rules/#pyflakes-f
+# "I", isort, see https://docs.astral.sh/ruff/rules/#isort-i
+# "N", pep8-naming, see https://docs.astral.sh/ruff/rules/#pep8-naming-n
+# "PTH", flake8-use-pathlib, https://docs.astral.sh/ruff/rules/#flake8-use-pathlib-pth
+# "TD", flake8-todos, https://docs.astral.sh/ruff/rules/#flake8-todos-td
+# "W", pycodestyle, see https://docs.astral.sh/ruff/rules/#pycodestyle-e-w
+# "UP006", non-pep585-annotation, https://docs.astral.sh/ruff/rules/non-pep585-annotation
+# "UP007", non-pep604-annotation-union, https://docs.astral.sh/ruff/rules/non-pep604-annotation-union
+# "UP045", non-pep604-annotation-optional, https://docs.astral.sh/ruff/rules/non-pep604-annotation-optional
 select = [
-    "D",   # pydocstyle, see https://docs.astral.sh/ruff/rules/#pydocstyle-d
-    "E",   # pycodestyle, see https://docs.astral.sh/ruff/rules/#pycodestyle-e-w
-    "F",   # pyflakes, see https://docs.astral.sh/ruff/rules/#pyflakes-f
-    "I",   # isort, see https://docs.astral.sh/ruff/rules/#isort-i
-    "N",   # pep8-naming, see https://docs.astral.sh/ruff/rules/#pep8-naming-n
-    "PTH", # flake8-use-pathlib, https://docs.astral.sh/ruff/rules/#flake8-use-pathlib-pth
-    "TD",  # flake8-todos, https://docs.astral.sh/ruff/rules/#flake8-todos-td
-    "W",   # pycodestyle, see https://docs.astral.sh/ruff/rules/#pycodestyle-e-w
-    "UP006", # non-pep585-annotation, https://docs.astral.sh/ruff/rules/non-pep585-annotation
-    "UP007", # non-pep604-annotation-union, https://docs.astral.sh/ruff/rules/non-pep604-annotation-union
-    "UP045", # non-pep604-annotation-optional, https://docs.astral.sh/ruff/rules/non-pep604-annotation-optional
+    "D",
+    "E",
+    "F",
+    "I",
+    "N",
+    "PTH",
+    "TD",
+    "W",
+    "UP006",
+    "UP007",
+    "UP045",
 ]
+
+# "D", pydocstyle, see https://docs.astral.sh/ruff/rules/#pydocstyle-d
+# "D100", undocumented-public-module
+# "D101", undocumented-public-class
+# "D102", undocumented-public-method
+# "D103", undocumented-public-function
+# "D104", undocumented-public-package
+# "D105", undocumented-magic-method
+# "D106", undocumented-public-nested-class
+# "D203", blank line required before class docstring
+# "D205", missing-blank-line-after-summary
+# "D210", surrounding-whitespace
+# "D213", Multi-line docstring summary should start at the second line
+# "D301", escape-sequence-in-docstring
+# "D400", missing-trailing-period
+# "D401", non-imperative-mood
+# "D404", docstring-starts-with-this
+# "D414", empty-docstring-section
+# "D419", empty-docstring
+
+# "N", pep8-naming, see https://docs.astral.sh/ruff/rules/#pep8-naming-n
+# "N802", invalid-function-name
+# "N803", invalid-argument-name
+# "N806", non-lowercase-variable-in-function
+# "N813", camelcase-imported-as-lowercase
+# "N815", mixed-case-variable-in-class-scope
+# "N816", mixed-case-variable-in-global-scope
+# "N999", invalid-module-name
+
+#  "PTH", flake8-use-pathlib, https://docs.astral.sh/ruff/rules/#flake8-use-pathlib-pth
+#  "PTH100", os-path-abspath
+#  "PTH103", os-makedirs
+#  "PTH104", os-rename
+#  "PTH106", os-rmdir
+#  "PTH107", os-remove
+#  "PTH108", os-unlink
+#  "PTH110", os-path-exists
+#  "PTH112", os-path-isdir
+#  "PTH113", os-path-isfile
+#  "PTH118", os-path-join
+#  "PTH119", os-path-basename
+#  "PTH120", os-path-dirname
+#  "PTH122", os-path-splitext
+#  "PTH123", builtin-open
+#  "PTH201", path-constructor-current-directory
+#  "PTH208", os-listdir
+
+#  "TD", flake8-todos, https://docs.astral.sh/ruff/rules/#flake8-todos-td
+#  "TD002", missing-todo-author
+#  "TD003", missing-todo-link
 ignore = [
-    # "D" - pydocstyle, see https://docs.astral.sh/ruff/rules/#pydocstyle-d
-    "D100", # undocumented-public-module
-    "D101", # undocumented-public-class
-    "D102", # undocumented-public-method
-    "D103", # undocumented-public-function
-    "D104", # undocumented-public-package
-    "D105", # undocumented-magic-method
-    "D106", # undocumented-public-nested-class
-    "D203", # blank line required before class docstring
-    "D205", # missing-blank-line-after-summary
-    "D210", # surrounding-whitespace
-    "D213", # Multi-line docstring summary should start at the second line
-    "D301", # escape-sequence-in-docstring
-    "D400", # missing-trailing-period
-    "D401", # non-imperative-mood
-    "D404", # docstring-starts-with-this
-    "D414", # empty-docstring-section
-    "D419", # empty-docstring
-
-    # "N" - pep8-naming, see https://docs.astral.sh/ruff/rules/#pep8-naming-n
-    "N802", # invalid-function-name
-    "N803", # invalid-argument-name
-    "N806", # non-lowercase-variable-in-function
-    "N813", # camelcase-imported-as-lowercase
-    "N815", # mixed-case-variable-in-class-scope
-    "N816", # mixed-case-variable-in-global-scope
-    "N999", # invalid-module-name
-
-    # "PTH" - flake8-use-pathlib, https://docs.astral.sh/ruff/rules/#flake8-use-pathlib-pth
-    "PTH100", # os-path-abspath
-    "PTH103", # os-makedirs
-    "PTH104", # os-rename
-    "PTH106", # os-rmdir
-    "PTH107", # os-remove
-    "PTH108", # os-unlink
-    "PTH110", # os-path-exists
-    "PTH112", # os-path-isdir
-    "PTH113", # os-path-isfile
-    "PTH118", # os-path-join
-    "PTH119", # os-path-basename
-    "PTH120", # os-path-dirname
-    "PTH122", # os-path-splitext
-    "PTH123", # builtin-open
-    "PTH201", # path-constructor-current-directory
-    "PTH208", # os-listdir
-
-    # "TD" - flake8-todos, https://docs.astral.sh/ruff/rules/#flake8-todos-td
-    "TD002", # missing-todo-author
-    "TD003", # missing-todo-link
+    "D100",
+    "D101",
+    "D102",
+    "D103",
+    "D104",
+    "D105",
+    "D106",
+    "D203",
+    "D205",
+    "D210",
+    "D213",
+    "D301",
+    "D400",
+    "D401",
+    "D404",
+    "D414",
+    "D419",
+    "N802",
+    "N803",
+    "N806",
+    "N813",
+    "N815",
+    "N816",
+    "N999",
+    "PTH100",
+    "PTH103",
+    "PTH104",
+    "PTH106",
+    "PTH107",
+    "PTH108",
+    "PTH110",
+    "PTH112",
+    "PTH113",
+    "PTH118",
+    "PTH119",
+    "PTH120",
+    "PTH122",
+    "PTH123",
+    "PTH201",
+    "PTH208",
+    "TD002",
+    "TD003",
 ]
 
 [tool.ruff.lint.per-file-ignores]
