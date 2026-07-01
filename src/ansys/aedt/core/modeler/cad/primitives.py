@@ -5868,8 +5868,7 @@ class GeometryModeler(Modeler, PyAedtBase):
 
     @pyaedt_function_handler()
     def import_spaceclaim_document(self, input_file: str) -> bool:  # pragma: no cover
-        r"""
-        Import a SpaceClaim document.
+        """Import a SpaceClaim document.
 
         Parameters
         ----------
