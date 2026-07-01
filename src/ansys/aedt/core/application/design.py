@@ -1872,8 +1872,7 @@ class Design(AedtObjects, PyAedtBase):
 
     @pyaedt_function_handler()
     def set_oo_property_value(self, aedt_object: object, object_name: str, prop_name: str, value: str) -> bool:
-        r"""
-        Change the property value of the object-oriented AEDT object.
+        """Change the property value of the object-oriented AEDT object.
 
         Parameters
         ----------
