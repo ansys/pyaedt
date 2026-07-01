@@ -280,7 +280,7 @@ class FieldSummary(PyAedtBase):
     def export_csv(
         self, output_file: str, setup: str | None = None, variations: dict | None = None, intrinsics: str = ""
     ) -> bool:
-        """Get the field summary output computation.
+        r"""Get the field summary output computation.
 
         Parameters
         ----------

@@ -1510,8 +1510,7 @@ class IcepakMesh(PyAedtBase):
 
     @pyaedt_function_handler()
     def assign_mesh_from_file(self, assignment: list, file_name: str, name: str = None) -> MeshOperation | bool:
-        r"""
-        Assign a mesh from a file to objects.
+        r"""Assign a mesh from a file to objects.
 
         Parameters
         ----------
@@ -1784,8 +1783,7 @@ class IcepakMesh(PyAedtBase):
         return mop
 
     def assign_mesh_reuse(self, assignment: list, mesh_file: str, name: str = None) -> MeshOperation | bool:
-        r"""
-        Assign a mesh file to objects.
+        """Assign a mesh file to objects.
 
         Parameters
         ----------

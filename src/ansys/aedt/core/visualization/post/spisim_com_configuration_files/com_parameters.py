@@ -200,7 +200,7 @@ class COMParameters:
 
     @pyaedt_function_handler
     def export(self, file_path: str) -> None:
-        """Export COM parameter to a JSON file.
+        r"""Export COM parameter to a JSON file.
 
         Parameters
         ----------
@@ -234,7 +234,7 @@ class COMParameters:
 
     @pyaedt_function_handler
     def load(self, file_path: str) -> None:
-        """Load COM parameters from a JSON file.
+        r"""Load COM parameters from a JSON file.
 
         Parameters
         ----------
@@ -258,7 +258,7 @@ class COMParameters:
 
     @pyaedt_function_handler
     def export_spisim_cfg(self, file_path: str) -> bool:
-        """Export COM parameter to a SPISim cfg file.
+        r"""Export COM parameter to a SPISim cfg file.
 
         Parameters
         ----------

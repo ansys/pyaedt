@@ -99,7 +99,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         native_components: list = None,
         create_folder: bool = True,
     ) -> bool:
-        """Create a 3D component file.
+        r"""Create a 3D component file.
 
         Parameters
         ----------
@@ -1027,8 +1027,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         merge_angle: float = 1e-3,
         remove_multiple_connections: bool = False,
     ) -> tuple[list["Object3d"], dict] | tuple[list[str], dict]:
-        r"""
-        Import Nastran file into 3D Modeler by converting the faces to stl and reading it.
+        r"""Import Nastran file into 3D Modeler by converting the faces to stl and reading it.
 
         The solids are translated directly to AEDT format.
 

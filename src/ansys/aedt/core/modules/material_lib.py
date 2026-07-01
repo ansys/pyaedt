@@ -786,7 +786,7 @@ class Materials(PyAedtBase):
 
     @pyaedt_function_handler()
     def export_materials_to_file(self, output_file: str) -> bool:
-        """Export all materials to a JSON or TOML file.
+        r"""Export all materials to a JSON or TOML file.
 
         Parameters
         ----------
@@ -858,7 +858,7 @@ class Materials(PyAedtBase):
 
     @pyaedt_function_handler()
     def import_materials_from_file(self, input_file: str | None = None) -> list[Material] | bool:
-        """Import and create materials from a JSON or AMAT file.
+        r"""Import and create materials from a JSON or AMAT file.
 
         Parameters
         ----------
@@ -965,7 +965,7 @@ class Materials(PyAedtBase):
 
     @pyaedt_function_handler()
     def import_materials_from_excel(self, input_file: str) -> list[Material] | bool:
-        """Import and create materials from a csv or excel file.
+        r"""Import and create materials from a csv or excel file.
 
         Parameters
         ----------
@@ -1045,7 +1045,7 @@ class Materials(PyAedtBase):
 
     @pyaedt_function_handler
     def import_materials_from_workbench(self, input_file: str, name_suffix: str = None) -> list[Material] | bool:
-        """Import and create materials from Workbench Engineering Data XML file.
+        r"""Import and create materials from Workbench Engineering Data XML file.
 
         Parameters
         ----------

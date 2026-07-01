@@ -1037,7 +1037,7 @@ class SetupParam(CommonOptimetrics, PyAedtBase):
 
     @pyaedt_function_handler()
     def export_to_csv(self, output_file: str) -> bool:
-        """Export the current Parametric Setup to csv.
+        r"""Export the current Parametric Setup to csv.
 
         Parameters
         ----------
@@ -1236,7 +1236,7 @@ class ParametricSetups(PyAedtBase):
 
     @pyaedt_function_handler()
     def add_from_file(self, input_file: str, name: str = None):
-        """Add a Parametric setup from either a csv or txt file.
+        r"""Add a Parametric setup from either a csv or txt file.
 
         Parameters
         ----------

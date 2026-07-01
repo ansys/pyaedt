@@ -2602,8 +2602,7 @@ class Setup3DLayout(CommonSetup):
 
     @pyaedt_function_handler()
     def export_to_q3d(self, output_file: str, keep_net_name: bool = False, unite: bool = True) -> bool:
-        r"""
-        Export the HFSS 3D Layout design to a Q3D design.
+        """Export the HFSS 3D Layout design to a Q3D design.
 
         Parameters
         ----------
@@ -2720,8 +2719,7 @@ class Setup3DLayout(CommonSetup):
 
     @pyaedt_function_handler()
     def import_from_json(self, file_path: str) -> bool:
-        r"""
-        Import setup properties from a json file.
+        """Import setup properties from a json file.
 
         Parameters
         ----------
@@ -2749,8 +2747,7 @@ class Setup3DLayout(CommonSetup):
 
     @pyaedt_function_handler()
     def export_to_json(self, file_path: str, overwrite: bool = False) -> bool:
-        r"""
-        Export all setup properties into a json file.
+        """Export all setup properties into a json file.
 
         Parameters
         ----------

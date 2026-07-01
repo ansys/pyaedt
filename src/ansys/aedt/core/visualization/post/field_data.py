@@ -2107,7 +2107,7 @@ class FieldPlot(PyAedtBase):
         show_grid: bool = True,
         show_ruler: bool = True,
     ) -> str | bool:
-        """Export the active plot to an image file.
+        r"""Export the active plot to an image file.
 
         .. note::
            There are some limitations on HFSS 3D Layout plots.
@@ -2196,7 +2196,7 @@ class FieldPlot(PyAedtBase):
         scale_min: float = None,
         scale_max: float = None,
     ) -> str | bool:
-        """Save an image of the active plot using PyVista.
+        r"""Save an image of the active plot using PyVista.
 
         .. note::
             This method only works if the CPython with PyVista module is installed.

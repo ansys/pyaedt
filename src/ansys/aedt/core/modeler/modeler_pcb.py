@@ -571,7 +571,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
 
     @pyaedt_function_handler()
     def import_cadence_brd(self, input_file: str, output_dir: str = None, name: str | None = None) -> bool:
-        """Import a cadence board.
+        r"""Import a cadence board.
 
         Parameters
         ----------
@@ -637,8 +637,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
 
     @pyaedt_function_handler()
     def import_ipc2581(self, input_file: str, output_dir: str = None, name: str | None = None) -> bool:
-        r"""
-        Import an IPC file.
+        r"""Import an IPC file.
 
         Parameters
         ----------
