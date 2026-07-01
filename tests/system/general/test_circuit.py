@@ -1581,7 +1581,7 @@ def test_nport_multi(aedt_app, test_tmp_dir):
     ts_2 = shutil.copy2(touch_original, test_tmp_dir / TOUCHSTONE_CUSTOM)
     comp = aedt_app.modeler.schematic.create_nport_multi(
         component_name="nport",
-        num_ports_or_lines=6,
+        num_ports=6,
         array_name="Element",
         array_id_name="Element_id",
         files=[ts_1, ts_2],

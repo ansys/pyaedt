@@ -1638,7 +1638,7 @@ class CircuitComponents(PyAedtBase):
             array_name:str,
             array_id_name:str,
             files:list,
-            location=tuple|list|None,
+            location:tuple|list|None=None,
             page:int=1,
             angle:float=0.0,
             flip:bool=False
