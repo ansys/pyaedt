@@ -2328,7 +2328,7 @@ class Setup3DLayout(CommonSetup):
 
     @pyaedt_function_handler()
     def export_to_hfss(self, output_file: str, keep_net_name: bool = False, unite: bool = True) -> bool:
-        """Export the HFSS 3D Layout design to an HFSS 3D design.
+        r"""Export the HFSS 3D Layout design to an HFSS 3D design.
 
         This method is not supported with IronPython.
 
@@ -2601,7 +2601,7 @@ class Setup3DLayout(CommonSetup):
 
     @pyaedt_function_handler()
     def export_to_q3d(self, output_file: str, keep_net_name: bool = False, unite: bool = True) -> bool:
-        """Export the HFSS 3D Layout design to a Q3D design.
+        r"""Export the HFSS 3D Layout design to a Q3D design.
 
         Parameters
         ----------
@@ -2718,7 +2718,7 @@ class Setup3DLayout(CommonSetup):
 
     @pyaedt_function_handler()
     def import_from_json(self, file_path: str) -> bool:
-        """Import setup properties from a json file.
+        r"""Import setup properties from a json file.
 
         Parameters
         ----------
@@ -2746,7 +2746,7 @@ class Setup3DLayout(CommonSetup):
 
     @pyaedt_function_handler()
     def export_to_json(self, file_path: str, overwrite: bool = False) -> bool:
-        """Export all setup properties into a json file.
+        r"""Export all setup properties into a json file.
 
         Parameters
         ----------
