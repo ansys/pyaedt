@@ -5779,8 +5779,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         merge_angle: float = 0.02,
         input_file_unit: str = "Auto",
     ) -> bool:
-        r"""
-        Import a CAD model.
+       """Import a CAD model.
 
         Parameters
         ----------
