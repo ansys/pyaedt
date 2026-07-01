@@ -1842,7 +1842,6 @@ class Design(AedtObjects, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_oo_property_value(self, aedt_object: object, object_name: str, prop_name: str) -> str | float | bool:
-        r"""
         Return the Object Oriented AEDT Object Properties.
 
         Parameters
