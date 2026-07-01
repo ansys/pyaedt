@@ -470,6 +470,107 @@ class SpiSim(PyAedtBase):
         self.logger.error("Failed to compute ERL.")
         return False
 
+    @pyaedt_function_handler()
+    def compute_icn(
+        self,
+        config_file: str = None,
+        port_order: str = "EVENODD",
+        next_s4p: str | list = None,
+        fext_s4p: str | list = None,
+        bandwidth: float = None,
+        use_pcie_icn: bool = False,
+    ) -> bool | float:
+        """Compute ICN using Ansys SPISIM from S-parameter file.
+
+        .. warning::
+
+            Do not execute this function with untrusted function argument, environment
+            variables or pyaedt global settings.
+            See the :ref:`security guide<ref_security_consideration>` for details.
+
+        Parameters
+        ----------
+        config_file : str, optional
+            Configuration file to use as a reference. The default is ``None``, in
+            which case this parameter is ignored.
+        port_order : str, optional
+            Whether to use "``EvenOdd``" or "``Incremental``" numbering for S4P files.
+            The default is ``None``. This parameter is ignored if there are more than four ports.
+        next_s4p : str, list, optional
+            Near End ``s4p`` or list of ``s4p``. Default is ``None``.
+        fext_s4p : str, list, optional
+            Far End ``s4p`` or list of ``s4p``. Default is ``None``.
+        use_pcie_icn : bool, optional
+            Whether to use ``PCIE`` or ``COM`` method to compute ``ICN``. Default is ``COM``.
+        bandwidth : float, str, optional
+            Application bandwidth in hertz (Hz), which is the inverse of one UI (unit interval). The value
+            can be a float or a string with the unit ("m", "g"). The default is ``25e9``.
+
+
+
+        Returns
+        -------
+        bool or float
+            ICN from the spisimExe command, ``False`` when failed.
+        """
+        cfg_dict = {
+            "INPARRY": "",
+            "MIXMODE": "",
+            "NEXTSRC": "",
+            "FEXTSRC": "",
+            "VICTSRC": "",
+            "ICNCALC": "PCIE_CCICN" if use_pcie_icn else "COM_CHNICN",
+            "MAXFREQ": 25e9,
+        }
+
+        if config_file:
+            with open_file(config_file, "r") as fp:
+                lines = fp.readlines()
+                for line in lines:
+                    if not line.startswith("#") and "=" in line:
+                        split_line = [i.strip() for i in line.split("=")]
+                        cfg_dict[split_line[0]] = split_line[1]
+
+        self.touchstone_file = str(self.touchstone_file).replace("\\", "/")
+
+        # self.touchstone_file = self._copy_to_relative_path(self.touchstone_file)
+        cfg_dict["INPARRY"] = self.touchstone_file
+        cfg_dict["MIXMODE"] = "" if "MIXMODE" not in cfg_dict else cfg_dict["MIXMODE"]
+        if port_order is not None and self.touchstone_file.lower().endswith(".s4p"):
+            cfg_dict["MIXMODE"] = port_order
+        elif not self.touchstone_file.lower().endswith(".s4p"):
+            cfg_dict["MIXMODE"] = ""
+        if not isinstance(next_s4p, list):
+            next_s4p = [next_s4p]
+        next_s4p = [str(i).replace("\\", "/") for i in next_s4p]
+
+        if not isinstance(fext_s4p, list):
+            fext_s4p = [fext_s4p]
+        fext_s4p = [str(i).replace("\\", "/") for i in fext_s4p]
+        cfg_dict["NEXTSRC"] = ",".join(next_s4p)
+        cfg_dict["FEXTSRC"] = ",".join(fext_s4p)
+
+        cfg_dict["MAXFREQ"] = bandwidth if bandwidth is not None else cfg_dict["MAXFREQ"]
+
+        config_file = os.path.join(self.working_directory, "spisim_icn.cfg").replace("\\", "/")
+        with open_file(config_file, "w") as fp:
+            for k, v in cfg_dict.items():
+                fp.write(f"# {k}: {k}\n")
+                fp.write(f"{k} = {v}\n")
+        retries = 3
+        if "PYTEST_CURRENT_TEST" in os.environ:
+            retries = 10
+        nb_retry = 0
+        while nb_retry < retries:
+            out_processing = self.__compute_spisim("CalcICN", config_file)
+            results = self.__get_output_parameter_from_result(out_processing, "ICN")
+            if results:
+                return results
+            self.logger.warning("Failing to compute ICN, retrying...")
+            nb_retry += 1
+        self.logger.error("Failed to compute ICN.")
+        return False
+
     @pyaedt_function_handler
     def compute_com(
         self,
