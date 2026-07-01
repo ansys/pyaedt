@@ -1784,7 +1784,6 @@ class Design(AedtObjects, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_oo_object(self, aedt_object: object, object_name: str) -> object:
-        r"""
         Return the Object Oriented AEDT Object.
 
         Parameters
