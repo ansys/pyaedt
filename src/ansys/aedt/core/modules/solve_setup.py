@@ -2328,7 +2328,7 @@ class Setup3DLayout(CommonSetup):
 
     @pyaedt_function_handler()
     def export_to_hfss(self, output_file: str, keep_net_name: bool = False, unite: bool = True) -> bool:
-        r"""Export the HFSS 3D Layout design to an HFSS 3D design.
+        """Export the HFSS 3D Layout design to an HFSS 3D design.
 
         This method is not supported with IronPython.
 
@@ -2356,7 +2356,7 @@ class Setup3DLayout(CommonSetup):
         --------
         >>> from ansys.aedt.core.modules.solve_setup import Setup3DLayout
         >>> obj = Setup3DLayout()
-        >>> obj.export_to_hfss(output_file=r"C:\Temp\example.txt")
+        >>> obj.export_to_hfss(output_file="example.txt")
 
         """
         output_file = output_file
@@ -2601,7 +2601,7 @@ class Setup3DLayout(CommonSetup):
 
     @pyaedt_function_handler()
     def export_to_q3d(self, output_file: str, keep_net_name: bool = False, unite: bool = True) -> bool:
-        r"""Export the HFSS 3D Layout design to a Q3D design.
+        """Export the HFSS 3D Layout design to a Q3D design.
 
         Parameters
         ----------
@@ -2628,7 +2628,7 @@ class Setup3DLayout(CommonSetup):
         --------
         >>> from ansys.aedt.core.modules.solve_setup import Setup3DLayout
         >>> obj = Setup3DLayout()
-        >>> obj.export_to_q3d(output_file=r"C:\Temp\example.txt")
+        >>> obj.export_to_q3d(output_file="example.txt")
 
         """
         if not os.path.isdir(os.path.dirname(output_file)):
@@ -2718,7 +2718,7 @@ class Setup3DLayout(CommonSetup):
 
     @pyaedt_function_handler()
     def import_from_json(self, file_path: str) -> bool:
-        r"""Import setup properties from a json file.
+        """Import setup properties from a json file.
 
         Parameters
         ----------
@@ -2729,7 +2729,7 @@ class Setup3DLayout(CommonSetup):
         --------
         >>> from ansys.aedt.core.modules.solve_setup import Setup3DLayout
         >>> obj = Setup3DLayout()
-        >>> obj.import_from_json(file_path=r"C:\Temp\example.json")
+        >>> obj.import_from_json(file_path="example.json")
 
         """
         self.props._import_properties_from_json(file_path)
@@ -2746,7 +2746,7 @@ class Setup3DLayout(CommonSetup):
 
     @pyaedt_function_handler()
     def export_to_json(self, file_path: str, overwrite: bool = False) -> bool:
-        r"""Export all setup properties into a json file.
+        """Export all setup properties into a json file.
 
         Parameters
         ----------
@@ -2759,7 +2759,7 @@ class Setup3DLayout(CommonSetup):
         --------
         >>> from ansys.aedt.core.modules.solve_setup import Setup3DLayout
         >>> obj = Setup3DLayout()
-        >>> obj.export_to_json(file_path=r"C:\Temp\example.json")
+        >>> obj.export_to_json(file_path="example.json")
 
         """
         if os.path.isfile(file_path):  # pragma no cover

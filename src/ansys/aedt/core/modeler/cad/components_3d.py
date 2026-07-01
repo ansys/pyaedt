@@ -961,8 +961,7 @@ class UserDefinedComponent(PyAedtBase):
 
     @pyaedt_function_handler()
     def update_definition(self, password: str = None, output_file: str = "", local_update: bool = False) -> bool:
-        r"""
-        Update 3d component definition.
+        """Update 3d component definition.
 
         Parameters
         ----------
@@ -983,7 +982,7 @@ class UserDefinedComponent(PyAedtBase):
         --------
         >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
         >>> obj = UserDefinedComponent()
-        >>> obj.update_definition(password=1, output_file=r"C:\Temp\example.txt")
+        >>> obj.update_definition(password=1, output_file="example.txt")
 
         """
         if password is None:

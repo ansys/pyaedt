@@ -5668,8 +5668,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         major_version: int = -1,
         minor_version: int = -1,
     ) -> bool:
-        r"""
-        Export the 3D model.
+        """Export the 3D model.
 
         Parameters
         ----------

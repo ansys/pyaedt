@@ -1886,7 +1886,7 @@ def export_pyaedt_antenna_metadata(
     power: dict = None,
     touchstone_file: str = None,
 ) -> str:
-    r"""Obtain PyAEDT metadata JSON file from AEDT metadata XML file or embedded element pattern TXT file.
+    """Obtain PyAEDT metadata JSON file from AEDT metadata XML file or embedded element pattern TXT file.
 
     Parameters
     ----------
@@ -1915,7 +1915,7 @@ def export_pyaedt_antenna_metadata(
     Examples
     --------
     >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import export_pyaedt_antenna_metadata
-    >>> export_pyaedt_antenna_metadata(input_file=r"C:\Temp\project.aedt", output_dir=r"C:\Temp\project.aedt")
+    >>> export_pyaedt_antenna_metadata(input_file="project.aedt", output_dir="project.aedt")
 
     """
     from ansys.aedt.core.visualization.advanced.touchstone_parser import find_touchstone_files
@@ -2063,7 +2063,7 @@ def export_pyaedt_antenna_metadata(
 
 @pyaedt_function_handler()
 def antenna_metadata_from_xml(input_file: str) -> dict:
-    r"""Obtain metadata information from metadata XML file.
+    """Obtain metadata information from metadata XML file.
 
     Parameters
     ----------
@@ -2078,7 +2078,7 @@ def antenna_metadata_from_xml(input_file: str) -> dict:
     Examples
     --------
     >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import antenna_metadata_from_xml
-    >>> antenna_metadata_from_xml(input_file=r"C:\Temp\example.xml")
+    >>> antenna_metadata_from_xml(input_file="example.xml")
 
     """
     # Load the XML file

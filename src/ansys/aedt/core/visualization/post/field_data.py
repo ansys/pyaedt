@@ -2107,7 +2107,7 @@ class FieldPlot(PyAedtBase):
         show_grid: bool = True,
         show_ruler: bool = True,
     ) -> str | bool:
-        r"""Export the active plot to an image file.
+        """Export the active plot to an image file.
 
         .. note::
            There are some limitations on HFSS 3D Layout plots.
@@ -2156,7 +2156,7 @@ class FieldPlot(PyAedtBase):
         --------
         >>> from ansys.aedt.core.visualization.post.field_data import FieldPlot
         >>> obj = FieldPlot()
-        >>> obj.export_image(full_path=r"C:\Temp\example.txt", width="2mm")
+        >>> obj.export_image(full_path="example.png", width="2mm")
 
         """
         self.oField.UpdateQuantityFieldsPlots(self.plot_folder)
@@ -2196,7 +2196,7 @@ class FieldPlot(PyAedtBase):
         scale_min: float = None,
         scale_max: float = None,
     ) -> str | bool:
-        r"""Save an image of the active plot using PyVista.
+        """Save an image of the active plot using PyVista.
 
         .. note::
             This method only works if the CPython with PyVista module is installed.
@@ -2230,7 +2230,7 @@ class FieldPlot(PyAedtBase):
         --------
         >>> from ansys.aedt.core.visualization.post.field_data import FieldPlot
         >>> obj = FieldPlot()
-        >>> obj.export_image_from_aedtplt(export_path=r"C:\Temp\project.aedt", view="iso")
+        >>> obj.export_image_from_aedtplt(export_path="directory", view="iso")
 
         """
         # Convert pathlib.Path to string if needed

@@ -339,8 +339,7 @@ class Object3d(PyAedtBase):
     @pyaedt_function_handler()
     @min_aedt_version("2021.2")
     def export_image(self, output_file: str | Path | None = None) -> str:
-        r"""
-        Export the current object to a specified file path.
+        """Export the current object to a specified file path.
 
         .. note::
            Works from AEDT 2021.2 in CPython only. PyVista has to be installed.
@@ -361,7 +360,7 @@ class Object3d(PyAedtBase):
         --------
         >>> from ansys.aedt.core.modeler.cad.object_3d import Object3d
         >>> obj = Object3d()
-        >>> obj.export_image(output_file=r"C:\Temp\example.txt")
+        >>> obj.export_image(output_file=r"example.txt")
 
         """
         if not output_file:

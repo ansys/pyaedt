@@ -280,7 +280,7 @@ class FieldSummary(PyAedtBase):
     def export_csv(
         self, output_file: str, setup: str | None = None, variations: dict | None = None, intrinsics: str = ""
     ) -> bool:
-        r"""Get the field summary output computation.
+        """Get the field summary output computation.
 
         Parameters
         ----------
@@ -305,7 +305,7 @@ class FieldSummary(PyAedtBase):
         --------
         >>> from ansys.aedt.core.visualization.post.field_summary import FieldSummary
         >>> obj = FieldSummary()
-        >>> obj.export_csv(output_file=r"C:\Temp\example.csv")
+        >>> obj.export_csv(output_file="example.csv")
 
         """
         if not setup:

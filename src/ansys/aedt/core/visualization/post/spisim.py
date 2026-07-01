@@ -165,13 +165,13 @@ class AdvancedReport(ReportBase):
 
     @classmethod
     def from_spisim_cfg(cls, file_path: str | Path) -> "AdvancedReport":  # pragma: no cover
-        r"""Load SPIsim configuration file.
+        """Load SPIsim configuration file.
 
         Examples
         --------
         >>> from ansys.aedt.core.visualization.post.spisim import AdvancedReport
         >>> obj = AdvancedReport()
-        >>> obj.from_spisim_cfg(file_path=r"C:\Temp\example.txt")
+        >>> obj.from_spisim_cfg(file_path="example.cfg")
 
         """
         with open(file_path, "r") as f:
@@ -237,13 +237,13 @@ class AdvancedReport(ReportBase):
         return cls(**config)
 
     def dump_spisim_cfg(self, file_path: str | Path) -> str:
-        r"""Create a SPIsim configuration file.
+        """Create a SPIsim configuration file.
 
         Examples
         --------
         >>> from ansys.aedt.core.visualization.post.spisim import AdvancedReport
         >>> obj = AdvancedReport()
-        >>> obj.dump_spisim_cfg(file_path=r"C:\Temp\example.txt")
+        >>> obj.dump_spisim_cfg(file_path="example.cfg")
 
         """
         data = self.model_dump(by_alias=True)
@@ -437,7 +437,7 @@ class SpiSim(PyAedtBase):
         reflections_length: float = None,
         modulation_type: str = None,
     ) -> bool | float:
-        r"""Compute effective return loss (ERL) using Ansys SPISIM from S-parameter file.
+        """Compute effective return loss (ERL) using Ansys SPISIM from S-parameter file.
 
         .. warning::
 
@@ -492,7 +492,7 @@ class SpiSim(PyAedtBase):
         --------
         >>> from ansys.aedt.core.visualization.post.spisim import SpiSim
         >>> obj = SpiSim()
-        >>> obj.compute_erl(config_file=r"C:\Temp\example.txt", port_order=1)
+        >>> obj.compute_erl(config_file="example.cfg", port_order=1)
 
         """
         cfg_dict = {
@@ -581,7 +581,7 @@ class SpiSim(PyAedtBase):
         next_s4p: str = "",
         out_folder: str = "",
     ) -> list | float:
-        r"""Compute Channel Operating Margin. Only COM ver3.4 is supported.
+        """Compute Channel Operating Margin. Only COM ver3.4 is supported.
 
         .. warning::
 
@@ -614,12 +614,13 @@ class SpiSim(PyAedtBase):
 
         Returns
         -------
+        list or float
 
         Examples
         --------
         >>> from ansys.aedt.core.visualization.post.spisim import SpiSim
         >>> obj = SpiSim()
-        >>> obj.compute_com(standard=1, config_file=r"C:\Temp\example.txt")
+        >>> obj.compute_com(standard=1, config_file="example.cfg")
 
         """
         com_param = COMParametersVer3p4()
@@ -680,7 +681,7 @@ class SpiSim(PyAedtBase):
 
     @pyaedt_function_handler()
     def export_com_configure_file(self, file_path: str, standard: int = 1) -> bool:
-        r"""Generate a configuration file for SpiSim.
+        """Generate a configuration file for SpiSim.
 
         Parameters
         ----------
@@ -697,7 +698,7 @@ class SpiSim(PyAedtBase):
         --------
         >>> from ansys.aedt.core.visualization.post.spisim import SpiSim
         >>> obj = SpiSim()
-        >>> obj.export_com_configure_file(file_path=r"C:\Temp\example.txt")
+        >>> obj.export_com_configure_file(file_path="example.cfg")
 
         """
         return COMParametersVer3p4(standard).export(file_path)
@@ -841,12 +842,12 @@ class SpiSim(PyAedtBase):
 
 
 def detect_encoding(file_path: str, expected_pattern: str = "", re_flags: int = 0) -> str:
-    r"""Check encoding of a file.
+    """Check encoding of a file.
 
     Examples
     --------
     >>> from ansys.aedt.core.visualization.post.spisim import detect_encoding
-    >>> detect_encoding(file_path=r"C:\Temp\example.txt")
+    >>> detect_encoding(file_path="example.cfg")
 
     """
     for encoding in ("utf-8", "utf_16_le", "cp1252", "cp1250", "shift_jis"):

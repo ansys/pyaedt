@@ -427,7 +427,7 @@ class VirtualComplianceGenerator(PyAedtBase):
         name: str = "ERL",
         project: str | None = None,
     ) -> None:
-        r"""Add Com parameters computed by SpiSim into the configuration.
+        """Add Com parameters computed by SpiSim into the configuration.
 
         Parameters
         ----------
@@ -456,7 +456,7 @@ class VirtualComplianceGenerator(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.compliance import VirtualComplianceGenerator
         >>> obj = VirtualComplianceGenerator()
         >>> obj.add_erl_parameters(
-        ...     design_name=1, config_file=r"C:\Temp\example.txt", traces=["Box1"], pins=["Box1"], pass_fail=True
+        ...     design_name=1, config_file="example.cfg", traces=["Box1"], pins=["Box1"], pass_fail=True
         ... )
 
         """
@@ -485,7 +485,7 @@ class VirtualComplianceGenerator(PyAedtBase):
         name: str,
         project: str | None = None,
     ) -> None:
-        r"""Add report derived parameters computed by AEDT and python into the configuration.
+        """Add report derived parameters computed by AEDT and python into the configuration.
 
         Parameters
         ----------
@@ -513,7 +513,7 @@ class VirtualComplianceGenerator(PyAedtBase):
         >>> obj = VirtualComplianceGenerator()
         >>> obj.add_report_derived_parameter(
         ...     design_name=1,
-        ...     config_file=r"C:\Temp\example.txt",
+        ...     config_file="example.cfg",
         ...     parameter=1,
         ...     traces=["Box1"],
         ...     report_type=1,
@@ -548,7 +548,7 @@ class VirtualComplianceGenerator(PyAedtBase):
         name: str,
         project: str | None = None,
     ) -> None:
-        r"""Add Com parameters computed by SpiSim into the configuration.
+        """Add Com parameters computed by SpiSim into the configuration.
 
         Parameters
         ----------
@@ -576,7 +576,7 @@ class VirtualComplianceGenerator(PyAedtBase):
         >>> obj = VirtualComplianceGenerator()
         >>> obj.add_report(
         ...     design_name=1,
-        ...     config_file=r"C:\Temp\example.txt",
+        ...     config_file="example.cfg",
         ...     traces=["Box1"],
         ...     report_type=1,
         ...     pass_fail=True,
@@ -602,7 +602,7 @@ class VirtualComplianceGenerator(PyAedtBase):
     def add_report_from_folder(
         self, input_folder: str | Path, design_name: str, group_plots: bool = False, project: str = None
     ) -> None:
-        r"""Add multiple reports from a folder.
+        """Add multiple reports from a folder.
 
         Parameters
         ----------
@@ -617,7 +617,7 @@ class VirtualComplianceGenerator(PyAedtBase):
         --------
         >>> from ansys.aedt.core.visualization.post.compliance import VirtualComplianceGenerator
         >>> obj = VirtualComplianceGenerator()
-        >>> obj.add_report_from_folder(input_folder=r"C:\Temp\example.txt", design_name=1)
+        >>> obj.add_report_from_folder(input_folder="example.cfg", design_name=1)
 
         """
         input_reports = search_files(input_folder, "*.json")
@@ -643,7 +643,7 @@ class VirtualComplianceGenerator(PyAedtBase):
 
     @pyaedt_function_handler()
     def save_configuration(self, output_file: str | Path) -> bool:
-        r"""Save the configuration to a json file.
+        """Save the configuration to a json file.
 
         Parameters
         ----------
@@ -659,7 +659,7 @@ class VirtualComplianceGenerator(PyAedtBase):
         --------
         >>> from ansys.aedt.core.visualization.post.compliance import VirtualComplianceGenerator
         >>> obj = VirtualComplianceGenerator()
-        >>> obj.save_configuration(output_file=r"C:\Temp\example.txt")
+        >>> obj.save_configuration(output_file="example.json")
 
         """
         return write_configuration_file(self.config, output_file)
@@ -1169,7 +1169,7 @@ class VirtualCompliance(PyAedtBase):
         pass_fail: bool = True,
         pass_fail_criteria=None,
     ) -> None:
-        r"""Add a new custom aedt report to the compliance.
+        """Add a new custom aedt report to the compliance.
 
         Parameters
         ----------
@@ -1198,7 +1198,7 @@ class VirtualCompliance(PyAedtBase):
         >>> from ansys.aedt.core.visualization.post.compliance import VirtualCompliance
         >>> obj = VirtualCompliance()
         >>> obj.add_aedt_report(
-        ...     name="MyObject", report_type=1, config_file=r"C:\Temp\project.aedt", design_name=1, traces=["Box1"]
+        ...     name="MyObject", report_type=1, config_file="project.cfg", design_name=1, traces=["Box1"]
         ... )
 
         """
@@ -1998,7 +1998,7 @@ class VirtualCompliance(PyAedtBase):
 
     @pyaedt_function_handler()
     def add_specs_to_report(self, folder: str):
-        r"""Add specs to the report from a given folder.
+        """Add specs to the report from a given folder.
 
         All images in such folder will be added to the report.
 
@@ -2011,7 +2011,7 @@ class VirtualCompliance(PyAedtBase):
         --------
         >>> from ansys.aedt.core.visualization.post.compliance import VirtualCompliance
         >>> obj = VirtualCompliance()
-        >>> obj.add_specs_to_report(folder=r"C:\Temp\example.txt")
+        >>> obj.add_specs_to_report(folder="directory")
 
         """
         if folder:
@@ -2061,7 +2061,7 @@ class VirtualCompliance(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_compliance_report(self, file_name: str = "compliance_test.pdf", close_project: bool = True) -> str:
-        r"""Create the Virtual Compliance report.
+        """Create the Virtual Compliance report.
 
         Parameters
         ----------
@@ -2079,7 +2079,7 @@ class VirtualCompliance(PyAedtBase):
         --------
         >>> from ansys.aedt.core.visualization.post.compliance import VirtualCompliance
         >>> obj = VirtualCompliance()
-        >>> obj.create_compliance_report(file_name=r"C:\Temp\example.txt", close_project=True)
+        >>> obj.create_compliance_report(file_name="example.pdf", close_project=True)
 
         """
         self.compute_report_data()
@@ -2139,7 +2139,7 @@ class VirtualCompliance(PyAedtBase):
         return self.report_data
 
     def create_pdf(self, file_name: str, close_project: bool = True) -> str:
-        r"""Create the PDF report after the method ``compute_report_data`` is called.
+        """Create the PDF report after the method ``compute_report_data`` is called.
 
         Parameters
         ----------
@@ -2157,7 +2157,7 @@ class VirtualCompliance(PyAedtBase):
         --------
         >>> from ansys.aedt.core.visualization.post.compliance import VirtualCompliance
         >>> obj = VirtualCompliance()
-        >>> obj.create_pdf(file_name=r"C:\Temp\example.txt")
+        >>> obj.create_pdf(file_name="example.pdf")
 
         """
         if not self.report_data.chapters:

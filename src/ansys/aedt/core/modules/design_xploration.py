@@ -1037,7 +1037,7 @@ class SetupParam(CommonOptimetrics, PyAedtBase):
 
     @pyaedt_function_handler()
     def export_to_csv(self, output_file: str) -> bool:
-        r"""Export the current Parametric Setup to csv.
+        """Export the current Parametric Setup to csv.
 
         Parameters
         ----------
@@ -1053,7 +1053,7 @@ class SetupParam(CommonOptimetrics, PyAedtBase):
         --------
         >>> from ansys.aedt.core.modules.design_xploration import SetupParam
         >>> obj = SetupParam()
-        >>> obj.export_to_csv(output_file=r"C:\Temp\example.csv")
+        >>> obj.export_to_csv(output_file="example.csv")
 
         """
         self.omodule.ExportParametricSetupTable(self.name, output_file)
@@ -1236,7 +1236,7 @@ class ParametricSetups(PyAedtBase):
 
     @pyaedt_function_handler()
     def add_from_file(self, input_file: str, name: str = None):
-        r"""Add a Parametric setup from either a csv or txt file.
+        """Add a Parametric setup from either a csv or txt file.
 
         Parameters
         ----------
@@ -1258,7 +1258,7 @@ class ParametricSetups(PyAedtBase):
         --------
         >>> from ansys.aedt.core.modules.design_xploration import ParametricSetups
         >>> obj = ParametricSetups()
-        >>> obj.add_from_file(input_file=r"C:\Temp\example.txt")
+        >>> obj.add_from_file(input_file="example.txt")
 
         """
         if not name:

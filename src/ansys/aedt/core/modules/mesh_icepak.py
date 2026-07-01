@@ -1510,7 +1510,7 @@ class IcepakMesh(PyAedtBase):
 
     @pyaedt_function_handler()
     def assign_mesh_from_file(self, assignment: list, file_name: str, name: str = None) -> MeshOperation | bool:
-        r"""Assign a mesh from a file to objects.
+        """Assign a mesh from a file to objects.
 
         Parameters
         ----------
@@ -1534,7 +1534,7 @@ class IcepakMesh(PyAedtBase):
         --------
         >>> from ansys.aedt.core.modules.mesh_icepak import IcepakMesh
         >>> obj = IcepakMesh()
-        >>> obj.assign_mesh_from_file(assignment="Box1", file_name=r"C:\Temp\example.txt")
+        >>> obj.assign_mesh_from_file(assignment="Box1", file_name="example.txt")
 
         """
         objs = self._app.modeler.convert_to_selections(assignment, True)
@@ -1783,7 +1783,7 @@ class IcepakMesh(PyAedtBase):
         return mop
 
     def assign_mesh_reuse(self, assignment: list, mesh_file: str, name: str = None) -> MeshOperation | bool:
-        r"""Assign a mesh file to objects.
+        """Assign a mesh file to objects.
 
         Parameters
         ----------
@@ -1807,7 +1807,7 @@ class IcepakMesh(PyAedtBase):
         --------
         >>> from ansys.aedt.core.modules.mesh_icepak import IcepakMesh
         >>> obj = IcepakMesh()
-        >>> obj.assign_mesh_reuse(assignment="Box1", mesh_file=r"C:\Temp\example.txt")
+        >>> obj.assign_mesh_reuse(assignment="Box1", mesh_file="example.txt")
 
         """
         if not os.path.exists(mesh_file):

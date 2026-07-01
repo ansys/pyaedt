@@ -705,7 +705,7 @@ class ComponentArray(PyAedtBase):
     @pyaedt_function_handler()
     @min_aedt_version("2024.1")
     def export_array_info(self, output_file: str = None) -> str:  # pragma: no cover
-        r"""Export array information to a CSV file.
+        """Export array information to a CSV file.
 
         Returns
         -------
@@ -720,7 +720,7 @@ class ComponentArray(PyAedtBase):
         --------
         >>> from ansys.aedt.core.modeler.cad.component_array import ComponentArray
         >>> obj = ComponentArray()
-        >>> obj.export_array_info(output_file=r"C:\Temp\example.txt")
+        >>> obj.export_array_info(output_file="example.txt")
 
         """
         if not output_file:  # pragma: no cover

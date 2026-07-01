@@ -1721,8 +1721,7 @@ class Primitives3DLayout(PyAedtBase):
         is_3d_placement: bool = False,
         pos_z: float = 0.0,
     ) -> ComponentsSubCircuit3DLayout:
-        r"""
-        Place an HFSS 3D component in HFSS 3D Layout.
+        """Place an HFSS 3D component in HFSS 3D Layout.
 
         Parameters
         ----------
@@ -1756,7 +1755,7 @@ class Primitives3DLayout(PyAedtBase):
         --------
         >>> from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
         >>> obj = Primitives3DLayout()
-        >>> obj.place_3d_component(component_path=r"C:\Temp\example.txt")
+        >>> obj.place_3d_component(component_path="example.txt")
 
         """
         component_path = Path(component_path)

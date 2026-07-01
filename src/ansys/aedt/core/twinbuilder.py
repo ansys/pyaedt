@@ -162,7 +162,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_schematic_from_netlist(self, input_file: str) -> bool:
-        r"""Create a circuit schematic from an HSpice net list.
+        """Create a circuit schematic from an HSpice net list.
 
         Supported currently are:
 
@@ -187,7 +187,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         --------
         >>> from ansys.aedt.core.twinbuilder import TwinBuilder
         >>> obj = TwinBuilder()
-        >>> obj.create_schematic_from_netlist(input_file=r"C:\Temp\circuit.sp")
+        >>> obj.create_schematic_from_netlist(input_file="circuit.sp")
 
         """
         xpos = 0

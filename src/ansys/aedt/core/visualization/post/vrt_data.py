@@ -297,7 +297,7 @@ class VRTFieldPlot(PyAedtBase):
 
     @pyaedt_function_handler()
     def export(self, path: str = None) -> str:
-        r"""Export the Visual Ray Tracing to ``hdm`` file.
+        """Export the Visual Ray Tracing to ``hdm`` file.
 
         Parameters
         ----------
@@ -314,7 +314,7 @@ class VRTFieldPlot(PyAedtBase):
         --------
         >>> from ansys.aedt.core.visualization.post.vrt_data import VRTFieldPlot
         >>> obj = VRTFieldPlot()
-        >>> obj.export(path=r"C:\Temp\example.txt")
+        >>> obj.export(path="example.txt")
 
         """
         if not path:

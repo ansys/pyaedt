@@ -786,7 +786,7 @@ class Materials(PyAedtBase):
 
     @pyaedt_function_handler()
     def export_materials_to_file(self, output_file: str) -> bool:
-        r"""Export all materials to a JSON or TOML file.
+        """Export all materials to a JSON or TOML file.
 
         Parameters
         ----------
@@ -802,7 +802,7 @@ class Materials(PyAedtBase):
         --------
         >>> from ansys.aedt.core.modules.material_lib import Materials
         >>> obj = Materials()
-        >>> obj.export_materials_to_file(output_file=r"C:\Temp\example.txt")
+        >>> obj.export_materials_to_file(output_file="example.txt")
 
         """
 
@@ -858,7 +858,7 @@ class Materials(PyAedtBase):
 
     @pyaedt_function_handler()
     def import_materials_from_file(self, input_file: str | None = None) -> list[Material] | bool:
-        r"""Import and create materials from a JSON or AMAT file.
+        """Import and create materials from a JSON or AMAT file.
 
         Parameters
         ----------
@@ -873,7 +873,7 @@ class Materials(PyAedtBase):
         --------
         >>> from ansys.aedt.core.modules.material_lib import Materials
         >>> obj = Materials()
-        >>> obj.import_materials_from_file(input_file=r"C:\Temp\example.txt")
+        >>> obj.import_materials_from_file(input_file="example.txt")
 
         """
         if input_file is None or not os.path.exists(input_file):
@@ -965,7 +965,7 @@ class Materials(PyAedtBase):
 
     @pyaedt_function_handler()
     def import_materials_from_excel(self, input_file: str) -> list[Material] | bool:
-        r"""Import and create materials from a csv or excel file.
+        """Import and create materials from a csv or excel file.
 
         Parameters
         ----------
@@ -980,7 +980,7 @@ class Materials(PyAedtBase):
         --------
         >>> from ansys.aedt.core.modules.material_lib import Materials
         >>> obj = Materials()
-        >>> obj.import_materials_from_excel(input_file=r"C:\Temp\example.txt")
+        >>> obj.import_materials_from_excel(input_file="example.txt")
 
         """
         try:  # pragma: no cover
@@ -1045,7 +1045,7 @@ class Materials(PyAedtBase):
 
     @pyaedt_function_handler
     def import_materials_from_workbench(self, input_file: str, name_suffix: str = None) -> list[Material] | bool:
-        r"""Import and create materials from Workbench Engineering Data XML file.
+        """Import and create materials from Workbench Engineering Data XML file.
 
         Parameters
         ----------
@@ -1065,7 +1065,7 @@ class Materials(PyAedtBase):
         --------
         >>> from ansys.aedt.core.modules.material_lib import Materials
         >>> obj = Materials()
-        >>> obj.import_materials_from_workbench(input_file=r"C:\Temp\example.txt")
+        >>> obj.import_materials_from_workbench(input_file="example.txt")
 
         """
         # create an instance of the class

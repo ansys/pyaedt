@@ -200,7 +200,7 @@ class COMParameters:
 
     @pyaedt_function_handler
     def export(self, file_path: str) -> None:
-        r"""Export COM parameter to a JSON file.
+        """Export COM parameter to a JSON file.
 
         Parameters
         ----------
@@ -211,7 +211,7 @@ class COMParameters:
         --------
         >>> from ansys.aedt.core.visualization.post.spisim_com_configuration_files.com_parameters import COMParameters
         >>> obj = COMParameters()
-        >>> obj.export(file_path=r"C:\Temp\example.txt")
+        >>> obj.export(file_path="example.json")
 
         """
         temp = dict()
@@ -234,7 +234,7 @@ class COMParameters:
 
     @pyaedt_function_handler
     def load(self, file_path: str) -> None:
-        r"""Load COM parameters from a JSON file.
+        """Load COM parameters from a JSON file.
 
         Parameters
         ----------
@@ -245,7 +245,7 @@ class COMParameters:
         --------
         >>> from ansys.aedt.core.visualization.post.spisim_com_configuration_files.com_parameters import COMParameters
         >>> obj = COMParameters()
-        >>> obj.load(file_path=r"C:\Temp\example.txt")
+        >>> obj.load(file_path="example.json")
 
         """
         self._init()
@@ -258,7 +258,7 @@ class COMParameters:
 
     @pyaedt_function_handler
     def export_spisim_cfg(self, file_path: str) -> bool:
-        r"""Export COM parameter to a SPISim cfg file.
+        """Export COM parameter to a SPISim cfg file.
 
         Parameters
         ----------
@@ -269,7 +269,7 @@ class COMParameters:
         --------
         >>> from ansys.aedt.core.visualization.post.spisim_com_configuration_files.com_parameters import COMParameters
         >>> obj = COMParameters()
-        >>> obj.export_spisim_cfg(file_path=r"C:\Temp\example.txt")
+        >>> obj.export_spisim_cfg(file_path="example.json")
 
         """
         with open(file_path, "w") as fp:

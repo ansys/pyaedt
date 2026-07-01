@@ -969,8 +969,7 @@ class ModelPlotter(CommonPlotter):
 
     @pyaedt_function_handler()
     def add_object(self, cad_path: str, cad_color: str = "dodgerblue", opacity: float = 1, units: str = "mm") -> bool:
-        r"""
-        Add a mesh file to the scenario.
+        """Add a mesh file to the scenario.
 
         The mesh file can be an object or any of the PyVista supported files.
 
@@ -994,7 +993,7 @@ class ModelPlotter(CommonPlotter):
         --------
         >>> from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
         >>> obj = ModelPlotter()
-        >>> obj.add_object(cad_path=r"C:\Temp\example.txt")
+        >>> obj.add_object(cad_path="example.stl")
 
         """
         self._objects.append(ObjClass(cad_path, cad_color, opacity, units))
@@ -1014,8 +1013,7 @@ class ModelPlotter(CommonPlotter):
         header_lines: int = 2,
         show_edges: bool = True,
     ) -> None:
-        r"""
-        Add a field file to the scenario.
+        """Add a field file to the scenario.
 
         It can be aedtplt, fld or csv file or any txt file with 4 column [x,y,z,field].
         If text file they have to be space separated column.
@@ -1036,8 +1034,10 @@ class ModelPlotter(CommonPlotter):
             Name of the field.
         surface_mapping_tolerance : float, optional
             Delauny tolerance value used for interpolating points.
-        header_lines : int
+        header_lines : int, optional
             Number of lines to of the file containing header info that has to be removed.
+        show_edges : bool, optional
+            Show edges.
 
         Returns
         -------
@@ -1047,7 +1047,7 @@ class ModelPlotter(CommonPlotter):
         --------
         >>> from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
         >>> obj = ModelPlotter()
-        >>> obj.add_field_from_file(field_path=r"C:\Temp\example.txt")
+        >>> obj.add_field_from_file(field_path="example.txt")
 
         """
         self._fields.append(
@@ -1076,8 +1076,7 @@ class ModelPlotter(CommonPlotter):
         surface_mapping_tolerance: float = 1e-3,
         header_lines: int = 2,
     ) -> None:
-        r"""
-        Add a field file to the scenario. It can be aedtplt, fld or csv file.
+        """Add a field file to the scenario. It can be aedtplt, fld or csv file.
 
         Parameters
         ----------
@@ -1106,7 +1105,7 @@ class ModelPlotter(CommonPlotter):
         --------
         >>> from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
         >>> obj = ModelPlotter()
-        >>> obj.add_frames_from_file(field_files=r"C:\Temp\example.txt")
+        >>> obj.add_frames_from_file(field_files=["example.aedtplt"])
 
         """
         for field in field_files:
@@ -1543,8 +1542,7 @@ class ModelPlotter(CommonPlotter):
 
     @pyaedt_function_handler()
     def plot(self, export_image_path: str = None, show: bool = True) -> bool:
-        r"""
-        Plot the current available Data. With `s` key a screenshot is saved in export_image_path or in tempdir.
+        """Plot the current available Data. With `s` key a screenshot is saved in export_image_path or in tempdir.
 
         Parameters
         ----------
@@ -1564,7 +1562,7 @@ class ModelPlotter(CommonPlotter):
         --------
         >>> from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
         >>> obj = ModelPlotter()
-        >>> obj.plot(export_image_path=r"C:\Temp\example.txt", show=True)
+        >>> obj.plot(export_image_path="example.png", show=True)
 
         """
         self.populate_pyvista_object()

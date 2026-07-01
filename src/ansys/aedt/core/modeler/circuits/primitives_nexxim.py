@@ -2464,9 +2464,8 @@ class NexximComponents(CircuitComponents, PyAedtBase):
     @pyaedt_function_handler()
     def add_siwave_dynamic_link(
         self, input_file: str | Path, solution: str | None = None, simulate_solutions: bool = False
-    ) -> "CircuitComponent":
-        r"""
-        Add a siwave dinamyc link object.
+    ) -> CircuitComponent:
+        """Add a SIwave dynamic link object.
 
         Parameters
         ----------
@@ -2486,7 +2485,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         --------
         >>> from ansys.aedt.core.modeler.circuits.primitives_nexxim import NexximComponents
         >>> obj = NexximComponents()
-        >>> obj.add_siwave_dynamic_link(input_file=r"C:\Temp\example.txt")
+        >>> obj.add_siwave_dynamic_link(input_file="example.siw")
 
         """
         if isinstance(input_file, str):

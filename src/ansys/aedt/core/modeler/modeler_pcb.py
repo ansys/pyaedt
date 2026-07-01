@@ -571,7 +571,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
 
     @pyaedt_function_handler()
     def import_cadence_brd(self, input_file: str, output_dir: str = None, name: str | None = None) -> bool:
-        r"""Import a cadence board.
+        """Import a cadence board.
 
         Parameters
         ----------
@@ -597,7 +597,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         --------
         >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
         >>> obj = Modeler3DLayout()
-        >>> obj.import_cadence_brd(input_file=r"C:\Temp\example.txt")
+        >>> obj.import_cadence_brd(input_file="example.txt")
 
         """
         if not output_dir:
@@ -637,7 +637,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
 
     @pyaedt_function_handler()
     def import_ipc2581(self, input_file: str, output_dir: str = None, name: str | None = None) -> bool:
-        r"""Import an IPC file.
+        """Import an IPC file.
 
         Parameters
         ----------
@@ -663,7 +663,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         --------
         >>> from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
         >>> obj = Modeler3DLayout()
-        >>> obj.import_ipc2581(input_file=r"C:\Temp\example.txt")
+        >>> obj.import_ipc2581(input_file="example.txt")
 
         """
         if not output_dir:

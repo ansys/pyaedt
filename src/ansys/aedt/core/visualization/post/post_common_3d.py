@@ -954,8 +954,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
     def export_field_plot(
         self, plot_name: str, output_dir: str | Path, file_name: str = "", file_format: str = "aedtplt"
     ) -> str | bool:
-        r"""
-        Export a field plot.
+        """Export a field plot.
 
         .. note:
            This method works only when the plot is active when it is run.
@@ -984,7 +983,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         --------
         >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
         >>> obj = PostProcessor3D()
-        >>> obj.export_field_plot(plot_name=1, output_dir=r"C:\Temp\example.txt")
+        >>> obj.export_field_plot(plot_name=1, output_dir="directory")
 
         """
         if not file_name:
@@ -1387,7 +1386,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         show_ruler: bool = True,
         show_region: str = "Default",
     ) -> bool:
-        r"""Export a field plot and coordinate system to a JPG file.
+        """Export a field plot and coordinate system to a JPG file.
 
         Parameters
         ----------
@@ -1435,7 +1434,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         --------
         >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
         >>> obj = PostProcessor3D()
-        >>> obj.export_field_jpg(file_name=r"C:\Temp\example.txt", plot_name=1, folder_name=r"C:\Temp\example.txt")
+        >>> obj.export_field_jpg(file_name=r"example.jpg", plot_name=1, folder_name="directory")
 
         """
         if self.post_solution_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
@@ -1637,7 +1636,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         export_as_multiple_objects: bool = False,
         air_objects: bool = False,
     ) -> list[str]:
-        r"""Export the model.
+        """Export the model.
 
         Parameters
         ----------
@@ -1661,7 +1660,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         --------
         >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
         >>> obj = PostProcessor3D()
-        >>> obj.export_model_obj(assignment="Box1", export_path=r"C:\Temp\example.txt")
+        >>> obj.export_model_obj(assignment="Box1", export_path="directory")
 
         """
         if assignment and not isinstance(assignment, (list, tuple)):
@@ -2701,7 +2700,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         convert_fields_in_db: bool = False,
         log_multiplier: float = 10.0,
     ) -> bool:
-        r"""Plot the current model 3D scene with overlapping animation coming from a file list and save the gif.
+        """Plot the current model 3D scene with overlapping animation coming from a file list and save the gif.
 
         Parameters
         ----------
@@ -2737,7 +2736,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         --------
         >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
         >>> obj = PostProcessor3D()
-        >>> obj.plot_scene(frames=["Box1"], gif_path=r"C:\Temp\example.txt")
+        >>> obj.plot_scene(frames=["Box1"], gif_path="directory")
 
         """
         if isinstance(frames, str) and Path(frames).exists():

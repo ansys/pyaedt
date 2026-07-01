@@ -1752,14 +1752,14 @@ class Design(AedtObjects, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_oo_name(self, aedt_object: object, object_name: str = None) -> list[str]:
-        r"""Return the object-oriented AEDT property names.
+        """Return the object-oriented AEDT property names.
 
         Parameters
         ----------
         aedt_object : object
             AEDT Object on which search for property. It can be any oProperty (ex. oDesign).
         object_name : str, optional
-            Path to the object list. Example `"DesignName\Boundaries"`.
+            Path to the object list.
 
         Returns
         -------
@@ -1784,14 +1784,14 @@ class Design(AedtObjects, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_oo_object(self, aedt_object: object, object_name: str) -> object:
-        r"""Return the Object Oriented AEDT Object.
+        """Return the Object Oriented AEDT Object.
 
         Parameters
         ----------
         aedt_object : object
             AEDT Object on which search for property. It can be any oProperty (ex. oDesign).
         object_name : str
-            Path to the object list. Example ``"DesignName\Boundaries"``.
+            Path to the object list.
 
         Returns
         -------
@@ -1812,14 +1812,14 @@ class Design(AedtObjects, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_oo_properties(self, aedt_object: object, object_name: str) -> list[str]:
-        r"""Return the Object-Oriented AEDT Object Properties.
+        """Return the Object-Oriented AEDT Object Properties.
 
         Parameters
         ----------
         aedt_object : object
             AEDT Object on which search for property. It can be any oProperty (ex. oDesign).
         object_name : str
-            Path to the object list. Example ``"DesignName\Boundaries"``.
+            Path to the object list.
 
         Returns
         -------
@@ -1840,14 +1840,14 @@ class Design(AedtObjects, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_oo_property_value(self, aedt_object: object, object_name: str, prop_name: str) -> str | float | bool:
-        r"""Return the Object-Oriented AEDT Object Properties.
+        """Return the Object-Oriented AEDT Object Properties.
 
         Parameters
         ----------
         aedt_object : object
             AEDT Object on which search for property. It can be any oProperty (ex. oDesign).
         object_name : str
-            Path to the object list. For example, ``"DesignName\Boundaries"``.
+            Path to the object list.
         prop_name : str
             Property name.
 
@@ -1870,14 +1870,14 @@ class Design(AedtObjects, PyAedtBase):
 
     @pyaedt_function_handler()
     def set_oo_property_value(self, aedt_object: object, object_name: str, prop_name: str, value: str) -> bool:
-        r"""Change the property value of the object-oriented AEDT object.
+        """Change the property value of the object-oriented AEDT object.
 
         Parameters
         ----------
         aedt_object : object
             AEDT object to search for the property on. It can be any oProperty. For example, oDesign.
         object_name : str
-            Path to the object list. Example ``"DesignName\Boundaries"``.
+            Path to the object list.
         prop_name : str
             Property name.
         value : str
