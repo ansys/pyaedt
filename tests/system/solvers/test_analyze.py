@@ -722,7 +722,7 @@ def test_compute_com_snp(test_tmp_dir) -> None:
 
     com_0, com_1 = spisim.compute_com_snp(
         through="TX1",
-        port_mapping_file=cfg,
+        port_mapping=cfg,
         output_folder=test_tmp_dir,
         standard=5,
     )

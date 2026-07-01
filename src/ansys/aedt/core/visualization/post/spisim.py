@@ -196,7 +196,7 @@ class Pair(BaseModel):
     driver: str | None = Field(None, description="Driver reference designator")
     receiver: str | None = Field(None, description="Receiver reference designator")
 
-    def add_port_idx_mapping(self, net_name, driver_port_idx, receiver_port_idx):
+    def add_port_idx_mapping(self, driver_port_idx, receiver_port_idx):
         self.nets.append(self.Net(driver_port=driver_port_idx, receiver_port=receiver_port_idx))
 
 
@@ -579,7 +579,7 @@ class SpiSim(PyAedtBase):
     def compute_com_snp(
         self,
         through: str,
-        port_mapping_file: Path | str,
+        port_mapping: Path | str,
         output_folder: Path | str,
         config_file: Path | str = None,
         standard: int = 1,
@@ -594,7 +594,7 @@ class SpiSim(PyAedtBase):
         ----------
         through : str
             Path to the through channel file.
-        port_mapping_file : Path, str
+        port_mapping : Path, str, SParameterPortMapping
             Path to the port mapping file in JSON format defining differential pair port mappings.
             The file must contain SParameterPortMapping data with differential pair information.
 
@@ -679,12 +679,14 @@ class SpiSim(PyAedtBase):
             )
             return False
 
-        if not Path(port_mapping_file).exists():
-            raise FileNotFoundError(f"Not found {port_mapping_file}")
+        if isinstance(port_mapping, SParameterPortMapping):
+            com = port_mapping
+        elif not Path(port_mapping).exists():
+            raise FileNotFoundError(f"Not found {port_mapping}")
         else:
-            with open(port_mapping_file, "r") as f:
+            with open(port_mapping, "r") as f:
                 json_str = f.read()
-        com = SParameterPortMapping.model_validate_json(json_str)
+            com = SParameterPortMapping.model_validate_json(json_str)
 
         thru = com.get_differential_pair(through)
         through_ports = [
