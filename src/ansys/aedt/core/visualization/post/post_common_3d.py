@@ -1387,8 +1387,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         show_ruler: bool = True,
         show_region: str = "Default",
     ) -> bool:
-        r"""
-        Export a field plot and coordinate system to a JPG file.
+        """Export a field plot and coordinate system to a JPG file.
 
         Parameters
         ----------
