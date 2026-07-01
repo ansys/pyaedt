@@ -101,7 +101,7 @@ def load_aedt_thread(project_path) -> None:
     Examples
     --------
     >>> from ansys.aedt.core.application.design import load_aedt_thread
-    >>> load_aedt_thread(r"C:\\temp\\project.aedt")
+    >>> load_aedt_thread("project.aedt")
 
     """
     pp = load_entire_aedt_file(project_path)
@@ -1752,7 +1752,7 @@ class Design(AedtObjects, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_oo_name(self, aedt_object: object, object_name: str = None) -> list[str]:
-        """Return the object-oriented AEDT property names.
+        r"""Return the object-oriented AEDT property names.
 
         Parameters
         ----------
@@ -1784,7 +1784,7 @@ class Design(AedtObjects, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_oo_object(self, aedt_object: object, object_name: str) -> object:
-        Return the Object Oriented AEDT Object.
+        r"""Return the Object Oriented AEDT Object.
 
         Parameters
         ----------
@@ -1812,7 +1812,7 @@ class Design(AedtObjects, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_oo_properties(self, aedt_object: object, object_name: str) -> list[str]:
-        """Return the Object Oriented AEDT Object Properties.
+        r"""Return the Object-Oriented AEDT Object Properties.
 
         Parameters
         ----------
@@ -1840,7 +1840,7 @@ class Design(AedtObjects, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_oo_property_value(self, aedt_object: object, object_name: str, prop_name: str) -> str | float | bool:
-        Return the Object Oriented AEDT Object Properties.
+        r"""Return the Object-Oriented AEDT Object Properties.
 
         Parameters
         ----------
@@ -1870,7 +1870,7 @@ class Design(AedtObjects, PyAedtBase):
 
     @pyaedt_function_handler()
     def set_oo_property_value(self, aedt_object: object, object_name: str, prop_name: str, value: str) -> bool:
-        """Change the property value of the object-oriented AEDT object.
+        r"""Change the property value of the object-oriented AEDT object.
 
         Parameters
         ----------
@@ -1998,7 +1998,6 @@ class Design(AedtObjects, PyAedtBase):
         Returns
         -------
         ansys.aedt.core.application.variables.VariableManager
-
 
         Examples
         --------
