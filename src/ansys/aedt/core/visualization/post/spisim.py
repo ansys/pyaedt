@@ -534,7 +534,6 @@ class SpiSim(PyAedtBase):
         self.touchstone_file = str(self.touchstone_file).replace("\\", "/")
 
         # self.touchstone_file = self._copy_to_relative_path(self.touchstone_file)
-        cfg_dict["INPARRY"] = self.touchstone_file
         cfg_dict["MIXMODE"] = "" if "MIXMODE" not in cfg_dict else cfg_dict["MIXMODE"]
         if port_order is not None and self.touchstone_file.lower().endswith(".s4p"):
             cfg_dict["MIXMODE"] = port_order
@@ -549,6 +548,7 @@ class SpiSim(PyAedtBase):
         fext_s4p = [str(i).replace("\\", "/") for i in fext_s4p]
         cfg_dict["NEXTSRC"] = ",".join(next_s4p)
         cfg_dict["FEXTSRC"] = ",".join(fext_s4p)
+        cfg_dict["INPARRY"] = ",".join([self.touchstone_file] + next_s4p + fext_s4p)
 
         cfg_dict["MAXFREQ"] = bandwidth if bandwidth is not None else cfg_dict["MAXFREQ"]
 
