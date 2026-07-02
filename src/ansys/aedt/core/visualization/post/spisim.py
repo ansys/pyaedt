@@ -329,7 +329,7 @@ class SpiSim(PyAedtBase):
                     lines = infile.read().split("\n")
                     for l in lines:
                         if l.startswith("[MESG]: ICN: "):
-                            return float(l.lstrip("[MESG]: ICN: ").rstrip(" mv"))*0.001
+                            return float(l.lstrip("[MESG]: ICN: ").rstrip(" mv")) * 0.001
 
                 self.logger.error(
                     f"Failed to compute {parameter_name}. Check input parameters and retry"
@@ -490,8 +490,8 @@ class SpiSim(PyAedtBase):
         self,
         config_file: str = None,
         port_order: str = "EVENODD",
-        next_s4p: str |Path| list = None,
-        fext_s4p: str |Path| list = None,
+        next_s4p: str | Path | list = None,
+        fext_s4p: str | Path | list = None,
         bandwidth: float = None,
         use_pcie_icn: bool = False,
     ) -> bool | float:
@@ -544,7 +544,6 @@ class SpiSim(PyAedtBase):
               )
 
         """
-
         wd = Path(self.working_directory) / "icn"
         wd.mkdir(parents=True, exist_ok=True)
 
