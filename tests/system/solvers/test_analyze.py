@@ -648,12 +648,13 @@ def test_compute_erl(circuit_erl) -> None:
         fixture_delay=400e-12,
         input_amplitude=1.0,
         ber=1e-4,
+        compute_retries=10,
     )
     assert erl_data2
     circuit_erl.set_active_design("4_ports")
     touchstone_file2 = circuit_erl.export_touchstone()
     spisim.touchstone_file = touchstone_file2
-    erl_data_3 = spisim.compute_erl(specify_through_ports=[1, 2, 3, 4])
+    erl_data_3 = spisim.compute_erl(specify_through_ports=[1, 2, 3, 4], compute_retries=10)
     assert erl_data_3
 
 
@@ -668,6 +669,22 @@ def test_compute_com_exported_touchstone(circuit_com) -> None:
         out_folder=report_dir,
     )
     assert com
+
+
+def test_compute_icn(test_tmp_dir) -> None:
+    icn_example_file_folder = Path(TESTS_SOLVERS_PATH) / "example_models" / TEST_SUBFOLDER / "com_unit_test_sparam"
+
+    spisim = SpiSim()
+    spisim.working_directory = test_tmp_dir
+
+    icn = spisim.compute_icn(
+        port_order="EvenOdd",
+        fext_s4p=icn_example_file_folder / "FCI_CC_Long_Link_Pair_2_to_Pair_9_FEXT.s4p",
+        next_s4p=icn_example_file_folder / "FCI_CC_Long_Link_Pair_11_to_Pair_9_NEXT.s4p",
+        bandwidth=10e9,
+        compute_retries=10,
+    )
+    assert icn
 
 
 def test_compute_com(test_tmp_dir) -> None:
