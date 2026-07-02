@@ -51,6 +51,7 @@ from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.numbers_utils import is_number
 from ansys.aedt.core.generic.quaternion import Quaternion
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
@@ -1235,6 +1236,68 @@ class GeometryModeler(Modeler, PyAedtBase):
                 self._get_object_dict_by_material(self.materials.liquids),
             ]
         return obj_lst
+
+    @pyaedt_function_handler()
+    def create_named_selection(self, name: str, objects: list[str] | list[int]) -> str:
+        """Create a new named selection given objects or face ids.
+
+        Parameters
+        ----------
+        name : str
+            Name of the named selection.
+        objects : list of str or int
+            List of object names or face ids to include in the named selection.
+
+        Returns
+        -------
+        str
+            Name of the created named selection.
+
+        References
+        ----------
+        >>> oEditor.CreateNamedSelection
+        """
+        is_str_list = all(isinstance(obj, str) for obj in objects)
+        is_id_list = all(isinstance(obj, int) for obj in objects)
+
+        if is_str_list:
+            selection_type = "Object"
+            selection = ", ".join(objects)
+        elif is_id_list:
+            selection_type = "Face"
+            selection = objects
+
+        params = ["NAME:NamedSelectionParameters", "Type:=", selection_type, "Selection:=", selection]
+        attr = ["NAME:Attributes", "Name:=", name, "UDM ID:=", -1]
+        self.oeditor.CreateNamedSelection(params, attr)
+        return name
+
+    @pyaedt_function_handler
+    def get_named_selection_objects(self, name: str) -> list:
+        """Objects in named selection.
+
+        Parameters
+        ----------
+        name : str
+            Name of the named selection.
+
+        Returns
+        -------
+        list
+            List of objects contained in the named selection.
+
+        Reference
+        ---------
+        >>> oEditor.GetEntityIDsContainedByNamedSelection
+        """
+        try:
+            self.oeditor.GetNamedSelectionIDByName(name)
+        except Exception:
+            raise AEDTRuntimeError("Named selection does not exist.")
+
+        entity_ids = self.oeditor.GetEntityIDsContainedByNamedSelection(name)
+        selected_objects = [self.objects[int(entity_id)] for entity_id in entity_ids]
+        return selected_objects
 
     @pyaedt_function_handler()
     def _get_coordinates_data(self):  # pragma: no cover
