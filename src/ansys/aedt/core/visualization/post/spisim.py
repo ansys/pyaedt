@@ -507,11 +507,28 @@ class SpiSim(PyAedtBase):
             can be a float or a string with the unit ("m", "g"). The default is ``25e9``.
 
 
-
         Returns
         -------
         bool or float
             ICN from the spisimExe command, ``False`` when failed.
+
+        Examples
+        --------
+            from ansys.aedt.core.visualization.post.spisim import SpiSim
+            thru_s4p = "thru.s4p"
+            fext_s4p = "fext_s4p.s4p"
+            next_s4p = "next_s4p.s4p"
+
+            spisim = SpiSim(thru_s4p)
+            spisim.working_directory = test_tmp_dir
+
+            icn = spisim.compute_icn(
+              port_order="EvenOdd",
+              fext_s4p=fext_s4p,
+              next_s4p=next_s4p,
+              bandwidth=10e9,
+              )
+
         """
         cfg_dict = {
             "INPARRY": "",
