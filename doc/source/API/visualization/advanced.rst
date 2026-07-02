@@ -373,6 +373,12 @@ PyAEDT has additional advanced post-processing features:
 
    convert_nearfield_data
    parse_rdat_file
-   nastran_to_stl
-   simplify_stl
+
+.. currentmodule:: ansys.aedt.core.syslib.nastran_import
+
+.. autosummary::
+    :toctree: _autosummary
+    :nosignatures:
+
+    nastran_to_stl
 

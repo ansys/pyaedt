@@ -217,14 +217,14 @@ def test_clicked_refresh_no_restart_and_with_restart(mock_showinfo, mock_get_lat
     manager.get_installed_version = lambda pkg: "1.2.3"
 
     # No restart path
-    manager.clicked_refresh(need_restart=False)
+    manager._clicked_refresh(need_restart=False)
     assert "PyAEDT: 1.2.3 (Latest 9.9.9)" in manager.pyaedt_info.get()
     assert "PyEDB: 1.2.3 (Latest 9.9.9)" in manager.pyedb_info.get()
 
     # Restart path: patch get_installed_version to be called inside
     manager.get_installed_version = lambda pkg: "3.3.3"
     mock_get_latest.return_value = "8.8.8"
-    manager.clicked_refresh(need_restart=True)
+    manager._clicked_refresh(need_restart=True)
     assert "PyAEDT: 3.3.3 (Latest 8.8.8)" in manager.pyaedt_info.get()
 
 
@@ -272,13 +272,13 @@ def test_set_light_and_set_dark() -> None:
     manager.style = MagicMock()
 
     # Light
-    manager.set_light_theme()
+    manager._set_light_theme()
     manager.root.configure.assert_called_with(bg="LBG")
     manager.theme.apply_light_theme.assert_called_once_with(manager.style)
     manager.change_theme_button.config.assert_called_with(text="\u263d")
 
     # Dark
-    manager.set_dark_theme()
+    manager._set_dark_theme()
     manager.root.configure.assert_called_with(bg="DBG")
     manager.theme.apply_dark_theme.assert_called_once_with(manager.style)
     manager.change_theme_button.config.assert_called_with(text="\u2600")
@@ -543,7 +543,7 @@ def test_get_branch_functions(mock_run, mock_askyesno, mock_is_git_available, _m
     manager.pyaedt_branch_name.set("feature/foo")
 
     # Prevent extra subprocess.run calls triggered by clicked_refresh
-    manager.clicked_refresh = lambda need_restart: None
+    manager._clicked_refresh = lambda need_restart: None
 
     # Reset the mock to capture calls
     manager.update_and_reload.reset_mock()
@@ -577,7 +577,7 @@ def test_get_pyedb_branch_functions(mock_run, mock_askyesno, mock_is_git_availab
     manager.pyedb_branch_name.set("feature/bar")
 
     # Prevent extra subprocess.run calls triggered by clicked_refresh
-    manager.clicked_refresh = lambda need_restart: None
+    manager._clicked_refresh = lambda need_restart: None
 
     # Reset the mock to capture calls
     manager.update_and_reload.reset_mock()

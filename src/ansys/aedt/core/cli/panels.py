@@ -37,6 +37,7 @@ except ImportError as e:  # pragma: no cover
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 
 panels_app = typer.Typer(help="Manage PyAEDT panels in AEDT", no_args_is_help=True)
+"""Value for panels app."""
 
 
 def _get_personal_lib_from_open_session() -> Path | None:
@@ -106,8 +107,7 @@ def add_panels(
         help="Delete existing Toolkits directory before installing",
     ),
 ):
-    """
-    Add PyAEDT panels to AEDT installation.
+    """Add PyAEDT panels to AEDT installation.
 
     This command installs PyAEDT tabs (Console, Jupyter, Run Script, optional Extension Manager,
     and optional Version Manager) into your AEDT installation.

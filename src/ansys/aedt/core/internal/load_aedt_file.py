@@ -47,6 +47,11 @@ def load_entire_aedt_file(filename: str | Path) -> dict:
     dict
         dictionary containing the decoded AEDT file
 
+    Examples
+    --------
+    >>> from ansys.aedt.core.internal.load_aedt_file import load_entire_aedt_file
+    >>> load_entire_aedt_file(r"C:\\Projects\\filter_design.aedt")
+
     """
     settings.logger.reset_timer()
     settings.logger.info(f"Parsing {filename}.")
@@ -69,6 +74,11 @@ def load_keyword_in_aedt_file(filename: str | Path, keyword: str, design_name: s
     -------
     dict
         dictionary containing the decoded AEDT file
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
+    >>> load_keyword_in_aedt_file(r"C:\\Projects\\filter_design.aedt", "ProjectPreview")
 
     """
     return _load_keyword_in_aedt_file(filename, keyword, design_name)
@@ -120,6 +130,12 @@ def get_designs(filename: str | Path) -> list[str]:
     -------
     list of str
         List of design names found in the AEDT file.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.internal.load_aedt_file import get_designs
+    >>> get_designs(r"C:\\Projects\\filter_design.aedt")
+
     """
     filename = Path(filename)
     designs = load_keyword_in_aedt_file(str(filename), "ProjectPreview")["ProjectPreview"]
@@ -151,9 +167,7 @@ def _parse_value(v):
 
 
 def _separate_list_elements(v):
-    """
-
-    Parameters
+    """Parameters
     ----------
     v :
 
@@ -334,9 +348,7 @@ def _decode_recognized_key(keyword, line, d) -> bool:
 
 
 def _decode_subkey(line, d) -> None:
-    """
-
-    Parameters
+    """Parameters
     ----------
     line : str
         Line.
@@ -413,9 +425,7 @@ def _decode_subkey(line, d) -> None:
 
 
 def _walk_through_structure(keyword, save_dict, design_name=None):
-    """
-
-    Parameters
+    """Parameters
     ----------
     keyword :
 

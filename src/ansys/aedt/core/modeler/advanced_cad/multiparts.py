@@ -31,6 +31,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 if TYPE_CHECKING:
     from ansys.aedt.core.hfss import Hfss
+    from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
 from ansys.aedt.core.internal.filesystem import get_json_files
 from ansys.aedt.core.modeler.advanced_cad.parts import Antenna
 from ansys.aedt.core.modeler.advanced_cad.parts import Part
@@ -78,6 +79,11 @@ class MultiPartComponent(PyAedtBase):
     roll : str or float, optional
         Roll angle, indicating the rotation about the component's X-axis. The default
 
+    Examples
+    --------
+    >>> from ansys.aedt.core.modeler.advanced_cad.multiparts import MultiPartComponent
+    >>> component = MultiPartComponent(r"C:\\temp\\actors")
+
     """
 
     _component_classes = ["environment", "rcs_standard", "vehicle", "person", "bike", "bird", "radar"]
@@ -93,6 +99,7 @@ class MultiPartComponent(PyAedtBase):
     _t = "time_var"
     _t_value = "0s"
     modeler_units = "meter"
+    """Value for modeler units."""
 
     @staticmethod
     def start(app: "Hfss") -> bool:
@@ -107,6 +114,14 @@ class MultiPartComponent(PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> import ansys.aedt.core as pyaedt
+        >>> from ansys.aedt.core.modeler.advanced_cad.multiparts import MultiPartComponent
+        >>> hfss = pyaedt.Hfss()
+        >>> MultiPartComponent.start(hfss)
+
         """
         app[MultiPartComponent._t] = MultiPartComponent._t_value
         app.modeler.model_units = "meter"  # Set units.
@@ -201,6 +216,14 @@ class MultiPartComponent(PyAedtBase):
         -------
         str
             Name of the coordinate system.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.multiparts import MultiPartComponent
+        >>> component = MultiPartComponent(r"C:\\temp\\actors")
+        >>> component.cs_name
+        'actors_cs'
+
         """
         if self.use_global_cs:
             self._relative_cs_name = "Global"
@@ -216,6 +239,14 @@ class MultiPartComponent(PyAedtBase):
         -------
         int
            Number of multi-part components.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.multiparts import MultiPartComponent
+        >>> component = MultiPartComponent(r"C:\\temp\\actors")
+        >>> component.index
+        0
+
         """
         if self._index is None:  # Only increment one time.
             self._index = MultiPartComponent._names.count(self._name)
@@ -233,6 +264,14 @@ class MultiPartComponent(PyAedtBase):
         -------
         str
             Name of the X-axis offset.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.multiparts import MultiPartComponent
+        >>> component = MultiPartComponent(r"C:\\temp\\actors")
+        >>> component.offset_x_name
+        'actors_x'
+
         """
         return self._offset_var_names[0]
 
@@ -244,6 +283,14 @@ class MultiPartComponent(PyAedtBase):
         -------
         str
             Name of the Y-axis offset.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.multiparts import MultiPartComponent
+        >>> component = MultiPartComponent(r"C:\\temp\\actors")
+        >>> component.offset_y_name
+        'actors_y'
+
         """
         return self._offset_var_names[1]
 
@@ -255,6 +302,14 @@ class MultiPartComponent(PyAedtBase):
         -------
         str
             Name of the Z-axis offset.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.multiparts import MultiPartComponent
+        >>> component = MultiPartComponent(r"C:\\temp\\actors")
+        >>> component.offset_z_name
+        'actors_z'
+
         """
         return self._offset_var_names[2]
 
@@ -266,6 +321,14 @@ class MultiPartComponent(PyAedtBase):
         -------
         list
             List of the offset names for the X-, Y-, and Z-axes.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.multiparts import MultiPartComponent
+        >>> component = MultiPartComponent(r"C:\\temp\\actors")
+        >>> component.offset_names
+        ['actors_x', 'actors_y', 'actors_z']
+
         """
         return [self.offset_x_name, self.offset_y_name, self.offset_z_name]
 
@@ -277,6 +340,14 @@ class MultiPartComponent(PyAedtBase):
         -------
         str
             Name of the yaw variable.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.multiparts import MultiPartComponent
+        >>> component = MultiPartComponent(r"C:\\temp\\actors")
+        >>> component.yaw_name
+        'actors_yaw'
+
         """
         return self.name + "_yaw"
 
@@ -288,6 +359,14 @@ class MultiPartComponent(PyAedtBase):
         -------
         str
             Value for the yaw variable.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.multiparts import MultiPartComponent
+        >>> component = MultiPartComponent(r"C:\\temp\\actors")
+        >>> component.yaw
+        '0deg'
+
         """
         return self._yaw
 
@@ -307,6 +386,14 @@ class MultiPartComponent(PyAedtBase):
         -------
         str
             Name of the pitch variable.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.multiparts import MultiPartComponent
+        >>> component = MultiPartComponent(r"C:\\temp\\actors")
+        >>> component.pitch_name
+        'actors_pitch'
+
         """
         return self.name + "_pitch"
 
@@ -318,6 +405,14 @@ class MultiPartComponent(PyAedtBase):
         -------
         str
             Value of the pitch variable.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.multiparts import MultiPartComponent
+        >>> component = MultiPartComponent(r"C:\\temp\\actors")
+        >>> component.pitch
+        '0deg'
+
         """
         return self._pitch
 
@@ -337,6 +432,14 @@ class MultiPartComponent(PyAedtBase):
         -------
         str
             Name of the roll variable.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.multiparts import MultiPartComponent
+        >>> component = MultiPartComponent(r"C:\\temp\\actors")
+        >>> component.roll_name
+        'actors_roll'
+
         """
         return self.name + "_roll"
 
@@ -348,6 +451,14 @@ class MultiPartComponent(PyAedtBase):
         -------
         str
             Value of the roll variable.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.multiparts import MultiPartComponent
+        >>> component = MultiPartComponent(r"C:\\temp\\actors")
+        >>> component.roll
+        '0deg'
+
         """
         return self._roll
 
@@ -379,6 +490,14 @@ class MultiPartComponent(PyAedtBase):
         -------
         str
            Name of the unique instance.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.multiparts import MultiPartComponent
+        >>> component = MultiPartComponent(r"C:\\temp\\actors")
+        >>> component.name
+        'actors'
+
         """
         suffix = "_" + str(self.index)
         return self._name + suffix  # unique instance name
@@ -391,6 +510,14 @@ class MultiPartComponent(PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.multiparts import MultiPartComponent
+        >>> component = MultiPartComponent(r"C:\\temp\\actors")
+        >>> component.use_global_cs
+        True
+
         """
         return self._use_global_cs
 
@@ -402,6 +529,14 @@ class MultiPartComponent(PyAedtBase):
         -------
         list
             List of offset values.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.multiparts import MultiPartComponent
+        >>> component = MultiPartComponent(r"C:\\temp\\actors")
+        >>> component.offset
+        ['0', '0', '0']
+
         """
         return self._offset_values
 
@@ -412,7 +547,7 @@ class MultiPartComponent(PyAedtBase):
         self._offset_values = o  # Expect tuple or list of strings
 
     @pyaedt_function_handler()
-    def position_in_app(self, app: "Hfss") -> "Hfss":
+    def position_in_app(self, app: "Hfss") -> "CoordinateSystem | None":
         """Set up design variables and values to enable motion for the multi-part 3D component.
 
         Parameters
@@ -422,7 +557,16 @@ class MultiPartComponent(PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.Modeler.CoordinateSystem`
+        :class:`ansys.aedt.core.modeler.cad.modeler.CoordinateSystem`
+
+        Examples
+        --------
+        >>> import ansys.aedt.core as pyaedt
+        >>> from ansys.aedt.core.modeler.advanced_cad.multiparts import MultiPartComponent
+        >>> hfss = pyaedt.Hfss()
+        >>> component = MultiPartComponent(r"C:\\temp\\actors", motion=True)
+        >>> component.position_in_app(hfss)
+
         """
         if self.motion:
             xyz = ["x", "y", "z"]
@@ -495,6 +639,15 @@ class MultiPartComponent(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> import ansys.aedt.core as pyaedt
+        >>> from ansys.aedt.core.modeler.advanced_cad.multiparts import MultiPartComponent
+        >>> hfss = pyaedt.Hfss()
+        >>> component = MultiPartComponent(r"C:\\temp\\actors")
+        >>> component.insert(hfss)
+
         """
         return self._insert(app, motion=motion)
 
@@ -514,6 +667,13 @@ class Environment(MultiPartComponent, PyAedtBase):
         Name of the coordinate system to connect the component's relative system to
         when ``use_relative_cs=True``. The default is ``None``, in which case the
         global coordinate system is used.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modeler.advanced_cad.multiparts import Environment
+    >>> env = Environment(r"C:\\temp\\actors")
+    >>> env
+
     """
 
     def __init__(self, env_folder, relative_cs_name=None) -> None:
@@ -527,6 +687,14 @@ class Environment(MultiPartComponent, PyAedtBase):
         -------
         str
             Name of the coordinate system.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.multiparts import Environment
+        >>> env = Environment(r"C:\\temp\\actors")
+        >>> env.cs_name
+        'Global'
+
         """
         return "Global"
 
@@ -538,6 +706,14 @@ class Environment(MultiPartComponent, PyAedtBase):
         -------
         str
             Value for the yaw variable.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.multiparts import Environment
+        >>> env = Environment(r"C:\\temp\\actors")
+        >>> env.yaw
+        '0deg'
+
         """
         return self._yaw
 
@@ -553,6 +729,14 @@ class Environment(MultiPartComponent, PyAedtBase):
         -------
         str
             Value for the pitch variable.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.multiparts import Environment
+        >>> env = Environment(r"C:\\temp\\actors")
+        >>> env.pitch
+        '0deg'
+
         """
         return self._pitch
 
@@ -568,6 +752,14 @@ class Environment(MultiPartComponent, PyAedtBase):
         -------
         str
             Value for the roll variable.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.multiparts import Environment
+        >>> env = Environment(r"C:\\temp\\actors")
+        >>> env.roll
+        '0deg'
+
         """
         return self._roll
 
@@ -582,6 +774,14 @@ class Environment(MultiPartComponent, PyAedtBase):
         Returns
         -------
         list
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.multiparts import Environment
+        >>> env = Environment(r"C:\\temp\\actors")
+        >>> env.offset
+        ['0', '0', '0']
+
         """
         return self._offset_values
 
@@ -608,9 +808,17 @@ class Actor(MultiPartComponent, PyAedtBase):
     relative_cs_name : str
         Name of the relative coordinate system of the actor. The default is ``None``,
         in which case the global coordinate system is used.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modeler.advanced_cad.multiparts import Actor
+    >>> actor = Actor(r"C:\\temp\\actors")
+    >>> actor.speed_name
+    'actors_speed'
+
     """
 
-    def __init__(self, actor_folder, speed: str = "0", relative_cs_name=None) -> None:
+    def __init__(self, actor_folder, speed: str | float = "0", relative_cs_name=None) -> None:
         super(Actor, self).__init__(actor_folder, use_relative_cs=True, motion=True, relative_cs_name=relative_cs_name)
 
         self._speed_expression = str(speed) + "m_per_sec"  # TODO: Need error checking here.
@@ -623,6 +831,14 @@ class Actor(MultiPartComponent, PyAedtBase):
         -------
         str
             Name of the speed variable.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.multiparts import Actor
+        >>> actor = Actor(r"C:\\temp\\actors")
+        >>> actor.speed_name
+        'actors_speed'
+
         """
         return self.name + "_speed"
 
@@ -634,6 +850,14 @@ class Actor(MultiPartComponent, PyAedtBase):
         -------
         str
             Expression for the speed variable.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.multiparts import Actor
+        >>> actor = Actor(r"C:\\temp\\actors", speed=5)
+        >>> actor.speed_expression
+        '5m_per_sec'
+
         """
         return self._speed_expression
 

@@ -22,10 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-This module contains this class: `PostProcessorCommon`.
+"""The module contains this class: `PostProcessorCommon`.
 
-This module provides all functionalities for common AEDT post processing.
+The module provides all functionalities for common AEDT post processing.
 
 """
 
@@ -90,6 +89,7 @@ TEMPLATES_BY_NAME = {
     "EMIReceiver": report_emi.EMIReceiver,
     "Netlist": report_netlist.CircuitNetlistReport,
 }
+"""Templates by name."""
 
 
 class PostProcessorCommon(PyAedtBase):
@@ -113,6 +113,7 @@ class PostProcessorCommon(PyAedtBase):
     >>> from ansys.aedt.core import Q3d
     >>> q3d = Q3d()
     >>> q3d.post.get_solution_data(domain="Original")
+
     """
 
     def __init__(self, app) -> None:
@@ -144,6 +145,13 @@ class PostProcessorCommon(PyAedtBase):
         -------
         list[report_standard.Standard]
             List of reports created in active design.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
+        >>> obj = PostProcessorCommon()
+        >>> obj.plots
+
         """
         if self.__plots is None:
             self.__plots = self._get_plot_inputs()
@@ -174,6 +182,13 @@ class PostProcessorCommon(PyAedtBase):
         References
         ----------
         >>> oModule.GetAvailableReportTypes
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
+        >>> obj = PostProcessorCommon()
+        >>> obj.available_report_types
+
         """
         return list(self.oreportsetup.GetAvailableReportTypes())
 
@@ -184,6 +199,13 @@ class PostProcessorCommon(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
+        >>> obj = PostProcessorCommon()
+        >>> obj.update_report_dynamically
+
         """
         return (
             True
@@ -222,6 +244,13 @@ class PostProcessorCommon(PyAedtBase):
         References
         ----------
         >>> oModule.GetAvailableDisplayTypes
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
+        >>> obj = PostProcessorCommon()
+        >>> obj.available_display_types()
+
         """
         if not report_category:
             report_category = self.available_report_types[0]
@@ -265,6 +294,13 @@ class PostProcessorCommon(PyAedtBase):
         References
         ----------
         >>> oModule.GetAllCategories
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
+        >>> obj = PostProcessorCommon()
+        >>> obj.available_quantities_categories()
+
         """
         if not report_category:
             report_category = self.available_report_types[0]
@@ -378,6 +414,7 @@ class PostProcessorCommon(PyAedtBase):
         ...     report_category="EddyCurrent", display_type="Data Table", context={"Matrix1": "ReducedMatrix1"}
         ... )
         >>> m3d.desktop_class.release_desktop(False, False)
+
         """
         if not report_category:
             report_category = self.available_report_types[0]
@@ -542,6 +579,13 @@ class PostProcessorCommon(PyAedtBase):
         dict
             A dictionary with primary key the report type, secondary key the solution type and
             third key the report categories.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
+        >>> obj = PostProcessorCommon()
+        >>> obj.get_all_report_quantities()
+
         """
         rep_quantities = {}
         if not context and self._app.design_type in [
@@ -592,6 +636,13 @@ class PostProcessorCommon(PyAedtBase):
         References
         ----------
         >>> oModule.GetAvailableSolutions
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
+        >>> obj = PostProcessorCommon()
+        >>> obj.available_report_solutions()
+
         """
         if not report_category:
             report_category = self.available_report_types[0]
@@ -663,12 +714,27 @@ class PostProcessorCommon(PyAedtBase):
         References
         ----------
         >>> oDesign.GetModule("ReportSetup")
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
+        >>> obj = PostProcessorCommon()
+        >>> obj.oreportsetup
+
         """
         return self._app.oreportsetup
 
     @property
     def logger(self):
-        """Logger."""
+        """Logger.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
+        >>> obj = PostProcessorCommon()
+        >>> obj.logger
+
+        """
         return self._app.logger
 
     @property
@@ -688,6 +754,7 @@ class PostProcessorCommon(PyAedtBase):
 
     @property
     def oeditor(self):
+        """Retrieve oeditor."""
         try:
             return self._app.modeler.oeditor
         except AttributeError:
@@ -701,6 +768,13 @@ class PostProcessorCommon(PyAedtBase):
         -------
         type
             Design solution type.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
+        >>> obj = PostProcessorCommon()
+        >>> obj.post_solution_type
+
         """
         return self._app.solution_type
 
@@ -715,6 +789,13 @@ class PostProcessorCommon(PyAedtBase):
         References
         ----------
         >>> oModule.GetAllReportNames()
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
+        >>> obj = PostProcessorCommon()
+        >>> obj.all_report_names
+
         """
         return list(self.oreportsetup.GetAllReportNames())
 
@@ -738,6 +819,13 @@ class PostProcessorCommon(PyAedtBase):
         ----------
         >>> oModule.CopyReportsData
         >>> oModule.PasteReports
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
+        >>> obj = PostProcessorCommon()
+        >>> obj.copy_report_data(my_report)
+
         """
         self.oreportsetup.CopyReportsData([plot_name])
         if paste:
@@ -756,6 +844,13 @@ class PostProcessorCommon(PyAedtBase):
         References
         ----------
         >>> oModule.PasteReports
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
+        >>> obj = PostProcessorCommon()
+        >>> obj.paste_report_data()
+
         """
         self.oreportsetup.PasteReports()
         return True
@@ -777,6 +872,13 @@ class PostProcessorCommon(PyAedtBase):
         References
         ----------
         >>> oModule.DeleteReports
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
+        >>> obj = PostProcessorCommon()
+        >>> obj.delete_report()
+
         """
         try:
             if plot_name:
@@ -810,6 +912,13 @@ class PostProcessorCommon(PyAedtBase):
         References
         ----------
         >>> oModule.RenameReport
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
+        >>> obj = PostProcessorCommon()
+        >>> obj.rename_report("my_plot", "my_new_plot")
+
         """
         try:
             self.oreportsetup.RenameReport(plot_name, new_name)
@@ -856,6 +965,13 @@ class PostProcessorCommon(PyAedtBase):
         References
         ----------
         >>> oModule.GetSolutionDataPerVariation
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
+        >>> obj = PostProcessorCommon()
+        >>> obj.get_solution_data_per_variation()
+
         """
         if sweeps is None:
             sweeps = {"Theta": "All", "Phi": "All", "Freq": "All"}
@@ -899,6 +1015,13 @@ class PostProcessorCommon(PyAedtBase):
         References
         ----------
         >>> oDesktop.RestoreWindow
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
+        >>> obj = PostProcessorCommon()
+        >>> obj.steal_focus_oneditor()
+
         """
         self._desktop.RestoreWindow()
         param = ["NAME:SphereParameters", "XCenter:=", "0mm", "YCenter:=", "0mm", "ZCenter:=", "0mm", "Radius:=", "1mm"]
@@ -920,8 +1043,7 @@ class PostProcessorCommon(PyAedtBase):
         step: str = None,
         use_trace_number_format: bool = False,
     ) -> str:
-        r"""
-        Export a 2D Plot data to a file.
+        """Export a 2D Plot data to a file.
 
         This method leaves the data in the plot (as data) as a reference
         for the Plot after the loops.
@@ -974,6 +1096,7 @@ class PostProcessorCommon(PyAedtBase):
         >>> cir = Circuit("my_project.aedt")
         >>> report = cir.post.create_report("MyScattering")
         >>> cir.post.export_report_to_file("C:\\temp", "MyTestScattering", ".csv")
+
         """
         npath = output_dir
 
@@ -1046,6 +1169,13 @@ class PostProcessorCommon(PyAedtBase):
         >>> oModule.ExportReportDataToFile
         >>> oModule.ExportToFile
         >>> oModule.ExportUniformPointsToFile
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
+        >>> obj = PostProcessorCommon()
+        >>> obj.export_report_to_csv("my_dir", "my_plot")
+
         """
         return self.export_report_to_file(
             project_dir,
@@ -1085,6 +1215,13 @@ class PostProcessorCommon(PyAedtBase):
         References
         ----------
         >>> oModule.ExportImageToFile
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
+        >>> obj = PostProcessorCommon()
+        >>> obj.export_report_to_jpg("my_dir", "my_plot")
+
         """
         if Path(project_path).is_dir():
             file_name = os.path.join(project_path, plot_name + "." + image_format)  # name of the image file
@@ -1660,6 +1797,7 @@ class PostProcessorCommon(PyAedtBase):
         ...         primary_sweep_variable="Freq",
         ...     )
         >>> cir.desktop_class.release_desktop(False, False)
+
         """
         if self._app.design_type == "Circuit Netlist" and (
             not setup_sweep_name or setup_sweep_name not in CircuitNetlistConstants.solution_types
@@ -1682,6 +1820,15 @@ class PostProcessorCommon(PyAedtBase):
             polyline_points=polyline_points,
         )
         report.report_type = plot_type
+
+        if (
+            self._app.solution_type == "Eigenmode"
+            and report.report_category == "EigenMode Parameters"
+            and "Phase" in report.variations
+        ):
+            # Phase is not available in Eigenmode Parameters report
+            del report.variations["Phase"]
+
         if matplotlib:
             return self._report_plotter(report, show=show, snapshot_path=snapshot_path, width=width, height=height)
 
@@ -1790,20 +1937,19 @@ class PostProcessorCommon(PyAedtBase):
         >>> variations["Phi"] = ["All"]
         >>> variations["Freq"] = ["30GHz"]
         >>> data1 = hfss.post.get_solution_data(
-        ...    "GainTotal",
-        ...    hfss.nominal_adaptive,
-        ...    variations=variations,
-        ...    primary_sweep_variable="Phi",
-        ...    secondary_sweep_variable="Theta",
-        ...    context="3D",
-        ...    report_category="Far Fields",
-        ...)
+        ...     "GainTotal",
+        ...     hfss.nominal_adaptive,
+        ...     variations=variations,
+        ...     primary_sweep_variable="Phi",
+        ...     context="3D",
+        ...     report_category="Far Fields",
+        ... )
 
-        >>> data2 =hfss.post.get_solution_data(
-        ...    "S(1,1)",
-        ...    hfss.nominal_sweep,
-        ...    variations=variations,
-        ...)
+        >>> data2 = hfss.post.get_solution_data(
+        ...     "S(1,1)",
+        ...     hfss.nominal_sweep,
+        ...     variations=variations,
+        ... )
         >>> data2.plot()
         >>> hfss.desktop_class.release_desktop(False, False)
 
@@ -1838,8 +1984,9 @@ class PostProcessorCommon(PyAedtBase):
         >>> expressions = m3d.post.available_report_quantities(
         ...     report_category="EddyCurrent", display_type="Data Table", context={"Matrix1": "ReducedMatrix1"}
         ... )
-        >>> data = m2d.post.get_solution_data(expressions=expressions, context={"Matrix1": "ReducedMatrix1"})
+        >>> data = m3d.post.get_solution_data(expressions=expressions, context={"Matrix1": "ReducedMatrix1"})
         >>> m3d.desktop_class.release_desktop(False, False)
+
         """
         report = self._get_report_object(
             expressions=expressions,
@@ -1896,7 +2043,7 @@ class PostProcessorCommon(PyAedtBase):
             Dictionary containing report settings.
         solution_name : str, optional
             Setup name to use.
-        name: str, optional
+        name : str, optional
             Report name. The default is ``None``, in which case the
             default name is used.
         matplotlib : bool, optional
@@ -1939,6 +2086,7 @@ class PostProcessorCommon(PyAedtBase):
         >>> hfss = Hfss()
         >>> dict_vals = read_json("Report_Simple.json")
         >>> hfss.post.create_report_from_configuration(report_settings=dict_vals)
+
         """
         if not report_settings and not input_file:  # pragma: no cover
             self.logger.error("Either a file or a dictionary must be passed as input.")
@@ -2333,7 +2481,14 @@ class PostProcessorCommon(PyAedtBase):
 
 
 class Reports(PyAedtBase):
-    """Provides the names of default solution types."""
+    """Provides the names of default solution types.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post.common import Reports
+    >>> obj = Reports()
+
+    """
 
     def __init__(self, post_app, design_type) -> None:
         self._post_app = post_app
@@ -2421,6 +2576,7 @@ class Reports(PyAedtBase):
         >>> ipk = Icepak(my_project)
         >>> report = ipk.post.reports_by_category.monitor(["monitor_surf.Temperature", "monitor_point.Temperature"])
         >>> report = report.create()
+
         """
         if not setup:
             setup = self._post_app._app.nominal_sweep
@@ -2460,6 +2616,7 @@ class Reports(PyAedtBase):
         >>> report = hfss.post.reports_by_category.fields("Mag_E", "Setup : LastAdaptive", "Polyline1")
         >>> report.create()
         >>> solutions = report.get_solution_data()
+
         """
         if not setup:
             # setup = self._post_app._app.nominal_sweep
@@ -2501,6 +2658,7 @@ class Reports(PyAedtBase):
         >>> report = q3d.post.reports_by_category.cg_fields("SmoothQ", "Setup : LastAdaptive", "Polyline1")
         >>> report.create()
         >>> solutions = report.get_solution_data()
+
         """
         if not setup:
             setup = self._post_app._app.nominal_sweep
@@ -2541,6 +2699,7 @@ class Reports(PyAedtBase):
         >>> report = q3d.post.reports_by_category.dc_fields("Mag_VolumeJdc", "Setup : LastAdaptive", "Polyline1")
         >>> report.create()
         >>> solutions = report.get_solution_data()
+
         """
         if not setup:
             setup = self._post_app._app.nominal_sweep
@@ -2581,6 +2740,7 @@ class Reports(PyAedtBase):
         >>> report = q3d.post.reports_by_category.rl_fields("Mag_SurfaceJac", "Setup : LastAdaptive", "Polyline1")
         >>> report.create()
         >>> solutions = report.get_solution_data()
+
         """
         if not setup:
             setup = self._post_app._app.nominal_sweep
@@ -2632,6 +2792,7 @@ class Reports(PyAedtBase):
         >>> report.primary_sweep = "Phi"
         >>> report.create()
         >>> solutions = report.get_solution_data()
+
         """
         if not setup:
             setup = self._post_app._app.nominal_sweep
@@ -2681,6 +2842,7 @@ class Reports(PyAedtBase):
         >>> report = hfss.post.reports_by_category.antenna_parameters("GainTotal", "Setup : LastAdaptive", "3D_Sphere")
         >>> report.create()
         >>> solutions = report.get_solution_data()
+
         """
         if not setup:
             setup = self._post_app._app.nominal_sweep
@@ -2717,6 +2879,7 @@ class Reports(PyAedtBase):
         >>> report.primary_sweep = "Phi"
         >>> report.create()
         >>> solutions = report.get_solution_data()
+
         """
         if not setup:
             setup = self._post_app._app.nominal_sweep
@@ -2752,6 +2915,7 @@ class Reports(PyAedtBase):
         >>> report = hfss.post.reports_by_category.modal_solution("dB(S(1,1))")
         >>> report.create()
         >>> solutions = report.get_solution_data()
+
         """
         if not setup:
             setup = self._post_app._app.nominal_sweep
@@ -2787,6 +2951,7 @@ class Reports(PyAedtBase):
         >>> report = hfss.post.reports_by_category.terminal_solution("dB(S(1,1))")
         >>> report.create()
         >>> solutions = report.get_solution_data()
+
         """
         if not setup:
             setup = self._post_app._app.nominal_sweep
@@ -2822,6 +2987,7 @@ class Reports(PyAedtBase):
         >>> report = hfss.post.reports_by_category.eigenmode("dB(S(1,1))")
         >>> report.create()
         >>> solutions = report.get_solution_data()
+
         """
         if not setup:
             setup = self._post_app._app.nominal_sweep
@@ -2846,7 +3012,7 @@ class Reports(PyAedtBase):
             Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
             setup is used. Be sure to build a setup string in the form of
             ``"SetupName : SetupSweep"``, where ``SetupSweep`` is either the sweep
-             name to use in the export or ``LastAdaptive``.
+            name to use in the export or ``LastAdaptive``.
         quantity_type : int, optional
             For AMI analysis only, the quantity type. The default is ``3``. Options are:
 
@@ -2930,6 +3096,7 @@ class Reports(PyAedtBase):
         >>> new_eye.unit_interval = "1e-9s"
         >>> new_eye.time_stop = "100ns"
         >>> new_eye.create()
+
         """
         if not setup:
             setup = self._post_app._app.nominal_sweep
@@ -3014,6 +3181,7 @@ class Reports(PyAedtBase):
         >>> cir = Circuit()
         >>> new_eye = cir.post.emi_receiver()
         >>> new_eye.create()
+
         """
         if not setup_name:
             setup_name = self._post_app._app.nominal_sweep
@@ -3070,6 +3238,7 @@ class Reports(PyAedtBase):
         Create the report in AEDT.
         >>> assert new_report.create()
         >>> cir.release_desktop(False, False)
+
         """
         if setup not in CircuitNetlistConstants.solution_types:
             raise ValueError(
