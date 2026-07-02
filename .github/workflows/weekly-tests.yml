@@ -993,7 +993,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv sync --frozen --group tests --extra all
+          uv sync --frozen --group tests --extra all-dotnet
 
 
       - name: Remove Ansys processes (if any)
