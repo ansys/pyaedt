@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import os
 import pathlib
+import tempfile
 from pathlib import Path
 import re
 import shutil
@@ -490,8 +491,8 @@ class SpiSim(PyAedtBase):
         self,
         config_file: str = None,
         port_order: str = "EVENODD",
-        next_s4p: str | list = None,
-        fext_s4p: str | list = None,
+        next_s4p: str |Path| list = None,
+        fext_s4p: str |Path| list = None,
         bandwidth: float = None,
         use_pcie_icn: bool = False,
     ) -> bool | float:
@@ -530,11 +531,10 @@ class SpiSim(PyAedtBase):
         Examples
         --------
             from ansys.aedt.core.visualization.post.spisim import SpiSim
-            thru_s4p = "thru.s4p"
             fext_s4p = "fext_s4p.s4p"
             next_s4p = "next_s4p.s4p"
 
-            spisim = SpiSim(thru_s4p)
+            spisim = SpiSim()
             spisim.working_directory = test_tmp_dir
 
             icn = spisim.compute_icn(
@@ -545,6 +545,10 @@ class SpiSim(PyAedtBase):
               )
 
         """
+
+        wd = Path(self.working_directory) / "icn"
+        wd.mkdir(parents=True, exist_ok=True)
+
         cfg_dict = {
             "INPARRY": "",
             "MIXMODE": "",
@@ -563,30 +567,22 @@ class SpiSim(PyAedtBase):
                         split_line = [i.strip() for i in line.split("=")]
                         cfg_dict[split_line[0]] = split_line[1]
 
-        self.touchstone_file = str(self.touchstone_file).replace("\\", "/")
-
-        self.touchstone_file = self._copy_to_relative_path(self.touchstone_file)
-        cfg_dict["MIXMODE"] = "" if "MIXMODE" not in cfg_dict else cfg_dict["MIXMODE"]
-        if port_order is not None and self.touchstone_file.lower().endswith(".s4p"):
-            cfg_dict["MIXMODE"] = port_order
-        elif not self.touchstone_file.lower().endswith(".s4p"):
-            cfg_dict["MIXMODE"] = ""
+        cfg_dict["MIXMODE"] = port_order
         if not isinstance(next_s4p, list):
             next_s4p = [next_s4p]
-        next_s4p = [str(i).replace("\\", "/") for i in next_s4p]
-        next_s4p = [self._copy_to_relative_path(i) for i in next_s4p]
+        next_s4p = [Path(shutil.copy(i, wd)).name for i in next_s4p]
 
         if not isinstance(fext_s4p, list):
             fext_s4p = [fext_s4p]
-        fext_s4p = [str(i).replace("\\", "/") for i in fext_s4p]
-        fext_s4p = [self._copy_to_relative_path(i) for i in fext_s4p]
+        fext_s4p = [Path(shutil.copy(i, wd)).name for i in fext_s4p]
+
         cfg_dict["NEXTSRC"] = ",".join(next_s4p)
         cfg_dict["FEXTSRC"] = ",".join(fext_s4p)
-        cfg_dict["INPARRY"] = ",".join([self.touchstone_file] + next_s4p + fext_s4p)
+        cfg_dict["INPARRY"] = ",".join(next_s4p + fext_s4p)
 
         cfg_dict["MAXFREQ"] = bandwidth if bandwidth is not None else cfg_dict["MAXFREQ"]
 
-        config_file = os.path.join(self.working_directory, "spisim_icn.cfg").replace("\\", "/")
+        config_file = os.path.join(wd, "spisim_icn.cfg").replace("\\", "/")
         with open_file(config_file, "w") as fp:
             for k, v in cfg_dict.items():
                 fp.write(f"# {k}: {k}\n")
