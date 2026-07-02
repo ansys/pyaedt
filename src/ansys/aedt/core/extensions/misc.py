@@ -741,6 +741,16 @@ class ExtensionMaxwell3DCommon(ExtensionCommon):
             raise AEDTRuntimeError("This extension can only be used with Maxwell 3D designs.")
 
 
+class ExtensionQ3DCommon(ExtensionCommon):
+    """Common methods for Q3D Extractor extensions."""
+
+    def check_design_type(self) -> None:
+        """Check if the active design is a Maxwell 3D design."""
+        if self.aedt_application.design_type != "Q3D Extractor":
+            self.release_desktop()
+            raise AEDTRuntimeError("This extension can only be used with Q3D designs.")
+
+
 class ExtensionCircuitCommon(ExtensionCommon):
     """Common methods for Circuit extensions."""
 
