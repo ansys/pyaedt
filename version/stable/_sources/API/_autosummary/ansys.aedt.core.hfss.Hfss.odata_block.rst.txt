@@ -1,0 +1,6 @@
+odata\_block
+============
+
+.. currentmodule:: ansys.aedt.core.hfss
+
+.. autoproperty:: Hfss.odata_block

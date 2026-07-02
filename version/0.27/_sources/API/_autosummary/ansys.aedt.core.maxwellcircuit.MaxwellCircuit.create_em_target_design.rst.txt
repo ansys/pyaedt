@@ -1,0 +1,6 @@
+create\_em\_target\_design
+==========================
+
+.. currentmodule:: ansys.aedt.core.maxwellcircuit
+
+.. automethod:: MaxwellCircuit.create_em_target_design

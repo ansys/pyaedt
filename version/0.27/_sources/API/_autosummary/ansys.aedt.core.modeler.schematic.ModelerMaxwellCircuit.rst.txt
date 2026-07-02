@@ -1,0 +1,48 @@
+﻿ModelerMaxwellCircuit
+=====================
+
+.. currentmodule:: ansys.aedt.core.modeler.schematic
+
+.. autoclass:: ModelerMaxwellCircuit
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      ModelerMaxwellCircuit.change_text_property
+      
+      
+      ModelerMaxwellCircuit.connect_schematic_components
+      
+      
+      ModelerMaxwellCircuit.create_text
+      
+      
+      ModelerMaxwellCircuit.zoom_to_fit
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      ModelerMaxwellCircuit.logger
+      ModelerMaxwellCircuit.o_def_manager
+      ModelerMaxwellCircuit.ocomponent_manager
+      ModelerMaxwellCircuit.oeditor
+      ModelerMaxwellCircuit.omodel_manager
+      ModelerMaxwellCircuit.projdir
+      ModelerMaxwellCircuit.public_dir
+      ModelerMaxwellCircuit.schematic
+      ModelerMaxwellCircuit.schematic_units
+   
+   

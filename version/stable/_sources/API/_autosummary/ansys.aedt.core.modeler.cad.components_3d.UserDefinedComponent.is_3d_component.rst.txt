@@ -1,0 +1,6 @@
+is\_3d\_component
+=================
+
+.. currentmodule:: ansys.aedt.core.modeler.cad.components_3d
+
+.. autoproperty:: UserDefinedComponent.is_3d_component

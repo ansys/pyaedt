@@ -1,0 +1,39 @@
+﻿Wire
+====
+
+.. currentmodule:: ansys.aedt.core.modeler.circuits.object_3d_circuit
+
+.. autoclass:: Wire
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      Wire.display_wire_properties
+      
+      
+      Wire.get_net_name
+      
+      
+      Wire.set_net_name
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      Wire.logger
+      Wire.points_in_segment
+      Wire.wires
+   
+   

@@ -1,0 +1,6 @@
+signal\_sources
+===============
+
+.. currentmodule:: ansys.aedt.core.modules.boundary.maxwell_boundary
+
+.. autoattribute:: RLSourceACMagneticAPhi.signal_sources

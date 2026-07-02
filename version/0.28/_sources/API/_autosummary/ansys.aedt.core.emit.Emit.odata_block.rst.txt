@@ -1,0 +1,6 @@
+odata\_block
+============
+
+.. currentmodule:: ansys.aedt.core.emit
+
+.. autoproperty:: Emit.odata_block

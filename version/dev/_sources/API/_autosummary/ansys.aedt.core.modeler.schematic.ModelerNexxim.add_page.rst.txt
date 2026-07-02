@@ -1,0 +1,6 @@
+add\_page
+=========
+
+.. currentmodule:: ansys.aedt.core.modeler.schematic
+
+.. automethod:: ModelerNexxim.add_page

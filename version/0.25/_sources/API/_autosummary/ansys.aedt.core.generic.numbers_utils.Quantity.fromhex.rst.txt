@@ -1,0 +1,6 @@
+fromhex
+=======
+
+.. currentmodule:: ansys.aedt.core.generic.numbers_utils
+
+.. automethod:: Quantity.fromhex

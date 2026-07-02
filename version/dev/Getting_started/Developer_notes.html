@@ -1,0 +1,1026 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Developer notes &#8212; PyAEDT</title>
+  
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=0790524f97105ba85085" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=0790524f97105ba85085" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/ansys-sphinx-theme.css?v=5ffe81b6" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/ansys-sphinx-theme.css?v=5ffe81b6" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://www.nerdfonts.com/assets/css/webfont.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=de68c915" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=0790524f97105ba85085"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=0790524f97105ba85085" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085" />
+
+
+  <!-- Include desired assets -->
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  
+
+  
+    <link href="../_static/css/breadcrumbs.css" rel="stylesheet" />
+  
+    <script src="../_static/documentation_options.js?v=2b5f090b"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=49e1bf35"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'Getting_started/Developer_notes';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.18.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://aedt.docs.pyansys.com/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="About PyAnsys and AEDT" href="About.html" />
+    <link rel="prev" title="Contribute" href="Contributing.html" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.2.dev0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  <meta property="og:site_name" content="PyAnsys" />
+  <meta name="physics" content="Electronics" />
+  <link rel="canonical" href="https://aedt.docs.pyansys.com/version/stable/Getting_started/Developer_notes.html" />
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="https://docs.pyansys.com/">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/pyansys_logo_transparent_black.png" class="logo__image only-light" alt="PyAEDT - Home"/>
+    <img src="../_static/pyansys_logo_transparent_white.png" class="logo__image only-dark pst-js-only" alt="PyAEDT - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html" title="PyAEDT home">Home</a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../User_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../API/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://examples.aedt.docs.pyansys.com/">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changelog.html">
+    Release notes
+  </a>
+</li>
+
+  </ul>
+</nav>
+</div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+      
+        <div class="navbar-item">
+<div class="search-bar pst-js-only" id="search-bar">
+  <form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" class="form-control" name="q" placeholder="Search the docs ..."
+      aria-label="Search the docs ..." autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false" />
+    <span class="search-button__kbd-shortcut">
+      <kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd>
+    </span>
+  </form>
+  
+  <div id="static-search-results" class="static-search-results" style="display:none;" tabindex="0"></div>
+  
+</div></div>
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i><span class="visually-hidden">Support</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+  
+    
+<!--
+  Announcement Version Loader
+  Dynamically loads the announcement.html content into the announcement_msg div.
+-->
+<div id="announcement_msg" aria-live="polite"></div>
+<script>
+  // Fetch and inject the announcement HTML content
+  fetch("announcement.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status} Announcement.html file not found, Please ignore this, if you are in dev/stable documentation`);
+      }
+      return response.text();
+    })
+    .then((text) => {
+      var msgDiv = document.getElementById("announcement_msg");
+      if (msgDiv) {
+        msgDiv.innerHTML = text;
+      }
+    })
+    .catch((error) => {
+      // Log only unexpected fetch errors
+      if (!(error.message && error.message.startsWith("HTTP error: 404"))) {
+        console.error(`Fetch problem: ${error.message} Announcement.html could not be loaded.`);
+      }
+    });
+</script>
+  
+
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html" title="PyAEDT home">Home</a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../User_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../API/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://examples.aedt.docs.pyansys.com/">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changelog.html">
+    Release notes
+  </a>
+</li>
+
+  </ul>
+</nav>
+</div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="search-bar pst-js-only" id="search-bar">
+  <form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" class="form-control" name="q" placeholder="Search the docs ..."
+      aria-label="Search the docs ..." autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false" />
+    <span class="search-button__kbd-shortcut">
+      <kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd>
+    </span>
+  </form>
+  
+  <div id="static-search-results" class="static-search-results" style="display:none;" tabindex="0"></div>
+  
+</div></div>
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i><span class="visually-hidden">Support</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar"><svg class="pst-icon svg-inline--fa" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="Installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../User_guide/index.html">User guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ClientServer.html">Client-server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="panels.html">AEDT panels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="versioning.html">Versions and interfaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Contributing.html">Contribute</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Developer notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="About.html">About PyAnsys and AEDT</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+         
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="https://docs.pyansys.com/" class="nav-link">PyAnsys</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a
+        href="../index.html"
+        class="nav-link"
+        aria-label="Home"
+      >
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="index.html" class="nav-link">Getting started</a>
+    </li>
+      
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Developer notes</span></li>
+    
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="developer-notes">
+<span id="id1"></span><h1>Developer notes<a class="headerlink" href="#developer-notes" title="Link to this heading">#</a></h1>
+<p>This section provides additional guidance for developers contributing to PyAEDT,
+including information about working with Testmon, tracking coverage, and handling
+edge cases during development.</p>
+<section id="tracking-coverage-locally">
+<h2>Tracking coverage locally<a class="headerlink" href="#tracking-coverage-locally" title="Link to this heading">#</a></h2>
+<p>Due to limitations with Testmon and coverage tracking in the CI/CD pipeline, developers must
+track test coverage locally before submitting pull requests. While the CI/CD uses Testmon to
+selectively run affected tests for faster feedback, coverage is only tracked comprehensively
+during nightly runs.</p>
+<section id="why-track-coverage-locally">
+<h3>Why track coverage locally?<a class="headerlink" href="#why-track-coverage-locally" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>CI limitation</strong>: Testmon’s selective test execution means only tests affected by your changes
+run in the PR workflow, which doesn’t provide complete coverage metrics for your changes.</p></li>
+<li><p><strong>Nightly validation</strong>: Full coverage is checked nightly to ensure overall project health.</p></li>
+<li><p><strong>Your responsibility</strong>: Contributors must verify that new code has adequate coverage
+(minimum 85% for all new code) before submitting PRs.</p></li>
+</ul>
+</section>
+<section id="running-tests-with-coverage-locally">
+<h3>Running tests with coverage locally<a class="headerlink" href="#running-tests-with-coverage-locally" title="Link to this heading">#</a></h3>
+<p>To measure coverage for your changes, run pytest with coverage tracking. You can use either
+your IDE’s built-in coverage tools or the command line.</p>
+<p><strong>Using pytest-cov (command line):</strong></p>
+<ol class="arabic">
+<li><p>Install pytest-cov if not already installed:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>pytest-cov
+</pre></div>
+</div>
+</li>
+<li><p>Run tests with coverage for the specific test suites related to your changes:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># For unit tests</span>
+pytest<span class="w"> </span>tests/unit<span class="w"> </span>--cov<span class="o">=</span>ansys.aedt.core<span class="w"> </span>--cov-report<span class="o">=</span>term-missing<span class="w"> </span>--cov-report<span class="o">=</span>html
+
+<span class="c1"># For system tests</span>
+pytest<span class="w"> </span>tests/system<span class="w"> </span>--cov<span class="o">=</span>ansys.aedt.core<span class="w"> </span>--cov-report<span class="o">=</span>term-missing<span class="w"> </span>--cov-report<span class="o">=</span>html
+</pre></div>
+</div>
+</li>
+<li><p>Review the coverage report:</p>
+<ul class="simple">
+<li><p><strong>Terminal output</strong>: Shows coverage percentage and lists uncovered lines with <code class="docutils literal notranslate"><span class="pre">--cov-report=term-missing</span></code></p></li>
+<li><p><strong>HTML report</strong>: Open <code class="docutils literal notranslate"><span class="pre">htmlcov/index.html</span></code> in a browser for detailed, navigable coverage information</p></li>
+</ul>
+</li>
+</ol>
+<p><strong>Using VSCode:</strong></p>
+<ol class="arabic simple">
+<li><p>Install the Python extension if not already installed.</p></li>
+<li><p>Open the Testing sidebar (beaker icon).</p></li>
+<li><p>Click “Run Test with Coverage” button in the Test Explorer toolbar.</p></li>
+<li><p>After tests complete, view:</p>
+<ul class="simple">
+<li><p>Coverage summary in the Test Explorer (percentage by file)</p></li>
+<li><p>Highlighted covered/uncovered lines in the editor</p></li>
+</ul>
+</li>
+</ol>
+<p><strong>Using PyCharm:</strong></p>
+<ol class="arabic simple">
+<li><p>Configure pytest as the test runner: <strong>Settings</strong> → <strong>Tools</strong> → <strong>Python Integrated Tools</strong> → <strong>Default test runner</strong> → <strong>pytest</strong></p></li>
+<li><p>Right-click a test file or configuration and choose <strong>Run with Coverage</strong>.</p></li>
+<li><p>View coverage summary and highlighted lines in the editor.</p></li>
+</ol>
+</section>
+<section id="best-practices-for-coverage-tracking">
+<h3>Best practices for coverage tracking<a class="headerlink" href="#best-practices-for-coverage-tracking" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Run coverage before pushing</strong>: Always check coverage locally before pushing your changes.</p></li>
+<li><p><strong>Target 85% minimum</strong>: Ensure new code has at least 85% test coverage.</p></li>
+<li><p><strong>Focus on relevant tests</strong>: Run coverage for the specific modules you’ve modified rather than the entire test suite.</p></li>
+<li><p><strong>Use HTML reports</strong>: The HTML coverage report (<code class="docutils literal notranslate"><span class="pre">htmlcov/index.html</span></code>) provides the most detailed view of what’s covered.</p></li>
+<li><p><strong>Test both unit and system</strong>: Depending on your changes, run coverage for both unit and system tests to ensure comprehensive coverage.</p></li>
+<li><p><strong>Isolate your changes</strong>: To see coverage specifically for your modifications, run tests only for the modules you’ve changed.</p></li>
+</ul>
+</section>
+<section id="testmon-considerations">
+<h3>Testmon considerations<a class="headerlink" href="#testmon-considerations" title="Link to this heading">#</a></h3>
+<p>When direct or transitive test dependencies change (in the <code class="docutils literal notranslate"><span class="pre">uv.lock</span></code> file), the CI pipeline triggers a full Testmon run to refresh <code class="docutils literal notranslate"><span class="pre">.testmondata</span></code> caches.
+This is necessary to ensure that the dependency graph is accurate and that affected tests are correctly identified.</p>
+</section>
+</section>
+<section id="edge-cases-and-considerations">
+<h2>Edge cases and considerations<a class="headerlink" href="#edge-cases-and-considerations" title="Link to this heading">#</a></h2>
+<p>This section covers common edge cases and considerations when working with PyAEDT’s CI/CD pipeline
+and Testmon integration.</p>
+<section id="multiple-open-pull-requests">
+<h3>Multiple open pull requests<a class="headerlink" href="#multiple-open-pull-requests" title="Link to this heading">#</a></h3>
+<p>When multiple PRs are open simultaneously, each PR:</p>
+<ul class="simple">
+<li><p>Restores the same baseline cache from <code class="docutils literal notranslate"><span class="pre">main</span></code>.</p></li>
+<li><p>Runs only tests affected by its own changes.</p></li>
+<li><p>Does not interfere with other PRs since no PR modifies the shared cache.</p></li>
+</ul>
+<p>This design ensures isolation between concurrent PR workflows.</p>
+</section>
+<section id="cache-update-in-progress-while-pr-runs">
+<h3>Cache update in progress while PR runs<a class="headerlink" href="#cache-update-in-progress-while-pr-runs" title="Link to this heading">#</a></h3>
+<p>If a PR workflow starts while the <code class="docutils literal notranslate"><span class="pre">update-testmondata-cache.yml</span></code> workflow is running on <code class="docutils literal notranslate"><span class="pre">main</span></code>:</p>
+<ul class="simple">
+<li><p>The PR workflow <strong>waits</strong> for up to 10 minutes for the cache update to complete.</p></li>
+<li><p>If the cache update succeeds, the PR uses the fresh cache.</p></li>
+<li><p>If the cache update fails or times out, the PR workflow <strong>fails</strong> with an error message instructing the user to relaunch the cache update workflow.</p></li>
+</ul>
+<p>This mechanism prevents PRs from running with stale or inconsistent cache data.</p>
+</section>
+<section id="cache-update-workflow-fails">
+<h3>Cache update workflow fails<a class="headerlink" href="#cache-update-workflow-fails" title="Link to this heading">#</a></h3>
+<p>If the <code class="docutils literal notranslate"><span class="pre">update-testmondata-cache.yml</span></code> workflow fails:</p>
+<ul class="simple">
+<li><p>Subsequent PRs fail at the “Wait for master cache update” step.</p></li>
+<li><p>The error message directs users to relaunch the workflow at:
+<code class="docutils literal notranslate"><span class="pre">https://github.com/ansys/pyaedt/actions/workflows/update-testmondata-cache.yml</span></code></p></li>
+<li><p>Once the cache update completes successfully, PR workflows can proceed.</p></li>
+</ul>
+</section>
+<section id="skipped-tests-transitioning-to-enabled">
+<h3>Skipped tests transitioning to enabled<a class="headerlink" href="#skipped-tests-transitioning-to-enabled" title="Link to this heading">#</a></h3>
+<p>When a test is skipped on <code class="docutils literal notranslate"><span class="pre">main</span></code> (for example via <code class="docutils literal notranslate"><span class="pre">pytest.mark.skip</span></code> or <code class="docutils literal notranslate"><span class="pre">pytest.mark.skipif</span></code>) and
+the PR enables it by removing or modifying the skip condition, Testmon may not correctly handle
+the transition. This can lead to the newly enabled test never running in CI, causing unexpected
+failures or missed coverage.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>If your PR enables previously skipped tests, Testmon may silently skip running them.
+Always verify and force that the newly enabled tests are executed and pass before merging.</p>
+</div>
+<p>A real-world example of this issue causing a CI failure can be found in
+<a class="reference external" href="https://github.com/ansys/pyaedt/pull/7465">PR #7465</a>.</p>
+</section>
+<section id="pruning-testmon-caches">
+<h3>Pruning Testmon caches<a class="headerlink" href="#pruning-testmon-caches" title="Link to this heading">#</a></h3>
+<p>A separate workflow (<code class="docutils literal notranslate"><span class="pre">prune-testmon-caches.yml</span></code>) can be manually triggered to delete all Testmon
+caches. This is useful when:</p>
+<ul class="simple">
+<li><p>Cache corruption is suspected.</p></li>
+<li><p>A major refactoring requires rebuilding the dependency graph from scratch.</p></li>
+<li><p>Cache storage limits are approached.</p></li>
+</ul>
+</section>
+</section>
+<section id="keeping-prs-updated-with-main">
+<h2>Keeping PRs updated with main<a class="headerlink" href="#keeping-prs-updated-with-main" title="Link to this heading">#</a></h2>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p><strong>PRs must be updated to the latest ``main`` branch before merging.</strong></p>
+</div>
+<p>This requirement ensures that:</p>
+<ol class="arabic simple">
+<li><p><strong>Cache consistency</strong>: The pull request’s Testmon run is validated against the same codebase state that the cache was built from. If a PR is behind <code class="docutils literal notranslate"><span class="pre">main</span></code>, its Testmon data may not accurately reflect which tests need to run.</p></li>
+<li><p><strong>Merge conflicts</strong>: Updating ensures merge conflicts are resolved before merging.</p></li>
+<li><p><strong>Test coverage</strong>: Tests that were added or modified in <code class="docutils literal notranslate"><span class="pre">main</span></code> since the PR was created are
+executed against the pull request’s changes.</p></li>
+</ol>
+<section id="how-to-update-your-pr">
+<h3>How to update your PR<a class="headerlink" href="#how-to-update-your-pr" title="Link to this heading">#</a></h3>
+<p>Use one of the following methods to update your PR with the latest <code class="docutils literal notranslate"><span class="pre">main</span></code> branch:</p>
+<p><strong>Command line:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>fetch<span class="w"> </span>origin<span class="w"> </span>main
+git<span class="w"> </span>merge<span class="w"> </span>main
+<span class="c1"># Resolve any conflicts if they occur</span>
+git<span class="w"> </span>push
+</pre></div>
+</div>
+<p><strong>GitHub UI:</strong></p>
+<p>Use the “Update branch” button if available on your pull request page.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Always verify that your tests still pass and coverage remains adequate after updating your branch.</p>
+</div>
+</section>
+</section>
+<section id="branching-strategy-since-pyaedt-1-0">
+<h2>Branching strategy since PyAEDT 1.0<a class="headerlink" href="#branching-strategy-since-pyaedt-1-0" title="Link to this heading">#</a></h2>
+<p>This section describes the new branching model used starting from the <code class="docutils literal notranslate"><span class="pre">1.0</span></code>.
+All developers contributing to PyAEDT are expected to be familiar with this branching strategy before creating branches or opening pull requests.
+Using the correct base branch is required to keep release stable.</p>
+<section id="overview">
+<h3>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h3>
+<p>PyAEDT uses three core branches with different purposes:</p>
+<ul class="simple">
+<li><p><strong>main</strong>:</p>
+<ul>
+<li><p>Primary integration branch for ongoing <strong>non-breaking</strong> development.</p></li>
+<li><p>Feature/fix branches for backward-compatible work should branch from <code class="docutils literal notranslate"><span class="pre">main</span></code>.</p></li>
+</ul>
+</li>
+<li><p><strong>release/1.0</strong>:</p>
+<ul>
+<li><p>Stable maintenance branch for the <code class="docutils literal notranslate"><span class="pre">1.0.x</span></code> patch series.</p></li>
+<li><p>Patch releases for 1.0 are created from this branch.</p></li>
+</ul>
+</li>
+<li><p><strong>release/2.0</strong>:</p>
+<ul>
+<li><p>Integration branch for <strong>breaking changes</strong> planned for 2.0.</p></li>
+<li><p>Any branch introducing breaking behavior must branch from <code class="docutils literal notranslate"><span class="pre">release/2.0</span></code>.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="id2">
+<h3>Overview<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p>Determine whether the change is breaking.</p></li>
+<li><p>Create your feature branch from the correct base branch:</p>
+<ul class="simple">
+<li><p>Non-breaking: from <code class="docutils literal notranslate"><span class="pre">main</span></code></p></li>
+<li><p>Breaking: from <code class="docutils literal notranslate"><span class="pre">release/2.0</span></code></p></li>
+</ul>
+</li>
+<li><p>Open a pull request targeting the same base branch.</p></li>
+</ol>
+</section>
+<section id="examples">
+<h3>Examples<a class="headerlink" href="#examples" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Bug fix that keeps API compatibility:</p>
+<ul>
+<li><p>Branch from <code class="docutils literal notranslate"><span class="pre">main</span></code>, PR to <code class="docutils literal notranslate"><span class="pre">main</span></code>.</p></li>
+</ul>
+</li>
+<li><p>API rename/removal:</p>
+<ul>
+<li><p>Branch from <code class="docutils literal notranslate"><span class="pre">release/2.0</span></code>, PR to <code class="docutils literal notranslate"><span class="pre">release/2.0</span></code>.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="notes">
+<h3>Notes<a class="headerlink" href="#notes" title="Link to this heading">#</a></h3>
+<p>When in doubt, open a draft PR and request maintainers’ guidance before implementation is finalized.</p>
+</section>
+<section id="branching-schema">
+<h3>Branching schema<a class="headerlink" href="#branching-schema" title="Link to this heading">#</a></h3>
+<p>The diagram below summarizes how branches are used and how work should flow.</p>
+<img alt="PyAEDT branching schema and release 2.0 sync workflow" class="align-center only-dark" src="../_images/branching_schema_dark.png" />
+<img alt="PyAEDT branching schema and release 2.0 sync workflow" class="align-center only-light" src="../_images/branching_schema_light.png" />
+<dl class="simple">
+<dt>CI/CD automation:</dt><dd><ul class="simple">
+<li><p>A workflow checks whether <code class="docutils literal notranslate"><span class="pre">main</span></code> can be merged into <code class="docutils literal notranslate"><span class="pre">release/2.0</span></code> on a weekly schedule.</p></li>
+<li><p>Anyone can also trigger the workflow manually to verify whether the merge can be performed cleanly.</p></li>
+<li><p>If there is no conflict, the workflow automatically creates a pull request targeting <code class="docutils literal notranslate"><span class="pre">release/2.0</span></code>.</p></li>
+<li><p>If there is a conflict, the conflict must be resolved manually and the pull request must also be created manually.</p></li>
+</ul>
+</dd>
+</dl>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tracking-coverage-locally">Tracking coverage locally</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#why-track-coverage-locally">Why track coverage locally?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#running-tests-with-coverage-locally">Running tests with coverage locally</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#best-practices-for-coverage-tracking">Best practices for coverage tracking</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#testmon-considerations">Testmon considerations</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#edge-cases-and-considerations">Edge cases and considerations</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#multiple-open-pull-requests">Multiple open pull requests</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cache-update-in-progress-while-pr-runs">Cache update in progress while PR runs</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cache-update-workflow-fails">Cache update workflow fails</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#skipped-tests-transitioning-to-enabled">Skipped tests transitioning to enabled</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pruning-testmon-caches">Pruning Testmon caches</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#keeping-prs-updated-with-main">Keeping PRs updated with main</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-update-your-pr">How to update your PR</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#branching-strategy-since-pyaedt-1-0">Branching strategy since PyAEDT 1.0</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Overview</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#examples">Examples</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#notes">Notes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#branching-schema">Branching schema</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+
+  
+  <nav class="tocsection editthispage" aria-label="Edit this page">
+    <a href="https://github.com/ansys/pyaedt/edit/main/doc/source/Getting_started/Developer_notes.rst" rel="noopener noreferrer">
+      <i class="fa-solid fa-pencil" aria-hidden="true"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </nav>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <ul class="this-page-menu">
+      <li><a href="../_sources/Getting_started/Developer_notes.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=0790524f97105ba85085"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085"></script>
+
+
+  <!-- Include desired assets -->
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.7/require.min.js"></script>
+
+<script>
+// Passing the search options to the search.js file
+const SEARCH_OPTIONS = JSON.parse('{"ignoreLocation": true, "keys": ["title", "text", "objectID"], "limit": 10, "minMatchCharLength": 2, "threshold": 0.5}');
+const SEARCH_FILE = "../_static/search.json";
+const ADVANCE_SEARCH_PATH = "../search.html";
+const EXTRA_SOURCES = JSON.parse('""');
+</script>
+
+
+<script src="../_static/js/search.js"></script>
+
+  
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<!--
+  Theme Version Footer
+  Displays the Sphinx theme version and the last updated date.
+  Accessibility and semantic improvements included.
+-->
+<footer class="theme-version" aria-label="Theme version and last update">
+  <span>
+    
+      Built with the
+      <a href="https://sphinxdocs.ansys.com/version/stable/index.html" target="_blank" rel="noopener noreferrer">
+        Ansys Sphinx Theme
+      </a>
+      1.9.0.
+    
+  </span>
+  <br />
+  <span>Last updated on <time id="ast_build_date"></time></span>
+</footer>
+<script>
+  // Set the last updated date in a readable format
+  (function() {
+    var options = { day: "numeric", month: "long", year: "numeric" };
+    var ast_lastModifiedDate = new Date(document.lastModified);
+    var ast_build_date = ast_lastModifiedDate.toLocaleDateString("en-US", options);
+    var dateElem = document.getElementById("ast_build_date");
+    if (dateElem) {
+      dateElem.textContent = ast_build_date;
+    }
+  })();
+</script></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

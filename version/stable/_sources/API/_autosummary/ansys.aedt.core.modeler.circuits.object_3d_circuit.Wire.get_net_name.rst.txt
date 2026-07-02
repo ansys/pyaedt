@@ -1,0 +1,6 @@
+get\_net\_name
+==============
+
+.. currentmodule:: ansys.aedt.core.modeler.circuits.object_3d_circuit
+
+.. automethod:: Wire.get_net_name
