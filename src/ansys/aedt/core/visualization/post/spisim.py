@@ -488,11 +488,11 @@ class SpiSim(PyAedtBase):
     @pyaedt_function_handler()
     def compute_icn(
         self,
-        config_file: str = None,
+        config_file: str | None = None,
         port_order: str = "EVENODD",
-        next_s4p: str | Path | list = None,
-        fext_s4p: str | Path | list = None,
-        bandwidth: float = None,
+        next_s4p: str | list | None = None,
+        fext_s4p: str | list | None = None,
+        bandwidth: float | None = None,
         use_pcie_icn: bool = False,
     ) -> bool | float:
         """Compute ICN using Ansys SPISIM from S-parameter file.
