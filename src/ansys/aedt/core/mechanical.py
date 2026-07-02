@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""This module contains the ``Mechanical`` class."""
+"""The module contains the ``Mechanical`` class."""
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.base import PyAedtBase
@@ -203,6 +203,13 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
         References
         ----------
         >>> oModule.AssignEMLoss
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.mechanical import Mechanical
+        >>> obj = Mechanical()
+        >>> obj.assign_em_losses(design="HFSSDesign1", setup="Setup1", sweep="LastAdaptive", assignment=["HeatSink"])
+
         """
         if self.solution_type not in (
             SolutionsMechanical.Thermal,
@@ -305,6 +312,13 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
         References
         ----------
         >>> oModule.AssignThermalCondition
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.mechanical import Mechanical
+        >>> obj = Mechanical()
+        >>> obj.assign_thermal_map(["Bracket"], design="IcepakDesign1", setup="Setup1", sweep="SteadyState")
+
         """
         if self.solution_type != SolutionsMechanical.Structural:
             raise AEDTRuntimeError("This method works only in a Mechanical Structural analysis.")
@@ -384,6 +398,13 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
         References
         ----------
         >>> oModule.AssignConvection
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.mechanical import Mechanical
+        >>> obj = Mechanical()
+        >>> obj.assign_uniform_convection(["HeatSink"], convection_value=8, temperature="AmbientTemp")
+
         """
         if self.solution_type not in (
             SolutionsMechanical.Thermal,
@@ -435,6 +456,13 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
         References
         ----------
         >>> oModule.AssignTemperature
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.mechanical import Mechanical
+        >>> obj = Mechanical()
+        >>> obj.assign_uniform_temperature(["HeatSink"], temperature="40cel")
+
         """
         if self.solution_type not in (
             SolutionsMechanical.Thermal,
@@ -481,6 +509,13 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
         References
         ----------
         >>> oModule.AssignFrictionlessSupport
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.mechanical import Mechanical
+        >>> obj = Mechanical()
+        >>> obj.assign_frictionless_support([12, 18])
+
         """
         if self.solution_type not in (SolutionsMechanical.Structural, SolutionsMechanical.Modal):
             raise AEDTRuntimeError("This method works only in a Mechanical Structural analysis.")
@@ -520,6 +555,13 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
         References
         ----------
         >>> oModule.AssignFixedSupport
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.mechanical import Mechanical
+        >>> obj = Mechanical()
+        >>> obj.assign_fixed_support([12, 18])
+
         """
         if self.solution_type not in (SolutionsMechanical.Structural, SolutionsMechanical.Modal):
             raise AEDTRuntimeError("This method works only in a Mechanical Structural analysis.")
@@ -598,6 +640,13 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
         References
         ----------
         >>> oModule.GetSetups
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.mechanical import Mechanical
+        >>> obj = Mechanical()
+        >>> obj.existing_analysis_sweeps
+
         """
         setup_list = self.setup_names
         sweep_list = []
@@ -631,6 +680,13 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
         References
         ----------
         >>> oModule.AssignHeatFlux
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.mechanical import Mechanical
+        >>> obj = Mechanical()
+        >>> obj.assign_heat_flux(["HeatSink"], "Total Power", "10W")
+
         """
         if self.solution_type not in (
             SolutionsMechanical.Thermal,
@@ -678,6 +734,13 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
         References
         ----------
         >>> oModule.AssignHeatGeneration
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.mechanical import Mechanical
+        >>> obj = Mechanical()
+        >>> obj.assign_heat_generation(["HeatSink"], "2W")
+
         """
         if self.solution_type not in (
             SolutionsMechanical.Thermal,

@@ -49,22 +49,33 @@ from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 EXTENSION_DEFAULT_ARGUMENTS = {"file_path": ""}
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Via design"
+"""Title displayed for the extension."""
 EXTENSION_RESOURCES_PATH = Path(__file__).parent / "resources" / "via_design"
+"""Path to extension resources."""
 EXTENSION_NB_ROW = 2
+"""Number of rows used by the extension UI."""
 EXTENSION_NB_COLUMN = 3
+"""Number of columns used by the extension UI."""
 
 
 @dataclass
 class ExportExampleData:
-    """"""
+    """Store export example data."""
 
     picture_path: Path
+    """Path to picture."""
     toml_file_path: Path
+    """Path to TOML file."""
 
 
 EXPORT_EXAMPLES = [
@@ -74,10 +85,18 @@ EXPORT_EXAMPLES = [
         EXTENSION_RESOURCES_PATH / "via_design_pkg_diff.png", EXTENSION_RESOURCES_PATH / "package_diff.toml"
     ),
 ]
+"""Available export examples."""
 
 
 class ViaDesignExtension(ExtensionHFSS3DLayoutCommon):
-    """Extension for advanced fields calculator in AEDT."""
+    """Extension for advanced fields calculator in AEDT.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss3dlayout.via_design import ViaDesignExtension
+    >>> extension = ViaDesignExtension(withdraw=True)
+
+    """
 
     def __init__(self, withdraw: bool = False) -> None:
         # Check for unsupported version
@@ -94,7 +113,15 @@ class ViaDesignExtension(ExtensionHFSS3DLayoutCommon):
         self.add_extension_content()
 
     def add_extension_content(self) -> None:
-        """Add custom content to the extension UI."""
+        """Add custom content to the extension UI.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.hfss3dlayout.via_design import ViaDesignExtension
+        >>> extension = ViaDesignExtension(withdraw=True)
+        >>> extension.add_extension_content()
+
+        """
 
         def save_example(toml_file_path: Path) -> None:
             file_path = filedialog.asksaveasfilename(
@@ -165,7 +192,26 @@ class ViaDesignExtension(ExtensionHFSS3DLayoutCommon):
         change_theme_button.grid(row=0, column=1)
 
     def create_design(self, create_design_path: Path | None = None) -> bool:
-        """Create via design in AEDT"""
+        """Create via design in AEDT.
+
+        Parameters
+        ----------
+        create_design_path : Path, optional
+            Path to the TOML configuration file.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful.
+
+        Examples
+        --------
+        >>> from pathlib import Path
+        >>> from ansys.aedt.core.extensions.hfss3dlayout.via_design import ViaDesignExtension
+        >>> extension = ViaDesignExtension(withdraw=True)
+        >>> extension.create_design(Path("C:\\\\Temp\\\\pcb_rf.toml"))
+
+        """
         if create_design_path is None:
             create_design_path = filedialog.askopenfilename(
                 title="Select configuration",
@@ -205,10 +251,12 @@ class ViaDesignExtension(ExtensionHFSS3DLayoutCommon):
 
     @property
     def create_design_path(self) -> Path | None:
+        """Path to create design."""
         return self.__create_design_path
 
     @property
     def export_examples(self) -> list[ExportExampleData]:
+        """Retrieve export examples."""
         return self.__export_examples
 
 

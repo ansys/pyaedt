@@ -37,6 +37,7 @@ from ansys.aedt.core.common_rpc import launch_server
 
 
 def main() -> None:
+    """Return main."""
     parser = argparse.ArgumentParser(description="Launch a PyAEDT RPyC worker server.")
     parser.add_argument("--ansysem-path", required=True, help="Full path to the ANSYS EM installation directory.")
     parser.add_argument("--host", default=None, help="Host name or IP address to be forwarded when launching AEDT.")

@@ -54,55 +54,126 @@ from ansys.aedt.core.visualization.post.spisim_com_configuration_files.com_param
 
 
 class ReportBase(BaseModel, PyAedtBase):
+    """Provide report base.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post.spisim import ReportBase
+    >>> obj = ReportBase()
+
+    """
+
     model_config = {"populate_by_name": True}
+    """Value for model config."""
 
 
 class FrequencyFigure(ReportBase):
+    """Provide frequency figure.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post.spisim import FrequencyFigure
+    >>> obj = FrequencyFigure()
+
+    """
+
     title: str = Field(..., alias="TITLE")
+    """Value for title."""
     param: str = Field(..., alias="PARAM")
+    """Value for param."""
     td_inp_delay: str = Field(..., alias="TDInpDelay")
+    """Value for td inp delay."""
     skew_threshold: str = Field(..., alias="SkewThreshold")
+    """Value for skew threshold."""
     dtcyc: str = Field(..., alias="DTCyc")
+    """Value for dtcyc."""
     xlim: str = Field(..., alias="XLIM")
+    """Value for xlim."""
     ylim: str = Field(..., alias="YLIM")
+    """Value for ylim."""
     limitline: str = Field(..., alias="LIMITLINE")
+    """Value for limitline."""
     gencsv: str = Field(..., alias="GENCSV")
+    """Value for gencsv."""
     fig_fq_axis_log: str = Field(..., alias="FigFqAxis Log")
+    """Value for fig fq axis log."""
     fig_fq_unit: str = Field(..., alias="FigFqUnit")
+    """Value for fig fq unit."""
     phase: str = Field(..., alias="Phase")
+    """Value for phase."""
 
 
 class AdvancedReport(ReportBase):
+    """Provide advanced report.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post.spisim import AdvancedReport
+    >>> obj = AdvancedReport()
+
+    """
+
     version: str = Field("1.0", alias="Version")
+    """Value for version."""
     rpt_name: str | None = Field("", alias="RptName")
+    """Value for rpt name."""
     touchstone: str = Field(..., alias="Touchstone")
+    """Value for touchstone."""
     expiration: str = Field(default="12/31/2100", alias="Expiration")
+    """Value for expiration."""
     mode: str = Field(..., alias="Mode")
+    """Value for mode."""
     dpextract: str | None = Field("", alias="DPExtract")
+    """Value for dpextract."""
     port: str = Field(..., alias="Port")
+    """Value for port."""
     r: int = Field(50, alias="R")
+    """Value for r."""
     report_dir: str = Field(..., alias="ReportDir")
+    """Value for report dir."""
     extrapolate: str = Field(..., alias="Extrapolate")
+    """Value for extrapolate."""
     watermark: str | None = Field("", alias="WaterMark")
+    """Value for watermark."""
     td_length: str = Field(..., alias="TDLength")
+    """Value for td length."""
     fq_axis_log: str = Field("F", alias="FqAxis Log")
+    """Value for fq axis log."""
     fq_unit: str = Field("GHz", alias="FqUnit")
+    """Value for fq unit."""
     smoothing: str = Field("0%", alias="Smoothing")
+    """Value for smoothing."""
 
     trace_width: int = Field(4, alias="Trace  Width")  # Signal traces width in .param plot
+    """Value for trace width."""
     title_font_size: int = Field(45, alias="Title  FontSize")  # Figure title font size
+    """Value for title font size."""
     legend_font_size: int = Field(25, alias="Legend FontSize")  # Legend font size
+    """Value for legend font size."""
     axis_font_size: int = Field(35, alias="Axis   FontSize")  # X-Y axis font size
+    """Value for axis font size."""
     grid_width: int = Field(0, alias="Grid Width")  # Grid line width
+    """Value for grid width."""
 
     var_list: str = Field(..., alias="VARList")
+    """Value for var list."""
     cascade: str = Field(default="", alias="CASCADE")  # additional file to be formed via cascading
+    """Value for cascade."""
 
     frequency_domain: list[FrequencyFigure] | None = Field(default=[], alias="[Frequency Domain]")
+    """Value for frequency domain."""
 
     @classmethod
     def from_spisim_cfg(cls, file_path: str | Path) -> "AdvancedReport":  # pragma: no cover
-        """Load SPIsim configuration file."""
+        """Load SPIsim configuration file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.spisim import AdvancedReport
+        >>> obj = AdvancedReport()
+        >>> obj.from_spisim_cfg(file_path="example.cfg")
+
+        """
         with open(file_path, "r") as f:
             content = f.read()
 
@@ -166,7 +237,15 @@ class AdvancedReport(ReportBase):
         return cls(**config)
 
     def dump_spisim_cfg(self, file_path: str | Path) -> str:
-        """Create a SPIsim configuration file."""
+        """Create a SPIsim configuration file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.spisim import AdvancedReport
+        >>> obj = AdvancedReport()
+        >>> obj.dump_spisim_cfg(file_path="example.cfg")
+
+        """
         data = self.model_dump(by_alias=True)
 
         lines = []
@@ -186,7 +265,14 @@ class AdvancedReport(ReportBase):
 
 
 class SpiSim(PyAedtBase):
-    """Provides support to SpiSim batch mode."""
+    """Provides support to SpiSim batch mode.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post.spisim import SpiSim
+    >>> obj = SpiSim()
+
+    """
 
     def __init__(self, touchstone_file: str = "") -> None:
         self.touchstone_file = touchstone_file
@@ -205,6 +291,13 @@ class SpiSim(PyAedtBase):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.spisim import SpiSim
+        >>> obj = SpiSim()
+        >>> obj.working_directory
+
         """
         if self._working_directory != "":
             return self._working_directory
@@ -240,6 +333,7 @@ class SpiSim(PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
         """
         temp = {}
         with open(file_path, "r") as fp:
@@ -408,6 +502,13 @@ class SpiSim(PyAedtBase):
         -------
         bool or float
             Effective return loss from the spisimExe command, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.spisim import SpiSim
+        >>> obj = SpiSim()
+        >>> obj.compute_erl(config_file="example.cfg", port_order=1)
+
         """
         cfg_dict = {
             "INPARRY": "",
@@ -642,6 +743,14 @@ class SpiSim(PyAedtBase):
 
         Returns
         -------
+        list or float
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.spisim import SpiSim
+        >>> obj = SpiSim()
+        >>> obj.compute_com(standard=1, config_file="example.cfg")
+
         """
         com_param = COMParametersVer3p4()
         if standard == 0:
@@ -713,6 +822,13 @@ class SpiSim(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.spisim import SpiSim
+        >>> obj = SpiSim()
+        >>> obj.export_com_configure_file(file_path="example.cfg")
+
         """
         return COMParametersVer3p4(standard).export(file_path)
 
@@ -754,6 +870,13 @@ class SpiSim(PyAedtBase):
             Data rate. Available options are ``GTS04``, ``GTS08``.,``GTS12``.``GTS16``.``GTS24``. and ``GTS32``.
         report_directory : str, optional
             Directory to save report files.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.spisim import SpiSim
+        >>> obj = SpiSim()
+        >>> obj.compute_ucie(tx_ports=[1, 2, 3], rx_ports=[1, 2, 3], victim_ports=[1, 2, 3])
+
         """
 
         class Ucie(BaseModel):
@@ -848,7 +971,14 @@ class SpiSim(PyAedtBase):
 
 
 def detect_encoding(file_path: str, expected_pattern: str = "", re_flags: int = 0) -> str:
-    """Check encoding of a file."""
+    """Check encoding of a file.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post.spisim import detect_encoding
+    >>> detect_encoding(file_path="example.cfg")
+
+    """
     for encoding in ("utf-8", "utf_16_le", "cp1252", "cp1250", "shift_jis"):
         try:
             with open_file(file_path, "r", encoding=encoding) as f:
@@ -880,6 +1010,12 @@ class DataSet(PyAedtBase):
     The numpy vector can be retrieved by using the get_wave() method.
     The parameter whattype defines what the trace is representing in the simulation, Voltage, Current a Time or
     Frequency.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post.spisim import DataSet
+    >>> obj = DataSet()
+
     """
 
     def __init__(
@@ -913,6 +1049,13 @@ class DataSet(PyAedtBase):
         -------
         :class:`numpy.array`
             The trace values.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.spisim import DataSet
+        >>> obj = DataSet()
+        >>> obj.wave
+
         """
         return self.data
 
@@ -922,6 +1065,12 @@ class Trace(DataSet):
 
     This class is constructed by the get_trace() command.
     The get_wave() method will return a numpy array.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post.spisim import Trace
+    >>> obj = Trace()
+
     """
 
     def __init__(
@@ -946,7 +1095,14 @@ class Trace(DataSet):
 
 
 class SpiSimRawError(Exception):
-    """Custom class for exception handling."""
+    """Custom class for exception handling.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post.spisim import SpiSimRawException
+    >>> raise SpiSimRawException("Unsupported RAW File.")
+
+    """
 
     ...
 
@@ -956,7 +1112,14 @@ SpiSimRawException = SpiSimRawError
 
 
 class SpiSimRawRead(PyAedtBase):
-    """Class for reading SPISim wave Files. It can read all types of Files."""
+    """Class for reading SPISim wave Files. It can read all types of Files.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post.spisim import SpiSimRawRead
+    >>> obj = SpiSimRawRead()
+
+    """
 
     @staticmethod
     def read_float64(f) -> float:  # pragma: no cover
@@ -1052,14 +1215,20 @@ class SpiSimRawRead(PyAedtBase):
         self.raw_params["Variables"] = [var.name for var in self._traces]
 
     def get_raw_property(self, property_name: str = None) -> str | dict:
-        """
-        Get a property. By default, it returns all properties defined in the RAW file.
+        """Get a property. By default, it returns all properties defined in the RAW file.
 
         :param property_name: name of the property to retrieve.
         :type property_name: str
         :returns: Property object
         :rtype: str
         :raises: ValueError if the property doesn't exist
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.spisim import SpiSimRawRead
+        >>> obj = SpiSimRawRead()
+        >>> obj.get_raw_property(property_name=1)
+
         """
         if property_name is None:
             return self.raw_params
@@ -1076,6 +1245,13 @@ class SpiSimRawRead(PyAedtBase):
         -------
         list
             Trace names.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.spisim import SpiSimRawRead
+        >>> obj = SpiSimRawRead()
+        >>> obj.trace_names
+
         """
         return [trace.name for trace in self._traces]
 
@@ -1086,6 +1262,13 @@ class SpiSimRawRead(PyAedtBase):
         ----------
         trace_ref: str, int
             Name of the trace or the index of the trace.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.spisim import SpiSimRawRead
+        >>> obj = SpiSimRawRead()
+        >>> obj.get_trace(trace_ref=1)
+
         """
         if isinstance(trace_ref, str):
             for trace in self._traces:
@@ -1110,6 +1293,13 @@ class SpiSimRawRead(PyAedtBase):
         -------
         :class:`numpy.array`
             The trace values.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.spisim import SpiSimRawRead
+        >>> obj = SpiSimRawRead()
+        >>> obj.get_wave(trace_ref=1)
+
         """
         return self.get_trace(trace_ref).wave
 
@@ -1120,6 +1310,13 @@ class SpiSimRawRead(PyAedtBase):
         -------
         :class:`numpy.array`
             Axis data.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.spisim import SpiSimRawRead
+        >>> obj = SpiSimRawRead()
+        >>> obj.get_axis()
+
         """
         if self.axis:
             return self.axis.wave

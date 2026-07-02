@@ -22,7 +22,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""Methods to add PyAEDT in AEDT."""
+"""Methods to add PyAEDT in AEDT.
+
+Examples
+--------
+>>> from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
+>>> add_pyaedt_to_aedt("C:\\\\Ansys\\\\PersonalLib")
+
+"""
 
 import logging
 import os
@@ -80,6 +87,12 @@ def add_extension_manager(personal_lib, odesktop=None) -> bool:
         AEDT personal library folder.
     odesktop : oDesktop, optional
         Desktop session. The default is ``None``.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.installer.pyaedt_installer import add_extension_manager
+    >>> add_extension_manager("C:\\\\Ansys\\\\PersonalLib")
+
     """
     return _install_catalog_extension("ExtensionManager", personal_lib, odesktop)
 
@@ -93,6 +106,12 @@ def add_version_manager(personal_lib, odesktop=None) -> bool:
         AEDT personal library folder.
     odesktop : oDesktop, optional
         Desktop session. The default is ``None``.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.installer.pyaedt_installer import add_version_manager
+    >>> add_version_manager("C:\\\\Ansys\\\\PersonalLib")
+
     """
     return _install_catalog_extension("VersionManager", personal_lib, odesktop)
 
@@ -119,6 +138,12 @@ def add_pyaedt_to_aedt(
         The default is ``False``.
     odesktop : oDesktop, optional
         Desktop session. The default is ``None``.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
+    >>> add_pyaedt_to_aedt("C:\\\\Ansys\\\\PersonalLib", skip_extension_manager=True)
+
     """
     personal_lib = _resolve_personal_lib(personal_lib)
     if not personal_lib:

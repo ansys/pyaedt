@@ -22,7 +22,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""Session management commands: start, list, stop, attach."""
+"""Session management commands: start, list, stop, attach.
+
+Examples
+--------
+>>> from typer.testing import CliRunner
+>>> from ansys.aedt.core.cli.aedt import session_app
+>>> CliRunner().invoke(session_app, ["list"])
+
+"""
 
 from __future__ import annotations
 
@@ -49,6 +57,7 @@ from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 
 session_app = typer.Typer(help="Session management commands")
+"""Value for session app."""
 
 
 def _extract_session_metadata(cmdline: str | None) -> dict[str, object]:
@@ -105,7 +114,15 @@ def start(
     port: int = typer.Option(50051, "--port", help="gRPC port (0 for auto)"),
     non_graphical: bool = typer.Option(False, "--non-graphical", "-ng", help="Start in non-graphical mode"),
 ) -> None:
-    """Start a new AEDT instance."""
+    """Start a new AEDT instance.
+
+    Examples
+    --------
+    >>> from typer.testing import CliRunner
+    >>> from ansys.aedt.core.cli.aedt import session_app
+    >>> CliRunner().invoke(session_app, ["start", "--version", "2026.1", "--port", "50051", "--non-graphical"])
+
+    """
     try:
         if not common.json_mode:
             typer.echo("Starting AEDT ", nl=False)
@@ -171,7 +188,15 @@ def start(
 
 @session_app.command("list")
 def list_sessions() -> None:
-    """List all running AEDT instances."""
+    """List all running AEDT instances.
+
+    Examples
+    --------
+    >>> from typer.testing import CliRunner
+    >>> from ansys.aedt.core.cli.aedt import session_app
+    >>> CliRunner().invoke(session_app, ["list"])
+
+    """
     try:
         aedt_sessions = _discover_aedt_sessions()
 
@@ -239,7 +264,15 @@ def stop(
     port: int | None = typer.Option(None, "--port", help="Port of the AEDT instance to stop"),
     stop_all: bool = typer.Option(False, "--all", help="Stop all running AEDT instances"),
 ) -> None:
-    """Stop an AEDT instance by port or stop all running instances."""
+    """Stop an AEDT instance by port or stop all running instances.
+
+    Examples
+    --------
+    >>> from typer.testing import CliRunner
+    >>> from ansys.aedt.core.cli.aedt import session_app
+    >>> CliRunner().invoke(session_app, ["stop", "--port", "50051"])
+
+    """
     try:
         aedt_sessions = _discover_aedt_sessions()
         if stop_all:
@@ -315,10 +348,16 @@ def attach(
     project: str = typer.Option(None, "--project", help="Project to activate in the console session"),
     design: str = typer.Option(None, "--design", help="Design to set as active in the console"),
 ) -> None:
-    """
-    Attach to a running AEDT instance and open an interactive PyAEDT console.
+    """Attach to a running AEDT instance and open an interactive PyAEDT console.
 
     If --port is not given, lists available instances for interactive selection.
+
+    Examples
+    --------
+    >>> from typer.testing import CliRunner
+    >>> from ansys.aedt.core.cli.aedt import session_app
+    >>> CliRunner().invoke(session_app, ["attach", "--port", "50051"])
+
     """
     try:
         aedt_sessions = _discover_aedt_sessions()
@@ -366,8 +405,7 @@ def attach(
 
 
 def _attach_interactive(aedt_sessions: list[dict[str, object]], project: str | None, design: str | None) -> None:
-    """
-    Interactive mode to select and attach to an AEDT process.
+    """Interactive mode to select and attach to an AEDT process.
 
     Parameters
     ----------
@@ -445,8 +483,7 @@ def _activate_console_context(port: int | None, project: str | None = None, desi
 
 
 def _launch_console(pid: int, version: str, design: str | None = None) -> None:
-    """
-    Launch an interactive PyAEDT console attached to an AEDT process.
+    """Launch an interactive PyAEDT console attached to an AEDT process.
 
     Parameters
     ----------
