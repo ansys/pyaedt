@@ -1,0 +1,124 @@
+{
+    "pairs": [
+        {
+            "name": "TX0",
+            "nets": [
+                {
+                    "driver_port": 1,
+                    "receiver_port": 2
+                },
+                {
+                    "driver_port": 3,
+                    "receiver_port": 4
+                }
+            ],
+            "driver": "U1",
+            "receiver": "X1"
+        },
+        {
+            "name": "TX1",
+            "nets": [
+                {
+                    "driver_port": 5,
+                    "receiver_port": 6
+                },
+                {
+                    "driver_port": 7,
+                    "receiver_port": 8
+                }
+            ],
+            "driver": "U1",
+            "receiver": "X1"
+        },
+        {
+            "name": "TX2",
+            "nets": [
+                {
+                    "driver_port": 9,
+                    "receiver_port": 10
+                },
+                {
+                    "driver_port": 11,
+                    "receiver_port": 12
+                }
+            ],
+            "driver": "U1",
+            "receiver": "X1"
+        },
+        {
+            "name": "TX3",
+            "nets": [
+                {
+                    "driver_port": 13,
+                    "receiver_port": 14
+                },
+                {
+                    "driver_port": 15,
+                    "receiver_port": 16
+                }
+            ],
+            "driver": "U1",
+            "receiver": "X1"
+        },
+        {
+            "name": "RX0",
+            "nets": [
+                {
+                    "driver_port": 17,
+                    "receiver_port": 18
+                },
+                {
+                    "driver_port": 19,
+                    "receiver_port": 20
+                }
+            ],
+            "driver": "X1",
+            "receiver": "U1"
+        },
+        {
+            "name": "RX1",
+            "nets": [
+                {
+                    "driver_port": 21,
+                    "receiver_port": 22
+                },
+                {
+                    "driver_port": 23,
+                    "receiver_port": 24
+                }
+            ],
+            "driver": "X1",
+            "receiver": "U1"
+        },
+        {
+            "name": "RX2",
+            "nets": [
+                {
+                    "driver_port": 25,
+                    "receiver_port": 26
+                },
+                {
+                    "driver_port": 27,
+                    "receiver_port": 28
+                }
+            ],
+            "driver": "X1",
+            "receiver": "U1"
+        },
+        {
+            "name": "RX3",
+            "nets": [
+                {
+                    "driver_port": 29,
+                    "receiver_port": 30
+                },
+                {
+                    "driver_port": 31,
+                    "receiver_port": 32
+                }
+            ],
+            "driver": "X1",
+            "receiver": "U1"
+        }
+    ]
+}
