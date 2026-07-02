@@ -574,8 +574,8 @@ class TestEmitGuiOther:
 
     def test_import_cad_create_antennas(self, emit_app, file_tmp_root):
         """Test CAD import with and without automatic antenna creation."""
-        revision = emit_app.results.analyze()
-        scene_node = revision.get_scene_node()
+        revision: Revision = emit_app.results.analyze()
+        scene_node: EmitSceneNode = revision.get_scene_node()
 
         cad_file = TEST_SUBFOLDER / "Ansys_777_200_ER.glb"
         copied_path = file_tmp_root / cad_file.name
@@ -590,5 +590,5 @@ class TestEmitGuiOther:
 
         cad2_node = scene_node.import_cad(str(copied_path), create_antennas=True)
         assert cad2_node
-        ants_after_yes = [c for c in scene_node.children if isinstance(c, AntennaNode)]
+        ants_after_yes = scene_node._oRevisionData.GetChildNodeNames(0, scene_node._node_id, "AntennaNode", True)
         assert len(ants_after_yes) > len(ants_after_no)

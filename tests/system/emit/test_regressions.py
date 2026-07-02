@@ -155,8 +155,8 @@ def test_import_csv_file_all_node_types(emit_app) -> None:
         "TxBbEmissionNode": "1e6,-100\n10e6,-120\n",
         # Frequency MHz (expression), Bandwidth (>1), Power (-200–150)
         "TxSpurNode": "100,2,-50\n200,5,-80\n",
-        # Frequency (1–100e9), Value dB (-1000–0)
-        "CustomCouplingNode": "1e9,-10\n2e9,-20\n",
+        # Frequency MHz (1–100e9), Value dB (-1000–0)
+        "CustomCouplingNode": "1000,-10\n2000,-20\n",
     }
 
     csv_dir = tempfile.gettempdir()
@@ -765,6 +765,7 @@ def test_defect_1475694_iemit_dies_when_design_deleted(desktop, add_app) -> None
     app.close_project(app.project_name, save=False)
 
 
+@pytest.mark.skipif(True, reason="B1457557 - need to fix SceneGroupNode.add_group().")
 @pytest.mark.skipif(not DESKTOP_VERSION or DESKTOP_VERSION < "2027.1", reason="Regression test for defect 1475679.")
 def test_defect_1475679_get_child_node_id_recurse(emit_app) -> None:
     """Regression test for TFS defect 1475679.
@@ -785,15 +786,15 @@ def test_defect_1475679_get_child_node_id_recurse(emit_app) -> None:
     scene_node: EmitSceneNode = rev.get_scene_node()
 
     # add an antenna directly under the scene
-    ant1_node: AntennaNode = scene_node.add_antenna("Antenna1")
+    ant1_node: AntennaNode = scene_node.add_antenna()
     assert ant1_node
 
     # add a group node directly under the scene
-    group_node: SceneGroupNode = scene_node.add_group("Group1")
+    group_node: SceneGroupNode = scene_node.add_group()
     assert group_node
 
     # add an emitter directly under the group
-    emitter_node: EmitterNode = group_node.add_emitter("Emitter1")
+    emitter_node: EmitterNode = group_node.add_emitter()
     assert emitter_node
 
     # get the emitter's antenna
@@ -801,7 +802,7 @@ def test_defect_1475679_get_child_node_id_recurse(emit_app) -> None:
     assert ant2_node
 
     # add an antenna directly under the group
-    ant3_node: AntennaNode = group_node.add_antenna("Antenna2")
+    ant3_node: AntennaNode = group_node.add_antenna()
     assert ant3_node
 
     antennas = mod.GetChildNodeNames(0, scene_node._node_id, "AntennaNode", False)

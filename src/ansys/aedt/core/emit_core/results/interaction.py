@@ -158,6 +158,8 @@ class Interaction:
             domain.interferer_band_names,
             domain.interferer_channel_frequencies,
         )
+        if float(availability) == -1:
+            raise ValueError(self.get_availability_warning(domain))
         return float(availability)
 
     @min_aedt_version("2027.1")

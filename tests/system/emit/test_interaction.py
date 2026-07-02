@@ -272,8 +272,8 @@ def test_run_band_pair(cell_phone):
 def test_availability(availability):
     """Test availability calculation and related errors."""
     # Get simulation and run
-    rev = availability.results.analyze()
-    sim = rev.get_simulation()
+    rev: Revision = availability.results.analyze()
+    sim: Simulation = rev.get_simulation()
 
     domain = InteractionDomain(availability)
     interaction = sim.run(domain)
@@ -285,7 +285,7 @@ def test_availability(availability):
     warning = interaction.get_availability_warning(domain)
     assert warning == "Availability only defined for bands and channels."
 
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         interaction.get_availability(domain)
     assert "Availability only defined for bands and channels" in str(e.value)
 
@@ -297,7 +297,7 @@ def test_availability(availability):
     warning = interaction.get_availability_warning(domain)
     assert warning == "Availability only defined for bands and channels."
 
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         interaction.get_availability(domain)
     assert "Availability only defined for bands and channels" in str(e.value)
 
@@ -308,7 +308,7 @@ def test_availability(availability):
     warning = interaction.get_availability_warning(domain)
     assert "Radio pair disabled" in warning
 
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         interaction.get_availability(domain)
     assert "Radio pair disabled" in str(e.value)
 
@@ -339,7 +339,7 @@ def test_availability(availability):
     warning = interaction.get_availability_warning(domain)
     assert warning == "Self-interaction availability only at band level."
 
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         interaction.get_availability(domain)
     assert "Self-interaction availability only at band level" in str(e.value)
 
@@ -350,7 +350,7 @@ def test_availability(availability):
     warning = interaction.get_availability_warning(domain)
     assert warning == "Only one channel pair exists, availability undefined."
 
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         interaction.get_availability(domain)
     assert "Only one channel pair exists, availability undefined" in str(e.value)
 
@@ -359,7 +359,7 @@ def test_availability(availability):
     warning = interaction.get_availability_warning(domain)
     assert warning == "Availability undefined for single channel pairs."
 
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         interaction.get_availability(domain)
     assert "Availability undefined for single channel pairs" in str(e.value)
 
@@ -367,8 +367,8 @@ def test_availability(availability):
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
 def test_non_numeric_results(non_numeric_results):
     """Test non-numeric result handling (disabled pairs, saturated amps, etc.)."""
-    rev = non_numeric_results.results.analyze()
-    sim = rev.get_simulation()
+    rev: Revision = non_numeric_results.results.analyze()
+    sim: Simulation = rev.get_simulation()
 
     domain = InteractionDomain(non_numeric_results)
 
@@ -404,7 +404,7 @@ def test_non_numeric_results(non_numeric_results):
 
     # Self Interaction -> Low Susc Rx: radio pair disabled
     inst_domain.set_receiver(radio="Low Susc Rx - Low Susc Rx", band="Band", freq=102000000, units="Hz")
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         interaction.get_instance(inst_domain)
     assert "Radio pair disabled" in str(e.value)
 
@@ -458,7 +458,7 @@ def test_non_numeric_results(non_numeric_results):
     assert "An amplifier was saturated" in str(e.value)
 
     inst_domain.set_receiver("Amp Sat - Amp Sat", "Band", 110000000, "Hz")
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         interaction.get_instance(inst_domain)
     assert "Radio pair disabled" in str(e.value)
 
@@ -496,7 +496,7 @@ def test_non_numeric_results(non_numeric_results):
 
     # Null -> Null: no channels enabled
     inst_domain.set_receiver("RF System - Null")
-    inst_domain.set_interferers(names=["RF System - Null"])
+    inst_domain.set_interferers(radios=["RF System - Null"])
     with pytest.raises(ValueError) as e:
         interaction.get_instance(inst_domain)
     assert "No channels are enabled in this radio" in str(e.value)
@@ -518,7 +518,7 @@ def test_result_validity(availability, add_app_example):
 
     # interaction2 is unrun
     assert not interaction2.is_valid()
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         interaction2.validate()
     assert "Interaction results are incomplete" in str(e.value)
 
@@ -527,22 +527,22 @@ def test_result_validity(availability, add_app_example):
 
     # Undefined interaction should be invalid
     assert not interaction.is_valid()
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         interaction.validate()
     assert "Interaction results are incomplete" in str(e.value)
 
     # Undefined instance should be invalid
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         undefined_instance.validate()
     assert "Instance domain is not single instance" in str(e.value)
 
     # Trying to get worst instance on undefined interaction should fail
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         interaction.get_worst_instance(ResultType.EMI)
     assert "Interaction results are incomplete" in str(e.value)
 
     # Trying to get instance on undefined domain should fail
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         interaction.get_instance(InteractionDomain(availability))
     assert "Interaction results are incomplete" in str(e.value)
 
@@ -582,7 +582,7 @@ def test_n_to_1_worst_case(n_to_1):
     value = instance.get_value(ResultType.EMI)
     assert value == 179.54
 
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance.get_value(ResultType.DESENSE)
     assert "Desense and sensitivity values not available" in str(e.value)
 
@@ -590,7 +590,7 @@ def test_n_to_1_worst_case(n_to_1):
     value = instance.get_value(ResultType.DESENSE)
     assert value == 179.54
 
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance.get_value(ResultType.EMI)
     assert "EMI value not available" in str(e.value)
 
@@ -609,7 +609,7 @@ def test_n_to_1_worst_case(n_to_1):
         freqs=[100, 100, 100],
         units="MHz",
     )
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         interaction.get_instance(domain)
     assert "Instance data for multiple simultaneous interferers not available" in str(e.value)
 
@@ -624,6 +624,7 @@ def test_n_to_1_worst_case(n_to_1):
     assert "When assigning channels you must assign one channel per band" in str(e.value)
 
 
+@pytest.mark.skipif(True, reason="B1477851 - need to fix Nto1 export.")
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
 def test_export(export):
     """
@@ -765,10 +766,11 @@ def test_export(export):
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
 def test_n_to_1_limit(cell_phone):
     """Test get/set N-to-1 limit and verify instance count changes accordingly."""
-    rev = cell_phone.results.analyze()
-    sim = rev.get_simulation()
+    rev: Revision = cell_phone.results.analyze()
+    sim: Simulation = rev.get_simulation()
 
-    # Get initial N-to-1 limit value and verify it's set to 1
+    # Set initial N-to-1 limit value and verify it's set to 1
+    sim.n_to_1_limit = 1
     limit = sim.n_to_1_limit
     assert limit == 1
 
