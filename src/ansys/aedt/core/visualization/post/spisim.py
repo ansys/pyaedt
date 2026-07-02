@@ -421,9 +421,9 @@ class SpiSim(PyAedtBase):
             try:
                 with open_file(out_file, "r") as infile:
                     lines = infile.read().split("\n")
-                    for l in lines:
-                        if l.startswith("[MESG]: ICN: "):
-                            return float(l.lstrip("[MESG]: ICN: ").rstrip(" mv")) * 0.001
+                    for line in lines:
+                        if line.startswith("[MESG]: ICN: "):
+                            return float(line.lstrip("[MESG]: ICN: ").rstrip(" mv")) * 0.001
 
                 self.logger.error(
                     f"Failed to compute {parameter_name}. Check input parameters and retry"
@@ -451,6 +451,7 @@ class SpiSim(PyAedtBase):
         permitted_reflection: float = None,
         reflections_length: float = None,
         modulation_type: str = None,
+        compute_retries: int = 3,
     ) -> bool | float:
         """Compute effective return loss (ERL) using Ansys SPISIM from S-parameter file.
 
@@ -497,17 +498,19 @@ class SpiSim(PyAedtBase):
             Length of the reflections: how many UI will be used to calculate ERL. The default is ``1000``.
         modulation_type : str, optional
            Modulations type: signal modulation type "``NRZ``" or "``PAM4``". The default is "``NRZ``".
+        compute_retries : int, optional
+            Number of retries to compute ERL. The default is ``3``.
 
         Returns
         -------
         bool or float
-            Effective return loss from the spisimExe command, ``False`` when failed.
+            Effective return loss from the SPISIM executable command, ``False`` when failed.
 
         Examples
         --------
         >>> from ansys.aedt.core.visualization.post.spisim import SpiSim
         >>> obj = SpiSim()
-        >>> obj.compute_erl(config_file="example.cfg", port_order=1)
+        >>> obj.compute_erl(config_file="example.cfg", port_order="EvenOdd")
 
         """
         cfg_dict = {
@@ -535,7 +538,7 @@ class SpiSim(PyAedtBase):
                         split_line = [i.strip() for i in line.split("=")]
                         cfg_dict[split_line[0]] = split_line[1]
 
-        self.touchstone_file = self.touchstone_file.replace("\\", "/")
+        self.touchstone_file = Path(self.touchstone_file).as_posix()
 
         self.touchstone_file = self._copy_to_relative_path(self.touchstone_file)
         cfg_dict["INPARRY"] = os.path.split(self.touchstone_file)[-1]
@@ -572,11 +575,8 @@ class SpiSim(PyAedtBase):
             for k, v in cfg_dict.items():
                 fp.write(f"# {k}: {k}\n")
                 fp.write(f"{k} = {v}\n")
-        retries = 3
-        if "PYTEST_CURRENT_TEST" in os.environ:
-            retries = 10
         nb_retry = 0
-        while nb_retry < retries:
+        while nb_retry < compute_retries:
             out_processing = self.__compute_spisim("CalcERL", config_file)
             results = self.__get_output_parameter_from_result(out_processing, "ERL")
             if results:
@@ -595,6 +595,7 @@ class SpiSim(PyAedtBase):
         fext_s4p: str | list | None = None,
         bandwidth: float | None = None,
         use_pcie_icn: bool = False,
+        compute_retries: int = 3,
     ) -> bool | float:
         """Compute ICN using Ansys SPISIM from S-parameter file.
 
@@ -613,36 +614,30 @@ class SpiSim(PyAedtBase):
             Whether to use "``EvenOdd``" or "``Incremental``" numbering for S4P files.
             The default is ``None``. This parameter is ignored if there are more than four ports.
         next_s4p : str, list, optional
-            Near End ``s4p`` or list of ``s4p``. Default is ``None``.
+            Near End ``s4p`` or list of ``s4p``. The default is ``None``.
         fext_s4p : str, list, optional
-            Far End ``s4p`` or list of ``s4p``. Default is ``None``.
+            Far End ``s4p`` or list of ``s4p``. The default is ``None``.
         use_pcie_icn : bool, optional
-            Whether to use ``PCIE`` or ``COM`` method to compute ``ICN``. Default is ``COM``.
+            Whether to use ``PCIE`` or ``COM`` method to compute ``ICN``. The default is ``COM``.
         bandwidth : float, str, optional
             Application bandwidth in hertz (Hz), which is the inverse of one UI (unit interval). The value
             can be a float or a string with the unit ("m", "g"). The default is ``25e9``.
-
+        compute_retries : int, optional
+            Number of retries to compute ICN. The default is ``3``.
 
         Returns
         -------
         bool or float
-            ICN from the spisimExe command, ``False`` when failed.
+            ICN from the SPISIM executable command, ``False`` when failed.
 
         Examples
         --------
-            from ansys.aedt.core.visualization.post.spisim import SpiSim
-            fext_s4p = "fext_s4p.s4p"
-            next_s4p = "next_s4p.s4p"
-
-            spisim = SpiSim()
-            spisim.working_directory = test_tmp_dir
-
-            icn = spisim.compute_icn(
-              port_order="EvenOdd",
-              fext_s4p=fext_s4p,
-              next_s4p=next_s4p,
-              bandwidth=10e9,
-              )
+        >>> from ansys.aedt.core.visualization.post.spisim import SpiSim
+        >>> fext_s4p = "fext_s4p.s4p"
+        >>> next_s4p = "next_s4p.s4p"
+        >>> spisim = SpiSim()
+        >>> spisim.working_directory = test_tmp_dir
+        >>> icn = spisim.compute_icn(port_order="EvenOdd", fext_s4p=fext_s4p, next_s4p=next_s4p, bandwidth=10e9)
 
         """
         wd = Path(self.working_directory) / "icn"
@@ -686,11 +681,9 @@ class SpiSim(PyAedtBase):
             for k, v in cfg_dict.items():
                 fp.write(f"# {k}: {k}\n")
                 fp.write(f"{k} = {v}\n")
-        retries = 3
-        if "PYTEST_CURRENT_TEST" in os.environ:
-            retries = 10
+
         nb_retry = 0
-        while nb_retry < retries:
+        while nb_retry < compute_retries:
             out_processing = self.__compute_spisim("CalcICN", config_file)
             results = self.__get_output_parameter_from_result(out_processing, "ICN")
             if results:
