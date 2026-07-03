@@ -1582,7 +1582,7 @@ def test_touchstone_component_multi(aedt_app, test_tmp_dir):
     comp = aedt_app.modeler.schematic.create_touchstone_component_multi(
         component_name="nport",
         num_ports=6,
-        array_name="$SElement",
+        array_name="SElement",
         array_id_name="$SElement_id",
         files=[ts_1, ts_2],
     )
@@ -1598,7 +1598,7 @@ def test_state_space_component_multi(aedt_app, test_tmp_dir):
         component_name="nport",
         num_ports=4,
         array_name="$SSSElement",
-        array_id_name="$SSSElement_id",
+        array_id_name="SSSElement_id",
         files=[sss_1, sss_2],
         location=["10mm", 2],
     )

@@ -1924,9 +1924,9 @@ class CircuitComponents(PyAedtBase):
         num_ports : int
             Number of ports or transmission lines.
         array_name : str
-            Name of the array variable.
+            Name of the array variable. It must start with the ``$`` symbol as it defines a project variable.
         array_id_name : str
-            Name of the array ID variable.
+            Name of the array ID variable. It must start with the ``$`` symbol as it defines a project variable.
         files : list
             List of touchstone file paths to import.
         location : tuple, optional
@@ -1945,6 +1945,13 @@ class CircuitComponents(PyAedtBase):
             Component object.
 
         """
+        if "$" not in array_name[0]:
+            array_name = "$" + array_name
+            self.logger.warning("Added '$' to the beginning of 'array_name' as it defines a project variable.")
+        if "$" not in array_id_name[0]:
+            array_id_name = "$" + array_id_name
+            self.logger.warning("Added '$' to the beginning of array_id_name as it defines a project variable.")
+
         for f in files:
             if not Path(f).exists():
                 raise FileNotFoundError(f"Cannot find file: {str(f)}")
