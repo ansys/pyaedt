@@ -302,7 +302,7 @@ class SpiSim(PyAedtBase):
         if self._working_directory != "":
             return self._working_directory
         if self.touchstone_file:
-            self._working_directory = os.path.dirname(self.touchstone_file)
+            self._working_directory = str(Path(self.touchstone_file).parent)
         return self._working_directory
 
     @working_directory.setter
@@ -350,22 +350,22 @@ class SpiSim(PyAedtBase):
         import subprocess  # nosec
 
         exec_name = "SPISimJNI_LX64.exe" if is_linux else "SPISimJNI_WIN64.exe"
-        spisim_exe = os.path.join(self.desktop_install_dir, "spisim", "SPISim", "modules", "ext", exec_name)
+        spisim_exe = str(Path(self.desktop_install_dir) / "spisim" / "SPISim" / "modules" / "ext" / exec_name)
         command = [spisim_exe, parameter]
 
         if in_file != "":
             command += ["-i", str(in_file)]
 
-        config_folder = os.path.dirname(config_file)
-        cfg_file_only = os.path.split(config_file)[-1]
+        config_folder = str(Path(config_file).parent)
+        cfg_file_only = Path(config_file).name
 
         if config_file != "":
             command += ["-v", f"CFGFILE={cfg_file_only}"]
         if out_file:
             # command += [",", "-o", f"{out_file}"]
-            out_processing = os.path.join(out_file, generate_unique_name("spsim_out") + ".txt")
+            out_processing = str(Path(out_file) / (generate_unique_name("spsim_out") + ".txt"))
         else:
-            out_processing = os.path.join(self.working_directory, generate_unique_name("spsim_out") + ".txt")
+            out_processing = str(Path(self.working_directory) / (generate_unique_name("spsim_out") + ".txt"))
 
         my_env = os.environ.copy()
         my_env.update(settings.aedt_environment_variables)
@@ -373,7 +373,7 @@ class SpiSim(PyAedtBase):
             if "ANSYSEM_ROOT_PATH" not in my_env:  # pragma: no cover
                 my_env["ANSYSEM_ROOT_PATH"] = self.desktop_install_dir
             if "SPISIM_OUTPUT_LOG" not in my_env:  # pragma: no cover
-                my_env["SPISIM_OUTPUT_LOG"] = os.path.join(out_file, generate_unique_name("spsim_out") + ".log")
+                my_env["SPISIM_OUTPUT_LOG"] = str(Path(out_file) / (generate_unique_name("spsim_out") + ".log"))
 
         with open_file(out_processing, "w") as outfile:
             settings.logger.info(f"Execute : {' '.join(command)}")
@@ -541,7 +541,7 @@ class SpiSim(PyAedtBase):
         self.touchstone_file = Path(self.touchstone_file).as_posix()
 
         self.touchstone_file = self._copy_to_relative_path(self.touchstone_file)
-        cfg_dict["INPARRY"] = os.path.split(self.touchstone_file)[-1]
+        cfg_dict["INPARRY"] = Path(self.touchstone_file).name
         cfg_dict["MIXMODE"] = "" if "MIXMODE" not in cfg_dict else cfg_dict["MIXMODE"]
         if port_order is not None and self.touchstone_file.lower().endswith(".s4p"):
             cfg_dict["MIXMODE"] = port_order
@@ -570,7 +570,9 @@ class SpiSim(PyAedtBase):
         cfg_dict["REFLRHO"] = permitted_reflection if permitted_reflection is not None else cfg_dict["REFLRHO"]
         cfg_dict["NCYCLES"] = reflections_length if reflections_length is not None else cfg_dict["NCYCLES"]
 
-        config_file = os.path.join(self.working_directory, "spisim_erl.cfg").replace("\\", "/")
+        config_file = Path(self.working_directory) / "spisim_erl.cfg"
+        config_file = config_file.as_posix()
+
         with open_file(config_file, "w") as fp:
             for k, v in cfg_dict.items():
                 fp.write(f"# {k}: {k}\n")
@@ -676,7 +678,7 @@ class SpiSim(PyAedtBase):
 
         cfg_dict["MAXFREQ"] = bandwidth if bandwidth is not None else cfg_dict["MAXFREQ"]
 
-        config_file = os.path.join(wd, "spisim_icn.cfg").replace("\\", "/")
+        config_file = str(wd / "spisim_icn.cfg")
         with open_file(config_file, "w") as fp:
             for k, v in cfg_dict.items():
                 fp.write(f"# {k}: {k}\n")
@@ -747,7 +749,7 @@ class SpiSim(PyAedtBase):
         """
         com_param = COMParametersVer3p4()
         if standard == 0:
-            if os.path.splitext(config_file)[-1] == ".cfg":
+            if Path(config_file).suffix == ".cfg":
                 com_param.load_spisim_cfg(config_file)
             else:
                 com_param.load(config_file)
@@ -795,7 +797,7 @@ class SpiSim(PyAedtBase):
         com_parameter.set_parameter("NEXTARY", next_snp)
         com_parameter.set_parameter("RESULT_DIR", "./")
 
-        cfg_file = os.path.join(self.working_directory, "com_parameters.cfg")
+        cfg_file = str(Path(self.working_directory) / "com_parameters.cfg")
         com_parameter.export_spisim_cfg(cfg_file)
 
         out_processing = self.__compute_spisim("COM", cfg_file)
