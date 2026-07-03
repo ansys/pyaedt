@@ -31,6 +31,7 @@ import re
 import shutil
 from struct import unpack
 from typing import TYPE_CHECKING
+import warnings
 
 from numpy import float64
 
@@ -262,6 +263,34 @@ class AdvancedReport(ReportBase):
         with open(file_path, "w") as f:
             f.writelines(lines)
         return str(file_path)
+
+
+class Pair(BaseModel):
+    class Net(BaseModel):
+        driver_port: str | int
+        receiver_port: str | int
+
+    name: str | None = Field(None, description="Differential pair name")
+    nets: list[Net] | None = Field(default_factory=list)
+    driver: str | None = Field(None, description="Driver reference designator")
+    receiver: str | None = Field(None, description="Receiver reference designator")
+
+    def add_port_idx_mapping(self, driver_port_idx, receiver_port_idx):
+        self.nets.append(self.Net(driver_port=driver_port_idx, receiver_port=receiver_port_idx))
+
+
+class SParameterPortMapping(BaseModel):
+    pairs: list[Pair] = Field(default_factory=list, description="Differential pairs")
+
+    def add_differential_pair(self, channel: Pair):
+        self.pairs.append(channel)
+        return channel
+
+    def get_differential_pair(self, name: str) -> Pair:
+        for ch in self.pairs:
+            if ch.name == name:
+                return ch
+        raise ValueError(f"Differential pair {name} not found")
 
 
 class SpiSim(PyAedtBase):
@@ -577,8 +606,8 @@ class SpiSim(PyAedtBase):
         standard: int = 1,
         config_file: str = None,
         port_order: str = "EvenOdd",
-        fext_s4p: str = "",
-        next_s4p: str = "",
+        fext_s4p: str | list = "",
+        next_s4p: str | list = "",
         out_folder: str = "",
     ) -> list | float:
         """Compute Channel Operating Margin. Only COM ver3.4 is supported.
@@ -632,52 +661,210 @@ class SpiSim(PyAedtBase):
         else:
             com_param.standard = standard
 
-        com_param.set_parameter("THRUSNP", self.touchstone_file)
-        com_param.set_parameter("FEXTARY", fext_s4p if not isinstance(fext_s4p, list) else ";".join(fext_s4p))
-        com_param.set_parameter("NEXTARY", next_s4p if not isinstance(next_s4p, list) else ";".join(next_s4p))
-
         com_param.set_parameter("Port Order", "[1 3 2 4]" if port_order == "EvenOdd" else "[1 2 3 4]")
         if out_folder:
             self.working_directory = out_folder
-        com_param.set_parameter("RESULT_DIR", self.working_directory)
-        return self.__compute_com(com_param)
 
-    @pyaedt_function_handler
-    def __compute_com(
+        thru_snp = self._copy_to_relative_path(self.touchstone_file)
+
+        fext_s4p = [fext_s4p] if not isinstance(fext_s4p, list) else fext_s4p
+        fext_s4p = [self._copy_to_relative_path(i) for i in fext_s4p]
+        next_s4p = [next_s4p] if not isinstance(next_s4p, list) else next_s4p
+        next_s4p = [self._copy_to_relative_path(i) for i in next_s4p]
+
+        com_param.set_parameter("THRUSNP", thru_snp)
+        com_param.set_parameter("FEXTARY", ";".join(fext_s4p))
+        com_param.set_parameter("NEXTARY", ";".join(next_s4p))
+
+        com_param.set_parameter("RESULT_DIR", "./")
+
+        cfg_file = os.path.join(self.working_directory, "com_parameters.cfg")
+        com_param.export_spisim_cfg(cfg_file)
+
+        out_processing = self.__compute_spisim("COM", cfg_file)
+        return self.__get_output_parameter_from_result(out_processing, "COM")
+
+    @pyaedt_function_handler()
+    def compute_com_snp(
         self,
-        com_parameter,
-    ) -> list | float:
-        """Compute Channel Operating Margin (COM).
+        through: str,
+        port_mapping: Path | str,
+        output_folder: Path | str,
+        config_file: Path | str = None,
+        standard: int = 1,
+    ):
+        """Compute Channel Operating Margin (COM) from a touchstone file with THRU, FEXT, and NEXT channels.
 
-        .. warning::
-
-            Do not execute this function with untrusted function argument, environment
-            variables or pyaedt global settings.
-            See the :ref:`security guide<ref_security_consideration>` for details.
+        FEXT and NEXT channels are extracted from the touchstone file based on the differential pair port mapping
+        defined in the port mapping file. Channels share the driver with the THRU channel are identified as FEXT
+        channels. Otherwise, they are identified as NEXT channels.
 
         Parameters
         ----------
-        com_parameter: :class:`COMParameters`
-            COMParameters class.
+        through : str
+            Path to the through channel file.
+        port_mapping : Path, str, SParameterPortMapping
+            Path to the port mapping file in JSON format defining differential pair port mappings.
+            The file must contain SParameterPortMapping data with differential pair information.
+
+            The JSON structure should follow this format:
+
+            .. code-block:: json
+
+                {
+                    "pairs": [
+                        {
+                            "name": "pair_name_1",
+                            "nets": [
+                                {
+                                    "driver_port": 1,
+                                    "receiver_port": 2
+                                },
+                                {
+                                    "driver_port": 3,
+                                    "receiver_port": 4
+                                }
+                            ],
+                            "driver": "U1",
+                            "receiver": "U2"
+                        },
+                        {
+                            "name": "pair_name_2",
+                            "nets": [
+                                {
+                                    "driver_port": 5,
+                                    "receiver_port": 6
+                                },
+                                {
+                                    "driver_port": 7,
+                                    "receiver_port": 8
+                                }
+                            ],
+                            "driver": "U1",
+                            "receiver": "U3"
+                        }
+                    ]
+                }
+
+            Each differential pair contains:
+            - **name**: Unique identifier for the differential pair
+            - **nets**: List of two nets (positive and negative), each with driver_port and receiver_port indices
+            - **driver**: Reference designator of the driving component
+            - **receiver**: Reference designator of the receiving component
+
+            Port indices are 1-based and correspond to S-parameter port numbers in the touchstone file.
+
+        output_folder : Path, str
+            Path to the output folder.
+        config_file : Path, str, optional
+            Path to the configuration file. Default is None.
+        standard : int, optional
+            Standard parameter. Default is 1.
 
         Returns
         -------
         float or list
+            COM value(s).
         """
-        thru_snp = self._copy_to_relative_path(com_parameter.parameters["THRUSNP"])
-        fext_snp = self._copy_to_relative_path(com_parameter.parameters["FEXTARY"])
-        next_snp = self._copy_to_relative_path(com_parameter.parameters["NEXTARY"])
 
-        com_parameter.set_parameter("THRUSNP", thru_snp)
-        com_parameter.set_parameter("FEXTARY", fext_snp)
-        com_parameter.set_parameter("NEXTARY", next_snp)
-        com_parameter.set_parameter("RESULT_DIR", "./")
+        def extract_and_save(input_path: str | Path, port_indices: list, out_path: str | Path):
+            """
+            port_indices: list/tuple of 0-based port indices to extract
+            out_path: string or Path, file to write; extension must match number of ports (e.g. .s2p, .s3p)
+            """
+            n = rf.Network(str(input_path))
+            idx = list(port_indices)
+            sub_s = n.s[:, idx][:, :, idx]
 
-        cfg_file = os.path.join(self.working_directory, "com_parameters.cfg")
-        com_parameter.export_spisim_cfg(cfg_file)
+            sub = rf.Network(f=n.f, s=sub_s, z0=50)
+            sub.write_touchstone(str(out_path))
 
-        out_processing = self.__compute_spisim("COM", cfg_file)
-        return self.__get_output_parameter_from_result(out_processing, "COM")
+        try:
+            import skrf as rf
+
+        except ImportError:
+            warnings.warn(
+                "The Scikit-rf module is required to run this functionality.\nInstall with \n\npip install scikit-rf"
+            )
+            return False
+
+        if isinstance(port_mapping, SParameterPortMapping):
+            com = port_mapping
+        elif not Path(port_mapping).exists():
+            raise FileNotFoundError(f"Not found {port_mapping}")
+        else:
+            with open(port_mapping, "r") as f:
+                json_str = f.read()
+            com = SParameterPortMapping.model_validate_json(json_str)
+
+        thru = com.get_differential_pair(through)
+        through_ports = [
+            # keep 1324 order
+            thru.nets[0].driver_port - 1,
+            thru.nets[0].receiver_port - 1,
+            thru.nets[1].driver_port - 1,
+            thru.nets[1].receiver_port - 1,
+        ]
+
+        com_result_folder = Path(output_folder).resolve() / f"com_result_{thru.name}"
+        com_result_folder.mkdir(parents=True, exist_ok=True)
+
+        # Extract thru s4p
+        temp_folder = com_result_folder / "temp" / thru.name
+        temp_folder.mkdir(parents=True, exist_ok=True)
+        thru_s4p = temp_folder / f"thru_{thru.name}.s4p"
+        extract_and_save(
+            input_path=self.touchstone_file,
+            port_indices=through_ports,
+            out_path=thru_s4p,
+        )
+
+        next_s4p = []
+        fext_s4p = []
+        for ch in com.pairs:
+            if ch.name != through:
+                fext_ports = []
+                next_ports = []
+
+                if ch.driver == thru.driver:
+                    fext_ports.append(ch.nets[0].receiver_port - 1)
+                    fext_ports.append(through_ports[1])
+                    fext_ports.append(ch.nets[1].receiver_port - 1)
+                    fext_ports.append(through_ports[3])
+
+                    s4p_path = temp_folder / f"fext_{thru.name}_{ch.name}.s4p"
+
+                    extract_and_save(
+                        input_path=self.touchstone_file,
+                        port_indices=fext_ports,
+                        out_path=temp_folder / f"fext_{thru.name}_{ch.name}.s4p",
+                    )
+                    fext_s4p.append(str(s4p_path))
+                else:
+                    next_ports.append(ch.nets[0].driver_port - 1)
+                    next_ports.append(through_ports[1])
+                    next_ports.append(ch.nets[1].driver_port - 1)
+                    next_ports.append(through_ports[3])
+
+                    s4p_path = temp_folder / f"next_{thru.name}_{ch.name}.s4p"
+
+                    extract_and_save(
+                        input_path=self.touchstone_file,
+                        port_indices=next_ports,
+                        out_path=s4p_path,
+                    )
+                    next_s4p.append(str(s4p_path))
+
+        self.touchstone_file = str(thru_s4p)
+        com_0, com_1 = self.compute_com(
+            standard=standard,
+            port_order="EvenOdd",
+            fext_s4p=fext_s4p,
+            next_s4p=next_s4p,
+            out_folder=str(com_result_folder),
+            config_file=config_file,
+        )
+        return com_0, com_1
 
     @pyaedt_function_handler()
     def export_com_configure_file(self, file_path: str, standard: int = 1) -> bool:
