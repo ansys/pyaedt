@@ -1586,7 +1586,7 @@ def test_touchstone_component_multi(aedt_app, test_tmp_dir):
         array_id_name="$SElement_id",
         files=[ts_1, ts_2],
     )
-    assert comp.parameters["FileName"] == "SElement[SElement_id]"
+    assert comp.parameters["FileName"] == "$SElement[$SElement_id]"
 
 
 def test_state_space_component_multi(aedt_app, test_tmp_dir):
@@ -1602,4 +1602,4 @@ def test_state_space_component_multi(aedt_app, test_tmp_dir):
         files=[sss_1, sss_2],
         location=["10mm", 2],
     )
-    assert comp.parameters["FileName"] == "SSSElement[SSSElement_id]"
+    assert comp.parameters["FileName"] == "$SSSElement[$SSSElement_id]"

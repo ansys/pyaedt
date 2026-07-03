@@ -1994,9 +1994,9 @@ class CircuitComponents(PyAedtBase):
         num_ports : int
             Number of ports or transmission lines.
         array_name : str
-            Name of the array variable.
+            Name of the array variable. It must start with the ``$`` symbol as it defines a project variable.
         array_id_name : str
-            Name of the array ID variable.
+            Name of the array ID variable. It must start with the ``$`` symbol as it defines a project variable.
         files : list
             List of touchstone file paths to import.
         location : tuple, optional
@@ -2016,9 +2016,14 @@ class CircuitComponents(PyAedtBase):
 
         >>> from ansys.aedt.core import Circuit
         >>> aedtapp = Circuit()
-        >>> files = ["path_to_file1.s4p", "path_to_file2.s4p"]
-        >>> c = aedtapp.modeler.schematic.create_touchstone_component_multi("C1", 2, "CAP1", "CAP1_id", files)
-        >>> schematic_object = aedtapp.modeler.schematic
+        >>> ts = ["path_to_file1.ts", "path_to_file2.ts"]
+        >>> c = aedtapp.modeler.schematic.create_touchstone_component_multi(
+        ...     component_name="nport",
+        ...     num_ports=4,
+        ...     array_name="$SElement",
+        ...     array_id_name="$SElement_id",
+        ...     files=[ts[0], ts[1]],
+        ... )
 
         """
         return self._create_nport_multi(
@@ -2056,9 +2061,9 @@ class CircuitComponents(PyAedtBase):
         num_ports : int
             Number of ports or transmission lines.
         array_name : str
-            Name of the array variable.
+            Name of the array variable. It must start with the ``$`` symbol as it defines a project variable.
         array_id_name : str
-            Name of the array ID variable.
+            Name of the array ID variable. It must start with the ``$`` symbol as it defines a project variable.
         files : list
             List of state space file paths to import.
         location : tuple, optional
@@ -2080,9 +2085,16 @@ class CircuitComponents(PyAedtBase):
         --------
         >>> from ansys.aedt.core import Circuit
         >>> aedtapp = Circuit()
-        >>> files = ["path_to_file1.sss", "path_to_file2.sss"]
-        >>> c = aedtapp.modeler.schematic.create_state_space_component_multi("C1", 2, "CAP1", "CAP1_id", files)
-        >>> schematic_object = aedtapp.modeler.schematic
+        >>> sss = ["path_to_file1.sss", "path_to_file2.sss"]
+        >>> c = aedtapp.modeler.schematic.create_state_space_component_multi(
+        ...     component_name="nport",
+        ...     num_ports=4,
+        ...     array_name="$SSSElement",
+        ...     array_id_name="$SSSElement_id",
+        ...     files=[sss[0], sss[1]],
+        ...     location=["10mm", 2],
+        ... )
+
         """
         return self._create_nport_multi(
             component_type=1,
