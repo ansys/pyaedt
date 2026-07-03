@@ -46,28 +46,53 @@ from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 # Extension batch arguments
 EXTENSION_DEFAULT_ARGUMENTS = {"file_path": [], "output_dir": ""}
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Circuit Configuration"
+"""Title displayed for the extension."""
 EXTENSION_NB_COLUMN = 2
+"""Number of columns used by the extension UI."""
 FILE_PATH_ERROR_MSG = "Select an existing file before importing."
+"""Error message for file path."""
 DESIGN_TYPE_ERROR_MSG = "A Circuit design is needed for this extension."
+"""Error message for design type."""
 
 
 @dataclass
 class CircuitConfigurationData(ExtensionCommonData):
-    """Data class containing user input and computed data."""
+    """Data class containing user input and computed data.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.circuit.circuit_configuration import CircuitConfigurationData
+    >>> data = CircuitConfigurationData(output_dir=r"D:\\Temp")
+
+    """
 
     file_path: list[str] = field(default_factory=list)
+    """Path to file."""
     output_dir: str = EXTENSION_DEFAULT_ARGUMENTS["output_dir"]
+    """Value for output dir."""
 
 
 class CircuitConfigurationExtension(ExtensionCircuitCommon):
-    """Circuit configuration extension."""
+    """Circuit configuration extension.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.circuit.circuit_configuration import CircuitConfigurationExtension
+    >>> extension = CircuitConfigurationExtension(withdraw=True)
+
+    """
 
     def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with the title and theme color
@@ -105,7 +130,15 @@ class CircuitConfigurationExtension(ExtensionCircuitCommon):
         self.root.destroy()
 
     def add_extension_content(self) -> None:
-        """Add custom content to the extension UI."""
+        """Add custom content to the extension UI.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.circuit.circuit_configuration import CircuitConfigurationExtension
+        >>> extension = CircuitConfigurationExtension(withdraw=True)
+        >>> extension.add_extension_content()
+
+        """
         upper_frame = ttk.Frame(self.root, style="PyAEDT.TFrame")
         upper_frame.grid(row=0, column=0, columnspan=EXTENSION_NB_COLUMN)
 
@@ -130,7 +163,15 @@ class CircuitConfigurationExtension(ExtensionCircuitCommon):
 
 
 def main(data: CircuitConfigurationData) -> bool:
-    """Main function to execute circuit configuration extension."""
+    """Main function to execute circuit configuration extension.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.circuit.circuit_configuration import CircuitConfigurationData, main
+    >>> data = CircuitConfigurationData(output_dir=r"D:\\Temp")
+    >>> main(data)
+
+    """
     app = ansys.aedt.core.Desktop(
         new_desktop=False,
         version=VERSION,

@@ -45,8 +45,7 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class Revision:
-    """
-    Provides the ``Revision`` object.
+    """Provides the ``Revision`` object.
 
     Parameters
     ----------
@@ -70,6 +69,7 @@ class Revision:
     >>> rev = Revision(results, aedtapp, "Revision 1")
     >>> domain = aedtapp.interaction_domain()
     >>> rev.run(domain)
+
     """
 
     def __init__(self, parent_results, emit_obj, name: str | None = None) -> None:
@@ -146,12 +146,12 @@ class Revision:
 
     @pyaedt_function_handler()
     def _load_revision(self) -> None:
-        """
-        Load this revision.
+        """Load this revision.
 
         Examples
         --------
         >>> aedtapp.results.revision.load_revision()
+
         """
         if self.revision_loaded:
             return
@@ -161,13 +161,18 @@ class Revision:
 
     @staticmethod
     def result_mode_error() -> str:
-        """
-        Print the function mode error message.
+        """Print the function mode error message.
 
         Returns
         -------
         err_msg : str
             Error/warning message that the specified revision is not accessible.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.emit_core.results.revision import Revision
+        >>> Revision.result_mode_error()
+
         """
         err_msg = "This function is inaccessible when the revision is not loaded."
         print(err_msg)
@@ -175,8 +180,7 @@ class Revision:
 
     @pyaedt_function_handler()
     def get_interaction(self, domain: object) -> object:
-        """
-        Create a new interaction for a domain.
+        """Create a new interaction for a domain.
 
         Parameters
         ----------
@@ -204,8 +208,7 @@ class Revision:
 
     @pyaedt_function_handler()
     def run(self, domain: object) -> object:
-        """
-        Load the revision and then analyze along the given domain.
+        """Load the revision and then analyze along the given domain.
 
         Parameters
         ----------
@@ -252,8 +255,7 @@ class Revision:
 
     @pyaedt_function_handler()
     def is_domain_valid(self, domain: object) -> bool:
-        """
-        Return ``True`` if the given domain is valid for the current revision.
+        """Return ``True`` if the given domain is valid for the current revision.
 
         Parameters
         ----------
@@ -265,6 +267,7 @@ class Revision:
         >>> domain = aedtapp.interaction_domain()
         >>> aedtapp.results.current_revision.is_domain_valid(domain)
         True
+
         """
         self._load_revision()
         engine = self.emit_project._emit_api.get_engine()
@@ -272,8 +275,7 @@ class Revision:
 
     @pyaedt_function_handler()
     def get_instance_count(self, domain: object) -> int:
-        """
-        Return the number of instances in the domain for the current revision.
+        """Return the number of instances in the domain for the current revision.
 
         Parameters
         ----------
@@ -289,6 +291,7 @@ class Revision:
         --------
         >>> domain = aedtapp.interaction_domain()
         >>> num_instances = aedtapp.results.current_revision.get_instance_count(domain)
+
         """
         self._load_revision()
         engine = self.emit_project._emit_api.get_engine()
@@ -298,8 +301,7 @@ class Revision:
     def get_all_band_nodes(
         self, radio: RadioNode, tx_rx_mode: TxRxMode = None, enabled_only: bool = False
     ) -> list[Band]:
-        """
-        Returns all the Bands within a Radio
+        """Returns all the Bands within a Radio
 
         Parameters
         ----------
@@ -318,6 +320,16 @@ class Revision:
         -------
         bands: list[Band]
             List of all Band (nodes) in a radio.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> from ansys.aedt.core.emit_core import TxRxMode
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> radio = revision.get_all_emitter_radios()[0]
+        >>> bands = revision.get_all_band_nodes(radio, TxRxMode.TX)
+
         """
         radio_children = radio.children
         bands = []
@@ -361,8 +373,7 @@ class Revision:
 
     @pyaedt_function_handler()
     def _is_receiver(self, radio: RadioNode):
-        """
-        Check if a given radio is a receiver.
+        """Check if a given radio is a receiver.
 
         Parameters
         ----------
@@ -379,8 +390,7 @@ class Revision:
 
     @pyaedt_function_handler()
     def _is_transmitter(self, radio: RadioNode):
-        """
-        Check if a given radio is a transmitter.
+        """Check if a given radio is a transmitter.
 
         Parameters
         ----------
@@ -397,8 +407,7 @@ class Revision:
 
     @pyaedt_function_handler()
     def get_receiver_names(self) -> list[str]:
-        """
-        Get a list of all receivers in the project.
+        """Get a list of all receivers in the project.
 
         Parameters
         ----------
@@ -412,6 +421,7 @@ class Revision:
         Examples
         --------
         >>> rxs = aedtapp.results.current_revision.get_reciver_names()
+
         """
         receivers = []
         if self.revision_loaded:
@@ -430,8 +440,7 @@ class Revision:
 
     @pyaedt_function_handler()
     def get_interferer_names(self, interferer_type: object = None) -> list[str]:
-        """
-        Get a list of all interfering transmitters/emitters in the project.
+        """Get a list of all interfering transmitters/emitters in the project.
 
         Parameters
         ----------
@@ -452,6 +461,7 @@ class Revision:
         >>> transmitters = aedtapp.results.current_revision.get_interferer_names(InterfererType.TRANSMITTERS)
         >>> emitters = aedtapp.results.current_revision.get_interferer_names(InterfererType.EMITTERS)
         >>> both = aedtapp.results.current_revision.get_interferer_names(InterfererType.TRANSMITTERS_AND_EMITTERS)
+
         """
         transmitters = []
         if interferer_type is None:
@@ -498,6 +508,7 @@ class Revision:
         --------
         >>> bands = aedtapp.results.current_revision.get_band_names("Bluetooth", TxRxMode.RX)
         >>> waveforms = aedtapp.results.current_revision.get_band_names("USB_3.x", TxRxMode.TX)
+
         """
         band_names = []
         if self.revision_loaded:
@@ -521,8 +532,7 @@ class Revision:
     def get_active_frequencies(
         self, radio_name: str, band_name: str, tx_rx_mode: TxRxMode, units: str = ""
     ) -> list[float]:
-        """
-        Get a list of active frequencies for a ``tx`` or ``rx`` band in a radio/emitter.
+        """Get a list of active frequencies for a ``tx`` or ``rx`` band in a radio/emitter.
 
         Parameters
         ----------
@@ -544,7 +554,9 @@ class Revision:
         Examples
         --------
         >>> freqs = aedtapp.results.current_revision.get_active_frequencies(
-                'Bluetooth', 'Rx - Base Data Rate', TxRxMode.RX)
+        ...     "Bluetooth", "Rx - Base Data Rate", TxRxMode.RX
+        ... )
+
         """
         if tx_rx_mode is None or tx_rx_mode == TxRxMode.BOTH:
             raise ValueError("The mode type must be specified as either Tx or Rx.")
@@ -558,14 +570,14 @@ class Revision:
 
     @property
     def notes(self) -> str:
-        """
-        Add notes to the revision.
+        """Add notes to the revision.
 
         Examples
         --------
         >>> aedtapp.results.current_revision.notes = "Added a filter to the WiFi Radio."
         >>> aedtapp.results.current_revision.notes
         'Added a filter to the WiFi Radio.'
+
         """
         design = self.emit_project.odesign
         return design.GetResultNotes(self.name)
@@ -577,8 +589,7 @@ class Revision:
 
     @property
     def n_to_1_limit(self) -> int:
-        """
-        Maximum number of interference combinations to run per receiver for N to 1.
+        """Maximum number of interference combinations to run per receiver for N to 1.
 
         - A value of ``0`` disables N to 1 entirely.
         - A value of  ``-1`` allows unlimited N to 1. (N is set to the maximum.)
@@ -592,6 +603,7 @@ class Revision:
         >>> aedtapp.results.current_revision.n_to_1_limit = 2**20
         >>> aedtapp.results.current_revision.n_to_1_limit
         1048576
+
         """
         if self.emit_project._aedt_version < "2024.1":  # pragma: no cover
             raise RuntimeError("This function is only supported in AEDT version 2024.1 and later.")
@@ -642,6 +654,7 @@ class Revision:
         Examples
         --------
         >>> interference_results = rev.interference_type_classification(domain)
+
         """
         power_matrix = []
         all_colors = []
@@ -776,8 +789,7 @@ class Revision:
         use_filter: bool = False,
         filter_list: list[str] | None = None,
     ) -> tuple[list, list]:  # pragma: no cover
-        """
-        Classify worst-case power at each Rx radio according to interference type.
+        """Classify worst-case power at each Rx radio according to interference type.
 
         Options for interference type are `inband/inband, out of band/in band,
         inband/out of band, and out of band/out of band.
@@ -809,6 +821,7 @@ class Revision:
         Examples
         --------
         >>> protection_results = rev.protection_level_classification(domain)
+
         """
         power_matrix = []
         all_colors = []
@@ -945,6 +958,15 @@ class Revision:
         -------
         bool
             ``True`` when the EMI category filter is enabled, ``False`` otherwise.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> from ansys.aedt.core.emit_core import EmiCategoryFilter
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> revision.get_emi_category_filter_enabled(EmiCategoryFilter.IN_CHANNEL_TX_FUNDAMENTAL)
+
         """
         if self.emit_project._aedt_version < "2024.1":  # pragma: no cover
             raise RuntimeError("This function is only supported in AEDT version 2024 R1 and later.")
@@ -960,6 +982,15 @@ class Revision:
             EMI category filter.
         enabled : bool
             Whether to enable the EMI category filter.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> from ansys.aedt.core.emit_core import EmiCategoryFilter
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> revision.set_emi_category_filter_enabled(EmiCategoryFilter.IN_CHANNEL_TX_FUNDAMENTAL, True)
+
         """
         if self.emit_project._aedt_version < "2024.1":  # pragma: no cover
             raise RuntimeError("This function is only supported in AEDT version 2024 R1 and later.")
@@ -980,6 +1011,7 @@ class Revision:
         with revision.get_license_session():
             domain = aedtapp.interaction_domain()
             revision.run(domain)
+
         """
         if self.emit_project._aedt_version < "2024.2":  # pragma: no cover
             raise RuntimeError("This function is only supported in AEDT version 2024 R2 and later.")
@@ -999,6 +1031,7 @@ class Revision:
         Examples
         --------
         >>> components = revision._get_all_component_names()
+
         """
         component_names = self._emit_com.GetComponentNames(self.results_index, "")
         return component_names
@@ -1016,6 +1049,7 @@ class Revision:
         Examples
         --------
         >>> top_level_node_ids = revision._get_all_top_level_node_ids()
+
         """
         top_level_node_names = [
             # 'Windows-*-Configuration Diagram',
@@ -1060,6 +1094,7 @@ class Revision:
         Examples
         --------
         >>> top_level_nodes = revision.get_all_top_level_nodes()
+
         """
         top_level_node_ids = self._get_all_top_level_node_ids()
         top_level_nodes = [self._get_node(node_id) for node_id in top_level_node_ids]
@@ -1078,6 +1113,7 @@ class Revision:
         Examples
         --------
         >>> nodes = revision.get_all_component_nodes()
+
         """
         component_names = self._get_all_component_names()
         component_node_ids = [self._emit_com.GetComponentNodeID(self.results_index, name) for name in component_names]
@@ -1107,6 +1143,7 @@ class Revision:
         Examples
         --------
         >>> radios = revision.get_all_radio_nodes()
+
         """
         comp_nodes: EmitNode = self.get_all_component_nodes()
         radio_nodes = []
@@ -1140,6 +1177,7 @@ class Revision:
         Examples
         --------
         >>> radios = revision.get_all_radio_nodes()
+
         """
         comp_nodes: EmitNode = self.get_all_component_nodes()
         radio_nodes = []
@@ -1170,6 +1208,7 @@ class Revision:
         Examples
         --------
         >>> node = revision.get_component_node("wifi radio")
+
         """
         comp_id = self._emit_com.GetComponentNodeID(self.results_index, component_name)
         if comp_id > 0:
@@ -1189,6 +1228,7 @@ class Revision:
         Examples
         --------
         >>> node_ids = revision._get_all_node_ids()
+
         """
         node_ids = []
         node_ids_to_search = []
@@ -1232,6 +1272,7 @@ class Revision:
         Examples
         --------
         >>> node = revision._get_node(node_id)
+
         """
         props = self._emit_com.GetEmitNodeProperties(self.results_index, node_id, True)
         props = EmitNode.props_to_dict(props)
@@ -1283,6 +1324,7 @@ class Revision:
         Examples
         --------
         >>> nodes = revision.get_all_nodes()
+
         """
         ids = self._get_all_node_ids()
         nodes = [self._get_node(id) for id in ids]
@@ -1302,6 +1344,7 @@ class Revision:
         Examples
         --------
         >>> scene_node = revision.get_scene_node()
+
         """
         scene_node_id = self._emit_com.GetTopLevelNodeID(self.results_index, "Scene")
         scene_node = self._get_node(scene_node_id)
@@ -1320,6 +1363,7 @@ class Revision:
         Examples
         --------
         >>> coupling_data_node = revision.get_coupling_data_node()
+
         """
         coupling_data_node_id = self._emit_com.GetTopLevelNodeID(self.results_index, "Couplings")
         coupling_data_node = self._get_node(coupling_data_node_id)
@@ -1338,6 +1382,7 @@ class Revision:
         Examples
         --------
         >>> simulation_node = revision.get_simulation_node()
+
         """
         simulation_node_id = self._emit_com.GetTopLevelNodeID(self.results_index, "Simulation")
         simulation_node = self._get_node(simulation_node_id)
@@ -1356,6 +1401,7 @@ class Revision:
         Examples
         --------
         >>> preferences_node = revision.get_preferences_node()
+
         """
         preferences_node_id = self._emit_com.GetTopLevelNodeID(self.results_index, "Preferences")
         preferences_node = self._get_node(preferences_node_id)
@@ -1374,6 +1420,7 @@ class Revision:
         Examples
         --------
         >>> result_plot_node = revision.get_result_plot_node()
+
         """
         result_plot_node_id = self._emit_com.GetTopLevelNodeID(self.results_index, "Windows-*-Result Plot")
         result_plot_node = self._get_node(result_plot_node_id)
@@ -1392,6 +1439,7 @@ class Revision:
         Examples
         --------
         >>> result_categorization_node = revision.get_result_categorization_node()
+
         """
         result_categorization_node_id = self._emit_com.GetTopLevelNodeID(
             self.results_index, "Windows-*-Result Categorization"

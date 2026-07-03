@@ -45,7 +45,7 @@ pytestmark = pytest.mark.skipif(is_linux, reason="PyEDB stability issues on Linu
 def test_get_active_db(add_app_example) -> None:
     app = add_app_example(application=Hfss3dLayout, project=SI_VERSE_PROJECT, subfolder=TEST_SUBFOLDER)
     extension = ConfigureLayoutExtension(withdraw=True)
-    assert Path(extension.get_active_edb()).exists()
+    assert Path(extension._get_active_edb()).exists()
     app.close_project(app.project_name, save=False)
 
 
@@ -57,14 +57,14 @@ def test_apply_config_to_edb(add_app_example, test_tmp_dir) -> None:
         json.dump(data, f, ensure_ascii=False, indent=4)
 
     extension = ConfigureLayoutExtension(withdraw=True)
-    assert extension.apply_config_to_edb(config_path, test_tmp_dir)
+    assert extension._apply_config_to_edb(config_path, test_tmp_dir)
     app.close_project(app.project_name, save=False)
 
 
 def test_export_config_from_edb(add_app_example) -> None:
     app = add_app_example(application=Hfss3dLayout, project=SI_VERSE_PROJECT, subfolder=TEST_SUBFOLDER)
     extension = ConfigureLayoutExtension(withdraw=True)
-    assert extension.export_config_from_edb()
+    assert extension._export_config_from_edb()
     app.close_project(app.project_name, save=False)
 
 
@@ -74,7 +74,7 @@ def test_load_edb_into_hfss3dlayout(add_app, test_tmp_dir) -> None:
 
     app = add_app(application=Hfss3dLayout)
     extension = ConfigureLayoutExtension(withdraw=True)
-    assert extension.load_edb_into_hfss3dlayout(test_project)
+    assert extension._load_edb_into_hfss3dlayout(test_project)
     app.close_project(app.project_name, save=False)
 
 
@@ -97,7 +97,7 @@ def test_selected_edb_property(add_app_example) -> None:
     extension = ConfigureLayoutExtension(withdraw=True)
 
     extension.var_active_design.set(0)
-    with patch.object(extension, "get_active_edb", return_value="active.aedb") as mock_get_active:
+    with patch.object(extension, "_get_active_edb", return_value="active.aedb") as mock_get_active:
         assert extension.selected_edb == "active.aedb"
         mock_get_active.assert_called_once()
 

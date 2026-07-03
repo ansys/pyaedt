@@ -27,6 +27,8 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class TR_Switch(EmitNode):  # noqa: N801
+    """Provide tr switch."""
+
     def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = True
@@ -39,12 +41,30 @@ class TR_Switch(EmitNode):  # noqa: N801
 
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
-        """Duplicate this node"""
+        """Duplicate this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> tr_switch = app.schematic.create_component("TR Switch", name="Switch1")
+        >>> tr_switch.duplicate("Switch2")
+
+        """
         return self._duplicate(new_name)
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node"""
+        """Delete this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> tr_switch = app.schematic.create_component("TR Switch", name="Switch1")
+        >>> tr_switch.delete()
+
+        """
         self._delete()
 
     @property
@@ -161,6 +181,15 @@ class TR_Switch(EmitNode):  # noqa: N801
         """Lower stop band frequency.
 
         Value should be between 1 and 100e9.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> tr_switch = app.schematic.create_component("TR Switch", name="Switch1")
+        >>> tr_switch.lower_stop_band = "1 GHz"
+        >>> tr_switch.lower_stop_band
+
         """
         val = self._get_property("Lower Stop Band")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -178,6 +207,15 @@ class TR_Switch(EmitNode):  # noqa: N801
         """Lower cutoff frequency.
 
         Value should be between 1 and 100e9.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> tr_switch = app.schematic.create_component("TR Switch", name="Switch1")
+        >>> tr_switch.lower_cutoff = "2 GHz"
+        >>> tr_switch.lower_cutoff
+
         """
         val = self._get_property("Lower Cutoff")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -195,6 +233,15 @@ class TR_Switch(EmitNode):  # noqa: N801
         """Higher cutoff frequency.
 
         Value should be between 1 and 100e9.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> tr_switch = app.schematic.create_component("TR Switch", name="Switch1")
+        >>> tr_switch.higher_cutoff = "6 GHz"
+        >>> tr_switch.higher_cutoff
+
         """
         val = self._get_property("Higher Cutoff")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -212,6 +259,15 @@ class TR_Switch(EmitNode):  # noqa: N801
         """Higher stop band frequency.
 
         Value should be between 1 and 100e9.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> tr_switch = app.schematic.create_component("TR Switch", name="Switch1")
+        >>> tr_switch.higher_stop_band = "7 GHz"
+        >>> tr_switch.higher_stop_band
+
         """
         val = self._get_property("Higher Stop Band")
         val = self._convert_from_internal_units(float(val), "Freq")

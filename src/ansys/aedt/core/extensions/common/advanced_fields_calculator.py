@@ -46,25 +46,48 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 EXTENSION_DEFAULT_ARGUMENTS = {"setup": "", "calculation": "", "assignments": []}
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Advanced fields calculator"
+"""Title displayed for the extension."""
 
 
 @dataclass
 class AdvancedFieldsCalculatorExtensionData(ExtensionCommonData):
-    """Data class containing user input and computed data."""
+    """Data class containing user input and computed data.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.common.advanced_fields_calculator import AdvancedFieldsCalculatorExtensionData
+    >>> data = AdvancedFieldsCalculatorExtensionData(setup="Setup1 : LastAdaptive", calculation="Mag_E")
+
+    """
 
     setup: str = ""
+    """Value for setup."""
     calculation: str = ""
+    """Value for calculation."""
     assignments: list = field(default_factory=lambda: [])
+    """Value for assignments."""
 
 
 class AdvancedFieldsCalculatorExtension(ExtensionProjectCommon):
-    """Extension for advanced fields calculator in AEDT."""
+    """Extension for advanced fields calculator in AEDT.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.common.advanced_fields_calculator import AdvancedFieldsCalculatorExtension
+    >>> extension = AdvancedFieldsCalculatorExtension(withdraw=True)
+
+    """
 
     def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with the title and theme color
@@ -83,7 +106,15 @@ class AdvancedFieldsCalculatorExtension(ExtensionProjectCommon):
         self.add_extension_content()
 
     def check_design_type(self) -> None:
-        """Check if the design type is HFSS, Icepak, HFSS 3D, Maxwell 3D, Q3D, Maxwell 2D, Q2D, Mechanical"""
+        """Check if the design type is HFSS, Icepak, HFSS 3D, Maxwell 3D, Q3D, Maxwell 2D, Q2D, Mechanical
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.common.advanced_fields_calculator import AdvancedFieldsCalculatorExtension
+        >>> extension = AdvancedFieldsCalculatorExtension(withdraw=True)
+        >>> extension.check_design_type()
+
+        """
         if self.aedt_application.design_type not in [
             "HFSS",
             "Icepak",
@@ -142,7 +173,15 @@ class AdvancedFieldsCalculatorExtension(ExtensionProjectCommon):
         self.__available_descriptions = available_descriptions
 
     def add_extension_content(self) -> None:
-        """Add custom content to the extension UI."""
+        """Add custom content to the extension UI.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.common.advanced_fields_calculator import AdvancedFieldsCalculatorExtension
+        >>> extension = AdvancedFieldsCalculatorExtension(withdraw=True)
+        >>> extension.add_extension_content()
+
+        """
         label = ttk.Label(self.root, text="Solved setup:", style="PyAEDT.TLabel")
         label.grid(row=0, column=0, padx=15, pady=10)
 
@@ -183,12 +222,31 @@ class AdvancedFieldsCalculatorExtension(ExtensionProjectCommon):
 
     @property
     def available_descriptions(self) -> dict:
-        """Get available descriptions for fields calculator expressions."""
+        """Get available descriptions for fields calculator expressions.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.common.advanced_fields_calculator import AdvancedFieldsCalculatorExtension
+        >>> extension = AdvancedFieldsCalculatorExtension(withdraw=True)
+        >>> extension.available_descriptions
+
+        """
         return self.__available_descriptions
 
 
 def main(data: AdvancedFieldsCalculatorExtensionData) -> bool:
-    """Main function to run the advanced fields calculator extension."""
+    """Main function to run the advanced fields calculator extension.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.common.advanced_fields_calculator import (
+    ...     AdvancedFieldsCalculatorExtensionData,
+    ...     main,
+    ... )
+    >>> data = AdvancedFieldsCalculatorExtensionData(setup="Setup1 : LastAdaptive", calculation="Mag_E")
+    >>> main(data)
+
+    """
     if not data.calculation:
         raise AEDTRuntimeError("No calculation provided to the extension.")
     if not data.setup:

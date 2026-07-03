@@ -22,9 +22,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""This module contains these classes: `CouplingsEmit`.
+"""The module contains these classes: `CouplingsEmit`.
 
-This module provides for interacting with EMIT Analysis and Results windows.
+The module provides for interacting with EMIT Analysis and Results windows.
+
+Examples
+--------
+>>> from ansys.aedt.core import Emit
+>>> app = Emit()
+>>> app.couplings
+
 """
 
 from ansys.aedt.core.internal.checks import min_aedt_version
@@ -46,6 +53,7 @@ class CouplingsEmit(object):
     >>> from ansys.aedt.core import Emit
     >>> app = Emit()
     >>> my_couplings = app.couplings
+
     """
 
     def __init__(self, app) -> None:
@@ -59,7 +67,15 @@ class CouplingsEmit(object):
 
     @property
     def logger(self) -> object:
-        """Logger."""
+        """Logger.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.couplings.logger
+
+        """
         return self._app.logger
 
     @property
@@ -69,7 +85,15 @@ class CouplingsEmit(object):
 
     @property
     def projdir(self) -> str:
-        """Project directory."""
+        """Project directory.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.couplings.projdir
+
+        """
         return self._app.project_path
 
     @property
@@ -90,6 +114,7 @@ class CouplingsEmit(object):
         >>> app = Emit()
         >>> my_couplings = app.couplings
         >>> coupling_names = my_couplings.coupling_names
+
         """
         return self._odesign.GetLinkNames()
 
@@ -110,6 +135,7 @@ class CouplingsEmit(object):
         --------
         >>> app = Emit()
         >>> app.couplings.add_link("HFSS_Design")
+
         """
         if new_coupling_name not in self._odesign.GetLinkNames():
             self._odesign.AddLink(new_coupling_name)
@@ -130,6 +156,7 @@ class CouplingsEmit(object):
         --------
         >>> app = Emit()
         >>> app.couplings.delete_link("HFSS_Design")
+
         """
         self._odesign.DeleteLink(coupling_link_name)
 
@@ -151,6 +178,7 @@ class CouplingsEmit(object):
         --------
         >>> app = Emit()
         >>> app.update_link("HFSS_Design")
+
         """
         if coupling_name in self._odesign.GetLinkNames():
             self._odesign.UpdateLink(coupling_name)
@@ -176,6 +204,7 @@ class CouplingsEmit(object):
         --------
         >>> app = Emit("Apache with multiple links")
         >>> links = app.couplings.linkable_design_names
+
         """
         return self._odesign.GetAvailableLinkNames()
 
@@ -197,6 +226,7 @@ class CouplingsEmit(object):
         --------
         >>> app = Emit()
         >>> cad_nodes = app.couplings.cad_nodes
+
         """
         coupling_node_name = "CouplingNodeTree@EMIT"
         cad_node_list = {}
@@ -225,6 +255,7 @@ class CouplingsEmit(object):
         --------
         >>> app = Emit()
         >>> antenna_nodes = app.couplings.antenna_nodes
+
         """
         antenna_nodes_list = self._app.modeler.components.get_antennas()
         # osch = self._odesign.SetActiveEditor("SchematicEditor")
