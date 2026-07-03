@@ -337,7 +337,6 @@ exclude = [
 [tool.ty.rules]
 unresolved-import = "ignore"
 
-
 [tool.codespell]
 ignore-words = "ignore_words.txt"
 skip = """
