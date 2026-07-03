@@ -352,6 +352,9 @@ def test_create_object_list(coaxial) -> None:
     fl1 = coaxial.modeler.create_object_list([o2.name], "my_object_list")
     assert fl1
     assert fl1.update()
+    assert fl1.update(selection=[coaxial.modeler["inner"]], entity_type="Object", mode="Add")
+    assert fl1.update(selection=[coaxial.modeler["inner"]], entity_type="Object", mode="Remove")
+    assert fl1.update(selection=[coaxial.modeler["inner"]], entity_type="Object", mode="Reassign")
     assert coaxial.modeler.create_object_list([o2.name], "my_object_list") == fl1
     assert coaxial.modeler.create_object_list(["Core", "outer"])
     coaxial.modeler.user_lists[-1].props["List"] = ["outer", "Core", "inner"]

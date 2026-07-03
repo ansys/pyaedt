@@ -2109,6 +2109,10 @@ class NamedSelections(PropsManager, PyAedtBase):
             Name of the named selection. If not provided a unique name is generated.
         entity_type : str optional
             Type of the selection: ``"Object"`` or ``"Face"``. Default is ``"Object"``.
+
+        References
+        ----------
+        >>> oEditor.CreateNamedSelection
         """
         if not name:
             name = generate_unique_name(entity_type + "NamedSelection")
@@ -2153,7 +2157,12 @@ class NamedSelections(PropsManager, PyAedtBase):
 
     @pyaedt_function_handler()
     def delete(self) -> bool:
-        """Delete the named selection."""
+        """Delete the named selection.
+
+        References
+        ----------
+        >>> oEditor.Delete
+        """
         self._modeler.oeditor.Delete(["NAME:Selections", "Selections:=", self.name])
         try:
             self._modeler.user_lists.remove(self)
@@ -2174,6 +2183,10 @@ class NamedSelections(PropsManager, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oEditor.ChangeProperty
         """
         argument = [
             "NAME:AllTabs",
@@ -2189,7 +2202,7 @@ class NamedSelections(PropsManager, PyAedtBase):
 
     @pyaedt_function_handler()
     def update(self, selection: list | str | None = None, entity_type: str = "Object", mode: str = "Reassign") -> bool:
-        """Update an existing named selection using the native EditNamedSelection wrapper.
+        """Update an existing named selection.
 
         This method mirrors the signature and semantics of :class:`Lists.update` for
         backward compatibility. If ``selection`` is ``None``, the stored properties
@@ -2203,7 +2216,13 @@ class NamedSelections(PropsManager, PyAedtBase):
         entity_type : str, optional
             Type of selection, e.g. ``"Object"`` or ``"Face"``. Default ``"Object"``.
         mode : str, optional
-            Edit mode for the named selection. Default ``"Reassign"``.
+            Edit mode for the named selection.
+            Options are: ``"Reassign"``, ``"Add"`,``"Remove"``.
+            The default value is ``"Reassign"``.
+
+        References
+        ----------
+        >>> oEditor.EditNamedSelection
         """
         # If no selection provided, use stored properties
         if selection is None:
