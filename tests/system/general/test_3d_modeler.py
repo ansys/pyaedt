@@ -34,6 +34,7 @@ from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.generic.math_utils import MathUtils
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.quaternion import Quaternion
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
 from ansys.aedt.core.modeler.cad.modeler import FaceCoordinateSystem
@@ -342,8 +343,8 @@ def test_create_face_list(coaxial) -> None:
     assert fl2.update()
     assert coaxial.modeler.create_face_list(fl, "my_face_list") == fl2
     assert coaxial.modeler.create_face_list(fl)
-    assert coaxial.modeler.create_face_list([str(fl[0])])
-    assert not coaxial.modeler.create_face_list(["outer2"])
+    with pytest.raises(AEDTRuntimeError):
+        coaxial.modeler.create_face_list(["outer2"])
 
 
 def test_create_object_list(coaxial) -> None:
@@ -362,7 +363,8 @@ def test_create_object_list(coaxial) -> None:
     assert coaxial.modeler.user_lists[-1].rename("new_list")
     assert coaxial.modeler.user_lists[-1].delete()
     assert coaxial.modeler.create_object_list(["Core", "outer"])
-    assert not coaxial.modeler.create_object_list(["Core2", "Core3"])
+    with pytest.raises(AEDTRuntimeError):
+        coaxial.modeler.create_object_list(["Core2", "Core3"])
 
 
 def test_create_outer_face_list(aedt_app) -> None:

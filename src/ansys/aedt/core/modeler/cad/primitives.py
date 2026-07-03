@@ -64,6 +64,7 @@ from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
 from ansys.aedt.core.modeler.cad.modeler import FaceCoordinateSystem
 from ansys.aedt.core.modeler.cad.modeler import Lists
 from ansys.aedt.core.modeler.cad.modeler import Modeler
+from ansys.aedt.core.modeler.cad.modeler import NamedSelections
 from ansys.aedt.core.modeler.cad.modeler import ObjectCoordinateSystem
 from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modeler.cad.object_3d import PolylineSegment
@@ -4420,13 +4421,13 @@ class GeometryModeler(Modeler, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def create_face_list(self, assignment: list, name: str = None) -> Lists | bool:
+    def create_face_list(self, assignment: list, name: str = None) -> Lists | NamedSelections | bool:
         """Create a list of faces given a list of face ID or a list of objects.
 
         Parameters
         ----------
         assignment : list
-            List of face ID or list of objects
+            List of face ID or list of FacePrimitive objects.
 
         name : str, optional
            Name of the new list.
@@ -4445,28 +4446,35 @@ class GeometryModeler(Modeler, PyAedtBase):
                 if i.name == name:
                     self.logger.warning("A List with the specified name already exists!")
                     return i
+        # Check whether all elements of list are either int or FacePrimitve objects
+        all_int = all(isinstance(item, int) for item in assignment)
+        all_face_primitive = all(isinstance(item, FacePrimitive) for item in assignment)
+
+        if not (all_int or all_face_primitive):
+            raise AEDTRuntimeError("`assignment` must contain only integers (face IDs) or only FacePrimitive objects.")
         assignment = self.convert_to_selections(assignment, True)
-        user_list = Lists(self)
+        # Prefer NamedSelections and only fall back to legacy Lists if create() fails.
+        user_list = NamedSelections(self)
         list_type = "Face"
-        if user_list:
-            result = user_list.create(assignment=assignment, name=name, entity_type=list_type)
-            if result:
-                return user_list
-            else:  # pragma: no cover
-                self._app.logger.error("Wrong object definition. Review object list and type")
-                return False
-        else:  # pragma: no cover
-            self._app.logger.error("User list object could not be created")
-            return False
+        result = user_list.create(assignment=assignment, name=name, entity_type=list_type)
+        if result:
+            return user_list
+        # If NamedSelections.create failed, try legacy Lists implementation
+        user_list = Lists(self)
+        result = user_list.create(assignment=assignment, name=name, entity_type=list_type)
+        if result:
+            return user_list
+        # If both failed raise an exception
+        raise AEDTRuntimeError("Failed to create faces list")
 
     @pyaedt_function_handler()
-    def create_object_list(self, assignment: list, name: str | None = None) -> Lists | bool:
+    def create_object_list(self, assignment: list, name: str | None = None) -> Lists | NamedSelections | bool:
         """Create an object list given a list of object names.
 
         Parameters
         ----------
         assignment : list
-            List of object names.
+            List of object names or Object3D.
         name : str, optional
             Name of the new object list.
 
@@ -4484,19 +4492,27 @@ class GeometryModeler(Modeler, PyAedtBase):
                 if i.name == name:
                     self.logger.warning("A List with the specified name already exists!")
                     return i
+        # Check whether all elements of list are either string or Object3D objects
+        all_str = all(isinstance(item, str) for item in assignment)
+        all_object_3d = all(isinstance(item, Object3d) for item in assignment)
+
+        if not (all_str or all_object_3d):
+            raise AEDTRuntimeError("`assignment` must contain only strings (object names) or only Object3d objects.")
+
         assignment = self.convert_to_selections(assignment, True)
-        user_list = Lists(self)
+        # Prefer NamedSelections and only fall back to legacy Lists if create() fails.
+        user_list = NamedSelections(self)
         list_type = "Object"
-        if user_list:
-            result = user_list.create(assignment=assignment, name=name, entity_type=list_type)
-            if result:
-                return user_list
-            else:  # pragma: no cover
-                self._app.logger.error("Wrong object definition. Review object list and type")
-                return False
-        else:  # pragma: no cover
-            self._app.logger.error("User list object could not be created")
-            return False
+        result = user_list.create(assignment=assignment, name=name, entity_type=list_type)
+        if result:
+            return user_list
+        # If NamedSelections.create failed, try legacy Lists implementation
+        user_list = Lists(self)
+        result = user_list.create(assignment=assignment, name=name, entity_type=list_type)
+        if result:
+            return user_list
+        # If both failed raise exception
+        raise AEDTRuntimeError("Failed to create objects list")
 
     @pyaedt_function_handler()
     def generate_object_history(self, assignment: str | int, non_model: bool = False) -> bool:
