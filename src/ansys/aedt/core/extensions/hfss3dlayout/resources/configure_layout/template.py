@@ -189,3 +189,4 @@ SERDES_CONFIG = {
         }
     },
 }
+"""SerDes config."""

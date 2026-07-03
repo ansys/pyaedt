@@ -27,6 +27,8 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class TxSpectralProfEmitterNode(EmitNode):
+    """Provide tx spectral prof emitter node."""
+
     def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
@@ -34,39 +36,123 @@ class TxSpectralProfEmitterNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
-        """The parent of this emit node."""
+        """The parent of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter = app.schematic.create_component(
+        ...     name="Demo Emitter", component_type="New Emitter", library="Emitters"
+        ... )
+        >>> tx_spec = emitter.get_waveforms()[0].children[0]
+        >>> tx_spec.parent
+
+        """
         return self._parent
 
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node."""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter = app.schematic.create_component(
+        ...     name="Demo Emitter", component_type="New Emitter", library="Emitters"
+        ... )
+        >>> tx_spec = emitter.get_waveforms()[0].children[0]
+        >>> tx_spec.node_type
+
+        """
         return self._node_type
 
     @min_aedt_version("2025.2")
     def add_narrowband_emissions_mask(self) -> EmitNode:
-        """Add a Transmitter Narrowband Emission Profile"""
+        """Add a Transmitter Narrowband Emission Profile
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter = app.schematic.create_component(
+        ...     name="Demo Emitter", component_type="New Emitter", library="Emitters"
+        ... )
+        >>> tx_spec = emitter.get_waveforms()[0].children[0]
+        >>> nb_mask = tx_spec.add_narrowband_emissions_mask()
+
+        """
         return self._add_child_node("Narrowband Emissions Mask")
 
     @min_aedt_version("2025.2")
     def add_tx_broadband_noise_profile(self) -> EmitNode:
-        """Add a Transmitter Broadband Emission Profile"""
+        """Add a Transmitter Broadband Emission Profile
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter = app.schematic.create_component(
+        ...     name="Demo Emitter", component_type="New Emitter", library="Emitters"
+        ... )
+        >>> tx_spec = emitter.get_waveforms()[0].children[0]
+        >>> bb_noise = tx_spec.add_tx_broadband_noise_profile()
+
+        """
         return self._add_child_node("Tx Broadband Noise Profile")
 
     @min_aedt_version("2025.2")
     def add_custom_tx_harmonics(self) -> EmitNode:
-        """Add Custom Tx Harmonics"""
+        """Add Custom Tx Harmonics
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter = app.schematic.create_component(
+        ...     name="Demo Emitter", component_type="New Emitter", library="Emitters"
+        ... )
+        >>> tx_spec = emitter.get_waveforms()[0].children[0]
+        >>> tx_harmonics = tx_spec.add_custom_tx_harmonics()
+
+        """
         return self._add_child_node("Custom Tx Harmonics")
 
     @min_aedt_version("2025.2")
     def add_spurious_emissions(self) -> EmitNode:
-        """Add Transmitter Spurs"""
+        """Add Transmitter Spurs
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter = app.schematic.create_component(
+        ...     name="Demo Emitter", component_type="New Emitter", library="Emitters"
+        ... )
+        >>> tx_spec = emitter.get_waveforms()[0].children[0]
+        >>> spurs = tx_spec.add_spurious_emissions()
+
+        """
         return self._add_child_node("Spurious Emissions")
 
     @property
     @min_aedt_version("2025.2")
     def enabled(self) -> bool:
-        """Enabled state for this node."""
+        """Enabled state for this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter = app.schematic.create_component(
+        ...     name="Demo Emitter", component_type="New Emitter", library="Emitters"
+        ... )
+        >>> tx_spec = emitter.get_waveforms()[0].children[0]
+        >>> tx_spec.enabled = True
+
+        """
         return self._get_property("Enabled") == "true"
 
     @enabled.setter
@@ -77,7 +163,19 @@ class TxSpectralProfEmitterNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def output_voltage_peak(self) -> float:
-        """Output High Voltage Level: maximum voltage of the digital signal."""
+        """Output High Voltage Level: maximum voltage of the digital signal.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter = app.schematic.create_component(
+        ...     name="Demo Emitter", component_type="New Emitter", library="Emitters"
+        ... )
+        >>> tx_spec = emitter.get_waveforms()[0].children[0]
+        >>> tx_spec.output_voltage_peak = "3.3 V"
+
+        """
         val = self._get_property("Output Voltage Peak")
         val = self._convert_from_internal_units(float(val), "Voltage")
         return float(val)
@@ -94,6 +192,17 @@ class TxSpectralProfEmitterNode(EmitNode):
         """Include oscillator phase noise in Tx spectral profile.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter = app.schematic.create_component(
+        ...     name="Demo Emitter", component_type="New Emitter", library="Emitters"
+        ... )
+        >>> tx_spec = emitter.get_waveforms()[0].children[0]
+        >>> tx_spec.include_phase_noise = True
+
         """
         val = self._get_property("Include Phase Noise")
         return val == "true"
@@ -109,6 +218,17 @@ class TxSpectralProfEmitterNode(EmitNode):
         """Transmitters broadband noise level.
 
         Value should be less than 1000.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter = app.schematic.create_component(
+        ...     name="Demo Emitter", component_type="New Emitter", library="Emitters"
+        ... )
+        >>> tx_spec = emitter.get_waveforms()[0].children[0]
+        >>> tx_spec.tx_broadband_noise = -165.0
+
         """
         val = self._get_property("Tx Broadband Noise")
         return float(val)
@@ -124,6 +244,17 @@ class TxSpectralProfEmitterNode(EmitNode):
         """Maximum number of harmonics modeled.
 
         Value should be between 1 and 1000.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter = app.schematic.create_component(
+        ...     name="Demo Emitter", component_type="New Emitter", library="Emitters"
+        ... )
+        >>> tx_spec = emitter.get_waveforms()[0].children[0]
+        >>> tx_spec.number_of_harmonics = 5
+
         """
         val = self._get_property("Number of Harmonics")
         return int(val)
@@ -139,6 +270,17 @@ class TxSpectralProfEmitterNode(EmitNode):
         """Performs a non-linear intermod analysis for the Tx.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter = app.schematic.create_component(
+        ...     name="Demo Emitter", component_type="New Emitter", library="Emitters"
+        ... )
+        >>> tx_spec = emitter.get_waveforms()[0].children[0]
+        >>> tx_spec.perform_tx_intermod_analysis = True
+
         """
         val = self._get_property("Perform Tx Intermod Analysis")
         return val == "true"
@@ -154,6 +296,17 @@ class TxSpectralProfEmitterNode(EmitNode):
         """Internal Tx Amplifier's Gain.
 
         Value should be between -1000 and 1000.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter = app.schematic.create_component(
+        ...     name="Demo Emitter", component_type="New Emitter", library="Emitters"
+        ... )
+        >>> tx_spec = emitter.get_waveforms()[0].children[0]
+        >>> tx_spec.internal_amp_gain = 12.0
+
         """
         val = self._get_property("Internal Amp Gain")
         return float(val)
@@ -169,6 +322,17 @@ class TxSpectralProfEmitterNode(EmitNode):
         """Internal Tx Amplifier's noise figure.
 
         Value should be between 0 and 50.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter = app.schematic.create_component(
+        ...     name="Demo Emitter", component_type="New Emitter", library="Emitters"
+        ... )
+        >>> tx_spec = emitter.get_waveforms()[0].children[0]
+        >>> tx_spec.noise_figure = 4.5
+
         """
         val = self._get_property("Noise Figure")
         return float(val)
@@ -184,6 +348,17 @@ class TxSpectralProfEmitterNode(EmitNode):
         """Internal Tx Amplifier's Saturation Level.
 
         Value should be between -200 and 200.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter = app.schematic.create_component(
+        ...     name="Demo Emitter", component_type="New Emitter", library="Emitters"
+        ... )
+        >>> tx_spec = emitter.get_waveforms()[0].children[0]
+        >>> tx_spec.amplifier_saturation_level = "27 dBm"
+
         """
         val = self._get_property("Amplifier Saturation Level")
         val = self._convert_from_internal_units(float(val), "Power")
@@ -204,6 +379,17 @@ class TxSpectralProfEmitterNode(EmitNode):
         saturates the internal Tx amplifier.
 
         Value should be between -200 and 200.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter = app.schematic.create_component(
+        ...     name="Demo Emitter", component_type="New Emitter", library="Emitters"
+        ... )
+        >>> tx_spec = emitter.get_waveforms()[0].children[0]
+        >>> tx_spec.p1_db_point_ref_input = "15 dBm"
+
         """
         val = self._get_property("P1-dB Point, Ref. Input ")
         val = self._convert_from_internal_units(float(val), "Power")
@@ -221,6 +407,17 @@ class TxSpectralProfEmitterNode(EmitNode):
         """Internal Tx Amplifier's 3rd order intercept point.
 
         Value should be between -200 and 200.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter = app.schematic.create_component(
+        ...     name="Demo Emitter", component_type="New Emitter", library="Emitters"
+        ... )
+        >>> tx_spec = emitter.get_waveforms()[0].children[0]
+        >>> tx_spec.ip3_ref_input = "20 dBm"
+
         """
         val = self._get_property("IP3, Ref. Input")
         val = self._convert_from_internal_units(float(val), "Power")
@@ -238,6 +435,17 @@ class TxSpectralProfEmitterNode(EmitNode):
         """Internal Tx Amplifier's Reverse Isolation.
 
         Value should be between -200 and 200.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter = app.schematic.create_component(
+        ...     name="Demo Emitter", component_type="New Emitter", library="Emitters"
+        ... )
+        >>> tx_spec = emitter.get_waveforms()[0].children[0]
+        >>> tx_spec.reverse_isolation = -35.0
+
         """
         val = self._get_property("Reverse Isolation")
         return float(val)
@@ -253,6 +461,17 @@ class TxSpectralProfEmitterNode(EmitNode):
         """Internal Tx Amplifier's maximum intermod order to compute.
 
         Value should be between 3 and 20.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter = app.schematic.create_component(
+        ...     name="Demo Emitter", component_type="New Emitter", library="Emitters"
+        ... )
+        >>> tx_spec = emitter.get_waveforms()[0].children[0]
+        >>> tx_spec.max_intermod_order = 7
+
         """
         val = self._get_property("Max Intermod Order")
         return int(val)

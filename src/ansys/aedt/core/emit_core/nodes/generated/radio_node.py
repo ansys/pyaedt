@@ -27,6 +27,8 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class RadioNode(EmitNode):
+    """Provide radio node."""
+
     def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = True
@@ -34,33 +36,87 @@ class RadioNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node."""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.modeler.components.create_component("New Radio", "Radio1")
+        >>> radio.node_type
+
+        """
         return self._node_type
 
     @min_aedt_version("2025.2")
     def add_band(self) -> EmitNode:
-        """Create a New Band"""
+        """Create a New Band
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.modeler.components.create_component("New Radio", "Radio1")
+        >>> band = radio.add_band()
+
+        """
         return self._add_child_node("Band")
 
     @min_aedt_version("2025.2")
     def add_folder(self) -> EmitNode:
-        """Create a New Folder to Organize Bands"""
+        """Create a New Folder to Organize Bands
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.modeler.components.create_component("New Radio", "Radio1")
+        >>> folder = radio.add_folder()
+
+        """
         return self._add_child_node("Band Folder")
 
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
-        """Duplicate this node"""
+        """Duplicate this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.modeler.components.create_component("New Radio", "Radio1")
+        >>> radio_copy = radio.duplicate("Radio1_Copy")
+
+        """
         return self._duplicate(new_name)
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node"""
+        """Delete this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.modeler.components.create_component("New Radio", "Radio1")
+        >>> radio.delete()
+
+        """
         self._delete()
 
     @property
     @min_aedt_version("2025.2")
     def notes(self) -> str:
-        """Expand to view/edit notes stored with the project."""
+        """Expand to view/edit notes stored with the project.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.modeler.components.create_component("New Radio", "Radio1")
+        >>> radio.notes = "Primary receiver chain"
+
+        """
         val = self._get_property("Notes")
         return val
 

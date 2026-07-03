@@ -29,6 +29,8 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class ResultPlotNode(EmitNode):
+    """Provide result plot node."""
+
     def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
@@ -36,13 +38,33 @@ class ResultPlotNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node."""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> result_plot = revision.get_result_plot_node()
+        >>> result_plot.node_type
+
+        """
         return self._node_type
 
     @property
     @min_aedt_version("2025.2")
     def title(self) -> str:
-        """Enter title at the top of the plot, room will be made for it."""
+        """Enter title at the top of the plot, room will be made for it.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> result_plot = revision.get_result_plot_node()
+        >>> result_plot.title = "Receiver Sensitivity"
+
+        """
         val = self._get_property("Title")
         return val
 
@@ -57,6 +79,15 @@ class ResultPlotNode(EmitNode):
         """Configure title font family, typeface, and size.
 
         Value formatted like 'Sans Serif,10,-1,5,50,0,0,0,0,0'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> result_plot = revision.get_result_plot_node()
+        >>> result_plot.title_font = "Sans Serif,12,-1,5,50,0,0,0,0,0"
+
         """
         val = self._get_property("Title Font")
         return val
@@ -72,6 +103,15 @@ class ResultPlotNode(EmitNode):
         """Toggle (on/off) display of plot legend.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> result_plot = revision.get_result_plot_node()
+        >>> result_plot.show_legend = True
+
         """
         val = self._get_property("Show Legend")
         return val == "true"
@@ -87,6 +127,15 @@ class ResultPlotNode(EmitNode):
         """Configure legend font family, typeface, and size.
 
         Value formatted like 'Sans Serif,10,-1,5,50,0,0,0,0,0'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> result_plot = revision.get_result_plot_node()
+        >>> result_plot.legend_font = "Sans Serif,10,-1,5,50,0,0,0,0,0"
+
         """
         val = self._get_property("Legend Font")
         return val
@@ -102,6 +151,15 @@ class ResultPlotNode(EmitNode):
         """Toggles on/off visibility of the EMI Thresholds.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> result_plot = revision.get_result_plot_node()
+        >>> result_plot.show_emi_thresholds = True
+
         """
         val = self._get_property("Show EMI Thresholds")
         return val == "true"
@@ -120,6 +178,15 @@ class ResultPlotNode(EmitNode):
         updated.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> result_plot = revision.get_result_plot_node()
+        >>> result_plot.lock_axes = True
+
         """
         val = self._get_property("Lock Axes")
         return val == "true"

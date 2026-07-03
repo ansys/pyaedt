@@ -29,6 +29,8 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class TxBbEmissionNode(EmitNode):
+    """Provide tx bb emission node."""
+
     def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
@@ -36,23 +38,71 @@ class TxBbEmissionNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
-        """The parent of this emit node."""
+        """The parent of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> tx_profile = band.children[0]
+        >>> bb_noise = tx_profile.add_tx_broadband_noise_profile()
+        >>> bb_noise.parent
+
+        """
         return self._parent
 
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node."""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> tx_profile = band.children[0]
+        >>> bb_noise = tx_profile.add_tx_broadband_noise_profile()
+        >>> bb_noise.node_type
+
+        """
         return self._node_type
 
     @min_aedt_version("2025.2")
     def import_csv_file(self, file_name: str) -> EmitNode:
-        """Import a CSV File..."""
+        """Import a CSV File.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> tx_profile = band.children[0]
+        >>> bb_noise = tx_profile.add_tx_broadband_noise_profile()
+        >>> bb_noise.import_csv_file("C:\\Measurements\\tx_bb_profile.csv")
+
+        """
         return self._import(file_name, "Csv")
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node"""
+        """Delete this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> tx_profile = band.children[0]
+        >>> bb_noise = tx_profile.add_tx_broadband_noise_profile()
+        >>> bb_noise.delete()
+
+        """
         self._delete()
 
     @property
@@ -64,6 +114,18 @@ class TxBbEmissionNode(EmitNode):
             Value should be between -100e9 and 100e9.
         Amplitude:
             Value should be between -1000 and 200.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> tx_profile = band.children[0]
+        >>> bb_noise = tx_profile.add_tx_broadband_noise_profile()
+        >>> bb_noise.table_data = [(1e6, -165.0), (10e6, -160.0)]
+        >>> bb_noise.table_data
+
         """
         return self._get_table_data()
 
@@ -75,7 +137,20 @@ class TxBbEmissionNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def enabled(self) -> bool:
-        """Enabled state for this node."""
+        """Enabled state for this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> tx_profile = band.children[0]
+        >>> bb_noise = tx_profile.add_tx_broadband_noise_profile()
+        >>> bb_noise.enabled = False
+        >>> bb_noise.enabled
+
+        """
         return self._get_property("Enabled") == "true"
 
     @enabled.setter
@@ -92,7 +167,20 @@ class TxBbEmissionNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def noise_behavior(self) -> NoiseBehaviorOption:
-        """Specifies the behavior of the parametric noise profile."""
+        """Specifies the behavior of the parametric noise profile.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> tx_profile = band.children[0]
+        >>> bb_noise = tx_profile.add_tx_broadband_noise_profile()
+        >>> bb_noise.noise_behavior = bb_noise.NoiseBehaviorOption.EQUATION
+        >>> bb_noise.noise_behavior
+
+        """
         val = self._get_property("Noise Behavior")
         val = self.NoiseBehaviorOption[val.upper()]
         return val
@@ -111,6 +199,18 @@ class TxBbEmissionNode(EmitNode):
         linear interpolation in the linear domain is used.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> tx_profile = band.children[0]
+        >>> bb_noise = tx_profile.add_tx_broadband_noise_profile()
+        >>> bb_noise.use_log_linear_interpolation = True
+        >>> bb_noise.use_log_linear_interpolation
+
         """
         val = self._get_property("Use Log-Linear Interpolation")
         return val == "true"

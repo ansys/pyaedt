@@ -44,10 +44,12 @@ from ansys.aedt.core.rmxprt import Rmxprt
 from ansys.aedt.core.twinbuilder import TwinBuilder
 
 Emit = None
+"""Value for EMIT."""
 if not ("IronPython" in sys.version or ".NETFramework" in sys.version):  # pragma: no cover
     from ansys.aedt.core.emit import Emit
 
 Simplorer = TwinBuilder
+"""Value for simplorer."""
 
 
 def launch_desktop(
@@ -117,6 +119,7 @@ def launch_desktop(
     PyAEDT INFO: Python version ...
     >>> hfss = ansys.aedt.core.Hfss(design="HFSSDesign1")
     PyAEDT INFO: No project is defined. Project...
+
     """
     d = Desktop(
         version=version,
@@ -148,6 +151,7 @@ app_map = {
     "HFSS 3D Layout Design": Hfss3dLayout,
     "EMIT": Emit,
 }
+"""Value for app map."""
 
 
 def get_pyaedt_app(project_name: str = None, design_name: str = None, desktop: Desktop = None) -> object:
@@ -166,6 +170,13 @@ def get_pyaedt_app(project_name: str = None, design_name: str = None, desktop: D
     -------
     :def :`ansys.aedt.core.Hfss`
         Any of the PyAEDT App initialized.
+
+    Examples
+    --------
+    >>> import ansys.aedt.core
+    >>> desktop = ansys.aedt.core.launch_desktop("2026.1", non_graphical=True)
+    >>> app = ansys.aedt.core.get_pyaedt_app(project_name="MyProject", design_name="HFSSDesign1", desktop=desktop)
+
     """
     from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 

@@ -45,12 +45,19 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.advanced_cad.coil import Coil
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 MIN_WIDTH = 400
+"""Minimum width."""
 MIN_HEIGHT = 500
+"""Minimum height."""
 DEFAULT_PADDING = {"padx": 5, "pady": 5}
+"""Default padding."""
 
 # Extension batch arguments
 EXTENSION_DEFAULT_ARGUMENTS = {
@@ -78,7 +85,9 @@ EXTENSION_DEFAULT_ARGUMENTS = {
         "looping_position": 0.5,
     },
 }
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Create coil design"
+"""Title displayed for the extension."""
 
 
 @dataclass
@@ -86,22 +95,39 @@ class CoilExtensionData(ExtensionCommonData):
     """Data class containing user input and computed data."""
 
     is_vertical: bool = field(default_factory=lambda: EXTENSION_DEFAULT_ARGUMENTS["is_vertical"])
+    """Flag indicating whether vertical is enabled."""
     create_3d_comp: bool = field(default_factory=lambda: EXTENSION_DEFAULT_ARGUMENTS["create_3d_comp"])
+    """Value for create 3d comp."""
     name: str = EXTENSION_DEFAULT_ARGUMENTS["Common"]["name"]
+    """Value for name."""
     centre_x: float = EXTENSION_DEFAULT_ARGUMENTS["Common"]["centre_x"]
+    """Value for centre x."""
     centre_y: float = EXTENSION_DEFAULT_ARGUMENTS["Common"]["centre_y"]
+    """Value for centre y."""
     turns: int = EXTENSION_DEFAULT_ARGUMENTS["Common"]["turns"]
+    """Value for turns."""
     inner_distance: float = EXTENSION_DEFAULT_ARGUMENTS["Common"]["inner_distance"]
+    """Value for inner distance."""
     inner_width: float = EXTENSION_DEFAULT_ARGUMENTS["Common"]["inner_width"]
+    """Value for inner width."""
     inner_length: float = EXTENSION_DEFAULT_ARGUMENTS["Common"]["inner_length"]
+    """Value for inner length."""
     wire_radius: float = EXTENSION_DEFAULT_ARGUMENTS["Common"]["wire_radius"]
+    """Value for wire radius."""
     arc_segmentation: int = EXTENSION_DEFAULT_ARGUMENTS["Common"]["arc_segmentation"]
+    """Value for arc segmentation."""
     section_segmentation: int = EXTENSION_DEFAULT_ARGUMENTS["Common"]["section_segmentation"]
+    """Value for section segmentation."""
     direction: int = EXTENSION_DEFAULT_ARGUMENTS["Vertical"]["direction"]
+    """Value for direction."""
     centre_z: float = EXTENSION_DEFAULT_ARGUMENTS["Vertical"]["centre_z"]
+    """Value for centre z."""
     pitch: float = EXTENSION_DEFAULT_ARGUMENTS["Vertical"]["pitch"]
+    """Value for pitch."""
     distance_turns: float = EXTENSION_DEFAULT_ARGUMENTS["Flat"]["distance_turns"]
+    """Value for distance turns."""
     looping_position: float = EXTENSION_DEFAULT_ARGUMENTS["Flat"]["looping_position"]
+    """Value for looping position."""
 
 
 class CoilExtension(ExtensionMaxwell3DCommon):
@@ -122,7 +148,7 @@ class CoilExtension(ExtensionMaxwell3DCommon):
         self.add_extension_content()
         self.root.minsize(MIN_WIDTH, MIN_HEIGHT)
 
-    def show_pictures_popup(self) -> None:
+    def _show_pictures_popup(self) -> None:
         popup = tk.Toplevel(self.root)
         popup.title("Coil Parameters")
 
@@ -176,7 +202,7 @@ class CoilExtension(ExtensionMaxwell3DCommon):
 
     def _add_export_button(self, tab, row):
         export_points_button = ttk.Button(
-            tab, text="Parameters help", command=self.show_pictures_popup, style="PyAEDT.TButton"
+            tab, text="Parameters help", command=self._show_pictures_popup, style="PyAEDT.TButton"
         )
         export_points_button.grid(row=row, column=0, sticky="e", **DEFAULT_PADDING)
 
@@ -233,7 +259,16 @@ class CoilExtension(ExtensionMaxwell3DCommon):
 
 
 def main(data: CoilExtensionData) -> bool:
-    """Main function to create coils in AEDT."""
+    """Main function to create coils in AEDT.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.maxwell3d.create_coil import CoilExtensionData
+    >>> from ansys.aedt.core.extensions.maxwell3d.create_coil import main
+    >>> coil_data = CoilExtensionData(name="Coil1", turns=6)
+    >>> main(coil_data)
+
+    """
     app = ansys.aedt.core.Desktop(
         new_desktop=False,
         version=VERSION,

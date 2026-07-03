@@ -25,3 +25,4 @@
 from pathlib import Path
 
 EXTENSIONS_PATH = Path(__file__).parent
+"""Path to the extensions directory."""
