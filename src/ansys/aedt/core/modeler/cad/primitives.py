@@ -5130,18 +5130,23 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.Modeler.Lists`
+        :class:`ansys.aedt.core.modeler.Modeler.Lists` or
+        :class:`ansys.aedt.core.modeler.Modeler.NamedSelections`
             List object when successful, ``False`` when failed.
 
         References
         ----------
         >>> oEditor.CreateEntityList
+        >>> oEditor.CreateNamedSelection
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.create_face_list(assignment="Box1")
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d(version="2026.1")
+        >>> box1 = m3d.modeler.create_box([1, 1, 1], [5, 2, 5], name="box1")
+        >>> faces = m3d.modeler.get_object_faces(box1.name)
+        >>> fl = m3d.modeler.create_face_list(faces, "my_face_list")
+        >>> m3d.release_desktop(False, False)
 
         """
         if name:
@@ -5183,19 +5188,23 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.Modeler.Lists`
+        :class:`ansys.aedt.core.modeler.Modeler.Lists` or
+        :class:`ansys.aedt.core.modeler.Modeler.NamedSelections`
             List object when successful, ``False`` when failed.
 
         References
         ----------
         >>> oEditor.CreateEntityList
+        >>> oEditor.CreateNamedSelection
 
         Examples
         --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.create_object_list(assignment="Box1")
-
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d(version="2026.1")
+        >>> box1 = m3d.modeler.create_box([1, 1, 1], [5, 2, 5], name="box1")
+        >>> box2 = m3d.modeler.create_box([2, 2, 2], [5, 2, 5], name="box2")
+        >>> lst = m3d.modeler.create_object_list(assignment=["box1", "box2"], name="my_list")
+        >>> m3d.release_desktop(False, False)
         """
         if name:
             for i in self.user_lists:

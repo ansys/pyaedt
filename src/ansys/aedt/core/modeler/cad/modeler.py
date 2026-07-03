@@ -2110,6 +2110,17 @@ class NamedSelections(PropsManager, PyAedtBase):
         entity_type : str optional
             Type of the selection: ``"Object"`` or ``"Face"``. Default is ``"Object"``.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.modeler import NamedSelections
+        >>> m3d = Maxwell3d(version="2026.1")
+        >>> box1 = m3d.modeler.create_box([1, 1, 1], [5, 2, 5], name="box1")
+        Create a new instance of NamedSelections
+        >>> lst1 = NamedSelections(m3d.modeler)
+        Create a named selection by specifying assignment and entity type
+        >>> lst1.create(assignment=["box1"], name="my_list", entity_type="Object")
+        >>> m3d.release_desktop(False, False)
+
         References
         ----------
         >>> oEditor.CreateNamedSelection
@@ -2159,6 +2170,16 @@ class NamedSelections(PropsManager, PyAedtBase):
     def delete(self) -> bool:
         """Delete the named selection.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d(version="2026.1")
+        >>> box1 = m3d.modeler.create_box([1, 1, 1], [5, 2, 5], name="box1")
+        Create Objects list and delete it afterward
+        >>> lst = m3d.modeler.create_object_list(assignment=["box1"], name="my_list")
+        >>> lst.delete()
+        >>> m3d.release_desktop(False, False)
+
         References
         ----------
         >>> oEditor.Delete
@@ -2178,6 +2199,16 @@ class NamedSelections(PropsManager, PyAedtBase):
         ----------
         name : str
             New name for the named selection.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d(version="2026.1")
+        >>> box1 = m3d.modeler.create_box([1, 1, 1], [5, 2, 5], name="box1")
+        Create Objects list and rename it afterward
+        >>> lst = m3d.modeler.create_object_list(assignment=["box1"], name="my_list")
+        >>> lst.rename(name="new_list")
+        >>> m3d.release_desktop(False, False)
 
         Returns
         -------
@@ -2219,6 +2250,23 @@ class NamedSelections(PropsManager, PyAedtBase):
             Edit mode for the named selection.
             Options are: ``"Reassign"``, ``"Add"`,``"Remove"``.
             The default value is ``"Reassign"``.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d(version="2026.1")
+        >>> box1 = m3d.modeler.create_box([1, 1, 1], [5, 2, 5], name="box1")
+        >>> box2 = m3d.modeler.create_box([2, 2, 2], [5, 2, 5], name="box2")
+        >>> box3 = m3d.modeler.create_box([3, 3, 3], [5, 2, 5], name="box3")
+        Create objects list
+        >>> lst = m3d.modeler.create_object_list(assignment=["box1"], name="my_list")
+        Add box2 in the NamedSelection "my_list"
+        >>> lst.update(selection=[m3d.modeler["box2"]], entity_type="Object", mode="Add")
+        Remove box2 in the NamedSelection "my_list"
+        >>> lst.update(selection=[m3d.modeler["box2"]], entity_type="Object", mode="Remove")
+        Reassign box2 in the NamedSelection "my_list"
+        >>> lst.update(selection=[m3d.modeler["box2"]], entity_type="Object", mode="Reassign")
+        >>> m3d.release_desktop(False, False)
 
         References
         ----------
