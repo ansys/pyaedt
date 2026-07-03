@@ -350,6 +350,6 @@ class EmitSchematic:
                     child_diffs[child_name] = nested_diffs
 
         if child_diffs:
-            differences["children"] = child_diffs
+            differences.update({"children": child_diffs})
 
         return True, differences
