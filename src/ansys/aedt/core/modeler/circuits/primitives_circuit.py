@@ -1303,11 +1303,12 @@ class CircuitComponents(PyAedtBase):
         name: str | None = None,
         component_library: str | None = "Resistors",
         component_name: str = "RES_",
-        location: list[float] = None,
-        angle: int = 0,
+        location: list[float] | None = None,
+        angle: int | float = 0,
         use_instance_id_netlist: bool = False,
-        global_netlist_list: list = None,
+        global_netlist_list: list | None = None,
         page: int = 1,
+        flip: bool = False,
     ) -> CircuitComponent:
         """Create a component from a library.
 
@@ -1322,7 +1323,7 @@ class CircuitComponents(PyAedtBase):
         location : list of float, optional
             Position on the X axis and Y axis.
             The default is ``None``, in which case the component is placed in [0, 0].
-        angle : optional
+        angle : int or float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
             Whether to enable the instance ID in the net list.
@@ -1331,6 +1332,8 @@ class CircuitComponents(PyAedtBase):
             The default is ``None``, in which case an empty list is passed.
         page: int,  optional
             Schematic page number. The default value is ``1``.
+        flip : bool, optional
+            Flip the component. The default is ``False``.
 
         Returns
         -------
@@ -1357,7 +1360,7 @@ class CircuitComponents(PyAedtBase):
         arg1 = ["NAME:ComponentProps", "Name:=", inst_name]
         xpos, ypos = self._get_location(location)
         angle = math.pi * angle / 180
-        arg2 = ["NAME:Attributes", "Page:=", page, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
+        arg2 = ["NAME:Attributes", "Page:=", page, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", flip]
         comp_name = self.oeditor.CreateComponent(arg1, arg2)
         comp_id = int(comp_name.split(";")[-1])
         # self.refresh_all_ids()
@@ -1907,7 +1910,7 @@ class CircuitComponents(PyAedtBase):
         array_name: str,
         array_id_name: str,
         files: list,
-        location: tuple | list | None = None,
+        location: list | None = None,
         page: int = 1,
         angle: float = 0.0,
         flip: bool = False,
@@ -1940,6 +1943,7 @@ class CircuitComponents(PyAedtBase):
         -------
         :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
             Component object.
+
         """
         for f in files:
             if not Path(f).exists():
@@ -1959,64 +1963,14 @@ class CircuitComponents(PyAedtBase):
 
         self.ocomponent_manager.ImportSandWComponent(files_args, options_args)
 
-        return self._create_component(
+        return self.create_component(
+            component_library=None,
             component_name=component_name,
             location=location,
             page=page,
             angle=angle,
             flip=flip,
         )
-
-    @pyaedt_function_handler()
-    def _create_component(
-        self,
-        component_name: str,
-        location: tuple | list | None = None,
-        page: int = 1,
-        angle: float = 0.0,
-        flip: bool = False,
-    ):
-        """Create a circuit component.
-
-        Parameters
-        ----------
-        component_name : str
-            Name of the component to create.
-        location : tuple, optional
-            Tuple of ``(x, y)`` coordinates for component location.
-            If ``None``, default location is used. Default is ``None``.
-        page : int, optional
-            Schematics page number. Default is ``1``.
-        angle : float, optional
-            Rotation angle in degrees. Default is ``0.0``.
-        flip : bool, optional
-            Whether to flip the component. Default is ``False``.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
-            Component object.
-        """
-        if location is None:
-            x, y = self._get_location(location)
-        else:
-            x, y = self._convert_point_to_meter(location)
-
-        props_args = ["NAME:ComponentProps"]
-        props_args.extend(["Name:=", component_name])
-
-        attributes_args = ["NAME:Attributes"]
-        attributes_args.extend(["Page:=", page])
-        attributes_args.extend(["X:=", x])
-        attributes_args.extend(["Y:=", y])
-        attributes_args.extend(["Angle:=", angle])
-        attributes_args.extend(["Flip:=", flip])
-
-        comp_name = self.oeditor.CreateComponent(props_args, attributes_args)
-
-        comp_id = int(comp_name.split(";")[-1])
-        self.add_id_to_component(comp_id, comp_name)
-        return self.components[comp_id]
 
     @pyaedt_function_handler()
     def create_touchstone_component_multi(
@@ -2026,9 +1980,9 @@ class CircuitComponents(PyAedtBase):
         array_name: str,
         array_id_name: str,
         files: list,
-        location: tuple | list | None = None,
+        location: list | None = None,
         page: int = 1,
-        angle: float = 0.0,
+        angle: int | float = 0.0,
         flip: bool = False,
     ) -> CircuitComponent:
         """Create an N-port multi-component by importing touchstone files.
@@ -2050,7 +2004,7 @@ class CircuitComponents(PyAedtBase):
             If ``None``, default location is used. Default is ``None``.
         page : int, optional
             Schematics page number. Default is ``1``.
-        angle : float, optional
+        angle : int or float, optional
             Rotation angle in degrees. Default is ``0.0``.
         flip : bool, optional
             Whether to flip the component. Default is ``False``.
@@ -2088,9 +2042,9 @@ class CircuitComponents(PyAedtBase):
         array_name: str,
         array_id_name: str,
         files: list,
-        location: tuple | list | None = None,
+        location: list | None = None,
         page: int = 1,
-        angle: float = 0.0,
+        angle: int | float = 0.0,
         flip: bool = False,
     ) -> CircuitComponent:
         """Create an N-port multi-component by importing state space files.
@@ -2112,7 +2066,7 @@ class CircuitComponents(PyAedtBase):
             If ``None``, default location is used. Default is ``None``.
         page : int, optional
             Schematics page number. Default is ``1``.
-        angle : float, optional
+        angle : int or float, optional
             Rotation angle in degrees. Default is ``0.0``.
         flip : bool, optional
             Whether to flip the component. Default is ``False``.
