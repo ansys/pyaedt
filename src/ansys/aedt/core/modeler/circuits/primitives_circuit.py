@@ -1906,7 +1906,7 @@ class CircuitComponents(PyAedtBase):
         self,
         component_type: int,
         component_name: str,
-        num_ports: str,
+        num_ports: int,
         array_name: str,
         array_id_name: str,
         files: list,
@@ -1945,10 +1945,6 @@ class CircuitComponents(PyAedtBase):
             Component object.
         """
 
-        if location is None:
-            x, y = self._get_location(location)
-        else:
-            x, y = self._convert_point_to_meter(location)
         for f in files:
             if not Path(f).exists():
                 raise FileNotFoundError(f"Cannot find file: {str(f)}")
@@ -1966,6 +1962,51 @@ class CircuitComponents(PyAedtBase):
         options_args.extend(["CompName:=", component_name])
 
         self.ocomponent_manager.ImportSandWComponent(files_args, options_args)
+
+        return self._create_component(
+            component_name=component_name,
+            location=location,
+            page=page,
+            angle=angle,
+            flip=flip,
+        )
+
+
+    @pyaedt_function_handler()
+    def _create_component(
+            self,
+            component_name: str,
+            location: tuple | list | None = None,
+            page: int = 1,
+            angle: float = 0.0,
+            flip: bool = False,
+    ):
+        """Create a circuit component.
+
+        Parameters
+        ----------
+        component_name : str
+            Name of the component to create.
+        location : tuple, optional
+            Tuple of ``(x, y)`` coordinates for component location.
+            If ``None``, default location is used. Default is ``None``.
+        page : int, optional
+            Schematics page number. Default is ``1``.
+        angle : float, optional
+            Rotation angle in degrees. Default is ``0.0``.
+        flip : bool, optional
+            Whether to flip the component. Default is ``False``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
+            Component object.
+        """
+
+        if location is None:
+            x, y = self._get_location(location)
+        else:
+            x, y = self._convert_point_to_meter(location)
 
         props_args = ["NAME:ComponentProps"]
         props_args.extend(["Name:=", component_name])
@@ -1987,7 +2028,7 @@ class CircuitComponents(PyAedtBase):
     def create_touchstone_component_multi(
         self,
         component_name: str,
-        num_ports: str,
+        num_ports: int,
         array_name: str,
         array_id_name: str,
         files: list,
@@ -2024,6 +2065,13 @@ class CircuitComponents(PyAedtBase):
         -------
         :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
             Component object.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> aedtapp = Circuit()
+        >>> files = ["path_to_file1.s4p", "path_to_file2.s4p"]
+        >>> c = aedtapp.modeler.schematic.create_touchstone_component_multi("C1", 2, "CAP1", "CAP1_id", files)
+        >>> schematic_object = aedtapp.modeler.schematic
+
         """
         return self._create_nport_multi(
             component_type=2,
@@ -2042,7 +2090,7 @@ class CircuitComponents(PyAedtBase):
     def create_state_space_component_multi(
         self,
         component_name: str,
-        num_ports: str,
+        num_ports: int,
         array_name: str,
         array_id_name: str,
         files: list,
@@ -2079,6 +2127,14 @@ class CircuitComponents(PyAedtBase):
         -------
         :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
             Component object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> aedtapp = Circuit()
+        >>> files = ["path_to_file1.sss", "path_to_file2.sss"]
+        >>> c = aedtapp.modeler.schematic.create_state_space_component_multi("C1", 2, "CAP1", "CAP1_id", files)
+        >>> schematic_object = aedtapp.modeler.schematic
         """
         return self._create_nport_multi(
             component_type=1,
