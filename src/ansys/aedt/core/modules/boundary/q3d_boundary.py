@@ -63,6 +63,13 @@ class Matrix(PyAedtBase):
         Returns
         -------
         list
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.q3d_boundary import Matrix
+        >>> obj = Matrix()
+        >>> obj.sources(is_gc_sources=True)
+
         """
         if self.name in list(self._app.omatrix.ListReduceMatrixes()):
             if self._app.design_type == "Q3D Extractor":
@@ -107,6 +114,7 @@ class Matrix(PyAedtBase):
         >>> q3d.matrices[0].get_sources_for_plot(
         ...     first_element_filter="Bo?1", second_element_filter="GND*", category="DCL"
         ... )
+
         """
         if not first_element_filter:
             first_element_filter = "*"
@@ -137,6 +145,13 @@ class Matrix(PyAedtBase):
         Returns
         -------
         list
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.q3d_boundary import Matrix
+        >>> obj = Matrix()
+        >>> obj.operations
+
         """
         if self.name in list(self._app.omatrix.ListReduceMatrixes()):
             self._operations = self._app.omatrix.ListReduceMatrixOperations(self.name)
@@ -167,6 +182,13 @@ class Matrix(PyAedtBase):
         -------
         bool
             `True` if succeeded.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.q3d_boundary import Matrix
+        >>> obj = Matrix()
+        >>> obj.create(source_names=["Box1"], new_net_name=1)
+
         """
         if not isinstance(source_names, list) and source_names:
             source_names = [source_names]
@@ -183,6 +205,13 @@ class Matrix(PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.q3d_boundary import Matrix
+        >>> obj = Matrix()
+        >>> obj.delete()
+
         """
         self.omatrix.DeleteRM(self.name)
         for el in self._app.matrices:
@@ -218,6 +247,13 @@ class Matrix(PyAedtBase):
         -------
         bool
             `True` if succeeded.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.q3d_boundary import Matrix
+        >>> obj = Matrix()
+        >>> obj.add_operation(operation_type=1)
+
         """
         self._operations.append(operation_type)
         if not isinstance(source_names, list) and source_names:

@@ -50,11 +50,20 @@ class MatrixElectric:
         List of ground source names. The default is an empty list.
     matrix_name : str, optional
         Name of the matrix. The default is ``None``.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MatrixElectric
+    >>> obj = MatrixElectric()
+
     """
 
     signal_sources: list
+    """Value for signal sources."""
     ground_sources: list = field(default_factory=list)
+    """Value for ground sources."""
     matrix_name: str | None = None
+    """Value for matrix name."""
 
 
 @dataclass
@@ -71,11 +80,20 @@ class SourceMagnetostatic:
         For Maxwell 3D design types, this parameter is ignored.
     turns_number : int, optional
         Number of turns for the source. The default value is ``1``.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import SourceMagnetostatic
+    >>> obj = SourceMagnetostatic()
+
     """
 
     name: str
+    """Value for name."""
     return_path: str = "infinite"
+    """Path to return."""
     turns_number: int = 1
+    """Value for turns number."""
 
 
 @dataclass
@@ -92,11 +110,20 @@ class GroupSourcesMagnetostatic:
     name : str, optional
         Name of the group source.
         The default value is ``None``.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import GroupSourcesMagnetostatic
+    >>> obj = GroupSourcesMagnetostatic()
+
     """
 
     source_names: list
+    """Value for source names."""
     branches_number: int = 1
+    """Value for branches number."""
     name: str | None = None
+    """Value for name."""
 
 
 @dataclass
@@ -111,11 +138,20 @@ class MatrixMagnetostatic:
         List of group sources.
     matrix_name : str, optional
         Name of the matrix. The default is ``None``.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MatrixMagnetostatic
+    >>> obj = MatrixMagnetostatic()
+
     """
 
     signal_sources: list[SourceMagnetostatic]
+    """Value for signal sources."""
     group_sources: list[GroupSourcesMagnetostatic]
+    """Value for group sources."""
     matrix_name: str | None = None
+    """Value for matrix name."""
 
 
 @dataclass
@@ -130,10 +166,18 @@ class SourceACMagnetic:
         For Maxwell 2D design types, the `return_path` parameter can be provided.
         If not the default value is "infinite".
         For Maxwell 3D design types, this parameter is ignored.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import SourceACMagnetic
+    >>> obj = SourceACMagnetic()
+
     """
 
     name: str
+    """Value for name."""
     return_path: str = "infinite"
+    """Path to return."""
 
 
 @dataclass
@@ -146,10 +190,18 @@ class MatrixACMagnetic:
         List of signal sources.
     matrix_name : str, optional
         Name of the matrix. The default is ``None``.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MatrixACMagnetic
+    >>> obj = MatrixACMagnetic()
+
     """
 
     signal_sources: list[SourceACMagnetic]
+    """Value for signal sources."""
     matrix_name: str | None = None
+    """Value for matrix name."""
 
 
 @dataclass
@@ -162,10 +214,18 @@ class RLSourceACMagneticAPhi:
         List of signal sources.
     ground_sources : list
         List of ground sources.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import RLSourceACMagneticAPhi
+    >>> obj = RLSourceACMagneticAPhi()
+
     """
 
     signal_sources: list
+    """Value for signal sources."""
     ground_sources: list
+    """Value for ground sources."""
 
 
 @dataclass
@@ -178,10 +238,18 @@ class GCSourceACMagneticAPhi:
         List of signal sources.
     ground_sources : list
         List of ground sources.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import GCSourceACMagneticAPhi
+    >>> obj = GCSourceACMagneticAPhi()
+
     """
 
     signal_sources: list
+    """Value for signal sources."""
     ground_sources: list
+    """Value for ground sources."""
 
 
 @dataclass
@@ -196,21 +264,33 @@ class MatrixACMagneticAPhi:
         List of GC sources.
     matrix_name : str, optional
         Name of the matrix. The default is ``None``.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MatrixACMagneticAPhi
+    >>> obj = MatrixACMagneticAPhi()
+
     """
 
     rl_sources: list[RLSourceACMagneticAPhi]
+    """Value for rl sources."""
     gc_sources: list[GCSourceACMagneticAPhi]
+    """Value for gc sources."""
     matrix_name: str | None = None
+    """Value for matrix name."""
 
 
 # Type aliases for data classes
 
 # Source types for different solvers
 MaxwellSourceSchema = SourceMagnetostatic | SourceACMagnetic | RLSourceACMagneticAPhi | GCSourceACMagneticAPhi
+"""Value for maxwell source schema."""
 # Group source types
 MaxwellGroupSourceSchema = GroupSourcesMagnetostatic
+"""Value for maxwell group source schema."""
 # All matrix schema types (top-level matrix definitions)
 MaxwellMatrixSchema = MatrixElectric | MatrixMagnetostatic | MatrixACMagnetic | MatrixACMagneticAPhi
+"""Value for maxwell matrix schema."""
 
 
 class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
@@ -226,6 +306,12 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         Properties of the boundary.
     boundarytype : str, optional
         Type of the boundary.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellParameters
+    >>> obj = MaxwellParameters()
+
     """
 
     def __init__(self, app, name, props=None, boundarytype=None) -> None:
@@ -252,6 +338,13 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         Returns
         -------
         :class:BoundaryProps
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellParameters
+        >>> obj = MaxwellParameters()
+        >>> obj.props
+
         """
         if self.__props:
             return self.__props
@@ -264,7 +357,15 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
     @property
     def name(self) -> str:
-        """Boundary Name."""
+        """Boundary Name.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellParameters
+        >>> obj = MaxwellParameters()
+        >>> obj.name
+
+        """
         if self._child_object:
             self._name = str(self.properties["Name"])
         return self._name
@@ -307,6 +408,12 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellParameters
+        >>> obj = MaxwellParameters()
+        >>> obj.create()
+
         """
         if self.type == "Matrix":
             self._app.omaxwell_parameters.AssignMatrix(self._get_args())
@@ -328,6 +435,12 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellParameters
+        >>> obj = MaxwellParameters()
+        >>> obj.update()
 
         """
         if self.type == "Matrix":
@@ -373,15 +486,16 @@ class MaxwellMatrix(MaxwellParameters):
     Define matrix assignments by instantiating the MatrixElectric class.
 
     >>> matrix_args = MatrixElectric(
-    >>>             signal_sources=[voltage1.name, voltage2.name],
-    >>>             ground_sources=[voltage3.name],
-    >>>             matrix_name="test_matrix",
-    >>>         )
+    ...     signal_sources=[voltage1.name, voltage2.name],
+    ...     ground_sources=[voltage3.name],
+    ...     matrix_name="test_matrix",
+    ... )
 
     Assign matrix. The method returns a MaxwellParameters object.
 
     >>> matrix = m2d.assign_matrix(matrix_args)
     >>> m2d.release_desktop(True, True)
+
     """
 
     def __init__(self, app, name, props=None, schema: MaxwellMatrixSchema | None = None) -> None:
@@ -405,6 +519,13 @@ class MaxwellMatrix(MaxwellParameters):
 
     @property
     def signal_sources(self) -> list[SourceACMagnetic] | None:
+        """Retrieve signal sources.
+
+        Examples
+        --------
+        >>> matrix.signal_sources  # doctest: +SKIP
+
+        """
         if (
             isinstance(self._schema, MatrixElectric)
             or isinstance(self._schema, MatrixMagnetostatic)
@@ -415,24 +536,52 @@ class MaxwellMatrix(MaxwellParameters):
 
     @property
     def ground_sources(self) -> list[str] | None:
+        """Retrieve ground sources.
+
+        Examples
+        --------
+        >>> matrix.ground_sources  # doctest: +SKIP
+
+        """
         if isinstance(self._schema, MatrixElectric):
             return self._schema.ground_sources
         return None
 
     @property
     def group_sources(self) -> list[GroupSourcesMagnetostatic] | None:
+        """Retrieve group sources.
+
+        Examples
+        --------
+        >>> matrix.group_sources  # doctest: +SKIP
+
+        """
         if isinstance(self._schema, MatrixMagnetostatic):
             return self._schema.group_sources
         return None
 
     @property
     def rl_sources(self) -> list[RLSourceACMagneticAPhi] | None:
+        """Retrieve rl sources.
+
+        Examples
+        --------
+        >>> matrix.rl_sources  # doctest: +SKIP
+
+        """
         if isinstance(self._schema, MatrixACMagneticAPhi):
             return self._schema.rl_sources
         return None
 
     @property
     def gc_sources(self) -> list[GCSourceACMagneticAPhi] | None:
+        """Retrieve gc sources.
+
+        Examples
+        --------
+        >>> matrix.gc_sources  # doctest: +SKIP
+
+        """
         if isinstance(self._schema, MatrixACMagneticAPhi):
             return self._schema.gc_sources
         return None
@@ -445,6 +594,13 @@ class MaxwellMatrix(MaxwellParameters):
         -------
         list
             List of reduced matrices for the parent matrix.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellMatrix
+        >>> obj = MaxwellMatrix()
+        >>> obj.reduced_matrices
+
         """
         if self._app.solution_type in [SolutionsMaxwell3D.EddyCurrent, SolutionsMaxwell3D.ACMagnetic]:
             self.__reduced_matrices = []
@@ -480,6 +636,12 @@ class MaxwellMatrix(MaxwellParameters):
         MaxwellReducedMatrix
             Reduced matrix object.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellMatrix
+        >>> obj = MaxwellMatrix()
+        >>> obj.join_series(sources=["Box1"])
+
         """
         return self._create_matrix_reduction(
             red_type="Series", sources=sources, matrix_name=matrix_name, join_name=join_name
@@ -502,6 +664,12 @@ class MaxwellMatrix(MaxwellParameters):
         -------
         MaxwellReducedMatrix
             Reduced matrix object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellMatrix
+        >>> obj = MaxwellMatrix()
+        >>> obj.join_parallel(sources=["Box1"])
 
         """
         return self._create_matrix_reduction(
@@ -572,18 +740,17 @@ class MaxwellReducedMatrix:
     >>> signal_source_4 = SourceACMagnetic(name=current4.name)
 
     >>> matrix_args = MatrixACMagnetic(
-    >>>     signal_sources=[signal_source_1, signal_source_2, signal_source_3, signal_source_4],
-    >>>     matrix_name="test_matrix",
-    >>> )
+    ...     signal_sources=[signal_source_1, signal_source_2, signal_source_3, signal_source_4],
+    ...     matrix_name="test_matrix",
+    ... )
     >>> matrix = m3d.assign_matrix(matrix_args)
 
     Join sources in series to create a reduced matrix.
     >>> reduced_matrix = matrix.join_series(
-    >>>     sources=["Current1", "Current2"],
-    >>>     matrix_name="ReducedMatrix1",
-    >>>     join_name="JoinSeries1"
-    >>> )
+    ...     sources=["Current1", "Current2"], matrix_name="ReducedMatrix1", join_name="JoinSeries1"
+    ... )
     >>> m3d.release_desktop(True, True)
+
     """
 
     def __init__(
@@ -654,9 +821,9 @@ class MaxwellReducedMatrix:
         >>> signal_source_3 = SourceACMagnetic(name=current3.name)
 
         >>> matrix_args = MatrixACMagnetic(
-        >>>     signal_sources=[signal_source_1, signal_source_2, signal_source_3],
-        >>>     matrix_name="test_matrix",
-        >>> )
+        ...     signal_sources=[signal_source_1, signal_source_2, signal_source_3],
+        ...     matrix_name="test_matrix",
+        ... )
         >>> matrix = m3d.assign_matrix(matrix_args)
 
         Join sources in series to create a reduced matrix.
@@ -669,14 +836,15 @@ class MaxwellReducedMatrix:
 
         Update the name of the join operation.
         >>> join_operation = reduced_matrix.update(
-        >>> name=reduced_matrix.operations_reduction[0].name, operation_type="series", new_name="my_op"
-        >>> )
+        ...     name=reduced_matrix.operations_reduction[0].name, operation_type="series", new_name="my_op"
+        ... )
 
         Update the sources of the join operation.
         >>> join_operation_1 = reduced_matrix.update(
-        >>> name=join_operation.name, operation_type="series", new_sources=["Current2", "Current3"]
-        >>> )
+        ...     name=join_operation.name, operation_type="series", new_sources=["Current2", "Current3"]
+        ... )
         >>> m3d.release_desktop(True, True)
+
         """
         if operation_type.lower() not in ["series", "parallel"]:
             raise AEDTRuntimeError("Join type not valid.")
@@ -717,7 +885,7 @@ class MaxwellReducedMatrix:
         Create a Maxwell 3D model in AC Magnetic solver.
         >>> from ansys.aedt.core import Maxwell3d
         >>> from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
-        >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellMatrix
+        >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import SourceACMagnetic, MatrixACMagnetic
 
         >>> m3d = Maxwell3d(version="2026.1", solution_type=SolutionsMaxwell3D.ACMagnetic)
 
@@ -739,21 +907,22 @@ class MaxwellReducedMatrix:
         >>> signal_source_3 = SourceACMagnetic(name=current3.name)
 
         >>> matrix_args = MatrixACMagnetic(
-        >>>     signal_sources=[signal_source_1, signal_source_2, signal_source_3],
-        >>>     matrix_name="test_matrix",
-        >>> )
+        ...     signal_sources=[signal_source_1, signal_source_2, signal_source_3],
+        ...     matrix_name="test_matrix",
+        ... )
         >>> matrix = m3d.assign_matrix(matrix_args)
 
         Join sources in series to create a reduced matrix.
         >>> reduced_matrix = matrix.join_series(
-        >>> sources = (["Current1", "Current2", "Current3"],)
-        >>> matrix_name = ("ReducedMatrix1",)
-        >>> join_name = "JoinSeries1"
-        >>> )
+        ...     sources=["Current1", "Current2", "Current3"],
+        ...     matrix_name="ReducedMatrix1",
+        ...     join_name="JoinSeries1",
+        ... )
 
         Delete the reduction operation.
         >>> reduced_matrix.delete(name="JoinSeries1")
         >>> m3d.release_desktop(True, True)
+
         """
         if name not in [op.name for op in self.operations_reduction]:
             raise AEDTRuntimeError("Reduction operation name not valid.")
@@ -764,7 +933,14 @@ class MaxwellReducedMatrix:
 
 
 class MaxwellReducedMatrixOperation:
-    """Represent a reduced matrix operation in Maxwell (join in series or parallel)."""
+    """Represent a reduced matrix operation in Maxwell (join in series or parallel).
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellReducedMatrixOperation
+    >>> obj = MaxwellReducedMatrixOperation()
+
+    """
 
     def __init__(self, parent_matrix: str, reduced_matrix: str, name: str, sources: list[str]) -> None:
         self.parent_matrix = parent_matrix
@@ -774,7 +950,14 @@ class MaxwellReducedMatrixOperation:
 
 
 class MaxwellForce(MaxwellParameters):
-    """Initialize Maxwell force."""
+    """Initialize Maxwell force.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellForce
+    >>> obj = MaxwellForce()
+
+    """
 
     def __init__(self, app, name, props=None) -> None:
         super().__init__(app, name, props=props, boundarytype="Force")
@@ -782,7 +965,14 @@ class MaxwellForce(MaxwellParameters):
 
 
 class MaxwellTorque(MaxwellParameters):
-    """Initialize Maxwell torque."""
+    """Initialize Maxwell torque.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellTorque
+    >>> obj = MaxwellTorque()
+
+    """
 
     def __init__(self, app, name, props=None) -> None:
         super().__init__(app, name, props=props, boundarytype="Torque")
@@ -790,7 +980,14 @@ class MaxwellTorque(MaxwellParameters):
 
 
 class MaxwellLayoutForce(MaxwellParameters):
-    """Initialize Maxwell layout force."""
+    """Initialize Maxwell layout force.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellLayoutForce
+    >>> obj = MaxwellLayoutForce()
+
+    """
 
     def __init__(self, app, name, props=None) -> None:
         super().__init__(app, name, props=props, boundarytype="LayoutForce")

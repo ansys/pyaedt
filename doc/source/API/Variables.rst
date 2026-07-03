@@ -1,6 +1,6 @@
 Variable
 ========
-This module provides all functionalities for creating and editing
+The module provides all functionalities for creating and editing
 design and project variables in the 3D tools.
 
 .. code:: python

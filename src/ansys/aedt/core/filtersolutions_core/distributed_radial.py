@@ -36,6 +36,12 @@ class DistributedRadial:
 
     This class allows you to define and modify the radial and delta stub parameters of distributed filters.
     These parameter changes are applicable exclusively to low-pass filters that include stub resonators.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.filtersolutions import DistributedDesign
+    >>> design = DistributedDesign(version="2026.1")
+    >>> design.radial.radial_stubs = True
     """
 
     def __init__(self) -> None:
@@ -123,6 +129,12 @@ class DistributedRadial:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import DistributedDesign
+        >>> design = DistributedDesign(version="2026.1")
+        >>> design.radial.radial_stubs = True
         """
         radial_stubs = c_bool()
         status = self._dll.getDistributedRadialStubs(byref(radial_stubs))
@@ -141,6 +153,12 @@ class DistributedRadial:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import DistributedDesign
+        >>> design = DistributedDesign(version="2026.1")
+        >>> design.radial.fixed_angle_enabled = True
         """
         fixed_angle_enabled = c_bool()
         status = self._dll.getEnableDistributedFixedAngle(byref(fixed_angle_enabled))
@@ -159,6 +177,12 @@ class DistributedRadial:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import DistributedDesign
+        >>> design = DistributedDesign(version="2026.1")
+        >>> design.radial.fixed_angle = "75"
         """
         fixed_angle_string = self._dll_interface.get_string(self._dll.getDistributedFixedAngle)
         return fixed_angle_string
@@ -175,6 +199,12 @@ class DistributedRadial:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import DistributedDesign
+        >>> design = DistributedDesign(version="2026.1")
+        >>> design.radial.delta_stubs = True
         """
         delta_stubs = c_bool()
         status = self._dll.getDistributedDeltaStubs(byref(delta_stubs))
@@ -193,6 +223,12 @@ class DistributedRadial:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import DistributedDesign
+        >>> design = DistributedDesign(version="2026.1")
+        >>> design.radial.split_wide_angle_enabled = True
         """
         split_wide_angle_enabled = c_bool()
         status = self._dll.getEnableDistributedSplitWideAngle(byref(split_wide_angle_enabled))
@@ -216,6 +252,12 @@ class DistributedRadial:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import DistributedDesign
+        >>> design = DistributedDesign(version="2026.1")
+        >>> design.radial.split_wide_angle = "25"
         """
         split_wide_angle_string = self._dll_interface.get_string(self._dll.getDistributedSplitWideAngle)
         return split_wide_angle_string
@@ -231,6 +273,12 @@ class DistributedRadial:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import DistributedDesign
+        >>> design = DistributedDesign(version="2026.1")
+        >>> design.radial.offset_from_feedline_enabled = True
         """
         offset_from_feedline_enabled = c_bool()
         status = self._dll.getEnableDistributedOffsetFromFeedline(byref(offset_from_feedline_enabled))
@@ -249,6 +297,12 @@ class DistributedRadial:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import DistributedDesign
+        >>> design = DistributedDesign(version="2026.1")
+        >>> design.radial.offset_from_feedline = "150um"
         """
         offset_from_feedline_string = self._dll_interface.get_string(self._dll.getDistributedOffsetFromFeedline)
         return offset_from_feedline_string
@@ -265,6 +319,12 @@ class DistributedRadial:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import DistributedDesign
+        >>> design = DistributedDesign(version="2026.1")
+        >>> design.radial.alternate_radial_delta_orientation = True
         """
         alternate_radial_delta_orientation = c_bool()
         status = self._dll.getDistributedAlternateRadialDeltaOrientation(byref(alternate_radial_delta_orientation))
@@ -283,6 +343,12 @@ class DistributedRadial:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import DistributedDesign
+        >>> design = DistributedDesign(version="2026.1")
+        >>> design.radial.adjust_width_max = True
         """
         adjust_width_max = c_bool()
         status = self._dll.getDistributedAdjustWidthMax(byref(adjust_width_max))
@@ -301,6 +367,12 @@ class DistributedRadial:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import DistributedDesign
+        >>> design = DistributedDesign(version="2026.1")
+        >>> design.radial.max_radial_delta_angle = "120"
         """
         max_radial_delta_angle_string = self._dll_interface.get_string(self._dll.getDistributedMaxRadialDeltaAngle)
         return max_radial_delta_angle_string
@@ -316,6 +388,12 @@ class DistributedRadial:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import DistributedDesign
+        >>> design = DistributedDesign(version="2026.1")
+        >>> design.radial.adjust_length_max = True
         """
         adjust_length_max = c_bool()
         status = self._dll.getDistributedAdjustLengthMax(byref(adjust_length_max))
@@ -334,6 +412,12 @@ class DistributedRadial:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import DistributedDesign
+        >>> design = DistributedDesign(version="2026.1")
+        >>> design.radial.min_radial_delta_angle = "30"
         """
         min_radial_delta_angle_string = self._dll_interface.get_string(self._dll.getDistributedMinRadialDeltaAngle)
         return min_radial_delta_angle_string
@@ -349,6 +433,14 @@ class DistributedRadial:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> import ansys.aedt.core
+        >>> import ansys.aedt.core.filtersolutions
+        >>> design = ansys.aedt.core.FilterSolutions.DistributedDesign(version="2026.1")
+        >>> design.radial.apply_limits_radial_delta = False
+
         """
         apply_limits_radial_delta = c_bool()
         status = self._dll.getDistributedApplyLimitsRadialDelta(byref(apply_limits_radial_delta))
