@@ -29,6 +29,8 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class TxSpurNode(EmitNode):
+    """Provide tx spur node."""
+
     def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
@@ -36,36 +38,96 @@ class TxSpurNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
-        """The parent of this emit node."""
+        """The parent of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> tx_profile = band.children[0]
+        >>> spurs = tx_profile.add_spurious_emissions()
+        >>> spurs.parent
+
+        """
         return self._parent
 
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node."""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> tx_profile = band.children[0]
+        >>> spurs = tx_profile.add_spurious_emissions()
+        >>> spurs.node_type
+
+        """
         return self._node_type
 
     @min_aedt_version("2025.2")
     def import_csv_file(self, file_name: str) -> EmitNode:
-        """Import a CSV File..."""
+        """Import a CSV File.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> tx_profile = band.children[0]
+        >>> spurs = tx_profile.add_spurious_emissions()
+        >>> spurs.import_csv_file(r"C:\\Measurements\\tx_spurs.csv")
+
+        """
         return self._import(file_name, "Csv")
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node"""
+        """Delete this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> tx_profile = band.children[0]
+        >>> spurs = tx_profile.add_spurious_emissions()
+        >>> spurs.delete()
+
+        """
         self._delete()
 
     @property
     @min_aedt_version("2025.2")
     def table_data(self) -> list[tuple]:
         """Spurs Table.
-        Table consists of 3 columns.
+
+        Table consists of 3 columns:
         Frequency (MHz):
             Value should be a mathematical expression.
         Bandwidth:
             Value should be greater than 1.0.
         Power:
             Value should be between -200.0 and 150.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> tx_profile = band.children[0]
+        >>> spurs = tx_profile.add_spurious_emissions()
+        >>> spurs.table_data = [("RF+10.0", "50 MHz", -60.0)]
+
         """
         return self._get_table_data()
 
@@ -77,7 +139,19 @@ class TxSpurNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def enabled(self) -> bool:
-        """Enabled state for this node."""
+        """Enabled state for this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> tx_profile = band.children[0]
+        >>> spurs = tx_profile.add_spurious_emissions()
+        >>> spurs.enabled = True
+
+        """
         return self._get_property("Enabled") == "true"
 
     @enabled.setter
@@ -92,7 +166,19 @@ class TxSpurNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def spur_table_units(self) -> SpurTableUnitsOption:
-        """Specifies the units for the Spurs."""
+        """Specifies the units for the Spurs.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> tx_profile = band.children[0]
+        >>> spurs = tx_profile.add_spurious_emissions()
+        >>> spurs.spur_table_units = spurs.SpurTableUnitsOption.RELATIVE
+
+        """
         val = self._get_property("Spur Table Units")
         val = self.SpurTableUnitsOption[val.upper()]
         return val

@@ -22,10 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-This module contains these classes: ``Design``.
+"""The module contains these classes: ``Design``.
 
-This module provides all functionalities for basic project information and objects.
+The module provides all functionalities for basic project information and objects.
 These classes are inherited in the main tool class.
 
 """
@@ -92,13 +91,18 @@ if sys.version_info.major > 2:
 
 
 def load_aedt_thread(project_path) -> None:
-    """
-    Load an AEDT file in a separate thread and update project settings.
+    """Load an AEDT file in a separate thread and update project settings.
 
     Parameters
     ----------
     project_path : str
         Path to the AEDT project file.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.application.design import load_aedt_thread
+    >>> load_aedt_thread("project.aedt")
+
     """
     pp = load_entire_aedt_file(project_path)
     inner_project_settings.properties[Path(project_path)] = pp
@@ -152,6 +156,13 @@ class Design(AedtObjects, PyAedtBase):
         Whether to remove lock to project before opening it or not.
         The default is ``False``, which means to not unlock
         the existing project if needed and raise an exception.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Hfss
+    >>> app = Hfss()
+    >>> app.design_name
+
     """
 
     def __repr__(self) -> str:
@@ -342,6 +353,13 @@ class Design(AedtObjects, PyAedtBase):
         -------
         dict
             Dictionary containing session details.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.info
+
         """
         return self._pyaedt_details
 
@@ -378,6 +396,13 @@ class Design(AedtObjects, PyAedtBase):
         Returns
         -------
         :class:`ansys.aedt.core.desktop.Desktop`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.desktop_class
+
         """
         return self._desktop_class
 
@@ -389,6 +414,13 @@ class Design(AedtObjects, PyAedtBase):
         -------
         dict[str, :class:`ansys.aedt.core.application.variables.DataSet`]
             Project datasets.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.project_datasets
+
         """
         if not self._project_datasets:
             self._project_datasets = self._get_project_datasets()
@@ -402,6 +434,13 @@ class Design(AedtObjects, PyAedtBase):
         -------
         dict[str, :class:`ansys.aedt.core.application.variables.DataSet`]
             Design datasets.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.design_datasets
+
         """
         if not self._design_datasets:
             self._design_datasets = self._get_design_datasets()
@@ -415,6 +454,13 @@ class Design(AedtObjects, PyAedtBase):
         -------
         list[:class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`]
             Boundaries available in design.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.boundaries
+
         """
         bb = []
         if self.oboundary and "GetBoundaries" in self.oboundary.__dir__():
@@ -556,6 +602,13 @@ class Design(AedtObjects, PyAedtBase):
         Returns
         -------
         dict[str, :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`]
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.boundaries_by_type
+
         """
         _dict_out = {}
         for bound in self.boundaries:
@@ -573,6 +626,13 @@ class Design(AedtObjects, PyAedtBase):
         -------
         list
             Port names.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.ports
+
         """
         design_excitations = []
 
@@ -608,6 +668,7 @@ class Design(AedtObjects, PyAedtBase):
         >>> hfss = Hfss()
         >>> hfss.odesktop
         <class 'win32com.client.CDispatch'>
+
         """
         return self.desktop_class.odesktop
 
@@ -629,7 +690,15 @@ class Design(AedtObjects, PyAedtBase):
 
     @property
     def settings(self) -> dict:
-        """Settings of the current Python/Pyaedt session."""
+        """Settings of the current Python/Pyaedt session.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.settings
+
+        """
         return settings
 
     @property
@@ -639,6 +708,13 @@ class Design(AedtObjects, PyAedtBase):
         Returns
         -------
         :class:`ansys.aedt.core.aedt_logger.AedtLogger`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.logger
+
         """
         return self._logger
 
@@ -650,6 +726,13 @@ class Design(AedtObjects, PyAedtBase):
         -------
         dict
             Dictionary of the project properties.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.project_properties
+
         """
         if self.__t:
             self.__t.join()
@@ -688,6 +771,13 @@ class Design(AedtObjects, PyAedtBase):
         dict
            Dictionary of the design properties.
 
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.design_properties
+
         """
         try:
             if self._design_type.model_name in self.project_properties["AnsoftProject"]:
@@ -714,6 +804,13 @@ class Design(AedtObjects, PyAedtBase):
         References
         ----------
         >>> oDesktop.GetVersion()
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.aedt_version_id
+
         """
         return aedt_versions.get_version_env_variable(self._aedt_version)
 
@@ -742,6 +839,7 @@ class Design(AedtObjects, PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.design_name = "new_design"
+
         """
         if self._design_name:
             return self._design_name
@@ -789,6 +887,13 @@ class Design(AedtObjects, PyAedtBase):
         References
         ----------
         >>> oProject.GetTopDesignList()
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.design_list
+
         """
         deslist = list(self.oproject.GetTopDesignList())
         updateddeslist = []
@@ -812,6 +917,13 @@ class Design(AedtObjects, PyAedtBase):
         str
             Type of the design. See above for a list of possible return values.
 
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.design_type
+
         """
         return str(self._design_type)
 
@@ -827,6 +939,13 @@ class Design(AedtObjects, PyAedtBase):
         References
         ----------
         >>> oProject.GetName
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.project_name
+
         """
         if self._project_name and self._project_name in self.desktop_class.project_list:
             return self._project_name
@@ -857,6 +976,13 @@ class Design(AedtObjects, PyAedtBase):
         References
         ----------
         >>> oProject.GetPath
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.project_path
+
         """
         if not self._project_path and self.oproject:
             try:
@@ -868,7 +994,15 @@ class Design(AedtObjects, PyAedtBase):
 
     @property
     def project_time_stamp(self) -> int | float:
-        """Return Project time stamp."""
+        """Return Project time stamp.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.project_time_stamp
+
+        """
         if Path(self.project_file).exists():
             inner_project_settings.time_stamp = Path(self.project_file).stat().st_mtime
         else:
@@ -877,7 +1011,15 @@ class Design(AedtObjects, PyAedtBase):
 
     @property
     def project_timestamp_changed(self) -> bool:
-        """Return a bool if time stamp changed or not."""
+        """Return a bool if time stamp changed or not.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.project_timestamp_changed
+
+        """
         old_time = inner_project_settings.time_stamp
         return old_time != self.project_time_stamp
 
@@ -889,6 +1031,13 @@ class Design(AedtObjects, PyAedtBase):
         -------
         str
             Full absolute name and path for the project.
+
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.project_file
 
         """
         if self.project_path:
@@ -903,6 +1052,13 @@ class Design(AedtObjects, PyAedtBase):
         str
             Full absolute name and path for the project's lock file.
 
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.lock_file
+
         """
         if self.project_path:
             return str(Path(self.project_path) / (self.project_name + ".aedt.lock"))
@@ -915,6 +1071,13 @@ class Design(AedtObjects, PyAedtBase):
         -------
         str
             Full absolute path for the ``aedtresults`` directory.
+
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.results_directory
 
         """
         if self.project_path:
@@ -933,6 +1096,13 @@ class Design(AedtObjects, PyAedtBase):
         ----------
         >>> oDesign.GetSolutionType
         >>> oDesign.SetSolutionType
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.solution_type
+
         """
         if self.design_solutions:
             return self.design_solutions.solution_type
@@ -959,6 +1129,13 @@ class Design(AedtObjects, PyAedtBase):
         bool
             ``True`` when the project and design exists, ``False`` otherwise.
 
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.valid_design
+
         """
         if self._oproject and self._odesign:
             return True
@@ -977,6 +1154,13 @@ class Design(AedtObjects, PyAedtBase):
         References
         ----------
         >>> oDesktop.GetPersonalLibDirectory
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.personallib
+
         """
         return self.desktop_class.personallib
 
@@ -992,6 +1176,13 @@ class Design(AedtObjects, PyAedtBase):
         References
         ----------
         >>> oDesktop.GetUserLibDirectory
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.userlib
+
         """
         return self.desktop_class.userlib
 
@@ -1007,6 +1198,13 @@ class Design(AedtObjects, PyAedtBase):
         References
         ----------
         >>> oDesktop.GetLibraryDirectory
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.syslib
+
         """
         return self.desktop_class.syslib
 
@@ -1018,6 +1216,13 @@ class Design(AedtObjects, PyAedtBase):
         -------
         str
             Full absolute path for the ``python`` directory.
+
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.src_dir
 
         """
         return str(Path(__file__).parent.resolve())
@@ -1031,6 +1236,13 @@ class Design(AedtObjects, PyAedtBase):
         str
            Full absolute path for the ``pyaedt`` directory.
 
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.pyaedt_dir
+
         """
         return str(Path(self.src_dir).parent.resolve())
 
@@ -1042,6 +1254,13 @@ class Design(AedtObjects, PyAedtBase):
         -------
         list
             List of libraries: ``[syslib, userlib, personallib]``.
+
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.library_list
 
         """
         return [self.syslib, self.userlib, self.personallib]
@@ -1055,6 +1274,13 @@ class Design(AedtObjects, PyAedtBase):
         str
             Full absolute path for the ``temp`` directory.
 
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.temp_directory
+
         """
         return self.desktop_class.temp_directory
 
@@ -1067,6 +1293,13 @@ class Design(AedtObjects, PyAedtBase):
         str
             Full absolute path for the ``pyaedt`` directory for this project.
             If this directory does not exist, it is created.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.toolkit_directory
+
         """
         if self.project_name:
             name = self.project_name.replace(" ", "_")
@@ -1099,6 +1332,13 @@ class Design(AedtObjects, PyAedtBase):
              Full absolute path for the project's working directory.
              If this directory does not exist, it is created.
 
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.working_directory
+
         """
         if self.design_name:
             name = self.design_name.replace(" ", "_")
@@ -1123,6 +1363,13 @@ class Design(AedtObjects, PyAedtBase):
         -------
         str
            Default for the solution type.
+
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.default_solution_type
 
         """
         return self._design_type.solution_default
@@ -1210,6 +1457,13 @@ class Design(AedtObjects, PyAedtBase):
         ----------
         >>> oProject.SetActiveDesign
         >>> oProject.InsertDesign
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.odesign
+
         """
         if settings.use_multi_desktop and self._desktop_class.is_grpc_api:  # pragma: no cover
             self._desktop_class.grpc_plugin.recreate_application(True)
@@ -1257,6 +1511,13 @@ class Design(AedtObjects, PyAedtBase):
         >>> oDesktop.GetActiveProject
         >>> oDesktop.SetActiveProject
         >>> oDesktop.NewProject
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.oproject
+
         """
         if settings.use_multi_desktop and self._desktop_class.is_grpc_api:  # pragma: no cover
             self._desktop_class.grpc_plugin.recreate_application(True)
@@ -1398,6 +1659,13 @@ class Design(AedtObjects, PyAedtBase):
         str
             AEDT installation directory.
 
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.desktop_install_dir
+
         """
         return self._desktop_install_dir
 
@@ -1409,6 +1677,13 @@ class Design(AedtObjects, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.remove_all_unused_definitions()
+
         """
         self.oproject.RemoveAllUnusedDefinitions()
         return True
@@ -1426,6 +1701,13 @@ class Design(AedtObjects, PyAedtBase):
         -------
         :class:`ansys.aedt.core.modules.profile.Profiles`
             Profile data when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.get_profile()
+
         """
         from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 
@@ -1477,12 +1759,19 @@ class Design(AedtObjects, PyAedtBase):
         aedt_object : object
             AEDT Object on which search for property. It can be any oProperty (ex. oDesign).
         object_name : str, optional
-            Path to the object list. Example `"DesignName\\Boundaries"`.
+            Path to the object list.
 
         Returns
         -------
         list
             Values returned by method if any.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.get_oo_name(app.odesign)
+
         """
         try:
             if object_name:
@@ -1502,12 +1791,19 @@ class Design(AedtObjects, PyAedtBase):
         aedt_object : object
             AEDT Object on which search for property. It can be any oProperty (ex. oDesign).
         object_name : str
-            Path to the object list. Example ``"DesignName\\Boundaries"``.
+            Path to the object list.
 
         Returns
         -------
         object
             AEDT object if any.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.get_oo_object(app.odesign, "Design Settings")
+
         """
         try:
             return aedt_object.GetChildObject(object_name)
@@ -1516,19 +1812,26 @@ class Design(AedtObjects, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_oo_properties(self, aedt_object: object, object_name: str) -> list[str]:
-        """Return the Object Oriented AEDT Object Properties.
+        """Return the Object-Oriented AEDT Object Properties.
 
         Parameters
         ----------
         aedt_object : object
             AEDT Object on which search for property. It can be any oProperty (ex. oDesign).
         object_name : str
-            Path to the object list. Example ``"DesignName\\Boundaries"``.
+            Path to the object list.
 
         Returns
         -------
         list
             Values returned by method if any.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.get_oo_properties(app.odesign, "Design Settings")
+
         """
         try:
             return aedt_object.GetChildObject(object_name).GetPropNames()
@@ -1537,14 +1840,14 @@ class Design(AedtObjects, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_oo_property_value(self, aedt_object: object, object_name: str, prop_name: str) -> str | float | bool:
-        """Return the Object Oriented AEDT Object Properties.
+        """Return the Object-Oriented AEDT Object Properties.
 
         Parameters
         ----------
         aedt_object : object
             AEDT Object on which search for property. It can be any oProperty (ex. oDesign).
         object_name : str
-            Path to the object list. For example, ``"DesignName\\Boundaries"``.
+            Path to the object list.
         prop_name : str
             Property name.
 
@@ -1552,6 +1855,13 @@ class Design(AedtObjects, PyAedtBase):
         -------
         str, float, bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.get_oo_property_value(app.odesign, "Design Settings", "ModelDepth")
+
         """
         try:
             return aedt_object.GetChildObject(object_name).GetPropValue(prop_name)
@@ -1567,7 +1877,7 @@ class Design(AedtObjects, PyAedtBase):
         aedt_object : object
             AEDT object to search for the property on. It can be any oProperty. For example, oDesign.
         object_name : str
-            Path to the object list. Example ``"DesignName\\Boundaries"``.
+            Path to the object list.
         prop_name : str
             Property name.
         value : str
@@ -1577,6 +1887,13 @@ class Design(AedtObjects, PyAedtBase):
         -------
         bool
             Values returned by method if any.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.set_oo_property_value(app.odesign, "Design Settings", "ModelDepth", "1mm")
+
         """
         try:
             aedt_object.GetChildObject(object_name).SetPropValue(prop_name, value)
@@ -1607,6 +1924,13 @@ class Design(AedtObjects, PyAedtBase):
         References
         ----------
         >>> oDesign.ExportProfile
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.export_profile(setup="Setup1")
+
         """
         if not output_file:
             output_file = Path(self.working_directory) / (generate_unique_name("Profile") + ".prof")
@@ -1675,6 +1999,12 @@ class Design(AedtObjects, PyAedtBase):
         -------
         ansys.aedt.core.application.variables.VariableManager
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.variable_manager
+
         """
         return self._variable_manager
 
@@ -1727,6 +2057,13 @@ class Design(AedtObjects, PyAedtBase):
         References
         ----------
         >>> oDesktop.SetRegistryString
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.set_license_type()
+
         """
         try:
             self.odesktop.SetRegistryString("Desktop/Settings/ProjectOptions/HPCLicenseType", license_type)
@@ -1754,6 +2091,13 @@ class Design(AedtObjects, PyAedtBase):
         ----------
         >>> oDesktop.SetRegistryString
         >>> oDesktop.SetRegistryInt
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.set_registry_key("Desktop/Settings/ProjectOptions/HPCLicenseType", "Pool")
+
         """
         if isinstance(value, str):
             try:
@@ -1792,6 +2136,13 @@ class Design(AedtObjects, PyAedtBase):
         References
         ----------
         >>> oDesktop.GetRegistryString
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.get_registry_key_string("Desktop/Settings/ProjectOptions/HPCLicenseType")
+
         """
         return self.odesktop.GetRegistryString(name)
 
@@ -1812,6 +2163,13 @@ class Design(AedtObjects, PyAedtBase):
         References
         ----------
         >>> oDesktop.GetRegistryInt
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.get_registry_key_int("Desktop/Settings/ProjectOptions/MaxNumberOfCores")
+
         """
         return self.odesktop.GetRegistryInt(name)
 
@@ -1832,6 +2190,13 @@ class Design(AedtObjects, PyAedtBase):
         References
         ----------
         >>> oDesktop.GetRegistryString
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.check_beta_option_enabled("HFSS_beta")
+
         """
         limit = 100
         i = 0
@@ -1878,6 +2243,13 @@ class Design(AedtObjects, PyAedtBase):
         References
         ----------
         >>> oDesktop.SetRegistryString
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.set_active_dso_config_name(product_name="HFSS", config_name="Local")
+
         """
         try:
             self.set_registry_key(f"Desktop/ActiveDSOConfigurations/{product_name}", config_name)
@@ -1908,6 +2280,13 @@ class Design(AedtObjects, PyAedtBase):
         References
         ----------
         >>> oDesktop.SetRegistryFromFile
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.set_registry_from_file(r"C:\\temp\\settings.acf")
+
         """
         registry_file = Path(registry_file)
         try:
@@ -2036,6 +2415,13 @@ class Design(AedtObjects, PyAedtBase):
         References
         ----------
         >>> oDesign.ChangeProperty
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.activate_variable_statistical("width", minimum=1, maximum=5)
+
         """
         arg = ["NAME:AllTabs"]
         self._optimetrics_variable_args(arg, "Statistical", name, minimum, maximum, tolerance, probability, mean)
@@ -2068,6 +2454,13 @@ class Design(AedtObjects, PyAedtBase):
         References
         ----------
         >>> oDesign.ChangeProperty
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.activate_variable_optimization("width", minimum=1, maximum=5)
+
         """
         arg = ["NAME:AllTabs"]
         self._optimetrics_variable_args(arg, "Optimization", name, minimum, maximum)
@@ -2100,6 +2493,13 @@ class Design(AedtObjects, PyAedtBase):
         References
         ----------
         >>> oDesign.ChangeProperty
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.activate_variable_sensitivity("width", minimum=1, maximum=5)
+
         """
         arg = ["NAME:AllTabs"]
         self._optimetrics_variable_args(arg, "Sensitivity", name, minimum, maximum)
@@ -2130,6 +2530,13 @@ class Design(AedtObjects, PyAedtBase):
         References
         ----------
         >>> oDesign.ChangeProperty
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.activate_variable_tuning("width", minimum=1, maximum=5)
+
         """
         arg = ["NAME:AllTabs"]
         self._optimetrics_variable_args(arg, "Tuning", name, minimum, maximum)
@@ -2156,6 +2563,13 @@ class Design(AedtObjects, PyAedtBase):
         References
         ----------
         >>> oDesign.ChangeProperty
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.deactivate_variable_statistical("width")
+
         """
         arg = ["NAME:AllTabs"]
         self._optimetrics_variable_args(arg, "Statistical", name, enable=False)
@@ -2182,6 +2596,13 @@ class Design(AedtObjects, PyAedtBase):
         References
         ----------
         >>> oDesign.ChangeProperty
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.deactivate_variable_optimization("width")
+
         """
         arg = ["NAME:AllTabs"]
         self._optimetrics_variable_args(arg, "Optimization", name, enable=False)
@@ -2208,6 +2629,13 @@ class Design(AedtObjects, PyAedtBase):
         References
         ----------
         >>> oDesign.ChangeProperty
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.deactivate_variable_sensitivity("width")
+
         """
         arg = ["NAME:AllTabs"]
         self._optimetrics_variable_args(arg, "Sensitivity", name, enable=False)
@@ -2234,6 +2662,13 @@ class Design(AedtObjects, PyAedtBase):
         References
         ----------
         >>> oDesign.ChangeProperty
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.deactivate_variable_tuning("width")
+
         """
         arg = ["NAME:AllTabs"]
         self._optimetrics_variable_args(arg, "Tuning", name, enable=False)
@@ -2270,6 +2705,7 @@ class Design(AedtObjects, PyAedtBase):
         >>> hfss = Hfss()
         >>> hfss["my_hidden_leaf"] = "15mm"
         >>> hfss.hidden_variable("my_hidden_leaf", True)
+
         """
         if not isinstance(name, list):
             self.variable_manager[name].hidden = value
@@ -2323,6 +2759,7 @@ class Design(AedtObjects, PyAedtBase):
         >>> hfss = Hfss()
         >>> hfss["my_read_only_variable"] = "15mm"
         >>> hfss.make_read_only_variable("my_read_only_variable")
+
         """
         self.variable_manager[name].read_only = value
         return True
@@ -2334,7 +2771,7 @@ class Design(AedtObjects, PyAedtBase):
         Parameters
         ----------
         design : str
-            Name of the target design. Possible choices are ``"Icepak"`` or``"Mechanical"``.
+            Name of the target design. Possible choices are ``"Icepak"`` or ``"Mechanical"``.
         setup : str, optional
             Name of the EM setup to link to the target design.
             The default is ``None``, in which case the ``LastAdaptive`` setup is used.
@@ -2357,12 +2794,13 @@ class Design(AedtObjects, PyAedtBase):
         >>> from ansys.aedt.core import Maxwell3d, Mechanical
         >>> from ansys.aedt.core.generic.aedt_constants import IcepakFeaConstants
         >>> m3d = Maxwell3d(version="2026.1")
-        From 2026.1 Mechanical has been renamed to IcepakFEA.
-        The target design must be passed through the IcepakFeaConstants metaclass.
-        This will automatically detect the AEDT version and pass the correct design name to the API.
+        >>> # From 2026.1, Mechanical has been renamed to IcepakFEA.
+        >>> # Pass the target design through the IcepakFeaConstants metaclass.
+        >>> # This automatically selects the correct AEDT API design name.
         >>> m3d.create_em_target_design(design=IcepakFeaConstants.NAME)
         >>> mechanical = Mechanical(version="2026.1")
         >>> mechanical.release_desktop(False, False)
+
         """
         if self.design_type not in ["HFSS", "Maxwell 3D", "Q3D Extractor"]:
             raise AEDTRuntimeError("Source design type must be 'HFSS', 'Maxwell' or 'Mechanical'.")
@@ -2475,9 +2913,7 @@ class Design(AedtObjects, PyAedtBase):
 
     @pyaedt_function_handler()
     def _get_ds_data(self, name: str, data):
-        """
-
-        Parameters
+        """Parameters
         ----------
         name :
 
@@ -2519,7 +2955,7 @@ class Design(AedtObjects, PyAedtBase):
 
     @pyaedt_function_handler()
     def _get_project_datasets(self):
-        """ """
+        """"""
         datasets = {}
         try:
             for ds in self.project_properties["AnsoftProject"]["ProjectDatasets"]["DatasetDefinitions"]:
@@ -2533,7 +2969,7 @@ class Design(AedtObjects, PyAedtBase):
 
     @pyaedt_function_handler()
     def _get_design_datasets(self):
-        """ """
+        """"""
         datasets = {}
         try:
             for ds in self.design_properties["ModelSetup"]["DesignDatasets"]["DatasetDefinitions"]:
@@ -2553,6 +2989,13 @@ class Design(AedtObjects, PyAedtBase):
         bool
             ``True`` when successful, ``False`` when failed.
 
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.close_desktop()
+
         """
         self.desktop_class.close_desktop()
         return True
@@ -2569,6 +3012,13 @@ class Design(AedtObjects, PyAedtBase):
         References
         ----------
         >>> oDesktop.EnableAutoSave
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.autosave_disable()
+
         """
         self.odesktop.EnableAutoSave(False)
         return True
@@ -2585,6 +3035,13 @@ class Design(AedtObjects, PyAedtBase):
         References
         ----------
         >>> oDesktop.EnableAutoSave
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.autosave_enable()
+
         """
         self.odesktop.EnableAutoSave(True)
         return True
@@ -2604,6 +3061,13 @@ class Design(AedtObjects, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.release_desktop()
 
         """
         if close_desktop:
@@ -2682,6 +3146,13 @@ class Design(AedtObjects, PyAedtBase):
         References
         ----------
         >>> oDesktop.OpenProject
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.load_project(r"C:\\temp\\project.aedt")
+
         """
         proj = self.odesktop.OpenProject(file_name)
         if close_active and self.oproject:
@@ -2728,6 +3199,13 @@ class Design(AedtObjects, PyAedtBase):
         ----------
         >>> oProject.AddDataset
         >>> oDesign.AddDataset
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.create_dataset1d_design("curve1", [0, 1, 2], [10, 20, 30], x_unit="GHz")
+
         """
         return self.create_dataset(name, x, y, is_project_dataset=False, x_unit=x_unit, y_unit=y_unit, sort=sort)
 
@@ -2761,6 +3239,13 @@ class Design(AedtObjects, PyAedtBase):
         ----------
         >>> oProject.AddDataset
         >>> oDesign.AddDataset
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.create_dataset1d_project("curve1", [0, 1, 2], [10, 20, 30], x_unit="GHz")
+
         """
         return self.create_dataset(name, x, y, is_project_dataset=True, x_unit=x_unit, y_unit=y_unit, sort=sort)
 
@@ -2814,6 +3299,13 @@ class Design(AedtObjects, PyAedtBase):
         References
         ----------
         >>> oDesign.AddDataset
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.create_dataset3d("dataset3d", [0, 1], [0, 1], [0, 1], [1, 2], x_unit="mm")
+
         """
         if name[0] == "$":
             name = name[1:]
@@ -2864,6 +3356,13 @@ class Design(AedtObjects, PyAedtBase):
         ----------
         >>> oProject.AddDataset
         >>> oDesign.AddDataset
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.import_dataset1d(r"C:\\temp\\dataset.csv")
+
         """
         in_file = Path(input_file)
         if in_file.is_file():
@@ -2931,6 +3430,13 @@ class Design(AedtObjects, PyAedtBase):
         References
         ----------
         >>> oProject.AddDataset
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.import_dataset3d(r"C:\\temp\\dataset.tab")
+
         """
         path = Path(input_file)
         file_extension = path.suffix.lstrip(".").lower()
@@ -3062,6 +3568,13 @@ class Design(AedtObjects, PyAedtBase):
         ----------
         >>> oProject.AddDataset
         >>> oDesign.AddDataset
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.create_dataset("curve1", [0, 1], [10, 20], x_unit="GHz")
+
         """
         if not self.dataset_exists(name, is_project_dataset):
             if is_project_dataset:
@@ -3094,6 +3607,13 @@ class Design(AedtObjects, PyAedtBase):
         bool
             ``True`` when successful, ``False`` when failed.
 
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.dataset_exists("curve1")
+
         """
         if is_project_dataset and "$" + name in self.project_datasets:
             self.logger.info("Dataset %s$ exists.", name)
@@ -3116,6 +3636,13 @@ class Design(AedtObjects, PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.change_design_settings({"Perform Minimal validation": True})
+
         """
         arg = ["NAME:Design Settings Data"]
         for key, value in settings.items():
@@ -3149,6 +3676,13 @@ class Design(AedtObjects, PyAedtBase):
         References
         ----------
         >>> oDesign.SetDesignSettings
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.change_automatically_use_causal_materials()
+
         """
         if lossy_dielectric:
             self.logger.info("Enabling Automatic use of causal materials")
@@ -3174,6 +3708,13 @@ class Design(AedtObjects, PyAedtBase):
         References
         ----------
         >>> oDesign.SetDesignSettings
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.change_material_override()
+
         """
         if material_override:
             self.logger.info("Enabling Material Override")
@@ -3205,6 +3746,13 @@ class Design(AedtObjects, PyAedtBase):
         References
         ----------
         >>> oDesign.SetDesignSettings
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.change_validation_settings(entity_check_level="Strict", ignore_unclassified=True)
+
         """
         self.logger.info("Changing the validation design settings")
         self.odesign.SetDesignSettings(
@@ -3238,6 +3786,13 @@ class Design(AedtObjects, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.clean_proj_folder()
 
         """
         if name is None:
@@ -3276,6 +3831,13 @@ class Design(AedtObjects, PyAedtBase):
         References
         ----------
         >>> oProject.SaveAs
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.copy_project(r"C:\\temp", "BackupProject")
+
         """
         self.logger.info("Copy AEDT Project ")
         self.oproject.Save()
@@ -3299,6 +3861,13 @@ class Design(AedtObjects, PyAedtBase):
         References
         ----------
         >>> oDesktop.NewProject
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.create_new_project("MyProject")
+
         """
         self.logger.info("Creating new Project ")
         prj = self.odesktop.NewProject(name)
@@ -3328,6 +3897,13 @@ class Design(AedtObjects, PyAedtBase):
         References
         ----------
         >>> oDesktop.CloseProject
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.close_project(save=True)
+
         """
         legacy_name = self.project_name
         if name and name not in self.desktop_class.project_list:
@@ -3403,6 +3979,13 @@ class Design(AedtObjects, PyAedtBase):
         References
         ----------
         >>> oProject.DeleteDesign
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.delete_design("HFSSDesign1")
+
         """
         if not name:
             name = self.design_name
@@ -3449,6 +4032,13 @@ class Design(AedtObjects, PyAedtBase):
         ----------
         >>> oProject.ChangeProperty
         >>> oDesign.ChangeProperty
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.delete_separator("$MySeparator")
+
         """
         return self._variable_manager.delete_separator(name)
 
@@ -3465,6 +4055,13 @@ class Design(AedtObjects, PyAedtBase):
         ----------
         >>> oProject.ChangeProperty
         >>> oDesign.ChangeProperty
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.delete_variable("width")
+
         """
         return self.variable_manager.delete_variable(name)
 
@@ -3476,6 +4073,13 @@ class Design(AedtObjects, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.delete_unused_variables()
+
         """
         return self.variable_manager.delete_unused_variables()
 
@@ -3505,6 +4109,13 @@ class Design(AedtObjects, PyAedtBase):
         References
         ----------
         >>> oProject.InsertDesign
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.insert_design(name="HFSSDesign1")
+
         """
         self._close_edb()
         return self._init_design(
@@ -3618,6 +4229,13 @@ class Design(AedtObjects, PyAedtBase):
         References
         ----------
         >>> oDesign.RenameDesignInstance
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.rename_design("HFSSDesignRenamed")
+
         """
         self._odesign.RenameDesignInstance(self.design_name, name)
         self._design_name = None
@@ -3657,6 +4275,13 @@ class Design(AedtObjects, PyAedtBase):
         ----------
         >>> oProject.CopyDesign
         >>> oProject.Paste
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.copy_design_from(r"C:\\temp\\source_project.aedt", "HFSSDesign1")
+
         """
         self.save_project()
         project = Path(project)
@@ -3716,6 +4341,13 @@ class Design(AedtObjects, PyAedtBase):
         ----------
         >>> oProject.CopyDesign
         >>> oProject.Paste
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.duplicate_design("HFSSDesignCopy")
+
         """
         active_design = self.design_name
         design_list = self.design_list
@@ -3749,6 +4381,13 @@ class Design(AedtObjects, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.export_design_preview_to_jpg(r"C:\\temp\\preview.jpg")
+
         """
         design_info = self.project_properties["ProjectPreview"]["DesignInfo"]
         if not isinstance(design_info, dict):
@@ -3794,6 +4433,13 @@ class Design(AedtObjects, PyAedtBase):
         >>> oDesign.GetProperties
         >>> oProject.GetVariableValue
         >>> oDesign.GetVariableValue
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.export_variables_to_csv(r"C:\\temp\\variables.csv")
+
         """
         output_file = Path(output_file)
         varnames = []
@@ -3834,6 +4480,7 @@ class Design(AedtObjects, PyAedtBase):
         >>> m2d.generate_design_data()
         >>> data = m2d.read_design_data()
         >>> m2d.release_desktop(True, True)
+
         """
         design_file = Path(self.working_directory) / "design_data.json"
         return read_configuration_file(design_file)
@@ -3861,6 +4508,13 @@ class Design(AedtObjects, PyAedtBase):
         ----------
         >>> oProject.Save
         >>> oProject.SaveAs
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.save_project(r"C:\\temp\\project_copy.aedt")
+
         """
         if file_name:
             file_parent_dir = Path(file_name).parent.resolve()
@@ -3918,6 +4572,13 @@ class Design(AedtObjects, PyAedtBase):
         ----------
         >>> oProject.Save
         >>> oProject.SaveProjectArchive
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.archive_project(r"C:\\temp\\project_archive.aedtz")
+
         """
         additional_files = [] if additional_files is None else additional_files
         msg_text = f"Saving {self.project_name} Project"
@@ -3947,6 +4608,13 @@ class Design(AedtObjects, PyAedtBase):
         References
         ----------
         >>> oDesktop.DeleteProject
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.delete_project("MyProject")
+
         """
         if self.project_name == name:
             raise ValueError("You cannot delete the active project.")
@@ -3965,6 +4633,13 @@ class Design(AedtObjects, PyAedtBase):
         References
         ----------
         >>> oProject.SetActiveDesign
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.set_active_design("HFSSDesign1")
+
         """
         self._close_edb()
         self._init_design(project_name=self.project_name, design_name=name)
@@ -3988,6 +4663,13 @@ class Design(AedtObjects, PyAedtBase):
         References
         ----------
         >>> oDesign.ValidateDesign
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.validate_simple()
+
         """
         if log_file:
             return self._odesign.ValidateDesign(str(log_file))
@@ -4023,6 +4705,7 @@ class Design(AedtObjects, PyAedtBase):
         >>> M3D["p2"] = "20mm"
         >>> M3D["p3"] = "P1 * p2"
         >>> eval_p3 = M3D.get_evaluated_value("p3")
+
         """
         val = None
         var_obj = None
@@ -4098,6 +4781,21 @@ class Design(AedtObjects, PyAedtBase):
             - Returns ``str`` for PWL dataset references or invalid expressions
             - Returns ``None`` if evaluation fails completely
 
+        Notes
+        -----
+        The method attempts multiple strategies to evaluate the expression:
+
+        * Direct variable lookup if the expression is a variable name.
+        * Check for PWL dataset references.
+        * Try direct numeric conversion.
+        * Create a temporary internal variable to leverage AEDT's expression evaluator.
+
+        For expressions containing project variables (prefixed with ``$``), AEDT restrictions apply.
+        Project variables cannot reference design variables.
+
+        The method uses an internal variable named ``"pyaedt_evaluator"`` for complex evaluations.
+        All results are returned in SI units regardless of the input unit system.
+
         Examples
         --------
         >>> from ansys.aedt.core import Hfss
@@ -4109,24 +4807,10 @@ class Design(AedtObjects, PyAedtBase):
         >>> # Evaluate value with units
         >>> result = hfss.evaluate_expression("10mm")  # Returns 0.01 (in meters)
         >>> # Evaluate expression with variables
-        >>> result = hfss.evaluate_expression("width*height")  # Returns 0.0002 (in m²)
+        >>> result = hfss.evaluate_expression("width*height")  # Returns 0.0002 (in m^2)
         >>> # Evaluate mathematical expression
         >>> result = hfss.evaluate_expression("sqrt(width^2 + height^2)")
 
-        Notes
-        -----
-        The method attempts multiple strategies to evaluate the expression:
-
-        * Direct variable lookup if the expression is a variable name.
-        * Check for PWL dataset references.
-        * Try direct numeric conversion.
-        * Create temporary internal variable to leverage AEDT's expression evaluator.
-
-        For expressions containing project variables (prefixed with $), AEDT restrictions apply.
-        Project variables cannot reference design variables.
-
-        The method uses an internal variable named "pyaedt_evaluator" for complex evaluations.
-        All results are returned in SI units regardless of the input unit system.
         """
         # Strategy 1: Direct variable lookup
         # If the expression is exactly a variable name, return its SI value directly
@@ -4241,6 +4925,13 @@ class Design(AedtObjects, PyAedtBase):
         References
         ----------
         >>> oDesign.GetNominalVariation
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.design_variation("width=10mm")
+
         """
         nominal = self._odesign.GetNominalVariation()
         if variation:
@@ -4297,7 +4988,7 @@ class Design(AedtObjects, PyAedtBase):
 
     @pyaedt_function_handler()
     def _check_design_consistency(self):
-        """ """
+        """"""
         consistent = False
         destype = self._odesign.GetDesignType()
         if destype == self._design_type:
@@ -4317,6 +5008,13 @@ class Design(AedtObjects, PyAedtBase):
         Returns
         -------
             Application-created object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.add_from_toolkit("Antenna Toolkit")
+
         """
         app = toolkit(self, **kwargs)
         if draw:
@@ -4338,6 +5036,13 @@ class Design(AedtObjects, PyAedtBase):
         -------
         str
             Project name if loaded in Desktop.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.check_if_project_is_loaded("MyProject")
+
         """
         for p in self.odesktop.GetProjects():
             if (Path(p.GetPath()) / (p.GetName() + ".aedt")).resolve() == Path(input_file).resolve():
@@ -4361,6 +5066,13 @@ class Design(AedtObjects, PyAedtBase):
         References
         ----------
         >>> oDesktop.SetTempDirectory()
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.set_temporary_directory(r"C:\\temp\\pyaedt")
+
         """
         path = Path(path)
         self.desktop_class.temp_directory = path
@@ -4391,6 +5103,7 @@ class Design(AedtObjects, PyAedtBase):
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d()
         >>> m3d.edit_notes("This is an example.")
+
         """
         if not isinstance(text, str):
             self.logger.error("Input type of edit_notes is not valid.")
@@ -4411,6 +5124,13 @@ class DesignSettings(PyAedtBase):
     References
     ----------
     >>> oDesign.GetChildObject("Design Settings")
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Hfss
+    >>> app = Hfss()
+    >>> app.design_settings
+
     """
 
     def __init__(self, app) -> None:
@@ -4454,7 +5174,15 @@ class DesignSettings(PyAedtBase):
 
     @property
     def design_settings(self) -> Any | None:
-        """Design settings."""
+        """Design settings.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.design_settings.design_settings
+
+        """
         try:
             return self._app.odesign.GetChildObject("Design Settings")
         except GrpcApiError:  # pragma: no cover
@@ -4463,11 +5191,21 @@ class DesignSettings(PyAedtBase):
 
     @property
     def available_properties(self) -> list[str]:
-        """Available properties names for the current design."""
+        """Available properties names for the current design.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> app.design_settings.available_properties
+
+        """
         return [prop for prop in self.design_settings.GetPropNames() if not prop.endswith("/Choices")]
 
 
 class DesignSettingsManipulation(PyAedtBase):
+    """Provide design settings manipulation."""
+
     @abstractmethod
     def execute(self, k: str, v: Any) -> Any:
         pass

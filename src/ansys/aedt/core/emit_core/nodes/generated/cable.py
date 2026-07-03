@@ -29,6 +29,8 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class Cable(EmitNode):
+    """Provide cable."""
+
     def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = True
@@ -36,17 +38,44 @@ class Cable(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node."""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> cable = app.schematic.create_component("Cable", name="Cable1")
+        >>> cable.node_type
+
+        """
         return self._node_type
 
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
-        """Duplicate this node"""
+        """Duplicate this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> cable = app.schematic.create_component("Cable", name="Cable1")
+        >>> cable_copy = cable.duplicate("CableCopy")
+
+        """
         return self._duplicate(new_name)
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node"""
+        """Delete this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> cable = app.schematic.create_component("Cable", name="Cable1")
+        >>> cable.delete()
+
+        """
         self._delete()
 
     @property
@@ -55,6 +84,15 @@ class Cable(EmitNode):
         """Name of file defining the outboard component.
 
         Value should be a full file path.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> cable = app.schematic.create_component("Cable", name="Cable1")
+        >>> cable.filename = "C:\\Temp\\cable.s2p"
+        >>> cable.filename
+
         """
         val = self._get_property("Filename")
         return val
@@ -70,6 +108,14 @@ class Cable(EmitNode):
         """System Noise temperature (K) of the component.
 
         Value should be between 0 and 1000.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> cable = app.schematic.create_component("Cable", name="Cable1")
+        >>> cable.noise_temperature = 290.0
+
         """
         val = self._get_property("Noise Temperature")
         return float(val)
@@ -82,7 +128,16 @@ class Cable(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def notes(self) -> str:
-        """Expand to view/edit notes stored with the project."""
+        """Expand to view/edit notes stored with the project.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> cable = app.schematic.create_component("Cable", name="Cable1")
+        >>> cable.notes = "Route between modules"
+
+        """
         val = self._get_property("Notes")
         return val
 
@@ -103,6 +158,14 @@ class Cable(EmitNode):
 
         Type of cable to use. Options include: By File (measured or simulated),
         Constant Loss, or Coaxial Cable.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> cable = app.schematic.create_component("Cable", name="Cable1")
+        >>> cable.cable_type = cable.CableTypeOption.CONSTANT_LOSS
+
         """
         val = self._get_property("Cable Type")
         val = self.CableTypeOption[val.upper()]
@@ -119,6 +182,14 @@ class Cable(EmitNode):
         """Length of cable.
 
         Value should be between 0 and 500.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> cable = app.schematic.create_component("Cable", name="Cable1")
+        >>> cable.length = "5 m"
+
         """
         val = self._get_property("Length")
         val = self._convert_from_internal_units(float(val), "Length")
@@ -136,6 +207,14 @@ class Cable(EmitNode):
         """Cable loss per unit length (dB/meter).
 
         Value should be between 0 and 20.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> cable = app.schematic.create_component("Cable", name="Cable1")
+        >>> cable.loss_per_length = 0.25
+
         """
         val = self._get_property("Loss Per Length")
         return float(val)
@@ -151,6 +230,14 @@ class Cable(EmitNode):
         """Length of the cable used for the measurements.
 
         Value should be between 0 and 500.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> cable = app.schematic.create_component("Cable", name="Cable1")
+        >>> cable.measurement_length = "2 m"
+
         """
         val = self._get_property("Measurement Length")
         val = self._convert_from_internal_units(float(val), "Length")
@@ -168,6 +255,14 @@ class Cable(EmitNode):
         """Coaxial cable resistive loss constant.
 
         Value should be between 0 and 2.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> cable = app.schematic.create_component("Cable", name="Cable1")
+        >>> cable.resistive_loss_constant = 0.1
+
         """
         val = self._get_property("Resistive Loss Constant")
         return float(val)
@@ -183,6 +278,14 @@ class Cable(EmitNode):
         """Coaxial cable dielectric loss constant.
 
         Value should be between 0 and 1.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> cable = app.schematic.create_component("Cable", name="Cable1")
+        >>> cable.dielectric_loss_constant = 0.01
+
         """
         val = self._get_property("Dielectric Loss Constant")
         return float(val)
@@ -195,6 +298,15 @@ class Cable(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def warnings(self) -> str:
-        """Warning(s) for this node."""
+        """Warning(s) for this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> cable = app.schematic.create_component("Cable", name="Cable1")
+        >>> cable.warnings
+
+        """
         val = self._get_property("Warnings")
         return val

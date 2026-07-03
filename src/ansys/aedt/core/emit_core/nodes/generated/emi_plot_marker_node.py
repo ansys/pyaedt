@@ -29,6 +29,8 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class EmiPlotMarkerNode(EmitNode):
+    """Provide EMI plot marker node."""
+
     def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
@@ -36,13 +38,35 @@ class EmiPlotMarkerNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
-        """The parent of this emit node."""
+        """The parent of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> result_plot = revision.get_result_plot_node()
+        >>> marker = result_plot.children[0]
+        >>> marker.parent
+
+        """
         return self._parent
 
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node."""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> result_plot = revision.get_result_plot_node()
+        >>> marker = result_plot.children[0]
+        >>> marker.node_type
+
+        """
         return self._node_type
 
     @property
@@ -51,6 +75,16 @@ class EmiPlotMarkerNode(EmitNode):
         """Toggle (on/off) this marker.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> result_plot = revision.get_result_plot_node()
+        >>> marker = result_plot.children[0]
+        >>> marker.visible = True
+
         """
         val = self._get_property("Visible")
         return val == "true"
@@ -63,14 +97,36 @@ class EmiPlotMarkerNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def position_x(self) -> float:
-        """Position of the marker on the X-axis (frequency axis)."""
+        """Position of the marker on the X-axis (frequency axis).
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> result_plot = revision.get_result_plot_node()
+        >>> marker = result_plot.children[0]
+        >>> marker.position_x
+
+        """
         val = self._get_property("Position X")
         return float(val)
 
     @property
     @min_aedt_version("2025.2")
     def position_y(self) -> float:
-        """Position of the marker on the Y-axis (result axis)."""
+        """Position of the marker on the Y-axis (result axis).
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> result_plot = revision.get_result_plot_node()
+        >>> marker = result_plot.children[0]
+        >>> marker.position_y
+
+        """
         val = self._get_property("Position Y")
         return float(val)
 
@@ -83,6 +139,16 @@ class EmiPlotMarkerNode(EmitNode):
         (the marker symbol remains fixed to the specified X-Y point).
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> result_plot = revision.get_result_plot_node()
+        >>> marker = result_plot.children[0]
+        >>> marker.floating_label = True
+
         """
         val = self._get_property("Floating Label")
         return val == "true"
@@ -101,6 +167,16 @@ class EmiPlotMarkerNode(EmitNode):
         the plot window.
 
         Value should be between 0 and 100.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> result_plot = revision.get_result_plot_node()
+        >>> marker = result_plot.children[0]
+        >>> marker.position_from_left = 10.0
+
         """
         val = self._get_property("Position from Left")
         return float(val)
@@ -119,6 +195,16 @@ class EmiPlotMarkerNode(EmitNode):
         of the plot window.
 
         Value should be between 0 and 100.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> result_plot = revision.get_result_plot_node()
+        >>> marker = result_plot.children[0]
+        >>> marker.position_from_top = 15.0
+
         """
         val = self._get_property("Position from Top")
         return float(val)
@@ -131,7 +217,18 @@ class EmiPlotMarkerNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def text(self) -> str:
-        """Set the text of the label."""
+        """Set the text of the label.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> result_plot = revision.get_result_plot_node()
+        >>> marker = result_plot.children[0]
+        >>> marker.text = "Peak"
+
+        """
         val = self._get_property("Text")
         return val
 
@@ -148,7 +245,18 @@ class EmiPlotMarkerNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def horizontal_position(self) -> HorizontalPositionOption:
-        """Specify horizontal position of the label as compared to the symbol."""
+        """Specify horizontal position of the label as compared to the symbol.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> result_plot = revision.get_result_plot_node()
+        >>> marker = result_plot.children[0]
+        >>> marker.horizontal_position = marker.HorizontalPositionOption.RIGHT
+
+        """
         val = self._get_property("Horizontal Position")
         val = self.HorizontalPositionOption[val.upper()]
         return val
@@ -166,7 +274,18 @@ class EmiPlotMarkerNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def vertical_position(self) -> VerticalPositionOption:
-        """Specify vertical position of the label as compared to the symbol."""
+        """Specify vertical position of the label as compared to the symbol.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> result_plot = revision.get_result_plot_node()
+        >>> marker = result_plot.children[0]
+        >>> marker.vertical_position = marker.VerticalPositionOption.TOP
+
+        """
         val = self._get_property("Vertical Position")
         val = self.VerticalPositionOption[val.upper()]
         return val
@@ -184,7 +303,18 @@ class EmiPlotMarkerNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def text_alignment(self) -> TextAlignmentOption:
-        """Specify justification applied to multi-line text."""
+        """Specify justification applied to multi-line text.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> result_plot = revision.get_result_plot_node()
+        >>> marker = result_plot.children[0]
+        >>> marker.text_alignment = marker.TextAlignmentOption.CENTER
+
+        """
         val = self._get_property("Text Alignment")
         val = self.TextAlignmentOption[val.upper()]
         return val
@@ -200,6 +330,16 @@ class EmiPlotMarkerNode(EmitNode):
         """Specify font used for the label.
 
         Value formatted like 'Sans Serif,10,-1,5,50,0,0,0,0,0'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> result_plot = revision.get_result_plot_node()
+        >>> marker = result_plot.children[0]
+        >>> marker.font = "Sans Serif,10,-1,5,50,0,0,0,0,0"
+
         """
         val = self._get_property("Font")
         return val
@@ -215,6 +355,16 @@ class EmiPlotMarkerNode(EmitNode):
         """Specify color of the label text.
 
         Color should be in RGB form: #RRGGBB.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> result_plot = revision.get_result_plot_node()
+        >>> marker = result_plot.children[0]
+        >>> marker.color = "#FF0000"
+
         """
         val = self._get_property("Color")
         return val
@@ -230,6 +380,16 @@ class EmiPlotMarkerNode(EmitNode):
         """Set color of the label text background.
 
         Color should be in RGBA form: #AARRGGBB.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> result_plot = revision.get_result_plot_node()
+        >>> marker = result_plot.children[0]
+        >>> marker.background_color = "#80FFFFFF"
+
         """
         val = self._get_property("Background Color")
         return val
@@ -245,6 +405,16 @@ class EmiPlotMarkerNode(EmitNode):
         """Display a border around the label text.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> result_plot = revision.get_result_plot_node()
+        >>> marker = result_plot.children[0]
+        >>> marker.border = True
+
         """
         val = self._get_property("Border")
         return val == "true"
@@ -260,6 +430,16 @@ class EmiPlotMarkerNode(EmitNode):
         """Set the width of the border around the label text.
 
         Value should be between 1 and 20.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> result_plot = revision.get_result_plot_node()
+        >>> marker = result_plot.children[0]
+        >>> marker.border_width = 2
+
         """
         val = self._get_property("Border Width")
         return int(val)
@@ -275,6 +455,16 @@ class EmiPlotMarkerNode(EmitNode):
         """Set color of the border around the label text.
 
         Color should be in RGB form: #RRGGBB.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> result_plot = revision.get_result_plot_node()
+        >>> marker = result_plot.children[0]
+        >>> marker.border_color = "#000000"
+
         """
         val = self._get_property("Border Color")
         return val
@@ -305,7 +495,18 @@ class EmiPlotMarkerNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def symbol(self) -> SymbolOption:
-        """Specify symbol displayed next to the label."""
+        """Specify symbol displayed next to the label.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> result_plot = revision.get_result_plot_node()
+        >>> marker = result_plot.children[0]
+        >>> marker.symbol = marker.SymbolOption.DIAMOND
+
+        """
         val = self._get_property("Symbol")
         val = self.SymbolOption[val.upper()]
         return val
@@ -321,6 +522,16 @@ class EmiPlotMarkerNode(EmitNode):
         """Set direction of the arrow; zero degrees is up.
 
         Value should be between -360 and 360.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> from ansys.aedt.core.emit_core.nodes.generated import EmiPlotMarkerNode
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> marker_node = next(node for node in revision.get_all_nodes() if isinstance(node, EmiPlotMarkerNode))
+        >>> marker_node.arrow_direction = 90
+
         """
         val = self._get_property("Arrow Direction")
         return int(val)
@@ -336,6 +547,16 @@ class EmiPlotMarkerNode(EmitNode):
         """Set size of the symbol used for this marker.
 
         Value should be between 1 and 1000.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> from ansys.aedt.core.emit_core.nodes.generated import EmiPlotMarkerNode
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> marker_node = next(node for node in revision.get_all_nodes() if isinstance(node, EmiPlotMarkerNode))
+        >>> marker_node.symbol_size = 14
+
         """
         val = self._get_property("Symbol Size")
         return int(val)
@@ -351,6 +572,16 @@ class EmiPlotMarkerNode(EmitNode):
         """Set color of the symbol used for this marker.
 
         Color should be in RGB form: #RRGGBB.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> from ansys.aedt.core.emit_core.nodes.generated import EmiPlotMarkerNode
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> marker_node = next(node for node in revision.get_all_nodes() if isinstance(node, EmiPlotMarkerNode))
+        >>> marker_node.symbol_color = "#FF6600"
+
         """
         val = self._get_property("Symbol Color")
         return val
@@ -366,6 +597,16 @@ class EmiPlotMarkerNode(EmitNode):
         """Set the width of the line used to draw the symbol.
 
         Value should be between 1 and 20.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> from ansys.aedt.core.emit_core.nodes.generated import EmiPlotMarkerNode
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> marker_node = next(node for node in revision.get_all_nodes() if isinstance(node, EmiPlotMarkerNode))
+        >>> marker_node.line_width = 2
+
         """
         val = self._get_property("Line Width")
         return int(val)
@@ -384,6 +625,16 @@ class EmiPlotMarkerNode(EmitNode):
         symbol types.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> from ansys.aedt.core.emit_core.nodes.generated import EmiPlotMarkerNode
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> marker_node = next(node for node in revision.get_all_nodes() if isinstance(node, EmiPlotMarkerNode))
+        >>> marker_node.filled = True
+
         """
         val = self._get_property("Filled")
         return val == "true"

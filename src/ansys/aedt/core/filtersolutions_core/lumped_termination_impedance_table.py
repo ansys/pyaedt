@@ -42,12 +42,22 @@ class ComplexTerminationDefinition(Enum):
     - CARTESIAN: Represents Cartesian definition.
     - PARALLEL: Represents parallel definition with real entry parallel to imaginary entry.
     - REAL: Represents only real impedance definition.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.filtersolutions_core.lumped_termination_impedance_table import ComplexTerminationDefinition
+    >>> ComplexTerminationDefinition.POLAR
+
     """
 
     POLAR = 0
+    """Polar option."""
     CARTESIAN = 1
+    """Cartesian option."""
     PARALLEL = 2
+    """Parallel option."""
     REAL = 3
+    """Real option."""
 
 
 class ComplexReactanceType(Enum):
@@ -58,11 +68,20 @@ class ComplexReactanceType(Enum):
     - REAC: Represents pure reactance of complex impedance.
     - IND: Represents equivalent inductance in henries.
     - CAP: Represents equivalent capacitance in farads.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.filtersolutions_core.lumped_termination_impedance_table import ComplexReactanceType
+    >>> ComplexReactanceType.IND
+
     """
 
     REAC = 0
+    """Reac option."""
     IND = 1
+    """Ind option."""
     CAP = 2
+    """Cap option."""
 
 
 class TerminationType(Enum):
@@ -72,16 +91,31 @@ class TerminationType(Enum):
 
     - SOURCE: Represents source impedenace table.
     - LOAD: Represents load impedenace table.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.filtersolutions_core.lumped_termination_impedance_table import TerminationType
+    >>> TerminationType.SOURCE
+
     """
 
     SOURCE = 0
+    """Source option."""
     LOAD = 1
+    """Load option."""
 
 
 class LumpedTerminationImpedance:
     """Manipulates access to the entries of source and load complex impedance table.
 
     This class allows you to enter, edit, or remove the entries of source and load complex impedance table.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import FilterSolutions
+    >>> design = FilterSolutions.LumpedDesign(version="2026.1")
+    >>> design.source_impedance_table.row_count
+
     """
 
     def __init__(self, table_type) -> None:
@@ -173,6 +207,13 @@ class LumpedTerminationImpedance:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign("2026.1")
+        >>> design.load_impedance_table.table_type_to_bool()
+
         """
         if self.table_type.value == TerminationType.SOURCE.value:
             return False
@@ -188,6 +229,13 @@ class LumpedTerminationImpedance:
         Returns
         -------
         int
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import FilterSolutions
+        >>> design = FilterSolutions.LumpedDesign(version="2026.1")
+        >>> design.source_impedance_table.row_count
+
         """
         table_row_count = c_int()
         status = self._dll.getComplexTableRowCount(byref(table_row_count), self.table_type_to_bool())
@@ -208,6 +256,14 @@ class LumpedTerminationImpedance:
             The tuple contains three strings. The first is the frequency value,
             the second is the real part of the complex impedance,
             and the third is the imaginary part of the complex impedance.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign("2026.1")
+        >>> design.topology.complex_termination = True
+        >>> design.source_impedance_table.row(0)
+
         """
         frequency_value_buffer = create_string_buffer(100)
         real_value_buffer = create_string_buffer(100)
@@ -239,6 +295,14 @@ class LumpedTerminationImpedance:
             The real part of the complex impedance to update. If not specified, it remains unchanged.
         imag: str, optional
             The imaginary part of the complex impedance to update. If not specified, it remains unchanged.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign("2026.1")
+        >>> design.topology.complex_termination = True
+        >>> design.source_impedance_table.update_row(0, "2G", "50", "0")
+
         """
         status = self._dll.updateComplexTableRow(
             row_index,
@@ -262,6 +326,14 @@ class LumpedTerminationImpedance:
             The real part of the complex impedance to append.
         imag: str
             The imaginary part of the complex impedance to append.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign("2026.1")
+        >>> design.topology.complex_termination = True
+        >>> design.source_impedance_table.append_row("100M", "10", "20")
+
         """
         status = self._dll.appendComplexTableRow(
             self._bytes_or_none(frequency),
@@ -284,6 +356,14 @@ class LumpedTerminationImpedance:
             The real part of the complex impedance to insert.
         imag : str
             The imaginary part of the complex impedance to insert.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign("2026.1")
+        >>> design.topology.complex_termination = True
+        >>> design.source_impedance_table.insert_row(0, "2G", "50", "0")
+
         """
         status = self._dll.insertComplexTableRow(
             row_index,
@@ -301,6 +381,14 @@ class LumpedTerminationImpedance:
         ----------
         row_index : int
             Row index in the complex impedance table, starting at ``0`` and with a maximum value of ``149``.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign("2026.1")
+        >>> design.topology.complex_termination = True
+        >>> design.source_impedance_table.remove_row(0)
+
         """
         status = self._dll.removeComplexTableRow(row_index, self.table_type_to_bool())
         self._dll_interface.raise_error(status)
@@ -313,6 +401,17 @@ class LumpedTerminationImpedance:
         Returns
         -------
         :enum:`ComplexTerminationDefinition`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import FilterSolutions
+        >>> from ansys.aedt.core.filtersolutions_core.lumped_termination_impedance_table import (
+        ...     ComplexTerminationDefinition,
+        ... )
+        >>> design = FilterSolutions.LumpedDesign(version="2026.1")
+        >>> design.source_impedance_table.complex_definition = ComplexTerminationDefinition.POLAR
+        >>> design.source_impedance_table.complex_definition
+
         """
         type_string_buffer = create_string_buffer(100)
         status = self._dll.getLumpedComplexDefinition(
@@ -340,6 +439,15 @@ class LumpedTerminationImpedance:
         Returns
         -------
         :enum:`ComplexReactanceType`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import FilterSolutions
+        >>> from ansys.aedt.core.filtersolutions_core.lumped_termination_impedance_table import ComplexReactanceType
+        >>> design = FilterSolutions.LumpedDesign(version="2026.1")
+        >>> design.source_impedance_table.reactance_type = ComplexReactanceType.IND
+        >>> design.source_impedance_table.reactance_type
+
         """
         type_string_buffer = create_string_buffer(100)
         status = self._dll.getLumpedComplexReactanceType(
@@ -365,6 +473,14 @@ class LumpedTerminationImpedance:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign("2026.1")
+        >>> design.topology.complex_termination = True
+        >>> design.source_impedance_table.element_tune_enabled = False
+
         """
         element_tune_enabled = c_bool()
         status = self._dll.getLumpedComplexElementTuneEnabled(byref(element_tune_enabled))
@@ -383,6 +499,14 @@ class LumpedTerminationImpedance:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign("2026.1")
+        >>> design.topology.complex_termination = True
+        >>> design.load_impedance_table.compensation_enabled = True
+
         """
         compensation_enabled = c_bool()
         status = self._dll.getLumpedComplexImpCompensateEnabled(byref(compensation_enabled), self.table_type_to_bool())
@@ -403,6 +527,14 @@ class LumpedTerminationImpedance:
         Returns
         -------
         int
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign("2026.1")
+        >>> design.topology.complex_termination = True
+        >>> design.load_impedance_table.compensation_order = 3
+
         """
         compensation_order = c_int()
         status = self._dll.getLumpedComplexCompOrder(byref(compensation_order), self.table_type_to_bool())

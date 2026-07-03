@@ -29,6 +29,8 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class HataCouplingNode(EmitNode):
+    """Provide hata coupling node."""
+
     def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
@@ -47,12 +49,32 @@ class HataCouplingNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
-        """Duplicate this node"""
+        """Duplicate this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> coupling_node = revision.get_coupling_data_node().add_hata_coupling()
+        >>> coupling_copy = coupling_node.duplicate("HataCopy")
+
+        """
         return self._duplicate(new_name)
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node"""
+        """Delete this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> coupling_node = revision.get_coupling_data_node().add_hata_coupling()
+        >>> coupling_node.delete()
+
+        """
         self._delete()
 
     @property
@@ -258,6 +280,15 @@ class HataCouplingNode(EmitNode):
         """Rain rate (mm/hr) exceeded for 0.01% of the time.
 
         Value should be between 0.0 and 1000.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> coupling_node = revision.get_coupling_data_node().add_hata_coupling()
+        >>> coupling_node.rain_rate = 25.0
+
         """
         val = self._get_property("Rain Rate")
         return float(val)
@@ -276,6 +307,15 @@ class HataCouplingNode(EmitNode):
         horizontal.
 
         Value should be between 0.0 and 180.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> coupling_node = revision.get_coupling_data_node().add_hata_coupling()
+        >>> coupling_node.polarization_tilt_angle = 45.0
+
         """
         val = self._get_property("Polarization Tilt Angle")
         return float(val)
@@ -294,6 +334,15 @@ class HataCouplingNode(EmitNode):
         the computed coupling.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> coupling_node = revision.get_coupling_data_node().add_hata_coupling()
+        >>> coupling_node.include_atmospheric_absorption = True
+
         """
         val = self._get_property("Include Atmospheric Absorption")
         return val == "true"
@@ -309,6 +358,15 @@ class HataCouplingNode(EmitNode):
         """Air temperature in degrees Celsius.
 
         Value should be between -273.0 and 100.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> coupling_node = revision.get_coupling_data_node().add_hata_coupling()
+        >>> coupling_node.temperature = 20.0
+
         """
         val = self._get_property("Temperature")
         return float(val)
@@ -324,6 +382,15 @@ class HataCouplingNode(EmitNode):
         """Total air pressure.
 
         Value should be between 0.0 and 2000.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> coupling_node = revision.get_coupling_data_node().add_hata_coupling()
+        >>> coupling_node.total_air_pressure = 1013.25
+
         """
         val = self._get_property("Total Air Pressure")
         return float(val)
@@ -339,6 +406,15 @@ class HataCouplingNode(EmitNode):
         """Water vapor concentration.
 
         Value should be between 0.0 and 2000.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> coupling_node = revision.get_coupling_data_node().add_hata_coupling()
+        >>> coupling_node.water_vapor_concentration = 7.5
+
         """
         val = self._get_property("Water Vapor Concentration")
         return float(val)

@@ -29,6 +29,8 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class RxMixerProductNode(EmitNode):
+    """Provide rx mixer product node."""
+
     def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
@@ -36,23 +38,47 @@ class RxMixerProductNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
-        """The parent of this emit node."""
+        """The parent of this emit node.
+
+        Examples
+        --------
+        >>> mixer_products.parent
+
+        """
         return self._parent
 
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node."""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> mixer_products.node_type
+
+        """
         return self._node_type
 
     @min_aedt_version("2025.2")
     def import_csv_file(self, file_name: str) -> EmitNode:
-        """Import a CSV File..."""
+        """Import a CSV File.
+
+        Examples
+        --------
+        >>> mixer_products.import_csv_file("C:\\Temp\\rx_mixer_products.csv")
+
+        """
         return self._import(file_name, "Csv")
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node"""
+        """Delete this node.
+
+        Examples
+        --------
+        >>> mixer_products.delete()
+
+        """
         self._delete()
 
     @property
@@ -66,6 +92,11 @@ class RxMixerProductNode(EmitNode):
             Value should be between 1 and 100.
         Power (Relative or Absolute):
             Value should be between -1000 and 1000.
+
+        Examples
+        --------
+        >>> mixer_products.table_data = [(1, 1, -35.0)]
+
         """
         return self._get_table_data()
 
@@ -77,7 +108,13 @@ class RxMixerProductNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def enabled(self) -> bool:
-        """Enabled state for this node."""
+        """Enabled state for this node.
+
+        Examples
+        --------
+        >>> mixer_products.enabled = True
+
+        """
         return self._get_property("Enabled") == "true"
 
     @enabled.setter
@@ -93,7 +130,14 @@ class RxMixerProductNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def mixer_product_taper(self) -> MixerProductTaperOption:
-        """Taper for setting amplitude of mixer products."""
+        """Taper for setting amplitude of mixer products.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.emit_core.nodes.generated import RxMixerProductNode
+        >>> mixer_products.mixer_product_taper = RxMixerProductNode.MixerProductTaperOption.CONSTANT
+
+        """
         val = self._get_property("Mixer Product Taper")
         val = self.MixerProductTaperOption[val.upper()]
         return val
@@ -109,6 +153,11 @@ class RxMixerProductNode(EmitNode):
         """Mixer product amplitudes (relative to the in-band susceptibility).
 
         Value should be between -200 and 200.
+
+        Examples
+        --------
+        >>> mixer_products.mixer_product_susceptibility = -10.0
+
         """
         val = self._get_property("Mixer Product Susceptibility")
         return float(val)
@@ -124,6 +173,11 @@ class RxMixerProductNode(EmitNode):
         """Mixer product amplitudes (relative to the in-band susceptibility).
 
         Value should be between -200 and 200.
+
+        Examples
+        --------
+        >>> mixer_products.spurious_rejection = 50.0
+
         """
         val = self._get_property("Spurious Rejection")
         return float(val)
@@ -139,6 +193,11 @@ class RxMixerProductNode(EmitNode):
         """Minimum tuning frequency of Rx's local oscillator.
 
         Value should be between 1 and 100e9.
+
+        Examples
+        --------
+        >>> mixer_products.minimum_tuning_frequency = "900MHz"
+
         """
         val = self._get_property("Minimum Tuning Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -156,6 +215,11 @@ class RxMixerProductNode(EmitNode):
         """Maximum tuning frequency of Rx's local oscillator.
 
         Value should be between 1 and 100e9.
+
+        Examples
+        --------
+        >>> mixer_products.maximum_tuning_frequency = "2GHz"
+
         """
         val = self._get_property("Maximum Tuning Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -176,6 +240,11 @@ class RxMixerProductNode(EmitNode):
         (dB/decade).
 
         Value should be between 0 and 100.
+
+        Examples
+        --------
+        >>> mixer_products.mixer_product_slope = 12.0
+
         """
         val = self._get_property("Mixer Product Slope")
         return float(val)
@@ -191,6 +260,11 @@ class RxMixerProductNode(EmitNode):
         """Mixer product intercept (dBc).
 
         Value should be between 0 and 100.
+
+        Examples
+        --------
+        >>> mixer_products.mixer_product_intercept = 35.0
+
         """
         val = self._get_property("Mixer Product Intercept")
         return float(val)
@@ -209,6 +283,11 @@ class RxMixerProductNode(EmitNode):
         susceptibility level.
 
         Value should be greater than 1.
+
+        Examples
+        --------
+        >>> mixer_products.bandwidth_80_db = "20MHz"
+
         """
         val = self._get_property("Bandwidth 80 dB")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -226,6 +305,11 @@ class RxMixerProductNode(EmitNode):
         """Image frequency amplitude (relative to the in-band susceptibility).
 
         Value should be between -200 and 200.
+
+        Examples
+        --------
+        >>> mixer_products.image_rejection = 45.0
+
         """
         val = self._get_property("Image Rejection")
         return float(val)
@@ -241,6 +325,11 @@ class RxMixerProductNode(EmitNode):
         """Maximum order of RF frequency.
 
         Value should be between 1 and 100.
+
+        Examples
+        --------
+        >>> mixer_products.maximum_rf_harmonic_order = 3
+
         """
         val = self._get_property("Maximum RF Harmonic Order")
         return int(val)
@@ -256,6 +345,11 @@ class RxMixerProductNode(EmitNode):
         """Maximum order of the LO frequency.
 
         Value should be between 1 and 100.
+
+        Examples
+        --------
+        >>> mixer_products.maximum_lo_harmonic_order = 2
+
         """
         val = self._get_property("Maximum LO Harmonic Order")
         return int(val)
@@ -273,7 +367,14 @@ class RxMixerProductNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def mixing_mode(self) -> MixingModeOption:
-        """Specifies whether the IF frequency is > or < RF channel frequency."""
+        """Specifies whether the IF frequency is > or < RF channel frequency.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.emit_core.nodes.generated import RxMixerProductNode
+        >>> mixer_products.mixing_mode = RxMixerProductNode.MixingModeOption.LO_ABOVE_TUNED_RF_FREQUENCY
+
+        """
         val = self._get_property("Mixing Mode")
         val = self.MixingModeOption[val.upper()]
         return val
@@ -289,6 +390,11 @@ class RxMixerProductNode(EmitNode):
         """Intermediate frequency for Rx's 1st conversion stage.
 
         Value should be a mathematical expression.
+
+        Examples
+        --------
+        >>> mixer_products.first_if_frequency = "70MHz"
+
         """
         val = self._get_property("First IF Frequency")
         return val
@@ -301,7 +407,13 @@ class RxMixerProductNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def rf_transition_frequency(self) -> float:
-        """RF Frequency Transition point."""
+        """RF Frequency Transition point.
+
+        Examples
+        --------
+        >>> mixer_products.rf_transition_frequency = "1.5GHz"
+
+        """
         val = self._get_property("RF Transition Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
         return float(val)
@@ -319,7 +431,14 @@ class RxMixerProductNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def use_high_lo(self) -> UseHighLOOption:
-        """Use High LO above/below the transition frequency."""
+        """Use High LO above/below the transition frequency.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.emit_core.nodes.generated import RxMixerProductNode
+        >>> mixer_products.use_high_lo = RxMixerProductNode.UseHighLOOption.ABOVE_TRANSITION_FREQUENCY
+
+        """
         val = self._get_property("Use High LO")
         val = self.UseHighLOOption[val.upper()]
         return val
@@ -336,7 +455,14 @@ class RxMixerProductNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def mixer_product_table_units(self) -> MixerProductTableUnitsOption:
-        """Specifies the units for the Mixer Products."""
+        """Specifies the units for the Mixer Products.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.emit_core.nodes.generated import RxMixerProductNode
+        >>> mixer_products.mixer_product_table_units = RxMixerProductNode.MixerProductTableUnitsOption.RELATIVE
+
+        """
         val = self._get_property("Mixer Product Table Units")
         val = self.MixerProductTableUnitsOption[val.upper()]
         return val
