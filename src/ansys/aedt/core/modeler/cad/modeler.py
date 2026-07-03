@@ -1893,9 +1893,9 @@ class Lists(PropsManager, PyAedtBase):
     """
 
     def __init__(self, modeler, props=None, name: str | None = None) -> None:
-        # Deprecated: Lists will be replaced by NamedSelections in a future release.
+        # Deprecated: Lists will be replaced by NamedSelections in future releases.
         warnings.warn(
-            "`Lists` is deprecated and will be removed in a future release. Use `NamedSelections` instead.",
+            "`Lists` is deprecated and will be removed in future releases. Use `NamedSelections` instead.",
             DeprecationWarning,
             stacklevel=2,
         )
