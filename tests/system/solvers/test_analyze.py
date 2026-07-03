@@ -674,13 +674,23 @@ def test_compute_com_exported_touchstone(circuit_com) -> None:
 def test_compute_icn(test_tmp_dir) -> None:
     icn_example_file_folder = Path(TESTS_SOLVERS_PATH) / "example_models" / TEST_SUBFOLDER / "com_unit_test_sparam"
 
+    fext_s4p = shutil.copy2(
+        icn_example_file_folder / "FCI_CC_Long_Link_Pair_2_to_Pair_9_FEXT.s4p", test_tmp_dir / "fext_s4p.s4p"
+    )
+    next_s4p = shutil.copy2(
+        icn_example_file_folder / "FCI_CC_Long_Link_Pair_11_to_Pair_9_NEXT.s4p", test_tmp_dir / "next_s4p.s4p"
+    )
+
+    report_dir = Path(test_tmp_dir) / "custom"
+    report_dir.mkdir(parents=True, exist_ok=True)
+
     spisim = SpiSim()
     spisim.working_directory = test_tmp_dir
 
     icn = spisim.compute_icn(
         port_order="EvenOdd",
-        fext_s4p=icn_example_file_folder / "FCI_CC_Long_Link_Pair_2_to_Pair_9_FEXT.s4p",
-        next_s4p=icn_example_file_folder / "FCI_CC_Long_Link_Pair_11_to_Pair_9_NEXT.s4p",
+        fext_s4p=str(fext_s4p),
+        next_s4p=str(next_s4p),
         bandwidth=10e9,
         compute_retries=10,
     )
