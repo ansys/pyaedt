@@ -1600,5 +1600,6 @@ def test_state_space_component_multi(aedt_app, test_tmp_dir):
         array_name="SSSElement",
         array_id_name="SSSElement_id",
         files=[sss_1, sss_2],
+        location=["10mm",2]
     )
     assert comp.parameters["FileName"] == "SSSElement[SSSElement_id]"
