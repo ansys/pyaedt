@@ -1303,11 +1303,12 @@ class CircuitComponents(PyAedtBase):
         name: str | None = None,
         component_library: str | None = "Resistors",
         component_name: str = "RES_",
-        location: list[float] = None,
-        angle: int = 0,
+        location: list[float] | None = None,
+        angle: int | float = 0,
         use_instance_id_netlist: bool = False,
-        global_netlist_list: list = None,
+        global_netlist_list: list | None = None,
         page: int = 1,
+        flip: bool = False,
     ) -> CircuitComponent:
         """Create a component from a library.
 
@@ -1322,7 +1323,7 @@ class CircuitComponents(PyAedtBase):
         location : list of float, optional
             Position on the X axis and Y axis.
             The default is ``None``, in which case the component is placed in [0, 0].
-        angle : optional
+        angle : int or float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
             Whether to enable the instance ID in the net list.
@@ -1331,6 +1332,8 @@ class CircuitComponents(PyAedtBase):
             The default is ``None``, in which case an empty list is passed.
         page: int,  optional
             Schematic page number. The default value is ``1``.
+        flip : bool, optional
+            Flip the component. The default is ``False``.
 
         Returns
         -------
@@ -1357,7 +1360,7 @@ class CircuitComponents(PyAedtBase):
         arg1 = ["NAME:ComponentProps", "Name:=", inst_name]
         xpos, ypos = self._get_location(location)
         angle = math.pi * angle / 180
-        arg2 = ["NAME:Attributes", "Page:=", page, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
+        arg2 = ["NAME:Attributes", "Page:=", page, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", flip]
         comp_name = self.oeditor.CreateComponent(arg1, arg2)
         comp_id = int(comp_name.split(";")[-1])
         # self.refresh_all_ids()
@@ -1897,6 +1900,221 @@ class CircuitComponents(PyAedtBase):
             return w
         except Exception:
             return False
+
+    @pyaedt_function_handler()
+    def _create_nport_multi(
+        self,
+        component_type: int,
+        component_name: str,
+        num_ports: int,
+        array_name: str,
+        array_id_name: str,
+        files: list,
+        location: list | None = None,
+        page: int = 1,
+        angle: float = 0.0,
+        flip: bool = False,
+    ) -> CircuitComponent:
+        """Create an N-port multi-component by importing an touchstone or a W-element file.
+
+        Parameters
+        ----------
+        component_name : str
+            Name of the component to create.
+        num_ports : int
+            Number of ports or transmission lines.
+        array_name : str
+            Name of the array variable. It must start with the ``$`` symbol as it defines a project variable.
+        array_id_name : str
+            Name of the array ID variable. It must start with the ``$`` symbol as it defines a project variable.
+        files : list
+            List of touchstone file paths to import.
+        location : tuple, optional
+            Tuple of ``(x, y)`` coordinates for component location.
+            If ``None``, default location is used. Default is ``None``.
+        page : int, optional
+            Schematics page number. Default is ``1``.
+        angle : float, optional
+            Rotation angle in degrees. Default is ``0.0``.
+        flip : bool, optional
+            Whether to flip the component. Default is ``False``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
+            Component object.
+
+        """
+        if "$" not in array_name[0]:
+            array_name = "$" + array_name
+            self.logger.warning("Added '$' to the beginning of 'array_name' as it defines a project variable.")
+        if "$" not in array_id_name[0]:
+            array_id_name = "$" + array_id_name
+            self.logger.warning("Added '$' to the beginning of array_id_name as it defines a project variable.")
+
+        for f in files:
+            if not Path(f).exists():
+                raise FileNotFoundError(f"Cannot find file: {str(f)}")
+
+        files_ = [str(f) for f in files]
+        files_args = ["NAME:Files"]
+        files_args.extend(["Files:=", files_])
+
+        options_args = ["NAME:Options"]
+        options_args.extend(["NumPortsOrLines:=", num_ports])
+        options_args.extend(["CreateArray:=", True])
+        options_args.extend(["ArrayName:=", array_name])
+        options_args.extend(["ArrayIdName:=", array_id_name])
+        options_args.extend(["CompType:=", component_type])
+        options_args.extend(["CompName:=", component_name])
+
+        self.ocomponent_manager.ImportSandWComponent(files_args, options_args)
+
+        return self.create_component(
+            component_library=None,
+            component_name=component_name,
+            location=location,
+            page=page,
+            angle=angle,
+            flip=flip,
+        )
+
+    @pyaedt_function_handler()
+    def create_touchstone_component_multi(
+        self,
+        component_name: str,
+        num_ports: int,
+        array_name: str,
+        array_id_name: str,
+        files: list,
+        location: list | None = None,
+        page: int = 1,
+        angle: int | float = 0.0,
+        flip: bool = False,
+    ) -> CircuitComponent:
+        """Create an N-port multi-component by importing touchstone files.
+
+        Parameters
+        ----------
+        component_name : str
+            Name of the component to create.
+        num_ports : int
+            Number of ports or transmission lines.
+        array_name : str
+            Name of the array variable. It must start with the ``$`` symbol as it defines a project variable.
+        array_id_name : str
+            Name of the array ID variable. It must start with the ``$`` symbol as it defines a project variable.
+        files : list
+            List of touchstone file paths to import.
+        location : tuple, optional
+            Tuple of ``(x, y)`` coordinates for component location.
+            If ``None``, default location is used. Default is ``None``.
+        page : int, optional
+            Schematics page number. Default is ``1``.
+        angle : int or float, optional
+            Rotation angle in degrees. Default is ``0.0``.
+        flip : bool, optional
+            Whether to flip the component. Default is ``False``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
+            Component object.
+
+        >>> from ansys.aedt.core import Circuit
+        >>> aedtapp = Circuit()
+        >>> ts = ["path_to_file1.ts", "path_to_file2.ts"]
+        >>> c = aedtapp.modeler.schematic.create_touchstone_component_multi(
+        ...     component_name="nport",
+        ...     num_ports=4,
+        ...     array_name="$SElement",
+        ...     array_id_name="$SElement_id",
+        ...     files=[ts[0], ts[1]],
+        ... )
+
+        """
+        return self._create_nport_multi(
+            component_type=2,
+            component_name=component_name,
+            num_ports=num_ports,
+            array_name=array_name,
+            array_id_name=array_id_name,
+            files=files,
+            location=location,
+            page=page,
+            angle=angle,
+            flip=flip,
+        )
+
+    @pyaedt_function_handler()
+    def create_state_space_component_multi(
+        self,
+        component_name: str,
+        num_ports: int,
+        array_name: str,
+        array_id_name: str,
+        files: list,
+        location: list | None = None,
+        page: int = 1,
+        angle: int | float = 0.0,
+        flip: bool = False,
+    ) -> CircuitComponent:
+        """Create an N-port multi-component by importing state space files.
+
+        Parameters
+        ----------
+        component_name : str
+            Name of the component to create.
+        num_ports : int
+            Number of ports or transmission lines.
+        array_name : str
+            Name of the array variable. It must start with the ``$`` symbol as it defines a project variable.
+        array_id_name : str
+            Name of the array ID variable. It must start with the ``$`` symbol as it defines a project variable.
+        files : list
+            List of state space file paths to import.
+        location : tuple, optional
+            Tuple of ``(x, y)`` coordinates for component location.
+            If ``None``, default location is used. Default is ``None``.
+        page : int, optional
+            Schematics page number. Default is ``1``.
+        angle : int or float, optional
+            Rotation angle in degrees. Default is ``0.0``.
+        flip : bool, optional
+            Whether to flip the component. Default is ``False``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
+            Component object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> aedtapp = Circuit()
+        >>> sss = ["path_to_file1.sss", "path_to_file2.sss"]
+        >>> c = aedtapp.modeler.schematic.create_state_space_component_multi(
+        ...     component_name="nport",
+        ...     num_ports=4,
+        ...     array_name="$SSSElement",
+        ...     array_id_name="$SSSElement_id",
+        ...     files=[sss[0], sss[1]],
+        ...     location=["10mm", 2],
+        ... )
+
+        """
+        return self._create_nport_multi(
+            component_type=1,
+            component_name=component_name,
+            num_ports=num_ports,
+            array_name=array_name,
+            array_id_name=array_id_name,
+            files=files,
+            location=location,
+            page=page,
+            angle=angle,
+            flip=flip,
+        )
 
 
 class ComponentInfo(PyAedtBase):
