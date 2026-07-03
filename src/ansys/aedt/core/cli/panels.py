@@ -46,7 +46,7 @@ def _get_personal_lib_from_open_session() -> Path | None:
     from ansys.aedt.core.cli.aedt import _discover_aedt_sessions
 
     for session in _discover_aedt_sessions():
-        port = session.get("port")
+        port = session.port
         if port is None:
             continue
 
