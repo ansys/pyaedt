@@ -711,8 +711,7 @@ jobs:
       - name: Install pyaedt and tests dependencies
         run: |
           .venv\Scripts\Activate.ps1
-          pip install . --group tests
-          pip install "pywin32>=303" "ansys-pythonnet>=3.1.0rc3"
+          pip install ".[all-dotnet]" --group tests
 
       - name: Remove Ansys processes (if any)
         shell: powershell
