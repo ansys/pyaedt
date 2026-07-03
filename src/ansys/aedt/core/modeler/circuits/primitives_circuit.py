@@ -28,9 +28,6 @@ from pathlib import Path
 import re
 import secrets
 
-from pydantic import BaseModel
-from pydantic import Field
-
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -1944,7 +1941,6 @@ class CircuitComponents(PyAedtBase):
         :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
             Component object.
         """
-
         for f in files:
             if not Path(f).exists():
                 raise FileNotFoundError(f"Cannot find file: {str(f)}")
@@ -1971,15 +1967,14 @@ class CircuitComponents(PyAedtBase):
             flip=flip,
         )
 
-
     @pyaedt_function_handler()
     def _create_component(
-            self,
-            component_name: str,
-            location: tuple | list | None = None,
-            page: int = 1,
-            angle: float = 0.0,
-            flip: bool = False,
+        self,
+        component_name: str,
+        location: tuple | list | None = None,
+        page: int = 1,
+        angle: float = 0.0,
+        flip: bool = False,
     ):
         """Create a circuit component.
 
@@ -2002,7 +1997,6 @@ class CircuitComponents(PyAedtBase):
         :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
             Component object.
         """
-
         if location is None:
             x, y = self._get_location(location)
         else:
