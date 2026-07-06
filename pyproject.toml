@@ -119,7 +119,22 @@ examples = [
 dev = [
   { include-group = "doc" },
   { include-group = "tests" },
+  { include-group = "quality" },
+]
+doc = [
+    "ansys-sphinx-theme>=1.0.0",
+    "numpydoc>=1.10.0",
+    "recommonmark",
+    "Sphinx>=7.1.0",
+    "sphinx-autobuild>=2024.10.3",
+    "sphinx-copybutton>=0.5.0",
+    "sphinx-gallery>=0.14.0",
+    "sphinx_design>=0.4.0",
+]
+quality = [
   "prek==0.4.5",
+  "ruff==0.15.18",
+  "ty==0.0.49",
 ]
 tests = [
     "pytest>=7.4.0",
@@ -131,16 +146,6 @@ tests = [
     "pytest-xdist>=3.5.0",
     "pytest-testmon>=2.0.0",
     "cryptography",
-]
-doc = [
-    "ansys-sphinx-theme>=1.0.0",
-    "numpydoc>=1.10.0",
-    "recommonmark",
-    "Sphinx>=7.1.0",
-    "sphinx-autobuild>=2024.10.3",
-    "sphinx-copybutton>=0.5.0",
-    "sphinx-gallery>=0.14.0",
-    "sphinx_design>=0.4.0",
 ]
 
 [tool.setuptools]
@@ -305,6 +310,32 @@ convention = "numpy"
 force-sort-within-sections = true
 known-first-party = ["doc", "src/ansys/aedt/core", "tests"]
 force-single-line = true
+
+[tool.ty.environment]
+root = ["doc", "src", "tests",]
+
+[tool.ty.src]
+exclude = [
+    "doc",
+    "tests",
+    "src/ansys/aedt/core/application",
+    "src/ansys/aedt/core/emit_core",
+    "src/ansys/aedt/core/examples",
+    "src/ansys/aedt/core/extensions",
+    "src/ansys/aedt/core/filtersolutions_core",
+    "src/ansys/aedt/core/generic",
+    "src/ansys/aedt/core/internal",
+    "src/ansys/aedt/core/misc",
+    "src/ansys/aedt/core/modeler",
+    "src/ansys/aedt/core/modules",
+    "src/ansys/aedt/core/rpc",
+    "src/ansys/aedt/core/syslib",
+    "src/ansys/aedt/core/visualization",
+    "src/ansys/aedt/core/*.py",
+]
+
+[tool.ty.rules]
+unresolved-import = "ignore"
 
 [tool.codespell]
 ignore-words = "ignore_words.txt"
