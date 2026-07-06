@@ -421,9 +421,9 @@ class SpiSim(PyAedtBase):
             try:
                 with open_file(out_file, "r") as infile:
                     txt = infile.read()
-                    m = re.search(r"\[MESG\]\s*:\s*ICN\s*:\s*([\d.]+)\s*mv", txt)
+                    m = re.search(r"\[ParmDat\]\s*:\s*ICN\s*=\s*([\d.]+)", txt)
                     if m:
-                        return float(m.group(1)) * 0.001
+                        return float(m.group(1))
 
                 self.logger.error(
                     f"Failed to compute {parameter_name}. Check input parameters and retry"
@@ -432,6 +432,7 @@ class SpiSim(PyAedtBase):
             except IndexError:
                 self.logger.error(f"Failed to compute {parameter_name}. Check input parameters and retry")
                 return False
+        return False
 
     @pyaedt_function_handler()
     def compute_erl(
