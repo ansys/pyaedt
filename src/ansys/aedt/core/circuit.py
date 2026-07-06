@@ -1093,7 +1093,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         )
         self.logger.info("FullWaveSpice correctly exported to %s", filename)
 
-        return filename
+        return str(filename)
 
     @pyaedt_function_handler()
     def create_touchstone_report(
