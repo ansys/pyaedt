@@ -57,6 +57,7 @@ TRANSIENT = "Transient_StrandedWindings"
 ERL_PROJECT = "erl_unit_test"
 COM_PROJECT = "com_unit_test_23r2"
 COMPONENT = "Circ_Patch_5GHz_232.a3dcomp"
+SMALL_NUMBER = 1e-10  # Used for checking equivalence.
 
 
 @pytest.fixture
@@ -698,7 +699,7 @@ def test_compute_icn(test_tmp_dir) -> None:
         bandwidth=10e9,
         compute_retries=10,
     )
-    assert icn
+    assert abs(icn - 0.000770524135501) < SMALL_NUMBER
 
 
 def test_compute_com(test_tmp_dir) -> None:

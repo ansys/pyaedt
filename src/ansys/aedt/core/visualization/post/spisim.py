@@ -423,7 +423,7 @@ class SpiSim(PyAedtBase):
                     txt = infile.read()
                     m = re.search(r"\[ParmDat\]\s*:\s*ICN\s*=\s*([\d.]+)", txt)
                     if m:
-                        return float(m.group(1))
+                        return float(m.group(1)) * 0.001
 
                 self.logger.error(
                     f"Failed to compute {parameter_name}. Check input parameters and retry"
@@ -600,7 +600,7 @@ class SpiSim(PyAedtBase):
         use_pcie_icn: bool = False,
         compute_retries: int = 3,
     ) -> bool | float:
-        """Compute ICN using Ansys SPISIM from S-parameter file.
+        """Compute ICN using Ansys SPISIM from S-parameter file. The unit is volts.
 
         .. warning::
 
