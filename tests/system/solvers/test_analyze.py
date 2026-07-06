@@ -674,11 +674,15 @@ def test_compute_com_exported_touchstone(circuit_com) -> None:
 def test_compute_icn(test_tmp_dir) -> None:
     icn_example_file_folder = Path(TESTS_SOLVERS_PATH) / "example_models" / TEST_SUBFOLDER / "com_unit_test_sparam"
 
-    fext_s4p = shutil.copy2(
-        icn_example_file_folder / "FCI_CC_Long_Link_Pair_2_to_Pair_9_FEXT.s4p", test_tmp_dir / "fext_s4p.s4p"
+    fext_s4p = Path(
+        shutil.copy2(
+            icn_example_file_folder / "FCI_CC_Long_Link_Pair_2_to_Pair_9_FEXT.s4p", test_tmp_dir / "fext_s4p.s4p"
+        )
     )
-    next_s4p = shutil.copy2(
-        icn_example_file_folder / "FCI_CC_Long_Link_Pair_11_to_Pair_9_NEXT.s4p", test_tmp_dir / "next_s4p.s4p"
+    next_s4p = Path(
+        shutil.copy2(
+            icn_example_file_folder / "FCI_CC_Long_Link_Pair_11_to_Pair_9_NEXT.s4p", test_tmp_dir / "next_s4p.s4p"
+        )
     )
 
     report_dir = Path(test_tmp_dir) / "custom"
