@@ -426,7 +426,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         maximum_order: float | None = 10000,
         error_tolerance: float | None = 0.005,
         z_ref: float | None = 50,
-        state_space_dynamic_link_type: str | None = "RLGC",
+        state_space_dynamic_link_type: str | None = None,
         component_name: str | None = None,
         save_project: bool | None = True,
     ) -> CircuitComponent | bool:
@@ -584,6 +584,10 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
             port_info_list = ["NAME:PortInfo"]
             port_info_list.extend(port_info_list_A)
             port_info_list.extend(port_info_list_B)
+        # None is treated as "RLGC" for backward compatibility
+        if state_space_dynamic_link_type is None:
+            state_space_dynamic_link_type = "RLGC"
+
         if state_space_dynamic_link_type == "RLGC":
             # For versions before 2024.1 use the TB link form. For 2024.1 and
             # later use Q3DRLGCLink for 3D designs and the TB link for 2D.
