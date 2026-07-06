@@ -420,10 +420,10 @@ class SpiSim(PyAedtBase):
         elif parameter_name == "ICN":
             try:
                 with open_file(out_file, "r") as infile:
-                    lines = infile.read().split("\n")
-                    for line in lines:
-                        if line.startswith("[MESG]: ICN: "):
-                            return float(line.lstrip("[MESG]: ICN: ").rstrip(" mv")) * 0.001
+                    txt = infile.read()
+                    m = re.search(r"\[MESG\]\s*:\s*ICN\s*:\s*([\d.]+)\s*mv", txt)
+                    if m:
+                        return float(m.group(1)) * 0.001
 
                 self.logger.error(
                     f"Failed to compute {parameter_name}. Check input parameters and retry"
