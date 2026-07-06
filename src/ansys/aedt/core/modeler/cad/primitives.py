@@ -5155,12 +5155,12 @@ class GeometryModeler(Modeler, PyAedtBase):
                     self.logger.warning("A List with the specified name already exists!")
                     return i
         # Check whether all elements of list are either int or FacePrimitve objects
+        assignment = self.convert_to_selections(assignment, True)
         all_int = all(isinstance(item, int) for item in assignment)
         all_face_primitive = all(isinstance(item, FacePrimitive) for item in assignment)
 
         if not (all_int or all_face_primitive):
             raise AEDTRuntimeError("`assignment` must contain only integers (face IDs) or only FacePrimitive objects.")
-        assignment = self.convert_to_selections(assignment, True)
         # Prefer NamedSelections and only fall back to legacy Lists if create() fails.
         user_list = NamedSelections(self)
         list_type = "Face"
