@@ -600,7 +600,7 @@ class SpiSim(PyAedtBase):
         use_pcie_icn: bool = False,
         compute_retries: int = 3,
     ) -> bool | float:
-        """Compute ICN using Ansys SPISIM from S-parameter file. The unit is volts.
+        """Compute the integrated crosstalk noise (ICN) in volts using Ansys SPISIM from S-parameter file.
 
         .. warning::
 
@@ -631,7 +631,7 @@ class SpiSim(PyAedtBase):
         Returns
         -------
         bool or float
-            ICN from the SPISIM executable command, ``False`` when failed.
+            ICN in volts from the SPISIM executable command, ``False`` when failed.
 
         Examples
         --------
