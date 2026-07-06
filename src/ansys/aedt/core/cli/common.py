@@ -25,6 +25,7 @@
 from contextlib import suppress
 import json
 from pathlib import Path
+from typing import Any
 
 try:
     import typer
@@ -38,7 +39,7 @@ except ImportError as e:  # pragma: no cover
 # JSON output mode
 # ---------------------------------------------------------------------------
 
-json_mode = False
+json_mode: bool = False
 """Value for JSON mode."""
 
 
@@ -324,19 +325,19 @@ def save_config(config_path: Path, config: dict) -> None:
         json.dump(config, f, indent=4)
 
 
-def prompt_config_value(key: str, current_value) -> any:
+def prompt_config_value(key: str, current_value) -> Any:
     """Prompt user to modify a configuration value.
 
     Parameters
     ----------
     key : str
         Configuration key
-    current_value : any
+    current_value : Any
         Current value
 
     Returns
     -------
-    any
+    Any
         New value or current value if unchanged
 
     Examples
@@ -380,7 +381,7 @@ def prompt_config_value(key: str, current_value) -> any:
         return current_value
 
 
-def display_config(config: dict, title: str = "Configuration", descriptions: dict = None) -> None:
+def display_config(config: dict, title: str = "Configuration", descriptions: dict | None = None) -> None:
     """Display configuration in a pretty formatted way.
 
     Parameters
