@@ -47,6 +47,12 @@ class CreateBoundaryMixin:
     >>> # Custom implementation to create boundary conditions
     >>>         else:
     >>>             pass
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.mixins import CreateBoundaryMixin
+    >>> obj = CreateBoundaryMixin()
+
     """
 
     @pyaedt_function_handler()

@@ -40,10 +40,18 @@ class TableFormat(Enum):
 
     - RATIO: Represents transmission zeros ratio.
     - BANDWIDTH: Represents transmission zeros bandwidth.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.filtersolutions_core.transmission_zeros import TableFormat
+    >>> TableFormat.RATIO
+
     """
 
     RATIO = 0
+    """Ratio option."""
     BANDWIDTH = 1
+    """Bandwidth option."""
 
 
 class TransmissionZeros:
@@ -56,6 +64,13 @@ class TransmissionZeros:
     The position of the transmission zero is the position of the element in
     the associated circuit that creates the transmission zero.
     The position is defined automatically if no value is provided.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+    >>> design = LumpedDesign(version="2026.1")
+    >>> zeros = design.transmission_zeros_ratio
+
     """
 
     def __init__(self, table_format) -> None:
@@ -117,6 +132,13 @@ class TransmissionZeros:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.transmission_zeros_ratio.table_format_to_bool()
+
         """
         if self.table_format.value == TableFormat.BANDWIDTH.value:
             return False
@@ -137,6 +159,13 @@ class TransmissionZeros:
         Returns
         -------
         int
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.transmission_zeros_ratio.row_count
+
         """
         table_row_count = c_int()
         status = self._dll.getTransmissionZerosTableRowCount(byref(table_row_count), self.table_format_to_bool())
@@ -157,6 +186,13 @@ class TransmissionZeros:
         tuple
             The tuple contains two strings.The first is the transmission zero ratio or bandwidth value,
             and the second is the position of the element causing the transmission zero.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.transmission_zeros_ratio.row(0)
+
         """
         zero_value_buffer = create_string_buffer(100)
         position_value_buffer = create_string_buffer(100)
@@ -185,6 +221,13 @@ class TransmissionZeros:
         position: str, optional
             New position of the element causing the transmission zero in the circuit.
             If no value is specified, the value remains unchanged.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.transmission_zeros_ratio.update_row(0, zero="1.5", position="2")
+
         """
         status = self._dll.updateTransmissionZerosTableRow(
             row_index,
@@ -203,6 +246,13 @@ class TransmissionZeros:
             Transmission zero ratio or bandwidth value.
         position: str
             Position of the element creating transmission zero in the associated circuit.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.transmission_zeros_ratio.append_row(zero="1.8", position="3")
+
         """
         status = self._dll.appendTransmissionZerosTableRow(
             self._bytes_or_none(zero),
@@ -222,6 +272,13 @@ class TransmissionZeros:
             Transmission zero ratio or bandwidth value.
         position: str
             Position of the element creating transmission zero in the associated circuit.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.transmission_zeros_ratio.insert_row(0, zero="1.2", position="1")
+
         """
         status = self._dll.insertTransmissionZerosTableRow(
             row_index,
@@ -238,16 +295,39 @@ class TransmissionZeros:
         ----------
         row_index: int
             Row index in the transmission zeros table. Valid values range from ``0`` to ``9``, inclusive.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.transmission_zeros_ratio.remove_row(0)
+
         """
         status = self._dll.removeTransmissionZerosTableRow(row_index, self.table_format_to_bool())
         self._dll_interface.raise_error(status)
 
     def clear_table(self) -> None:
-        """Clear all entries in the transmission zeros table."""
+        """Clear all entries in the transmission zeros table.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.transmission_zeros_ratio.clear_table()
+
+        """
         status = self._dll.clearTransmissionZerosTableRow(self.table_format_to_bool())
         self._dll_interface.raise_error(status)
 
     def restore_default_positions(self) -> None:
-        """Restore default positions of transmissison zeros."""
+        """Restore default positions of transmissison zeros.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.transmission_zeros_ratio.restore_default_positions()
+
+        """
         status = self._dll.defaultPositionEnabled(self.table_format_to_bool())
         self._dll_interface.raise_error(status)

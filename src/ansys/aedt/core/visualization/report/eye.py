@@ -22,10 +22,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-This module contains these classes: `AMIConturEyeDiagram`, `AMIEyeDiagram`, and `EyeDiagram`.
+"""The module contains these classes: `AMIConturEyeDiagram`, `AMIEyeDiagram`, and `EyeDiagram`.
 
-This module provides all functionalities for creating and editing reports.
+The module provides all functionalities for creating and editing reports.
+
+Examples
+--------
+>>> from ansys.aedt.core.visualization.report.eye import AMIConturEyeDiagram
+>>> obj = AMIConturEyeDiagram()
 
 """
 
@@ -38,7 +42,14 @@ from ansys.aedt.core.visualization.report.common import CommonReport
 
 
 class AMIConturEyeDiagram(CommonReport):
-    """Provides for managing eye contour diagram reports in AMI analysis."""
+    """Provides for managing eye contour diagram reports in AMI analysis.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.report.eye import AMIConturEyeDiagram
+    >>> obj = AMIConturEyeDiagram.__new__(AMIConturEyeDiagram)
+
+    """
 
     def __init__(self, app, report_category, setup_name, expressions=None) -> None:
         CommonReport.__init__(self, app, report_category, setup_name, expressions)
@@ -72,6 +83,15 @@ class AMIConturEyeDiagram(CommonReport):
         list
             Expressions.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import AMIConturEyeDiagram
+        >>> obj = AMIConturEyeDiagram.__new__(AMIConturEyeDiagram)
+        >>> obj._is_created = False
+        >>> obj._legacy_props = {"expressions": [{"name": "Vout"}]}
+        >>> obj.expressions
+        ['Vout']
+
         """
         if self._is_created:
             return [i.split(" ,")[-1] for i in list(self.properties.values())[4:]]
@@ -92,6 +112,8 @@ class AMIConturEyeDiagram(CommonReport):
                         new_exprs.append(f"{expr_head}AfterChannel(" + expr.lower() + ")<Bit Error Rate>")
                     elif qtype == 3:
                         new_exprs.append(f"{expr_head}AfterProbe(" + expr.lower() + ")<Bit Error Rate>")
+            elif "aeyeprobe" in expr.lower():
+                new_exprs.append(f"{expr}<Bit Error Rate>")
             elif ".int_ami" not in expr:
                 qtype = int(self.quantity_type)
                 if qtype == 0:
@@ -131,6 +153,15 @@ class AMIConturEyeDiagram(CommonReport):
         -------
         int
             Quantity type.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import AMIConturEyeDiagram
+        >>> obj = AMIConturEyeDiagram.__new__(AMIConturEyeDiagram)
+        >>> obj._legacy_props = {}
+        >>> obj.quantity_type
+        0
+
         """
         if self.properties and any([i for i in self.properties.keys() if "AfterProbe" in i]):
             self._legacy_props["quantity_type"] = 3
@@ -315,6 +346,13 @@ class AMIConturEyeDiagram(CommonReport):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import AMIConturEyeDiagram
+        >>> obj = AMIConturEyeDiagram.__new__(AMIConturEyeDiagram)
+        >>> obj.create("EyePlot")
+
         """
         if not name:
             self.plot_name = generate_unique_name("Plot")
@@ -380,6 +418,13 @@ class AMIConturEyeDiagram(CommonReport):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import AMIConturEyeDiagram
+        >>> obj = AMIConturEyeDiagram.__new__(AMIConturEyeDiagram)
+        >>> obj.eye_mask([[0, 0], [1, 1]])
+
         """
         if "quantity_type" in dir(self) and self.report_type == "Rectangular Contour Plot":
             props = [
@@ -436,6 +481,13 @@ class AMIConturEyeDiagram(CommonReport):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import AMIConturEyeDiagram
+        >>> obj = AMIConturEyeDiagram.__new__(AMIConturEyeDiagram)
+        >>> obj.rectangular_plot(True)
+
         """
         props = [
             "NAME:AllTabs",
@@ -455,6 +507,13 @@ class AMIConturEyeDiagram(CommonReport):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import AMIConturEyeDiagram
+        >>> obj = AMIConturEyeDiagram.__new__(AMIConturEyeDiagram)
+        >>> obj.add_all_eye_measurements()
+
         """
         self._post.oreportsetup.AddAllEyeMeasurements(self.plot_name)
         return True
@@ -467,6 +526,13 @@ class AMIConturEyeDiagram(CommonReport):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import AMIConturEyeDiagram
+        >>> obj = AMIConturEyeDiagram.__new__(AMIConturEyeDiagram)
+        >>> obj.clear_all_eye_measurements()
+
         """
         self._post.oreportsetup.ClearAllTraceCharacteristics(self.plot_name)
         return True
@@ -485,6 +551,13 @@ class AMIConturEyeDiagram(CommonReport):
         -------
         str
             Output file path if a TAB file is created.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import AMIConturEyeDiagram
+        >>> obj = AMIConturEyeDiagram.__new__(AMIConturEyeDiagram)
+        >>> obj.export_mask_violation("violations.tab")
+
         """
         if not output_file:
             output_file = os.path.join(self._post._app.working_directory, f"{self.plot_name}_violations.tab")
@@ -493,7 +566,14 @@ class AMIConturEyeDiagram(CommonReport):
 
 
 class AMIEyeDiagram(CommonReport):
-    """Provides for managing eye diagram reports."""
+    """Provides for managing eye diagram reports.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.report.eye import AMIEyeDiagram
+    >>> obj = AMIEyeDiagram.__new__(AMIEyeDiagram)
+
+    """
 
     def __init__(self, app, report_category, setup_name, expressions=None) -> None:
         CommonReport.__init__(self, app, report_category, setup_name, expressions)
@@ -523,6 +603,15 @@ class AMIEyeDiagram(CommonReport):
         -------
         list
             Expressions.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import AMIEyeDiagram
+        >>> obj = AMIEyeDiagram.__new__(AMIEyeDiagram)
+        >>> obj._legacy_props = {"expressions": ["Vout"]}
+        >>> obj.expressions
+        ['Vout']
+
         """
         if self._is_created:
             return [i.split(" ,")[-1] for i in list(self.properties.values())[4:]]
@@ -547,6 +636,8 @@ class AMIEyeDiagram(CommonReport):
                         new_exprs.append(f"{expr_head}AfterProbe<" + expr + ">")
                     else:
                         new_exprs.append(expr)
+            elif "eyeprobe" in expr.lower() or "eyesource" in expr.lower():
+                new_exprs.append(expr)
             elif ".int_ami" not in expr:
                 qtype = int(self.quantity_type)
                 if qtype == 0:
@@ -588,6 +679,15 @@ class AMIEyeDiagram(CommonReport):
         -------
         int
             Quantity type.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import AMIEyeDiagram
+        >>> obj = AMIEyeDiagram.__new__(AMIEyeDiagram)
+        >>> obj._legacy_props = {"quantity_type": 0}
+        >>> obj.quantity_type
+        0
+
         """
         if self.properties and any([i for i in self.properties.keys() if "AfterProbe" in i]):
             self._legacy_props["quantity_type"] = 3
@@ -609,6 +709,15 @@ class AMIEyeDiagram(CommonReport):
         -------
         str
             Report category.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import AMIEyeDiagram
+        >>> obj = AMIEyeDiagram.__new__(AMIEyeDiagram)
+        >>> obj._legacy_props = {"report_category": "Eye Diagram", "report_type": "Rectangular Plot"}
+        >>> obj.report_category
+        'Eye Diagram'
+
         """
         if self._is_created:
             try:
@@ -639,6 +748,15 @@ class AMIEyeDiagram(CommonReport):
         -------
         str
             Unit interval.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import AMIEyeDiagram
+        >>> obj = AMIEyeDiagram.__new__(AMIEyeDiagram)
+        >>> obj._legacy_props = {"context": {"unit_interval": "1e-12"}}
+        >>> obj.unit_interval
+        '1e-12'
+
         """
         return self._legacy_props["context"].get("unit_interval", None)
 
@@ -654,6 +772,15 @@ class AMIEyeDiagram(CommonReport):
         -------
         str
             Offset value.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import AMIEyeDiagram
+        >>> obj = AMIEyeDiagram.__new__(AMIEyeDiagram)
+        >>> obj._legacy_props = {"context": {"offset": "0.0"}}
+        >>> obj.offset
+        '0.0'
+
         """
         return self._legacy_props["context"].get("offset", None)
 
@@ -669,6 +796,15 @@ class AMIEyeDiagram(CommonReport):
         -------
         bool
             ``True`` if auto-delay is enabled, ``False`` otherwise.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import AMIEyeDiagram
+        >>> obj = AMIEyeDiagram.__new__(AMIEyeDiagram)
+        >>> obj._legacy_props = {"context": {"auto_delay": True}}
+        >>> obj.auto_delay
+        True
+
         """
         return self._legacy_props["context"].get("auto_delay", None)
 
@@ -684,6 +820,15 @@ class AMIEyeDiagram(CommonReport):
         -------
         str
             ``True`` if manual-delay is enabled, ``False`` otherwise.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import AMIEyeDiagram
+        >>> obj = AMIEyeDiagram.__new__(AMIEyeDiagram)
+        >>> obj._legacy_props = {"context": {"manual_delay": "0.25"}}
+        >>> obj.manual_delay
+        '0.25'
+
         """
         return self._legacy_props["context"].get("manual_delay", None)
 
@@ -699,6 +844,15 @@ class AMIEyeDiagram(CommonReport):
         -------
         bool
             ``True`` if auto-cross amplitude is enabled, ``False`` otherwise.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import AMIEyeDiagram
+        >>> obj = AMIEyeDiagram.__new__(AMIEyeDiagram)
+        >>> obj._legacy_props = {"context": {"auto_cross_amplitude": True}}
+        >>> obj.auto_cross_amplitude
+        True
+
         """
         return self._legacy_props["context"].get("auto_cross_amplitude", None)
 
@@ -714,6 +868,15 @@ class AMIEyeDiagram(CommonReport):
         -------
         str
             Cross-amplitude.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import AMIEyeDiagram
+        >>> obj = AMIEyeDiagram.__new__(AMIEyeDiagram)
+        >>> obj._legacy_props = {"context": {"cross_amplitude": "0.7"}}
+        >>> obj.cross_amplitude
+        '0.7'
+
         """
         return self._legacy_props["context"].get("cross_amplitude", None)
 
@@ -729,6 +892,15 @@ class AMIEyeDiagram(CommonReport):
         -------
         bool
             ``True`` to compute eye measurements, ``False`` otherwise.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import AMIEyeDiagram
+        >>> obj = AMIEyeDiagram.__new__(AMIEyeDiagram)
+        >>> obj._legacy_props = {"context": {"auto_compute_eye_meas": True}}
+        >>> obj.auto_compute_eye_meas
+        True
+
         """
         return self._legacy_props["context"].get("auto_compute_eye_meas", None)
 
@@ -744,6 +916,15 @@ class AMIEyeDiagram(CommonReport):
         -------
         str
             Eye measurement point.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import AMIEyeDiagram
+        >>> obj = AMIEyeDiagram.__new__(AMIEyeDiagram)
+        >>> obj._legacy_props = {"context": {"eye_measurement_point": "Tx"}}
+        >>> obj.eye_measurement_point
+        'Tx'
+
         """
         return self._legacy_props["context"].get("eye_measurement_point", None)
 
@@ -894,6 +1075,17 @@ class AMIEyeDiagram(CommonReport):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit()
+        >>> rep = circuit.post.reports_by_category.eye_diagram("AEYEPROBE(OutputEye)", "QuickEyeAnalysis")
+        >>> rep.time_start = "0ps"
+        >>> rep.time_stop = "50us"
+        >>> rep.unit_interval = "1e-9"
+        >>> rep.create()
+
         """
         if not name:
             self.plot_name = generate_unique_name("Plot")
@@ -989,6 +1181,15 @@ class AMIEyeDiagram(CommonReport):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit()
+        >>> rep = circuit.post.reports_by_category.eye_diagram("AEYEPROBE(OutputEye)", "QuickEyeAnalysis")
+        >>> rep.create()
+        >>> rep.eye_mask([[0.5, 0], [0.62, 450], [1.2, 450], [1.42, 0], [1.2, -450], [0.62, -450], [0.5, 0]])
+
         """
         props = [
             "NAME:AllTabs",
@@ -1038,6 +1239,15 @@ class AMIEyeDiagram(CommonReport):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit()
+        >>> rep = circuit.post.reports_by_category.eye_diagram("AEYEPROBE(OutputEye)", "QuickEyeAnalysis")
+        >>> rep.create()
+        >>> rep.rectangular_plot(False)
+
         """
         props = [
             "NAME:AllTabs",
@@ -1057,6 +1267,15 @@ class AMIEyeDiagram(CommonReport):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit()
+        >>> rep = circuit.post.reports_by_category.eye_diagram("AEYEPROBE(OutputEye)", "QuickEyeAnalysis")
+        >>> rep.create()
+        >>> rep.add_all_eye_measurements()
+
         """
         self._post.oreportsetup.AddAllEyeMeasurements(self.plot_name)
         return True
@@ -1069,6 +1288,15 @@ class AMIEyeDiagram(CommonReport):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit()
+        >>> rep = circuit.post.reports_by_category.eye_diagram("AEYEPROBE(OutputEye)", "QuickEyeAnalysis")
+        >>> rep.create()
+        >>> rep.clear_all_eye_measurements()
+
         """
         self._post.oreportsetup.ClearAllTraceCharacteristics(self.plot_name)
         return True
@@ -1087,6 +1315,15 @@ class AMIEyeDiagram(CommonReport):
         -------
         str
             Output file path if a TAB file is created.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit()
+        >>> rep = circuit.post.reports_by_category.eye_diagram("AEYEPROBE(OutputEye)", "QuickEyeAnalysis")
+        >>> rep.create()
+        >>> rep.export_mask_violation()
+
         """
         if not output_file:
             output_file = os.path.join(self._post._app.working_directory, f"{self.plot_name}_violations.tab")
@@ -1095,7 +1332,14 @@ class AMIEyeDiagram(CommonReport):
 
 
 class EyeDiagram(AMIEyeDiagram):
-    """Provides for managing eye diagram reports."""
+    """Provides for managing eye diagram reports.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.report.eye import EyeDiagram
+    >>> obj = EyeDiagram()
+
+    """
 
     def __init__(self, app, report_category, setup_name, expressions=None) -> None:
         AMIEyeDiagram.__init__(self, app, report_category, setup_name, expressions)
@@ -1113,6 +1357,13 @@ class EyeDiagram(AMIEyeDiagram):
         -------
         list
             Expressions.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import EyeDiagram
+        >>> obj = EyeDiagram()
+        >>> obj.expressions
+
         """
         if self._is_created:
             return [i.split(" ,")[-1] for i in list(self.properties.values())[4:]]
@@ -1145,6 +1396,13 @@ class EyeDiagram(AMIEyeDiagram):
         -------
         str
             Time start.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import EyeDiagram
+        >>> obj = EyeDiagram()
+        >>> obj.time_start
+
         """
         return self._legacy_props["context"].get("time_start", None)
 
@@ -1160,6 +1418,13 @@ class EyeDiagram(AMIEyeDiagram):
         -------
         str
             Time stop.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import EyeDiagram
+        >>> obj = EyeDiagram()
+        >>> obj.time_stop
+
         """
         return self._legacy_props["context"].get("time_stop", None)
 
@@ -1175,6 +1440,13 @@ class EyeDiagram(AMIEyeDiagram):
         -------
         bool
             ``True`` if thinning is enabled, ``False`` otherwise.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import EyeDiagram
+        >>> obj = EyeDiagram()
+        >>> obj.thinning
+
         """
         return self._legacy_props["context"].get("thinning", None)
 
@@ -1190,6 +1462,13 @@ class EyeDiagram(AMIEyeDiagram):
         -------
         float
             DY DX tolerance.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import EyeDiagram
+        >>> obj = EyeDiagram()
+        >>> obj.dy_dx_tolerance
+
         """
         return self._legacy_props["context"].get("dy_dx_tolerance", None)
 
@@ -1205,6 +1484,13 @@ class EyeDiagram(AMIEyeDiagram):
         -------
         int
             Number of thinning points.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import EyeDiagram
+        >>> obj = EyeDiagram()
+        >>> obj.thinning_points
+
         """
         return self._legacy_props["context"].get("thinning_points", None)
 
