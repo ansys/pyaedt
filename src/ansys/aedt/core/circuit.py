@@ -993,7 +993,9 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
 
         Examples
         --------
-        >>> circuit.export_fullwave_spice(filename=r"C:\\Users\\Public\\filter.sp")
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit()
+        >>> circuit.export_fullwave_spice(filename="filter.sp")
 
         """
         if not design:
