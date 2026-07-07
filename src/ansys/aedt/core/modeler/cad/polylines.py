@@ -254,7 +254,9 @@ class Polyline(Object3d, PyAedtBase):
                             raise ValueError(
                                 "The position_list argument must contain all points required by the segment Spline."
                             )
-                        self._positions.extend([list(i) for i in position_list[: self._segment_types[-1].num_points]])
+                        # consume this spline's points relative to the current offset (the
+                        # segment start point is already in self._positions), like Line/Arc
+                        self._positions.extend([list(i) for i in position_list[i_pos + 1 : i_pos + nsp]])
                         i_pos += nsp - 1
                     else:  # AngularArc
                         start = position_list[i_pos]
