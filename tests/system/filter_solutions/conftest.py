@@ -30,8 +30,10 @@ from ansys.aedt.core import settings
 from ansys.aedt.core.filtersolutions import DistributedDesign
 from ansys.aedt.core.filtersolutions import LumpedDesign
 from tests.conftest import DESKTOP_VERSION
-from tests.conftest import USE_GRPC
 
+# Filter Solutions export attaches PyAEDT to the AEDT process started by the DLL.
+# That session is typically COM-based (no gRPC port), so force COM for reconnection
+# even when the global test config has use_grpc enabled.
 # Ensure US English locale (with cross-platform fallbacks)
 for _loc in ("en_US.UTF-8", "English_United States.1252", "en_US"):
     try:
@@ -47,12 +49,12 @@ else:
 @pytest.fixture
 def lumped_design():
     """Fixture for creating a LumpedDesign object."""
-    settings.use_grpc_api = USE_GRPC
+    settings.use_grpc_api = False
     return LumpedDesign(DESKTOP_VERSION)
 
 
 @pytest.fixture
 def distributed_design():
     """Fixture for creating a DistributedDesign object."""
-    settings.use_grpc_api = USE_GRPC
+    settings.use_grpc_api = False
     return DistributedDesign(DESKTOP_VERSION)
