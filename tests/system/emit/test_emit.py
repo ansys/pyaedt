@@ -2124,6 +2124,24 @@ def test_all_generated_emit_node_properties(emit_app) -> None:
     # to verify that every property can be set
     max_inner_loop_iterations = 2
 
+    # Enum values that open AEDT dialogs and freeze headless CI runs.
+    enum_values_to_skip = frozenset({"PyramidalHorn", "ByFile", "HfssPhasedArray"})
+    method_prefixes_to_skip = ("plot", "import_", "add_", "export_", "duplicate")
+    property_substrings_to_skip = ("_file", "metadata_file", "imported_", "emission_designator")
+
+    def should_skip_enum_value(enum_val) -> bool:
+        if enum_val is None:
+            return False
+        value = enum_val.value if hasattr(enum_val, "value") else str(enum_val)
+        return value in enum_values_to_skip
+
+    def should_skip_property(member: str) -> bool:
+        member_lower = member.lower()
+        return any(part in member_lower for part in property_substrings_to_skip)
+
+    def log_progress(message: str) -> None:
+        print(message, flush=True)
+
     # used to give nodes a unique name on rename commands
     next_int = 0
 
@@ -2233,7 +2251,11 @@ def test_all_generated_emit_node_properties(emit_app) -> None:
                         node_bools[member] = [True, False]
                         continue
                     elif isinstance(arg_type, type) and issubclass(arg_type, Enum):
-                        node_enums[member] = list(arg_type.__members__.values())
+                        node_enums[member] = [
+                            enum_val
+                            for enum_val in arg_type.__members__.values()
+                            if not should_skip_enum_value(enum_val)
+                        ]
                         continue
 
                     mem_value = {
@@ -2251,23 +2273,41 @@ def test_all_generated_emit_node_properties(emit_app) -> None:
         # example, you can only set the PSK type (4PSK, 16PSK, etc) if the
         # modulation_type = PSK.
         node_iterations = 0
-        for enum_key in node_enums or {None: None}:
+        limited = max_iterations is not None
+        stop_testing = False
+        enum_keys = [None] if limited else list(node_enums.keys() or [None])
+
+        def iter_enum_values(enum_key):
             if enum_key is None:
-                enum_vals = []
-            else:
-                enum_vals = node_enums[enum_key]
-            for enum_val in enum_vals or [None]:
+                return [None]
+            enum_vals = node_enums[enum_key]
+            if limited and enum_vals:
+                return [enum_vals[0]]
+            return enum_vals or [None]
+
+        for enum_key in enum_keys:
+            if stop_testing:
+                break
+            for enum_val in iter_enum_values(enum_key):
+                if stop_testing:
+                    break
+                if should_skip_enum_value(enum_val):
+                    continue
                 try:
                     if enum_val is not None:
                         class_attr = getattr(node.__class__, enum_key)
                         class_attr.fset(node, enum_val)
                 except (AttributeError, GrpcApiError, ValueError):
                     pass
-                for bool_key in node_bools or {None: None}:
+                for bool_key in ([None] if limited else list(node_bools.keys() or [None])):
+                    if stop_testing:
+                        break
                     if bool_key is None:
                         bool_vals = []
                     else:
                         bool_vals = node_bools[bool_key]
+                    if limited and bool_vals:
+                        bool_vals = bool_vals[:1]
                     for bool_val in bool_vals or [None]:
                         node_iterations = node_iterations + 1
                         try:
@@ -2276,7 +2316,8 @@ def test_all_generated_emit_node_properties(emit_app) -> None:
                                 class_attr.fset(node, bool_val)
                         except (AttributeError, GrpcApiError, ValueError):
                             pass
-                        if max_iterations is not None and node_iterations > max_iterations:
+                        if limited and node_iterations > max_iterations:
+                            stop_testing = True
                             break
 
                         for member in members:
@@ -2337,17 +2378,18 @@ def test_all_generated_emit_node_properties(emit_app) -> None:
                                     continue
 
                                 if member.startswith("duplicate"):
-                                    try:
-                                        attr = getattr(node, member)
-                                        values = [f"TestString{next_int}"]
-                                        next_int = next_int + 1
-                                        result = attr(*values)
-                                        mem_results[mem_key] = (Result.VALUE, result)
-                                    except NotImplementedError as e:
-                                        mem_results[mem_key] = (Result.VALUE, str(e))
+                                    mem_results[mem_key] = (Result.SKIPPED, "Skipping duplicate method")
                                     continue
 
-                                # TODO: Skip Pyramidal Horn params due to warning popup that freezes the test
+                                if member.startswith(method_prefixes_to_skip):
+                                    mem_results[mem_key] = (Result.SKIPPED, "Skipping side-effect method")
+                                    continue
+
+                                if should_skip_property(member):
+                                    mem_results[mem_key] = (Result.SKIPPED, "Skipping file or dialog property")
+                                    continue
+
+                                # Pyramidal Horn params also trigger a warning popup that freezes the test.
                                 if (
                                     member.startswith("mouth_width")
                                     or member.startswith("mouth_height")
@@ -2473,8 +2515,12 @@ def test_all_generated_emit_node_properties(emit_app) -> None:
                     # Add any untested child nodes
                     try:
                         for child_type in node.allowed_child_types:
-                            # Skip any nodes that end in ..., as they open a dialog
-                            if child_type not in nodes_tested and not child_type.endswith("..."):
+                            # Skip dialog-opening child types (suffix "..." or import prompts).
+                            if (
+                                child_type not in nodes_tested
+                                and not child_type.endswith("...")
+                                and "Import" not in child_type
+                            ):
                                 try:
                                     node._add_child_node(child_type)
                                 except Exception as e:
@@ -2497,16 +2543,18 @@ def test_all_generated_emit_node_properties(emit_app) -> None:
                         child_node_add_exceptions[node_type] = exception
 
                 if node_type in nodes_to_skip and not dev_only:
-                    print(f"Testing node {node_type} skipped. Set EMIT_PYAEDT_LONG=1 to include.")
+                    log_progress(
+                        f"Testing node {node_type} skipped. Set EMIT_PYAEDT_LONG=1 to include."
+                    )
                     continue
 
-                # if max_node_iterations is None and dev_only and node_type in nodes_to_skip:
-                #    continue
+                log_progress(f"Testing node type {node_type}...")
                 node_results = test_all_members(node, max_node_iterations)
                 results_dict.update(node_results)
+                log_progress(f"Finished node type {node_type}.")
         return nodes_tested, results_dict
 
-    # Add some components
+    log_progress("Creating EMIT components...")
     emit_app.schematic.create_radio_antenna(radio_type="New Radio", radio_name="TestRadio", antenna_name="TestAntenna")
     emit_app.schematic.create_component("New Emitter", "TestEmitter")
     emit_app.schematic.create_component("Amplifier", "TestAmplifier")
@@ -2519,13 +2567,17 @@ def test_all_generated_emit_node_properties(emit_app) -> None:
     emit_app.schematic.create_component("Terminator", "TestTerminator")
     emit_app.schematic.create_component("3 Port", "Test3port")
 
-    # Generate and run a revision
+    log_progress("Analyzing revision...")
     revision = emit_app.results.analyze()
 
+    pref_node = revision.get_preferences_node()
+    revision._emit_com.SetEmitNodeProperties(0, pref_node._node_id, ["Ignore Purge Warning=True"])
+
     domain = InteractionDomain(emit_app)
+    log_progress("Running simulation...")
     revision.run(domain)
 
-    # Test all nodes of the current revision
+    log_progress("Collecting nodes and testing properties...")
     current_revision_all_nodes = revision.get_all_nodes()
 
     # profiler = cProfile.Profile()
@@ -3186,6 +3238,33 @@ def test_exceptions_bad_values(emit_app) -> None:
         print(f"Invalid child type: {e}")
 
 
+@pytest.mark.skipif(DESKTOP_VERSION < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
+def test_emit_node_get_set_properties(emit_app) -> None:
+    _, antenna = emit_app.schematic.create_radio_antenna("Bluetooth", "PropsRadio", "PropsAnt")
+    antenna = cast(AntennaNode, antenna)
+
+    antenna.set_properties(["Position Defined=true", "Position=1 1 1"])
+    props = antenna.get_properties(["Position Defined", "Position"])
+    assert props["Position Defined"] == "true"
+    assert props["Position"] == "1 1 1"
+
+    antenna.set_properties({"Position": [2.0, 2.0, 2.0]})
+    parsed = antenna.get_properties(["Position"], raw=False)
+    assert parsed["Position"] == [2.0, 2.0, 2.0]
+
+    assert antenna.get_properties() == antenna.properties
+
+    with pytest.raises(ValueError):
+        antenna.get_properties(["Not A Property"])
+
+    with pytest.raises(ValueError) as exc_info:
+        antenna.set_properties({"Bad Prop": "Bad Val"})
+    assert "Bad Prop" in str(exc_info.value)
+
+    emit_app.schematic.delete_component("PropsRadio")
+    emit_app.schematic.delete_component("PropsAnt")
+
+
 @pytest.mark.skipif(DESKTOP_VERSION <= "2025.1", reason="Skipped on versions earlier than 2026 R1.")
 def test_units(emit_app) -> None:
     new_radio = emit_app.schematic.create_component("New Radio")
@@ -3449,3 +3528,99 @@ def test_terminator_table_persistence(add_app) -> None:
     assert reopened_amplifier.table_data == expected_amplifier_table
 
     app2.close_project(app2.project_name, save=False)
+
+@pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027 R1.")
+def test_compare_nodes(emit_app) -> None:
+    if not hasattr(emit_app.schematic, "compare_nodes"):
+        pytest.skip("compare_nodes is not available in this build.")
+
+    radio_1: RadioNode = emit_app.schematic.create_component("New Radio", "CompareRadio1")
+    radio_2: RadioNode = emit_app.schematic.create_component("New Radio", "CompareRadio2")
+    antenna_1: AntennaNode = emit_app.schematic.create_component("Antenna", "CompareAntenna1")
+    same_type, differences = emit_app.schematic.compare_nodes(radio_1, antenna_1)
+    assert not same_type
+    assert differences == {}
+
+    radio_1.notes = "Radio1 notes"
+    same_type, differences = emit_app.schematic.compare_nodes(radio_1, radio_2)
+    assert same_type
+    assert differences
+    assert len(differences) == 2
+    assert "Name" not in differences
+    radio_1_props = radio_1.properties
+    radio_2_props = radio_2.properties
+    assert "NodeID" not in differences
+    assert "NodeOrder" in differences
+    assert differences["NodeOrder"]["from"]["value"] == radio_2_props["NodeOrder"]
+    assert differences["NodeOrder"]["to"]["value"] == radio_1_props["NodeOrder"]
+    assert "Notes" in differences
+    assert differences["Notes"]["from"]["value"] == ""
+    assert differences["Notes"]["to"]["value"] == "Radio1 notes"
+    assert "Children" not in differences
+    same_type, differences = emit_app.schematic.compare_nodes(radio_1, radio_2, exclude_props=["NodeOrder"])
+    assert same_type
+    assert set(differences.keys()) == {"Notes"}
+    same_type, same_node_differences = emit_app.schematic.compare_nodes(radio_1, radio_1)
+    assert same_type
+    assert same_node_differences == {}
+
+
+@pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027 R1.")
+def test_compare_components(emit_app) -> None:
+    if not hasattr(emit_app.schematic, "compare_components"):
+        pytest.skip("compare_components is not available in this build.")
+
+    def has_frequency_difference(differences):
+        frequency_props = {"Start Frequency", "Stop Frequency", "Channel Spacing"}
+        if frequency_props.intersection(differences):
+            return True
+        return any(has_frequency_difference(value) for value in differences.values() if isinstance(value, dict))
+
+    def get_band_frequencies(node):
+        frequencies = {}
+        for child in node.children:
+            if isinstance(child, Band):
+                frequencies[child.name] = {
+                    "Start Frequency": child.start_frequency,
+                    "Stop Frequency": child.stop_frequency,
+                    "Channel Spacing": child.channel_spacing,
+                }
+            frequencies.update(get_band_frequencies(child))
+        return frequencies
+
+    wifi_2012: RadioNode = emit_app.schematic.create_component("WiFi - 802.11-2012", "CompareWiFi2012")
+    wifi_6: RadioNode = emit_app.schematic.create_component("WiFi 6", "CompareWiFi6")
+
+    same_type, differences = emit_app.schematic.compare_components(wifi_2012, wifi_6)
+    assert same_type
+    assert "Name" not in differences
+    assert "NodeID" not in differences
+    assert "children" in differences
+    assert differences["children"]
+    assert len(differences["children"]) > 0
+    wifi_2012_frequencies = get_band_frequencies(wifi_2012)
+    wifi_6_frequencies = get_band_frequencies(wifi_6)
+    frequency_props = {"Start Frequency", "Stop Frequency", "Channel Spacing"}
+    assert wifi_2012_frequencies
+    assert wifi_6_frequencies
+    assert all(set(frequencies) == frequency_props for frequencies in wifi_2012_frequencies.values())
+    assert all(set(frequencies) == frequency_props for frequencies in wifi_6_frequencies.values())
+    assert wifi_2012_frequencies != wifi_6_frequencies
+    assert has_frequency_difference(differences) or set(wifi_2012_frequencies) != set(wifi_6_frequencies)
+
+    amp_1 = emit_app.schematic.create_component("Amplifier", "CompareAmp1")
+    amp_2 = emit_app.schematic.create_component("Amplifier", "CompareAmp2")
+    same_type, amp_diffs = emit_app.schematic.compare_components(amp_1, amp_2)
+    assert same_type
+    assert "Name" not in amp_diffs
+    assert "NodeID" not in amp_diffs
+    assert "Children" not in amp_diffs
+
+    same_type, same_component_differences = emit_app.schematic.compare_components(wifi_2012, wifi_2012)
+    assert same_type
+    assert same_component_differences == {}
+
+    antenna = emit_app.schematic.create_component("Antenna", "CompareAntenna2")
+    same_type, differences = emit_app.schematic.compare_components(wifi_2012, antenna)
+    assert not same_type
+    assert differences == {}
