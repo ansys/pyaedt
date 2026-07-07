@@ -191,19 +191,18 @@ def test_import_touchstone(aedt_app, test_tmp_dir) -> None:
     assert touchstone_data
 
 
-@pytest.mark.skipif(DESKTOP_VERSION == "2027.1", reason="WAITING BUG FIX")
 def test_export_fullwave(aedt_app, test_tmp_dir) -> None:
     aedt_app.save_project()
     touchstone_1 = shutil.copy2(TOUCHSTONE_FILE, test_tmp_dir / TOUCHSTONE)
     output = aedt_app.export_fullwave_spice(str(touchstone_1), is_solution_file=True)
     assert output
-    assert output.suffix == ".sp"
+    assert Path(output).suffix == ".sp"
     assert Path(output).is_file()
     output = aedt_app.export_fullwave_spice(
         str(touchstone_1), filename=Path(test_tmp_dir / "test.sss"), is_solution_file=True
     )
     assert output
-    assert output.suffix == ".sss"
+    assert Path(output).suffix == ".sss"
     assert Path(output).is_file()
 
 
