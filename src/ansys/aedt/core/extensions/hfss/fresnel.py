@@ -893,6 +893,13 @@ class FresnelExtension(ExtensionHFSSCommon):
 
         is_isotropic = self.fresnel_type.get() == "isotropic"
 
+        #temporary procedure to map rttbl versions with AEDT versions and SPs
+        aedt_ver_sp = self.desktop.odesktop.GetVersion()
+        if aedt_ver_sp < '2027.1.0':
+            rttbl_ver = '1.0'
+        else:
+            rttbl_ver = '2.0'
+
         # Obtain variable name
         bounds = self.aedt_application.boundaries_by_type
         bound = "Lattice Pair" if "Lattice Pair" in bounds else "Secondary"
@@ -905,6 +912,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             theta_name=theta_scan_variable,
             phi_name=phi_scan_variable,
             is_isotropic=is_isotropic,
+            rttbl_ver = rttbl_ver
         )
 
         settings.enable_desktop_logs = enable_log

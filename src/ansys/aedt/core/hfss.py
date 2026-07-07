@@ -7748,7 +7748,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def create_fresnel_variables(self, setup_sweep: str) -> None:
+    def create_fresnel_variables(self, setup_sweep: str, rttbl_ver: str = '2.0') -> None:
         """
         Create (or overwrite) the output variables in HFSS needed to compute Fresnel reflection/transmission
         coefficients between Floquet ports.
@@ -7764,39 +7764,47 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         def _create_var(variable: str, expression: str) -> None:
             self.create_output_variable(variable=variable, expression=expression, solution=setup_sweep)
 
-        # Always create the base reflection variables (exist for both isotropic & anisotropic)
-        _create_var("r_te", f"S({floquet_ports[0]}:1,{floquet_ports[0]}:1)")
-        _create_var("r_tm", f"-S({floquet_ports[0]}:2,{floquet_ports[0]}:2)")
+        # Create output variables for surther R or RT extraction
+        match rttbl_ver:
+            case '1.0':
+                # Always create the base reflection variables (exist for both isotropic & anisotropic)
+                _create_var("r_te", f"S({floquet_ports[0]}:1,{floquet_ports[0]}:1)")
+                _create_var("r_tm", f"-S({floquet_ports[0]}:2,{floquet_ports[0]}:2)")
+                if not is_reflection:
+                    top, bot = floquet_ports[0], floquet_ports[1]
+                    # renormalization factors for transfer coefficients
+                    _create_var("renorm_t", f"if(re(Zo({top}:1))>0,sqrt(re(Zo({bot}:1))/re(Zo({top}:1))),0)")
+                    # Co-pol transmission
+                    _create_var("t_te", f"S({bot}:1,{top}:1)*renorm_t")
+                    _create_var("t_tm", f"S({bot}:2,{top}:2)*renorm_t")
+            case '2.0':
+                # Always create the base reflection variables (exist for both isotropic & anisotropic)
+                _create_var("r_te", f"S({floquet_ports[0]}:1,{floquet_ports[0]}:1)")
+                _create_var("r_tm", f"-S({floquet_ports[0]}:2,{floquet_ports[0]}:2)")
+                # Cross-pol reflection (safe to create always; unused for isotropic cases)
+                _create_var("r_tm_te", f"-S({floquet_ports[0]}:2,{floquet_ports[0]}:1)")
+                _create_var("r_te_tm", f"S({floquet_ports[0]}:1,{floquet_ports[0]}:2)")
+                if not is_reflection:
+                    top, bot = floquet_ports[0], floquet_ports[1]
+                    # renormalization factors for transfer coefficients
+                    _create_var("renorm_t", f"if(re(Zo({top}:1))>0,sqrt(re(Zo({bot}:1))/re(Zo({top}:1))),0)")
+                    _create_var("renorm_t_inv", f"if(re(Zo({bot}:1))>0,sqrt(re(Zo({top}:1))/re(Zo({bot}:1))),0)")
+                    # Co-pol transmission
+                    _create_var("t_te", f"S({bot}:1,{top}:1)*renorm_t")
+                    _create_var("t_tm", f"S({bot}:2,{top}:2)*renorm_t")
+                    # Cross-pol transmission
+                    _create_var("t_tm_te", f"S({bot}:2,{top}:1)*renorm_t")
+                    _create_var("t_te_tm", f"S({bot}:1,{top}:2)*renorm_t")
+                    # "Inverse" (swap ports) — needed for anisotropic RT tables
+                    _create_var("r_te_inv", f"S({bot}:1,{bot}:1)")
+                    _create_var("r_tm_inv", f"-S({bot}:2,{bot}:2)")
+                    _create_var("r_tm_te_inv", f"S({bot}:2,{bot}:1)")
+                    _create_var("r_te_tm_inv", f"-S({bot}:1,{bot}:2)")
+                    _create_var("t_te_inv", f"S({top}:1,{bot}:1)*renorm_t_inv")
+                    _create_var("t_tm_inv", f"S({top}:2,{bot}:2)*renorm_t_inv")
+                    _create_var("t_tm_te_inv", f"-S({top}:2,{bot}:1)*renorm_t_inv")
+                    _create_var("t_te_tm_inv", f"-S({top}:1,{bot}:2)*renorm_t_inv")
 
-        # Cross-pol reflection (safe to create always; unused for isotropic cases)
-        _create_var("r_tm_te", f"-S({floquet_ports[0]}:2,{floquet_ports[0]}:1)")
-        _create_var("r_te_tm", f"S({floquet_ports[0]}:1,{floquet_ports[0]}:2)")
-
-        # Transmission variables only if there are two Floquet ports
-        if not is_reflection:
-            top, bot = floquet_ports[0], floquet_ports[1]
-            # renormalization factors for transfer coefficients
-            _create_var("renorm_t", f"if(re(Zo({top}:1))>0,sqrt(re(Zo({bot}:1))/re(Zo({top}:1))),0)")
-            _create_var("renorm_t_inv", f"if(re(Zo({bot}:1))>0,sqrt(re(Zo({top}:1))/re(Zo({bot}:1))),0)")
-            # Co-pol transmission
-            _create_var("t_te", f"S({bot}:1,{top}:1)*renorm_t")
-            _create_var("t_tm", f"S({bot}:2,{top}:2)*renorm_t")
-            # Cross-pol transmission
-            _create_var("t_tm_te", f"S({bot}:2,{top}:1)*renorm_t")
-            _create_var("t_te_tm", f"S({bot}:1,{top}:2)*renorm_t")
-            # "Inverse" (swap ports) — needed for anisotropic RT tables
-            _create_var("r_te_inv", f"S({bot}:1,{bot}:1)")
-            _create_var("r_tm_inv", f"-S({bot}:2,{bot}:2)")
-            _create_var("r_tm_te_inv", f"-S({bot}:2,{bot}:1)")
-            _create_var("r_te_tm_inv", f"S({bot}:1,{bot}:2)")
-            _create_var("t_te_inv", f"S({top}:1,{bot}:1)*renorm_t_inv")
-            _create_var("t_tm_inv", f"S({top}:2,{bot}:2)*renorm_t_inv")
-            _create_var("t_tm_te_inv", f"S({top}:2,{bot}:1)*renorm_t_inv")
-            _create_var("t_te_tm_inv", f"S({top}:1,{bot}:2)*renorm_t_inv")
-
-            # Port impedances (for scaling transmission)
-            _create_var(f"Zo_{floquet_ports[0]}_1", f"Zo({floquet_ports[0]}:1)")
-            _create_var(f"Zo_{floquet_ports[1]}_1", f"Zo({floquet_ports[1]}:1)")
 
     @pyaedt_function_handler()
     def get_fresnel_coefficients(
@@ -7806,6 +7814,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         phi_name: str,
         output_file: str | Path = None,
         is_isotropic: bool | None = None,
+        rttbl_ver: str = '2.0'
     ) -> Path:
         """
         Generate a Fresnel reflection or reflection/transmission coefficient table from simulation data.
@@ -7835,7 +7844,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             The path to the generated `.rttbl` file containing Fresnel coefficients.
 
         """
-        self.create_fresnel_variables(setup_sweep=setup_sweep)
+        self.create_fresnel_variables(setup_sweep=setup_sweep, rttbl_ver=rttbl_ver)
 
         floquet_ports = self.get_fresnel_floquet_ports()
 
@@ -7993,23 +8002,31 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             else:
                 ofile.write("RTTable\n" if is_isotropic else "AnisotropicRTTable\n")
 
+            ofile.write("# RTTBL file format version.\n")
+            if rttbl_ver == '1.0':
+                ofile.write(f"# RTTBLver {rttbl_ver}\n")
+            else:
+                ofile.write(f"RTTBLver {rttbl_ver}\n")
+
             ofile.write(
                 "# The incident angle theta is measured from the vertical (Z-axis) towards the horizon (XY-plane) "
                 "and must start from 0.\n"
             )
             ofile.write("# Maximum simulated theta value, deg.\n")
-            if is_isotropic:
-                ofile.write(f"# ThetaMax {theta_max}\n")  # until ThetaMax key becomes allowed
+            if rttbl_ver == '1.0':
+                ofile.write(f"# ThetaMax {theta_max}\n")
             else:
                 ofile.write(f"ThetaMax {theta_max}\n")
 
             ofile.write("# The angular sampling is specified by the number of theta steps.\n")
             ofile.write("# <num_theta_step> = number_of_theta_points – 1\n")
-            if is_isotropic:
-                nb_theta_points = int(90 / theta_step)  # until ThetaMax key becomes allowed
+
+            if rttbl_ver == '1.0':
+                nb_theta_points = int(90 / theta_step)
             else:
                 angles_keys = list(angles.keys())
                 nb_theta_points = len(angles[angles_keys[0]]) - 1
+
             ofile.write(f"{nb_theta_points}\n")
             ofile.write(f"# theta_step is {theta_step} {theta_units}.\n")
             if not is_isotropic:
@@ -8083,7 +8100,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                                 f"{re_t_tm[i]:.5e}\t{im_t_tm[i]:.5e}\n"
                             )
 
-                if is_isotropic:  # until ThetaMax key becomes allowed
+                if rttbl_ver=='1.0':  # version 1.0 supports isotropic only
                     # Isotropic coefficients must to until 90 deg
                     last_theta = angles["0.0deg"][-1]
                     if last_theta != 90:
