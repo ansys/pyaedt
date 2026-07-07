@@ -97,7 +97,6 @@ jobs:
           echo "::warning::PyAnsys CI bot is not allowed to trigger this workflow in pre-commit-ci bot's PR. Please review carefully the changes before running the workflow manually."
           exit 1
 
-
   vulnerabilities:
     name: "Vulnerabilities"
     runs-on: ubuntu-latest
@@ -168,6 +167,7 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
 
@@ -332,24 +332,20 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
-
-      - name: Create virtual environment
-        run: uv venv .venv
 
       - name: Install pyaedt and tests dependencies
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          source .venv/bin/activate
           uv sync --frozen --group tests --extra all
 
       - name: Run unit tests
         env:
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS_NON_TESTMON }}
         run: |
-          source .venv/bin/activate
           xvfb-run pytest ${PYTEST_ARGUMENTS_NON_TESTMON} tests/unit
 
       - name: Upload pytest test results
@@ -378,24 +374,20 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
-
-      - name: Create virtual environment
-        run: uv venv .venv
 
       - name: Install pyaedt and tests dependencies
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          source .venv/bin/activate
           uv sync --frozen --group tests --extra all
 
       - name: Run integration tests
         env:
           PYTEST_ARGUMENTS_NON_TESTMON: ${{ env.PYTEST_ARGUMENTS_NON_TESTMON }}
         run: |
-          source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS_NON_TESTMON} tests/integration
 
       - name: Upload pytest test results
@@ -428,17 +420,14 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
-
-      - name: Create virtual environment
-        run: uv venv .venv
 
       - name: Install pyaedt and tests dependencies
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          .venv\Scripts\Activate.ps1
           uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
@@ -465,7 +454,6 @@ jobs:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
-          .venv\Scripts\Activate.ps1
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 tests/system/solvers
 
@@ -502,17 +490,14 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
-
-      - name: Create virtual environment
-        run: uv venv .venv
 
       - name: Install pyaedt and tests dependencies
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          source .venv/bin/activate
           uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
@@ -536,7 +521,6 @@ jobs:
         env:
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
-          source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/solvers
 
       - name: Upload pytest test results
@@ -569,20 +553,17 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
 
       - name: Set up headless display
         uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
 
-      - name: Create virtual environment
-        run: uv venv .venv
-
       - name: Install pyaedt and tests dependencies
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          .venv\Scripts\Activate.ps1
           uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
@@ -609,7 +590,6 @@ jobs:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
-          .venv\Scripts\Activate.ps1
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args -n 4 --dist loadfile --timeout=600 tests/system/general
 
@@ -646,20 +626,17 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
 
       - name: Set up headless display
         uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
 
-      - name: Create virtual environment
-        run: uv venv .venv
-
       - name: Install pyaedt and tests dependencies
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          source .venv/bin/activate
           uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
@@ -681,7 +658,6 @@ jobs:
 
       - name: Run tests marked with 'general'
         run: |
-          source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 tests/system/general
 
       - name: Upload pytest test results
@@ -716,20 +692,17 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
 
       - name: Set up headless display
         uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
 
-      - name: Create virtual environment
-        run: uv venv .venv
-
       - name: Install pyaedt and tests dependencies
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          .venv\Scripts\Activate.ps1
           uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
@@ -756,7 +729,6 @@ jobs:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
-          .venv\Scripts\Activate.ps1
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args -n 4 --dist loadfile --timeout=600 tests/system/visualization -x
 
@@ -794,20 +766,17 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
 
       - name: Set up headless display
         uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
 
-      - name: Create virtual environment
-        run: uv venv .venv
-
       - name: Install pyaedt and tests dependencies
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          source .venv/bin/activate
           uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
@@ -829,7 +798,6 @@ jobs:
 
       - name: Run tests marked with 'visualization'
         run: |
-          source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=300 tests/system/visualization -x
 
       - name: Upload pytest test results
@@ -862,17 +830,14 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
-
-      - name: Create virtual environment
-        run: uv venv .venv
 
       - name: Install pyaedt and tests dependencies
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          .venv\Scripts\Activate.ps1
           uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
@@ -899,7 +864,6 @@ jobs:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
-          .venv\Scripts\Activate.ps1
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 tests/system/icepak
 
@@ -936,17 +900,14 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
-
-      - name: Create virtual environment
-        run: uv venv .venv
 
       - name: Install pyaedt and tests dependencies
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          source .venv/bin/activate
           uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
@@ -970,7 +931,6 @@ jobs:
         env:
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
-          source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/icepak
 
       - name: Upload pytest test results
@@ -1003,17 +963,14 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
-
-      - name: Create virtual environment
-        run: uv venv .venv
 
       - name: Install pyaedt and tests dependencies
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          .venv\Scripts\Activate.ps1
           uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
@@ -1040,7 +997,6 @@ jobs:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
-          .venv\Scripts\Activate.ps1
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 tests/system/layout
 
@@ -1077,15 +1033,12 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
 
-      - name: Create virtual environment
-        run: uv venv .venv
-
       - name: Install pyaedt and tests dependencies
         run: |
-          source .venv/bin/activate
           uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
@@ -1109,7 +1062,6 @@ jobs:
         env:
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
-          source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/layout
 
       - name: Upload pytest test results
@@ -1125,8 +1077,8 @@ jobs:
 
   system-tests-extensions-windows:
     name: Test extensions (windows)
-    needs: [integration-tests, analyze-changes]
-    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true' && needs.analyze-changes.outputs.extensions_changed == 'true'
+    needs: [integration-tests]
+    if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
@@ -1142,20 +1094,17 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
 
       - name: Set up headless display
         uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
 
-      - name: Create virtual environment
-        run: uv venv .venv
-
       - name: Install pyaedt and tests dependencies
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          .venv\Scripts\Activate.ps1
           uv sync --frozen --group tests --extra all
 
       - name: Remove Ansys processes (if any)
@@ -1173,7 +1122,6 @@ jobs:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS_NON_TESTMON: ${{ env.PYTEST_ARGUMENTS_NON_TESTMON }}
         run: |
-          .venv\Scripts\Activate.ps1
           $args = $env:PYTEST_ARGUMENTS_NON_TESTMON -split ' '
           pytest @args --timeout=600 tests/system/extensions
 
@@ -1210,20 +1158,17 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
 
       - name: Set up headless display
         uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
 
-      - name: Create virtual environment
-        run: uv venv .venv
-
       - name: Install pyaedt and tests dependencies
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          source .venv/bin/activate
           uv sync --frozen --group tests --extra all
 
       - name: Remove Ansys processes (if any)
@@ -1236,7 +1181,6 @@ jobs:
 
       - name: Run tests marked with 'extensions'
         run: |
-          source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS_NON_TESTMON} --timeout=600 tests/system/extensions
 
       - name: Upload pytest test results
@@ -1269,17 +1213,14 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
-
-      - name: Create virtual environment
-        run: uv venv .venv
 
       - name: Install pyaedt and tests dependencies
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          .venv\Scripts\Activate.ps1
           uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
@@ -1306,7 +1247,6 @@ jobs:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
-          .venv\Scripts\Activate.ps1
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 tests/system/filter_solutions
 
@@ -1340,17 +1280,14 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
-
-      - name: Create virtual environment
-        run: uv venv .venv
 
       - name: Install pyaedt and tests dependencies
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          .venv\Scripts\Activate.ps1
           uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
@@ -1377,7 +1314,6 @@ jobs:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
-          .venv\Scripts\Activate.ps1
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 -v -rA --color=yes tests/system/emit
 
