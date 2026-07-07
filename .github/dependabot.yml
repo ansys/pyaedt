@@ -7,6 +7,10 @@ updates:
       day: "saturday"
       time: "06:00"
       timezone: "Europe/Paris"
+    # Skip patch version bumps
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-patch']
     cooldown:
       default-days: 7
       include:
@@ -18,7 +22,8 @@ updates:
         - "ansys-pythonnet"
         - "pyedb"
     assignees:
-      - "pyansys-ci-bot"
+      - "Samuelopez-ansys"
+      - "SMoraisAnsys"
     labels:
       - "maintenance"
       - "dependencies"
@@ -27,20 +32,25 @@ updates:
       prefix: "BUILD(uv)"
 
   - package-ecosystem: "github-actions"
-    cooldown:
-      default-days: 10 # Fallback cooldown if no specific rule applies
-      include:
-        - "*"  # Include all dependencies in cooldown
-      exclude:
-        - "ansys/actions"
     directory: "/"
     schedule:
       interval: "weekly"
       day: "saturday"
       time: "06:00"
       timezone: "Europe/Paris"
+    # Skip patch version bumps
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-patch']
+    cooldown:
+      default-days: 10 # Fallback cooldown if no specific rule applies
+      include:
+        - "*"  # Include all dependencies in cooldown
+      exclude:
+        - "ansys/actions"
     assignees:
-      - "pyansys-ci-bot"
+      - "Samuelopez-ansys"
+      - "SMoraisAnsys"
     labels:
       - "maintenance"
       - "dependencies"
@@ -49,20 +59,25 @@ updates:
       prefix: "BUILD(actions)"
 
   - package-ecosystem: "pre-commit"
-    cooldown:
-      default-days: 7 # Fallback cooldown if no specific rule applies
-      include:
-        - "*"  # Include all dependencies in cooldown
-      exclude:
-        - "ansys/pre-commit-hooks"
     directory: "/"
     schedule:
       interval: "weekly"
       day: "saturday"
       time: "06:00"
       timezone: "Europe/Paris"
+    # Skip patch version bumps
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-patch']
+    cooldown:
+      default-days: 7 # Fallback cooldown if no specific rule applies
+      include:
+        - "*"  # Include all dependencies in cooldown
+      exclude:
+        - "ansys/pre-commit-hooks"
     assignees:
-      - "pyansys-ci-bot"
+      - "Samuelopez-ansys"
+      - "SMoraisAnsys"
     labels:
       - "maintenance"
       - "dependencies"
