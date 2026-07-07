@@ -2159,10 +2159,7 @@ class NamedSelections(PropsManager, PyAedtBase):
         props["Type"] = sel_type
         self.props = ListsProps(self, props)
         # Keep compatibility with existing storage
-        try:
-            self._modeler.user_lists.append(self)
-        except Exception:
-            pass
+        self._modeler.user_lists.append(self)
         self.name = name
         return True
 
