@@ -83,8 +83,10 @@ class HarmonicLossExtension(ExtensionQ3DCommon):
         container.pack(fill="both", expand=True)
 
         explanation = (
-            "Use these reference images to check the format of the CSV file.\n"
-            "Match your CSV file with the reference images before applying the filter."
+            "Use this reference image to verify your CSV file format.\n"
+            "Before applying the filter, ensure your CSV matches the reference.\n"
+            "The first column must contain Frequency [Hz].\n"
+            "Each remaining column must contain the real or imaginary current component [A] for a source."
         )
         ttk.Label(
             container,
@@ -94,26 +96,23 @@ class HarmonicLossExtension(ExtensionQ3DCommon):
             wraplength=700,
         ).pack(anchor="w", pady=(0, 10))
 
-        images_dir = Path(__file__).parent / "images" / "large"
-        image_files = ["[...].png", "[...].png"]
+        images_dir = Path(__file__).parent / "images" / "large" / "csv_example_format.png"
 
         popup._images = []
-        for image_name in image_files:
-            image_path = images_dir / image_name
-            if image_path.exists():
-                tk_image = tk.PhotoImage(file=image_path)
-                popup._images.append(tk_image)
-                tk.Label(
-                    container,
-                    image=tk_image,
-                    background=self.theme.light["pane_bg"],
-                ).pack(anchor="w", pady=5)
-            else:
-                ttk.Label(
-                    container,
-                    text=f"Image not found: {image_name}",
-                    style="PyAEDT.TLabel",
-                ).pack(anchor="w", pady=2)
+        if images_dir.exists():
+            tk_image = tk.PhotoImage(file=images_dir)
+            popup._images.append(tk_image)
+            tk.Label(
+                container,
+                image=tk_image,
+                background=self.theme.light["pane_bg"],
+            ).pack(anchor="w", pady=5)
+        else:
+            ttk.Label(
+                container,
+                text=f"Image not found: {images_dir}",
+                style="PyAEDT.TLabel",
+            ).pack(anchor="w", pady=2)
 
     def add_extension_content(self) -> None:
         """Add custom content to the extension UI."""
