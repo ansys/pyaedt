@@ -2182,10 +2182,7 @@ class NamedSelections(PropsManager, PyAedtBase):
         >>> oEditor.Delete
         """
         self._modeler.oeditor.Delete(["NAME:Selections", "Selections:=", self.name])
-        try:
-            self._modeler.user_lists.remove(self)
-        except Exception:
-            pass
+        self._modeler.user_lists.remove(self)
         return True
 
     @pyaedt_function_handler()
@@ -2307,16 +2304,13 @@ class NamedSelections(PropsManager, PyAedtBase):
             raise ValueError("Failed to update named selection")
 
         # Update stored props to reflect the new selection/type when provided
-        try:
-            # self.props calls __setitem__ and internally calls update()
-            # auto_update needs to be disabled
-            previous_auto_update = self.auto_update
-            self.auto_update = False
-            self.props["Selection"] = selection
-            self.props["Type"] = entity_type
-            self.auto_update = previous_auto_update
-        except Exception:
-            pass
+        # self.props calls __setitem__ and internally calls update()
+        # auto_update needs to be disabled
+        previous_auto_update = self.auto_update
+        self.auto_update = False
+        self.props["Selection"] = selection
+        self.props["Type"] = entity_type
+        self.auto_update = previous_auto_update
 
         return True
 
