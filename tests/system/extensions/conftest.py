@@ -44,7 +44,8 @@ def pin_tcl_library():
     Tk() is created ensures that every subsequent Tcl re-initialization
     can still find init.tcl, regardless of test ordering.
     """
-    if "TCL_LIBRARY" in os.environ:
+    # Only trust the existing value if init.tcl is actually readable at that path.
+    if "TCL_LIBRARY" in os.environ and (Path(os.environ["TCL_LIBRARY"]) / "init.tcl").exists():
         return
 
     # Strategy 1: use tkinter.Tcl() to ask Tcl itself. Since it might fail,
