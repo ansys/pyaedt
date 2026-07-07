@@ -1446,5 +1446,5 @@ def test_compound_spline_then_line(aedt_app) -> None:
     )
 
     assert pl._positions == points
-    assert pl._positions[0:4] == points[0:4]  # spline: p0..p3
-    assert pl._positions[3:5] == points[3:5]  # line: p3 -> p4
+    assert pl.segment_types[0].type == "Spline"
+    assert pl.segment_types[1].type == "Line"
