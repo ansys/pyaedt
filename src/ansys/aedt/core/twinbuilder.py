@@ -584,10 +584,16 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
             port_info_list = ["NAME:PortInfo"]
             port_info_list.extend(port_info_list_A)
             port_info_list.extend(port_info_list_B)
-        if not state_space_dynamic_link_type or state_space_dynamic_link_type == "RLGC":
-            if dkp.aedt_version_id >= "2024.1":
+        # None is treated as "RLGC" for backward compatibility
+        if state_space_dynamic_link_type is None:
+            state_space_dynamic_link_type = "RLGC"
+
+        if state_space_dynamic_link_type == "RLGC":
+            # For versions before 2024.1 use the TB link form. For 2024.1 and
+            # later use Q3DRLGCLink for 3D designs and the TB link for 2D.
+            if dkp.aedt_version_id >= "2024.1" and app.design_type != "2D Extractor":
                 state_space_dynamic_link_type = "Q3DRLGCLink"
-            else:  # pragma: no cover
+            else:
                 state_space_dynamic_link_type = f"{design_type}RLGCTBLink"
             q3d_model_type = 1
             ref_pin_style = 5
