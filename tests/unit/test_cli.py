@@ -38,6 +38,7 @@ from typer.testing import CliRunner
 
 from ansys.aedt.core.cli import app
 import ansys.aedt.core.cli.aedt as aedt_mod
+from ansys.aedt.core.cli.aedt import SessionInfo
 import ansys.aedt.core.cli.common as common_mod
 from ansys.aedt.core.cli.common import DEFAULT_TEST_CONFIG
 from ansys.aedt.core.cli.common import display_config
@@ -155,14 +156,14 @@ def test_session_list_no_aedt(_mock_discover, cli_runner):
 @patch(
     "ansys.aedt.core.cli.aedt._discover_aedt_sessions",
     return_value=[
-        {
-            "pid": 12345,
-            "port": 50051,
-            "mode": "grpc",
-            "version": "2026.1",
-            "non_graphical": False,
-            "student_version": False,
-        }
+        SessionInfo(
+            pid=12345,
+            port=50051,
+            mode="grpc",
+            version="2026.1",
+            non_graphical=False,
+            student_version=False,
+        )
     ],
 )
 def test_session_list_with_aedt(_mock_discover, cli_runner):
@@ -184,14 +185,14 @@ def test_session_stop_no_args(_mock_discover, cli_runner):
 @patch(
     "ansys.aedt.core.cli.aedt._discover_aedt_sessions",
     return_value=[
-        {
-            "pid": 12345,
-            "port": 50051,
-            "mode": "grpc",
-            "version": "2026.1",
-            "non_graphical": False,
-            "student_version": False,
-        }
+        SessionInfo(
+            pid=12345,
+            port=50051,
+            mode="grpc",
+            version="2026.1",
+            non_graphical=False,
+            student_version=False,
+        )
     ],
 )
 def test_session_stop_all_success(mock_discover, mock_process_cls, cli_runner):
@@ -209,14 +210,14 @@ def test_session_stop_all_success(mock_discover, mock_process_cls, cli_runner):
 @patch(
     "ansys.aedt.core.cli.aedt._discover_aedt_sessions",
     return_value=[
-        {
-            "pid": 12345,
-            "port": 50051,
-            "mode": "grpc",
-            "version": "2026.1",
-            "non_graphical": False,
-            "student_version": False,
-        }
+        SessionInfo(
+            pid=12345,
+            port=50051,
+            mode="grpc",
+            version="2026.1",
+            non_graphical=False,
+            student_version=False,
+        )
     ],
 )
 def test_session_stop_by_port_success(mock_discover, mock_process_cls, cli_runner):
@@ -287,14 +288,14 @@ def test_attach_no_aedt_sessions(_mock_discover, cli_runner):
 @patch(
     "ansys.aedt.core.cli.aedt._discover_aedt_sessions",
     return_value=[
-        {
-            "pid": 12345,
-            "port": 50051,
-            "mode": "grpc",
-            "version": "2026.1",
-            "non_graphical": False,
-            "student_version": False,
-        }
+        SessionInfo(
+            pid=12345,
+            port=50051,
+            mode="grpc",
+            version="2026.1",
+            non_graphical=False,
+            student_version=False,
+        )
     ],
 )
 def test_attach_invalid_input_then_quit(_mock_discover, cli_runner):
@@ -309,14 +310,14 @@ def test_attach_invalid_input_then_quit(_mock_discover, cli_runner):
 @patch(
     "ansys.aedt.core.cli.aedt._discover_aedt_sessions",
     return_value=[
-        {
-            "pid": 12345,
-            "port": 50051,
-            "mode": "grpc",
-            "version": "2026.1",
-            "non_graphical": False,
-            "student_version": False,
-        }
+        SessionInfo(
+            pid=12345,
+            port=50051,
+            mode="grpc",
+            version="2026.1",
+            non_graphical=False,
+            student_version=False,
+        )
     ],
 )
 def test_attach_valid_interactive_selection(mock_discover, mock_activate, mock_launch, cli_runner):
@@ -332,14 +333,14 @@ def test_attach_valid_interactive_selection(mock_discover, mock_activate, mock_l
 @patch(
     "ansys.aedt.core.cli.aedt._discover_aedt_sessions",
     return_value=[
-        {
-            "pid": 12345,
-            "port": 50051,
-            "mode": "grpc",
-            "version": "2026.1",
-            "non_graphical": False,
-            "student_version": False,
-        }
+        SessionInfo(
+            pid=12345,
+            port=50051,
+            mode="grpc",
+            version="2026.1",
+            non_graphical=False,
+            student_version=False,
+        )
     ],
 )
 def test_attach_by_port(mock_discover, mock_activate, mock_launch, cli_runner):
@@ -371,14 +372,14 @@ def test_session_list_json_error(_mock_discover, cli_runner):
 @patch(
     "ansys.aedt.core.cli.aedt._discover_aedt_sessions",
     return_value=[
-        {
-            "pid": 12345,
-            "port": 50051,
-            "mode": "grpc",
-            "version": "2026.1",
-            "non_graphical": False,
-            "student_version": False,
-        }
+        SessionInfo(
+            pid=12345,
+            port=50051,
+            mode="grpc",
+            version="2026.1",
+            non_graphical=False,
+            student_version=False,
+        )
     ],
 )
 def test_session_stop_by_port_access_denied_json(mock_discover, mock_process_cls, cli_runner):
@@ -397,14 +398,14 @@ def test_session_stop_by_port_access_denied_json(mock_discover, mock_process_cls
 @patch(
     "ansys.aedt.core.cli.aedt._discover_aedt_sessions",
     return_value=[
-        {
-            "pid": 12345,
-            "port": 50052,
-            "mode": "grpc",
-            "version": "2026.1",
-            "non_graphical": False,
-            "student_version": False,
-        }
+        SessionInfo(
+            pid=12345,
+            port=50052,
+            mode="grpc",
+            version="2026.1",
+            non_graphical=False,
+            student_version=False,
+        )
     ],
 )
 def test_attach_by_port_not_found_lists_available(_mock_discover, cli_runner):
@@ -417,14 +418,14 @@ def test_attach_by_port_not_found_lists_available(_mock_discover, cli_runner):
 @patch(
     "ansys.aedt.core.cli.aedt._discover_aedt_sessions",
     return_value=[
-        {
-            "pid": 12345,
-            "port": 50051,
-            "mode": "grpc",
-            "version": "2026.1",
-            "non_graphical": False,
-            "student_version": False,
-        }
+        SessionInfo(
+            pid=12345,
+            port=50051,
+            mode="grpc",
+            version="2026.1",
+            non_graphical=False,
+            student_version=False,
+        )
     ],
 )
 @patch("ansys.aedt.core.cli.aedt._activate_console_context", side_effect=RuntimeError("bad context"))
@@ -635,25 +636,25 @@ def test_discover_aedt_sessions_collects_metadata():
         sessions = aedt_mod._discover_aedt_sessions()
 
     expected_sessions = [
-        {
-            "pid": 11,
-            "port": 50051,
-            "mode": "grpc",
-            "student_version": False,
-            "version": "2026.1",
-            "non_graphical": True,
-        }
+        SessionInfo(
+            pid=11,
+            port=50051,
+            mode="grpc",
+            version="2026.1",
+            non_graphical=True,
+            student_version=False,
+        )
     ]
     if not is_linux:
         expected_sessions.append(
-            {
-                "pid": 22,
-                "port": None,
-                "mode": "com",
-                "student_version": True,
-                "version": "unknown",
-                "non_graphical": None,
-            }
+            SessionInfo(
+                pid=22,
+                port=None,
+                mode="com",
+                student_version=True,
+                version="unknown",
+                non_graphical=None,
+            )
         )
 
     assert sessions == expected_sessions
