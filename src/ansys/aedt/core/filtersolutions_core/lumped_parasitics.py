@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -33,6 +33,13 @@ class LumpedParasitics:
 
     This class allows you to define and modify the parasitic
     parameters of the lumped elements used in designed filter.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import FilterSolutions
+    >>> design = FilterSolutions.LumpedDesign(version="2026.1")
+    >>> design.parasitics.capacitor_q = "120"
+
     """
 
     def __init__(self) -> None:
@@ -91,6 +98,14 @@ class LumpedParasitics:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import FilterSolutions
+        >>> design = FilterSolutions.LumpedDesign(version="2026.1")
+        >>> design.parasitics.capacitor_q = "120"
+        >>> design.parasitics.capacitor_q
+
         """
         capacitor_q_string = self._dll_interface.get_string(self._dll.getLumpedCapacitorQ)
         return capacitor_q_string
@@ -108,6 +123,14 @@ class LumpedParasitics:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import FilterSolutions
+        >>> design = FilterSolutions.LumpedDesign(version="2026.1")
+        >>> design.parasitics.capacitor_rs = "0.1 ohm"
+        >>> design.parasitics.capacitor_rs
+
         """
         capacitor_rs_string = self._dll_interface.get_string(self._dll.getLumpedCapacitorRs)
         return capacitor_rs_string
@@ -124,6 +147,14 @@ class LumpedParasitics:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import FilterSolutions
+        >>> design = FilterSolutions.LumpedDesign(version="2026.1")
+        >>> design.parasitics.capacitor_rp = "10 kohm"
+        >>> design.parasitics.capacitor_rp
+
         """
         capacitor_rp_string = self._dll_interface.get_string(self._dll.getLumpedCapacitorRp)
         return capacitor_rp_string
@@ -141,6 +172,14 @@ class LumpedParasitics:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import FilterSolutions
+        >>> design = FilterSolutions.LumpedDesign(version="2026.1")
+        >>> design.parasitics.capacitor_ls = "0.2 nH"
+        >>> design.parasitics.capacitor_ls
+
         """
         capacitor_ls_string = self._dll_interface.get_string(self._dll.getLumpedCapacitorLs)
         return capacitor_ls_string
@@ -157,6 +196,14 @@ class LumpedParasitics:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import FilterSolutions
+        >>> design = FilterSolutions.LumpedDesign(version="2026.1")
+        >>> design.parasitics.inductor_q = "90"
+        >>> design.parasitics.inductor_q
+
         """
         inductor_q_string = self._dll_interface.get_string(self._dll.getLumpedInductorQ)
         return inductor_q_string
@@ -174,6 +221,14 @@ class LumpedParasitics:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import FilterSolutions
+        >>> design = FilterSolutions.LumpedDesign(version="2026.1")
+        >>> design.parasitics.inductor_rs = "0.15 ohm"
+        >>> design.parasitics.inductor_rs
+
         """
         inductor_rs_string = self._dll_interface.get_string(self._dll.getLumpedInductorRs)
         return inductor_rs_string
@@ -191,6 +246,14 @@ class LumpedParasitics:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import FilterSolutions
+        >>> design = FilterSolutions.LumpedDesign(version="2026.1")
+        >>> design.parasitics.inductor_rp = "5 kohm"
+        >>> design.parasitics.inductor_rp
+
         """
         inductor_rp_string = self._dll_interface.get_string(self._dll.getLumpedInductorRp)
         return inductor_rp_string
@@ -208,6 +271,14 @@ class LumpedParasitics:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import FilterSolutions
+        >>> design = FilterSolutions.LumpedDesign(version="2026.1")
+        >>> design.parasitics.inductor_cp = "0.02 pF"
+        >>> design.parasitics.inductor_cp
+
         """
         inductor_cp_string = self._dll_interface.get_string(self._dll.getLumpedInductorCp)
         return inductor_cp_string

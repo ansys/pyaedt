@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,12 +22,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
 from typing import TYPE_CHECKING
 from typing import Any
 
 # NOTE: Do not perform pyedb imports out of TYPECHECKING or the methods below to avoid conda issues.
-# Currently pyedb isn't part of conda and importing it at the top level of this module leads to
+# Currently pyedb isn't part of conda and importing it at the top level of The module leads to
 # errors when importing ansys.aedt.core
 if TYPE_CHECKING:
     from pyedb.generic.design_types import Edb as EdbApp
@@ -37,6 +36,7 @@ from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 
 log = settings.logger
+"""Value for log."""
 
 
 # lazy imports
@@ -53,7 +53,7 @@ def Edb(
 ) -> "EdbApp":
     """Provides the EDB application interface.
 
-    This module inherits all objects that belong to EDB.
+    The module inherits all objects that belong to EDB.
 
     Parameters
     ----------
@@ -160,7 +160,14 @@ def Edb(
 def Siwave(
     specified_version: str | None = None,
 ) -> "Siwave":
-    """Siwave Class."""
+    """Siwave Class.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Siwave
+    >>> siwave = Siwave(specified_version="2026.1")
+
+    """
     from pyedb.generic.design_types import Siwave as app
 
     return app(

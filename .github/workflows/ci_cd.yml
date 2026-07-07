@@ -97,7 +97,6 @@ jobs:
           echo "::warning::PyAnsys CI bot is not allowed to trigger this workflow in pre-commit-ci bot's PR. Please review carefully the changes before running the workflow manually."
           exit 1
 
-
   vulnerabilities:
     name: "Vulnerabilities"
     runs-on: ubuntu-latest
@@ -150,28 +149,25 @@ jobs:
     needs: [pr-title]
     outputs:
       skip_tests: ${{ steps.analyze.outputs.skip_tests }}
-      doc_only: ${{ steps.analyze.outputs.doc_only }}
-      run_all: ${{ steps.analyze.outputs.run_all }}
-      emit_changed: ${{ steps.analyze.outputs.emit_changed }}
       extensions_changed: ${{ steps.analyze.outputs.extensions_changed }}
-      filter_solutions_changed: ${{ steps.analyze.outputs.filter_solutions_changed }}
     permissions:
       contents: read   # Required to read repository content and git history
     steps:
       - name: Checkout repository
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 0  # Need full history for git diff
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
 
@@ -182,11 +178,9 @@ jobs:
           # Run the analyze-changes script in CI mode
           python .ci/scripts/analyze_changes.py --base origin/main
 
-          # If no outputs were set, default to run_all=true
-          if [ ! -f "$GITHUB_OUTPUT" ] || ! grep -q "skip_tests\|doc_only\|run_all" "$GITHUB_OUTPUT" 2>/dev/null; then
-            echo "run_all=true" >> $GITHUB_OUTPUT
+          # If no outputs were set, default to skip_tests=false
+          if [ ! -f "$GITHUB_OUTPUT" ] || ! grep -q "skip_tests" "$GITHUB_OUTPUT" 2>/dev/null; then
             echo "skip_tests=false" >> $GITHUB_OUTPUT
-            echo "doc_only=false" >> $GITHUB_OUTPUT
           fi
 
   doc-style:
@@ -235,10 +229,40 @@ jobs:
           bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
           bot-email: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
           cname: ${{ env.DOCUMENTATION_CNAME }}
-          doc-artifact-name: documentation-ubuntu-latest-html
+          doc-artifact-name: documentation-html
           maximum-pr-doc-deployments: 3
           token: ${{ secrets.GITHUB_TOKEN }}
 
+  type-check:
+    name: Type check with Ty
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        with:
+          activate-environment: true
+          enable-cache: false
+          prune-cache: true
+
+      - name: Install quality dependencies
+        run: |
+          uv sync --frozen --only-group quality --no-install-project
+
+      # NOTE: At the moment this will only run on a subset of files. See the pyproject.toml
+      # configuration for more information on excluded files / folders.
+      - name: Run Ty on selected files
+        run: |
+          ty check
 
   smoke-tests:
     name: Build wheelhouse and smoke tests
@@ -292,7 +316,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
@@ -301,31 +325,27 @@ jobs:
         run: sudo apt-get install -y xvfb
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
-
-      - name: Create virtual environment
-        run: uv venv .venv
 
       - name: Install pyaedt and tests dependencies
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          source .venv/bin/activate
           uv sync --frozen --group tests --extra all
 
       - name: Run unit tests
         env:
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS_NON_TESTMON }}
         run: |
-          source .venv/bin/activate
           xvfb-run pytest ${PYTEST_ARGUMENTS_NON_TESTMON} tests/unit
 
       - name: Upload pytest test results
@@ -342,36 +362,32 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
-
-      - name: Create virtual environment
-        run: uv venv .venv
 
       - name: Install pyaedt and tests dependencies
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          source .venv/bin/activate
           uv sync --frozen --group tests --extra all
 
       - name: Run integration tests
         env:
           PYTEST_ARGUMENTS_NON_TESTMON: ${{ env.PYTEST_ARGUMENTS_NON_TESTMON }}
         run: |
-          source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS_NON_TESTMON} tests/integration
 
       - name: Upload pytest test results
@@ -392,29 +408,26 @@ jobs:
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
-
-      - name: Create virtual environment
-        run: uv venv .venv
 
       - name: Install pyaedt and tests dependencies
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          .venv\Scripts\Activate.ps1
           uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
@@ -441,7 +454,6 @@ jobs:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
-          .venv\Scripts\Activate.ps1
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 tests/system/solvers
 
@@ -466,29 +478,26 @@ jobs:
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
-
-      - name: Create virtual environment
-        run: uv venv .venv
 
       - name: Install pyaedt and tests dependencies
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          source .venv/bin/activate
           uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
@@ -512,7 +521,6 @@ jobs:
         env:
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
-          source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/solvers
 
       - name: Upload pytest test results
@@ -533,32 +541,29 @@ jobs:
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
 
       - name: Set up headless display
         uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
 
-      - name: Create virtual environment
-        run: uv venv .venv
-
       - name: Install pyaedt and tests dependencies
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          .venv\Scripts\Activate.ps1
           uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
@@ -585,7 +590,6 @@ jobs:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
-          .venv\Scripts\Activate.ps1
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args -n 4 --dist loadfile --timeout=600 tests/system/general
 
@@ -610,32 +614,29 @@ jobs:
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
 
       - name: Set up headless display
         uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
 
-      - name: Create virtual environment
-        run: uv venv .venv
-
       - name: Install pyaedt and tests dependencies
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          source .venv/bin/activate
           uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
@@ -657,7 +658,6 @@ jobs:
 
       - name: Run tests marked with 'general'
         run: |
-          source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 tests/system/general
 
       - name: Upload pytest test results
@@ -680,32 +680,29 @@ jobs:
       MPLBACKEND: 'Agg'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
 
       - name: Set up headless display
         uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
 
-      - name: Create virtual environment
-        run: uv venv .venv
-
       - name: Install pyaedt and tests dependencies
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          .venv\Scripts\Activate.ps1
           uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
@@ -732,7 +729,6 @@ jobs:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
-          .venv\Scripts\Activate.ps1
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args -n 4 --dist loadfile --timeout=600 tests/system/visualization -x
 
@@ -758,32 +754,29 @@ jobs:
       MPLBACKEND: 'Agg'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
 
       - name: Set up headless display
         uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
 
-      - name: Create virtual environment
-        run: uv venv .venv
-
       - name: Install pyaedt and tests dependencies
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          source .venv/bin/activate
           uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
@@ -805,7 +798,6 @@ jobs:
 
       - name: Run tests marked with 'visualization'
         run: |
-          source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=300 tests/system/visualization -x
 
       - name: Upload pytest test results
@@ -826,29 +818,26 @@ jobs:
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
-
-      - name: Create virtual environment
-        run: uv venv .venv
 
       - name: Install pyaedt and tests dependencies
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          .venv\Scripts\Activate.ps1
           uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
@@ -875,7 +864,6 @@ jobs:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
-          .venv\Scripts\Activate.ps1
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 tests/system/icepak
 
@@ -900,29 +888,26 @@ jobs:
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
-
-      - name: Create virtual environment
-        run: uv venv .venv
 
       - name: Install pyaedt and tests dependencies
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          source .venv/bin/activate
           uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
@@ -946,7 +931,6 @@ jobs:
         env:
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
-          source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/icepak
 
       - name: Upload pytest test results
@@ -967,29 +951,26 @@ jobs:
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
-
-      - name: Create virtual environment
-        run: uv venv .venv
 
       - name: Install pyaedt and tests dependencies
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          .venv\Scripts\Activate.ps1
           uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
@@ -1016,7 +997,6 @@ jobs:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
-          .venv\Scripts\Activate.ps1
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 tests/system/layout
 
@@ -1041,27 +1021,24 @@ jobs:
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
 
-      - name: Create virtual environment
-        run: uv venv .venv
-
       - name: Install pyaedt and tests dependencies
         run: |
-          source .venv/bin/activate
           uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
@@ -1085,7 +1062,6 @@ jobs:
         env:
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
-          source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/layout
 
       - name: Upload pytest test results
@@ -1101,37 +1077,34 @@ jobs:
 
   system-tests-extensions-windows:
     name: Test extensions (windows)
-    needs: [integration-tests, analyze-changes]
-    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true' && needs.analyze-changes.outputs.extensions_changed == 'true'
+    needs: [integration-tests]
+    if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
 
       - name: Set up headless display
         uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
 
-      - name: Create virtual environment
-        run: uv venv .venv
-
       - name: Install pyaedt and tests dependencies
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          .venv\Scripts\Activate.ps1
           uv sync --frozen --group tests --extra all
 
       - name: Remove Ansys processes (if any)
@@ -1149,7 +1122,6 @@ jobs:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS_NON_TESTMON: ${{ env.PYTEST_ARGUMENTS_NON_TESTMON }}
         run: |
-          .venv\Scripts\Activate.ps1
           $args = $env:PYTEST_ARGUMENTS_NON_TESTMON -split ' '
           pytest @args --timeout=600 tests/system/extensions
 
@@ -1174,32 +1146,29 @@ jobs:
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
 
       - name: Set up headless display
         uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
 
-      - name: Create virtual environment
-        run: uv venv .venv
-
       - name: Install pyaedt and tests dependencies
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          source .venv/bin/activate
           uv sync --frozen --group tests --extra all
 
       - name: Remove Ansys processes (if any)
@@ -1212,7 +1181,6 @@ jobs:
 
       - name: Run tests marked with 'extensions'
         run: |
-          source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS_NON_TESTMON} --timeout=600 tests/system/extensions
 
       - name: Upload pytest test results
@@ -1233,29 +1201,26 @@ jobs:
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
-
-      - name: Create virtual environment
-        run: uv venv .venv
 
       - name: Install pyaedt and tests dependencies
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          .venv\Scripts\Activate.ps1
           uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
@@ -1282,7 +1247,6 @@ jobs:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
-          .venv\Scripts\Activate.ps1
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 tests/system/filter_solutions
 
@@ -1304,29 +1268,26 @@ jobs:
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
-
-      - name: Create virtual environment
-        run: uv venv .venv
 
       - name: Install pyaedt and tests dependencies
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          .venv\Scripts\Activate.ps1
           uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
@@ -1353,7 +1314,6 @@ jobs:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
-          .venv\Scripts\Activate.ps1
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 -v -rA --color=yes tests/system/emit
 

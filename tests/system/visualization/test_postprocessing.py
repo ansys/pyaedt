@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -559,7 +559,9 @@ def test_eye_diagram(eye_test) -> None:
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2022.2", reason="Not working in non graphical in version lower than 2022.2")
 def test_mask(eye_test) -> None:
-    rep = eye_test.post.reports_by_category.eye_diagram("AEYEPROBE(OutputEye)", "QuickEyeAnalysis")
+    rep = eye_test.post.reports_by_category.eye_diagram(
+        "AEYEPROBE(OutputEye)", "QuickEyeAnalysis", statistical_analysis=False
+    )
     rep.time_start = "0ps"
     rep.time_stop = "50us"
     rep.unit_interval = "1e-9"

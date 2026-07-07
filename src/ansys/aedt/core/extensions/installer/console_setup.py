@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,11 +22,17 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-Launches an interactive shell with an instance of HFSS.
+"""Launches an interactive shell with an instance of HFSS.
 
 This file can also serve as a template to modify PyAEDT scripts to take advantage of the command line arguments
 provided by the launcher
+
+Examples
+--------
+>>> from ansys.aedt.core import Hfss
+>>> hfss = Hfss()
+>>> hfss.logger.info("PyAEDT Console is ready")
+
 """
 
 import atexit
@@ -37,7 +43,9 @@ import sys
 import tempfile
 
 aedt_process_id = int(os.environ.get("PYAEDT_PROCESS_ID", None))
+"""Value for AEDT process id."""
 version = os.environ.get("PYAEDT_DESKTOP_VERSION", None)
+"""Value for version."""
 print("Loading the PyAEDT Console.")
 
 
@@ -73,17 +81,22 @@ if is_windows:
 
 
 def release(d) -> None:
+    """Release the specified resource."""
     d.logger.info("Exiting the PyAEDT Console.")
 
     d.release_desktop(False, False)
 
 
 session_found = False
+"""Value for session found."""
 port = 0
+"""Value for port."""
 student_version = False
+"""Value for student version."""
 
 
 sessions = active_sessions(version=version, student_version=False)
+"""Value for sessions."""
 if aedt_process_id in sessions:
     session_found = True
     if sessions[aedt_process_id] != -1:
@@ -97,6 +110,7 @@ if not session_found:
             port = sessions[aedt_process_id]
 
 error = False
+"""Value for error."""
 if port:
     desktop = Desktop(
         version=version,
@@ -172,8 +186,7 @@ if version > "2023.1":
         f.write("from ansys.aedt.core import *\n")
 
     def log_successful_command(result) -> None:
-        """
-        IPython Hook: Executes after every command (cell).
+        """IPython Hook: Executes after every command (cell).
         Logs the input command only if 'result.error_in_exec' is False (no exception).
         """
         # Check for execution error

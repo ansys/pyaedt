@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,10 +22,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-This module contains the `PostProcessor` class.
+"""The module contains the `PostProcessor` class.
 
 It contains all advanced postprocessing functionalities that require Python 3.x packages like NumPy and Matplotlib.
+
+Examples
+--------
+>>> from ansys.aedt.core.visualization.post.post_icepak import PostProcessorIcepak
+>>> obj = PostProcessorIcepak()
+
 """
 
 import ast
@@ -58,6 +63,11 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         Inherited parent object. The parent object must provide the members
         `_modeler`, `_desktop`, `_odesign`, and `logger`.
 
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post.post_icepak import PostProcessorIcepak
+    >>> obj = PostProcessorIcepak()
+
     """
 
     def __init__(self, app) -> None:
@@ -65,12 +75,17 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_field_summary(self) -> FieldSummary:
-        """
-        Create field summary object.
+        """Create field summary object.
 
         Returns
         -------
         :class:`ansys.aedt.core.visualization.post.field_summary.FieldSummary`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_icepak import PostProcessorIcepak
+        >>> obj = PostProcessorIcepak()
+        >>> obj.create_field_summary()
 
         """
         return FieldSummary(self._app)
@@ -116,6 +131,7 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         >>> ipk = Icepak()
         >>> ipk.create_fan()
         >>> filename, vol_flow_name, p_rise_name, op_dict = ipk.get_fans_operating_point()
+
         """
         if export_file is None:
             path = self._app.temp_directory
@@ -218,6 +234,13 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         References
         ----------
         >>> oModule.ExportFieldsSummary
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_icepak import PostProcessorIcepak
+        >>> obj = PostProcessorIcepak()
+        >>> obj.evaluate_faces_quantity(faces=[1], quantity=1)
+
         """
         if variations is None:
             variations = {}
@@ -279,6 +302,13 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         References
         ----------
         >>> oModule.ExportFieldsSummary
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_icepak import PostProcessorIcepak
+        >>> obj = PostProcessorIcepak()
+        >>> obj.evaluate_boundary_quantity(boundary=1, quantity=1)
+
         """
         if variations is None:
             variations = {}
@@ -339,6 +369,13 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         References
         ----------
         >>> oModule.ExportFieldsSummary
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_icepak import PostProcessorIcepak
+        >>> obj = PostProcessorIcepak()
+        >>> obj.evaluate_monitor_quantity(monitor=1, quantity=1)
+
         """
         if variations is None:
             variations = {}
@@ -401,6 +438,13 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         References
         ----------
         >>> oModule.ExportFieldsSummary
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_icepak import PostProcessorIcepak
+        >>> obj = PostProcessorIcepak()
+        >>> obj.evaluate_object_quantity(object_name=1, quantity_name=1)
+
         """
         if variations is None:
             variations = {}
@@ -446,6 +490,13 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
 
               - A tuple of three floats representing the (x, y, z) coordinates of the maximum point.
               - A float representing the value associated with the maximum point.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_icepak import PostProcessorIcepak
+        >>> obj = PostProcessorIcepak()
+        >>> obj.get_temperature_extremum(assignment="Box1", max_min=1, location=1)
+
         """
         return self.get_field_extremum(assignment, max_min, location, "Temp", setup, {"Time": time})
 
@@ -473,6 +524,13 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         References
         ----------
         >>> oEditor.ChangeProperty
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_icepak import PostProcessorIcepak
+        >>> obj = PostProcessorIcepak()
+        >>> obj.power_budget(units="mm", temperature=1)
+
         """
         available_bcs = self._app.boundaries
         power_dict = {}

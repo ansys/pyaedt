@@ -95,12 +95,12 @@ jobs:
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
@@ -136,7 +136,7 @@ jobs:
           .venv\Scripts\Activate.ps1
           pytest ${PYTEST_ARGUMENTS} -m solvers
 
-      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+      - uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           name: codecov-system-solvers-tests-windows
           files: ./coverage.xml
@@ -158,12 +158,12 @@ jobs:
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
@@ -196,7 +196,7 @@ jobs:
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} -m solvers
 
-      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+      - uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           name: codecov-system-solvers-tests-linux
           files: ./coverage.xml
@@ -215,12 +215,12 @@ jobs:
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
@@ -260,7 +260,7 @@ jobs:
             .venv\Scripts\Activate.ps1
             pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile -m general
 
-      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+      - uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           name: codecov-system-general-tests-windows
           files: ./coverage.xml
@@ -282,12 +282,12 @@ jobs:
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
@@ -330,7 +330,7 @@ jobs:
             source .venv/bin/activate
             pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile -m general
 
-      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+      - uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           name: codecov-system-general-tests
           files: ./coverage.xml
@@ -351,7 +351,7 @@ jobs:
       MPLBACKEND: 'Agg'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
@@ -359,7 +359,7 @@ jobs:
         uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
@@ -398,7 +398,7 @@ jobs:
             .venv\Scripts\Activate.ps1
             pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=600 -m visualization -x
 
-      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+      - uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           name: codecov-system-visualization-tests-windows
           files: ./coverage.xml
@@ -422,7 +422,7 @@ jobs:
       MPLBACKEND: 'Agg'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
@@ -430,7 +430,7 @@ jobs:
         uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
@@ -477,7 +477,7 @@ jobs:
             source .venv/bin/activate
             pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=300 -m "visualization and avoid_ansys_load" -x --cov-append
 
-      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+      - uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           name: codecov-system-visualization-tests-linux
           files: ./coverage.xml
@@ -496,7 +496,7 @@ jobs:
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
@@ -504,7 +504,7 @@ jobs:
         uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
@@ -543,7 +543,7 @@ jobs:
             .venv\Scripts\Activate.ps1
             pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m extensions
 
-      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+      - uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           name: codecov-system-extensions-tests-windows
           files: ./coverage.xml
@@ -565,7 +565,7 @@ jobs:
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
@@ -573,7 +573,7 @@ jobs:
         uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
@@ -608,7 +608,7 @@ jobs:
             source .venv/bin/activate
             pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m extensions
 
-      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+      - uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           name: codecov-system-extensions-tests-linux
           files: ./coverage.xml
@@ -628,12 +628,12 @@ jobs:
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
@@ -672,7 +672,7 @@ jobs:
             .venv\Scripts\Activate.ps1
             pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -v -rA --color=yes -m emit
 
-      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+      - uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           name: codecov-system-emit-tests-windows
           files: ./coverage.xml
@@ -691,12 +691,12 @@ jobs:
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
@@ -735,7 +735,7 @@ jobs:
             .venv\Scripts\Activate.ps1
             pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m filter_solutions
 
-      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+      - uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           name: codecov-system-filter-tests-windows
           files: ./coverage.xml

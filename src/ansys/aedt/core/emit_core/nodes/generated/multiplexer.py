@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -29,6 +29,8 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class Multiplexer(EmitNode):
+    """Provide multiplexer."""
+
     def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = True
@@ -36,22 +38,58 @@ class Multiplexer(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node."""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
+        >>> mux.node_type
+
+        """
         return self._node_type
 
     @min_aedt_version("2025.2")
     def add_multiplexer_pass_band(self) -> EmitNode:
-        """Add a New Multiplexer Band to this Multiplexer"""
+        """Add a New Multiplexer Band to this Multiplexer
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
+        >>> band = mux.add_multiplexer_pass_band()
+
+        """
         return self._add_child_node("Multiplexer Pass Band")
 
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
-        """Duplicate this node"""
+        """Duplicate this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
+        >>> mux.duplicate("Mux1_Copy")
+
+        """
         return self._duplicate(new_name)
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node"""
+        """Delete this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
+        >>> mux.delete()
+
+        """
         self._delete()
 
     @property
@@ -60,6 +98,14 @@ class Multiplexer(EmitNode):
         """Name of file defining the multiplexer.
 
         Value should be a full file path.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
+        >>> mux.filename = r"C:\\Temp\\mux_data.s4p"
+
         """
         val = self._get_property("Filename")
         return val
@@ -75,6 +121,14 @@ class Multiplexer(EmitNode):
         """System Noise temperature (K) of the component.
 
         Value should be between 0 and 1000.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
+        >>> mux.noise_temperature = 290.0
+
         """
         val = self._get_property("Noise Temperature")
         return float(val)
@@ -87,7 +141,16 @@ class Multiplexer(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def notes(self) -> str:
-        """Expand to view/edit notes stored with the project."""
+        """Expand to view/edit notes stored with the project.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
+        >>> mux.notes = "Front-end multiplexer"
+
+        """
         val = self._get_property("Notes")
         return val
 
@@ -108,6 +171,14 @@ class Multiplexer(EmitNode):
         Type of multiplexer model. Options include: By File (one measured or
         simulated file for the device) or By Pass Band (parametric or file-based
         definition for each pass band).
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
+        >>> mux.multiplexer_type = mux.MultiplexerTypeOption.BY_PASS_BAND
+
         """
         val = self._get_property("Multiplexer Type")
         val = self.MultiplexerTypeOption[val.upper()]
@@ -121,7 +192,16 @@ class Multiplexer(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def ports(self) -> list[str]:
-        """Assigns the child port nodes to the multiplexers ports."""
+        """Assigns the child port nodes to the multiplexers ports.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
+        >>> mux.ports = ["Pass Band C", "Pass Band A", "Pass Band B"]
+
+        """
         val = self._get_property("Ports")
         return val
 
@@ -135,6 +215,15 @@ class Multiplexer(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def warnings(self) -> str:
-        """Warning(s) for this node."""
+        """Warning(s) for this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
+        >>> mux.warnings
+
+        """
         val = self._get_property("Warnings")
         return val

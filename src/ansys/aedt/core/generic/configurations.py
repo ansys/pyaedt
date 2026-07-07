@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -21,6 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
 from collections import defaultdict
 import copy
 from datetime import datetime
@@ -82,6 +83,13 @@ def _find_datasets(d, out_list) -> None:
 class ConfigurationsOptions(PyAedtBase):
     """Options class for the configurations.
     User can enable or disable import export components.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Hfss
+    >>> hfss = Hfss()
+    >>> hfss.configurations.options
+
     """
 
     def __init__(self, is_layout: bool = False) -> None:
@@ -118,6 +126,13 @@ class ConfigurationsOptions(PyAedtBase):
         Returns
         -------
         float
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.configurations.options.object_mapping_tolerance = 1e-6
+
         """
         return self._object_mapping_tolerance
 
@@ -138,6 +153,7 @@ class ConfigurationsOptions(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.export_variables = False  # Disable the variables export
+
         """
         return self._export_variables
 
@@ -158,6 +174,7 @@ class ConfigurationsOptions(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.export_setups = False  # Disable the setup export
+
         """
         return self._export_setups
 
@@ -178,6 +195,7 @@ class ConfigurationsOptions(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.export_optimizations = False  # Disable the optimization export
+
         """
         return self._export_optimizations
 
@@ -198,6 +216,7 @@ class ConfigurationsOptions(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.export_parametrics = False  # Disable the parametrics export
+
         """
         return self._export_parametrics
 
@@ -218,6 +237,7 @@ class ConfigurationsOptions(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.export_boundaries = False  # Disable the boundaries export
+
         """
         return self._export_boundaries
 
@@ -233,6 +253,12 @@ class ConfigurationsOptions(PyAedtBase):
         -------
         bool
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.configurations.options.import_datasets = False
+
         """
         return self._import_datasets
 
@@ -247,6 +273,12 @@ class ConfigurationsOptions(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.configurations.options.export_datasets = False
 
         """
         return self._export_datasets
@@ -268,6 +300,7 @@ class ConfigurationsOptions(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.export_mesh_operations = False  # Disable the mesh operations export
+
         """
         return self._export_mesh_operations
 
@@ -288,6 +321,7 @@ class ConfigurationsOptions(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.export_coordinate_systems = False  # Disable the coordinate systems export
+
         """
         return self._export_coordinate_systems
 
@@ -328,6 +362,7 @@ class ConfigurationsOptions(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.export_export_materials = False  # Disable the materials export
+
         """
         return self._export_materials
 
@@ -348,6 +383,7 @@ class ConfigurationsOptions(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.export_object_properties = False  # Disable the object properties export
+
         """
         return self._export_object_properties
 
@@ -368,6 +404,7 @@ class ConfigurationsOptions(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.import_variables = False  # Disable the variables import
+
         """
         return self._import_variables
 
@@ -388,6 +425,7 @@ class ConfigurationsOptions(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.import_setups = False  # Disable the setup import
+
         """
         return self._import_setups
 
@@ -408,6 +446,7 @@ class ConfigurationsOptions(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.import_optimizations = False  # Disable the optimization import
+
         """
         return self._import_optimizations
 
@@ -428,6 +467,7 @@ class ConfigurationsOptions(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.import_parametrics = False  # Disable the parametrics import
+
         """
         return self._import_parametrics
 
@@ -448,6 +488,7 @@ class ConfigurationsOptions(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.import_boundaries = False  # Disable the boundaries import
+
         """
         return self._import_boundaries
 
@@ -468,6 +509,7 @@ class ConfigurationsOptions(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.import_mesh_operations = False  # Disable the mesh operations import
+
         """
         return self._import_mesh_operations
 
@@ -488,6 +530,7 @@ class ConfigurationsOptions(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.import_coordinate_systems = False  # Disable the coordinate systems import
+
         """
         return self._import_coordinate_systems
 
@@ -528,6 +571,7 @@ class ConfigurationsOptions(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.import_import_materials = False  # Disable the materials import
+
         """
         return self._import_materials
 
@@ -544,6 +588,7 @@ class ConfigurationsOptions(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.import_output_variables = False  # Disable the materials import
+
         """
         return self._import_output_variables
 
@@ -568,6 +613,7 @@ class ConfigurationsOptions(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.import_object_properties = False  # Disable the object properties import
+
         """
         return self._import_object_properties
 
@@ -588,6 +634,7 @@ class ConfigurationsOptions(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.skip_import_if_exists = False  # Disable the update of existing properties
+
         """
         return self._skip_import_if_exists
 
@@ -615,6 +662,13 @@ class ConfigurationsOptions(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.configurations.options.unset_all_export()
+
         """
         for prop in vars(self):
             if prop.startswith("_export_"):
@@ -628,6 +682,13 @@ class ConfigurationsOptions(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.configurations.options.set_all_export()
+
         """
         for prop in vars(self):
             if prop.startswith("_export_"):
@@ -641,6 +702,13 @@ class ConfigurationsOptions(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.configurations.options.unset_all_import()
+
         """
         for prop in vars(self):
             if prop.startswith("_import_"):
@@ -654,6 +722,13 @@ class ConfigurationsOptions(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.configurations.options.set_all_import()
+
         """
         for prop in vars(self):
             if prop.startswith("_import_"):
@@ -665,6 +740,13 @@ class ImportResults(PyAedtBase):
     """Contains the results of the import operations.
 
     Each result can be ``True`` or ``False``.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Hfss
+    >>> hfss = Hfss()
+    >>> hfss.configurations.results
+
     """
 
     def __init__(self) -> None:
@@ -696,6 +778,14 @@ class ImportResults(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.configurations.import_config(r"C:\\Temp\\hfss_config.json")
+        >>> hfss.configurations.results.global_import_success
+
         """
         for prop, value in vars(self).items():
             if prop.startswith("import_") and value is False:
@@ -704,7 +794,15 @@ class ImportResults(PyAedtBase):
 
 
 class Configurations(PyAedtBase):
-    """Enables export and import of a JSON configuration file that can be applied to a new or existing design."""
+    """Enables export and import of a JSON configuration file that can be applied to a new or existing design.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Hfss
+    >>> hfss = Hfss()
+    >>> hfss.configurations
+
+    """
 
     def __init__(self, app) -> None:
         self._app = app
@@ -719,6 +817,13 @@ class Configurations(PyAedtBase):
         Returns
         -------
         dict
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.configurations.schema
+
         """
         if self._schema:
             return self._schema
@@ -1058,6 +1163,13 @@ class Configurations(PyAedtBase):
         bool
             ``True`` if the configuration file is valid, ``False`` otherwise.
             If the validation fails, a warning is also written to the logger.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.configurations.validate(r"C:\\Temp\\hfss_config.json")
+
         """
         from jsonschema import exceptions
         from jsonschema import validate
@@ -1098,6 +1210,13 @@ class Configurations(PyAedtBase):
         -------
         dict, bool
             Config dictionary.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.configurations.import_config(r"C:\\Temp\\hfss_config.json")
+
         """
         if len(args) > 0:  # pragma: no cover
             raise TypeError("import_config expected at most 1 arguments, got %d" % (len(args) + 1))
@@ -1491,6 +1610,13 @@ class Configurations(PyAedtBase):
         -------
         str
             Exported config file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.configurations.export_config(r"C:\\Temp\\hfss_config.json", overwrite=True)
+
         """
         if not config_file:
             config_file = Path(self._app.working_directory) / (generate_unique_name(self._app.design_name) + ".json")
@@ -1528,6 +1654,8 @@ class Configurations(PyAedtBase):
 
 
 class ConfigurationOptionsIcepak(ConfigurationsOptions, PyAedtBase):
+    """Provide configuration options icepak."""
+
     def __init__(self, app) -> None:
         ConfigurationsOptions.__init__(self)
         self._export_monitor = True
@@ -1537,6 +1665,7 @@ class ConfigurationOptionsIcepak(ConfigurationsOptions, PyAedtBase):
 
     @property
     def import_monitor(self):
+        """Retrieve import monitor."""
         return self._import_monitor
 
     @import_monitor.setter
@@ -1545,6 +1674,7 @@ class ConfigurationOptionsIcepak(ConfigurationsOptions, PyAedtBase):
 
     @property
     def export_monitor(self):
+        """Retrieve export monitor."""
         return self._export_monitor
 
     @export_monitor.setter
@@ -1553,6 +1683,7 @@ class ConfigurationOptionsIcepak(ConfigurationsOptions, PyAedtBase):
 
     @property
     def import_native_components(self):
+        """Retrieve import native components."""
         return self._import_native_components
 
     @import_native_components.setter
@@ -1561,6 +1692,7 @@ class ConfigurationOptionsIcepak(ConfigurationsOptions, PyAedtBase):
 
     @property
     def export_native_components(self):
+        """Retrieve export native components."""
         return self._export_native_components
 
     @export_native_components.setter
@@ -1569,6 +1701,8 @@ class ConfigurationOptionsIcepak(ConfigurationsOptions, PyAedtBase):
 
 
 class ConfigurationOptions3DLayout(ConfigurationsOptions, PyAedtBase):
+    """Provide configuration options 3 D layout."""
+
     def __init__(self, app) -> None:
         ConfigurationsOptions.__init__(self)
         self._export_mesh_operations = False
@@ -1582,7 +1716,15 @@ class ConfigurationOptions3DLayout(ConfigurationsOptions, PyAedtBase):
 
 
 class Configurations3DLayout(Configurations, PyAedtBase):
-    """Enables export and import configuration options to be applied to a new or existing 3DLayout design."""
+    """Enables export and import configuration options to be applied to a new or existing 3DLayout design.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Hfss3dLayout
+    >>> h3d = Hfss3dLayout()
+    >>> h3d.configurations
+
+    """
 
     def __init__(self, app) -> None:
         Configurations.__init__(self, app)
@@ -1590,7 +1732,15 @@ class Configurations3DLayout(Configurations, PyAedtBase):
 
 
 class ConfigurationsIcepak(Configurations, PyAedtBase):
-    """Enables export and import configuration options to be applied on a new or existing design."""
+    """Enables export and import configuration options to be applied on a new or existing design.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Icepak
+    >>> icepak = Icepak()
+    >>> icepak.configurations
+
+    """
 
     def __init__(self, app) -> None:
         Configurations.__init__(self, app)
@@ -1747,6 +1897,13 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
         -------
         bool
             ``True`` if successful.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Icepak
+        >>> icepak = Icepak()
+        >>> icepak.configurations.update_monitor("Object", "Box1", "Temperature", "Box1Temp")
+
         """
         if m_case == "Point":
             self._app.monitor.assign_point_monitor(m_object, monitor_quantity=m_quantity, monitor_name=m_name)
@@ -1833,6 +1990,13 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
         -------
         dict, bool
             Config dictionary.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Icepak
+        >>> icepak = Icepak()
+        >>> icepak.configurations.import_config(r"C:\\Temp\\icepak_config.json")
+
         """
         if len(args) == 0:
             exclude_set = set()
@@ -2223,7 +2387,15 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
 
 
 class ConfigurationsNexxim(Configurations, PyAedtBase):
-    """Enables export and import configuration options to be applied to a new or existing Nexxim design."""
+    """Enables export and import configuration options to be applied to a new or existing Nexxim design.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Circuit
+    >>> circuit = Circuit()
+    >>> circuit.configurations
+
+    """
 
     @pyaedt_function_handler()
     def export_config(self, config_file: str | None = None, overwrite: bool | None = False) -> str:
@@ -2242,6 +2414,13 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
         -------
         str
             Exported config file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit()
+        >>> circuit.configurations.export_config(r"C:\\Temp\\circuit_config.json", overwrite=True)
+
         """
         if not config_file:
             config_file = Path(self._app.working_directory) / (generate_unique_name(self._app.design_name) + ".json")
@@ -2429,6 +2608,13 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
         -------
         dict, bool
             Config dictionary.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit()
+        >>> circuit.configurations.import_config(r"C:\\Temp\\circuit_config.json")
+
         """
         if len(args) > 0:  # pragma: no cover
             raise TypeError("import_config expected at most 1 arguments, got %d" % (len(args) + 1))

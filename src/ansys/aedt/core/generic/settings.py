@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""This module contains the ``Settings`` and ``_InnerProjectSettings`` classes.
+"""The module contains the ``Settings`` and ``_InnerProjectSettings`` classes.
 
 The first class encapsulates the settings associated with PyAEDT and AEDT including logging,
 LSF, environment variables and general settings. Most of the default values used can be modified
@@ -34,6 +34,12 @@ configuration file ``pyaedt_settings.yaml`` in the user's ``APPDATA`` folder for
 ``HOME`` folder for Linux.
 
 The second class is intended for internal use only and shouldn't be modified by users.
+
+Examples
+--------
+>>> from ansys.aedt.core.generic.settings import settings
+>>> settings.enable_screen_logs = False
+
 """
 
 from __future__ import annotations
@@ -51,6 +57,7 @@ from ansys.aedt.core.generic.scheduler import DEFAULT_CUSTOM_SUBMISSION_STRING
 from ansys.aedt.core.generic.scheduler import DEFAULT_NUM_CORES
 
 is_linux = os.name == "posix"
+"""Flag indicating whether linux is enabled."""
 
 # Settings allowed to be updated using a YAML configuration file.
 ALLOWED_LOG_SETTINGS = [
@@ -74,6 +81,7 @@ ALLOWED_LOG_SETTINGS = [
     "logger_formatter",
     "aedt_log_file",
 ]
+"""Allowed log settings."""
 ALLOWED_LSF_SETTINGS = [
     "custom_lsf_command",
     "lsf_aedt_command",
@@ -84,6 +92,7 @@ ALLOWED_LSF_SETTINGS = [
     "lsf_ui",
     "use_lsf_scheduler",
 ]
+"""Allowed LSF settings."""
 ALLOWED_GENERAL_SETTINGS = [
     "lazy_load",
     "objects_lazy_load",
@@ -112,7 +121,9 @@ ALLOWED_GENERAL_SETTINGS = [
     "pyd_libraries_path",
     "pyd_libraries_user_path",
 ]
+"""Allowed general settings."""
 ALLOWED_GRPC_SETTINGS = ["grpc_secure_mode", "grpc_local", "grpc_listen_all", "pyedb_use_grpc"]
+"""Allowed gRPC settings."""
 ALLOWED_AEDT_ENV_VAR_SETTINGS = [
     "ANSYSEM_FEATURE_F335896_MECHANICAL_STRUCTURAL_SOLN_TYPE_ENABLE",
     "ANSYSEM_FEATURE_F395486_RIGID_FLEX_BENDING_ENABLE",
@@ -130,14 +141,25 @@ ALLOWED_AEDT_ENV_VAR_SETTINGS = [
     "AnsysSendMsg",
     "ANSYSEM_FEATURE_F544773_SSFIT_AUTO_SELECTION_ENABLE",
 ]
+"""Allowed AEDT env var settings."""
 
 DEFAULT_GRPC_LOCAL: bool = True
+"""Default gRPC local."""
 DEFAULT_GRPC_SECURE_MODE: bool = True
+"""Default gRPC secure mode."""
 DEFAULT_GRPC_LISTEN_ALL: bool = False
+"""Default gRPC listen all."""
 
 
 def generate_log_filename() -> str:
-    """Generate a log filename."""
+    """Generate a log filename.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.settings import generate_log_filename
+    >>> log_name = generate_log_filename()
+
+    """
     base = "pyaedt"
     username = Path.home().name
     unique_id = uuid.uuid4()
@@ -151,11 +173,21 @@ class _InnerProjectSettings:  # pragma: no cover
     """
 
     properties: dict = {}
+    """Value for properties."""
     time_stamp: int | float = 0
+    """Value for time stamp."""
 
 
 class Settings(PyAedtBase):
-    """Manages all PyAEDT environment variables and global settings."""
+    """Manages all PyAEDT environment variables and global settings.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.settings import Settings
+    >>> custom_settings = Settings()
+    >>> custom_settings.enable_screen_logs = False
+
+    """
 
     def __init__(self) -> None:
         # Setup default values then load values from PersoalLib' settings_config.yaml if it exists.
@@ -274,6 +306,12 @@ class Settings(PyAedtBase):
     def pyedb_use_grpc(self) -> bool | None:
         """Flag for whether to use PyEDB with gRPC or not.
         The default is ``None``.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.pyedb_use_grpc = True
+
         """
         return self.__pyedb_use_grpc
 
@@ -285,6 +323,12 @@ class Settings(PyAedtBase):
     def grpc_secure_mode(self) -> bool:
         """Flag for whether to use secure mode for gRPC API.
         The default is ``True``.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.grpc_secure_mode = False
+
         """
         return self.__grpc_secure_mode
 
@@ -296,6 +340,12 @@ class Settings(PyAedtBase):
     def grpc_local(self) -> bool:
         """Flag for whether to use local connection for gRPC API.
         The default is ``True``.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.grpc_local = True
+
         """
         return self.__grpc_local
 
@@ -307,6 +357,12 @@ class Settings(PyAedtBase):
     def grpc_listen_all(self) -> bool:
         """Flag for whether to listen on all interfaces for gRPC API.
         The default is ``False``.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.grpc_listen_all = False
+
         """
         return self.__grpc_listen_all
 
@@ -318,7 +374,15 @@ class Settings(PyAedtBase):
 
     @property
     def logger(self) -> logging.Logger | None:
-        """Active logger."""
+        """Active logger.
+
+        Examples
+        --------
+        >>> import logging
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.logger = logging.getLogger("pyaedt")
+
+        """
         return self.__logger
 
     @logger.setter
@@ -330,6 +394,12 @@ class Settings(PyAedtBase):
         """Block matplotlib figure plot during python script run until the user close it manually.
 
         Default is ``False``.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.block_figure_plot = True
+
         """
         return self.__block_figure_plot
 
@@ -339,7 +409,14 @@ class Settings(PyAedtBase):
 
     @property
     def enable_desktop_logs(self) -> bool:
-        """Enable or disable the logging to the AEDT message window."""
+        """Enable or disable the logging to the AEDT message window.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.enable_desktop_logs = True
+
+        """
         return self.__enable_desktop_logs
 
     @enable_desktop_logs.setter
@@ -348,7 +425,14 @@ class Settings(PyAedtBase):
 
     @property
     def global_log_file_size(self) -> int:
-        """Global PyAEDT log file size in MB. The default value is ``10``."""
+        """Global PyAEDT log file size in MB. The default value is ``10``.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.global_log_file_size = 20
+
+        """
         return self.__global_log_file_size
 
     @global_log_file_size.setter
@@ -360,6 +444,12 @@ class Settings(PyAedtBase):
         """Enable or disable the global PyAEDT log file located in the global temp folder.
 
         The default is ``True``.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.enable_global_log_file = True
+
         """
         return self.__enable_global_log_file
 
@@ -372,6 +462,12 @@ class Settings(PyAedtBase):
         """Enable or disable the local PyAEDT log file located in the ``projectname.pyaedt`` project folder.
 
         The default is ``True``.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.enable_local_log_file = True
+
         """
         return self.__enable_local_log_file
 
@@ -381,7 +477,14 @@ class Settings(PyAedtBase):
 
     @property
     def global_log_file_name(self) -> str:
-        """Global PyAEDT log file path. The default is ``pyaedt_username.log``."""
+        """Global PyAEDT log file path. The default is ``pyaedt_username.log``.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.global_log_file_name = r"C:\\Temp\\pyaedt.log"
+
+        """
         return self.__global_log_file_name
 
     @global_log_file_name.setter
@@ -394,6 +497,12 @@ class Settings(PyAedtBase):
         """Flag for whether to write out the method's arguments in the debug logger.
 
         The default is ``False``.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.enable_debug_methods_argument_logger = True
+
         """
         return self.__enable_debug_methods_argument_logger
 
@@ -403,7 +512,14 @@ class Settings(PyAedtBase):
 
     @property
     def enable_screen_logs(self) -> bool:
-        """Enable or disable the logging to STDOUT."""
+        """Enable or disable the logging to STDOUT.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.enable_screen_logs = False
+
+        """
         return self.__enable_screen_logs
 
     @enable_screen_logs.setter
@@ -412,7 +528,14 @@ class Settings(PyAedtBase):
 
     @property
     def enable_file_logs(self) -> bool:
-        """Enable or disable the logging to a file."""
+        """Enable or disable the logging to a file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.enable_file_logs = True
+
+        """
         return self.__enable_file_logs
 
     @enable_file_logs.setter
@@ -421,7 +544,14 @@ class Settings(PyAedtBase):
 
     @property
     def enable_logger(self) -> bool:
-        """Enable or disable the logging overall."""
+        """Enable or disable the logging overall.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.enable_logger = True
+
+        """
         return self.__enable_logger
 
     @enable_logger.setter
@@ -430,7 +560,14 @@ class Settings(PyAedtBase):
 
     @property
     def logger_file_path(self) -> str | None:
-        """PyAEDT log file path."""
+        """PyAEDT log file path.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.logger_file_path = r"C:\\Temp\\pyaedt.log"
+
+        """
         return self.__logger_file_path
 
     @logger_file_path.setter
@@ -442,6 +579,12 @@ class Settings(PyAedtBase):
         """Message format of the log entries.
 
         The default is ``'%(asctime)s:%(destination)s:%(extra)s%(levelname)-8s:%(message)s'``.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.logger_formatter = "%(levelname)s:%(message)s"
+
         """
         return self.__logger_formatter
 
@@ -454,6 +597,12 @@ class Settings(PyAedtBase):
         """Date format of the log entries.
 
         The default is ``'%Y/%m/%d %H.%M.%S'``
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.logger_datefmt = "%H:%M:%S"
+
         """
         return self.__logger_datefmt
 
@@ -463,7 +612,14 @@ class Settings(PyAedtBase):
 
     @property
     def enable_debug_edb_logger(self) -> bool:
-        """Enable or disable the logger for any EDB API methods."""
+        """Enable or disable the logger for any EDB API methods.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.enable_debug_edb_logger = True
+
+        """
         return self.__enable_debug_edb_logger
 
     @enable_debug_edb_logger.setter
@@ -472,7 +628,14 @@ class Settings(PyAedtBase):
 
     @property
     def enable_debug_grpc_api_logger(self) -> bool:
-        """Enable or disable the logging for the gRPC API calls."""
+        """Enable or disable the logging for the gRPC API calls.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.enable_debug_grpc_api_logger = True
+
+        """
         return self.__enable_debug_grpc_api_logger
 
     @enable_debug_grpc_api_logger.setter
@@ -484,6 +647,12 @@ class Settings(PyAedtBase):
         """Enable or disable the logging for the geometry operators.
 
         This setting is useful for debug purposes.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.enable_debug_geometry_operator_logger = True
+
         """
         return self.__enable_debug_geometry_operator_logger
 
@@ -496,6 +665,12 @@ class Settings(PyAedtBase):
         """Enable or disable the logging for internal methods.
 
         This setting is useful for debug purposes.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.enable_debug_internal_methods_logger = True
+
         """
         return self.__enable_debug_internal_methods_logger
 
@@ -505,7 +680,14 @@ class Settings(PyAedtBase):
 
     @property
     def enable_debug_logger(self) -> bool:
-        """Enable or disable the debug level logger."""
+        """Enable or disable the debug level logger.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.enable_debug_logger = True
+
+        """
         return self.__enable_debug_logger
 
     @enable_debug_logger.setter
@@ -517,6 +699,12 @@ class Settings(PyAedtBase):
         """Path to the AEDT log file.
 
         Used to specify that Electronics Desktop has to be launched with ``-Logfile`` option.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.aedt_log_file = r"C:\\Temp\\aedt_launch.log"
+
         """
         return self.__aedt_log_file
 
@@ -531,6 +719,12 @@ class Settings(PyAedtBase):
         """LSF queue name.
 
         This attribute is valid only on Linux systems running LSF Scheduler.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.lsf_queue = "research"
+
         """
         return self.__lsf_queue
 
@@ -544,6 +738,12 @@ class Settings(PyAedtBase):
 
         This attribute is valid only on Linux systems running LSF Scheduler.
         When setting this property to ``True``, some gRPC properties are updated to align with the change.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.use_lsf_scheduler = True
+
         """
         return self.__use_lsf_scheduler
 
@@ -563,6 +763,12 @@ class Settings(PyAedtBase):
 
         The default is ``"ansysedt"``.
         This attribute is valid only on Linux systems running LSF Scheduler.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.lsf_aedt_command = "ansysedt"
+
         """
         return self.__lsf_aedt_command
 
@@ -572,7 +778,14 @@ class Settings(PyAedtBase):
 
     @property
     def num_cores(self) -> int:
-        """Number cores to use with the scheduler."""
+        """Number cores to use with the scheduler.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.num_cores = 8
+
+        """
         return self.__num_cores
 
     @num_cores.setter
@@ -584,6 +797,12 @@ class Settings(PyAedtBase):
         """RAM allocated for the LSF job.
 
         This attribute is valid only on Linux systems running LSF Scheduler.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.lsf_ram = 4000
+
         """
         return self.__lsf_ram
 
@@ -593,7 +812,14 @@ class Settings(PyAedtBase):
 
     @property
     def lsf_ui(self) -> int:
-        """Value passed in the LSF 'select' string to the ui resource."""
+        """Value passed in the LSF 'select' string to the ui resource.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.lsf_ui = 1
+
+        """
         return self.__lsf_ui
 
     @lsf_ui.setter
@@ -603,7 +829,14 @@ class Settings(PyAedtBase):
 
     @property
     def lsf_timeout(self) -> int:
-        """Timeout in seconds for trying to start the interactive session. The default is ``3600`` seconds."""
+        """Timeout in seconds for trying to start the interactive session. The default is ``3600`` seconds.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.lsf_timeout = 1800
+
+        """
         return self.__lsf_timeout
 
     @lsf_timeout.setter
@@ -614,6 +847,12 @@ class Settings(PyAedtBase):
     def lsf_osrel(self) -> str:
         """Operating system string.
         This attribute is valid only on Linux systems running LSF Scheduler.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.lsf_osrel = "ubuntu22.04"
+
         """
         return self.__lsf_osrel
 
@@ -625,6 +864,12 @@ class Settings(PyAedtBase):
     def custom_lsf_command(self) -> str:
         """Command to launch in the LSF Scheduler. The default is ``None``.
         This attribute is valid only on Linux systems running LSF Scheduler.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.custom_lsf_command = "bsub -n 4"
+
         """
         return self.__custom_lsf_command
 
@@ -638,6 +883,12 @@ class Settings(PyAedtBase):
     def aedt_environment_variables(self) -> dict:
         """Environment variables that are set before launching a new AEDT session,
         including those that enable the beta features.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.aedt_environment_variables = {"ANS_NODEPCHECK": "1"}
+
         """
         return self.__aedt_environment_variables
 
@@ -649,7 +900,14 @@ class Settings(PyAedtBase):
 
     @property
     def remote_api(self) -> bool:
-        """State whether remote API is used or not."""
+        """State whether remote API is used or not.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.remote_api = True
+
+        """
         return self.__remote_api
 
     @remote_api.setter
@@ -658,7 +916,15 @@ class Settings(PyAedtBase):
 
     @property
     def formatter(self) -> logging.Formatter | None:
-        """Get the formatter."""
+        """Get the formatter.
+
+        Examples
+        --------
+        >>> import logging
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.formatter = logging.Formatter("%(levelname)s:%(message)s")
+
+        """
         return self.__formatter
 
     @formatter.setter
@@ -667,7 +933,14 @@ class Settings(PyAedtBase):
 
     @property
     def remote_rpc_session(self) -> Any | None:
-        """Get the RPyC connection."""
+        """Get the RPyC connection.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.remote_rpc_session = None
+
+        """
         return self.__remote_rpc_session
 
     @remote_rpc_session.setter
@@ -676,7 +949,14 @@ class Settings(PyAedtBase):
 
     @property
     def remote_rpc_session_temp_folder(self) -> str | None:
-        """Get the remote RPyC session temp folder."""
+        """Get the remote RPyC session temp folder.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.remote_rpc_session_temp_folder = r"C:\\Temp\\pyaedt_rpc"
+
+        """
         return self.__remote_rpc_session_temp_folder
 
     @remote_rpc_session_temp_folder.setter
@@ -685,7 +965,14 @@ class Settings(PyAedtBase):
 
     @property
     def remote_rpc_service_manager_port(self) -> int:
-        """Get the remote RPyC service manager port."""
+        """Get the remote RPyC service manager port.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.remote_rpc_service_manager_port = 18000
+
+        """
         return self.__remote_rpc_service_manager_port
 
     @remote_rpc_service_manager_port.setter
@@ -694,7 +981,15 @@ class Settings(PyAedtBase):
 
     @property
     def time_tick(self) -> float:
-        """Time in seconds since the 'epoch' as a floating-point number."""
+        """Time in seconds since the 'epoch' as a floating-point number.
+
+        Examples
+        --------
+        >>> import time
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.time_tick = time.time()
+
+        """
         return self.__time_tick
 
     @time_tick.setter
@@ -703,7 +998,14 @@ class Settings(PyAedtBase):
 
     @property
     def release_on_exception(self) -> bool:
-        """Enable or disable the release of AEDT on exception."""
+        """Enable or disable the release of AEDT on exception.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.release_on_exception = False
+
+        """
         return self.__release_on_exception
 
     @release_on_exception.setter
@@ -712,7 +1014,14 @@ class Settings(PyAedtBase):
 
     @property
     def objects_lazy_load(self) -> bool:
-        """Flag for enabling and disabling the lazy load. The default value is ``True``."""
+        """Flag for enabling and disabling the lazy load. The default value is ``True``.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.objects_lazy_load = True
+
+        """
         return self.__objects_lazy_load
 
     @objects_lazy_load.setter
@@ -721,7 +1030,14 @@ class Settings(PyAedtBase):
 
     @property
     def lazy_load(self) -> bool:
-        """Flag for enabling and disabling the lazy load. The default value is ``True``."""
+        """Flag for enabling and disabling the lazy load. The default value is ``True``.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.lazy_load = True
+
+        """
         return self.__lazy_load
 
     @lazy_load.setter
@@ -733,6 +1049,12 @@ class Settings(PyAedtBase):
         """Enable or disable the use of the flag `-waitforlicense` when launching Electronic Desktop.
 
         The default value is ``False``.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.wait_for_license = True
+
         """
         return self.__wait_for_license
 
@@ -742,7 +1064,14 @@ class Settings(PyAedtBase):
 
     @property
     def retry_n_times_time_interval(self) -> float:
-        """Time interval between the retries by the ``_retry_n_times`` method."""
+        """Time interval between the retries by the ``_retry_n_times`` method.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.retry_n_times_time_interval = 0.5
+
+        """
         return self.__retry_n_times_time_interval
 
     @retry_n_times_time_interval.setter
@@ -751,7 +1080,14 @@ class Settings(PyAedtBase):
 
     @property
     def number_of_grpc_api_retries(self) -> int:
-        """Number of gRPC API retries. The default is ``3``."""
+        """Number of gRPC API retries. The default is ``3``.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.number_of_grpc_api_retries = 5
+
+        """
         return self.__number_of_grpc_api_retries
 
     @number_of_grpc_api_retries.setter
@@ -760,7 +1096,14 @@ class Settings(PyAedtBase):
 
     @property
     def desktop_launch_timeout(self) -> int:
-        """Timeout in seconds for trying to launch AEDT. The default is ``120`` seconds."""
+        """Timeout in seconds for trying to launch AEDT. The default is ``120`` seconds.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.desktop_launch_timeout = 180
+
+        """
         return self.__desktop_launch_timeout
 
     @desktop_launch_timeout.setter
@@ -772,6 +1115,12 @@ class Settings(PyAedtBase):
         """AEDT version in the form ``"2023.x"``.
 
         In AEDT 2022 R2 and later, evaluating a bounding box by exporting a SAT file is disabled.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.aedt_version = "2026.1"
+
         """
         return self.__aedt_version
 
@@ -790,6 +1139,12 @@ class Settings(PyAedtBase):
         - The first desktop created must be the last to be closed.
 
         Enabling multiple desktop sessions is a beta feature.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.use_multi_desktop = True
+
         """
         return self.__use_multi_desktop
 
@@ -799,7 +1154,14 @@ class Settings(PyAedtBase):
 
     @property
     def edb_dll_path(self) -> Path | None:
-        """Optional path for the EDB DLL file."""
+        """Optional path for the EDB DLL file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.edb_dll_path = r"C:\\Program Files\\AnsysEM\\v261\\Delcross\\Win64\\aedb.dll"
+
+        """
         if self.__edb_dll_path is not None:
             # If the optional path is set, return it
             return Path(self.__edb_dll_path)
@@ -819,6 +1181,12 @@ class Settings(PyAedtBase):
         This attribute applies to Solution data output.
         The default is ``False``. If ``True``, the property or method returns a Pandas object.
         This property is valid only in the CPython environment.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.enable_pandas_output = True
+
         """
         return self.__enable_pandas_output
 
@@ -833,6 +1201,12 @@ class Settings(PyAedtBase):
         The default is ``False``.
         If ``True``, when passing a project path, the project has to exist.
         Otherwise, an error is raised.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.force_error_on_missing_project = True
+
         """
         return self.__force_error_on_missing_project
 
@@ -842,7 +1216,14 @@ class Settings(PyAedtBase):
 
     @property
     def disable_bounding_box_sat(self) -> bool:
-        """Flag for enabling and disabling bounding box evaluation by exporting a SAT file."""
+        """Flag for enabling and disabling bounding box evaluation by exporting a SAT file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.disable_bounding_box_sat = True
+
+        """
         return self.__disable_bounding_box_sat
 
     @disable_bounding_box_sat.setter
@@ -851,7 +1232,14 @@ class Settings(PyAedtBase):
 
     @property
     def use_grpc_api(self) -> bool | None:
-        """Flag for whether to use the gRPC API or legacy COM object."""
+        """Flag for whether to use the gRPC API or legacy COM object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.use_grpc_api = True
+
+        """
         return self.__use_grpc_api
 
     @use_grpc_api.setter
@@ -860,7 +1248,14 @@ class Settings(PyAedtBase):
 
     @property
     def enable_error_handler(self) -> bool:
-        """Flag for enabling and disabling the internal PyAEDT error handling."""
+        """Flag for enabling and disabling the internal PyAEDT error handling.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.enable_error_handler = False
+
+        """
         return self.__enable_error_handler
 
     @enable_error_handler.setter
@@ -869,7 +1264,14 @@ class Settings(PyAedtBase):
 
     @property
     def pyaedt_server_path(self) -> str:
-        """Get ``PYAEDT_SERVER_AEDT_PATH`` environment variable."""
+        """Get ``PYAEDT_SERVER_AEDT_PATH`` environment variable.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.pyaedt_server_path = r"C:\\Program Files\\AnsysEM\\v261\\Win64\\ansysedt.exe"
+
+        """
         self.__pyaedt_server_path = os.getenv("PYAEDT_SERVER_AEDT_PATH", "")
         return self.__pyaedt_server_path
 
@@ -881,7 +1283,14 @@ class Settings(PyAedtBase):
 
     @property
     def skip_license_check(self) -> bool:
-        """Flag indicating whether to check for license availability when launching the Desktop."""
+        """Flag indicating whether to check for license availability when launching the Desktop.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.skip_license_check = True
+
+        """
         return self.__skip_license_check
 
     @skip_license_check.setter
@@ -890,7 +1299,14 @@ class Settings(PyAedtBase):
 
     @property
     def use_local_example_data(self) -> bool:
-        """Methods in downloads.py will use the local examples folder if this is set."""
+        """Methods in downloads.py will use the local examples folder if this is set.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.use_local_example_data = True
+
+        """
         return self.__use_local_example_data
 
     @use_local_example_data.setter
@@ -899,7 +1315,14 @@ class Settings(PyAedtBase):
 
     @property
     def local_example_folder(self) -> str | None:
-        """Methods in downloads.py will use the local examples folder if this is set."""
+        """Methods in downloads.py will use the local examples folder if this is set.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.local_example_folder = r"C:\\Temp\\PyAEDTExamples"
+
+        """
         return self.__local_example_folder
 
     @local_example_folder.setter
@@ -908,6 +1331,7 @@ class Settings(PyAedtBase):
 
     @property
     def pyd_libraries_path(self) -> Path:
+        """Path to pyd libraries."""
         if self.__pyd_libraries_user_path is not None:
             # If the user path is set, return it
             return Path(self.__pyd_libraries_user_path)
@@ -915,6 +1339,7 @@ class Settings(PyAedtBase):
 
     @property
     def pyd_libraries_user_path(self) -> Path | None:
+        """Path to pyd libraries user."""
         # Get the user path for PyAEDT libraries.
         if self.__pyd_libraries_user_path is not None:
             return Path(self.__pyd_libraries_user_path)
@@ -937,7 +1362,14 @@ class Settings(PyAedtBase):
     # yaml setting file IO methods
 
     def load_yaml_configuration(self, path: Path | str, raise_on_wrong_key: bool = False):
-        """Update default settings from a YAML configuration file."""
+        """Update default settings from a YAML configuration file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.load_yaml_configuration(r"C:\\Temp\\pyaedt_settings.yaml")
+
+        """
         import yaml
 
         def filter_settings(settings: dict, allowed_keys: list[str]):
@@ -978,7 +1410,14 @@ class Settings(PyAedtBase):
                 self.aedt_environment_variables = settings
 
     def write_yaml_configuration(self, path: Path | str):
-        """Write the current settings into a YAML configuration file."""
+        """Write the current settings into a YAML configuration file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> settings.write_yaml_configuration(r"C:\\Temp\\pyaedt_settings.yaml")
+
+        """
         import yaml
 
         configuration_file = Path(path)
@@ -1004,4 +1443,6 @@ class Settings(PyAedtBase):
 
 
 settings = Settings()
+"""Value for settings."""
 inner_project_settings = _InnerProjectSettings()
+"""Value for inner project settings."""

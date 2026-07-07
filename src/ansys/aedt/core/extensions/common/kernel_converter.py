@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -25,7 +25,7 @@
 from dataclasses import dataclass
 import logging
 import os
-import os.path
+from pathlib import Path
 import tkinter
 from tkinter import filedialog
 from tkinter import ttk
@@ -61,40 +61,67 @@ settings.use_multi_desktop = True
 # The default can be overridden by setting the ``PYAEDT_KERNEL_AEDT_VERSION`` environment
 # variable, e.g. ``set PYAEDT_KERNEL_AEDT_VERSION=2022.2`` with Command Prompt (cmd) on Windows.
 REQUIRED_INPUT_VERSION = os.getenv("PYAEDT_KERNEL_AEDT_VERSION", "2022.2")
+"""Required input version."""
 
 on_ci = os.getenv("ON_CI", "false")
+"""Flag indicating whether ci is enabled."""
 
 if on_ci.lower() == "true":
     settings.use_multi_desktop = False
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 # Extension batch arguments
 PASSWORD = os.getenv("PYAEDT_ENCRYPTED_PASSWORD", "")
+"""Password value."""
 EXTENSION_DEFAULT_ARGUMENTS = {
     "password": PASSWORD,
     "application": "HFSS",
     "solution": "Modal",
     "file_path": "",
 }
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Kernel Converter"
+"""Title displayed for the extension."""
 
 
 @dataclass
 class KernelConverterExtensionData(ExtensionCommonData):
-    """Data class containing user input and computed data."""
+    """Data class containing user input and computed data.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.common.kernel_converter import KernelConverterExtensionData
+    >>> data = KernelConverterExtensionData(file_path="legacy_board.aedt", application="HFSS")
+
+    """
 
     password: str = EXTENSION_DEFAULT_ARGUMENTS["password"]
+    """Value for password."""
     application: str = EXTENSION_DEFAULT_ARGUMENTS["application"]
+    """Value for application."""
     solution: str = EXTENSION_DEFAULT_ARGUMENTS["solution"]
+    """Value for solution."""
     file_path: str = EXTENSION_DEFAULT_ARGUMENTS["file_path"]
+    """Path to file."""
 
 
 class KernelConverterExtension(ExtensionProjectCommon):
-    """Extension for kernel converter in AEDT."""
+    """Extension for kernel converter in AEDT.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.common.kernel_converter import KernelConverterExtension
+    >>> extension = KernelConverterExtension(withdraw=True)
+
+    """
 
     def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class
@@ -116,7 +143,15 @@ class KernelConverterExtension(ExtensionProjectCommon):
         self.add_extension_content()
 
     def add_extension_content(self) -> None:
-        """Add custom content to the extension UI."""
+        """Add custom content to the extension UI.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.common.kernel_converter import KernelConverterExtension
+        >>> extension = KernelConverterExtension(withdraw=True)
+        >>> extension.add_extension_content()
+
+        """
         # File path selection
         file_label = ttk.Label(
             self.root,
@@ -290,15 +325,17 @@ def _check_missing(input_object, output_object, file_path):
             file_path=input_object.working_directory,
             assignment_to_export=[obj_name],
         )
-        output_object.modeler.import_3d_cad(os.path.join(input_object.working_directory, obj_name + ".x_t"))
+        file_name = obj_name + ".x_t"
+        file = Path(input_object.working_directory) / file_name
+        output_object.modeler.import_3d_cad(file)
         list_of_suppressed.append([output_object.design_name, obj_name, "History"])
 
     if file_path.split(".")[1] == "a3dcomp":
-        output_csv = os.path.join(file_path[:-8], "Import_Errors.csv")[::-1].replace("\\", "_", 1)[::-1]
+        output_csv = str((Path(file_path[:-8]) / "Import_Errors.csv"))[::-1].replace("\\", "_", 1)[::-1]
     else:
-        output_csv = os.path.join(file_path[:-5], "Import_Errors.csv")[::-1].replace("\\", "_", 1)[::-1]
+        output_csv = str((Path(file_path[:-5]) / "Import_Errors.csv"))[::-1].replace("\\", "_", 1)[::-1]
 
-    if os.path.exists(output_csv):
+    if Path(output_csv).exists():
         data_read = read_csv(output_csv)
         list_of_suppressed = data_read + list_of_suppressed[1:]
 
@@ -316,7 +353,7 @@ def _convert_3d_component(extension_args, output_desktop, input_desktop) -> None
 
     output_path = file_path[:-8] + f"_{VERSION}.a3dcomp"
 
-    if os.path.exists(output_path):
+    if Path(output_path).exists():
         output_path = file_path[:-8] + generate_unique_name("_version", n=2) + ".a3dcomp"
 
     app = Hfss
@@ -366,13 +403,13 @@ def _convert_aedt(extension_args, output_desktop, input_desktop) -> None:
     a3d_component_path = str(file_path)
     output_path = a3d_component_path[:-5] + f"_{VERSION}.aedt"
 
-    if os.path.exists(output_path):
+    if Path(output_path).exists():
         output_path = a3d_component_path[:-5] + generate_unique_name(f"_{VERSION}", n=2) + ".aedt"
 
     input_desktop.load_project(file_path)
-    project_name = os.path.splitext(os.path.split(file_path)[-1])[0]
+    project_name = Path(file_path).stem
     oproject2 = output_desktop.odesktop.NewProject(output_path)
-    project_name2 = os.path.splitext(os.path.split(output_path)[-1])[0]
+    project_name2 = Path(output_path).stem
 
     for design in input_desktop.design_list():
         app1 = get_pyaedt_app(desktop=input_desktop, project_name=project_name, design_name=design)
@@ -381,17 +418,25 @@ def _convert_aedt(extension_args, output_desktop, input_desktop) -> None:
         output_app = get_pyaedt_app(desktop=output_desktop, project_name=project_name2, design_name=design)
         _check_missing(app1, output_app, file_path)
         output_app.save_project()
-    input_desktop.odesktop.CloseProject(os.path.splitext(os.path.split(file_path)[-1])[0])
+    input_desktop.odesktop.CloseProject(str(Path(file_path).stem))
 
 
 def main(data: KernelConverterExtensionData) -> bool:  # pragma: no cover
-    """Main function to run the kernel converter extension."""
+    """Main function to run the kernel converter extension.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.common.kernel_converter import KernelConverterExtensionData, main
+    >>> data = KernelConverterExtensionData(file_path="legacy_board.aedt")
+    >>> main(data)
+
+    """
     if not data.file_path:
         raise AEDTRuntimeError("No file path provided to the extension.")
 
     logger = logging.getLogger("Global")
 
-    if os.path.isdir(data.file_path):
+    if Path(data.file_path).is_dir():
         files_path = search_files(data.file_path, "*.a3dcomp")
         files_path += search_files(data.file_path, "*.aedt")
     else:

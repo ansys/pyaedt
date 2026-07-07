@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,6 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
+
 from collections import defaultdict
 import math
 import os
@@ -33,6 +35,8 @@ import numpy as np
 if TYPE_CHECKING:
     from pyvista import Plotter
 
+    from ansys.aedt.core.visualization.advanced.sbrplus.hdm_parser import Parser
+
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -42,11 +46,16 @@ from ansys.aedt.core.visualization.plot.pyvista import ObjClass
 
 
 class HDMPlotter(CommonPlotter, PyAedtBase):
-    """
-    Manages Hdm data to be plotted with ``pyvista``.
+    """Manages Hdm data to be plotted with ``pyvista``.
 
     Note: the methods in this class are just examples and subject
     to improvement and changes.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.advanced.hdm_plot import HDMPlotter
+    >>> obj = HDMPlotter()
+
     """
 
     def __init__(self) -> None:
@@ -60,8 +69,16 @@ class HDMPlotter(CommonPlotter, PyAedtBase):
             self.jupyter_backend = "html"
 
     @property
-    def hdm_data(self):
-        """Return the ``hds`` Data parsed."""
+    def hdm_data(self) -> Parser | None:
+        """Return the ``hds`` Data parsed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.hdm_plot import HDMPlotter
+        >>> obj = HDMPlotter()
+        >>> obj.hdm_data
+
+        """
         return self._bundle
 
     @pyaedt_function_handler()
@@ -72,11 +89,24 @@ class HDMPlotter(CommonPlotter, PyAedtBase):
         ----------
         filename : str
             Full path to stl file.
+        cad_color : str, optional
+            Color of the CAD model. The default is ``dodgerblue``.
+        opacity : int, optional
+            Opacity of the CAD model. The default is ``1``.
+        units : str, optional
+            Units of the CAD model. The default is ``mm``.
 
         Returns
         -------
         bool
             ``True`` if imported.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.hdm_plot import HDMPlotter
+        >>> obj = HDMPlotter()
+        >>> obj.add_cad_model(filename="example.stl")
+
         """
         if os.path.exists(filename):
             self._objects.append(ObjClass(filename, cad_color, opacity, units=units))
@@ -85,8 +115,24 @@ class HDMPlotter(CommonPlotter, PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def add_hdm_bundle_from_file(self, filename: str, units: str = None):
-        """Add hdm bundle from file."""
+    def add_hdm_bundle_from_file(self, filename: str, units: str = None) -> None:
+        """Add hdm bundle from file.
+
+        Parameters
+        ----------
+        filename : str
+            Full path to hdm file.
+        units : str, optional
+            Units of the hdm file. The default is ``None``.
+            If ``None``, the units will be set to the units of the first CAD model added.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.hdm_plot import HDMPlotter
+        >>> obj = HDMPlotter()
+        >>> obj.add_hdm_bundle_from_file(filename="example.hdm")
+
+        """
         from ansys.aedt.core.visualization.advanced.sbrplus.hdm_parser import Parser
 
         if os.path.exists(filename):
@@ -132,7 +178,7 @@ class HDMPlotter(CommonPlotter, PyAedtBase):
 
     @pyaedt_function_handler()
     @requires_graphical_dependency("pyvista")
-    def plot_rays(self, snapshot_path: str = None) -> "Plotter":
+    def plot_rays(self, snapshot_path: str = None) -> Plotter:
         """Plot Rays read from an ``hdm`` file.
 
         Parameters
@@ -144,10 +190,15 @@ class HDMPlotter(CommonPlotter, PyAedtBase):
         -------
         :class:`pyvista.Plotter`
 
-
         Notes
         -----
         This method is intended to be an example of the usage that can be made of hdm file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.hdm_plot import HDMPlotter
+        >>> obj = HDMPlotter()
+        >>> obj.plot_rays(snapshot_path="example.hdm")
 
         """
         import pyvista as pv
@@ -199,7 +250,7 @@ class HDMPlotter(CommonPlotter, PyAedtBase):
 
     @pyaedt_function_handler()
     @requires_graphical_dependency("pyvista")
-    def plot_first_bounce_currents(self, snapshot_path: str = None) -> "Plotter":
+    def plot_first_bounce_currents(self, snapshot_path: str = None) -> None:
         """Plot First bounce of currents read from an ``hdm`` file.
 
         Parameters
@@ -207,9 +258,12 @@ class HDMPlotter(CommonPlotter, PyAedtBase):
         snapshot_path : str, optional
             Full path to exported image file. If ``None`` the plot will be shown.
 
-        Returns
-        -------
-        :class:`pyvista.Plotter`
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.hdm_plot import HDMPlotter
+        >>> obj = HDMPlotter()
+        >>> obj.plot_first_bounce_currents(snapshot_path="example.txt")
+
         """
         import pyvista as pv
 

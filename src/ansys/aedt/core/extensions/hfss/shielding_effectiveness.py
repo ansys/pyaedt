@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -44,9 +44,13 @@ from ansys.aedt.core.generic.file_utils import write_csv
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 # Extension batch arguments
 EXTENSION_DEFAULT_ARGUMENTS = {
@@ -61,27 +65,53 @@ EXTENSION_DEFAULT_ARGUMENTS = {
     "points": 10,
     "cores": 4,
 }
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Shielding Effectiveness"
+"""Title displayed for the extension."""
 
 
 @dataclass
 class ShieldingEffectivenessExtensionData(ExtensionCommonData):
-    """Data class containing user input and computed data."""
+    """Data class containing user input and computed data.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss.shielding_effectiveness import ShieldingEffectivenessExtensionData
+    >>> data = ShieldingEffectivenessExtensionData(sphere_size=0.01, start_frequency=0.1, stop_frequency=1.0)
+
+    """
 
     sphere_size: float = EXTENSION_DEFAULT_ARGUMENTS["sphere_size"]
+    """Value for sphere size."""
     x_pol: float = EXTENSION_DEFAULT_ARGUMENTS["x_pol"]
+    """Value for x pol."""
     y_pol: float = EXTENSION_DEFAULT_ARGUMENTS["y_pol"]
+    """Value for y pol."""
     z_pol: float = EXTENSION_DEFAULT_ARGUMENTS["z_pol"]
+    """Value for z pol."""
     dipole_type: str = EXTENSION_DEFAULT_ARGUMENTS["dipole_type"]
+    """Value for dipole type."""
     frequency_units: str = EXTENSION_DEFAULT_ARGUMENTS["frequency_units"]
+    """Value for frequency units."""
     start_frequency: float = EXTENSION_DEFAULT_ARGUMENTS["start_frequency"]
+    """Value for start frequency."""
     stop_frequency: float = EXTENSION_DEFAULT_ARGUMENTS["stop_frequency"]
+    """Value for stop frequency."""
     points: int = EXTENSION_DEFAULT_ARGUMENTS["points"]
+    """Value for points."""
     cores: int = EXTENSION_DEFAULT_ARGUMENTS["cores"]
+    """Value for cores."""
 
 
 class ShieldingEffectivenessExtension(ExtensionHFSSCommon):
-    """Extension for shielding effectiveness in AEDT."""
+    """Extension for shielding effectiveness in AEDT.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss.shielding_effectiveness import ShieldingEffectivenessExtension
+    >>> extension = ShieldingEffectivenessExtension(withdraw=True)
+
+    """
 
     def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with the title and theme color
@@ -120,7 +150,15 @@ class ShieldingEffectivenessExtension(ExtensionHFSSCommon):
             raise AEDTRuntimeError("There should be only one object in the design.")
 
     def add_extension_content(self) -> None:
-        """Add custom content to the extension UI."""
+        """Add custom content to the extension UI.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.hfss.shielding_effectiveness import ShieldingEffectivenessExtension
+        >>> extension = ShieldingEffectivenessExtension(withdraw=True)
+        >>> extension.add_extension_content()
+
+        """
         # Sphere size entry
         sphere_size_label = ttk.Label(self.root, text="Source sphere radius (meters):", width=30, style="PyAEDT.TLabel")
         sphere_size_label.grid(row=0, column=0, padx=15, pady=10)
@@ -273,7 +311,18 @@ class ShieldingEffectivenessExtension(ExtensionHFSSCommon):
 
 
 def main(data: ShieldingEffectivenessExtensionData) -> bool:
-    """Main function to run the shielding effectiveness extension."""
+    """Main function to run the shielding effectiveness extension.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss.shielding_effectiveness import (
+    ...     ShieldingEffectivenessExtensionData,
+    ...     main,
+    ... )
+    >>> data = ShieldingEffectivenessExtensionData(sphere_size=0.01, start_frequency=0.1, stop_frequency=1.0)
+    >>> main(data)
+
+    """
     if data.sphere_size <= 0:
         raise AEDTRuntimeError("Sphere size must be greater than zero.")
 

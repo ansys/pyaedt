@@ -54,19 +54,17 @@ jobs:
     needs: check-reference
     outputs:
       skip_tests: ${{ steps.analyze.outputs.skip_tests }}
-      doc_only: ${{ steps.analyze.outputs.doc_only }}
-      run_all: ${{ steps.analyze.outputs.run_all }}
     permissions:
       contents: read # Required to read repository content and git history
     steps:
       - name: Checkout repository
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 0  # Need full history for git diff
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: '3.10'
 
@@ -102,29 +100,27 @@ jobs:
       TESTS_VERSION: '3.10'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
 
-      - name: Create virtual environment
-        run: uv venv .venv
 
       - name: Install pyaedt and tests dependencies
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          .venv\Scripts\Activate.ps1
           uv sync --frozen --group tests --extra all
 
       - name: Restore testmondata cache
@@ -148,13 +144,11 @@ jobs:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
-          .venv\Scripts\Activate.ps1
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 tests/system/solvers
 
       - name: Prepare testmon data for caching
         run: |
-          .venv\Scripts\Activate.ps1
           python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
 
       - name: Delete old testmon caches
@@ -166,7 +160,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: Save updated testmon cache
-        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_SOLVERS_WIN }}-main-${{ github.sha }}
@@ -188,29 +182,27 @@ jobs:
       ANS_NODEPCHECK: '1'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
 
-      - name: Create virtual environment
-        run: uv venv .venv
 
       - name: Install pyaedt and tests dependencies
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          source .venv/bin/activate
           uv sync --frozen --group tests --extra all
 
       - name: Restore testmondata cache
@@ -231,12 +223,10 @@ jobs:
         env:
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
-          source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/solvers
 
       - name: Prepare testmon data for caching
         run: |
-          source .venv/bin/activate
           python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
 
       - name: Delete old testmon caches
@@ -248,7 +238,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: Save updated testmon cache
-        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_SOLVERS_LINUX }}-main-${{ github.sha }}
@@ -268,32 +258,30 @@ jobs:
       TESTS_VERSION: '3.10'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
 
+
       - name: Set up headless display
         uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
-
-      - name: Create virtual environment
-        run: uv venv .venv
 
       - name: Install pyaedt and tests dependencies
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          .venv\Scripts\Activate.ps1
           uv sync --frozen --group tests --extra all
 
       - name: Restore testmondata cache
@@ -317,13 +305,11 @@ jobs:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
-          .venv\Scripts\Activate.ps1
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args -n 4 --dist loadfile --timeout=600 tests/system/general
 
       - name: Prepare testmon data for caching
         run: |
-          .venv\Scripts\Activate.ps1
           python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
 
       - name: Delete old testmon caches
@@ -335,7 +321,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: Save updated testmon cache
-        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_GENERAL_WIN }}-main-${{ github.sha }}
@@ -357,32 +343,30 @@ jobs:
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
 
+
       - name: Set up headless display
         uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
-
-      - name: Create virtual environment
-        run: uv venv .venv
 
       - name: Install pyaedt and tests dependencies
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          source .venv/bin/activate
           uv sync --frozen --group tests --extra all
 
       - name: Restore testmondata cache
@@ -401,12 +385,10 @@ jobs:
 
       - name: Run tests marked with 'general'
         run: |
-          source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 tests/system/general
 
       - name: Prepare testmon data for caching
         run: |
-          source .venv/bin/activate
           python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
 
       - name: Delete old testmon caches
@@ -418,7 +400,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: Save updated testmon cache
-        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_GENERAL_LINUX }}-main-${{ github.sha }}
@@ -439,32 +421,30 @@ jobs:
       MPLBACKEND: 'Agg'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
 
+
       - name: Set up headless display
         uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
-
-      - name: Create virtual environment
-        run: uv venv .venv
 
       - name: Install pyaedt and tests dependencies
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          .venv\Scripts\Activate.ps1
           uv sync --frozen --group tests --extra all
 
       - name: Restore testmondata cache
@@ -488,13 +468,11 @@ jobs:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
-          .venv\Scripts\Activate.ps1
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args -n 4 --dist loadfile --timeout=600 tests/system/visualization -x
 
       - name: Prepare testmon data for caching
         run: |
-          .venv\Scripts\Activate.ps1
           python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
 
       - name: Delete old testmon caches
@@ -506,7 +484,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: Save updated testmon cache
-        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_VISUALIZATION_WIN }}-main-${{ github.sha }}
@@ -529,32 +507,30 @@ jobs:
       MPLBACKEND: 'Agg'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
 
+
       - name: Set up headless display
         uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
-
-      - name: Create virtual environment
-        run: uv venv .venv
 
       - name: Install pyaedt and tests dependencies
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          source .venv/bin/activate
           uv sync --frozen --group tests --extra all
 
       - name: Restore testmondata cache
@@ -573,12 +549,10 @@ jobs:
 
       - name: Run tests marked with 'visualization'
         run: |
-          source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=300 tests/system/visualization -x
 
       - name: Prepare testmon data for caching
         run: |
-          source .venv/bin/activate
           python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
 
       - name: Delete old testmon caches
@@ -590,7 +564,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: Save updated testmon cache
-        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_VISUALIZATION_LINUX }}-main-${{ github.sha }}
@@ -610,29 +584,27 @@ jobs:
       TESTS_VERSION: '3.10'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
 
-      - name: Create virtual environment
-        run: uv venv .venv
 
       - name: Install pyaedt and tests dependencies
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          .venv\Scripts\Activate.ps1
           uv sync --frozen --group tests --extra all
 
       - name: Restore testmondata cache
@@ -656,13 +628,11 @@ jobs:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
-          .venv\Scripts\Activate.ps1
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 tests/system/icepak
 
       - name: Prepare testmon data for caching
         run: |
-          .venv\Scripts\Activate.ps1
           python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
 
       - name: Delete old testmon caches
@@ -674,7 +644,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: Save updated testmon cache
-        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_ICEPAK_WIN }}-main-${{ github.sha }}
@@ -696,29 +666,27 @@ jobs:
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
 
-      - name: Create virtual environment
-        run: uv venv .venv
 
       - name: Install pyaedt and tests dependencies
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          source .venv/bin/activate
           uv sync --frozen --group tests --extra all
 
       - name: Restore testmondata cache
@@ -739,12 +707,10 @@ jobs:
         env:
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
-          source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/icepak
 
       - name: Prepare testmon data for caching
         run: |
-          source .venv/bin/activate
           python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
 
       - name: Delete old testmon caches
@@ -756,7 +722,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: Save updated testmon cache
-        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_ICEPAK_LINUX }}-main-${{ github.sha }}
@@ -776,29 +742,27 @@ jobs:
       TESTS_VERSION: '3.10'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
 
-      - name: Create virtual environment
-        run: uv venv .venv
 
       - name: Install pyaedt and tests dependencies
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          .venv\Scripts\Activate.ps1
           uv sync --frozen --group tests --extra all
 
       - name: Restore testmondata cache
@@ -822,13 +786,11 @@ jobs:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
-          .venv\Scripts\Activate.ps1
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 tests/system/layout
 
       - name: Prepare testmon data for caching
         run: |
-          .venv\Scripts\Activate.ps1
           python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
 
       - name: Delete old testmon caches
@@ -840,7 +802,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: Save updated testmon cache
-        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_LAYOUT_WIN }}-main-${{ github.sha }}
@@ -862,29 +824,27 @@ jobs:
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
 
-      - name: Create virtual environment
-        run: uv venv .venv
 
       - name: Install pyaedt and tests dependencies
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          source .venv/bin/activate
           uv sync --frozen --group tests --extra all
 
       - name: Restore testmondata cache
@@ -905,12 +865,10 @@ jobs:
         env:
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
-          source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/layout
 
       - name: Prepare testmon data for caching
         run: |
-          source .venv/bin/activate
           python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
 
       - name: Delete old testmon caches
@@ -922,7 +880,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: Save updated testmon cache
-        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_LAYOUT_LINUX }}-main-${{ github.sha }}
@@ -942,29 +900,27 @@ jobs:
       TESTS_VERSION: '3.10'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
 
-      - name: Create virtual environment
-        run: uv venv .venv
 
       - name: Install pyaedt and tests dependencies
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          .venv\Scripts\Activate.ps1
           uv sync --frozen --group tests --extra all
 
       - name: Restore testmondata cache
@@ -988,13 +944,11 @@ jobs:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
-          .venv\Scripts\Activate.ps1
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 tests/system/filter_solutions
 
       - name: Prepare testmon data for caching
         run: |
-          .venv\Scripts\Activate.ps1
           python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
 
       - name: Delete old testmon caches
@@ -1006,7 +960,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: Save updated testmon cache
-        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_FILTER_WIN }}-main-${{ github.sha }}
@@ -1026,29 +980,27 @@ jobs:
       TESTS_VERSION: '3.10'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          activate-environment: true
           enable-cache: false
           prune-cache: true
 
-      - name: Create virtual environment
-        run: uv venv .venv
 
       - name: Install pyaedt and tests dependencies
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          .venv\Scripts\Activate.ps1
           uv sync --frozen --group tests --extra all
 
       - name: Restore testmondata cache
@@ -1072,13 +1024,11 @@ jobs:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
-          .venv\Scripts\Activate.ps1
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 -v -rA --color=yes tests/system/emit
 
       - name: Prepare testmon data for caching
         run: |
-          .venv\Scripts\Activate.ps1
           python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
 
       - name: Delete old testmon caches
@@ -1090,7 +1040,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: Save updated testmon cache
-        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_EMIT_WIN }}-main-${{ github.sha }}

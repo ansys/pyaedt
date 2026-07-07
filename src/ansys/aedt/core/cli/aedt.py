@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,15 +22,26 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""Session management commands: start, list, stop, attach."""
+"""Session management commands: start, list, stop, attach.
+
+Examples
+--------
+>>> from typer.testing import CliRunner
+>>> from ansys.aedt.core.cli.aedt import session_app
+>>> CliRunner().invoke(session_app, ["list"])
+
+"""
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 import os
 import re
 import sys
 import threading
 import time
+from typing import Any
+from typing import Literal
 
 import psutil
 
@@ -49,11 +60,32 @@ from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 
 session_app = typer.Typer(help="Session management commands")
+"""Value for session app."""
+
+SESSION_MODE = Literal["grpc", "com"]
 
 
-def _extract_session_metadata(cmdline: str | None) -> dict[str, object]:
+@dataclass
+class SessionInfo:
+    """Class to hold information about an AEDT session."""
+
+    mode: SESSION_MODE | None
+    non_graphical: bool | None
+    pid: int
+    port: int | None
+    version: str
+    student_version: bool = False
+
+    def update(self, data: dict[str, object]) -> None:
+        """Update session information from a dictionary."""
+        for key, value in data.items():
+            if hasattr(self, key):
+                setattr(self, key, value)
+
+
+def _extract_session_metadata(cmdline: str | None) -> dict[str, Any]:
     """Extract display metadata from a process command line."""
-    metadata = {"version": "unknown", "non_graphical": None}
+    metadata: dict[str, Any] = {"version": "unknown", "non_graphical": None}
     if not cmdline:
         return metadata
 
@@ -66,21 +98,21 @@ def _extract_session_metadata(cmdline: str | None) -> dict[str, object]:
     return metadata
 
 
-def _discover_aedt_sessions() -> list[dict[str, object]]:
-    sessions_by_pid: dict[int, dict[str, object]] = {}
+def _discover_aedt_sessions() -> list[SessionInfo]:
+    sessions_by_pid: dict[int, SessionInfo] = {}
     for student_version in (False, True):
         for pid, port in active_sessions(student_version=student_version).items():
             # Skip duplicate process in linux. active_sessions also displays the COM process in linux
             if port == -1 and is_linux:
                 continue
-            sessions_by_pid[pid] = {
-                "pid": pid,
-                "port": None if port == -1 else port,
-                "mode": "com" if port == -1 else "grpc",
-                "student_version": student_version,
-                "version": "unknown",
-                "non_graphical": None,
-            }
+            sessions_by_pid[pid] = SessionInfo(
+                mode="com" if port == -1 else "grpc",
+                non_graphical=None,
+                pid=pid,
+                port=None if port == -1 else port,
+                student_version=student_version,
+                version="unknown",
+            )
 
     connections = _check_psutil_connections(list(sessions_by_pid.keys())) if sessions_by_pid else {}
     for pid, session in sessions_by_pid.items():
@@ -94,7 +126,7 @@ def _discover_aedt_sessions() -> list[dict[str, object]]:
         )
         session.update(_extract_session_metadata(cmdline))
 
-    return sorted(sessions_by_pid.values(), key=lambda session: int(session["pid"]))
+    return sorted(sessions_by_pid.values(), key=lambda session: int(session.pid))
 
 
 @session_app.command("start")
@@ -105,7 +137,15 @@ def start(
     port: int = typer.Option(50051, "--port", help="gRPC port (0 for auto)"),
     non_graphical: bool = typer.Option(False, "--non-graphical", "-ng", help="Start in non-graphical mode"),
 ) -> None:
-    """Start a new AEDT instance."""
+    """Start a new AEDT instance.
+
+    Examples
+    --------
+    >>> from typer.testing import CliRunner
+    >>> from ansys.aedt.core.cli.aedt import session_app
+    >>> CliRunner().invoke(session_app, ["start", "--version", "2026.1", "--port", "50051", "--non-graphical"])
+
+    """
     try:
         if not common.json_mode:
             typer.echo("Starting AEDT ", nl=False)
@@ -119,7 +159,7 @@ def start(
 
         settings.enable_logger = False
 
-        args = {
+        args: dict[str, Any] = {
             "version": version,
             "non_graphical": non_graphical,
             "new_desktop": True,
@@ -171,7 +211,15 @@ def start(
 
 @session_app.command("list")
 def list_sessions() -> None:
-    """List all running AEDT instances."""
+    """List all running AEDT instances.
+
+    Examples
+    --------
+    >>> from typer.testing import CliRunner
+    >>> from ansys.aedt.core.cli.aedt import session_app
+    >>> CliRunner().invoke(session_app, ["list"])
+
+    """
     try:
         aedt_sessions = _discover_aedt_sessions()
 
@@ -180,12 +228,12 @@ def list_sessions() -> None:
             for session in aedt_sessions:
                 procs_data.append(
                     {
-                        "pid": session["pid"],
-                        "port": session["port"],
-                        "mode": session["mode"],
-                        "version": session["version"],
-                        "non_graphical": session["non_graphical"],
-                        "student_version": bool(session.get("student_version", False)),
+                        "pid": session.pid,
+                        "port": session.port,
+                        "mode": session.mode,
+                        "version": session.version,
+                        "non_graphical": session.non_graphical,
+                        "student_version": bool(session.student_version),
                     }
                 )
             common.print_output(data={"processes": procs_data, "count": len(procs_data)})
@@ -201,19 +249,19 @@ def list_sessions() -> None:
         typer.echo("-" * 60)
 
         for session in aedt_sessions:
-            port = session["port"]
-            version = session["version"]
-            edition = session.get("student_version", False)
-            non_graphical = session.get("non_graphical")
+            port = session.port
+            version = session.version
+            edition = session.student_version
+            non_graphical = session.non_graphical
             typer.echo("  PID: ", nl=False)
-            typer.secho(f"{session['pid']}", fg="cyan", nl=False)
+            typer.secho(f"{session.pid}", fg="cyan", nl=False)
             typer.echo(" | Version: ", nl=False)
             typer.secho(f"{version}", fg="blue", nl=False)
             if edition:
                 typer.echo(" | Edition: ", nl=False)
                 typer.secho("Student" if edition else "Standard", fg="magenta", nl=False)
             typer.echo(" | Mode: ", nl=False)
-            typer.secho("COM" if session["mode"] == "com" else "gRPC", fg="yellow", nl=False)
+            typer.secho("COM" if session.mode == "com" else "gRPC", fg="yellow", nl=False)
             typer.echo(" | UI: ", nl=False)
             if non_graphical is None:
                 typer.secho("Unknown", fg="white", nl=False)
@@ -239,7 +287,15 @@ def stop(
     port: int | None = typer.Option(None, "--port", help="Port of the AEDT instance to stop"),
     stop_all: bool = typer.Option(False, "--all", help="Stop all running AEDT instances"),
 ) -> None:
-    """Stop an AEDT instance by port or stop all running instances."""
+    """Stop an AEDT instance by port or stop all running instances.
+
+    Examples
+    --------
+    >>> from typer.testing import CliRunner
+    >>> from ansys.aedt.core.cli.aedt import session_app
+    >>> CliRunner().invoke(session_app, ["stop", "--port", "50051"])
+
+    """
     try:
         aedt_sessions = _discover_aedt_sessions()
         if stop_all:
@@ -247,12 +303,12 @@ def stop(
             skipped_pids = []
             for session in aedt_sessions:
                 try:
-                    psutil.Process(int(session["pid"])).kill()
-                    stopped_pids.append(int(session["pid"]))
+                    psutil.Process(int(session.pid)).kill()
+                    stopped_pids.append(int(session.pid))
                 except psutil.NoSuchProcess:
                     continue
                 except psutil.AccessDenied:
-                    skipped_pids.append(int(session["pid"]))
+                    skipped_pids.append(int(session.pid))
             if common.json_mode:
                 common.print_output(data={"stopped": True, "all": True, "pids": stopped_pids, "skipped": skipped_pids})
             else:
@@ -270,7 +326,7 @@ def stop(
                 typer.secho(message, fg="red")
             raise typer.Exit(code=1)
 
-        target_session = next((session for session in aedt_sessions if session["port"] == port), None)
+        target_session = next((session for session in aedt_sessions if session.port == port), None)
 
         if target_session is None:
             if common.json_mode:
@@ -279,7 +335,7 @@ def stop(
                 typer.secho(f"No AEDT process found on port {port}.", fg="red")
             raise typer.Exit(code=1)
 
-        pid = int(target_session["pid"])
+        pid = int(target_session.pid)
         try:
             psutil.Process(pid).kill()
         except psutil.AccessDenied:
@@ -315,10 +371,16 @@ def attach(
     project: str = typer.Option(None, "--project", help="Project to activate in the console session"),
     design: str = typer.Option(None, "--design", help="Design to set as active in the console"),
 ) -> None:
-    """
-    Attach to a running AEDT instance and open an interactive PyAEDT console.
+    """Attach to a running AEDT instance and open an interactive PyAEDT console.
 
     If --port is not given, lists available instances for interactive selection.
+
+    Examples
+    --------
+    >>> from typer.testing import CliRunner
+    >>> from ansys.aedt.core.cli.aedt import session_app
+    >>> CliRunner().invoke(session_app, ["attach", "--port", "50051"])
+
     """
     try:
         aedt_sessions = _discover_aedt_sessions()
@@ -333,7 +395,7 @@ def attach(
             return
 
         if port is not None:
-            target_session = next((session for session in aedt_sessions if session["port"] == port), None)
+            target_session = next((session for session in aedt_sessions if session.port == port), None)
 
             if target_session is None:
                 if common.json_mode:
@@ -342,17 +404,17 @@ def attach(
                 typer.secho(f"No AEDT process found on port {port}.", fg="red")
                 typer.echo("Available AEDT instances:")
                 for session in aedt_sessions:
-                    session_port = session["port"]
-                    typer.echo(f"  PID: {session['pid']}, Port: {session_port or 'COM mode'}")
+                    session_port = session.port
+                    typer.echo(f"  PID: {session.pid}, Port: {session_port or 'COM mode'}")
                 return
 
-            version = str(target_session["version"])
+            version = str(target_session.version)
             if not common.json_mode:
                 typer.echo("Attaching to process ", nl=False)
-                typer.secho(f"{target_session['pid']}", fg="cyan", nl=False)
+                typer.secho(f"{target_session.pid}", fg="cyan", nl=False)
                 typer.echo(f" (port {port})...")
             _activate_console_context(port=port, project=project, design=design)
-            _launch_console(int(target_session["pid"]), version, design)
+            _launch_console(int(target_session.pid), version, design)
         else:
             _attach_interactive(aedt_sessions, project, design)
     except typer.Exit:
@@ -365,13 +427,12 @@ def attach(
         raise typer.Exit(code=1)
 
 
-def _attach_interactive(aedt_sessions: list[dict[str, object]], project: str | None, design: str | None) -> None:
-    """
-    Interactive mode to select and attach to an AEDT process.
+def _attach_interactive(aedt_sessions: list[SessionInfo], project: str | None, design: str | None) -> None:
+    """Interactive mode to select and attach to an AEDT process.
 
     Parameters
     ----------
-    aedt_sessions : list[dict[str, object]]
+    aedt_sessions : list[SessionInfo]
         List of available AEDT processes
     project : str or None
         Project name to activate, or None
@@ -383,20 +444,15 @@ def _attach_interactive(aedt_sessions: list[dict[str, object]], project: str | N
     typer.secho(f"{len(aedt_sessions)}", fg="green", nl=False)
     typer.echo(" AEDT instance(s):\n")
 
-    process_info = []
     for idx, session in enumerate(aedt_sessions, 1):
-        port = session["port"]
-        version = session["version"]
-        process_info.append({"idx": idx, "pid": session["pid"], "port": port, "version": version})
-
         typer.secho(f"  {idx}", fg="yellow", nl=False)
         typer.echo(". PID: ", nl=False)
-        typer.secho(f"{session['pid']}", fg="cyan", nl=False)
+        typer.secho(f"{session.pid}", fg="cyan", nl=False)
         typer.echo(" | Version: ", nl=False)
-        typer.secho(f"{version}", fg="blue", nl=False)
+        typer.secho(f"{session.version}", fg="blue", nl=False)
         typer.echo(" | Port: ", nl=False)
-        if port is not None:
-            typer.secho(f"{port}", fg="green")
+        if session.port is not None:
+            typer.secho(f"{session.port}", fg="green")
         else:
             typer.secho("COM mode", fg="yellow")
 
@@ -404,7 +460,7 @@ def _attach_interactive(aedt_sessions: list[dict[str, object]], project: str | N
     choice_idx = None
     while choice_idx is None:
         typer.echo("Select instance (1-", nl=False)
-        typer.secho(f"{len(process_info)}", fg="yellow", nl=False)
+        typer.secho(f"{len(aedt_sessions)}", fg="yellow", nl=False)
         typer.echo(") or '", nl=False)
         typer.secho("q", fg="red", nl=False)
         typer.echo("' to quit: ", nl=False)
@@ -416,18 +472,18 @@ def _attach_interactive(aedt_sessions: list[dict[str, object]], project: str | N
 
         try:
             choice_idx = int(choice)
-            if choice_idx < 1 or choice_idx > len(process_info):
-                typer.secho(f"Invalid selection. Please enter a number between 1 and {len(process_info)}.", fg="red")
+            if choice_idx < 1 or choice_idx > len(aedt_sessions):
+                typer.secho(f"Invalid selection. Please enter a number between 1 and {len(aedt_sessions)}.", fg="red")
                 choice_idx = None
         except ValueError:
             typer.secho("Invalid input. Please enter a number.", fg="red")
 
-    selected = process_info[choice_idx - 1]
+    session_info = aedt_sessions[choice_idx - 1]
     typer.echo("\nAttaching to process ", nl=False)
-    typer.secho(f"{selected['pid']}", fg="cyan", nl=False)
+    typer.secho(f"{session_info.pid}", fg="cyan", nl=False)
     typer.echo("...")
-    _activate_console_context(port=selected["port"], project=project, design=design)
-    _launch_console(selected["pid"], selected["version"], design)
+    _activate_console_context(port=session_info.port, project=project, design=design)
+    _launch_console(session_info.pid, session_info.version, design)
 
 
 def _activate_console_context(port: int | None, project: str | None = None, design: str | None = None) -> None:
@@ -445,8 +501,7 @@ def _activate_console_context(port: int | None, project: str | None = None, desi
 
 
 def _launch_console(pid: int, version: str, design: str | None = None) -> None:
-    """
-    Launch an interactive PyAEDT console attached to an AEDT process.
+    """Launch an interactive PyAEDT console attached to an AEDT process.
 
     Parameters
     ----------

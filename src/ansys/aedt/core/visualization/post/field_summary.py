@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,10 +22,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-Defines these classes: `FieldPlot`, `PostProcessor`, and `SolutionData`.
+"""Defines these classes: `FieldPlot`, `PostProcessor`, and `SolutionData`.
 
-This module provides all functionalities for creating and editing plots in the 3D tools.
+The module provides all functionalities for creating and editing plots in the 3D tools.
+
+Examples
+--------
+>>> from ansys.aedt.core.visualization.post.field_summary import FieldSummary
+>>> obj = FieldSummary()
 
 """
 
@@ -71,6 +75,7 @@ TOTAL_QUANTITIES = [
     "VolumeFlowRate",
     "SurfJouleHeatingDensity",
 ]
+"""Total quantities."""
 AVAILABLE_QUANTITIES = [
     "Temperature",
     "SurfTemperature",
@@ -113,10 +118,18 @@ AVAILABLE_QUANTITIES = [
     "SurfJouleHeatingDensity",
     "JouleHeatingDensity",
 ]
+"""Available quantities."""
 
 
 class FieldSummary(PyAedtBase):
-    """Provides Icepak field summary methods."""
+    """Provides Icepak field summary methods.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post.field_summary import FieldSummary
+    >>> obj = FieldSummary()
+
+    """
 
     def __init__(self, app) -> None:
         self._app = app
@@ -135,8 +148,7 @@ class FieldSummary(PyAedtBase):
         ref_temperature: str = "AmbientTemp",
         time: str = "0s",
     ) -> bool:
-        """
-        Add an entry in the field summary calculation requests.
+        """Add an entry in the field summary calculation requests.
 
         Parameters
         ----------
@@ -173,6 +185,13 @@ class FieldSummary(PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_summary import FieldSummary
+        >>> obj = FieldSummary()
+        >>> obj.add_calculation(entity=1, geometry=1, geometry_name=["Box1"], quantity=1)
+
         """
         if quantity not in AVAILABLE_QUANTITIES:
             raise AttributeError(
@@ -204,8 +223,7 @@ class FieldSummary(PyAedtBase):
     def get_field_summary_data(
         self, setup: str | None = None, variation: dict | None = None, intrinsics: str = "", pandas_output: bool = False
     ):
-        """
-        Get  field summary output computation.
+        """Get  field summary output computation.
 
         Parameters
         ----------
@@ -227,6 +245,13 @@ class FieldSummary(PyAedtBase):
         dict or pandas.DataFrame
             Output type depending on the Boolean ``pandas_output`` parameter.
             The output consists of information exported from the field summary.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_summary import FieldSummary
+        >>> obj = FieldSummary()
+        >>> obj.get_field_summary_data(setup="Setup1", variation={"Name": "Value"})
+
         """
         if variation is None:
             variation = {}
@@ -255,8 +280,7 @@ class FieldSummary(PyAedtBase):
     def export_csv(
         self, output_file: str, setup: str | None = None, variations: dict | None = None, intrinsics: str = ""
     ) -> bool:
-        """
-        Get the field summary output computation.
+        """Get the field summary output computation.
 
         Parameters
         ----------
@@ -276,6 +300,13 @@ class FieldSummary(PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_summary import FieldSummary
+        >>> obj = FieldSummary()
+        >>> obj.export_csv(output_file="example.csv")
+
         """
         if not setup:
             setup = self._app.nominal_sweep

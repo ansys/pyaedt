@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
+#
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -31,19 +32,32 @@ from ansys.aedt.core.extensions.misc import ExtensionEMITCommon
 from ansys.aedt.core.extensions.misc import get_arguments
 
 EXTENSION_TITLE = "EMIT Interference Classification"
+"""Title displayed for the extension."""
 EXTENSION_DEFAULT_ARGUMENTS = {}
+"""Default arguments for the extension."""
 
 
 @dataclass
 class _MatrixData:
     tx_radios: list
+    """Value for tx radios."""
     rx_radios: list
+    """Value for rx radios."""
     colors: list  # colors[col][row]
+    """Value for colors."""
     values: list  # values[col][row]
+    """Value for values."""
 
 
 class InterferenceClassificationExtension(ExtensionEMITCommon):
-    """Interactive EMIT extension for Protection Level and Interference Type classification."""
+    """Interactive EMIT extension for Protection Level and Interference Type classification.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.emit.interference_classification import InterferenceClassificationExtension
+    >>> extension = InterferenceClassificationExtension(withdraw=True)
+
+    """
 
     def __init__(self, withdraw: bool = False) -> None:
         self._matrix = {"protection": None, "interference": None}

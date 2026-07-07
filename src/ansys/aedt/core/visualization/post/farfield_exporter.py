@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -48,7 +48,7 @@ class FfdSolutionDataExporter(PyAedtBase):
     element pattern files for an antenna that have been solved in HFSS. The
     ``metadata_file`` properties can then be passed as arguments to
     instantiate an instance of the
-    :class:`ansys.aedt.core.ansys.aedt.core.visualization.advanced.farfield_visualization.FfdSolutionData` class for
+    :class:`ansys.aedt.core.visualization.advanced.farfield_visualization.FfdSolutionData` class for
     subsequent analysis and postprocessing of the array data.
 
     Note that this class is derived from the :class:`FfdSolutionData` class and can be used directly for
@@ -77,13 +77,14 @@ class FfdSolutionDataExporter(PyAedtBase):
 
     Examples
     --------
-    >>> from ansys.aedt.core
-    >>> app = ansys.aedt.core.Hfss(version="2026.1", design="Antenna")
+    >>> from ansys.aedt.core import Hfss
+    >>> app = Hfss(version="2026.1", design="Antenna")
     >>> setup_name = "Setup1 : LastAdaptive"
     >>> frequencies = [77e9]
     >>> sphere = "3D"
     >>> data = app.get_antenna_data(frequencies, setup_name, sphere)
     >>> data.plot_3d(quantity_format="dB10")
+
     """
 
     def __init__(
@@ -130,22 +131,54 @@ class FfdSolutionDataExporter(PyAedtBase):
 
     @property
     def model_info(self) -> dict:
-        """List of models."""
+        """List of models.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.farfield_exporter import FfdSolutionDataExporter
+        >>> obj = FfdSolutionDataExporter()
+        >>> obj.model_info
+
+        """
         return self.__model_info
 
     @property
     def farfield_data(self) -> FfdSolutionData | None:
-        """Farfield data."""
+        """Farfield data.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.farfield_exporter import FfdSolutionDataExporter
+        >>> obj = FfdSolutionDataExporter()
+        >>> obj.farfield_data
+
+        """
         return self.__farfield_data
 
     @property
     def metadata_file(self) -> str:
-        """Metadata file."""
+        """Metadata file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.farfield_exporter import FfdSolutionDataExporter
+        >>> obj = FfdSolutionDataExporter()
+        >>> obj.metadata_file
+
+        """
         return self.__metadata_file
 
     @pyaedt_function_handler()
     def export_farfield(self) -> bool:
-        """Export far field solution data of each element."""
+        """Export far field solution data of each element.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.farfield_exporter import FfdSolutionDataExporter
+        >>> obj = FfdSolutionDataExporter()
+        >>> obj.export_farfield()
+
+        """
         # Output directory
         exported_name_map = "element.txt"
         solution_setup_name = self.setup_name.replace(":", "_").replace(" ", "")

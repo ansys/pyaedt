@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
+#
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +22,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""EMIT EMI Heat Map Extension."""
+"""EMIT EMI Heat Map Extension.
+
+Examples
+--------
+>>> from ansys.aedt.core.extensions.emit.emi_heat_map import EMIHeatmapExtension
+>>> extension = EMIHeatmapExtension(withdraw=True)
+
+"""
 
 from dataclasses import dataclass
 import os
@@ -42,25 +50,49 @@ from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import ExtensionEMITCommon
 
 EXTENSION_TITLE = "EMIT EMI Heat Map"
+"""Title displayed for the extension."""
 EXTENSION_DEFAULT_ARGUMENTS = {}
+"""Default arguments for the extension."""
 
 
 @dataclass
 class EMIHeatmapExtensionData(ExtensionCommonData):
-    """Data class containing EMI heat map analysis results."""
+    """Data class containing EMI heat map analysis results.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.emit.emi_heat_map import EMIHeatmapExtensionData
+    >>> data = EMIHeatmapExtensionData(victim="GPS", aggressor="Bluetooth")
+
+    """
 
     emi: np.ndarray | None = None
+    """Value for EMI."""
     rx_power: np.ndarray | None = None
+    """Value for rx power."""
     sensitivity: np.ndarray | None = None
+    """Value for sensitivity."""
     desense: np.ndarray | None = None
+    """Value for desense."""
     victim: str = ""
+    """Value for victim."""
     victim_band: str = ""
+    """Value for victim band."""
     aggressor: str = ""
+    """Value for aggressor."""
     aggressor_band: str = ""
+    """Value for aggressor band."""
 
 
 class EMIHeatmapExtension(ExtensionEMITCommon):
-    """Interactive EMIT extension for EMI heat map analysis."""
+    """Interactive EMIT extension for EMI heat map analysis.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.emit.emi_heat_map import EMIHeatmapExtension
+    >>> extension = EMIHeatmapExtension(withdraw=True)
+
+    """
 
     def __init__(self, withdraw: bool = False) -> None:
         self._widgets = {}
@@ -88,7 +120,15 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
         )
 
     def add_extension_content(self) -> None:
-        """Build the UI for the EMI heat map extension."""
+        """Build the UI for the EMI heat map extension.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.emit.emi_heat_map import EMIHeatmapExtension
+        >>> extension = EMIHeatmapExtension(withdraw=True)
+        >>> extension.add_extension_content()
+
+        """
         root = self.root
 
         # Header with project/design info

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -41,25 +41,51 @@ from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 # Extension batch arguments
 EXTENSION_DEFAULT_ARGUMENTS = {"choice": "", "file_path": ""}
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Push Excitation From File - 3D Layout"
+"""Title displayed for the extension."""
 
 
 @dataclass
 class PushExcitation3DLayoutExtensionData(ExtensionCommonData):
-    """Data class for Push Excitation 3D Layout extension."""
+    """Data class for Push Excitation 3D Layout extension.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl import (
+    ...     PushExcitation3DLayoutExtensionData,
+    ... )
+    >>> data = PushExcitation3DLayoutExtensionData(choice="Port1", file_path="C:\\Temp\\excitation.csv")
+
+    """
 
     choice: str = ""
+    """Value for choice."""
     file_path: str = ""
+    """Path to file."""
 
 
 class PushExcitation3DLayoutExtension(ExtensionHFSS3DLayoutCommon):
-    """Extension for push excitation from file in HFSS 3D Layout."""
+    """Extension for push excitation from file in HFSS 3D Layout.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl import (
+    ...     PushExcitation3DLayoutExtension,
+    ... )
+    >>> extension = PushExcitation3DLayoutExtension(withdraw=True)
+
+    """
 
     def __init__(self, withdraw: bool = False) -> None:
         """Initialize the extension."""
@@ -97,7 +123,17 @@ class PushExcitation3DLayoutExtension(ExtensionHFSS3DLayoutCommon):
         self.excitation_names = excitation_names
 
     def add_extension_content(self) -> None:
-        """Add content to the extension UI."""
+        """Add content to the extension UI.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl import (
+        ...     PushExcitation3DLayoutExtension,
+        ... )
+        >>> extension = PushExcitation3DLayoutExtension(withdraw=True)
+        >>> extension.add_extension_content()
+
+        """
         # Port selection
         self.port_label = ttk.Label(self.root, text="Choose a port:", style="PyAEDT.TLabel")
         self.port_label.grid(row=0, column=0, pady=10, padx=10, sticky="w")
@@ -155,7 +191,17 @@ class PushExcitation3DLayoutExtension(ExtensionHFSS3DLayoutCommon):
         self.root.grid_columnconfigure(1, weight=1)
 
     def browse_files(self) -> None:
-        """Open file dialog to browse for excitation files."""
+        """Open file dialog to browse for excitation files.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl import (
+        ...     PushExcitation3DLayoutExtension,
+        ... )
+        >>> extension = PushExcitation3DLayoutExtension(withdraw=True)
+        >>> extension.browse_files()
+
+        """
         filename = filedialog.askopenfilename(
             initialdir="/",
             title="Select a Transient File",
@@ -170,7 +216,18 @@ class PushExcitation3DLayoutExtension(ExtensionHFSS3DLayoutCommon):
 
 
 def main(data: PushExcitation3DLayoutExtensionData) -> bool:
-    """Main function to run the push excitation extension."""
+    """Main function to run the push excitation extension.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl import (
+    ...     PushExcitation3DLayoutExtensionData,
+    ...     main,
+    ... )
+    >>> data = PushExcitation3DLayoutExtensionData(choice="Port1", file_path="C:\\Temp\\excitation.csv")
+    >>> main(data)
+
+    """
     if not data.choice:
         raise AEDTRuntimeError("No excitation selected.")
 

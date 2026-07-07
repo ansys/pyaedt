@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -45,6 +45,8 @@ if TYPE_CHECKING:
 
 
 class UserDefinedComponentParameters(dict):
+    """Provide user defined component parameters."""
+
     def __setitem__(self, key, value):
         try:
             self._component._m_Editor.ChangeProperty(
@@ -67,7 +69,14 @@ class UserDefinedComponentParameters(dict):
 
 
 class UserDefinedComponentProps(dict):
-    """User Defined Component Internal Parameters."""
+    """User Defined Component Internal Parameters.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponentProps
+    >>> obj = UserDefinedComponentProps()
+
+    """
 
     def __setitem__(self, key, value):
         value = _units_assignment(value)
@@ -118,6 +127,7 @@ class UserDefinedComponent(PyAedtBase):
 
     >>> component_names = aedtapp.modeler.user_defined_components
     >>> component = aedtapp.modeler[component_names["3DC_Cell_Radome_In1"]]
+
     """
 
     def __init__(self, primitives, name: str | None = None, props=None, component_type=None) -> None:
@@ -214,6 +224,12 @@ class UserDefinedComponent(PyAedtBase):
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
+        >>> obj = UserDefinedComponent()
+        >>> obj.layout_component
+
         """
         if not self._layout_component and "Show Layout" in self._primitives._app.get_oo_properties(
             self._primitives.oeditor, self.name
@@ -229,6 +245,12 @@ class UserDefinedComponent(PyAedtBase):
         -------
             :class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTree` when successful,
             ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
+        >>> obj = UserDefinedComponent()
+        >>> obj.history()
 
         """
         try:
@@ -256,6 +278,12 @@ class UserDefinedComponent(PyAedtBase):
         ----------
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
+        >>> obj = UserDefinedComponent()
+        >>> obj.group_name
 
         """
         group = None
@@ -325,6 +353,12 @@ class UserDefinedComponent(PyAedtBase):
         bool
            ``True`` if a 3DComponent, ``False`` if a user-defined model.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
+        >>> obj = UserDefinedComponent()
+        >>> obj.is_3d_component
+
         """
         definitions = list(self._primitives.oeditor.Get3DComponentDefinitionNames())
         for comp in definitions:
@@ -342,6 +376,12 @@ class UserDefinedComponent(PyAedtBase):
         -------
         bool
            ``True`` if mesh assembly is checked, ``None`` if a user-defined model.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
+        >>> obj = UserDefinedComponent()
+        >>> obj.mesh_assembly
 
         """
         key = "Do Mesh Assembly"
@@ -377,6 +417,12 @@ class UserDefinedComponent(PyAedtBase):
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
+        >>> obj = UserDefinedComponent()
+        >>> obj.name
+
         """
         return self._m_name
 
@@ -409,6 +455,12 @@ class UserDefinedComponent(PyAedtBase):
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
+        >>> obj = UserDefinedComponent()
+        >>> obj.parameters
+
         """
         self._parameters = None
         if self.is_3d_component:
@@ -437,6 +489,12 @@ class UserDefinedComponent(PyAedtBase):
         -------
         dict[str, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
+        >>> obj = UserDefinedComponent()
+        >>> obj.parts
+
         """
         if self.is_3d_component:
             component_parts = list(self._primitives.oeditor.Get3DComponentPartNames(self.name))
@@ -464,6 +522,12 @@ class UserDefinedComponent(PyAedtBase):
         ----------
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
+        >>> obj = UserDefinedComponent()
+        >>> obj.target_coordinate_system
 
         """
         self._target_coordinate_system = None
@@ -536,11 +600,18 @@ class UserDefinedComponent(PyAedtBase):
         References
         ----------
         >>> oEditor.DuplicateMirror
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
+        >>> obj = UserDefinedComponent()
+        >>> obj.duplicate_and_mirror(origin=[0, 0, 0], vector=[1, 0, 0])
+
         """
         return self._primitives.duplicate_and_mirror(self.name, origin=origin, vector=vector, is_3d_comp=True)
 
     @pyaedt_function_handler()
-    def mirror(self, origin: list | object, vector: list | object) -> "UserDefinedComponent" | bool:
+    def mirror(self, origin: list | object, vector: list | object) -> "UserDefinedComponent | bool":
         """Mirror a selection.
 
         Parameters
@@ -560,6 +631,13 @@ class UserDefinedComponent(PyAedtBase):
         References
         ----------
         >>> oEditor.Mirror
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
+        >>> obj = UserDefinedComponent()
+        >>> obj.mirror(origin=[0, 0, 0], vector=[1, 0, 0])
+
         """
         if self.is_3d_component:
             if self._primitives.mirror(self.name, origin=origin, vector=vector):
@@ -571,7 +649,7 @@ class UserDefinedComponent(PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def rotate(self, axis: "Axis", angle: float = 90.0, units: str = "deg") -> "UserDefinedComponent" | bool:
+    def rotate(self, axis: "Axis", angle: float = 90.0, units: str = "deg") -> "UserDefinedComponent | bool":
         """Rotate the selection.
 
         Parameters
@@ -593,6 +671,13 @@ class UserDefinedComponent(PyAedtBase):
         References
         ----------
         >>> oEditor.Rotate
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
+        >>> obj = UserDefinedComponent()
+        >>> obj.rotate(axis="Z")
+
         """
         if self.is_3d_component:
             if self._primitives.rotate(self.name, axis=axis, angle=angle, units=units):
@@ -604,7 +689,7 @@ class UserDefinedComponent(PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def move(self, vector: list | object) -> "UserDefinedComponent" | bool:
+    def move(self, vector: list | object) -> "UserDefinedComponent | bool":
         """Move component from a list.
 
         Parameters
@@ -621,6 +706,13 @@ class UserDefinedComponent(PyAedtBase):
         References
         ----------
         >>> oEditor.Move
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
+        >>> obj = UserDefinedComponent()
+        >>> obj.move(vector=[1, 0, 0])
+
         """
         if self.is_3d_component:
             if self._primitives.move(self.name, vector):
@@ -658,6 +750,12 @@ class UserDefinedComponent(PyAedtBase):
         ----------
         >>> oEditor.DuplicateAroundAxis
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
+        >>> obj = UserDefinedComponent()
+        >>> obj.duplicate_around_axis(axis="Z")
+
         """
         if self.is_3d_component:
             ret, added_objects = self._primitives.duplicate_around_axis(
@@ -691,6 +789,12 @@ class UserDefinedComponent(PyAedtBase):
         ----------
         >>> oEditor.DuplicateAlongLine
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
+        >>> obj = UserDefinedComponent()
+        >>> obj.duplicate_along_line(vector=[1, 0, 0])
+
         """
         if self.is_3d_component:
             old_component_list = self._primitives.user_defined_component_names
@@ -709,6 +813,12 @@ class UserDefinedComponent(PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
+        >>> obj = UserDefinedComponent()
+        >>> obj.update_native()
 
         """
         self.update_props = {}
@@ -741,6 +851,12 @@ class UserDefinedComponent(PyAedtBase):
         list
             List of floats containing [x_min, y_min, z_min, x_max, y_max, z_max].
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
+        >>> obj = UserDefinedComponent()
+        >>> obj.bounding_box
+
         """
         bb = [float("inf")] * 3 + [float("-inf")] * 3
         for _, obj in self.parts.items():
@@ -756,6 +872,12 @@ class UserDefinedComponent(PyAedtBase):
         -------
         list
             List of floats containing [x_center, y_center, z_center].
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
+        >>> obj = UserDefinedComponent()
+        >>> obj.center
 
         """
         x_min, y_min, z_min, x_max, y_max, z_max = self.bounding_box
@@ -825,6 +947,13 @@ class UserDefinedComponent(PyAedtBase):
         -------
         str
             Path of the 3d component file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
+        >>> obj = UserDefinedComponent()
+        >>> obj.get_component_filepath()
+
         """
         return self._primitives._app.get_oo_property_value(
             self._primitives._app.oeditor, self.definition_name, "3D Component File Path"
@@ -848,6 +977,13 @@ class UserDefinedComponent(PyAedtBase):
         -------
         bool
             True if successful.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
+        >>> obj = UserDefinedComponent()
+        >>> obj.update_definition(password=1, output_file="example.txt")
+
         """
         if password is None:
             password = os.getenv("PYAEDT_ENCRYPTED_PASSWORD", "")
@@ -868,7 +1004,7 @@ class UserDefinedComponent(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def edit_definition(self, password: str = None) -> "Hfss" | bool:
+    def edit_definition(self, password: str = None) -> "Hfss | bool":
         """Edit 3d Definition. Open AEDT Project and return Pyaedt Object.
 
         Parameters
@@ -880,6 +1016,13 @@ class UserDefinedComponent(PyAedtBase):
         -------
         :class:`ansys.aedt.core.hfss.Hfss` or :class:`ansys.aedt.core.Icepak.Icepak`
             Pyaedt object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
+        >>> obj = UserDefinedComponent()
+        >>> obj.edit_definition(password=1)
+
         """
         # TODO: Edit documentation to include all supported returned classes.
 
@@ -924,6 +1067,11 @@ class LayoutComponent(PyAedtBase):
     name : str, optional
         Name of the component. The default value is ``None``.
 
+    Examples
+    --------
+    >>> from ansys.aedt.core.modeler.cad.components_3d import LayoutComponent
+    >>> obj = LayoutComponent()
+
     """
 
     def __init__(self, component) -> None:
@@ -952,6 +1100,12 @@ class LayoutComponent(PyAedtBase):
         str
            EDB file path.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.components_3d import LayoutComponent
+        >>> obj = LayoutComponent()
+        >>> obj.edb_path
+
         """
         return self._edb_path
 
@@ -963,6 +1117,12 @@ class LayoutComponent(PyAedtBase):
         -------
         :class:`ansys.aedt.core.edb.Edb`
            EDB object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.components_3d import LayoutComponent
+        >>> obj = LayoutComponent()
+        >>> obj.edb_object
 
         """
         if not self._edb_object:
@@ -998,6 +1158,12 @@ class LayoutComponent(PyAedtBase):
         str
            EDB definition.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.components_3d import LayoutComponent
+        >>> obj = LayoutComponent()
+        >>> obj.edb_definition
+
         """
         key = "EDB Definition"
         if key in self._primitives._app.get_oo_properties(self._primitives.oeditor, self._component.definition_name):
@@ -1032,6 +1198,12 @@ class LayoutComponent(PyAedtBase):
         bool
            `Show layout check box.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.components_3d import LayoutComponent
+        >>> obj = LayoutComponent()
+        >>> obj.show_layout
+
         """
         key = "Show Layout"
         if key in self._primitives._app.get_oo_properties(self._primitives.oeditor, self._name):
@@ -1059,6 +1231,12 @@ class LayoutComponent(PyAedtBase):
         bool
            Fast transformation check box.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.components_3d import LayoutComponent
+        >>> obj = LayoutComponent()
+        >>> obj.fast_transformation
+
         """
         key = "Fast Transformation"
         if key in self._primitives._app.get_oo_properties(self._primitives.oeditor, self._name):
@@ -1085,6 +1263,12 @@ class LayoutComponent(PyAedtBase):
         -------
         bool
            Show dielectric check box.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.components_3d import LayoutComponent
+        >>> obj = LayoutComponent()
+        >>> obj.show_dielectric
 
         """
         key = "Object Attributes/ShowDielectric"
@@ -1117,6 +1301,12 @@ class LayoutComponent(PyAedtBase):
             * 1 : Net.
             * 2 : Object.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.components_3d import LayoutComponent
+        >>> obj = LayoutComponent()
+        >>> obj.display_mode
+
         """
         key = "Object Attributes/DisplayMode"
 
@@ -1138,7 +1328,15 @@ class LayoutComponent(PyAedtBase):
 
     @pyaedt_function_handler()
     def close_edb_object(self) -> bool:
-        """Close EDB object."""
+        """Close EDB object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.components_3d import LayoutComponent
+        >>> obj = LayoutComponent()
+        >>> obj.close_edb_object()
+
+        """
         if self.edb_object:
             try:
                 self.edb_object.close()
@@ -1173,6 +1371,13 @@ class LayoutComponent(PyAedtBase):
         References
         ----------
         >>> oEditor.ChangeProperty
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.components_3d import LayoutComponent
+        >>> obj = LayoutComponent()
+        >>> obj.update_visibility()
+
         """
         vPropChange = [
             "NAME:Object Attributes",

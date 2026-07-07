@@ -9,20 +9,244 @@ This document contains the release notes for the project.
 
 .. towncrier release notes start
 
-`1.1.0 <https://github.com/ansys/pyaedt/releases/tag/v1.1.0>`_ - June 12, 2026
+`1.2.0 <https://github.com/ansys/pyaedt/releases/tag/v1.2.0>`_ - July 02, 2026
 ==============================================================================
 
 .. tab-set::
 
 
-  .. tab-item:: Breaking
+  .. tab-item:: Added
 
     .. list-table::
         :header-rows: 0
         :widths: auto
 
-        * - Add doc new branching system
-          - `#7764 <https://github.com/ansys/pyaedt/pull/7764>`_
+        * - Add new material property for litz wire
+          - `#7793 <https://github.com/ansys/pyaedt/pull/7793>`_
+
+        * - Add IncidentWaveType enum and integrate into HFSS postprocessing
+          - `#7795 <https://github.com/ansys/pyaedt/pull/7795>`_
+
+        * - Add option to plot in volume - cloud generator
+          - `#7828 <https://github.com/ansys/pyaedt/pull/7828>`_
+
+        * - Automatic personallib discovery
+          - `#7857 <https://github.com/ansys/pyaedt/pull/7857>`_
+
+        * - Added method for AEDT Mechanical structural excitation \"Assign Thermal Condition -Uniform\"
+          - `#7859 <https://github.com/ansys/pyaedt/pull/7859>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Improved documentation on close_on_exit desktop argument and enhanced the behavior.
+          - `#7797 <https://github.com/ansys/pyaedt/pull/7797>`_
+
+        * - Fix aedt_version_id and aedt_version_string
+          - `#7801 <https://github.com/ansys/pyaedt/pull/7801>`_
+
+        * - Correct substrate order in SubstrateType enum
+          - `#7815 <https://github.com/ansys/pyaedt/pull/7815>`_
+
+        * - Add litz wire props
+          - `#7819 <https://github.com/ansys/pyaedt/pull/7819>`_
+
+        * - Added the eye expression correction for probes in case of non-AMI ibis' models.
+          - `#7825 <https://github.com/ansys/pyaedt/pull/7825>`_
+
+        * - Remove unused CLI setup script
+          - `#7836 <https://github.com/ansys/pyaedt/pull/7836>`_
+
+        * - Bug in quick_eye which prevented to create report for Statistical Eye and Contour Eye
+          - `#7841 <https://github.com/ansys/pyaedt/pull/7841>`_
+
+        * - Aedt_process_id connecting to correct session
+          - `#7847 <https://github.com/ansys/pyaedt/pull/7847>`_
+
+
+  .. tab-item:: Documentation
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Getting Started & Dev ecosystem links
+          - `#7768 <https://github.com/ansys/pyaedt/pull/7768>`_
+
+        * - Update \`\`CONTRIBUTORS.md\`\` with the latest contributors
+          - `#7782 <https://github.com/ansys/pyaedt/pull/7782>`_
+
+        * - Add user guide page for Desktop session behavior
+          - `#7800 <https://github.com/ansys/pyaedt/pull/7800>`_
+
+        * - Update changelog entry
+          - `#7803 <https://github.com/ansys/pyaedt/pull/7803>`_
+
+        * - Add missed examples
+          - `#7816 <https://github.com/ansys/pyaedt/pull/7816>`_
+
+        * - Fix typo and fragment file
+          - `#7833 <https://github.com/ansys/pyaedt/pull/7833>`_
+
+        * - Update links to examples and pyansys core team contact email
+          - `#7834 <https://github.com/ansys/pyaedt/pull/7834>`_
+
+        * - Student version gRPC
+          - `#7844 <https://github.com/ansys/pyaedt/pull/7844>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Bump tornado from 6.5.5 to 6.5.6
+          - `#7772 <https://github.com/ansys/pyaedt/pull/7772>`_
+
+        * - Bump actions/checkout from 6.0.2 to 6.0.3
+          - `#7773 <https://github.com/ansys/pyaedt/pull/7773>`_
+
+        * - Bump ruff-pre-commit from v0.15.15 to 0.15.16
+          - `#7774 <https://github.com/ansys/pyaedt/pull/7774>`_
+
+        * - Bump check-jsonschema from 0.37.2 to 0.37.3
+          - `#7775 <https://github.com/ansys/pyaedt/pull/7775>`_
+
+        * - Bump astral-sh/setup-uv from 8.1.0 to 8.2.0
+          - `#7776 <https://github.com/ansys/pyaedt/pull/7776>`_
+
+        * - Bump jupyterlab from 4.5.7 to 4.5.8
+          - `#7777 <https://github.com/ansys/pyaedt/pull/7777>`_
+
+        * - Bump plotly from 6.7.0 to 6.8.0
+          - `#7778 <https://github.com/ansys/pyaedt/pull/7778>`_
+
+        * - Bump typer from 0.26.3 to 0.26.7
+          - `#7779 <https://github.com/ansys/pyaedt/pull/7779>`_
+
+        * - Bump pywin32 from 311 to 312
+          - `#7780 <https://github.com/ansys/pyaedt/pull/7780>`_
+
+        * - Bump starlette from 1.2.1 to 1.3.1
+          - `#7785 <https://github.com/ansys/pyaedt/pull/7785>`_
+
+        * - Bump tornado from 6.5.6 to 6.5.7
+          - `#7786 <https://github.com/ansys/pyaedt/pull/7786>`_
+
+        * - Bump cryptography from 48.0.0 to 48.0.1
+          - `#7787 <https://github.com/ansys/pyaedt/pull/7787>`_
+
+        * - Bump aiohttp from 3.14.0 to 3.14.1
+          - `#7788 <https://github.com/ansys/pyaedt/pull/7788>`_
+
+        * - Bump bleach from 6.3.0 to 6.4.0
+          - `#7789 <https://github.com/ansys/pyaedt/pull/7789>`_
+
+        * - Bump codecov/codecov-action from 6.0.1 to 7.0.0
+          - `#7804 <https://github.com/ansys/pyaedt/pull/7804>`_
+
+        * - Bump ruff-pre-commit from v0.15.16 to 0.15.17
+          - `#7805 <https://github.com/ansys/pyaedt/pull/7805>`_
+
+        * - Bump grpcio from 1.81.0 to 1.81.1
+          - `#7806 <https://github.com/ansys/pyaedt/pull/7806>`_
+
+        * - Bump cryptography from 48.0.1 to 49.0.0
+          - `#7807 <https://github.com/ansys/pyaedt/pull/7807>`_
+
+        * - Bump ansys-sphinx-theme from 1.8.2 to 1.9.0
+          - `#7808 <https://github.com/ansys/pyaedt/pull/7808>`_
+
+        * - Bump prek from 0.4.3 to 0.4.4
+          - `#7809 <https://github.com/ansys/pyaedt/pull/7809>`_
+
+        * - Bump ansys-tools-common from 0.5.0 to 0.5.1
+          - `#7810 <https://github.com/ansys/pyaedt/pull/7810>`_
+
+        * - Bump jupyter-server from 2.18.0 to 2.20.0
+          - `#7811 <https://github.com/ansys/pyaedt/pull/7811>`_
+
+        * - Bump msgpack from 1.1.2 to 1.2.1
+          - `#7812 <https://github.com/ansys/pyaedt/pull/7812>`_
+
+        * - Bump jupyterlab from 4.5.8 to 4.5.9
+          - `#7813 <https://github.com/ansys/pyaedt/pull/7813>`_
+
+        * - Bump actions/checkout from 6.0.3 to 7.0.0
+          - `#7848 <https://github.com/ansys/pyaedt/pull/7848>`_
+
+        * - Bump https://github.com/astral-sh/ruff-pre-commit from v0.15.17 to 0.15.18
+          - `#7849 <https://github.com/ansys/pyaedt/pull/7849>`_
+
+        * - Bump pytest from 9.0.3 to 9.1.1
+          - `#7851 <https://github.com/ansys/pyaedt/pull/7851>`_
+
+        * - Bump pyedb from 0.77.0 to 0.79.1
+          - `#7852 <https://github.com/ansys/pyaedt/pull/7852>`_
+
+        * - Bump jupyterlab from 4.5.9 to 4.6.0
+          - `#7853 <https://github.com/ansys/pyaedt/pull/7853>`_
+
+        * - Bump prek from 0.4.4 to 0.4.5
+          - `#7854 <https://github.com/ansys/pyaedt/pull/7854>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update CHANGELOG for v1.1.0
+          - `#7767 <https://github.com/ansys/pyaedt/pull/7767>`_
+
+        * - Bump v1.2.dev0
+          - `#7771 <https://github.com/ansys/pyaedt/pull/7771>`_
+
+        * - Avoid PR template check for pyansys-automation
+          - `#7784 <https://github.com/ansys/pyaedt/pull/7784>`_
+
+        * - Update copyright
+          - `#7794 <https://github.com/ansys/pyaedt/pull/7794>`_
+
+        * - Cleanup analyze changes logic
+          - `#7814 <https://github.com/ansys/pyaedt/pull/7814>`_
+
+        * - Update missing or outdated files
+          - `#7817 <https://github.com/ansys/pyaedt/pull/7817>`_
+
+        * - Compatibility 2027 R1
+          - `#7826 <https://github.com/ansys/pyaedt/pull/7826>`_
+
+        * - Fix upload issue and remove warning
+          - `#7827 <https://github.com/ansys/pyaedt/pull/7827>`_
+
+        * - Add uv clean on nightly tests
+          - `#7858 <https://github.com/ansys/pyaedt/pull/7858>`_
+
+
+  .. tab-item:: Miscellaneous
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Handle ruff PTH 102,116
+          - `#7783 <https://github.com/ansys/pyaedt/pull/7783>`_
+
+        * - Update CLI plugin handling
+          - `#7846 <https://github.com/ansys/pyaedt/pull/7846>`_
+
+
+`1.1.0 <https://github.com/ansys/pyaedt/releases/tag/v1.1.0>`_ - June 12, 2026
+==============================================================================
+
+.. tab-set::
 
 
   .. tab-item:: Added
@@ -59,6 +283,9 @@ This document contains the release notes for the project.
 
         * - Fix changelog breaking changes
           - `#7737 <https://github.com/ansys/pyaedt/pull/7737>`_
+
+        * - Add doc new branching system
+          - `#7764 <https://github.com/ansys/pyaedt/pull/7764>`_
 
 
   .. tab-item:: Dependencies

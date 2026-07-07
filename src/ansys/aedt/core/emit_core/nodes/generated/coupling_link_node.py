@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -27,6 +27,8 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class CouplingLinkNode(EmitNode):
+    """Provide coupling link node."""
+
     def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
@@ -34,13 +36,35 @@ class CouplingLinkNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
-        """The parent of this emit node."""
+        """The parent of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.couplings.add_link("HFSS_Design")
+        >>> revision = app.results.get_revision()
+        >>> coupling_link = revision.get_coupling_data_node().children[0]
+        >>> coupling_link.parent
+
+        """
         return self._parent
 
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node."""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.couplings.add_link("HFSS_Design")
+        >>> revision = app.results.get_revision()
+        >>> coupling_link = revision.get_coupling_data_node().children[0]
+        >>> coupling_link.node_type
+
+        """
         return self._node_type
 
     @property
@@ -49,6 +73,16 @@ class CouplingLinkNode(EmitNode):
         """Enable/Disable coupling link.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.couplings.add_link("HFSS_Design")
+        >>> revision = app.results.get_revision()
+        >>> coupling_link = revision.get_coupling_data_node().children[0]
+        >>> coupling_link.enabled = False
+
         """
         val = self._get_property("Enabled")
         return val == "true"
@@ -61,7 +95,18 @@ class CouplingLinkNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def ports(self) -> list[str]:
-        """Maps each port in the link to an antenna in the project."""
+        """Maps each port in the link to an antenna in the project.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.couplings.add_link("HFSS_Design")
+        >>> revision = app.results.get_revision()
+        >>> coupling_link = revision.get_coupling_data_node().children[0]
+        >>> coupling_link.ports = ["Antenna1", "Antenna2"]
+
+        """
         val = self._get_property("Ports")
         return val
 

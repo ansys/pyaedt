@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -46,11 +46,20 @@ class Primitives2D(GeometryModeler, PyAedtBase):
     >>> from ansys.aedt.core import Q2d
     >>> aedtapp = Q2d()
     >>> prim = aedtapp.modeler
+
     """
 
     @property
     def plane2d(self) -> str:
-        """Create a 2D plane."""
+        """Create a 2D plane.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.primitives_2d import Primitives2D
+        >>> obj = Primitives2D()
+        >>> obj.plane2d
+
+        """
         plane = "Z"
         if self._app.design_type == "Maxwell 2D":  # Cylindrical symmetry about the z-axis.
             if self._app._odesign.GetGeometryMode() == "about Z":
@@ -204,6 +213,7 @@ class Primitives2D(GeometryModeler, PyAedtBase):
         >>> ellipse1 = aedtapp.modeler.create_ellipse([0, -2, -2], 4.0, 0.2)
         >>> ellipse2 = aedtapp.modeler.create_ellipse(origin=[0, -2, -2], major_radius=4.0, ratio=0.2,
         ...                                           name="MyEllipse", material="Copper")
+
         """
         axis = self.plane2d
         x_center, y_center, z_center = self._pos_with_arg(origin)
@@ -398,6 +408,13 @@ class Primitives2D(GeometryModeler, PyAedtBase):
         References
         ----------
         >>> oEditor.CreateRegion
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.primitives_2d import Primitives2D
+        >>> obj = Primitives2D()
+        >>> obj.create_region(name="MyObject", pad_value=[1, 2, 3])
+
         """
         # backward compatibility
         if kwarg:

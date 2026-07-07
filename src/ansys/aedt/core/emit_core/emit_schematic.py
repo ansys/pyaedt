@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,14 +22,21 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
 class EmitSchematic:
-    """Represents the EMIT schematic and provides methods to interact with it."""
+    """Represents the EMIT schematic and provides methods to interact with it.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Emit
+    >>> app = Emit()
+    >>> app.schematic
+
+    """
 
     def __init__(self, emit_instance) -> None:
         """Initialize the EmitSchematic class.
@@ -86,6 +93,13 @@ class EmitSchematic:
             If the component type is empty or no matching component is found.
         RuntimeError
             If the component creation fails.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> node = app.schematic.create_component("Bluetooth")
+
         """
         if not component_type:
             raise ValueError("The 'component_type' argument is required.")
@@ -172,6 +186,13 @@ class EmitSchematic:
         ------
         RuntimeError
             If the radio or antenna creation fails.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio, antenna = app.schematic.create_radio_antenna("Bluetooth")
+
         """
         radio_name = radio_name or ""
         antenna_name = antenna_name or ""
@@ -203,6 +224,15 @@ class EmitSchematic:
         ------
         RuntimeError
             If the connection fails.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> antenna = app.schematic.create_component("Antenna")
+        >>> radio = app.schematic.create_component("Bluetooth")
+        >>> app.schematic.connect_components(antenna.name, radio.name)
+
         """
         try:
             self.emit_instance._oeditor.PlaceComponent(component_name_1, component_name_2)
@@ -228,6 +258,14 @@ class EmitSchematic:
         ------
         RuntimeError
             If the deletion fails.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> node = app.schematic.create_component("Antenna")
+        >>> app.schematic.delete_component(node.name)
+
         """
         try:
             self._emit_com_module.DeleteEmitComponent(name)

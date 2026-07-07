@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -29,6 +29,8 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class MultiplexerBand(EmitNode):
+    """Provide multiplexer band."""
+
     def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
@@ -36,23 +38,63 @@ class MultiplexerBand(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
-        """The parent of this emit node."""
+        """The parent of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
+        >>> band = mux.add_multiplexer_pass_band()
+        >>> band.parent
+
+        """
         return self._parent
 
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node."""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
+        >>> band = mux.add_multiplexer_pass_band()
+        >>> band.node_type
+
+        """
         return self._node_type
 
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
-        """Duplicate this node"""
+        """Duplicate this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
+        >>> band = mux.add_multiplexer_pass_band()
+        >>> band.duplicate("Pass Band Copy")
+
+        """
         return self._duplicate(new_name)
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node"""
+        """Delete this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
+        >>> band = mux.add_multiplexer_pass_band()
+        >>> band.delete()
+
+        """
         self._delete()
 
     class PassbandTypeOption(Enum):
@@ -69,6 +111,15 @@ class MultiplexerBand(EmitNode):
         Type of multiplexer pass band to define. The pass band can be defined by
         file (measured or simulated data) or using one of EMIT's parametric
         models.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
+        >>> band = mux.add_multiplexer_pass_band()
+        >>> band.passband_type = band.PassbandTypeOption.BAND_PASS
+
         """
         val = self._get_property("Passband Type")
         val = self.PassbandTypeOption[val.upper()]
@@ -85,6 +136,15 @@ class MultiplexerBand(EmitNode):
         """Name of file defining the multiplexer band.
 
         Value should be a full file path.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
+        >>> band = mux.add_multiplexer_pass_band()
+        >>> band.filename = r"C:\\Temp\\pass_band.s2p"
+
         """
         val = self._get_property("Filename")
         return val
@@ -100,6 +160,15 @@ class MultiplexerBand(EmitNode):
         """Multiplexer pass band insertion loss.
 
         Value should be between 0 and 100.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
+        >>> band = mux.add_multiplexer_pass_band()
+        >>> band.insertion_loss = 1.2
+
         """
         val = self._get_property("Insertion Loss")
         return float(val)
@@ -115,6 +184,15 @@ class MultiplexerBand(EmitNode):
         """Stop-band loss (attenuation).
 
         Value should be between 0 and 200.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
+        >>> band = mux.add_multiplexer_pass_band()
+        >>> band.stop_band_attenuation = 35.0
+
         """
         val = self._get_property("Stop band Attenuation")
         return float(val)
@@ -130,6 +208,15 @@ class MultiplexerBand(EmitNode):
         """Maximum pass band frequency.
 
         Value should be between 1 and 100e9.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
+        >>> band = mux.add_multiplexer_pass_band()
+        >>> band.max_pass_band = 2.6e9
+
         """
         val = self._get_property("Max Pass Band")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -147,6 +234,15 @@ class MultiplexerBand(EmitNode):
         """Minimum stop band frequency.
 
         Value should be between 1 and 100e9.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
+        >>> band = mux.add_multiplexer_pass_band()
+        >>> band.min_stop_band = 1.9e9
+
         """
         val = self._get_property("Min Stop Band")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -164,6 +260,15 @@ class MultiplexerBand(EmitNode):
         """Maximum stop band frequency.
 
         Value should be between 1 and 100e9.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
+        >>> band = mux.add_multiplexer_pass_band()
+        >>> band.max_stop_band = 2.8e9
+
         """
         val = self._get_property("Max Stop Band")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -181,6 +286,15 @@ class MultiplexerBand(EmitNode):
         """Minimum pass band frequency.
 
         Value should be between 1 and 100e9.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
+        >>> band = mux.add_multiplexer_pass_band()
+        >>> band.min_pass_band = 2.1e9
+
         """
         val = self._get_property("Min Pass Band")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -198,6 +312,15 @@ class MultiplexerBand(EmitNode):
         """Lower stop band frequency.
 
         Value should be between 1 and 100e9.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
+        >>> band = mux.add_multiplexer_pass_band()
+        >>> band.lower_stop_band = 1.8e9
+
         """
         val = self._get_property("Lower Stop Band")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -215,6 +338,15 @@ class MultiplexerBand(EmitNode):
         """Lower cutoff frequency.
 
         Value should be between 1 and 100e9.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
+        >>> band = mux.add_multiplexer_pass_band()
+        >>> band.lower_cutoff = 2.0e9
+
         """
         val = self._get_property("Lower Cutoff")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -232,6 +364,15 @@ class MultiplexerBand(EmitNode):
         """Higher cutoff frequency.
 
         Value should be between 1 and 100e9.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
+        >>> band = mux.add_multiplexer_pass_band()
+        >>> band.higher_cutoff = 2.5e9
+
         """
         val = self._get_property("Higher Cutoff")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -249,6 +390,15 @@ class MultiplexerBand(EmitNode):
         """Higher stop band frequency.
 
         Value should be between 1 and 100e9.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
+        >>> band = mux.add_multiplexer_pass_band()
+        >>> band.higher_stop_band = 2.7e9
+
         """
         val = self._get_property("Higher Stop Band")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -263,6 +413,16 @@ class MultiplexerBand(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def warnings(self) -> str:
-        """Warning(s) for this node."""
+        """Warning(s) for this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.modeler.components.create_component("4 Port", name="Mux1")
+        >>> band = mux.add_multiplexer_pass_band()
+        >>> band.warnings
+
+        """
         val = self._get_property("Warnings")
         return val

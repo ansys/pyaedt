@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
-#
 #
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -59,27 +58,39 @@ from ansys.aedt.core.generic.aedt_constants import DesignType
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 
 EXTENSION_TITLE = "Extension Manager"
+"""Title displayed for the extension."""
 
 # Default width and height for the extension window
 WIDTH = 900
+"""Default width."""
 HEIGHT = 450
+"""Default height."""
 
 # Maximum dimensions for the extension window
 MAX_WIDTH = 900
+"""Maximum width."""
 MAX_HEIGHT = 550
+"""Maximum height."""
 
 # Minimum dimensions for the extension window
 MIN_WIDTH = 850
+"""Minimum width."""
 MIN_HEIGHT = 400
+"""Minimum height."""
 
 # Maximum characters shown in an extension card title before truncation
 MAX_CARD_LABEL_CHARS = 18
+"""Max card label chars."""
 
 AEDT_EXTENSION_APPLICATIONS = [
     "Common",
@@ -95,12 +106,21 @@ AEDT_EXTENSION_APPLICATIONS = [
     "EMIT",
     "TwinBuilder",
 ]
+"""AEDT extension applications."""
 
 
 class ExtensionManager(ExtensionProjectCommon):
-    """Extension for move it in AEDT."""
+    """Extension for move it in AEDT.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.installer.extension_manager import ExtensionManager
+    >>> manager = ExtensionManager(withdraw=True)
+
+    """
 
     OPTIONAL_EXTENSION_TOOLTIP = "This extension requires optional dependencies and is currently unavailable."
+    """Optional extension tooltip."""
 
     def _resolve_category_folder(self, category: str) -> str:
         """Resolve the extension folder name from a category or product name.
@@ -187,7 +207,15 @@ class ExtensionManager(ExtensionProjectCommon):
             logging.getLogger("Global").debug("Failed to start pyaedt update checker", exc_info=True)
 
     def add_extension_content(self) -> None:
-        """Add custom content to the extension."""
+        """Add custom content to the extension.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.installer.extension_manager import ExtensionManager
+        >>> manager = ExtensionManager(withdraw=True)
+        >>> manager.add_extension_content()
+
+        """
         # Main container (horizontal layout)
         container = ttk.Frame(self.root, style="PyAEDT.TFrame")
         container.grid(row=1, column=0, columnspan=2, sticky="nsew")
@@ -281,7 +309,15 @@ class ExtensionManager(ExtensionProjectCommon):
             self.load_extensions(self.current_category)
 
     def load_extensions(self, category: str):
-        """Load application extensions."""
+        """Load application extensions.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.installer.extension_manager import ExtensionManager
+        >>> manager = ExtensionManager(withdraw=True)
+        >>> manager.load_extensions("Common")
+
+        """
         icon_category = self._resolve_category_folder(category)
         # Track the current category for UI refresh
         mapped_category = AEDT_APPLICATIONS.get(str(category).lower())
@@ -625,7 +661,15 @@ class ExtensionManager(ExtensionProjectCommon):
             scroll_frame.grid_columnconfigure(col, weight=1, uniform="card")
 
     def launch_extension(self, category: str, option: str):
-        """Launch extension without pinning it to AEDT top bar."""
+        """Launch extension without pinning it to AEDT top bar.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.installer.extension_manager import ExtensionManager
+        >>> manager = ExtensionManager(withdraw=True)
+        >>> manager.launch_extension("Common", "Custom")
+
+        """
         if self.is_optional_extension_disabled(category, option):
             self._log_optional_extension_blocked(option)
             return
@@ -909,7 +953,15 @@ class ExtensionManager(ExtensionProjectCommon):
             messagebox.showerror("Export Logs", f"Failed to save logs: {e}")
 
     def pin_extension(self, category: str, option: str):
-        """Pin extension to AEDT to bar."""
+        """Pin extension to AEDT to bar.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.installer.extension_manager import ExtensionManager
+        >>> manager = ExtensionManager(withdraw=True)
+        >>> manager.pin_extension("Common", "Custom")
+
+        """
         if self.is_optional_extension_disabled(category, option):
             self._log_optional_extension_blocked(option)
             return
@@ -974,7 +1026,15 @@ class ExtensionManager(ExtensionProjectCommon):
         self.load_extensions(category)
 
     def handle_custom_extension(self):
-        """Handle custom extension pin to the top bar."""
+        """Handle custom extension pin to the top bar.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.installer.extension_manager import ExtensionManager
+        >>> manager = ExtensionManager(withdraw=True)
+        >>> manager.handle_custom_extension()
+
+        """
         # Prompt user for script file and extension name
         result = {"script_file": None, "display_name": None}
         # Create a single dialog window for all inputs
@@ -1122,6 +1182,15 @@ class ExtensionManager(ExtensionProjectCommon):
         -------
         PIL.ImageTk.PhotoImage
             The processed image ready for tkinter.
+
+        Examples
+        --------
+        >>> import PIL.Image
+        >>> from ansys.aedt.core.extensions.installer.extension_manager import ExtensionManager
+        >>> manager = ExtensionManager(withdraw=True)
+        >>> image = PIL.Image.open("C:\\\\Temp\\\\icon.png")
+        >>> manager.create_theme_background_image(image, (48, 48))
+
         """
         # Resize if target size is specified
         if target_size:
@@ -1170,6 +1239,15 @@ class ExtensionManager(ExtensionProjectCommon):
         -------
         ttk.Label
             The pin icon label widget.
+
+        Examples
+        --------
+        >>> import tkinter as tk
+        >>> from ansys.aedt.core.extensions.installer.extension_manager import ExtensionManager
+        >>> manager = ExtensionManager(withdraw=True)
+        >>> frame = tk.Frame(manager.root)
+        >>> manager.create_pin_icon(frame, "Common", "Custom")
+
         """
         is_pinned = self.check_extension_pinned(category, option)
 
@@ -1224,6 +1302,13 @@ class ExtensionManager(ExtensionProjectCommon):
             The category/product name.
         option : str
             The extension name.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.installer.extension_manager import ExtensionManager
+        >>> manager = ExtensionManager(withdraw=True)
+        >>> manager.on_pin_click("Common", "Custom")
+
         """
         if self.is_optional_extension_disabled(category, option):
             self._log_optional_extension_blocked(option)
@@ -1236,7 +1321,17 @@ class ExtensionManager(ExtensionProjectCommon):
             self.pin_extension(category, option)
 
     def apply_canvas_theme(self, canvas: tkinter.Canvas):
-        """Apply theme to a specific canvas widget."""
+        """Apply theme to a specific canvas widget.
+
+        Examples
+        --------
+        >>> import tkinter as tk
+        >>> from ansys.aedt.core.extensions.installer.extension_manager import ExtensionManager
+        >>> manager = ExtensionManager(withdraw=True)
+        >>> canvas = tk.Canvas(manager.root)
+        >>> manager.apply_canvas_theme(canvas)
+
+        """
         theme_colors = self.theme.light if self.root.theme == "light" else self.theme.dark
         canvas.configure(
             background=theme_colors["widget_bg"],
@@ -1245,7 +1340,15 @@ class ExtensionManager(ExtensionProjectCommon):
         )
 
     def toggle_theme(self) -> None:
-        """Toggle between light and dark themes and refresh UI."""
+        """Toggle between light and dark themes and refresh UI.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.installer.extension_manager import ExtensionManager
+        >>> manager = ExtensionManager(withdraw=True)
+        >>> manager.toggle_theme()
+
+        """
         super().toggle_theme()
 
         # Clear the images cache to force recreation with new theme
@@ -1318,6 +1421,13 @@ class ExtensionManager(ExtensionProjectCommon):
         -------
         bool
             True if the extension is pinned, False otherwise.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.installer.extension_manager import ExtensionManager
+        >>> manager = ExtensionManager(withdraw=True)
+        >>> manager.check_extension_pinned("Common", "Custom")
+
         """
         if option.lower() == "custom":  # pragma: no cover
             return False  # Custom extensions are not tracked
@@ -1330,7 +1440,15 @@ class ExtensionManager(ExtensionProjectCommon):
             return False
 
     def launch_web_url(self, category: str, option: str) -> bool:
-        """Launch web URL for an extension or toolkit."""
+        """Launch web URL for an extension or toolkit.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.installer.extension_manager import ExtensionManager
+        >>> manager = ExtensionManager(withdraw=True)
+        >>> manager.launch_web_url("Common", "Custom")
+
+        """
         try:
             if option.lower() == "custom":
                 # For custom option, open PyAEDT documentation
@@ -1367,7 +1485,15 @@ class ExtensionManager(ExtensionProjectCommon):
 
     @property
     def optional_extensions(self) -> bool:
-        """Whether optional extensions are enabled for interaction."""
+        """Whether optional extensions are enabled for interaction.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.installer.extension_manager import ExtensionManager
+        >>> manager = ExtensionManager(withdraw=True)
+        >>> manager.optional_extensions
+
+        """
         optional_extensions = getattr(self, "_optional_extensions", None)
         if optional_extensions is None:
             optional_extensions = not aedt_versions.is_pyaedt_in_edt()
@@ -1376,15 +1502,39 @@ class ExtensionManager(ExtensionProjectCommon):
 
     @optional_extensions.setter
     def optional_extensions(self, value: bool) -> None:
-        """Enable or disable optional extensions globally."""
+        """Enable or disable optional extensions globally.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.installer.extension_manager import ExtensionManager
+        >>> manager = ExtensionManager(withdraw=True)
+        >>> manager.optional_extensions = False
+
+        """
         self._optional_extensions = bool(value)
 
     def is_optional_extension(self, category: str, option: str) -> bool:
-        """Whether the extension entry is marked optional in the catalog."""
+        """Whether the extension entry is marked optional in the catalog.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.installer.extension_manager import ExtensionManager
+        >>> manager = ExtensionManager(withdraw=True)
+        >>> manager.is_optional_extension("Common", "Custom")
+
+        """
         return bool(self._get_extension_info(category, option).get("optional", False))
 
     def is_optional_extension_disabled(self, category: str, option: str) -> bool:
-        """Whether an optional extension should be shown as disabled."""
+        """Whether an optional extension should be shown as disabled.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.installer.extension_manager import ExtensionManager
+        >>> manager = ExtensionManager(withdraw=True)
+        >>> manager.is_optional_extension_disabled("Common", "Custom")
+
+        """
         return self.is_optional_extension(category, option) and not self.optional_extensions
 
     def _log_optional_extension_blocked(self, option: str) -> None:
@@ -1394,7 +1544,16 @@ class ExtensionManager(ExtensionProjectCommon):
         self.log_message(msg)
 
     def show_pyaedt_update_popup(self, latest_version: str, declined_file_path: Path):  # pragma: no cover
-        """Display a modal dialog offering Decline or Remind later and instruct user to open Version Manager."""
+        """Display a modal dialog offering Decline or Remind later and instruct user to open Version Manager.
+
+        Examples
+        --------
+        >>> from pathlib import Path
+        >>> from ansys.aedt.core.extensions.installer.extension_manager import ExtensionManager
+        >>> manager = ExtensionManager(withdraw=True)
+        >>> manager.show_pyaedt_update_popup("0.17.0", Path("C:\\\\Temp\\\\declined_version.txt"))
+
+        """
         try:
             dlg = tkinter.Toplevel(self.root)
             dlg.title("PyAEDT Update")

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -27,6 +27,8 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class TxMeasNode(EmitNode):
+    """Provide tx meas node."""
+
     def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
@@ -45,7 +47,17 @@ class TxMeasNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node"""
+        """Delete this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> tx_meas = radio.children[0].import_tx_measurement("C:\\Temp\\tx_measurement.csv")
+        >>> tx_meas.delete()
+
+        """
         self._delete()
 
     @property
