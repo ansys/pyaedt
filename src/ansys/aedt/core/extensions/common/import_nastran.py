@@ -28,6 +28,7 @@ from pathlib import Path
 import tkinter
 from tkinter import filedialog
 from tkinter import ttk
+from typing import Any
 
 import ansys.aedt.core
 from ansys.aedt.core import get_pyaedt_app
@@ -106,11 +107,11 @@ class ImportNastranExtension(ExtensionProjectCommon):
         )
 
         # Initialize UI variables
-        self.__file_path_text = None
-        self.__decimation_text = None
-        self.__lightweight_var = None
-        self.__planar_var = None
-        self.__remove_multiple_connections_var = None
+        self.__file_path_text: tkinter.Text | None = None
+        self.__decimation_text: tkinter.Text | None = None
+        self.__lightweight_var: tkinter.IntVar | None = None
+        self.__planar_var: tkinter.IntVar | None = None
+        self.__remove_multiple_connections_var: tkinter.IntVar | None = None
 
         # Add extension content
         self.add_extension_content()
@@ -125,7 +126,8 @@ class ImportNastranExtension(ExtensionProjectCommon):
         >>> extension.check_design_type()
 
         """
-        if self.aedt_application.design_type not in [
+        aedt_application: Any = self.aedt_application
+        if aedt_application.design_type not in [
             "HFSS",
             "Icepak",
             "HFSS 3D",
@@ -251,11 +253,14 @@ class ImportNastranExtension(ExtensionProjectCommon):
             ),
         )
         if filename:
+            assert self.__file_path_text is not None
             self.__file_path_text.delete("1.0", tkinter.END)
             self.__file_path_text.insert(tkinter.END, filename)
 
     def __preview(self):
         """Preview the geometry file."""
+        assert self.__file_path_text is not None
+        assert self.__decimation_text is not None
         file_path_ui = self.__file_path_text.get("1.0", tkinter.END).strip()
 
         if not file_path_ui:
@@ -277,6 +282,11 @@ class ImportNastranExtension(ExtensionProjectCommon):
 
     def __import_callback(self):
         """Callback for import button."""
+        assert self.__file_path_text is not None
+        assert self.__lightweight_var is not None
+        assert self.__planar_var is not None
+        assert self.__remove_multiple_connections_var is not None
+        assert self.__decimation_text is not None
         file_path = self.__file_path_text.get("1.0", tkinter.END).strip()
         lightweight_val = self.__lightweight_var.get() == 1
         planar_val = self.__planar_var.get() == 1
@@ -346,7 +356,7 @@ def main(data: ImportNastranExtensionData) -> bool:
     project_name = active_project.GetName()
     design_name = active_design.GetName()
 
-    aedtapp = get_pyaedt_app(project_name, design_name)
+    aedtapp: Any = get_pyaedt_app(str(project_name), str(design_name))
 
     # Import geometry based on file type
     if file_path.suffix == ".nas":
@@ -382,8 +392,9 @@ if __name__ == "__main__":  # pragma: no cover
 
         tkinter.mainloop()
 
-        if extension.data is not None:
-            main(extension.data)
+        data = extension.data
+        if isinstance(data, ImportNastranExtensionData):
+            main(data)
 
     else:
         data = ImportNastranExtensionData()

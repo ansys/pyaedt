@@ -29,6 +29,7 @@ from pathlib import Path
 import tkinter
 from tkinter import filedialog
 from tkinter import ttk
+from typing import Any
 
 from ansys.aedt.core import Desktop
 from ansys.aedt.core import Hfss
@@ -134,10 +135,10 @@ class KernelConverterExtension(ExtensionProjectCommon):
         )
 
         # Tkinter widgets
-        self.file_path_entry = None
-        self.password_entry = None
-        self.application_combo = None
-        self.solution_combo = None
+        self.file_path_entry: tkinter.Text | None = None
+        self.password_entry: tkinter.Entry | None = None
+        self.application_combo: ttk.Combobox | None = None
+        self.solution_combo: ttk.Combobox | None = None
 
         # Add extension content
         self.add_extension_content()
@@ -159,10 +160,16 @@ class KernelConverterExtension(ExtensionProjectCommon):
             width=40,
             style="PyAEDT.TLabel",
         )
-        file_label.grid(row=0, column=0, **DEFAULT_PADDING)
+        file_label.grid(row=0, column=0, padx=DEFAULT_PADDING["padx"], pady=DEFAULT_PADDING["pady"])
 
         file_frame = ttk.Frame(self.root, style="PyAEDT.TFrame")
-        file_frame.grid(row=0, column=1, sticky="ew", **DEFAULT_PADDING)
+        file_frame.grid(
+            row=0,
+            column=1,
+            sticky="ew",
+            padx=DEFAULT_PADDING["padx"],
+            pady=DEFAULT_PADDING["pady"],
+        )
 
         self.file_path_entry = tkinter.Text(file_frame, width=30, height=1)
         self.file_path_entry.grid(row=0, column=0, padx=(0, 5))
@@ -186,9 +193,9 @@ class KernelConverterExtension(ExtensionProjectCommon):
             width=40,
             style="PyAEDT.TLabel",
         )
-        password_label.grid(row=1, column=0, **DEFAULT_PADDING)
+        password_label.grid(row=1, column=0, padx=DEFAULT_PADDING["padx"], pady=DEFAULT_PADDING["pady"])
         self.password_entry = tkinter.Entry(self.root, width=30, show="*")
-        self.password_entry.grid(row=1, column=1, **DEFAULT_PADDING)
+        self.password_entry.grid(row=1, column=1, padx=DEFAULT_PADDING["padx"], pady=DEFAULT_PADDING["pady"])
 
         # Application selection
         application_label = ttk.Label(
@@ -197,7 +204,7 @@ class KernelConverterExtension(ExtensionProjectCommon):
             width=40,
             style="PyAEDT.TLabel",
         )
-        application_label.grid(row=2, column=0, **DEFAULT_PADDING)
+        application_label.grid(row=2, column=0, padx=DEFAULT_PADDING["padx"], pady=DEFAULT_PADDING["pady"])
         self.application_combo = ttk.Combobox(
             self.root,
             width=30,
@@ -212,7 +219,7 @@ class KernelConverterExtension(ExtensionProjectCommon):
         )
         self.application_combo.current(0)
         self.application_combo.bind("<<ComboboxSelected>>", self._update_solutions)
-        self.application_combo.grid(row=2, column=1, **DEFAULT_PADDING)
+        self.application_combo.grid(row=2, column=1, padx=DEFAULT_PADDING["padx"], pady=DEFAULT_PADDING["pady"])
 
         # Solution selection
         solution_label = ttk.Label(
@@ -221,7 +228,7 @@ class KernelConverterExtension(ExtensionProjectCommon):
             width=40,
             style="PyAEDT.TLabel",
         )
-        solution_label.grid(row=3, column=0, **DEFAULT_PADDING)
+        solution_label.grid(row=3, column=0, padx=DEFAULT_PADDING["padx"], pady=DEFAULT_PADDING["pady"])
         self.solution_combo = ttk.Combobox(
             self.root,
             width=40,
@@ -230,10 +237,14 @@ class KernelConverterExtension(ExtensionProjectCommon):
         )
         self.solution_combo["values"] = tuple(DesignType.HFSS.solution_types.keys())
         self.solution_combo.current(0)
-        self.solution_combo.grid(row=3, column=1, **DEFAULT_PADDING)
+        self.solution_combo.grid(row=3, column=1, padx=DEFAULT_PADDING["padx"], pady=DEFAULT_PADDING["pady"])
 
         def callback(extension: KernelConverterExtension) -> None:
             """Callback function for the convert button."""
+            assert extension.file_path_entry is not None
+            assert extension.password_entry is not None
+            assert extension.application_combo is not None
+            assert extension.solution_combo is not None
             file_path = extension.file_path_entry.get("1.0", tkinter.END).strip()
             password = extension.password_entry.get()
             application = extension.application_combo.get()
@@ -257,7 +268,7 @@ class KernelConverterExtension(ExtensionProjectCommon):
             style="PyAEDT.TButton",
             name="convert",
         )
-        convert_button.grid(row=4, column=0, **DEFAULT_PADDING)
+        convert_button.grid(row=4, column=0, padx=DEFAULT_PADDING["padx"], pady=DEFAULT_PADDING["pady"])
 
     def _browse_files(self) -> None:
         """Browse for files or folders."""
@@ -270,11 +281,14 @@ class KernelConverterExtension(ExtensionProjectCommon):
             ),
         )
         if filename:
+            assert self.file_path_entry is not None
             self.file_path_entry.delete("1.0", tkinter.END)
             self.file_path_entry.insert(tkinter.END, filename)
 
     def _update_solutions(self, event=None):
         """Update solution options based on selected application."""
+        assert self.application_combo is not None
+        assert self.solution_combo is not None
         app_name = self.application_combo.get()
         for k in dir(DesignType):
             if k.startswith("_"):
@@ -364,13 +378,13 @@ def _convert_3d_component(extension_args, output_desktop, input_desktop) -> None
     elif application == "Q3D Extractor":
         app = Q3d
 
-    app1 = app(aedt_process_id=input_desktop.aedt_process_id, solution_type=solution)
+    app1: Any = app(aedt_process_id=input_desktop.aedt_process_id, solution_type=solution)
     cmp = app1.modeler.insert_3d_component(file_path, password=password)
-    app_comp = cmp.edit_definition(password=password)
+    app_comp: Any = cmp.edit_definition(password=password)
     design_name = app_comp.design_name
     app_comp.oproject.CopyDesign(design_name)
     project_name2 = generate_unique_name("Proj_convert")
-    output_app = app(
+    output_app: Any = app(
         aedt_process_id=output_desktop.aedt_process_id,
         solution_type=solution,
         project=project_name2,
@@ -378,8 +392,9 @@ def _convert_3d_component(extension_args, output_desktop, input_desktop) -> None
 
     output_app.oproject.Paste()
     output_app = get_pyaedt_app(desktop=output_desktop, project_name=project_name2, design_name=design_name)
-    _check_missing(app_comp, output_app, file_path)
-    output_app.modeler.create_3dcomponent(
+    output_app_any: Any = output_app
+    _check_missing(app_comp, output_app_any, file_path)
+    output_app_any.modeler.create_3dcomponent(
         output_path,
         is_encrypted=True if password else False,
         allow_edit=True if password else False,
@@ -412,10 +427,10 @@ def _convert_aedt(extension_args, output_desktop, input_desktop) -> None:
     project_name2 = Path(output_path).stem
 
     for design in input_desktop.design_list():
-        app1 = get_pyaedt_app(desktop=input_desktop, project_name=project_name, design_name=design)
+        app1: Any = get_pyaedt_app(desktop=input_desktop, project_name=project_name, design_name=design)
         app1.oproject.CopyDesign(app1.design_name)
         oproject2.Paste()
-        output_app = get_pyaedt_app(desktop=output_desktop, project_name=project_name2, design_name=design)
+        output_app: Any = get_pyaedt_app(desktop=output_desktop, project_name=project_name2, design_name=design)
         _check_missing(app1, output_app, file_path)
         output_app.save_project()
     input_desktop.odesktop.CloseProject(str(Path(file_path).stem))
@@ -505,8 +520,9 @@ if __name__ == "__main__":  # pragma: no cover
 
         tkinter.mainloop()
 
-        if extension.data is not None:
-            main(extension.data)
+        data = extension.data
+        if isinstance(data, KernelConverterExtensionData):
+            main(data)
 
     else:
         data = KernelConverterExtensionData()

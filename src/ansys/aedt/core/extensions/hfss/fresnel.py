@@ -24,7 +24,9 @@
 
 import tkinter
 from tkinter import ttk
+from typing import Any
 from typing import Sequence
+from typing import cast
 
 import numpy as np
 
@@ -75,7 +77,7 @@ class FresnelExtension(ExtensionHFSSCommon):
         )
 
         # Attributes
-        self.setups = self.aedt_application.design_setups
+        self.setups = self._app().design_setups
         self.setup_sweep_names = []
 
         if not self.setups:
@@ -91,16 +93,16 @@ class FresnelExtension(ExtensionHFSSCommon):
                     for sweep in sweeps:
                         self.setup_sweep_names.append(f"{setup_name} : {sweep}")
 
-        self.active_setup = None
-        self.sweep = None
-        self.active_setup_sweep = None
-        self.floquet_ports = None
-        self.active_parametric = None
-        self.start_frequency = None
-        self.stop_frequency = None
-        self.step_frequency = None
-        self.frequency_units = None
-        self.fresnel_type = None
+        self.active_setup: Any | None = None
+        self.sweep: Any | None = None
+        self.active_setup_sweep: str | None = None
+        self.floquet_ports: list[Any] | None = None
+        self.active_parametric: Any | None = None
+        self.start_frequency: float | None = None
+        self.stop_frequency: float | None = None
+        self.step_frequency: float | None = None
+        self.frequency_units: str | None = None
+        self.fresnel_type: tkinter.StringVar | None = None
 
         self.elevation_resolution_slider_values = [10.0, 7.5, 5.0]
         self.azimuth_resolution_slider_values = [15.0, 10.0, 7.5]
@@ -128,6 +130,33 @@ class FresnelExtension(ExtensionHFSSCommon):
         # Trigger manually since add_extension_content requires loading expression files first
         self.add_extension_content()
 
+    def _app(self) -> Any:
+        return cast(Any, self.aedt_application)
+
+    def _label(self, key: str) -> ttk.Label:
+        return cast(ttk.Label, self._widgets[key])
+
+    def _button(self, key: str) -> ttk.Button:
+        return cast(ttk.Button, self._widgets[key])
+
+    def _combo(self, key: str) -> ttk.Combobox:
+        return cast(ttk.Combobox, self._widgets[key])
+
+    def _text(self, key: str) -> tkinter.Text:
+        return cast(tkinter.Text, self._widgets[key])
+
+    def _bool_var(self, key: str) -> tkinter.BooleanVar:
+        return cast(tkinter.BooleanVar, self._widgets[key])
+
+    def _double_var(self, key: str) -> tkinter.DoubleVar:
+        return cast(tkinter.DoubleVar, self._widgets[key])
+
+    def _spinbox(self, key: str) -> ttk.Spinbox:
+        return cast(ttk.Spinbox, self._widgets[key])
+
+    def _fresnel_type(self) -> tkinter.StringVar:
+        return cast(tkinter.StringVar, self.fresnel_type)
+
     def add_extension_content(self) -> None:
         """Add custom content to the extension UI.
 
@@ -146,7 +175,7 @@ class FresnelExtension(ExtensionHFSSCommon):
         fresnel_frame.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
 
         state = "normal"
-        if self.desktop.aedt_version_id < "2027.1":
+        if (self.desktop.aedt_version_id or "") < "2027.1":
             # Anisotropic not available before 2027R1
             state = "disabled"
 
@@ -203,15 +232,15 @@ class FresnelExtension(ExtensionHFSSCommon):
         self._build_settings_tab()
 
     def _on_fresnel_type_changed(self):
-        selected = self.fresnel_type.get()
+        selected = self._fresnel_type().get()
         if selected == "isotropic":
-            self._widgets["azimuth_slider"].grid_remove()
-            self._widgets["azimuth_spin"].grid_remove()
-            self._widgets["azimuth_label"].grid_remove()
+            cast(Any, self._widgets["azimuth_slider"]).grid_remove()
+            self._spinbox("azimuth_spin").grid_remove()
+            self._label("azimuth_label").grid_remove()
         elif selected == "anisotropic":  # pragma: no cover
-            self._widgets["azimuth_slider"].grid()
-            self._widgets["azimuth_spin"].grid()
-            self._widgets["azimuth_label"].grid()
+            cast(Any, self._widgets["azimuth_slider"]).grid()
+            self._spinbox("azimuth_spin").grid()
+            self._label("azimuth_label").grid()
 
     def _build_advanced_tab(self):
         # Setup
@@ -309,7 +338,7 @@ class FresnelExtension(ExtensionHFSSCommon):
         self._widgets["elevation_spin"] = ttk.Spinbox(
             self._widgets["angular_resolution_frame"],
             values=[str(v) for v in self.elevation_resolution_values],
-            textvariable=self._widgets["elevation_resolution"],
+            textvariable=self._double_var("elevation_resolution"),
             width=6,
             command=self._elevation_spin_changed,
             state="readonly",
@@ -339,7 +368,7 @@ class FresnelExtension(ExtensionHFSSCommon):
         self._widgets["azimuth_spin"] = ttk.Spinbox(
             self._widgets["angular_resolution_frame"],
             values=[str(v) for v in self.azimuth_resolution_values],
-            textvariable=self._widgets["azimuth_resolution"],
+            textvariable=self._double_var("azimuth_resolution"),
             width=6,
             state="readonly",
             font=self.theme.default_font,
@@ -367,7 +396,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             from_=0,
             to=90,
             orient="horizontal",
-            variable=self._widgets["theta_scan_max"],
+            variable=self._double_var("theta_scan_max"),
             command=self._snap_theta_scan_max_slider,
             length=200,
         )
@@ -378,7 +407,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             from_=0,
             to=90,
             increment=1,
-            textvariable=self._widgets["theta_scan_max"],
+            textvariable=self._double_var("theta_scan_max"),
             width=6,
             command=self._snap_theta_scan_max_spin,
             font=self.theme.default_font,
@@ -556,8 +585,8 @@ class FresnelExtension(ExtensionHFSSCommon):
     def _elevation_slider_changed(self, pos):
         index = int(float(pos))
         new_val = self.elevation_resolution_slider_values[index]
-        self._widgets["elevation_resolution"].set(new_val)
-        self._widgets["elevation_spin"].set(new_val)
+        self._double_var("elevation_resolution").set(new_val)
+        self._spinbox("elevation_spin").set(new_val)
         self._update_theta_scan_max_constraints()
 
     def _elevation_spin_changed(self):
@@ -566,11 +595,11 @@ class FresnelExtension(ExtensionHFSSCommon):
     def _azimuth_slider_changed(self, pos):
         index = int(float(pos))
         new_val = self.azimuth_resolution_slider_values[index]
-        self._widgets["azimuth_resolution"].set(new_val)
-        self._widgets["azimuth_spin"].set(new_val)
+        self._double_var("azimuth_resolution").set(new_val)
+        self._spinbox("azimuth_spin").set(new_val)
 
     def _update_theta_scan_max_constraints(self):
-        theta_val = self._widgets["elevation_resolution"].get()
+        theta_val = self._double_var("elevation_resolution").get()
         if theta_val <= 0 or theta_val > 90:  # pragma: no cover
             return
 
@@ -583,55 +612,56 @@ class FresnelExtension(ExtensionHFSSCommon):
             last_value = 90.0
 
         if "theta_scan_max_slider" in self._widgets:
-            self._widgets["theta_scan_max_slider"].config(
+            cast(Any, self._widgets["theta_scan_max_slider"]).config(
                 from_=theta_val,
                 to=last_value,
             )
         if "theta_scan_max_spin" in self._widgets:
-            self._widgets["theta_scan_max_spin"].config(from_=theta_val, to=last_value, increment=theta_val)
+            self._spinbox("theta_scan_max_spin").config(from_=theta_val, to=last_value, increment=theta_val)
 
-        current_val = self._widgets["theta_scan_max"].get()
+        current_val = self._double_var("theta_scan_max").get()
         snapped = round(current_val / theta_val) * theta_val
         if snapped > last_value:  # pragma: no cover
             snapped = last_value
-        self._widgets["theta_scan_max"].set(round(snapped, 2))
+        self._double_var("theta_scan_max").set(round(snapped, 2))
 
     def _snap_theta_scan_max_slider(self, val):
-        theta_step = float(self._widgets["elevation_resolution"].get())
+        theta_step = float(self._double_var("elevation_resolution").get())
         val = float(val)
         snapped = round(val / theta_step) * theta_step
         if snapped > 90:  # pragma: no cover
             snapped = 90 - theta_step
-        self._widgets["theta_scan_max_spin"].set(round(snapped, 2))
+        self._spinbox("theta_scan_max_spin").set(round(snapped, 2))
 
     def _snap_theta_scan_max_spin(self):
-        self._snap_theta_scan_max_slider(self._widgets["theta_scan_max_slider"].get())
+        self._snap_theta_scan_max_slider(cast(Any, self._widgets["theta_scan_max_slider"]).get())
 
     def _apply_validate(self):
+        app = self._app()
         # Init
-        self._widgets["frequency_points_label"].config(text="N/A")
-        self._widgets["floquet_ports_label"].config(text="N/A")
-        self._widgets["design_validation_label"].config(text="N/A")
-        self._widgets["spatial_points_label"].config(text="N/A")
-        self._widgets["start_button"].grid_remove()
+        self._label("frequency_points_label").config(text="N/A")
+        self._label("floquet_ports_label").config(text="N/A")
+        self._label("design_validation_label").config(text="N/A")
+        self._label("spatial_points_label").config(text="N/A")
+        self._button("start_button").grid_remove()
 
-        simulation_setup = self._widgets["setup_combo"].get()
+        simulation_setup = self._combo("setup_combo").get()
 
         if simulation_setup == "No Setup":
-            self.aedt_application.logger.add_error_message("No setup selected.")
+            app.logger.add_error_message("No setup selected.")
             return False
 
         # Create sweep
-        self.active_setup = self.aedt_application.design_setups[simulation_setup]
+        self.active_setup = app.design_setups[simulation_setup]
 
-        self.start_frequency = float(self._widgets["start_frequency"].get("1.0", tkinter.END).strip())
-        self.stop_frequency = float(self._widgets["stop_frequency"].get("1.0", tkinter.END).strip())
-        self.step_frequency = float(self._widgets["step_frequency"].get("1.0", tkinter.END).strip())
-        self.frequency_units = self._widgets["frequency_units_combo"].get()
+        self.start_frequency = float(self._text("start_frequency").get("1.0", tkinter.END).strip())
+        self.stop_frequency = float(self._text("stop_frequency").get("1.0", tkinter.END).strip())
+        self.step_frequency = float(self._text("step_frequency").get("1.0", tkinter.END).strip())
+        self.frequency_units = self._combo("frequency_units_combo").get()
 
         if self.start_frequency > self.stop_frequency:
-            self.aedt_application.logger.add_error_message("Start frequency must be less than stop frequency.")
-            self._widgets["frequency_points_label"].config(text="FAIL")
+            app.logger.add_error_message("Start frequency must be less than stop frequency.")
+            self._label("frequency_points_label").config(text="FAIL")
             return False
 
         for _, available_sweep in self.active_setup.children.items():
@@ -655,70 +685,70 @@ class FresnelExtension(ExtensionHFSSCommon):
 
         # Check number of ports and each port should have 2 modes
         try:
-            self.floquet_ports = self.aedt_application.get_fresnel_floquet_ports()
+            self.floquet_ports = app.get_fresnel_floquet_ports()
         except AEDTRuntimeError:
             self.floquet_ports = None
 
         if self.floquet_ports is None:
-            self._widgets["floquet_ports_label"]["text"] = "FAIL"
+            self._label("floquet_ports_label").config(text="FAIL")
             return False
-        self._widgets["floquet_ports_label"]["text"] = f"{len(self.floquet_ports)} Floquet port defined"
+        self._label("floquet_ports_label").config(text=f"{len(self.floquet_ports)} Floquet port defined")
 
         # Show frequency points
 
         frequency_points = int((self.stop_frequency - self.start_frequency) / self.step_frequency) + 1
-        self._widgets["frequency_points_label"]["text"] = str(frequency_points)
+        self._label("frequency_points_label").config(text=str(frequency_points))
 
         # Show spatial directions
 
-        theta_resolution = float(self._widgets["elevation_resolution"].get())
-        phi_resolution = float(self._widgets["azimuth_resolution"].get())
+        theta_resolution = float(self._double_var("elevation_resolution").get())
+        phi_resolution = float(self._double_var("azimuth_resolution").get())
         phi_max = 360.0 - phi_resolution
-        is_isotropic = self.fresnel_type.get() == "isotropic"
+        is_isotropic = self._fresnel_type().get() == "isotropic"
         if is_isotropic:
             phi_resolution = 1.0
             phi_max = 0
-        theta_max = float(self._widgets["theta_scan_max"].get())
+        theta_max = float(self._double_var("theta_scan_max").get())
 
         theta_steps = int(theta_max / theta_resolution) + 1
         phi_steps = int(phi_max / phi_resolution) + 1
 
         total_combinations = theta_steps * phi_steps
-        self._widgets["spatial_points_label"]["text"] = str(total_combinations)
+        self._label("spatial_points_label").config(text=str(total_combinations))
 
         # Check validations
 
-        validation = self.aedt_application.validate_simple()
+        validation = app.validate_simple()
         if validation == 1:
-            self._widgets["design_validation_label"]["text"] = "Passed"
+            self._label("design_validation_label").config(text="Passed")
         else:
-            self._widgets["design_validation_label"].config(text="Failed")
+            self._label("design_validation_label").config(text="Failed")
             return False
 
         # Check if lattice pair
-        bounds = self.aedt_application.boundaries_by_type
+        bounds = app.boundaries_by_type
         # If not Lattice Pair, both Secondary and Primary must be available
         if "Lattice Pair" not in bounds and ("Secondary" not in bounds or "Primary" not in bounds):
-            self.aedt_application.logger.add_error_message("No lattice pair or primary and secondary boundaries found.")
-            self._widgets["design_validation_label_extraction"].config(text="Failed")
+            app.logger.add_error_message("No lattice pair or primary and secondary boundaries found.")
+            self._label("design_validation_label_extraction").config(text="Failed")
             return False
 
         bound = "Lattice Pair" if "Lattice Pair" in bounds else "Secondary"
 
         # Assign variable to lattice pair
-        self.aedt_application["scan_P"] = "0deg"
-        self.aedt_application["scan_T"] = "0deg"
+        app["scan_P"] = "0deg"
+        app["scan_T"] = "0deg"
 
         for lattice_pair in bounds[bound]:
             lattice_pair.properties["Theta"] = "scan_T"
             lattice_pair.properties["Phi"] = "scan_P"
 
         # Create optimetrics
-        for available_sweep in self.aedt_application.parametrics.setups:
+        for available_sweep in app.parametrics.setups:
             available_sweep.props["IsEnabled"] = False
             available_sweep.update()
 
-        self.active_parametric = self.aedt_application.parametrics.add(
+        self.active_parametric = app.parametrics.add(
             "scan_T", 0.0, theta_max, theta_resolution, variation_type="LinearStep", solution=self.active_setup.name
         )
 
@@ -726,28 +756,29 @@ class FresnelExtension(ExtensionHFSSCommon):
             self.active_parametric.add_variation("scan_P", 0.0, phi_max, phi_resolution, variation_type="LinearStep")
 
         # Save mesh and equivalent meshes
-        self.active_parametric.props["ProdOptiSetupDataV2"]["CopyMesh"] = self._widgets["keep_mesh"].get()
+        self.active_parametric.props["ProdOptiSetupDataV2"]["CopyMesh"] = self._bool_var("keep_mesh").get()
         self.active_parametric.props["ProdOptiSetupDataV2"]["SaveFields"] = False
 
         # Create output variables
         self.active_setup_sweep = self.active_setup.name + " : " + self.sweep.name
-        self.aedt_application.create_fresnel_variables(self.active_setup_sweep)
+        app.create_fresnel_variables(self.active_setup_sweep)
 
-        self.aedt_application.save_project()
+        app.save_project()
 
-        self._widgets["start_button"].grid()
+        self._button("start_button").grid()
 
         return True
 
     def _validate(self, active_setup=None):
+        app = self._app()
         # Init
-        self._widgets["floquet_ports_label_extraction"].config(text="N/A")
-        self._widgets["spatial_points_label_extraction"].config(text="N/A")
-        self._widgets["design_validation_label_extraction"].config(text="N/A")
-        self._widgets["start_button_extraction"].grid_remove()
+        self._label("floquet_ports_label_extraction").config(text="N/A")
+        self._label("spatial_points_label_extraction").config(text="N/A")
+        self._label("design_validation_label_extraction").config(text="N/A")
+        self._button("start_button_extraction").grid_remove()
 
         if active_setup is None:
-            simulation_setup = self._widgets["setup_sweep_combo"].get()
+            simulation_setup = self._combo("setup_sweep_combo").get()
             if simulation_setup is None:  # pragma: no cover
                 simulation_setup = self.active_setup_sweep
         else:  # pragma: no cover
@@ -757,8 +788,8 @@ class FresnelExtension(ExtensionHFSSCommon):
         sweep_name = simulation_setup.split(" : ")[1]
 
         if setup_name.lower() == "no setup":
-            self.aedt_application.logger.add_error_message("No setup selected.")
-            self._widgets["design_validation_label_extraction"].config(text="Failed")
+            app.logger.add_error_message("No setup selected.")
+            self._label("design_validation_label_extraction").config(text="Failed")
             return False
 
         self.active_setup = self.setups[setup_name]
@@ -768,25 +799,23 @@ class FresnelExtension(ExtensionHFSSCommon):
         active_sweep = None
         if sweep_name != "LastAdaptive":
             # Setup has only one frequency sweep
-            sweeps = self.active_setup.sweeps
+            sweeps = cast(Any, self.active_setup).sweeps
             for sweep in set(sweeps):
                 if sweep.name == sweep_name:
                     active_sweep = sweep
                     break
 
             if active_sweep is None:
-                self.aedt_application.logger.add_error_message(f"{sweep_name} not found.")
-                self._widgets["design_validation_label_extraction"].config(text="Failed")
+                app.logger.add_error_message(f"{sweep_name} not found.")
+                self._label("design_validation_label_extraction").config(text="Failed")
                 return False
 
             # Frequency sweep has linearly frequency samples
             sweep_type = active_sweep.props.get("RangeType", None)
 
             if sweep_type not in ["LinearStep", "LinearCount", "SinglePoints"]:
-                self.aedt_application.logger.add_error_message(
-                    f"{active_sweep.name} does not have linearly frequency samples."
-                )
-                self._widgets["design_validation_label_extraction"].config(text="Failed")
+                app.logger.add_error_message(f"{active_sweep.name} does not have linearly frequency samples.")
+                self._label("design_validation_label_extraction").config(text="Failed")
                 return False
 
         # We can not get the frequency points with the AEDT API
@@ -794,20 +823,20 @@ class FresnelExtension(ExtensionHFSSCommon):
         # Floquet and modes
 
         # Check number of ports and each port should have 2 modes
-        self.floquet_ports = self.aedt_application.get_fresnel_floquet_ports()
+        self.floquet_ports = app.get_fresnel_floquet_ports()
         if self.floquet_ports is None:
-            self._widgets["floquet_ports_label_extraction"]["text"] = "FAIL"
+            self._label("floquet_ports_label_extraction").config(text="FAIL")
             return False
-        self._widgets["floquet_ports_label_extraction"]["text"] = f"{len(self.floquet_ports)} Floquet port defined"
+        self._label("floquet_ports_label_extraction").config(text=f"{len(self.floquet_ports)} Floquet port defined")
 
         # Parametric setup is driven by the variables defining the scan direction
 
-        bounds = self.aedt_application.boundaries_by_type
+        bounds = app.boundaries_by_type
 
         # If not Lattice Pair, both Secondary and Primary must be available
         if "Lattice Pair" not in bounds and ("Secondary" not in bounds or "Primary" not in bounds):
-            self.aedt_application.logger.add_error_message("No lattice pair or primary and secondary boundaries found.")
-            self._widgets["design_validation_label_extraction"].config(text="Failed")
+            app.logger.add_error_message("No lattice pair or primary and secondary boundaries found.")
+            self._label("design_validation_label_extraction").config(text="Failed")
             return False
 
         bound = "Lattice Pair" if "Lattice Pair" in bounds else "Secondary"
@@ -816,22 +845,20 @@ class FresnelExtension(ExtensionHFSSCommon):
 
         theta_scan_variable = lattice_pair[0].properties["Theta"]
         phi_scan_variable = lattice_pair[0].properties["Phi"]
-        variable_names = self.aedt_application.variable_manager.variable_names
+        variable_names = app.variable_manager.variable_names
         if theta_scan_variable not in variable_names:
-            self.aedt_application.logger.add_error_message(
-                "Lattice pair or primary and secondary boundaries must be parametrized."
-            )
-            self._widgets["design_validation_label_extraction"].config(text="Failed")
+            app.logger.add_error_message("Lattice pair or primary and secondary boundaries must be parametrized.")
+            self._label("design_validation_label_extraction").config(text="Failed")
             return False
-        is_isotropic = self.fresnel_type.get() == "isotropic"
+        is_isotropic = self._fresnel_type().get() == "isotropic"
 
         try:
-            report_quantities = self.aedt_application.post.available_report_quantities()
+            report_quantities = app.post.available_report_quantities()
 
-            variations = self.aedt_application.available_variations.all
+            variations = app.available_variations.all
             variations["Freq"] = "All"
 
-            data = self.aedt_application.post.get_solution_data_per_variation(
+            data = app.post.get_solution_data_per_variation(
                 "Modal Solution Data", self.active_setup_sweep, ["Domain:=", "Sweep"], variations, report_quantities[0]
             )
 
@@ -842,8 +869,8 @@ class FresnelExtension(ExtensionHFSSCommon):
             if is_isotropic:
                 if parametric_data["has_phi"]:
                     if parametric_data["phi"][0] != 0.0:
-                        self.aedt_application.logger.add_error_message("Phi sweep must contain 0.0deg.")
-                        self._widgets["design_validation_label_extraction"].config(text="Failed")
+                        app.logger.add_error_message("Phi sweep must contain 0.0deg.")
+                        self._label("design_validation_label_extraction").config(text="Failed")
                         return False
                     phi_0 = parametric_data["phi"][0]
                     theta_resolution = parametric_data["theta_resolution_by_phi"][phi_0]
@@ -857,8 +884,8 @@ class FresnelExtension(ExtensionHFSSCommon):
                     theta_max = max(parametric_data["theta"])
             else:
                 if not parametric_data["has_phi"]:
-                    self.aedt_application.logger.add_error_message("Scan phi is not defined.")
-                    self._widgets["design_validation_label_extraction"].config(text="Failed")
+                    app.logger.add_error_message("Scan phi is not defined.")
+                    self._label("design_validation_label_extraction").config(text="Failed")
                     return False
                 phi_0 = parametric_data["phi"][0]
                 theta_resolution = parametric_data["theta_resolution_by_phi"][phi_0]
@@ -870,36 +897,35 @@ class FresnelExtension(ExtensionHFSSCommon):
             theta_steps = int(theta_max / theta_resolution) + 1
             phi_steps = int(phi_max / phi_resolution) + 1
             total_combinations = theta_steps * phi_steps
-            self._widgets["spatial_points_label_extraction"]["text"] = str(total_combinations)
+            self._label("spatial_points_label_extraction").config(text=str(total_combinations))
         except Exception as e:
-            self.aedt_application.logger.add_warning_message(
-                f"Could not compute spatial scan points (no solution data available): {e}"
-            )
-            self._widgets["spatial_points_label_extraction"]["text"] = "N/A (no solution data)"
+            app.logger.add_warning_message(f"Could not compute spatial scan points (no solution data available): {e}")
+            self._label("spatial_points_label_extraction").config(text="N/A (no solution data)")
             return False
 
         # Check validations
 
-        validation = self.aedt_application.validate_simple()
+        validation = app.validate_simple()
         if validation == 1:
-            self._widgets["design_validation_label_extraction"]["text"] = "Passed"
+            self._label("design_validation_label_extraction").config(text="Passed")
         else:
-            self._widgets["design_validation_label_extraction"].config(text="Failed")
+            self._label("design_validation_label_extraction").config(text="Failed")
             return False
 
-        self._widgets["start_button_extraction"].grid()
+        self._button("start_button_extraction").grid()
 
         return True
 
     def _start_extraction(self):  # pragma: no cover
-        cores = int(self._widgets["core_number"].get("1.0", tkinter.END).strip())
-        tasks = int(self._widgets["tasks_number"].get("1.0", tkinter.END).strip())
-        active_parametric = self.active_parametric.name
+        app = self._app()
+        cores = int(self._text("core_number").get("1.0", tkinter.END).strip())
+        tasks = int(self._text("tasks_number").get("1.0", tkinter.END).strip())
+        active_parametric = cast(Any, self.active_parametric).name
 
         # Solve
-        self.aedt_application.analyze_setup(cores=cores, num_variations_to_distribute=tasks, name=active_parametric)
+        app.analyze_setup(cores=cores, num_variations_to_distribute=tasks, name=active_parametric)
 
-        self.aedt_application.save_project()
+        app.save_project()
 
         is_valid = self._validate(self.active_setup_sweep)
 
@@ -907,20 +933,21 @@ class FresnelExtension(ExtensionHFSSCommon):
             self._get_coefficients()
 
     def _get_coefficients(self):
+        app = self._app()
         enable_log = settings.enable_desktop_logs
         if not self.desktop.non_graphical:
             settings.enable_desktop_logs = True
 
-        is_isotropic = self.fresnel_type.get() == "isotropic"
+        is_isotropic = self._fresnel_type().get() == "isotropic"
 
         # Obtain variable name
-        bounds = self.aedt_application.boundaries_by_type
+        bounds = app.boundaries_by_type
         bound = "Lattice Pair" if "Lattice Pair" in bounds else "Secondary"
         lattice_pair = bounds[bound]
         theta_scan_variable = lattice_pair[0].properties["Theta"]
         phi_scan_variable = lattice_pair[0].properties["Phi"]
 
-        _ = self.aedt_application.get_fresnel_coefficients(
+        _ = app.get_fresnel_coefficients(
             setup_sweep=self.active_setup_sweep,
             theta_name=theta_scan_variable,
             phi_name=phi_scan_variable,

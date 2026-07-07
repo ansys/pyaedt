@@ -321,7 +321,6 @@ exclude = [
     "src/ansys/aedt/core/application",
     "src/ansys/aedt/core/emit_core",
     "src/ansys/aedt/core/examples",
-    "src/ansys/aedt/core/extensions",
     "src/ansys/aedt/core/filtersolutions_core",
     "src/ansys/aedt/core/generic",
     "src/ansys/aedt/core/internal",
