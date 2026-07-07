@@ -3525,3 +3525,99 @@ def test_terminator_table_persistence(add_app) -> None:
     assert reopened_amplifier.table_data == expected_amplifier_table
 
     app2.close_project(app2.project_name, save=False)
+
+@pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027 R1.")
+def test_compare_nodes(emit_app) -> None:
+    if not hasattr(emit_app.schematic, "compare_nodes"):
+        pytest.skip("compare_nodes is not available in this build.")
+
+    radio_1: RadioNode = emit_app.schematic.create_component("New Radio", "CompareRadio1")
+    radio_2: RadioNode = emit_app.schematic.create_component("New Radio", "CompareRadio2")
+    antenna_1: AntennaNode = emit_app.schematic.create_component("Antenna", "CompareAntenna1")
+    same_type, differences = emit_app.schematic.compare_nodes(radio_1, antenna_1)
+    assert not same_type
+    assert differences == {}
+
+    radio_1.notes = "Radio1 notes"
+    same_type, differences = emit_app.schematic.compare_nodes(radio_1, radio_2)
+    assert same_type
+    assert differences
+    assert len(differences) == 2
+    assert "Name" not in differences
+    radio_1_props = radio_1.properties
+    radio_2_props = radio_2.properties
+    assert "NodeID" not in differences
+    assert "NodeOrder" in differences
+    assert differences["NodeOrder"]["from"]["value"] == radio_2_props["NodeOrder"]
+    assert differences["NodeOrder"]["to"]["value"] == radio_1_props["NodeOrder"]
+    assert "Notes" in differences
+    assert differences["Notes"]["from"]["value"] == ""
+    assert differences["Notes"]["to"]["value"] == "Radio1 notes"
+    assert "Children" not in differences
+    same_type, differences = emit_app.schematic.compare_nodes(radio_1, radio_2, exclude_props=["NodeOrder"])
+    assert same_type
+    assert set(differences.keys()) == {"Notes"}
+    same_type, same_node_differences = emit_app.schematic.compare_nodes(radio_1, radio_1)
+    assert same_type
+    assert same_node_differences == {}
+
+
+@pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027 R1.")
+def test_compare_components(emit_app) -> None:
+    if not hasattr(emit_app.schematic, "compare_components"):
+        pytest.skip("compare_components is not available in this build.")
+
+    def has_frequency_difference(differences):
+        frequency_props = {"Start Frequency", "Stop Frequency", "Channel Spacing"}
+        if frequency_props.intersection(differences):
+            return True
+        return any(has_frequency_difference(value) for value in differences.values() if isinstance(value, dict))
+
+    def get_band_frequencies(node):
+        frequencies = {}
+        for child in node.children:
+            if isinstance(child, Band):
+                frequencies[child.name] = {
+                    "Start Frequency": child.start_frequency,
+                    "Stop Frequency": child.stop_frequency,
+                    "Channel Spacing": child.channel_spacing,
+                }
+            frequencies.update(get_band_frequencies(child))
+        return frequencies
+
+    wifi_2012: RadioNode = emit_app.schematic.create_component("WiFi - 802.11-2012", "CompareWiFi2012")
+    wifi_6: RadioNode = emit_app.schematic.create_component("WiFi 6", "CompareWiFi6")
+
+    same_type, differences = emit_app.schematic.compare_components(wifi_2012, wifi_6)
+    assert same_type
+    assert "Name" not in differences
+    assert "NodeID" not in differences
+    assert "children" in differences
+    assert differences["children"]
+    assert len(differences["children"]) > 0
+    wifi_2012_frequencies = get_band_frequencies(wifi_2012)
+    wifi_6_frequencies = get_band_frequencies(wifi_6)
+    frequency_props = {"Start Frequency", "Stop Frequency", "Channel Spacing"}
+    assert wifi_2012_frequencies
+    assert wifi_6_frequencies
+    assert all(set(frequencies) == frequency_props for frequencies in wifi_2012_frequencies.values())
+    assert all(set(frequencies) == frequency_props for frequencies in wifi_6_frequencies.values())
+    assert wifi_2012_frequencies != wifi_6_frequencies
+    assert has_frequency_difference(differences) or set(wifi_2012_frequencies) != set(wifi_6_frequencies)
+
+    amp_1 = emit_app.schematic.create_component("Amplifier", "CompareAmp1")
+    amp_2 = emit_app.schematic.create_component("Amplifier", "CompareAmp2")
+    same_type, amp_diffs = emit_app.schematic.compare_components(amp_1, amp_2)
+    assert same_type
+    assert "Name" not in amp_diffs
+    assert "NodeID" not in amp_diffs
+    assert "Children" not in amp_diffs
+
+    same_type, same_component_differences = emit_app.schematic.compare_components(wifi_2012, wifi_2012)
+    assert same_type
+    assert same_component_differences == {}
+
+    antenna = emit_app.schematic.create_component("Antenna", "CompareAntenna2")
+    same_type, differences = emit_app.schematic.compare_components(wifi_2012, antenna)
+    assert not same_type
+    assert differences == {}
