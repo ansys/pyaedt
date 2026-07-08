@@ -170,7 +170,7 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
 
         """
         if self._sweeps is not None:
-            return self._sweeps or []
+            return self._sweeps
         try:
             self._sweeps = []
             setups_data = self._app.design_properties["AnalysisSetup"]["SolveSetups"]
@@ -193,11 +193,11 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
                     setup_data.pop("Sweeps", None)
                 elif "SweepRanges" in setup_data:
                     app = setup_data["SweepRanges"]
-                    if isinstance(app.get("Subrange"), list):
+                    if isinstance(app["Subrange"], list):
                         for subrange in app["Subrange"]:
                             self._sweeps.append(SweepMaxwellEC(self, props=subrange))
                     else:
-                        self._sweeps.append(SweepMaxwellEC(self, props=app.get("Subrange")))
+                        self._sweeps.append(SweepMaxwellEC(self, props=app["Subrange"]))
         except (TypeError, KeyError):
             pass
         return self._sweeps
@@ -362,7 +362,7 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
         if self._is_new_setup:
             setup_template = SetupKeys.get_setup_templates()[self.setuptype]
             setup_template["Name"] = self._name
-            self._legacy_props = SetupProps(self, setup_template or {})
+            self._legacy_props = SetupProps(self, setup_template)
             self._is_new_setup = False
         else:
             try:
