@@ -113,6 +113,12 @@ class FresnelExtension(ExtensionHFSSCommon):
         ]
         self.azimuth_resolution_values = self.elevation_resolution_values
 
+        aedt_ver_sp = self.desktop.odesktop.GetVersion()
+        if aedt_ver_sp < "2027.1.0":
+            self.rttbl_version = "1.0"
+        else:
+            self.rttbl_version = "2.0"
+
         # Trigger manually since add_extension_content requires loading expression files first
         self.add_extension_content()
 
@@ -410,6 +416,13 @@ class FresnelExtension(ExtensionHFSSCommon):
         self._widgets["design_validation_label"].grid(row=3, column=2, padx=10)
         self._widgets["design_validation_label"]["text"] = "N/A"
 
+        ttk.Label(self._widgets["validation_frame"], text="RTTBL version: ", style="PyAEDT.TLabel").grid(
+            row=4, column=1, padx=10
+        )
+        self._widgets["rttbl_version_label"] = ttk.Label(self._widgets["validation_frame"], style="PyAEDT.TLabel")
+        self._widgets["rttbl_version_label"].grid(row=4, column=2, padx=10)
+        self._widgets["rttbl_version_label"]["text"] = self.rttbl_version
+
         # Start button
         self._widgets["start_button"] = ttk.Button(
             self._widgets["advanced_tab"],
@@ -440,6 +453,25 @@ class FresnelExtension(ExtensionHFSSCommon):
 
         self.active_setup = self.setups[self.setup_sweep_names[0].split(" : ")[0]]
 
+        # RTTBL Table
+        label_rttbl_version = ttk.Label(self._widgets["extraction_tab"], text="RTTBL version", style="PyAEDT.TLabel")
+        label_rttbl_version.grid(row=1, column=0, padx=15, pady=10)
+
+        self._widgets["rttbl_version_combo"] = ttk.Combobox(
+            self._widgets["extraction_tab"],
+            width=30,
+            style="PyAEDT.TCombobox",
+            name="rttbl_version",
+            state="readonly",
+        )
+        self._widgets["rttbl_version_combo"].grid(row=1, column=1, padx=15, pady=10)
+
+        self._widgets["rttbl_version_combo"]["values"] = ["2.0", "1.0"]
+        self._widgets["rttbl_version_combo"].current(0)
+        self.rttbl_version = "2.0"
+
+        self.active_setup = self.setups[self.setup_sweep_names[0].split(" : ")[0]]
+
         # Validate button
         self._widgets["validate_button"] = ttk.Button(
             self._widgets["extraction_tab"],
@@ -448,13 +480,13 @@ class FresnelExtension(ExtensionHFSSCommon):
             command=lambda: self.validate(),
             style="PyAEDT.TButton",
         )
-        self._widgets["validate_button"].grid(row=1, column=0, padx=15, pady=10, columnspan=2)
+        self._widgets["validate_button"].grid(row=2, column=0, padx=15, pady=10, columnspan=2)
 
         # Validation menu
         self._widgets["validation_frame_extraction"] = ttk.LabelFrame(
             self._widgets["extraction_tab"], text="Validation", padding=10, style="PyAEDT.TLabelframe"
         )
-        self._widgets["validation_frame_extraction"].grid(row=2, column=0, padx=10, pady=10, columnspan=2)
+        self._widgets["validation_frame_extraction"].grid(row=3, column=0, padx=10, pady=10, columnspan=2)
 
         ttk.Label(self._widgets["validation_frame_extraction"], text="Floquet ports: ", style="PyAEDT.TLabel").grid(
             row=0, column=1, padx=10
@@ -483,6 +515,15 @@ class FresnelExtension(ExtensionHFSSCommon):
         self._widgets["design_validation_label_extraction"].grid(row=3, column=2, padx=10)
         self._widgets["design_validation_label_extraction"]["text"] = "N/A"
 
+        ttk.Label(self._widgets["validation_frame_extraction"], text="RTTBL version: ", style="PyAEDT.TLabel").grid(
+            row=4, column=1, padx=10
+        )
+        self._widgets["rttbl_version_label_extraction"] = ttk.Label(
+            self._widgets["validation_frame_extraction"], style="PyAEDT.TLabel"
+        )
+        self._widgets["rttbl_version_label_extraction"].grid(row=4, column=2, padx=10)
+        self._widgets["rttbl_version_label_extraction"]["text"] = self.rttbl_version
+
         # Start button
         self._widgets["start_button_extraction"] = ttk.Button(
             self._widgets["extraction_tab"],
@@ -491,7 +532,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             command=lambda: self.get_coefficients(),
             style="PyAEDT.TButton",
         )
-        self._widgets["start_button_extraction"].grid(row=4, column=0, padx=15, pady=10, columnspan=2)
+        self._widgets["start_button_extraction"].grid(row=5, column=0, padx=15, pady=10, columnspan=2)
         self._widgets["start_button_extraction"].grid_remove()
 
     def build_settings_tab(self):
@@ -593,6 +634,9 @@ class FresnelExtension(ExtensionHFSSCommon):
         self._widgets["floquet_ports_label"].config(text="N/A")
         self._widgets["design_validation_label"].config(text="N/A")
         self._widgets["spatial_points_label"].config(text="N/A")
+
+        self._widgets["rttbl_version_label"].config(text=self.rttbl_version)
+
         self._widgets["start_button"].grid_remove()
 
         simulation_setup = self._widgets["setup_combo"].get()
@@ -724,7 +768,11 @@ class FresnelExtension(ExtensionHFSSCommon):
         self._widgets["floquet_ports_label_extraction"].config(text="N/A")
         self._widgets["spatial_points_label_extraction"].config(text="N/A")
         self._widgets["design_validation_label_extraction"].config(text="N/A")
+
         self._widgets["start_button_extraction"].grid_remove()
+
+        self.rttbl_version = self._widgets["rttbl_version_combo"].get()
+        self._widgets["rttbl_version_label_extraction"].config(text=self.rttbl_version)
 
         if active_setup is None:
             simulation_setup = self._widgets["setup_sweep_combo"].get()
@@ -893,13 +941,6 @@ class FresnelExtension(ExtensionHFSSCommon):
 
         is_isotropic = self.fresnel_type.get() == "isotropic"
 
-        #temporary procedure to map rttbl versions with AEDT versions and SPs
-        aedt_ver_sp = self.desktop.odesktop.GetVersion()
-        if aedt_ver_sp < '2027.1.0':
-            rttbl_ver = '1.0'
-        else:
-            rttbl_ver = '2.0'
-
         # Obtain variable name
         bounds = self.aedt_application.boundaries_by_type
         bound = "Lattice Pair" if "Lattice Pair" in bounds else "Secondary"
@@ -912,7 +953,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             theta_name=theta_scan_variable,
             phi_name=phi_scan_variable,
             is_isotropic=is_isotropic,
-            rttbl_ver = rttbl_ver
+            rttbl_version=self.rttbl_version,
         )
 
         settings.enable_desktop_logs = enable_log
