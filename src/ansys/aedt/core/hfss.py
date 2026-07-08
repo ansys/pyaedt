@@ -2071,7 +2071,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         if not isinstance(save_single_field, list):
             save0 = save_single_field
             if add_subranges:
-                save_single_field = [save0] * len(freq)
+                freq_mult = len(freq) if isinstance(freq, list) else 1
+                save_single_field = [save0] * freq_mult
 
         for s in self.setups:
             if s.name == setup:

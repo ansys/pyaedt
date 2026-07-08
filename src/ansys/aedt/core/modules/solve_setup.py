@@ -173,7 +173,7 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
             return self._sweeps or []
         try:
             self._sweeps = []
-            setups_data = self._app.design_properties.get("AnalysisSetup", {}).get("SolveSetups", {})
+            setups_data = self._app.design_properties["AnalysisSetup"]["SolveSetups"]
             if self.name in setups_data:
                 setup_data = setups_data[self.name]
                 if "Sweeps" in setup_data and self.setuptype != 0:  # 0 represents setup HFSSDrivenAuto
