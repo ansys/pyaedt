@@ -157,9 +157,7 @@ class MCADAssemblyFrontend(ExtensionHFSSCommon):
             toggle_column=0,
         )
 
-    def add_toggle_theme_button(
-        self, parent: tkinter.Widget, toggle_row: int | None = None, toggle_column: int | None = None
-    ) -> None:
+    def add_toggle_theme_button(self, parent: tkinter.Misc, toggle_row: int, toggle_column: int) -> None:
         """Create a button to toggle between light and dark themes.
 
         Examples

@@ -78,10 +78,15 @@ class CircuitConfigurationData(ExtensionCommonData):
 
     """
 
-    file_path: list[str] = field(default_factory=list)
+    file_path: list[Path] = field(default_factory=list)
     """Path to file."""
-    output_dir: str = EXTENSION_DEFAULT_ARGUMENTS["output_dir"]
+    output_dir: Path | str = EXTENSION_DEFAULT_ARGUMENTS["output_dir"]
     """Value for output dir."""
+
+    def __post_init__(self) -> None:
+        self.file_path = [Path(file) for file in self.file_path]
+        if self.output_dir:
+            self.output_dir = Path(self.output_dir)
 
 
 class CircuitConfigurationExtension(ExtensionCircuitCommon):
@@ -116,7 +121,7 @@ class CircuitConfigurationExtension(ExtensionCircuitCommon):
         data = self.data
         assert isinstance(data, CircuitConfigurationData)
         for file in file_path:
-            data.file_path.append(str(Path(file)))
+            data.file_path.append(Path(file))
         self.root.destroy()
 
     def output_dir(self) -> None:
@@ -129,7 +134,7 @@ class CircuitConfigurationExtension(ExtensionCircuitCommon):
 
         data = self.data
         assert isinstance(data, CircuitConfigurationData)
-        data.output_dir = str(Path(output))
+        data.output_dir = Path(output)
 
         self.root.destroy()
 
@@ -201,7 +206,7 @@ def main(data: CircuitConfigurationData) -> bool:
 
     if data.file_path:
         for file in data.file_path:
-            cir.configurations.import_config(file)
+            cir.configurations.import_config(str(file))
             cir.save_project()
 
     elif data.output_dir:
