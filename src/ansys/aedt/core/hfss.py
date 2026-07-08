@@ -2006,7 +2006,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         save_single_field: bool = True,
         save_fields: bool = False,
         save_rad_fields: bool = False,
-    ) -> "SweepHFSS | bool":
+    ) -> SweepHFSS | bool:
         """Create a sweep with a single frequency point.
 
         Parameters
@@ -2065,7 +2065,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         if isinstance(freq, list):
             if not freq:
                 raise AttributeError("Frequency list is empty. Specify at least one frequency point.")
-            _ = freq.pop(0)
             if freq:
                 add_subranges = True
 

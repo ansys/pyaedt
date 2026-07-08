@@ -36,6 +36,7 @@ import re
 import secrets
 import time
 from typing import TYPE_CHECKING
+from typing import Any
 import warnings
 
 from ansys.aedt.core.base import PyAedtBase
@@ -85,6 +86,15 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
     >>> setup = app.create_setup()
 
     """
+
+    # Coarse type annotations for key attributes
+    auto_update: bool
+    _app: "Analysis"
+    setuptype: int
+    _name: str
+    _legacy_props: SetupProps | dict[str, Any]
+    _sweeps: list[Any] | None
+    _is_new_setup: bool
 
     def __init__(
         self,
