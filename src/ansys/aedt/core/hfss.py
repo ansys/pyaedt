@@ -1722,8 +1722,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_setup(
-        self, name: str = "MySetupAuto", setup_type: str | None = None, **kwargs
-    ) -> "SetupHFSS | SetupHFSSAuto":
+        self, name: str = "MySetupAuto", setup_type: str | int | None = None, **kwargs
+    ) -> SetupHFSS | SetupHFSSAuto:
         """Create an analysis setup for HFSS.
 
         Optional arguments are passed along with ``setup_type`` and ``name``. Keyword
@@ -1737,7 +1737,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         ----------
         name : str, optional
             Name of the setup. The default is ``"Setup1"``.
-        setup_type : str, optional
+        setup_type : str or int, optional
             Type of the setup, which is based on the solution type. Options are
             ``"HFSSDrivenAuto"``, ``"HFSSDriven"``, ``"HFSSEigen"``, ``"HFSSTransient"``,
             and ``"HFSSSBR"``. The default is ``"HFSSDriven"``.
