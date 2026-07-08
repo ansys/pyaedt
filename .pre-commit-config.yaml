@@ -7,16 +7,14 @@ ci:
 
 exclude: |
   (?x)(
-      src/ansys/aedt/core/rpc/|
       src/ansys/aedt/core/sbrplus/matlab/|
-      src/ansys/aedt/core/extensions/installer|
       tests/system/.*/example_models/
   )
 
 repos:
 
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: 0671d8ab202c4ac093b78433ae5baf74f3fc7246  # frozen: v0.15.15
+  rev: c59bba8fb259db0fec2bbb77ad8ba51ea7341b56  # frozen: v0.15.20
   hooks:
     - id: ruff-check
     - id: ruff-format
@@ -37,7 +35,7 @@ repos:
 
 # Validate GitHub workflow files
 - repo: https://github.com/python-jsonschema/check-jsonschema
-  rev: f805888065fdb6162e1f800e50bb9460cbd223d6  # frozen: 0.37.2
+  rev: 5030dca3047414c338091455ac41803200ec1f0f  # frozen: 0.37.3
   hooks:
     - id: check-github-workflows
 
@@ -54,7 +52,7 @@ repos:
     - id: check-pre-commit-ci-config
 
 - repo: https://github.com/ansys/pre-commit-hooks
-  rev: ad4e7598809ad98cde5aaf52d80040c7ac56e7cf  # frozen: v0.7.2
+  rev: 55c5b6a5439abd847613579c6924da750e8b78b2  # frozen: v0.8.0
   hooks:
     - id: add-license-headers
       exclude: |
@@ -62,7 +60,7 @@ repos:
             .*\.pyd |
             .*\.py_build |
         )$
-      files: '(src|examples|tests)/.*\.(py)'
+      files: '(src|examples|tests|doc)/.*\.(py)'
       args:
       - --custom_template=mit_license.jinja2
       - --start_year=2021

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -507,7 +507,12 @@ def test_get_design_settings(add_app) -> None:
     assert "AmbTemp" in design_settings_dict
     assert "AmbRadTemp" in design_settings_dict
     assert "GravityVec" in design_settings_dict
-    assert "GravityDir" in design_settings_dict
+    if DESKTOP_VERSION < "2027.1":
+        assert "GravityDir" in design_settings_dict
+    else:
+        assert "XComponent" in design_settings_dict
+        assert "YComponent" in design_settings_dict
+        assert "ZComponent" in design_settings_dict
     ipk.close_project()
 
 

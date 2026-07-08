@@ -28,7 +28,7 @@ jobs:
       pull-requests: write # Needed to add existing labels to PRs
       issues: write # Needed to create labels that do not already exist
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
       - uses: micnncim/action-label-syncer@3abd5ab72fda571e69fffd97bd4e0033dd5f495c # v1.3.0
@@ -87,7 +87,7 @@ jobs:
 
       # Label based on trailers in PR description and commit messages
       - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           sparse-checkout: .github/actions/label-from-trailers/action.yml
           persist-credentials: false
@@ -131,7 +131,8 @@ jobs:
       pull-requests: write  # Required to update PR with changelog information
     runs-on: ubuntu-latest
     steps:
-    - uses: ansys/actions/doc-changelog@d946b24b9a765f4169bcc94afdb27bd1a0533741 # v10.3.2
+    # NOTE: Temporary pin of ansys/actions to avoid the breaking change side effect.
+    - uses: ansys/actions/doc-changelog@fc4141ba4ca3dc1672fa530cd744131b053dc419 # zizmor: ignore[stale-action-refs]
       with:
         bot-email: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
         bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
@@ -144,11 +145,11 @@ jobs:
     name: Check PR template
     # NOTE: Disable checking for dependabot and other automated PRs
     if: |
-      github.event.pull_request.title != 'CHORE: Pre-commit automatic update' &&
       !startsWith(github.event.pull_request.title, 'BUILD(uv):') &&
       !startsWith(github.event.pull_request.title, 'BUILD(actions):') &&
       !startsWith(github.event.pull_request.title, 'BUILD(pre-commit):') &&
-      !startsWith(github.event.pull_request.title, 'CHORE: update CHANGELOG for v')
+      !startsWith(github.event.pull_request.title, 'CHORE: update CHANGELOG for v') &&
+      github.event.pull_request.user.login != 'pyansys-automation'
     runs-on: ubuntu-latest
     permissions:
       pull-requests: read   # Required to read PR content for validation

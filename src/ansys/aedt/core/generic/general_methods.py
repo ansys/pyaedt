@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -62,11 +62,16 @@ from ansys.aedt.core.internal.errors import MethodNotSupportedError
 _F = TypeVar("_F", bound=Callable[..., Any])
 
 system = platform.system()
+"""Value for system."""
 is_linux = system == "Linux"
+"""Flag indicating whether linux is enabled."""
 is_windows = system == "Windows"
+"""Flag indicating whether windows is enabled."""
 is_macos = system == "Darwin"
+"""Flag indicating whether macos is enabled."""
 
 inside_desktop_ironpython_console = True if "4.0.30319.42000" in sys.version else False
+"""Value for inside desktop ironpython console."""
 
 inclusion_list = [
     "CreateVia",
@@ -78,9 +83,12 @@ inclusion_list = [
     "ImportGerber",
     "EditSources",
 ]
+"""Value for inclusion list."""
 
 RE_SOCK = re.compile(r"\b(\d{1,5})\.sock\b")
+"""Re sock."""
 RE_PORT = re.compile(r"(?:\*|0\.0\.0\.0|\[::\]|\[::ffff:[0-9.]+\]|127\.0\.0\.1|[0-9.]+):(\d{1,5})\b")
+"""Re port."""
 
 
 def _write_mes(mes_text) -> None:
@@ -212,6 +220,7 @@ def _check_types(arg) -> str:
 
 
 def raise_exception_or_return_false(e):
+    """Return raise exception or return false."""
     if not settings.enable_error_handler:
         if settings.release_on_exception:
             from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
@@ -263,7 +272,17 @@ def _function_handler_wrapper(user_function, **deprecated_kwargs):
 
 
 def deprecate_kwargs(func_name, kwargs, aliases):
-    """Use helper function for deprecating function arguments."""
+    """Use helper function for deprecating function arguments.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.general_methods import deprecate_kwargs
+    >>> kwargs = {"old_name": "Setup1"}
+    >>> deprecate_kwargs("my_function", kwargs, {"old_name": "new_name"})
+    >>> kwargs["new_name"]
+    'Setup1'
+
+    """
     for alias, new in aliases.items():
         if alias in kwargs:
             if new in kwargs:
@@ -275,8 +294,7 @@ def deprecate_kwargs(func_name, kwargs, aliases):
 
 
 def deprecate_argument(arg_name: str, version: str = None, message: str = None, removed: bool = False) -> callable:
-    """
-    Decorator to deprecate a specific argument (positional or keyword) in a function.
+    """Decorator to deprecate a specific argument (positional or keyword) in a function.
 
     Parameters
     ----------
@@ -289,6 +307,16 @@ def deprecate_argument(arg_name: str, version: str = None, message: str = None, 
         removed : bool
             If ``True``, using the argument raises a TypeError.
             If ``False``, a DeprecationWarning is issued.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.general_methods import deprecate_argument
+    >>> @deprecate_argument("old_arg", version="1.0")
+    ... def my_function(new_arg=None, old_arg=None):
+    ...     return new_arg if new_arg is not None else old_arg
+    >>> my_function(old_arg=1)
+    1
+
     """
 
     def decorator(func: _F) -> _F:
@@ -338,6 +366,15 @@ def pyaedt_function_handler(direct_func: _F | None = None, **deprecated_kwargs) 
     A ``DeprecationWarning`` is emitted when a deprecated argument is used,
     and a ``TypeError`` is raised if both the old and new name are supplied.
 
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+    >>> @pyaedt_function_handler()
+    ... def add_one(value):
+    ...     return value + 1
+    >>> add_one(2)
+    3
+
     """
     if callable(direct_func):
         user_function = direct_func
@@ -371,6 +408,13 @@ def check_numeric_equivalence(a, b, relative_tolerance: float = 1e-7):
     -------
     bool
         ``True`` if the two passed values are equivalent, ``False`` otherwise.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.general_methods import check_numeric_equivalence
+    >>> check_numeric_equivalence(1.0, 1.0 + 1e-9)
+    True
+
     """
     if abs(a) > 0.0:
         reldiff = abs(a - b) / a
@@ -436,6 +480,13 @@ def _log_method(func, new_args, new_kwargs) -> None:
 def get_version_and_release(input_version: str) -> tuple:
     """Convert the standard five-digit AEDT version format to a tuple of version and release.
     Used for environment variable management.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.general_methods import get_version_and_release
+    >>> get_version_and_release("2025.1")
+    (25, 1)
+
     """
     version = int(input_version[2:4])
     release = int(input_version[5])
@@ -515,6 +566,7 @@ def env_path(input_version: str) -> str:
     --------
     >>> env_path_student("2026.1")
     "C:/Program Files/ANSYSEM/ANSYSEM2026.1/Win64"
+
     """
     return os.getenv(
         f"ANSYSEM_ROOT{get_version_and_release(input_version)[0]}{get_version_and_release(input_version)[1]}", ""
@@ -539,6 +591,7 @@ def env_value(input_version: str) -> str:
     --------
     >>> env_value(2026.1)
     "ANSYSEM_ROOT261"
+
     """
     return f"ANSYSEM_ROOT{get_version_and_release(input_version)[0]}{get_version_and_release(input_version)[1]}"
 
@@ -561,6 +614,7 @@ def env_path_student(input_version: str) -> str:
     --------
     >>> env_path_student(2026.1)
     "C:/Program Files/ANSYSEM/ANSYSEM2026.1/Win64"
+
     """
     return os.getenv(
         f"ANSYSEMSV_ROOT{get_version_and_release(input_version)[0]}{get_version_and_release(input_version)[1]}",
@@ -586,6 +640,7 @@ def env_value_student(input_version: str) -> str:
     --------
     >>> env_value_student(2026.1)
     "ANSYSEMSV_ROOT261"
+
     """
     return f"ANSYSEMSV_ROOT{get_version_and_release(input_version)[0]}{get_version_and_release(input_version)[1]}"
 
@@ -636,6 +691,7 @@ def _retry_ntimes(n, function, *args, **kwargs):
 
 @pyaedt_function_handler()
 def time_fn(fn: callable, *args, **kwargs):
+    """Return time fn."""
     start = datetime.datetime.now()
     results = fn(*args, **kwargs)
     end = datetime.datetime.now()
@@ -647,7 +703,15 @@ def time_fn(fn: callable, *args, **kwargs):
 
 @pyaedt_function_handler()
 def filter_tuple(value: str, search_key_1: str, search_key_2: str) -> bool:
-    """Filter a tuple of two elements with two search keywords."""
+    """Filter a tuple of two elements with two search keywords.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.general_methods import filter_tuple
+    >>> filter_tuple("(Port1,Port2)", "Port*", "Port2")
+    True
+
+    """
     ignore_case = True
 
     def _create_pattern(k1, k2):
@@ -671,7 +735,15 @@ def filter_tuple(value: str, search_key_1: str, search_key_2: str) -> bool:
 
 @pyaedt_function_handler()
 def filter_string(value: str, search_key_1: str) -> bool:
-    """Filter a string"""
+    """Filter a string.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.general_methods import filter_string
+    >>> filter_string("Setup1", "Setup*")
+    True
+
+    """
     ignore_case = True
 
     def _create_pattern(k1):
@@ -704,6 +776,13 @@ def number_aware_string_key(s: str) -> tuple:
     -------
     tuple
         Tuple of key entries.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.general_methods import number_aware_string_key
+    >>> number_aware_string_key("Trace10")
+    ('Trace', 10)
+
     """
 
     def is_digit(c):
@@ -746,6 +825,7 @@ def _run_ss() -> dict[int, int]:
     >>> from ansys.aedt.core.generic.general_methods import _run_ss
     >>> _run_ss()
     {12345: 50051, 67890: 50052}
+
     """
     # ``ss`` is a Linux-only utility. Skip everything elsewhere.
     if not is_linux:  # pragma: no cover
@@ -855,7 +935,7 @@ def _run_ss() -> dict[int, int]:
     for pid, lines in results_pid.items():
         for line in lines:
             # Fall back to the plain TCP port pattern (RE_PORT).
-            # Only accept ports within the known AEDT gRPC range (50051-50100).
+            # Only accept ports within the known AEDT gRPC range (50051 - 50100).
             insecure_line = RE_PORT.search(line)
             if insecure_line:
                 port = int(insecure_line.group(1))
@@ -893,6 +973,7 @@ def _get_pids_by_name_windows(image_name: str) -> list[int]:
     >>> from ansys.aedt.core.generic.general_methods import _get_pids_by_name_windows
     >>> _get_pids_by_name_windows("ansysedt.exe")
     [12345, 67890]
+
     """
     import csv
 
@@ -968,7 +1049,8 @@ def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str]]]
     --------
     >>> from ansys.aedt.core.generic.general_methods import _get_target_processes
     >>> _get_target_processes(["ansysedt.exe"])
-    [(12345, ['C:\\Program Files\\...\\ansysedt.exe', '-grpcsrv', '127.0.0.1:50051'])]
+    >>> # [(12345, ['C:/Program Files/.../ansysedt.exe', '-grpcsrv', '127.0.0.1:50051'])]
+
     """
     platform_system = platform.system()
     found_data = []
@@ -1248,6 +1330,7 @@ def is_grpc_session_active(port: int, machine: str | None = None) -> bool:
     ...     print("Port 50051 is occupied.")
     ... else:
     ...     print("Port 50051 is available.")
+
     """
     pyaedt_logger.debug(f"Checking if gRPC session is active on port: {port}")
 
@@ -1331,6 +1414,7 @@ def active_sessions(
 
     >>> active_sessions(version="2024.1", non_graphical=True)
     {45678: 50054}
+
     """
     # Step 1: Determine target process names based on version type and operating system
     # Student version uses different executable names (ansysedtsv vs ansysedt)
@@ -1429,6 +1513,12 @@ def com_active_sessions(
     -------
     List
         List of AEDT process IDs.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.general_methods import com_active_sessions
+    >>> com_active_sessions("2025.1")
+
     """
     all_sessions = active_sessions(version, student_version, non_graphical)
 
@@ -1464,6 +1554,12 @@ def grpc_active_sessions(
     -------
     List
         List of gRPC ports.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.general_methods import grpc_active_sessions
+    >>> grpc_active_sessions("2025.1")
+
     """
     all_sessions = active_sessions(version, student_version, non_graphical)
 
@@ -1514,6 +1610,7 @@ def conversion_function(data: "list | array", function: str = None):  # pragma: 
 
     >>> conversion_function(values, "ang_deg")
     array([ 0., 0., 0., 0.])
+
     """
     import numpy as np
 
@@ -1538,6 +1635,8 @@ def conversion_function(data: "list | array", function: str = None):  # pragma: 
 
 
 class PropsManager(PyAedtBase):
+    """Manage props manager."""
+
     def __getitem__(self, item):
         """Get the `self.props` key value.
 
@@ -1648,6 +1747,14 @@ class PropsManager(PyAedtBase):
         Returns
         -------
         list
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> setup = hfss.create_setup(name="Setup1")
+        >>> setup.available_properties
+
         """
         if self.props:
             return self._recursive_list(self.props)
@@ -1655,11 +1762,21 @@ class PropsManager(PyAedtBase):
 
     @pyaedt_function_handler()
     def update(self) -> None:
-        """Update method."""
+        """Update method.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> setup = hfss.create_setup(name="Setup1")
+        >>> setup.update()
+
+        """
         pass
 
 
 def clamp(n, minn, maxn):
+    """Return clamp."""
     return max(min(maxn, n), minn)
 
 
@@ -1683,6 +1800,7 @@ rgb_color_codes = {
     "copper": (184, 115, 51),
     "stainless steel": (224, 223, 219),
 }
+"""Value for rgb color codes."""
 
 
 @pyaedt_function_handler()
@@ -1735,6 +1853,12 @@ def install_with_pip(
         Whether to upgrade the package. The default is ``False``.
     uninstall : bool, optional
         Whether to install the package or uninstall the package.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.general_methods import install_with_pip
+    >>> install_with_pip("pandas", upgrade=True)
+
     """
     import subprocess  # nosec B404
 

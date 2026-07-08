@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -29,6 +29,8 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class CADNode(EmitNode):
+    """Provide cad node."""
+
     def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
@@ -36,23 +38,63 @@ class CADNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
-        """The parent of this emit node."""
+        """The parent of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit(project="C:\\Projects\\scene.aedtz")
+        >>> revision = app.results.analyze()
+        >>> cad = [child for child in revision.get_scene_node().children if child.node_type == "CADNode"][0]
+        >>> cad.parent
+
+        """
         return self._parent
 
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node."""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit(project="C:\\Projects\\scene.aedtz")
+        >>> revision = app.results.analyze()
+        >>> cad = [child for child in revision.get_scene_node().children if child.node_type == "CADNode"][0]
+        >>> cad.node_type
+
+        """
         return self._node_type
 
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
-        """Duplicate this node"""
+        """Duplicate this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit(project="C:\\Projects\\scene.aedtz")
+        >>> revision = app.results.analyze()
+        >>> cad = [child for child in revision.get_scene_node().children if child.node_type == "CADNode"][0]
+        >>> cad_copy = cad.duplicate("CADCopy")
+
+        """
         return self._duplicate(new_name)
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node"""
+        """Delete this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit(project="scene.aedtz")
+        >>> revision = app.results.analyze()
+        >>> cad = [child for child in revision.get_scene_node().children if child.node_type == "CADNode"][0]
+        >>> cad.delete()
+
+        """
         self._delete()
 
     @property
@@ -61,6 +103,15 @@ class CADNode(EmitNode):
         """Name of the imported CAD file.
 
         Value should be a full file path.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit(project="C:\\Projects\\scene.aedtz")
+        >>> revision = app.results.analyze()
+        >>> cad = [child for child in revision.get_scene_node().children if child.node_type == "CADNode"][0]
+        >>> cad.file
+
         """
         val = self._get_property("File")
         return val
@@ -74,6 +125,15 @@ class CADNode(EmitNode):
         (False) or relative to placement coords (True).
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit(project="C:\\Projects\\scene.aedtz")
+        >>> revision = app.results.analyze()
+        >>> cad = [child for child in revision.get_scene_node().children if child.node_type == "CADNode"][0]
+        >>> cad.show_relative_coordinates = True
+
         """
         val = self._get_property("Show Relative Coordinates")
         return val == "true"
@@ -89,6 +149,15 @@ class CADNode(EmitNode):
         """Set position of the CAD node in parent-node coordinates.
 
         Value should be a list of 3 floats.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit(project="C:\\Projects\\scene.aedtz")
+        >>> revision = app.results.analyze()
+        >>> cad = [child for child in revision.get_scene_node().children if child.node_type == "CADNode"][0]
+        >>> cad.position = [0.0, 0.0, 1.5]
+
         """
         val = self._get_property("Position")
         return val
@@ -106,6 +175,15 @@ class CADNode(EmitNode):
         Set position of the CAD model node relative to placement coordinates.
 
         Value should be a list of 3 floats.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit(project="C:\\Projects\\scene.aedtz")
+        >>> revision = app.results.analyze()
+        >>> cad = [child for child in revision.get_scene_node().children if child.node_type == "CADNode"][0]
+        >>> cad.relative_position = [0.0, 0.0, 0.25]
+
         """
         val = self._get_property("Relative Position")
         return val
@@ -125,6 +203,15 @@ class CADNode(EmitNode):
         """Orientation Mode.
 
         Select the convention (order of rotations) for configuring orientation.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit(project="C:\\Projects\\scene.aedtz")
+        >>> revision = app.results.analyze()
+        >>> cad = [child for child in revision.get_scene_node().children if child.node_type == "CADNode"][0]
+        >>> cad.orientation_mode = cad.OrientationModeOption.ROLL_PITCH_YAW
+
         """
         val = self._get_property("Orientation Mode")
         val = self.OrientationModeOption[val.upper()]
@@ -141,6 +228,15 @@ class CADNode(EmitNode):
         """Set orientation of the CAD node in parent-node coordinates.
 
         Value format is determined by 'Orientation Mode', in degrees and delimited by spaces.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit(project="C:\\Projects\\scene.aedtz")
+        >>> revision = app.results.analyze()
+        >>> cad = [child for child in revision.get_scene_node().children if child.node_type == "CADNode"][0]
+        >>> cad.orientation = [0.0, 45.0, 0.0]
+
         """
         val = self._get_property("Orientation")
         return val
@@ -158,6 +254,15 @@ class CADNode(EmitNode):
         Set orientation of the CAD model node relative to placement coordinates.
 
         Value format is determined by 'Orientation Mode', in degrees and delimited by spaces.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit(project="C:\\Projects\\scene.aedtz")
+        >>> revision = app.results.analyze()
+        >>> cad = [child for child in revision.get_scene_node().children if child.node_type == "CADNode"][0]
+        >>> cad.relative_orientation = [0.0, 0.0, 90.0]
+
         """
         val = self._get_property("Relative Orientation")
         return val
@@ -173,6 +278,15 @@ class CADNode(EmitNode):
         """Toggle (on/off) display of CAD model in 3-D window.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit(project="C:\\Projects\\scene.aedtz")
+        >>> revision = app.results.analyze()
+        >>> cad = [child for child in revision.get_scene_node().children if child.node_type == "CADNode"][0]
+        >>> cad.visible = False
+
         """
         val = self._get_property("Visible")
         return val == "true"
@@ -191,7 +305,17 @@ class CADNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def render_mode(self) -> RenderModeOption:
-        """Select drawing style for surfaces."""
+        """Select drawing style for surfaces.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit(project="C:\\Projects\\scene.aedtz")
+        >>> revision = app.results.analyze()
+        >>> cad = [child for child in revision.get_scene_node().children if child.node_type == "CADNode"][0]
+        >>> cad.render_mode = cad.RenderModeOption.WIRE_FRAME
+
+        """
         val = self._get_property("Render Mode")
         val = self.RenderModeOption[val.upper()]
         return val
@@ -207,6 +331,15 @@ class CADNode(EmitNode):
         """Toggle (on/off) display of CAD model coordinate axes in 3-D window.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit(project="C:\\Projects\\scene.aedtz")
+        >>> revision = app.results.analyze()
+        >>> cad = [child for child in revision.get_scene_node().children if child.node_type == "CADNode"][0]
+        >>> cad.show_axes = True
+
         """
         val = self._get_property("Show Axes")
         return val == "true"
@@ -222,6 +355,15 @@ class CADNode(EmitNode):
         """Minimum x,y,z extents of CAD model in local coordinates.
 
         Value should be a list of 3 floats.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit(project="C:\\Projects\\scene.aedtz")
+        >>> revision = app.results.analyze()
+        >>> cad = [child for child in revision.get_scene_node().children if child.node_type == "CADNode"][0]
+        >>> cad.min
+
         """
         val = self._get_property("Min")
         return val
@@ -232,6 +374,15 @@ class CADNode(EmitNode):
         """Maximum x,y,z extents of CAD model in local coordinates.
 
         Value should be a list of 3 floats.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit(project="C:\\Projects\\scene.aedtz")
+        >>> revision = app.results.analyze()
+        >>> cad = [child for child in revision.get_scene_node().children if child.node_type == "CADNode"][0]
+        >>> cad.max
+
         """
         val = self._get_property("Max")
         return val
@@ -239,7 +390,17 @@ class CADNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def number_of_surfaces(self) -> int:
-        """Number of surfaces in the model."""
+        """Number of surfaces in the model.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit(project="C:\\Projects\\scene.aedtz")
+        >>> revision = app.results.analyze()
+        >>> cad = [child for child in revision.get_scene_node().children if child.node_type == "CADNode"][0]
+        >>> cad.number_of_surfaces
+
+        """
         val = self._get_property("Number of Surfaces")
         return int(val)
 
@@ -249,6 +410,15 @@ class CADNode(EmitNode):
         """Defines the CAD nodes color.
 
         Color should be in RGB form: #RRGGBB.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit(project="C:\\Projects\\scene.aedtz")
+        >>> revision = app.results.analyze()
+        >>> cad = [child for child in revision.get_scene_node().children if child.node_type == "CADNode"][0]
+        >>> cad.color = "#FF0000"
+
         """
         val = self._get_property("Color")
         return val
@@ -261,7 +431,17 @@ class CADNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def notes(self) -> str:
-        """Expand to view/edit notes stored with the project."""
+        """Expand to view/edit notes stored with the project.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit(project="C:\\Projects\\scene.aedtz")
+        >>> revision = app.results.analyze()
+        >>> cad = [child for child in revision.get_scene_node().children if child.node_type == "CADNode"][0]
+        >>> cad.notes = "Imported platform"
+
+        """
         val = self._get_property("Notes")
         return val
 

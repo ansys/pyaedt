@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -34,14 +34,30 @@ from ansys.aedt.core.internal.aedt_versions import aedt_versions
 
 
 class DllInterface:
-    """Interfaces with the FilterSolutions C++ API DLL."""
+    """Interfaces with the FilterSolutions C++ API DLL.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.filtersolutions_core.dll_interface import DllInterface
+    >>> dll = DllInterface(version="2026.1")
+    >>> dll.api_version()
+
+    """
 
     def __init__(self, show_gui: bool = False, version: str | None = None) -> None:
         self._init_dll_path(version)
         self._init_dll(show_gui)
 
     def restore_defaults(self) -> None:
-        """Restore the state of the API, including all options and values, to the initial startup state."""
+        """Restore the state of the API, including all options and values, to the initial startup state.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions_core.dll_interface import DllInterface
+        >>> dll = DllInterface(version="2026.1")
+        >>> dll.restore_defaults()
+
+        """
         status = self._dll.startApplication(self.show_gui)
         self.raise_error(status)
 
@@ -117,6 +133,13 @@ class DllInterface:
         -------
         str
             Return value of the called DLL function.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions_core.dll_interface import DllInterface
+        >>> dll = DllInterface(version="2026.1")
+        >>> dll.get_string(dll._dll.getVersion)
+
         """
         text_buffer = ctypes.create_string_buffer(max_size)
         status = dll_function(text_buffer, max_size)
@@ -133,6 +156,14 @@ class DllInterface:
             DLL function to call. It must be a function that sets a string.
         string: str
             String to set.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import DistributedDesign
+        >>> design = DistributedDesign(version="2026.1")
+        >>> dll = design.export_to_aedt._dll_interface
+        >>> dll.set_string(design.export_to_aedt._dll.setSchematicName, "FilterSolutionsDemo")
+
         """
         bytes_value = bytes(string, "ascii")
         status = dll_function(bytes_value)
@@ -153,6 +184,14 @@ class DllInterface:
         -------
         str
             Enum value of the converted string.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions_core.dll_interface import DllInterface
+        >>> from ansys.aedt.core.filtersolutions_core.export_to_aedt import PartLibraries
+        >>> dll = DllInterface(version="2026.1")
+        >>> dll.string_to_enum(PartLibraries, "modelithics")
+
         """
         fixed_string = string.upper().replace(" ", "_")
         return enum_type[fixed_string]
@@ -169,6 +208,14 @@ class DllInterface:
         -------
         str
             String converted from the enum string.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions_core.dll_interface import DllInterface
+        >>> from ansys.aedt.core.filtersolutions_core.export_to_aedt import PartLibraries
+        >>> dll = DllInterface(version="2026.1")
+        >>> dll.enum_to_string(PartLibraries.MODELITHICS)
+
         """
         fixed_string = str(enum_value.name).replace("_", " ").lower()
         return fixed_string
@@ -180,6 +227,13 @@ class DllInterface:
         -------
         str
             API version.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions_core.dll_interface import DllInterface
+        >>> dll = DllInterface(version="2026.1")
+        >>> dll.api_version()
+
         """
         api_version = self.get_string(self._dll.getVersion)
         match = re.search(r"Version (\d{4}) R(\d+)", api_version)
@@ -200,6 +254,13 @@ class DllInterface:
         ------
         RuntimeError
             If the error status is not 0, an exception is raised.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions_core.dll_interface import DllInterface
+        >>> dll = DllInterface(version="2026.1")
+        >>> dll.raise_error(0)
+
         """
         if error_status != 0:
             error_message = self.get_string(self._dll.getErrorMessage, 4096)

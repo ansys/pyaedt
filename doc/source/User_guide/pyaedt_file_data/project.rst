@@ -155,4 +155,4 @@ File structure examples:
     }
 
 For a practical demonstration, see the
-`Project configuration file example <https://aedt.docs.pyansys.com/version/stable/examples/01-Modeling-Setup/Configurations.html#sphx-glr-examples-01-modeling-setup-configurations-py>`_
+`Project configuration file example <https://examples.aedt.docs.pyansys.com/version/dev/examples/aedt_general/configuration_files.html>`_

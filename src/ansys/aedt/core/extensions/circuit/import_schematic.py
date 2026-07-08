@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
+#
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +21,6 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
 
 from dataclasses import dataclass
 import os
@@ -41,24 +41,45 @@ from ansys.aedt.core.extensions.misc import is_student
 
 # Retrieve environment info
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 # Extension batch arguments and title
 EXTENSION_DEFAULT_ARGUMENTS = {"file_extension": ""}
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Import schematic to Circuit"
+"""Title displayed for the extension."""
 
 
 @dataclass
 class ImportSchematicData(ExtensionCommonData):
-    """Data class for import schematic extension."""
+    """Data class for import schematic extension.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.circuit.import_schematic import ImportSchematicData
+    >>> data = ImportSchematicData(file_extension=r"D:\\Circuits\\filter.asc")
+
+    """
 
     file_extension: str = EXTENSION_DEFAULT_ARGUMENTS["file_extension"]
+    """Value for file extension."""
 
 
 class ImportSchematicExtension(ExtensionCircuitCommon):
-    """Extension for importing schematic into Circuit."""
+    """Extension for importing schematic into Circuit.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.circuit.import_schematic import ImportSchematicExtension
+    >>> extension = ImportSchematicExtension(withdraw=True)
+
+    """
 
     def __init__(self, withdraw: bool = False) -> None:
         super().__init__(
@@ -72,7 +93,15 @@ class ImportSchematicExtension(ExtensionCircuitCommon):
         self.add_extension_content()
 
     def add_extension_content(self) -> None:
-        """Add UI elements for file selection and import action."""
+        """Add UI elements for file selection and import action.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.circuit.import_schematic import ImportSchematicExtension
+        >>> extension = ImportSchematicExtension(withdraw=True)
+        >>> extension.add_extension_content()
+
+        """
         label = ttk.Label(
             self.root,
             text="Browse file:",
@@ -136,7 +165,15 @@ class ImportSchematicExtension(ExtensionCircuitCommon):
 
 
 def main(data: ImportSchematicData) -> bool:
-    """Execute schematic import based on provided data."""
+    """Execute schematic import based on provided data.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.circuit.import_schematic import ImportSchematicData, main
+    >>> data = ImportSchematicData(file_extension=r"D:\\Circuits\\filter.asc")
+    >>> main(data)
+
+    """
     file_extension = Path(data.file_extension)
     app = Desktop(
         new_desktop=False,

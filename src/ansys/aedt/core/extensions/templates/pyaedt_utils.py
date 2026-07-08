@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
+#
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,10 +22,18 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-* * * This script is meant to run in IronPython within AEDT. * * *
+"""* * * This script is meant to run in IronPython within AEDT. * * *
 
 It contains common methods for the PyAEDT panels.
+
+Examples
+--------
+>>> import ansys.aedt.core.extensions.templates.pyaedt_utils as pyaedt_utils
+>>> pyaedt_utils.sanitize_interpreter_path(
+...     r"C:\\Program Files\\AnsysEM\\v242\\commonfiles\\CPython\\3_7\\winx64\\Release\\python\\python.exe",
+...     "242",
+... )
+
 """
 
 import os
@@ -38,10 +47,21 @@ from System.Windows.Forms import MessageBoxButtons
 from System.Windows.Forms import MessageBoxIcon
 
 is_linux = os.name == "posix"
+"""Flag indicating whether linux is enabled."""
 
 
 def sanitize_interpreter_path(interpreter_path, version):
-    """Sanitize the interpreter path."""
+    """Sanitize the interpreter path.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.templates.pyaedt_utils import sanitize_interpreter_path
+    >>> sanitize_interpreter_path(
+    ...     r"C:\\Program Files\\AnsysEM\\v242\\commonfiles\\CPython\\3_7\\winx64\\Release\\python\\python.exe",
+    ...     "242",
+    ... )
+
+    """
     python_version = "3_10" if version > "231" else "3_7"
     if version > "231" and python_version not in interpreter_path:
         interpreter_path = interpreter_path.replace("3_7", "3_10")
@@ -51,7 +71,14 @@ def sanitize_interpreter_path(interpreter_path, version):
 
 
 def check_file(file_path, oDesktop):
-    """Check if a file exists."""
+    """Check if a file exists.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.templates.pyaedt_utils import check_file
+    >>> check_file(r"C:\\Program Files\\AnsysEM\\v242\\Win64\\ansysedt.exe", oDesktop)
+
+    """
     if not os.path.isfile(file_path):
         show_error(
             '"{}" does not exist. Install PyAEDT using the Python script installer from the PyAEDT '
@@ -63,7 +90,14 @@ def check_file(file_path, oDesktop):
 
 
 def get_linux_terminal():
-    """Get a Linux terminal."""
+    """Get a Linux terminal.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.templates.pyaedt_utils import get_linux_terminal
+    >>> terminal, terminal_exe = get_linux_terminal()
+
+    """
     for terminal in ["x-terminal-emulator", "xterm", "xfce4-terminal", "gnome-terminal", "lxterminal", "mlterm"]:
         terminal_exe = which(terminal)
         if terminal_exe:
@@ -72,7 +106,14 @@ def get_linux_terminal():
 
 
 def get_linux_terminal_command():
-    """Get the command to open a Linux terminal."""
+    """Get the command to open a Linux terminal.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.templates.pyaedt_utils import get_linux_terminal_command
+    >>> get_linux_terminal_command()
+
+    """
     terminal, terminal_exe = get_linux_terminal()
     if terminal == "x-terminal-emulator":
         return [terminal_exe, "-e"]
@@ -91,6 +132,8 @@ def get_linux_terminal_command():
 
 
 def which(program):
+    """Return the executable path for a program."""
+
     def is_exe(fpath):
         return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
 
@@ -108,14 +151,28 @@ def which(program):
 
 
 def show_error(msg, oDesktop):
-    """Display an error message in the AEDT console and a dialog box."""
+    """Display an error message in the AEDT console and a dialog box.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.templates.pyaedt_utils import show_error
+    >>> show_error("PyAEDT is not installed.", oDesktop)
+
+    """
     oDesktop.AddMessage("", "", 2, str(msg))
     MessageBox.Show(str(msg), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
     sys.exit()
 
 
 def environment_variables(oDesktop):
-    """Set environment variables for the AEDT process."""
+    """Set environment variables for the AEDT process.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.templates.pyaedt_utils import environment_variables
+    >>> environment_variables(oDesktop)
+
+    """
     os.environ["PYAEDT_PROCESS_ID"] = str(oDesktop.GetProcessID())
     version = str(oDesktop.GetVersion()[:6])
     os.environ["PYAEDT_DESKTOP_VERSION"] = version
@@ -161,6 +218,7 @@ def environment_variables(oDesktop):
 
 
 def generate_unique_name(root_name, suffix="", n=6):
+    """Return generate unique name."""
     char_set = string.ascii_uppercase + string.digits
     unique_name = root_name + "_" + "".join(random.choice(char_set) for _ in range(n))  # nosec B311
     if suffix:
@@ -169,7 +227,14 @@ def generate_unique_name(root_name, suffix="", n=6):
 
 
 def validate_disclaimer():
-    """Display dialog box and evaluate the response to the disclaimer."""
+    """Display dialog box and evaluate the response to the disclaimer.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.templates.pyaedt_utils import validate_disclaimer
+    >>> validate_disclaimer()
+
+    """
     DISCLAIMER = (
         "This script will download and install certain third-party software and/or "
         "open-source software (collectively, 'Third-Party Software'). Such Third-Party "

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -47,9 +47,13 @@ from ansys.aedt.core.generic.file_utils import write_csv
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 # Extension batch arguments
 EXTENSION_DEFAULT_ARGUMENTS = {
@@ -59,18 +63,36 @@ EXTENSION_DEFAULT_ARGUMENTS = {
     "objects_list": [],
     "solution_option": "",
 }
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Fields Distribution"
+"""Title displayed for the extension."""
 
 
 @dataclass
 class FieldsDistributionExtensionData(ExtensionCommonData):
-    """Data class containing user input and computed data."""
+    """Data class containing user input and computed data.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtensionData
+    >>> data = FieldsDistributionExtensionData(
+    ...     export_file="field_output.csv",
+    ...     export_option="Ohmic loss",
+    ...     solution_option="Setup1 : LastAdaptive",
+    ... )
+
+    """
 
     points_file: str = EXTENSION_DEFAULT_ARGUMENTS["points_file"]
+    """File path for points."""
     export_file: str = EXTENSION_DEFAULT_ARGUMENTS["export_file"]
+    """File path for export."""
     export_option: str = EXTENSION_DEFAULT_ARGUMENTS["export_option"]
+    """Value for export option."""
     objects_list: list = None
+    """Value for objects list."""
     solution_option: str = EXTENSION_DEFAULT_ARGUMENTS["solution_option"]
+    """Value for solution option."""
 
     def __post_init__(self) -> None:
         if self.objects_list is None:
@@ -78,7 +100,14 @@ class FieldsDistributionExtensionData(ExtensionCommonData):
 
 
 class FieldsDistributionExtension(ExtensionCommon):
-    """Extension for fields distribution in Maxwell."""
+    """Extension for fields distribution in Maxwell.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtension
+    >>> extension = FieldsDistributionExtension(withdraw=True)
+
+    """
 
     def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with the title and theme color
@@ -119,7 +148,15 @@ class FieldsDistributionExtension(ExtensionCommon):
             return "Maxwell 3D"  # Default fallback
 
     def check_design_type(self) -> None:
-        """Check if the active design is a Maxwell design."""
+        """Check if the active design is a Maxwell design.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtension
+        >>> extension = FieldsDistributionExtension(withdraw=True)
+        >>> extension.check_design_type()
+
+        """
         if self.aedt_application.design_type not in ["Maxwell 2D", "Maxwell 3D"]:
             self.release_desktop()
             raise AEDTRuntimeError("Active design is not Maxwell 2D or 3D.")
@@ -175,7 +212,15 @@ class FieldsDistributionExtension(ExtensionCommon):
             listbox.insert(tkinter.END, item)
 
     def add_extension_content(self) -> None:
-        """Add custom content to the extension UI."""
+        """Add custom content to the extension UI.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtension
+        >>> extension = FieldsDistributionExtension(withdraw=True)
+        >>> extension.add_extension_content()
+
+        """
         # Export options
         export_options_frame = tkinter.Frame(self.root, width=20)
         export_options_frame.grid(row=0, column=0, pady=10, padx=10, sticky="ew")
@@ -427,7 +472,20 @@ class FieldsDistributionExtension(ExtensionCommon):
 
 
 def main(data: FieldsDistributionExtensionData) -> bool:
-    """Main function to run the fields distribution extension."""
+    """Main function to run the fields distribution extension.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtensionData
+    >>> from ansys.aedt.core.extensions.maxwell3d.fields_distribution import main
+    >>> data = FieldsDistributionExtensionData(
+    ...     export_file="field_output.csv",
+    ...     export_option="Ohmic loss",
+    ...     solution_option="Setup1 : LastAdaptive",
+    ... )
+    >>> main(data)
+
+    """
     if not data.export_file:
         raise AEDTRuntimeError("No export file specified.")
 

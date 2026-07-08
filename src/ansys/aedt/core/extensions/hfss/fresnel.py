@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -42,15 +42,27 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 settings.release_on_exception = False
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 EXTENSION_TITLE = "Fresnel Coefficients"
+"""Title displayed for the extension."""
 
 
 class FresnelExtension(ExtensionHFSSCommon):
-    """Extension to generate Fresnel coefficients in AEDT."""
+    """Extension to generate Fresnel coefficients in AEDT.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss.fresnel import FresnelExtension
+    >>> extension = FresnelExtension(withdraw=True)
+
+    """
 
     def __init__(self, withdraw: bool = False):
         # Initialize the common extension class with the title and theme color
@@ -123,7 +135,15 @@ class FresnelExtension(ExtensionHFSSCommon):
         self.add_extension_content()
 
     def add_extension_content(self) -> None:
-        """Add custom content to the extension UI."""
+        """Add custom content to the extension UI.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.hfss.fresnel import FresnelExtension
+        >>> extension = FresnelExtension(withdraw=True)
+        >>> extension.add_extension_content()
+
+        """
         self.fresnel_type = tkinter.StringVar(value="isotropic")
         # Layout
         self.root.columnconfigure(0, weight=1)
@@ -143,7 +163,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             value="isotropic",
             style="PyAEDT.TRadiobutton",
             variable=self.fresnel_type,
-            command=self.on_fresnel_type_changed,
+            command=self._on_fresnel_type_changed,
             state=state,
         )
         isotropic_button.grid(row=0, column=0, sticky="w")
@@ -155,7 +175,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             value="anisotropic",
             style="PyAEDT.TRadiobutton",
             variable=self.fresnel_type,
-            command=self.on_fresnel_type_changed,
+            command=self._on_fresnel_type_changed,
             state=state,
         )
         anisotropic_button.grid(row=1, column=0, sticky="w")
@@ -184,11 +204,11 @@ class FresnelExtension(ExtensionHFSSCommon):
         self._widgets["azimuth_resolution"] = tkinter.DoubleVar(value=10.0)
         self._widgets["theta_scan_max"] = tkinter.DoubleVar(value=15.0)
 
-        self.build_advanced_tab()
-        self.build_extraction_tab()
-        self.build_settings_tab()
+        self._build_advanced_tab()
+        self._build_extraction_tab()
+        self._build_settings_tab()
 
-    def on_fresnel_type_changed(self):
+    def _on_fresnel_type_changed(self):
         selected = self.fresnel_type.get()
         if selected == "isotropic":
             self._widgets["azimuth_slider"].grid_remove()
@@ -199,7 +219,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             self._widgets["azimuth_spin"].grid()
             self._widgets["azimuth_label"].grid()
 
-    def build_advanced_tab(self):
+    def _build_advanced_tab(self):
         # Setup
         label = ttk.Label(self._widgets["advanced_tab"], text="Simulation setup", style="PyAEDT.TLabel")
         label.grid(row=0, column=0, padx=15, pady=10)
@@ -287,7 +307,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             from_=0,
             to=2,
             orient="horizontal",
-            command=self.elevation_slider_changed,
+            command=self._elevation_slider_changed,
             length=200,
         )
         self._widgets["elevation_slider"].grid(row=1, column=1, columnspan=3)
@@ -297,7 +317,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             values=[str(v) for v in self.elevation_resolution_values],
             textvariable=self._widgets["elevation_resolution"],
             width=6,
-            command=self.elevation_spin_changed,
+            command=self._elevation_spin_changed,
             state="readonly",
             font=self.theme.default_font,
             style="PyAEDT.TSpinbox",
@@ -317,7 +337,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             from_=0,
             to=2,
             orient="horizontal",
-            command=self.azimuth_slider_changed,
+            command=self._azimuth_slider_changed,
             length=200,
         )
         self._widgets["azimuth_slider"].grid(row=2, column=1, columnspan=3)
@@ -354,7 +374,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             to=90,
             orient="horizontal",
             variable=self._widgets["theta_scan_max"],
-            command=self.snap_theta_scan_max_slider,
+            command=self._snap_theta_scan_max_slider,
             length=200,
         )
         self._widgets["theta_scan_max_slider"].grid(row=4, column=1, columnspan=3)
@@ -366,7 +386,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             increment=1,
             textvariable=self._widgets["theta_scan_max"],
             width=6,
-            command=self.snap_theta_scan_max_spin,
+            command=self._snap_theta_scan_max_spin,
             font=self.theme.default_font,
             style="PyAEDT.TSpinbox",
         )
@@ -377,7 +397,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             self._widgets["advanced_tab"],
             text="Apply and Validate",
             width=40,
-            command=lambda: self.apply_validate(),
+            command=lambda: self._apply_validate(),  # pylint: disable=consider-lambda-function
             style="PyAEDT.TButton",
         )
         self._widgets["apply_validate_button"].grid(row=4, column=0, padx=15, pady=10, columnspan=2)
@@ -428,13 +448,13 @@ class FresnelExtension(ExtensionHFSSCommon):
             self._widgets["advanced_tab"],
             text="Start",
             width=40,
-            command=lambda: self.start_extraction(),
+            command=lambda: self._start_extraction(),  # pylint: disable=consider-lambda-function
             style="PyAEDT.TButton",
         )
         self._widgets["start_button"].grid(row=6, column=0, padx=15, pady=10, columnspan=2)
         self._widgets["start_button"].grid_remove()
 
-    def build_extraction_tab(self):
+    def _build_extraction_tab(self):
         # Setup
         label = ttk.Label(self._widgets["extraction_tab"], text="Simulation setup", style="PyAEDT.TLabel")
         label.grid(row=0, column=0, padx=15, pady=10)
@@ -477,7 +497,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             self._widgets["extraction_tab"],
             text="Validate",
             width=40,
-            command=lambda: self.validate(),
+            command=lambda: self._validate(),  # pylint: disable=consider-lambda-function
             style="PyAEDT.TButton",
         )
         self._widgets["validate_button"].grid(row=2, column=0, padx=15, pady=10, columnspan=2)
@@ -529,13 +549,13 @@ class FresnelExtension(ExtensionHFSSCommon):
             self._widgets["extraction_tab"],
             text="Start",
             width=40,
-            command=lambda: self.get_coefficients(),
+            command=lambda: self._get_coefficients(),  # pylint: disable=consider-lambda-function
             style="PyAEDT.TButton",
         )
         self._widgets["start_button_extraction"].grid(row=5, column=0, padx=15, pady=10, columnspan=2)
         self._widgets["start_button_extraction"].grid_remove()
 
-    def build_settings_tab(self):
+    def _build_settings_tab(self):
         # Simulation menu
         self._widgets["hpc_frame"] = ttk.LabelFrame(
             self._widgets["settings_tab"], text="HPC options", padding=10, style="PyAEDT.TLabelframe"
@@ -574,23 +594,23 @@ class FresnelExtension(ExtensionHFSSCommon):
         self._widgets["keep_mesh_checkbox"].grid(row=0, column=1, columnspan=2, padx=10, sticky="w")
         self._widgets["keep_mesh"].set(True)
 
-    def elevation_slider_changed(self, pos):
+    def _elevation_slider_changed(self, pos):
         index = int(float(pos))
         new_val = self.elevation_resolution_slider_values[index]
         self._widgets["elevation_resolution"].set(new_val)
         self._widgets["elevation_spin"].set(new_val)
-        self.update_theta_scan_max_constraints()
+        self._update_theta_scan_max_constraints()
 
-    def elevation_spin_changed(self):
-        self.update_theta_scan_max_constraints()
+    def _elevation_spin_changed(self):
+        self._update_theta_scan_max_constraints()
 
-    def azimuth_slider_changed(self, pos):
+    def _azimuth_slider_changed(self, pos):
         index = int(float(pos))
         new_val = self.azimuth_resolution_slider_values[index]
         self._widgets["azimuth_resolution"].set(new_val)
         self._widgets["azimuth_spin"].set(new_val)
 
-    def update_theta_scan_max_constraints(self):
+    def _update_theta_scan_max_constraints(self):
         theta_val = self._widgets["elevation_resolution"].get()
         if theta_val <= 0 or theta_val > 90:  # pragma: no cover
             return
@@ -617,7 +637,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             snapped = last_value
         self._widgets["theta_scan_max"].set(round(snapped, 2))
 
-    def snap_theta_scan_max_slider(self, val):
+    def _snap_theta_scan_max_slider(self, val):
         theta_step = float(self._widgets["elevation_resolution"].get())
         val = float(val)
         snapped = round(val / theta_step) * theta_step
@@ -625,10 +645,10 @@ class FresnelExtension(ExtensionHFSSCommon):
             snapped = 90 - theta_step
         self._widgets["theta_scan_max_spin"].set(round(snapped, 2))
 
-    def snap_theta_scan_max_spin(self):
-        self.snap_theta_scan_max_slider(self._widgets["theta_scan_max_slider"].get())
+    def _snap_theta_scan_max_spin(self):
+        self._snap_theta_scan_max_slider(self._widgets["theta_scan_max_slider"].get())
 
-    def apply_validate(self):
+    def _apply_validate(self):
         # Init
         self._widgets["frequency_points_label"].config(text="N/A")
         self._widgets["floquet_ports_label"].config(text="N/A")
@@ -763,7 +783,7 @@ class FresnelExtension(ExtensionHFSSCommon):
 
         return True
 
-    def validate(self, active_setup=None):
+    def _validate(self, active_setup=None):
         # Init
         self._widgets["floquet_ports_label_extraction"].config(text="N/A")
         self._widgets["spatial_points_label_extraction"].config(text="N/A")
@@ -863,7 +883,7 @@ class FresnelExtension(ExtensionHFSSCommon):
                 "Modal Solution Data", self.active_setup_sweep, ["Domain:=", "Sweep"], variations, report_quantities[0]
             )
 
-            parametric_data = self.extract_parametric_fresnel(
+            parametric_data = self._extract_parametric_fresnel(
                 data.variations, theta_key=theta_scan_variable, phi_key=phi_scan_variable
             )
 
@@ -919,7 +939,7 @@ class FresnelExtension(ExtensionHFSSCommon):
 
         return True
 
-    def start_extraction(self):  # pragma: no cover
+    def _start_extraction(self):  # pragma: no cover
         cores = int(self._widgets["core_number"].get("1.0", tkinter.END).strip())
         tasks = int(self._widgets["tasks_number"].get("1.0", tkinter.END).strip())
         active_parametric = self.active_parametric.name
@@ -929,12 +949,12 @@ class FresnelExtension(ExtensionHFSSCommon):
 
         self.aedt_application.save_project()
 
-        is_valid = self.validate(self.active_setup_sweep)
+        is_valid = self._validate(self.active_setup_sweep)
 
         if is_valid:
-            self.get_coefficients()
+            self._get_coefficients()
 
-    def get_coefficients(self):
+    def _get_coefficients(self):
         enable_log = settings.enable_desktop_logs
         if not self.desktop.non_graphical:
             settings.enable_desktop_logs = True
@@ -967,8 +987,7 @@ class FresnelExtension(ExtensionHFSSCommon):
         float_precision: float = 1e-5,
         min_step_possible: float = 0.01,
     ) -> tuple[bool, float | None, list[float]]:
-        """
-        Validate and extract an evenly-spaced theta sequence in [0, 90] that divides 90.
+        """Validate and extract an evenly-spaced theta sequence in [0, 90] that divides 90.
 
         It sorts and filters values to [0, 90]. Requires that 0.0 is present. It searches for a step size `step` such
         that a sequence starting at 0deg is (approximately) on a uniform grid, and that 90° is a multiple of `step`.
@@ -993,6 +1012,12 @@ class FresnelExtension(ExtensionHFSSCommon):
         filtered_list : list of float
             Values from the input that lie in [0, 90] and align with the detected grid.
             If not valid, returns just the input values filtered to [0, 90] (sorted).
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.hfss.fresnel import FresnelExtension
+        >>> FresnelExtension.validate_even_and_divides_90([0.0, 15.0, 30.0, 45.0, 60.0, 75.0, 90.0])
+
         """
         # Sort & filter to [0, 90]
         th_input = np.sort(np.asarray(values, dtype=float))
@@ -1068,7 +1093,7 @@ class FresnelExtension(ExtensionHFSSCommon):
         is_valid = bool(divides_90 and close_seq)
         return is_valid, (float(step) if is_valid else None), th_res
 
-    def extract_parametric_fresnel(self, rows, theta_key="scan_T", phi_key="scan_P"):  # pragma: no cover
+    def _extract_parametric_fresnel(self, rows, theta_key="scan_T", phi_key="scan_P"):  # pragma: no cover
         if not rows:
             return {"has_phi": False, "theta": [], "phi": [], "theta_by_phi": {}}
 

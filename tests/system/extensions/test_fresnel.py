@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -57,35 +57,35 @@ def test_fresnel_ui_interactions(aedt_app) -> None:
     elevation_slider = extension._widgets["elevation_slider"]
 
     elevation_slider.set(0)  # Coarse
-    extension.elevation_slider_changed(0)
+    extension._elevation_slider_changed(0)
     assert extension._widgets["theta_scan_max"].get() == 20.0
 
     elevation_slider.set(2)  # Fine
-    extension.elevation_slider_changed(2)
+    extension._elevation_slider_changed(2)
     assert extension._widgets["theta_scan_max"].get() == 20.0
 
     elevation_slider.set(1)  # Regular
-    extension.elevation_slider_changed(1)
+    extension._elevation_slider_changed(1)
     assert extension._widgets["theta_scan_max"].get() == 22.5
 
     # Test azimuth slider
     azimuth_slider = extension._widgets["azimuth_slider"]
     azimuth_slider.set(0)
-    extension.azimuth_slider_changed(0)
+    extension._azimuth_slider_changed(0)
     azimuth_slider.set(1)
-    extension.azimuth_slider_changed(1)
+    extension._azimuth_slider_changed(1)
     azimuth_slider.set(2)
-    extension.azimuth_slider_changed(2)
+    extension._azimuth_slider_changed(2)
 
     # Test theta scan max slider
     theta_scan_max_slider = extension._widgets["theta_scan_max_slider"]
     theta_scan_max_slider.set(30)
-    extension.snap_theta_scan_max_slider(30)
+    extension._snap_theta_scan_max_slider(30)
 
     # Test theta scan max spin
     theta_scan_max_spin = extension._widgets["theta_scan_max_spin"]
     theta_scan_max_spin.set(45)
-    extension.snap_theta_scan_max_spin()
+    extension._snap_theta_scan_max_spin()
 
     # Test frequency units combo
     freq_units_combo = extension._widgets["frequency_units_combo"]

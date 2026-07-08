@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -64,6 +64,12 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
     optimtype : str
         Type of the optimization. Available options are: ``"OptiParametric"``, ``"OptiDesignExplorer"`,
         ``"OptiOptimization"``, ``"OptiSensitivity"``, ``"OptiStatistical"``, ``"OptiDXDOE"``, and ``"optiSLang"``.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.design_xploration import CommonOptimetrics
+    >>> obj = CommonOptimetrics()
+
     """
 
     def __repr__(self) -> str:
@@ -309,6 +315,13 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
         References
         ----------
         >>> oModule.EditSetup
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.design_xploration import CommonOptimetrics
+        >>> obj = CommonOptimetrics()
+        >>> obj.update(update_dictionary={"Name": "Value"})
+
         """
         if update_dictionary:
             for el in update_dictionary:
@@ -338,6 +351,13 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
         References
         ----------
         >>> oModule.InsertSetup
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.design_xploration import CommonOptimetrics
+        >>> obj = CommonOptimetrics()
+        >>> obj.create()
+
         """
         arg = ["NAME:" + self.name]
         _dict2arg(self.props, arg)
@@ -387,6 +407,13 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
         References
         ----------
         >>> oModule.EditSetup
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.design_xploration import CommonOptimetrics
+        >>> obj = CommonOptimetrics()
+        >>> obj.add_calculation(calculation=1)
+
         """
         return self._add_calculation(
             calculation,
@@ -548,6 +575,13 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
         References
         ----------
         >>> oDesign.Analyze
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.design_xploration import CommonOptimetrics
+        >>> obj = CommonOptimetrics()
+        >>> obj.analyze(cores=[1, 2, 3], tasks=[1, 2, 3])
+
         """
         return self._app.analyze(
             setup=self.name,
@@ -565,7 +599,14 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
 
 
 class SetupOpti(CommonOptimetrics, PyAedtBase):
-    """Sets up an optimization in Opimetrics."""
+    """Sets up an optimization in Opimetrics.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.design_xploration import SetupOpti
+    >>> obj = SetupOpti()
+
+    """
 
     def __init__(self, app, name: str, dictinputs=None, optim_type: str = "OptiDesignExplorer") -> None:
         CommonOptimetrics.__init__(self, app, name, dictinputs=dictinputs, optimtype=optim_type)
@@ -583,6 +624,13 @@ class SetupOpti(CommonOptimetrics, PyAedtBase):
         -------
         bool
             `True` if setup is deleted. `False` if it failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.design_xploration import SetupOpti
+        >>> obj = SetupOpti()
+        >>> obj.delete()
+
         """
         self.omodule.DeleteSetups([self.name])
         self._app.optimizations.setups.remove(self)
@@ -641,6 +689,13 @@ class SetupOpti(CommonOptimetrics, PyAedtBase):
         References
         ----------
         >>> oModule.EditSetup
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.design_xploration import SetupOpti
+        >>> obj = SetupOpti()
+        >>> obj.add_goal(calculation=1, ranges={"Name": "Value"})
+
         """
         return self._add_calculation(
             calculation,
@@ -693,6 +748,13 @@ class SetupOpti(CommonOptimetrics, PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.design_xploration import SetupOpti
+        >>> obj = SetupOpti()
+        >>> obj.add_variation(variable_name=1, min_value=1.0, max_value=1.0)
+
         """
         if variable_name not in self._app.variable_manager.variables:
             self._app.logger.error(f"Variable {variable_name} does not exists.")
@@ -768,7 +830,7 @@ class SetupOpti(CommonOptimetrics, PyAedtBase):
                 "UseManufacturableValues:=",
                 use_manufacturable,
             ]
-            if self._app.aedt_version_id > "2023.2":
+            if self._app.desktop_class.aedt_version_id > "2023.2":
                 arg.extend(["Level:=", levels])
             if not self.props.get("Variables", None):
                 self.props["Variables"] = {}
@@ -789,7 +851,14 @@ class SetupOpti(CommonOptimetrics, PyAedtBase):
 
 
 class SetupParam(CommonOptimetrics, PyAedtBase):
-    """Sets up a parametric analysis in Optimetrics."""
+    """Sets up a parametric analysis in Optimetrics.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.design_xploration import SetupParam
+    >>> obj = SetupParam()
+
+    """
 
     def __init__(self, p_app, name: str, dictinputs=None, optim_type: str = "OptiParametric") -> None:
         CommonOptimetrics.__init__(self, p_app, name, dictinputs=dictinputs, optimtype=optim_type)
@@ -803,6 +872,13 @@ class SetupParam(CommonOptimetrics, PyAedtBase):
         -------
         bool
             ``True`` if setup is deleted. ``False`` if it failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.design_xploration import SetupParam
+        >>> obj = SetupParam()
+        >>> obj.delete()
+
         """
         self.omodule.DeleteSetups([self.name])
         self._app.parametrics.setups.remove(self)
@@ -844,6 +920,13 @@ class SetupParam(CommonOptimetrics, PyAedtBase):
         References
         ----------
         >>> oModule.EditSetup
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.design_xploration import SetupParam
+        >>> obj = SetupParam()
+        >>> obj.add_variation(sweep_variable=1, start_point=1.0)
+
         """
         if sweep_variable not in self._app.variable_manager.variables:
             self._app.logger.error(f"Variable {sweep_variable} does not exists.")
@@ -914,6 +997,13 @@ class SetupParam(CommonOptimetrics, PyAedtBase):
         References
         ----------
         >>> oModule.EditSetup
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.design_xploration import SetupParam
+        >>> obj = SetupParam()
+        >>> obj.sync_variables(variables=["Box1"])
+
         """
         if type(self.props["Sweeps"]["SweepDefinition"]) is not list:
             self._app.logger.error("Not enough variables are defined in the Parametric setup")
@@ -958,6 +1048,13 @@ class SetupParam(CommonOptimetrics, PyAedtBase):
         -------
         bool
             `True` if the export is correctly executed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.design_xploration import SetupParam
+        >>> obj = SetupParam()
+        >>> obj.export_to_csv(output_file="example.csv")
+
         """
         self.omodule.ExportParametricSetupTable(self.name, output_file)
         return True
@@ -971,6 +1068,7 @@ class ParametricSetups(PyAedtBase):
     >>> from ansys.aedt.core import Hfss
     >>> app = Hfss()
     >>> sensitivity_setups = app.parametrics
+
     """
 
     def __init__(self, p_app) -> None:
@@ -994,12 +1092,27 @@ class ParametricSetups(PyAedtBase):
         Returns
         -------
         dict[str, :class:`ansys.aedt.core.modules.solve_setup.Setup`]
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.design_xploration import ParametricSetups
+        >>> obj = ParametricSetups()
+        >>> obj.design_setups
+
         """
         return {i.name.split(":")[0].strip(): i for i in self.setups}
 
     @property
     def p_app(self):
-        """Parent."""
+        """Parent.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.design_xploration import ParametricSetups
+        >>> obj = ParametricSetups()
+        >>> obj.p_app
+
+        """
         return self._app
 
     @property
@@ -1009,6 +1122,12 @@ class ParametricSetups(PyAedtBase):
         Returns
         -------
         :class:`Optimetrics`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.design_xploration import ParametricSetups
+        >>> obj = ParametricSetups()
+        >>> obj.optimodule
 
         """
         return self._app.ooptimetrics
@@ -1057,6 +1176,13 @@ class ParametricSetups(PyAedtBase):
         References
         ----------
         >>> oModule.InsertSetup
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.design_xploration import ParametricSetups
+        >>> obj = ParametricSetups()
+        >>> obj.add(variable=1, start_point=1.0)
+
         """
         if variable not in self._app.variable_manager.variables:
             self._app.logger.error(f"Variable {variable} not found.")
@@ -1094,6 +1220,13 @@ class ParametricSetups(PyAedtBase):
         -------
         bool
             ``True`` if setup is deleted. ``False`` if it failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.design_xploration import ParametricSetups
+        >>> obj = ParametricSetups()
+        >>> obj.delete(name="MyObject")
+
         """
         for el in self.setups:
             if el.name == name:
@@ -1120,6 +1253,13 @@ class ParametricSetups(PyAedtBase):
         References
         ----------
         >>> oModule.ImportSetup
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.design_xploration import ParametricSetups
+        >>> obj = ParametricSetups()
+        >>> obj.add_from_file(input_file="example.txt")
+
         """
         if not name:
             name = generate_unique_name("Parametric")
@@ -1165,6 +1305,7 @@ class OptimizationSetups(PyAedtBase):
     >>> from ansys.aedt.core import Hfss
     >>> app = Hfss()
     >>> optimization_setup = app.optimizations
+
     """
 
     def __init__(self, p_app) -> None:
@@ -1191,7 +1332,15 @@ class OptimizationSetups(PyAedtBase):
 
     @property
     def p_app(self):
-        """Parent."""
+        """Parent.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.design_xploration import OptimizationSetups
+        >>> obj = OptimizationSetups()
+        >>> obj.p_app
+
+        """
         return self._app
 
     @property
@@ -1201,6 +1350,13 @@ class OptimizationSetups(PyAedtBase):
         Returns
         -------
         dict[str, :class:`ansys.aedt.core.modules.solve_setup.Setup`]
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.design_xploration import OptimizationSetups
+        >>> obj = OptimizationSetups()
+        >>> obj.design_setups
+
         """
         return {i.name.split(":")[0].strip(): i for i in self.setups}
 
@@ -1211,6 +1367,12 @@ class OptimizationSetups(PyAedtBase):
         Returns
         -------
         :class:`Optimetrics`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.design_xploration import OptimizationSetups
+        >>> obj = OptimizationSetups()
+        >>> obj.optimodule
 
         """
         return self._app.ooptimetrics
@@ -1228,6 +1390,13 @@ class OptimizationSetups(PyAedtBase):
         -------
         bool
             ``True`` if setup is deleted. ``False`` if it failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.design_xploration import OptimizationSetups
+        >>> obj = OptimizationSetups()
+        >>> obj.delete(name="MyObject")
+
         """
         for el in self.setups:
             if el.name == name:
@@ -1298,6 +1467,13 @@ class OptimizationSetups(PyAedtBase):
         References
         ----------
         >>> oModule.InsertSetup
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.design_xploration import OptimizationSetups
+        >>> obj = OptimizationSetups()
+        >>> obj.add(name="MyObject", calculation=1)
+
         """
         if not solution and not self._app.nominal_sweep:
             self._app.logger.error("At least one setup is needed.")

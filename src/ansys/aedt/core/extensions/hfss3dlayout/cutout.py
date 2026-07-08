@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -21,6 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
 from collections import defaultdict
 from dataclasses import dataclass
 from dataclasses import field
@@ -46,10 +47,15 @@ from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 CUTOUT_TYPES = ("ConvexHull", "Bounding", "Conforming")
+"""Available cutout types."""
 EXTENSION_DEFAULT_ARGUMENTS = {
     "cutout_type": "ConvexHull",
     "signals": [],
@@ -57,26 +63,51 @@ EXTENSION_DEFAULT_ARGUMENTS = {
     "expansion_factor": 3.0,
     "fix_disjoints": False,
 }
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Layout cutout"
+"""Title displayed for the extension."""
 EXTENSION_NB_ROW = 5
+"""Number of rows used by the extension UI."""
 EXTENSION_NB_COLUMN = 2
+"""Number of columns used by the extension UI."""
 SELECTION_PERFORMED = "Selection performed."
+"""Message displayed after a selection is performed."""
 WAITING_FOR_SELECTION = "Waiting for selection..."
+"""Message displayed while waiting for a selection."""
 
 
 @dataclass
 class CutoutData(ExtensionCommonData):
-    """Data class containing user input and computed data."""
+    """Data class containing user input and computed data.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss3dlayout.cutout import CutoutData
+    >>> data = CutoutData(signals=["SIG1"], references=["GND"], expansion_factor=3.0)
+
+    """
 
     cutout_type: str = EXTENSION_DEFAULT_ARGUMENTS["cutout_type"]
+    """Value for cutout type."""
     signals: list[str] = field(default_factory=lambda: EXTENSION_DEFAULT_ARGUMENTS["signals"])
+    """Value for signals."""
     references: list[str] = field(default_factory=lambda: EXTENSION_DEFAULT_ARGUMENTS["references"])
+    """Value for references."""
     expansion_factor: float = EXTENSION_DEFAULT_ARGUMENTS["expansion_factor"]
+    """Value for expansion factor."""
     fix_disjoints: bool = EXTENSION_DEFAULT_ARGUMENTS["fix_disjoints"]
+    """Value for fix disjoints."""
 
 
 class CutoutExtension(ExtensionHFSS3DLayoutCommon):
-    """Class to create a cutout in an HFSS 3D Layout design."""
+    """Class to create a cutout in an HFSS 3D Layout design.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss3dlayout.cutout import CutoutExtension
+    >>> extension = CutoutExtension(withdraw=True)
+
+    """
 
     def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with the title and theme color
@@ -90,7 +121,15 @@ class CutoutExtension(ExtensionHFSS3DLayoutCommon):
         self.add_extension_content()
 
     def add_extension_content(self) -> None:
-        """Add custom content to the extension UI."""
+        """Add custom content to the extension UI.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.hfss3dlayout.cutout import CutoutExtension
+        >>> extension = CutoutExtension(withdraw=True)
+        >>> extension.add_extension_content()
+
+        """
         upper_frame = ttk.Frame(self.root, style="PyAEDT.TFrame")
         upper_frame.grid(row=0, column=0, columnspan=EXTENSION_NB_COLUMN)
 
@@ -186,17 +225,41 @@ class CutoutExtension(ExtensionHFSS3DLayoutCommon):
 
     @property
     def objects_net(self) -> dict:
-        """Get objects by net from the EDB modeler."""
+        """Get objects by net from the EDB modeler.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.hfss3dlayout.cutout import CutoutExtension
+        >>> extension = CutoutExtension(withdraw=True)
+        >>> extension.objects_net
+
+        """
         return self.__objects_net
 
     @property
     def widgets(self) -> dict:
-        """Get mapping to the extension's widgets"""
+        """Get mapping to the extension's widgets.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.hfss3dlayout.cutout import CutoutExtension
+        >>> extension = CutoutExtension(withdraw=True)
+        >>> extension.widgets
+
+        """
         return self.__widgets
 
     @property
     def execute_cutout(self) -> bool:
-        """Get whether the cutout should be executed."""
+        """Get whether the cutout should be executed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.hfss3dlayout.cutout import CutoutExtension
+        >>> extension = CutoutExtension(withdraw=True)
+        >>> extension.execute_cutout
+
+        """
         return self.__execute_cutout
 
     def __load_objects_net(self):
@@ -268,7 +331,15 @@ class CutoutExtension(ExtensionHFSS3DLayoutCommon):
 
 
 def main(data: CutoutData) -> Path:
-    """Main function to execute the cutout operation."""
+    """Main function to execute the cutout operation.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss3dlayout.cutout import CutoutData, main
+    >>> data = CutoutData(signals=["SIG1"], references=["GND"], expansion_factor=3.0)
+    >>> main(data)
+
+    """
     app = ansys.aedt.core.Desktop(
         new_desktop=False,
         version=VERSION,

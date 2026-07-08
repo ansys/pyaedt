@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -40,6 +40,12 @@ class Parser(PyAedtBase):
     """Parser class that loads an HDM-format export file from HFSS SBR+, interprets its header and its binary content.
 
     Except for the header, the binary content is not parsed until an explicit call to parse_message.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.advanced.sbrplus.hdm_parser import Parser
+    >>> obj = Parser()
+
     """
 
     def __init__(self, filename) -> None:
@@ -65,7 +71,15 @@ class Parser(PyAedtBase):
         self.binarycontent = binarycontent
 
     def parse_message(self):
-        """Parse the binary content of the HDM file."""
+        """Parse the binary content of the HDM file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.sbrplus.hdm_parser import Parser
+        >>> obj = Parser()
+        >>> obj.parse_message()
+
+        """
         return self._parse(self.message["type"])
 
     def _parse(self, type_name):

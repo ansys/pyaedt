@@ -93,6 +93,7 @@ Version and service pack requirements
      only insecure mode is available.
    - To check your service pack version, look at the ``builddate.txt`` file in your
      Ansys installation directory.
+   - For Ansys 2025 R2 Student and earlier, only insecure mode is available, see the :ref:`pre service pack <_pre_service_pack_compatibility>` section
 
 Default configuration
 ---------------------
@@ -194,6 +195,8 @@ To use insecure client-server mode (no encryption), set:
     settings.grpc_local = False
 
 This configuration uses standard gRPC without encryption.
+
+.. _pre_service_pack_compatibility:
 
 Pre-service pack compatibility
 ------------------------------

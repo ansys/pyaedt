@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -37,6 +37,7 @@ from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
 
 json_to_dict = read_json
+"""Value for JSON to dict."""
 
 
 @pyaedt_function_handler()
@@ -61,9 +62,7 @@ def _dict_items_to_list_items(d, k, idx: str = "name") -> None:
 
 @pyaedt_function_handler()
 def _tuple2dict(t, d) -> None:
-    """
-
-    Parameters
+    """Parameters
     ----------
     t :
 
@@ -243,6 +242,12 @@ def format_decimals(el: float | int | str) -> str:
     Returns
     -------
     str
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.data_handlers import format_decimals
+    >>> format_decimals(1234.56)
+
     """
     if float(el) > 1000:
         num = f"{Decimal(el):,.0f}"
@@ -272,6 +277,12 @@ def random_string(length: int = 6, only_digits: bool = False, char_set: str = No
     type
         random string
 
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.data_handlers import random_string
+    >>> random_string(length=4, only_digits=True)
+
     """
     if not char_set:
         if only_digits:
@@ -295,6 +306,12 @@ def unique_string_list(element_list: list | str, only_string: bool = True) -> li
 
     Returns
     -------
+
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.data_handlers import unique_string_list
+    >>> unique_string_list(["port1", "port2", "port1"])
 
     """
     if isinstance(element_list, str):
@@ -321,6 +338,12 @@ def string_list(element_list: list | str) -> list:
     -------
     list
 
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.data_handlers import string_list
+    >>> string_list("Setup1")
+
     """
     if not isinstance(element_list, (str, list)):
         raise TypeError("Input must be a list or a string")
@@ -343,6 +366,12 @@ def ensure_list(element_list: object) -> list:
     Returns
     -------
     None
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.data_handlers import ensure_list
+    >>> ensure_list("Project1")
+
     """
     if not isinstance(element_list, list):
         element_list = [element_list]
@@ -356,6 +385,12 @@ def variation_string_to_dict(variation_string: str, separator: str = "=") -> dic
     Returns
     -------
     dict
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.data_handlers import variation_string_to_dict
+    >>> variation_string_to_dict("Freq='5GHz' Temp='25cel'")
+
     """
     var_data = variation_string.split()
     variation_dict = {}
@@ -407,7 +442,9 @@ RKM_MAPS = {
     "pH": "p",
     "PH": "p",
 }
+"""Rkm maps."""
 AEDT_MAPS = {"μ": "u"}
+"""AEDT maps."""
 
 
 @pyaedt_function_handler()
@@ -478,15 +515,19 @@ def from_rkm(code: str) -> str:
 
 @pyaedt_function_handler()
 def to_aedt(code: str) -> str:
-    """
-
-    Parameters
+    """Parameters
     ----------
     code : str
 
     Returns
     -------
     str
+
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.data_handlers import to_aedt
+    >>> to_aedt("10μF")
 
     """
     pattern = f"([{''.join(AEDT_MAPS.keys())}]{'{1}'})"
@@ -516,6 +557,12 @@ def str_to_bool(s: str | int) -> bool | str:
            ``"n``,  or ``"0"``.
          - Otherwise, the input value is passed through the method unchanged.
 
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.data_handlers import str_to_bool
+    >>> str_to_bool("yes")
+
     """
     if isinstance(s, str):
         if s.lower() in ["true", "yes", "y", "1"]:
@@ -530,9 +577,7 @@ def str_to_bool(s: str | int) -> bool | str:
 
 @pyaedt_function_handler()
 def from_rkm_to_aedt(code: str) -> str:
-    """
-
-    Parameters
+    """Parameters
     ----------
     code : str
 
@@ -540,6 +585,12 @@ def from_rkm_to_aedt(code: str) -> str:
     Returns
     -------
     str
+
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.data_handlers import from_rkm_to_aedt
+    >>> from_rkm_to_aedt("4K7")
 
     """
     return to_aedt(from_rkm(code))
@@ -574,8 +625,8 @@ unit_val = {
     "meter": 1.0,
     "km": 1e3,
 }
-resynch_maxwell2D_control_program_for_design = """
-from ansys.aedt.core.desktop import Desktop
+"""Value for unit val."""
+resynch_maxwell2D_control_program_for_design = """from ansys.aedt.core.desktop import Desktop
 from ansys.aedt.core.maxwell import Maxwell2d
 design_name = os.getenv('design')
 setup = os.getenv('setup')
@@ -585,7 +636,7 @@ with Desktop() as d:
     maxwell_2d.setup_ctrlprog(keep_modifications=True )
     d.logger.info("Successfully updated project definitions")
     maxwell_2d.save_project()
-"""
+Value for resynch maxwell2D control program for design."""
 
 
 @pyaedt_function_handler()
@@ -602,6 +653,12 @@ def float_units(val_str: str, units: str = "") -> float:
 
     Returns
     -------
+
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.data_handlers import float_units
+    >>> float_units("2mm", "meter")
 
     """
     if units not in unit_val:
@@ -621,6 +678,7 @@ def float_units(val_str: str, units: str = "") -> float:
 
 @pyaedt_function_handler()
 def normalize_string_format(text: str) -> str:
+    """Normalize string format."""
     equivalence_table = {
         "$": "S",
         "€": "E",

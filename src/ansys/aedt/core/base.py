@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,25 +22,24 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
 import inspect
 
 
 class DirMixin:
-    """
-    Mixin that adds a `.public_dir` property as a shorthand for the built-in `dir()` function.
+    """Mixin that adds a `.public_dir` property as a shorthand for the built-in `dir()` function.
 
     This is primarily intended to make interactive exploration and autocomplete faster.
     Instead of typing `dir(obj)`, you can type `obj.public_dir`.
 
-    Example
-    -------
+    Examples
+    --------
     >>> class Example(DirMixin):
     ...     def foo(self):
     ...         pass
     >>> e = Example()
     >>> e.public_dir  # same as dir(e)
-    """
+
+    """  # noqa: D203
 
     def __dir__(self):
         # Get default attribute list, there is a fallback for Python 2 or weird metaclasses
@@ -53,7 +52,16 @@ class DirMixin:
 
     @property
     def public_dir(self):
-        """Shortcut for dir(self)."""
+        """Shortcut for dir(self).
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.base import DirMixin
+        >>> class Example(DirMixin):
+        ...     pass
+        >>> Example().public_dir
+
+        """
         result = []
         for name in dir(self):
             if name.startswith("_") or name == "public_dir":
@@ -75,8 +83,7 @@ class DirMixin:
 
 
 class PyAedtBase(DirMixin):
-    """
-    Common base class for all PyAEDT classes.
+    """Common base class for all PyAEDT classes.
 
     Inherits from `DirMixin` to provide the `.public_dir` property for quick
     interactive exploration. This class acts as a central place to
@@ -89,6 +96,14 @@ class PyAedtBase(DirMixin):
     - Python's method resolution order (MRO) ensures that if `Base` is
       inherited multiple times through different paths, it will only appear
       once in the hierarchy.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.base import PyAedtBase
+    >>> class Example(PyAedtBase):
+    ...     pass
+    >>> Example()
+
     """
 
     def __repr__(self) -> str:

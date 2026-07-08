@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -39,7 +39,7 @@ SKIP_EMIT_PYTHON_VERSION = (
     (sys.version_info < (3, 8) or sys.version_info[:2] > (3, 11)) and DESKTOP_VERSION < "2025.1"
 ) or ((sys.version_info < (3, 10) or sys.version_info[:2] > (3, 12)) and DESKTOP_VERSION > "2024.2")
 
-# Apply markers to all tests in this module
+# Apply markers to all tests in The module
 pytestmark = [
     pytest.mark.skipif(is_linux, reason="Emit API is not supported on linux."),
     pytest.mark.skipif(

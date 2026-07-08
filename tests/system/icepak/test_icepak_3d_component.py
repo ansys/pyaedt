@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -21,7 +21,6 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
 
 import pytest
 
@@ -92,6 +91,9 @@ def test_flatten_3d_components(aedt_app) -> None:
     aedt_app.modeler.insert_3d_component(
         input_file=str(aedt_app.toolkit_directory / file_name), coordinate_system="CS2", auxiliary_parameters=True
     )
+
+    # Save the project to refresh the properties of the inserted 3D Component
+    aedt_app.save_project()
 
     aedt_app.logger.clear_messages("", "")
     aedt_app.insert_design("test_52")

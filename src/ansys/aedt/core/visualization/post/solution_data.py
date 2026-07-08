@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 import math
-import os
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -41,7 +41,14 @@ if TYPE_CHECKING:
 
 
 class SolutionData(PyAedtBase):
-    """Contains information from the :func:`GetSolutionDataPerVariation` method."""
+    """Contains information from the :func:`GetSolutionDataPerVariation` method.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
+    >>> obj = SolutionData()
+
+    """
 
     def __init__(self, aedtdata) -> None:
         self.units_sweeps = {}
@@ -69,6 +76,15 @@ class SolutionData(PyAedtBase):
 
     @property
     def active_variation(self) -> dict:
+        """Retrieve active variation.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
+        >>> obj = SolutionData()
+        >>> obj.active_variation
+
+        """
         return self._active_variation
 
     @active_variation.setter
@@ -90,6 +106,13 @@ class SolutionData(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
+        >>> obj = SolutionData()
+        >>> obj.enable_pandas_output
+
         """
         if self._enable_pandas_output:
             try:
@@ -128,6 +151,13 @@ class SolutionData(PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
+        >>> obj = SolutionData()
+        >>> obj.set_active_variation(var_id=1)
+
         """
         if var_id < len(self.variations):
             self.active_variation = self.variations[var_id]
@@ -163,6 +193,13 @@ class SolutionData(PyAedtBase):
         -------
         list
             List of variation values.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
+        >>> obj = SolutionData()
+        >>> obj.variation_values(variation=1)
+
         """
         if variation in self.intrinsics:
             return self.intrinsics[variation]
@@ -196,13 +233,29 @@ class SolutionData(PyAedtBase):
 
     @property
     def intrinsics(self) -> dict:
-        """Get intrinsics dictionary on active variation."""
+        """Get intrinsics dictionary on active variation.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
+        >>> obj = SolutionData()
+        >>> obj.intrinsics
+
+        """
         if not self._intrinsics:
             self._compute_intrinsics()
         return self._intrinsics[self.variations.index(self.active_variation)]
 
     def intrinsics_by_variation(self, variation: int | dict) -> dict:
-        """Get intrinsics dictionary on active variation."""
+        """Get intrinsics dictionary on active variation.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
+        >>> obj = SolutionData()
+        >>> obj.intrinsics_by_variation(variation={"Name": "Value"})
+
+        """
         if not self._intrinsics:
             self._compute_intrinsics()
         if isinstance(variation, int):
@@ -212,7 +265,15 @@ class SolutionData(PyAedtBase):
 
     @property
     def nominal_variation(self):
-        """Nominal variation."""
+        """Nominal variation.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
+        >>> obj = SolutionData()
+        >>> obj.nominal_variation
+
+        """
         return self._nominal_variation
 
     @nominal_variation.setter
@@ -230,6 +291,13 @@ class SolutionData(PyAedtBase):
         ----------
         ps : float
             Perimeter of the source.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
+        >>> obj = SolutionData()
+        >>> obj.primary_sweep
+
         """
         return self._primary_sweep
 
@@ -240,7 +308,15 @@ class SolutionData(PyAedtBase):
 
     @property
     def expressions(self) -> list:
-        """Expressions."""
+        """Expressions.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
+        >>> obj = SolutionData()
+        >>> obj.expressions
+
+        """
         if not self._expressions:
             mydata = [i for i in self._nominal_variation.GetDataExpressions()]
             self._expressions = list(dict.fromkeys(mydata))
@@ -254,6 +330,13 @@ class SolutionData(PyAedtBase):
         -------
         dict
             Updated sweeps.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
+        >>> obj = SolutionData()
+        >>> obj.update_sweeps()
+
         """
         names = list(self.nominal_variation.GetSweepNames())
         for data in self._original_data:
@@ -286,7 +369,15 @@ class SolutionData(PyAedtBase):
 
     @pyaedt_function_handler()
     def init_solutions_data(self) -> None:
-        """Initialize the database and store info in variables."""
+        """Initialize the database and store info in variables.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
+        >>> obj = SolutionData()
+        >>> obj.init_solutions_data()
+
+        """
         self._solutions_real = self._init_solution_data_real()
         self._solutions_imag = self._init_solution_data_imag()
         self._solutions_mag = self._init_solution_data_mag()
@@ -375,6 +466,13 @@ class SolutionData(PyAedtBase):
         -------
         tuple of dicts
             (Real Dict, Imag Dict)
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
+        >>> obj = SolutionData()
+        >>> obj.full_matrix_real_imag
+
         """
         return self._solutions_real, self._solutions_imag
 
@@ -386,6 +484,13 @@ class SolutionData(PyAedtBase):
         -------
         tuple of dicts
             (Mag Dict, Phase Dict).
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
+        >>> obj = SolutionData()
+        >>> obj.full_matrix_mag_phase
+
         """
         return self._solutions_mag, self._solutions_phase
 
@@ -403,6 +508,12 @@ class SolutionData(PyAedtBase):
         -------
         list
             List of inputs in degrees.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
+        >>> obj = SolutionData()
+        >>> obj.to_degrees(input_list=[1, [2, 3]])
 
         """
         if isinstance(input_list, (tuple, list)):
@@ -424,6 +535,13 @@ class SolutionData(PyAedtBase):
         -------
         type
             List of inputs in radians.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
+        >>> obj = SolutionData()
+        >>> obj.to_radians(input_list=[1, [2, 3]])
+
         """
         if isinstance(input_list, (tuple, list)):
             return [i * 2 * math.pi / 360 for i in input_list]
@@ -474,6 +592,13 @@ class SolutionData(PyAedtBase):
         -------
         np.array
             List of the primary sweep valid points for the expression.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
+        >>> obj = SolutionData()
+        >>> obj.primary_sweep_values
+
         """
         return self.variation_values(self.primary_sweep)
 
@@ -481,8 +606,7 @@ class SolutionData(PyAedtBase):
     def lookup_column_value(
         array: np.ndarray, match_columns: list, match_values: list, output_column: int = -1
     ) -> np.ndarray | None:
-        """
-        Filters rows in a NumPy array based on column-value matches,
+        """Filters rows in a NumPy array based on column-value matches,
         and returns the last column value of all matching rows.
 
         Parameters
@@ -500,6 +624,13 @@ class SolutionData(PyAedtBase):
         -------
         np.ndarray or default
             Array of last column values for matching rows, or default if none found.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
+        >>> obj = SolutionData()
+        >>> obj.lookup_column_value(array=1, match_columns=["Box1"], match_values=["Box1"])
+
         """
         mask = np.ones(len(array), dtype=bool)
         for col, val in zip(match_columns, match_values):
@@ -547,6 +678,13 @@ class SolutionData(PyAedtBase):
         -------
         (np.array, np.array)
             X and Y data for the expression.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
+        >>> obj = SolutionData()
+        >>> obj.get_expression_data(expression="dB(S(1,1))", formula=1)
+
         """
         if not expression:
             expression = self.active_expression
@@ -637,6 +775,13 @@ class SolutionData(PyAedtBase):
         -------
         bool
             ``True`` if the Solution Data for specific expression contains only real values.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
+        >>> obj = SolutionData()
+        >>> obj.is_real_only(expression="dB(S(1,1))")
+
         """
         if not expression:
             expression = self.active_expression
@@ -657,6 +802,13 @@ class SolutionData(PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
+        >>> obj = SolutionData()
+        >>> obj.export_data_to_csv(output=1)
+
         """
         header = []
         des_var = self._original_data[0].GetDesignVariableNames()
@@ -720,6 +872,13 @@ class SolutionData(PyAedtBase):
         -------
         :class:`ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter`
             Report plotter class.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
+        >>> obj = SolutionData()
+        >>> obj.get_report_plotter(curves=["Box1"], formula=1)
+
         """
         from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 
@@ -794,6 +953,13 @@ class SolutionData(PyAedtBase):
         -------
         :class:`ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter`
             Matplotlib class object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
+        >>> obj = SolutionData()
+        >>> obj.plot(curves=["Box1"], formula=1)
+
         """
         props = {"x_label": x_label, "y_label": y_label}
         if "Phi" in self.units_sweeps.keys() and is_polar:
@@ -865,6 +1031,13 @@ class SolutionData(PyAedtBase):
         -------
         :class:`matplotlib.figure.Figure`
             Matplotlib figure object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
+        >>> obj = SolutionData()
+        >>> obj.plot_3d(curve=1, primary_sweep=1)
+
         """
         from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 
@@ -950,6 +1123,13 @@ class SolutionData(PyAedtBase):
         -------
         List
             IFFT Matrix.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
+        >>> obj = SolutionData()
+        >>> obj.ifft(curve_header=1, u_axis=["Box1"])
+
         """
         u = self.variation_values(u_axis)
         v = self.variation_values(v_axis)
@@ -1002,7 +1182,7 @@ class SolutionData(PyAedtBase):
         coord_system_center: list = None,
         db_val: bool = False,
         num_frames: int = None,
-        csv_path: str = None,
+        csv_path: str | Path | None = None,
         csv_file_header: str = "res_",
     ) -> str:
         """Save IFFT matrix to a list of CSV files (one per time step).
@@ -1028,7 +1208,20 @@ class SolutionData(PyAedtBase):
         -------
         str
             Path to file containing the list of csv files.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
+        >>> obj = SolutionData()
+        >>> obj.ifft_to_file(u_axis=["Box1"], v_axis=["Box1"])
+
         """
+        if csv_path is None:
+            settings.logger.warning("No path provided. Using default path: ./fft_csv_files/")
+            csv_path = Path("./fft_csv_files/")
+        else:
+            csv_path = Path(csv_path)
+
         if not coord_system_center:
             coord_system_center = [0, 0, 0]
         t_matrix = self._ifft
@@ -1043,15 +1236,15 @@ class SolutionData(PyAedtBase):
         else:
             frames = t_matrix.shape[0]
         csv_list = []
-        if os.path.exists(csv_path):
-            files = [os.path.join(csv_path, f) for f in os.listdir(csv_path) if csv_file_header in f and ".csv" in f]
+        if csv_path.exists():
+            files = [csv_path / f for f in csv_path.iterdir() if csv_file_header in str(f) and f.suffix == ".csv"]
             for file in files:
-                os.remove(file)
+                file.unlink()
         else:
-            os.mkdir(csv_path)
+            csv_path.mkdir(parents=True, exist_ok=True)
 
         for frame in range(frames):
-            output = os.path.join(csv_path, csv_file_header + str(frame) + ".csv")
+            output = csv_path / (csv_file_header + str(frame) + ".csv")
             list_full = [["x", "y", "z", "val"]]
             for i, y in enumerate(y_c_list):
                 for j, x in enumerate(x_c_list):
@@ -1064,13 +1257,13 @@ class SolutionData(PyAedtBase):
                         val = t_matrix[frame, i, j]
                     row_lst = [x_coord, y_coord, z_coord, val]
                     list_full.append(row_lst)
-            write_csv(output, list_full, delimiter=",")
+            write_csv(str(output), list_full, delimiter=",")
             csv_list.append(output)
 
-        txt_file_name = csv_path + "fft_list.txt"
+        txt_file_name = csv_path / "fft_list.txt"
         textfile = open_file(txt_file_name, "w")
-
         for element in csv_list:
-            textfile.write(element + "\n")
+            textfile.write(str(element) + "\n")
         textfile.close()
-        return txt_file_name
+
+        return str(txt_file_name)

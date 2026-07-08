@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -38,26 +38,48 @@ from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 # Extension batch arguments
 EXTENSION_DEFAULT_ARGUMENTS = {"choice": "Export to HFSS"}
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Export to 3D"
+"""Title displayed for the extension."""
 
 SUFFIXES = {"Export to HFSS": "HFSS", "Export to Q3D": "Q3D", "Export to Maxwell 3D": "M3D", "Export to Icepak": "IPK"}
+"""Supported suffixes."""
 
 
 @dataclass
 class ExportTo3DExtensionData(ExtensionCommonData):
-    """Data class containing user input and computed data."""
+    """Data class containing user input and computed data.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import ExportTo3DExtensionData
+    >>> data = ExportTo3DExtensionData(choice="Export to HFSS")
+
+    """
 
     choice: str = EXTENSION_DEFAULT_ARGUMENTS["choice"]
+    """Value for choice."""
 
 
 class ExportTo3DExtension(ExtensionHFSS3DLayoutCommon):
-    """Extension for exporting to 3D in AEDT."""
+    """Extension for exporting to 3D in AEDT.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import ExportTo3DExtension
+    >>> extension = ExportTo3DExtension(withdraw=True)
+
+    """
 
     def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with title and theme
@@ -88,7 +110,15 @@ class ExportTo3DExtension(ExtensionHFSS3DLayoutCommon):
             raise AEDTRuntimeError(msg)
 
     def add_extension_content(self) -> None:
-        """Add custom content to the extension UI."""
+        """Add custom content to the extension UI.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import ExportTo3DExtension
+        >>> extension = ExportTo3DExtension(withdraw=True)
+        >>> extension.add_extension_content()
+
+        """
         label = ttk.Label(self.root, text="Choose an option:", width=30, style="PyAEDT.TLabel")
         label.grid(row=0, column=0, columnspan=2, padx=15, pady=10)
 
@@ -121,7 +151,15 @@ class ExportTo3DExtension(ExtensionHFSS3DLayoutCommon):
 
 
 def main(data: ExportTo3DExtensionData) -> bool:
-    """Main function to run the export to 3D extension."""
+    """Main function to run the export to 3D extension.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import ExportTo3DExtensionData, main
+    >>> data = ExportTo3DExtensionData(choice="Export to HFSS")
+    >>> main(data)
+
+    """
     if not data.choice:
         raise AEDTRuntimeError("No choice provided to the extension.")
 
