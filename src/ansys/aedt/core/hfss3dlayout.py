@@ -24,13 +24,14 @@
 
 """The module contains the ``Hfss3dLayout`` class."""
 
+from __future__ import annotations
+
 import fnmatch
 import io
 import os
 from pathlib import Path
 import re
 from typing import TYPE_CHECKING
-from typing import Union
 
 from ansys.aedt.core.application.analysis_3d_layout import FieldAnalysis3DLayout
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
@@ -217,7 +218,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
     @pyaedt_function_handler()
     def create_edge_port(
         self,
-        assignment: Union[str, "Line3dLayout"],
+        assignment: str | "Line3dLayout",
         edge_number: int,
         is_circuit_port: bool | None = False,
         is_wave_port: bool | None = False,
@@ -1237,7 +1238,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         interpolation_tol_percent: float | None = 0.5,
         interpolation_max_solutions: int | None = 250,
         use_q3d_for_dc: bool | None = False,
-    ) -> Union["SweepHFSS3DLayout", bool]:
+    ) -> "SweepHFSS3DLayout" | bool:
         """Create a sweep with the specified number of points.
 
         Parameters
@@ -1351,7 +1352,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         interpolation_tol_percent: float | None = 0.5,
         interpolation_max_solutions: int | None = 250,
         use_q3d_for_dc: bool | None = False,
-    ) -> Union["SweepHFSS3DLayout", bool]:
+    ) -> "SweepHFSS3DLayout" | bool:
         """Create a sweep with the specified frequency step.
 
         Parameters
@@ -1459,7 +1460,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         name: str | None = None,
         save_fields: bool | None = False,
         save_rad_fields_only: bool | None = False,
-    ) -> Union["SweepHFSS", bool]:
+    ) -> SweepHFSS | bool:
         """Create a sweep with a single frequency point.
 
         Parameters

@@ -1999,9 +1999,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def create_single_point_sweep(
         self,
-        setup,
-        unit,
-        freq,
+        setup: str,
+        unit: str,
+        freq: float | list,
         name: str | None = None,
         save_single_field: bool = True,
         save_fields: bool = False,
@@ -2068,9 +2068,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             if freq:
                 add_subranges = True
 
-        if isinstance(save_single_field, list):
-            _ = save_single_field.pop(0)
-        else:
+        if not isinstance(save_single_field, list):
             save0 = save_single_field
             if add_subranges:
                 save_single_field = [save0] * len(freq)
