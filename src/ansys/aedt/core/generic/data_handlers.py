@@ -259,7 +259,7 @@ def format_decimals(el: float | int | str) -> str:
 
 
 @pyaedt_function_handler()
-def random_string(length: int = 6, only_digits: bool = False, char_set: str = None) -> str:
+def random_string(length: int = 6, only_digits: bool = False, char_set: str | None = None) -> str:
     """Generate a random string.
 
     Parameters

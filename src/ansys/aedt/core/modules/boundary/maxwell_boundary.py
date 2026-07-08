@@ -619,7 +619,9 @@ class MaxwellMatrix(MaxwellParameters):
         return self.__reduced_matrices
 
     @pyaedt_function_handler()
-    def join_series(self, sources: list, matrix_name: str = None, join_name: str = None) -> MaxwellReducedMatrix:
+    def join_series(
+        self, sources: list, matrix_name: str | None = None, join_name: str | None = None
+    ) -> MaxwellReducedMatrix:
         """Create matrix reduction by joining sources in series.
 
         Parameters
@@ -648,7 +650,9 @@ class MaxwellMatrix(MaxwellParameters):
         )
 
     @pyaedt_function_handler()
-    def join_parallel(self, sources: list, matrix_name: str = None, join_name: str = None) -> MaxwellReducedMatrix:
+    def join_parallel(
+        self, sources: list, matrix_name: str | None = None, join_name: str | None = None
+    ) -> MaxwellReducedMatrix:
         """Create matrix reduction by joining sources in parallel.
 
         Parameters
@@ -678,7 +682,7 @@ class MaxwellMatrix(MaxwellParameters):
 
     @pyaedt_function_handler()
     def _create_matrix_reduction(
-        self, red_type: str, sources: list, matrix_name: str = None, join_name: str = None
+        self, red_type: str, sources: list, matrix_name: str | None = None, join_name: str | None = None
     ) -> MaxwellReducedMatrix:
         if self._app.solution_type not in [SolutionsMaxwell3D.EddyCurrent, SolutionsMaxwell3D.ACMagnetic]:
             raise AEDTRuntimeError(r"Matrix reduction is available only in Eddy Current\AC Magnetic solver.")

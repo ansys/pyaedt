@@ -296,7 +296,7 @@ class VRTFieldPlot(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def export(self, path: str = None) -> str:
+    def export(self, path: str | None = None) -> str:
         """Export the Visual Ray Tracing to ``hdm`` file.
 
         Parameters

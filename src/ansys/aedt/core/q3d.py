@@ -321,7 +321,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
     @pyaedt_function_handler()
     def export_mesh_stats(
         self,
-        setup: str = None,
+        setup: str | None = None,
         variations: str | None = "",
         output_file: str | Path | None = None,
         setup_type: str | None = "CG",
@@ -888,7 +888,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
     @pyaedt_function_handler()
     def export_equivalent_circuit(
         self,
-        output_file: str = None,
+        output_file: str | None = None,
         setup: str | None = None,
         sweep: str | None = None,
         variations: list | str | None = None,
@@ -2196,10 +2196,10 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def get_mutual_coupling(
         self,
-        source1: str = None,
-        sink1: str = None,
-        source2: str = None,
-        sink2: str = None,
+        source1: str | None = None,
+        sink1: str | None = None,
+        source2: str | None = None,
+        sink2: str | None = None,
         calculation: str | None = "ACL",
         setup_sweep_name: str | None = None,
         variations: dict | None = None,

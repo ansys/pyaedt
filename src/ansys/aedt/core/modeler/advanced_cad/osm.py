@@ -573,7 +573,7 @@ class TerrainPrep(PyAedtBase):
 
 @pyaedt_function_handler()
 def convert_latlon_to_utm(
-    latitude: float, longitude: float, zone_letter: str = None, zone_number: int = None
+    latitude: float, longitude: float, zone_letter: str | None = None, zone_number: int = None
 ) -> tuple[float, float, str, int]:
     """Convert latitude and longitude to UTM (Universal Transverse Mercator) coordinates.
 
@@ -702,7 +702,7 @@ def convert_utm_to_latlon(
     east: float | int,
     north: float | int,
     zone_number: int,
-    zone_letter: str = None,
+    zone_letter: str | None = None,
     northern: bool = None,
 ) -> tuple[float, float]:
     """Convert UTM (Universal Transverse Mercator) coordinates to latitude and longitude.

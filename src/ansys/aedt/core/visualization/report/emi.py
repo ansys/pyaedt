@@ -345,7 +345,7 @@ class EMIReceiver(CommonReport):
             return [expressions]
 
     @pyaedt_function_handler()
-    def create(self, name: str = None) -> "EMIReceiver":
+    def create(self, name: str | None = None) -> "EMIReceiver":
         """Create an EMI receiver report.
 
         Parameters

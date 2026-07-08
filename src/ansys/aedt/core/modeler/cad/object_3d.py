@@ -3172,13 +3172,13 @@ class Object3d(PyAedtBase):
     @pyaedt_function_handler()
     def set_crosssection_properties(
         self,
-        section: str = None,
-        orient: str = None,
+        section: str | None = None,
+        orient: str | None = None,
         width: int = 0,
         topwidth: int = 0,
         height: int = 0,
         num_seg: int = 0,
-        bend_type: str = None,
+        bend_type: str | None = None,
     ) -> bool:
         """Set the properties of an existing polyline object.
 

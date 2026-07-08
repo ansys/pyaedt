@@ -1463,7 +1463,7 @@ class IcepakMesh(PyAedtBase):
         return meshops
 
     @pyaedt_function_handler()
-    def assign_mesh_level(self, mesh_order: dict, name: str = None) -> list[MeshOperation] | bool:
+    def assign_mesh_level(self, mesh_order: dict, name: str | None = None) -> list[MeshOperation] | bool:
         """Assign a mesh level to objects.
 
         Parameters
@@ -1509,7 +1509,7 @@ class IcepakMesh(PyAedtBase):
         return list_meshops
 
     @pyaedt_function_handler()
-    def assign_mesh_from_file(self, assignment: list, file_name: str, name: str = None) -> MeshOperation | bool:
+    def assign_mesh_from_file(self, assignment: list, file_name: str, name: str | None = None) -> MeshOperation | bool:
         """Assign a mesh from a file to objects.
 
         Parameters
@@ -1641,7 +1641,7 @@ class IcepakMesh(PyAedtBase):
 
     @pyaedt_function_handler()
     def assign_mesh_region(
-        self, assignment: list = None, level: int = 5, name: str = None, **kwargs
+        self, assignment: list = None, level: int = 5, name: str | None = None, **kwargs
     ) -> MeshRegion | bool:
         """Assign a predefined surface mesh level to an object.
 
@@ -1694,7 +1694,7 @@ class IcepakMesh(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def generate_mesh(self, name: str = None) -> bool:
+    def generate_mesh(self, name: str | None = None) -> bool:
         """Generate the mesh for a given setup name.
 
         Parameters
@@ -1729,7 +1729,7 @@ class IcepakMesh(PyAedtBase):
         group_name: str,
         enable_local_mesh_parameters: bool = False,
         local_mesh_parameters: str = "No local mesh parameters",
-        name: str = None,
+        name: str | None = None,
     ) -> MeshOperation:
         """Assign a mesh level to a group.
 
@@ -1782,7 +1782,7 @@ class IcepakMesh(PyAedtBase):
         self.meshoperations.append(mop)
         return mop
 
-    def assign_mesh_reuse(self, assignment: list, mesh_file: str, name: str = None) -> MeshOperation | bool:
+    def assign_mesh_reuse(self, assignment: list, mesh_file: str, name: str | None = None) -> MeshOperation | bool:
         """Assign a mesh file to objects.
 
         Parameters

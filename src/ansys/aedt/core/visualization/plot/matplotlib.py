@@ -1252,7 +1252,7 @@ class ReportPlotter(PyAedtBase):
         self,
         text: str,
         position: tuple = (0, 1),
-        back_color: tuple | str = None,
+        back_color: tuple | str | None = None,
         background_visibility: bool = None,
         border_width: float = None,
         font: str = "Arial",
@@ -1302,7 +1302,7 @@ class ReportPlotter(PyAedtBase):
 
     @pyaedt_function_handler()
     def add_limit_line(
-        self, plot_data: list, hatch_above: bool = True, properties: dict = None, name: str = ""
+        self, plot_data: list, hatch_above: bool = True, properties: dict | None = None, name: str = ""
     ) -> bool:
         """Add a new limit_line to the chart.
 
@@ -1378,7 +1378,7 @@ class ReportPlotter(PyAedtBase):
         self._eye_mask.eye_transparency = properties.get("transparency", 0.3)
 
     @pyaedt_function_handler()
-    def add_trace(self, plot_data: list, data_type: int = 0, properties: dict = None, name: str = "") -> bool:
+    def add_trace(self, plot_data: list, data_type: int = 0, properties: dict | None = None, name: str = "") -> bool:
         """Add a new trace to the chart.
 
         Parameters
@@ -1540,9 +1540,9 @@ class ReportPlotter(PyAedtBase):
     @pyaedt_function_handler()
     def plot_polar(
         self,
-        traces: list | int | str = None,
+        traces: list | int | str | None = None,
         to_polar: bool = False,
-        snapshot_path: str = None,
+        snapshot_path: str | None = None,
         show: bool = True,
         is_degree: bool = True,
         figure: plt.Figure = None,
@@ -1628,7 +1628,7 @@ class ReportPlotter(PyAedtBase):
     def plot_3d(
         self,
         trace: int = 0,
-        snapshot_path: str = None,
+        snapshot_path: str | None = None,
         show: bool = True,
         color_map_limits: list = None,
         is_polar: bool = True,
@@ -1751,7 +1751,11 @@ class ReportPlotter(PyAedtBase):
 
     @pyaedt_function_handler()
     def plot_2d(
-        self, traces: list | int | str = None, snapshot_path: str = None, show: bool = True, figure: plt.Figure = None
+        self,
+        traces: list | int | str | None = None,
+        snapshot_path: str | None = None,
+        show: bool = True,
+        figure: plt.Figure = None,
     ) -> plt.Figure | bool:
         """Create a Matplotlib figure based on a list of data.
 
@@ -1853,7 +1857,11 @@ class ReportPlotter(PyAedtBase):
 
     @pyaedt_function_handler()
     def animate_2d(
-        self, traces: list | int | str = None, snapshot_path: str = None, show: bool = True, figure: plt.Figure = None
+        self,
+        traces: list | int | str | None = None,
+        snapshot_path: str | None = None,
+        show: bool = True,
+        figure: plt.Figure = None,
     ) -> plt.Figure | bool:
         """Create an animated Matplotlib figure based on a list of data.
 
@@ -1929,7 +1937,7 @@ class ReportPlotter(PyAedtBase):
     @pyaedt_function_handler()
     def plot_eye_diagram(
         self,
-        snapshot_path: str = None,
+        snapshot_path: str | None = None,
         show: bool = True,
         is_contour=False,
         filter_colormap=1e-6,
@@ -2225,8 +2233,8 @@ class ReportPlotter(PyAedtBase):
         levels: int = 64,
         max_theta: int = 360,
         min_theta: int = 0,
-        color_bar: str = None,
-        snapshot_path: str = None,
+        color_bar: str | None = None,
+        snapshot_path: str | None = None,
         show: bool = True,
         figure: plt.Figure = None,
         is_spherical: bool = True,
@@ -2331,8 +2339,8 @@ class ReportPlotter(PyAedtBase):
     def plot_pcolor(
         self,
         trace: int = 0,
-        color_bar: str = None,
-        snapshot_path: str = None,
+        color_bar: str | None = None,
+        snapshot_path: str | None = None,
         show: bool = True,
         figure: plt.Figure = None,
     ) -> plt.Figure | bool:
@@ -2409,8 +2417,8 @@ class ReportPlotter(PyAedtBase):
         levels: int = 64,
         max_theta: int = 180,
         min_theta: int = 0,
-        color_bar: str = None,
-        snapshot_path: str = None,
+        color_bar: str | None = None,
+        snapshot_path: str | None = None,
         show: bool = True,
         figure: plt.Figure = None,
         is_spherical: bool = True,
@@ -2536,7 +2544,7 @@ def plot_matplotlib(
     xlabel: str = "",
     ylabel: str = "",
     title: str = "",
-    snapshot_path: str = None,
+    snapshot_path: str | None = None,
     x_limits: list = None,
     y_limits: list = None,
     axis_equal: bool = False,

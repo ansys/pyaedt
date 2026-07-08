@@ -1298,7 +1298,7 @@ class FieldPlot(PyAedtBase):
         cutplanes: list = None,
         solution: str = "",
         quantity: str = "",
-        intrinsics: dict = None,
+        intrinsics: dict | None = None,
         seeding_faces: list = None,
         layer_nets: list = None,
         layer_plot_type: str = "LayerNetsExtFace",

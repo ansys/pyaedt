@@ -197,7 +197,7 @@ class Results:
         return [rev.name for rev in self.revisions]
 
     @pyaedt_function_handler
-    def get_revision(self, revision_name: str = None) -> Revision:
+    def get_revision(self, revision_name: str | None = None) -> Revision:
         """Load the specified revision.
 
         Parameters

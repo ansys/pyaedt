@@ -308,7 +308,7 @@ class Monitor(PyAedtBase):
 
     @pyaedt_function_handler()
     def assign_point_monitor(
-        self, point_position: list | str, monitor_quantity: str = "Temperature", monitor_name: str = None
+        self, point_position: list | str, monitor_quantity: str = "Temperature", monitor_name: str | None = None
     ) -> str | list | bool:
         """Create and assign a point monitor.
 
@@ -390,7 +390,7 @@ class Monitor(PyAedtBase):
 
     @pyaedt_function_handler()
     def assign_point_monitor_to_vertex(
-        self, vertex_id: int | list, monitor_quantity: str = "Temperature", monitor_name: str = None
+        self, vertex_id: int | list, monitor_quantity: str = "Temperature", monitor_name: str | None = None
     ) -> str | list | bool:
         """Create and assign a point monitor to a vertex.
 
@@ -444,7 +444,7 @@ class Monitor(PyAedtBase):
 
     @pyaedt_function_handler()
     def assign_surface_monitor(
-        self, surface_name: str | list, monitor_quantity: str = "Temperature", monitor_name: str = None
+        self, surface_name: str | list, monitor_quantity: str = "Temperature", monitor_name: str | None = None
     ) -> str | list | bool:
         """Assign a surface monitor.
 
@@ -502,7 +502,7 @@ class Monitor(PyAedtBase):
 
     @pyaedt_function_handler()
     def assign_face_monitor(
-        self, face_id: int | list, monitor_quantity: str = "Temperature", monitor_name: str = None
+        self, face_id: int | list, monitor_quantity: str = "Temperature", monitor_name: str | None = None
     ) -> str | list | bool:
         """Assign a face monitor.
 
@@ -557,7 +557,7 @@ class Monitor(PyAedtBase):
 
     @pyaedt_function_handler()
     def assign_point_monitor_in_object(
-        self, name: str | list, monitor_quantity: str = "Temperature", monitor_name: str = None
+        self, name: str | list, monitor_quantity: str = "Temperature", monitor_name: str | None = None
     ) -> str | list | bool:
         """Assign a point monitor in the centroid of a specific object.
 

@@ -228,7 +228,7 @@ class PostProcessorCommon(PyAedtBase):
             )
 
     @pyaedt_function_handler()
-    def available_display_types(self, report_category: str = None) -> list[str]:
+    def available_display_types(self, report_category: str | None = None) -> list[str]:
         """Retrieve display types for a report categories.
 
         Parameters
@@ -261,10 +261,10 @@ class PostProcessorCommon(PyAedtBase):
     @pyaedt_function_handler()
     def available_quantities_categories(
         self,
-        report_category: str = None,
-        display_type: str = None,
-        solution: str = None,
-        context: str | dict = None,
+        report_category: str | None = None,
+        display_type: str | None = None,
+        solution: str | None = None,
+        context: str | dict | None = None,
         is_siwave_dc: bool = False,
     ) -> list:
         """Compute the list of all available report categories.
@@ -349,11 +349,11 @@ class PostProcessorCommon(PyAedtBase):
     @pyaedt_function_handler()
     def available_report_quantities(
         self,
-        report_category: str = None,
-        display_type: str = None,
-        solution: str = None,
-        quantities_category: str = None,
-        context: str | dict = None,
+        report_category: str | None = None,
+        display_type: str | None = None,
+        solution: str | None = None,
+        quantities_category: str | None = None,
+        context: str | dict | None = None,
         is_siwave_dc: bool = False,
         differential_pairs: bool = False,
     ) -> list:
@@ -555,8 +555,8 @@ class PostProcessorCommon(PyAedtBase):
     @pyaedt_function_handler()
     def get_all_report_quantities(
         self,
-        solution: str = None,
-        context: str | dict = None,
+        solution: str | None = None,
+        context: str | dict | None = None,
         is_siwave_dc: bool = False,
     ) -> dict:
         """Return all the possible report categories organized by report types, solution and categories.
@@ -618,7 +618,7 @@ class PostProcessorCommon(PyAedtBase):
         return rep_quantities
 
     @pyaedt_function_handler()
-    def available_report_solutions(self, report_category: str = None) -> list:
+    def available_report_solutions(self, report_category: str | None = None) -> list:
         """Get the list of available solutions that can be used for the reports.
 
         This list differs from the one obtained with ``app.existing_analysis_sweeps``,
@@ -856,7 +856,7 @@ class PostProcessorCommon(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def delete_report(self, plot_name: str = None) -> bool:
+    def delete_report(self, plot_name: str | None = None) -> bool:
         """Delete all reports or specific report.
 
         Parameters
@@ -934,8 +934,8 @@ class PostProcessorCommon(PyAedtBase):
         self,
         solution_type: str = "Far Fields",
         setup_sweep_name: str = "",
-        context: str | dict = None,
-        sweeps: dict = None,
+        context: str | dict | None = None,
+        sweeps: dict | None = None,
         expressions: str = "",
     ) -> SolutionData | None:
         """Retrieve solution data for each variation.
@@ -1038,9 +1038,9 @@ class PostProcessorCommon(PyAedtBase):
         extension: str,
         unique_file: bool = False,
         uniform: bool = False,
-        start: str = None,
-        end: str = None,
-        step: str = None,
+        start: str | None = None,
+        end: str | None = None,
+        step: str | None = None,
         use_trace_number_format: bool = False,
     ) -> str:
         """Export a 2D Plot data to a file.
@@ -1128,9 +1128,9 @@ class PostProcessorCommon(PyAedtBase):
         project_dir: str,
         plot_name: str,
         uniform: bool = False,
-        start: str = None,
-        end: str = None,
-        step: str = None,
+        start: str | None = None,
+        end: str | None = None,
+        step: str | None = None,
         use_trace_number_format: bool = False,
     ) -> str:
         """Export the 2D Plot data to a CSV file.
@@ -1626,21 +1626,21 @@ class PostProcessorCommon(PyAedtBase):
     def create_report(
         self,
         expressions: str | list = None,
-        setup_sweep_name: str = None,
+        setup_sweep_name: str | None = None,
         domain: str = "Sweep",
-        variations: dict = None,
-        primary_sweep_variable: str = None,
-        secondary_sweep_variable: str = None,
-        report_category: str = None,
+        variations: dict | None = None,
+        primary_sweep_variable: str | None = None,
+        secondary_sweep_variable: str | None = None,
+        report_category: str | None = None,
         plot_type: str = "Rectangular Plot",
-        context: str | dict = None,
+        context: str | dict | None = None,
         subdesign_id: int = None,
         polyline_points: int = 1001,
-        plot_name: str = None,
+        plot_name: str | None = None,
         matplotlib: bool = False,
         show: bool = True,
         hide_legend: bool = False,
-        snapshot_path: str = None,
+        snapshot_path: str | None = None,
         width: int = 800,
         height: int = 450,
     ) -> (
@@ -2008,14 +2008,14 @@ class PostProcessorCommon(PyAedtBase):
     @pyaedt_function_handler()
     def create_report_from_configuration(
         self,
-        input_file: str = None,
-        report_settings: dict = None,
-        solution_name: str = None,
-        name: str = None,
+        input_file: str | None = None,
+        report_settings: dict | None = None,
+        solution_name: str | None = None,
+        name: str | None = None,
         matplotlib: bool = False,
         show: bool = True,
         hide_legend: bool = False,
-        snapshot_path: str = None,
+        snapshot_path: str | None = None,
         width: int = 800,
         height: int = 450,
     ) -> (
@@ -2512,7 +2512,7 @@ class Reports(PyAedtBase):
         )
 
     @pyaedt_function_handler()
-    def standard(self, expressions: str | list = None, setup: str = None) -> Standard:
+    def standard(self, expressions: str | list = None, setup: str | None = None) -> Standard:
         """Create a standard or default report object.
 
         Parameters
@@ -2552,7 +2552,7 @@ class Reports(PyAedtBase):
         return rep
 
     @pyaedt_function_handler()
-    def monitor(self, expressions: str | list = None, setup: str = None) -> Standard:
+    def monitor(self, expressions: str | list = None, setup: str | None = None) -> Standard:
         """Create an Icepak Monitor Report object.
 
         Parameters
@@ -2587,7 +2587,7 @@ class Reports(PyAedtBase):
         return rep
 
     @pyaedt_function_handler()
-    def fields(self, expressions: str | list = None, setup: str = None, polyline: str = None) -> Fields:
+    def fields(self, expressions: str | list = None, setup: str | None = None, polyline: str | None = None) -> Fields:
         """Create a Field Report object.
 
         Parameters
@@ -2629,7 +2629,9 @@ class Reports(PyAedtBase):
         return rep
 
     @pyaedt_function_handler()
-    def cg_fields(self, expressions: str | list = None, setup: str | None = None, polyline: str = None) -> Fields:
+    def cg_fields(
+        self, expressions: str | list = None, setup: str | None = None, polyline: str | None = None
+    ) -> Fields:
         """Create a CG Field Report object in Q3D and Q2D.
 
         Parameters
@@ -2670,7 +2672,9 @@ class Reports(PyAedtBase):
         return rep
 
     @pyaedt_function_handler()
-    def dc_fields(self, expressions: str | list = None, setup: str | None = None, polyline: str = None) -> Fields:
+    def dc_fields(
+        self, expressions: str | list = None, setup: str | None = None, polyline: str | None = None
+    ) -> Fields:
         """Create a DC Field Report object in Q3D.
 
         Parameters
@@ -2711,7 +2715,9 @@ class Reports(PyAedtBase):
         return rep
 
     @pyaedt_function_handler()
-    def rl_fields(self, expressions: str | list = None, setup: str | None = None, polyline: str = None) -> Fields:
+    def rl_fields(
+        self, expressions: str | list = None, setup: str | None = None, polyline: str | None = None
+    ) -> Fields:
         """Create an AC RL Field Report object in Q3D and Q2D.
 
         Parameters
@@ -2759,8 +2765,8 @@ class Reports(PyAedtBase):
         self,
         expressions: str | list = None,
         setup: str | None = None,
-        sphere_name: str = None,
-        source_context: str = None,
+        sphere_name: str | None = None,
+        source_context: str | None = None,
         **variations,
     ) -> FarField:
         """Create a Far Field Report object.
@@ -2814,7 +2820,7 @@ class Reports(PyAedtBase):
 
     @pyaedt_function_handler()
     def antenna_parameters(
-        self, expressions: str | list = None, setup: str | None = None, infinite_sphere: str = None
+        self, expressions: str | list = None, setup: str | None = None, infinite_sphere: str | None = None
     ) -> AntennaParameters:
         """Create an Antenna Parameters Report object.
 
@@ -3121,7 +3127,7 @@ class Reports(PyAedtBase):
         return rep
 
     @pyaedt_function_handler()
-    def spectral(self, expressions: str | list = None, setup: str = None) -> Spectral:
+    def spectral(self, expressions: str | list = None, setup: str | None = None) -> Spectral:
         """Create a Spectral Report object.
 
         Parameters
@@ -3157,7 +3163,7 @@ class Reports(PyAedtBase):
         return rep
 
     @pyaedt_function_handler()
-    def emi_receiver(self, expressions: str | list = None, setup_name: str = None) -> EMIReceiver:
+    def emi_receiver(self, expressions: str | list = None, setup_name: str | None = None) -> EMIReceiver:
         """Create an EMI receiver report.
 
         Parameters
@@ -3204,7 +3210,9 @@ class Reports(PyAedtBase):
         return rep
 
     @pyaedt_function_handler()
-    def circuit_netlist(self, setup: str, expressions: str | list = None, domain: str = None) -> CircuitNetlistReport:
+    def circuit_netlist(
+        self, setup: str, expressions: str | list = None, domain: str | None = None
+    ) -> CircuitNetlistReport:
         """Create a Circuit Netlist Report object.
 
         Parameters

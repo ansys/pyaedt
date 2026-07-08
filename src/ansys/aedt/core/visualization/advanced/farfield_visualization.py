@@ -997,9 +997,9 @@ class FfdSolutionData(PyAedtBase):
         quantity: str = "RealizedGain",
         phi: int = 0,
         theta: int = 0,
-        title: str = None,
+        title: str | None = None,
         quantity_format: str = "dB10",
-        output_file: str = None,
+        output_file: str | None = None,
         levels: int = 64,
         polar: bool = True,
         max_theta: int = 180,
@@ -1105,7 +1105,7 @@ class FfdSolutionData(PyAedtBase):
         theta: int = 0,
         title: str = "Far Field Cut",
         quantity_format: str = "dB10",
-        output_file: str = None,
+        output_file: str | None = None,
         show: bool = True,
         is_polar: bool = False,
         show_legend: bool = True,
@@ -1227,7 +1227,7 @@ class FfdSolutionData(PyAedtBase):
         theta: int = 0,
         title: str = "3D Plot",
         quantity_format: str = "dB10",
-        output_file: str = None,
+        output_file: str | None = None,
         show: bool = True,
     ) -> "ReportPlotter":
         """Create a 3D chart of a specified quantity in Matplotlib.
@@ -1310,11 +1310,11 @@ class FfdSolutionData(PyAedtBase):
         quantity: str = "RealizedGain",
         quantity_format: str = "dB10",
         rotation: np.ndarray = None,
-        output_file: str = None,
+        output_file: str | None = None,
         show: bool = True,
         show_as_standalone: bool = False,
         pyvista_object: "Plotter" = None,
-        background: list | str = None,
+        background: list | str | None = None,
         scale_farfield: list = None,
         show_beam_slider: bool = True,
         show_geometry: bool = True,
@@ -1881,10 +1881,10 @@ class UpdateBeamForm(PyAedtBase):
 def export_pyaedt_antenna_metadata(
     input_file: str,
     output_dir: str,
-    variation: str = None,
-    model_info: dict = None,
-    power: dict = None,
-    touchstone_file: str = None,
+    variation: str | None = None,
+    model_info: dict | None = None,
+    power: dict | None = None,
+    touchstone_file: str | None = None,
 ) -> str:
     """Obtain PyAEDT metadata JSON file from AEDT metadata XML file or embedded element pattern TXT file.
 

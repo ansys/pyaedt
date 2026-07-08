@@ -172,8 +172,8 @@ class Design(AedtObjects, PyAedtBase):
         self,
         design_type: str,
         project_name: str | Path = None,
-        design_name: str = None,
-        solution_type: str = None,
+        design_name: str | None = None,
+        solution_type: str | None = None,
         version: str | int | float = None,
         non_graphical: bool = False,
         new_desktop: bool = False,
@@ -185,9 +185,9 @@ class Design(AedtObjects, PyAedtBase):
         ic_mode: bool = None,
         remove_lock: bool = False,
     ):
-        self._design_name: str = None
-        self._project_name: str = None
-        self._project_path: str = None
+        self._design_name: str | None = None
+        self._project_name: str | None = None
+        self._project_path: str | None = None
         self.__t: threading.Thread = None
         if isinstance(project_name, Path):
             project_name = str(project_name)
@@ -203,7 +203,7 @@ class Design(AedtObjects, PyAedtBase):
         self._ic_mode: bool = ic_mode
         self.last_run_log: str = ""
         self.last_run_job: str = ""
-        self._design_dictionary: dict = None
+        self._design_dictionary: dict | None = None
         self._project_dictionary: dict = {}
         self._boundaries: dict = {}
         self._project_datasets: list = []
@@ -363,7 +363,7 @@ class Design(AedtObjects, PyAedtBase):
         """
         return self._pyaedt_details
 
-    def _init_design(self, project_name: str, design_name: str, solution_type: str = None):
+    def _init_design(self, project_name: str, design_name: str, solution_type: str | None = None):
         """Initializes a new design.
 
         Parameters
@@ -1524,7 +1524,7 @@ class Design(AedtObjects, PyAedtBase):
         return self._oproject
 
     @oproject.setter
-    def oproject(self, proj_name: str = None) -> None:
+    def oproject(self, proj_name: str | None = None) -> None:
         if not proj_name:
             self._oproject = self.desktop_class.active_project()
             if self._oproject:
@@ -1689,7 +1689,7 @@ class Design(AedtObjects, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def get_profile(self, name: str = None) -> Profiles:
+    def get_profile(self, name: str | None = None) -> Profiles:
         """Get profile information.
 
         Parameters
@@ -1751,7 +1751,7 @@ class Design(AedtObjects, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def get_oo_name(self, aedt_object: object, object_name: str = None) -> list[str]:
+    def get_oo_name(self, aedt_object: object, object_name: str | None = None) -> list[str]:
         """Return the object-oriented AEDT property names.
 
         Parameters
@@ -1902,7 +1902,7 @@ class Design(AedtObjects, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def export_profile(self, setup: str, variation: str = "", output_file: str = None) -> str:
+    def export_profile(self, setup: str, variation: str = "", output_file: str | None = None) -> str:
         """Export a solution profile to a PROF file.
 
         Parameters
@@ -3331,7 +3331,7 @@ class Design(AedtObjects, PyAedtBase):
     def import_dataset1d(
         self,
         input_file: str | Path,
-        name: str = None,
+        name: str | None = None,
         is_project_dataset: bool = True,
         sort: bool = True,
     ) -> DataSet:
@@ -3403,7 +3403,7 @@ class Design(AedtObjects, PyAedtBase):
     def import_dataset3d(
         self,
         input_file: str | Path,
-        name: str = None,
+        name: str | None = None,
         encoding: str = "utf-8-sig",
         is_project_dataset: bool = True,
         sort: bool = True,
@@ -3770,7 +3770,7 @@ class Design(AedtObjects, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def clean_proj_folder(self, directory: str | Path = None, name: str = None) -> bool:
+    def clean_proj_folder(self, directory: str | Path = None, name: str | None = None) -> bool:
         """Delete a project folder.
 
         Parameters
@@ -3877,7 +3877,7 @@ class Design(AedtObjects, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def close_project(self, name: str = None, save: bool = True) -> bool:
+    def close_project(self, name: str | None = None, save: bool = True) -> bool:
         """Close an AEDT project.
 
         Parameters
@@ -3959,7 +3959,7 @@ class Design(AedtObjects, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def delete_design(self, name: str = None, fallback_design: str = None) -> bool:
+    def delete_design(self, name: str | None = None, fallback_design: str | None = None) -> bool:
         """Delete a design from the current project.
 
         .. warning::
@@ -4084,7 +4084,7 @@ class Design(AedtObjects, PyAedtBase):
         return self.variable_manager.delete_unused_variables()
 
     @pyaedt_function_handler()
-    def insert_design(self, name: str = None, solution_type: str = None) -> str:
+    def insert_design(self, name: str | None = None, solution_type: str | None = None) -> str:
         """Add a design of a specified type.
 
         The default design type is taken from the derived application class.
@@ -4677,7 +4677,7 @@ class Design(AedtObjects, PyAedtBase):
             return self._odesign.ValidateDesign()
 
     @pyaedt_function_handler()
-    def get_evaluated_value(self, name: str, units: str = None) -> float:
+    def get_evaluated_value(self, name: str, units: str | None = None) -> float:
         """Retrieve the evaluated value of a design property or project variable in SI units if no unit is provided.
 
         Parameters
@@ -4900,7 +4900,7 @@ class Design(AedtObjects, PyAedtBase):
             return expression
 
     @pyaedt_function_handler()
-    def design_variation(self, variation: str = None) -> str:
+    def design_variation(self, variation: str | None = None) -> str:
         """Generate a string to specify a desired variation.
 
         This method converts an input string defining a desired solution variation into a valid

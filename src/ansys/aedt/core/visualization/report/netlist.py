@@ -269,7 +269,7 @@ class CircuitNetlistReport(CommonReport):
         return ctxt
 
     @pyaedt_function_handler()
-    def create(self, name: str = None) -> bool:
+    def create(self, name: str | None = None) -> bool:
         """Create a report.
 
         Parameters

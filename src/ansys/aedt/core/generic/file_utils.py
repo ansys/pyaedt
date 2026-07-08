@@ -56,7 +56,7 @@ is_windows = not is_linux
 
 # Path processing
 @pyaedt_function_handler()
-def normalize_path(input_dir: str | Path, sep: str = None) -> str:
+def normalize_path(input_dir: str | Path, sep: str | None = None) -> str:
     """Normalize path separators.
 
     Parameters
@@ -303,7 +303,7 @@ def generate_unique_name(root_name: str | None, suffix: str = "", n: int = 6) ->
 
 
 @pyaedt_function_handler()
-def generate_unique_folder_name(root_name: str = None, folder_name: str = None) -> str:
+def generate_unique_folder_name(root_name: str | None = None, folder_name: str | None = None) -> str:
     """Generate a new AEDT folder name given a root name.
 
     Parameters
@@ -341,7 +341,10 @@ def generate_unique_folder_name(root_name: str = None, folder_name: str = None) 
 
 @pyaedt_function_handler()
 def generate_unique_project_name(
-    root_name: str = None, folder_name: str = None, project_name: str = None, project_format: str = "aedt"
+    root_name: str | None = None,
+    folder_name: str | None = None,
+    project_name: str | None = None,
+    project_format: str = "aedt",
 ):
     """Generate a new AEDT project name given a root name.
 
@@ -453,7 +456,7 @@ def recursive_glob(path: str | Path, file_pattern: str):
 
 @pyaedt_function_handler()
 def open_file(
-    file_path: str | Path, file_options: str = "r", encoding: str = None, override_existing: bool = True
+    file_path: str | Path, file_options: str = "r", encoding: str | None = None, override_existing: bool = True
 ) -> TextIO | None:
     """Open a file and return the object.
 
@@ -1053,7 +1056,7 @@ def write_configuration_file(input_data: dict, output_file: str | Path) -> bool:
 # Operators
 @pyaedt_function_handler()
 def compute_fft(
-    time_values: "pandas.Series", data_values: "pandas.Series", window: str = None
+    time_values: "pandas.Series", data_values: "pandas.Series", window: str | None = None
 ) -> tuple | bool:  # pragma: no cover
     """Compute FFT of input transient data.
 
@@ -1278,7 +1281,7 @@ def _create_toml_file(input_dict, full_toml_path) -> bool:
     return True
 
 
-def _uname(name: str = None) -> str:
+def _uname(name: str | None = None) -> str:
     """Append a 6-digit hash code to a specified name.
 
     Parameters

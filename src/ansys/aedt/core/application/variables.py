@@ -159,10 +159,10 @@ class CSVDataset(PyAedtBase):
 
     def __init__(
         self,
-        csv_file: str = None,
-        separator: str = None,
-        units_dict: dict = None,
-        append_dict: dict = None,
+        csv_file: str | None = None,
+        separator: str | None = None,
+        units_dict: dict | None = None,
+        append_dict: dict | None = None,
     ):
         self._header = []
         self._data = {}
@@ -1105,10 +1105,10 @@ class VariableManager(PyAedtBase):
     def set_variable(
         self,
         name: str,
-        expression: str = None,
+        expression: str | None = None,
         read_only: bool = False,
         hidden: bool = False,
-        description: str = None,
+        description: str | None = None,
         sweep: bool = True,
         overwrite: bool = True,
         is_post_processing: bool = False,
@@ -1651,15 +1651,15 @@ class Variable(PyAedtBase):
     def __init__(
         self,
         expression: float | str,
-        units: str = None,
+        units: str | None = None,
         si_value: float = None,
-        full_variables: dict = None,
-        name: str = None,
+        full_variables: dict | None = None,
+        name: str | None = None,
         app=None,
         readonly: bool = False,
         hidden: bool = False,
         sweep: bool = True,
-        description: str = None,
+        description: str | None = None,
         postprocessing: bool = False,
         circuit_parameter: bool = True,
     ):
@@ -2637,7 +2637,7 @@ class Variable(PyAedtBase):
         return self._units
 
     @pyaedt_function_handler()
-    def __to_si(self, numeric: float, units: str = None) -> float:
+    def __to_si(self, numeric: float, units: str | None = None) -> float:
         """Convert a numeric value from the given units to SI units.
 
         Parameters
@@ -2672,7 +2672,7 @@ class Variable(PyAedtBase):
             return numeric * scale
 
     @pyaedt_function_handler()
-    def __from_si(self, si_numeric: float, units: str = None) -> float:
+    def __from_si(self, si_numeric: float, units: str | None = None) -> float:
         """Convert a numeric value from SI units to the given units.
 
         Parameters
@@ -3018,7 +3018,7 @@ class DataSet(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def export(self, output_dir: str = None) -> bool:
+    def export(self, output_dir: str | None = None) -> bool:
         """Export the dataset.
 
         Parameters

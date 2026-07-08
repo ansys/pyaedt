@@ -704,7 +704,7 @@ class ComponentArray(PyAedtBase):
 
     @pyaedt_function_handler()
     @min_aedt_version("2024.1")
-    def export_array_info(self, output_file: str = None) -> str:  # pragma: no cover
+    def export_array_info(self, output_file: str | None = None) -> str:  # pragma: no cover
         """Export array information to a CSV file.
 
         Returns

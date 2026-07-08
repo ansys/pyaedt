@@ -437,8 +437,8 @@ class SpiSim(PyAedtBase):
     @pyaedt_function_handler()
     def compute_erl(
         self,
-        config_file: str = None,
-        port_order: str = None,
+        config_file: str | None = None,
+        port_order: str | None = None,
         specify_through_ports: list = None,
         bandwidth: float = None,
         tdr_duration: float = None,
@@ -451,7 +451,7 @@ class SpiSim(PyAedtBase):
         signal_loss_factor: float = None,
         permitted_reflection: float = None,
         reflections_length: float = None,
-        modulation_type: str = None,
+        modulation_type: str | None = None,
         compute_retries: int = 3,
     ) -> bool | float:
         """Compute effective return loss (ERL) using Ansys SPISIM from S-parameter file.
@@ -700,7 +700,7 @@ class SpiSim(PyAedtBase):
     def compute_com(
         self,
         standard: int = 1,
-        config_file: str = None,
+        config_file: str | None = None,
         port_order: str = "EvenOdd",
         fext_s4p: str = "",
         next_s4p: str = "",
@@ -840,7 +840,7 @@ class SpiSim(PyAedtBase):
         rx_capacitance: str = "0.2p",
         packaging_type: str = "standard",
         data_rate: str = "GTS04",
-        report_directory: str = None,
+        report_directory: str | None = None,
     ) -> bool:
         """Universal Chiplet Interface Express (UCIe) Compliance support.
 
@@ -1210,7 +1210,7 @@ class SpiSimRawRead(PyAedtBase):
         self.raw_params["No. Variables"] = self.nVariables
         self.raw_params["Variables"] = [var.name for var in self._traces]
 
-    def get_raw_property(self, property_name: str = None) -> str | dict:
+    def get_raw_property(self, property_name: str | None = None) -> str | dict:
         """Get a property. By default, it returns all properties defined in the RAW file.
 
         :param property_name: name of the property to retrieve.

@@ -86,8 +86,8 @@ class AnalysisMaxwellCircuit(Analysis, PyAedtBase):
     def __init__(
         self,
         application: str,
-        project: str = None,
-        design: str = None,
+        project: str | None = None,
+        design: str | None = None,
         version: str | int | float = None,
         non_graphical: bool = False,
         new_desktop: bool = False,

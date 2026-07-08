@@ -64,7 +64,7 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
     @pyaedt_function_handler()
     def export_model_picture(
         self,
-        output_file: str = None,
+        output_file: str | None = None,
         page: int = 1,
         width: int = 1920,
         height: int = 1080,
@@ -118,7 +118,7 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
         plot_initial_response: bool = True,
         plot_intermediate_response: bool = False,
         plot_final_response: bool = False,
-        plot_name: str = None,
+        plot_name: str | None = None,
     ) -> str:
         """Create an AMI initial response plot.
 
@@ -236,7 +236,7 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
         ami_name: str,
         variation_list_w_value: list | dict,
         ami_plot_type: str = "InitialEye",
-        plot_name: str = None,
+        plot_name: str | None = None,
     ) -> str:
         """Create an AMI statistical eye plot.
 
@@ -356,7 +356,7 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_statistical_eye_plot(
-        self, setup: str, probe_names: str | list, variation_list_w_value: list | dict, plot_name: str = None
+        self, setup: str, probe_names: str | list, variation_list_w_value: list | dict, plot_name: str | None = None
     ) -> str:
         """Create a statistical QuickEye, VerifEye, and/or Statistical Eye plot.
 
@@ -569,7 +569,7 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
         variation_list_w_value: list | dict,
         unit_interval: float = 1e-9,
         ignore_bits: int = 0,
-        plot_type: str = None,
+        plot_type: str | None = None,
         clock_tics: list = None,
     ) -> list | None:
         """Sampling a waveform at clock times plus half unit interval.

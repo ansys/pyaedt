@@ -716,8 +716,8 @@ class Analysis(Design, PyAedtBase):
         self,
         get_self_terms: bool = True,
         get_mutual_terms: bool = True,
-        first_element_filter: str = None,
-        second_element_filter: str = None,
+        first_element_filter: str | None = None,
+        second_element_filter: str | None = None,
         category: str = "dB(S",
         differential_pairs: list = None,
     ) -> list:
@@ -785,7 +785,7 @@ class Analysis(Design, PyAedtBase):
         return list_output
 
     @pyaedt_function_handler()
-    def list_of_variations(self, setup: str = None, sweep: str = None) -> list[str]:
+    def list_of_variations(self, setup: str | None = None, sweep: str | None = None) -> list[str]:
         """Retrieve a list of active variations for input setup.
 
         Parameters
@@ -841,7 +841,7 @@ class Analysis(Design, PyAedtBase):
     @pyaedt_function_handler()
     def export_results(
         self,
-        export_folder: str = None,
+        export_folder: str | None = None,
         matrix_name: str = "Original",
         matrix_type: str = "S",
         touchstone_format: str = "MagPhase",
@@ -1088,7 +1088,7 @@ class Analysis(Design, PyAedtBase):
         return exported_files
 
     @pyaedt_function_handler()
-    def export_convergence(self, setup: str, variations: str = "", output_file: str = None) -> str:
+    def export_convergence(self, setup: str, variations: str = "", output_file: str | None = None) -> str:
         """Export a solution convergence to a file.
 
         Parameters
@@ -1319,7 +1319,7 @@ class Analysis(Design, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def generate_unique_setup_name(self, name: str = None) -> str:
+    def generate_unique_setup_name(self, name: str | None = None) -> str:
         """Generate a new setup with a unique name.
 
         Parameters
@@ -1651,7 +1651,7 @@ class Analysis(Design, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def get_output_variable(self, variable: str, solution: str = None):
+    def get_output_variable(self, variable: str, solution: str | None = None):
         """Retrieve the value of the output variable.
 
         Parameters
@@ -1741,11 +1741,11 @@ class Analysis(Design, PyAedtBase):
     @pyaedt_function_handler()
     def analyze(
         self,
-        setup: str = None,
+        setup: str | None = None,
         cores: int = None,
         tasks: int = None,
         gpus: int = None,
-        acf_file: str = None,
+        acf_file: str | None = None,
         use_auto_settings: bool = True,
         solve_in_batch: bool = False,
         machine: str = "localhost",
@@ -1827,7 +1827,7 @@ class Analysis(Design, PyAedtBase):
             )
 
     @pyaedt_function_handler()
-    def set_hpc_from_file(self, acf_file: str | Path = None, configuration_name: str = None) -> bool:
+    def set_hpc_from_file(self, acf_file: str | Path = None, configuration_name: str | None = None) -> bool:
         """Set custom HPC options from ACF file.
 
         Parameters
@@ -1983,11 +1983,11 @@ class Analysis(Design, PyAedtBase):
     @pyaedt_function_handler()
     def analyze_setup(
         self,
-        name: str = None,
+        name: str | None = None,
         cores: int = None,
         tasks: int = None,
         gpus: int = None,
-        acf_file: str = None,
+        acf_file: str | None = None,
         use_auto_settings: bool = True,
         num_variations_to_distribute: int = None,
         allowed_distribution_types: list = None,
@@ -2170,12 +2170,12 @@ class Analysis(Design, PyAedtBase):
     @pyaedt_function_handler()
     def solve_in_batch(
         self,
-        file_name: str = None,
+        file_name: str | None = None,
         machine: str = "localhost",
         run_in_thread: bool = False,
         cores: int = 4,
         tasks: int = 1,
-        setup: str = None,
+        setup: str | None = None,
         revert_to_initial_mesh: bool = False,
         blocking: bool = True,
     ) -> bool:  # pragma: no cover
@@ -2326,7 +2326,7 @@ class Analysis(Design, PyAedtBase):
         nodes: int = 1,
         cores: int = 32,
         wait_for_license: bool = True,
-        setting_file: str = None,
+        setting_file: str | None = None,
     ) -> int:
         """Submit a job to be solved on a cluster.
 
@@ -2376,9 +2376,9 @@ class Analysis(Design, PyAedtBase):
     @pyaedt_function_handler()
     def _export_touchstone(
         self,
-        setup_name: str = None,
-        sweep_name: str = None,
-        file_name: str = None,
+        setup_name: str | None = None,
+        sweep_name: str | None = None,
+        file_name: str | None = None,
         variations: list = None,
         variations_value: list = None,
         renormalization: bool = False,
@@ -2515,7 +2515,7 @@ class Analysis(Design, PyAedtBase):
     def value_with_units(
         self,
         value: float | int | str,
-        units: str = None,
+        units: str | None = None,
         units_system: str = "Length",
     ) -> str:
         """Combine a number and a string containing the modeler length unit in a single

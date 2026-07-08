@@ -92,7 +92,11 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_fans_operating_point(
-        self, export_file: str = None, setup_name: str = None, time_step: str = None, variation: str = None
+        self,
+        export_file: str | None = None,
+        setup_name: str | None = None,
+        time_step: str | None = None,
+        variation: str | None = None,
     ) -> list:
         """Get the operating point of the fans in the design.
 
@@ -196,8 +200,8 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         faces: list,
         quantity: str,
         side: str = "Default",
-        setup_name: str = None,
-        variations: dict = None,
+        setup_name: str | None = None,
+        variations: dict | None = None,
         ref_temperature: str = "",
         time: str = "0s",
     ) -> dict:
@@ -261,8 +265,8 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         quantity: str,
         side: str = "Default",
         volume: bool = False,
-        setup_name: str = None,
-        variations: dict = None,
+        setup_name: str | None = None,
+        variations: dict | None = None,
         ref_temperature: str = "",
         time: str = "0s",
     ) -> dict:
@@ -331,8 +335,8 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         monitor: str,
         quantity: str,
         side: str = "Default",
-        setup_name: str = None,
-        variations: dict = None,
+        setup_name: str | None = None,
+        variations: dict | None = None,
         ref_temperature: str = "",
         time: str = "0s",
     ) -> dict:
@@ -398,8 +402,8 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         quantity_name: str,
         side: str = "Default",
         volume: bool = False,
-        setup_name: str = None,
-        variations: dict = None,
+        setup_name: str | None = None,
+        variations: dict | None = None,
         ref_temperature: str = "",
         time: str = "0s",
     ) -> dict:
@@ -465,8 +469,8 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         assignment: str,
         max_min: Literal["Max", "Min"],
         location: Literal["Surface", "Volume"],
-        setup: str = None,
-        time: str = None,
+        setup: str | None = None,
+        time: str | None = None,
     ) -> tuple[tuple[float, float, float], float]:
         """Calculate the position and value of the temperature maximum or minimum.
 

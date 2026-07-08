@@ -570,7 +570,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         return assignment
 
     @pyaedt_function_handler()
-    def import_cadence_brd(self, input_file: str, output_dir: str = None, name: str | None = None) -> bool:
+    def import_cadence_brd(self, input_file: str, output_dir: str | None = None, name: str | None = None) -> bool:
         """Import a cadence board.
 
         Parameters
@@ -636,7 +636,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
             return str(value) + self.model_units
 
     @pyaedt_function_handler()
-    def import_ipc2581(self, input_file: str, output_dir: str = None, name: str | None = None) -> bool:
+    def import_ipc2581(self, input_file: str, output_dir: str | None = None, name: str | None = None) -> bool:
         """Import an IPC file.
 
         Parameters
@@ -1082,7 +1082,9 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def set_touchstone_model(self, assignment: str, input_file: str | Path = None, model_name: str = None) -> bool:
+    def set_touchstone_model(
+        self, assignment: str, input_file: str | Path = None, model_name: str | None = None
+    ) -> bool:
         """Assign a Touchstone model to a component.
 
         Parameters

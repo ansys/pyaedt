@@ -204,7 +204,7 @@ class Sources(PyAedtBase):
         return None
 
     @pyaedt_function_handler()
-    def update(self, original_name: str = None, new_source: str = None) -> bool:
+    def update(self, original_name: str | None = None, new_source: str | None = None) -> bool:
         """Update the source in AEDT.
 
         Parameters

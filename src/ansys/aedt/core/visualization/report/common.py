@@ -76,7 +76,7 @@ class LimitLine(BinaryTreeNode, PyAedtBase):
     @pyaedt_function_handler()
     def set_line_properties(
         self,
-        style: str = None,
+        style: str | None = None,
         width: int = None,
         hatch_above: bool = None,
         violation_emphasis: bool = None,
@@ -163,7 +163,7 @@ class Note(BinaryTreeNode, PyAedtBase):
     @pyaedt_function_handler()
     def set_note_properties(
         self,
-        text: str = None,
+        text: str | None = None,
         back_color: tuple = None,
         background_visibility: bool = None,
         border_color: tuple = None,
@@ -391,7 +391,7 @@ class Trace(BinaryTreeNode, PyAedtBase):
 
     @pyaedt_function_handler()
     def set_trace_properties(
-        self, style: str = None, width: int = None, trace_type: str = None, color: tuple = None
+        self, style: str | None = None, width: int = None, trace_type: str | None = None, color: tuple = None
     ) -> bool:
         """Set trace properties.
 
@@ -436,7 +436,12 @@ class Trace(BinaryTreeNode, PyAedtBase):
 
     @pyaedt_function_handler()
     def set_symbol_properties(
-        self, show: bool = True, style: str = None, show_arrows: bool = None, fill: bool = None, color: tuple = None
+        self,
+        show: bool = True,
+        style: str | None = None,
+        show_arrows: bool = None,
+        fill: bool = None,
+        color: tuple = None,
     ) -> bool:
         """Set symbol properties.
 
@@ -1470,7 +1475,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         return []
 
     @pyaedt_function_handler()
-    def update_expressions_with_defaults(self, quantities_category: str = None) -> bool:
+    def update_expressions_with_defaults(self, quantities_category: str | None = None) -> bool:
         """Update the list of expressions by taking all quantities from a given category.
 
         Parameters
@@ -1712,7 +1717,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         return sweep_list
 
     @pyaedt_function_handler()
-    def create(self, name: str = None) -> bool:
+    def create(self, name: str | None = None) -> bool:
         """Create a report.
 
         Parameters
@@ -2405,7 +2410,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         italic: bool = False,
         bold: bool = False,
         color: tuple = (0, 0, 0),
-        label: str = None,
+        label: str | None = None,
         display_units: bool = True,
     ) -> bool:
         """Edit the X-axis settings.
@@ -2491,11 +2496,11 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
     def edit_x_axis_scaling(
         self,
         linear_scaling: bool = True,
-        min_scale: str = None,
-        max_scale: str = None,
+        min_scale: str | None = None,
+        max_scale: str | None = None,
         minor_tick_divs: int = 5,
-        min_spacing: str = None,
-        units: str = None,
+        min_spacing: str | None = None,
+        units: str | None = None,
     ) -> bool:
         """Edit the X-axis scaling settings.
 
@@ -2643,7 +2648,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         italic: bool = False,
         bold: bool = False,
         color: tuple = (0, 0, 0),
-        label: str = None,
+        label: str | None = None,
         display_units: bool = True,
     ) -> bool:
         """Edit the Y-axis settings.
@@ -2731,11 +2736,11 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         self,
         name: str = "Y1",
         linear_scaling: bool = True,
-        min_scale: str = None,
-        max_scale: str = None,
+        min_scale: str | None = None,
+        max_scale: str | None = None,
         minor_tick_divs: int = 5,
-        min_spacing: str = None,
-        units: str = None,
+        min_spacing: str | None = None,
+        units: str | None = None,
     ) -> bool:
         """Edit the Y-axis scaling settings.
 
@@ -3069,7 +3074,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @pyaedt_function_handler()
     def add_trace_to_report(
-        self, traces: list, setup_name: str = None, variations: dict | None = None, context: list | None = None
+        self, traces: list, setup_name: str | None = None, variations: dict | None = None, context: list | None = None
     ) -> bool:
         """Add a trace to a specific report.
 
@@ -3113,7 +3118,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @pyaedt_function_handler()
     def update_trace_in_report(
-        self, traces: list, setup_name: str = None, variations: dict | None = None, context: list | None = None
+        self, traces: list, setup_name: str | None = None, variations: dict | None = None, context: list | None = None
     ) -> bool:
         """Update a trace in a specific report.
 

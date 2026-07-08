@@ -1079,7 +1079,7 @@ class ExportToAedt:
         self,
         export_format: ExportFormat = None,
         export_creation_mode: ExportCreationMode = None,
-        export_path: str = None,
+        export_path: str | None = None,
     ) -> "Circuit | Hfss | Hfss3dLayout | None":
         """Export the design directly to ``AEDT`` or generate a ``Python`` script for exporting.
 

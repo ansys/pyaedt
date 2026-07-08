@@ -1541,7 +1541,7 @@ class ModelPlotter(CommonPlotter):
         self.pv.camera.zoom(self.zoom)
 
     @pyaedt_function_handler()
-    def plot(self, export_image_path: str = None, show: bool = True) -> bool:
+    def plot(self, export_image_path: str | None = None, show: bool = True) -> bool:
         """Plot the current available Data. With `s` key a screenshot is saved in export_image_path or in tempdir.
 
         Parameters

@@ -377,7 +377,7 @@ class Materials(PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def add_material(self, name: str, properties: dict = None) -> Material | bool:
+    def add_material(self, name: str, properties: dict | None = None) -> Material | bool:
         """Add a material with default values.
 
         When the added material object is returned, you can customize
@@ -544,7 +544,9 @@ class Materials(PyAedtBase):
         return index
 
     @pyaedt_function_handler()
-    def duplicate_material(self, material: str, name: str = None, properties: list[str] = None) -> Material | bool:
+    def duplicate_material(
+        self, material: str, name: str | None = None, properties: list[str] = None
+    ) -> Material | bool:
         """Duplicate a material.
 
         Parameters
@@ -628,7 +630,7 @@ class Materials(PyAedtBase):
         return new_material
 
     @pyaedt_function_handler()
-    def duplicate_surface_material(self, material: str, name: str = None) -> SurfaceMaterial | bool:
+    def duplicate_surface_material(self, material: str, name: str | None = None) -> SurfaceMaterial | bool:
         """Duplicate a surface material.
 
         Parameters
@@ -1044,7 +1046,7 @@ class Materials(PyAedtBase):
         return self.odefinition_manager.GetInUseProjectMaterialNames()
 
     @pyaedt_function_handler
-    def import_materials_from_workbench(self, input_file: str, name_suffix: str = None) -> list[Material] | bool:
+    def import_materials_from_workbench(self, input_file: str, name_suffix: str | None = None) -> list[Material] | bool:
         """Import and create materials from Workbench Engineering Data XML file.
 
         Parameters

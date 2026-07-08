@@ -3299,7 +3299,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
 
     @pyaedt_function_handler()
     def assign_flux_tangential(self, assignment: list, flux_name: str | None = None) -> BoundaryObject | bool:
-        # type : (list, str = None) -> from ansys.aedt.core.modules.boundary.common.BoundaryObject
+        # type : (list, str | None = None) -> from ansys.aedt.core.modules.boundary.common.BoundaryObject
         """Assign a flux tangential boundary for Transient and AC Magnetic A-Phi solvers.
 
         Parameters

@@ -299,7 +299,7 @@ class Mesh3d(PyAedtBase):
         is_inside: bool = True,
         maximum_length: int = 1,
         maximum_elements: int = 1000,
-        name: str = None,
+        name: str | None = None,
     ) -> Mesh3DOperation:
         """Assign mesh length.
 
@@ -401,7 +401,7 @@ class Mesh3d(PyAedtBase):
         maximum_elements: int = None,
         triangulation_max_length: float = 0.1,
         layers_number: str = "2",
-        name: str = None,
+        name: str | None = None,
     ) -> Mesh3DOperation:
         """Assign skin depth to the mesh.
 

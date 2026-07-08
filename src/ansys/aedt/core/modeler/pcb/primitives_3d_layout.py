@@ -1242,10 +1242,10 @@ class Primitives3DLayout(PyAedtBase):
         y: int = 0,
         rotation: int = 0,
         hole_diam: float = None,
-        top_layer: str = None,
-        bot_layer: str = None,
-        name: str = None,
-        net: str = None,
+        top_layer: str | None = None,
+        bot_layer: str | None = None,
+        name: str | None = None,
+        net: str | None = None,
     ) -> "Pins3DLayout | bool":
         # type: (str, float | str, float | str, float, float, str, str, str, str) -> Pins3DLayout
         """Create a via based on an existing padstack.
@@ -1342,7 +1342,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_circle(
-        self, layer: str, x: float, y: float, radius: float, name: str = None, net: str = None, **kwargs
+        self, layer: str, x: float, y: float, radius: float, name: str | None = None, net: str | None = None, **kwargs
     ) -> Circle3dLayout:
         """Create a circle on a layer.
 
@@ -1412,8 +1412,8 @@ class Primitives3DLayout(PyAedtBase):
         sizes: list,
         corner_radius: int = 0,
         angle: int = 0,
-        name: str = None,
-        net: str = None,
+        name: str | None = None,
+        net: str | None = None,
         **kwargs,
     ) -> Rect3dLayout:
         """Create a rectangle on a layer.
@@ -1489,7 +1489,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_polygon(
-        self, layer: str, point_list: list, units: str = None, name: str = None, net: str = None
+        self, layer: str, point_list: list, units: str | None = None, name: str | None = None, net: str | None = None
     ) -> Polygons3DLayout:
         """Create a polygon on a specified layer.
 
@@ -1553,7 +1553,7 @@ class Primitives3DLayout(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_polygon_void(
-        self, layer: str, points: list, assignment: str, units: str = None, name: str = None
+        self, layer: str, points: list, assignment: str, units: str | None = None, name: str | None = None
     ) -> Polygons3DLayout:
         """Create a polygon void on a specified layer.
 
@@ -1622,8 +1622,8 @@ class Primitives3DLayout(PyAedtBase):
         lw: int = 1,
         start_style: int = 0,
         end_style: int = 0,
-        name: str = None,
-        net: str = None,
+        name: str | None = None,
+        net: str | None = None,
         **kwargs,
     ) -> Line3dLayout:
         # type: (str, list, float|str, int, int, str, str, any) -> Line3dLayout
@@ -1713,8 +1713,8 @@ class Primitives3DLayout(PyAedtBase):
         self,
         component_path: str | Path,
         number_of_terminals: int = 1,
-        placement_layer: str = None,
-        component_name: str = None,
+        placement_layer: str | None = None,
+        component_name: str | None = None,
         pos_x: float = 0.0,
         pos_y: float = 0.0,
         create_ports: bool = True,
@@ -1864,7 +1864,7 @@ class Primitives3DLayout(PyAedtBase):
     def create_component_on_pins(
         self,
         pins: list,
-        definition_name: str = None,
+        definition_name: str | None = None,
         component_type: str = "Other",
         ref_des: str = "U100",
     ) -> Components3DLayout:
@@ -1985,7 +1985,7 @@ class Primitives3DLayout(PyAedtBase):
         return self.modeler.oeditor.CreateText(args)
 
     @pyaedt_function_handler()
-    def create_coordinate_system(self, origin: list = None, name: str = None) -> CoordinateSystems3DLayout:
+    def create_coordinate_system(self, origin: list = None, name: str | None = None) -> CoordinateSystems3DLayout:
         """Create a coordinate system.
 
         Parameters

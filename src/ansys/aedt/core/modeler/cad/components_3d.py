@@ -960,7 +960,7 @@ class UserDefinedComponent(PyAedtBase):
         )
 
     @pyaedt_function_handler()
-    def update_definition(self, password: str = None, output_file: str = "", local_update: bool = False) -> bool:
+    def update_definition(self, password: str | None = None, output_file: str = "", local_update: bool = False) -> bool:
         """Update 3d component definition.
 
         Parameters
@@ -1004,7 +1004,7 @@ class UserDefinedComponent(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def edit_definition(self, password: str = None) -> "Hfss | bool":
+    def edit_definition(self, password: str | None = None) -> "Hfss | bool":
         """Edit 3d Definition. Open AEDT Project and return Pyaedt Object.
 
         Parameters

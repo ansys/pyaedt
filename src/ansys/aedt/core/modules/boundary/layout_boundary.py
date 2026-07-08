@@ -1047,7 +1047,7 @@ class NativeComponentPCB(NativeComponentObject):
 
     @pyaedt_function_handler()
     @disable_auto_update
-    def set_board_extents(self, extent_type: str = None, extent_polygon: str = None) -> bool:
+    def set_board_extents(self, extent_type: str | None = None, extent_polygon: str | None = None) -> bool:
         """Set board extent.
 
         Parameters
@@ -1130,7 +1130,7 @@ class PCBSettingsPackageParts(PyAedtBase):
 
     @pyaedt_function_handler()
     @disable_auto_update
-    def set_solderballs_modeling(self, modeling: str = None) -> bool:
+    def set_solderballs_modeling(self, modeling: str | None = None) -> bool:
         """Set how to model solderballs.
 
         Parameters
@@ -1164,7 +1164,7 @@ class PCBSettingsPackageParts(PyAedtBase):
     @disable_auto_update
     def set_connectors_modeling(
         self,
-        modeling: str = None,
+        modeling: str | None = None,
         solderbumps_modeling: str = "Boxes",
         bondwire_material: str | None = "Au-Typical",
         bondwire_diameter: str = "0.05mm",
@@ -1768,10 +1768,10 @@ class PCBSettingsDeviceParts(PyAedtBase):
         package: str,
         part: str,
         filter_component: bool = False,
-        power: str = None,
-        r_jb: str = None,
-        r_jc: str = None,
-        height: str = None,
+        power: str | None = None,
+        r_jb: str | None = None,
+        r_jc: str | None = None,
+        height: str | None = None,
     ) -> bool:
         """Set component override.
 
@@ -1831,10 +1831,10 @@ class PCBSettingsDeviceParts(PyAedtBase):
         self,
         reference_designator: str,
         filter_component: bool = False,
-        power: str = None,
-        r_jb: str = None,
-        r_jc: str = None,
-        height: str = None,
+        power: str | None = None,
+        r_jb: str | None = None,
+        r_jc: str | None = None,
+        height: str | None = None,
     ) -> bool:
         """Set instance override.
 

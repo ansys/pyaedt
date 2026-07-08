@@ -333,7 +333,7 @@ class Component(BaseModel):
     """Value for arranges."""
     sub_components: dict | None = Field(default_factory=dict)
     """Value for sub components."""
-    password: str = None
+    password: str | None = None
     """Value for password."""
 
     # Mcad parameters

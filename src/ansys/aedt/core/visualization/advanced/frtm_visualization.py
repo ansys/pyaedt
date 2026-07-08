@@ -646,7 +646,7 @@ class FRTMData(PyAedtBase):
         return pulse_data
 
     @pyaedt_function_handler()
-    def convert_frequency_range(self, pulse: int = None, window: str = None, size: int = None) -> np.ndarray:
+    def convert_frequency_range(self, pulse: int = None, window: str | None = None, size: int = None) -> np.ndarray:
         """Convert frequency domain radar data to range domain using IFFT with optional windowing and resampling.
 
         This method applies a window to the frequency-domain radar data, scales it for energy preservation,
@@ -706,7 +706,7 @@ class FRTMData(PyAedtBase):
         return channel_range
 
     @pyaedt_function_handler()
-    def range_profile(self, data: np.ndarray, window: str = None, size: int = None) -> np.ndarray:
+    def range_profile(self, data: np.ndarray, window: str | None = None, size: int = None) -> np.ndarray:
         """Calculate the range profile of a specific CPI frame.
 
         Parameters
@@ -764,7 +764,7 @@ class FRTMData(PyAedtBase):
 
     @pyaedt_function_handler()
     def range_doppler(
-        self, channel: str = None, window: str = "Hann", range_bins: int = None, doppler_bins: int = None
+        self, channel: str | None = None, window: str = "Hann", range_bins: int = None, doppler_bins: int = None
     ) -> np.ndarray:
         """Calculate the range-Doppler map of a frame.
 
@@ -861,10 +861,10 @@ class FRTMData(PyAedtBase):
     def range_angle_map(
         self,
         pulse: int = None,
-        window: str = None,
+        window: str | None = None,
         range_bins: int = None,
         cross_range_bins: int = None,
-        doa_method: str = None,
+        doa_method: str | None = None,
         field_of_view: list = None,
         range_bin_index: int = None,
     ) -> np.ndarray:
@@ -1205,14 +1205,14 @@ class FRTMPlotter(PyAedtBase):
     @pyaedt_function_handler()
     def plot_range_profile(
         self,
-        channel: str = None,
+        channel: str | None = None,
         frame: int = None,
         cpi_frame: int = None,
-        window: str = None,
+        window: str | None = None,
         size: int = None,
-        quantity_format: str = None,
+        quantity_format: str | None = None,
         title: str = "Range profile",
-        output_file: str = None,
+        output_file: str | None = None,
         show: bool = True,
         show_legend: bool = True,
         plot_size: tuple = (1920, 1440),
@@ -1342,14 +1342,14 @@ class FRTMPlotter(PyAedtBase):
     @pyaedt_function_handler()
     def plot_range_doppler(
         self,
-        channel: str = None,
+        channel: str | None = None,
         frame: int = None,
         range_bins: int = None,
         doppler_bins: int = None,
-        window: str = None,
-        quantity_format: str = None,
+        window: str | None = None,
+        quantity_format: str | None = None,
         title: str = "Doppler Velocity-Range",
-        output_file: str = None,
+        output_file: str | None = None,
         show: bool = True,
         show_legend: bool = True,
         size: tuple = (1920, 1440),
@@ -1495,16 +1495,16 @@ class FRTMPlotter(PyAedtBase):
         self,
         frame: int = None,
         pulse: int = None,
-        window: str = None,
+        window: str | None = None,
         range_bins: int = None,
         cross_range_bins: int = None,
-        doa_method: str = None,
+        doa_method: str | None = None,
         field_of_view: list = None,
         dynamic_range: float = None,
-        quantity_format: str = None,
+        quantity_format: str | None = None,
         polar: bool = False,
         title: str = "Angle vs Range (Azimuth)",
-        output_file: str = None,
+        output_file: str | None = None,
         show: bool = True,
         show_legend: bool = True,
         size: tuple = (1920, 1440),

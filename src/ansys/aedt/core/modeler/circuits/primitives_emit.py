@@ -228,7 +228,7 @@ class EmitComponents(PyAedtBase):
         self._app = modeler._app
 
     @property
-    def include_personal_library(self, value: str = None) -> str:
+    def include_personal_library(self, value: str | None = None) -> str:
         """Include personal library.
 
         Examples
@@ -281,7 +281,9 @@ class EmitComponents(PyAedtBase):
         return self._components_catalog
 
     @pyaedt_function_handler()
-    def create_component(self, component_type: str, name: str = None, library: str = None) -> EmitComponent:
+    def create_component(
+        self, component_type: str, name: str | None = None, library: str | None = None
+    ) -> EmitComponent:
         """Create a new component from a library.
 
         Parameters
@@ -326,7 +328,11 @@ class EmitComponents(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_radio_antenna(
-        self, radio_type: str, radio_name: str = None, antenna_name: str = None, library: str = None
+        self,
+        radio_type: str,
+        radio_name: str | None = None,
+        antenna_name: str | None = None,
+        library: str | None = None,
     ) -> tuple[EmitComponent, EmitComponent]:
         """Create a new radio and antenna and connect them.
 
@@ -1539,7 +1545,7 @@ class EmitComponentPropNode(PyAedtBase):
         self._set_prop_value(sampling_props)
 
     @pyaedt_function_handler()
-    def _set_prop_value(self, props: dict = None) -> None:
+    def _set_prop_value(self, props: dict | None = None) -> None:
         """Set the property values for this node.
 
         Parameters

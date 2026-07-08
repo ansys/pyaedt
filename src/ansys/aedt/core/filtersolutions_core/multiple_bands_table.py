@@ -134,7 +134,9 @@ class MultipleBandsTable:
         upper_value_string = upper_value_buffer.value.decode("utf-8")
         return lower_value_string, upper_value_string
 
-    def update_row(self, row_index: int, lower_frequency: str = None, upper_frequency: str = None) -> None:
+    def update_row(
+        self, row_index: int, lower_frequency: str | None = None, upper_frequency: str | None = None
+    ) -> None:
         """Update lower and upper frequency values for a row in the multiple bands table.
 
         Parameters
@@ -163,7 +165,7 @@ class MultipleBandsTable:
         )
         self._dll_interface.raise_error(status)
 
-    def append_row(self, lower_frequency: str = None, upper_frequency: str = None) -> None:
+    def append_row(self, lower_frequency: str | None = None, upper_frequency: str | None = None) -> None:
         """Append a new row with specified lower and upper frequency values to the end of the multiple bands table.
 
         Parameters
@@ -187,7 +189,9 @@ class MultipleBandsTable:
         )
         self._dll_interface.raise_error(status)
 
-    def insert_row(self, row_index: int, lower_frequency: str = None, upper_frequency: str = None) -> None:
+    def insert_row(
+        self, row_index: int, lower_frequency: str | None = None, upper_frequency: str | None = None
+    ) -> None:
         """Insert lower and upper frequencies in a given row.
 
         Parameters

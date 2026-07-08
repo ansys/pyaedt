@@ -115,7 +115,7 @@ class HDMPlotter(CommonPlotter, PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def add_hdm_bundle_from_file(self, filename: str, units: str = None) -> None:
+    def add_hdm_bundle_from_file(self, filename: str, units: str | None = None) -> None:
         """Add hdm bundle from file.
 
         Parameters
@@ -178,7 +178,7 @@ class HDMPlotter(CommonPlotter, PyAedtBase):
 
     @pyaedt_function_handler()
     @requires_graphical_dependency("pyvista")
-    def plot_rays(self, snapshot_path: str = None) -> Plotter:
+    def plot_rays(self, snapshot_path: str | None = None) -> Plotter:
         """Plot Rays read from an ``hdm`` file.
 
         Parameters
@@ -250,7 +250,7 @@ class HDMPlotter(CommonPlotter, PyAedtBase):
 
     @pyaedt_function_handler()
     @requires_graphical_dependency("pyvista")
-    def plot_first_bounce_currents(self, snapshot_path: str = None) -> None:
+    def plot_first_bounce_currents(self, snapshot_path: str | None = None) -> None:
         """Plot First bounce of currents read from an ``hdm`` file.
 
         Parameters

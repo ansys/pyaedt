@@ -950,7 +950,7 @@ class Spectral(CommonReport, PyAedtBase):
         return arg
 
     @pyaedt_function_handler()
-    def create(self, name: str = None) -> bool:
+    def create(self, name: str | None = None) -> bool:
         """Create an eye diagram report.
 
         Parameters

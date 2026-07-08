@@ -293,7 +293,9 @@ def deprecate_kwargs(func_name, kwargs, aliases):
             kwargs[new] = kwargs.pop(alias)
 
 
-def deprecate_argument(arg_name: str, version: str = None, message: str = None, removed: bool = False) -> callable:
+def deprecate_argument(
+    arg_name: str, version: str | None = None, message: str | None = None, removed: bool = False
+) -> callable:
     """Decorator to deprecate a specific argument (positional or keyword) in a function.
 
     Parameters
@@ -1343,7 +1345,7 @@ def is_grpc_session_active(port: int, machine: str | None = None) -> bool:
 
 @pyaedt_function_handler()
 def active_sessions(
-    version: str = None,
+    version: str | None = None,
     student_version: bool | None = False,
     non_graphical: bool | None = None,
 ) -> dict[int, int]:
@@ -1571,7 +1573,7 @@ def grpc_active_sessions(
 
 
 @pyaedt_function_handler()
-def conversion_function(data: "list | array", function: str = None):  # pragma: no cover
+def conversion_function(data: "list | array", function: str | None = None):  # pragma: no cover
     """Convert input data based on a specified function string.
 
     The available functions are:
@@ -1832,7 +1834,7 @@ def _to_boolean(val):
 
 @pyaedt_function_handler()
 def install_with_pip(
-    package_name: str, package_path: str = None, upgrade: bool = False, uninstall: bool = False
+    package_name: str, package_path: str | None = None, upgrade: bool = False, uninstall: bool = False
 ):  # pragma: no cover
     """Install a new package using pip.
 

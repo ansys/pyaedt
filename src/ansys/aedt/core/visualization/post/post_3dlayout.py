@@ -185,7 +185,7 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
         return power_loss_per_layer
 
     @pyaedt_function_handler()
-    def compute_power_by_layer(self, layers: list = None, solution: str = None) -> dict:
+    def compute_power_by_layer(self, layers: list = None, solution: str | None = None) -> dict:
         """Compute the power by layer.
 
         This applies only to SIwave DC Analysis.
@@ -221,7 +221,7 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
         return power_by_layers
 
     @pyaedt_function_handler()
-    def compute_power_by_net(self, nets: list = None, solution: str = None) -> dict:
+    def compute_power_by_net(self, nets: list = None, solution: str | None = None) -> dict:
         """Compute the power by nets. This applies only to SIwave DC Analysis.
 
         Parameters
@@ -326,11 +326,11 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
         self,
         layers: list,
         quantity: str,
-        setup: str = None,
+        setup: str | None = None,
         nets: list = None,
         plot_on_surface: bool = True,
-        intrinsics: dict | str = None,
-        name: str = None,
+        intrinsics: dict | str | None = None,
+        name: str | None = None,
     ) -> "FieldPlot":
         # type: (list, str, str, list, bool, dict, str) -> FieldPlot
         """Create a field plot of stacked layer plot.
@@ -439,11 +439,11 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
         self,
         nets: list,
         quantity: str,
-        setup: str = None,
+        setup: str | None = None,
         layers: list = None,
         plot_on_surface: bool = True,
-        intrinsics: dict | str = None,
-        name: str = None,
+        intrinsics: dict | str | None = None,
+        name: str | None = None,
     ) -> "FieldPlot":
         # type: (list, str, str, list, bool, dict, str) -> FieldPlot
         """Create a field plot of stacked layer plot based on a net selections.
@@ -532,10 +532,10 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
         self,
         layers_nets: list,
         quantity: str,
-        setup: str = None,
-        intrinsics: dict | str = None,
+        setup: str | None = None,
+        intrinsics: dict | str | None = None,
         plot_on_surface: bool = True,
-        plot_name: str = None,
+        plot_name: str | None = None,
     ) -> "FieldPlot":
         # type: (list, str, str, dict, bool, str) -> FieldPlot
         """Create a field plot of stacked layer plot on specified matrix of layers and nets.

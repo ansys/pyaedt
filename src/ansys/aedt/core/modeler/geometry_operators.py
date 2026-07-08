@@ -81,7 +81,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def parse_dim_arg(string: str, scale_to_unit: str = None, variable_manager=None) -> float:
+    def parse_dim_arg(string: str, scale_to_unit: str | None = None, variable_manager=None) -> float:
         """Convert a number and unit to a float.
 
         Angles are converted in radians.

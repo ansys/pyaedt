@@ -70,7 +70,7 @@ class EmitSchematic:
             raise RuntimeError(f"Failed to retrieve EmitCom module: {e}")
 
     @pyaedt_function_handler
-    def create_component(self, component_type: str, name: str = None, library: str = None) -> EmitNode:
+    def create_component(self, component_type: str, name: str | None = None, library: str | None = None) -> EmitNode:
         """Create a component.
 
         Parameters
@@ -158,7 +158,11 @@ class EmitSchematic:
 
     @pyaedt_function_handler
     def create_radio_antenna(
-        self, radio_type: str, radio_name: str = None, antenna_name: str = None, library: str = None
+        self,
+        radio_type: str,
+        radio_name: str | None = None,
+        antenna_name: str | None = None,
+        library: str | None = None,
     ) -> tuple[EmitNode, EmitNode]:
         """Create a new radio and antenna and connect them.
 

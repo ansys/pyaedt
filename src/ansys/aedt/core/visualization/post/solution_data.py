@@ -648,11 +648,11 @@ class SolutionData(PyAedtBase):
     @pyaedt_function_handler()
     def get_expression_data(
         self,
-        expression: str = None,
+        expression: str | None = None,
         formula: str = "real",
         convert_to_SI: bool = False,
         use_quantity: bool = False,
-        sweeps: list | str = None,
+        sweeps: list | str | None = None,
     ) -> tuple[np.ndarray, np.ndarray]:
         """Retrieve the real part of the data for an expression.
 
@@ -762,7 +762,7 @@ class SolutionData(PyAedtBase):
         return x_axis, sol
 
     @pyaedt_function_handler()
-    def is_real_only(self, expression: str = None) -> bool:
+    def is_real_only(self, expression: str | None = None) -> bool:
         """Check if the expression has only real values or not.
 
         Parameters
@@ -855,7 +855,11 @@ class SolutionData(PyAedtBase):
 
     @pyaedt_function_handler()
     def get_report_plotter(
-        self, curves: list | str = None, formula: str = None, to_radians: bool = False, props: dict = None
+        self,
+        curves: list | str | None = None,
+        formula: str | None = None,
+        to_radians: bool = False,
+        props: dict | None = None,
     ) -> "ReportPlotter":
         """Get the `ReportPlotter` on the specified curves.
 
@@ -907,14 +911,14 @@ class SolutionData(PyAedtBase):
     @pyaedt_function_handler()
     def plot(
         self,
-        curves: list | str = None,
-        formula: str = None,
+        curves: list | str | None = None,
+        formula: str | None = None,
         size: tuple = (1920, 1440),
         show_legend: bool = True,
         x_label: str = "",
         y_label: str = "",
         title: str = "",
-        snapshot_path: str = None,
+        snapshot_path: str | None = None,
         is_polar: bool = False,
         show: bool = True,
     ) -> "ReportPlotter":
@@ -988,15 +992,15 @@ class SolutionData(PyAedtBase):
     @pyaedt_function_handler()
     def plot_3d(
         self,
-        curve: str = None,
+        curve: str | None = None,
         primary_sweep: str = "Theta",
         secondary_sweep: str = "Phi",
         x_label: str = "",
         y_label: str = "",
         title: str = "",
-        formula: str = None,
+        formula: str | None = None,
         size: tuple = (1920, 1440),
-        snapshot_path: str = None,
+        snapshot_path: str | None = None,
         show: bool = True,
     ) -> "ReportPlotter":
         """Create a matplotlib 3D figure based on a list of data.

@@ -296,7 +296,7 @@ class FieldsCalculator(PyAedtBase):
         return str(Path(file_name).resolve())
 
     @pyaedt_function_handler()
-    def expression_plot(self, calculation: str, assignment: list, names: list, setup: str = None) -> list | bool:
+    def expression_plot(self, calculation: str, assignment: list, names: list, setup: str | None = None) -> list | bool:
         """Create plots defined in the expression catalog.
 
         Parameters
@@ -689,16 +689,16 @@ class FieldsCalculator(PyAedtBase):
     def export(
         self,
         quantity: str,
-        solution: str = None,
-        variations: dict = None,
-        output_file: str = None,
-        intrinsics: dict = None,
+        solution: str | None = None,
+        variations: dict | None = None,
+        output_file: str | None = None,
+        intrinsics: dict | None = None,
         sample_points: list = None,
         export_with_sample_points: bool = True,
         reference_coordinate_system: str = "Global",
         export_in_si_system: bool = True,
         export_field_in_reference: bool = True,
-        grid_type: str = None,
+        grid_type: str | None = None,
         grid_center: list = None,
         grid_start: list = None,
         grid_stop: list = None,
@@ -869,7 +869,7 @@ class FieldsCalculator(PyAedtBase):
 
     @pyaedt_function_handler()
     @min_aedt_version("2026.1")
-    def get_expressions(self, field_type: str = None) -> dict:  # pragma: no cover
+    def get_expressions(self, field_type: str | None = None) -> dict:  # pragma: no cover
         """Get dictionary of available Field Calculator expressions.
 
         Parameters

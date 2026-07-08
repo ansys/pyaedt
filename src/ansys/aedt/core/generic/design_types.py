@@ -154,7 +154,7 @@ app_map = {
 """Value for app map."""
 
 
-def get_pyaedt_app(project_name: str = None, design_name: str = None, desktop: Desktop = None) -> object:
+def get_pyaedt_app(project_name: str | None = None, design_name: str | None = None, desktop: Desktop = None) -> object:
     """Get the PyAEDT object with a given project name and design name.
 
     Parameters

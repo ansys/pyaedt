@@ -823,9 +823,9 @@ class NetworkObject(BoundaryObject):
     def add_face_node(
         self,
         assignment: int,
-        name: str = None,
+        name: str | None = None,
         thermal_resistance: str = "NoResistance",
-        material: str = None,
+        material: str | None = None,
         thickness: str | float = None,
         resistance: str | float = None,
     ) -> bool:
@@ -985,7 +985,7 @@ class NetworkObject(BoundaryObject):
         return True
 
     @pyaedt_function_handler()
-    def add_link(self, node1: str | int, node2: str | int, value: str | float, name: str = None) -> bool:
+    def add_link(self, node1: str | int, node2: str | int, value: str | float, name: str | None = None) -> bool:
         """Create links in the network object.
 
         Parameters

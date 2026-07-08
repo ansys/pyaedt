@@ -140,14 +140,14 @@ class GeneticAlgorithm(PyAedtBase):
         self,
         function: callable,
         dim: int,
-        reference_file: str = None,
-        population_file: str = None,
+        reference_file: str | None = None,
+        population_file: str | None = None,
         goal: int = 0,
         var_type: str = "bool",
         boundaries: np.ndarray = None,
         var_type_mixed: np.ndarray = None,
         function_timeout: int = 0,
-        algorithm_parameters: dict = None,
+        algorithm_parameters: dict | None = None,
         progress_bar: bool = True,
     ) -> None:
         self.population_file = None

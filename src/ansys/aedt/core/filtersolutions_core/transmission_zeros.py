@@ -208,7 +208,7 @@ class TransmissionZeros:
         position_value_string = position_value_buffer.value.decode("utf-8")
         return zero_value_string, position_value_string
 
-    def update_row(self, row_index: int, zero: str = None, position: str = None) -> None:
+    def update_row(self, row_index: int, zero: str | None = None, position: str | None = None) -> None:
         """Update the transmission zero ratio or bandwidth and its position for a row in the transmission zeros table.
 
         Parameters
@@ -237,7 +237,7 @@ class TransmissionZeros:
         )
         self._dll_interface.raise_error(status)
 
-    def append_row(self, zero: str = None, position: str = None) -> None:
+    def append_row(self, zero: str | None = None, position: str | None = None) -> None:
         """Append a new row that includes the ratio or bandwidth and position.
 
         Parameters
@@ -261,7 +261,7 @@ class TransmissionZeros:
         )
         self._dll_interface.raise_error(status)
 
-    def insert_row(self, row_index: int, zero: str = None, position: str = None) -> None:
+    def insert_row(self, row_index: int, zero: str | None = None, position: str | None = None) -> None:
         """Insert a new row that includes the ratio or bandwidth and the position.
 
         Parameters

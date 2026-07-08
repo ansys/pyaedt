@@ -151,7 +151,7 @@ class AnsysReport(FPDF, PyAedtBase):
         )
         self.alias_nb_pages()
 
-    def read_template(self, template_file: str = None) -> None:
+    def read_template(self, template_file: str | None = None) -> None:
         """Read pdf template.
 
         Parameters

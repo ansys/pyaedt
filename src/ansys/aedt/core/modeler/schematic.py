@@ -742,7 +742,7 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
         self._app.units.length = units
 
     @pyaedt_function_handler()
-    def move(self, assignment: list, offset: list, units: str = None) -> bool:
+    def move(self, assignment: list, offset: list, units: str | None = None) -> bool:
         """Move the selections by the specified ``[x, y]`` coordinates.
 
         Parameters

@@ -120,8 +120,8 @@ class AnalysisTwinBuilder(Analysis, PyAedtBase):
         project: str,
         design: str,
         solution_type: str,
-        setup: str = None,
-        version: str = None,
+        setup: str | None = None,
+        version: str | None = None,
         non_graphical: bool = False,
         new_desktop: bool = False,
         close_on_exit: bool = False,
@@ -198,7 +198,7 @@ class AnalysisTwinBuilder(Analysis, PyAedtBase):
         return self._post
 
     @pyaedt_function_handler()
-    def create_setup(self, name: str = "MySetupAuto", setup_type: str = None, **kwargs) -> SetupCircuit:
+    def create_setup(self, name: str = "MySetupAuto", setup_type: str | None = None, **kwargs) -> SetupCircuit:
         """Create a setup.
 
         Parameters

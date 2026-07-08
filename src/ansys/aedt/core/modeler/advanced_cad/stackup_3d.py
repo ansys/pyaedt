@@ -816,7 +816,7 @@ class Layer3D(PyAedtBase):
     def duplicate_parametrize_material(
         self,
         material_name: str,
-        cloned_material_name: str = None,
+        cloned_material_name: str | None = None,
         list_of_properties: tuple = (
             "permittivity",
             "permeability",
@@ -953,9 +953,9 @@ class Layer3D(PyAedtBase):
         is_impedance: bool = False,
         line_position_x: int = 0,
         line_position_y: int = 0,
-        line_name: str = None,
+        line_name: str | None = None,
         axis: str = "X",
-        reference_system: str = None,
+        reference_system: str | None = None,
         frequency: float = 1e9,
     ) -> "Trace":
         """Create a trace.
@@ -1404,7 +1404,11 @@ class Padstack(PyAedtBase):
 
     @pyaedt_function_handler()
     def add_via(
-        self, position_x: float = 0, position_y: float = 0, instance_name: str = None, reference_system: str = None
+        self,
+        position_x: float = 0,
+        position_y: float = 0,
+        instance_name: str | None = None,
+        reference_system: str | None = None,
     ) -> "Object3d":
         """Insert a new via on this padstack.
 
@@ -3921,7 +3925,11 @@ class Trace(CommonObject, PyAedtBase):
         return self._electrical_length
 
     def create_lumped_port(
-        self, reference_layer: "Layer3D", opposite_side: bool = False, port_name: str = None, axisdir: int | None = None
+        self,
+        reference_layer: "Layer3D",
+        opposite_side: bool = False,
+        port_name: str | None = None,
+        axisdir: int | None = None,
     ) -> "BoundaryObject":
         """Create a parametrized lumped port.
 

@@ -1135,7 +1135,7 @@ class Nets3DLayout(PyAedtBase):
         self,
         layers: str | list = None,
         show_legend: bool = True,
-        save_plot: str = None,
+        save_plot: str | None = None,
         outline: list = None,
         size: tuple = (1920, 1440),
         plot_components_on_top: bool = False,

@@ -5021,9 +5021,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def create_qfactor_report(
         self,
-        project_dir: str = None,
+        project_dir: str | None = None,
         output: list = None,
-        setup: str = None,
+        setup: str | None = None,
         name: str = "",
         x_axis: str | None = "X",
     ) -> bool:  # pragma: no cover

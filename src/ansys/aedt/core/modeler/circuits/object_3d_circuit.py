@@ -224,7 +224,7 @@ class CircuitPins(PyAedtBase):
     def connect_to_component(
         self,
         assignment: "CircuitPins",
-        page_name: str = None,
+        page_name: str | None = None,
         use_wire: bool = False,
         wire_name: str = "",
         clearance_units: int = 1,

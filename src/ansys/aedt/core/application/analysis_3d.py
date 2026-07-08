@@ -122,9 +122,9 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         self,
         application: str,
         project: str | Path = None,
-        design: str = None,
-        solution_type: str = None,
-        setup: str = None,
+        design: str | None = None,
+        solution_type: str | None = None,
+        setup: str | None = None,
         version: str | int | float = None,
         non_graphical: bool = False,
         new_desktop: bool = False,
@@ -299,7 +299,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         self,
         assignment: list = None,
         show: bool = True,
-        output_file: str = None,
+        output_file: str | None = None,
         plot_as_separate_objects: bool = True,
         plot_air_objects: bool = True,
         force_opacity_value: float = None,
@@ -374,7 +374,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         )
 
     @pyaedt_function_handler()
-    def export_mesh_stats(self, setup: str, variations: str = "", output_file: str = None) -> str:
+    def export_mesh_stats(self, setup: str, variations: str = "", output_file: str | None = None) -> str:
         """Export mesh statistics to a file.
 
         Parameters
@@ -438,7 +438,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
             return read_component_file(self.components3d[name])
 
     @pyaedt_function_handler()
-    def get_property_value(self, assignment: str, property_name: str, property_type: str = None) -> any:
+    def get_property_value(self, assignment: str, property_name: str, property_type: str | None = None) -> any:
         """Retrieve a property value.
 
         Parameters
@@ -1199,7 +1199,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
 
     @pyaedt_function_handler()
     def flatten_3d_components(
-        self, components: str | list = None, purge_history: bool = True, password: str = None
+        self, components: str | list = None, purge_history: bool = True, password: str | None = None
     ) -> bool:
         """Flatten one or multiple 3d components in the actual layout.
 
@@ -1304,7 +1304,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
     @pyaedt_function_handler()
     @requires_graphical_dependency("pyvista")
     @min_aedt_version("2023.2")
-    def identify_touching_conductors(self, assignment: str = None) -> dict:
+    def identify_touching_conductors(self, assignment: str | None = None) -> dict:
         """Identify all touching components and group in a dictionary.
 
         This method requires that the ``pyvista`` package is installed.

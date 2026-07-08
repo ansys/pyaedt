@@ -673,7 +673,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_coax_port(
-        self, via: str, radial_extent: float = 0.1, layer: str = None, alignment: str | None = "lower"
+        self, via: str, radial_extent: float = 0.1, layer: str | None = None, alignment: str | None = "lower"
     ) -> BoundaryObject3dLayout | bool:
         """Create a coax port.
 

@@ -77,7 +77,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
     def create_3dcomponent(
         self,
         input_file: str,
-        name: str = None,
+        name: str | None = None,
         variables_to_include: list = None,
         assignment: list = None,
         boundaries: list = None,
@@ -87,8 +87,8 @@ class Modeler3D(Primitives3D, PyAedtBase):
         is_encrypted: bool = False,
         allow_edit: bool = False,
         security_message: str = "",
-        password: str = None,  # nosec
-        edit_password: str = None,
+        password: str | None = None,  # nosec
+        edit_password: str | None = None,
         password_type: str = "UserSuppliedPassword",
         hide_contents: bool = False,
         replace_names: bool = False,
@@ -413,7 +413,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
     @pyaedt_function_handler()
     def replace_3dcomponent(
         self,
-        name: str = None,
+        name: str | None = None,
         variables_to_include: list = None,
         assignment: list = None,
         boundaries: list = None,
@@ -663,7 +663,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         parametrize_w: bool = False,
         parametrize_h: bool = False,
         create_sheets_on_openings: bool = False,
-        name: str = None,
+        name: str | None = None,
     ) -> tuple["Object3d", "Object3d"]:
         """Create a standard waveguide and optionally parametrize `W` and `H`.
 
@@ -845,7 +845,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         cone_height: float,
         ring_height: float,
         thickness: float = None,
-        name: str = None,
+        name: str | None = None,
     ) -> list["Object3d"] | bool:
         """Create rings in a conical shape.
 

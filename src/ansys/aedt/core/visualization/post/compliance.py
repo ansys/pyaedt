@@ -600,7 +600,7 @@ class VirtualComplianceGenerator(PyAedtBase):
 
     @pyaedt_function_handler()
     def add_report_from_folder(
-        self, input_folder: str | Path, design_name: str, group_plots: bool = False, project: str = None
+        self, input_folder: str | Path, design_name: str, group_plots: bool = False, project: str | None = None
     ) -> None:
         """Add multiple reports from a folder.
 
@@ -1165,7 +1165,7 @@ class VirtualCompliance(PyAedtBase):
         config_file: str,
         design_name: str,
         traces: list,
-        setup_name: str = None,
+        setup_name: str | None = None,
         pass_fail: bool = True,
         pass_fail_criteria=None,
     ) -> None:

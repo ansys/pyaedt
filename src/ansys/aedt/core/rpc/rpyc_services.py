@@ -199,10 +199,12 @@ class FileManagement(PyAedtBase):
             i += 1
         logger.info("Directory %s downloaded. %s files copied", localpath, i)
 
-    def open_file(self, remote_file: str, open_options: str = "r", encoding: str = None):
+    def open_file(self, remote_file: str, open_options: str = "r", encoding: str | None = None):
         return self.client.root.open(remote_file, open_options=open_options, encoding=encoding)
 
-    def create_file(self, remote_file: str, create_options: str = "w", encoding: str = None, override: bool = True):
+    def create_file(
+        self, remote_file: str, create_options: str = "w", encoding: str | None = None, override: bool = True
+    ):
         return self.client.root.create(remote_file, open_options=create_options, encoding=encoding, override=override)
 
     def makedirs(self, remotepath: str) -> str:

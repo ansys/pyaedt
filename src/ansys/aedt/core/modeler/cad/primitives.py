@@ -2799,7 +2799,7 @@ class GeometryModeler(Modeler, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_sheet_to_ground(
-        self, assignment: str, ground_name: str = None, orientation: int = 0, sheet_dim: int = 1
+        self, assignment: str, ground_name: str | None = None, orientation: int = 0, sheet_dim: int = 1
     ) -> int:
         """Create a sheet between an object and a ground plane.
 
@@ -3196,7 +3196,7 @@ class GeometryModeler(Modeler, PyAedtBase):
     def split(
         self,
         assignment: str | int | list | Object3d,
-        plane: str = None,
+        plane: str | None = None,
         sides: str = "Both",
         tool: str | int | FacePrimitive | EdgePrimitive | VertexPrimitive = None,
         split_crossing_objs: bool = False,
@@ -5053,7 +5053,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def create_face_list(self, assignment: list, name: str = None) -> Lists | bool:
+    def create_face_list(self, assignment: list, name: str | None = None) -> Lists | bool:
         """Create a list of faces given a list of face ID or a list of objects.
 
         Parameters
@@ -8016,7 +8016,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         num_seg: int = 0,
         num_points: int = 0,
         arc_angle: int = 0,
-        arc_center: list | str = None,
+        arc_center: list | str | None = None,
         arc_plane: str | int = None,
     ) -> PolylineSegment:
         """New segment of a polyline.
@@ -8078,13 +8078,13 @@ class GeometryModeler(Modeler, PyAedtBase):
         close_surface: bool = False,
         name: str | None = None,
         material: str | None = None,
-        xsection_type: str = None,
-        xsection_orient: str = None,
+        xsection_type: str | None = None,
+        xsection_orient: str | None = None,
         xsection_width: int = 1,
         xsection_topwidth: int = 1,
         xsection_height: int = 1,
         xsection_num_seg: int = 0,
-        xsection_bend_type: str = None,
+        xsection_bend_type: str | None = None,
         non_model: bool = False,
     ) -> Polyline:
         """Draw a polyline object in the 3D modeler.
@@ -9429,7 +9429,9 @@ class GeometryModeler(Modeler, PyAedtBase):
             return
 
     @pyaedt_function_handler()
-    def get_bodynames_from_position(self, position: list, units: str = None, include_non_model: bool = True) -> list:
+    def get_bodynames_from_position(
+        self, position: list, units: str | None = None, include_non_model: bool = True
+    ) -> list:
         """Retrieve the names of the objects that are in contact with a given point.
 
         Parameters
@@ -9478,7 +9480,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return list_of_bodies
 
     @pyaedt_function_handler()
-    def get_edgeid_from_position(self, position: list, assignment: str = None, units: str = None) -> int:
+    def get_edgeid_from_position(self, position: list, assignment: str | None = None, units: str | None = None) -> int:
         """Get an edge ID from a position.
 
         Parameters
@@ -9569,7 +9571,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return edge_ids
 
     @pyaedt_function_handler()
-    def get_faceid_from_position(self, position: list, assignment: str = None, units: str = None) -> int:
+    def get_faceid_from_position(self, position: list, assignment: str | None = None, units: str | None = None) -> int:
         """Retrieve a face ID from a position.
 
         Parameters
@@ -10018,7 +10020,7 @@ class GeometryModeler(Modeler, PyAedtBase):
             return []
 
     @pyaedt_function_handler()
-    def get_closest_edgeid_to_position(self, position: list, units: str = None) -> int:
+    def get_closest_edgeid_to_position(self, position: list, units: str | None = None) -> int:
         """Get the edge ID closest to a given position.
 
         Parameters

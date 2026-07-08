@@ -805,7 +805,7 @@ def download_multiparts(local_path: str | Path = None) -> str:
 
 @pyaedt_function_handler()
 def download_twin_builder_data(
-    file_name: str = None, force_download: bool = False, local_path: str | Path = None
+    file_name: str | None = None, force_download: bool = False, local_path: str | Path = None
 ) -> str:
     """Download a Twin Builder example data file.
 
@@ -860,7 +860,7 @@ def download_twin_builder_data(
 
 
 @pyaedt_function_handler()
-def download_file(source: str, name: str = None, local_path: str | Path = None, force: bool = False) -> str:
+def download_file(source: str, name: str | None = None, local_path: str | Path = None, force: bool = False) -> str:
     """Download a file or files from the online examples repository.
 
     Files are downloaded from the

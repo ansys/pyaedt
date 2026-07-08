@@ -333,7 +333,7 @@ class AMIConturEyeDiagram(CommonReport):
             return ["X Component:=", self.primary_sweep, "Y Component:=", new_exprs]
 
     @pyaedt_function_handler()
-    def create(self, name: str = None) -> bool:
+    def create(self, name: str | None = None) -> bool:
         """Create an eye diagram report.
 
         Parameters
@@ -538,7 +538,7 @@ class AMIConturEyeDiagram(CommonReport):
         return True
 
     @pyaedt_function_handler()
-    def export_mask_violation(self, output_file: str = None) -> str:
+    def export_mask_violation(self, output_file: str | None = None) -> str:
         """Export the eye diagram mask violations to a TAB file.
 
         Parameters
@@ -1062,7 +1062,7 @@ class AMIEyeDiagram(CommonReport):
         return ["Component:=", new_exprs]
 
     @pyaedt_function_handler()
-    def create(self, name: str = None) -> bool:
+    def create(self, name: str | None = None) -> bool:
         """Create an eye diagram report.
 
         Parameters
@@ -1302,7 +1302,7 @@ class AMIEyeDiagram(CommonReport):
         return True
 
     @pyaedt_function_handler()
-    def export_mask_violation(self, output_file: str = None) -> str:
+    def export_mask_violation(self, output_file: str | None = None) -> str:
         """Export the eye diagram mask violations to a TAB file.
 
         Parameters

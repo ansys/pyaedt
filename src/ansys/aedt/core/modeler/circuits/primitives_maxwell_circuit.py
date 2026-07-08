@@ -101,7 +101,7 @@ class MaxwellCircuitComponents(CircuitComponents, PyAedtBase):
     @pyaedt_function_handler()
     def create_resistor(
         self,
-        name: str = None,
+        name: str | None = None,
         value: float = 50.0,
         location: list[float] = None,
         angle: float = 0.0,
@@ -160,7 +160,7 @@ class MaxwellCircuitComponents(CircuitComponents, PyAedtBase):
     @pyaedt_function_handler()
     def create_inductor(
         self,
-        name: str = None,
+        name: str | None = None,
         value: float = 50.0,
         location: list[float] = None,
         angle: float = 0.0,
@@ -219,7 +219,7 @@ class MaxwellCircuitComponents(CircuitComponents, PyAedtBase):
     @pyaedt_function_handler()
     def create_capacitor(
         self,
-        name: str = None,
+        name: str | None = None,
         value: float = 50.0,
         location: list[float] = None,
         angle: float = 0.0,
@@ -276,7 +276,11 @@ class MaxwellCircuitComponents(CircuitComponents, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_diode(
-        self, name: str = None, location: list[float] = None, angle: float = 0.0, use_instance_id_netlist: bool = False
+        self,
+        name: str | None = None,
+        location: list[float] = None,
+        angle: float = 0.0,
+        use_instance_id_netlist: bool = False,
     ) -> "CircuitComponent":
         """Create a diode.
 

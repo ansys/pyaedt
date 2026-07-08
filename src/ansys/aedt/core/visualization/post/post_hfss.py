@@ -75,7 +75,7 @@ class PostProcessorHFSS(PostProcessor3D, PyAedtBase):
         expressions: str = "GainTotal",
         setup_sweep_name: str = "",
         domain: str = "Infinite Sphere1",
-        sweeps: dict = None,
+        sweeps: dict | None = None,
     ) -> "SolutionData":
         """Generate far field data using the ``GetSolutionDataPerVariation()`` method.
 
@@ -253,7 +253,7 @@ class PostProcessorHFSS(PostProcessor3D, PyAedtBase):
         ray_index_start: int = 0,
         ray_index_stop: int = 1,
         ray_index_step: int = 1,
-        ray_box: int | str = None,
+        ray_box: int | str | None = None,
     ) -> "VRTFieldPlot":
         """Create an SBR Plane Wave Visual Ray Tracing and return the class object.
 
@@ -332,7 +332,7 @@ class PostProcessorHFSS(PostProcessor3D, PyAedtBase):
         ray_index_start: int = 0,
         ray_index_stop: int = 1,
         ray_index_step: int = 1,
-        ray_box: int | str = None,
+        ray_box: int | str | None = None,
     ) -> "VRTFieldPlot":
         """Create an SBR Point Source Visual Ray Tracing and return the class object.
 
@@ -497,10 +497,10 @@ class PostProcessorHFSS(PostProcessor3D, PyAedtBase):
         self,
         layers_nets: list,
         quantity: str,
-        setup: str = None,
-        intrinsics: dict = None,
+        setup: str | None = None,
+        intrinsics: dict | None = None,
         plot_on_surface: bool = True,
-        plot_name: str = None,
+        plot_name: str | None = None,
     ) -> "FieldPlot":
         # type: (list, str, str, dict, bool, str) -> FieldPlot
         """Create a field plot of stacked layer plot on specified matrix of layers and nets.

@@ -185,7 +185,7 @@ class MatProperties(PyAedtBase):
         return cls.aedtname[cls.workbench_name.index(wb_name)]
 
     @classmethod
-    def get_defaultunit(cls, aedtname: str = None) -> str:
+    def get_defaultunit(cls, aedtname: str | None = None) -> str:
         """Retrieve the default unit for a full name or a category name.
 
         Parameters
@@ -211,7 +211,7 @@ class MatProperties(PyAedtBase):
             raise TypeError("get_defaultunit: Either the full name or category name must be defined.")
 
     @classmethod
-    def get_defaultvalue(cls, aedtname: str = None) -> float:
+    def get_defaultvalue(cls, aedtname: str | None = None) -> float:
         """Retrieve the default value for a full name or a category name.
 
         Parameters
@@ -262,7 +262,7 @@ class SurfMatProperties(PyAedtBase):
     """Value for defaultunit."""
 
     @classmethod
-    def get_defaultunit(cls, aedtname: str = None) -> str:
+    def get_defaultunit(cls, aedtname: str | None = None) -> str:
         """Retrieve the default unit for a full name or a category name.
 
         Parameters
@@ -288,7 +288,7 @@ class SurfMatProperties(PyAedtBase):
             raise TypeError("get_defaultunit: either fullname or catname MUST be defined")
 
     @classmethod
-    def get_defaultvalue(cls, aedtname: str = None) -> float:
+    def get_defaultvalue(cls, aedtname: str | None = None) -> float:
         """Get the default value for a full name or a category name.
 
         Parameters
@@ -1101,7 +1101,7 @@ class MatProperty(PyAedtBase):
         return self._material.update()
 
     @pyaedt_function_handler()
-    def set_non_linear(self, x_unit: str = None, y_unit: str = None) -> bool:
+    def set_non_linear(self, x_unit: str | None = None, y_unit: str | None = None) -> bool:
         """Enable non-linear material.
 
          This is a private method, and should not be used directly.

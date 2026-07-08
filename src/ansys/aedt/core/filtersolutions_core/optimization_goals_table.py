@@ -213,13 +213,13 @@ class OptimizationGoalsTable:
     def update_row(
         self,
         row_index: int,
-        lower_frequency: str = None,
-        upper_frequency: str = None,
-        goal_value: str = None,
-        condition: str = None,
-        parameter_name: str = None,
-        weight: str = None,
-        enabled: str = None,
+        lower_frequency: str | None = None,
+        upper_frequency: str | None = None,
+        goal_value: str | None = None,
+        condition: str | None = None,
+        parameter_name: str | None = None,
+        weight: str | None = None,
+        enabled: str | None = None,
     ) -> None:
         """Update the row parameters for an existing row in the optimization goals table.
 
@@ -271,13 +271,13 @@ class OptimizationGoalsTable:
 
     def append_row(
         self,
-        lower_frequency: str = None,
-        upper_frequency: str = None,
-        goal_value: str = None,
-        condition: str = None,
-        parameter_name: str = None,
-        weight: str = None,
-        enabled: str = None,
+        lower_frequency: str | None = None,
+        upper_frequency: str | None = None,
+        goal_value: str | None = None,
+        condition: str | None = None,
+        parameter_name: str | None = None,
+        weight: str | None = None,
+        enabled: str | None = None,
     ) -> None:
         """Append a new row of parameters to the optimization goals table,
         ensuring the total does not exceed 50 entries.
@@ -321,13 +321,13 @@ class OptimizationGoalsTable:
     def insert_row(
         self,
         row_index: int,
-        lower_frequency: str = None,
-        upper_frequency: str = None,
-        goal_value: str = None,
-        condition: str = None,
-        parameter_name: str = None,
-        weight: str = None,
-        enabled: str = None,
+        lower_frequency: str | None = None,
+        upper_frequency: str | None = None,
+        goal_value: str | None = None,
+        condition: str | None = None,
+        parameter_name: str | None = None,
+        weight: str | None = None,
+        enabled: str | None = None,
     ) -> None:
         """Insert a new row of parameters to the optimization goals table,
         ensuring the total does not exceed 50 entries.

@@ -624,7 +624,11 @@ class CircuitComponents(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_model_from_touchstone(
-        self, input_file: str | Path, model_name: str = None, show_bitmap: bool = True, image_path: str = None
+        self,
+        input_file: str | Path,
+        model_name: str | None = None,
+        show_bitmap: bool = True,
+        image_path: str | None = None,
     ) -> str | bool:
         """Create a model from a touchstone file.
 
@@ -912,7 +916,7 @@ class CircuitComponents(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_model_from_nexxim_state_space(
-        self, input_file: str, num_terminal: int, model_name: str = None, port_names: list = None
+        self, input_file: str, num_terminal: int, model_name: str | None = None, port_names: list = None
     ) -> str | bool:
         """Create a model from a Touchstone file.
 
@@ -1167,7 +1171,7 @@ class CircuitComponents(PyAedtBase):
         angle: int = 0,
         show_bitmap: bool = True,
         page: int = 1,
-        image_path: str = None,
+        image_path: str | None = None,
     ) -> CircuitComponent:
         """Create a component from a touchstone model.
 
@@ -1647,7 +1651,7 @@ class CircuitComponents(PyAedtBase):
         return len(self.components)
 
     @pyaedt_function_handler()
-    def add_id_to_component(self, component_id: int, name: str = None) -> int:
+    def add_id_to_component(self, component_id: int, name: str | None = None) -> int:
         """Add an ID to a component.
 
         Parameters
@@ -2161,7 +2165,7 @@ class ComponentInfo(PyAedtBase):
     @pyaedt_function_handler()
     def place(
         self,
-        assignment: str = None,
+        assignment: str | None = None,
         location: list = None,
         angle: int = 0,
         use_instance_id_netlist: bool = False,

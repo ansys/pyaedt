@@ -289,17 +289,17 @@ def available_toolkits() -> dict:
 
 def add_script_to_menu(
     name: str,
-    script_file: str = None,
+    script_file: str | None = None,
     template_file: str = "run_pyaedt_toolkit_script",
-    icon_file: str = None,
+    icon_file: str | None = None,
     product: str = "Project",
     copy_to_personal_lib: bool = True,
     panel: str = "Panel_PyAEDT_Extensions",
-    personal_lib: str = None,
+    personal_lib: str | None = None,
     is_custom: bool = False,
     odesktop: object = None,
-    group_name: str = None,
-    group_icon: str = None,
+    group_name: str | None = None,
+    group_icon: str | None = None,
 ) -> bool:
     """Add a script to the ribbon menu.
 
@@ -491,7 +491,7 @@ def run_command(command: list[str], desktop_object: object) -> int:  # pragma: n
 
 
 def add_custom_toolkit(
-    desktop_object: object, toolkit_name: str, wheel_toolkit: str = None, install: bool = True
+    desktop_object: object, toolkit_name: str, wheel_toolkit: str | None = None, install: bool = True
 ) -> bool:  # pragma: no cover
     """Add toolkit to AEDT Automation Tab.
 

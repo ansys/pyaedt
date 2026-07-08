@@ -282,7 +282,9 @@ class LumpedTerminationImpedance:
         imag_value_string = imag_value_buffer.value.decode("utf-8")
         return frequency_value_string, real_value_string, imag_value_string
 
-    def update_row(self, row_index: int, frequency: str = None, real: str = None, imag: str = None) -> None:
+    def update_row(
+        self, row_index: int, frequency: str | None = None, real: str | None = None, imag: str | None = None
+    ) -> None:
         """Update frequency and complex impedance at a specified index in the complex impedance table.
 
         Parameters
@@ -313,7 +315,7 @@ class LumpedTerminationImpedance:
         )
         self._dll_interface.raise_error(status)
 
-    def append_row(self, frequency: str = None, real: str = None, imag: str = None) -> None:
+    def append_row(self, frequency: str | None = None, real: str | None = None, imag: str | None = None) -> None:
         """Append frequency and complex impedance values to the last row of
         both the source and load complex impedance table.
 
@@ -343,7 +345,9 @@ class LumpedTerminationImpedance:
         )
         self._dll_interface.raise_error(status)
 
-    def insert_row(self, row_index: int, frequency: str = None, real: str = None, imag: str = None) -> None:
+    def insert_row(
+        self, row_index: int, frequency: str | None = None, real: str | None = None, imag: str | None = None
+    ) -> None:
         """Insert frequency and complex impedance values at a specified index in the complex impedance table.
 
         Parameters
