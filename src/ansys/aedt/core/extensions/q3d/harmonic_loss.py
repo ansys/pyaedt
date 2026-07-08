@@ -76,7 +76,7 @@ class HarmonicLossExtension(ExtensionQ3DCommon):
 
     def show_pictures_popup(self) -> None:
         popup = tk.Toplevel(self.root)
-        popup.title("Coil Parameters")
+        popup.title("CSV File Format")
         popup.configure(bg=self.theme.light["pane_bg"])
 
         container = ttk.Frame(popup, padding=12)
