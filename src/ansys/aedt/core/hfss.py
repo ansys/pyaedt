@@ -7737,6 +7737,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.import_table(name="Table1")
+
         """
         name_list = self.modeler.convert_to_selections(name, True)
         new_name_list = []
@@ -7748,7 +7749,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def create_fresnel_variables(self, setup_sweep: str, rttbl_ver: str = '2.0') -> None:
+    def create_fresnel_variables(self, setup_sweep: str, rttbl_version: str = "2.0") -> None:
         """
         Create (or overwrite) the output variables in HFSS needed to compute Fresnel reflection/transmission
         coefficients between Floquet ports.
@@ -7757,6 +7758,15 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         ----------
         setup_sweep : str
             Name of the setup and sweep.
+        rttbl_version : str
+            Version of the Fresnel table to create. The options are ``"1.0"`` and ``"2.0"``.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.create_fresnel_variables("Setup2 : Sweep")
+
         """
         floquet_ports = self.get_fresnel_floquet_ports()
         is_reflection = len(floquet_ports) == 1
@@ -7764,9 +7774,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         def _create_var(variable: str, expression: str) -> None:
             self.create_output_variable(variable=variable, expression=expression, solution=setup_sweep)
 
-        # Create output variables for surther R or RT extraction
-        match rttbl_ver:
-            case '1.0':
+        # Create output variables for further R or RT extraction
+        match rttbl_version:
+            case "1.0":
                 # Always create the base reflection variables (exist for both isotropic & anisotropic)
                 _create_var("r_te", f"S({floquet_ports[0]}:1,{floquet_ports[0]}:1)")
                 _create_var("r_tm", f"-S({floquet_ports[0]}:2,{floquet_ports[0]}:2)")
@@ -7777,7 +7787,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                     # Co-pol transmission
                     _create_var("t_te", f"S({bot}:1,{top}:1)*renorm_t")
                     _create_var("t_tm", f"S({bot}:2,{top}:2)*renorm_t")
-            case '2.0':
+            case "2.0":
                 # Always create the base reflection variables (exist for both isotropic & anisotropic)
                 _create_var("r_te", f"S({floquet_ports[0]}:1,{floquet_ports[0]}:1)")
                 _create_var("r_tm", f"-S({floquet_ports[0]}:2,{floquet_ports[0]}:2)")
@@ -7805,7 +7815,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                     _create_var("t_tm_te_inv", f"-S({top}:2,{bot}:1)*renorm_t_inv")
                     _create_var("t_te_tm_inv", f"-S({top}:1,{bot}:2)*renorm_t_inv")
 
-
     @pyaedt_function_handler()
     def get_fresnel_coefficients(
         self,
@@ -7814,7 +7823,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         phi_name: str,
         output_file: str | Path = None,
         is_isotropic: bool | None = None,
-        rttbl_ver: str = '2.0'
+        rttbl_version: str = "2.0",
     ) -> Path:
         """
         Generate a Fresnel reflection or reflection/transmission coefficient table from simulation data.
@@ -7837,6 +7846,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         is_isotropic : bool, optional
             Whether to get isotropic or anisotropic coefficients.
              If ``None``, the method will attempt to determine isotropy based on the parametric sweep.
+        rttbl_version : str
+            Version of the Fresnel table to create. The options are ``"1.0"`` and ``"2.0"``.
 
         Returns
         -------
@@ -7844,7 +7855,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             The path to the generated `.rttbl` file containing Fresnel coefficients.
 
         """
-        self.create_fresnel_variables(setup_sweep=setup_sweep, rttbl_ver=rttbl_ver)
+        self.create_fresnel_variables(setup_sweep=setup_sweep, rttbl_version=rttbl_version)
 
         floquet_ports = self.get_fresnel_floquet_ports()
 
@@ -8003,17 +8014,17 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                 ofile.write("RTTable\n" if is_isotropic else "AnisotropicRTTable\n")
 
             ofile.write("# RTTBL file format version.\n")
-            if rttbl_ver == '1.0':
-                ofile.write(f"# RTTBLver {rttbl_ver}\n")
+            if rttbl_version == "1.0":
+                ofile.write(f"# RTTBLver {rttbl_version}\n")
             else:
-                ofile.write(f"RTTBLver {rttbl_ver}\n")
+                ofile.write(f"RTTBLver {rttbl_version}\n")
 
             ofile.write(
                 "# The incident angle theta is measured from the vertical (Z-axis) towards the horizon (XY-plane) "
                 "and must start from 0.\n"
             )
             ofile.write("# Maximum simulated theta value, deg.\n")
-            if rttbl_ver == '1.0':
+            if rttbl_version == "1.0":
                 ofile.write(f"# ThetaMax {theta_max}\n")
             else:
                 ofile.write(f"ThetaMax {theta_max}\n")
@@ -8021,7 +8032,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             ofile.write("# The angular sampling is specified by the number of theta steps.\n")
             ofile.write("# <num_theta_step> = number_of_theta_points – 1\n")
 
-            if rttbl_ver == '1.0':
+            if rttbl_version == "1.0":
                 nb_theta_points = int(90 / theta_step)
             else:
                 angles_keys = list(angles.keys())
@@ -8100,7 +8111,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                                 f"{re_t_tm[i]:.5e}\t{im_t_tm[i]:.5e}\n"
                             )
 
-                if rttbl_ver=='1.0':  # version 1.0 supports isotropic only
+                if rttbl_version == "1.0":  # version 1.0 supports isotropic only
                     # Isotropic coefficients must to until 90 deg
                     last_theta = angles["0.0deg"][-1]
                     if last_theta != 90:
