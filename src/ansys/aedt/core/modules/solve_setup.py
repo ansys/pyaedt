@@ -59,9 +59,6 @@ from ansys.aedt.core.modules.solve_sweeps import identify_setup
 
 if TYPE_CHECKING:
     from ansys.aedt.core.application.analysis import Analysis
-    from ansys.aedt.core.application.analysis_3d_layout import FieldAnalysis3DLayout
-    from ansys.aedt.core.application.analysis_icepak import FieldAnalysisIcepak
-    from ansys.aedt.core.application.analysis_nexxim import FieldAnalysisCircuit
     from ansys.aedt.core.visualization.post.solution_data import SolutionData
     from ansys.aedt.core.visualization.report.standard import Standard
 
@@ -91,7 +88,7 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
 
     def __init__(
         self,
-        app: Analysis | FieldAnalysis3DLayout | FieldAnalysisCircuit | FieldAnalysisIcepak,
+        app: Analysis,
         solution_type: str | int,
         name: str = "MySetupAuto",
         is_new_setup: bool = True,
@@ -1346,7 +1343,7 @@ class SetupCircuit(CommonSetup):
     """
 
     def __init__(
-        self, app: FieldAnalysisCircuit, solution_type: str | int, name: str = "MySetupAuto", is_new_setup: bool = True
+        self, app: Analysis, solution_type: str | int, name: str = "MySetupAuto", is_new_setup: bool = True
     ) -> None:
         CommonSetup.__init__(self, app, solution_type, name, is_new_setup)
 
@@ -2178,7 +2175,7 @@ class Setup3DLayout(CommonSetup):
     """
 
     def __init__(
-        self, app: FieldAnalysis3DLayout, solution_type: str | int, name: str = "MySetupAuto", is_new_setup: bool = True
+        self, app: Analysis, solution_type: str | int, name: str = "MySetupAuto", is_new_setup: bool = True
     ) -> None:
         CommonSetup.__init__(self, app, solution_type, name, is_new_setup)
 
@@ -5149,9 +5146,7 @@ class SetupQ3D(Setup, PyAedtBase):
 class SetupIcepak(Setup, PyAedtBase):
     """Provide setup icepak."""
 
-    def __init__(
-        self, app: FieldAnalysisIcepak, solution_type: str | int, setup_name: str, is_new_setup: bool = True
-    ) -> None:
+    def __init__(self, app: Analysis, solution_type: str | int, setup_name: str, is_new_setup: bool = True) -> None:
         Setup.__init__(self, app, solution_type, setup_name, is_new_setup)
 
     def start_continue_from_previous_setup(
