@@ -696,23 +696,28 @@ def test_create_linear_step_sweep(aedt_app) -> None:
 
 def test_create_single_point_sweep(aedt_app) -> None:
     setup_name = "RF_create_single_point"
-    aedt_app.create_setup(name=setup_name)
+    setup = aedt_app.create_setup(name=setup_name)
     sweep5 = aedt_app.create_single_point_sweep(
-        setup=setup_name,
+        setup=setup.name,
         unit="MHz",
         freq=1.23,
         name="RFBoardSingle",
         save_fields=True,
     )
     assert sweep5.props["Sweeps"]["Data"] == "1.23MHz"
+    assert setup.children[sweep5.name].properties["Start"] == "1.23MHz"
+    assert setup.children[sweep5.name].properties["Stop"] == "1.23MHz"
+
     sweep6 = aedt_app.create_single_point_sweep(
-        setup=setup_name,
+        setup=setup.name,
         unit="GHz",
         freq=[1, 2, 3, 4],
         name="RFBoardSingle",
         save_fields=False,
     )
     assert sweep6.props["Sweeps"]["Data"] == "1GHz 2GHz 3GHz 4GHz"
+    setup.children[sweep6.name].properties["Start"] == "1GHz"
+    setup.children[sweep6.name].properties["Stop"] == "4GHz"
 
     with pytest.raises(AttributeError) as execinfo:
         aedt_app.create_single_point_sweep(

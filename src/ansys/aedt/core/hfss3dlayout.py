@@ -1530,6 +1530,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
                     for f in freq:
                         sweepdata.add_subrange(range_type="SinglePoint", start=f, unit=unit)
                 self.logger.info("Single point sweep %s has been correctly created.", sweep_name)
+
+                # Reset children to populate again the new properties
+                s._children = {}
+
                 return sweepdata
         return False
 
