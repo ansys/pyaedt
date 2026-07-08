@@ -66,7 +66,7 @@ class EmitterNode(EmitNode):
         antennas = self._oRevisionData.GetChildNodeNames(result_id, scene_node_id, "AntennaNode", True)
         for ant in antennas:
             if ant == self._radio_node.name:
-                ant_id = self._oRevisionData.GetChildNodeID(result_id, scene_node_id, ant)
+                ant_id = self._oRevisionData.GetChildNodeID(result_id, scene_node_id, ant, True)
                 self._antenna_node = AntennaNode(emit_obj, result_id, ant_id)
 
     @property

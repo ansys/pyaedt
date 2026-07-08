@@ -1536,8 +1536,11 @@ def test_categories(cell_phone):
     and eventually results in no valid values when all categories are filtered.
     """
     # Generate a revision
-    rev = cell_phone.results.analyze()
-    sim = rev.get_simulation()
+    rev: Revision = cell_phone.results.analyze()
+    sim: Simulation = rev.get_simulation()
+
+    # make sure Nto1 is disabled
+    sim.set_receiver_n_to_1_enabled("GSM Mobile Station", False)
 
     # Verify all category filters are enabled initially
     assert sim.get_emi_category_filter_enabled(EmiCategoryFilter.IN_CHANNEL_TX_BROADBAND) is True

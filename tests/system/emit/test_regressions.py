@@ -32,7 +32,10 @@ import psutil
 import pytest
 
 from ansys.aedt.core import Emit
+from ansys.aedt.core.emit_core.nodes.generated import AntennaNode
+from ansys.aedt.core.emit_core.nodes.emitter_node import EmitterNode
 from ansys.aedt.core.emit_core.nodes.generated import CouplingsNode
+from ansys.aedt.core.emit_core.nodes.generated import SceneGroupNode
 from ansys.aedt.core.emit_core.nodes.generated import CustomCouplingNode
 from ansys.aedt.core.emit_core.nodes.generated import RxMixerProductNode
 from ansys.aedt.core.emit_core.nodes.generated import RxSaturationNode
@@ -44,6 +47,8 @@ from ansys.aedt.core.emit_core.nodes.generated import TxHarmonicNode
 from ansys.aedt.core.emit_core.nodes.generated import TxNbEmissionNode
 from ansys.aedt.core.emit_core.nodes.generated import TxSpectralProfNode
 from ansys.aedt.core.emit_core.nodes.generated import TxSpurNode
+from ansys.aedt.core.emit_core.nodes.generated import EmitSceneNode
+from ansys.aedt.core.emit_core.results.revision import Revision
 from tests.conftest import DESKTOP_VERSION
 
 
@@ -150,8 +155,8 @@ def test_import_csv_file_all_node_types(emit_app) -> None:
         "TxBbEmissionNode": "1e6,-100\n10e6,-120\n",
         # Frequency MHz (expression), Bandwidth (>1), Power (-200–150)
         "TxSpurNode": "100,2,-50\n200,5,-80\n",
-        # Frequency (1–100e9), Value dB (-1000–0)
-        "CustomCouplingNode": "1e9,-10\n2e9,-20\n",
+        # Frequency MHz (1–100e9), Value dB (-1000–0)
+        "CustomCouplingNode": "1000,-10\n2000,-20\n",
     }
 
     csv_dir = tempfile.gettempdir()
@@ -758,3 +763,59 @@ def test_defect_1475694_iemit_dies_when_design_deleted(desktop, add_app) -> None
     )
 
     app.close_project(app.project_name, save=False)
+
+
+@pytest.mark.skipif(True, reason="B1457557 - need to fix SceneGroupNode.add_group().")
+@pytest.mark.skipif(not DESKTOP_VERSION or DESKTOP_VERSION < "2027.1", reason="Regression test for defect 1475679.")
+def test_defect_1475679_get_child_node_id_recurse(emit_app) -> None:
+    """Regression test for TFS defect 1475679.
+
+    GetChildNodeID should have recurse option
+    https://tfs.ansys.com:8443/tfs/ANSYS_Development/Portfolio/_workitems/edit/1475679
+
+    Severity: Class 2 - Minor Problem
+
+    Before the fix, GetChildNodeID only searched immediate children. When
+    GetChildNodeNames was called with recurse=True, it returned descendant
+    names that GetChildNodeID could not resolve. The fix adds a recurse
+    parameter so GetChildNodeID can find nodes at any depth.
+    """
+    mod = emit_app.odesign.GetModule("EmitCom")
+    rev: Revision = emit_app.results.analyze()
+
+    scene_node: EmitSceneNode = rev.get_scene_node()
+
+    # add an antenna directly under the scene
+    ant1_node: AntennaNode = scene_node.add_antenna()
+    assert ant1_node
+
+    # add a group node directly under the scene
+    group_node: SceneGroupNode = scene_node.add_group()
+    assert group_node
+
+    # add an emitter directly under the group
+    emitter_node: EmitterNode = group_node.add_emitter()
+    assert emitter_node
+
+    # get the emitter's antenna
+    ant2_node: AntennaNode = emitter_node.get_antenna()
+    assert ant2_node
+
+    # add an antenna directly under the group
+    ant3_node: AntennaNode = group_node.add_antenna()
+    assert ant3_node
+
+    antennas = mod.GetChildNodeNames(0, scene_node._node_id, "AntennaNode", False)
+    assert len(antennas) == 1
+    assert ant1_node.name in antennas
+    
+    antennas_recurse = mod.GetChildNodeNames(0, scene_node._node_id, "AntennaNode", True)
+    assert len(antennas_recurse) == 3
+    assert ant1_node.name in antennas_recurse
+    assert ant2_node.name in antennas_recurse
+    assert ant3_node.name in antennas_recurse
+
+    for ant in antennas_recurse:
+        ant_id_recurse = mod.GetChildNodeID(0, scene_node._node_id, ant, True)
+        assert ant_id_recurse > 0
+
