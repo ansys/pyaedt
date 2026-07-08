@@ -31,6 +31,7 @@ import re
 import shutil
 import subprocess  # nosec
 import sys
+from typing import Protocol
 import warnings
 
 import ansys.aedt.core.extensions
@@ -58,6 +59,32 @@ AEDT_APPLICATIONS = {
 """AEDT applications."""
 
 
+class LoggerLike(Protocol):
+    def warning(self, msg: object, *args: object) -> object: ...
+
+    def error(self, msg: object, *args: object) -> object: ...
+
+    def info(self, msg: object, *args: object) -> object: ...
+
+
+class ODesktopLike(Protocol):
+    def AddMessage(self, project_name: str, design_name: str, message_type: int, message_text: str) -> object: ...
+
+    def GetVersion(self) -> str: ...
+
+    def GetExeDir(self) -> str: ...
+
+    def RefreshToolkitUI(self) -> object: ...
+
+
+class DesktopLike(Protocol):
+    logger: LoggerLike
+    aedt_version_id: str
+    install_path: str
+    odesktop: ODesktopLike
+    personallib: str
+
+
 def _iter_panel_button_specs(parser: TabConfigParser, panel_label: str | None = None):
     for panel_spec in parser.to_model():
         if panel_label and panel_spec.label != panel_label:
@@ -70,7 +97,7 @@ def _iter_panel_button_specs(parser: TabConfigParser, panel_label: str | None = 
                 yield from group.buttons
 
 
-def _safe_parse_tabconfig(tabconfig_path, logger=None):
+def _safe_parse_tabconfig(tabconfig_path: str | Path, logger: LoggerLike | None = None) -> TabConfigParser | None:
     try:
         return TabConfigParser(tabconfig_path)
     except Exception as exc:
@@ -81,14 +108,14 @@ def _safe_parse_tabconfig(tabconfig_path, logger=None):
 
 def add_automation_tab(
     name: str,
-    lib_dir: str,
+    lib_dir: str | Path,
     icon_file: str | None = None,
     product: str = "Project",
     template: str = "Run PyAEDT Toolkit Script",
     overwrite: bool = False,
     panel: str = "Panel_PyAEDT_Extensions",
     is_custom: bool = False,  # new argument for custom flagº
-    odesktop: object = None,
+    odesktop: ODesktopLike | None = None,
     group_name: str | None = None,
     group_icon: str | None = None,
     gallery_imagewidth: int = 80,
@@ -184,8 +211,8 @@ def add_automation_tab(
         if group_icon_path is None:
             raise TypeError("Group icon is required when group_name is provided.")
         group_image_value = _resolve_image_path(group_icon_path, is_group_icon=True)
-        gallery_button_attrs = {}
-        if group_image_value:
+        gallery_button_attrs: dict[str, str] = {}
+        if image_value:
             gallery_button_attrs["image"] = image_value
         gallery_button = (
             ButtonSpec(group_name, gallery_button_attrs) if gallery_button_attrs else ButtonSpec(group_name)
@@ -199,7 +226,7 @@ def add_automation_tab(
             }
         else:
             toolkit_name = name.replace("/", "_")
-            button_kwargs = {
+            button_kwargs: dict[str, str] = {
                 "script": f"{toolkit_name}/{template}",
             }
         parser.add_group_button(
@@ -228,9 +255,10 @@ def add_automation_tab(
             toolkit_name = name.replace("/", "_")
             button_kwargs = {
                 "isLarge": "1",
-                "image": image_value,
                 "script": f"{toolkit_name}/{template}",
             }
+            if image_value:
+                button_kwargs["image"] = image_value
         parser.add_button(panel, ButtonSpec(name, button_kwargs))
     # Backup any existing file if present
     if tab_config_file_path.is_file():
@@ -289,17 +317,17 @@ def available_toolkits() -> dict:
 
 def add_script_to_menu(
     name: str,
-    script_file: str = None,
+    script_file: str | None = None,
     template_file: str = "run_pyaedt_toolkit_script",
-    icon_file: str = None,
+    icon_file: str | None = None,
     product: str = "Project",
     copy_to_personal_lib: bool = True,
     panel: str = "Panel_PyAEDT_Extensions",
-    personal_lib: str = None,
+    personal_lib: str | None = None,
     is_custom: bool = False,
-    odesktop: object = None,
-    group_name: str = None,
-    group_icon: str = None,
+    odesktop: ODesktopLike | None = None,
+    group_name: str | None = None,
+    group_icon: str | None = None,
 ) -> bool:
     """Add a script to the ribbon menu.
 
@@ -463,7 +491,7 @@ def tab_map(product: str) -> str:  # pragma: no cover
         return product
 
 
-def run_command(command: list[str], desktop_object: object) -> int:  # pragma: no cover
+def run_command(command: list[str], desktop_object: DesktopLike) -> int:  # pragma: no cover
     """Run a command through subprocess.
 
     .. warning::
@@ -491,7 +519,7 @@ def run_command(command: list[str], desktop_object: object) -> int:  # pragma: n
 
 
 def add_custom_toolkit(
-    desktop_object: object, toolkit_name: str, wheel_toolkit: str = None, install: bool = True
+    desktop_object: DesktopLike, toolkit_name: str, wheel_toolkit: str | None = None, install: bool = True
 ) -> bool:  # pragma: no cover
     """Add toolkit to AEDT Automation Tab.
 
@@ -534,6 +562,9 @@ def add_custom_toolkit(
             break
     if not toolkit_info:
         desktop_object.logger.error("Toolkit does not exist.")
+        return False
+    if not product_name:
+        desktop_object.logger.error("Toolkit product is not defined.")
         return False
 
     # Set Python version based on AEDT version
@@ -595,7 +626,7 @@ def add_custom_toolkit(
         desktop_object.logger.info("Virtual environment created.")
 
     is_installed = False
-    script_file = None
+    script_file: Path | None = None
     if (package_dir / toolkit_info["script"]).is_dir():
         script_file = package_dir / toolkit_info["script"]
     else:
@@ -609,11 +640,10 @@ def add_custom_toolkit(
                 break
     if script_file and script_file.is_file():
         is_installed = True
-    if wheel_toolkit:
-        wheel_toolkit = Path(wheel_toolkit)
+    wheel_toolkit_path = Path(wheel_toolkit) if wheel_toolkit else None
 
     desktop_object.logger.info("Installing dependencies")
-    if install and wheel_toolkit and wheel_toolkit.exists():
+    if install and wheel_toolkit_path and wheel_toolkit_path.exists():
         desktop_object.logger.info("Starting offline installation")
         if is_installed:
             command = [
@@ -625,10 +655,10 @@ def add_custom_toolkit(
             run_command(command, desktop_object)
         import zipfile
 
-        unzipped_path = wheel_toolkit.with_name(wheel_toolkit.stem)
+        unzipped_path = wheel_toolkit_path.with_name(wheel_toolkit_path.stem)
         if unzipped_path.exists():
             shutil.rmtree(str(unzipped_path), ignore_errors=True)
-        with zipfile.ZipFile(str(wheel_toolkit), "r") as zip_ref:
+        with zipfile.ZipFile(str(wheel_toolkit_path), "r") as zip_ref:
             zip_ref.extractall(str(unzipped_path))
 
         package_name = toolkit_info["package"]
@@ -672,7 +702,7 @@ def add_custom_toolkit(
         run_command(command, desktop_object)
     else:
         desktop_object.logger.info("Incorrect input")
-        return
+        return False
     toolkit_dir = Path(desktop_object.personallib) / "Toolkits"
     tool_dir = toolkit_dir / product_name / toolkit_info["name"]
 
@@ -683,6 +713,9 @@ def add_custom_toolkit(
 
     if install:
         if not tool_dir.exists():
+            if script_file is None:
+                desktop_object.logger.error("Toolkit script is not available.")
+                return False
             # Install toolkit inside AEDT
             add_script_to_menu(
                 name=toolkit_info["name"],
@@ -705,9 +738,10 @@ def add_custom_toolkit(
                 product=product_name,
             )
             desktop_object.logger.info(f"{toolkit_info['name']} uninstalled")
+    return True
 
 
-def remove_script_from_menu(desktop_object: object, name: str, product: str = "Project") -> bool:
+def remove_script_from_menu(desktop_object: DesktopLike, name: str, product: str = "Project") -> bool:
     """Remove a toolkit script from the menu.
 
     Parameters
@@ -738,12 +772,11 @@ def remove_script_from_menu(desktop_object: object, name: str, product: str = "P
     tool_dir = toolkit_dir / product / name
     tab_config_file_path = Path(toolkit_dir) / tab_map(product) / "TabConfig.xml"
     # Check if extension exists in panel before attempting removal
-    if aedt_version >= "2023.2":
-        parser = _safe_parse_tabconfig(tab_config_file_path, logger=desktop_object.logger)
-        if parser and parser.has_button(panel_label="Panel_PyAEDT_Extensions", label=name):
-            parser.remove_button(panel_label="Panel_PyAEDT_Extensions", label=name)
-        elif not parser:
-            return False
+    parser = _safe_parse_tabconfig(tab_config_file_path, logger=desktop_object.logger)
+    if not parser:
+        return False
+    if aedt_version >= "2023.2" and parser.has_button(panel_label="Panel_PyAEDT_Extensions", label=name):
+        parser.remove_button(panel_label="Panel_PyAEDT_Extensions", label=name)
     parser.save(tab_config_file_path)
     shutil.rmtree(str(tool_dir), ignore_errors=True)
     desktop_object.logger.info(f"{name} extension removed successfully.")
@@ -757,8 +790,8 @@ def __exe() -> str:
 
 
 def get_custom_extensions_from_tabconfig(
-    tabconfig_path: str, toml_names: list, options: dict, logger: object = None
-) -> dict:
+    tabconfig_path: str, toml_names: list[str], options: dict[str, str], logger: LoggerLike | None = None
+) -> dict[str, str]:
     """Add custom extensions from TabConfig.xml not in TOML.
 
     Examples
@@ -777,7 +810,7 @@ def get_custom_extensions_from_tabconfig(
     return options
 
 
-def get_custom_extension_script(tabconfig_path: str, label: str, logger: object = None) -> str | None:
+def get_custom_extension_script(tabconfig_path: str, label: str, logger: LoggerLike | None = None) -> str | None:
     """Get script path for a custom extension from TabConfig.xml.
 
     Examples
@@ -796,7 +829,7 @@ def get_custom_extension_script(tabconfig_path: str, label: str, logger: object 
     return None
 
 
-def get_custom_extension_image(tabconfig_path: str, label: str, logger: object = None) -> str:
+def get_custom_extension_image(tabconfig_path: str, label: str, logger: LoggerLike | None = None) -> str:
     """Get image path for a custom extension from TabConfig.xml.
 
     Examples
