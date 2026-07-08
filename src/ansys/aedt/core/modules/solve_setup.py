@@ -58,6 +58,8 @@ from ansys.aedt.core.modules.solve_sweeps import SweepMaxwellEC
 from ansys.aedt.core.modules.solve_sweeps import identify_setup
 
 if TYPE_CHECKING:
+    from ansys.aedt.core.application.analysis import Analysis
+    from ansys.aedt.core.application.analysis_nexxim import FieldAnalysisCircuit
     from ansys.aedt.core.visualization.post.solution_data import SolutionData
     from ansys.aedt.core.visualization.report.standard import Standard
 
@@ -65,7 +67,9 @@ if TYPE_CHECKING:
 class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
     """Provide common setup."""
 
-    def __init__(self, app, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True) -> None:
+    def __init__(
+        self, app: Analysis, solution_type: str | int, name: str = "MySetupAuto", is_new_setup: bool = True
+    ) -> None:
         self.auto_update = False
         self._app = app
         if solution_type is None:
@@ -686,7 +690,7 @@ class Setup(CommonSetup):
 
     """
 
-    def __init__(self, app, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True) -> None:
+    def __init__(self, app, solution_type: str | int, name: str = "MySetupAuto", is_new_setup: bool = True) -> None:
         CommonSetup.__init__(self, app, solution_type, name, is_new_setup)
 
     @pyaedt_function_handler()
@@ -1280,7 +1284,7 @@ class SetupCircuit(CommonSetup):
 
     Parameters
     ----------
-    app : :class:`ansys.aedt.core.application.analysis_nexxim.FieldAnalysisCircuit`
+    app : :class:`ansys.aedt.core.application.analysis_nexxim`
         Inherited app object.
     solution_type : str, int
         Type of the setup.
@@ -1292,17 +1296,31 @@ class SetupCircuit(CommonSetup):
 
     Examples
     --------
-    >>> from ansys.aedt.core.modules.solve_setup import SetupCircuit
-    >>> obj = SetupCircuit()
+    >>> from ansys.aedt.core import Circuit
+    >>> from ansys.aedt.core.generic.constants import Setups
+    >>> circuit_app = Circuit()
+    >>> setup1 = circuit_app.create_setup("circuit", Setups.NexximLNA)
 
     """
 
-    def __init__(self, app, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True) -> None:
+    def __init__(
+        self, app: FieldAnalysisCircuit, solution_type: str | int, name: str = "MySetupAuto", is_new_setup: bool = True
+    ) -> None:
         CommonSetup.__init__(self, app, solution_type, name, is_new_setup)
 
     @property
     def props(self) -> SetupProps:
-        """Retrieve props."""
+        """Retrieve props.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> from ansys.aedt.core.generic.constants import Setups
+        >>> circuit_app = Circuit()
+        >>> setup1 = circuit_app.create_setup("circuit", Setups.NexximLNA)
+        >>> setup1.props
+
+        """
         if self._legacy_props:
             return self._legacy_props
         if self._is_new_setup:
@@ -1350,9 +1368,10 @@ class SetupCircuit(CommonSetup):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.solve_setup import SetupCircuit
-        >>> obj = SetupCircuit()
-        >>> obj.create()
+        >>> from ansys.aedt.core import Circuit
+        >>> from ansys.aedt.core.generic.constants import Setups
+        >>> circuit_app = Circuit()
+        >>> setup1 = circuit_app.create_setup("circuit", Setups.NexximLNA)
 
         """
         soltype = SetupKeys.SetupNames[self.setuptype]
@@ -1422,9 +1441,11 @@ class SetupCircuit(CommonSetup):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.solve_setup import SetupCircuit
-        >>> obj = SetupCircuit()
-        >>> obj.update(properties={"Name": "Value"})
+        >>> from ansys.aedt.core import Circuit
+        >>> from ansys.aedt.core.generic.constants import Setups
+        >>> circuit_app = Circuit()
+        >>> setup1 = circuit_app.create_setup("circuit", Setups.NexximLNA)
+        >>> setup1.update(properties={"Name": "Value"})
 
         """
         legacy_update = self.auto_update
@@ -1442,7 +1463,7 @@ class SetupCircuit(CommonSetup):
     def add_sweep_points(
         self,
         sweep_variable: str = "Freq",
-        sweep_points: int = 1,
+        sweep_points: int | str | list = 1,
         units: str = "GHz",
         override_existing_sweep: bool = True,
     ) -> bool:
@@ -1454,7 +1475,7 @@ class SetupCircuit(CommonSetup):
             Variable to which the sweep belongs. Default is ``"Freq``.
         sweep_points : float or str or list, optional
             Sweep points to apply linear sweep. It can be a list or single points.
-             Points can be float or str. If ``str`` then no units will be applied.
+            Points can be ``float`` or ``str``. If ``str`` then no units will be applied.
         end_point float or str, optional
             End Point of Linear Count sweep. If ``str`` then no units will be applied.
         units : str, optional
@@ -1478,9 +1499,11 @@ class SetupCircuit(CommonSetup):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.solve_setup import SetupCircuit
-        >>> obj = SetupCircuit()
-        >>> obj.add_sweep_points(sweep_variable=1, sweep_points=[0, 0, 0])
+        >>> from ansys.aedt.core import Circuit
+        >>> from ansys.aedt.core.generic.constants import Setups
+        >>> circuit_app = Circuit()
+        >>> setup1 = circuit_app.create_setup("circuit", Setups.NexximLNA)
+        >>> setup1.add_sweep_points(sweep_variable="Freq", sweep_points=[1, 2, 3])
 
         """
         if isinstance(sweep_points, (int, float)):
@@ -1498,8 +1521,8 @@ class SetupCircuit(CommonSetup):
     def add_sweep_count(
         self,
         sweep_variable: str = "Freq",
-        start: int = 1,
-        stop: int = 100,
+        start: float | int | str = 1,
+        stop: float | int | str = 100,
         count: int = 100,
         units: str = "GHz",
         count_type: str = "Linear",
@@ -1542,9 +1565,11 @@ class SetupCircuit(CommonSetup):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.solve_setup import SetupCircuit
-        >>> obj = SetupCircuit()
-        >>> obj.add_sweep_count(sweep_variable=1, start=[0, 0, 0])
+        >>> from ansys.aedt.core import Circuit
+        >>> from ansys.aedt.core.generic.constants import Setups
+        >>> circuit_app = Circuit()
+        >>> setup1 = circuit_app.create_setup("circuit", Setups.NexximLNA)
+        >>> setup1.add_sweep_count(sweep_variable="Freq", start=1)
 
         """
         if isinstance(start, (int, float)):
@@ -1563,8 +1588,8 @@ class SetupCircuit(CommonSetup):
     def add_sweep_step(
         self,
         sweep_variable: str = "Freq",
-        start: int = 1,
-        stop: int = 100,
+        start: float | str | int = 1,
+        stop: float | str | int = 100,
         step_size: int = 1,
         units: str = "GHz",
         override_existing_sweep: bool = True,
@@ -1605,9 +1630,11 @@ class SetupCircuit(CommonSetup):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.solve_setup import SetupCircuit
-        >>> obj = SetupCircuit()
-        >>> obj.add_sweep_step(sweep_variable=1, start=[0, 0, 0])
+        >>> from ansys.aedt.core import Circuit
+        >>> from ansys.aedt.core.generic.constants import Setups
+        >>> circuit_app = Circuit()
+        >>> setup1 = circuit_app.create_setup("circuit", Setups.NexximLNA)
+        >>> setup1.add_sweep_step(sweep_variable="Freq", start=1)
 
         """
         if isinstance(start, (int, float)):
@@ -1652,10 +1679,10 @@ class SetupCircuit(CommonSetup):
     @pyaedt_function_handler()
     def _expression_cache(
         self,
-        expression_list,
-        report_type_list,
-        intrinsics_list,
-        isconvergence_list,
+        expression_list: list,
+        report_type_list: str,
+        intrinsics_list: list,
+        isconvergence_list: list,
         isrelativeconvergence,
         conv_criteria,
     ):
@@ -1663,23 +1690,25 @@ class SetupCircuit(CommonSetup):
 
         Parameters
         ----------
-        expressions_list : list
+        expression_list : list
             List of formulas to retrieve.
-        report_type_list : list
+        report_type_list : str
             List of report types for the expressions.
         intrinsics_list : list
             List of intrinsic functions for the expressions.
         isconvergence_list : list
             List of Boolean values indicating whether the expressions are in
             the convergence criteria.
-        isrelativeconvergence :
-
-        conv_criteria:
+        isrelativeconvergence : bool
+            Whether to use relative convergence.
+        conv_criteria : bool
+            Whether to use convergence criteria.
 
         Returns
         -------
         list
             List of the data.
+
         """
         if isrelativeconvergence:
             userelative = 1
@@ -1802,9 +1831,11 @@ class SetupCircuit(CommonSetup):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.solve_setup import SetupCircuit
-        >>> obj = SetupCircuit()
-        >>> obj.enable_expression_cache(expressions=["dB(S(1,1))"])
+        >>> from ansys.aedt.core import Circuit
+        >>> from ansys.aedt.core.generic.constants import Setups
+        >>> circuit_app = Circuit()
+        >>> setup1 = circuit_app.create_setup("circuit", Setups.NexximLNA)
+        >>> setup1.enable_expression_cache(expressions=["dB(S(1,1))"])
 
         """
         arg = self._setup_dict_to_arg(name="SimSetup")
@@ -1835,9 +1866,11 @@ class SetupCircuit(CommonSetup):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.solve_setup import SetupCircuit
-        >>> obj = SetupCircuit()
-        >>> obj.enable(name="MyObject")
+        >>> from ansys.aedt.core import Circuit
+        >>> from ansys.aedt.core.generic.constants import Setups
+        >>> circuit_app = Circuit()
+        >>> setup1 = circuit_app.create_setup("circuit", Setups.NexximLNA)
+        >>> setup1.enable()
 
         """
         if not name:
@@ -1865,9 +1898,11 @@ class SetupCircuit(CommonSetup):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.solve_setup import SetupCircuit
-        >>> obj = SetupCircuit()
-        >>> obj.disable(name="MyObject")
+        >>> from ansys.aedt.core import Circuit
+        >>> from ansys.aedt.core.generic.constants import Setups
+        >>> circuit_app = Circuit()
+        >>> setup1 = circuit_app.create_setup("circuit", Setups.NexximLNA)
+        >>> setup1.disable()
 
         """
         if not name:
@@ -1887,7 +1922,7 @@ class SetupCircuit(CommonSetup):
         polyline_points: int = 1001,
         math_formula: str | None = None,
         sweep: str | None = None,
-    ) -> "SolutionData":
+    ) -> SolutionData:
         """Get a simulation result from a solved setup and cast it in a ``SolutionData`` object.
 
         Data to be retrieved from Electronics Desktop are any simulation results available in that
@@ -1947,9 +1982,11 @@ class SetupCircuit(CommonSetup):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.solve_setup import SetupCircuit
-        >>> obj = SetupCircuit()
-        >>> obj.get_solution_data(expressions=["dB(S(1,1))"], domain=1)
+        >>> from ansys.aedt.core import Circuit
+        >>> from ansys.aedt.core.generic.constants import Setups
+        >>> circuit_app = Circuit()
+        >>> setup1 = circuit_app.create_setup("circuit", Setups.NexximLNA)
+        >>> setup1.get_solution_data(expressions=["dB(S(1,1))"], domain="Sweep")
 
         """
         return self._app.post.get_solution_data(
@@ -1984,7 +2021,7 @@ class SetupCircuit(CommonSetup):
         snapshot_path: str | None = None,
         width: int = 800,
         height: int = 450,
-    ) -> "Standard":
+    ) -> Standard:
         """Create a report in AEDT. It can be a 2D plot, 3D plot, polar plots or data tables.
 
         Parameters
@@ -2047,9 +2084,11 @@ class SetupCircuit(CommonSetup):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.solve_setup import SetupCircuit
-        >>> obj = SetupCircuit()
-        >>> obj.create_report(name="MyObject", expressions=["dB(S(1,1))"])
+        >>> from ansys.aedt.core import Circuit
+        >>> from ansys.aedt.core.generic.constants import Setups
+        >>> circuit_app = Circuit()
+        >>> setup1 = circuit_app.create_setup("circuit", Setups.NexximLNA)
+        >>> setup1.create_report(name="MyObject", expressions=["dB(S(1,1))"])
 
         """
         return self._app.post.create_report(
@@ -3668,7 +3707,7 @@ class SetupHFSSAuto(Setup, PyAedtBase):
 
     """
 
-    def __init__(self, app, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True) -> None:
+    def __init__(self, app: Analysis, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True) -> None:
         Setup.__init__(self, app, solution_type, name, is_new_setup)
 
     @pyaedt_function_handler()
@@ -4015,7 +4054,7 @@ class SetupSBR(Setup, PyAedtBase):
 
     """
 
-    def __init__(self, app, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True) -> None:
+    def __init__(self, app: Analysis, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True) -> None:
         Setup.__init__(self, app, solution_type, name, is_new_setup)
 
     @pyaedt_function_handler()
@@ -4113,7 +4152,7 @@ class SetupMaxwell(Setup, PyAedtBase):
 
     """
 
-    def __init__(self, app, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True) -> None:
+    def __init__(self, app: Analysis, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True) -> None:
         Setup.__init__(self, app, solution_type, name, is_new_setup)
 
     @pyaedt_function_handler()
@@ -4521,7 +4560,7 @@ class SetupQ3D(Setup, PyAedtBase):
 
     """
 
-    def __init__(self, app, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True) -> None:
+    def __init__(self, app: Analysis, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True) -> None:
         Setup.__init__(self, app, solution_type, name, is_new_setup)
         self._dc_enabled = True
         self._ac_rl_enbled = True

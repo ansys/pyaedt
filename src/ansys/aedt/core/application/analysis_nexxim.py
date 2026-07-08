@@ -503,14 +503,14 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         return props
 
     @pyaedt_function_handler()
-    def create_setup(self, name: str = "MySetupAuto", setup_type: str | None = None, **kwargs) -> SetupCircuit:
+    def create_setup(self, name: str = "MySetupAuto", setup_type: str | int | None = None, **kwargs) -> SetupCircuit:
         """Create a setup.
 
         Parameters
         ----------
         name : str, optional
             Name of the new setup. The default is ``"MySetupAuto"``.
-        setup_type : str, optional
+        setup_type : str or int, optional
             Type of the setup. The default is ``None``, in which case
             the default type is applied.
         **kwargs : dict, optional
@@ -533,7 +533,6 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         >>> oModule.AddQuickEyeAnalysis
         >>> oModule.AddVerifEyeAnalysis
         >>> oModule.AddAMIAnalysis
-
 
         Examples
         --------
