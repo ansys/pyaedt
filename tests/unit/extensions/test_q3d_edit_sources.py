@@ -143,7 +143,7 @@ def test_edit_sources(mock_desktop_cls, mock_get_pyaedt_app, mock_q3d_app, tmp_p
         patch.object(harmonic_loss.pd, "read_csv", return_value=input_df),
         patch.object(pd.DataFrame, "to_csv", autospec=True) as to_csv_mock,
     ):
-        assert harmonic_loss.main({"csv_path": "dummy.csv", "threshold": 0.5})
+        assert harmonic_loss.main(ExtensionData(csv_path="dummy.csv", threshold=0.5))
 
     assert to_csv_mock.call_count == 5
 
