@@ -1889,13 +1889,12 @@ class Lists(PropsManager, PyAedtBase):
     --------
     >>> from ansys.aedt.core.modeler.cad.modeler import Lists
     >>> obj = Lists()
-
     """
 
     def __init__(self, modeler, props=None, name: str | None = None) -> None:
-        # Deprecated: Lists will be replaced by NamedSelections in future releases.
+        # Deprecated: Lists is replaced by NamedSelections from AEDT 2026.1.
         warnings.warn(
-            "`Lists` is deprecated and will be removed in future releases. Use `NamedSelections` instead.",
+            "`Lists` is deprecated from AEDT 2026.1. Use `NamedSelections` instead.",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -1918,7 +1917,6 @@ class Lists(PropsManager, PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.modeler import Lists
         >>> obj = Lists()
         >>> obj.update()
-
         """
         # self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Reference CS", "Value:=", self.ref_cs]])
         object_list_new = self._list_verification(self.props["List"], self.props["Type"])

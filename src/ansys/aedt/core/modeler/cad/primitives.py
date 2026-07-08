@@ -5147,7 +5147,6 @@ class GeometryModeler(Modeler, PyAedtBase):
         >>> faces = m3d.modeler.get_object_faces(box1.name)
         >>> fl = m3d.modeler.create_face_list(faces, "my_face_list")
         >>> m3d.release_desktop(False, False)
-
         """
         if name:
             for i in self.user_lists:
@@ -5161,17 +5160,17 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         if not (all_int or all_face_primitive):
             raise AEDTRuntimeError("`assignment` must contain only integers (face IDs) or only FacePrimitive objects.")
-        # Prefer NamedSelections and only fall back to legacy Lists if create() fails.
-        user_list = NamedSelections(self)
         list_type = "Face"
-        result = user_list.create(assignment=assignment, name=name, entity_type=list_type)
-        if result:
-            return user_list
-        # If NamedSelections.create failed, try legacy Lists implementation
-        user_list = Lists(self)
-        result = user_list.create(assignment=assignment, name=name, entity_type=list_type)
-        if result:
-            return user_list
+        if self._app._aedt_version >= "2026.1":
+            user_list = NamedSelections(self)
+            result = user_list.create(assignment=assignment, name=name, entity_type=list_type)
+            if result:
+                return user_list
+        else:
+            user_list = Lists(self)
+            result = user_list.create(assignment=assignment, name=name, entity_type=list_type)
+            if result:
+                return user_list
         # If both failed raise an exception
         raise AEDTRuntimeError("Failed to create faces list")
 
@@ -5220,16 +5219,17 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         assignment = self.convert_to_selections(assignment, True)
         # Prefer NamedSelections and only fall back to legacy Lists if create() fails.
-        user_list = NamedSelections(self)
         list_type = "Object"
-        result = user_list.create(assignment=assignment, name=name, entity_type=list_type)
-        if result:
-            return user_list
-        # If NamedSelections.create failed, try legacy Lists implementation
-        user_list = Lists(self)
-        result = user_list.create(assignment=assignment, name=name, entity_type=list_type)
-        if result:
-            return user_list
+        if self._app._aedt_version >= "2026.1":
+            user_list = NamedSelections(self)
+            result = user_list.create(assignment=assignment, name=name, entity_type=list_type)
+            if result:
+                return user_list
+        else:
+            user_list = Lists(self)
+            result = user_list.create(assignment=assignment, name=name, entity_type=list_type)
+            if result:
+                return user_list
         # If both failed raise exception
         raise AEDTRuntimeError("Failed to create objects list")
 
