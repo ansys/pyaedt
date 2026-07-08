@@ -117,8 +117,10 @@ class ImportSchematicExtension(ExtensionCircuitCommon):
         self._text_widget.grid(row=0, column=1, padx=5, pady=10)
 
         def browse_file() -> None:
-            assert self._text_widget is not None
-            current = self._text_widget.get(
+            text_widget = self._text_widget
+            if text_widget is None:
+                raise RuntimeError("Import schematic text widget is not initialized.")
+            current = text_widget.get(
                 "1.0",
                 tkinter.END,
             ).strip()
@@ -133,8 +135,8 @@ class ImportSchematicExtension(ExtensionCircuitCommon):
                 ),
             )
             if filename:
-                self._text_widget.delete("1.0", tkinter.END)
-                self._text_widget.insert(tkinter.END, filename)
+                text_widget.delete("1.0", tkinter.END)
+                text_widget.insert(tkinter.END, filename)
 
         browse_button = ttk.Button(
             self.root,
@@ -146,8 +148,10 @@ class ImportSchematicExtension(ExtensionCircuitCommon):
         browse_button.grid(row=0, column=2, padx=10, pady=10)
 
         def callback() -> None:
-            assert self._text_widget is not None
-            file_extension = self._text_widget.get(
+            text_widget = self._text_widget
+            if text_widget is None:
+                raise RuntimeError("Import schematic text widget is not initialized.")
+            file_extension = text_widget.get(
                 "1.0",
                 tkinter.END,
             ).strip()

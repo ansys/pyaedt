@@ -253,15 +253,19 @@ class ImportNastranExtension(ExtensionProjectCommon):
             ),
         )
         if filename:
-            assert self.__file_path_text is not None
-            self.__file_path_text.delete("1.0", tkinter.END)
-            self.__file_path_text.insert(tkinter.END, filename)
+            file_path_text = self.__file_path_text
+            if file_path_text is None:
+                raise RuntimeError("File path widget is not initialized.")
+            file_path_text.delete("1.0", tkinter.END)
+            file_path_text.insert(tkinter.END, filename)
 
     def __preview(self):
         """Preview the geometry file."""
-        assert self.__file_path_text is not None
-        assert self.__decimation_text is not None
-        file_path_ui = self.__file_path_text.get("1.0", tkinter.END).strip()
+        file_path_text = self.__file_path_text
+        decimation_text = self.__decimation_text
+        if file_path_text is None or decimation_text is None:
+            raise RuntimeError("Import Nastran preview widgets are not initialized.")
+        file_path_ui = file_path_text.get("1.0", tkinter.END).strip()
 
         if not file_path_ui:
             raise ValueError("Please select a valid file.")
@@ -269,7 +273,7 @@ class ImportNastranExtension(ExtensionProjectCommon):
         if not Path(file_path_ui).is_file():
             raise FileNotFoundError(f"File ({file_path_ui}) not found")
 
-        decimate_ui = float(self.__decimation_text.get("1.0", tkinter.END).strip())
+        decimate_ui = float(decimation_text.get("1.0", tkinter.END).strip())
 
         if file_path_ui.endswith(".nas"):
             from ansys.aedt.core.syslib.nastran_import import nastran_to_stl
@@ -282,15 +286,23 @@ class ImportNastranExtension(ExtensionProjectCommon):
 
     def __import_callback(self):
         """Callback for import button."""
-        assert self.__file_path_text is not None
-        assert self.__lightweight_var is not None
-        assert self.__planar_var is not None
-        assert self.__remove_multiple_connections_var is not None
-        assert self.__decimation_text is not None
-        file_path = self.__file_path_text.get("1.0", tkinter.END).strip()
-        lightweight_val = self.__lightweight_var.get() == 1
-        planar_val = self.__planar_var.get() == 1
-        remove_multiple_connections_val = self.__remove_multiple_connections_var.get() == 1
+        file_path_text = self.__file_path_text
+        lightweight_var = self.__lightweight_var
+        planar_var = self.__planar_var
+        remove_multiple_connections_var = self.__remove_multiple_connections_var
+        decimation_text = self.__decimation_text
+        if (
+            file_path_text is None
+            or lightweight_var is None
+            or planar_var is None
+            or remove_multiple_connections_var is None
+            or decimation_text is None
+        ):
+            raise RuntimeError("Import Nastran widgets are not initialized.")
+        file_path = file_path_text.get("1.0", tkinter.END).strip()
+        lightweight_val = lightweight_var.get() == 1
+        planar_val = planar_var.get() == 1
+        remove_multiple_connections_val = remove_multiple_connections_var.get() == 1
 
         # Validation
         if not file_path:
@@ -299,7 +311,7 @@ class ImportNastranExtension(ExtensionProjectCommon):
         if not Path(file_path).is_file():
             raise FileNotFoundError(f"File ({file_path}) not found")
 
-        decimate_val = float(self.__decimation_text.get("1.0", tkinter.END).strip())
+        decimate_val = float(decimation_text.get("1.0", tkinter.END).strip())
 
         if decimate_val < 0 or decimate_val >= 1:
             raise ValueError("Decimation factor must be between 0 and 0.9")

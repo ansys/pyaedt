@@ -119,7 +119,8 @@ class CircuitConfigurationExtension(ExtensionCircuitCommon):
         if file_path == "":
             return
         data = self.data
-        assert isinstance(data, CircuitConfigurationData)
+        if not isinstance(data, CircuitConfigurationData):
+            raise TypeError("Extension data must be CircuitConfigurationData.")
         for file in file_path:
             data.file_path.append(Path(file))
         self.root.destroy()
@@ -133,7 +134,8 @@ class CircuitConfigurationExtension(ExtensionCircuitCommon):
             return
 
         data = self.data
-        assert isinstance(data, CircuitConfigurationData)
+        if not isinstance(data, CircuitConfigurationData):
+            raise TypeError("Extension data must be CircuitConfigurationData.")
         data.output_dir = Path(output)
 
         self.root.destroy()

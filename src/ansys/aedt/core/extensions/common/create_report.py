@@ -160,11 +160,13 @@ class CreateReportExtension(ExtensionProjectCommon):
         self._widgets["save_path_entry"] = save_path_entry
 
         def browse_folder() -> None:
-            assert self._widgets["save_path_entry"] is not None
+            save_path_widget = self._widgets["save_path_entry"]
+            if save_path_widget is None:
+                raise RuntimeError("Save path widget is not initialized.")
             folder_path = filedialog.askdirectory(title="Select folder to save report")
             if folder_path:
-                self._widgets["save_path_entry"].delete("1.0", tkinter.END)
-                self._widgets["save_path_entry"].insert(tkinter.END, folder_path)
+                save_path_widget.delete("1.0", tkinter.END)
+                save_path_widget.insert(tkinter.END, folder_path)
 
         browse_button = ttk.Button(
             save_path_frame,
@@ -192,9 +194,8 @@ class CreateReportExtension(ExtensionProjectCommon):
             report_name_w = extension._widgets["report_name_entry"]
             open_report_w = extension._widgets["open_report_var"]
             save_path_w = extension._widgets["save_path_entry"]
-            assert report_name_w is not None
-            assert open_report_w is not None
-            assert save_path_w is not None
+            if report_name_w is None or open_report_w is None or save_path_w is None:
+                raise RuntimeError("Create report widgets are not initialized.")
             extension.data = CreateReportExtensionData(
                 report_name=report_name_w.get("1.0", tkinter.END).strip(),
                 open_report=open_report_w.get(),

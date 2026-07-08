@@ -241,14 +241,16 @@ class KernelConverterExtension(ExtensionProjectCommon):
 
         def callback(extension: KernelConverterExtension) -> None:
             """Callback function for the convert button."""
-            assert extension.file_path_entry is not None
-            assert extension.password_entry is not None
-            assert extension.application_combo is not None
-            assert extension.solution_combo is not None
-            file_path = extension.file_path_entry.get("1.0", tkinter.END).strip()
-            password = extension.password_entry.get()
-            application = extension.application_combo.get()
-            solution = extension.solution_combo.get()
+            file_path_entry = extension.file_path_entry
+            password_entry = extension.password_entry
+            application_combo = extension.application_combo
+            solution_combo = extension.solution_combo
+            if file_path_entry is None or password_entry is None or application_combo is None or solution_combo is None:
+                raise RuntimeError("Kernel converter widgets are not initialized.")
+            file_path = file_path_entry.get("1.0", tkinter.END).strip()
+            password = password_entry.get()
+            application = application_combo.get()
+            solution = solution_combo.get()
 
             data = KernelConverterExtensionData(
                 file_path=file_path,
@@ -281,21 +283,25 @@ class KernelConverterExtension(ExtensionProjectCommon):
             ),
         )
         if filename:
-            assert self.file_path_entry is not None
-            self.file_path_entry.delete("1.0", tkinter.END)
-            self.file_path_entry.insert(tkinter.END, filename)
+            file_path_entry = self.file_path_entry
+            if file_path_entry is None:
+                raise RuntimeError("Kernel converter file path widget is not initialized.")
+            file_path_entry.delete("1.0", tkinter.END)
+            file_path_entry.insert(tkinter.END, filename)
 
     def _update_solutions(self, event=None):
         """Update solution options based on selected application."""
-        assert self.application_combo is not None
-        assert self.solution_combo is not None
-        app_name = self.application_combo.get()
+        application_combo = self.application_combo
+        solution_combo = self.solution_combo
+        if application_combo is None or solution_combo is None:
+            raise RuntimeError("Kernel converter combo boxes are not initialized.")
+        app_name = application_combo.get()
         for k in dir(DesignType):
             if k.startswith("_"):
                 continue
             if getattr(DesignType, k) == app_name:
-                self.solution_combo["values"] = tuple(getattr(DesignType, k).solution_types.keys())
-                self.solution_combo.current(0)
+                solution_combo["values"] = tuple(getattr(DesignType, k).solution_types.keys())
+                solution_combo.current(0)
 
 
 def _check_missing(input_object, output_object, file_path):
