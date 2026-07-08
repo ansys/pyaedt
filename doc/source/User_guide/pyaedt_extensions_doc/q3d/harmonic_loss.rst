@@ -22,7 +22,7 @@ The CSV file must contain the following columns: ``Spectrum[Hz]``, ``re(source_n
 An example can be found by clicking the button ``Requirements`` in the extension user interface.
 
 .. image:: ../../../_static/extensions/q3d_edit_sources_csv.png
-  :width: 400
+  :width: 500
   :alt: CSV File Format
 
 The extension saves a CSV file with the filtered data in the project working directory and saves real and imaginary part in separate tab-separated files.
