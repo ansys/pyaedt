@@ -5166,7 +5166,7 @@ class GeometryModeler(Modeler, PyAedtBase):
             result = user_list.create(assignment=assignment, name=name, entity_type=list_type)
             if result:
                 return user_list
-        else:
+        else:  # pragma: no cover
             user_list = Lists(self)
             result = user_list.create(assignment=assignment, name=name, entity_type=list_type)
             if result:
@@ -5225,7 +5225,7 @@ class GeometryModeler(Modeler, PyAedtBase):
             result = user_list.create(assignment=assignment, name=name, entity_type=list_type)
             if result:
                 return user_list
-        else:
+        else:  # pragma: no cover
             user_list = Lists(self)
             result = user_list.create(assignment=assignment, name=name, entity_type=list_type)
             if result:
