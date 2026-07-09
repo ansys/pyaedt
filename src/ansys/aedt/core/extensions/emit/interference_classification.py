@@ -28,8 +28,8 @@ import tkinter
 from tkinter import messagebox
 from tkinter import ttk
 
-from ansys.aedt.core.emit_core.emit_constants import InteractionDomain
 from ansys.aedt.core.emit_core.emit_constants import InterfererType
+from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
 from ansys.aedt.core.extensions.misc import ExtensionEMITCommon
 from ansys.aedt.core.extensions.misc import get_arguments
 
@@ -455,15 +455,18 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
         if len(radios) < 2:
             raise RuntimeError("At least two radios are required.")
 
-        domain = app.results.interaction_domain()
-        # Prefer API on results viewer if available; otherwise fallback to results
         rev = app.results.analyze()
 
         if self.aedt_application.desktop_class.aedt_version_id < "2027.1":
+            domain = app.results.interaction_domain()
             colors, matrix = rev.interference_type_classification(
-                domain, interferer_type=InterfererType().TRANSMITTERS, use_filter=True, filter_list=filter_list
+                domain=domain,
+                interferer_type=InterfererType().TRANSMITTERS_AND_EMITTERS,
+                use_filter=True,
+                filter_list=filter_list,
             )
         else:
+            domain = InteractionDomain(app)
             sim = rev.get_simulation()
             colors, matrix = sim.interference_type_classification(
                 domain=domain,
@@ -471,6 +474,7 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
                 use_filter=True,
                 filter_list=filter_list,
             )
+
         tx = rev.get_interferer_names(InterfererType().TRANSMITTERS_AND_EMITTERS)
         rx = rev.get_receiver_names()
         return tx, rx, colors, matrix
