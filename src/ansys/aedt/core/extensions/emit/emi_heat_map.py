@@ -47,6 +47,7 @@ import numpy as np
 from ansys.aedt.core.emit_core.emit_constants import InterfererType
 from ansys.aedt.core.emit_core.emit_constants import ResultType
 from ansys.aedt.core.emit_core.emit_constants import TxRxMode
+from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import ExtensionEMITCommon
 
@@ -239,7 +240,10 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
             # Grab domain and revision from EMIT results
             app = self.aedt_application
             self._revision = app.results.analyze()
-            self._domain = app.results.interaction_domain()
+            if self.aedt_application.desktop_class.aedt_version_id < "2027.1":
+                self._domain = app.results.interaction_domain()
+            else:
+                self._domain = InteractionDomain(app)
 
             # Extract and return the Transmit / Receive radio lists
             if app.desktop_class.aedt_version_id > "2025.1":
@@ -351,7 +355,11 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
             self._domain.set_receiver(self._victim, self._victim_band)
             self._domain.set_interferer(self._aggressor, self._aggressor_band)
             # Checkout the license once for EMIT for all of the data extraction iterations
-            interaction = self._revision.run(self._domain)
+            if self.aedt_application.desktop_class.aedt_version_id < "2027.1":
+                interaction = self._revision.run(self._domain)
+            else:
+                sim = self._revision.get_simulation()
+                interaction = sim.run(self._domain)
             with self._revision.get_license_session():
                 self._emi = []
                 self._rx_power = []
