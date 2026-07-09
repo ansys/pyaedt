@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -21,6 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
 from pathlib import Path
 import shutil
 import tempfile
@@ -33,6 +34,7 @@ from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core.generic.file_utils import available_file_name
 from ansys.aedt.core.generic.general_methods import is_linux
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
 from tests import TESTS_GENERAL_PATH
 from tests import TESTS_LAYOUT_PATH
@@ -258,6 +260,10 @@ def test_create_circle(aedt_app) -> None:
     )
     n1 = aedt_app.modeler.create_circle("Top", 0, 5, 40, "mycircle")
     assert n1.name == "mycircle"
+    n1.radius = 5
+    assert n1.radius == "5"
+    n1.center = [10, 10]
+    assert n1.center == ["10", "10"]
 
 
 def test_create_create_rectangle(aedt_app) -> None:
@@ -271,6 +277,31 @@ def test_create_create_rectangle(aedt_app) -> None:
     )
     n2 = aedt_app.modeler.create_rectangle("Top", [0, 0], [6, 8], 3, 2, "myrectangle")
     assert n2.name == "myrectangle"
+
+    n2.corner_radius = "2mm"
+    assert n2.corner_radius == "2mm"
+
+    n2.two_point_description = True
+    assert not n2.height
+    assert not n2.width
+    assert not n2.center
+    n2.point_a = ["10", "10"]
+    assert n2.point_a == ["10", "10"]
+    n2.point_b = ["20", "20"]
+    assert n2.point_b == ["20", "20"]
+
+    n2.two_point_description = False
+    assert n2.height
+    n2.height = 200
+    assert n2.height == "200"
+
+    assert n2.width
+    n2.width = "100mm"
+    assert n2.width == "100mm"
+
+    assert n2.center
+    n2.center = ["150mm", "150mm"]
+    assert n2.center == ["150", "150"]
 
 
 def test_subtract(aedt_app) -> None:
@@ -412,6 +443,23 @@ def test_create_line(aedt_app) -> None:
     assert line.add([1, 2], 1)
     assert line.set_property_value("Pt0", "10mm ,10mm")
     assert line.get_property_value("Pt0") == "10 ,10"
+
+    line.bend_type = "Round"
+    assert line.bend_type == "Round"
+
+    line.start_cap_type = "Round"
+    assert line.start_cap_type == "Round"
+
+    line.end_cap_type = "Extended"
+    assert line.end_cap_type == "Extended"
+
+    line.width = "2mm"
+    assert line.width == "2mm"
+
+    center = line.center_line
+    center["Pt0"] = ["0", "0"]
+    line.center_line = center
+    assert line.center_line == center
 
 
 def test_create_edge_port(aedt_app) -> None:
@@ -1351,3 +1399,15 @@ def test_create_coordinate_system(aedt_app) -> None:
 def test_create_scattering(aedt_app) -> None:
     aedt_app.create_setup()
     assert aedt_app.create_scattering()
+
+
+def test_create_raptorx_setup(aedt_app) -> None:
+    aedt_app.ic_mode = False
+    with pytest.raises(AEDTRuntimeError):
+        aedt_app.create_setup(name="raptor_setup", setup_type="RaptorX")
+    aedt_app.ic_mode = True
+    setup = aedt_app.create_setup(name="raptor_setup", setup_type="RaptorX")
+    assert setup
+    sweep = setup.add_sweep()
+    assert sweep
+    assert len(setup.sweeps) == 1

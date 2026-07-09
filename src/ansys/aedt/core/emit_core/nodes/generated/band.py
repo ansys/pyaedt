@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -30,6 +30,8 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class Band(EmitNode):
+    """Provide band."""  # noqa: D203
+
     def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
@@ -37,13 +39,33 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
-        """The parent of this emit node."""
+        """The parent of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> band.parent
+
+        """
         return self._parent
 
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node."""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> band.node_type
+
+        """
         return self._node_type
 
     class ChannelType(Enum):
@@ -92,22 +114,65 @@ class Band(EmitNode):
 
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
-        """Duplicate this node"""
+        """Duplicate this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> try:
+        >>>     band.duplicate("Band Copy")
+        >>> except NotImplementedError:
+        >>>     pass
+
+        """
         return self._duplicate(new_name)
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node"""
+        """Delete this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> band.delete()
+
+        """
         self._delete()
 
     @min_aedt_version("2025.2")
     def import_rx_measurement(self, file_name: str) -> EmitNode:
-        """Import a Measurement from a File..."""
+        """Import a Measurement from a File.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> band.import_rx_measurement("C:\\Measurements\\rx_measurement.csv")
+
+        """
         return self._import(file_name, "RxMeasurement")
 
     @min_aedt_version("2025.2")
     def import_tx_measurement(self, file_name: str) -> EmitNode:
-        """Import a Measurement from a File..."""
+        """Import a Measurement from a File.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> band.import_tx_measurement("C:\\Measurements\\tx_measurement.csv")
+
+        """
         return self._import(file_name, "TxMeasurement")
 
     @min_aedt_version("2027.1")
@@ -120,7 +185,17 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def enabled(self) -> bool:
-        """Enabled state for this node."""
+        """Enabled state for this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> band.enabled = True
+
+        """
         return self._get_property("Enabled") == "true"
 
     @enabled.setter
@@ -134,6 +209,15 @@ class Band(EmitNode):
         """Uses DD-1494 parameters to define the Tx/Rx spectrum.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> band.use_dd_1494_mode = True
+
         """
         val = self._get_property("Use DD-1494 Mode")
         return val == "true"
@@ -151,6 +235,15 @@ class Band(EmitNode):
         Uses the Emission Designator to define the bandwidth and modulation.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> band.use_emission_designator = True
+
         """
         val = self._get_property("Use Emission Designator")
         return val == "true"
@@ -166,6 +259,15 @@ class Band(EmitNode):
         """Emission Designator.
 
         Enter the Emission Designator to define the bandwidth and modulation.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> band.emission_designator = "10K0F3E"
+
         """
         val = self._get_property("Emission Designator")
         return val
@@ -178,7 +280,17 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def emission_designator_ch_bw(self) -> float:
-        """Channel Bandwidth based off the emission designator."""
+        """Channel Bandwidth based off the emission designator.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> band.emission_designator_ch_bw
+
+        """
         val = self._get_property("Emission Designator Ch. BW")
         val = self._convert_from_internal_units(float(val), "Freq")
         return float(val)
@@ -186,7 +298,17 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def emit_modulation_type(self) -> str:
-        """Modulation based off the emission designator."""
+        """Modulation based off the emission designator.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> band.emit_modulation_type
+
+        """
         val = self._get_property("EMIT Modulation Type")
         return val
 
@@ -199,6 +321,15 @@ class Band(EmitNode):
         designator bandwidth.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> band.override_emission_designator_bw = True
+
         """
         val = self._get_property("Override Emission Designator BW")
         return val == "true"
@@ -214,6 +345,15 @@ class Band(EmitNode):
         """Channel Bandwidth.
 
         Value should be greater than 1.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> band.channel_bandwidth = "200kHz"
+
         """
         val = self._get_property("Channel Bandwidth")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -241,7 +381,17 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def modulation(self) -> ModulationOption:
-        """Modulation used for the transmitted/received signal."""
+        """Modulation used for the transmitted/received signal.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> band.modulation = band.ModulationOption.FM
+
+        """
         val = self._get_property("Modulation")
         val = self.ModulationOption[val.upper()]
         return val
@@ -257,6 +407,15 @@ class Band(EmitNode):
         """Maximum modulating frequency: helps determine spectral profile.
 
         Value should be greater than 1.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> band.max_modulating_freq = "15kHz"
+
         """
         val = self._get_property("Max Modulating Freq.")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -274,6 +433,15 @@ class Band(EmitNode):
         """AM modulation index: helps determine spectral profile.
 
         Value should be between 0.01 and 1.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> band.modulation_index = 0.5
+
         """
         val = self._get_property("Modulation Index")
         return float(val)
@@ -289,6 +457,15 @@ class Band(EmitNode):
         """Maximum bit rate: helps determine width of spectral profile.
 
         Value should be greater than 1.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> band.bit_rate = "1Mbps"
+
         """
         val = self._get_property("Bit Rate")
         val = self._convert_from_internal_units(float(val), "Data Rate")
@@ -306,6 +483,15 @@ class Band(EmitNode):
         """Number of sidelobes in spectral profile.
 
         Value should be greater than 0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> band.sidelobes = 2
+
         """
         val = self._get_property("Sidelobes")
         return int(val)
@@ -321,6 +507,15 @@ class Band(EmitNode):
         """FM/FSK frequency deviation: helps determine spectral profile.
 
         Value should be greater than 1.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> band.freq_deviation = "25kHz"
+
         """
         val = self._get_property("Freq. Deviation")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -349,7 +544,18 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def psk_type(self) -> PSKTypeOption:
-        """PSK modulation order: helps determine spectral profile."""
+        """PSK modulation order: helps determine spectral profile.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> band.modulation = band.ModulationOption.PSK
+        >>> band.psk_type = band.PSKTypeOption.QPSK
+
+        """
         val = self._get_property("PSK Type")
         val = self.PSKTypeOption[val.upper()]
         return val
@@ -367,7 +573,18 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def fsk_type(self) -> FSKTypeOption:
-        """FSK modulation order: helps determine spectral profile."""
+        """FSK modulation order: helps determine spectral profile.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> band.modulation = band.ModulationOption.FSK
+        >>> band.fsk_type = band.FSKTypeOption.FSK_4
+
+        """
         val = self._get_property("FSK Type")
         val = self.FSKTypeOption[val.upper()]
         return val
@@ -387,7 +604,18 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def qam_type(self) -> QAMTypeOption:
-        """QAM modulation order: helps determine spectral profile."""
+        """QAM modulation order: helps determine spectral profile.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> band.modulation = band.ModulationOption.QAM
+        >>> band.qam_type = band.QAMTypeOption.QAM_16
+
+        """
         val = self._get_property("QAM Type")
         val = self.QAMTypeOption[val.upper()]
         return val
@@ -407,7 +635,18 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def apsk_type(self) -> APSKTypeOption:
-        """APSK modulation order: helps determine spectral profile."""
+        """APSK modulation order: helps determine spectral profile.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> band.modulation = band.ModulationOption.APSK
+        >>> band.apsk_type = band.APSKTypeOption.APSK_16
+
+        """
         val = self._get_property("APSK Type")
         val = self.APSKTypeOption[val.upper()]
         return val
@@ -423,6 +662,15 @@ class Band(EmitNode):
         """First frequency for this band.
 
         Value should be between 1 and 100e9.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> band.start_frequency = "100MHz"
+
         """
         val = self._get_property("Start Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -440,6 +688,15 @@ class Band(EmitNode):
         """Last frequency for this band.
 
         Value should be between 1 and 100e9.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> band.stop_frequency = "110MHz"
+
         """
         val = self._get_property("Stop Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -457,6 +714,15 @@ class Band(EmitNode):
         """Spacing between channels within this band.
 
         Value should be between 1 and 100e9.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> band.channel_spacing = "25kHz"
+
         """
         val = self._get_property("Channel Spacing")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -474,6 +740,15 @@ class Band(EmitNode):
         """Frequency offset between Tx and Rx channels.
 
         Value should be less than 100e9.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> band.tx_offset = "10MHz"
+
         """
         val = self._get_property("Tx Offset")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -495,7 +770,17 @@ class Band(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def radar_type(self) -> RadarTypeOption:
-        """Radar type: helps determine spectral profile."""
+        """Radar type: helps determine spectral profile.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> band.radar_type = band.RadarTypeOption.FM_CW
+
+        """
         val = self._get_property("Radar Type")
         val = self.RadarTypeOption[val.upper()]
         return val
@@ -511,6 +796,15 @@ class Band(EmitNode):
         """True for hopping radars; false otherwise.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> band.hopping_radar = True
+
         """
         val = self._get_property("Hopping Radar")
         return val == "true"
@@ -529,6 +823,15 @@ class Band(EmitNode):
         roll-off.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> band.post_october_2020_procurement = True
+
         """
         val = self._get_property("Post October 2020 Procurement")
         return val == "true"
@@ -544,6 +847,15 @@ class Band(EmitNode):
         """Sets the minimum frequency of the hopping range.
 
         Value should be between 1.0 and 100.0e9.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> band.hop_range_min_freq = "9.9GHz"
+
         """
         val = self._get_property("Hop Range Min Freq")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -561,6 +873,15 @@ class Band(EmitNode):
         """Sets the maximum frequency of the hopping range.
 
         Value should be between 1.0 and 100.0e9.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> band.hop_range_max_freq = "10.1GHz"
+
         """
         val = self._get_property("Hop Range Max Freq")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -578,6 +899,15 @@ class Band(EmitNode):
         """Pulse duration.
 
         Value should be greater than 0.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> band.pulse_duration = "10us"
+
         """
         val = self._get_property("Pulse Duration")
         val = self._convert_from_internal_units(float(val), "Time")
@@ -595,6 +925,15 @@ class Band(EmitNode):
         """Pulse rise time.
 
         Value should be greater than 0.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> band.pulse_rise_time = "1us"
+
         """
         val = self._get_property("Pulse Rise Time")
         val = self._convert_from_internal_units(float(val), "Time")
@@ -612,6 +951,15 @@ class Band(EmitNode):
         """Pulse fall time.
 
         Value should be greater than 0.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> band.pulse_fall_time = "1us"
+
         """
         val = self._get_property("Pulse Fall Time")
         val = self._convert_from_internal_units(float(val), "Time")
@@ -629,6 +977,15 @@ class Band(EmitNode):
         """Pulse repetition rate [pulses/sec].
 
         Value should be greater than 1.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> band.pulse_repetition_rate = 1000.0
+
         """
         val = self._get_property("Pulse Repetition Rate")
         return float(val)
@@ -644,6 +1001,15 @@ class Band(EmitNode):
         """Total number of chips (subpulses) contained in the pulse.
 
         Value should be greater than 1.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> band.number_of_chips = 16.0
+
         """
         val = self._get_property("Number of Chips")
         return float(val)
@@ -659,6 +1025,15 @@ class Band(EmitNode):
         """Pulse compression ratio.
 
         Value should be greater than 1.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> band.pulse_compression_ratio = 8.0
+
         """
         val = self._get_property("Pulse Compression Ratio")
         return float(val)
@@ -674,6 +1049,15 @@ class Band(EmitNode):
         """FM Chirp period for the FM/CW radar.
 
         Value should be greater than 0.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> band.fm_chirp_period = "2ms"
+
         """
         val = self._get_property("FM Chirp Period")
         val = self._convert_from_internal_units(float(val), "Time")
@@ -693,6 +1077,15 @@ class Band(EmitNode):
         Total frequency deviation for the carrier frequency for the FM/CW radar.
 
         Value should be between 1 and 100e9.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> band.fm_freq_deviation = "5MHz"
+
         """
         val = self._get_property("FM Freq Deviation")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -713,6 +1106,15 @@ class Band(EmitNode):
         shift during pulse duration).
 
         Value should be between 1 and 100e9.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> band.fm_freq_dev_bandwidth = "1MHz"
+
         """
         val = self._get_property("FM Freq Dev Bandwidth")
         val = self._convert_from_internal_units(float(val), "Freq")

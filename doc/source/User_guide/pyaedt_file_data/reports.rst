@@ -23,4 +23,4 @@ File structure example:
 :download:`HFSS report example <../../Resources/hfss_report_example.json>`
 
 For a practical demonstration, see the
-`Report configuration file example <https://aedt.docs.pyansys.com/version/stable/examples/07-Circuit/Reports.html#sphx-glr-examples-07-circuit-reports-py>`_
+`Report configuration file example <https://examples.aedt.docs.pyansys.com/version/dev/examples/aedt_general/report/automatic_report.html>`_

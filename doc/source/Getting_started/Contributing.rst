@@ -25,14 +25,14 @@ development mode, run:
     pip install -e .
 
 Development environment setup
-------------------------------
+-----------------------------
 
 PyAEDT uses **dependency groups** (PEP 735) for managing development dependencies.
 This is a modern approach that replaces the older ``[project.optional-dependencies]``
 mechanism for development-only dependencies.
 
 Dependency groups vs optional dependencies
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 PyAEDT uses two mechanisms for managing dependencies:
 
@@ -58,7 +58,7 @@ Post issues
 Use the `PyAEDT Issues <https://github.com/ansys/pyaedt/issues>`_
 page to submit questions, report bugs, and request new features.
 
-To reach the product support team, email `pyansys.core@ansys.com <pyansys.core@ansys.com>`_.
+To reach the product support team, email `pyansys-core@synopsys.com <pyansys-core@synopsys.com>`_.
 
 View PyAEDT documentation
 -------------------------

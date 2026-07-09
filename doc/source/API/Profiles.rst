@@ -30,6 +30,7 @@ element in the ``Profiles`` instance provides access to the ``SimulationProfile`
 for the variation:
 
 .. code-block:: pycon
+
     >>> from ansys.aedt.core import Hfss
     >>> hfss = Hfss(project="/path/to/solved/OptimTee.aedtz")
     >>> this_setup = hfss.get_setup("Setup1")
@@ -56,6 +57,7 @@ for the variation:
           ``.keys()`` method as shown below.
 
 .. code-block:: pycon
+
     >>> my_profile = profiles[list(profiles.keys())[3]]
     >>> bool(my_profile.adaptive_pass)  # Auto-adaptive mesh refinement used?
     True
@@ -77,6 +79,7 @@ steps with the ``real_time``, ``max_memory`` and ``cpu_time`` attributes.
 For example
 
 .. code-block:: pycon
+
     >>> len(my_profile.adaptive_pass.process_steps)  # Number of adaptive passes
     6
     >>> step_name = my_profile.adaptive_pass.process_steps[2]  # Select the 3rd adaptive pass.
@@ -100,16 +103,16 @@ depend on the type of simulation. The ``table()`` method
 can be used to retrieve a :class:``pandas.DataFrame`` instance summarizing
 all simulation steps.
 
-+-------------------------+------------------+-----------------------------+
-| Attribute               | Simulation Type  | Description                 |
-+=========================+==================+======+======================+
-| ''.adaptive_pass.steps[key_name]'' | HFSS | Solution steps during        |
-|                                    |      |  adaptive refinement.        |
-+------------------------------------+------+------------------------------+
-| ``.frequency_sweeps[sweep_name]``  | HFSS |    Frequency sweep |
-+------------------------------------+------+------------------------------+
-| ``.transient``                 | Maxwell  |    Transient solution steps. |
-+--------------------------------+----------+------------------------------+
++------------------------------------+-----------------+------------------------------+
+| Attribute                          | Simulation Type | Description                  |
++====================================+=================+==============================+
+| ``.adaptive_pass.steps[key_name]`` | HFSS            | Solution steps during        |
+|                                    |                 | adaptive refinement.         |
++------------------------------------+-----------------+------------------------------+
+| ``.frequency_sweeps[sweep_name]``  | HFSS            | Frequency sweep steps.       |
++------------------------------------+-----------------+------------------------------+
+| ``.transient``                     | Maxwell         | Transient solution steps.    |
++------------------------------------+-----------------+------------------------------+
 
 Some methods and attributes in the ``Profiles`` class are:
 

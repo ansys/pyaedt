@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,7 +22,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""PyAEDT CLI based on typer."""
+"""PyAEDT CLI based on typer.
+
+Examples
+--------
+>>> from typer.testing import CliRunner
+>>> from ansys.aedt.core.cli import app
+>>> CliRunner().invoke(app, ["version"])
+
+"""
 
 try:
     import typer
@@ -32,28 +40,135 @@ except ImportError as e:  # pragma: no cover
     msg = install_message("typer", "all")
     raise ImportError(msg) from e
 
-from ansys.aedt.core.cli.config import config_app
+from ansys.aedt.core.cli import common
+from ansys.aedt.core.cli.aedt import session_app
+from ansys.aedt.core.cli.config import test_config_app
 from ansys.aedt.core.cli.doc import doc_app
+from ansys.aedt.core.cli.export import export_app
 from ansys.aedt.core.cli.panels import panels_app
-from ansys.aedt.core.cli.process import attach
-from ansys.aedt.core.cli.process import processes
-from ansys.aedt.core.cli.process import start
-from ansys.aedt.core.cli.process import stop
-from ansys.aedt.core.cli.process import version
+from ansys.aedt.core.cli.project import project_app
+from ansys.aedt.core.cli.script import run_script
 
-app = typer.Typer(help="CLI for PyAEDT", no_args_is_help=True)
+# NOTE: This should be updated when new plugins are added to the CLI.
+# The key is the entry point name, and the value is the package name that provides it.
+# This allows better error messages when a plugin is not installed, by suggesting the package to install.
+MAPPING_PLUGIN_PACKAGE = {
+    "ansys.aedt.toolkits.antenna.cli:antenna_app": "ansys-aedt-toolkits-antenna",
+    "pyedb.cli:app": "pyedb",
+}
 
-# Register sub-apps
-app.add_typer(config_app, name="config")
+app = typer.Typer(no_args_is_help=True)
+"""Value for app."""
+
+
+@app.callback()
+def main_callback(
+    json_output: bool = typer.Option(False, "--json", help="Output results as JSON (agent-friendly mode)"),
+) -> None:
+    """CLI for PyAEDT.
+
+    Examples
+    --------
+    >>> from typer.testing import CliRunner
+    >>> from ansys.aedt.core.cli import app
+    >>> CliRunner().invoke(app, ["--json", "version"])
+
+    """
+    if json_output:
+        common.json_mode = True
+
+
+@app.command()
+def version() -> None:
+    """Display PyAEDT version.
+
+    Examples
+    --------
+    >>> from typer.testing import CliRunner
+    >>> from ansys.aedt.core.cli import app
+    >>> CliRunner().invoke(app, ["version"])
+
+    """
+    import ansys.aedt.core
+
+    ver = ansys.aedt.core.__version__
+    if common.json_mode:
+        common.print_output(data={"version": ver})
+    else:
+        typer.echo("PyAEDT version: ", nl=False)
+        typer.secho(ver, fg="cyan")
+
+
+@app.command(name="aedt-versions")
+def aedt_versions() -> None:
+    """List installed AEDT versions on this machine.
+
+    Examples
+    --------
+    >>> from typer.testing import CliRunner
+    >>> from ansys.aedt.core.cli import app
+    >>> CliRunner().invoke(app, ["aedt-versions"])
+
+    """
+    try:
+        from ansys.aedt.core.internal.aedt_versions import aedt_versions
+
+        versions = aedt_versions.installed_versions
+        data = {"versions": {k: str(v) for k, v in versions.items()}, "count": len(versions)}
+        if common.json_mode:
+            common.print_output(data=data)
+        else:
+            if not versions:
+                typer.secho("No AEDT versions found.", fg="yellow")
+                return
+            typer.secho(f"Found {len(versions)} installed version(s):", fg="green")
+            for ver, path in versions.items():
+                typer.echo(f"  {ver}: {path}")
+    except Exception as e:
+        if common.json_mode:
+            common.print_output(error=str(e))
+        else:
+            typer.secho(f"Error: {e}", fg="red")
+        raise typer.Exit(code=1)
+
+
+app.command(name="run")(run_script)
+
+
+# Sub-apps
+app.add_typer(session_app, name="session")
+app.add_typer(project_app, name="project")
+app.add_typer(export_app, name="export")
 app.add_typer(panels_app, name="panels")
 app.add_typer(doc_app, name="doc")
+app.add_typer(test_config_app, name="test-config")
 
-# Register top-level commands
-app.command()(version)
-app.command()(processes)
-app.command()(start)
-app.command()(stop)
-app.command()(attach)
+# Load plugin entry points
+try:
+    import importlib.metadata
+
+    entry_points = importlib.metadata.entry_points()
+    plugin_group = entry_points.select(group="pyaedt.cli")
+
+    for ep in plugin_group:
+        try:
+            plugin_app = ep.load()
+            app.add_typer(plugin_app, name=ep.name)
+        except Exception:
+            package = MAPPING_PLUGIN_PACKAGE.get(ep.value, "the required package")
+            msg = f"CLI plugin '{ep.name}' is not available."
+            install_msg = f"Install {package} to use this command."
+
+            @app.command(
+                name=ep.name,
+                help=f"[Plugin not installed] {install_msg}",
+                context_settings={"allow_extra_args": True, "ignore_unknown_options": True},
+            )
+            def unavailable_plugin(ctx: typer.Context, _msg: str = msg + " " + install_msg) -> None:
+                typer.secho(_msg, fg="red", err=True)
+                raise typer.Exit(code=1)
+except Exception as exc:
+    typer.secho(f"Skipping CLI plugin discovery because entry-point loading failed: {exc}", fg="yellow")
 
 if __name__ == "__main__":
     app()

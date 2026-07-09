@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -55,6 +55,7 @@ AEDT_APPLICATIONS = {
     "q3d": "Q3DExtractor",
     "twinbuilder": "TwinBuilder",
 }
+"""AEDT applications."""
 
 
 def _iter_panel_button_specs(parser: TabConfigParser, panel_label: str | None = None):
@@ -129,6 +130,12 @@ def add_automation_tab(
     -------
     str
         Automation tab path.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.customize_automation_tab import add_automation_tab
+    >>> add_automation_tab("MyToolkit", r"D:\\PersonalLib\\Toolkits", product="HFSS")
+
     """
     product = tab_map(product)
     lib_dir = Path(lib_dir)
@@ -250,6 +257,12 @@ def is_extension_in_panel(toolkit_dir: str, product: str, name: str, panel: str 
     -------
     bool
         True if the extension exists in the panel, False otherwise.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.customize_automation_tab import is_extension_in_panel
+    >>> is_extension_in_panel(r"D:\\PersonalLib\\Toolkits", "HFSS", "MyToolkit")
+
     """
     tab_config_file_path = Path(toolkit_dir) / tab_map(product) / "TabConfig.xml"
     if not tab_config_file_path.is_file():
@@ -264,6 +277,7 @@ def is_extension_in_panel(toolkit_dir: str, product: str, name: str, panel: str 
 
 
 def available_toolkits() -> dict:
+    """Retrieve available toolkits."""
     product_toolkits = {}
     for product_extension, product_name in AEDT_APPLICATIONS.items():
         toml_file = Path(__file__).parent / product_extension / "toolkits_catalog.toml"
@@ -323,6 +337,12 @@ def add_script_to_menu(
     Returns
     -------
     bool
+
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.customize_automation_tab import add_script_to_menu
+    >>> add_script_to_menu("MyToolkit", script_file=r"D:\\Scripts\\my_toolkit.py", product="HFSS")
 
     """
     logger = logging.getLogger("Global")
@@ -419,7 +439,14 @@ def add_script_to_menu(
 
 
 def tab_map(product: str) -> str:  # pragma: no cover
-    """Map exceptions in AEDT applications."""
+    """Map exceptions in AEDT applications.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.customize_automation_tab import tab_map
+    >>> tab_map("HFSS3DLayout")
+
+    """
     if product.lower() == "hfss3dlayout":
         return "HFSS3DLayoutDesign"
     elif product.lower() == "circuit":
@@ -444,6 +471,14 @@ def run_command(command: list[str], desktop_object: object) -> int:  # pragma: n
         Do not execute this function with untrusted function argument, environment
         variables or pyaedt global settings.
         See the :ref:`security guide<ref_security_consideration>` for details.
+
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Desktop
+    >>> from ansys.aedt.core.extensions.customize_automation_tab import run_command
+    >>> desktop = Desktop()
+    >>> run_command(["python", "--version"], desktop)
 
     """
     try:
@@ -480,6 +515,14 @@ def add_custom_toolkit(
     Returns
     -------
     bool
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Desktop
+    >>> from ansys.aedt.core.extensions.customize_automation_tab import add_custom_toolkit
+    >>> desktop = Desktop()
+    >>> add_custom_toolkit(desktop, "ChokeDesigner")
+
     """
     toolkits = available_toolkits()
     toolkit_info = None
@@ -680,6 +723,14 @@ def remove_script_from_menu(desktop_object: object, name: str, product: str = "P
     Returns
     -------
     bool
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Desktop
+    >>> from ansys.aedt.core.extensions.customize_automation_tab import remove_script_from_menu
+    >>> desktop = Desktop()
+    >>> remove_script_from_menu(desktop, "MyToolkit", product="HFSS")
+
     """
     product = tab_map(product)
     toolkit_dir = Path(desktop_object.personallib) / "Toolkits"
@@ -708,7 +759,14 @@ def __exe() -> str:
 def get_custom_extensions_from_tabconfig(
     tabconfig_path: str, toml_names: list, options: dict, logger: object = None
 ) -> dict:
-    """Add custom extensions from TabConfig.xml not in TOML."""
+    """Add custom extensions from TabConfig.xml not in TOML.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.customize_automation_tab import get_custom_extensions_from_tabconfig
+    >>> get_custom_extensions_from_tabconfig(r"D:\\PersonalLib\\Toolkits\\Project\\TabConfig.xml", [], {})
+
+    """
     parser = _safe_parse_tabconfig(tabconfig_path, logger=logger)
     if not parser:
         return options
@@ -720,7 +778,14 @@ def get_custom_extensions_from_tabconfig(
 
 
 def get_custom_extension_script(tabconfig_path: str, label: str, logger: object = None) -> str | None:
-    """Get script path for a custom extension from TabConfig.xml."""
+    """Get script path for a custom extension from TabConfig.xml.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.customize_automation_tab import get_custom_extension_script
+    >>> get_custom_extension_script(r"D:\\PersonalLib\\Toolkits\\Project\\TabConfig.xml", "MyToolkit")
+
+    """
     parser = _safe_parse_tabconfig(tabconfig_path, logger=logger)
     if not parser:
         return None
@@ -732,7 +797,14 @@ def get_custom_extension_script(tabconfig_path: str, label: str, logger: object 
 
 
 def get_custom_extension_image(tabconfig_path: str, label: str, logger: object = None) -> str:
-    """Get image path for a custom extension from TabConfig.xml."""
+    """Get image path for a custom extension from TabConfig.xml.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.customize_automation_tab import get_custom_extension_image
+    >>> get_custom_extension_image(r"D:\\PersonalLib\\Toolkits\\Project\\TabConfig.xml", "MyToolkit")
+
+    """
     parser = _safe_parse_tabconfig(tabconfig_path, logger=logger)
     if not parser:
         return ""

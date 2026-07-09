@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -208,8 +208,9 @@ def test_main_function_no_file_path() -> None:
 @patch("ansys.aedt.core.extensions.common.kernel_converter.Desktop")
 @patch("ansys.aedt.core.extensions.common.kernel_converter._convert_aedt")
 @patch("ansys.aedt.core.extensions.common.kernel_converter._convert_3d_component")
+@patch("ansys.aedt.core.extensions.common.kernel_converter.aedt_versions")
 def test_main_function_with_directory(
-    mock_convert_3d_component, mock_convert_aedt, mock_desktop_class, mock_search_files, mock_app
+    mock_aedt_versions, mock_convert_3d_component, mock_convert_aedt, mock_desktop_class, mock_search_files, mock_app
 ) -> None:
     """Test main function with directory path."""
     # Mock search_files to return test files
@@ -218,14 +219,16 @@ def test_main_function_with_directory(
         ["/path/to/test3.aedt", "/path/to/test4.aedt"],
     ]
 
+    mock_aedt_versions.installed_versions = {"2022.2": "dummy"}
+
     # Mock Desktop
     mock_desktop_instance = MagicMock()
     mock_desktop_class.return_value = mock_desktop_instance
 
     data = KernelConverterExtensionData(file_path="/path/to/directory")
 
-    # Mock os.path.isdir to return True
-    with patch("os.path.isdir", return_value=True):
+    # Mock pathlib.Path.is_dir to return True
+    with patch("pathlib.Path.is_dir", return_value=True):
         result = main(data)
 
     assert result is True
@@ -233,18 +236,44 @@ def test_main_function_with_directory(
     mock_desktop_instance.release_desktop.assert_called()
 
 
+@patch("ansys.aedt.core.extensions.common.kernel_converter.search_files")
 @patch("ansys.aedt.core.extensions.common.kernel_converter.Desktop")
 @patch("ansys.aedt.core.extensions.common.kernel_converter._convert_aedt")
-def test_main_function_with_single_file(mock_convert_aedt, mock_desktop_class, mock_app) -> None:
+@patch("ansys.aedt.core.extensions.common.kernel_converter._convert_3d_component")
+@patch("ansys.aedt.core.extensions.common.kernel_converter.aedt_versions")
+def test_main_function_error(
+    mock_aedt_versions, mock_convert_3d_component, mock_convert_aedt, mock_desktop_class, mock_search_files, mock_app
+) -> None:
+    """Test main function with directory path."""
+    # Mock search_files to return test files
+    mock_search_files.side_effect = [
+        ["/path/to/test1.a3dcomp", "/path/to/test2.a3dcomp"],
+        ["/path/to/test3.aedt", "/path/to/test4.aedt"],
+    ]
+
+    mock_aedt_versions.installed_versions = {"1992.0": "dummy"}
+    data = KernelConverterExtensionData(file_path="/path/to/test.a3dcomp")
+
+    # Mock pathlib.Path.exists to return True
+    with patch("pathlib.Path.exists", return_value=True):
+        with pytest.raises(AEDTRuntimeError):
+            main(data)
+
+
+@patch("ansys.aedt.core.extensions.common.kernel_converter.Desktop")
+@patch("ansys.aedt.core.extensions.common.kernel_converter._convert_aedt")
+@patch("ansys.aedt.core.extensions.common.kernel_converter.aedt_versions")
+def test_main_function_with_single_file(mock_aedt_versions, mock_convert_aedt, mock_desktop_class, mock_app) -> None:
     """Test main function with single file path."""
     # Mock Desktop
     mock_desktop_instance = MagicMock()
     mock_desktop_class.return_value = mock_desktop_instance
+    mock_aedt_versions.installed_versions = {"2022.2": "dummy"}
 
     data = KernelConverterExtensionData(file_path="/path/to/test.aedt")
 
-    # Mock os.path.isdir to return False
-    with patch("os.path.isdir", return_value=False):
+    # Mock pathlib.Path.exists to return False
+    with patch("pathlib.Path.exists", return_value=False):
         result = main(data)
 
     assert result is True
@@ -254,16 +283,18 @@ def test_main_function_with_single_file(mock_convert_aedt, mock_desktop_class, m
 
 @patch("ansys.aedt.core.extensions.common.kernel_converter.Desktop")
 @patch("ansys.aedt.core.extensions.common.kernel_converter._convert_3d_component")
-def test_main_function_with_3d_component(mock_convert_3d, mock_desktop_class, mock_app) -> None:
+@patch("ansys.aedt.core.extensions.common.kernel_converter.aedt_versions")
+def test_main_function_with_3d_component(mock_aedt_versions, mock_convert_3d, mock_desktop_class, mock_app) -> None:
     """Test main function with 3D component file."""
     # Mock Desktop
     mock_desktop_instance = MagicMock()
     mock_desktop_class.return_value = mock_desktop_instance
+    mock_aedt_versions.installed_versions = {"2022.2": "dummy"}
 
     data = KernelConverterExtensionData(file_path="/path/to/test.a3dcomp")
 
-    # Mock os.path.isdir to return False
-    with patch("os.path.isdir", return_value=False):
+    # Mock pathlib.Path.exists to return False
+    with patch("pathlib.Path.exists", return_value=False):
         result = main(data)
 
     assert result is True
@@ -272,16 +303,18 @@ def test_main_function_with_3d_component(mock_convert_3d, mock_desktop_class, mo
 
 
 @patch("ansys.aedt.core.extensions.common.kernel_converter.Desktop")
-def test_main_function_with_exception_handling(mock_desktop_class, caplog) -> None:
+@patch("ansys.aedt.core.extensions.common.kernel_converter.aedt_versions")
+def test_main_function_with_exception_handling(mock_aedt_versions, mock_desktop_class, caplog) -> None:
     """Test main function exception handling."""
     # Mock Desktop
     mock_desktop_instance = MagicMock()
     mock_desktop_class.return_value = mock_desktop_instance
+    mock_aedt_versions.installed_versions = {"2022.2": "dummy"}
 
     data = KernelConverterExtensionData(file_path="/path/to/test.aedt")
 
-    # Mock os.path.isdir to return False
-    with patch("os.path.isdir", return_value=False):
+    # Mock pathlib.Path.exists to return False
+    with patch("pathlib.Path.exists", return_value=False):
         # Mock _convert_aedt to raise an exception
         with patch(
             "ansys.aedt.core.extensions.common.kernel_converter._convert_aedt", side_effect=Exception("Test error")
@@ -306,7 +339,7 @@ def test_check_missing_function_unsupported_design_type(mock_app) -> None:
 
 @patch("ansys.aedt.core.generic.file_utils.read_csv")
 @patch("ansys.aedt.core.generic.file_utils.write_csv")
-@patch("os.path.exists")
+@patch("pathlib.Path.exists")
 def test_check_missing_function_with_missing_objects(mock_exists, mock_write_csv, mock_read_csv, mock_app) -> None:
     """Test _check_missing function with missing objects."""
     input_object = mock_app
@@ -337,7 +370,7 @@ def test_check_missing_function_with_missing_objects(mock_exists, mock_write_csv
 @patch("ansys.aedt.core.extensions.common.kernel_converter.get_pyaedt_app")
 @patch("ansys.aedt.core.extensions.common.kernel_converter._check_missing")
 @patch("ansys.aedt.core.extensions.common.kernel_converter.generate_unique_name")
-@patch("os.path.exists")
+@patch("pathlib.Path.exists")
 def test_convert_3d_component_function(
     mock_exists, mock_generate_name, mock_check_missing, mock_get_app, mock_hfss_class, mock_app
 ) -> None:
@@ -372,19 +405,13 @@ def test_convert_3d_component_function(
 @patch("ansys.aedt.core.extensions.common.kernel_converter.get_pyaedt_app")
 @patch("ansys.aedt.core.extensions.common.kernel_converter._check_missing")
 @patch("ansys.aedt.core.extensions.common.kernel_converter.generate_unique_name")
-@patch("os.path.exists")
-@patch("os.path.splitext")
-@patch("os.path.split")
-def test_convert_aedt_function(
-    mock_split, mock_splitext, mock_exists, mock_generate_name, mock_check_missing, mock_get_app, mock_app
-) -> None:
+@patch("pathlib.Path.exists")
+def test_convert_aedt_function(mock_exists, mock_generate_name, mock_check_missing, mock_get_app, mock_app) -> None:
     """Test _convert_aedt function."""
     # Setup mocks
     mock_exists.return_value = False
     mock_generate_name.return_value = "unique_name"
     mock_check_missing.return_value = ("error.csv", True)
-    mock_split.return_value = ("path", "test.aedt")
-    mock_splitext.return_value = ("test", ".aedt")
 
     mock_desktop_input = MagicMock()
     mock_desktop_input.design_list.return_value = ["Design1"]
@@ -416,7 +443,7 @@ def test_convert_3d_component_different_applications(mock_app) -> None:
         patch("ansys.aedt.core.extensions.common.kernel_converter.Q3d") as mock_q3d,
         patch("ansys.aedt.core.extensions.common.kernel_converter.get_pyaedt_app"),
         patch("ansys.aedt.core.extensions.common.kernel_converter._check_missing"),
-        patch("os.path.exists", return_value=False),
+        patch("pathlib.Path.exists", return_value=False),
     ):
         mock_desktop_input = MagicMock()
         mock_desktop_input.aedt_process_id = 12345
@@ -442,7 +469,7 @@ def test_convert_3d_component_different_applications(mock_app) -> None:
 
 @patch("ansys.aedt.core.generic.file_utils.read_csv")
 @patch("ansys.aedt.core.generic.file_utils.write_csv")
-@patch("os.path.exists")
+@patch("pathlib.Path.exists")
 def test_check_missing_function_with_unclassified_objects_history(mock_exists, mock_write_csv, mock_read_csv) -> None:
     """Test _check_missing function with unclassified objects history."""
     # Create separate mock objects for input and output

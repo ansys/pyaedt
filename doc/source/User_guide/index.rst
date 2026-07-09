@@ -81,6 +81,13 @@ For end-to-end examples, see `Examples <https://examples.aedt.docs.pyansys.com>`
 
             How to create and analyze EMIT designs.
 
+   .. grid-item-card:: Desktop sessions
+            :link: desktop_sessions
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            How to use the Desktop class to gain full control of the AEDT application.
+
    .. grid-item-card:: Security considerations
             :link: security_consideration
             :link-type: doc
@@ -93,6 +100,7 @@ For end-to-end examples, see `Examples <https://examples.aedt.docs.pyansys.com>`
    :maxdepth: 2
 
    intro
+   desktop_sessions
    extensions
    modeler
    mesh

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,25 +22,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+"""The module contains the `CircuitNetlistReport` class.
 
-"""
-This module contains the `CircuitNetlistReport` class.
+The module provides all functionalities for creating and editing Circuit Netlist reports.
 
-This module provides all functionalities for creating and editing Circuit Netlist reports.
+Examples
+--------
+>>> from ansys.aedt.core.visualization.report.netlist import CircuitNetlistReport
+>>> obj = CircuitNetlistReport()
+
 """
 
 from ansys.aedt.core.generic.aedt_constants import CircuitNetlistConstants
@@ -50,7 +40,14 @@ from ansys.aedt.core.visualization.report.common import CommonReport
 
 
 class CircuitNetlistReport(CommonReport):
-    """Provides a reporting class that fits Circuit Netlist reports."""
+    """Provides a reporting class that fits Circuit Netlist reports.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.report.netlist import CircuitNetlistReport
+    >>> obj = CircuitNetlistReport()
+
+    """
 
     def __init__(self, app, report_category, setup_name, expressions=None) -> None:
         CommonReport.__init__(self, app, report_category, setup_name, expressions)
@@ -72,6 +69,13 @@ class CircuitNetlistReport(CommonReport):
         -------
         float
             Maximum time.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.netlist import CircuitNetlistReport
+        >>> obj = CircuitNetlistReport()
+        >>> obj.maximum_time
+
         """
         return self._legacy_props["context"].get("maximum_time", 3.33333333333333e-10) if self.domain == "Time" else 0
 
@@ -86,6 +90,13 @@ class CircuitNetlistReport(CommonReport):
         Returns
         -------
         int
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.netlist import CircuitNetlistReport
+        >>> obj = CircuitNetlistReport()
+        >>> obj.thinning
+
         """
         return self._legacy_props["context"].get("thinning", 0)
 
@@ -100,6 +111,13 @@ class CircuitNetlistReport(CommonReport):
         Returns
         -------
         int
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.netlist import CircuitNetlistReport
+        >>> obj = CircuitNetlistReport()
+        >>> obj.thinning_points
+
         """
         return self._legacy_props["context"].get("thinning_points", 500000000)
 
@@ -114,6 +132,13 @@ class CircuitNetlistReport(CommonReport):
         Returns
         -------
         int
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.netlist import CircuitNetlistReport
+        >>> obj = CircuitNetlistReport()
+        >>> obj.dy_dx_tolerance
+
         """
         return self._legacy_props["context"].get("dy_dx_tolerance", 0.001)
 
@@ -129,6 +154,13 @@ class CircuitNetlistReport(CommonReport):
         -------
         str
             Time start value.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.netlist import CircuitNetlistReport
+        >>> obj = CircuitNetlistReport()
+        >>> obj.time_start
+
         """
         return self._legacy_props["context"].get("time_start", "0ps")
 
@@ -144,6 +176,13 @@ class CircuitNetlistReport(CommonReport):
         -------
         str
             Time stop value.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.netlist import CircuitNetlistReport
+        >>> obj = CircuitNetlistReport()
+        >>> obj.time_stop
+
         """
         return self._legacy_props["context"].get("time_stop", "10ns")
 
@@ -159,6 +198,13 @@ class CircuitNetlistReport(CommonReport):
         -------
         float
             step time.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.netlist import CircuitNetlistReport
+        >>> obj = CircuitNetlistReport()
+        >>> obj.step_time
+
         """
         return self._legacy_props["context"].get("step_time", 3.33333333333333e-12) if self.domain == "Time" else 0
 
@@ -252,6 +298,7 @@ class CircuitNetlistReport(CommonReport):
         Create the report in AEDT.
         >>> assert new_report.create()
         >>> cir.release_desktop(False, False)
+
         """
         self._is_created = False
         if not name:

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,8 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-This module contains the ``MaterialWorkbench`` class.
+"""The module contains the ``MaterialWorkbench`` class.
 
 It includes a method to import materials from a Workbench Engineering Data XML file.
 """
@@ -50,6 +49,12 @@ class MaterialWorkbench(PyAedtBase):
     ----------
     app : :class:`ansys.aedt.core`
         Inherited parent object.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.material_workbench import MaterialWorkbench
+    >>> obj = MaterialWorkbench()
+
     """
 
     def __init__(self, app) -> None:
@@ -58,6 +63,7 @@ class MaterialWorkbench(PyAedtBase):
 
     @property
     def mat_name_suffix(self) -> str:
+        """Retrieve mat name suffix."""
         return self._mat_name_suffix
 
     @mat_name_suffix.setter
@@ -133,6 +139,12 @@ class MaterialWorkbench(PyAedtBase):
         -------
         list
             List of imported materials.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.material_workbench import MaterialWorkbench
+        >>> obj = MaterialWorkbench()
+        >>> obj.import_materials_from_workbench(filename="example.txt")
 
         """
         # Parse the XML

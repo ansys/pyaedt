@@ -7,7 +7,7 @@ template = "pyaedt_console"
 [ConsoleCLI]
 icon = "console.png"
 name = "PyAEDT CLI"
-script = "cli_setup.py"
+script = ""
 template = "pyaedt_cli"
 
 [Jupyter]

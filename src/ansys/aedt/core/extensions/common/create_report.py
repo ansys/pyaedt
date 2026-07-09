@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -44,9 +44,13 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 # Extension batch arguments
 EXTENSION_DEFAULT_ARGUMENTS = {
@@ -54,20 +58,39 @@ EXTENSION_DEFAULT_ARGUMENTS = {
     "open_report": True,
     "save_path": "",
 }
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Create Report"
+"""Title displayed for the extension."""
 
 
 @dataclass
 class CreateReportExtensionData(ExtensionCommonData):
-    """Data class containing user input and computed data."""
+    """Data class containing user input and computed data.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.common.create_report import CreateReportExtensionData
+    >>> data = CreateReportExtensionData(report_name="MyReport", save_path=r"D:\\Reports")
+
+    """
 
     report_name: str = EXTENSION_DEFAULT_ARGUMENTS["report_name"]
+    """Value for report name."""
     open_report: bool = EXTENSION_DEFAULT_ARGUMENTS["open_report"]
+    """Value for open report."""
     save_path: str = EXTENSION_DEFAULT_ARGUMENTS["save_path"]
+    """Path to save."""
 
 
 class CreateReportExtension(ExtensionProjectCommon):
-    """Extension for creating PDF reports in AEDT."""
+    """Extension for creating PDF reports in AEDT.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.common.create_report import CreateReportExtension
+    >>> extension = CreateReportExtension(withdraw=True)
+
+    """
 
     def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with title and
@@ -89,7 +112,15 @@ class CreateReportExtension(ExtensionProjectCommon):
         self.add_extension_content()
 
     def add_extension_content(self) -> None:
-        """Add custom content to the extension UI."""
+        """Add custom content to the extension UI.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.common.create_report import CreateReportExtension
+        >>> extension = CreateReportExtension(withdraw=True)
+        >>> extension.add_extension_content()
+
+        """
         # Report name entry
         report_name_label = ttk.Label(
             self.root,
@@ -170,7 +201,15 @@ class CreateReportExtension(ExtensionProjectCommon):
 
 
 def main(data: CreateReportExtensionData) -> bool:
-    """Main function to run the create report extension."""
+    """Main function to run the create report extension.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.common.create_report import CreateReportExtensionData, main
+    >>> data = CreateReportExtensionData(report_name="MyReport", save_path=r"D:\\Reports")
+    >>> main(data)
+
+    """
     if not data.report_name:
         raise AEDTRuntimeError("Report name cannot be empty.")
 
