@@ -836,16 +836,9 @@ def test_defect_1477851_nto1_export(emit_app) -> None:
     with an empty interferer name (N-to-1 mode) produces combined
     multi-aggressor rows with pipe-delimited aggressor names.
     """
-    radio1, ant1 = emit_app.schematic.create_radio_antenna("New Radio")
-    radio2, ant2 = emit_app.schematic.create_radio_antenna("New Radio")
-    radio3, ant3 = emit_app.schematic.create_radio_antenna("New Radio")
-
-    ant1.position_defined = True
-    ant1.position = "0 0 5"
-    ant2.position_defined = True
-    ant2.position = "10 0 10"
-    ant3.position_defined = True
-    ant3.position = "20 0 5"
+    emit_app.schematic.create_radio_antenna("New Radio")
+    emit_app.schematic.create_radio_antenna("New Radio")
+    emit_app.schematic.create_radio_antenna("New Radio")
 
     rev: Revision = emit_app.results.analyze()
     sim: Simulation = rev.get_simulation()
@@ -868,11 +861,16 @@ def test_defect_1477851_nto1_export(emit_app) -> None:
 
     lines = content.strip().split("\n")
     data_lines = [line for line in lines if not line.startswith("#")]
-    assert len(data_lines) > 1, "Export should have header + data rows"
 
-    has_nto1_row = any("|" in line.split(",")[0] for line in data_lines[1:])
-    assert has_nto1_row, (
-        "N-to-1 export should contain combined multi-aggressor rows "
-        "with pipe-delimited names"
+    # 1 header + 4 one-to-one radio-level results (2 aggressors x 2 directions)
+    # + 1 N-to-1 combined result = 6 total data lines
+    assert len(data_lines) == 6, (
+        f"Expected 6 data lines (1 header + 4 one-to-one + 1 Nto1), got {len(data_lines)}"
+    )
+
+    nto1_rows = [line for line in data_lines[1:] if "|" in line.split(",")[0]]
+    assert len(nto1_rows) == 1, (
+        f"Expected exactly 1 N-to-1 row with pipe-delimited aggressor names, "
+        f"got {len(nto1_rows)}"
     )
 
