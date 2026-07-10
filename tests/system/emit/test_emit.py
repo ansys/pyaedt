@@ -2299,7 +2299,7 @@ def test_all_generated_emit_node_properties(emit_app) -> None:
                         class_attr.fset(node, enum_val)
                 except (AttributeError, GrpcApiError, ValueError):
                     pass
-                for bool_key in ([None] if limited else list(node_bools.keys() or [None])):
+                for bool_key in [None] if limited else list(node_bools.keys() or [None]):
                     if stop_testing:
                         break
                     if bool_key is None:
@@ -2543,9 +2543,7 @@ def test_all_generated_emit_node_properties(emit_app) -> None:
                         child_node_add_exceptions[node_type] = exception
 
                 if node_type in nodes_to_skip and not dev_only:
-                    log_progress(
-                        f"Testing node {node_type} skipped. Set EMIT_PYAEDT_LONG=1 to include."
-                    )
+                    log_progress(f"Testing node {node_type} skipped. Set EMIT_PYAEDT_LONG=1 to include.")
                     continue
 
                 log_progress(f"Testing node type {node_type}...")
@@ -3529,6 +3527,7 @@ def test_terminator_table_persistence(add_app) -> None:
 
     app2.close_project(app2.project_name, save=False)
 
+
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027 R1.")
 def test_compare_nodes(emit_app) -> None:
     if not hasattr(emit_app.schematic, "compare_nodes"):
@@ -3624,3 +3623,83 @@ def test_compare_components(emit_app) -> None:
     same_type, differences = emit_app.schematic.compare_components(wifi_2012, antenna)
     assert not same_type
     assert differences == {}
+
+
+@pytest.mark.skipif(
+    DESKTOP_VERSION <= "2026.1",
+    reason="Skipped on versions earlier than 2027.1",
+)
+def test_availability_emi_get_set(interference):
+    """Test getting and setting the availability EMI threshold."""
+    rev = interference.results.analyze()
+    sim = rev.get_simulation()
+
+    # Get the initial value and confirm it is a float
+    initial_value = sim.get_availability_emi()
+    assert isinstance(initial_value, float)
+
+    # Set a new value and confirm it round-trips correctly
+    sim.set_availability_emi(-10.0)
+    assert sim.get_availability_emi() == -10.0
+
+    # Set another value to confirm independence from the initial state
+    sim.set_availability_emi(5.5)
+    assert sim.get_availability_emi() == 5.5
+
+    # Restore the original value
+    sim.set_availability_emi(initial_value)
+    assert sim.get_availability_emi() == initial_value
+
+
+@pytest.mark.skipif(
+    DESKTOP_VERSION <= "2026.1",
+    reason="Skipped on versions earlier than 2027.1",
+)
+def test_availability_emi_affects_availability(cell_phone):
+    """Test that changing the availability EMI threshold changes availability results.
+
+    A stricter (higher) threshold means fewer channel pairs are considered
+    available, so the availability fraction should decrease.  A looser
+    (lower) threshold means more channel pairs pass, so availability
+    should increase.
+    """
+    rev = cell_phone.results.analyze()
+    sim = rev.get_simulation()
+
+    rx_radios = rev.get_receiver_names()
+    tx_radios = rev.get_interferer_names()
+    assert len(rx_radios) > 0
+    assert len(tx_radios) > 0
+
+    # Build a domain scoped to the first Rx/Tx band pair with hopping bands
+    from ansys.aedt.core.emit_core.emit_constants import TxRxMode
+
+    rx_bands = rev.get_band_names(radio_name=rx_radios[0], tx_rx_mode=TxRxMode.RX)
+    tx_bands = rev.get_band_names(radio_name=tx_radios[0], tx_rx_mode=TxRxMode.TX)
+    assert len(rx_bands) > 0
+    assert len(tx_bands) > 0
+
+    domain = InteractionDomain(cell_phone)
+    domain.set_receiver(rx_radios[0], rx_bands[0])
+    domain.set_interferer(tx_radios[0], tx_bands[0])
+
+    interaction = sim.run(domain)
+    if not interaction.has_valid_availability(domain):
+        pytest.skip("Selected band pair does not support availability — need hopping bands")
+
+    # Record baseline availability with the current threshold
+    baseline_threshold = sim.get_availability_emi()
+    baseline_avail = interaction.get_availability(domain)
+
+    # A very tight threshold (high dB margin required) should yield lower availability
+    sim.set_availability_emi(300.0)
+    tight_avail = interaction.get_availability(domain)
+    assert tight_avail <= baseline_avail
+
+    # A very loose threshold (large negative margin) should yield higher availability
+    sim.set_availability_emi(-300.0)
+    loose_avail = interaction.get_availability(domain)
+    assert loose_avail >= baseline_avail
+
+    # Restore
+    sim.set_availability_emi(baseline_threshold)
