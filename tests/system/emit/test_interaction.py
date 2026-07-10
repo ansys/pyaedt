@@ -624,7 +624,6 @@ def test_n_to_1_worst_case(n_to_1):
     assert "When assigning channels you must assign one channel per band" in str(e.value)
 
 
-@pytest.mark.skipif(True, reason="B1477851 - need to fix Nto1 export.")
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
 def test_export(export):
     """

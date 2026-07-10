@@ -48,7 +48,10 @@ from ansys.aedt.core.emit_core.nodes.generated import TxNbEmissionNode
 from ansys.aedt.core.emit_core.nodes.generated import TxSpectralProfNode
 from ansys.aedt.core.emit_core.nodes.generated import TxSpurNode
 from ansys.aedt.core.emit_core.nodes.generated import EmitSceneNode
+from ansys.aedt.core.emit_core.results.interaction import Interaction
+from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
 from ansys.aedt.core.emit_core.results.revision import Revision
+from ansys.aedt.core.emit_core.results.simulation import Simulation
 from tests.conftest import DESKTOP_VERSION
 
 
@@ -818,4 +821,58 @@ def test_defect_1475679_get_child_node_id_recurse(emit_app) -> None:
     for ant in antennas_recurse:
         ant_id_recurse = mod.GetChildNodeID(0, scene_node._node_id, ant, True)
         assert ant_id_recurse > 0
+
+
+@pytest.mark.skipif(not DESKTOP_VERSION or DESKTOP_VERSION < "2027.1", reason="Regression test for defect 1477851.")
+def test_defect_1477851_nto1_export(emit_app) -> None:
+    """Regression test for TFS defect 1477851.
+
+    Nto1 export from PyAEDT not working properly
+    https://tfs.ansys.com:8443/tfs/ANSYS_Development/Portfolio/_workitems/edit/1477851
+
+    Severity: Class 2 - Serious Problem
+
+    The Selection export only included 1-to-1 results. After the fix, exporting
+    with an empty interferer name (N-to-1 mode) produces combined
+    multi-aggressor rows with pipe-delimited aggressor names.
+    """
+    radio1, ant1 = emit_app.schematic.create_radio_antenna("New Radio")
+    radio2, ant2 = emit_app.schematic.create_radio_antenna("New Radio")
+    radio3, ant3 = emit_app.schematic.create_radio_antenna("New Radio")
+
+    ant1.position_defined = True
+    ant1.position = "0 0 5"
+    ant2.position_defined = True
+    ant2.position = "10 0 10"
+    ant3.position_defined = True
+    ant3.position = "20 0 5"
+
+    rev: Revision = emit_app.results.analyze()
+    sim: Simulation = rev.get_simulation()
+    radios = rev.get_all_radio_nodes()
+    assert len(radios) >= 3
+
+    domain = InteractionDomain(emit_app)
+    domain.set_receiver(radio=radios[0])
+    domain.set_interferer(radio="")
+    sim.run(domain)
+
+    interaction = Interaction(emit_app, domain, rev)
+    temp_dir = tempfile.mkdtemp()
+    csv_path = os.path.join(temp_dir, "nto1_export.csv")
+    interaction.export_results(csv_path, True)
+    assert os.path.isfile(csv_path), "N-to-1 export should produce a file"
+
+    with open(csv_path, "r") as f:
+        content = f.read()
+
+    lines = content.strip().split("\n")
+    data_lines = [line for line in lines if not line.startswith("#")]
+    assert len(data_lines) > 1, "Export should have header + data rows"
+
+    has_nto1_row = any("|" in line.split(",")[0] for line in data_lines[1:])
+    assert has_nto1_row, (
+        "N-to-1 export should contain combined multi-aggressor rows "
+        "with pipe-delimited names"
+    )
 
