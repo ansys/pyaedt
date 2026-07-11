@@ -132,7 +132,7 @@ doc = [
     "sphinx_design>=0.4.0",
 ]
 quality = [
-  "prek==0.4.5",
+  "prek==0.4.7",
   "ruff==0.15.18",
   "ty==0.0.49",
 ]
