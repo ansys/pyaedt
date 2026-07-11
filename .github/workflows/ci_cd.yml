@@ -235,6 +235,7 @@ jobs:
 
   type-check:
     name: Type check with Ty
+    needs: [pr-title]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
