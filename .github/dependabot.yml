@@ -42,6 +42,10 @@ updates:
     ignore:
       - dependency-name: '*'
         update-types: ['version-update:semver-patch']
+    groups:
+      ansys-actions:
+        patterns:
+          - "ansys/actions/*"
     cooldown:
       default-days: 10 # Fallback cooldown if no specific rule applies
       include:
