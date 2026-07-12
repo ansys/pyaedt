@@ -72,7 +72,7 @@ jobs:
       contents: read   # Required to read documentation files for style checking
     steps:
       - name: Check documentation style
-        uses: ansys/actions/doc-style@d946b24b9a765f4169bcc94afdb27bd1a0533741 # v10.3.2
+        uses: ansys/actions/doc-style@a5b0351dc277d68c2dc1beca2d2674c7dfa4fc55 # v10.3.3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fail-level: 'warning'
@@ -196,6 +196,7 @@ jobs:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
       - name: Install pyaedt and tests dependencies
         env:
@@ -244,6 +245,7 @@ jobs:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
       - name: Install pyaedt and tests dependencies
         env:
@@ -296,6 +298,7 @@ jobs:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
 
       - name: Install pyaedt and tests dependencies
@@ -363,6 +366,7 @@ jobs:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
 
       - name: Install pyaedt and tests dependencies
@@ -423,6 +427,7 @@ jobs:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
 
       - name: Set up headless display
@@ -493,6 +498,7 @@ jobs:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
 
       - name: Set up headless display
@@ -556,6 +562,7 @@ jobs:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
 
       - name: Set up headless display
@@ -627,6 +634,7 @@ jobs:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
 
       - name: Set up headless display
@@ -688,6 +696,7 @@ jobs:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
 
       - name: Install pyaedt and tests dependencies
@@ -755,6 +764,7 @@ jobs:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
 
       - name: Install pyaedt and tests dependencies
@@ -815,6 +825,7 @@ jobs:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
 
       - name: Install pyaedt and tests dependencies
@@ -882,6 +893,7 @@ jobs:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
 
       - name: Install pyaedt and tests dependencies
@@ -943,6 +955,7 @@ jobs:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
 
       - name: Set up headless display
@@ -1040,6 +1053,7 @@ jobs:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
 
       - name: Set up headless display
@@ -1102,6 +1116,7 @@ jobs:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
 
       - name: Install pyaedt and tests dependencies
@@ -1167,6 +1182,7 @@ jobs:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
 
       - name: Install pyaedt and tests dependencies
