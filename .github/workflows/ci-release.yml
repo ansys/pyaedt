@@ -1263,7 +1263,7 @@ jobs:
       contents: write   # Required to commit and push documentation to gh-pages branch
     steps:
       - name: Deploy the stable documentation
-        uses: ansys/actions/doc-deploy-stable@d946b24b9a765f4169bcc94afdb27bd1a0533741 # v10.3.2
+        uses: ansys/actions/doc-deploy-stable@a5b0351dc277d68c2dc1beca2d2674c7dfa4fc55 # v10.3.3
         with:
           bot-email: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
           bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
