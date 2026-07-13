@@ -3396,9 +3396,6 @@ class SetupHFSS(Setup, PyAedtBase):
                 sweepdata.add_subrange(range_type="SinglePoints", start=f, unit=unit, save_single_fields=s)
         sweepdata.update()
 
-        # Reset children to populate again the new properties
-        self._children = {}
-
         self._app.logger.info(f"Single point sweep {name} has been correctly created")
         return sweepdata
 
@@ -4801,7 +4798,7 @@ class SetupQ3D(Setup, PyAedtBase):
         name: str = None,
         save_fields: bool = True,
         sweep_type: str = "Discrete",
-    ) -> "SweepMatrix" | bool:
+    ) -> SweepMatrix | bool:
         """Create a sweep with a specified frequency step.
 
         Parameters
@@ -4883,7 +4880,7 @@ class SetupQ3D(Setup, PyAedtBase):
         name: str = None,
         save_single_field: bool | list = True,
         save_fields: bool = False,
-    ) -> "SweepMatrix" | bool:
+    ) -> SweepMatrix | bool:
         """Create a sweep with a single frequency point.
 
         Parameters
@@ -4966,14 +4963,11 @@ class SetupQ3D(Setup, PyAedtBase):
                 sweepdata.add_subrange(range_type="SinglePoints", start=f, unit=unit, save_single_fields=s)
         sweepdata.update()
 
-        # Reset children to populate again the new properties
-        self._children = {}
-
         self._app.logger.info(f"Single point sweep {name} has been correctly created")
         return sweepdata
 
     @pyaedt_function_handler()
-    def add_sweep(self, name: str = None, sweep_type: str = "Interpolating", **props) -> "SweepMatrix":
+    def add_sweep(self, name: str = None, sweep_type: str = "Interpolating", **props) -> SweepMatrix:
         """Add a sweep to the project.
 
         Parameters
@@ -5021,7 +5015,7 @@ class SetupQ3D(Setup, PyAedtBase):
         return sweep_n
 
     @pyaedt_function_handler()
-    def get_sweep(self, name: str = None) -> "SweepMatrix" | bool:
+    def get_sweep(self, name: str = None) -> SweepMatrix | bool:
         """Get the frequency sweep object of a given sweep.
 
         Parameters
