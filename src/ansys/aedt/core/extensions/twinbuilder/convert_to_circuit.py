@@ -27,6 +27,10 @@ import math
 import os
 import tkinter
 from tkinter import ttk
+from typing import Any
+from typing import Mapping
+from typing import Protocol
+from typing import cast
 
 import ansys.aedt.core
 from ansys.aedt.core import get_pyaedt_app
@@ -55,6 +59,13 @@ EXTENSION_DEFAULT_ARGUMENTS = {"design_name": ""}
 """Default arguments for the extension."""
 EXTENSION_TITLE = "Convert to Circuit"
 """Title displayed for the extension."""
+
+
+class TwinBuilderAppLike(Protocol):
+    design_type: str
+    design_name: str
+    modeler: Any
+    variable_manager: Any
 
 
 @dataclass
@@ -93,11 +104,11 @@ class ConvertToCircuitExtension(ExtensionTwinBuilderCommon):
         )
 
         # Add private attributes and initialize them
-        self.__tb_designs = None
+        self.__tb_designs: list[str] = []
         self.__load_aedt_info()
 
         # Tkinter widgets
-        self.combo_design = None
+        self.combo_design: ttk.Combobox | None = None
 
         # Add extension content manually
         self.add_extension_content()
@@ -105,9 +116,9 @@ class ConvertToCircuitExtension(ExtensionTwinBuilderCommon):
     def __load_aedt_info(self):
         """Load Twin Builder design information."""
         try:
-            designs = []
+            designs: list[str] = []
             for design in self.desktop.design_list():
-                design_object = get_pyaedt_app(design_name=design)
+                design_object = cast(TwinBuilderAppLike, get_pyaedt_app(design_name=design))
                 if design_object.design_type == "Twin Builder":
                     designs.append(design)
             if not designs:
@@ -154,8 +165,11 @@ class ConvertToCircuitExtension(ExtensionTwinBuilderCommon):
         self._widgets["info_label"] = info_label
 
         def callback(extension: ConvertToCircuitExtension) -> None:
+            combo_design = extension.combo_design
+            if combo_design is None:
+                raise RuntimeError("Twin Builder design selector is not initialized.")
             data = ConvertToCircuitExtensionData()
-            data.design_name = extension.combo_design.get()
+            data.design_name = combo_design.get()
             extension.data = data
             extension.root.quit()
 
@@ -202,13 +216,13 @@ def main(data: ConvertToCircuitExtensionData) -> bool:
     project_name = active_project.GetName()
 
     # Get the specific TwinBuilder design
-    tb = get_pyaedt_app(project_name, data.design_name)
+    tb = cast(TwinBuilderAppLike, get_pyaedt_app(project_name, data.design_name))
 
     try:
         # Read the catalog for component mapping
         catalog_path = os.path.join(ansys.aedt.core.__path__[0], "misc", "tb_nexxim_mapping.toml")
-        catalog = read_toml(catalog_path)
-        scale = catalog["General"]["scale"]
+        catalog = cast(dict[str, Any], read_toml(catalog_path))
+        scale = cast(float, catalog["General"]["scale"])
 
         # Create new Circuit design
         cir = ansys.aedt.core.Circuit(design=tb.design_name + "_Translated")
@@ -245,9 +259,13 @@ def main(data: ConvertToCircuitExtensionData) -> bool:
             cmp_name = el.name.split("@")[1]
 
             if cmp_name in catalog:
+                component_catalog = cast(Mapping[str, Any], catalog[cmp_name])
+                component_location = cast(list[float], el.location)
                 # Calculate offsets based on scaling and rotation
-                x1 = unit_converter(catalog[cmp_name]["x_offset"] * scale, input_units="mil", output_units="meter")
-                y1 = unit_converter(catalog[cmp_name]["y_offset"] * scale, input_units="mil", output_units="meter")
+                x_offset = cast(float, component_catalog["x_offset"])
+                y_offset = cast(float, component_catalog["y_offset"])
+                x1 = cast(float, unit_converter(x_offset * scale, input_units="mil", output_units="meter"))
+                y1 = cast(float, unit_converter(y_offset * scale, input_units="mil", output_units="meter"))
                 offsetx = x1 * math.sin(math.pi * el.angle / 180) + y1 * math.cos(math.pi * el.angle / 180)
                 offsety = y1 * math.sin(math.pi * el.angle / 180) + x1 * math.cos(math.pi * el.angle / 180)
 
@@ -259,10 +277,10 @@ def main(data: ConvertToCircuitExtensionData) -> bool:
                 # Create component in Circuit
                 cmpid = cir.modeler.schematic.create_component(
                     refdes,
-                    component_library=catalog[cmp_name]["component_library"],
-                    component_name=catalog[cmp_name]["component_name"],
-                    location=[el.location[0] * scale + offsetx, el.location[1] * scale + offsety],
-                    angle=el.angle + catalog[cmp_name]["rotate_deg"],
+                    component_library=cast(str, component_catalog["component_library"]),
+                    component_name=cast(str, component_catalog["component_name"]),
+                    location=[component_location[0] * scale + offsetx, component_location[1] * scale + offsety],
+                    angle=el.angle + cast(float, component_catalog["rotate_deg"]),
                 )
 
                 # Create wires for unconnected pins
@@ -288,14 +306,15 @@ def main(data: ConvertToCircuitExtensionData) -> bool:
                                 cir.modeler.schematic.create_wire([origin, pin.location[:]])
 
                 # Map component properties
-                prop_mapping = catalog[cmp_name]["property_mapping"]
+                prop_mapping = cast(Mapping[str, str], component_catalog["property_mapping"])
                 for p, value in prop_mapping.items():
                     cmpid.set_property(value, el.parameters[p])
 
             elif "GPort" in el.name:
                 # Create ground component
-                cmpid = cir.modeler.schematic.create_gnd([i * scale for i in el.location], el.angle)
-                x1 = unit_converter(100, input_units="mil", output_units="meter")
+                component_location = cast(list[float], el.location)
+                cmpid = cir.modeler.schematic.create_gnd([i * scale for i in component_location], el.angle)
+                x1 = cast(float, unit_converter(100, input_units="mil", output_units="meter"))
                 offsetx = x1 * math.sin(el.angle * math.pi / 180)
                 offsety = x1 * math.cos(el.angle * math.pi / 180)
                 cir.modeler.move(cmpid, offset=[-offsetx, offsety])
@@ -330,7 +349,7 @@ if __name__ == "__main__":  # pragma: no cover
         tkinter.mainloop()
 
         if extension.data is not None:
-            main(extension.data)
+            main(cast(ConvertToCircuitExtensionData, extension.data))
 
     else:
         data = ConvertToCircuitExtensionData()
