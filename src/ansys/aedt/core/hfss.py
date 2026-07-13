@@ -8274,6 +8274,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         is_reflection = len(floquet_ports) == 1
 
         def _get_sd(varname: str):
+            self.logger.info(f"Get {varname} data.")
             return self.post.get_solution_data_per_variation(
                 "Modal Solution Data", setup_sweep, ["Domain:=", "Sweep"], variations, varname
             )
