@@ -443,6 +443,13 @@ class FresnelExtension(ExtensionHFSSCommon):
         self._widgets["rttbl_version_label"].grid(row=4, column=2, padx=10)
         self._widgets["rttbl_version_label"]["text"] = self.rttbl_version
 
+        ttk.Label(self._widgets["validation_frame"], text="Extraction mode: ", style="PyAEDT.TLabel").grid(
+            row=5, column=1, padx=10
+        )
+        self._widgets["advanced_mode"] = ttk.Label(self._widgets["validation_frame"], style="PyAEDT.TLabel")
+        self._widgets["advanced_mode"].grid(row=5, column=2, padx=10)
+        self._widgets["advanced_mode"]["text"] = "N/A"
+
         # Start button
         self._widgets["start_button"] = ttk.Button(
             self._widgets["advanced_tab"],
@@ -487,7 +494,9 @@ class FresnelExtension(ExtensionHFSSCommon):
         self._widgets["rttbl_version_combo"].grid(row=1, column=1, padx=15, pady=10)
 
         self._widgets["rttbl_version_combo"]["values"] = ["2.0", "1.0"]
-        self._widgets["rttbl_version_combo"].current(self._widgets["rttbl_version_combo"]["values"].index(self.rttbl_version))
+        self._widgets["rttbl_version_combo"].current(
+            self._widgets["rttbl_version_combo"]["values"].index(self.rttbl_version)
+        )
 
         self.active_setup = self.setups[self.setup_sweep_names[0].split(" : ")[0]]
 
@@ -542,7 +551,7 @@ class FresnelExtension(ExtensionHFSSCommon):
         )
         self._widgets["rttbl_version_label_extraction"].grid(row=4, column=2, padx=10)
         self._widgets["rttbl_version_label_extraction"]["text"] = "N/A"
-        """self.rttbl_version"""
+
         ttk.Label(self._widgets["validation_frame_extraction"], text="Extraction mode: ", style="PyAEDT.TLabel").grid(
             row=5, column=1, padx=10
         )
@@ -560,7 +569,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             command=lambda: self._get_coefficients(),  # pylint: disable=consider-lambda-function
             style="PyAEDT.TButton",
         )
-        self._widgets["start_button_extraction"].grid(row=5, column=0, padx=15, pady=10, columnspan=2)
+        self._widgets["start_button_extraction"].grid(row=6, column=0, padx=15, pady=10, columnspan=2)
         self._widgets["start_button_extraction"].grid_remove()
 
     def _build_settings_tab(self):
@@ -781,6 +790,9 @@ class FresnelExtension(ExtensionHFSSCommon):
         self.active_parametric.props["ProdOptiSetupDataV2"]["CopyMesh"] = self._widgets["keep_mesh"].get()
         self.active_parametric.props["ProdOptiSetupDataV2"]["SaveFields"] = False
 
+        # Display the resulting extraction mode
+        self._widgets["advanced_mode"].config(text=self.fresnel_type.get())
+
         # Create output variables
         self.active_setup_sweep = self.active_setup.name + " : " + self.sweep.name
         self.aedt_application.create_fresnel_variables(self.active_setup_sweep)
@@ -788,6 +800,8 @@ class FresnelExtension(ExtensionHFSSCommon):
         self.aedt_application.save_project()
 
         self._widgets["start_button"].grid()
+
+        self._widgets["tabs"].hide(self._widgets["extraction_tab"])
 
         return True
 
@@ -810,7 +824,6 @@ class FresnelExtension(ExtensionHFSSCommon):
         is_isotropic = self.fresnel_type.get() == "isotropic"
         # Display the resulting extraction mode
         self._widgets["extraction_mode"].config(text=self.fresnel_type.get())
-
 
         if active_setup is None:
             simulation_setup = self._widgets["setup_sweep_combo"].get()
@@ -953,6 +966,9 @@ class FresnelExtension(ExtensionHFSSCommon):
             return False
 
         self._widgets["start_button_extraction"].grid()
+
+        self._widgets["tabs"].hide(self._widgets["advanced_tab"])
+        self._widgets["tabs"].hide(self._widgets["settings_tab"])
 
         return True
 
