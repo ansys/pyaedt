@@ -821,7 +821,7 @@ class FresnelExtension(ExtensionHFSSCommon):
         self.active_parametric.props["ProdOptiSetupDataV2"]["SaveFields"] = False
 
         # Display the resulting extraction mode
-        self._label("advanced_mode").config(text=self.fresnel_type.get())
+        self._label("advanced_mode").config(text=self._fresnel_type().get())
 
         # Create output variables
         self.active_setup_sweep = self.active_setup.name + " : " + self.sweep.name
@@ -831,7 +831,7 @@ class FresnelExtension(ExtensionHFSSCommon):
 
         self._button("start_button").grid()
 
-        self._widgets["tabs"].hide(self._widgets["extraction_tab"])
+        cast(Any, self._widgets["tabs"]).hide(self._widgets["extraction_tab"])
 
         return True
 
@@ -845,16 +845,16 @@ class FresnelExtension(ExtensionHFSSCommon):
 
         self._button("start_button_extraction").grid_remove()
 
-        self.rttbl_version = self._label("rttbl_version_combo").get()
+        self.rttbl_version = self._combo("rttbl_version_combo").get()
         self._label("rttbl_version_label_extraction").config(text=self.rttbl_version)
 
         # Revert Fresnel Type to isotropic for RTTBL ver 1.0
         if self.rttbl_version == "1.0":
-            self.fresnel_type.set("isotropic")
+            self._fresnel_type().set("isotropic")
 
-        is_isotropic = self.fresnel_type.get() == "isotropic"
+        is_isotropic = self._fresnel_type().get() == "isotropic"
         # Display the resulting extraction mode
-        self._label("extraction_mode").config(text=self.fresnel_type.get())
+        self._label("extraction_mode").config(text=self._fresnel_type().get())
 
         if active_setup is None:
             simulation_setup = self._combo("setup_sweep_combo").get()
@@ -991,10 +991,8 @@ class FresnelExtension(ExtensionHFSSCommon):
             return False
 
         self._button("start_button_extraction").grid()
-
-        self._widgets["tabs"].hide(self._widgets["advanced_tab"])
-        self._widgets["tabs"].hide(self._widgets["settings_tab"])
-
+        cast(Any, self._widgets["tabs"]).hide(self._widgets["advanced_tab"])
+        cast(Any, self._widgets["tabs"]).hide(self._widgets["settings_tab"])
         return True
 
     def _start_extraction(self):  # pragma: no cover
@@ -1021,9 +1019,9 @@ class FresnelExtension(ExtensionHFSSCommon):
 
         # Revert Fresnel Type to isotropic for RTTBL ver 1.0
         if self.rttbl_version == "1.0":
-            self.fresnel_type.set("isotropic")
+            self._fresnel_type().set("isotropic")
 
-        is_isotropic = self.fresnel_type.get() == "isotropic"
+        is_isotropic = self._fresnel_type().get() == "isotropic"
 
         # Obtain variable name
         bounds = app.boundaries_by_type
