@@ -26,6 +26,8 @@ from dataclasses import dataclass
 import os
 import tkinter
 from tkinter import ttk
+from typing import Any
+from typing import cast
 
 import numpy as np
 from scipy.interpolate import CubicSpline
@@ -33,7 +35,6 @@ from scipy.interpolate import CubicSpline
 import ansys.aedt.core
 from ansys.aedt.core import get_pyaedt_app
 import ansys.aedt.core.extensions
-from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import ExtensionHFSSCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
@@ -44,27 +45,51 @@ from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 # Extension batch arguments
 EXTENSION_DEFAULT_ARGUMENTS = {"choice": "", "velocity": 1.4, "acceleration": 0.0, "delay": 0.0}
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Move It"
+"""Title displayed for the extension."""
 
 
 @dataclass
 class MoveItExtensionData(ExtensionCommonData):
-    """Data class containing user input and computed data."""
+    """Data class containing user input and computed data.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss.move_it import MoveItExtensionData
+    >>> data = MoveItExtensionData(choice="Polyline1", velocity=1.0, acceleration=0.2, delay=0.0)
+
+    """
 
     choice: str = EXTENSION_DEFAULT_ARGUMENTS["choice"]
+    """Value for choice."""
     velocity: float = EXTENSION_DEFAULT_ARGUMENTS["velocity"]
+    """Value for velocity."""
     acceleration: float = EXTENSION_DEFAULT_ARGUMENTS["acceleration"]
+    """Value for acceleration."""
     delay: float = EXTENSION_DEFAULT_ARGUMENTS["delay"]
+    """Value for delay."""
 
 
 class MoveItExtension(ExtensionHFSSCommon):
-    """Extension for move it in AEDT."""
+    """Extension for move it in AEDT.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss.move_it import MoveItExtension
+    >>> extension = MoveItExtension(withdraw=True)
+
+    """
 
     def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with the title and theme color
@@ -76,28 +101,39 @@ class MoveItExtension(ExtensionHFSSCommon):
             toggle_column=1,
         )
         # Add private attributes and initialize them through __load_aedt_info
-        self.__assignments = None
+        self.__assignments: list[str] | None = None
         self.__load_aedt_info()
 
         # Tkinter widgets
-        self.combo_line = None
-        self.delay_entry = None
-        self.acceleration_entry = None
-        self.velocity_entry = None
+        self.combo_line: ttk.Combobox | None = None
+        self.delay_entry: tkinter.Text | None = None
+        self.acceleration_entry: tkinter.Text | None = None
+        self.velocity_entry: tkinter.Text | None = None
 
         # Trigger manually since add_extension_content requires loading expression files first
         self.add_extension_content()
 
+    def _app(self) -> Any:
+        return cast(Any, self.aedt_application)
+
     def __load_aedt_info(self):
         """Load info."""
-        aedt_lines = self.aedt_application.modeler.get_objects_in_group("Lines")
+        aedt_lines = self._app().modeler.get_objects_in_group("Lines")
         if not aedt_lines:
             self.release_desktop()
             raise AEDTRuntimeError("No lines are defined in this design.")
         self.__assignments = aedt_lines
 
     def add_extension_content(self) -> None:
-        """Add custom content to the extension UI."""
+        """Add custom content to the extension UI.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.hfss.move_it import MoveItExtension
+        >>> extension = MoveItExtension(withdraw=True)
+        >>> extension.add_extension_content()
+
+        """
         label = ttk.Label(self.root, text="Select line:", width=30, style="PyAEDT.TLabel")
         label.grid(row=0, column=0, padx=15, pady=10)
 
@@ -133,21 +169,26 @@ class MoveItExtension(ExtensionHFSSCommon):
         self.delay_entry.insert(tkinter.END, "0.0")
         self.delay_entry.grid(row=3, column=1, pady=15, padx=10)
 
-        def callback(extension: MoveItExtension):
-            choice = extension.combo_line.get()
-            velocity_val = extension.velocity_entry.get("1.0", tkinter.END).strip()
+        def callback(extension: MoveItExtension) -> None:
+            combo_line = cast(ttk.Combobox, extension.combo_line)
+            velocity_entry = cast(tkinter.Text, extension.velocity_entry)
+            acceleration_entry = cast(tkinter.Text, extension.acceleration_entry)
+            delay_entry = cast(tkinter.Text, extension.delay_entry)
+
+            choice = combo_line.get()
+            velocity_val = velocity_entry.get("1.0", tkinter.END).strip()
             velocity_val = float(velocity_val)
             if velocity_val < 0:
                 extension.release_desktop()
                 raise AEDTRuntimeError("Velocity must be greater than zero.")
 
-            acceleration_val = extension.acceleration_entry.get("1.0", tkinter.END).strip()
+            acceleration_val = acceleration_entry.get("1.0", tkinter.END).strip()
             acceleration_val = float(acceleration_val)
             if acceleration_val < 0:
                 extension.release_desktop()
                 raise AEDTRuntimeError("Acceleration must be greater than zero.")
 
-            delay_val = extension.delay_entry.get("1.0", tkinter.END).strip()
+            delay_val = delay_entry.get("1.0", tkinter.END).strip()
             delay_val = float(delay_val)
             if delay_val < 0:
                 extension.release_desktop()
@@ -171,7 +212,15 @@ class MoveItExtension(ExtensionHFSSCommon):
 
 
 def main(data: MoveItExtensionData) -> bool:
-    """Main function to run the move it extension."""
+    """Main function to run the move it extension.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss.move_it import MoveItExtensionData, main
+    >>> data = MoveItExtensionData(choice="Polyline1", velocity=1.4, acceleration=0.0, delay=0.0)
+    >>> main(data)
+
+    """
     if not data.choice:
         raise AEDTRuntimeError("No assignment provided to the extension.")
 
@@ -198,7 +247,7 @@ def main(data: MoveItExtensionData) -> bool:
     project_name = active_project.GetName()
     design_name = active_design.GetName()
 
-    hfss = get_pyaedt_app(project_name, design_name)
+    hfss: Any = get_pyaedt_app(project_name, design_name)
 
     if hfss.design_type != "HFSS":
         if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
@@ -406,11 +455,11 @@ if __name__ == "__main__":  # pragma: no cover
 
     # Open UI
     if not args["is_batch"]:
-        extension: ExtensionCommon = MoveItExtension(withdraw=False)
+        extension = MoveItExtension(withdraw=False)
 
         tkinter.mainloop()
 
-        if extension.data is not None:
+        if isinstance(extension.data, MoveItExtensionData):
             main(extension.data)
 
     else:

@@ -191,19 +191,18 @@ def test_import_touchstone(aedt_app, test_tmp_dir) -> None:
     assert touchstone_data
 
 
-@pytest.mark.skipif(DESKTOP_VERSION == "2027.1", reason="WAITING BUG FIX")
 def test_export_fullwave(aedt_app, test_tmp_dir) -> None:
     aedt_app.save_project()
     touchstone_1 = shutil.copy2(TOUCHSTONE_FILE, test_tmp_dir / TOUCHSTONE)
     output = aedt_app.export_fullwave_spice(str(touchstone_1), is_solution_file=True)
     assert output
-    assert output.suffix == ".sp"
+    assert Path(output).suffix == ".sp"
     assert Path(output).is_file()
     output = aedt_app.export_fullwave_spice(
         str(touchstone_1), filename=Path(test_tmp_dir / "test.sss"), is_solution_file=True
     )
     assert output
-    assert output.suffix == ".sss"
+    assert Path(output).suffix == ".sss"
     assert Path(output).is_file()
 
 
@@ -1573,3 +1572,33 @@ def test_datablock_get_all_substrates(aedt_app) -> None:
     all_subs = aedt_app.substrate.names
     assert sub1.name in all_subs
     assert sub2.name in all_subs
+
+
+def test_touchstone_component_multi(aedt_app, test_tmp_dir):
+    touch_original = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / TOUCHSTONE
+    ts_1 = shutil.copy2(touch_original, test_tmp_dir / TOUCHSTONE)
+    ts_2 = shutil.copy2(touch_original, test_tmp_dir / TOUCHSTONE_CUSTOM)
+    comp = aedt_app.modeler.schematic.create_touchstone_component_multi(
+        component_name="nport",
+        num_ports=6,
+        array_name="SElement",
+        array_id_name="$SElement_id",
+        files=[ts_1, ts_2],
+    )
+    assert comp.parameters["FileName"] == "$SElement[$SElement_id]"
+
+
+def test_state_space_component_multi(aedt_app, test_tmp_dir):
+    sss_1_o = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "channel_4.sss"
+    sss_1 = shutil.copy2(sss_1_o, test_tmp_dir / sss_1_o.name)
+    sss_2 = shutil.copy2(sss_1_o, test_tmp_dir / sss_1_o.with_stem("copy").name)
+
+    comp = aedt_app.modeler.schematic.create_state_space_component_multi(
+        component_name="nport",
+        num_ports=4,
+        array_name="$SSSElement",
+        array_id_name="SSSElement_id",
+        files=[sss_1, sss_2],
+        location=["10mm", 2],
+    )
+    assert comp.parameters["FileName"] == "$SSSElement[$SSSElement_id]"

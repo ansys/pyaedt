@@ -25,6 +25,7 @@
 from contextlib import suppress
 import json
 from pathlib import Path
+from typing import Any
 
 try:
     import typer
@@ -38,11 +39,20 @@ except ImportError as e:  # pragma: no cover
 # JSON output mode
 # ---------------------------------------------------------------------------
 
-json_mode = False
+json_mode: bool = False
+"""Value for JSON mode."""
 
 
 def print_output(data=None, error=None):
-    """Print structured output. In JSON mode prints JSON; in human mode does nothing."""
+    """Print structured output. In JSON mode prints JSON; in human mode does nothing.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.cli import common
+    >>> common.json_mode = True
+    >>> common.print_output(data={"port": 50051})
+
+    """
     if not json_mode:
         return
     if error:
@@ -52,13 +62,18 @@ def print_output(data=None, error=None):
 
 
 def get_desktop(port: int):
-    """
-    Connect to a running AEDT instance by gRPC port.
+    """Connect to a running AEDT instance by gRPC port.
 
     Parameters
     ----------
     port : int
         gRPC port of the AEDT instance.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.cli.common import get_desktop
+    >>> desktop = get_desktop(port=50051)
+
     """
     if port is None:
         if json_mode:
@@ -80,7 +95,15 @@ def get_desktop(port: int):
 
 
 def get_project_designs(desktop, project_name: str) -> list[dict]:
-    """Return the designs available in a project."""
+    """Return the designs available in a project.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.cli import common
+    >>> desktop = common.get_desktop(port=50051)
+    >>> common.get_project_designs(desktop, "Project1")
+
+    """
     designs = []
     for design_name in desktop.design_list(project_name):
         design_type = desktop.design_type(project_name=project_name, design_name=design_name)
@@ -89,7 +112,15 @@ def get_project_designs(desktop, project_name: str) -> list[dict]:
 
 
 def list_projects_with_designs(desktop) -> list[dict]:
-    """Return all open projects together with their designs."""
+    """Return all open projects together with their designs.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.cli import common
+    >>> desktop = common.get_desktop(port=50051)
+    >>> common.list_projects_with_designs(desktop)
+
+    """
     project_names = list(desktop.project_list)
     active_project_name = desktop.active_project_name
     active_design_name = desktop.active_design_name
@@ -110,7 +141,15 @@ def list_projects_with_designs(desktop) -> list[dict]:
 
 
 def resolve_project(desktop, project_name: str | None = None):
-    """Resolve a project, requiring an explicit choice when multiple are open."""
+    """Resolve a project, requiring an explicit choice when multiple are open.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.cli import common
+    >>> desktop = common.get_desktop(port=50051)
+    >>> project = common.resolve_project(desktop, project_name="Project1")
+
+    """
     project_names = list(desktop.project_list)
 
     if project_name:
@@ -133,7 +172,15 @@ def resolve_project(desktop, project_name: str | None = None):
 
 
 def resolve_project_and_design(desktop, project_name: str | None = None, design_name: str | None = None) -> dict:
-    """Resolve a unique project and design selection for design-scoped commands."""
+    """Resolve a unique project and design selection for design-scoped commands.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.cli import common
+    >>> desktop = common.get_desktop(port=50051)
+    >>> common.resolve_project_and_design(desktop, project_name="Project1", design_name="HFSSDesign1")
+
+    """
     project = resolve_project(desktop, project_name=project_name)
     resolved_project_name = project.GetName()
     designs = get_project_designs(desktop, resolved_project_name)
@@ -160,7 +207,14 @@ def resolve_project_and_design(desktop, project_name: str | None = None, design_
 
 
 def get_design_app(port: int, project_name: str | None = None, design_name: str | None = None):
-    """Return a Desktop and PyAEDT app for the resolved project and design."""
+    """Return a Desktop and PyAEDT app for the resolved project and design.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.cli.common import get_design_app
+    >>> desktop, app, context = get_design_app(port=50051, project_name="Project1", design_name="HFSSDesign1")
+
+    """
     import ansys.aedt.core as aedt
 
     aedt.settings.enable_logger = False
@@ -186,6 +240,7 @@ DEFAULT_TEST_CONFIG = {
     "skip_modelithics": True,
     "use_pyedb_grpc": True,
 }
+"""Default test config."""
 
 
 def get_tests_folder() -> Path:
@@ -195,6 +250,12 @@ def get_tests_folder() -> Path:
     -------
     Path
         Path to the tests folder
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.cli.common import get_tests_folder
+    >>> tests_folder = get_tests_folder()
+
     """
     try:
         import ansys.aedt.core
@@ -224,6 +285,13 @@ def load_config(config_path: Path) -> dict:
     -------
     dict
         Configuration dictionary
+
+    Examples
+    --------
+    >>> from pathlib import Path
+    >>> from ansys.aedt.core.cli.common import load_config
+    >>> config = load_config(Path(r"C:\\tests\\local_config.json"))
+
     """
     try:
         with open(config_path, "r") as f:
@@ -243,6 +311,13 @@ def save_config(config_path: Path, config: dict) -> None:
         Path to the configuration file
     config : dict
         Configuration dictionary to save
+
+    Examples
+    --------
+    >>> from pathlib import Path
+    >>> from ansys.aedt.core.cli.common import save_config
+    >>> save_config(Path(r"C:\\tests\\local_config.json"), {"desktopVersion": "2026.1"})
+
     """
     config_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -250,20 +325,26 @@ def save_config(config_path: Path, config: dict) -> None:
         json.dump(config, f, indent=4)
 
 
-def prompt_config_value(key: str, current_value) -> any:
+def prompt_config_value(key: str, current_value) -> Any:
     """Prompt user to modify a configuration value.
 
     Parameters
     ----------
     key : str
         Configuration key
-    current_value : any
+    current_value : Any
         Current value
 
     Returns
     -------
-    any
+    Any
         New value or current value if unchanged
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.cli.common import prompt_config_value
+    >>> prompt_config_value("desktopVersion", "2026.1")
+
     """
     if isinstance(current_value, bool):
         typer.echo("      ", nl=False)
@@ -300,7 +381,7 @@ def prompt_config_value(key: str, current_value) -> any:
         return current_value
 
 
-def display_config(config: dict, title: str = "Configuration", descriptions: dict = None) -> None:
+def display_config(config: dict, title: str = "Configuration", descriptions: dict | None = None) -> None:
     """Display configuration in a pretty formatted way.
 
     Parameters
@@ -311,6 +392,12 @@ def display_config(config: dict, title: str = "Configuration", descriptions: dic
         Title to display above the configuration
     descriptions : dict, optional
         Dictionary of key descriptions to display
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.cli.common import display_config
+    >>> display_config({"NonGraphical": True}, title="Current Test Configuration")
+
     """
     typer.echo(f"\n{title}:")
     typer.echo()

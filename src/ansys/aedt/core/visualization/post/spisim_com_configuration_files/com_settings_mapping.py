@@ -255,3 +255,4 @@ spimsim_matlab_keywords_mapping = {
     "SAMPLES_FOR_C2M": "SAMPLES_FOR_C2M",
     "GX": "GX",
 }
+"""Value for spimsim matlab keywords mapping."""

@@ -27,6 +27,7 @@ import os
 from pathlib import Path
 import tkinter
 from tkinter import ttk
+from typing import cast
 
 import ansys.aedt.core
 from ansys.aedt.core import Edb
@@ -39,9 +40,13 @@ from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 # Extension batch arguments
 EXTENSION_DEFAULT_ARGUMENTS = {
@@ -49,20 +54,39 @@ EXTENSION_DEFAULT_ARGUMENTS = {
     "export_configuration": True,
     "export_bom": True,
 }
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Layout Exporter"
+"""Title displayed for the extension."""
 
 
 @dataclass
 class ExportLayoutExtensionData(ExtensionCommonData):
-    """Data class containing user input and computed data."""
+    """Data class containing user input and computed data.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss3dlayout.export_layout import ExportLayoutExtensionData
+    >>> data = ExportLayoutExtensionData(export_ipc=True, export_configuration=True, export_bom=False)
+
+    """
 
     export_ipc: bool = EXTENSION_DEFAULT_ARGUMENTS["export_ipc"]
+    """Value for export IPC."""
     export_configuration: bool = EXTENSION_DEFAULT_ARGUMENTS["export_configuration"]
+    """Value for export configuration."""
     export_bom: bool = EXTENSION_DEFAULT_ARGUMENTS["export_bom"]
+    """Value for export BOM."""
 
 
 class ExportLayoutExtension(ExtensionHFSS3DLayoutCommon):
-    """Extension for exporting layout data in AEDT."""
+    """Extension for exporting layout data in AEDT.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss3dlayout.export_layout import ExportLayoutExtension
+    >>> extension = ExportLayoutExtension(withdraw=True)
+
+    """
 
     def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class
@@ -76,15 +100,23 @@ class ExportLayoutExtension(ExtensionHFSS3DLayoutCommon):
         )
 
         # Tkinter widgets
-        self.ipc_check = None
-        self.configuration_check = None
-        self.bom_check = None
+        self.ipc_check: tkinter.IntVar | None = None
+        self.configuration_check: tkinter.IntVar | None = None
+        self.bom_check: tkinter.IntVar | None = None
 
         # Trigger manually since add_extension_content requires it
         self.add_extension_content()
 
     def add_extension_content(self) -> None:
-        """Add custom content to the extension UI."""
+        """Add custom content to the extension UI.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.hfss3dlayout.export_layout import ExportLayoutExtension
+        >>> extension = ExportLayoutExtension(withdraw=True)
+        >>> extension.add_extension_content()
+
+        """
         # Export IPC2581 option
         label = ttk.Label(
             self.root,
@@ -143,10 +175,15 @@ class ExportLayoutExtension(ExtensionHFSS3DLayoutCommon):
         self.bom_check.set(1)
 
         def callback(extension: ExportLayoutExtension) -> None:
+            ipc_check = extension.ipc_check
+            configuration_check = extension.configuration_check
+            bom_check = extension.bom_check
+            if ipc_check is None or configuration_check is None or bom_check is None:
+                raise RuntimeError("Export layout widgets are not initialized.")
             data = ExportLayoutExtensionData()
-            data.export_ipc = extension.ipc_check.get() == 1
-            data.export_configuration = extension.configuration_check.get() == 1
-            data.export_bom = extension.bom_check.get() == 1
+            data.export_ipc = ipc_check.get() == 1
+            data.export_configuration = configuration_check.get() == 1
+            data.export_bom = bom_check.get() == 1
             extension.data = data
             extension.root.destroy()
 
@@ -162,7 +199,15 @@ class ExportLayoutExtension(ExtensionHFSS3DLayoutCommon):
 
 
 def main(data: ExportLayoutExtensionData) -> bool:
-    """Main function to run the export layout extension."""
+    """Main function to run the export layout extension.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss3dlayout.export_layout import ExportLayoutExtensionData, main
+    >>> data = ExportLayoutExtensionData(export_ipc=True, export_configuration=True, export_bom=False)
+    >>> main(data)
+
+    """
     app = ansys.aedt.core.Desktop(
         new_desktop=False,
         version=VERSION,
@@ -212,7 +257,7 @@ if __name__ == "__main__":  # pragma: no cover
         tkinter.mainloop()
 
         if extension.data is not None:
-            main(extension.data)
+            main(cast(ExportLayoutExtensionData, extension.data))
 
     else:
         data = ExportLayoutExtensionData()

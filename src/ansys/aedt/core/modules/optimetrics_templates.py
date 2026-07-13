@@ -33,6 +33,7 @@ defaultparametricSetup = dict(
         "Goals": {},
     }
 )
+"""Value for defaultparametric setup."""
 
 
 defaultdxSetup = dict(
@@ -50,6 +51,7 @@ defaultdxSetup = dict(
         "Goals": {},
     }
 )
+"""Value for defaultdx setup."""
 
 defaultoptiSetup = dict(
     {
@@ -83,6 +85,7 @@ defaultoptiSetup = dict(
         "UpdateDesignWhenDone": True,
     }
 )
+"""Value for defaultopti setup."""
 
 defaultsensitivitySetup = dict(
     {
@@ -100,6 +103,7 @@ defaultsensitivitySetup = dict(
         "Perform Worst Case Analysis": False,
     }
 )
+"""Value for defaultsensitivity setup."""
 
 defaultstatisticalSetup = dict(
     {
@@ -113,6 +117,7 @@ defaultstatisticalSetup = dict(
         "Goals": {},
     }
 )
+"""Value for defaultstatistical setup."""
 
 defaultdoeSetup = dict(
     {
@@ -144,3 +149,4 @@ defaultdoeSetup = dict(
         "Tolerances": [],
     }
 )
+"""Value for defaultdoe setup."""

@@ -30,6 +30,7 @@ if os.name == "nt":
     os.environ["PYTHONMALLOC"] = "malloc"
 
 LATEST_DEPRECATED_PYTHON_VERSION = (3, 9)
+"""Latest deprecated python version."""
 PYTHON_VERSION_WARNING = (
     "As part of our ongoing efforts to align with the Python Scientific Community's "
     "best practices, we are moving towards adopting SPEC 0000 "
@@ -37,6 +38,7 @@ PYTHON_VERSION_WARNING = (
     "take full advantage of the latest features and improvements, we strongly "
     "recommend updating the Python version being used."
 )
+"""Python version warning."""
 DOTNET_LINUX_WARNING = (
     "Due to compatibility issues between .NET Core and libssl on some Linux versions, "
     "for example Ubuntu 22.04, we are going to stop depending on `dotnetcore2`."
@@ -44,6 +46,7 @@ DOTNET_LINUX_WARNING = (
     "install .NET themselves. For more information, see "
     "https://aedt.docs.pyansys.com/version/stable/release_1_0.html#dotnet-changes-in-linux"
 )
+"""Dotnet linux warning."""
 
 
 def deprecation_warning() -> None:
@@ -71,8 +74,10 @@ deprecation_warning()
 #
 
 pyaedt_path = os.path.dirname(__file__)
-__version__ = "1.2.dev0"
+"""Path to pyaedt path."""
+__version__ = "1.3.dev0"
 version = __version__
+"""Value for version."""
 
 # isort: off
 # Settings have to be imported before importing other PyAEDT modules

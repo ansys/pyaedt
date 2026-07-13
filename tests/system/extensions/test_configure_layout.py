@@ -40,15 +40,19 @@ EDB_PROJECT = "ANSYS_SVP_V1_1.aedb"
 SI_VERSE_PATH = TESTS_EXTENSIONS_PATH / "example_models" / TEST_SUBFOLDER / EDB_PROJECT
 
 pytestmark = pytest.mark.skipif(is_linux, reason="PyEDB stability issues on Linux")
+# NOTE: Remove marker below if 26R1 SP2 is installed or later version of AEDT is used.
+edb_xfail = pytest.mark.xfail(reason="PyEDB tests are unstable")
 
 
+@edb_xfail
 def test_get_active_db(add_app_example) -> None:
     app = add_app_example(application=Hfss3dLayout, project=SI_VERSE_PROJECT, subfolder=TEST_SUBFOLDER)
     extension = ConfigureLayoutExtension(withdraw=True)
-    assert Path(extension.get_active_edb()).exists()
+    assert Path(extension._get_active_edb()).exists()
     app.close_project(app.project_name, save=False)
 
 
+@edb_xfail
 def test_apply_config_to_edb(add_app_example, test_tmp_dir) -> None:
     app = add_app_example(application=Hfss3dLayout, project=SI_VERSE_PROJECT, subfolder=TEST_SUBFOLDER)
     config_path = test_tmp_dir / "config.json"
@@ -57,27 +61,30 @@ def test_apply_config_to_edb(add_app_example, test_tmp_dir) -> None:
         json.dump(data, f, ensure_ascii=False, indent=4)
 
     extension = ConfigureLayoutExtension(withdraw=True)
-    assert extension.apply_config_to_edb(config_path, test_tmp_dir)
+    assert extension._apply_config_to_edb(config_path, test_tmp_dir)
     app.close_project(app.project_name, save=False)
 
 
+@edb_xfail
 def test_export_config_from_edb(add_app_example) -> None:
     app = add_app_example(application=Hfss3dLayout, project=SI_VERSE_PROJECT, subfolder=TEST_SUBFOLDER)
     extension = ConfigureLayoutExtension(withdraw=True)
-    assert extension.export_config_from_edb()
+    assert extension._export_config_from_edb()
     app.close_project(app.project_name, save=False)
 
 
+@edb_xfail
 def test_load_edb_into_hfss3dlayout(add_app, test_tmp_dir) -> None:
     test_project = test_tmp_dir / EDB_PROJECT
     shutil.copytree(SI_VERSE_PATH, test_project)
 
     app = add_app(application=Hfss3dLayout)
     extension = ConfigureLayoutExtension(withdraw=True)
-    assert extension.load_edb_into_hfss3dlayout(test_project)
+    assert extension._load_edb_into_hfss3dlayout(test_project)
     app.close_project(app.project_name, save=False)
 
 
+@edb_xfail
 def test_ui_initial_state(add_app, test_tmp_dir) -> None:
     """Test the initial state of the UI variables."""
     test_project = test_tmp_dir / EDB_PROJECT
@@ -90,6 +97,7 @@ def test_ui_initial_state(add_app, test_tmp_dir) -> None:
     app.close_project(app.project_name, save=False)
 
 
+@edb_xfail
 def test_selected_edb_property(add_app_example) -> None:
     """Test the selected_edb property."""
     # Test with active design
@@ -97,7 +105,7 @@ def test_selected_edb_property(add_app_example) -> None:
     extension = ConfigureLayoutExtension(withdraw=True)
 
     extension.var_active_design.set(0)
-    with patch.object(extension, "get_active_edb", return_value="active.aedb") as mock_get_active:
+    with patch.object(extension, "_get_active_edb", return_value="active.aedb") as mock_get_active:
         assert extension.selected_edb == "active.aedb"
         mock_get_active.assert_called_once()
 

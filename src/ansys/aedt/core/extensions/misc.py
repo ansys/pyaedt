@@ -38,7 +38,11 @@ import tkinter
 from tkinter import ttk
 from tkinter.messagebox import showerror
 import traceback
+from types import TracebackType
+from typing import Any
 from typing import Callable
+from typing import Protocol
+from typing import cast
 
 import PIL.Image
 import PIL.ImageTk
@@ -54,43 +58,98 @@ from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 NO_ACTIVE_PROJECT = "No active project"
+"""No active project."""
 NO_ACTIVE_DESIGN = "No active design"
+"""No active design."""
 MOON = "\u2600"
+"""Moon."""
 SUN = "\u263d"
-DEFAULT_PADDING = {"padx": 10, "pady": 6}
+"""Sun."""
+DEFAULT_PADDING: dict[str, Any] = {"padx": 10, "pady": 6}
+"""Default padding."""
 DEFAULT_WIDTH = 10
+"""Default width."""
 DEFAULT_FOREGROUND: str = "white"
+"""Default foreground."""
 DEFAULT_FOREGROUND_DARK: str = "black"
+"""Default foreground dark."""
 DEFAULT_BD: int = 0
+"""Default bd."""
 DEFAULT_BORDERWIDTH: int = 0
+"""Default borderwidth."""
 
 
 def get_process_id() -> int | None:
-    """Get process ID from environment variable."""
+    """Get process ID from environment variable.
+
+    Examples
+    --------
+    >>> import os
+    >>> os.environ["PYAEDT_PROCESS_ID"] = "12345"
+    >>> get_process_id()
+    >>> # Output: 12345
+
+    """
     value = os.getenv("PYAEDT_PROCESS_ID")
     return int(value) if value is not None else None
 
 
 def get_port() -> int:
-    """Get gRPC port from environment variable."""
+    """Get gRPC port from environment variable.
+
+    Examples
+    --------
+    >>> import os
+    >>> os.environ["PYAEDT_DESKTOP_PORT"] = "50051"
+    >>> get_port()
+    >>> # Output: 50051
+
+    """
     res = int(os.getenv("PYAEDT_DESKTOP_PORT", 0))
     return res
 
 
 def get_aedt_version() -> str:
-    """Get AEDT release from environment variable."""
+    """Get AEDT release from environment variable.
+
+    Examples
+    --------
+    >>> import os
+    >>> os.environ["PYAEDT_DESKTOP_VERSION"] = "2024.1"
+    >>> get_aedt_version()
+    >>> # Output: 2024.1
+
+    """
     res = os.getenv("PYAEDT_DESKTOP_VERSION", aedt_versions.current_version)
     return res
 
 
 def is_student() -> bool:
-    """Get if AEDT student is opened from environment variable."""
+    """Get if AEDT student is opened from environment variable.
+
+    Examples
+    --------
+    >>> import os
+    >>> os.environ["PYAEDT_STUDENT_VERSION"] = "True"
+    >>> is_student()
+    >>> # Output: True
+
+    """
     res = os.getenv("PYAEDT_STUDENT_VERSION", "False") != "False"
     return res
 
 
 def get_aedt_path() -> str | None:
-    """Get AEDT path from environment variable."""
+    """Get AEDT path from environment variable.
+
+    Examples
+    --------
+    >>> import os
+    >>> os.environ["PYAEDT_DESKTOP_PATH"] = "C:/Program Files/Ansys Inc/v232"
+    >>> get_aedt_path()
+    >>> # Output: C:/Program Files/Ansys Inc/v232
+
+    """
     version = get_aedt_version()
     fallback_path = aedt_versions.installed_versions.get(version, None)
 
@@ -99,13 +158,33 @@ def get_aedt_path() -> str | None:
 
 
 def get_aedt_theme() -> str:
-    """Get AEDT theme from environment variable."""
+    """Get AEDT theme from environment variable.
+
+    Examples
+    --------
+    >>> import os
+    >>> os.environ["PYAEDT_GLOBAL_THEME"] = "dark"
+    >>> get_aedt_theme()
+    >>> # Output: dark
+
+    """
     res = os.getenv("PYAEDT_GLOBAL_THEME", "light")
     return res
 
 
-def get_latest_version(package_name: str, timeout: int = (2, 2)) -> str:
-    """Return latest version string from PyPI or 'Unknown' on failure."""
+class DesignTypeApp(Protocol):
+    design_type: str
+
+
+def get_latest_version(package_name: str, timeout: int | tuple[int, int] = (2, 2)) -> str:
+    """Return latest version string from PyPI or 'Unknown' on failure.
+
+    Examples
+    --------
+    >>> get_latest_version("pyaedt")
+    >>> # Output: "0.5.0" (example)
+
+    """
     UNKNOWN_VERSION = "Unknown"
     try:
         response = requests.get(f"https://pypi.org/pypi/{package_name}/json", timeout=timeout)
@@ -125,6 +204,14 @@ def check_for_pyaedt_update(personallib: str) -> tuple[str | None, Path | None]:
     tuple[str | None, pathlib.Path | None]
         (latest_version, declined_file_path) if the UI should prompt the user,
         otherwise (None, None).
+
+    Examples
+    --------
+    >>> import os
+    >>> os.environ["PYAEDT_PERSONAL_LIB"] = "C:/Users/username/AppData/Roaming/Ansys"
+    >>> check_for_pyaedt_update(os.environ["PYAEDT_PERSONAL_LIB"])
+    >>> # Output: ("0.5.0", PosixPath('C:/Users/username/AppData/Roaming/Ansys/Toolkits/.pyaedt_version')) (example)
+
     """
 
     def compare_versions(local: str, remote: str) -> bool:
@@ -246,6 +333,18 @@ def check_for_pyaedt_update_on_startup(
     """Spawn a background thread to check PyPI and schedule an optional UI prompt.
 
     The network check is skipped when running in the EDT sandbox.
+
+    Examples
+    --------
+    >>> import os
+    >>> import tkinter
+    >>> from ansys.aedt.core.extensions.misc import check_for_pyaedt_update_on_startup
+    >>> root = tkinter.Tk()
+    >>> personallib = os.environ.get("PYAEDT_PERSONAL_LIB", "C:/Users/username/AppData/Roaming/Ansys")
+    >>> def show_update_callback(latest_version, declined_file):
+    ...     print(f"New version available: {latest_version}")
+    >>> check_for_pyaedt_update_on_startup(root, personallib, show_update_callback)
+
     """
     log = logging.getLogger("Global")
 
@@ -258,6 +357,9 @@ def check_for_pyaedt_update_on_startup(
             latest, declined_file = check_for_pyaedt_update(personallib)
             if not latest:
                 log.debug("PyAEDT update check: no prompt required or latest unavailable.")
+                return
+            if declined_file is None:
+                log.debug("PyAEDT update check: declined file unavailable.")
                 return
             try:
                 root.after(0, lambda: show_update_callback(latest, declined_file))
@@ -275,6 +377,8 @@ class ExtensionCommonData(PyAedtBase):
 
 
 class ExtensionCommon(PyAedtBase):
+    """Provide extension common."""
+
     def __init__(
         self,
         title: str,
@@ -339,21 +443,33 @@ class ExtensionCommon(PyAedtBase):
         self.theme_color = theme_color
         self._widgets = {}
         self.__desktop = None
-        self.__aedt_application = None
+        self.__aedt_application: DesignTypeApp | None = None
         self.__data: ExtensionCommonData | None = None
         self._widgets["log_widget"] = None
         self._widgets["button_frame"] = None
 
         if toggle_row is not None and toggle_column is not None:
-            self.add_toggle_theme_button(self.root, toggle_row, toggle_column)
+            self.add_toggle_theme_button(cast(tkinter.Misc, self.root), toggle_row, toggle_column)
         if add_custom_content:
             self.add_extension_content()
 
         self.check_design_type()
         self.apply_theme(self.theme_color)
 
-    def add_toggle_theme_button(self, parent: tkinter.Widget, toggle_row: int, toggle_column: int):
-        """Create a button to toggle between light and dark themes."""
+    def _get_root_theme(self) -> str:
+        return cast(str, getattr(self.root, "theme", "light"))
+
+    def _set_root_theme(self, theme_name: str) -> None:
+        setattr(self.root, "theme", theme_name)
+
+    def add_toggle_theme_button(self, parent: tkinter.Misc, toggle_row: int, toggle_column: int) -> None:
+        """Create a button to toggle between light and dark themes.
+
+        Examples
+        --------
+        >>> extension.add_toggle_theme_button(extension.root, 0, 0)  # doctest: +SKIP
+
+        """
         button_frame = ttk.Frame(
             parent,
             style="PyAEDT.TFrame",
@@ -380,7 +496,8 @@ class ExtensionCommon(PyAedtBase):
         change_theme_button.grid(row=0, column=0)
         self._widgets["change_theme_button"] = change_theme_button
 
-    def add_logger(self, parent: tkinter.Widget, row: int, column: int):
+    def add_logger(self, parent: tkinter.Misc, row: int, column: int) -> None:
+        """Add a logger text box and a button to show logs."""
         logger_frame = ttk.Frame(parent, style="PyAEDT.TFrame", name="logger_frame")
         logger_frame.grid(row=row, column=column, sticky="ew", **DEFAULT_PADDING)
         self._widgets["logger_frame"] = logger_frame
@@ -430,16 +547,29 @@ class ExtensionCommon(PyAedtBase):
         self.log_message("Welcome to the PyAEDT Extension Manager!")
 
     def toggle_theme(self) -> None:
-        """Toggle between light and dark themes."""
-        if self.root.theme == "light":
+        """Toggle between light and dark themes.
+
+        Examples
+        --------
+        >>> extension.toggle_theme()  # doctest: +SKIP
+
+        """
+        root_theme = self._get_root_theme()
+        if root_theme == "light":
             self.apply_theme("dark")
-        elif self.root.theme == "dark":
+        elif root_theme == "dark":
             self.apply_theme("light")
         else:  # pragma: no cover
-            raise ValueError(f"Unknown theme: {self.root.theme}. Use 'light' or 'dark'.")
+            raise ValueError(f"Unknown theme: {root_theme}. Use 'light' or 'dark'.")
 
     def log_message(self, message: str):
-        """Append a message to the log text box."""
+        """Append a message to the log text box.
+
+        Examples
+        --------
+        >>> extension.log_message("Extension ready")  # doctest: +SKIP
+
+        """
         if self._widgets["log_text_widget"]:
             widget = self._widgets["log_text_widget"]
             widget.configure(state="normal")
@@ -447,17 +577,24 @@ class ExtensionCommon(PyAedtBase):
             widget.insert("end", message + "\n")
             widget.configure(state="disabled")
 
+    @abstractmethod
+    def open_all_logs_window(self) -> None:
+        """Open a log viewer for the current extension."""
+        raise NotImplementedError
+
     def __init_root(self, title: str, withdraw: bool) -> tkinter.Tk:
         """Init Tk root window with error handling and icon."""
 
-        def show_error_with_details(self, exc, val, tb):  # pragma: no cover
+        def show_error_with_details(
+            self, exc: type[BaseException], val: BaseException, tb: TracebackType | None
+        ) -> object:  # pragma: no cover
             """Custom exception showing an error message with details button."""
             win = tkinter.Toplevel()
             win.title("Error")
             win.resizable(False, False)
             win.grab_set()
 
-            label = tkinter.Label(win, text=val, justify="left")
+            label = tkinter.Label(win, text=str(val), justify="left")
             label.grid(row=0, column=0, columnspan=2, **DEFAULT_PADDING)
 
             details_frame = ttk.Frame(win)
@@ -496,15 +633,18 @@ class ExtensionCommon(PyAedtBase):
             button_ok.grid(row=1, column=1, sticky="e", **DEFAULT_PADDING)
 
             details_frame.grid_remove()
+            return None
 
-        def report_callback_exception_withdraw(self, exc, val, tb):
+        def report_callback_exception_withdraw(
+            self, exc: type[BaseException], val: BaseException, tb: TracebackType | None
+        ) -> object:
             """Custom exception that raises the error without showing a message box."""
             raise val
 
         if withdraw:
-            tkinter.Tk.report_callback_exception = report_callback_exception_withdraw
+            tkinter.Tk.report_callback_exception = cast(Any, report_callback_exception_withdraw)
         else:
-            tkinter.Tk.report_callback_exception = show_error_with_details
+            tkinter.Tk.report_callback_exception = cast(Any, show_error_with_details)
 
         root = tkinter.Tk()
         root.title(title)
@@ -516,16 +656,22 @@ class ExtensionCommon(PyAedtBase):
             icon_path = Path(ansys.aedt.core.extensions.__path__[0]) / "images" / "large" / "logo.png"
             im = PIL.Image.open(icon_path)
             photo = PIL.ImageTk.PhotoImage(im, master=root)
-            root.iconphoto(True, photo)
+            root.iconphoto(True, cast(Any, photo))
 
         return root
 
     def apply_theme(self, theme_color: str):
-        """Apply a theme to the UI."""
+        """Apply a theme to the UI.
+
+        Examples
+        --------
+        >>> extension.apply_theme("dark")  # doctest: +SKIP
+
+        """
         theme_colors_dict = self.theme.light if theme_color == "light" else self.theme.dark
         self.root.configure(background=theme_colors_dict["widget_bg"])
         for widget in self.__find_all_widgets(
-            self.root,
+            cast(tkinter.Misc, self.root),
             (tkinter.Text, tkinter.Listbox, tkinter.Canvas, tkinter.Scrollbar),
         ):
             if isinstance(widget, tkinter.Text):
@@ -548,16 +694,16 @@ class ExtensionCommon(PyAedtBase):
                 )
             else:
                 if "background" in widget.keys():
-                    widget.configure(background=theme_colors_dict["widget_bg"])
+                    cast(Any, widget).configure(background=theme_colors_dict["widget_bg"])
 
         button_text = None
         if theme_color == "light":
             self.theme.apply_light_theme(self.style)
-            self.root.theme = "light"
+            self._set_root_theme("light")
             button_text = SUN
         else:
             self.theme.apply_dark_theme(self.style)
-            self.root.theme = "dark"
+            self._set_root_theme("dark")
             button_text = MOON
 
         try:
@@ -568,7 +714,7 @@ class ExtensionCommon(PyAedtBase):
 
     def __find_all_widgets(
         self,
-        widget: tkinter.Widget,
+        widget: tkinter.Misc,
         widget_classes: type[tkinter.Widget] | tuple[type[tkinter.Widget], ...],
     ) -> list[tkinter.Widget]:
         """Return a list of all widgets of given type(s) in the widget hierarchy."""
@@ -584,20 +730,38 @@ class ExtensionCommon(PyAedtBase):
         self.root.destroy()
 
     @property
-    def change_theme_button(self) -> tkinter.Widget:
-        """Return the theme toggle button."""
-        res = self.root.nametowidget("theme_button_frame.theme_toggle_button")
+    def change_theme_button(self) -> ttk.Button:
+        """Return the theme toggle button.
+
+        Examples
+        --------
+        >>> extension.change_theme_button  # doctest: +SKIP
+
+        """
+        res = cast(ttk.Button, self.root.nametowidget("theme_button_frame.theme_toggle_button"))
         return res
 
     @property
     def browse_button(self) -> tkinter.Widget:
-        """Return the browse button."""
+        """Return the browse button.
+
+        Examples
+        --------
+        >>> extension.browse_button  # doctest: +SKIP
+
+        """
         res = self.root.nametowidget("browse_button")
         return res
 
     @property
     def desktop(self) -> Desktop:
-        """Return the AEDT Desktop instance."""
+        """Return the AEDT Desktop instance.
+
+        Examples
+        --------
+        >>> extension.desktop  # doctest: +SKIP
+
+        """
         if self.__desktop is None:
             # Extensions for now should only work in graphical sessions and with an existing AEDT session
             version = get_aedt_version()
@@ -628,8 +792,14 @@ class ExtensionCommon(PyAedtBase):
         return self.__desktop
 
     @property
-    def aedt_application(self) -> object:
-        """Return the active AEDT application instance."""
+    def aedt_application(self) -> DesignTypeApp:
+        """Return the active AEDT application instance.
+
+        Examples
+        --------
+        >>> extension.aedt_application  # doctest: +SKIP
+
+        """
         if self.__aedt_application is None:
             active_project_name = self.active_project_name
             if active_project_name == NO_ACTIVE_PROJECT:
@@ -643,17 +813,33 @@ class ExtensionCommon(PyAedtBase):
                 raise AEDTRuntimeError(
                     "No active design found. Please open or create a design before running this extension."
                 )
-            self.__aedt_application = get_pyaedt_app(active_project_name, active_design_name)
-        return self.__aedt_application
+            self.__aedt_application = cast(DesignTypeApp, get_pyaedt_app(active_project_name, active_design_name))
+        app = self.__aedt_application
+        if app is None:  # pragma: no cover
+            raise AEDTRuntimeError("Unable to retrieve the active AEDT application.")
+        return app
 
     def release_desktop(self) -> bool:
-        """Release AEDT desktop instance."""
+        """Release AEDT desktop instance.
+
+        Examples
+        --------
+        >>> extension.release_desktop()  # doctest: +SKIP
+
+        """
         if self.__desktop is not None and "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
             self.desktop.release_desktop(False, False)
         return True
 
     @property
     def data(self) -> ExtensionCommonData | None:
+        """Retrieve data.
+
+        Examples
+        --------
+        >>> extension.data  # doctest: +SKIP
+
+        """
         return self.__data
 
     @data.setter
@@ -664,12 +850,24 @@ class ExtensionCommon(PyAedtBase):
 
     @property
     def active_project_name(self) -> str:
-        """Return the name of the active project."""
+        """Return the name of the active project.
+
+        Examples
+        --------
+        >>> extension.active_project_name  # doctest: +SKIP
+
+        """
         return self.desktop.active_project_name or NO_ACTIVE_PROJECT
 
     @property
     def active_design_name(self) -> str:
-        """Return the name of the active design."""
+        """Return the name of the active design.
+
+        Examples
+        --------
+        >>> extension.active_design_name  # doctest: +SKIP
+
+        """
         return self.desktop.active_design_name or NO_ACTIVE_DESIGN
 
     @abstractmethod
@@ -678,111 +876,264 @@ class ExtensionCommon(PyAedtBase):
 
         This method should be implemented by subclasses to add specific content
         to the extension UI.
+
+        Examples
+        --------
+        >>> class DemoExtension(ExtensionProjectCommon):
+        ...     def add_extension_content(self):
+        ...         pass
+
         """
         raise NotImplementedError("Subclasses must implement this method.")
 
     @abstractmethod
-    def check_design_type(self):
+    def check_design_type(self) -> None:
         """Check the design type.
 
         This method should be implemented by subclasses to add specific content
         to the extension UI.
+
+        Examples
+        --------
+        >>> extension.check_design_type()  # doctest: +SKIP
+
         """
         raise NotImplementedError("Subclasses must implement this method.")
 
 
 class ExtensionIcepakCommon(ExtensionCommon):
-    """Common methods for Icepak extensions."""
+    """Common methods for Icepak extensions.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.misc import ExtensionIcepakCommon
+    >>> class MyIcepakExtension(ExtensionIcepakCommon):
+    ...     def add_extension_content(self):
+    ...         pass
+
+    """
 
     def check_design_type(self) -> None:
-        """Check if the active design is an Icepak design."""
+        """Check if the active design is an Icepak design.
+
+        Examples
+        --------
+        >>> extension.check_design_type()  # doctest: +SKIP
+
+        """
         if self.aedt_application.design_type != "Icepak":
             self.release_desktop()
             raise AEDTRuntimeError("This extension can only be used with Icepak designs.")
 
 
 class ExtensionHFSSCommon(ExtensionCommon):
-    """Common methods for HFSS extensions."""
+    """Common methods for HFSS extensions.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.misc import ExtensionHFSSCommon
+    >>> class MyHfssExtension(ExtensionHFSSCommon):
+    ...     def add_extension_content(self):
+    ...         pass
+
+    """
 
     def check_design_type(self) -> None:
-        """Check if the active design is an HFSS design."""
+        """Check if the active design is an HFSS design.
+
+        Examples
+        --------
+        >>> extension.check_design_type()  # doctest: +SKIP
+
+        """
         if self.aedt_application.design_type != "HFSS":
             self.release_desktop()
             raise AEDTRuntimeError("This extension can only be used with HFSS designs.")
 
 
 class ExtensionHFSS3DLayoutCommon(ExtensionCommon):
-    """Common methods for HFSS 3D Layout extensions."""
+    """Common methods for HFSS 3D Layout extensions.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.misc import ExtensionHFSS3DLayoutCommon
+    >>> class MyHfss3DLayoutExtension(ExtensionHFSS3DLayoutCommon):
+    ...     def add_extension_content(self):
+    ...         pass
+
+    """
 
     def check_design_type(self) -> None:
-        """Check if the active design is an HFSS 3D Layout design."""
+        """Check if the active design is an HFSS 3D Layout design.
+
+        Examples
+        --------
+        >>> extension.check_design_type()  # doctest: +SKIP
+
+        """
         if self.aedt_application.design_type != "HFSS 3D Layout Design":
             self.release_desktop()
             raise AEDTRuntimeError("This extension can only be used with HFSS 3D Layout designs.")
 
 
 class ExtensionMaxwell2DCommon(ExtensionCommon):
-    """Common methods for Maxwell 2D extensions."""
+    """Common methods for Maxwell 2D extensions.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.misc import ExtensionMaxwell2DCommon
+    >>> class MyMaxwell2DExtension(ExtensionMaxwell2DCommon):
+    ...     def add_extension_content(self):
+    ...         pass
+
+    """
 
     def check_design_type(self) -> None:
-        """Check if the active design is a Maxwell 2D design."""
+        """Check if the active design is a Maxwell 2D design.
+
+        Examples
+        --------
+        >>> extension.check_design_type()  # doctest: +SKIP
+
+        """
         if self.aedt_application.design_type != "Maxwell 2D":
             self.release_desktop()
             raise AEDTRuntimeError("This extension can only be used with Maxwell 2D designs.")
 
 
 class ExtensionMaxwell3DCommon(ExtensionCommon):
-    """Common methods for Maxwell 3D extensions."""
+    """Common methods for Maxwell 3D extensions.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.misc import ExtensionMaxwell3DCommon
+    >>> class MyMaxwell3DExtension(ExtensionMaxwell3DCommon):
+    ...     def add_extension_content(self):
+    ...         pass
+
+    """
 
     def check_design_type(self) -> None:
-        """Check if the active design is a Maxwell 3D design."""
+        """Check if the active design is a Maxwell 3D design.
+
+        Examples
+        --------
+        >>> extension.check_design_type()  # doctest: +SKIP
+
+        """
         if self.aedt_application.design_type != "Maxwell 3D":
             self.release_desktop()
             raise AEDTRuntimeError("This extension can only be used with Maxwell 3D designs.")
 
 
 class ExtensionCircuitCommon(ExtensionCommon):
-    """Common methods for Circuit extensions."""
+    """Common methods for Circuit extensions.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.misc import ExtensionCircuitCommon
+    >>> class MyCircuitExtension(ExtensionCircuitCommon):
+    ...     def add_extension_content(self):
+    ...         pass
+
+    """
 
     def check_design_type(self) -> None:
-        """Check if the active design is an Circuit design."""
+        """Check if the active design is an Circuit design.
+
+        Examples
+        --------
+        >>> extension.check_design_type()  # doctest: +SKIP
+
+        """
         if self.aedt_application.design_type != "Circuit Design":
             self.release_desktop()
             raise AEDTRuntimeError("This extension can only be used with Circuit designs.")
 
 
 class ExtensionTwinBuilderCommon(ExtensionCommon):
-    """Common methods for TwinBuilder extensions."""
+    """Common methods for TwinBuilder extensions.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.misc import ExtensionTwinBuilderCommon
+    >>> class MyTwinBuilderExtension(ExtensionTwinBuilderCommon):
+    ...     def add_extension_content(self):
+    ...         pass
+
+    """
 
     def check_design_type(self) -> None:
-        """Check if the active design is a TwinBuilder design."""
+        """Check if the active design is a TwinBuilder design.
+
+        Examples
+        --------
+        >>> extension.check_design_type()  # doctest: +SKIP
+
+        """
         if self.aedt_application.design_type != "Twin Builder":
             self.release_desktop()
             raise AEDTRuntimeError("This extension can only be used with Twin Builder designs.")
 
 
 class ExtensionEMITCommon(ExtensionCommon):
-    """Common methods for EMIT extensions."""
+    """Common methods for EMIT extensions.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.misc import ExtensionEMITCommon
+    >>> class MyEmitExtension(ExtensionEMITCommon):
+    ...     def add_extension_content(self):
+    ...         pass
+
+    """
 
     def check_design_type(self) -> None:
-        """Check if the active design is an EMIT design."""
+        """Check if the active design is an EMIT design.
+
+        Examples
+        --------
+        >>> extension.check_design_type()  # doctest: +SKIP
+
+        """
         if self.aedt_application.design_type != "EMIT":
             self.release_desktop()
             raise AEDTRuntimeError("This extension can only be used with EMIT designs.")
 
 
 class ExtensionProjectCommon(ExtensionCommon):
-    """Common methods for project-level extensions."""
+    """Common methods for project-level extensions.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
+    >>> class MyProjectExtension(ExtensionProjectCommon):
+    ...     def add_extension_content(self):
+    ...         pass
+
+    """
 
     def check_design_type(self) -> None:
         """Check the active design type.
 
         Not required for extension at project level.
+
+        Examples
+        --------
+        >>> extension.check_design_type()  # doctest: +SKIP
+
         """
         pass
 
 
 def create_default_ui(title: str, withdraw: bool = False) -> tuple[tkinter.Tk, ExtensionTheme, ttk.Style]:
+    """Create default UI.
+
+    Examples
+    --------
+    >>> root, theme, style = create_default_ui("PyAEDT Extension", withdraw=True)  # doctest: +SKIP
+
+    """
     import tkinter
     from tkinter import ttk
 
@@ -792,16 +1143,21 @@ def create_default_ui(title: str, withdraw: bool = False) -> tuple[tkinter.Tk, E
     import ansys.aedt.core.extensions
     from ansys.aedt.core.extensions.misc import ExtensionTheme
 
-    def report_callback_exception(self, exc, val, tb):
+    def report_callback_exception(
+        self, exc: type[BaseException], val: BaseException, tb: TracebackType | None
+    ) -> object:
         showerror("Error", message=str(val))
+        return None
 
-    def report_callback_exception_withdraw(self, exc, val, tb):
+    def report_callback_exception_withdraw(
+        self, exc: type[BaseException], val: BaseException, tb: TracebackType | None
+    ) -> object:
         raise val
 
     if withdraw:
-        tkinter.Tk.report_callback_exception = report_callback_exception_withdraw
+        tkinter.Tk.report_callback_exception = cast(Any, report_callback_exception_withdraw)
     else:
-        tkinter.Tk.report_callback_exception = report_callback_exception
+        tkinter.Tk.report_callback_exception = cast(Any, report_callback_exception)
 
     root = tkinter.Tk()
 
@@ -816,7 +1172,7 @@ def create_default_ui(title: str, withdraw: bool = False) -> tuple[tkinter.Tk, E
         photo = PIL.ImageTk.PhotoImage(im, master=root)
 
         # Set the icon for the main window
-        root.iconphoto(True, photo)
+        root.iconphoto(True, cast(Any, photo))
 
     # Configure style for ttk buttons
     style = ttk.Style()
@@ -824,7 +1180,7 @@ def create_default_ui(title: str, withdraw: bool = False) -> tuple[tkinter.Tk, E
 
     # Apply light theme initially
     theme.apply_light_theme(style)
-    root.theme = "light"
+    setattr(root, "theme", "light")
 
     # Set background color of the window (optional)
     root.configure(bg=theme.light["widget_bg"])
@@ -833,7 +1189,14 @@ def create_default_ui(title: str, withdraw: bool = False) -> tuple[tkinter.Tk, E
 
 
 def get_arguments(args=None, description: str = "") -> dict:  # pragma: no cover
-    """Get extension arguments."""
+    """Get extension arguments.
+
+    Examples
+    --------
+    >>> isinstance(get_arguments(), dict)
+    True
+
+    """
     output_args = {"is_batch": False, "is_test": False}
 
     if len(sys.argv) != 1:  # pragma: no cover
@@ -855,6 +1218,13 @@ class ExtensionTheme(PyAedtBase):  # pragma: no cover
     Provides light and dark color palettes, a default font, and methods
     to apply the chosen palette to a ``ttk.Style`` instance.  All colours
     are specified as hex strings so there are no external dependencies.
+
+    Examples
+    --------
+    >>> theme = ExtensionTheme()
+    >>> "widget_bg" in theme.light
+    True
+
     """
 
     # Ansys brand accent used across both themes.
@@ -937,11 +1307,33 @@ class ExtensionTheme(PyAedtBase):  # pragma: no cover
         self.default_font = ("Segoe UI", 10)
 
     def apply_light_theme(self, style: ttk.Style):
-        """Apply light theme."""
+        """Apply light theme.
+
+        Examples
+        --------
+        >>> import tkinter
+        >>> from tkinter import ttk
+        >>> from ansys.aedt.core.extensions.misc import ExtensionTheme
+        >>> root = tkinter.Tk()
+        >>> theme = ExtensionTheme()
+        >>> theme.apply_light_theme(ttk.Style())
+
+        """
         self._apply_theme(style, self.light)
 
     def apply_dark_theme(self, style: ttk.Style):
-        """Apply dark theme."""
+        """Apply dark theme.
+
+        Examples
+        --------
+        >>> import tkinter
+        >>> from tkinter import ttk
+        >>> from ansys.aedt.core.extensions.misc import ExtensionTheme
+        >>> root = tkinter.Tk()
+        >>> theme = ExtensionTheme()
+        >>> theme.apply_dark_theme(ttk.Style())
+
+        """
         self._apply_theme(style, self.dark)
 
     def _apply_theme(self, style, colors):
@@ -1281,7 +1673,18 @@ def __parse_arguments(args=None, description: str = ""):  # pragma: no cover
 
 
 class ToolTip:
-    """Create a tooltip for a given widget."""
+    """Create a tooltip for a given widget.
+
+    Examples
+    --------
+    >>> import tkinter
+    >>> from tkinter import ttk
+    >>> from ansys.aedt.core.extensions.misc import ToolTip
+    >>> root = tkinter.Tk()
+    >>> button = ttk.Button(root, text="Info")
+    >>> tooltip = ToolTip(button, "Open the active project")
+
+    """
 
     # Palette keyed by theme name.
     _COLORS = {
@@ -1305,15 +1708,48 @@ class ToolTip:
         return self._COLORS.get(theme, self._COLORS["light"])
 
     def enter(self, event=None):
-        """Show tooltip on mouse enter."""
+        """Show tooltip on mouse enter.
+
+        Examples
+        --------
+        >>> import tkinter
+        >>> from tkinter import ttk
+        >>> from ansys.aedt.core.extensions.misc import ToolTip
+        >>> root = tkinter.Tk()
+        >>> tooltip = ToolTip(ttk.Button(root, text="Info"), "Details")
+        >>> tooltip.enter()
+
+        """
         self.show_tooltip()
 
     def leave(self, event=None):
-        """Hide tooltip on mouse leave."""
+        """Hide tooltip on mouse leave.
+
+        Examples
+        --------
+        >>> import tkinter
+        >>> from tkinter import ttk
+        >>> from ansys.aedt.core.extensions.misc import ToolTip
+        >>> root = tkinter.Tk()
+        >>> tooltip = ToolTip(ttk.Button(root, text="Info"), "Details")
+        >>> tooltip.leave()
+
+        """
         self.hide_tooltip()
 
     def show_tooltip(self) -> None:  # pragma: no cover
-        """Display tooltip."""
+        """Display tooltip.
+
+        Examples
+        --------
+        >>> import tkinter
+        >>> from tkinter import ttk
+        >>> from ansys.aedt.core.extensions.misc import ToolTip
+        >>> root = tkinter.Tk()
+        >>> tooltip = ToolTip(ttk.Button(root, text="Info"), "Details")
+        >>> tooltip.show_tooltip()
+
+        """
         if self.tipwindow or not self.text:
             return
         colors = self._current_colors()
@@ -1338,7 +1774,18 @@ class ToolTip:
         label.pack(ipadx=1)
 
     def hide_tooltip(self) -> None:  # pragma: no cover
-        """Hide tooltip."""
+        """Hide tooltip.
+
+        Examples
+        --------
+        >>> import tkinter
+        >>> from tkinter import ttk
+        >>> from ansys.aedt.core.extensions.misc import ToolTip
+        >>> root = tkinter.Tk()
+        >>> tooltip = ToolTip(ttk.Button(root, text="Info"), "Details")
+        >>> tooltip.hide_tooltip()
+
+        """
         tw = self.tipwindow
         self.tipwindow = None
         if tw:
@@ -1346,7 +1793,15 @@ class ToolTip:
 
 
 def decline_pyaedt_update(declined_file_path: Path, latest_version: str) -> None:
-    """Record that the user declined the update notification."""
+    """Record that the user declined the update notification.
+
+    Examples
+    --------
+    >>> from pathlib import Path
+    >>> from ansys.aedt.core.extensions.misc import decline_pyaedt_update
+    >>> decline_pyaedt_update(Path(r"C:\\Users\\user\\AppData\\Local\\Ansys\\Toolkits\\.pyaedt_version"), "0.18.0")
+
+    """
     try:
         declined_file_path.parent.mkdir(parents=True, exist_ok=True)
         if latest_version is None:

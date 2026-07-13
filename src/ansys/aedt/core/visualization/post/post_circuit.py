@@ -51,6 +51,11 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
         Inherited parent object. The parent object must provide the members
         `_modeler`, `_desktop`, `_odesign`, and `logger`.
 
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post.post_circuit import PostProcessorCircuit
+    >>> obj = PostProcessorCircuit()
+
     """
 
     def __init__(self, app) -> None:
@@ -91,6 +96,7 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
         >>> from ansys.aedt.core import Circuit
         >>> app = Circuit(non_graphical=False)
         >>> output_file = app.post.export_model_picture(full_name=os.path.join(app.working_directory, "images1.jpg"))
+
         """
         if not output_file:
             output_file = os.path.join(
@@ -142,6 +148,13 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
         -------
         str
             Name of the plot.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_circuit import PostProcessorCircuit
+        >>> obj = PostProcessorCircuit()
+        >>> obj.create_ami_initial_response_plot(setup="Setup1", ami_name=1, variation_list_w_value={"Name": "Value"})
+
         """
         if not plot_name:
             plot_name = generate_unique_name("AMIAnalysis")
@@ -251,6 +264,13 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
         References
         ----------
         >>> oModule.CreateReport
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_circuit import PostProcessorCircuit
+        >>> obj = PostProcessorCircuit()
+        >>> obj.create_ami_statistical_eye_plot(setup="Setup1", ami_name=1, variation_list_w_value={"Name": "Value"})
+
         """
         if not plot_name:
             plot_name = generate_unique_name("AMYAanalysis")
@@ -359,6 +379,15 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
         References
         ----------
         >>> oModule.CreateReport
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_circuit import PostProcessorCircuit
+        >>> obj = PostProcessorCircuit()
+        >>> obj.create_statistical_eye_plot(
+        ...     setup="Setup1", probe_names=["Box1"], variation_list_w_value={"Name": "Value"}
+        ... )
+
         """
         if not plot_name:
             plot_name = generate_unique_name("AMIAanalysis")
@@ -474,6 +503,7 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
         >>> from ansys.aedt.core import Circuit
         >>> circuit = Circuit()
         >>> circuit.post.sample_ami_waveform(name, probe_name, source_name, circuit.available_variations.nominal)
+
         """
         new_tic = []
         for tic in clock_tics:

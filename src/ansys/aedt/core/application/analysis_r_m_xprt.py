@@ -96,6 +96,12 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
         The default is ``False``, which means to not unlock
         the existing project if needed and raise an exception.
 
+    Examples
+    --------
+    >>> from ansys.aedt.core import Rmxprt
+    >>> rmxprt = Rmxprt()
+    >>> rmxprt.modeler
+
     """
 
     def __init__(
@@ -146,6 +152,13 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
         -------
         :class:`ansys.aedt.core.visualization.post.post_circuit.PostProcessorCircuit`
             PostProcessor object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Rmxprt
+        >>> rmxprt = Rmxprt()
+        >>> rmxprt.post
+
         """
         if self._post is None and self._odesign:
             from ansys.aedt.core.visualization.post import post_processor
@@ -160,6 +173,12 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
         Returns
         -------
         :class:`ansys.aedt.core.modules.modeler_2d.ModelerRMxprt`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Rmxprt
+        >>> rmxprt = Rmxprt()
+        >>> rmxprt.modeler
 
         """
         if self._modeler is None and self._odesign:
@@ -183,6 +202,12 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Rmxprt
+        >>> rmxprt = Rmxprt()
+        >>> rmxprt.disable_modelcreation()
+
         """
         self.design_type = "RMxprt"
         self.solution_type = solution_type
@@ -201,6 +226,12 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Rmxprt
+        >>> rmxprt = Rmxprt()
+        >>> rmxprt.enable_modelcreation()
 
         """
         self.design_type = "ModelCreation"
@@ -226,6 +257,13 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
         -------
         :class:`ansys.aedt.core.maxwell.Maxwell2d` or :class:`ansys.aedt.core.maxwell.Maxwell3d`
             Maxwell object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Rmxprt
+        >>> rmxprt = Rmxprt()
+        >>> rmxprt.create_maxwell_design("Setup1")
+
         """
         des_list = self.design_list[::]
         self.oanalysis.CreateMaxwellDesign(0 if maxwell_2d else 1, setup_name, variation)
@@ -257,6 +295,13 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Rmxprt
+        >>> rmxprt = Rmxprt()
+        >>> rmxprt.set_material_threshold(conductivity=120000, permeability=150)
+
         """
         try:
             self.odesign.SetThreshold(conductivity, permeability)

@@ -29,11 +29,12 @@ import tkinter
 from tkinter import filedialog
 from tkinter import font
 from tkinter import ttk
+from typing import Any
+from typing import cast
 
 from ansys.aedt.core import get_pyaedt_app
 from ansys.aedt.core.desktop import Desktop
 from ansys.aedt.core.extensions.misc import DEFAULT_PADDING
-from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
@@ -47,27 +48,53 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 # Extension batch arguments
-EXTENSION_DEFAULT_ARGUMENTS = {"choice": "", "points": 1000, "output_file": ""}
+EXTENSION_DEFAULT_ARGUMENTS = {"choice": "", "points": 1000, "output_file": "", "in_volume": False}
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Point cloud generator"
+"""Title displayed for the extension."""
 EXTENSION_NB_COLUMN = 3
+"""Number of columns used by the extension UI."""
 
 
 @dataclass
 class PointsCloudExtensionData(ExtensionCommonData):
-    """Data class containing user input and computed data."""
+    """Data class containing user input and computed data.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.common.points_cloud import PointsCloudExtensionData
+    >>> data = PointsCloudExtensionData(choice=["Box1"], points=500, output_file=r"D:\\Temp\\box1.pts")
+
+    """
 
     choice: str | list[str] = EXTENSION_DEFAULT_ARGUMENTS["choice"]
+    """Value for choice."""
     points: int = EXTENSION_DEFAULT_ARGUMENTS["points"]
+    """Value for points."""
     output_file: str = EXTENSION_DEFAULT_ARGUMENTS["output_file"]
+    """File path for output."""
+    in_volume: bool = EXTENSION_DEFAULT_ARGUMENTS["in_volume"]
+    """In volume choice."""
 
 
 class PointsCloudExtension(ExtensionProjectCommon):
-    """Extension for point cloud generator in AEDT."""
+    """Extension for point cloud generator in AEDT.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.common.points_cloud import PointsCloudExtension
+    >>> extension = PointsCloudExtension(withdraw=True)
+
+    """
 
     def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with the title and theme color
@@ -77,16 +104,37 @@ class PointsCloudExtension(ExtensionProjectCommon):
             add_custom_content=False,
         )
         # Add private attributes and initialize them through __load_aedt_info
-        self.__aedt_solids = None
-        self.__aedt_sheets = None
+        self.__aedt_solids: list[str] | None = None
+        self.__aedt_sheets: list[str] | None = None
         self.__load_aedt_info()
 
         # Trigger manually since add_extension_content requires loading info from current project first
         self.add_extension_content()
 
+    def _objects_list(self) -> tkinter.Listbox:
+        return cast(tkinter.Listbox, self._widgets["objects_list"])
+
+    def _points_entry(self) -> tkinter.Text:
+        return cast(tkinter.Text, self._widgets["points_entry"])
+
+    def _output_file_entry(self) -> tkinter.Text:
+        return cast(tkinter.Text, self._widgets["output_file_entry"])
+
+    def _in_volume_entry(self) -> tkinter.IntVar:
+        return cast(tkinter.IntVar, self._widgets["in_volume_entry"])
+
     def check_design_type(self) -> None:
-        """Check if the design type is HFSS, Icepak, HFSS 3D, Maxwell 3D, Maxwell 2D, Q3D, Mechanical"""
-        if self.aedt_application.design_type not in [
+        """Check if the design type is HFSS, Icepak, HFSS 3D, Maxwell 3D, Maxwell 2D, Q3D, Mechanical
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.common.points_cloud import PointsCloudExtension
+        >>> extension = PointsCloudExtension(withdraw=True)
+        >>> extension.check_design_type()
+
+        """
+        aedt_application = cast(Any, self.aedt_application)
+        if aedt_application.design_type not in [
             "HFSS",
             "Icepak",
             "HFSS 3D",
@@ -103,8 +151,9 @@ class PointsCloudExtension(ExtensionProjectCommon):
 
     def __load_aedt_info(self):
         """Load info."""
-        solids = self.aedt_application.modeler.get_objects_in_group("Solids")
-        sheets = self.aedt_application.modeler.get_objects_in_group("Sheets")
+        aedt_application = cast(Any, self.aedt_application)
+        solids = aedt_application.modeler.get_objects_in_group("Solids")
+        sheets = aedt_application.modeler.get_objects_in_group("Sheets")
 
         if not solids and not sheets:
             self.release_desktop()
@@ -113,17 +162,25 @@ class PointsCloudExtension(ExtensionProjectCommon):
         self.__aedt_sheets = sheets
 
     def add_extension_content(self) -> None:
-        """Add custom content to the extension UI."""
+        """Add custom content to the extension UI.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.common.points_cloud import PointsCloudExtension
+        >>> extension = PointsCloudExtension(withdraw=True)
+        >>> extension.add_extension_content()
+
+        """
         # Upper frame of the extension GUI with widgets receiving user inputs
         input_frame = ttk.Frame(self.root, style="PyAEDT.TFrame", name="input_frame")
         input_frame.grid(row=0, column=0, columnspan=EXTENSION_NB_COLUMN)
 
         # Points entry - Defined first for geometry management of the tkinter.Listbox above it in GUI
         points_label = ttk.Label(input_frame, width=20, text="Number of Points:", style="PyAEDT.TLabel")
-        points_label.grid(row=1, column=0, **DEFAULT_PADDING)
+        points_label.grid(row=1, column=0, padx=DEFAULT_PADDING["padx"], pady=DEFAULT_PADDING["pady"])
         points_entry = tkinter.Text(input_frame, width=30, height=1)
         points_entry.insert(tkinter.END, "1000")
-        points_entry.grid(row=1, column=1, **DEFAULT_PADDING)
+        points_entry.grid(row=1, column=1, padx=DEFAULT_PADDING["padx"], pady=DEFAULT_PADDING["pady"])
         points_entry.configure(
             bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
@@ -131,7 +188,7 @@ class PointsCloudExtension(ExtensionProjectCommon):
 
         # Listbox for objects and surfaces
         objects_label = ttk.Label(input_frame, width=20, text="Select Object or Surface:", style="PyAEDT.TLabel")
-        objects_label.grid(row=0, column=0, **DEFAULT_PADDING)
+        objects_label.grid(row=0, column=0, padx=DEFAULT_PADDING["padx"], pady=DEFAULT_PADDING["pady"])
         # List all objects and surfaces available
         entries = []
         if self.__aedt_solids:
@@ -142,7 +199,13 @@ class PointsCloudExtension(ExtensionProjectCommon):
             entries.extend(self.__aedt_sheets)
         # Create the ListBox inside a sub-frame to solve conflict between .grid and .pack methods in GUI
         objects_list_frame = tkinter.Frame(input_frame, width=20)
-        objects_list_frame.grid(row=0, column=1, **DEFAULT_PADDING, sticky="ew")
+        objects_list_frame.grid(
+            row=0,
+            column=1,
+            padx=DEFAULT_PADDING["padx"],
+            pady=DEFAULT_PADDING["pady"],
+            sticky="ew",
+        )
         listbox_height = min(len(entries), 6)
         objects_list = tkinter.Listbox(
             objects_list_frame,
@@ -185,9 +248,9 @@ class PointsCloudExtension(ExtensionProjectCommon):
 
         # Output file entry
         output_file_label = ttk.Label(input_frame, width=20, text="Output File:", style="PyAEDT.TLabel")
-        output_file_label.grid(row=2, column=0, **DEFAULT_PADDING)
+        output_file_label.grid(row=2, column=0, padx=DEFAULT_PADDING["padx"], pady=DEFAULT_PADDING["pady"])
         output_file_entry = tkinter.Text(input_frame, width=30, height=1, wrap=tkinter.WORD)
-        output_file_entry.grid(row=2, column=1, **DEFAULT_PADDING)
+        output_file_entry.grid(row=2, column=1, padx=DEFAULT_PADDING["padx"], pady=DEFAULT_PADDING["pady"])
         output_file_entry.configure(
             bg=self.theme.light["pane_bg"],
             foreground=self.theme.light["text"],
@@ -198,10 +261,11 @@ class PointsCloudExtension(ExtensionProjectCommon):
 
         def browse_output_location() -> None:
             """Define output file."""
-            self._widgets["output_file_entry"].config(state="normal")
+            output_widget = self._output_file_entry()
+            output_widget.config(state="normal")
             # Clear content if an output file is already provided
-            if self._widgets["output_file_entry"].get("1.0", tkinter.END).strip():
-                self._widgets["output_file_entry"].delete("1.0", tkinter.END)
+            if output_widget.get("1.0", tkinter.END).strip():
+                output_widget.delete("1.0", tkinter.END)
 
             filename = filedialog.asksaveasfilename(
                 initialdir="/",
@@ -209,8 +273,8 @@ class PointsCloudExtension(ExtensionProjectCommon):
                 defaultextension=".pts",
                 filetypes=(("Points file", ".pts"), ("all files", "*.*")),
             )
-            self._widgets["output_file_entry"].insert(tkinter.END, filename)
-            self._widgets["output_file_entry"].config(state="disabled")
+            output_widget.insert(tkinter.END, filename)
+            output_widget.config(state="disabled")
 
         # Output file button
         output_file_button = ttk.Button(
@@ -220,17 +284,33 @@ class PointsCloudExtension(ExtensionProjectCommon):
             style="PyAEDT.TButton",
             name="browse_output",
         )
-        output_file_button.grid(row=2, column=2, **DEFAULT_PADDING)
+        output_file_button.grid(row=2, column=2, padx=DEFAULT_PADDING["padx"], pady=DEFAULT_PADDING["pady"])
+
+        # In volume checkbox
+        ttk.Label(input_frame, text="Generate in volume:", style="PyAEDT.TLabel").grid(
+            row=3, column=0, pady=10, sticky="w"
+        )
+        self._widgets["in_volume_entry"] = tkinter.IntVar()
+        self.in_volume_checkbox = ttk.Checkbutton(
+            input_frame, variable=self._widgets["in_volume_entry"], style="PyAEDT.TCheckbutton"
+        )
+        self.in_volume_checkbox.grid(row=3, column=1, pady=10, padx=5)
+        self._in_volume_entry().set(0)
 
         @requires_graphical_dependency("pyvista")
         def preview() -> None:
             """Generate and visualize the point cloud."""
             import pyvista as pv
 
-            selected_objects, num_points, _ = self.check_and_format_extension_data()
+            selected_objects, num_points, _, in_volume = self.check_and_format_extension_data()
             try:
                 # Generate point cloud
-                point_cloud = generate_point_cloud(self.aedt_application, selected_objects, num_points)
+                point_cloud = generate_point_cloud(
+                    cast(Any, self.aedt_application),
+                    selected_objects,
+                    num_points,
+                    include_volume=in_volume,
+                )
 
                 # Visualize the point cloud
                 plotter = pv.Plotter()
@@ -251,16 +331,17 @@ class PointsCloudExtension(ExtensionProjectCommon):
         preview_button = ttk.Button(
             buttons_frame, text="Preview", command=preview, style="PyAEDT.TButton", name="preview"
         )
-        preview_button.grid(row=0, column=0, **DEFAULT_PADDING)
+        preview_button.grid(row=0, column=0, padx=DEFAULT_PADDING["padx"], pady=DEFAULT_PADDING["pady"])
 
         def callback(extension: PointsCloudExtension) -> None:
             """Collect extension data."""
-            selected_objects, num_points, output_file = self.check_and_format_extension_data()
+            selected_objects, num_points, output_file, in_volume = self.check_and_format_extension_data()
 
             extension.data = PointsCloudExtensionData(
                 choice=selected_objects,
                 points=num_points,
                 output_file=output_file,
+                in_volume=in_volume,
             )
             self.root.destroy()
 
@@ -272,36 +353,56 @@ class PointsCloudExtension(ExtensionProjectCommon):
             style="PyAEDT.TButton",
             name="generate",
         )
-        generate_button.grid(row=0, column=1, **DEFAULT_PADDING)
+        generate_button.grid(row=0, column=1, padx=DEFAULT_PADDING["padx"], pady=DEFAULT_PADDING["pady"])
 
         # Toggle theme button
         self.add_toggle_theme_button(buttons_frame, 0, 2)
 
-    def check_and_format_extension_data(self) -> tuple[list[str], int, str]:
-        """Perform checks and formatting on extension input data."""
-        selected_objects = [self._widgets["objects_list"].get(i) for i in self._widgets["objects_list"].curselection()]
+    def check_and_format_extension_data(self) -> tuple[list[str], int, str, bool]:
+        """Perform checks and formatting on extension input data.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.common.points_cloud import PointsCloudExtension
+        >>> extension = PointsCloudExtension(withdraw=True)
+        >>> extension._widgets["objects_list"].selection_set(1)
+        >>> assignments, points, output_file = extension.check_and_format_extension_data()
+
+        """
+        objects_list = self._objects_list()
+        selected_objects = [objects_list.get(i) for i in objects_list.curselection()]
         if not selected_objects or any(
             element in selected_objects for element in ["--- Objects ---", "--- Surfaces ---", ""]
         ):
             self.release_desktop()
             raise AEDTRuntimeError("Please select a valid object or surface.")
 
-        points = self._widgets["points_entry"].get("1.0", tkinter.END).strip()
+        points = self._points_entry().get("1.0", tkinter.END).strip()
         num_points = int(points)
         if num_points <= 0:
             self.release_desktop()
             raise AEDTRuntimeError("Number of points must be greater than zero.")
 
-        output_file = self._widgets["output_file_entry"].get("1.0", tkinter.END).strip()
+        output_file = self._output_file_entry().get("1.0", tkinter.END).strip()
         if not Path(output_file).parent.exists():
             self.release_desktop()
             raise AEDTRuntimeError("Path to the specified output file does not exist.")
 
-        return selected_objects, num_points, output_file
+        in_volume = bool(self._in_volume_entry().get())
+
+        return selected_objects, num_points, output_file, in_volume
 
 
 def main(data: PointsCloudExtensionData):
-    """Main function to run the point cloud generator extension."""
+    """Main function to run the point cloud generator extension.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.common.points_cloud import PointsCloudExtensionData, main
+    >>> data = PointsCloudExtensionData(choice=["Box1"], points=500, output_file=r"D:\\Temp\\box1.pts")
+    >>> main(data)
+
+    """
     # Check validity of data
     if not data.choice:
         raise AEDTRuntimeError("No assignment provided to the extension.")
@@ -328,7 +429,7 @@ def main(data: PointsCloudExtensionData):
     else:
         design_name = active_design.GetName()
 
-    aedtapp = get_pyaedt_app(project_name, design_name)
+    aedtapp: Any = get_pyaedt_app(project_name, design_name)
 
     # Check that assignment provided to the extension matches existing object/surface
     valid_assignments = []
@@ -344,10 +445,11 @@ def main(data: PointsCloudExtensionData):
     assignment = data.choice
     points = data.points
     output_file = data.output_file
+    in_volume = data.in_volume
 
     try:
         # Generate point cloud
-        point_cloud = generate_point_cloud(aedtapp, assignment, points, output_file)
+        point_cloud = generate_point_cloud(aedtapp, assignment, points, output_file, in_volume)
     except Exception as e:  # pragma: no cover
         app.release_desktop(False, False)
         raise AEDTRuntimeError(str(e))
@@ -362,17 +464,34 @@ def main(data: PointsCloudExtensionData):
     return str(point_cloud[list(point_cloud.keys())[0]][0])
 
 
-def generate_point_cloud(aedtapp: Desktop, selected_objects: list[str], num_points: int, output_file: str = None):
-    """Generate point cloud from selected objects"""
+def generate_point_cloud(
+    aedtapp: Any,
+    selected_objects: list[str],
+    num_points: int,
+    output_file: str | None = None,
+    include_volume: bool = False,
+):
+    """Generate point cloud from selected objects
+
+    Returns surface points and, when possible, additional volume points for closed solids.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Hfss
+    >>> from ansys.aedt.core.extensions.common.points_cloud import generate_point_cloud
+    >>> hfss = Hfss()
+    >>> generate_point_cloud(hfss, ["Box1"], 500, "box1.pts")
+
+    """
     # Export the mesh (export_model_obj expects a file name with the .obj extension passed as a str)
     if not output_file or Path(output_file).is_dir():
         file_name = "_".join(selected_objects) + ".obj"
         export_path = Path(aedtapp.working_directory) if not output_file else Path(output_file)
-        output_file = export_path / file_name
+        output_path = export_path / file_name
     else:
-        output_file = Path(output_file).with_suffix(".obj")
+        output_path = Path(output_file).with_suffix(".obj")
 
-    export_model = aedtapp.post.export_model_obj(assignment=selected_objects, export_path=str(output_file))
+    export_model = aedtapp.post.export_model_obj(assignment=selected_objects, export_path=str(output_path))
 
     if not export_model or not Path(export_model[0][0]).is_file():  # pragma: no cover
         raise Exception("Object could not be exported.")
@@ -381,11 +500,11 @@ def generate_point_cloud(aedtapp: Desktop, selected_objects: list[str], num_poin
     geometry_file = export_model[0][0]  # The str path to the .obj file generated by the export_model_obj() method
     model_plotter = ModelPlotter()
     model_plotter.add_object(geometry_file)
-    point_cloud = model_plotter.point_cloud(points=num_points)  # Generates the .pts file
+    point_cloud = model_plotter.point_cloud(points=num_points, in_volume=include_volume)  # Generates the .pts file
 
     # Delete .mtl and .obj files generated by the export_model_obj() method
-    Path.unlink(output_file)
-    Path.unlink(output_file.with_suffix(".mtl"))
+    output_path.unlink()
+    output_path.with_suffix(".mtl").unlink()
 
     return point_cloud
 
@@ -395,11 +514,11 @@ if __name__ == "__main__":
 
     # Open UI
     if not args["is_batch"]:  # pragma: no cover
-        extension: ExtensionCommon = PointsCloudExtension(withdraw=False)
+        extension = PointsCloudExtension(withdraw=False)
 
         tkinter.mainloop()
 
-        if extension.data is not None:
+        if isinstance(extension.data, PointsCloudExtensionData):
             main(extension.data)
 
     else:

@@ -43,6 +43,13 @@ class Help(PyAedtBase):  # pragma: no cover
     - Silent mode: return URLs without launching a browser.
     - Advanced search helper.
     - Helper methods for frequently accessed documentation pages.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.help import Help
+    >>> help_util = Help(silent=True)
+    >>> help_util.api_reference()
+
     """
 
     _DOCS_ROOT = "https://aedt.docs.pyansys.com"
@@ -69,6 +76,7 @@ class Help(PyAedtBase):  # pragma: no cover
         silent : bool, optional
             If ``True``, no browser windows are opened. All public methods
             only return URLs. The default is ``False``.
+
         """
         self._version = version or self._DEFAULT_VERSION
         self._browser = "default"  # will be validated by setter below
@@ -78,29 +86,69 @@ class Help(PyAedtBase):  # pragma: no cover
 
     @property
     def version(self) -> str:
-        """Documentation version currently configured."""
+        """Documentation version currently configured.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.help import Help
+        >>> help_util = Help(silent=True)
+        >>> help_util.version
+
+        """
         return self._version
 
     @version.setter
     def version(self, value: str) -> None:
-        """Set the documentation version."""
+        """Set the documentation version.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.help import Help
+        >>> help_util = Help(silent=True)
+        >>> help_util.version = "stable"
+
+        """
         if not value:
             raise ValueError("Version cannot be an empty string.")
         self._version = value
 
     @property
     def base_path(self) -> str:
-        """Base URL of the PyAEDT documentation for the selected version."""
+        """Base URL of the PyAEDT documentation for the selected version.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.help import Help
+        >>> help_util = Help(silent=True)
+        >>> help_util.base_path
+
+        """
         return f"{self._DOCS_ROOT}/version/{self._version}"
 
     @property
     def examples_base(self) -> str:
-        """Base URL of the PyAEDT examples site."""
+        """Base URL of the PyAEDT examples site.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.help import Help
+        >>> help_util = Help(silent=True)
+        >>> help_util.examples_base
+
+        """
         return self._EXAMPLES_ROOT
 
     @property
     def browser(self) -> str:
-        """Browser currently configured for URL launching."""
+        """Browser currently configured for URL launching.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.help import Help
+        >>> help_util = Help(silent=True)
+        >>> help_util.browser
+
+        """
         return self._browser
 
     @browser.setter
@@ -117,6 +165,13 @@ class Help(PyAedtBase):  # pragma: no cover
         ValueError
             If a non-default browser name is provided and
             :func:`webbrowser.get` cannot resolve it.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.help import Help
+        >>> help_util = Help(silent=True)
+        >>> help_util.browser = "default"
+
         """
         if value != "default":
             try:
@@ -131,12 +186,27 @@ class Help(PyAedtBase):  # pragma: no cover
 
         If ``True``, URL-opening methods do not open the browser and only
         return the constructed URLs.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.help import Help
+        >>> help_util = Help(silent=True)
+        >>> help_util.silent
+
         """
         return self._silent
 
     @silent.setter
     def silent(self, value: bool) -> None:
-        """Enable or disable silent mode."""
+        """Enable or disable silent mode.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.help import Help
+        >>> help_util = Help()
+        >>> help_util.silent = True
+
+        """
         self._silent = bool(value)
 
     def _launch_url(
@@ -208,6 +278,13 @@ class Help(PyAedtBase):  # pragma: no cover
         -------
         str
             The constructed search URL.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.help import Help
+        >>> help_util = Help(silent=True)
+        >>> help_util.search("hfss")
+
         """
         query = self._build_search_query(keywords=keywords)
         url = f"{self.base_path}/search.html?q={query}"
@@ -222,6 +299,13 @@ class Help(PyAedtBase):  # pragma: no cover
         -------
         str
             URL of the page.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.help import Help
+        >>> help_util = Help(silent=True)
+        >>> help_util.home()
+
         """
         url = f"{self.base_path}/index.html"
         if not self.silent:
@@ -235,6 +319,13 @@ class Help(PyAedtBase):  # pragma: no cover
         -------
         str
             URL of the User Guide.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.help import Help
+        >>> help_util = Help(silent=True)
+        >>> help_util.user_guide()
+
         """
         url = f"{self.base_path}/User_guide/index.html"
         if not self.silent:
@@ -248,6 +339,13 @@ class Help(PyAedtBase):  # pragma: no cover
         -------
         str
             URL of the Getting Started guide.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.help import Help
+        >>> help_util = Help(silent=True)
+        >>> help_util.getting_started()
+
         """
         url = f"{self.base_path}/Getting_started/index.html"
         if not self.silent:
@@ -261,6 +359,13 @@ class Help(PyAedtBase):  # pragma: no cover
         -------
         str
             URL of the Installation Guide.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.help import Help
+        >>> help_util = Help(silent=True)
+        >>> help_util.installation_guide()
+
         """
         url = f"{self.base_path}/Getting_started/Installation.html"
         if not self.silent:
@@ -274,6 +379,13 @@ class Help(PyAedtBase):  # pragma: no cover
         -------
         str
             URL of the API Reference.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.help import Help
+        >>> help_util = Help(silent=True)
+        >>> help_util.api_reference()
+
         """
         url = f"{self.base_path}/API/index.html"
         if not self.silent:
@@ -287,6 +399,13 @@ class Help(PyAedtBase):  # pragma: no cover
         -------
         str
             URL of the release notes page.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.help import Help
+        >>> help_util = Help(silent=True)
+        >>> help_util.release_notes()
+
         """
         url = f"{self.base_path}/changelog.html"
         if not self.silent:
@@ -300,6 +419,13 @@ class Help(PyAedtBase):  # pragma: no cover
         -------
         str
             URL of the examples site.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.help import Help
+        >>> help_util = Help(silent=True)
+        >>> help_util.examples()
+
         """
         url = self.examples_base
         if not self.silent:
@@ -313,6 +439,13 @@ class Help(PyAedtBase):  # pragma: no cover
         -------
         str
             URL of the GitHub repository.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.help import Help
+        >>> help_util = Help(silent=True)
+        >>> help_util.github()
+
         """
         url = self._GITHUB_ROOT
         if not self.silent:
@@ -334,6 +467,13 @@ class Help(PyAedtBase):  # pragma: no cover
         -------
         str
             URL of the release notes page for the specified version.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.help import Help
+        >>> help_util = Help(silent=True)
+        >>> help_util.changelog("0.22.0")
+
         """
         if release is None:
             from ansys.aedt.core import __version__ as release
@@ -350,6 +490,13 @@ class Help(PyAedtBase):  # pragma: no cover
         -------
         str
             URL of the issues page.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.help import Help
+        >>> help_util = Help(silent=True)
+        >>> help_util.issues()
+
         """
         url = f"{self._GITHUB_ROOT}/issues"
         if not self.silent:
@@ -363,6 +510,13 @@ class Help(PyAedtBase):  # pragma: no cover
         -------
         str
             URL of the forum page.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.help import Help
+        >>> help_util = Help(silent=True)
+        >>> help_util.ansys_forum()
+
         """
         url = "https://discuss.ansys.com/discussions/tagged/pyaedt"
         if not self.silent:
@@ -376,6 +530,13 @@ class Help(PyAedtBase):  # pragma: no cover
         -------
         str
             URL of the developer portal.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.help import Help
+        >>> help_util = Help(silent=True)
+        >>> help_util.developer_forum()
+
         """
         url = "https://developer.ansys.com/"
         if not self.silent:
@@ -384,3 +545,4 @@ class Help(PyAedtBase):  # pragma: no cover
 
 
 online_help = Help()
+"""Value for online help."""

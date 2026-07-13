@@ -30,6 +30,8 @@ from pathlib import Path
 import tkinter
 from tkinter import filedialog
 from tkinter import ttk
+from typing import TypedDict
+from typing import cast
 
 import ansys.aedt.core
 from ansys.aedt.core import Icepak
@@ -45,39 +47,89 @@ from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 EXTENSION_DEFAULT_ARGUMENTS = {
     "file_path": "",
     "geometric_info": [],
     "source_value_info": {},
     "source_unit_info": {},
 }
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Power map from file"
+"""Title displayed for the extension."""
 EXTENSION_NB_ROW = 2
+"""Number of rows used by the extension UI."""
 EXTENSION_NB_COLUMN = 3
+"""Number of columns used by the extension UI."""
 FILE_PATH_ERROR_MSG = "Please select an existing CSV file before creating a power map."
+"""Error message for file path."""
 DESIGN_TYPE_ERROR_MSG = "An Icepak design is needed for this extension."
+"""Error message for design type."""
 PARSING_ERROR_MSG = "Missing information in the CSV file. Please provide both geometric and source data."
+"""Error message for parsing."""
+
+
+class GeometryRecord(TypedDict):
+    name: str
+    vertices: list[str]
+
+
+GeometricInfo = list[GeometryRecord]
+SourceInfo = dict[str, str]
 
 
 class IcepakCSVFormatError(AEDTRuntimeError):
-    """Raised when the CSV file does not follow the expected Icepak classic format."""
+    """Raised when the CSV file does not follow the expected Icepak classic format.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.icepak.power_map_from_csv import IcepakCSVFormatError
+    >>> error = IcepakCSVFormatError("Invalid CSV format")
+    >>> str(error)
+    'Invalid CSV format'
+
+    """
 
 
 @dataclass
 class PowerMapFromCSVExtensionData(ExtensionCommonData):
-    """Data class containing user input and computed data."""
+    """Data class containing user input and computed data.
+
+    Examples
+    --------
+    >>> from pathlib import Path
+    >>> from ansys.aedt.core.extensions.icepak.power_map_from_csv import PowerMapFromCSVExtensionData
+    >>> data = PowerMapFromCSVExtensionData(file_path=Path("C:\\\\Temp\\\\power_map.csv"))
+    >>> data.file_path.name
+    'power_map.csv'
+
+    """
 
     file_path: Path | None = None
-    geometric_info: list = field(default_factory=list)
-    source_value_info: dict = field(default_factory=dict)
-    source_unit_info: dict = field(default_factory=dict)
+    """Path to file."""
+    geometric_info: GeometricInfo = field(default_factory=list)
+    """Value for geometric info."""
+    source_value_info: SourceInfo = field(default_factory=dict)
+    """Value for source value info."""
+    source_unit_info: SourceInfo = field(default_factory=dict)
+    """Value for source unit info."""
 
 
 class PowerMapFromCSVExtension(ExtensionIcepakCommon):
-    """Class to create a cutout in an HFSS 3D Layout design."""
+    """Class to create a cutout in an HFSS 3D Layout design.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.icepak.power_map_from_csv import PowerMapFromCSVExtension
+    >>> extension = PowerMapFromCSVExtension(withdraw=True)
+
+    """
 
     def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with the title and theme color
@@ -89,21 +141,35 @@ class PowerMapFromCSVExtension(ExtensionIcepakCommon):
         self.data: PowerMapFromCSVExtensionData = PowerMapFromCSVExtensionData()
         self.add_extension_content()
 
+    @property
+    def power_map_data(self) -> PowerMapFromCSVExtensionData:
+        return cast(PowerMapFromCSVExtensionData, self.data)
+
     def browse_file(self) -> None:
         filename = filedialog.askopenfilename(
             initialdir="/",
             title="Select CSV file",
             filetypes=(("Power map", "*.csv*"), ("all files", "*.*")),
         )
-        entry = self._widgets["browse_file_entry"]
+        entry = cast(tkinter.Entry | None, self._widgets.get("browse_file_entry"))
+        if entry is None:
+            raise RuntimeError("Browse file entry widget is not initialized.")
         entry.config(state="normal")
         entry.delete(0, tkinter.END)
         entry.insert(0, filename)
         entry.config(state="readonly")
-        self.data.file_path = Path(filename)
+        self.power_map_data.file_path = Path(filename)
 
     def add_extension_content(self) -> None:
-        """Add custom content to the extension UI."""
+        """Add custom content to the extension UI.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.icepak.power_map_from_csv import PowerMapFromCSVExtension
+        >>> extension = PowerMapFromCSVExtension(withdraw=True)
+        >>> extension.add_extension_content()
+
+        """
         upper_frame = ttk.Frame(self.root, style="PyAEDT.TFrame")
         upper_frame.grid(row=0, column=0, columnspan=EXTENSION_NB_COLUMN)
 
@@ -131,14 +197,15 @@ class PowerMapFromCSVExtension(ExtensionIcepakCommon):
 
         self.add_toggle_theme_button(lower_frame, 0, 2)
 
-    def __parse_data(self):
+    def __parse_data(self) -> None:
         """Parse source and geometric data from the CSV file."""
-        if self.data.file_path is None or not self.data.file_path.is_file():
+        file_path = self.power_map_data.file_path
+        if file_path is None or not file_path.is_file():
             raise AEDTRuntimeError(FILE_PATH_ERROR_MSG)
-        geometric_info, source_value_info, source_unit_info = extract_info(self.data.file_path)
-        self.data.geometric_info = geometric_info
-        self.data.source_value_info = source_value_info
-        self.data.source_unit_info = source_unit_info
+        geometric_info, source_value_info, source_unit_info = extract_info(file_path)
+        self.power_map_data.geometric_info = geometric_info
+        self.power_map_data.source_value_info = source_value_info
+        self.power_map_data.source_unit_info = source_unit_info
         self.root.destroy()
 
 
@@ -149,6 +216,15 @@ def create_powermaps_from_csv(ipk: Icepak, csv_path: Path) -> None:
     ----------
     csv_path : Path
         The file path to the CSV file to be processed.
+
+    Examples
+    --------
+    >>> from pathlib import Path
+    >>> from ansys.aedt.core import Icepak
+    >>> from ansys.aedt.core.extensions.icepak.power_map_from_csv import create_powermaps_from_csv
+    >>> ipk = Icepak()
+    >>> create_powermaps_from_csv(ipk, Path("C:\\\\Temp\\\\power_map.csv"))
+
     """
     geometric_info, source_value_info, source_unit_info = extract_info(csv_path)
     data = PowerMapFromCSVExtensionData(
@@ -168,6 +244,22 @@ def create_powermaps_from_data(ipk: Icepak, data: PowerMapFromCSVExtensionData) 
     ipk : Icepak
     data : PowerMapFromCSVExtensionData
         The data containing the file path and other information.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Icepak
+    >>> from ansys.aedt.core.extensions.icepak.power_map_from_csv import (
+    ...     PowerMapFromCSVExtensionData,
+    ...     create_powermaps_from_data,
+    ... )
+    >>> ipk = Icepak()
+    >>> data = PowerMapFromCSVExtensionData(
+    ...     geometric_info=[{"name": "Block1", "vertices": ["0 0 0", "1 0 0", "1 1 0"]}],
+    ...     source_value_info={"Block1": "2"},
+    ...     source_unit_info={"Block1": "W"},
+    ... )
+    >>> create_powermaps_from_data(ipk, data)
+
     """
     for info in data.geometric_info:
         name = info["name"]
@@ -191,7 +283,7 @@ def create_powermaps_from_data(ipk: Icepak, data: PowerMapFromCSVExtensionData) 
         ipk.logger.info("Power value assigned.")
 
 
-def extract_info(csv_file: Path) -> tuple[list, dict, dict]:
+def extract_info(csv_file: Path) -> tuple[GeometricInfo, SourceInfo, SourceInfo]:
     """Extract source and geometric information from an Icepak classic CSV file.
 
     Parameters
@@ -210,6 +302,13 @@ def extract_info(csv_file: Path) -> tuple[list, dict, dict]:
     source_unit_info: dict
         A dictionary mapping geometric object to its power unit.
 
+    Examples
+    --------
+    >>> from pathlib import Path
+    >>> from ansys.aedt.core.extensions.icepak.power_map_from_csv import extract_info
+    >>> geometric_info, source_values, source_units = extract_info(Path("C:\\\\Temp\\\\power_map.csv"))
+    >>> list(source_values)
+
     """
 
     def safe_skip(reader, n) -> None:
@@ -221,9 +320,9 @@ def extract_info(csv_file: Path) -> tuple[list, dict, dict]:
                 break
 
     # Initialize lists to store the extracted information
-    geometric_info = []
-    source_value_info = {}
-    source_unit_info = {}
+    geometric_info: GeometricInfo = []
+    source_value_info: SourceInfo = {}
+    source_unit_info: SourceInfo = {}
 
     with csv_file.open("r") as file:
         reader = csv.reader(file)
@@ -259,7 +358,16 @@ def extract_info(csv_file: Path) -> tuple[list, dict, dict]:
 
 
 def main(data: PowerMapFromCSVExtensionData) -> bool:
-    """Main function to execute the cutout operation."""
+    """Main function to execute the cutout operation.
+
+    Examples
+    --------
+    >>> from pathlib import Path
+    >>> from ansys.aedt.core.extensions.icepak.power_map_from_csv import PowerMapFromCSVExtensionData, main
+    >>> data = PowerMapFromCSVExtensionData(file_path=Path("C:\\\\Temp\\\\power_map.csv"))
+    >>> main(data)
+
+    """
     app = ansys.aedt.core.Desktop(
         new_desktop=False,
         version=VERSION,
@@ -302,7 +410,7 @@ if __name__ == "__main__":  # pragma: no cover
 
         tkinter.mainloop()
 
-        main(extension.data)
+        main(extension.power_map_data)
     else:
         data = PowerMapFromCSVExtensionData()
         for key, value in args.items():
