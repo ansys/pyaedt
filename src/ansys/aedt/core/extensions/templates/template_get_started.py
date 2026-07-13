@@ -29,6 +29,9 @@ from pathlib import Path
 import tkinter
 from tkinter import filedialog
 from tkinter import ttk
+from typing import Any
+from typing import Protocol
+from typing import cast
 
 import ansys.aedt.core
 from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
@@ -56,6 +59,12 @@ EXTENSION_TITLE = "Extension template"
 
 result = None
 """Value for result."""
+
+
+class TemplateAppLike(Protocol):
+    modeler: Any
+
+    def load_project(self, file_name: str, set_active: bool = ...) -> object: ...
 
 
 @dataclass
@@ -229,7 +238,7 @@ def main(extension_args) -> bool:
         design_name = active_design.GetDesignName()
     else:
         design_name = active_design.GetName()
-    aedtapp = get_pyaedt_app(project_name, design_name)
+    aedtapp = cast(TemplateAppLike, get_pyaedt_app(project_name, design_name))
 
     if file_path.is_file():
         app.logger.info("Loading project...")

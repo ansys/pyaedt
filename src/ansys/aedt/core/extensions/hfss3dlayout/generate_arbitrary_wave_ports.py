@@ -30,6 +30,8 @@ import tkinter
 from tkinter import filedialog
 from tkinter import messagebox
 from tkinter import ttk
+from typing import Any
+from typing import cast
 
 import ansys.aedt.core
 from ansys.aedt.core.edb import Edb
@@ -118,13 +120,17 @@ class ArbitraryWavePortExtension(ExtensionHFSS3DLayoutCommon):
         self.data = ArbitraryWavePortExtensionData()
 
         # Tkinter widgets
-        self.work_dir_entry = None
-        self.source_file_entry = None
-        self.mounting_side_combo = None
-        self.import_edb_variable = None
+        self.work_dir_entry: tkinter.Text | None = None
+        self.source_file_entry: tkinter.Text | None = None
+        self.mounting_side_combo: ttk.Combobox | None = None
+        self.import_edb_variable: tkinter.BooleanVar | None = None
 
         # Trigger manually since add_extension_content
         self.add_extension_content()
+
+    @property
+    def wave_port_data(self) -> ArbitraryWavePortExtensionData:
+        return cast(ArbitraryWavePortExtensionData, self.data)
 
     def add_extension_content(self) -> None:
         """Add custom content to the extension UI.
@@ -195,10 +201,21 @@ class ArbitraryWavePortExtension(ExtensionHFSS3DLayoutCommon):
         import_edb_check.grid(row=3, column=0, padx=15, pady=10, sticky="w")
 
         def callback(extension: ArbitraryWavePortExtension) -> None:
-            extension.data.working_path = extension.work_dir_entry.get("1.0", tkinter.END).strip()
-            extension.data.source_path = extension.source_file_entry.get("1.0", tkinter.END).strip()
-            extension.data.mounting_side = extension.mounting_side_combo.get()
-            extension.data.import_edb = extension.import_edb_variable.get()
+            work_dir_entry = extension.work_dir_entry
+            source_file_entry = extension.source_file_entry
+            mounting_side_combo = extension.mounting_side_combo
+            import_edb_variable = extension.import_edb_variable
+            if (
+                work_dir_entry is None
+                or source_file_entry is None
+                or mounting_side_combo is None
+                or import_edb_variable is None
+            ):
+                raise RuntimeError("Wave port widgets are not initialized.")
+            extension.wave_port_data.working_path = work_dir_entry.get("1.0", tkinter.END).strip()
+            extension.wave_port_data.source_path = source_file_entry.get("1.0", tkinter.END).strip()
+            extension.wave_port_data.mounting_side = mounting_side_combo.get()
+            extension.wave_port_data.import_edb = import_edb_variable.get()
             extension.root.destroy()
 
         ok_button = ttk.Button(
@@ -214,13 +231,18 @@ class ArbitraryWavePortExtension(ExtensionHFSS3DLayoutCommon):
     def __browse_work_dir(self) -> None:
         """Browse for working directory."""
         work_dir_path = filedialog.askdirectory()
-        if work_dir_path:
-            self.work_dir_entry.delete("1.0", tkinter.END)
-            self.work_dir_entry.insert(tkinter.END, work_dir_path)
+        work_dir_entry = self.work_dir_entry
+        if work_dir_path and work_dir_entry is not None:
+            work_dir_entry.delete("1.0", tkinter.END)
+            work_dir_entry.insert(tkinter.END, work_dir_path)
 
     def __browse_source_file(self) -> None:
         """Browse for source file."""
-        if not self.import_edb_variable.get():
+        import_edb_variable = self.import_edb_variable
+        source_file_entry = self.source_file_entry
+        if import_edb_variable is None or source_file_entry is None:
+            raise RuntimeError("Wave port widgets are not initialized.")
+        if not import_edb_variable.get():
             file_type = (
                 ("odb++", "*.tgz"),
                 ("cadence pcb", "*.brd"),
@@ -232,8 +254,8 @@ class ArbitraryWavePortExtension(ExtensionHFSS3DLayoutCommon):
             source_path = filedialog.askdirectory(title="Import aedb folder")
 
         if source_path:
-            self.source_file_entry.delete("1.0", tkinter.END)
-            self.source_file_entry.insert(tkinter.END, source_path)
+            source_file_entry.delete("1.0", tkinter.END)
+            source_file_entry.insert(tkinter.END, source_path)
 
 
 def main(data: ArbitraryWavePortExtensionData) -> bool:
@@ -328,7 +350,7 @@ def main(data: ArbitraryWavePortExtensionData) -> bool:
 
     # create 3D component
     hfss.save_project(file_name=str(out_3d_project))
-    hfss.modeler.create_3dcomponent(input_file=str(component_3d_file))
+    cast(Any, hfss.modeler).create_3dcomponent(input_file=str(component_3d_file))
     hfss.logger.info(
         f"3D component with arbitrary wave ports has been generated. "
         f"You can import the file located in working directory {working_dir}"
@@ -348,10 +370,11 @@ if __name__ == "__main__":  # pragma: no cover
         extension = ArbitraryWavePortExtension()
         tkinter.mainloop()
         if extension.data:
-            for output_name, output_value in extension.data.__dict__.items():
+            wave_port_data = extension.wave_port_data
+            for output_name, output_value in wave_port_data.__dict__.items():
                 if output_name in EXTENSION_DEFAULT_ARGUMENTS:
                     args[output_name] = output_value
-            main(extension.data)
+            main(wave_port_data)
     else:
         data = ArbitraryWavePortExtensionData(**args)
         main(data)

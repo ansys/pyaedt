@@ -23,10 +23,12 @@
 # SOFTWARE.
 
 from dataclasses import dataclass
+from dataclasses import field
 import os
 from pathlib import Path
 import tkinter
 from tkinter import ttk
+from typing import cast
 
 import ansys.aedt.core
 from ansys.aedt.core import Edb
@@ -96,7 +98,7 @@ class ParametrizeEdbExtensionData(ExtensionCommonData):
     """Value for parametrize padstacks."""
     parametrize_traces: bool = EXTENSION_DEFAULT_ARGUMENTS["parametrize_traces"]
     """Value for parametrize traces."""
-    nets_filter: list = None
+    nets_filter: list[str] = field(default_factory=list)
     """Value for nets filter."""
     expansion_polygon_mm: float = EXTENSION_DEFAULT_ARGUMENTS["expansion_polygon_mm"]
     """Value for expansion polygon mm."""
@@ -106,10 +108,6 @@ class ParametrizeEdbExtensionData(ExtensionCommonData):
     """Value for relative parametric."""
     project_name: str = EXTENSION_DEFAULT_ARGUMENTS["project_name"]
     """Value for project name."""
-
-    def __post_init__(self) -> None:
-        if self.nets_filter is None:
-            self.nets_filter = EXTENSION_DEFAULT_ARGUMENTS["nets_filter"].copy()
 
 
 class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
@@ -129,36 +127,40 @@ class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
         self.data = ParametrizeEdbExtensionData()
 
         # Private attributes
-        self.__active_project_path = None
-        self.__active_project_name = None
-        self.__aedb_path = None
-        self.__active_design_name = None
-        self.__available_nets = []
+        self.__active_project_path: str | None = None
+        self.__active_project_name: str | None = None
+        self.__aedb_path: Path | None = None
+        self.__active_design_name: str | None = None
+        self.__available_nets: list[str] = []
 
         # Load AEDT info
         self.__load_aedt_info()
 
         # Tkinter widgets
-        self.project_name_entry = None
-        self.relative_var = None
-        self.relative_checkbox = None
-        self.layers_var = None
-        self.layers_checkbox = None
-        self.materials_var = None
-        self.materials_checkbox = None
-        self.padstacks_var = None
-        self.padstacks_checkbox = None
-        self.traces_var = None
-        self.traces_checkbox = None
-        self.polygons_entry = None
-        self.voids_entry = None
-        self.nets_listbox = None
-        self.generate_button = None
+        self.project_name_entry: tkinter.Entry | None = None
+        self.relative_var: tkinter.IntVar | None = None
+        self.relative_checkbox: ttk.Checkbutton | None = None
+        self.layers_var: tkinter.IntVar | None = None
+        self.layers_checkbox: ttk.Checkbutton | None = None
+        self.materials_var: tkinter.IntVar | None = None
+        self.materials_checkbox: ttk.Checkbutton | None = None
+        self.padstacks_var: tkinter.IntVar | None = None
+        self.padstacks_checkbox: ttk.Checkbutton | None = None
+        self.traces_var: tkinter.IntVar | None = None
+        self.traces_checkbox: ttk.Checkbutton | None = None
+        self.polygons_entry: tkinter.Text | None = None
+        self.voids_entry: tkinter.Text | None = None
+        self.nets_listbox: tkinter.Listbox | None = None
+        self.generate_button: ttk.Button | None = None
 
         # Trigger manually since add_extension_content requires loading info first
         self.add_extension_content()
 
-    def __load_aedt_info(self):
+    @property
+    def parametrize_data(self) -> ParametrizeEdbExtensionData:
+        return cast(ParametrizeEdbExtensionData, self.data)
+
+    def __load_aedt_info(self) -> None:
         """Load AEDT information for the extension."""
         try:
             app = ansys.aedt.core.Desktop(
@@ -310,7 +312,7 @@ class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
         )
         self.generate_button.grid(row=5, column=1, columnspan=2, pady=20)
 
-    def show_error_message(self, message: str):
+    def show_error_message(self, message: str) -> None:
         """Show error message.
 
         Examples
@@ -335,37 +337,62 @@ class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
 
         """
         try:
+            polygons_entry = self.polygons_entry
+            voids_entry = self.voids_entry
+            project_name_entry = self.project_name_entry
+            nets_listbox = self.nets_listbox
+            layers_var = self.layers_var
+            materials_var = self.materials_var
+            padstacks_var = self.padstacks_var
+            traces_var = self.traces_var
+            relative_var = self.relative_var
+            aedb_path = self.__aedb_path
+            design_name = self.__active_design_name
+            if (
+                polygons_entry is None
+                or voids_entry is None
+                or project_name_entry is None
+                or nets_listbox is None
+                or layers_var is None
+                or materials_var is None
+                or padstacks_var is None
+                or traces_var is None
+                or relative_var is None
+                or aedb_path is None
+                or design_name is None
+            ):
+                raise RuntimeError("Parametrize EDB widgets are not initialized.")
             # Validate expansion values
-            polygon_expansion = float(self.polygons_entry.get("1.0", tkinter.END).strip())
+            polygon_expansion = float(polygons_entry.get("1.0", tkinter.END).strip())
             if polygon_expansion < 0:
                 raise ValueError("Polygon expansion cannot be negative")
 
-            void_expansion = float(self.voids_entry.get("1.0", tkinter.END).strip())
+            void_expansion = float(voids_entry.get("1.0", tkinter.END).strip())
             if void_expansion < 0:
                 raise ValueError("Void expansion cannot be negative")
 
             # Get project name
-            project_name = self.project_name_entry.get().strip()
+            project_name = project_name_entry.get().strip()
             if not project_name:
                 raise ValueError("Project name cannot be empty")
 
             # Get selected nets
-            selected_nets = []
-            for i in self.nets_listbox.curselection():
-                selected_nets.append(self.nets_listbox.get(i))
+            selected_nets: list[str] = []
+            for i in nets_listbox.curselection():
+                selected_nets.append(cast(str, nets_listbox.get(i)))
 
             # Create data object
             self.data = ParametrizeEdbExtensionData(
-                aedb_path=str(self.__aedb_path),
-                design_name=self.__active_design_name,
-                parametrize_layers=bool(self.layers_var.get()),
-                parametrize_materials=bool(self.materials_var.get()),
-                parametrize_padstacks=bool(self.padstacks_var.get()),
-                parametrize_traces=bool(self.traces_var.get()),
+                aedb_path=str(aedb_path),
+                design_name=design_name,
+                parametrize_layers=bool(layers_var.get()),
+                parametrize_materials=bool(materials_var.get()),
+                parametrize_padstacks=bool(padstacks_var.get()),
+                parametrize_traces=bool(traces_var.get()),
                 nets_filter=selected_nets,
                 expansion_polygon_mm=polygon_expansion,
                 expansion_void_mm=void_expansion,
-                relative_parametric=bool(self.relative_var.get()),
+                relative_parametric=bool(relative_var.get()),
                 project_name=project_name,
             )
 
@@ -488,8 +515,8 @@ if __name__ == "__main__":  # pragma: no cover
         tkinter.mainloop()
 
         # Check if user completed the form and data is available
-        if hasattr(extension, "data") and extension.data.project_name.strip():
-            main(extension.data)
+        if hasattr(extension, "data") and extension.parametrize_data.project_name.strip():
+            main(extension.parametrize_data)
     else:
         # Create data object from arguments
         data = ParametrizeEdbExtensionData(
