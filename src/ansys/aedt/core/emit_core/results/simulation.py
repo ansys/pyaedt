@@ -543,6 +543,8 @@ class Simulation:
         >>> sim = aedtapp.results.current_revision.get_simulation()
         >>> sim.set_availability_emi(-10.0)
         """
+        if not isinstance(value, (int, float)):
+            raise ValueError("Availability EMI threshold must be a number.")
         self._emit_com_module.SetAvailabilityEmi(self._revision.results_index, value)
 
     @min_aedt_version("2027.1")

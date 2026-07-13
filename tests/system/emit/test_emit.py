@@ -257,6 +257,7 @@ def test_create_components(emit_app) -> None:
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Duplicate method requires 2026 R1 or later")
+@pytest.mark.skipif(True, reason="B1480584")
 def test_duplicate_components(emit_app):
     """Test duplicating various component types using schematic.create_component which returns EmitNodes."""
     # Test Radio duplication
@@ -3637,6 +3638,7 @@ def test_availability_emi_get_set(interference):
     # Get the initial value and confirm it is a float
     initial_value = sim.get_availability_emi()
     assert isinstance(initial_value, float)
+    assert initial_value == 0.0
 
     # Set a new value and confirm it round-trips correctly
     sim.set_availability_emi(-10.0)
@@ -3645,6 +3647,9 @@ def test_availability_emi_get_set(interference):
     # Set another value to confirm independence from the initial state
     sim.set_availability_emi(5.5)
     assert sim.get_availability_emi() == 5.5
+
+    with pytest.raises(ValueError, match="Availability EMI threshold must be a number."):
+        sim.set_availability_emi("not_a_float")
 
     # Restore the original value
     sim.set_availability_emi(initial_value)
@@ -3655,51 +3660,21 @@ def test_availability_emi_get_set(interference):
     DESKTOP_VERSION <= "2026.1",
     reason="Skipped on versions earlier than 2027.1",
 )
-def test_availability_emi_affects_availability(cell_phone):
-    """Test that changing the availability EMI threshold changes availability results.
-
-    A stricter (higher) threshold means fewer channel pairs are considered
-    available, so the availability fraction should decrease.  A looser
-    (lower) threshold means more channel pairs pass, so availability
-    should increase.
-    """
-    rev = cell_phone.results.analyze()
+def test_availability_emi_affects_availability(interference):
+    """Test that changing the availability EMI threshold changes availability results."""
+    rev = interference.results.analyze()
     sim = rev.get_simulation()
 
-    rx_radios = rev.get_receiver_names()
-    tx_radios = rev.get_interferer_names()
-    assert len(rx_radios) > 0
-    assert len(tx_radios) > 0
-
-    # Build a domain scoped to the first Rx/Tx band pair with hopping bands
-    from ansys.aedt.core.emit_core.emit_constants import TxRxMode
-
-    rx_bands = rev.get_band_names(radio_name=rx_radios[0], tx_rx_mode=TxRxMode.RX)
-    tx_bands = rev.get_band_names(radio_name=tx_radios[0], tx_rx_mode=TxRxMode.TX)
-    assert len(rx_bands) > 0
-    assert len(tx_bands) > 0
-
-    domain = InteractionDomain(cell_phone)
-    domain.set_receiver(rx_radios[0], rx_bands[0])
-    domain.set_interferer(tx_radios[0], tx_bands[0])
+    domain = InteractionDomain(interference)
+    domain.set_receiver("GPS", "L2 P(Y)")
+    domain.set_interferer("WiFi", "HR-DSSS Tx - Ch 1-13")
 
     interaction = sim.run(domain)
-    if not interaction.has_valid_availability(domain):
-        pytest.skip("Selected band pair does not support availability — need hopping bands")
 
-    # Record baseline availability with the current threshold
-    baseline_threshold = sim.get_availability_emi()
     baseline_avail = interaction.get_availability(domain)
+    assert baseline_avail == 0
 
-    # A very tight threshold (high dB margin required) should yield lower availability
-    sim.set_availability_emi(300.0)
-    tight_avail = interaction.get_availability(domain)
-    assert tight_avail <= baseline_avail
+    sim.set_availability_emi(20)
 
-    # A very loose threshold (large negative margin) should yield higher availability
-    sim.set_availability_emi(-300.0)
-    loose_avail = interaction.get_availability(domain)
-    assert loose_avail >= baseline_avail
-
-    # Restore
-    sim.set_availability_emi(baseline_threshold)
+    new_avail = interaction.get_availability(domain)
+    assert new_avail == 1.0
