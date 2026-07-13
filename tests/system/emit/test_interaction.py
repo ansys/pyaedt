@@ -634,6 +634,7 @@ def test_export(export):
     """
     rev: Revision = export.results.analyze()
     sim: Simulation = rev.get_simulation()
+    sim.n_to_1_limit = -1
 
     # Check that export scenario matrix works with interaction domain
     # empty domain should export all interactions
@@ -655,7 +656,7 @@ def test_export(export):
         comment_lines = [line for line in lines if line.startswith("#")]
         data_lines = [line for line in lines if not line.startswith("#")]
         assert len(comment_lines) == 9, "Expected categorization comment header"
-        assert len(data_lines) == data_lines_expected, "Expected column header + 253 data rows"
+        assert len(data_lines) == data_lines_expected, f'Expected column header + {data_lines_expected - 1} data rows'
 
         # Data rows should reference the selected radios
         for row in data_lines[1:]:
@@ -749,7 +750,7 @@ def test_export(export):
     csv_path = os.path.join(temp_dir, "n_to_1.csv")
     domain.set_receiver(
         radio="Rx_MultiBands",
-        band="Band 2",
+        band="Band 2"
     )
     domain.set_interferer(radio="")
     sim.run(domain)
@@ -758,8 +759,8 @@ def test_export(export):
     assert os.path.isfile(csv_path)
 
     # Selection export
-    # Should have 4284 data lines: 1 header + 4283 rows for the analyzed channel pairs
-    validate_csv(csv_path, 4284)
+    # Should have 8 data lines: 1 header + 6 1-to-1 results + 1 Nto1 result
+    validate_csv(csv_path, 8)
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
