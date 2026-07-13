@@ -27,6 +27,8 @@ from pathlib import Path
 import tempfile
 import tkinter
 from tkinter import ttk
+from typing import Any
+from typing import cast
 import webbrowser
 
 import ansys.aedt.core
@@ -77,19 +79,19 @@ class ConfigureLayoutExtension(ExtensionHFSS3DLayoutCommon):
     tab_frame_example = None
     """Value for tab frame example."""
 
-    var_active_design = None
+    var_active_design: tkinter.IntVar | None = None
     """Value for var active design."""
-    var_load_overwrite = None
+    var_load_overwrite: tkinter.BooleanVar | None = None
     """Value for var load overwrite."""
-    var_selected_design = None
+    var_selected_design: tkinter.StringVar | None = None
     """Value for var selected design."""
 
-    __selected_design = ""
+    __selected_design: str | Path = ""
 
     @property
-    def selected_edb(self):
+    def selected_edb(self) -> str | Path:
         """Retrieve selected EDB."""
-        if self.var_active_design.get() == 0:
+        if cast(tkinter.IntVar, self.var_active_design).get() == 0:
             return self._get_active_edb()
         else:
             return self.__selected_design
@@ -103,7 +105,7 @@ class ConfigureLayoutExtension(ExtensionHFSS3DLayoutCommon):
             port=get_port(), version=get_aedt_version(), aedt_process_id=get_process_id(), student_version=is_student()
         )
         self.export_options = ExportOptions()
-        self.export_option_vars = {}
+        self.export_option_vars: dict[str, Any] = {}
 
         super().__init__(
             self.EXTENSION_TITLE,
@@ -143,7 +145,7 @@ class ConfigureLayoutExtension(ExtensionHFSS3DLayoutCommon):
         button_frame = ttk.Frame(
             parent, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2, name="theme_button_frame"
         )
-        button_frame.pack(fill="both", expand=False, **{"padx": 5, "pady": 5})
+        button_frame.pack(fill="both", expand=False, padx=5, pady=5)
         self._widgets["button_frame"] = button_frame
 
         change_theme_button = ttk.Button(
@@ -155,7 +157,7 @@ class ConfigureLayoutExtension(ExtensionHFSS3DLayoutCommon):
             name="theme_toggle_button",
         )
         # change_theme_button.grid(row=0, column=0, **{"padx": 15, "pady": 10})
-        change_theme_button.pack(anchor="e", **{"padx": 15, "pady": 10})
+        change_theme_button.pack(anchor="e", padx=15, pady=10)
         self._widgets["change_theme_button"] = change_theme_button
 
     def add_extension_content(self) -> None:
@@ -203,15 +205,15 @@ class ConfigureLayoutExtension(ExtensionHFSS3DLayoutCommon):
         self.add_toggle_theme_button_(self.root)
 
     def _apply_config_to_edb(self, config_path, test_folder=None):
-        settings.logger.info("Applying configuration to EDB")
+        logger = cast(Any, settings.logger)
+        logger.info("Applying configuration to EDB")
         selected_edb = self.selected_edb
-        settings.logger.info(f"target EDB: {selected_edb}")
+        logger.info(f"target EDB: {selected_edb}")
         app = Edb(edbpath=str(selected_edb), version=self.aedt_info.version)
 
         temp_dir = test_folder
         if test_folder is None:
-            temp_dir = Path(tempfile.TemporaryDirectory(suffix=".ansys").name, dir=test_folder)
-            temp_dir.mkdir()
+            temp_dir = Path(tempfile.mkdtemp(suffix=".ansys"))
 
         new_name = create_new_edb_name(Path(app.edbpath).stem) + ".aedb"
         app.save_as(str(temp_dir / new_name))
