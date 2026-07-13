@@ -337,6 +337,46 @@ class FieldExpression(PyAedtBase):
         """
         return len(self._operations)
 
+    @overload
+    def _spawn(
+        self,
+        vector: Literal[False],
+        is_complex: Literal[False],
+        extra_operations: Sequence[str],
+        *,
+        more_assignment_types: list[str] | None = None,
+    ) -> ScalarReal: ...
+
+    @overload
+    def _spawn(
+        self,
+        vector: Literal[False],
+        is_complex: Literal[True],
+        extra_operations: Sequence[str],
+        *,
+        more_assignment_types: list[str] | None = None,
+    ) -> ScalarComplex: ...
+
+    @overload
+    def _spawn(
+        self,
+        vector: Literal[True],
+        is_complex: Literal[False],
+        extra_operations: Sequence[str],
+        *,
+        more_assignment_types: list[str] | None = None,
+    ) -> VectorReal: ...
+
+    @overload
+    def _spawn(
+        self,
+        vector: Literal[True],
+        is_complex: Literal[True],
+        extra_operations: Sequence[str],
+        *,
+        more_assignment_types: list[str] | None = None,
+    ) -> VectorComplex: ...
+
     def _spawn(
         self,
         vector: bool,
@@ -375,10 +415,43 @@ class FieldExpression(PyAedtBase):
         ["Fundamental_Quantity('E')", "Operation('Mag')"]
 
         """
-        cls = LEAF[(vector, is_complex)]
         ats = self._assignment_types + list(more_assignment_types or [])
-        return cls(
-            self._operations + list(extra_operations),
+        operations = self._operations + list(extra_operations)
+        if vector:
+            if is_complex:
+                return VectorComplex(
+                    operations,
+                    calculator=self._calculator,
+                    description=self._description,
+                    design_type=self._design_type,
+                    fields_type=self._fields_type,
+                    assignment_types=ats,
+                    primary_sweep=self._primary_sweep,
+                    solution_type=self._solution_type,
+                )
+            return VectorReal(
+                operations,
+                calculator=self._calculator,
+                description=self._description,
+                design_type=self._design_type,
+                fields_type=self._fields_type,
+                assignment_types=ats,
+                primary_sweep=self._primary_sweep,
+                solution_type=self._solution_type,
+            )
+        if is_complex:
+            return ScalarComplex(
+                operations,
+                calculator=self._calculator,
+                description=self._description,
+                design_type=self._design_type,
+                fields_type=self._fields_type,
+                assignment_types=ats,
+                primary_sweep=self._primary_sweep,
+                solution_type=self._solution_type,
+            )
+        return ScalarReal(
+            operations,
             calculator=self._calculator,
             description=self._description,
             design_type=self._design_type,
@@ -387,6 +460,18 @@ class FieldExpression(PyAedtBase):
             primary_sweep=self._primary_sweep,
             solution_type=self._solution_type,
         )
+
+    @overload
+    def _unary(self, operation: str, *, vector: Literal[False], is_complex: Literal[False]) -> ScalarReal: ...
+
+    @overload
+    def _unary(self, operation: str, *, vector: Literal[False], is_complex: Literal[True]) -> ScalarComplex: ...
+
+    @overload
+    def _unary(self, operation: str, *, vector: Literal[True], is_complex: Literal[False]) -> VectorReal: ...
+
+    @overload
+    def _unary(self, operation: str, *, vector: Literal[True], is_complex: Literal[True]) -> VectorComplex: ...
 
     def _unary(self, operation: str, *, vector: bool, is_complex: bool) -> FieldExpression:
         """
@@ -418,6 +503,51 @@ class FieldExpression(PyAedtBase):
 
         """
         return self._spawn(vector, is_complex, [f"Operation('{operation}')"])
+
+    @overload
+    def _binary(
+        self,
+        expression: FieldExpression,
+        operation: str,
+        *,
+        vector: Literal[False],
+        is_complex: Literal[False],
+    ) -> ScalarReal: ...
+
+    @overload
+    def _binary(
+        self,
+        expression: FieldExpression,
+        operation: str,
+        *,
+        vector: Literal[False],
+        is_complex: Literal[True],
+    ) -> ScalarComplex: ...
+
+    @overload
+    def _binary(
+        self,
+        expression: FieldExpression,
+        operation: str,
+        *,
+        vector: Literal[True],
+        is_complex: Literal[False],
+    ) -> VectorReal: ...
+
+    @overload
+    def _binary(
+        self,
+        expression: FieldExpression,
+        operation: str,
+        *,
+        vector: Literal[True],
+        is_complex: Literal[True],
+    ) -> VectorComplex: ...
+
+    @overload
+    def _binary(
+        self, expression: FieldExpression, operation: str, *, vector: bool, is_complex: bool
+    ) -> FieldExpression: ...
 
     def _binary(
         self, expression: FieldExpression, operation: str, *, vector: bool, is_complex: bool
@@ -455,17 +585,93 @@ class FieldExpression(PyAedtBase):
         """
         if not isinstance(expression, FieldExpression):
             raise TypeError("operand must be a FieldExpression")
-        cls = LEAF[(vector, is_complex)]
-        return cls(
-            self._operations + expression._operations + [f"Operation('{operation}')"],
-            calculator=self._calculator or expression._calculator,
+        operations = self._operations + expression._operations + [f"Operation('{operation}')"]
+        assignment_types = self._assignment_types + expression._assignment_types
+        calculator = self._calculator or expression._calculator
+        design_type = self._design_type or expression._design_type
+        if vector:
+            if is_complex:
+                return VectorComplex(
+                    operations,
+                    calculator=calculator,
+                    description=self._description,
+                    design_type=design_type,
+                    fields_type=self._fields_type,
+                    assignment_types=assignment_types,
+                    primary_sweep=self._primary_sweep,
+                    solution_type=self._solution_type,
+                )
+            return VectorReal(
+                operations,
+                calculator=calculator,
+                description=self._description,
+                design_type=design_type,
+                fields_type=self._fields_type,
+                assignment_types=assignment_types,
+                primary_sweep=self._primary_sweep,
+                solution_type=self._solution_type,
+            )
+        if is_complex:
+            return ScalarComplex(
+                operations,
+                calculator=calculator,
+                description=self._description,
+                design_type=design_type,
+                fields_type=self._fields_type,
+                assignment_types=assignment_types,
+                primary_sweep=self._primary_sweep,
+                solution_type=self._solution_type,
+            )
+        return ScalarReal(
+            operations,
+            calculator=calculator,
             description=self._description,
-            design_type=self._design_type or expression._design_type,
+            design_type=design_type,
             fields_type=self._fields_type,
-            assignment_types=self._assignment_types + expression._assignment_types,
+            assignment_types=assignment_types,
             primary_sweep=self._primary_sweep,
             solution_type=self._solution_type,
         )
+
+    @overload
+    def _reduce(
+        self,
+        geometry: CalculatorGeometry,
+        final_operation: str,
+        *,
+        vector: Literal[False] = False,
+        is_complex: Literal[False],
+    ) -> ScalarReal: ...
+
+    @overload
+    def _reduce(
+        self,
+        geometry: CalculatorGeometry,
+        final_operation: str,
+        *,
+        vector: Literal[False] = False,
+        is_complex: Literal[True],
+    ) -> ScalarComplex: ...
+
+    @overload
+    def _reduce(
+        self,
+        geometry: CalculatorGeometry,
+        final_operation: str,
+        *,
+        vector: Literal[True],
+        is_complex: Literal[False],
+    ) -> VectorReal: ...
+
+    @overload
+    def _reduce(
+        self,
+        geometry: CalculatorGeometry,
+        final_operation: str,
+        *,
+        vector: Literal[True],
+        is_complex: Literal[True],
+    ) -> VectorComplex: ...
 
     def _reduce(
         self,
@@ -587,7 +793,14 @@ class FieldExpression(PyAedtBase):
         "Operation('+')"
 
         """
-        return _to_expr(other, self).__add__(self)
+        left = _to_expr(other, self)
+        if self.is_vector:
+            if not left.is_vector:
+                raise TypeError("vector +/- requires another vector expression")
+            return left._binary(self, "+", vector=True, is_complex=_both(left, self))
+        if left.is_vector:
+            raise TypeError("cannot add/subtract a scalar and a vector")
+        return left._binary(self, "+", vector=False, is_complex=_both(left, self))
 
     def __rmul__(self, other) -> FieldExpression:
         """
@@ -613,7 +826,12 @@ class FieldExpression(PyAedtBase):
         "Operation('*')"
 
         """
-        return _to_expr(other, self).__mul__(self)
+        left = _to_expr(other, self)
+        if self.is_vector:
+            if left.is_vector:
+                raise TypeError("vector * vector is undefined; use dot() or cross()")
+            return self._binary(left, "*", vector=True, is_complex=_both(left, self))
+        return left._binary(self, "*", vector=self.is_vector, is_complex=_both(left, self))
 
     def __rsub__(self, other) -> FieldExpression:
         """
@@ -639,7 +857,14 @@ class FieldExpression(PyAedtBase):
         "Operation('-')"
 
         """
-        return _to_expr(other, self).__sub__(self)
+        left = _to_expr(other, self)
+        if self.is_vector:
+            if not left.is_vector:
+                raise TypeError("vector +/- requires another vector expression")
+            return left._binary(self, "-", vector=True, is_complex=_both(left, self))
+        if left.is_vector:
+            raise TypeError("cannot add/subtract a scalar and a vector")
+        return left._binary(self, "-", vector=False, is_complex=_both(left, self))
 
     def __rtruediv__(self, other) -> FieldExpression:
         """
@@ -665,7 +890,8 @@ class FieldExpression(PyAedtBase):
         "Operation('/')"
 
         """
-        return _to_expr(other, self).__truediv__(self)
+        left = _to_expr(other, self)
+        return left._binary(self, "/", vector=self.is_vector, is_complex=_both(left, self))
 
     def to_dict(self, name: str, assignment: str = "") -> dict:
         """
@@ -1432,7 +1658,7 @@ class ScalarReal(FieldExpression):
         return self._unary("VecZ", vector=True, is_complex=False)
 
     # arithmetic
-    def __add__(self, other) -> ScalarReal:
+    def __add__(self, other) -> ScalarReal | ScalarComplex:
         """
         Add a scalar expression or number.
 
@@ -1459,7 +1685,7 @@ class ScalarReal(FieldExpression):
         """
         return _scalar_arith(self, other, "+")
 
-    def __sub__(self, other) -> ScalarReal:
+    def __sub__(self, other) -> ScalarReal | ScalarComplex:
         """
         Subtract a scalar expression or number.
 
@@ -1564,7 +1790,7 @@ class ScalarReal(FieldExpression):
         "Operation('Integrate')"
 
         """
-        return self._reduce(over, "Integrate")
+        return self._reduce(over, "Integrate", is_complex=False)
 
     def maximum(self, over: CalculatorGeometry) -> ScalarReal:
         """
@@ -1590,7 +1816,7 @@ class ScalarReal(FieldExpression):
         "Operation('Maximum')"
 
         """
-        return self._reduce(over, "Maximum")
+        return self._reduce(over, "Maximum", is_complex=False)
 
     def minimum(self, over: CalculatorGeometry) -> ScalarReal:
         """
@@ -1616,7 +1842,7 @@ class ScalarReal(FieldExpression):
         "Operation('Minimum')"
 
         """
-        return self._reduce(over, "Minimum")
+        return self._reduce(over, "Minimum", is_complex=False)
 
     def mean(self, over: CalculatorGeometry) -> ScalarReal:
         """
@@ -1642,7 +1868,7 @@ class ScalarReal(FieldExpression):
         "Operation('Mean')"
 
         """
-        return self._reduce(over, "Mean")
+        return self._reduce(over, "Mean", is_complex=False)
 
     def std(self, over: CalculatorGeometry) -> ScalarReal:
         """
@@ -1668,7 +1894,7 @@ class ScalarReal(FieldExpression):
         "Operation('Std')"
 
         """
-        return self._reduce(over, "Std")
+        return self._reduce(over, "Std", is_complex=False)
 
     def max_position(self, over: CalculatorGeometry) -> VectorReal:
         """
@@ -1746,7 +1972,7 @@ class ScalarReal(FieldExpression):
         "Operation('LineValue')"
 
         """
-        return self._reduce(over, "")
+        return self._reduce(over, "", is_complex=False)
 
     # build a complex scalar from this real part / imaginary part
     def as_complex_real(self) -> ScalarComplex:
@@ -2156,7 +2382,7 @@ class ScalarComplex(FieldExpression):
         "Operation('Integrate')"
 
         """
-        return self._reduce(over, "Integrate")
+        return self._reduce(over, "Integrate", is_complex=True)
 
     def mean(self, over: CalculatorGeometry) -> ScalarComplex:
         """
@@ -2182,7 +2408,7 @@ class ScalarComplex(FieldExpression):
         "Operation('Mean')"
 
         """
-        return self._reduce(over, "Mean")
+        return self._reduce(over, "Mean", is_complex=True)
 
     def value(self, over: CalculatorGeometry) -> ScalarComplex:
         """
@@ -2208,7 +2434,7 @@ class ScalarComplex(FieldExpression):
         "Operation('LineValue')"
 
         """
-        return self._reduce(over, "")
+        return self._reduce(over, "", is_complex=True)
 
 
 class VectorReal(FieldExpression):
@@ -2377,7 +2603,7 @@ class VectorReal(FieldExpression):
         """
         return self._unary("Divg", vector=False, is_complex=False)
 
-    def __add__(self, other) -> VectorReal:
+    def __add__(self, other) -> VectorReal | VectorComplex:
         """
         Add another real vector expression.
 
@@ -2404,7 +2630,7 @@ class VectorReal(FieldExpression):
         """
         return _vector_arith(self, other, "+")
 
-    def __sub__(self, other) -> VectorReal:
+    def __sub__(self, other) -> VectorReal | VectorComplex:
         """
         Subtract another real vector expression.
 
@@ -2431,7 +2657,7 @@ class VectorReal(FieldExpression):
         """
         return _vector_arith(self, other, "-")
 
-    def __mul__(self, other) -> VectorReal:
+    def __mul__(self, other) -> VectorReal | VectorComplex:
         """
         Scale a real vector expression.
 
@@ -2457,7 +2683,7 @@ class VectorReal(FieldExpression):
         """
         return _vector_scale(self, other, "*")
 
-    def __truediv__(self, other) -> VectorReal:
+    def __truediv__(self, other) -> VectorReal | VectorComplex:
         """
         Divide a real vector expression by a scalar.
 
@@ -3101,6 +3327,22 @@ def _both(a: FieldExpression, b: FieldExpression) -> bool:
     return a.is_complex or b.is_complex
 
 
+@overload
+def _scalar_arith(a: ScalarReal, b: ScalarReal | int | float, op: str) -> ScalarReal: ...
+
+
+@overload
+def _scalar_arith(a: ScalarReal, b: ScalarComplex | complex, op: str) -> ScalarComplex: ...
+
+
+@overload
+def _scalar_arith(a: ScalarComplex, b: FieldExpression | int | float | complex, op: str) -> ScalarComplex: ...
+
+
+@overload
+def _scalar_arith(a: FieldExpression, b, op: str) -> FieldExpression: ...
+
+
 def _scalar_arith(a: FieldExpression, b, op: str) -> FieldExpression:
     """
     Add or subtract a scalar with another scalar or a number.
@@ -3167,6 +3409,22 @@ def _scalar_mul(a: FieldExpression, b, op: str) -> FieldExpression:
     return a._binary(b, op, vector=b.is_vector, is_complex=_both(a, b))
 
 
+@overload
+def _vector_arith(a: VectorReal, b: VectorReal, op: str) -> VectorReal: ...
+
+
+@overload
+def _vector_arith(a: VectorReal, b: VectorComplex, op: str) -> VectorComplex: ...
+
+
+@overload
+def _vector_arith(a: VectorComplex, b: VectorReal | VectorComplex, op: str) -> VectorComplex: ...
+
+
+@overload
+def _vector_arith(a: FieldExpression, b, op: str) -> FieldExpression: ...
+
+
 def _vector_arith(a: FieldExpression, b, op: str) -> FieldExpression:
     """
     Add or subtract two vector expressions.
@@ -3199,6 +3457,22 @@ def _vector_arith(a: FieldExpression, b, op: str) -> FieldExpression:
     if not isinstance(b, FieldExpression) or not b.is_vector:
         raise TypeError("vector +/- requires another vector expression")
     return a._binary(b, op, vector=True, is_complex=_both(a, b))
+
+
+@overload
+def _vector_scale(a: VectorReal, b: ScalarReal | int | float, op: str) -> VectorReal: ...
+
+
+@overload
+def _vector_scale(a: VectorReal, b: ScalarComplex | complex, op: str) -> VectorComplex: ...
+
+
+@overload
+def _vector_scale(a: VectorComplex, b: FieldExpression | int | float | complex, op: str) -> VectorComplex: ...
+
+
+@overload
+def _vector_scale(a: FieldExpression, b, op: str) -> FieldExpression: ...
 
 
 def _vector_scale(a: FieldExpression, b, op: str) -> FieldExpression:
@@ -3449,8 +3723,13 @@ class FieldExpressions(PyAedtBase):
         ['Scalar_Constant(1)']
 
         """
-        cls = LEAF[(vector, complex_)]
-        return cls(ops, calculator=self._calculator, design_type=self._design_type)
+        if vector:
+            if complex_:
+                return VectorComplex(ops, calculator=self._calculator, design_type=self._design_type)
+            return VectorReal(ops, calculator=self._calculator, design_type=self._design_type)
+        if complex_:
+            return ScalarComplex(ops, calculator=self._calculator, design_type=self._design_type)
+        return ScalarReal(ops, calculator=self._calculator, design_type=self._design_type)
 
     def vector(self, quantity: str = "E", is_complex: bool = True) -> VectorReal | VectorComplex:
         """
