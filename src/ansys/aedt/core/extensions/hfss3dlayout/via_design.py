@@ -31,6 +31,8 @@ from pathlib import Path
 import tkinter
 from tkinter import filedialog
 import tkinter.ttk as ttk
+from typing import Any
+from typing import cast
 
 import PIL.Image
 import PIL.ImageTk
@@ -160,8 +162,8 @@ class ViaDesignExtension(ExtensionHFSS3DLayoutCommon):
             )
             # NOTE: Setting button.image ensures that a reference to the photo is kept and that
             # the picture is correctly rendered in the tkinter window
-            button.image = photo
-            button.grid(row=row, column=column, **DEFAULT_PADDING)
+            cast(Any, button).image = photo
+            button.grid(row=row, column=column, padx=DEFAULT_PADDING["padx"], pady=DEFAULT_PADDING["pady"])
 
             if column > EXTENSION_NB_COLUMN:
                 row += 1
@@ -180,7 +182,9 @@ class ViaDesignExtension(ExtensionHFSS3DLayoutCommon):
             width=20,
             name="button_create_design",
         )
-        create_design_button.grid(row=0, column=0, sticky="w", **DEFAULT_PADDING)
+        create_design_button.grid(
+            row=0, column=0, sticky="w", padx=DEFAULT_PADDING["padx"], pady=DEFAULT_PADDING["pady"]
+        )
         change_theme_button = ttk.Button(
             lower_frame,
             width=20,
@@ -213,13 +217,14 @@ class ViaDesignExtension(ExtensionHFSS3DLayoutCommon):
 
         """
         if create_design_path is None:
-            create_design_path = filedialog.askopenfilename(
+            selected_path = filedialog.askopenfilename(
                 title="Select configuration",
                 filetypes=(("toml", "*.toml"),),
                 defaultextension=".toml",
             )
-            if not create_design_path:
-                return
+            if not selected_path:
+                return False
+            create_design_path = Path(selected_path)
 
         self.__create_design_path = Path(create_design_path)
         if not self.__create_design_path.is_file():
