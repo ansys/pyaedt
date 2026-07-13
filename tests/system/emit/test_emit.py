@@ -3651,6 +3651,12 @@ def test_availability_emi_get_set(interference):
     with pytest.raises(ValueError, match="Availability EMI threshold must be a number."):
         sim.set_availability_emi("not_a_float")
 
+    with pytest.raises(ValueError, match="Availability EMI threshold must be between -300 and 300 dB."):
+        sim.set_availability_emi(-301)
+
+    with pytest.raises(ValueError, match="Availability EMI threshold must be between -300 and 300 dB."):
+        sim.set_availability_emi(301)
+
     # Restore the original value
     sim.set_availability_emi(initial_value)
     assert sim.get_availability_emi() == initial_value

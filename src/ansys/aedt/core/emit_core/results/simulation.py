@@ -545,6 +545,8 @@ class Simulation:
         """
         if not isinstance(value, (int, float)):
             raise ValueError("Availability EMI threshold must be a number.")
+        if value < -300 or value > 300:
+            raise ValueError("Availability EMI threshold must be between -300 and 300 dB.")
         self._emit_com_module.SetAvailabilityEmi(self._revision.results_index, value)
 
     @min_aedt_version("2027.1")
