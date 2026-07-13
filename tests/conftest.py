@@ -102,6 +102,17 @@ USE_PYEDB_GRPC = config.get("use_pyedb_grpc", DEFAULT_CONFIG.get("use_pyedb_grpc
 os.environ["PYAEDT_DESKTOP_VERSION"] = DESKTOP_VERSION
 
 # ================================
+# Shared markers
+# ================================
+
+# Mark tests as xfail when PYAEDT_EDB_XFAIL=1
+# NOTE: Remove marker below if 26R1 SP2 is installed or later version of AEDT is used.
+edb_xfail = pytest.mark.xfail(
+    condition=os.environ.get("PYAEDT_EDB_XFAIL") == "1",
+    reason="PyEDB tests are unstable",
+)
+
+# ================================
 # PyAEDT settings
 # ================================
 
