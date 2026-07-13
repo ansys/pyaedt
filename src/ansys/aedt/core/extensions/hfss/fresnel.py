@@ -127,7 +127,7 @@ class FresnelExtension(ExtensionHFSSCommon):
         ]
         self.azimuth_resolution_values = self.elevation_resolution_values
 
-        aedt_ver_sp = self.desktop.odesktop.GetVersion()
+        aedt_ver_sp = self.desktop.aedt_version
         if aedt_ver_sp < "2027.1.0":
             self.rttbl_version = "1.0"
         else:
@@ -821,7 +821,7 @@ class FresnelExtension(ExtensionHFSSCommon):
         self.active_parametric.props["ProdOptiSetupDataV2"]["SaveFields"] = False
 
         # Display the resulting extraction mode
-        self._widgets["advanced_mode"].config(text=self.fresnel_type.get())
+        self._label("advanced_mode").config(text=self.fresnel_type.get())
 
         # Create output variables
         self.active_setup_sweep = self.active_setup.name + " : " + self.sweep.name
@@ -845,8 +845,8 @@ class FresnelExtension(ExtensionHFSSCommon):
 
         self._button("start_button_extraction").grid_remove()
 
-        self.rttbl_version = self._widgets["rttbl_version_combo"].get()
-        self._widgets["rttbl_version_label_extraction"].config(text=self.rttbl_version)
+        self.rttbl_version = self._label("rttbl_version_combo").get()
+        self._label("rttbl_version_label_extraction").config(text=self.rttbl_version)
 
         # Revert Fresnel Type to isotropic for RTTBL ver 1.0
         if self.rttbl_version == "1.0":
@@ -854,7 +854,7 @@ class FresnelExtension(ExtensionHFSSCommon):
 
         is_isotropic = self.fresnel_type.get() == "isotropic"
         # Display the resulting extraction mode
-        self._widgets["extraction_mode"].config(text=self.fresnel_type.get())
+        self._label("extraction_mode").config(text=self.fresnel_type.get())
 
         if active_setup is None:
             simulation_setup = self._combo("setup_sweep_combo").get()
