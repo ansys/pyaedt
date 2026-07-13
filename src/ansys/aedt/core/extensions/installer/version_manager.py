@@ -41,6 +41,7 @@ import PIL.Image
 import PIL.ImageTk
 
 import ansys.aedt.core
+import ansys.aedt.core.extensions
 from ansys.aedt.core.extensions.misc import ToolTip
 from ansys.aedt.core.extensions.misc import check_for_pyaedt_update_on_startup
 from ansys.aedt.core.extensions.misc import get_aedt_theme
@@ -171,6 +172,7 @@ class VersionManager:
 
         # Loading indicators for update operations
         self.loading_labels = {}
+        self.change_theme_button: ttk.Button | None = None
 
         # Prepare subprocess environment so the venv is effectively activated for all runs
         self.activated_env = None
@@ -257,7 +259,7 @@ class VersionManager:
                 )
 
     @staticmethod
-    def _find_all_widgets(parent: tkinter.Widget):
+    def _find_all_widgets(parent: tkinter.Misc):
         """Yield all descendant widgets of *parent*."""
         for child in parent.winfo_children():
             yield child
@@ -267,13 +269,15 @@ class VersionManager:
         self.root.theme = "light"
         self._apply_root_theme(self.theme.light)
         self.theme.apply_light_theme(self.style)
-        self.change_theme_button.config(text="\u263d")
+        if self.change_theme_button is not None:
+            self.change_theme_button.config(text="\u263d")
 
     def _set_dark_theme(self) -> None:
         self.root.theme = "dark"
         self._apply_root_theme(self.theme.dark)
         self.theme.apply_dark_theme(self.style)
-        self.change_theme_button.config(text="\u2600")
+        if self.change_theme_button is not None:
+            self.change_theme_button.config(text="\u2600")
 
     def _create_button_menu(self) -> None:
         menu_bar = ttk.Frame(self.root, height=26, style="PyAEDT.TFrame")
@@ -785,7 +789,7 @@ class VersionManager:
 
         """
 
-        def version_is_leq(version, other_version) -> bool:
+        def version_is_leq(version: str, other_version: str) -> bool:
             version_parts = [int(part) for part in version.split(".")]
             target_parts = [int(part) for part in other_version.split(".")]
             if version_parts == target_parts:
@@ -795,6 +799,7 @@ class VersionManager:
                     return True
                 elif v > t:
                     return False
+            return len(version_parts) <= len(target_parts)
 
         file_selected = filedialog.askopenfilename(title="Select Wheelhouse")
 
@@ -889,11 +894,14 @@ class VersionManager:
             try:
                 # Fallback to 'pip show' and parse Version
                 out = self.run_pip(["show", package_name], capture_output=True)
+                if out is None:
+                    return "Please restart"
                 for line in out.splitlines():
                     if line.startswith("Version:"):
                         return line.split(":", 1)[1].strip()
             except Exception:  # pragma: no cover
                 return "Please restart"
+        return "Please restart"
 
     def _clicked_refresh(self, need_restart: bool = False):
         msg = [f"Venv path: {self.venv_path}", f"Python version: {self.python_version}"]
