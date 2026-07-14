@@ -33,12 +33,11 @@ from ansys.aedt.core.extensions.hfss3dlayout.cutout import main
 from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
 from tests import TESTS_EXTENSIONS_PATH
 from tests.conftest import DESKTOP_VERSION
+from tests.conftest import edb_xfail
 
 AEDB_FILE_NAME = "ANSYS-HSD_V1"
 TEST_SUBFOLDER = "T45"
 SI_VERSE_PATH = TESTS_EXTENSIONS_PATH / "example_models" / TEST_SUBFOLDER / (AEDB_FILE_NAME + ".aedb")
-# NOTE: Remove marker below if 26R1 SP2 is installed or later version of AEDT is used.
-edb_xfail = pytest.mark.xfail(reason="PyEDB tests are unstable")
 
 
 @edb_xfail
