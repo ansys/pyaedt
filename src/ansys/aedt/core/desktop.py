@@ -3074,32 +3074,34 @@ class Desktop(PyAedtBase):
         active_ports = is_grpc_session_active(
             self.port, self.machine, self.student_version, self.aedt_version_id, self.non_graphical
         )
-        if self.new_desktop and active_ports:
+        if active_ports and self.new_desktop:
             self.logger.warning(f"Port {self.port} is already in use. Finding a new free port.")
             self.port = _find_free_port()
             return self.port
-        elif not settings.remote_rpc_session and not active_ports:
-            active_ports = is_grpc_session_active(
-                self.port, self.machine, self.student_version, self.aedt_version_id, not self.non_graphical
-            )
-            if active_ports:
-                mode = "Graphical" if self.non_graphical else "Non Graphical"
-                self.logger.warning(f"Port {self.port} is already in use in {mode} mode. Using it.")
-                self.non_graphical = not self.non_graphical
-                self.new_desktop = False
-                return self.port
+        elif active_ports:
+            self.logger.info(f"Port {self.port} session has been found.")
+            return self.port
+        elif is_grpc_session_active(
+            self.port, self.machine, self.student_version, self.aedt_version_id, not self.non_graphical
+        ):
+            mode = "Graphical" if self.non_graphical else "Non Graphical"
+            self.logger.warning(f"Port {self.port} is already in use in {mode} mode. Using it.")
+            self.non_graphical = not self.non_graphical
+            self.new_desktop = False
+            return self.port
+        elif settings.remote_rpc_session:
+            self.logger.warning(f"Remote session found on port {self.port}. Using it.")
+            self.new_desktop = False
+            return self.port
+        elif self.port in active_sessions(student_version=False).update(active_sessions(student_version=True)).values():
+            self.logger.warning(f"Port {self.port} is already in use by another AEDT version. Finding a new free port.")
             self.new_desktop = True
-            sessions = active_sessions(student_version=False)
-            sessions.update(active_sessions(student_version=True))
-            if self.port in sessions.values():
-                self.logger.warning(
-                    f"Port {self.port} is already in use by another AEDT version. Finding a new free port."
-                )
-                self.port = _find_free_port()
-                return self.port
+            self.port = _find_free_port()
+            return self.port
+        else:
+            self.new_desktop = True
             self.logger.warning(f"No active AEDT gRPC session found on port {self.port}. Opening a new AEDT session.")
-
-        return self.port
+            return self.port
 
     @pyaedt_function_handler()
     def _assign_port(self):
