@@ -3068,40 +3068,50 @@ class Desktop(PyAedtBase):
         needs to be launched.
         """
         self.logger.debug(f"Validating specified gRPC port: {self.port}")
-        if self.port == 0:
+        if self.port == 0:  # Checking if available session is there or eventually assign new port
             self._assign_port()
             return self.port
         active_ports = is_grpc_session_active(
             self.port, self.machine, self.student_version, self.aedt_version_id, self.non_graphical
         )
-        if active_ports and self.new_desktop:
+        if active_ports and self.new_desktop:  # port found. new session needs to be launched on another port
             self.logger.warning(f"Port {self.port} is already in use. Finding a new free port.")
             self.port = _find_free_port()
             return self.port
-        elif active_ports:
+        elif active_ports:  # port found and will be used because new_desktop is false
             self.logger.info(f"Port {self.port} session has been found.")
             return self.port
         elif is_grpc_session_active(
             self.port, self.machine, self.student_version, self.aedt_version_id, not self.non_graphical
-        ):
+        ):  # check for alternative graphical mode and eventually connect to it
             mode = "Graphical" if self.non_graphical else "Non Graphical"
             self.logger.warning(f"Port {self.port} is already in use in {mode} mode. Using it.")
             self.non_graphical = not self.non_graphical
-            self.new_desktop = False
-            return self.port
-        elif settings.remote_rpc_session:
+            if self.new_desktop:  # port found in alternative graphical mode and new_destkop takes the precedence
+                self.logger.warning(f"Port {self.port} is already in use. Finding a new free port.")
+                self.port = _find_free_port()
+                return self.port
+            return self.port  # port found in alternative graphical mode and will be used
+        elif settings.remote_rpc_session:  # remote session -> no port check
             self.logger.warning(f"Remote session found on port {self.port}. Using it.")
             self.new_desktop = False
             return self.port
-        elif self.port in active_sessions(student_version=False).update(active_sessions(student_version=True)).values():
-            self.logger.warning(f"Port {self.port} is already in use by another AEDT version. Finding a new free port.")
-            self.new_desktop = True
-            self.port = _find_free_port()
-            return self.port
-        else:
-            self.new_desktop = True
-            self.logger.warning(f"No active AEDT gRPC session found on port {self.port}. Opening a new AEDT session.")
-            return self.port
+        else:  # validate if port is in use or not
+            session = active_sessions(student_version=False)
+            session.update(active_sessions(student_version=True))
+            if self.port in session.values():  # port is in use in another AEDT version. Changing port
+                self.logger.warning(
+                    f"Port {self.port} is already in use by another AEDT version. Finding a new free port."
+                )
+                self.new_desktop = True
+                self.port = _find_free_port()
+                return self.port
+            else:  # no usage  found. using port
+                self.new_desktop = True
+                self.logger.warning(
+                    f"No active AEDT gRPC session found on port {self.port}. Opening a new AEDT session."
+                )
+                return self.port
 
     @pyaedt_function_handler()
     def _assign_port(self):

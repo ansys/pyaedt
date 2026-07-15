@@ -32,6 +32,7 @@ import inspect
 import itertools
 import logging
 import os
+import pathlib
 import platform
 import re
 import shutil
@@ -54,6 +55,7 @@ import psutil
 from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.numbers_utils import _units_assignment
+from ansys.aedt.core.generic.numbers_utils import is_number
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
@@ -1502,6 +1504,102 @@ def active_sessions(
     if any(port == -1 for port in return_dict_filtered.values()):
         for pid in [i for i, v in return_dict_filtered.items() if v == -1]:
             return_dict_filtered[pid] = _check_connection_grpc_port(connections, pid, version, non_graphical)
+
+    return return_dict_filtered
+
+
+@pyaedt_function_handler()
+def all_active_sessions() -> dict[int, int]:
+    """Get information for active AEDT sessions.
+
+    This function detects running AEDT processes and identifies their gRPC ports or
+    marks them as COM sessions. It works on both Windows and Linux platforms by using
+    multiple detection strategies to ensure reliable session discovery.
+
+    Detection Strategy (in order of execution):
+        1. **Process Discovery**: Searches for AEDT processes (ansysedt.exe or ansysedtsv.exe).
+        2. **Command-Line Parsing**: Extracts gRPC port from ``-grpcsrv`` command-line argument.
+        3. **Unix gRPC Analysis** (Linux only): Uses ``ss -Hnlp`` to find ports from socket files.
+        4. **TCP Connection Analysis**: Falls back to checking active TCP connections via psutil.
+
+    Port Detection Results:
+        - Positive integer, gRPC session on that port.
+        - ``-1``: COM session (no gRPC server running).
+
+
+    Returns
+    -------
+    dict[str, dict]
+        Dictionary mapping AEDT process IDs to their corresponding ports.
+        Port is set to ``-1`` if the session is using COM instead of gRPC.
+
+    Examples
+    --------
+    Get all active AEDT sessions (any version, any mode):
+
+
+    """
+    # Step 1: Determine target process names based on version type and operating system
+    # Student version uses different executable names (ansysedtsv vs ansysedt)
+
+    targets = ["ansysedtsv.exe", "ansysedt.exe"]
+
+    # Step 3: Get all matching AEDT processes from the system
+    # Returns list of tuples: [(pid, command_line_args), ...]
+
+    target_processes = _get_target_processes(targets)
+
+    # Step 4: AEDT processes launched
+    return_dict = {pid: -1 for pid, _ in target_processes}
+
+    # Step 5: On Linux, try to resolve unknown ports using Unix socket analysis
+    # In Linux, running AEDT locally uses Unix domain sockets with filenames containing port numbers
+    # Example socket: AnsysEMUDS-50051.sock
+    if is_linux and any(port == -1 for port in return_dict.values()):
+        try:
+            # Run 'ss -Hnlp' command to get Unix socket information
+            sockets = _run_ss()  # Returns {pid: port} mapping from socket filenames
+
+            # Update return_dict with discovered ports
+            for pid, port in sockets.items():
+                # Only update if PID is in our results and port is still unknown (-1)
+                if pid in return_dict and return_dict[pid] == -1:
+                    return_dict[pid] = port
+        except Exception as e:
+            # Log but don't fail - we have other detection methods
+            pyaedt_logger.debug(f"Failed to analyze Unix sockets for port detection: {str(e)}")
+
+    # Get all TCP connections for our AEDT processes
+    connections = _check_psutil_connections(list(return_dict.keys()))
+    return_dict_filtered = {}
+    for pid, port in return_dict.items():
+        cmdline = ""
+        if pid in connections and len(connections[pid]) > 0 and "cmdline" in connections[pid][0]:
+            cmdline = connections[pid][0]["cmdline"]
+        version = [i for i in pathlib.Path(cmdline).parts if i.startswith("v") and is_number(i[1:])][0]
+
+        if version:
+            if "ansysedtsv" in cmdline:
+                version += "sv"
+            if version not in return_dict_filtered:
+                return_dict_filtered[version] = {}
+            flag_present = "non_graphical" if "-ng" in cmdline else "graphical"
+            if flag_present not in return_dict_filtered[version]:
+                return_dict_filtered[version][flag_present] = {pid: port}
+            else:
+                return_dict_filtered[version][flag_present][pid] = port
+
+    # Step 6: Fallback method - Try to find ports by checking TCP network connections
+    for version, sessions in return_dict_filtered.items():
+        for graphical_name, graphical_type in sessions.items():
+            if any(port == -1 for port in graphical_type.values()):
+                for pid in [i for i, v in graphical_type.items() if v == -1]:
+                    graphical_type[pid] = _check_connection_grpc_port(
+                        connections,
+                        pid,
+                        version.replace("sv", ""),
+                        True if graphical_name == "non_graphical" else False,
+                    )
 
     return return_dict_filtered
 
