@@ -3070,11 +3070,12 @@ class Desktop(PyAedtBase):
         self.logger.debug(f"Validating specified gRPC port: {self.port}")
         if self.port == 0:
             self._assign_port()
-            return self.__port
+            return self.port
         active_ports = is_grpc_session_active(self.port, self.machine, self.student_version, self.aedt_version_id)
         if self.new_desktop and active_ports:
             self.logger.warning(f"Port {self.port} is already in use. Finding a new free port.")
-            return _find_free_port()
+            self.port = _find_free_port()
+            return self.port
         elif not settings.remote_rpc_session and not active_ports:
             self.new_desktop = True
             sessions = active_sessions(student_version=False)
@@ -3083,10 +3084,11 @@ class Desktop(PyAedtBase):
                 self.logger.warning(
                     f"Port {self.port} is already in use by another AEDT version. Finding a new free port."
                 )
-                return _find_free_port()
+                self.port = _find_free_port()
+                return self.port
             self.logger.warning(f"No active AEDT gRPC session found on port {self.port}. Opening a new AEDT session.")
 
-        return self.__port
+        return self.port
 
     @pyaedt_function_handler()
     def _assign_port(self):
