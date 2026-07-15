@@ -1006,8 +1006,6 @@ class Desktop(PyAedtBase):
         >>> d.port
 
         """
-        if not self.__port:
-            self._assign_port()
         return self.__port
 
     @port.setter
@@ -3061,29 +3059,34 @@ class Desktop(PyAedtBase):
         self.machine = "127.0.0.1"
 
     @pyaedt_function_handler()
-    def _validate_port(self, port, machine=None, student_version=False):
+    def _validate_port(
+        self,
+    ):
         """Validate the specified gRPC port.
 
         On top of checking the port, this method also determines if a new AEDT session
         needs to be launched.
         """
-        self.logger.debug(f"Validating specified gRPC port: {port}")
-        if port == 0:
-            return port
-        active_ports = is_grpc_session_active(port, machine, student_version)
+        self.logger.debug(f"Validating specified gRPC port: {self.port}")
+        if self.port == 0:
+            self._assign_port()
+            return self.__port
+        active_ports = is_grpc_session_active(self.port, self.machine, self.student_version, self.aedt_version_id)
         if self.new_desktop and active_ports:
-            self.logger.warning(f"Port {port} is already in use. Finding a new free port.")
+            self.logger.warning(f"Port {self.port} is already in use. Finding a new free port.")
             return _find_free_port()
         elif not settings.remote_rpc_session and not active_ports:
             self.new_desktop = True
             sessions = active_sessions(student_version=False)
             sessions.update(active_sessions(student_version=True))
-            if port in sessions.values():
-                self.logger.warning(f"Port {port} is already in use by another AEDT version. Finding a new free port.")
+            if self.port in sessions.values():
+                self.logger.warning(
+                    f"Port {self.port} is already in use by another AEDT version. Finding a new free port."
+                )
                 return _find_free_port()
-            self.logger.warning(f"No active AEDT gRPC session found on port {port}. Opening a new AEDT session.")
+            self.logger.warning(f"No active AEDT gRPC session found on port {self.port}. Opening a new AEDT session.")
 
-        return port
+        return self.__port
 
     @pyaedt_function_handler()
     def _assign_port(self):
@@ -3267,9 +3270,7 @@ class Desktop(PyAedtBase):
                 lock_file = self._on_ci_generate_lock_file()
 
             # Validate port availability/compatibility
-            self.__port = self._validate_port(
-                port=self.port, machine=self.machine, student_version=self.student_version
-            )
+            self._validate_port()
 
             is_launched = True
             # Launch new AEDT instance if needed
