@@ -3074,9 +3074,15 @@ class Desktop(PyAedtBase):
         if self.new_desktop and active_ports:
             self.logger.warning(f"Port {port} is already in use. Finding a new free port.")
             return _find_free_port()
-        elif not settings.remote_rpc_session and not self.new_desktop and not active_ports:
-            self.logger.warning(f"No active AEDT gRPC session found on port {port}. Opening a new AEDT session.")
+        elif not settings.remote_rpc_session and not active_ports:
             self.new_desktop = True
+            sessions = active_sessions(student_version=False)
+            sessions.update(active_sessions(student_version=True))
+            if port in sessions.values():
+                self.logger.warning(f"Port {port} is already in use by another AEDT version. Finding a new free port.")
+                return _find_free_port()
+            self.logger.warning(f"No active AEDT gRPC session found on port {port}. Opening a new AEDT session.")
+
         return port
 
     @pyaedt_function_handler()
@@ -3261,22 +3267,10 @@ class Desktop(PyAedtBase):
                 lock_file = self._on_ci_generate_lock_file()
 
             # Validate port availability/compatibility
-            try:
-                self.__port = self._validate_port(
-                    port=self.port, machine=self.machine, student_version=self.student_version
-                )
-            except Exception:
-                # NOTE: When we can't validate the port and are not in a
-                # remote RPC session, we try to launch a new instance by default.
-                self.logger.warning(f"Could not validate port {self.port}")
-                if not settings.remote_rpc_session:
-                    self.logger.info("Opening a new AEDT session.")
-                    self.new_desktop = True
+            self.__port = self._validate_port(
+                port=self.port, machine=self.machine, student_version=self.student_version
+            )
 
-                    # Try to find a new port if passed one is busy
-                    self.__port = self._validate_port(
-                        port=self.port, machine=self.machine, student_version=self.student_version
-                    )
             is_launched = True
             # Launch new AEDT instance if needed
             if self.new_desktop:
