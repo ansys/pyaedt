@@ -1509,7 +1509,7 @@ def active_sessions(
 
 
 @pyaedt_function_handler()
-def all_active_sessions() -> dict[int, int]:
+def all_active_sessions() -> dict[str, dict]:
     """Get information for active AEDT sessions.
 
     This function detects running AEDT processes and identifies their gRPC ports or
@@ -1581,25 +1581,23 @@ def all_active_sessions() -> dict[int, int]:
         if version:
             if "ansysedtsv" in cmdline:
                 version += "sv"
-            if version not in return_dict_filtered:
-                return_dict_filtered[version] = {}
             flag_present = "non_graphical" if "-ng" in cmdline else "graphical"
-            if flag_present not in return_dict_filtered[version]:
-                return_dict_filtered[version][flag_present] = {pid: port}
+            version += flag_present
+            if version not in return_dict_filtered:
+                return_dict_filtered[version] = {pid: port}
             else:
-                return_dict_filtered[version][flag_present][pid] = port
+                return_dict_filtered[version][pid] = port
 
     # Step 6: Fallback method - Try to find ports by checking TCP network connections
     for version, sessions in return_dict_filtered.items():
-        for graphical_name, graphical_type in sessions.items():
-            if any(port == -1 for port in graphical_type.values()):
-                for pid in [i for i, v in graphical_type.items() if v == -1]:
-                    graphical_type[pid] = _check_connection_grpc_port(
-                        connections,
-                        pid,
-                        version.replace("sv", ""),
-                        True if graphical_name == "non_graphical" else False,
-                    )
+        if any(port == -1 for port in sessions.values()):
+            for pid in [i for i, v in sessions.items() if v == -1]:
+                sessions[pid] = _check_connection_grpc_port(
+                    connections,
+                    pid,
+                    version.replace("sv", "").replace("non_graphical", "").replace("graphical", ""),
+                    True if "non_graphical" in version else False,
+                )
 
     return return_dict_filtered
 
