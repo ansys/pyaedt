@@ -33,10 +33,9 @@ from ansys.aedt.core.extensions.hfss3dlayout.via_clustering import main
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests import TESTS_EXTENSIONS_PATH
+from tests.conftest import edb_xfail
 
 pytestmark = pytest.mark.skipif(is_linux, reason="PyEDB stability issues on Linux")
-# NOTE: Remove marker below if 26R1 SP2 is installed or later version of AEDT is used.
-edb_xfail = pytest.mark.xfail(reason="PyEDB tests are unstable")
 
 
 @edb_xfail
