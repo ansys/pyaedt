@@ -1292,7 +1292,9 @@ def _is_port_occupied(port, host=None):
 
 
 @pyaedt_function_handler()
-def is_grpc_session_active(port: int, machine: str | None = None, student_version: bool = False, version=None) -> bool:
+def is_grpc_session_active(
+    port: int, machine: str | None = None, student_version: bool = False, version=None, non_graphical=None
+) -> bool:
     """Check if a gRPC session is active on the specified port.
 
     This function verifies whether an AEDT session is actively listening on
@@ -1315,6 +1317,8 @@ def is_grpc_session_active(port: int, machine: str | None = None, student_versio
         When ``True``, searches for ``ansysedtsv.exe`` or ``ansysedtsv`` processes.
     version : str, optional
         Specific AEDT version.
+    non_graphical : bool, optional
+        Whether to search for graphical or non-graphical version. The default is ``None``.
 
     Returns
     -------
@@ -1343,7 +1347,12 @@ def is_grpc_session_active(port: int, machine: str | None = None, student_versio
     if machine and machine not in ["localhost", "127.0.0.1", "::ffff:127.0.0.1", socket.gethostname()]:
         return _is_port_occupied(port, machine)
 
-    return True if port in active_sessions(version=version, student_version=student_version).values() else False
+    return (
+        True
+        if port
+        in active_sessions(version=version, student_version=student_version, non_graphical=non_graphical).values()
+        else False
+    )
 
 
 @pyaedt_function_handler()

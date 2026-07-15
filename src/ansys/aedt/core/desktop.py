@@ -3071,12 +3071,22 @@ class Desktop(PyAedtBase):
         if self.port == 0:
             self._assign_port()
             return self.port
-        active_ports = is_grpc_session_active(self.port, self.machine, self.student_version, self.aedt_version_id)
+        active_ports = is_grpc_session_active(
+            self.port, self.machine, self.student_version, self.aedt_version_id, self.non_graphical
+        )
         if self.new_desktop and active_ports:
             self.logger.warning(f"Port {self.port} is already in use. Finding a new free port.")
             self.port = _find_free_port()
             return self.port
         elif not settings.remote_rpc_session and not active_ports:
+            active_ports = is_grpc_session_active(
+                self.port, self.machine, self.student_version, self.aedt_version_id, not self.non_graphical
+            )
+            if active_ports:
+                mode = "Graphical" if self.non_graphical else "Non Graphical"
+                self.logger.warning(f"Port {self.port} is already in use in {mode} mode. Using it.")
+                self.non_graphical = not self.non_graphical
+                return self.port
             self.new_desktop = True
             sessions = active_sessions(student_version=False)
             sessions.update(active_sessions(student_version=True))
