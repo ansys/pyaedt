@@ -3064,7 +3064,7 @@ class Desktop(PyAedtBase):
         self.machine = "127.0.0.1"
 
     @pyaedt_function_handler()
-    def _validate_port(self, port, machine=None):
+    def _validate_port(self, port, machine=None, student_version=False):
         """Validate the specified gRPC port.
 
         On top of checking the port, this method also determines if a new AEDT session
@@ -3073,7 +3073,7 @@ class Desktop(PyAedtBase):
         self.logger.debug(f"Validating specified gRPC port: {port}")
         if port == 0:
             return port
-        active_ports = is_grpc_session_active(port, machine)
+        active_ports = is_grpc_session_active(port, machine, student_version)
         if self.new_desktop and active_ports:
             self.logger.warning(f"Port {port} is already in use. Finding a new free port.")
             return _find_free_port()
@@ -3265,7 +3265,9 @@ class Desktop(PyAedtBase):
 
             # Validate port availability/compatibility
             try:
-                self.__port = self._validate_port(self.port)
+                self.__port = self._validate_port(
+                    port=self.port, machine=self.machine, student_version=self.student_version
+                )
             except Exception:
                 # NOTE: When we can't validate the port and are not in a
                 # remote RPC session, we try to launch a new instance by default.
@@ -3274,7 +3276,10 @@ class Desktop(PyAedtBase):
                     self.logger.info("Opening a new AEDT session.")
                     self.new_desktop = True
 
-            self.__port = self._validate_port(self.port, self.machine)
+                    # Try to find a new port if passed one is busy
+                    self.__port = self._validate_port(
+                        port=self.port, machine=self.machine, student_version=self.student_version
+                    )
             is_launched = True
             # Launch new AEDT instance if needed
             if self.new_desktop:
