@@ -437,10 +437,7 @@ def launch_aedt(
     timeout = settings.desktop_launch_timeout
     start = time.time()
     while timeout > 0:
-        if is_grpc_session_active(
-            port,
-            host,
-        ):
+        if is_grpc_session_active(port, host, student_version):
             break
         timeout -= 1
         time.sleep(1)
