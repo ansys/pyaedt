@@ -3086,6 +3086,7 @@ class Desktop(PyAedtBase):
                 mode = "Graphical" if self.non_graphical else "Non Graphical"
                 self.logger.warning(f"Port {self.port} is already in use in {mode} mode. Using it.")
                 self.non_graphical = not self.non_graphical
+                self.new_desktop = False
                 return self.port
             self.new_desktop = True
             sessions = active_sessions(student_version=False)
