@@ -925,3 +925,51 @@ def test_defect_1482347_export_selection_no_extra_row(emit_app) -> None:
         f"The radio-level summary row should not be emitted by the script export path."
     )
 
+
+@pytest.mark.skipif(not DESKTOP_VERSION or DESKTOP_VERSION < "2027.1", reason="Regression test for defect 1482347.")
+def test_defect_1482347_export_selection_radio_vs_all(emit_app) -> None:
+    """Regression test for TFS defect 1482347 (discussion item).
+
+    Manual "Export Selection" produces no data when one side of the Scenario
+    Details view is a specific Radio and the other side is the top-level "All".
+    https://tfs.ansys.com:8443/tfs/ANSYS_Development/Portfolio/_workitems/edit/1482347
+
+    Root cause: DetResViewNode::firstSelectedNode used the parameterless
+    configurationNodes() overload, which could return a configuration with no
+    active bands on the requested side (tx or rx). The fix uses
+    configurationNodes(isRx) so the correct side-specific configuration is
+    always chosen.
+
+    This test exercises the script-API equivalent: export with a specific
+    receiver and an empty-string interferer (meaning "all aggressors").
+    """
+    emit_app.schematic.create_radio_antenna("New Radio")
+    emit_app.schematic.create_radio_antenna("New Radio")
+
+    rev: Revision = emit_app.results.analyze()
+    sim: Simulation = rev.get_simulation()
+    radios = rev.get_all_radio_nodes()
+    assert len(radios) >= 2
+
+    domain = InteractionDomain(emit_app)
+    domain.set_receiver(radio=radios[0])
+    domain.set_interferer(radio="")
+
+    temp_dir = tempfile.mkdtemp()
+    csv_path = os.path.join(temp_dir, "radio_vs_all_1482347.csv")
+
+    sim.export_selection(domain, csv_path, continue_if_partial=True)
+    assert os.path.isfile(csv_path), "Selection export should produce a file"
+
+    with open(csv_path, "r") as f:
+        content = f.read()
+
+    lines = content.strip().split("\n")
+    data_lines = [ln for ln in lines if not ln.startswith("#")]
+
+    assert len(data_lines) >= 2, (
+        f"Expected column header + at least 1 data row for receiver-vs-all export, "
+        f"got {len(data_lines)} data line(s). "
+        f"Export Selection with Radio vs All should produce data."
+    )
+
