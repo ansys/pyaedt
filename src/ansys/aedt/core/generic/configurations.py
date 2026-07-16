@@ -2368,8 +2368,8 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                 ][0]
                 self._app.modeler.refresh_all_ids()
                 self._app.materials._load_from_project()
-                # if native.component_name not in self._app.native_components:
-                #     self._app._native_components.append(native)
+                if native.component_name not in self._app.native_components:  # ty: ignore[unresolved-attribute]
+                    self._app._native_components.append(native)
                 if instance_dict.get("Operations", None):
                     for _, operation_dict in instance_dict["Operations"].items():
                         apply_operations_to_native_components(
