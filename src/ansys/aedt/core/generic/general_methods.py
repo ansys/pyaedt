@@ -1576,13 +1576,17 @@ def all_active_sessions() -> dict[str, dict]:
         cmdline = ""
         if pid in connections and len(connections[pid]) > 0 and "cmdline" in connections[pid][0]:
             cmdline = connections[pid][0]["cmdline"]
-        version = [i for i in pathlib.Path(cmdline).parts if i.startswith("v") and is_number(i[1:])][0]
+
+        version = [i[1:] for i in pathlib.Path(cmdline).parts if i.startswith("v") and is_number(i[1:])]
 
         if version:
+            version = version[0]
+            flag_present = "nongraphical" if "-ng" in cmdline else "graphical"
+            version += f"_{flag_present}"
+
             if "ansysedtsv" in cmdline:
-                version += "sv"
-            flag_present = "non_graphical" if "-ng" in cmdline else "graphical"
-            version += flag_present
+                version += "_student"
+
             if version not in return_dict_filtered:
                 return_dict_filtered[version] = {pid: port}
             else:
@@ -1592,10 +1596,11 @@ def all_active_sessions() -> dict[str, dict]:
     for version, sessions in return_dict_filtered.items():
         if any(port == -1 for port in sessions.values()):
             for pid in [i for i, v in sessions.items() if v == -1]:
+                version = version.replace("_student", "").replace("_nongraphical", "").replace("_graphical", "")
                 sessions[pid] = _check_connection_grpc_port(
                     connections,
                     pid,
-                    version.replace("sv", "").replace("non_graphical", "").replace("graphical", ""),
+                    version,
                     True if "non_graphical" in version else False,
                 )
 

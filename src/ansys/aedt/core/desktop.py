@@ -3074,18 +3074,21 @@ class Desktop(PyAedtBase):
             self._assign_port()
             return self.port
         all_sessions = all_active_sessions()
-        version = "v" + self.aedt_version_id[2:4] + self.aedt_version_id[5]
-        version += "sv" if self.student_version else ""
-        version += "non_graphical" if self.non_graphical else "graphical"
-        version_neg = "v" + self.aedt_version_id[2:4] + self.aedt_version_id[5]
-        version_neg += "sv" if self.student_version else ""
-        version_neg += "non_graphical" if not self.non_graphical else "graphical"
+        version = self.aedt_version_id[2:4] + self.aedt_version_id[5]
+        version += "_nongraphical" if self.non_graphical else "_graphical"
+        version += "_student" if self.student_version else ""
+
+        version_neg = self.aedt_version_id[2:4] + self.aedt_version_id[5]
+        version_neg += "_nongraphical" if not self.non_graphical else "_graphical"
+        version_neg += "_student" if self.student_version else ""
+
         if self.new_desktop:
             for el in all_sessions.values():
                 if self.port in el.values():
                     self.logger.warning(f"Port {self.port} is already in use. Finding a new free port.")
                     self.port = _find_free_port()
-                    return self.port
+                    break
+            return self.port
         elif settings.remote_rpc_session:  # remote session -> no port check
             self.logger.warning(f"Remote session found on port {self.port}. Using it.")
             self.new_desktop = False
@@ -3107,23 +3110,25 @@ class Desktop(PyAedtBase):
                     self.new_desktop = True
                     self.port = _find_free_port()
                     return self.port
+            # No active sessions found, open a new AEDT session
+            self.new_desktop = True
             return self.port
 
     @pyaedt_function_handler()
     def _assign_port(self):
-        self.__port = 0
+        self.port = 0
         if settings.remote_rpc_session:
             self.logger.warning(
                 "Remote AEDT connection without specified port. Trying to use the port from the RPyC connection."
             )
             try:
-                self.__port = settings.remote_rpc_session.port
-            except Exception:
+                self.port = settings.remote_rpc_session.port
+            except Exception:  # pragma: no cover
                 self.logger.debug("Failed to retrieve port from RPyC connection")
                 raise Exception("Failed to retrieve port from RPyC connection")
 
-        if settings.use_multi_desktop or self.new_desktop:
-            self.__port = _find_free_port()
+        elif settings.use_multi_desktop or self.new_desktop:
+            self.port = _find_free_port()
             self.logger.info(f"New AEDT session is starting on gRPC port {self.port}.")
 
         else:
@@ -3133,7 +3138,7 @@ class Desktop(PyAedtBase):
                 non_graphical=self.non_graphical,
             )
             if sessions:
-                self.__port = sessions[0]
+                self.port = sessions[0]
                 if len(sessions) == 1:
                     self.logger.info(f"Found active AEDT gRPC session on port {self.port}.")
                 else:
@@ -3141,7 +3146,7 @@ class Desktop(PyAedtBase):
                         f"Multiple AEDT gRPC sessions are found. Setting the active session on port {self.port}."
                     )
             else:
-                self.__port = _find_free_port()
+                self.port = _find_free_port()
                 self.logger.info(f"New AEDT session is starting on gRPC port {self.port}.")
                 self.new_desktop = True
 

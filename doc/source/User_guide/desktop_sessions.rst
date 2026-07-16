@@ -82,7 +82,7 @@ If needed, you can still override the default behavior explicitly:
     # The AEDT session remains open here.
 
 Use ``Desktop`` class directly
---------------------
+------------------------------
 
 When ``Desktop`` is used directly, the default behavior depends on whether PyAEDT starts
 or attaches to AEDT. You can also release the desktop explicitly for finer control:
@@ -108,3 +108,35 @@ Recommendations
 - Use ``with Desktop(...)`` when you want predictable cleanup.
 - Use direct ``Desktop(...)`` construction when you need more manual control over the AEDT session lifecycle.
 - When attaching to an existing AEDT session, consider leaving ``close_on_exit`` unset or setting it explicitly to ``True`` if you do want PyAEDT to close that session.
+
+
+Session selection precedence
+----------------------------
+
+When ``Desktop`` decides whether to connect to an existing AEDT session or to start a new one,
+PyAEDT evaluates several inputs in a specific order. The following list describes the exact
+checks performed by the library (this order matches the implementation in
+``ansys.aedt.core.desktop._validate_port`` and related initialization logic):
+
+- If ``port`` is ``0``: a concrete port is assigned (``_assign_port``) and used.
+- If ``new_desktop`` is ``True``: PyAEDT prefers to start a new AEDT instance. If the
+  requested port is already in use by any active session, PyAEDT chooses a different
+  free port (``_find_free_port``) so the new session can be started.
+- If a remote RPyC RPC connection is configured (``settings.remote_rpc_session``): PyAEDT
+  uses the remote session and short-circuits further local port checks (``new_desktop`` is
+  set to ``False`` and the requested port is used).
+- If there is an active session for the same AEDT version and the requested port is used by
+  that session, PyAEDT connects to it (reuse).
+- If there is an active session for the same AEDT version but the opposite display mode
+  (graphical vs non-graphical) using the requested port, PyAEDT flips the ``non_graphical``
+  flag and connect to that session.
+- If the requested port is in use by a different AEDT version, PyAEDT treats this as a
+  conflict and (to avoid attaching to the wrong version) select a new free port and start
+  a new session (``new_desktop`` becomes ``True``).
+- If none of the above conditions apply, PyAEDT uses the requested port and start a
+  new AEDT session.
+
+This precedence ensures predictable behavior: version and the desire to force a new
+session (``new_desktop``) govern whether PyAEDT attaches or starts, while port and display
+mode determine whether an existing session can be reused or whether a new one must be
+created.
