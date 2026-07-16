@@ -2344,7 +2344,8 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                         set(self._app.oeditor.Get3DComponentInstanceNames(definition_names))
                         - instance_names[definition_names]
                     )[0]
-                # native.component_name = definition_names
+                # TODO: See https://github.com/ansys/pyaedt/issues/7919
+                native.component_name = definition_names  # ty: ignore[unresolved-attribute]
                 native.name = instance_names
                 if nc_dict["NativeComponentDefinitionProvider"]["Type"] == "PCB" and nc_dict[
                     "NativeComponentDefinitionProvider"
@@ -2368,6 +2369,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                 ][0]
                 self._app.modeler.refresh_all_ids()
                 self._app.materials._load_from_project()
+                # TODO: See https://github.com/ansys/pyaedt/issues/7919
                 if native.component_name not in self._app.native_components:  # ty: ignore[unresolved-attribute]
                     self._app._native_components.append(native)
                 if instance_dict.get("Operations", None):
