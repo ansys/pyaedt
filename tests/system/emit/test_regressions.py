@@ -842,6 +842,7 @@ def test_defect_1477851_nto1_export(emit_app) -> None:
 
     rev: Revision = emit_app.results.analyze()
     sim: Simulation = rev.get_simulation()
+    sim.n_to_1_limit = -1
     radios = rev.get_all_radio_nodes()
     assert len(radios) >= 3
 
@@ -954,6 +955,7 @@ def test_defect_1482347_export_selection_radio_vs_all(emit_app) -> None:
     domain = InteractionDomain(emit_app)
     domain.set_receiver(radio=radios[0])
     domain.set_interferer(radio="")
+    sim.run(domain)
 
     temp_dir = tempfile.mkdtemp()
     csv_path = os.path.join(temp_dir, "radio_vs_all_1482347.csv")
