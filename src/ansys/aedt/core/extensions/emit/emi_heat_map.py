@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
+#
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +23,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""EMIT EMI Heat Map Extension."""
+"""EMIT EMI Heat Map Extension.
+
+Examples
+--------
+>>> from ansys.aedt.core.extensions.emit.emi_heat_map import EMIHeatmapExtension
+>>> extension = EMIHeatmapExtension(withdraw=True)
+
+"""
 
 from dataclasses import dataclass
 import os
@@ -38,29 +47,54 @@ import numpy as np
 from ansys.aedt.core.emit_core.emit_constants import InterfererType
 from ansys.aedt.core.emit_core.emit_constants import ResultType
 from ansys.aedt.core.emit_core.emit_constants import TxRxMode
+from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import ExtensionEMITCommon
 
 EXTENSION_TITLE = "EMIT EMI Heat Map"
+"""Title displayed for the extension."""
 EXTENSION_DEFAULT_ARGUMENTS = {}
+"""Default arguments for the extension."""
 
 
 @dataclass
 class EMIHeatmapExtensionData(ExtensionCommonData):
-    """Data class containing EMI heat map analysis results."""
+    """Data class containing EMI heat map analysis results.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.emit.emi_heat_map import EMIHeatmapExtensionData
+    >>> data = EMIHeatmapExtensionData(victim="GPS", aggressor="Bluetooth")
+
+    """
 
     emi: np.ndarray | None = None
+    """Value for EMI."""
     rx_power: np.ndarray | None = None
+    """Value for rx power."""
     sensitivity: np.ndarray | None = None
+    """Value for sensitivity."""
     desense: np.ndarray | None = None
+    """Value for desense."""
     victim: str = ""
+    """Value for victim."""
     victim_band: str = ""
+    """Value for victim band."""
     aggressor: str = ""
+    """Value for aggressor."""
     aggressor_band: str = ""
+    """Value for aggressor band."""
 
 
 class EMIHeatmapExtension(ExtensionEMITCommon):
-    """Interactive EMIT extension for EMI heat map analysis."""
+    """Interactive EMIT extension for EMI heat map analysis.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.emit.emi_heat_map import EMIHeatmapExtension
+    >>> extension = EMIHeatmapExtension(withdraw=True)
+
+    """
 
     def __init__(self, withdraw: bool = False) -> None:
         self._widgets = {}
@@ -88,7 +122,15 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
         )
 
     def add_extension_content(self) -> None:
-        """Build the UI for the EMI heat map extension."""
+        """Build the UI for the EMI heat map extension.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.emit.emi_heat_map import EMIHeatmapExtension
+        >>> extension = EMIHeatmapExtension(withdraw=True)
+        >>> extension.add_extension_content()
+
+        """
         root = self.root
 
         # Header with project/design info
@@ -198,7 +240,10 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
             # Grab domain and revision from EMIT results
             app = self.aedt_application
             self._revision = app.results.analyze()
-            self._domain = app.results.interaction_domain()
+            if self.aedt_application.desktop_class.aedt_version_id < "2027.1":
+                self._domain = app.results.interaction_domain()
+            else:
+                self._domain = InteractionDomain(app)
 
             # Extract and return the Transmit / Receive radio lists
             if app.desktop_class.aedt_version_id > "2025.1":
@@ -238,8 +283,9 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
         try:
             self._emi = []
             if self.aedt_application.desktop_class.aedt_version_id > "2025.1":
+                victim_node = self._revision.get_component_node(self._victim)
                 victim_bands = self._revision.get_band_names(
-                    radio_name=self._victim,
+                    radio_node=victim_node,
                     tx_rx_mode=TxRxMode.RX,
                 )
             else:
@@ -275,8 +321,9 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
         try:
             self._emi = []
             if self.aedt_application.desktop_class.aedt_version_id > "2025.1":
+                aggressor_node = self._revision.get_component_node(self._aggressor)
                 aggressor_bands = self._revision.get_band_names(
-                    radio_name=self._aggressor,
+                    radio_node=aggressor_node,
                     tx_rx_mode=TxRxMode.TX,
                 )
             else:
@@ -308,7 +355,11 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
             self._domain.set_receiver(self._victim, self._victim_band)
             self._domain.set_interferer(self._aggressor, self._aggressor_band)
             # Checkout the license once for EMIT for all of the data extraction iterations
-            interaction = self._revision.run(self._domain)
+            if self.aedt_application.desktop_class.aedt_version_id < "2027.1":
+                interaction = self._revision.run(self._domain)
+            else:
+                sim = self._revision.get_simulation()
+                interaction = sim.run(self._domain)
             with self._revision.get_license_session():
                 self._emi = []
                 self._rx_power = []

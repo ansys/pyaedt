@@ -258,6 +258,7 @@ def test_create_components(emit_app) -> None:
 
 @pytest.mark.skipif(True, reason="B1480584: EDT crashing during test_duplicate_components")
 @pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Duplicate method requires 2026 R1 or later")
+@pytest.mark.skipif(True, reason="B1480584")
 def test_duplicate_components(emit_app):
     """Test duplicating various component types using schematic.create_component which returns EmitNodes."""
     # Test Radio duplication
@@ -2300,7 +2301,7 @@ def test_all_generated_emit_node_properties(emit_app) -> None:
                         class_attr.fset(node, enum_val)
                 except (AttributeError, GrpcApiError, ValueError):
                     pass
-                for bool_key in ([None] if limited else list(node_bools.keys() or [None])):
+                for bool_key in [None] if limited else list(node_bools.keys() or [None]):
                     if stop_testing:
                         break
                     if bool_key is None:
@@ -2544,9 +2545,7 @@ def test_all_generated_emit_node_properties(emit_app) -> None:
                         child_node_add_exceptions[node_type] = exception
 
                 if node_type in nodes_to_skip and not dev_only:
-                    log_progress(
-                        f"Testing node {node_type} skipped. Set EMIT_PYAEDT_LONG=1 to include."
-                    )
+                    log_progress(f"Testing node {node_type} skipped. Set EMIT_PYAEDT_LONG=1 to include.")
                     continue
 
                 log_progress(f"Testing node type {node_type}...")
@@ -3530,6 +3529,7 @@ def test_terminator_table_persistence(add_app) -> None:
 
     app2.close_project(app2.project_name, save=False)
 
+
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027 R1.")
 def test_compare_nodes(emit_app) -> None:
     if not hasattr(emit_app.schematic, "compare_nodes"):
@@ -3622,3 +3622,63 @@ def test_compare_components(emit_app) -> None:
     same_type, differences = emit_app.schematic.compare_components(wifi_2012, antenna)
     assert not same_type
     assert differences == {}
+
+
+@pytest.mark.skipif(
+    DESKTOP_VERSION <= "2026.1",
+    reason="Skipped on versions earlier than 2027.1",
+)
+def test_availability_emi_get_set(interference):
+    """Test getting and setting the availability EMI threshold."""
+    rev = interference.results.analyze()
+    sim = rev.get_simulation()
+
+    # Get the initial value and confirm it is a float
+    initial_value = sim.get_availability_emi()
+    assert isinstance(initial_value, float)
+    assert initial_value == 0.0
+
+    # Set a new value and confirm it round-trips correctly
+    sim.set_availability_emi(-10.0)
+    assert sim.get_availability_emi() == -10.0
+
+    # Set another value to confirm independence from the initial state
+    sim.set_availability_emi(5.5)
+    assert sim.get_availability_emi() == 5.5
+
+    with pytest.raises(ValueError, match="Availability EMI threshold must be a number."):
+        sim.set_availability_emi("not_a_float")
+
+    with pytest.raises(ValueError, match="Availability EMI threshold must be between -300 and 300 dB."):
+        sim.set_availability_emi(-301)
+
+    with pytest.raises(ValueError, match="Availability EMI threshold must be between -300 and 300 dB."):
+        sim.set_availability_emi(301)
+
+    # Restore the original value
+    sim.set_availability_emi(initial_value)
+    assert sim.get_availability_emi() == initial_value
+
+
+@pytest.mark.skipif(
+    DESKTOP_VERSION <= "2026.1",
+    reason="Skipped on versions earlier than 2027.1",
+)
+def test_availability_emi_affects_availability(interference):
+    """Test that changing the availability EMI threshold changes availability results."""
+    rev = interference.results.analyze()
+    sim = rev.get_simulation()
+
+    domain = InteractionDomain(interference)
+    domain.set_receiver("GPS", "L2 P(Y)")
+    domain.set_interferer("WiFi", "HR-DSSS Tx - Ch 1-13")
+
+    interaction = sim.run(domain)
+
+    baseline_avail = interaction.get_availability(domain)
+    assert baseline_avail == 0
+
+    sim.set_availability_emi(20)
+
+    new_avail = interaction.get_availability(domain)
+    assert new_avail == 1.0

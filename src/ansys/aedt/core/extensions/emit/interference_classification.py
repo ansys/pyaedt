@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
+#
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -27,23 +29,37 @@ from tkinter import messagebox
 from tkinter import ttk
 
 from ansys.aedt.core.emit_core.emit_constants import InterfererType
+from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
 from ansys.aedt.core.extensions.misc import ExtensionEMITCommon
 from ansys.aedt.core.extensions.misc import get_arguments
 
 EXTENSION_TITLE = "EMIT Interference Classification"
+"""Title displayed for the extension."""
 EXTENSION_DEFAULT_ARGUMENTS = {}
+"""Default arguments for the extension."""
 
 
 @dataclass
 class _MatrixData:
     tx_radios: list
+    """Value for tx radios."""
     rx_radios: list
+    """Value for rx radios."""
     colors: list  # colors[col][row]
+    """Value for colors."""
     values: list  # values[col][row]
+    """Value for values."""
 
 
 class InterferenceClassificationExtension(ExtensionEMITCommon):
-    """Interactive EMIT extension for Protection Level and Interference Type classification."""
+    """Interactive EMIT extension for Protection Level and Interference Type classification.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.emit.interference_classification import InterferenceClassificationExtension
+    >>> extension = InterferenceClassificationExtension(withdraw=True)
+
+    """
 
     def __init__(self, withdraw: bool = False) -> None:
         self._matrix = {"protection": None, "interference": None}
@@ -439,13 +455,26 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
         if len(radios) < 2:
             raise RuntimeError("At least two radios are required.")
 
-        domain = app.results.interaction_domain()
-        # Prefer API on results viewer if available; otherwise fallback to results
         rev = app.results.analyze()
-        sim = rev.get_simulation()
-        colors, matrix = sim.interference_type_classification(
-            domain, interferer_type=InterfererType().TRANSMITTERS, use_filter=True, filter_list=filter_list
-        )
+
+        if self.aedt_application.desktop_class.aedt_version_id < "2027.1":
+            domain = app.results.interaction_domain()
+            colors, matrix = rev.interference_type_classification(
+                domain=domain,
+                interferer_type=InterfererType().TRANSMITTERS_AND_EMITTERS,
+                use_filter=True,
+                filter_list=filter_list,
+            )
+        else:
+            domain = InteractionDomain(app)
+            sim = rev.get_simulation()
+            colors, matrix = sim.interference_type_classification(
+                domain=domain,
+                interferer_type=InterfererType().TRANSMITTERS_AND_EMITTERS,
+                use_filter=True,
+                filter_list=filter_list,
+            )
+
         tx = rev.get_interferer_names(InterfererType().TRANSMITTERS_AND_EMITTERS)
         rx = rev.get_receiver_names()
         return tx, rx, colors, matrix
@@ -475,18 +504,29 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
             global_levels = self._protection_levels.get("Global", current_values)
 
         rev = app.results.analyze()
-        sim = rev.get_simulation()
-        domain = app.results.interaction_domain()
-
-        colors, matrix = sim.protection_level_classification(
-            domain=domain,
-            interferer_type=InterfererType().TRANSMITTERS,
-            global_protection_level=self._global_protection_level,
-            global_levels=global_levels,
-            protection_levels=self._protection_levels,
-            use_filter=True,
-            filter_list=filter_list,
-        )
+        if self.aedt_application.desktop_class.aedt_version_id < "2027.1":
+            domain = app.results.interaction_domain()
+            colors, matrix = rev.protection_level_classification(
+                domain=domain,
+                interferer_type=InterfererType().TRANSMITTERS,
+                global_protection_level=self._global_protection_level,
+                global_levels=global_levels,
+                protection_levels=self._protection_levels,
+                use_filter=True,
+                filter_list=filter_list,
+            )
+        else:
+            domain = InteractionDomain(app)
+            sim = rev.get_simulation()
+            colors, matrix = sim.protection_level_classification(
+                domain=domain,
+                interferer_type=InterfererType().TRANSMITTERS,
+                global_protection_level=self._global_protection_level,
+                global_levels=global_levels,
+                protection_levels=self._protection_levels,
+                use_filter=True,
+                filter_list=filter_list,
+            )
 
         tx = rev.get_interferer_names(InterfererType().TRANSMITTERS)
         rx = rev.get_receiver_names()
