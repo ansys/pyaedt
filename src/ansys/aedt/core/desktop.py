@@ -797,7 +797,7 @@ class Desktop(PyAedtBase):
         )
         self.__close_on_exit_arg = close_on_exit
         self.__machine = machine if machine else None
-        self.__port = port
+        self.__port = port if port is not None else 0
         self.__is_grpc_api = True
         self.__student_version = False
         self.__aedt_version_string = ""
