@@ -127,6 +127,12 @@ class FresnelExtension(ExtensionHFSSCommon):
         ]
         self.azimuth_resolution_values = self.elevation_resolution_values
 
+        aedt_ver_sp = self.desktop.aedt_version
+        if aedt_ver_sp < "2027.1.0":
+            self.rttbl_version = "1.0"
+        else:
+            self.rttbl_version = "2.0"
+
         # Trigger manually since add_extension_content requires loading expression files first
         self.add_extension_content()
 
@@ -459,6 +465,20 @@ class FresnelExtension(ExtensionHFSSCommon):
         self._widgets["design_validation_label"].grid(row=3, column=2, padx=10)
         self._widgets["design_validation_label"]["text"] = "N/A"
 
+        ttk.Label(self._widgets["validation_frame"], text="RTTBL version: ", style="PyAEDT.TLabel").grid(
+            row=4, column=1, padx=10
+        )
+        self._widgets["rttbl_version_label"] = ttk.Label(self._widgets["validation_frame"], style="PyAEDT.TLabel")
+        self._widgets["rttbl_version_label"].grid(row=4, column=2, padx=10)
+        self._widgets["rttbl_version_label"]["text"] = self.rttbl_version
+
+        ttk.Label(self._widgets["validation_frame"], text="Extraction mode: ", style="PyAEDT.TLabel").grid(
+            row=5, column=1, padx=10
+        )
+        self._widgets["advanced_mode"] = ttk.Label(self._widgets["validation_frame"], style="PyAEDT.TLabel")
+        self._widgets["advanced_mode"].grid(row=5, column=2, padx=10)
+        self._widgets["advanced_mode"]["text"] = "N/A"
+
         # Start button
         self._widgets["start_button"] = ttk.Button(
             self._widgets["advanced_tab"],
@@ -489,6 +509,26 @@ class FresnelExtension(ExtensionHFSSCommon):
 
         self.active_setup = self.setups[self.setup_sweep_names[0].split(" : ")[0]]
 
+        # RTTBL Table
+        label_rttbl_version = ttk.Label(self._widgets["extraction_tab"], text="RTTBL version", style="PyAEDT.TLabel")
+        label_rttbl_version.grid(row=1, column=0, padx=15, pady=10)
+
+        self._widgets["rttbl_version_combo"] = ttk.Combobox(
+            self._widgets["extraction_tab"],
+            width=30,
+            style="PyAEDT.TCombobox",
+            name="rttbl_version",
+            state="readonly",
+        )
+        self._widgets["rttbl_version_combo"].grid(row=1, column=1, padx=15, pady=10)
+
+        self._widgets["rttbl_version_combo"]["values"] = ["2.0", "1.0"]
+        self._widgets["rttbl_version_combo"].current(
+            self._widgets["rttbl_version_combo"]["values"].index(self.rttbl_version)
+        )
+
+        self.active_setup = self.setups[self.setup_sweep_names[0].split(" : ")[0]]
+
         # Validate button
         self._widgets["validate_button"] = ttk.Button(
             self._widgets["extraction_tab"],
@@ -497,13 +537,13 @@ class FresnelExtension(ExtensionHFSSCommon):
             command=lambda: self._validate(),  # pylint: disable=consider-lambda-function
             style="PyAEDT.TButton",
         )
-        self._widgets["validate_button"].grid(row=1, column=0, padx=15, pady=10, columnspan=2)
+        self._widgets["validate_button"].grid(row=2, column=0, padx=15, pady=10, columnspan=2)
 
         # Validation menu
         self._widgets["validation_frame_extraction"] = ttk.LabelFrame(
             self._widgets["extraction_tab"], text="Validation", padding=10, style="PyAEDT.TLabelframe"
         )
-        self._widgets["validation_frame_extraction"].grid(row=2, column=0, padx=10, pady=10, columnspan=2)
+        self._widgets["validation_frame_extraction"].grid(row=3, column=0, padx=10, pady=10, columnspan=2)
 
         ttk.Label(self._widgets["validation_frame_extraction"], text="Floquet ports: ", style="PyAEDT.TLabel").grid(
             row=0, column=1, padx=10
@@ -532,6 +572,24 @@ class FresnelExtension(ExtensionHFSSCommon):
         self._widgets["design_validation_label_extraction"].grid(row=3, column=2, padx=10)
         self._widgets["design_validation_label_extraction"]["text"] = "N/A"
 
+        ttk.Label(self._widgets["validation_frame_extraction"], text="RTTBL version: ", style="PyAEDT.TLabel").grid(
+            row=4, column=1, padx=10
+        )
+        self._widgets["rttbl_version_label_extraction"] = ttk.Label(
+            self._widgets["validation_frame_extraction"], style="PyAEDT.TLabel"
+        )
+        self._widgets["rttbl_version_label_extraction"].grid(row=4, column=2, padx=10)
+        self._widgets["rttbl_version_label_extraction"]["text"] = "N/A"
+
+        ttk.Label(self._widgets["validation_frame_extraction"], text="Extraction mode: ", style="PyAEDT.TLabel").grid(
+            row=5, column=1, padx=10
+        )
+        self._widgets["extraction_mode"] = ttk.Label(
+            self._widgets["validation_frame_extraction"], style="PyAEDT.TLabel"
+        )
+        self._widgets["extraction_mode"].grid(row=5, column=2, padx=10)
+        self._widgets["extraction_mode"]["text"] = "N/A"
+
         # Start button
         self._widgets["start_button_extraction"] = ttk.Button(
             self._widgets["extraction_tab"],
@@ -540,7 +598,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             command=lambda: self._get_coefficients(),  # pylint: disable=consider-lambda-function
             style="PyAEDT.TButton",
         )
-        self._widgets["start_button_extraction"].grid(row=4, column=0, padx=15, pady=10, columnspan=2)
+        self._widgets["start_button_extraction"].grid(row=6, column=0, padx=15, pady=10, columnspan=2)
         self._widgets["start_button_extraction"].grid_remove()
 
     def _build_settings_tab(self):
@@ -643,7 +701,10 @@ class FresnelExtension(ExtensionHFSSCommon):
         self._label("floquet_ports_label").config(text="N/A")
         self._label("design_validation_label").config(text="N/A")
         self._label("spatial_points_label").config(text="N/A")
-        self._button("start_button").grid_remove()
+
+        self._label("rttbl_version_label").config(text=self.rttbl_version)
+
+        self._label("start_button").grid_remove()
 
         simulation_setup = self._combo("setup_combo").get()
 
@@ -759,6 +820,9 @@ class FresnelExtension(ExtensionHFSSCommon):
         self.active_parametric.props["ProdOptiSetupDataV2"]["CopyMesh"] = self._bool_var("keep_mesh").get()
         self.active_parametric.props["ProdOptiSetupDataV2"]["SaveFields"] = False
 
+        # Display the resulting extraction mode
+        self._label("advanced_mode").config(text=self._fresnel_type().get())
+
         # Create output variables
         self.active_setup_sweep = self.active_setup.name + " : " + self.sweep.name
         app.create_fresnel_variables(self.active_setup_sweep)
@@ -766,6 +830,8 @@ class FresnelExtension(ExtensionHFSSCommon):
         app.save_project()
 
         self._button("start_button").grid()
+
+        cast(Any, self._widgets["tabs"]).hide(self._widgets["extraction_tab"])
 
         return True
 
@@ -775,7 +841,20 @@ class FresnelExtension(ExtensionHFSSCommon):
         self._label("floquet_ports_label_extraction").config(text="N/A")
         self._label("spatial_points_label_extraction").config(text="N/A")
         self._label("design_validation_label_extraction").config(text="N/A")
+        self._label("extraction_mode").config(text="N/A")
+
         self._button("start_button_extraction").grid_remove()
+
+        self.rttbl_version = self._combo("rttbl_version_combo").get()
+        self._label("rttbl_version_label_extraction").config(text=self.rttbl_version)
+
+        # Revert Fresnel Type to isotropic for RTTBL ver 1.0
+        if self.rttbl_version == "1.0":
+            self._fresnel_type().set("isotropic")
+
+        is_isotropic = self._fresnel_type().get() == "isotropic"
+        # Display the resulting extraction mode
+        self._label("extraction_mode").config(text=self._fresnel_type().get())
 
         if active_setup is None:
             simulation_setup = self._combo("setup_sweep_combo").get()
@@ -850,7 +929,6 @@ class FresnelExtension(ExtensionHFSSCommon):
             app.logger.add_error_message("Lattice pair or primary and secondary boundaries must be parametrized.")
             self._label("design_validation_label_extraction").config(text="Failed")
             return False
-        is_isotropic = self._fresnel_type().get() == "isotropic"
 
         try:
             report_quantities = app.post.available_report_quantities()
@@ -913,7 +991,8 @@ class FresnelExtension(ExtensionHFSSCommon):
             return False
 
         self._button("start_button_extraction").grid()
-
+        cast(Any, self._widgets["tabs"]).hide(self._widgets["advanced_tab"])
+        cast(Any, self._widgets["tabs"]).hide(self._widgets["settings_tab"])
         return True
 
     def _start_extraction(self):  # pragma: no cover
@@ -938,6 +1017,10 @@ class FresnelExtension(ExtensionHFSSCommon):
         if not self.desktop.non_graphical:
             settings.enable_desktop_logs = True
 
+        # Revert Fresnel Type to isotropic for RTTBL ver 1.0
+        if self.rttbl_version == "1.0":
+            self._fresnel_type().set("isotropic")
+
         is_isotropic = self._fresnel_type().get() == "isotropic"
 
         # Obtain variable name
@@ -952,6 +1035,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             theta_name=theta_scan_variable,
             phi_name=phi_scan_variable,
             is_isotropic=is_isotropic,
+            rttbl_version=self.rttbl_version,
         )
 
         settings.enable_desktop_logs = enable_log
