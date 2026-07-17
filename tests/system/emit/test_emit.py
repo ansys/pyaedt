@@ -3819,3 +3819,19 @@ def test_purge_domain_results_nto1(n_to_1):
     sim.purge_domain_results(domain)
 
     assert not interaction.is_valid()
+
+
+@pytest.mark.skipif(
+    DESKTOP_VERSION < "2027.1",
+    reason="Skipped on versions earlier than 2027.1",
+)
+def test_purge_domain_results_invalid_domain_raises(interference):
+    """purge_domain_results raises ValueError when the domain names a non-existent radio."""
+    rev = interference.results.analyze()
+    sim = rev.get_simulation()
+
+    domain = InteractionDomain(interference)
+    domain.set_receiver("NonExistentRadio")
+
+    with pytest.raises(ValueError):
+        sim.purge_domain_results(domain)

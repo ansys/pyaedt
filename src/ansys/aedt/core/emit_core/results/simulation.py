@@ -560,6 +560,9 @@ class Simulation:
         >>> sim = aedtapp.results.current_revision.get_simulation()
         >>> sim.purge_domain_results(domain)
         """
+        if self.is_domain_valid(domain) != "":
+            raise ValueError("Cannot purge results for an invalid domain. Check the domain validity first.")
+
         self._emit_com_module.PurgeDomainResults(
             self._revision.results_index,
             domain.receiver_name,
