@@ -993,7 +993,9 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
 
         Examples
         --------
-        >>> circuit.export_fullwave_spice(filename=r"C:\\Users\\Public\\filter.sp")
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit()
+        >>> circuit.export_fullwave_spice(filename="filter.sp")
 
         """
         if not design:
@@ -1091,7 +1093,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         )
         self.logger.info("FullWaveSpice correctly exported to %s", filename)
 
-        return filename
+        return str(filename)
 
     @pyaedt_function_handler()
     def create_touchstone_report(

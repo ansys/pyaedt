@@ -33,6 +33,7 @@ Examples
 
 import logging
 import os
+from typing import cast
 
 from ansys.aedt.core.extensions import customize_automation_tab
 from ansys.aedt.core.generic.file_utils import read_toml
@@ -58,11 +59,12 @@ def _install_catalog_extension(extension_key, personal_lib, odesktop=None):
 
     project_workflows_dir = os.path.dirname(__file__)
     extensions_catalog = read_toml(os.path.join(project_workflows_dir, "extensions_catalog.toml"))
-    extension_info = extensions_catalog.get(extension_key)
+    extension_info = cast(dict[str, str] | None, extensions_catalog.get(extension_key))
     if not extension_info:
         return False
 
-    script_path = os.path.join(project_workflows_dir, extension_info["script"]) if extension_info["script"] else None
+    script_name = extension_info.get("script", "")
+    script_path = os.path.join(project_workflows_dir, script_name) if script_name else None
     icon_file = os.path.join(project_workflows_dir, "images", "large", extension_info["icon"])
     customize_automation_tab.add_script_to_menu(
         extension_info["name"],
@@ -171,23 +173,18 @@ def add_pyaedt_to_aedt(
             os.path.join(project_workflows_dir, extension_info["script"]) if extension_info["script"] else None
         )
         icon_file = os.path.join(project_workflows_dir, "images", "large", extension_info["icon"])
-        menu_kwargs = {
-            "icon_file": icon_file,
-            "product": "Project",
-            "copy_to_personal_lib": False,
-            "panel": "Panel_PyAEDT_Installer",
-            "personal_lib": personal_lib,
-            "odesktop": odesktop,
-        }
-        if group_name is not None:
-            menu_kwargs["group_name"] = group_name
-        if group_icon is not None:
-            menu_kwargs["group_icon"] = group_icon
         customize_automation_tab.add_script_to_menu(
             extension_info["name"],
             script_path,
             extension_info["template"],
-            **menu_kwargs,
+            icon_file=icon_file,
+            product="Project",
+            copy_to_personal_lib=False,
+            panel="Panel_PyAEDT_Installer",
+            personal_lib=personal_lib,
+            odesktop=odesktop,
+            group_name=group_name,
+            group_icon=group_icon,
         )
 
     def _install_utilities_group(group_icon_path):

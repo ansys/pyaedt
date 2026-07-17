@@ -302,7 +302,7 @@ class SpiSim(PyAedtBase):
         if self._working_directory != "":
             return self._working_directory
         if self.touchstone_file:
-            self._working_directory = os.path.dirname(self.touchstone_file)
+            self._working_directory = str(Path(self.touchstone_file).parent)
         return self._working_directory
 
     @working_directory.setter
@@ -350,22 +350,22 @@ class SpiSim(PyAedtBase):
         import subprocess  # nosec
 
         exec_name = "SPISimJNI_LX64.exe" if is_linux else "SPISimJNI_WIN64.exe"
-        spisim_exe = os.path.join(self.desktop_install_dir, "spisim", "SPISim", "modules", "ext", exec_name)
+        spisim_exe = str(Path(self.desktop_install_dir) / "spisim" / "SPISim" / "modules" / "ext" / exec_name)
         command = [spisim_exe, parameter]
 
         if in_file != "":
             command += ["-i", str(in_file)]
 
-        config_folder = os.path.dirname(config_file)
-        cfg_file_only = os.path.split(config_file)[-1]
+        config_folder = str(Path(config_file).parent)
+        cfg_file_only = Path(config_file).name
 
         if config_file != "":
             command += ["-v", f"CFGFILE={cfg_file_only}"]
         if out_file:
             # command += [",", "-o", f"{out_file}"]
-            out_processing = os.path.join(out_file, generate_unique_name("spsim_out") + ".txt")
+            out_processing = str(Path(out_file) / (generate_unique_name("spsim_out") + ".txt"))
         else:
-            out_processing = os.path.join(self.working_directory, generate_unique_name("spsim_out") + ".txt")
+            out_processing = str(Path(self.working_directory) / (generate_unique_name("spsim_out") + ".txt"))
 
         my_env = os.environ.copy()
         my_env.update(settings.aedt_environment_variables)
@@ -373,7 +373,7 @@ class SpiSim(PyAedtBase):
             if "ANSYSEM_ROOT_PATH" not in my_env:  # pragma: no cover
                 my_env["ANSYSEM_ROOT_PATH"] = self.desktop_install_dir
             if "SPISIM_OUTPUT_LOG" not in my_env:  # pragma: no cover
-                my_env["SPISIM_OUTPUT_LOG"] = os.path.join(out_file, generate_unique_name("spsim_out") + ".log")
+                my_env["SPISIM_OUTPUT_LOG"] = str(Path(out_file) / (generate_unique_name("spsim_out") + ".log"))
 
         with open_file(out_processing, "w") as outfile:
             settings.logger.info(f"Execute : {' '.join(command)}")
@@ -417,6 +417,22 @@ class SpiSim(PyAedtBase):
                 return com_results
             except IndexError:  # pragma: no cover
                 self.logger.error(f"Failed to compute {parameter_name}. Check input parameters and retry")
+        elif parameter_name == "ICN":
+            try:
+                with open_file(out_file, "r") as infile:
+                    txt = infile.read()
+                    m = re.search(r"\[ParmDat\]\s*:\s*ICN\s*=\s*([\d.]+)", txt)
+                    if m:
+                        return float(m.group(1)) * 0.001
+
+                self.logger.error(
+                    f"Failed to compute {parameter_name}. Check input parameters and retry"
+                )  # pragma: no cover
+                return False  # pragma: no cover
+            except IndexError:
+                self.logger.error(f"Failed to compute {parameter_name}. Check input parameters and retry")
+                return False
+        return False
 
     @pyaedt_function_handler()
     def compute_erl(
@@ -436,6 +452,7 @@ class SpiSim(PyAedtBase):
         permitted_reflection: float = None,
         reflections_length: float = None,
         modulation_type: str = None,
+        compute_retries: int = 3,
     ) -> bool | float:
         """Compute effective return loss (ERL) using Ansys SPISIM from S-parameter file.
 
@@ -482,17 +499,19 @@ class SpiSim(PyAedtBase):
             Length of the reflections: how many UI will be used to calculate ERL. The default is ``1000``.
         modulation_type : str, optional
            Modulations type: signal modulation type "``NRZ``" or "``PAM4``". The default is "``NRZ``".
+        compute_retries : int, optional
+            Number of retries to compute ERL. The default is ``3``.
 
         Returns
         -------
         bool or float
-            Effective return loss from the spisimExe command, ``False`` when failed.
+            Effective return loss from the SPISIM executable command, ``False`` when failed.
 
         Examples
         --------
         >>> from ansys.aedt.core.visualization.post.spisim import SpiSim
         >>> obj = SpiSim()
-        >>> obj.compute_erl(config_file="example.cfg", port_order=1)
+        >>> obj.compute_erl(config_file="example.cfg", port_order="EvenOdd")
 
         """
         cfg_dict = {
@@ -520,10 +539,10 @@ class SpiSim(PyAedtBase):
                         split_line = [i.strip() for i in line.split("=")]
                         cfg_dict[split_line[0]] = split_line[1]
 
-        self.touchstone_file = self.touchstone_file.replace("\\", "/")
+        self.touchstone_file = Path(self.touchstone_file).as_posix()
 
         self.touchstone_file = self._copy_to_relative_path(self.touchstone_file)
-        cfg_dict["INPARRY"] = os.path.split(self.touchstone_file)[-1]
+        cfg_dict["INPARRY"] = Path(self.touchstone_file).name
         cfg_dict["MIXMODE"] = "" if "MIXMODE" not in cfg_dict else cfg_dict["MIXMODE"]
         if port_order is not None and self.touchstone_file.lower().endswith(".s4p"):
             cfg_dict["MIXMODE"] = port_order
@@ -552,16 +571,15 @@ class SpiSim(PyAedtBase):
         cfg_dict["REFLRHO"] = permitted_reflection if permitted_reflection is not None else cfg_dict["REFLRHO"]
         cfg_dict["NCYCLES"] = reflections_length if reflections_length is not None else cfg_dict["NCYCLES"]
 
-        config_file = os.path.join(self.working_directory, "spisim_erl.cfg").replace("\\", "/")
+        config_file = Path(self.working_directory) / "spisim_erl.cfg"
+        config_file = config_file.as_posix()
+
         with open_file(config_file, "w") as fp:
             for k, v in cfg_dict.items():
                 fp.write(f"# {k}: {k}\n")
                 fp.write(f"{k} = {v}\n")
-        retries = 3
-        if "PYTEST_CURRENT_TEST" in os.environ:
-            retries = 10
         nb_retry = 0
-        while nb_retry < retries:
+        while nb_retry < compute_retries:
             out_processing = self.__compute_spisim("CalcERL", config_file)
             results = self.__get_output_parameter_from_result(out_processing, "ERL")
             if results:
@@ -569,6 +587,113 @@ class SpiSim(PyAedtBase):
             self.logger.warning("Failing to compute ERL, retrying...")
             nb_retry += 1
         self.logger.error("Failed to compute ERL.")
+        return False
+
+    @pyaedt_function_handler()
+    def compute_icn(
+        self,
+        config_file: str | None = None,
+        port_order: str = "EVENODD",
+        next_s4p: str | list | None = None,
+        fext_s4p: str | list | None = None,
+        bandwidth: float | None = None,
+        use_pcie_icn: bool = False,
+        compute_retries: int = 3,
+    ) -> bool | float:
+        """Compute the integrated crosstalk noise (ICN) in volts using Ansys SPISIM from S-parameter file.
+
+        .. warning::
+
+            Do not execute this function with untrusted function argument, environment
+            variables or pyaedt global settings.
+            See the :ref:`security guide<ref_security_consideration>` for details.
+
+        Parameters
+        ----------
+        config_file : str, optional
+            Configuration file to use as a reference. The default is ``None``, in
+            which case this parameter is ignored.
+        port_order : str, optional
+            Whether to use "``EvenOdd``" or "``Incremental``" numbering for S4P files.
+            The default is ``None``. This parameter is ignored if there are more than four ports.
+        next_s4p : str, list, optional
+            Near End ``s4p`` or list of ``s4p``. The default is ``None``.
+        fext_s4p : str, list, optional
+            Far End ``s4p`` or list of ``s4p``. The default is ``None``.
+        use_pcie_icn : bool, optional
+            Whether to use ``PCIE`` or ``COM`` method to compute ``ICN``. The default is ``COM``.
+        bandwidth : float, str, optional
+            Application bandwidth in hertz (Hz), which is the inverse of one UI (unit interval). The value
+            can be a float or a string with the unit ("m", "g"). The default is ``25e9``.
+        compute_retries : int, optional
+            Number of retries to compute ICN. The default is ``3``.
+
+        Returns
+        -------
+        bool or float
+            ICN in volts from the SPISIM executable command, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.spisim import SpiSim
+        >>> fext_s4p = "fext_s4p.s4p"
+        >>> next_s4p = "next_s4p.s4p"
+        >>> spisim = SpiSim()
+        >>> spisim.working_directory = test_tmp_dir
+        >>> icn = spisim.compute_icn(port_order="EvenOdd", fext_s4p=fext_s4p, next_s4p=next_s4p, bandwidth=10e9)
+
+        """
+        wd = Path(self.working_directory) / "icn"
+        wd.mkdir(parents=True, exist_ok=True)
+
+        cfg_dict = {
+            "INPARRY": "",
+            "MIXMODE": "",
+            "NEXTSRC": "",
+            "FEXTSRC": "",
+            "VICTSRC": "",
+            "ICNCALC": "PCIE_CCICN" if use_pcie_icn else "COM_CHNICN",
+            "MAXFREQ": 25e9,
+        }
+
+        if config_file:
+            with open_file(config_file, "r") as fp:
+                lines = fp.readlines()
+                for line in lines:
+                    if not line.startswith("#") and "=" in line:
+                        split_line = [i.strip() for i in line.split("=")]
+                        cfg_dict[split_line[0]] = split_line[1]
+
+        cfg_dict["MIXMODE"] = port_order
+        if not isinstance(next_s4p, list):
+            next_s4p = [next_s4p]
+        next_s4p = [Path(shutil.copy(i, wd)).name for i in next_s4p]
+
+        if not isinstance(fext_s4p, list):
+            fext_s4p = [fext_s4p]
+        fext_s4p = [Path(shutil.copy(i, wd)).name for i in fext_s4p]
+
+        cfg_dict["NEXTSRC"] = ",".join(next_s4p)
+        cfg_dict["FEXTSRC"] = ",".join(fext_s4p)
+        cfg_dict["INPARRY"] = ",".join(next_s4p + fext_s4p)
+
+        cfg_dict["MAXFREQ"] = bandwidth if bandwidth is not None else cfg_dict["MAXFREQ"]
+
+        config_file = str(wd / "spisim_icn.cfg")
+        with open_file(config_file, "w") as fp:
+            for k, v in cfg_dict.items():
+                fp.write(f"# {k}: {k}\n")
+                fp.write(f"{k} = {v}\n")
+
+        nb_retry = 0
+        while nb_retry < compute_retries:
+            out_processing = self.__compute_spisim("CalcICN", config_file)
+            results = self.__get_output_parameter_from_result(out_processing, "ICN")
+            if results:
+                return results
+            self.logger.warning("Failing to compute ICN, retrying...")
+            nb_retry += 1
+        self.logger.error("Failed to compute ICN.")
         return False
 
     @pyaedt_function_handler
@@ -625,7 +750,7 @@ class SpiSim(PyAedtBase):
         """
         com_param = COMParametersVer3p4()
         if standard == 0:
-            if os.path.splitext(config_file)[-1] == ".cfg":
+            if Path(config_file).suffix == ".cfg":
                 com_param.load_spisim_cfg(config_file)
             else:
                 com_param.load(config_file)
@@ -673,7 +798,7 @@ class SpiSim(PyAedtBase):
         com_parameter.set_parameter("NEXTARY", next_snp)
         com_parameter.set_parameter("RESULT_DIR", "./")
 
-        cfg_file = os.path.join(self.working_directory, "com_parameters.cfg")
+        cfg_file = str(Path(self.working_directory) / "com_parameters.cfg")
         com_parameter.export_spisim_cfg(cfg_file)
 
         out_processing = self.__compute_spisim("COM", cfg_file)
