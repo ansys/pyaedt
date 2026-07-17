@@ -3697,3 +3697,125 @@ def test_availability_emi_affects_availability(interference):
 
     new_avail = interaction.get_availability(domain)
     assert new_avail == 1.0
+
+
+@pytest.mark.skipif(
+    DESKTOP_VERSION < "2027.1",
+    reason="Skipped on versions earlier than 2027.1",
+)
+def test_purge_domain_results_1to1(interference):
+    """purge_domain_results removes 1-to-1 results so the interaction is no longer valid."""
+    rev = interference.results.analyze()
+    sim = rev.get_simulation()
+
+    rx_radios = rev.get_receiver_names()
+    tx_radios = rev.get_interferer_names()
+    assert len(rx_radios) > 0
+    assert len(tx_radios) > 0
+
+    domain = InteractionDomain(interference)
+    domain.set_receiver(rx_radios[0])
+    domain.set_interferer(tx_radios[0])
+
+    # Run the domain so results exist
+    interaction = sim.run(domain)
+    assert interaction.is_valid()
+
+    # Purge the results for that domain
+    sim.purge_domain_results(domain)
+
+    # The interaction object should no longer report valid results
+    assert not interaction.is_valid()
+
+
+@pytest.mark.skipif(
+    DESKTOP_VERSION < "2027.1",
+    reason="Skipped on versions earlier than 2027.1",
+)
+def test_purge_domain_results_rerun_after_purge(interference):
+    """After purging, running the same domain produces valid results again."""
+    rev = interference.results.analyze()
+    sim = rev.get_simulation()
+
+    rx_radios = rev.get_receiver_names()
+    tx_radios = rev.get_interferer_names()
+
+    domain = InteractionDomain(interference)
+    domain.set_receiver(rx_radios[0])
+    domain.set_interferer(tx_radios[0])
+
+    # Run → purge → re-run
+    interaction = sim.run(domain)
+    assert interaction.is_valid()
+
+    sim.purge_domain_results(domain)
+    assert not interaction.is_valid()
+
+    interaction2 = sim.run(domain)
+    assert interaction2.is_valid()
+
+    # Results after re-run should match original
+    worst_before = interaction.get_worst_instance(ResultType.EMI)
+    worst_after = interaction2.get_worst_instance(ResultType.EMI)
+    assert worst_before.get_value(ResultType.EMI) == worst_after.get_value(ResultType.EMI)
+
+
+@pytest.mark.skipif(
+    DESKTOP_VERSION < "2027.1",
+    reason="Skipped on versions earlier than 2027.1",
+)
+def test_purge_domain_results_only_affects_specified_domain(interference):
+    """purge_domain_results only removes results for the specified tx/rx pair."""
+    rev = interference.results.analyze()
+    sim = rev.get_simulation()
+
+    rx_radios = rev.get_receiver_names()
+    tx_radios = rev.get_interferer_names()
+
+    # Run both domains
+    domain1 = InteractionDomain(interference)
+    domain1.set_receiver(rx_radios[0])
+    domain1.set_interferer(tx_radios[0])
+
+    domain2 = InteractionDomain(interference)
+    domain2.set_receiver(rx_radios[0])
+    domain2.set_interferer(tx_radios[1])
+
+    interaction1 = sim.run(domain1)
+    interaction2 = sim.run(domain2)
+    assert interaction1.is_valid()
+    assert interaction2.is_valid()
+
+    # Purge only domain1
+    sim.purge_domain_results(domain1)
+
+    # domain1 results gone, domain2 results untouched
+    assert not interaction1.is_valid()
+    assert interaction2.is_valid()
+
+
+@pytest.mark.skipif(
+    DESKTOP_VERSION < "2027.1",
+    reason="Skipped on versions earlier than 2027.1",
+)
+def test_purge_domain_results_nto1(n_to_1):
+    """purge_domain_results removes N-to-1 results for the specified receiver."""
+    rev = n_to_1.results.analyze()
+    sim = rev.get_simulation()
+    sim.enable_n_to_1(True)
+
+    rx_radios = rev.get_receiver_names()
+    tx_radios = rev.get_interferer_names()
+    assert len(tx_radios) >= 2, "Need at least two interferers for N-to-1"
+
+    domain = InteractionDomain(n_to_1)
+    domain.set_receiver(rx_radios[0])
+    # Leave interferers unset so the engine runs all N-to-1 combos
+
+    interaction = sim.run(domain)
+    assert interaction.is_valid()
+
+    # Purge N-to-1 results
+    sim.purge_domain_results(domain)
+
+    assert not interaction.is_valid()

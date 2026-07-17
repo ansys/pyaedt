@@ -546,6 +546,31 @@ class Simulation:
         self._emit_com_module.SetAvailabilityEmi(self._revision.results_index, value)
 
     @min_aedt_version("2027.1")
+    def purge_domain_results(self, domain: InteractionDomain):
+        """Purge all cached results for a given domain.
+
+        Parameters
+        ----------
+        domain : :class:`InteractionDomain`
+            Domain whose results should be purged.
+
+        Examples
+        --------
+        >>> domain = InteractionDomain(aedtapp)
+        >>> sim = aedtapp.results.current_revision.get_simulation()
+        >>> sim.purge_domain_results(domain)
+        """
+        self._emit_com_module.PurgeDomainResults(
+            self._revision.results_index,
+            domain.receiver_name,
+            domain.receiver_band_name,
+            domain.receiver_channel_frequency,
+            domain.interferer_names,
+            domain.interferer_band_names,
+            domain.interferer_channel_frequencies,
+        )
+
+    @min_aedt_version("2027.1")
     def get_radio_pair_enabled(self, receiver_name: str, interferer_name: str) -> bool:
         """Get whether a radio pair interaction is enabled.
 
