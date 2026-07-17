@@ -237,6 +237,43 @@ def test_connect_session(mock_settings):
     with patch("ansys.aedt.core.desktop.grpc_active_sessions", return_value=[base_port]):
         assert d3._validate_port() == base_port
 
+    # Connect 2026.1, not found ports with get_target_processes, and then using _check_grpc_connection
+    connections = {
+        11111: [
+            {
+                "cmdline": "v261/ansysedt.exe -grpcsrv 50700 -ng",
+                "ip": "127.0.0.1",
+                "port": 49236,
+                "status": "ESTABLISHED",
+            },
+            {
+                "cmdline": "v261/ansysedt.exe -grpcsrv 50700 -ng",
+                "ip": "127.0.0.1",
+                "port": random_port,
+                "status": "LISTEN",
+            },
+            {"cmdline": "v261/ansysedt.exe -grpcsrv 50700 -ng", "ip": "0.0.0.0", "port": 2002, "status": "LISTEN"},
+            {
+                "cmdline": "v261/ansysedt.exe -grpcsrv 50700 -ng",
+                "ip": "127.0.0.1",
+                "port": 49229,
+                "status": "ESTABLISHED",
+            },
+            {"cmdline": "v261/ansysedt.exe -grpcsrv 50700 -ng", "ip": "0.0.0.0", "port": 56621, "status": "LISTEN"},
+        ]
+    }
+
+    target_process = [(11111, ["v261/ansysedt.exe", "-grpcsrv", f"127.0.0.1:{random_port}", "-ng"])]
+    d4 = _make_desktop(
+        port=random_port, version="2026.1", student_version=False, non_graphical=False, new_desktop=False
+    )
+    with patch("ansys.aedt.core.generic.general_methods._check_psutil_connections", return_value=connections):
+        with patch("ansys.aedt.core.generic.general_methods._get_target_processes", return_value=target_process):
+            assert d4._validate_port() == random_port
+            d4._Desktop__logger.warning.assert_called_with(
+                f"Port {random_port} is already in use in non_graphical mode. Using it."
+            )
+
 
 def test_version_mode_flip_logs_and_changes(mock_settings):
     """Port is in use by the opposite mode (graphical vs nongraphical)."""

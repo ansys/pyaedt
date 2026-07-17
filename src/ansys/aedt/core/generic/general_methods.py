@@ -1591,17 +1591,21 @@ def all_active_sessions() -> dict[str, dict]:
                 return_dict_filtered[version] = {pid: port}
             else:
                 return_dict_filtered[version][pid] = port
+        else:
+            pyaedt_logger.debug(
+                f"Failed to retrieve AEDT version, the version should be included in the command line: {cmdline}."
+            )
 
     # Step 6: Fallback method - Try to find ports by checking TCP network connections
     for version, sessions in return_dict_filtered.items():
         if any(port == -1 for port in sessions.values()):
             for pid in [i for i, v in sessions.items() if v == -1]:
-                version = version.replace("_student", "").replace("_nongraphical", "").replace("_graphical", "")
+                version_number = version.replace("_student", "").replace("_nongraphical", "").replace("_graphical", "")
                 sessions[pid] = _check_connection_grpc_port(
                     connections,
                     pid,
-                    version,
-                    True if "non_graphical" in version else False,
+                    version_number,
+                    True if "nongraphical" in version else False,
                 )
 
     return return_dict_filtered
