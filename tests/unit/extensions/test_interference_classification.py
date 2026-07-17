@@ -28,6 +28,7 @@ from unittest.mock import patch
 import pytest
 
 from ansys.aedt.core.extensions.emit.interference_classification import InterferenceClassificationExtension
+from tests.conftest import DESKTOP_VERSION
 
 
 @pytest.fixture
@@ -54,6 +55,7 @@ def mock_emit_environment():
         # Mock AEDT application with EMIT design type
         mock_emit_app = MagicMock()
         mock_emit_app.design_type = "EMIT"
+        mock_emit_app.desktop_class.aedt_version_id = DESKTOP_VERSION
         mock_get_pyaedt_app.return_value = mock_emit_app
 
         yield {
@@ -165,6 +167,7 @@ def test_radio_dropdown_changed(mock_emit_environment) -> None:
     # Create a fresh extension instance to avoid Tk conflicts
     mock_aedt_app = MagicMock()
     mock_aedt_app.design_type = "EMIT"
+    mock_aedt_app.desktop_class.aedt_version_id = DESKTOP_VERSION
     mock_results = MagicMock()
     mock_analyze = MagicMock()
 

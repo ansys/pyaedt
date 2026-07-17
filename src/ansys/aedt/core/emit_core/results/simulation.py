@@ -507,6 +507,49 @@ class Simulation:
             self._emit_com_module.SetEmiCategoryFilterEnabled(self._revision.results_index, int(category), enabled)
 
     @min_aedt_version("2027.1")
+    def get_availability_emi(self) -> float:
+        """Get the availability EMI threshold.
+
+        The availability EMI threshold is the dB margin below which a channel
+        pair is considered available (i.e. not interfered with).
+
+        Returns
+        -------
+        float
+            Availability EMI threshold in dB.
+
+        Examples
+        --------
+        >>> sim = aedtapp.results.current_revision.get_simulation()
+        >>> sim.get_availability_emi()
+        0.0
+        """
+        return float(self._emit_com_module.GetAvailabilityEmi(self._revision.results_index))
+
+    @min_aedt_version("2027.1")
+    def set_availability_emi(self, value: float):
+        """Set the availability EMI threshold.
+
+        The availability EMI threshold is the dB margin below which a channel
+        pair is considered available (i.e. not interfered with).
+
+        Parameters
+        ----------
+        value : float
+            Availability EMI threshold in dB.
+
+        Examples
+        --------
+        >>> sim = aedtapp.results.current_revision.get_simulation()
+        >>> sim.set_availability_emi(-10.0)
+        """
+        if not isinstance(value, (int, float)):
+            raise ValueError("Availability EMI threshold must be a number.")
+        if value < -300 or value > 300:
+            raise ValueError("Availability EMI threshold must be between -300 and 300 dB.")
+        self._emit_com_module.SetAvailabilityEmi(self._revision.results_index, value)
+
+    @min_aedt_version("2027.1")
     def get_radio_pair_enabled(self, receiver_name: str, interferer_name: str) -> bool:
         """Get whether a radio pair interaction is enabled.
 
