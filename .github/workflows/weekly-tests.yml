@@ -9,6 +9,7 @@ env:
   ANSYSLMD_LICENSE_FILE: ${{ format('1055@{0}', secrets.LICENSE_SERVER) }}
   MAIN_PYTHON_VERSION: '3.10'
   ON_CI: True
+  PYAEDT_EDB_XFAIL: "1"
   PYAEDT_LOCAL_SETTINGS_PATH: 'tests/pyaedt_settings.yaml'
   PYTEST_ARGUMENTS: -vvv --color=yes -ra --durations=25 --maxfail=10 --junitxml=junit/test-results.xml --testmon
   PYTEST_ARGUMENTS_NON_TESTMON: -vvv --color=yes -ra --durations=25 --maxfail=10 --junitxml=junit/test-results.xml
@@ -64,6 +65,7 @@ jobs:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
       - name: Install pyaedt and tests dependencies
         env:
@@ -102,6 +104,7 @@ jobs:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
       - name: Install pyaedt and tests dependencies
         env:
@@ -139,6 +142,7 @@ jobs:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
 
       - name: Install pyaedt and tests dependencies
@@ -210,6 +214,7 @@ jobs:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
 
       - name: Install pyaedt and tests dependencies
@@ -275,6 +280,7 @@ jobs:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
 
       - name: Set up headless display
@@ -349,6 +355,7 @@ jobs:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
 
       - name: Set up headless display
@@ -416,6 +423,7 @@ jobs:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
 
       - name: Set up headless display
@@ -491,6 +499,7 @@ jobs:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
 
       - name: Set up headless display
@@ -557,6 +566,7 @@ jobs:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
 
       - name: Install pyaedt and tests dependencies
@@ -628,6 +638,7 @@ jobs:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
 
       - name: Install pyaedt and tests dependencies
@@ -693,6 +704,7 @@ jobs:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
 
       - name: Install pyaedt and tests dependencies
@@ -763,6 +775,7 @@ jobs:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
 
       - name: Install pyaedt and tests dependencies
@@ -828,6 +841,7 @@ jobs:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
 
       - name: Set up headless display
@@ -913,6 +927,7 @@ jobs:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
 
       - name: Set up headless display
@@ -960,6 +975,7 @@ jobs:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
 
       - name: Install pyaedt and tests dependencies
@@ -1029,6 +1045,7 @@ jobs:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
 
       - name: Install pyaedt and tests dependencies

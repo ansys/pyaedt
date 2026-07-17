@@ -92,8 +92,8 @@ def test_create_discrete_sweep(aedt_app) -> None:
     sweep = setup.create_frequency_sweep(name="mysweep", start_frequency=1, unit="GHz")
     assert sweep
     assert sweep.props["RangeStart"] == "1GHz"
-
-    assert setup.create_linear_step_sweep(
+    assert setup.children[sweep.name].properties["Start"] == "1GHz"
+    sweep2 = setup.create_linear_step_sweep(
         name="StepFast",
         unit="GHz",
         start_frequency=1,
@@ -101,6 +101,8 @@ def test_create_discrete_sweep(aedt_app) -> None:
         step_size=0.1,
         sweep_type="Interpolating",
     )
+    assert setup.children[sweep2.name].properties["Start"] == "1GHz"
+    assert setup.children[sweep2.name].properties["Stop"] == "20GHz"
 
 
 def test_create_linear_sweep(aedt_app) -> None:
@@ -126,9 +128,14 @@ def test_create_linear_sweep(aedt_app) -> None:
 
 def test_create_single_point_sweep(aedt_app) -> None:
     setup = aedt_app.create_setup()
-    assert setup.create_single_point_sweep(
-        save_fields=True,
-    )
+    setup.props["SaveFields"] = True
+
+    sweep = setup.create_single_point_sweep(save_fields=True, freq=5, unit="GHz")
+    assert setup.children[sweep.name].properties["Start"] == "5GHz"
+
+    sweep2 = setup.create_single_point_sweep(save_single_field=[True, False, False], freq=[6, 10, 12], unit="GHz")
+    assert setup.children[sweep2.name].properties["Start"] == "6GHz"
+    assert setup.children[sweep2.name].properties["Stop"] == "12GHz"
 
 
 def test_create_frequency_sweep(aedt_app) -> None:

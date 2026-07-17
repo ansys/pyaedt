@@ -28,6 +28,8 @@ import tkinter
 from tkinter import filedialog
 from tkinter import messagebox
 from tkinter import ttk
+from typing import Any
+from typing import cast
 
 import ansys.aedt.core
 from ansys.aedt.core import Hfss
@@ -71,7 +73,7 @@ class ChokeDesignerExtensionData(ExtensionCommonData):
 
     """
 
-    choke: Choke = None
+    choke: Choke | None = None
     """Value for choke."""
 
 
@@ -454,7 +456,7 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
         export_hfss.pack(side=tkinter.LEFT, padx=5)
 
 
-def main(data) -> bool:
+def main(data: ChokeDesignerExtensionData) -> bool:
     """Main function to run the choke designer extension.
 
     Examples
@@ -464,7 +466,7 @@ def main(data) -> bool:
     >>> main(ChokeDesignerExtensionData(choke=Choke()))
 
     """
-    choke = data.choke
+    choke = data.choke or Choke()
     app = ansys.aedt.core.Desktop(
         new_desktop=False,
         version=VERSION,
@@ -504,7 +506,7 @@ def main(data) -> bool:
     choke.create_ports(ground, app=hfss)
 
     if choke.create_component["True"]:  # pragma: no cover
-        hfss.modeler.replace_3dcomponent()
+        cast(Any, hfss.modeler).replace_3dcomponent()
     hfss.modeler.create_region(pad_percent=1000)
     setup = hfss.create_setup("Setup1", setup_type="HFSSDriven")
     setup.props["Frequency"] = "50MHz"
@@ -532,7 +534,7 @@ if __name__ == "__main__":  # pragma: no cover
     if not args["is_batch"]:  # pragma: no cover
         extension = ChokeDesignerExtension(withdraw=False)
         tkinter.mainloop()
-        if extension.data is not None:
+        if isinstance(extension.data, ChokeDesignerExtensionData):
             main(extension.data)
     else:
         data = ChokeDesignerExtensionData()
