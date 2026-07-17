@@ -14,6 +14,8 @@ The extension supports two regimes for processing Fresnel Coefficients:
 * **Isotropic**: Scans over the elevation angle (theta) only - coupling between the TE and TM polarizations is not considered
 * **Anisotropic**: Scans over both elevation (theta) and azimuth (phi) angles (not available yet) - considering the polarization coupling
 
+Isotropic mode is available for all AEDT versions (as RTTBL version 1 and 2), while Anisotropic - only for 2027R1 and beyond (as RTTBL version 2).
+
 Workflows
 ---------
 
@@ -25,8 +27,9 @@ Extraction workflow
 Extract Fresnel coefficients from existing analysis results for a setup with parametric sweep.
 
 1. Select a simulation setup and sweep
-2. Click **Validate** to verify the design configuration
-3. Click **Start** to extract the coefficients
+2. Choose the RTTBL version format (version 1 supports only isotropic (for AEDT 2026R1 and earlier), while version 2 supports both Isotropic and Anisotropic notations (for AEDT 2027R1 and beyond))
+3. Click **Validate** to verify the design configuration, after the validation, other options of the extension become hidden
+4. Click **Start** to extract the coefficients
 
 .. image:: ../../../_static/extensions/fresnel_extraction.png
   :width: 800
@@ -41,8 +44,10 @@ Configure and run a new parametric analysis:
 2. Define the frequency sweep range (start, stop, step, units)
 3. Set angular resolution (coarse, regular, or fine) for theta and phi (only for the Anisotropic regime)
 4. Set the maximum theta scan value
-5. Click **Apply and Validate** to create the parametric setup
+5. Click **Apply and Validate** to create the parametric setup, after the validation, other options of the extension become hidden
 6. Click **Start** to run the analysis and extract coefficients
+
+Fresnel extension automatically detects the supported RTTBL version for your AEDT version: 2027R1 and beyond support version 2.
 
 .. image:: ../../../_static/extensions/fresnel_advanced.png
   :width: 800
