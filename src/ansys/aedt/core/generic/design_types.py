@@ -25,6 +25,7 @@
 import re
 import sys
 import time
+from typing import cast
 
 from ansys.aedt.core.circuit import Circuit
 from ansys.aedt.core.circuit_netlist import CircuitNetlist
@@ -32,6 +33,9 @@ from ansys.aedt.core.desktop import Desktop
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.protocols import AppType
 from ansys.aedt.core.generic.protocols import _AppWithOProject
+from ansys.aedt.core.generic.protocols import _ODesign
+from ansys.aedt.core.generic.protocols import _ODesktop
+from ansys.aedt.core.generic.protocols import _OProject
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.hfss import Hfss
 from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
@@ -52,6 +56,23 @@ if not ("IronPython" in sys.version or ".NETFramework" in sys.version):  # pragm
 
 Simplorer = TwinBuilder
 """Value for simplorer."""
+
+# ############################# Helper Functions for type checking ################################
+
+
+def _design_name_from_top_design_entry(design_entry: str) -> str | None:
+    """Extract the design name from an AEDT design entry string.
+
+    This helper primarily exists to handle ``re.search`` optional results in a
+    type-checker-friendly way before using the match value.
+    """
+    match = re.search(r"[^;]+$", design_entry)
+    if match is None:
+        return None
+    return match.group(0)
+
+
+# #################################################################################################
 
 
 def launch_desktop(
@@ -136,27 +157,32 @@ def launch_desktop(
     return d
 
 
-app_map: dict[str, AppType | None] = {
-    "Maxwell 2D": Maxwell2d,
-    "Maxwell 3D": Maxwell3d,
-    "Maxwell Circuit": MaxwellCircuit,
-    "Twin Builder": TwinBuilder,
-    "Circuit Design": Circuit,
-    "Circuit Netlist": CircuitNetlist,
-    "2D Extractor": Q2d,
-    "Q3D Extractor": Q3d,
-    "HFSS": Hfss,
-    "Mechanical": Mechanical,
-    "IcepakFEA": Mechanical,
-    "Icepak": Icepak,
-    "Rmxprt": Rmxprt,
-    "HFSS 3D Layout Design": Hfss3dLayout,
-    "EMIT": Emit,
-}
+app_map: dict[str, AppType | None] = cast(
+    dict[str, AppType | None],
+    {
+        "Maxwell 2D": Maxwell2d,
+        "Maxwell 3D": Maxwell3d,
+        "Maxwell Circuit": MaxwellCircuit,
+        "Twin Builder": TwinBuilder,
+        "Circuit Design": Circuit,
+        "Circuit Netlist": CircuitNetlist,
+        "2D Extractor": Q2d,
+        "Q3D Extractor": Q3d,
+        "HFSS": Hfss,
+        "Mechanical": Mechanical,
+        "IcepakFEA": Mechanical,
+        "Icepak": Icepak,
+        "Rmxprt": Rmxprt,
+        "HFSS 3D Layout Design": Hfss3dLayout,
+        "EMIT": Emit,
+    },
+)
 """Value for app map."""
 
 
-def get_pyaedt_app(project_name: str = None, design_name: str = None, desktop: Desktop = None) -> _AppWithOProject:
+def get_pyaedt_app(
+    project_name: str | None = None, design_name: str | None = None, desktop: Desktop | None = None
+) -> _AppWithOProject | None:
     """Get the PyAEDT object with a given project name and design name.
 
     Parameters
@@ -198,9 +224,10 @@ def get_pyaedt_app(project_name: str = None, design_name: str = None, desktop: D
         odesktop = sys.modules["__main__"].oDesktop  # ironpython
     else:
         raise AttributeError("No Desktop Present.")
+    odesktop = cast(_ODesktop, odesktop)
     if not process_id:
         process_id = odesktop.GetProcessID()
-    if project_name and project_name not in desktop.project_list:
+    if project_name and desktop and project_name not in desktop.project_list:
         raise AttributeError(f"Project {project_name} doesn't exist in current desktop.")
     if not project_name:
         oProject = odesktop.GetActiveProject()
@@ -211,25 +238,30 @@ def get_pyaedt_app(project_name: str = None, design_name: str = None, desktop: D
         odesktop.CloseAllWindows()
     if not oProject:
         raise AttributeError("No project is present.")
+    oproject = cast(_OProject, oProject)
     design_names = []
-    deslist = list(oProject.GetTopDesignList())
+    deslist = list(oproject.GetTopDesignList())
     for el in deslist:
-        m = re.search(r"[^;]+$", el)
-        design_names.append(m.group(0))
+        parsed_design_name = _design_name_from_top_design_entry(el)
+        if parsed_design_name is not None:
+            design_names.append(parsed_design_name)
     if design_name and design_name not in design_names:
         raise AttributeError(f"Design  {design_name} doesn't exist in current project.")
     if not design_name:
-        oDesign = oProject.GetActiveDesign()
+        oDesign = oproject.GetActiveDesign()
     else:
-        oDesign = oProject.SetActiveDesign(design_name)
+        oDesign = oproject.SetActiveDesign(design_name)
     if is_linux and settings.aedt_version == "2024.1":  # pragma: no cover
         time.sleep(1)
         odesktop.CloseAllWindows()
     if not oDesign:
         raise AttributeError("No design is present.")
-    design_type = oDesign.GetDesignType()
+    odesign = cast(_ODesign, oDesign)
+    design_type = odesign.GetDesignType()
     if design_type in app_map:
         version = odesktop.GetVersion().split(".")
         v = ".".join([version[0], version[1]])
-        return app_map[design_type](project_name, design_name, version=v, aedt_process_id=process_id)
+        app_factory = app_map[design_type]
+        if app_factory is not None:
+            return app_factory(project_name, design_name, version=v, aedt_process_id=process_id)
     return None
