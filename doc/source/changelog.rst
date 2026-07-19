@@ -9,6 +9,150 @@ This document contains the release notes for the project.
 
 .. towncrier release notes start
 
+`1.3.0 <https://github.com/ansys/pyaedt/releases/tag/v1.3.0>`_ - July 17, 2026
+==============================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - N port component multi
+          - `#7029 <https://github.com/ansys/pyaedt/pull/7029>`_
+
+        * - Add a strongly-typed, fluent builder for Fields Calculator expressions (``post.fields_calculator.expressions``) covering quantities, constants, algebra, complex/scalar/vector and trigonometric operations, derivatives, and geometry reductions, with AEDT-verified operation tokens
+          - `#7841 <https://github.com/ansys/pyaedt/pull/7841>`_
+
+        * - Fields calculator expressions
+          - `#7845 <https://github.com/ansys/pyaedt/pull/7845>`_
+
+        * - Compute_icn method in Spisim class
+          - `#7865 <https://github.com/ansys/pyaedt/pull/7865>`_
+
+        * - Ty typing extensions
+          - `#7882 <https://github.com/ansys/pyaedt/pull/7882>`_
+
+        * - Add adjust Run Script window for high DPI Screen
+          - `#7916 <https://github.com/ansys/pyaedt/pull/7916>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Add q23d dynamic link
+          - `#7879 <https://github.com/ansys/pyaedt/pull/7879>`_
+
+        * - Correct management of control points for Spline segments inside compound polylines
+          - `#7881 <https://github.com/ansys/pyaedt/pull/7881>`_
+
+        * - Fix issue with python testing
+          - `#7892 <https://github.com/ansys/pyaedt/pull/7892>`_
+
+        * - Bug in create single point in frequency sweep
+          - `#7914 <https://github.com/ansys/pyaedt/pull/7914>`_
+
+        * - Rttbl version control
+          - `#7917 <https://github.com/ansys/pyaedt/pull/7917>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Bump ruff-pre-commit from v0.15.18 to 0.15.20
+          - `#7872 <https://github.com/ansys/pyaedt/pull/7872>`_
+
+        * - Bump pyedb from 0.79.1 to 0.80.0
+          - `#7873 <https://github.com/ansys/pyaedt/pull/7873>`_
+
+        * - Bump actions/setup-python from 6.2.0 to 6.3.0
+          - `#7874 <https://github.com/ansys/pyaedt/pull/7874>`_, `#7911 <https://github.com/ansys/pyaedt/pull/7911>`_
+
+        * - Bump actions/cache/save from 5.0.5 to 6.1.0
+          - `#7875 <https://github.com/ansys/pyaedt/pull/7875>`_
+
+        * - Bump typer from 0.26.7 to 0.26.8
+          - `#7876 <https://github.com/ansys/pyaedt/pull/7876>`_
+
+        * - Bump soupsieve from 2.8.3 to 2.8.4
+          - `#7893 <https://github.com/ansys/pyaedt/pull/7893>`_
+
+        * - Bump mistune from 3.2.1 to 3.3.0
+          - `#7894 <https://github.com/ansys/pyaedt/pull/7894>`_
+
+        * - Bump ansys/actions/doc-style from 10.3.2 to 10.3.3
+          - `#7897 <https://github.com/ansys/pyaedt/pull/7897>`_
+
+        * - Bump check-jsonschema from 0.37.3 to 0.37.4
+          - `#7899 <https://github.com/ansys/pyaedt/pull/7899>`_
+
+        * - Bump scikit-rf from 1.12.0 to 2.0.1
+          - `#7907 <https://github.com/ansys/pyaedt/pull/7907>`_
+
+        * - Bump the ansys-actions group with 11 updates
+          - `#7910 <https://github.com/ansys/pyaedt/pull/7910>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update CHANGELOG for v1.2.0
+          - `#7866 <https://github.com/ansys/pyaedt/pull/7866>`_
+
+        * - Bump dev version
+          - `#7867 <https://github.com/ansys/pyaedt/pull/7867>`_
+
+        * - Start leveraging ty for type checking
+          - `#7870 <https://github.com/ansys/pyaedt/pull/7870>`_
+
+        * - Use activate-environment input in setup-uv
+          - `#7878 <https://github.com/ansys/pyaedt/pull/7878>`_
+
+        * - Update dependabot to skip patch bumps
+          - `#7883 <https://github.com/ansys/pyaedt/pull/7883>`_
+
+        * - Update dependabot config and ty needs
+          - `#7906 <https://github.com/ansys/pyaedt/pull/7906>`_
+
+
+  .. tab-item:: Miscellaneous
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update typehint in examples module
+          - `#7886 <https://github.com/ansys/pyaedt/pull/7886>`_
+
+
+  .. tab-item:: Test
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Add fixture to fix _tkinter.TclError
+          - `#7868 <https://github.com/ansys/pyaedt/pull/7868>`_
+
+        * - Add xfail marker on pyedb related extensions
+          - `#7913 <https://github.com/ansys/pyaedt/pull/7913>`_
+
+        * - Rework xfail logic to avoid skips in pyedb
+          - `#7915 <https://github.com/ansys/pyaedt/pull/7915>`_
+
+
 `1.2.0 <https://github.com/ansys/pyaedt/releases/tag/v1.2.0>`_ - July 02, 2026
 ==============================================================================
 
