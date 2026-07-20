@@ -1,4 +1,4 @@
-Harmonic loss in Q3d
+Harmonic loss in Q3D
 ====================
 
 This extension allows to import frequency-dependent real and imaginary currents in all source terminals of a
