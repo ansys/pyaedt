@@ -29,6 +29,7 @@ from pathlib import Path
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import ttk
+from typing import Any
 
 import pandas as pd
 
@@ -78,6 +79,8 @@ class HarmonicLossExtension(ExtensionQ3DCommon):
         popup = tk.Toplevel(self.root)
         popup.title("CSV File Format")
         popup.configure(bg=self.theme.light["pane_bg"])
+        popup_images: list[tk.PhotoImage] = []
+        setattr(popup, "_images", popup_images)
 
         container = ttk.Frame(popup, padding=12)
         container.pack(fill="both", expand=True)
@@ -98,10 +101,9 @@ class HarmonicLossExtension(ExtensionQ3DCommon):
 
         images_dir = Path(__file__).parent / "images" / "large" / "csv_example_format.png"
 
-        popup._images = []
         if images_dir.exists():
             tk_image = tk.PhotoImage(file=images_dir)
-            popup._images.append(tk_image)
+            popup_images.append(tk_image)
             tk.Label(
                 container,
                 image=tk_image,
@@ -190,13 +192,15 @@ def main(data: ExtensionData) -> bool:
         raise AEDTRuntimeError(
             "No active project found. Please open or create a project before running this extension."
         )
+    if active_design is None:
+        raise AEDTRuntimeError("No active design found. Please open or create a design before running this extension.")
 
     project_name = active_project.GetName()
     if active_design.GetDesignType() == "HFSS 3D Layout Design":
         design_name = active_design.GetDesignName()
     else:
         design_name = active_design.GetName()
-    aedtapp = get_pyaedt_app(project_name, design_name)
+    aedtapp: Any = get_pyaedt_app(project_name, design_name)
 
     if not aedtapp.boundaries_by_type["Source"]:
         raise AEDTRuntimeError("No sources in the active design.")
@@ -269,7 +273,7 @@ if __name__ == "__main__":
 
         tk.mainloop()
 
-        if extension.data is not None:
+        if isinstance(extension.data, ExtensionData):
             main(extension.data)
     else:
         data = ExtensionData()
