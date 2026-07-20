@@ -316,12 +316,11 @@ def test_duplicate_components(emit_app):
 
     comps_before_undo = rev.get_all_component_nodes()
     emit_app.odesign.Undo()
-    emit_app.odesign.Undo()  # need to undo twice to undo the duplciate
     emit_app.odesign.Redo()  # add it right back to avoid B1485767
     comps_after_undo_redo = rev.get_all_component_nodes()
     assert len(comps_before_undo) == len(comps_after_undo_redo)
     emit_app.odesign.Undo()
-    emit_app.odesign.Undo()  # need to undo twice to undo the Redo (comp add)
+    emit_app.odesign.Undo()    # get_all_component_nodes() adding something to undo stack?
     comps_after_undo = rev.get_all_component_nodes()
     assert len(comps_after_undo) == len(comps_before_undo) - 1
     
