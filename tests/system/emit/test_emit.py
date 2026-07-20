@@ -257,7 +257,6 @@ def test_create_components(emit_app) -> None:
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Duplicate method requires 2026 R1 or later")
-@pytest.mark.skipif(True, reason="B1480584")
 def test_duplicate_components(emit_app):
     """Test duplicating various component types using schematic.create_component which returns EmitNodes."""
     # Test Radio duplication
@@ -304,11 +303,42 @@ def test_duplicate_components(emit_app):
     assert dup_terminator.name == "DuplicatedTerminator"
     assert isinstance(dup_terminator, Terminator)
 
-    # Test auto-generated name (no name parameter)
+    #------------------------------------------------------
+    # B1480584: test was crashing on the subsequent radio.duplicate() 
+    # due to an undo stack issue. Verify that the fix worked and 
+    # also check that undo/redo still work correctly.
+    # # Test auto-generated name (no name parameter)
+    rev : Revision = emit_app.results.analyze()
     auto_named_dup = radio.duplicate()
     assert auto_named_dup is not None
     assert auto_named_dup.name != "TestRadio"
     assert isinstance(auto_named_dup, RadioNode)
+
+    comps_before_undo = rev.get_all_component_nodes()
+    emit_app.odesign.Undo()
+    emit_app.odesign.Undo()  # need to undo twice to undo the duplciate
+    emit_app.odesign.Redo()  # add it right back to avoid B1485767
+    comps_after_undo_redo = rev.get_all_component_nodes()
+    assert len(comps_before_undo) == len(comps_after_undo_redo)
+    emit_app.odesign.Undo()
+    emit_app.odesign.Undo()  # need to undo twice to undo the Redo (comp add)
+    comps_after_undo = rev.get_all_component_nodes()
+    assert len(comps_after_undo) == len(comps_before_undo) - 1
+    
+    #*******************************************************
+    # B1485767: Redo stack getting cleared by rev.get_all_component_nodes()
+    #emit_app.odesign.Undo()
+    #emit_app.odesign.Undo()  # need to undo twice to undo the duplciate
+    #comps_after_undo = rev.get_all_component_nodes()
+    #assert len(comps_before_undo) - 1 == len(comps_after_undo)
+    #emit_app.odesign.Redo()
+    #comps_after_redo = rev.get_all_component_nodes()
+    #assert len(comps_after_redo) == len(comps_before_undo)
+    #*******************************************************
+
+
+    #------------------------------------------------------
+
     # Test Cable duplication
     cable: Cable = emit_app.schematic.create_component("Cable", name="new Cable")
     dup_cable = cable.duplicate("dup Cable")
