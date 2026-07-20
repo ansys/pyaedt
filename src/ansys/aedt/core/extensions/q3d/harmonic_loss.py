@@ -119,20 +119,24 @@ class HarmonicLossExtension(ExtensionQ3DCommon):
         # Browse file entry - CSV file path
         browse_file_label = ttk.Label(self.root, text="Browse CSV File:", width=20, style="PyAEDT.TLabel")
         browse_file_label.grid(row=0, column=0, pady=10)
+        self._widgets["browse_file_label"] = browse_file_label
         browse_file_entry = tk.Text(self.root, width=40, height=1, name="browse_file_entry")
         browse_file_entry.grid(row=0, column=1, pady=15, padx=10)
         browse_file_entry.configure(
             background=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
+        self._widgets["browse_file_entry"] = browse_file_entry
 
         # Threshold entry
         threshold_label = ttk.Label(self.root, text="Current Threshold:", width=20, style="PyAEDT.TLabel")
         threshold_label.grid(row=1, column=0, padx=15, pady=10)
+        self._widgets["threshold_label"] = threshold_label
         threshold_entry = tk.Text(self.root, width=40, height=1, name="threshold_entry")
         threshold_entry.grid(row=1, column=1, pady=15, padx=10)
         threshold_entry.configure(
             background=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
+        self._widgets["threshold_entry"] = threshold_entry
 
         def callback(extension: HarmonicLossExtension) -> None:
             data = ExtensionData(
@@ -155,17 +159,20 @@ class HarmonicLossExtension(ExtensionQ3DCommon):
             self.root, text="...", command=browse_files, width=10, style="PyAEDT.TButton", name="browse_button"
         )
         browse_button.grid(row=0, column=2, pady=10, padx=15)
+        self._widgets["browse_button"] = browse_button
 
         # Filter button, generate dataset and edit sources
         filter_button = ttk.Button(
             self.root, text="Edit Sources", command=lambda: callback(self), style="PyAEDT.TButton", name="create_button"
         )
         filter_button.grid(row=1, column=2, padx=15, pady=10)
+        self._widgets["create_button"] = filter_button
 
         info_button = ttk.Button(
             self.root, text="Requirements", command=self.show_pictures_popup, style="PyAEDT.TButton"
         )
         info_button.grid(row=2, column=1, padx=15, pady=10)
+        self._widgets["requirements_button"] = info_button
 
 
 def main(data: ExtensionData) -> bool:
