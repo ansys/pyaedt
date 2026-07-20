@@ -24,11 +24,13 @@
 
 from pathlib import Path
 from unittest.mock import MagicMock
+from unittest.mock import PropertyMock
 from unittest.mock import patch
 
 import pandas as pd
 import pytest
 
+from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.extensions.q3d import harmonic_loss
 from ansys.aedt.core.extensions.q3d.harmonic_loss import EXTENSION_TITLE
 from ansys.aedt.core.extensions.q3d.harmonic_loss import ExtensionData
@@ -37,8 +39,9 @@ from ansys.aedt.core.extensions.q3d.harmonic_loss import main
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
-def test_extension_default() -> None:
-    """Test instantiation of the Q3D edit sources extension."""
+@patch.object(ExtensionCommon, "aedt_application", new_callable=PropertyMock)
+def test_extension_default(mock_aedt_app_prop) -> None:
+    mock_aedt_app_prop.return_value.design_type = "Q3D Extractor"
     extension = HarmonicLossExtension(withdraw=True)
 
     assert EXTENSION_TITLE == extension.root.title()
