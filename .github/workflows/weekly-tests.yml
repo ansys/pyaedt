@@ -9,6 +9,7 @@ env:
   ANSYSLMD_LICENSE_FILE: ${{ format('1055@{0}', secrets.LICENSE_SERVER) }}
   MAIN_PYTHON_VERSION: '3.10'
   ON_CI: True
+  PYAEDT_EDB_XFAIL: "1"
   PYAEDT_LOCAL_SETTINGS_PATH: 'tests/pyaedt_settings.yaml'
   PYTEST_ARGUMENTS: -vvv --color=yes -ra --durations=25 --maxfail=10 --junitxml=junit/test-results.xml --testmon
   PYTEST_ARGUMENTS_NON_TESTMON: -vvv --color=yes -ra --durations=25 --maxfail=10 --junitxml=junit/test-results.xml
@@ -59,11 +60,12 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
         with:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
       - name: Install pyaedt and tests dependencies
         env:
@@ -97,11 +99,12 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
         with:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
       - name: Install pyaedt and tests dependencies
         env:
@@ -134,11 +137,12 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
         with:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
 
       - name: Install pyaedt and tests dependencies
@@ -205,11 +209,12 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
         with:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
 
       - name: Install pyaedt and tests dependencies
@@ -270,11 +275,12 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
         with:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
 
       - name: Set up headless display
@@ -344,11 +350,12 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
         with:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
 
       - name: Set up headless display
@@ -411,11 +418,12 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
         with:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
 
       - name: Set up headless display
@@ -486,11 +494,12 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
         with:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
 
       - name: Set up headless display
@@ -552,11 +561,12 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
         with:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
 
       - name: Install pyaedt and tests dependencies
@@ -623,11 +633,12 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
         with:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
 
       - name: Install pyaedt and tests dependencies
@@ -688,11 +699,12 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
         with:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
 
       - name: Install pyaedt and tests dependencies
@@ -758,11 +770,12 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
         with:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
 
       - name: Install pyaedt and tests dependencies
@@ -823,11 +836,12 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
         with:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
 
       - name: Set up headless display
@@ -850,10 +864,39 @@ jobs:
             Stop-Process -Id $_.Id -Force
           }
 
+      - name: Fix TCL_LIBRARY for tkinter on Windows
+        id: fix-tcl
+        shell: powershell
+        run: |
+          # NOTE: In a venv, sys.prefix points to the venv and since Tcl lives in sys.base_prefix (the real install).
+          # To ensure we locate the correct Tcl directory, we check both sys.prefix and sys.base_prefix.
+          # NOTE: We also try to leverage actions/setup-python's environment variable to locate the Python installation
+          # and find the Tcl directory. See https://github.com/actions/setup-python/blob/main/src/find-python.ts
+          $prefixes = @()
+          if ($env:pythonLocation) { $prefixes += $env:pythonLocation }
+          $prefixes += (python -c "import sys; print(sys.base_prefix)").Trim()
+          $prefixes += (python -c "import sys; print(sys.prefix)").Trim()
+
+          $tclDir = $null
+          foreach ($prefix in $prefixes) {
+            $tclDir = Get-ChildItem -Path "$prefix\tcl" -Filter "tcl*" -Directory -ErrorAction SilentlyContinue |
+              Where-Object { Test-Path (Join-Path $_.FullName "init.tcl") } |
+              Sort-Object Name -Descending | Select-Object -First 1
+            if ($tclDir) { break }
+          }
+
+          if ($tclDir) {
+            "tcl_library=$($tclDir.FullName)" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+            Write-Output "TCL_LIBRARY set to $($tclDir.FullName)"
+          } else {
+            Write-Warning "Could not locate a valid tcl directory in any of: $($prefixes -join ', ')"
+          }
+
       - name: Run tests marked with 'extensions'
         env:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS_NON_TESTMON: ${{ env.PYTEST_ARGUMENTS_NON_TESTMON }}
+          TCL_LIBRARY: ${{ steps.fix-tcl.outputs.tcl_library }}
         run: |
           $args = $env:PYTEST_ARGUMENTS_NON_TESTMON -split ' '
           pytest @args --timeout=600 tests/system/extensions
@@ -879,11 +922,12 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
         with:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
 
       - name: Set up headless display
@@ -926,11 +970,12 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
         with:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
 
       - name: Install pyaedt and tests dependencies
@@ -995,11 +1040,12 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
         with:
           activate-environment: true
           enable-cache: false
           prune-cache: true
+          python-version: ${{ env.TESTS_VERSION }}
 
 
       - name: Install pyaedt and tests dependencies

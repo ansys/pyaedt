@@ -1400,3 +1400,56 @@ def test_edge_primitives_contains(aedt_app) -> None:
     assert vertex_0.id in edge
     assert vertex_1 in edge
     assert vertex_1.id in edge
+
+
+def test_compound_spline_segments_consume_offset_windows(aedt_app) -> None:
+    """A compound list with multiple Spline segments must consume each
+    spline's points from the current offset, not from the start of the list.
+    """
+    points = [
+        [0, 20, 0],
+        [1, 19, 0],
+        [2, 18, 0],
+        [3, 17, 0],
+        [4, 1, 0],
+        [26, 1, 0],
+        [27, 17, 0],
+        [28, 18, 0],
+        [29, 19, 0],
+        [30, 20, 0],
+        [0, 20, 0],
+    ]
+    segment_type = [
+        PolylineSegment(segment_type="Spline", num_points=5),
+        PolylineSegment(segment_type="Line"),
+        PolylineSegment(segment_type="Spline", num_points=5),
+        PolylineSegment(segment_type="Line"),
+    ]
+
+    pl = aedt_app.modeler.create_polyline(
+        points=points,
+        segment_type=segment_type,
+        close_surface=False,
+        name="profile",
+    )
+    assert pl._positions == points
+
+
+def test_compound_spline_then_line(aedt_app) -> None:
+    """A single Spline followed by a Line consumes the spline window then one point."""
+    points = [[0, 0, 0], [1, 1, 0], [2, 0, 0], [3, 1, 0], [4, 0, 0]]
+    segment_type = [
+        PolylineSegment(segment_type="Spline", num_points=4),
+        PolylineSegment(segment_type="Line"),
+    ]
+
+    pl = aedt_app.modeler.create_polyline(
+        points=points,
+        segment_type=segment_type,
+        close_surface=False,
+        name="profile",
+    )
+
+    assert pl._positions == points
+    assert pl.segment_types[0].type == "Spline"
+    assert pl.segment_types[1].type == "Line"

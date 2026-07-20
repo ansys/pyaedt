@@ -30,6 +30,8 @@ from ansys.aedt.core.circuit import Circuit
 from ansys.aedt.core.circuit_netlist import CircuitNetlist
 from ansys.aedt.core.desktop import Desktop
 from ansys.aedt.core.generic.general_methods import is_linux
+from ansys.aedt.core.generic.protocols import AppType
+from ansys.aedt.core.generic.protocols import _AppWithOProject
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.hfss import Hfss
 from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
@@ -134,7 +136,7 @@ def launch_desktop(
     return d
 
 
-app_map = {
+app_map: dict[str, AppType | None] = {
     "Maxwell 2D": Maxwell2d,
     "Maxwell 3D": Maxwell3d,
     "Maxwell Circuit": MaxwellCircuit,
@@ -154,7 +156,7 @@ app_map = {
 """Value for app map."""
 
 
-def get_pyaedt_app(project_name: str = None, design_name: str = None, desktop: Desktop = None) -> object:
+def get_pyaedt_app(project_name: str = None, design_name: str = None, desktop: Desktop = None) -> _AppWithOProject:
     """Get the PyAEDT object with a given project name and design name.
 
     Parameters
@@ -226,7 +228,7 @@ def get_pyaedt_app(project_name: str = None, design_name: str = None, desktop: D
     if not oDesign:
         raise AttributeError("No design is present.")
     design_type = oDesign.GetDesignType()
-    if design_type in list(app_map.keys()):
+    if design_type in app_map:
         version = odesktop.GetVersion().split(".")
         v = ".".join([version[0], version[1]])
         return app_map[design_type](project_name, design_name, version=v, aedt_process_id=process_id)
