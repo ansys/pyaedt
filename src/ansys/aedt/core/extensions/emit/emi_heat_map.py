@@ -37,6 +37,8 @@ import tkinter
 from tkinter import filedialog
 from tkinter import messagebox
 from tkinter import ttk
+from typing import Any
+from typing import cast
 
 from matplotlib.colors import BoundaryNorm
 from matplotlib.colors import ListedColormap
@@ -53,6 +55,9 @@ EXTENSION_TITLE = "EMIT EMI Heat Map"
 """Title displayed for the extension."""
 EXTENSION_DEFAULT_ARGUMENTS = {}
 """Default arguments for the extension."""
+
+FrequencyList = list[float]
+ValueMatrix = list[list[float]]
 
 
 @dataclass
@@ -96,20 +101,20 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
 
     def __init__(self, withdraw: bool = False) -> None:
         self._widgets = {}
-        self._domain = None
-        self._revision = None
-        self._emi = None
-        self._rx_power = None
-        self._sensitivity = None
-        self._desense = None
-        self._victims = None
-        self._aggressors = None
-        self._victim_band = None
-        self._aggressor_band = None
-        self._victim = None
-        self._aggressor = None
-        self._victim_frequencies = None
-        self._aggressor_frequencies = None
+        self._domain: Any | None = None
+        self._revision: Any | None = None
+        self._emi: ValueMatrix | None = None
+        self._rx_power: ValueMatrix | None = None
+        self._sensitivity: ValueMatrix | None = None
+        self._desense: ValueMatrix | None = None
+        self._victims: list[str] | None = None
+        self._aggressors: list[str] | None = None
+        self._victim_band: str | None = None
+        self._aggressor_band: str | None = None
+        self._victim: str | None = None
+        self._aggressor: str | None = None
+        self._victim_frequencies: FrequencyList | None = None
+        self._aggressor_frequencies: FrequencyList | None = None
 
         super().__init__(
             EXTENSION_TITLE,
@@ -118,6 +123,33 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
             toggle_row=None,
             toggle_column=None,
         )
+
+    def _app(self) -> Any:
+        return cast(Any, self.aedt_application)
+
+    def _revision_obj(self) -> Any:
+        return cast(Any, self._revision)
+
+    def _domain_obj(self) -> Any:
+        return cast(Any, self._domain)
+
+    def _emi_data(self) -> ValueMatrix:
+        return cast(ValueMatrix, self._emi)
+
+    def _rx_power_data(self) -> ValueMatrix:
+        return cast(ValueMatrix, self._rx_power)
+
+    def _desense_data(self) -> ValueMatrix:
+        return cast(ValueMatrix, self._desense)
+
+    def _sensitivity_data(self) -> ValueMatrix:
+        return cast(ValueMatrix, self._sensitivity)
+
+    def _victim_frequency_list(self) -> FrequencyList:
+        return cast(FrequencyList, self._victim_frequencies)
+
+    def _aggressor_frequency_list(self) -> FrequencyList:
+        return cast(FrequencyList, self._aggressor_frequencies)
 
     def add_extension_content(self) -> None:
         """Build the UI for the EMI heat map extension.
@@ -236,7 +268,7 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
         """Get aggressor and victim radios from the project."""
         try:
             # Grab domain and revision from EMIT results
-            app = self.aedt_application
+            app = self._app()
             self._revision = app.results.analyze()
             self._domain = app.results.interaction_domain()
 
@@ -277,14 +309,16 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
 
         try:
             self._emi = []
-            if self.aedt_application.desktop_class.aedt_version_id > "2025.1":
-                victim_node = self._revision.get_component_node(self._victim)
-                victim_bands = self._revision.get_band_names(
+            app = self._app()
+            revision = self._revision_obj()
+            if app.desktop_class.aedt_version_id > "2025.1":
+                victim_node = revision.get_component_node(self._victim)
+                victim_bands = revision.get_band_names(
                     radio_node=victim_node,
                     tx_rx_mode=TxRxMode.RX,
                 )
             else:
-                victim_bands = self.aedt_application._emit_api.get_band_names(
+                victim_bands = app._emit_api.get_band_names(
                     self._victim,
                     TxRxMode.RX,
                 )
@@ -301,7 +335,7 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
         """Handle victim band selection change."""
         self._emi = []
         self._victim_band = self._victim_band_combo.get()
-        self._victim_frequencies = self._revision.get_active_frequencies(
+        self._victim_frequencies = self._revision_obj().get_active_frequencies(
             self._victim,
             self._victim_band,
             TxRxMode.RX,
@@ -315,14 +349,16 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
 
         try:
             self._emi = []
-            if self.aedt_application.desktop_class.aedt_version_id > "2025.1":
-                aggressor_node = self._revision.get_component_node(self._aggressor)
-                aggressor_bands = self._revision.get_band_names(
+            app = self._app()
+            revision = self._revision_obj()
+            if app.desktop_class.aedt_version_id > "2025.1":
+                aggressor_node = revision.get_component_node(self._aggressor)
+                aggressor_bands = revision.get_band_names(
                     radio_node=aggressor_node,
                     tx_rx_mode=TxRxMode.TX,
                 )
             else:
-                aggressor_bands = self.aedt_application._emit_api.get_band_names(
+                aggressor_bands = app._emit_api.get_band_names(
                     self._aggressor,
                     TxRxMode.TX,
                 )
@@ -339,34 +375,38 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
         """Handle aggressor band selection change."""
         self._emi = []
         self._aggressor_band = self._aggressor_band_combo.get()
-        self._aggressor_frequencies = self._revision.get_active_frequencies(
+        self._aggressor_frequencies = self._revision_obj().get_active_frequencies(
             self._aggressor, self._aggressor_band, TxRxMode.TX
         )
 
     def _extract_data(self):
         """Extract EMI data for all channel combinations between selected bands."""
         try:
+            domain = self._domain_obj()
+            revision = self._revision_obj()
+            aggressor_frequencies = self._aggressor_frequency_list()
+            victim_frequencies = self._victim_frequency_list()
             # Setup domain for the interaction
-            self._domain.set_receiver(self._victim, self._victim_band)
-            self._domain.set_interferer(self._aggressor, self._aggressor_band)
+            domain.set_receiver(self._victim, self._victim_band)
+            domain.set_interferer(self._aggressor, self._aggressor_band)
             # Checkout the license once for EMIT for all of the data extraction iterations
-            interaction = self._revision.run(self._domain)
-            with self._revision.get_license_session():
+            interaction = revision.run(domain)
+            with revision.get_license_session():
                 self._emi = []
                 self._rx_power = []
                 self._desense = []
                 self._sensitivity = []
 
-                for aggressor_frequency in self._aggressor_frequencies:
+                for aggressor_frequency in aggressor_frequencies:
                     emi_line = []
                     rx_power_line = []
                     desense_line = []
                     sensitivity_line = []
-                    self._domain.set_interferer(self._aggressor, self._aggressor_band, aggressor_frequency)
+                    domain.set_interferer(self._aggressor, self._aggressor_band, aggressor_frequency)
 
-                    for victim_frequency in self._victim_frequencies:
-                        self._domain.set_receiver(self._victim, self._victim_band, victim_frequency)
-                        instance = interaction.get_instance(self._domain)
+                    for victim_frequency in victim_frequencies:
+                        domain.set_receiver(self._victim, self._victim_band, victim_frequency)
+                        instance = interaction.get_instance(domain)
 
                         if instance.has_valid_values():
                             emi_line.append(instance.get_value(ResultType.EMI))  # dB
@@ -386,23 +426,30 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
 
     def _format_csv(self, filename):
         """Format CSV file to save."""
+        aggressor_frequencies = self._aggressor_frequency_list()
+        victim_frequencies = self._victim_frequency_list()
+        emi_data = self._emi_data()
+        rx_power_data = self._rx_power_data()
+        desense_data = self._desense_data()
+        sensitivity_data = self._sensitivity_data()
+
         pivot_results = (
             "Aggressor_Radio,Aggressor_Band,Aggressor_Channel,"
             "Victim_Radio,Victim_Band,Victim_Channel,EMI,RX_Power,Desense,Sensitivity\n"
         )
 
-        for aggressor_index in range(len(self._aggressor_frequencies)):
-            aggressor_frequency = self._aggressor_frequencies[aggressor_index]
-            for victim_index in range(len(self._victim_frequencies)):
-                victim_frequency = self._victim_frequencies[victim_index]
+        for aggressor_index in range(len(aggressor_frequencies)):
+            aggressor_frequency = aggressor_frequencies[aggressor_index]
+            for victim_index in range(len(victim_frequencies)):
+                victim_frequency = victim_frequencies[victim_index]
 
                 pivot_results += (
                     f"{self._aggressor},{self._aggressor_band},{aggressor_frequency},"
                     f"{self._victim},{self._victim_band},{victim_frequency},"
-                    f"{self._emi[aggressor_index][victim_index]},"
-                    f"{self._rx_power[aggressor_index][victim_index]},"
-                    f"{self._desense[aggressor_index][victim_index]},"
-                    f"{self._sensitivity[aggressor_index][victim_index]}\n"
+                    f"{emi_data[aggressor_index][victim_index]},"
+                    f"{rx_power_data[aggressor_index][victim_index]},"
+                    f"{desense_data[aggressor_index][victim_index]},"
+                    f"{sensitivity_data[aggressor_index][victim_index]}\n"
                 )
 
         print(pivot_results)
@@ -416,11 +463,12 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
         if not self._emi:
             self._extract_data()
 
+        app = self._app()
         filename = filedialog.asksaveasfilename(
             title="Save Results to CSV",
             defaultextension=".csv",
             filetypes=[("CSV files", "*.csv"), ("All files", "*.*")],
-            initialdir=os.path.dirname(self.aedt_application.project_path),
+            initialdir=os.path.dirname(app.project_path),
         )
 
         if not filename:
@@ -432,7 +480,7 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
         except Exception as e:
             messagebox.showerror("Export Error", f"Failed to export CSV: {e}")
 
-    def _plot_matrix_heatmap(self, red_threshold=0, yellow_threshold=-10):
+    def _plot_matrix_heatmap(self, red_threshold: float = 0, yellow_threshold: float = -10):
         """Create a 2D heatmap visualization of a matrix using green-yellow-red color scheme.
 
         Color mapping:
@@ -442,16 +490,21 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
         """
         # Create figure and axis
         plt.figure()
+        aggressor_frequencies = self._aggressor_frequency_list()
+        victim_frequencies = self._victim_frequency_list()
+        emi_data = self._emi_data()
 
         # Plot formatting parameters
         plt.title(f"EMI Heatmap - {self.active_project_name}")
         plt.xlabel(f"Tx channels - {self._aggressor} | {self._aggressor_band}")
         plt.ylabel(f"Rx channels - {self._victim} | {self._victim_band}")
-        plt.xticks(range(len(self._aggressor_frequencies)), np.round(self._aggressor_frequencies, 1), rotation=90)
-        plt.yticks(range(len(self._victim_frequencies)), np.round(self._victim_frequencies, 1))
+        aggressor_labels = [f"{frequency:.1f}" for frequency in aggressor_frequencies]
+        victim_labels = [f"{frequency:.1f}" for frequency in victim_frequencies]
+        plt.xticks(range(len(aggressor_frequencies)), aggressor_labels, rotation=90)
+        plt.yticks(range(len(victim_frequencies)), victim_labels)
 
         # Transpose and prepare data
-        data = np.array(np.transpose(self._emi))
+        data = np.array(np.transpose(emi_data))
 
         # Validate data
         if data.size == 0:
@@ -525,19 +578,19 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
         im = plt.imshow(data, cmap=cmap, norm=norm, aspect="auto")
 
         # Add black lines between cells
-        ax = plt.gca()
+        ax = cast(Any, plt.gca())
         for i in range(data.shape[0] + 1):
             ax.axhline(i - 0.5, color="black", linewidth=1)
         for j in range(data.shape[1] + 1):
             ax.axvline(j - 0.5, color="black", linewidth=1)
 
         # Customize hover info to show frequency and EMI value
-        def format_coord(x, y):
+        def format_coord(x: float, y: float) -> str:
             col = int(x + 0.5)
             row = int(y + 0.5)
-            if 0 <= col < len(self._aggressor_frequencies) and 0 <= row < len(self._victim_frequencies):
-                tx_freq = self._aggressor_frequencies[col]
-                rx_freq = self._victim_frequencies[row]
+            if 0 <= col < len(aggressor_frequencies) and 0 <= row < len(victim_frequencies):
+                tx_freq = aggressor_frequencies[col]
+                rx_freq = victim_frequencies[row]
                 emi_val = data[row, col]
                 return f"Tx: {tx_freq:.2f} MHz, Rx: {rx_freq:.2f} MHz, EMI: {emi_val:.2f} dB"
             return ""
@@ -562,7 +615,8 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
 
         # Maximize the plot window
         manager = plt.get_current_fig_manager()
-        manager.window.state("zoomed")
+        if manager and hasattr(cast(Any, manager), "window"):
+            cast(Any, manager).window.state("zoomed")
         plt.show()
 
     def _on_generate_heatmap(self):
@@ -571,9 +625,11 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
             self._extract_data()
 
         try:
+            app = self._app()
+            revision = self._revision_obj()
             # Get EMI thresholds
-            if self.aedt_application.desktop_class.aedt_version_id > "2025.1":
-                category_node = self._revision.get_result_categorization_node()
+            if app.desktop_class.aedt_version_id > "2025.1":
+                category_node = revision.get_result_categorization_node()
                 props = category_node.properties.get("EmiThresholdList")
                 if props:
                     red = float(props.split(";")[0])
@@ -585,7 +641,7 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
             self._plot_matrix_heatmap(red, yellow)
 
             # Set save directory to project directory
-            plt.rcParams["savefig.directory"] = os.path.dirname(self.aedt_application.project_path)
+            plt.rcParams["savefig.directory"] = os.path.dirname(app.project_path)
 
         except Exception as e:
             messagebox.showerror("Heatmap Error", f"Failed to generate heatmap: {e}")

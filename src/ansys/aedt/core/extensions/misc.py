@@ -38,7 +38,11 @@ import tkinter
 from tkinter import ttk
 from tkinter.messagebox import showerror
 import traceback
+from types import TracebackType
+from typing import Any
 from typing import Callable
+from typing import Protocol
+from typing import cast
 
 import PIL.Image
 import PIL.ImageTk
@@ -61,7 +65,7 @@ MOON = "\u2600"
 """Moon."""
 SUN = "\u263d"
 """Sun."""
-DEFAULT_PADDING = {"padx": 10, "pady": 6}
+DEFAULT_PADDING: dict[str, Any] = {"padx": 10, "pady": 6}
 """Default padding."""
 DEFAULT_WIDTH = 10
 """Default width."""
@@ -168,7 +172,11 @@ def get_aedt_theme() -> str:
     return res
 
 
-def get_latest_version(package_name: str, timeout: int = (2, 2)) -> str:
+class DesignTypeApp(Protocol):
+    design_type: str
+
+
+def get_latest_version(package_name: str, timeout: int | tuple[int, int] = (2, 2)) -> str:
     """Return latest version string from PyPI or 'Unknown' on failure.
 
     Examples
@@ -350,6 +358,9 @@ def check_for_pyaedt_update_on_startup(
             if not latest:
                 log.debug("PyAEDT update check: no prompt required or latest unavailable.")
                 return
+            if declined_file is None:
+                log.debug("PyAEDT update check: declined file unavailable.")
+                return
             try:
                 root.after(0, lambda: show_update_callback(latest, declined_file))
             except Exception:
@@ -432,20 +443,26 @@ class ExtensionCommon(PyAedtBase):
         self.theme_color = theme_color
         self._widgets = {}
         self.__desktop = None
-        self.__aedt_application = None
+        self.__aedt_application: DesignTypeApp | None = None
         self.__data: ExtensionCommonData | None = None
         self._widgets["log_widget"] = None
         self._widgets["button_frame"] = None
 
         if toggle_row is not None and toggle_column is not None:
-            self.add_toggle_theme_button(self.root, toggle_row, toggle_column)
+            self.add_toggle_theme_button(cast(tkinter.Misc, self.root), toggle_row, toggle_column)
         if add_custom_content:
             self.add_extension_content()
 
         self.check_design_type()
         self.apply_theme(self.theme_color)
 
-    def add_toggle_theme_button(self, parent: tkinter.Widget, toggle_row: int, toggle_column: int):
+    def _get_root_theme(self) -> str:
+        return cast(str, getattr(self.root, "theme", "light"))
+
+    def _set_root_theme(self, theme_name: str) -> None:
+        setattr(self.root, "theme", theme_name)
+
+    def add_toggle_theme_button(self, parent: tkinter.Misc, toggle_row: int, toggle_column: int) -> None:
         """Create a button to toggle between light and dark themes.
 
         Examples
@@ -479,7 +496,7 @@ class ExtensionCommon(PyAedtBase):
         change_theme_button.grid(row=0, column=0)
         self._widgets["change_theme_button"] = change_theme_button
 
-    def add_logger(self, parent: tkinter.Widget, row: int, column: int):
+    def add_logger(self, parent: tkinter.Misc, row: int, column: int) -> None:
         """Add a logger text box and a button to show logs."""
         logger_frame = ttk.Frame(parent, style="PyAEDT.TFrame", name="logger_frame")
         logger_frame.grid(row=row, column=column, sticky="ew", **DEFAULT_PADDING)
@@ -537,12 +554,13 @@ class ExtensionCommon(PyAedtBase):
         >>> extension.toggle_theme()  # doctest: +SKIP
 
         """
-        if self.root.theme == "light":
+        root_theme = self._get_root_theme()
+        if root_theme == "light":
             self.apply_theme("dark")
-        elif self.root.theme == "dark":
+        elif root_theme == "dark":
             self.apply_theme("light")
         else:  # pragma: no cover
-            raise ValueError(f"Unknown theme: {self.root.theme}. Use 'light' or 'dark'.")
+            raise ValueError(f"Unknown theme: {root_theme}. Use 'light' or 'dark'.")
 
     def log_message(self, message: str):
         """Append a message to the log text box.
@@ -559,17 +577,24 @@ class ExtensionCommon(PyAedtBase):
             widget.insert("end", message + "\n")
             widget.configure(state="disabled")
 
+    @abstractmethod
+    def open_all_logs_window(self) -> None:
+        """Open a log viewer for the current extension."""
+        raise NotImplementedError
+
     def __init_root(self, title: str, withdraw: bool) -> tkinter.Tk:
         """Init Tk root window with error handling and icon."""
 
-        def show_error_with_details(self, exc, val, tb):  # pragma: no cover
+        def show_error_with_details(
+            self, exc: type[BaseException], val: BaseException, tb: TracebackType | None
+        ) -> object:  # pragma: no cover
             """Custom exception showing an error message with details button."""
             win = tkinter.Toplevel()
             win.title("Error")
             win.resizable(False, False)
             win.grab_set()
 
-            label = tkinter.Label(win, text=val, justify="left")
+            label = tkinter.Label(win, text=str(val), justify="left")
             label.grid(row=0, column=0, columnspan=2, **DEFAULT_PADDING)
 
             details_frame = ttk.Frame(win)
@@ -608,15 +633,18 @@ class ExtensionCommon(PyAedtBase):
             button_ok.grid(row=1, column=1, sticky="e", **DEFAULT_PADDING)
 
             details_frame.grid_remove()
+            return None
 
-        def report_callback_exception_withdraw(self, exc, val, tb):
+        def report_callback_exception_withdraw(
+            self, exc: type[BaseException], val: BaseException, tb: TracebackType | None
+        ) -> object:
             """Custom exception that raises the error without showing a message box."""
             raise val
 
         if withdraw:
-            tkinter.Tk.report_callback_exception = report_callback_exception_withdraw
+            tkinter.Tk.report_callback_exception = cast(Any, report_callback_exception_withdraw)
         else:
-            tkinter.Tk.report_callback_exception = show_error_with_details
+            tkinter.Tk.report_callback_exception = cast(Any, show_error_with_details)
 
         root = tkinter.Tk()
         root.title(title)
@@ -628,7 +656,7 @@ class ExtensionCommon(PyAedtBase):
             icon_path = Path(ansys.aedt.core.extensions.__path__[0]) / "images" / "large" / "logo.png"
             im = PIL.Image.open(icon_path)
             photo = PIL.ImageTk.PhotoImage(im, master=root)
-            root.iconphoto(True, photo)
+            root.iconphoto(True, cast(Any, photo))
 
         return root
 
@@ -643,7 +671,7 @@ class ExtensionCommon(PyAedtBase):
         theme_colors_dict = self.theme.light if theme_color == "light" else self.theme.dark
         self.root.configure(background=theme_colors_dict["widget_bg"])
         for widget in self.__find_all_widgets(
-            self.root,
+            cast(tkinter.Misc, self.root),
             (tkinter.Text, tkinter.Listbox, tkinter.Canvas, tkinter.Scrollbar),
         ):
             if isinstance(widget, tkinter.Text):
@@ -666,16 +694,16 @@ class ExtensionCommon(PyAedtBase):
                 )
             else:
                 if "background" in widget.keys():
-                    widget.configure(background=theme_colors_dict["widget_bg"])
+                    cast(Any, widget).configure(background=theme_colors_dict["widget_bg"])
 
         button_text = None
         if theme_color == "light":
             self.theme.apply_light_theme(self.style)
-            self.root.theme = "light"
+            self._set_root_theme("light")
             button_text = SUN
         else:
             self.theme.apply_dark_theme(self.style)
-            self.root.theme = "dark"
+            self._set_root_theme("dark")
             button_text = MOON
 
         try:
@@ -686,7 +714,7 @@ class ExtensionCommon(PyAedtBase):
 
     def __find_all_widgets(
         self,
-        widget: tkinter.Widget,
+        widget: tkinter.Misc,
         widget_classes: type[tkinter.Widget] | tuple[type[tkinter.Widget], ...],
     ) -> list[tkinter.Widget]:
         """Return a list of all widgets of given type(s) in the widget hierarchy."""
@@ -702,7 +730,7 @@ class ExtensionCommon(PyAedtBase):
         self.root.destroy()
 
     @property
-    def change_theme_button(self) -> tkinter.Widget:
+    def change_theme_button(self) -> ttk.Button:
         """Return the theme toggle button.
 
         Examples
@@ -710,7 +738,7 @@ class ExtensionCommon(PyAedtBase):
         >>> extension.change_theme_button  # doctest: +SKIP
 
         """
-        res = self.root.nametowidget("theme_button_frame.theme_toggle_button")
+        res = cast(ttk.Button, self.root.nametowidget("theme_button_frame.theme_toggle_button"))
         return res
 
     @property
@@ -764,7 +792,7 @@ class ExtensionCommon(PyAedtBase):
         return self.__desktop
 
     @property
-    def aedt_application(self) -> object:
+    def aedt_application(self) -> DesignTypeApp:
         """Return the active AEDT application instance.
 
         Examples
@@ -785,8 +813,11 @@ class ExtensionCommon(PyAedtBase):
                 raise AEDTRuntimeError(
                     "No active design found. Please open or create a design before running this extension."
                 )
-            self.__aedt_application = get_pyaedt_app(active_project_name, active_design_name)
-        return self.__aedt_application
+            self.__aedt_application = cast(DesignTypeApp, get_pyaedt_app(active_project_name, active_design_name))
+        app = self.__aedt_application
+        if app is None:  # pragma: no cover
+            raise AEDTRuntimeError("Unable to retrieve the active AEDT application.")
+        return app
 
     def release_desktop(self) -> bool:
         """Release AEDT desktop instance.
@@ -856,7 +887,7 @@ class ExtensionCommon(PyAedtBase):
         raise NotImplementedError("Subclasses must implement this method.")
 
     @abstractmethod
-    def check_design_type(self):
+    def check_design_type(self) -> None:
         """Check the design type.
 
         This method should be implemented by subclasses to add specific content
@@ -1122,16 +1153,21 @@ def create_default_ui(title: str, withdraw: bool = False) -> tuple[tkinter.Tk, E
     import ansys.aedt.core.extensions
     from ansys.aedt.core.extensions.misc import ExtensionTheme
 
-    def report_callback_exception(self, exc, val, tb):
+    def report_callback_exception(
+        self, exc: type[BaseException], val: BaseException, tb: TracebackType | None
+    ) -> object:
         showerror("Error", message=str(val))
+        return None
 
-    def report_callback_exception_withdraw(self, exc, val, tb):
+    def report_callback_exception_withdraw(
+        self, exc: type[BaseException], val: BaseException, tb: TracebackType | None
+    ) -> object:
         raise val
 
     if withdraw:
-        tkinter.Tk.report_callback_exception = report_callback_exception_withdraw
+        tkinter.Tk.report_callback_exception = cast(Any, report_callback_exception_withdraw)
     else:
-        tkinter.Tk.report_callback_exception = report_callback_exception
+        tkinter.Tk.report_callback_exception = cast(Any, report_callback_exception)
 
     root = tkinter.Tk()
 
@@ -1146,7 +1182,7 @@ def create_default_ui(title: str, withdraw: bool = False) -> tuple[tkinter.Tk, E
         photo = PIL.ImageTk.PhotoImage(im, master=root)
 
         # Set the icon for the main window
-        root.iconphoto(True, photo)
+        root.iconphoto(True, cast(Any, photo))
 
     # Configure style for ttk buttons
     style = ttk.Style()
@@ -1154,7 +1190,7 @@ def create_default_ui(title: str, withdraw: bool = False) -> tuple[tkinter.Tk, E
 
     # Apply light theme initially
     theme.apply_light_theme(style)
-    root.theme = "light"
+    setattr(root, "theme", "light")
 
     # Set background color of the window (optional)
     root.configure(bg=theme.light["widget_bg"])
