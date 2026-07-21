@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
 defaultparametricSetup = dict(
     {
         "IsEnabled": True,
@@ -34,6 +33,7 @@ defaultparametricSetup = dict(
         "Goals": {},
     }
 )
+"""Value for defaultparametric setup."""
 
 
 defaultdxSetup = dict(
@@ -51,6 +51,7 @@ defaultdxSetup = dict(
         "Goals": {},
     }
 )
+"""Value for defaultdx setup."""
 
 defaultoptiSetup = dict(
     {
@@ -84,6 +85,7 @@ defaultoptiSetup = dict(
         "UpdateDesignWhenDone": True,
     }
 )
+"""Value for defaultopti setup."""
 
 defaultsensitivitySetup = dict(
     {
@@ -101,6 +103,7 @@ defaultsensitivitySetup = dict(
         "Perform Worst Case Analysis": False,
     }
 )
+"""Value for defaultsensitivity setup."""
 
 defaultstatisticalSetup = dict(
     {
@@ -114,6 +117,7 @@ defaultstatisticalSetup = dict(
         "Goals": {},
     }
 )
+"""Value for defaultstatistical setup."""
 
 defaultdoeSetup = dict(
     {
@@ -145,3 +149,4 @@ defaultdoeSetup = dict(
         "Tolerances": [],
     }
 )
+"""Value for defaultdoe setup."""

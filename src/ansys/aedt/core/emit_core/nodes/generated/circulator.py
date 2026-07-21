@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -29,6 +29,8 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class Circulator(EmitNode):
+    """Provide circulator."""
+
     def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = True
@@ -36,7 +38,16 @@ class Circulator(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node."""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> circulator = app.schematic.create_component("Circulator", name="Circulator1")
+        >>> circulator.node_type
+
+        """
         return self._node_type
 
     @min_aedt_version("2027.1")
@@ -74,12 +85,30 @@ class Circulator(EmitNode):
 
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
-        """Duplicate this node"""
+        """Duplicate this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> circulator = app.schematic.create_component("Circulator", name="Circulator1")
+        >>> circulator_copy = circulator.duplicate("CirculatorCopy")
+
+        """
         return self._duplicate(new_name)
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node"""
+        """Delete this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> circulator = app.schematic.create_component("Circulator", name="Circulator1")
+        >>> circulator.delete()
+
+        """
         self._delete()
 
     @property
@@ -88,6 +117,15 @@ class Circulator(EmitNode):
         """Name of file defining the Isolator/Circulator.
 
         Value should be a full file path.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> circulator = app.schematic.create_component("Circulator", name="Circulator1")
+        >>> circulator.filename = "C:\\Temp\\circulator.s3p"
+        >>> circulator.filename
+
         """
         val = self._get_property("Filename")
         return val
@@ -103,6 +141,14 @@ class Circulator(EmitNode):
         """System Noise temperature (K) of the component.
 
         Value should be between 0 and 1000.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> circulator = app.schematic.create_component("Circulator", name="Circulator1")
+        >>> circulator.noise_temperature = 290.0
+
         """
         val = self._get_property("Noise Temperature")
         return float(val)
@@ -115,7 +161,16 @@ class Circulator(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def notes(self) -> str:
-        """Expand to view/edit notes stored with the project."""
+        """Expand to view/edit notes stored with the project.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> circulator = app.schematic.create_component("Circulator", name="Circulator1")
+        >>> circulator.notes = "Three-port routing device"
+
+        """
         val = self._get_property("Notes")
         return val
 
@@ -135,6 +190,14 @@ class Circulator(EmitNode):
 
         Type of circulator model to use. Options include: By File (measured or
         simulated) or Parametric.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> circulator = app.schematic.create_component("Circulator", name="Circulator1")
+        >>> circulator.circulator_type = circulator.CirculatorTypeOption.PARAMETRIC
+
         """
         val = self._get_property("Circulator Type")
         val = self.CirculatorTypeOption[val.upper()]
@@ -151,6 +214,14 @@ class Circulator(EmitNode):
         """Circulator in-band loss in forward direction.
 
         Value should be between 0 and 100.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> circulator = app.schematic.create_component("Circulator", name="Circulator1")
+        >>> circulator.insertion_loss = 1.5
+
         """
         val = self._get_property("Insertion Loss")
         return float(val)
@@ -169,6 +240,14 @@ class Circulator(EmitNode):
         ideal (infinite reverse isolation).
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> circulator = app.schematic.create_component("Circulator", name="Circulator1")
+        >>> circulator.finite_reverse_isolation = True
+
         """
         val = self._get_property("Finite Reverse Isolation")
         return val == "true"
@@ -184,6 +263,14 @@ class Circulator(EmitNode):
         """Circulator reverse isolation (i.e., loss in the reverse direction).
 
         Value should be between 0 and 100.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> circulator = app.schematic.create_component("Circulator", name="Circulator1")
+        >>> circulator.reverse_isolation = 30.0
+
         """
         val = self._get_property("Reverse Isolation")
         return float(val)
@@ -202,6 +289,14 @@ class Circulator(EmitNode):
         (infinite bandwidth).
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> circulator = app.schematic.create_component("Circulator", name="Circulator1")
+        >>> circulator.finite_bandwidth = True
+
         """
         val = self._get_property("Finite Bandwidth")
         return val == "true"
@@ -217,6 +312,14 @@ class Circulator(EmitNode):
         """Out-of-band loss (attenuation).
 
         Value should be between 0 and 200.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> circulator = app.schematic.create_component("Circulator", name="Circulator1")
+        >>> circulator.out_of_band_attenuation = 60.0
+
         """
         val = self._get_property("Out-of-band Attenuation")
         return float(val)
@@ -232,6 +335,14 @@ class Circulator(EmitNode):
         """Lower stop band frequency.
 
         Value should be between 1 and 100e9.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> circulator = app.schematic.create_component("Circulator", name="Circulator1")
+        >>> circulator.lower_stop_band = "1.8 GHz"
+
         """
         val = self._get_property("Lower Stop Band")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -249,6 +360,14 @@ class Circulator(EmitNode):
         """Lower cutoff frequency.
 
         Value should be between 1 and 100e9.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> circulator = app.schematic.create_component("Circulator", name="Circulator1")
+        >>> circulator.lower_cutoff = "2 GHz"
+
         """
         val = self._get_property("Lower Cutoff")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -266,6 +385,14 @@ class Circulator(EmitNode):
         """Higher cutoff frequency.
 
         Value should be between 1 and 100e9.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> circulator = app.schematic.create_component("Circulator", name="Circulator1")
+        >>> circulator.higher_cutoff = "2.4 GHz"
+
         """
         val = self._get_property("Higher Cutoff")
         val = self._convert_from_internal_units(float(val), "Freq")

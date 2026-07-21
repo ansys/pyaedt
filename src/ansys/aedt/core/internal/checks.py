@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -27,6 +27,7 @@
 from functools import wraps
 import warnings
 
+from ansys.aedt.core.generic.general_methods import _F
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 # NOTE: This should be updated for any modifications in pyaedt's graphics install target.
@@ -45,7 +46,14 @@ _GRAPHICS_DEPENDENCIES = {
 
 
 def install_message(dependency: str | list[str], target: str, level: str = "method") -> str:
-    """Generate an installation message for missing dependencies."""
+    """Generate an installation message for missing dependencies.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.internal.checks import install_message
+    >>> install_message("pyvista", "graphics")
+
+    """
     if isinstance(dependency, list):
         msg = f"Dependencies {', '.join(dependency)} are required."
     else:
@@ -72,6 +80,14 @@ def min_aedt_version(min_version: str) -> callable:
     ------
     AEDTRuntimeError
         If the method version is higher than the AEDT version.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.internal.checks import min_aedt_version
+    >>> decorator = min_aedt_version("2026.1")
+    >>> callable(decorator)
+    True
+
     """
 
     def fetch_odesktop_from_common_attributes_names(item: object) -> object:
@@ -93,7 +109,7 @@ def min_aedt_version(min_version: str) -> callable:
             if desktop_class is not None:
                 return desktop_class.odesktop
 
-    def aedt_version_decorator(method: callable) -> callable:
+    def aedt_version_decorator(method: _F) -> _F:
         """Decorator to check AEDT version compatibility for a method."""
 
         @wraps(method)
@@ -115,12 +131,12 @@ def min_aedt_version(min_version: str) -> callable:
             else:
                 return method(self, *args, **kwargs)
 
-        return wrapper
+        return wrapper  # type: ignore[return-value]
 
     return aedt_version_decorator
 
 
-def check_dependency_available(dependency: str, warning: bool = False) -> bool:
+def check_dependency_available(dependency: str, warning: bool = False) -> bool | None:
     """Check if a specific graphics dependency is available.
 
     Parameters
@@ -133,13 +149,19 @@ def check_dependency_available(dependency: str, warning: bool = False) -> bool:
 
     Returns
     -------
-    bool
+    bool or None
         True if dependency is available, False otherwise.
 
     Raises
     ------
     ImportError
         If dependency is not available and warning is False.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.internal.checks import check_dependency_available
+    >>> check_dependency_available("pyvista")
+
     """
     if dependency not in _GRAPHICS_DEPENDENCIES:
         raise ValueError(f"Unknown dependency: {dependency}. Valid options: {list(_GRAPHICS_DEPENDENCIES.keys())}")
@@ -197,16 +219,24 @@ def requires_graphical_dependency(*dependencies: str) -> callable:
     ------
     ImportError
         If any of the required dependencies are not available.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.internal.checks import requires_graphical_dependency
+    >>> decorator = requires_graphical_dependency("pyvista", "vtk")
+    >>> callable(decorator)
+    True
+
     """
 
-    def decorator(method: callable) -> callable:
+    def decorator(method: _F) -> _F:
         @wraps(method)
         def wrapper(*args, **kwargs):
             for dep in dependencies:
                 check_dependency_available(dep, warning=False)
             return method(*args, **kwargs)
 
-        return wrapper
+        return wrapper  # type: ignore[return-value]
 
     return decorator
 
@@ -217,6 +247,13 @@ def is_notebook() -> bool:
     Returns
     -------
     bool
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.internal.checks import is_notebook
+    >>> isinstance(is_notebook(), bool)
+    True
+
     """
     try:
         shell = get_ipython().__class__.__name__

@@ -58,6 +58,7 @@ Maxwell 2D
 Maxwell 3D
 Maxwell Circuit
 mcm
+microstrip
 [Mm]echanical
 [Mm]onostatic
 multiphysics

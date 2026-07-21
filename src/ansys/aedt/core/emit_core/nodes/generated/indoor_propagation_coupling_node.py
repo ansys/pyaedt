@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -31,6 +31,8 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class IndoorPropagationCouplingNode(EmitNode):
+    """Provide indoor propagation coupling node."""
+
     def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
@@ -38,13 +40,33 @@ class IndoorPropagationCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
-        """The parent of this emit node."""
+        """The parent of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> coupling_node = revision.get_coupling_data_node().add_indoor_propagation_coupling()
+        >>> coupling_node.parent
+
+        """
         return self._parent
 
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node."""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> coupling_node = revision.get_coupling_data_node().add_indoor_propagation_coupling()
+        >>> coupling_node.node_type
+
+        """
         return self._node_type
 
     @min_aedt_version("2027.1")
@@ -92,12 +114,32 @@ class IndoorPropagationCouplingNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
-        """Duplicate this node"""
+        """Duplicate this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> coupling_node = revision.get_coupling_data_node().add_indoor_propagation_coupling()
+        >>> coupling_copy = coupling_node.duplicate("IndoorPropagationCopy")
+
+        """
         return self._duplicate(new_name)
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node"""
+        """Delete this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> coupling_node = revision.get_coupling_data_node().add_indoor_propagation_coupling()
+        >>> coupling_node.delete()
+
+        """
         self._delete()
 
     @property
@@ -111,6 +153,16 @@ class IndoorPropagationCouplingNode(EmitNode):
             Value should be between 0.0 and 100.0.
         Floor Penetration Loss (dB):
             Value should be between 0.0 and 1000.0.
+
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> coupling_node = revision.get_coupling_data_node().add_indoor_propagation_coupling()
+        >>> coupling_node.table_data = [(2.4e9, 18.0, 12.0), (5.0e9, 22.0, 15.0)]
+
         """
         return self._get_table_data()
 
@@ -125,6 +177,16 @@ class IndoorPropagationCouplingNode(EmitNode):
         """Enable/Disable coupling.
 
         Value should be 'true' or 'false'.
+
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> coupling_node = revision.get_coupling_data_node().add_indoor_propagation_coupling()
+        >>> coupling_node.enabled = True
+
         """
         val = self._get_property("Enabled")
         return val == "true"
@@ -137,7 +199,18 @@ class IndoorPropagationCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def antenna_a(self) -> EmitNode:
-        """First antenna of the pair to apply the coupling values to."""
+        """First antenna of the pair to apply the coupling values to.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, antenna_a = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Ant1")
+        >>> revision = app.results.get_revision()
+        >>> coupling_node = revision.get_coupling_data_node().add_indoor_propagation_coupling()
+        >>> coupling_node.antenna_a = antenna_a
+
+        """
         val = self._get_property("Antenna A")
         return val
 
@@ -149,7 +222,18 @@ class IndoorPropagationCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def antenna_b(self) -> EmitNode:
-        """Second antenna of the pair to apply the coupling values to."""
+        """Second antenna of the pair to apply the coupling values to.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, antenna_b = app.schematic.create_radio_antenna("Bluetooth", antenna_name="Ant2")
+        >>> revision = app.results.get_revision()
+        >>> coupling_node = revision.get_coupling_data_node().add_indoor_propagation_coupling()
+        >>> coupling_node.antenna_b = antenna_b
+
+        """
         val = self._get_property("Antenna B")
         return val
 
@@ -168,7 +252,17 @@ class IndoorPropagationCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def building_type(self) -> BuildingTypeOption:
-        """Specify the building type for the Indoor Propagation model."""
+        """Specify the building type for the Indoor Propagation model.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> coupling_node = revision.get_coupling_data_node().add_indoor_propagation_coupling()
+        >>> coupling_node.building_type = coupling_node.BuildingTypeOption.OFFICE_BUILDING
+
+        """
         val = self._get_property("Building Type")
         val = self.BuildingTypeOption[val.upper()]
         return val
@@ -184,6 +278,16 @@ class IndoorPropagationCouplingNode(EmitNode):
         """The number of floors separating the antennas.
 
         Value should be between 1 and 3.
+
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> coupling_node = revision.get_coupling_data_node().add_indoor_propagation_coupling()
+        >>> coupling_node.number_of_floors = 2
+
         """
         val = self._get_property("Number of Floors")
         return int(val)
@@ -202,6 +306,16 @@ class IndoorPropagationCouplingNode(EmitNode):
         this node.
 
         Value should be between 0 and 100.
+
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> coupling_node = revision.get_coupling_data_node().add_indoor_propagation_coupling()
+        >>> coupling_node.custom_fading_margin = 6.0
+
         """
         val = self._get_property("Custom Fading Margin")
         return float(val)
@@ -220,6 +334,16 @@ class IndoorPropagationCouplingNode(EmitNode):
         defined by this node.
 
         Value should be between 0 and 100.
+
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> coupling_node = revision.get_coupling_data_node().add_indoor_propagation_coupling()
+        >>> coupling_node.polarization_mismatch = 1.5
+
         """
         val = self._get_property("Polarization Mismatch")
         return float(val)
@@ -238,6 +362,16 @@ class IndoorPropagationCouplingNode(EmitNode):
         defined by this node.
 
         Value should be between 0 and 100.
+
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> coupling_node = revision.get_coupling_data_node().add_indoor_propagation_coupling()
+        >>> coupling_node.pointing_error_loss = 2.0
+
         """
         val = self._get_property("Pointing Error Loss")
         return float(val)
@@ -256,7 +390,17 @@ class IndoorPropagationCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def fading_type(self) -> FadingTypeOption:
-        """Specify the type of fading to include."""
+        """Specify the type of fading to include.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> coupling_node = revision.get_coupling_data_node().add_indoor_propagation_coupling()
+        >>> coupling_node.fading_type = coupling_node.FadingTypeOption.FAST_FADING_AND_SHADOWING
+
+        """
         val = self._get_property("Fading Type")
         val = self.FadingTypeOption[val.upper()]
         return val
@@ -275,6 +419,16 @@ class IndoorPropagationCouplingNode(EmitNode):
         value plus the margin.
 
         Value should be between 0.0 and 100.0.
+
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> coupling_node = revision.get_coupling_data_node().add_indoor_propagation_coupling()
+        >>> coupling_node.fading_availability = 99.0
+
         """
         val = self._get_property("Fading Availability")
         return float(val)
@@ -290,6 +444,16 @@ class IndoorPropagationCouplingNode(EmitNode):
         """Standard deviation modeling the random amount of shadowing loss.
 
         Value should be between 0.0 and 100.0.
+
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> coupling_node = revision.get_coupling_data_node().add_indoor_propagation_coupling()
+        >>> coupling_node.std_deviation = 8.0
+
         """
         val = self._get_property("Std Deviation")
         return float(val)
@@ -305,6 +469,16 @@ class IndoorPropagationCouplingNode(EmitNode):
         """Adds a margin for rain attenuation to the computed coupling.
 
         Value should be 'true' or 'false'.
+
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> coupling_node = revision.get_coupling_data_node().add_indoor_propagation_coupling()
+        >>> coupling_node.include_rain_attenuation = True
+
         """
         val = self._get_property("Include Rain Attenuation")
         return val == "true"
@@ -323,6 +497,16 @@ class IndoorPropagationCouplingNode(EmitNode):
         from 99-99.999%).
 
         Value should be between 99 and 99.999.
+
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> coupling_node = revision.get_coupling_data_node().add_indoor_propagation_coupling()
+        >>> coupling_node.rain_availability = 99.5
+
         """
         val = self._get_property("Rain Availability")
         return float(val)
@@ -338,6 +522,16 @@ class IndoorPropagationCouplingNode(EmitNode):
         """Rain rate (mm/hr) exceeded for 0.01% of the time.
 
         Value should be between 0.0 and 1000.0.
+
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> coupling_node = revision.get_coupling_data_node().add_indoor_propagation_coupling()
+        >>> coupling_node.rain_rate = 25.0
+
         """
         val = self._get_property("Rain Rate")
         return float(val)
@@ -356,6 +550,16 @@ class IndoorPropagationCouplingNode(EmitNode):
         horizontal.
 
         Value should be between 0.0 and 180.0.
+
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> coupling_node = revision.get_coupling_data_node().add_indoor_propagation_coupling()
+        >>> coupling_node.polarization_tilt_angle = 30.0
+
         """
         val = self._get_property("Polarization Tilt Angle")
         return float(val)
@@ -374,6 +578,16 @@ class IndoorPropagationCouplingNode(EmitNode):
         the computed coupling.
 
         Value should be 'true' or 'false'.
+
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> coupling_node = revision.get_coupling_data_node().add_indoor_propagation_coupling()
+        >>> coupling_node.include_atmospheric_absorption = True
+
         """
         val = self._get_property("Include Atmospheric Absorption")
         return val == "true"
@@ -389,6 +603,16 @@ class IndoorPropagationCouplingNode(EmitNode):
         """Air temperature in degrees Celsius.
 
         Value should be between -273.0 and 100.0.
+
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> coupling_node = revision.get_coupling_data_node().add_indoor_propagation_coupling()
+        >>> coupling_node.temperature = 21.0
+
         """
         val = self._get_property("Temperature")
         return float(val)
@@ -404,6 +628,16 @@ class IndoorPropagationCouplingNode(EmitNode):
         """Total air pressure.
 
         Value should be between 0.0 and 2000.0.
+
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> coupling_node = revision.get_coupling_data_node().add_indoor_propagation_coupling()
+        >>> coupling_node.total_air_pressure = 1013.25
+
         """
         val = self._get_property("Total Air Pressure")
         return float(val)
@@ -419,6 +653,16 @@ class IndoorPropagationCouplingNode(EmitNode):
         """Water vapor concentration.
 
         Value should be between 0.0 and 2000.0.
+
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> coupling_node = revision.get_coupling_data_node().add_indoor_propagation_coupling()
+        >>> coupling_node.water_vapor_concentration = 7.5
+
         """
         val = self._get_property("Water Vapor Concentration")
         return float(val)

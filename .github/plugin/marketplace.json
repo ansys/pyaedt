@@ -1,0 +1,42 @@
+{
+    "name": "pyaedt-skills",
+    "owner": {
+        "name": "PyAnsys"
+    },
+    "metadata": {
+        "description": "Marketplace for PyAEDT skills shared by GitHub Copilot and Claude.",
+        "version": "1.0.dev0"
+    },
+    "plugins": [
+        {
+            "name": "pyaedt-cli",
+            "source": ".github/plugin/pyaedt-cli",
+            "description": "PyAEDT CLI skill for interacting with ANSYS Electronics Desktop through a command-line interface.",
+            "version": "1.0.dev0",
+            "author": {
+                "name": "PyAnsys"
+            },
+            "homepage": "https://github.com/ansys/pyaedt",
+            "repository": "https://github.com/ansys/pyaedt",
+            "keywords": [
+                "AEDT",
+                "PyAnsys",
+                "claude",
+                "copilot",
+                "PyAEDT",
+                "simulation"
+            ],
+            "category": "engineering",
+            "tags": [
+                "AEDT",
+                "claude-code",
+                "copilot",
+                "electronics",
+                "PyAEDT"
+            ],
+            "skills": [
+                "./skills/pyaedt-cli"
+            ]
+        }
+    ]
+}

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -255,3 +255,4 @@ spimsim_matlab_keywords_mapping = {
     "SAMPLES_FOR_C2M": "SAMPLES_FOR_C2M",
     "GX": "GX",
 }
+"""Value for spimsim matlab keywords mapping."""

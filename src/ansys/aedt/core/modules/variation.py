@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -24,6 +24,8 @@
 
 
 class Variation(dict):
+    """Provide variation."""
+
     def __init__(self, variation_string) -> None:
         super().__init__()
         if variation_string:

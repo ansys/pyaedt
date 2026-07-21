@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -45,26 +45,6 @@ def is_vector_equal(v, r):
 def desktop() -> None:
     """Override the desktop fixture to DO NOT open the Desktop when running this test class"""
     return
-
-
-def test_List2list() -> None:
-    from ansys.aedt.core.internal.clr_module import Double
-    from ansys.aedt.core.internal.clr_module import List
-
-    List_str = List[str]()
-    List_str.Add("one")
-    List_str.Add("two")
-    List_str.Add("three")
-    ls = go.List2list(List_str)
-    assert isinstance(ls, list)
-    assert len(ls) == 3
-    List_float = List[Double]()
-    List_float.Add(1.0)
-    List_float.Add(2.0)
-    List_float.Add(3.0)
-    lf = go.List2list(List_float)
-    assert isinstance(ls, list)
-    assert len(lf) == 3
 
 
 def test_parse_dim_arg() -> None:

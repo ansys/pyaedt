@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -29,6 +29,7 @@ from typing import TYPE_CHECKING
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
 
 if TYPE_CHECKING:
@@ -46,6 +47,11 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
     app : :class:`ansys.aedt.core.application.analysis_nexxim.FieldAnalysisCircuit`
         Inherited parent object. The parent object must provide the members
         `_modeler`, `_desktop`, `_odesign`, and `logger`.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post.post_3dlayout import PostProcessor3DLayout
+    >>> obj = PostProcessor3DLayout()
 
     """
 
@@ -157,9 +163,22 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
                 }
                 if self._app.post.fields_calculator.is_expression_defined(my_expression["name"]):
                     self._app.post.fields_calculator.delete_expression(my_expression["name"])
-                self._app.post.fields_calculator.add_expression(my_expression, "")
 
-                loss = self._app.post.fields_calculator.evaluate(my_expression["name"], solution, intrinsics={})
+                try:
+                    self._app.post.fields_calculator.add_expression(my_expression, "")
+                    loss = self._app.post.fields_calculator.evaluate(my_expression["name"], solution, intrinsics={})
+                except Exception as e:  # pragma: no cover
+                    if settings.release_on_exception:
+                        raise GrpcApiError(
+                            f"Failed to compute power loss for Net `{net_name}` on layer `{layer_name}`. "
+                            "Set `settings.release_on_exception = False` to fall back to a zero loss value instead "
+                            "of raising."
+                        ) from e
+                    else:
+                        self.logger.add_warning_message(
+                            f"Net `{net_name}` has no field data on layer `{layer_name}`. The loss is set to zero."
+                        )
+                        loss = 0
 
                 power_loss_per_layer.append({"layer": layer_name, "net": net_name, "loss": float(loss)})
 
@@ -182,6 +201,13 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
         -------
         dict
             Power by layer.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_3dlayout import PostProcessor3DLayout
+        >>> obj = PostProcessor3DLayout()
+        >>> obj.compute_power_by_layer(layers=["TOP"], solution=1)
+
         """
         power_by_layers = {}
         power_loss = self._compute_power_loss(layer_filter=layers, solution=solution)
@@ -209,6 +235,13 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
         -------
         dict
             Power by nets.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_3dlayout import PostProcessor3DLayout
+        >>> obj = PostProcessor3DLayout()
+        >>> obj.compute_power_by_net(nets=["VCC"], solution=1)
+
         """
         power_by_nets = {}
         power_loss = self._compute_power_loss(net_filter=nets, solution=solution)
@@ -278,7 +311,7 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
         for k, v in self._app.modeler.user_defined_components.items():
             if v.layout_component:
                 if not layers:
-                    layers = [i for i in v.layout_component.edb_object.stackup.stackup_layers.keys()]
+                    layers = [i for i in v.layout_component.edb_object.stackup.layers.keys()]
                 if not nets:
                     nets = [""] + [i for i in v.layout_component.edb_object.nets.nets.keys()]
                 for layer in layers:
@@ -347,6 +380,13 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
         References
         ----------
         >>> oModule.CreateFieldPlot
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_3dlayout import PostProcessor3DLayout
+        >>> obj = PostProcessor3DLayout()
+        >>> obj.create_fieldplot_layers(layers=["TOP"], quantity=1)
+
         """
         intrinsics = self._check_intrinsics(intrinsics, setup=setup)
         if not setup:
@@ -454,6 +494,13 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
         References
         ----------
         >>> oModule.CreateFieldPlot
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_3dlayout import PostProcessor3DLayout
+        >>> obj = PostProcessor3DLayout()
+        >>> obj.create_fieldplot_nets(nets=["VCC"], quantity=1)
+
         """
         intrinsics = self._check_intrinsics(intrinsics, setup=setup)
         if not setup:
@@ -536,6 +583,13 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
         References
         ----------
         >>> oModule.CreateFieldPlot
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_3dlayout import PostProcessor3DLayout
+        >>> obj = PostProcessor3DLayout()
+        >>> obj.create_fieldplot_layers_nets(layers_nets=["TOP"], quantity=1)
+
         """
         intrinsics = self._check_intrinsics(intrinsics, setup=setup)
         if not (
@@ -585,7 +639,7 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
             for layer in layers_nets:
                 if len(layer) == 1 or "no-net" in layer[1]:
                     for v in self._app.modeler.user_defined_components.values():
-                        if layer[0] in v.layout_component.edb_object.stackup.stackup_layers:
+                        if layer[0] in v.layout_component.edb_object.stackup.layers:
                             layer.extend(list(v.layout_component.edb_object.nets.nets.keys()))
             if plot_on_surface:
                 plot_type = "LayerNetsExtFace"

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -40,6 +40,7 @@ from ansys.aedt.core.modules.setup_templates import Sweep3DLayout
 from ansys.aedt.core.modules.setup_templates import SweepEddyCurrent
 from ansys.aedt.core.modules.setup_templates import SweepHfss3D
 from ansys.aedt.core.modules.setup_templates import SweepQ3D
+from ansys.aedt.core.modules.setup_templates import SweepRaptorX
 from ansys.aedt.core.modules.setup_templates import SweepSiwave
 
 
@@ -56,6 +57,12 @@ def identify_setup(props: dict) -> bool:
     -------
     bool
         `True` if domain is a time. `False` if the domain is for a frequency and sweeps.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.solve_sweeps import identify_setup
+    >>> identify_setup(props={"Name": "Value"})
+
     """
     keys = [
         "Transient",
@@ -79,6 +86,8 @@ def identify_setup(props: dict) -> bool:
 
 
 class SweepCommon(PyAedtBase):
+    """Provide sweep common."""
+
     def __repr__(self) -> str:
         return f"{self.setup_name} : {self.name}"
 
@@ -104,8 +113,15 @@ class SweepHFSS(SweepCommon):
 
     Examples
     --------
-    >>> hfss = Hfss(version=version, project=proj, design=gtemDesign, solution_type=solutiontype,
-                    name=name, new_desktop=False, close_on_exit=False)
+    >>> hfss = Hfss(
+    ...     version=version,
+    ...     project=proj,
+    ...     design=gtemDesign,
+    ...     solution_type=solutiontype,
+    ...     name=name,
+    ...     new_desktop=False,
+    ...     close_on_exit=False,
+    ... )
     >>> hfss_setup = hfss.setups[0]
     >>> hfss_sweep = SweepHFSS(hfss_setup, "Sweep", sweep_type="Interpolating", props=None)
 
@@ -152,6 +168,13 @@ class SweepHFSS(SweepCommon):
         -------
         bool
             `True` if solutions are available.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_sweeps import SweepHFSS
+        >>> obj = SweepHFSS()
+        >>> obj.is_solved
+
         """
         sol = self._app._app.post.reports_by_category.standard(setup=f"{self.setup_name} : {self.name}")
         if identify_setup(self.props):
@@ -168,6 +191,13 @@ class SweepHFSS(SweepCommon):
         -------
         list of float
             Frequency points.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_sweeps import SweepHFSS
+        >>> obj = SweepHFSS()
+        >>> obj.frequencies
+
         """
         sol = self._app._app.post.reports_by_category.standard(setup=f"{self.setup_name} : {self.name}")
         soldata = sol.get_solution_data()
@@ -185,6 +215,13 @@ class SweepHFSS(SweepCommon):
         -------
         list of float
             Frequency points.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_sweeps import SweepHFSS
+        >>> obj = SweepHFSS()
+        >>> obj.basis_frequencies
+
         """
         solutions_file = os.path.join(self._app._app.results_directory, f"{self._app._app.design_name}.asol")
         fr = []
@@ -324,6 +361,12 @@ class SweepHFSS(SweepCommon):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_sweeps import SweepHFSS
+        >>> obj = SweepHFSS()
+        >>> obj.create()
+
         """
         self.oanalysis.InsertFrequencySweep(self.setup_name, self._get_args())
         return True
@@ -336,6 +379,12 @@ class SweepHFSS(SweepCommon):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_sweeps import SweepHFSS
+        >>> obj = SweepHFSS()
+        >>> obj.update()
 
         """
         self.oanalysis.EditFrequencySweep(self.setup_name, self.name, self._get_args())
@@ -382,6 +431,11 @@ class SweepHFSS3DLayout(SweepCommon):
         Dictionary of the properties. The default is ``None``, in which
         case the default properties are retrieved.
 
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
+    >>> obj = SweepHFSS3DLayout()
+
     """
 
     def __init__(
@@ -397,6 +451,9 @@ class SweepHFSS3DLayout(SweepCommon):
         else:
             if setup.setuptype in [40, 41]:
                 self.props = copy.deepcopy(SweepSiwave)
+            elif setup.setuptype == 62:
+                self.props = copy.deepcopy(SweepRaptorX)
+                return
             else:
                 self.props = copy.deepcopy(Sweep3DLayout)
             # for t in props:
@@ -420,6 +477,13 @@ class SweepHFSS3DLayout(SweepCommon):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
+        >>> obj = SweepHFSS3DLayout()
+        >>> obj.combined_name
+
         """
         return f"{self.setup_name} : {self.name}"
 
@@ -431,6 +495,13 @@ class SweepHFSS3DLayout(SweepCommon):
         -------
         bool
             `True` if solutions are available.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
+        >>> obj = SweepHFSS3DLayout()
+        >>> obj.is_solved
+
         """
         expressions = [i for i in self._app.post.available_report_quantities(solution=self.combined_name)]
         sol = self._app._app.post.reports_by_category.standard(expressions=expressions[0], setup=self.combined_name)
@@ -452,6 +523,13 @@ class SweepHFSS3DLayout(SweepCommon):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
+        >>> obj = SweepHFSS3DLayout()
+        >>> obj.change_type(sweep_type=1)
+
         """
         if sweep_type == "Interpolating":
             self.props["FastSweep"] = True
@@ -476,6 +554,13 @@ class SweepHFSS3DLayout(SweepCommon):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
+        >>> obj = SweepHFSS3DLayout()
+        >>> obj.set_save_fields(save_fields=True)
+
         """
         self.props["GenerateSurfaceCurrent"] = save_fields
         self.props["SaveRadFieldsOnly"] = save_rad_fields
@@ -508,6 +593,13 @@ class SweepHFSS3DLayout(SweepCommon):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
+        >>> obj = SweepHFSS3DLayout()
+        >>> obj.add_subrange(range_type=1, start=[0, 0, 0])
+
         """
         try:
             if range_type == "SinglePoint" and self.props["FreqSweepType"] == "kInterpolating":
@@ -561,6 +653,12 @@ class SweepHFSS3DLayout(SweepCommon):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
+        >>> obj = SweepHFSS3DLayout()
+        >>> obj.change_range(range_type=1, start=[0, 0, 0])
+
         """
         if range_type == "LinearCount":
             sweep_range = "LINC " + str(start) + unit + " " + str(end) + unit + " " + str(count)
@@ -584,6 +682,12 @@ class SweepHFSS3DLayout(SweepCommon):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
+        >>> obj = SweepHFSS3DLayout()
+        >>> obj.create()
+
         """
         self.oanalysis.AddSweep(self.setup_name, self._get_args())
         return True
@@ -596,6 +700,12 @@ class SweepHFSS3DLayout(SweepCommon):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
+        >>> obj = SweepHFSS3DLayout()
+        >>> obj.update()
 
         """
         self.oanalysis.EditSweep(self.setup_name, self.name, self._get_args())
@@ -639,6 +749,12 @@ class SweepMatrix(SweepCommon):
     props : dict
         Dictionary of the properties.  The default is ``None``, in which case
         the default properties are retrieved.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.solve_sweeps import SweepMatrix
+    >>> obj = SweepMatrix()
+
     """
 
     def __init__(self, setup, name: str, sweep_type: str = "Interpolating", props=None) -> None:
@@ -686,6 +802,13 @@ class SweepMatrix(SweepCommon):
         -------
         bool
             `True` if solutions are available.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_sweeps import SweepMatrix
+        >>> obj = SweepMatrix()
+        >>> obj.is_solved
+
         """
         sol = self._app._app.post.reports_by_category.standard(setup=f"{self.setup_name} : {self.name}")
         return True if sol.get_solution_data() else False
@@ -700,6 +823,13 @@ class SweepMatrix(SweepCommon):
         -------
         list of float
             Frequency points.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_sweeps import SweepMatrix
+        >>> obj = SweepMatrix()
+        >>> obj.frequencies
+
         """
         sol = self._app._app.post.reports_by_category.standard(setup=f"{self.setup_name} : {self.name}")
         soldata = sol.get_solution_data()
@@ -717,6 +847,13 @@ class SweepMatrix(SweepCommon):
         -------
         list of float
             Frequency points.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_sweeps import SweepMatrix
+        >>> obj = SweepMatrix()
+        >>> obj.basis_frequencies
+
         """
         solutions_file = os.path.join(self._app._app.results_directory, f"{self._app._app.design_name}.asol")
         fr = []
@@ -783,6 +920,12 @@ class SweepMatrix(SweepCommon):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_sweeps import SweepMatrix
+        >>> obj = SweepMatrix()
+        >>> obj.add_subrange(range_type=1, start=[0, 0, 0])
+
         """
         if clear:
             self.props["RangeType"] = range_type
@@ -807,7 +950,6 @@ class SweepMatrix(SweepCommon):
             sweep_range["RangeStep"] = str(count) + unit
         elif range_type == "LogScale":
             sweep_range["RangeEnd"] = str(end) + unit
-            sweep_range["RangeCount"] = self.props["RangeCount"]
             sweep_range["RangeSamples"] = count
         if not self.props.get("SweepRanges") or not self.props["SweepRanges"].get("Subrange"):
             self.props["SweepRanges"] = {"Subrange": []}
@@ -823,6 +965,12 @@ class SweepMatrix(SweepCommon):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_sweeps import SweepMatrix
+        >>> obj = SweepMatrix()
+        >>> obj.create()
+
         """
         self.oanalysis.InsertSweep(self.setup_name, self._get_args())
         return True
@@ -835,6 +983,12 @@ class SweepMatrix(SweepCommon):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_sweeps import SweepMatrix
+        >>> obj = SweepMatrix()
+        >>> obj.update()
 
         """
         self.oanalysis.EditSweep(self.setup_name, self.name, self._get_args())
@@ -879,6 +1033,12 @@ class SweepMaxwellEC(SweepCommon):
     props : dict
         Dictionary of the properties.  The default is ``None``, in which case
         the default properties are retrieved.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.solve_sweeps import SweepMaxwellEC
+    >>> obj = SweepMaxwellEC()
+
     """
 
     def __init__(self, setup, sweep_type: str = "LinearStep", props=None) -> None:
@@ -902,7 +1062,15 @@ class SweepMaxwellEC(SweepCommon):
 
     @property
     def name(self) -> str:
-        """Setup name."""
+        """Setup name.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_sweeps import SweepMaxwellEC
+        >>> obj = SweepMaxwellEC()
+        >>> obj.name
+
+        """
         return self.setup_name
 
     @property
@@ -913,6 +1081,13 @@ class SweepMaxwellEC(SweepCommon):
         -------
         bool
             `True` if solutions are available.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_sweeps import SweepMaxwellEC
+        >>> obj = SweepMaxwellEC()
+        >>> obj.is_solved
+
         """
         expressions = [
             i for i in self._setup._app.post.available_report_quantities(solution=self._setup._app.nominal_sweep)
@@ -934,6 +1109,13 @@ class SweepMaxwellEC(SweepCommon):
         -------
         list of float
             Frequency points.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_sweeps import SweepMaxwellEC
+        >>> obj = SweepMaxwellEC()
+        >>> obj.frequencies
+
         """
         expressions = [
             i for i in self._setup._app.post.available_report_quantities(solution=self._setup._app.nominal_sweep)
@@ -955,6 +1137,12 @@ class SweepMaxwellEC(SweepCommon):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_sweeps import SweepMaxwellEC
+        >>> obj = SweepMaxwellEC()
+        >>> obj.create()
+
         """
         self.oanalysis.EditSetup(self.setup_name, self._get_args(self._setup.props))
         return True
@@ -967,6 +1155,13 @@ class SweepMaxwellEC(SweepCommon):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_sweeps import SweepMaxwellEC
+        >>> obj = SweepMaxwellEC()
+        >>> obj.update()
+
         """
         self.oanalysis.EditSetup(self.setup_name, self._get_args(self._setup.props))
         return True
@@ -979,6 +1174,13 @@ class SweepMaxwellEC(SweepCommon):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.solve_sweeps import SweepMaxwellEC
+        >>> obj = SweepMaxwellEC()
+        >>> obj.delete()
+
         """
         setup_sweeps = self._setup.props["SweepRanges"]["Subrange"].copy()
         if isinstance(self._setup.props["SweepRanges"]["Subrange"], list):
@@ -1015,7 +1217,14 @@ class SweepMaxwellEC(SweepCommon):
 
 
 class SetupProps(dict):
-    """Provides internal parameters for the AEDT boundary component."""
+    """Provides internal parameters for the AEDT boundary component.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.solve_sweeps import SetupProps
+    >>> obj = SetupProps()
+
+    """
 
     def __setitem__(self, key, value):
         if isinstance(value, dict):
