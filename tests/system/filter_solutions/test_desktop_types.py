@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import pytest
+import os
 
 from ansys.aedt.core import Circuit
 from ansys.aedt.core import Hfss
