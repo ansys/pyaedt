@@ -1124,7 +1124,7 @@ jobs:
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          uv sync --frozen --group tests --extra all
+          uv sync --frozen --group tests --extra all-dotnet
 
       - name: Remove Ansys processes (if any)
         shell: powershell
