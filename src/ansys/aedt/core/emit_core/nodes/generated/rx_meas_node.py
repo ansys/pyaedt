@@ -106,7 +106,7 @@ class RxMeasNode(EmitNode):
 
         Examples
         --------
-        >>> rx_meas.exclude_mixer_products_below_noise = True
+        >>> rx_meas.exclude_mixer_products_below_noise = False
 
         """
         val = self._get_property("Exclude Mixer Products Below Noise")

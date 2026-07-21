@@ -68,7 +68,7 @@ class EmiPlotMarkerNode(EmitNode):
 
         Examples
         --------
-        >>> marker.visible = True
+        >>> marker.visible = False
 
         """
         val = self._get_property("Visible")
@@ -140,7 +140,7 @@ class EmiPlotMarkerNode(EmitNode):
 
         Examples
         --------
-        >>> marker.position_from_left = 0
+        >>> marker.position_from_left = 100
 
         """
         val = self._get_property("Position from Left")
@@ -181,7 +181,7 @@ class EmiPlotMarkerNode(EmitNode):
 
         Examples
         --------
-        >>> marker.text = "example_value"
+        >>> marker.text = "$(ResultLabel)<br>Origin: $(ResultInfo)"
 
         """
         val = self._get_property("Text")
@@ -228,7 +228,7 @@ class EmiPlotMarkerNode(EmitNode):
 
         Examples
         --------
-        >>> marker.vertical_position = EmiPlotMarkerNode.VerticalPositionOption.TOP
+        >>> marker.vertical_position = EmiPlotMarkerNode.VerticalPositionOption.CENTER
 
         """
         val = self._get_property("Vertical Position")
@@ -273,7 +273,7 @@ class EmiPlotMarkerNode(EmitNode):
 
         Examples
         --------
-        >>> marker.font = "example_value"
+        >>> marker.font = "Sans Serif,10,-1,5,75,0,0,0,0,0"
 
         """
         val = self._get_property("Font")
@@ -293,7 +293,7 @@ class EmiPlotMarkerNode(EmitNode):
 
         Examples
         --------
-        >>> marker.color = "example_value"
+        >>> marker.color = "#000000"
 
         """
         val = self._get_property("Color")
@@ -313,7 +313,7 @@ class EmiPlotMarkerNode(EmitNode):
 
         Examples
         --------
-        >>> marker.background_color = "example_value"
+        >>> marker.background_color = "#FFFFFF"
 
         """
         val = self._get_property("Background Color")
@@ -353,7 +353,7 @@ class EmiPlotMarkerNode(EmitNode):
 
         Examples
         --------
-        >>> marker.border_width = 1
+        >>> marker.border_width = 2
 
         """
         val = self._get_property("Border Width")
@@ -373,7 +373,7 @@ class EmiPlotMarkerNode(EmitNode):
 
         Examples
         --------
-        >>> marker.border_color = "example_value"
+        >>> marker.border_color = "#000000"
 
         """
         val = self._get_property("Border Color")
@@ -409,7 +409,7 @@ class EmiPlotMarkerNode(EmitNode):
 
         Examples
         --------
-        >>> marker.symbol = EmiPlotMarkerNode.SymbolOption.NOSYMBOL
+        >>> marker.symbol = EmiPlotMarkerNode.SymbolOption.ARROW
 
         """
         val = self._get_property("Symbol")
@@ -430,7 +430,7 @@ class EmiPlotMarkerNode(EmitNode):
 
         Examples
         --------
-        >>> marker.arrow_direction = -360
+        >>> marker.arrow_direction = -150
 
         """
         val = self._get_property("Arrow Direction")
@@ -450,7 +450,7 @@ class EmiPlotMarkerNode(EmitNode):
 
         Examples
         --------
-        >>> marker.symbol_size = 1
+        >>> marker.symbol_size = 16
 
         """
         val = self._get_property("Symbol Size")
@@ -470,7 +470,7 @@ class EmiPlotMarkerNode(EmitNode):
 
         Examples
         --------
-        >>> marker.symbol_color = "example_value"
+        >>> marker.symbol_color = "#000000"
 
         """
         val = self._get_property("Symbol Color")
@@ -490,7 +490,7 @@ class EmiPlotMarkerNode(EmitNode):
 
         Examples
         --------
-        >>> marker.line_width = 1
+        >>> marker.line_width = 2
 
         """
         val = self._get_property("Line Width")
@@ -513,7 +513,7 @@ class EmiPlotMarkerNode(EmitNode):
 
         Examples
         --------
-        >>> marker.filled = True
+        >>> marker.filled = False
 
         """
         val = self._get_property("Filled")

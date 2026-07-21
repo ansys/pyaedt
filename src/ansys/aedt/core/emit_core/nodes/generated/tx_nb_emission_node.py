@@ -141,7 +141,7 @@ class TxNbEmissionNode(EmitNode):
 
         Examples
         --------
-        >>> tx_nb_emission.narrowband_behavior = TxNbEmissionNode.NarrowbandBehaviorOption.ABSOLUTE_FREQS_AND_POWER
+        >>> tx_nb_emission.narrowband_behavior = TxNbEmissionNode.NarrowbandBehaviorOption.RELATIVE_FREQS_AND_ATTENUATION
 
         """
         val = self._get_property("Narrowband Behavior")
@@ -160,7 +160,7 @@ class TxNbEmissionNode(EmitNode):
 
         Examples
         --------
-        >>> tx_nb_emission.measurement_frequency = "100MHz"
+        >>> tx_nb_emission.measurement_frequency = "100e6"
 
         """
         val = self._get_property("Measurement Frequency")

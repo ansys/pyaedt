@@ -150,7 +150,7 @@ class Terminator(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> term = app.schematic.create_component("Terminator")
-        >>> term.noise_temperature = 0
+        >>> term.noise_temperature = 290.0
 
         """
         val = self._get_property("Noise Temperature")

@@ -123,7 +123,7 @@ class Cable(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> cable = app.schematic.create_component("Cable")
-        >>> cable.noise_temperature = 0
+        >>> cable.noise_temperature = 290.0
 
         """
         val = self._get_property("Noise Temperature")
@@ -197,7 +197,7 @@ class Cable(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> cable = app.schematic.create_component("Cable")
-        >>> cable.length = "100MHz"
+        >>> cable.length = "1.0"
 
         """
         val = self._get_property("Length")
@@ -245,7 +245,7 @@ class Cable(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> cable = app.schematic.create_component("Cable")
-        >>> cable.measurement_length = "100MHz"
+        >>> cable.measurement_length = "1.0"
 
         """
         val = self._get_property("Measurement Length")

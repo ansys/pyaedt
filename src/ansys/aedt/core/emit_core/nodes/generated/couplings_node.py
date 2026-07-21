@@ -61,7 +61,7 @@ class CouplingsNode(EmitNode):
         >>> app = Emit()
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
-        >>> link = couplings.import_touchstone("C:\\EMIT\\antenna_link.s2p")
+        >>> link = cpl.import_touchstone("C:\\EMIT\\antenna_link.s2p")
 
         """
         return self._import(file_name, "TouchstoneCoupling")
@@ -76,7 +76,7 @@ class CouplingsNode(EmitNode):
         >>> app = Emit()
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
-        >>> cust = cpl.add_custom_coupling()
+        >>> custom_coupling = cpl.add_custom_coupling()
 
         """
         return self._add_child_node("Custom Coupling")
@@ -91,7 +91,7 @@ class CouplingsNode(EmitNode):
         >>> app = Emit()
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
-        >>> path_loss_coupling = couplings.add_path_loss_coupling()
+        >>> path_loss_coupling = cpl.add_path_loss_coupling()
 
         """
         return self._add_child_node("Path Loss Coupling")
@@ -106,7 +106,7 @@ class CouplingsNode(EmitNode):
         >>> app = Emit()
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
-        >>> two_ray_path_loss_coupling = couplings.add_two_ray_path_loss_coupling()
+        >>> two_ray_path_loss_coupling = cpl.add_two_ray_path_loss_coupling()
 
         """
         return self._add_child_node("Two Ray Path Loss Coupling")
@@ -121,7 +121,7 @@ class CouplingsNode(EmitNode):
         >>> app = Emit()
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
-        >>> log_distance_coupling = couplings.add_log_distance_coupling()
+        >>> log_distance_coupling = cpl.add_log_distance_coupling()
 
         """
         return self._add_child_node("Log Distance Coupling")
@@ -136,7 +136,7 @@ class CouplingsNode(EmitNode):
         >>> app = Emit()
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
-        >>> hata = cpl.add_hata_coupling()
+        >>> hata_coupling = cpl.add_hata_coupling()
 
         """
         return self._add_child_node("Hata Coupling")
@@ -151,7 +151,7 @@ class CouplingsNode(EmitNode):
         >>> app = Emit()
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
-        >>> walfisch_ikegami_coupling = couplings.add_walfisch_ikegami_coupling()
+        >>> walfisch_ikegami_coupling = cpl.add_walfisch_ikegami_coupling()
 
         """
         return self._add_child_node("Walfisch-Ikegami Coupling")
@@ -166,7 +166,7 @@ class CouplingsNode(EmitNode):
         >>> app = Emit()
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
-        >>> ereg = cpl.add_erceg_coupling()
+        >>> erceg_coupling = cpl.add_erceg_coupling()
 
         """
         return self._add_child_node("Erceg Coupling")
@@ -181,7 +181,7 @@ class CouplingsNode(EmitNode):
         >>> app = Emit()
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
-        >>> indoor_propagation_coupling = couplings.add_indoor_propagation_coupling()
+        >>> indoor_propagation_coupling = cpl.add_indoor_propagation_coupling()
 
         """
         return self._add_child_node("Indoor Propagation Coupling")
@@ -196,7 +196,7 @@ class CouplingsNode(EmitNode):
         >>> app = Emit()
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
-        >>> 5g_channel_model_coupling = couplings.add_5g_channel_model_coupling()
+        >>> 5g_channel_model_coupling = cpl.add_5g_channel_model_coupling()
 
         """
         return self._add_child_node("5G Channel Model Coupling")
@@ -260,7 +260,7 @@ class CouplingsNode(EmitNode):
         >>> app = Emit()
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
-        >>> cpl.minimum_allowed_coupling = -1000
+        >>> cpl.minimum_allowed_coupling = -200
 
         """
         val = self._get_property("Minimum Allowed Coupling")
@@ -284,7 +284,7 @@ class CouplingsNode(EmitNode):
         >>> app = Emit()
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
-        >>> cpl.global_default_coupling = -1000
+        >>> cpl.global_default_coupling = 0
 
         """
         val = self._get_property("Global Default Coupling")

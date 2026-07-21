@@ -125,7 +125,7 @@ class PropagationLossCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> prop = cpl.add_prop_loss_coupling()
-        >>> prop_loss_copy = prop_loss.duplicate("prop_loss_copy")
+        >>> prop_copy = prop.duplicate("prop_copy")
 
         """
         return self._duplicate(new_name)
@@ -234,7 +234,7 @@ class PropagationLossCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> prop = cpl.add_prop_loss_coupling()
-        >>> prop.custom_fading_margin = 0
+        >>> prop.custom_fading_margin = 0.0
 
         """
         val = self._get_property("Custom Fading Margin")
@@ -262,7 +262,7 @@ class PropagationLossCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> prop = cpl.add_prop_loss_coupling()
-        >>> prop.polarization_mismatch = 0
+        >>> prop.polarization_mismatch = 0.0
 
         """
         val = self._get_property("Polarization Mismatch")
@@ -290,7 +290,7 @@ class PropagationLossCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> prop = cpl.add_prop_loss_coupling()
-        >>> prop.pointing_error_loss = 0
+        >>> prop.pointing_error_loss = 0.0
 
         """
         val = self._get_property("Pointing Error Loss")
@@ -348,7 +348,7 @@ class PropagationLossCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> prop = cpl.add_prop_loss_coupling()
-        >>> prop.fading_availability = 0.0
+        >>> prop.fading_availability = 90.0
 
         """
         val = self._get_property("Fading Availability")
@@ -373,7 +373,7 @@ class PropagationLossCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> prop = cpl.add_prop_loss_coupling()
-        >>> prop.std_deviation = 0.0
+        >>> prop.std_deviation = 8.0
 
         """
         val = self._get_property("Std Deviation")
@@ -398,7 +398,7 @@ class PropagationLossCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> prop = cpl.add_prop_loss_coupling()
-        >>> prop.include_rain_attenuation = True
+        >>> prop.include_rain_attenuation = False
 
         """
         val = self._get_property("Include Rain Attenuation")
@@ -426,7 +426,7 @@ class PropagationLossCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> prop = cpl.add_prop_loss_coupling()
-        >>> prop.rain_availability = 99
+        >>> prop.rain_availability = 99.99
 
         """
         val = self._get_property("Rain Availability")
@@ -451,7 +451,7 @@ class PropagationLossCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> prop = cpl.add_prop_loss_coupling()
-        >>> prop.rain_rate = 0.0
+        >>> prop.rain_rate = 8.0
 
         """
         val = self._get_property("Rain Rate")
@@ -507,7 +507,7 @@ class PropagationLossCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> prop = cpl.add_prop_loss_coupling()
-        >>> prop.include_atmospheric_absorption = True
+        >>> prop.include_atmospheric_absorption = False
 
         """
         val = self._get_property("Include Atmospheric Absorption")
@@ -532,7 +532,7 @@ class PropagationLossCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> prop = cpl.add_prop_loss_coupling()
-        >>> prop.temperature = -273.0
+        >>> prop.temperature = 15.0
 
         """
         val = self._get_property("Temperature")
@@ -557,7 +557,7 @@ class PropagationLossCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> prop = cpl.add_prop_loss_coupling()
-        >>> prop.total_air_pressure = 0.0
+        >>> prop.total_air_pressure = 1013
 
         """
         val = self._get_property("Total Air Pressure")
@@ -582,7 +582,7 @@ class PropagationLossCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> prop = cpl.add_prop_loss_coupling()
-        >>> prop.water_vapor_concentration = 0.0
+        >>> prop.water_vapor_concentration = 7.5
 
         """
         val = self._get_property("Water Vapor Concentration")

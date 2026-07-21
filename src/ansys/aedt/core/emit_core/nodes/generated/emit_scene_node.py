@@ -61,7 +61,7 @@ class EmitSceneNode(EmitNode):
         >>> app = Emit()
         >>> rev = app.results.analyze()
         >>> scene = rev.get_scene_node()
-        >>> emitter = scene_node.add_emitter()
+        >>> emitter = scene.add_emitter()
 
         """
         return self._add_child_node("Emitter")
@@ -76,7 +76,7 @@ class EmitSceneNode(EmitNode):
         >>> app = Emit()
         >>> rev = app.results.analyze()
         >>> scene = rev.get_scene_node()
-        >>> group = scene_node.add_group()
+        >>> group = scene.add_group()
 
         """
         return self._add_child_node("Group")
@@ -109,7 +109,7 @@ class EmitSceneNode(EmitNode):
         >>> app = Emit()
         >>> rev = app.results.analyze()
         >>> scene = rev.get_scene_node()
-        >>> antenna = scene_node.add_antenna()
+        >>> antenna = scene.add_antenna()
 
         """
         return self._add_child_node("Antenna")
@@ -152,7 +152,7 @@ class EmitSceneNode(EmitNode):
         >>> app = Emit()
         >>> rev = app.results.analyze()
         >>> scene = rev.get_scene_node()
-        >>> scene.ground_plane_normal = EmitSceneNode.GroundPlaneNormalOption.X_AXIS
+        >>> scene.ground_plane_normal = EmitSceneNode.GroundPlaneNormalOption.Z_AXIS
 
         """
         val = self._get_property("Ground Plane Normal")
@@ -178,7 +178,7 @@ class EmitSceneNode(EmitNode):
         >>> app = Emit()
         >>> rev = app.results.analyze()
         >>> scene = rev.get_scene_node()
-        >>> scene.gp_position_along_normal = "100MHz"
+        >>> scene.gp_position_along_normal = "0.0"
 
         """
         val = self._get_property("GP Position Along Normal")

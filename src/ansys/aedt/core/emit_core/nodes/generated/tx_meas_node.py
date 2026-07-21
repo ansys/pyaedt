@@ -106,7 +106,7 @@ class TxMeasNode(EmitNode):
 
         Examples
         --------
-        >>> tx_meas.exclude_harmonics_below_noise = True
+        >>> tx_meas.exclude_harmonics_below_noise = False
 
         """
         val = self._get_property("Exclude Harmonics Below Noise")

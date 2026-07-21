@@ -125,7 +125,7 @@ class HataCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> hata = cpl.add_hata_coupling()
-        >>> hata_coupling_copy = hata_coupling.duplicate("hata_coupling_copy")
+        >>> hata_copy = hata.duplicate("hata_copy")
 
         """
         return self._duplicate(new_name)
@@ -264,7 +264,7 @@ class HataCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> hata = cpl.add_hata_coupling()
-        >>> hata.custom_fading_margin = 0
+        >>> hata.custom_fading_margin = 0.0
 
         """
         val = self._get_property("Custom Fading Margin")
@@ -292,7 +292,7 @@ class HataCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> hata = cpl.add_hata_coupling()
-        >>> hata.polarization_mismatch = 0
+        >>> hata.polarization_mismatch = 0.0
 
         """
         val = self._get_property("Polarization Mismatch")
@@ -320,7 +320,7 @@ class HataCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> hata = cpl.add_hata_coupling()
-        >>> hata.pointing_error_loss = 0
+        >>> hata.pointing_error_loss = 0.0
 
         """
         val = self._get_property("Pointing Error Loss")
@@ -378,7 +378,7 @@ class HataCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> hata = cpl.add_hata_coupling()
-        >>> hata.fading_availability = 0.0
+        >>> hata.fading_availability = 90.0
 
         """
         val = self._get_property("Fading Availability")
@@ -403,7 +403,7 @@ class HataCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> hata = cpl.add_hata_coupling()
-        >>> hata.std_deviation = 0.0
+        >>> hata.std_deviation = 8.0
 
         """
         val = self._get_property("Std Deviation")
@@ -428,7 +428,7 @@ class HataCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> hata = cpl.add_hata_coupling()
-        >>> hata.include_rain_attenuation = True
+        >>> hata.include_rain_attenuation = False
 
         """
         val = self._get_property("Include Rain Attenuation")
@@ -456,7 +456,7 @@ class HataCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> hata = cpl.add_hata_coupling()
-        >>> hata.rain_availability = 99
+        >>> hata.rain_availability = 99.99
 
         """
         val = self._get_property("Rain Availability")
@@ -481,7 +481,7 @@ class HataCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> hata = cpl.add_hata_coupling()
-        >>> hata.rain_rate = 0.0
+        >>> hata.rain_rate = 8.0
 
         """
         val = self._get_property("Rain Rate")
@@ -537,7 +537,7 @@ class HataCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> hata = cpl.add_hata_coupling()
-        >>> hata.include_atmospheric_absorption = True
+        >>> hata.include_atmospheric_absorption = False
 
         """
         val = self._get_property("Include Atmospheric Absorption")
@@ -562,7 +562,7 @@ class HataCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> hata = cpl.add_hata_coupling()
-        >>> hata.temperature = -273.0
+        >>> hata.temperature = 15.0
 
         """
         val = self._get_property("Temperature")
@@ -587,7 +587,7 @@ class HataCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> hata = cpl.add_hata_coupling()
-        >>> hata.total_air_pressure = 0.0
+        >>> hata.total_air_pressure = 1013
 
         """
         val = self._get_property("Total Air Pressure")
@@ -612,7 +612,7 @@ class HataCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> hata = cpl.add_hata_coupling()
-        >>> hata.water_vapor_concentration = 0.0
+        >>> hata.water_vapor_concentration = 7.5
 
         """
         val = self._get_property("Water Vapor Concentration")

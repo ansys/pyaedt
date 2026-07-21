@@ -86,7 +86,7 @@ class ResultPlotNode(EmitNode):
         >>> app = Emit()
         >>> rev = app.results.analyze()
         >>> plot = rev.get_result_plot_node()
-        >>> plot.title_font = "example_value"
+        >>> plot.title_font = "Sans Serif,14,-1,5,75,0,0,0,0,0"
 
         """
         val = self._get_property("Title Font")
@@ -134,7 +134,7 @@ class ResultPlotNode(EmitNode):
         >>> app = Emit()
         >>> rev = app.results.analyze()
         >>> plot = rev.get_result_plot_node()
-        >>> plot.legend_font = "example_value"
+        >>> plot.legend_font = "Sans Serif,10,-1,5,50,0,0,0,0,0"
 
         """
         val = self._get_property("Legend Font")
@@ -185,7 +185,7 @@ class ResultPlotNode(EmitNode):
         >>> app = Emit()
         >>> rev = app.results.analyze()
         >>> plot = rev.get_result_plot_node()
-        >>> plot.lock_axes = True
+        >>> plot.lock_axes = False
 
         """
         val = self._get_property("Lock Axes")
@@ -299,7 +299,7 @@ class ResultPlotNode(EmitNode):
         >>> app = Emit()
         >>> rev = app.results.analyze()
         >>> plot = rev.get_result_plot_node()
-        >>> plot.max_major_ticks_x = 1
+        >>> plot.max_major_ticks_x = 8
 
         """
         val = self._get_property("Max Major Ticks X")
@@ -326,7 +326,7 @@ class ResultPlotNode(EmitNode):
         >>> app = Emit()
         >>> rev = app.results.analyze()
         >>> plot = rev.get_result_plot_node()
-        >>> plot.max_minor_ticks_x = 0
+        >>> plot.max_minor_ticks_x = 8
 
         """
         val = self._get_property("Max Minor Ticks X")
@@ -352,7 +352,7 @@ class ResultPlotNode(EmitNode):
         >>> app = Emit()
         >>> rev = app.results.analyze()
         >>> plot = rev.get_result_plot_node()
-        >>> plot.max_major_ticks_y = 1
+        >>> plot.max_major_ticks_y = 8
 
         """
         val = self._get_property("Max Major Ticks Y")
@@ -379,7 +379,7 @@ class ResultPlotNode(EmitNode):
         >>> app = Emit()
         >>> rev = app.results.analyze()
         >>> plot = rev.get_result_plot_node()
-        >>> plot.max_minor_ticks_y = 0
+        >>> plot.max_minor_ticks_y = 8
 
         """
         val = self._get_property("Max Minor Ticks Y")
@@ -403,7 +403,7 @@ class ResultPlotNode(EmitNode):
         >>> app = Emit()
         >>> rev = app.results.analyze()
         >>> plot = rev.get_result_plot_node()
-        >>> plot.axis_label_font = "example_value"
+        >>> plot.axis_label_font = "Sans Serif,12,-1,5,75,0,0,0,0,0"
 
         """
         val = self._get_property("Axis Label Font")
@@ -427,7 +427,7 @@ class ResultPlotNode(EmitNode):
         >>> app = Emit()
         >>> rev = app.results.analyze()
         >>> plot = rev.get_result_plot_node()
-        >>> plot.axis_tick_label_font = "example_value"
+        >>> plot.axis_tick_label_font = "Sans Serif,10,-1,5,50,0,0,0,0,0"
 
         """
         val = self._get_property("Axis Tick Label Font")
@@ -457,7 +457,7 @@ class ResultPlotNode(EmitNode):
         >>> app = Emit()
         >>> rev = app.results.analyze()
         >>> plot = rev.get_result_plot_node()
-        >>> plot.major_grid_line_style = ResultPlotNode.MajorGridLineStyleOption.LINES
+        >>> plot.major_grid_line_style = ResultPlotNode.MajorGridLineStyleOption.NONE
 
         """
         val = self._get_property("Major Grid Line Style")
@@ -482,7 +482,7 @@ class ResultPlotNode(EmitNode):
         >>> app = Emit()
         >>> rev = app.results.analyze()
         >>> plot = rev.get_result_plot_node()
-        >>> plot.major_grid_color = "example_value"
+        >>> plot.major_grid_color = "#808080"
 
         """
         val = self._get_property("Major Grid Color")
@@ -512,7 +512,7 @@ class ResultPlotNode(EmitNode):
         >>> app = Emit()
         >>> rev = app.results.analyze()
         >>> plot = rev.get_result_plot_node()
-        >>> plot.minor_grid_line_style = ResultPlotNode.MinorGridLineStyleOption.LINES
+        >>> plot.minor_grid_line_style = ResultPlotNode.MinorGridLineStyleOption.NONE
 
         """
         val = self._get_property("Minor Grid Line Style")
@@ -537,7 +537,7 @@ class ResultPlotNode(EmitNode):
         >>> app = Emit()
         >>> rev = app.results.analyze()
         >>> plot = rev.get_result_plot_node()
-        >>> plot.minor_grid_color = "example_value"
+        >>> plot.minor_grid_color = "#808080"
 
         """
         val = self._get_property("Minor Grid Color")
@@ -561,7 +561,7 @@ class ResultPlotNode(EmitNode):
         >>> app = Emit()
         >>> rev = app.results.analyze()
         >>> plot = rev.get_result_plot_node()
-        >>> plot.background_color = "example_value"
+        >>> plot.background_color = "#FFFFFF"
 
         """
         val = self._get_property("Background Color")
@@ -614,7 +614,7 @@ class ResultPlotNode(EmitNode):
         >>> app = Emit()
         >>> rev = app.results.analyze()
         >>> plot = rev.get_result_plot_node()
-        >>> plot.bb_power_bandwidth = "100MHz"
+        >>> plot.bb_power_bandwidth = "1.0"
 
         """
         val = self._get_property("BB Power Bandwidth")
@@ -640,7 +640,7 @@ class ResultPlotNode(EmitNode):
         >>> app = Emit()
         >>> rev = app.results.analyze()
         >>> plot = rev.get_result_plot_node()
-        >>> plot.log_scale = True
+        >>> plot.log_scale = False
 
         """
         val = self._get_property("Log Scale")

@@ -123,7 +123,7 @@ class TouchstoneCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> ts = cpl.import_touchstone("C:\\EMIT\\link.s2p")
-        >>> touchstone_coupling_copy = touchstone_coupling.duplicate("touchstone_coupling_copy")
+        >>> ts_copy = ts.duplicate("ts_copy")
 
         """
         return self._duplicate(new_name)
@@ -226,7 +226,7 @@ class TouchstoneCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> ts = cpl.import_touchstone("C:\\EMIT\\link.s2p")
-        >>> ts.enable_em_isolation = True
+        >>> ts.enable_em_isolation = False
 
         """
         val = self._get_property("Enable EM Isolation")

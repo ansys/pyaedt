@@ -125,7 +125,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> fivg = cpl.add_5g_channel_model_coupling()
-        >>> five_g_copy = five_g.duplicate("five_g_copy")
+        >>> fivg_copy = fivg.duplicate("fivg_copy")
 
         """
         return self._duplicate(new_name)
@@ -260,7 +260,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> fivg = cpl.add_5g_channel_model_coupling()
-        >>> fivg.los = True
+        >>> fivg.los = False
 
         """
         val = self._get_property("LOS")
@@ -285,7 +285,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> fivg = cpl.add_5g_channel_model_coupling()
-        >>> fivg.include_bpl = True
+        >>> fivg.include_bpl = False
 
         """
         val = self._get_property("Include BPL")
@@ -341,7 +341,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> fivg = cpl.add_5g_channel_model_coupling()
-        >>> fivg.custom_fading_margin = 0
+        >>> fivg.custom_fading_margin = 0.0
 
         """
         val = self._get_property("Custom Fading Margin")
@@ -369,7 +369,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> fivg = cpl.add_5g_channel_model_coupling()
-        >>> fivg.polarization_mismatch = 0
+        >>> fivg.polarization_mismatch = 0.0
 
         """
         val = self._get_property("Polarization Mismatch")
@@ -397,7 +397,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> fivg = cpl.add_5g_channel_model_coupling()
-        >>> fivg.pointing_error_loss = 0
+        >>> fivg.pointing_error_loss = 0.0
 
         """
         val = self._get_property("Pointing Error Loss")
@@ -455,7 +455,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> fivg = cpl.add_5g_channel_model_coupling()
-        >>> fivg.fading_availability = 0.0
+        >>> fivg.fading_availability = 90.0
 
         """
         val = self._get_property("Fading Availability")
@@ -480,7 +480,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> fivg = cpl.add_5g_channel_model_coupling()
-        >>> fivg.std_deviation = 0.0
+        >>> fivg.std_deviation = 8.0
 
         """
         val = self._get_property("Std Deviation")
@@ -533,7 +533,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> fivg = cpl.add_5g_channel_model_coupling()
-        >>> fivg.rain_availability = 99
+        >>> fivg.rain_availability = 99.99
 
         """
         val = self._get_property("Rain Availability")
@@ -558,7 +558,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> fivg = cpl.add_5g_channel_model_coupling()
-        >>> fivg.rain_rate = 0.0
+        >>> fivg.rain_rate = 8.0
 
         """
         val = self._get_property("Rain Rate")
@@ -639,7 +639,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> fivg = cpl.add_5g_channel_model_coupling()
-        >>> fivg.temperature = -273.0
+        >>> fivg.temperature = 15.0
 
         """
         val = self._get_property("Temperature")
@@ -664,7 +664,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> fivg = cpl.add_5g_channel_model_coupling()
-        >>> fivg.total_air_pressure = 0.0
+        >>> fivg.total_air_pressure = 1013
 
         """
         val = self._get_property("Total Air Pressure")
@@ -689,7 +689,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> fivg = cpl.add_5g_channel_model_coupling()
-        >>> fivg.water_vapor_concentration = 0.0
+        >>> fivg.water_vapor_concentration = 7.5
 
         """
         val = self._get_property("Water Vapor Concentration")

@@ -184,7 +184,7 @@ class RxSusceptibilityProfNode(EmitNode):
 
         Examples
         --------
-        >>> rx_profile.min_receive_signal_pwr = -1000
+        >>> rx_profile.min_receive_signal_pwr = -120
 
         """
         val = self._get_property("Min. Receive Signal Pwr")
@@ -207,7 +207,7 @@ class RxSusceptibilityProfNode(EmitNode):
 
         Examples
         --------
-        >>> rx_profile.snr_at_rx_signal_pwr = -1000
+        >>> rx_profile.snr_at_rx_signal_pwr = 10
 
         """
         val = self._get_property("SNR at Rx Signal Pwr")
@@ -227,7 +227,7 @@ class RxSusceptibilityProfNode(EmitNode):
 
         Examples
         --------
-        >>> rx_profile.processing_gain = -1000
+        >>> rx_profile.processing_gain = 10
 
         """
         val = self._get_property("Processing Gain")
@@ -250,7 +250,7 @@ class RxSusceptibilityProfNode(EmitNode):
 
         Examples
         --------
-        >>> rx_profile.apply_pg_to_narrowband_only = True
+        >>> rx_profile.apply_pg_to_narrowband_only = False
 
         """
         val = self._get_property("Apply PG to Narrowband Only")
@@ -270,7 +270,7 @@ class RxSusceptibilityProfNode(EmitNode):
 
         Examples
         --------
-        >>> rx_profile.saturation_level = "100MHz"
+        >>> rx_profile.saturation_level = "0"
 
         """
         val = self._get_property("Saturation Level")
@@ -292,7 +292,7 @@ class RxSusceptibilityProfNode(EmitNode):
 
         Examples
         --------
-        >>> rx_profile.rx_noise_figure = 0
+        >>> rx_profile.rx_noise_figure = 8
 
         """
         val = self._get_property("Rx Noise Figure")
@@ -312,7 +312,7 @@ class RxSusceptibilityProfNode(EmitNode):
 
         Examples
         --------
-        >>> rx_profile.receiver_sensitivity = "100MHz"
+        >>> rx_profile.receiver_sensitivity = "-120"
 
         """
         val = self._get_property("Receiver Sensitivity")
@@ -334,7 +334,7 @@ class RxSusceptibilityProfNode(EmitNode):
 
         Examples
         --------
-        >>> rx_profile.snrsinad_at_sensitivity = -1000
+        >>> rx_profile.snrsinad_at_sensitivity = 10
 
         """
         val = self._get_property("SNR/SINAD at Sensitivity")
@@ -354,7 +354,7 @@ class RxSusceptibilityProfNode(EmitNode):
 
         Examples
         --------
-        >>> rx_profile.perform_rx_intermod_analysis = True
+        >>> rx_profile.perform_rx_intermod_analysis = False
 
         """
         val = self._get_property("Perform Rx Intermod Analysis")
@@ -374,7 +374,7 @@ class RxSusceptibilityProfNode(EmitNode):
 
         Examples
         --------
-        >>> rx_profile.amplifier_saturation_level = "100MHz"
+        >>> rx_profile.amplifier_saturation_level = "0"
 
         """
         val = self._get_property("Amplifier Saturation Level")
@@ -398,7 +398,7 @@ class RxSusceptibilityProfNode(EmitNode):
 
         Examples
         --------
-        >>> rx_profile.p1_db_point_ref_input = "100MHz"
+        >>> rx_profile.p1_db_point_ref_input = "0"
 
         """
         val = self._get_property("P1-dB Point, Ref. Input")
@@ -420,7 +420,7 @@ class RxSusceptibilityProfNode(EmitNode):
 
         Examples
         --------
-        >>> rx_profile.ip3_ref_input = "100MHz"
+        >>> rx_profile.ip3_ref_input = "10"
 
         """
         val = self._get_property("IP3, Ref. Input")
@@ -442,7 +442,7 @@ class RxSusceptibilityProfNode(EmitNode):
 
         Examples
         --------
-        >>> rx_profile.max_intermod_order = 3
+        >>> rx_profile.max_intermod_order = 5
 
         """
         val = self._get_property("Max Intermod Order")

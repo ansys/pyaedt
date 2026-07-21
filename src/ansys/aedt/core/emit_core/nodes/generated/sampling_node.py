@@ -93,7 +93,7 @@ class SamplingNode(EmitNode):
 
         Examples
         --------
-        >>> sampling.sampling_type = SamplingNode.SamplingTypeOption.SAMPLE_ALL_CHANNELS_IN_RANGES
+        >>> sampling.sampling_type = SamplingNode.SamplingTypeOption.UNIFORM_SAMPLING
 
         """
         val = self._get_property("Sampling Type")
@@ -117,7 +117,7 @@ class SamplingNode(EmitNode):
 
         Examples
         --------
-        >>> sampling.specify_percentage = True
+        >>> sampling.specify_percentage = False
 
         """
         val = self._get_property("Specify Percentage")
@@ -137,7 +137,7 @@ class SamplingNode(EmitNode):
 
         Examples
         --------
-        >>> sampling.percentage_of_channels = 1
+        >>> sampling.percentage_of_channels = 50.0
 
         """
         val = self._get_property("Percentage of Channels")
@@ -157,7 +157,7 @@ class SamplingNode(EmitNode):
 
         Examples
         --------
-        >>> sampling.max_channels_range_band = 1
+        >>> sampling.max_channels_range_band = 1000
 
         """
         val = self._get_property("Max # Channels/Range/Band")

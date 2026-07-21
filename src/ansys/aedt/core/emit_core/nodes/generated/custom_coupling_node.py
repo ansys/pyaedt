@@ -141,7 +141,7 @@ class CustomCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> cust = cpl.add_custom_coupling()
-        >>> custom_coupling_copy = custom_coupling.duplicate("custom_coupling_copy")
+        >>> cust_copy = cust.duplicate("cust_copy")
 
         """
         return self._duplicate(new_name)

@@ -140,7 +140,7 @@ class RxSelectivityNode(EmitNode):
 
         Examples
         --------
-        >>> rx_selectivity.use_arithmetic_mean = True
+        >>> rx_selectivity.use_arithmetic_mean = False
 
         """
         val = self._get_property("Use Arithmetic Mean")

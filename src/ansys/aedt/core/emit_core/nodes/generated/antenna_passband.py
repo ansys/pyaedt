@@ -135,7 +135,7 @@ class AntennaPassband(EmitNode):
 
         Examples
         --------
-        >>> passband.out_of_band_attenuation = 0
+        >>> passband.out_of_band_attenuation = 40
 
         """
         val = self._get_property("Out of Band Attenuation")
@@ -155,7 +155,7 @@ class AntennaPassband(EmitNode):
 
         Examples
         --------
-        >>> passband.lower_stop_band = "100MHz"
+        >>> passband.lower_stop_band = "80e6"
 
         """
         val = self._get_property("Lower Stop Band")
@@ -177,7 +177,7 @@ class AntennaPassband(EmitNode):
 
         Examples
         --------
-        >>> passband.lower_cutoff = "100MHz"
+        >>> passband.lower_cutoff = "90e6"
 
         """
         val = self._get_property("Lower Cutoff")
@@ -199,7 +199,7 @@ class AntennaPassband(EmitNode):
 
         Examples
         --------
-        >>> passband.higher_cutoff = "100MHz"
+        >>> passband.higher_cutoff = "110e6"
 
         """
         val = self._get_property("Higher Cutoff")
@@ -221,7 +221,7 @@ class AntennaPassband(EmitNode):
 
         Examples
         --------
-        >>> passband.higher_stop_band = "100MHz"
+        >>> passband.higher_stop_band = "120e6"
 
         """
         val = self._get_property("Higher Stop Band")

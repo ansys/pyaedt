@@ -213,7 +213,7 @@ class Band(EmitNode):
         >>> app = Emit()
         >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
         >>> band = emit.get_radio().add_band()
-        >>> band.use_dd_1494_mode = True
+        >>> band.use_dd_1494_mode = False
 
         """
         val = self._get_property("Use DD-1494 Mode")
@@ -239,7 +239,7 @@ class Band(EmitNode):
         >>> app = Emit()
         >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
         >>> band = emit.get_radio().add_band()
-        >>> band.use_emission_designator = True
+        >>> band.use_emission_designator = False
 
         """
         val = self._get_property("Use Emission Designator")
@@ -263,7 +263,7 @@ class Band(EmitNode):
         >>> app = Emit()
         >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
         >>> band = emit.get_radio().add_band()
-        >>> band.emission_designator = "example_value"
+        >>> band.emission_designator = "25K0F1D"
 
         """
         val = self._get_property("Emission Designator")
@@ -325,7 +325,7 @@ class Band(EmitNode):
         >>> app = Emit()
         >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
         >>> band = emit.get_radio().add_band()
-        >>> band.override_emission_designator_bw = True
+        >>> band.override_emission_designator_bw = False
 
         """
         val = self._get_property("Override Emission Designator BW")
@@ -349,7 +349,7 @@ class Band(EmitNode):
         >>> app = Emit()
         >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
         >>> band = emit.get_radio().add_band()
-        >>> band.channel_bandwidth = "100MHz"
+        >>> band.channel_bandwidth = "25e3"
 
         """
         val = self._get_property("Channel Bandwidth")
@@ -411,7 +411,7 @@ class Band(EmitNode):
         >>> app = Emit()
         >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
         >>> band = emit.get_radio().add_band()
-        >>> band.max_modulating_freq = "100MHz"
+        >>> band.max_modulating_freq = "5.0e3"
 
         """
         val = self._get_property("Max Modulating Freq.")
@@ -437,7 +437,7 @@ class Band(EmitNode):
         >>> app = Emit()
         >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
         >>> band = emit.get_radio().add_band()
-        >>> band.modulation_index = 0.01
+        >>> band.modulation_index = 0.9
 
         """
         val = self._get_property("Modulation Index")
@@ -461,7 +461,7 @@ class Band(EmitNode):
         >>> app = Emit()
         >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
         >>> band = emit.get_radio().add_band()
-        >>> band.bit_rate = "100MHz"
+        >>> band.bit_rate = "5.0e3"
 
         """
         val = self._get_property("Bit Rate")
@@ -487,7 +487,7 @@ class Band(EmitNode):
         >>> app = Emit()
         >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
         >>> band = emit.get_radio().add_band()
-        >>> band.sidelobes = 0
+        >>> band.sidelobes = 3
 
         """
         val = self._get_property("Sidelobes")
@@ -511,7 +511,7 @@ class Band(EmitNode):
         >>> app = Emit()
         >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
         >>> band = emit.get_radio().add_band()
-        >>> band.freq_deviation = "100MHz"
+        >>> band.freq_deviation = "5.0e3"
 
         """
         val = self._get_property("Freq. Deviation")
@@ -662,7 +662,7 @@ class Band(EmitNode):
         >>> app = Emit()
         >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
         >>> band = emit.get_radio().add_band()
-        >>> band.start_frequency = "100MHz"
+        >>> band.start_frequency = "1e8"
 
         """
         val = self._get_property("Start Frequency")
@@ -688,7 +688,7 @@ class Band(EmitNode):
         >>> app = Emit()
         >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
         >>> band = emit.get_radio().add_band()
-        >>> band.stop_frequency = "100MHz"
+        >>> band.stop_frequency = "1e8"
 
         """
         val = self._get_property("Stop Frequency")
@@ -714,7 +714,7 @@ class Band(EmitNode):
         >>> app = Emit()
         >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
         >>> band = emit.get_radio().add_band()
-        >>> band.channel_spacing = "100MHz"
+        >>> band.channel_spacing = "1e6"
 
         """
         val = self._get_property("Channel Spacing")
@@ -740,7 +740,7 @@ class Band(EmitNode):
         >>> app = Emit()
         >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
         >>> band = emit.get_radio().add_band()
-        >>> band.tx_offset = "100MHz"
+        >>> band.tx_offset = "0"
 
         """
         val = self._get_property("Tx Offset")
@@ -796,7 +796,7 @@ class Band(EmitNode):
         >>> app = Emit()
         >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
         >>> band = emit.get_radio().add_band()
-        >>> band.hopping_radar = True
+        >>> band.hopping_radar = False
 
         """
         val = self._get_property("Hopping Radar")
@@ -823,7 +823,7 @@ class Band(EmitNode):
         >>> app = Emit()
         >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
         >>> band = emit.get_radio().add_band()
-        >>> band.post_october_2020_procurement = True
+        >>> band.post_october_2020_procurement = False
 
         """
         val = self._get_property("Post October 2020 Procurement")
@@ -847,7 +847,7 @@ class Band(EmitNode):
         >>> app = Emit()
         >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
         >>> band = emit.get_radio().add_band()
-        >>> band.hop_range_min_freq = "100MHz"
+        >>> band.hop_range_min_freq = "1.0e9"
 
         """
         val = self._get_property("Hop Range Min Freq")
@@ -873,7 +873,7 @@ class Band(EmitNode):
         >>> app = Emit()
         >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
         >>> band = emit.get_radio().add_band()
-        >>> band.hop_range_max_freq = "100MHz"
+        >>> band.hop_range_max_freq = "2.0e9"
 
         """
         val = self._get_property("Hop Range Max Freq")
@@ -899,7 +899,7 @@ class Band(EmitNode):
         >>> app = Emit()
         >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
         >>> band = emit.get_radio().add_band()
-        >>> band.pulse_duration = "100MHz"
+        >>> band.pulse_duration = "3.5e-6"
 
         """
         val = self._get_property("Pulse Duration")
@@ -925,7 +925,7 @@ class Band(EmitNode):
         >>> app = Emit()
         >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
         >>> band = emit.get_radio().add_band()
-        >>> band.pulse_rise_time = "100MHz"
+        >>> band.pulse_rise_time = "1.0e-6"
 
         """
         val = self._get_property("Pulse Rise Time")
@@ -951,7 +951,7 @@ class Band(EmitNode):
         >>> app = Emit()
         >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
         >>> band = emit.get_radio().add_band()
-        >>> band.pulse_fall_time = "100MHz"
+        >>> band.pulse_fall_time = "1.0e-6"
 
         """
         val = self._get_property("Pulse Fall Time")
@@ -977,7 +977,7 @@ class Band(EmitNode):
         >>> app = Emit()
         >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
         >>> band = emit.get_radio().add_band()
-        >>> band.pulse_repetition_rate = 0
+        >>> band.pulse_repetition_rate = 395
 
         """
         val = self._get_property("Pulse Repetition Rate")
@@ -1001,7 +1001,7 @@ class Band(EmitNode):
         >>> app = Emit()
         >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
         >>> band = emit.get_radio().add_band()
-        >>> band.number_of_chips = 0
+        >>> band.number_of_chips = 1
 
         """
         val = self._get_property("Number of Chips")
@@ -1025,7 +1025,7 @@ class Band(EmitNode):
         >>> app = Emit()
         >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
         >>> band = emit.get_radio().add_band()
-        >>> band.pulse_compression_ratio = 0
+        >>> band.pulse_compression_ratio = 1
 
         """
         val = self._get_property("Pulse Compression Ratio")
@@ -1049,7 +1049,7 @@ class Band(EmitNode):
         >>> app = Emit()
         >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
         >>> band = emit.get_radio().add_band()
-        >>> band.fm_chirp_period = "100MHz"
+        >>> band.fm_chirp_period = "3.5e-6"
 
         """
         val = self._get_property("FM Chirp Period")
@@ -1077,7 +1077,7 @@ class Band(EmitNode):
         >>> app = Emit()
         >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
         >>> band = emit.get_radio().add_band()
-        >>> band.fm_freq_deviation = "100MHz"
+        >>> band.fm_freq_deviation = "3.5e3"
 
         """
         val = self._get_property("FM Freq Deviation")
@@ -1106,7 +1106,7 @@ class Band(EmitNode):
         >>> app = Emit()
         >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
         >>> band = emit.get_radio().add_band()
-        >>> band.fm_freq_dev_bandwidth = "100MHz"
+        >>> band.fm_freq_dev_bandwidth = "3.5e3"
 
         """
         val = self._get_property("FM Freq Dev Bandwidth")

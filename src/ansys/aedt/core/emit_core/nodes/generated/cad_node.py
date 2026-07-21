@@ -132,7 +132,7 @@ class CADNode(EmitNode):
         >>> app = Emit()
         >>> rev = app.results.analyze()
         >>> cad = [c for c in rev.get_scene_node().children if c.node_type == "CADNode"][0]
-        >>> cad.show_relative_coordinates = True
+        >>> cad.show_relative_coordinates = False
 
         """
         val = self._get_property("Show Relative Coordinates")
@@ -417,7 +417,7 @@ class CADNode(EmitNode):
         >>> app = Emit()
         >>> rev = app.results.analyze()
         >>> cad = [c for c in rev.get_scene_node().children if c.node_type == "CADNode"][0]
-        >>> cad.color = "example_value"
+        >>> cad.color = "#A0B4C8"
 
         """
         val = self._get_property("Color")

@@ -146,7 +146,7 @@ class Circulator(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> circ = app.schematic.create_component("Circulator")
-        >>> circ.noise_temperature = 0
+        >>> circ.noise_temperature = 290.0
 
         """
         val = self._get_property("Noise Temperature")
@@ -245,7 +245,7 @@ class Circulator(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> circ = app.schematic.create_component("Circulator")
-        >>> circ.finite_reverse_isolation = True
+        >>> circ.finite_reverse_isolation = False
 
         """
         val = self._get_property("Finite Reverse Isolation")
@@ -268,7 +268,7 @@ class Circulator(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> circ = app.schematic.create_component("Circulator")
-        >>> circ.reverse_isolation = 0
+        >>> circ.reverse_isolation = 20
 
         """
         val = self._get_property("Reverse Isolation")
@@ -294,7 +294,7 @@ class Circulator(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> circ = app.schematic.create_component("Circulator")
-        >>> circ.finite_bandwidth = True
+        >>> circ.finite_bandwidth = False
 
         """
         val = self._get_property("Finite Bandwidth")
@@ -317,7 +317,7 @@ class Circulator(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> circ = app.schematic.create_component("Circulator")
-        >>> circ.out_of_band_attenuation = 0
+        >>> circ.out_of_band_attenuation = 40
 
         """
         val = self._get_property("Out-of-band Attenuation")
@@ -340,7 +340,7 @@ class Circulator(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> circ = app.schematic.create_component("Circulator")
-        >>> circ.lower_stop_band = "100MHz"
+        >>> circ.lower_stop_band = "80e6"
 
         """
         val = self._get_property("Lower Stop Band")
@@ -365,7 +365,7 @@ class Circulator(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> circ = app.schematic.create_component("Circulator")
-        >>> circ.lower_cutoff = "100MHz"
+        >>> circ.lower_cutoff = "90e6"
 
         """
         val = self._get_property("Lower Cutoff")
@@ -390,7 +390,7 @@ class Circulator(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> circ = app.schematic.create_component("Circulator")
-        >>> circ.higher_cutoff = "100MHz"
+        >>> circ.higher_cutoff = "110e6"
 
         """
         val = self._get_property("Higher Cutoff")
@@ -415,7 +415,7 @@ class Circulator(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> circ = app.schematic.create_component("Circulator")
-        >>> circ.higher_stop_band = "100MHz"
+        >>> circ.higher_stop_band = "120e6"
 
         """
         val = self._get_property("Higher Stop Band")

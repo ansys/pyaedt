@@ -59,7 +59,7 @@ class Multiplexer(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> mux = app.schematic.create_component("Multiplexer")
-        >>> multiplexer_pass_band = multiplexer.add_multiplexer_pass_band()
+        >>> multiplexer_pass_band = mux.add_multiplexer_pass_band()
 
         """
         return self._add_child_node("Multiplexer Pass Band")
@@ -160,7 +160,7 @@ class Multiplexer(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> mux = app.schematic.create_component("Multiplexer")
-        >>> mux.noise_temperature = 0
+        >>> mux.noise_temperature = 290.0
 
         """
         val = self._get_property("Noise Temperature")

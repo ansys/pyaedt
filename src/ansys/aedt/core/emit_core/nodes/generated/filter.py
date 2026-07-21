@@ -144,7 +144,7 @@ class Filter(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> filt = app.modeler.components.create_component("Filter")
-        >>> filt.noise_temperature = 0
+        >>> filt.noise_temperature = 290.0
 
         """
         val = self._get_property("Noise Temperature")
@@ -245,7 +245,7 @@ class Filter(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> filt = app.modeler.components.create_component("Filter")
-        >>> filt.stop_band_attenuation = 0
+        >>> filt.stop_band_attenuation = 40
 
         """
         val = self._get_property("Stop band Attenuation")
@@ -268,7 +268,7 @@ class Filter(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> filt = app.modeler.components.create_component("Filter")
-        >>> filt.max_pass_band = "100MHz"
+        >>> filt.max_pass_band = "120e6"
 
         """
         val = self._get_property("Max Pass Band")
@@ -293,7 +293,7 @@ class Filter(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> filt = app.modeler.components.create_component("Filter")
-        >>> filt.min_stop_band = "100MHz"
+        >>> filt.min_stop_band = "140e6"
 
         """
         val = self._get_property("Min Stop Band")
@@ -318,7 +318,7 @@ class Filter(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> filt = app.modeler.components.create_component("Filter")
-        >>> filt.max_stop_band = "100MHz"
+        >>> filt.max_stop_band = "60e6"
 
         """
         val = self._get_property("Max Stop Band")
@@ -343,7 +343,7 @@ class Filter(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> filt = app.modeler.components.create_component("Filter")
-        >>> filt.min_pass_band = "100MHz"
+        >>> filt.min_pass_band = "80e6"
 
         """
         val = self._get_property("Min Pass Band")
@@ -368,7 +368,7 @@ class Filter(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> filt = app.modeler.components.create_component("Filter")
-        >>> filt.bp_lower_stop_band = "100MHz"
+        >>> filt.bp_lower_stop_band = "80e6"
 
         """
         if int(self._emit_obj.aedt_version_id[-3:]) < 261:
@@ -396,7 +396,7 @@ class Filter(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> filt = app.modeler.components.create_component("Filter")
-        >>> filt.bp_lower_cutoff = "100MHz"
+        >>> filt.bp_lower_cutoff = "90e6"
 
         """
         if int(self._emit_obj.aedt_version_id[-3:]) < 261:
@@ -424,7 +424,7 @@ class Filter(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> filt = app.modeler.components.create_component("Filter")
-        >>> filt.bp_higher_cutoff = "100MHz"
+        >>> filt.bp_higher_cutoff = "110e6"
 
         """
         if int(self._emit_obj.aedt_version_id[-3:]) < 261:
@@ -452,7 +452,7 @@ class Filter(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> filt = app.modeler.components.create_component("Filter")
-        >>> filt.bp_higher_stop_band = "100MHz"
+        >>> filt.bp_higher_stop_band = "120e6"
 
         """
         if int(self._emit_obj.aedt_version_id[-3:]) < 261:
@@ -480,7 +480,7 @@ class Filter(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> filt = app.modeler.components.create_component("Filter")
-        >>> filt.bs_lower_cutoff = "100MHz"
+        >>> filt.bs_lower_cutoff = "80e6"
 
         """
         if int(self._emit_obj.aedt_version_id[-3:]) < 261:
@@ -508,7 +508,7 @@ class Filter(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> filt = app.modeler.components.create_component("Filter")
-        >>> filt.bs_lower_stop_band = "100MHz"
+        >>> filt.bs_lower_stop_band = "90e6"
 
         """
         if int(self._emit_obj.aedt_version_id[-3:]) < 261:
@@ -536,7 +536,7 @@ class Filter(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> filt = app.modeler.components.create_component("Filter")
-        >>> filt.bs_higher_stop_band = "100MHz"
+        >>> filt.bs_higher_stop_band = "110e6"
 
         """
         if int(self._emit_obj.aedt_version_id[-3:]) < 261:
@@ -564,7 +564,7 @@ class Filter(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> filt = app.modeler.components.create_component("Filter")
-        >>> filt.bs_higher_cutoff = "100MHz"
+        >>> filt.bs_higher_cutoff = "120e6"
 
         """
         if int(self._emit_obj.aedt_version_id[-3:]) < 261:
@@ -592,7 +592,7 @@ class Filter(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> filt = app.modeler.components.create_component("Filter")
-        >>> filt.lowest_tuned_frequency = "100MHz"
+        >>> filt.lowest_tuned_frequency = "80e6"
 
         """
         val = self._get_property("Lowest Tuned Frequency")
@@ -617,7 +617,7 @@ class Filter(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> filt = app.modeler.components.create_component("Filter")
-        >>> filt.highest_tuned_frequency = "100MHz"
+        >>> filt.highest_tuned_frequency = "120e6"
 
         """
         val = self._get_property("Highest Tuned Frequency")
@@ -642,7 +642,7 @@ class Filter(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> filt = app.modeler.components.create_component("Filter")
-        >>> filt.percent_bandwidth = 0.001
+        >>> filt.percent_bandwidth = 10
 
         """
         val = self._get_property("Percent Bandwidth")
@@ -665,7 +665,7 @@ class Filter(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> filt = app.modeler.components.create_component("Filter")
-        >>> filt.shape_factor = 1
+        >>> filt.shape_factor = 2
 
         """
         val = self._get_property("Shape Factor")

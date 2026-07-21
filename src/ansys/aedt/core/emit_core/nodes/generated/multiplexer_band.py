@@ -169,7 +169,7 @@ class MultiplexerBand(EmitNode):
 
         Examples
         --------
-        >>> mplex_band.stop_band_attenuation = 0
+        >>> mplex_band.stop_band_attenuation = 40
 
         """
         val = self._get_property("Stop band Attenuation")
@@ -189,7 +189,7 @@ class MultiplexerBand(EmitNode):
 
         Examples
         --------
-        >>> mplex_band.max_pass_band = "100MHz"
+        >>> mplex_band.max_pass_band = "120e6"
 
         """
         val = self._get_property("Max Pass Band")
@@ -211,7 +211,7 @@ class MultiplexerBand(EmitNode):
 
         Examples
         --------
-        >>> mplex_band.min_stop_band = "100MHz"
+        >>> mplex_band.min_stop_band = "140e6"
 
         """
         val = self._get_property("Min Stop Band")
@@ -233,7 +233,7 @@ class MultiplexerBand(EmitNode):
 
         Examples
         --------
-        >>> mplex_band.max_stop_band = "100MHz"
+        >>> mplex_band.max_stop_band = "60e6"
 
         """
         val = self._get_property("Max Stop Band")
@@ -255,7 +255,7 @@ class MultiplexerBand(EmitNode):
 
         Examples
         --------
-        >>> mplex_band.min_pass_band = "100MHz"
+        >>> mplex_band.min_pass_band = "80e6"
 
         """
         val = self._get_property("Min Pass Band")
@@ -277,7 +277,7 @@ class MultiplexerBand(EmitNode):
 
         Examples
         --------
-        >>> mplex_band.lower_stop_band = "100MHz"
+        >>> mplex_band.lower_stop_band = "80e6"
 
         """
         val = self._get_property("Lower Stop Band")
@@ -299,7 +299,7 @@ class MultiplexerBand(EmitNode):
 
         Examples
         --------
-        >>> mplex_band.lower_cutoff = "100MHz"
+        >>> mplex_band.lower_cutoff = "90e6"
 
         """
         val = self._get_property("Lower Cutoff")
@@ -321,7 +321,7 @@ class MultiplexerBand(EmitNode):
 
         Examples
         --------
-        >>> mplex_band.higher_cutoff = "100MHz"
+        >>> mplex_band.higher_cutoff = "110e6"
 
         """
         val = self._get_property("Higher Cutoff")
@@ -343,7 +343,7 @@ class MultiplexerBand(EmitNode):
 
         Examples
         --------
-        >>> mplex_band.higher_stop_band = "100MHz"
+        >>> mplex_band.higher_stop_band = "120e6"
 
         """
         val = self._get_property("Higher Stop Band")

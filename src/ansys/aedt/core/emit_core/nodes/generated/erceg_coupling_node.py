@@ -125,7 +125,7 @@ class ErcegCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> ereg = cpl.add_erceg_coupling()
-        >>> erceg_coupling_copy = erceg_coupling.duplicate("erceg_coupling_copy")
+        >>> ereg_copy = ereg.duplicate("ereg_copy")
 
         """
         return self._duplicate(new_name)
@@ -263,7 +263,7 @@ class ErcegCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> ereg = cpl.add_erceg_coupling()
-        >>> ereg.custom_fading_margin = 0
+        >>> ereg.custom_fading_margin = 0.0
 
         """
         val = self._get_property("Custom Fading Margin")
@@ -291,7 +291,7 @@ class ErcegCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> ereg = cpl.add_erceg_coupling()
-        >>> ereg.polarization_mismatch = 0
+        >>> ereg.polarization_mismatch = 0.0
 
         """
         val = self._get_property("Polarization Mismatch")
@@ -319,7 +319,7 @@ class ErcegCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> ereg = cpl.add_erceg_coupling()
-        >>> ereg.pointing_error_loss = 0
+        >>> ereg.pointing_error_loss = 0.0
 
         """
         val = self._get_property("Pointing Error Loss")
@@ -377,7 +377,7 @@ class ErcegCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> ereg = cpl.add_erceg_coupling()
-        >>> ereg.fading_availability = 0.0
+        >>> ereg.fading_availability = 90.0
 
         """
         val = self._get_property("Fading Availability")
@@ -402,7 +402,7 @@ class ErcegCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> ereg = cpl.add_erceg_coupling()
-        >>> ereg.std_deviation = 0.0
+        >>> ereg.std_deviation = 8.0
 
         """
         val = self._get_property("Std Deviation")
@@ -427,7 +427,7 @@ class ErcegCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> ereg = cpl.add_erceg_coupling()
-        >>> ereg.include_rain_attenuation = True
+        >>> ereg.include_rain_attenuation = False
 
         """
         val = self._get_property("Include Rain Attenuation")
@@ -455,7 +455,7 @@ class ErcegCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> ereg = cpl.add_erceg_coupling()
-        >>> ereg.rain_availability = 99
+        >>> ereg.rain_availability = 99.99
 
         """
         val = self._get_property("Rain Availability")
@@ -480,7 +480,7 @@ class ErcegCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> ereg = cpl.add_erceg_coupling()
-        >>> ereg.rain_rate = 0.0
+        >>> ereg.rain_rate = 8.0
 
         """
         val = self._get_property("Rain Rate")
@@ -536,7 +536,7 @@ class ErcegCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> ereg = cpl.add_erceg_coupling()
-        >>> ereg.include_atmospheric_absorption = True
+        >>> ereg.include_atmospheric_absorption = False
 
         """
         val = self._get_property("Include Atmospheric Absorption")
@@ -561,7 +561,7 @@ class ErcegCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> ereg = cpl.add_erceg_coupling()
-        >>> ereg.temperature = -273.0
+        >>> ereg.temperature = 15.0
 
         """
         val = self._get_property("Temperature")
@@ -586,7 +586,7 @@ class ErcegCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> ereg = cpl.add_erceg_coupling()
-        >>> ereg.total_air_pressure = 0.0
+        >>> ereg.total_air_pressure = 1013
 
         """
         val = self._get_property("Total Air Pressure")
@@ -611,7 +611,7 @@ class ErcegCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> ereg = cpl.add_erceg_coupling()
-        >>> ereg.water_vapor_concentration = 0.0
+        >>> ereg.water_vapor_concentration = 7.5
 
         """
         val = self._get_property("Water Vapor Concentration")

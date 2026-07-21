@@ -165,7 +165,7 @@ class RxMixerProductNode(EmitNode):
 
         Examples
         --------
-        >>> mixer_products.mixer_product_susceptibility = -200
+        >>> mixer_products.mixer_product_susceptibility = 60
 
         """
         val = self._get_property("Mixer Product Susceptibility")
@@ -185,7 +185,7 @@ class RxMixerProductNode(EmitNode):
 
         Examples
         --------
-        >>> mixer_products.spurious_rejection = -200
+        >>> mixer_products.spurious_rejection = 60
 
         """
         val = self._get_property("Spurious Rejection")
@@ -205,7 +205,7 @@ class RxMixerProductNode(EmitNode):
 
         Examples
         --------
-        >>> mixer_products.minimum_tuning_frequency = "100MHz"
+        >>> mixer_products.minimum_tuning_frequency = "90e6"
 
         """
         val = self._get_property("Minimum Tuning Frequency")
@@ -227,7 +227,7 @@ class RxMixerProductNode(EmitNode):
 
         Examples
         --------
-        >>> mixer_products.maximum_tuning_frequency = "100MHz"
+        >>> mixer_products.maximum_tuning_frequency = "110e6"
 
         """
         val = self._get_property("Maximum Tuning Frequency")
@@ -252,7 +252,7 @@ class RxMixerProductNode(EmitNode):
 
         Examples
         --------
-        >>> mixer_products.mixer_product_slope = 0
+        >>> mixer_products.mixer_product_slope = 35
 
         """
         val = self._get_property("Mixer Product Slope")
@@ -272,7 +272,7 @@ class RxMixerProductNode(EmitNode):
 
         Examples
         --------
-        >>> mixer_products.mixer_product_intercept = 0
+        >>> mixer_products.mixer_product_intercept = 75
 
         """
         val = self._get_property("Mixer Product Intercept")
@@ -295,7 +295,7 @@ class RxMixerProductNode(EmitNode):
 
         Examples
         --------
-        >>> mixer_products.bandwidth_80_db = "100MHz"
+        >>> mixer_products.bandwidth_80_db = "1.0e6"
 
         """
         val = self._get_property("Bandwidth 80 dB")
@@ -317,7 +317,7 @@ class RxMixerProductNode(EmitNode):
 
         Examples
         --------
-        >>> mixer_products.image_rejection = -200
+        >>> mixer_products.image_rejection = 60
 
         """
         val = self._get_property("Image Rejection")
@@ -337,7 +337,7 @@ class RxMixerProductNode(EmitNode):
 
         Examples
         --------
-        >>> mixer_products.maximum_rf_harmonic_order = 1
+        >>> mixer_products.maximum_rf_harmonic_order = 3
 
         """
         val = self._get_property("Maximum RF Harmonic Order")
@@ -357,7 +357,7 @@ class RxMixerProductNode(EmitNode):
 
         Examples
         --------
-        >>> mixer_products.maximum_lo_harmonic_order = 1
+        >>> mixer_products.maximum_lo_harmonic_order = 3
 
         """
         val = self._get_property("Maximum LO Harmonic Order")
@@ -380,7 +380,7 @@ class RxMixerProductNode(EmitNode):
 
         Examples
         --------
-        >>> mixer_products.mixing_mode = RxMixerProductNode.MixingModeOption.LO_ABOVE_TUNED_RF_FREQUENCY
+        >>> mixer_products.mixing_mode = RxMixerProductNode.MixingModeOption.LO_BELOW_TUNED_RF_FREQUENCY
 
         """
         val = self._get_property("Mixing Mode")
@@ -401,7 +401,7 @@ class RxMixerProductNode(EmitNode):
 
         Examples
         --------
-        >>> mixer_products.first_if_frequency = "example_value"
+        >>> mixer_products.first_if_frequency = "0.0"
 
         """
         val = self._get_property("First IF Frequency")
@@ -419,7 +419,7 @@ class RxMixerProductNode(EmitNode):
 
         Examples
         --------
-        >>> mixer_products.rf_transition_frequency = "100MHz"
+        >>> mixer_products.rf_transition_frequency = "100e6"
 
         """
         val = self._get_property("RF Transition Frequency")

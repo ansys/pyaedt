@@ -107,7 +107,7 @@ class TxSpectralProfNode(EmitNode):
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
         >>> spec = radio.children[0].children[0]
-        >>> narrowband_emissions_mask = tx_spec.add_narrowband_emissions_mask()
+        >>> narrowband_emissions_mask = spec.add_narrowband_emissions_mask()
 
         """
         return self._add_child_node("Narrowband Emissions Mask")
@@ -122,7 +122,7 @@ class TxSpectralProfNode(EmitNode):
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
         >>> spec = radio.children[0].children[0]
-        >>> tx_broadband_noise_profile = tx_spec.add_tx_broadband_noise_profile()
+        >>> tx_broadband_noise_profile = spec.add_tx_broadband_noise_profile()
 
         """
         return self._add_child_node("Tx Broadband Noise Profile")
@@ -137,7 +137,7 @@ class TxSpectralProfNode(EmitNode):
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
         >>> spec = radio.children[0].children[0]
-        >>> custom_tx_harmonics = tx_spec.add_custom_tx_harmonics()
+        >>> custom_tx_harmonics = spec.add_custom_tx_harmonics()
 
         """
         return self._add_child_node("Custom Tx Harmonics")
@@ -152,7 +152,7 @@ class TxSpectralProfNode(EmitNode):
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
         >>> spec = radio.children[0].children[0]
-        >>> spurious_emissions = tx_spec.add_spurious_emissions()
+        >>> spurious_emissions = spec.add_spurious_emissions()
 
         """
         return self._add_child_node("Spurious Emissions")
@@ -245,7 +245,7 @@ class TxSpectralProfNode(EmitNode):
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
         >>> spec = radio.children[0].children[0]
-        >>> spec.peak_power = "100MHz"
+        >>> spec.peak_power = "40"
 
         """
         val = self._get_property("Peak Power")
@@ -271,7 +271,7 @@ class TxSpectralProfNode(EmitNode):
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
         >>> spec = radio.children[0].children[0]
-        >>> spec.average_power = "100MHz"
+        >>> spec.average_power = "40"
 
         """
         val = self._get_property("Average Power")
@@ -297,7 +297,7 @@ class TxSpectralProfNode(EmitNode):
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
         >>> spec = radio.children[0].children[0]
-        >>> spec.include_phase_noise = True
+        >>> spec.include_phase_noise = False
 
         """
         val = self._get_property("Include Phase Noise")
@@ -321,7 +321,7 @@ class TxSpectralProfNode(EmitNode):
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
         >>> spec = radio.children[0].children[0]
-        >>> spec.tx_broadband_noise = 0
+        >>> spec.tx_broadband_noise = -174
 
         """
         val = self._get_property("Tx Broadband Noise")
@@ -374,7 +374,7 @@ class TxSpectralProfNode(EmitNode):
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
         >>> spec = radio.children[0].children[0]
-        >>> spec.harmonic_amplitude = -1000
+        >>> spec.harmonic_amplitude = -60
 
         """
         val = self._get_property("Harmonic Amplitude")
@@ -398,7 +398,7 @@ class TxSpectralProfNode(EmitNode):
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
         >>> spec = radio.children[0].children[0]
-        >>> spec.harmonic_slope = -1000
+        >>> spec.harmonic_slope = -70
 
         """
         val = self._get_property("Harmonic Slope")
@@ -422,7 +422,7 @@ class TxSpectralProfNode(EmitNode):
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
         >>> spec = radio.children[0].children[0]
-        >>> spec.harmonic_intercept = -1000
+        >>> spec.harmonic_intercept = -30
 
         """
         val = self._get_property("Harmonic Intercept")
@@ -449,7 +449,7 @@ class TxSpectralProfNode(EmitNode):
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
         >>> spec = radio.children[0].children[0]
-        >>> spec.enable_harmonic_bw_expansion = True
+        >>> spec.enable_harmonic_bw_expansion = False
 
         """
         val = self._get_property("Enable Harmonic BW Expansion")
@@ -473,7 +473,7 @@ class TxSpectralProfNode(EmitNode):
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
         >>> spec = radio.children[0].children[0]
-        >>> spec.number_of_harmonics = 1
+        >>> spec.number_of_harmonics = 10
 
         """
         val = self._get_property("Number of Harmonics")
@@ -497,7 +497,7 @@ class TxSpectralProfNode(EmitNode):
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
         >>> spec = radio.children[0].children[0]
-        >>> spec.second_harmonic_level = -1000
+        >>> spec.second_harmonic_level = -60
 
         """
         val = self._get_property("Second Harmonic Level")
@@ -521,7 +521,7 @@ class TxSpectralProfNode(EmitNode):
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
         >>> spec = radio.children[0].children[0]
-        >>> spec.third_harmonic_level = -1000
+        >>> spec.third_harmonic_level = -60
 
         """
         val = self._get_property("Third Harmonic Level")
@@ -547,7 +547,7 @@ class TxSpectralProfNode(EmitNode):
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
         >>> spec = radio.children[0].children[0]
-        >>> spec.other_harmonic_levels = -1000
+        >>> spec.other_harmonic_levels = -60
 
         """
         val = self._get_property("Other Harmonic Levels")
@@ -571,7 +571,7 @@ class TxSpectralProfNode(EmitNode):
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
         >>> spec = radio.children[0].children[0]
-        >>> spec.perform_tx_intermod_analysis = True
+        >>> spec.perform_tx_intermod_analysis = False
 
         """
         val = self._get_property("Perform Tx Intermod Analysis")
@@ -595,7 +595,7 @@ class TxSpectralProfNode(EmitNode):
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
         >>> spec = radio.children[0].children[0]
-        >>> spec.internal_amp_gain = -1000
+        >>> spec.internal_amp_gain = 30
 
         """
         val = self._get_property("Internal Amp Gain")
@@ -619,7 +619,7 @@ class TxSpectralProfNode(EmitNode):
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
         >>> spec = radio.children[0].children[0]
-        >>> spec.noise_figure = 0
+        >>> spec.noise_figure = 5.0
 
         """
         val = self._get_property("Noise Figure")
@@ -643,7 +643,7 @@ class TxSpectralProfNode(EmitNode):
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
         >>> spec = radio.children[0].children[0]
-        >>> spec.amplifier_saturation_level = "100MHz"
+        >>> spec.amplifier_saturation_level = "0"
 
         """
         val = self._get_property("Amplifier Saturation Level")
@@ -672,7 +672,7 @@ class TxSpectralProfNode(EmitNode):
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
         >>> spec = radio.children[0].children[0]
-        >>> spec.p1_db_point_ref_input = "100MHz"
+        >>> spec.p1_db_point_ref_input = "0"
 
         """
         val = self._get_property("P1-dB Point, Ref. Input ")
@@ -698,7 +698,7 @@ class TxSpectralProfNode(EmitNode):
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
         >>> spec = radio.children[0].children[0]
-        >>> spec.ip3_ref_input = "100MHz"
+        >>> spec.ip3_ref_input = "10"
 
         """
         val = self._get_property("IP3, Ref. Input")
@@ -724,7 +724,7 @@ class TxSpectralProfNode(EmitNode):
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
         >>> spec = radio.children[0].children[0]
-        >>> spec.reverse_isolation = -200
+        >>> spec.reverse_isolation = 20
 
         """
         val = self._get_property("Reverse Isolation")
@@ -748,7 +748,7 @@ class TxSpectralProfNode(EmitNode):
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
         >>> spec = radio.children[0].children[0]
-        >>> spec.max_intermod_order = 3
+        >>> spec.max_intermod_order = 5
 
         """
         val = self._get_property("Max Intermod Order")

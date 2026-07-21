@@ -80,7 +80,7 @@ class SceneGroupNode(EmitNode):
         >>> rev = app.results.analyze()
         >>> scene = rev.get_scene_node()
         >>> grp = scene.children[0]
-        >>> emitter = scene_group.add_emitter()
+        >>> emitter = grp.add_emitter()
 
         """
         return self._add_child_node("Emitter")
@@ -96,7 +96,7 @@ class SceneGroupNode(EmitNode):
         >>> rev = app.results.analyze()
         >>> scene = rev.get_scene_node()
         >>> grp = scene.children[0]
-        >>> group = scene_group.add_group()
+        >>> group = grp.add_group()
 
         """
         return self._add_child_node("Group")
@@ -130,7 +130,7 @@ class SceneGroupNode(EmitNode):
         >>> rev = app.results.analyze()
         >>> scene = rev.get_scene_node()
         >>> grp = scene.children[0]
-        >>> antenna = scene_group.add_antenna()
+        >>> antenna = grp.add_antenna()
 
         """
         return self._add_child_node("Antenna")
@@ -184,7 +184,7 @@ class SceneGroupNode(EmitNode):
         >>> rev = app.results.analyze()
         >>> scene = rev.get_scene_node()
         >>> grp = scene.children[0]
-        >>> grp.show_relative_coordinates = True
+        >>> grp.show_relative_coordinates = False
 
         """
         val = self._get_property("Show Relative Coordinates")
@@ -370,7 +370,7 @@ class SceneGroupNode(EmitNode):
         >>> rev = app.results.analyze()
         >>> scene = rev.get_scene_node()
         >>> grp = scene.children[0]
-        >>> grp.box_color = "example_value"
+        >>> grp.box_color = "#0000FF"
 
         """
         val = self._get_property("Box Color")

@@ -135,7 +135,7 @@ class TxSpectralProfEmitterNode(EmitNode):
 
         Examples
         --------
-        >>> tx_spec_emitter.output_voltage_peak = "100MHz"
+        >>> tx_spec_emitter.output_voltage_peak = "3.3"
 
         """
         val = self._get_property("Output Voltage Peak")
@@ -157,7 +157,7 @@ class TxSpectralProfEmitterNode(EmitNode):
 
         Examples
         --------
-        >>> tx_spec_emitter.include_phase_noise = True
+        >>> tx_spec_emitter.include_phase_noise = False
 
         """
         val = self._get_property("Include Phase Noise")
@@ -177,7 +177,7 @@ class TxSpectralProfEmitterNode(EmitNode):
 
         Examples
         --------
-        >>> tx_spec_emitter.tx_broadband_noise = 0
+        >>> tx_spec_emitter.tx_broadband_noise = -174
 
         """
         val = self._get_property("Tx Broadband Noise")
@@ -197,7 +197,7 @@ class TxSpectralProfEmitterNode(EmitNode):
 
         Examples
         --------
-        >>> tx_spec_emitter.number_of_harmonics = 1
+        >>> tx_spec_emitter.number_of_harmonics = 10
 
         """
         val = self._get_property("Number of Harmonics")
@@ -217,7 +217,7 @@ class TxSpectralProfEmitterNode(EmitNode):
 
         Examples
         --------
-        >>> tx_spec_emitter.perform_tx_intermod_analysis = True
+        >>> tx_spec_emitter.perform_tx_intermod_analysis = False
 
         """
         val = self._get_property("Perform Tx Intermod Analysis")
@@ -237,7 +237,7 @@ class TxSpectralProfEmitterNode(EmitNode):
 
         Examples
         --------
-        >>> tx_spec_emitter.internal_amp_gain = -1000
+        >>> tx_spec_emitter.internal_amp_gain = 30
 
         """
         val = self._get_property("Internal Amp Gain")
@@ -257,7 +257,7 @@ class TxSpectralProfEmitterNode(EmitNode):
 
         Examples
         --------
-        >>> tx_spec_emitter.noise_figure = 0
+        >>> tx_spec_emitter.noise_figure = 5.0
 
         """
         val = self._get_property("Noise Figure")
@@ -277,7 +277,7 @@ class TxSpectralProfEmitterNode(EmitNode):
 
         Examples
         --------
-        >>> tx_spec_emitter.amplifier_saturation_level = "100MHz"
+        >>> tx_spec_emitter.amplifier_saturation_level = "0"
 
         """
         val = self._get_property("Amplifier Saturation Level")
@@ -302,7 +302,7 @@ class TxSpectralProfEmitterNode(EmitNode):
 
         Examples
         --------
-        >>> tx_spec_emitter.p1_db_point_ref_input = "100MHz"
+        >>> tx_spec_emitter.p1_db_point_ref_input = "0"
 
         """
         val = self._get_property("P1-dB Point, Ref. Input ")
@@ -324,7 +324,7 @@ class TxSpectralProfEmitterNode(EmitNode):
 
         Examples
         --------
-        >>> tx_spec_emitter.ip3_ref_input = "100MHz"
+        >>> tx_spec_emitter.ip3_ref_input = "10"
 
         """
         val = self._get_property("IP3, Ref. Input")
@@ -346,7 +346,7 @@ class TxSpectralProfEmitterNode(EmitNode):
 
         Examples
         --------
-        >>> tx_spec_emitter.reverse_isolation = -200
+        >>> tx_spec_emitter.reverse_isolation = 20
 
         """
         val = self._get_property("Reverse Isolation")
@@ -366,7 +366,7 @@ class TxSpectralProfEmitterNode(EmitNode):
 
         Examples
         --------
-        >>> tx_spec_emitter.max_intermod_order = 3
+        >>> tx_spec_emitter.max_intermod_order = 5
 
         """
         val = self._get_property("Max Intermod Order")

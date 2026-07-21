@@ -125,7 +125,7 @@ class WalfischCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> walf = cpl.add_walfisch_coupling()
-        >>> walfisch_coupling_copy = walfisch_coupling.duplicate("walfisch_coupling_copy")
+        >>> walf_copy = walf.duplicate("walf_copy")
 
         """
         return self._duplicate(new_name)
@@ -287,7 +287,7 @@ class WalfischCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> walf = cpl.add_walfisch_coupling()
-        >>> walf.roof_height = "100MHz"
+        >>> walf.roof_height = "30.0"
 
         """
         val = self._get_property("Roof Height")
@@ -314,7 +314,7 @@ class WalfischCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> walf = cpl.add_walfisch_coupling()
-        >>> walf.distance_between_buildings = "100MHz"
+        >>> walf.distance_between_buildings = "30.0"
 
         """
         val = self._get_property("Distance Between Buildings")
@@ -341,7 +341,7 @@ class WalfischCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> walf = cpl.add_walfisch_coupling()
-        >>> walf.street_width = "100MHz"
+        >>> walf.street_width = "15.0"
 
         """
         val = self._get_property("Street Width")
@@ -368,7 +368,7 @@ class WalfischCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> walf = cpl.add_walfisch_coupling()
-        >>> walf.incidence_angle = 0
+        >>> walf.incidence_angle = 90.0
 
         """
         val = self._get_property("Incidence Angle")
@@ -396,7 +396,7 @@ class WalfischCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> walf = cpl.add_walfisch_coupling()
-        >>> walf.custom_fading_margin = 0
+        >>> walf.custom_fading_margin = 0.0
 
         """
         val = self._get_property("Custom Fading Margin")
@@ -424,7 +424,7 @@ class WalfischCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> walf = cpl.add_walfisch_coupling()
-        >>> walf.polarization_mismatch = 0
+        >>> walf.polarization_mismatch = 0.0
 
         """
         val = self._get_property("Polarization Mismatch")
@@ -452,7 +452,7 @@ class WalfischCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> walf = cpl.add_walfisch_coupling()
-        >>> walf.pointing_error_loss = 0
+        >>> walf.pointing_error_loss = 0.0
 
         """
         val = self._get_property("Pointing Error Loss")
@@ -510,7 +510,7 @@ class WalfischCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> walf = cpl.add_walfisch_coupling()
-        >>> walf.fading_availability = 0.0
+        >>> walf.fading_availability = 90.0
 
         """
         val = self._get_property("Fading Availability")
@@ -535,7 +535,7 @@ class WalfischCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> walf = cpl.add_walfisch_coupling()
-        >>> walf.std_deviation = 0.0
+        >>> walf.std_deviation = 8.0
 
         """
         val = self._get_property("Std Deviation")
@@ -560,7 +560,7 @@ class WalfischCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> walf = cpl.add_walfisch_coupling()
-        >>> walf.include_rain_attenuation = True
+        >>> walf.include_rain_attenuation = False
 
         """
         val = self._get_property("Include Rain Attenuation")
@@ -588,7 +588,7 @@ class WalfischCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> walf = cpl.add_walfisch_coupling()
-        >>> walf.rain_availability = 99
+        >>> walf.rain_availability = 99.99
 
         """
         val = self._get_property("Rain Availability")
@@ -613,7 +613,7 @@ class WalfischCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> walf = cpl.add_walfisch_coupling()
-        >>> walf.rain_rate = 0.0
+        >>> walf.rain_rate = 8.0
 
         """
         val = self._get_property("Rain Rate")
@@ -669,7 +669,7 @@ class WalfischCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> walf = cpl.add_walfisch_coupling()
-        >>> walf.include_atmospheric_absorption = True
+        >>> walf.include_atmospheric_absorption = False
 
         """
         val = self._get_property("Include Atmospheric Absorption")
@@ -694,7 +694,7 @@ class WalfischCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> walf = cpl.add_walfisch_coupling()
-        >>> walf.temperature = -273.0
+        >>> walf.temperature = 15.0
 
         """
         val = self._get_property("Temperature")
@@ -719,7 +719,7 @@ class WalfischCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> walf = cpl.add_walfisch_coupling()
-        >>> walf.total_air_pressure = 0.0
+        >>> walf.total_air_pressure = 1013
 
         """
         val = self._get_property("Total Air Pressure")
@@ -744,7 +744,7 @@ class WalfischCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> walf = cpl.add_walfisch_coupling()
-        >>> walf.water_vapor_concentration = 0.0
+        >>> walf.water_vapor_concentration = 7.5
 
         """
         val = self._get_property("Water Vapor Concentration")
