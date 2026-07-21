@@ -60,7 +60,7 @@ def test_edit_sources_dataset(q3d_app, test_tmp_dir) -> None:
     dataset1 = q3d_app.design_datasets["re_S1"]
     assert dataset1.x == [1, 2]
     assert dataset1.xunit == "Hz"
-    assert dataset1.y == [0.1, 0.2]
+    assert dataset1.y == [0.1, 1.2]
     assert dataset1.yunit == "A"
     dataset2 = q3d_app.design_datasets["im_S1"]
     assert dataset2.x == [1, 2]
