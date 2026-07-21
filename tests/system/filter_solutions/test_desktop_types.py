@@ -23,7 +23,6 @@
 # SOFTWARE.
 
 import pytest
-import os
 
 from ansys.aedt.core import Circuit
 from ansys.aedt.core import Hfss
@@ -31,15 +30,20 @@ from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.filtersolutions_core.export_to_aedt import PartLibraries
 from ansys.aedt.core.generic.settings import is_linux
 from tests.conftest import DESKTOP_VERSION
+from tests.system.filter_solutions.conftest import prepare_filtersolutions_for_export
 from tests.system.filter_solutions.conftest import release_exported_design
 from tests.system.filter_solutions.resources import read_resource_file
 
-ON_CI = os.getenv("ON_CI", "false").lower() == "true"
+
+@pytest.fixture(autouse=True)
+def _prepare_filtersolutions_export_tests():
+    prepare_filtersolutions_for_export()
+    yield
+    prepare_filtersolutions_for_export()
 
 
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
 @pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Skipped on versions earlier than 2026.1")
-# @pytest.mark.skipif(ON_CI, reason="Lead to access violation issues on CI runners")
 class TestClass:
     def test_lumped_exported_desktop(self, lumped_design):
         schem_name = lumped_design.export_to_aedt.schematic_name

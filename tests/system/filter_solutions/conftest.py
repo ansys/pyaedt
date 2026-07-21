@@ -23,8 +23,9 @@
 # SOFTWARE.
 
 import locale
-import subprocess
+import time
 
+import psutil
 import pytest
 
 from ansys.aedt.core import settings
@@ -50,15 +51,55 @@ else:
     locale.setlocale(locale.LC_ALL, "C")
 
 
-def _reset_filtersolutions_dll() -> None:
-    """Reset the FilterSolutions DLL singleton so a new AEDT session can be started."""
-    filtersolutions_core._internal_dll_interface = None
+def _wait_for_process_exit(process_id: int, timeout: float = 30.0) -> None:
+    """Wait until an AEDT process has fully exited."""
+    try:
+        psutil.Process(process_id).wait(timeout=timeout)
+    except (psutil.NoSuchProcess, psutil.TimeoutExpired):
+        pass
+
+
+def _terminate_aedt_processes(*process_ids: int) -> None:
+    """Terminate AEDT processes started by FilterSolutions export."""
+    for process_id in process_ids:
+        if not process_id:
+            continue
+        try:
+            psutil.Process(process_id).kill()
+        except psutil.NoSuchProcess:
+            pass
+        _wait_for_process_exit(process_id)
+
+
+def _reinitialize_filtersolutions_dll() -> None:
+    """Reinitialize the in-process FilterSolutions DLL after an AEDT export session."""
+    dll = filtersolutions_core._internal_dll_interface
+    if dll is not None:
+        dll.restore_defaults()
     FilterDesignBase._active_design = None
 
 
-def _terminate_aedt_process(process_id: int) -> None:
-    """Terminate an AEDT process started by the FilterSolutions export."""
-    subprocess.run(["taskkill", "/F", "/PID", str(process_id)], check=False, capture_output=True)
+def _running_aedt_process_ids() -> list[int]:
+    process_ids = []
+    for proc in psutil.process_iter(["pid", "exe", "name"]):
+        if _is_aedt_process(proc):
+            process_ids.append(proc.info["pid"])
+    return process_ids
+
+
+def prepare_filtersolutions_for_export() -> None:
+    """Ensure no stale AEDT export sessions interfere with the next export test."""
+    _terminate_aedt_processes(*_running_aedt_process_ids())
+    _reinitialize_filtersolutions_dll()
+    time.sleep(1)
+
+
+def _is_aedt_process(process: psutil.Process) -> bool:
+    try:
+        exe = (process.info.get("exe") or "").lower()
+    except (psutil.NoSuchProcess, psutil.AccessDenied):
+        return False
+    return "ansys inc" in exe or "ansysem" in exe
 
 
 def release_exported_design(design_app) -> None:
@@ -66,14 +107,16 @@ def release_exported_design(design_app) -> None:
 
     ``close_desktop()`` shuts down AEDT while the DLL still holds references to that
     session, which leads to access violations and AEDT communications failures in
-    subsequent tests. This helper releases the PyAEDT connection, resets the DLL
-    singleton, and terminates the exported AEDT process.
+    subsequent tests. This helper releases the PyAEDT connection, terminates the
+    exported AEDT process, and reinitializes the DLL through ``restore_defaults()``.
     """
     process_id = design_app.desktop_class.aedt_process_id
-    design_app.desktop_class.release_desktop(close_projects=False, close_on_exit=False)
-    _reset_filtersolutions_dll()
-    if process_id:
-        _terminate_aedt_process(process_id)
+    try:
+        design_app.desktop_class.release_desktop(close_projects=False, close_on_exit=False)
+    except Exception:
+        pass
+    _terminate_aedt_processes(process_id)
+    _reinitialize_filtersolutions_dll()
 
 
 @pytest.fixture

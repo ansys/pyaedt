@@ -135,8 +135,11 @@ class FilterDesignBase(PyAedtBase):
         """
         # Preserve the current version to ensure proper session reconnection.
         original_version = settings.aedt_version
+        original_use_grpc = settings.use_grpc_api
         try:
             settings.aedt_version = desktop_version
+            # FilterSolutions starts AEDT in COM mode; force COM when reconnecting.
+            settings.use_grpc_api = False
             if isinstance(FilterDesignBase._active_design, LumpedDesign):
                 return Circuit(version=desktop_version, aedt_process_id=desktop_process_id)
             elif isinstance(FilterDesignBase._active_design, DistributedDesign):
@@ -150,6 +153,7 @@ class FilterDesignBase(PyAedtBase):
         finally:
             # Restore the original version in case of early exit or exception.
             settings.aedt_version = original_version
+            settings.use_grpc_api = original_use_grpc
 
 
 class LumpedDesign(FilterDesignBase):
