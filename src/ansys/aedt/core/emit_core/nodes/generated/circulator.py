@@ -44,8 +44,8 @@ class Circulator(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> circulator = app.schematic.create_component("Circulator", name="Circulator1")
-        >>> circulator.node_type
+        >>> circ = app.schematic.create_component("Circulator")
+        >>> circ.node_type
 
         """
         return self._node_type
@@ -91,8 +91,8 @@ class Circulator(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> circulator = app.schematic.create_component("Circulator", name="Circulator1")
-        >>> circulator_copy = circulator.duplicate("CirculatorCopy")
+        >>> circ = app.schematic.create_component("Circulator")
+        >>> circ_copy = circ.duplicate("circ_copy")
 
         """
         return self._duplicate(new_name)
@@ -105,8 +105,8 @@ class Circulator(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> circulator = app.schematic.create_component("Circulator", name="Circulator1")
-        >>> circulator.delete()
+        >>> circ = app.schematic.create_component("Circulator")
+        >>> circ.delete()
 
         """
         self._delete()
@@ -122,9 +122,8 @@ class Circulator(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> circulator = app.schematic.create_component("Circulator", name="Circulator1")
-        >>> circulator.filename = "C:\\Temp\\circulator.s3p"
-        >>> circulator.filename
+        >>> circ = app.schematic.create_component("Circulator")
+        >>> circ.filename = "example_value"
 
         """
         val = self._get_property("Filename")
@@ -146,8 +145,8 @@ class Circulator(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> circulator = app.schematic.create_component("Circulator", name="Circulator1")
-        >>> circulator.noise_temperature = 290.0
+        >>> circ = app.schematic.create_component("Circulator")
+        >>> circ.noise_temperature = 0
 
         """
         val = self._get_property("Noise Temperature")
@@ -167,8 +166,8 @@ class Circulator(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> circulator = app.schematic.create_component("Circulator", name="Circulator1")
-        >>> circulator.notes = "Three-port routing device"
+        >>> circ = app.schematic.create_component("Circulator")
+        >>> circ.notes = "example_value"
 
         """
         val = self._get_property("Notes")
@@ -195,8 +194,8 @@ class Circulator(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> circulator = app.schematic.create_component("Circulator", name="Circulator1")
-        >>> circulator.circulator_type = circulator.CirculatorTypeOption.PARAMETRIC
+        >>> circ = app.schematic.create_component("Circulator")
+        >>> circ.circulator_type = Circulator.CirculatorTypeOption.BY_FILE
 
         """
         val = self._get_property("Circulator Type")
@@ -219,8 +218,8 @@ class Circulator(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> circulator = app.schematic.create_component("Circulator", name="Circulator1")
-        >>> circulator.insertion_loss = 1.5
+        >>> circ = app.schematic.create_component("Circulator")
+        >>> circ.insertion_loss = 0
 
         """
         val = self._get_property("Insertion Loss")
@@ -245,8 +244,8 @@ class Circulator(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> circulator = app.schematic.create_component("Circulator", name="Circulator1")
-        >>> circulator.finite_reverse_isolation = True
+        >>> circ = app.schematic.create_component("Circulator")
+        >>> circ.finite_reverse_isolation = True
 
         """
         val = self._get_property("Finite Reverse Isolation")
@@ -268,8 +267,8 @@ class Circulator(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> circulator = app.schematic.create_component("Circulator", name="Circulator1")
-        >>> circulator.reverse_isolation = 30.0
+        >>> circ = app.schematic.create_component("Circulator")
+        >>> circ.reverse_isolation = 0
 
         """
         val = self._get_property("Reverse Isolation")
@@ -294,8 +293,8 @@ class Circulator(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> circulator = app.schematic.create_component("Circulator", name="Circulator1")
-        >>> circulator.finite_bandwidth = True
+        >>> circ = app.schematic.create_component("Circulator")
+        >>> circ.finite_bandwidth = True
 
         """
         val = self._get_property("Finite Bandwidth")
@@ -317,8 +316,8 @@ class Circulator(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> circulator = app.schematic.create_component("Circulator", name="Circulator1")
-        >>> circulator.out_of_band_attenuation = 60.0
+        >>> circ = app.schematic.create_component("Circulator")
+        >>> circ.out_of_band_attenuation = 0
 
         """
         val = self._get_property("Out-of-band Attenuation")
@@ -340,8 +339,8 @@ class Circulator(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> circulator = app.schematic.create_component("Circulator", name="Circulator1")
-        >>> circulator.lower_stop_band = "1.8 GHz"
+        >>> circ = app.schematic.create_component("Circulator")
+        >>> circ.lower_stop_band = "100MHz"
 
         """
         val = self._get_property("Lower Stop Band")
@@ -365,8 +364,8 @@ class Circulator(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> circulator = app.schematic.create_component("Circulator", name="Circulator1")
-        >>> circulator.lower_cutoff = "2 GHz"
+        >>> circ = app.schematic.create_component("Circulator")
+        >>> circ.lower_cutoff = "100MHz"
 
         """
         val = self._get_property("Lower Cutoff")
@@ -390,8 +389,8 @@ class Circulator(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> circulator = app.schematic.create_component("Circulator", name="Circulator1")
-        >>> circulator.higher_cutoff = "2.4 GHz"
+        >>> circ = app.schematic.create_component("Circulator")
+        >>> circ.higher_cutoff = "100MHz"
 
         """
         val = self._get_property("Higher Cutoff")
@@ -410,6 +409,14 @@ class Circulator(EmitNode):
         """Higher stop band frequency.
 
         Value should be between 1 and 100e9.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> circ = app.schematic.create_component("Circulator")
+        >>> circ.higher_stop_band = "100MHz"
+
         """
         val = self._get_property("Higher Stop Band")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -424,6 +431,15 @@ class Circulator(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def warnings(self) -> str:
-        """Warning(s) for this node."""
+        """Warning(s) for this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> circ = app.schematic.create_component("Circulator")
+        >>> circ.warnings
+
+        """
         val = self._get_property("Warnings")
         return val

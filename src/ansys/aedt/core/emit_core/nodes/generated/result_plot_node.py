@@ -44,9 +44,9 @@ class ResultPlotNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> result_plot = revision.get_result_plot_node()
-        >>> result_plot.node_type
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> plot.node_type
 
         """
         return self._node_type
@@ -60,9 +60,9 @@ class ResultPlotNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> result_plot = revision.get_result_plot_node()
-        >>> result_plot.title = "Receiver Sensitivity"
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> plot.title = "example_value"
 
         """
         val = self._get_property("Title")
@@ -84,9 +84,9 @@ class ResultPlotNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> result_plot = revision.get_result_plot_node()
-        >>> result_plot.title_font = "Sans Serif,12,-1,5,50,0,0,0,0,0"
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> plot.title_font = "example_value"
 
         """
         val = self._get_property("Title Font")
@@ -108,9 +108,9 @@ class ResultPlotNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> result_plot = revision.get_result_plot_node()
-        >>> result_plot.show_legend = True
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> plot.show_legend = True
 
         """
         val = self._get_property("Show Legend")
@@ -132,9 +132,9 @@ class ResultPlotNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> result_plot = revision.get_result_plot_node()
-        >>> result_plot.legend_font = "Sans Serif,10,-1,5,50,0,0,0,0,0"
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> plot.legend_font = "example_value"
 
         """
         val = self._get_property("Legend Font")
@@ -156,9 +156,9 @@ class ResultPlotNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> result_plot = revision.get_result_plot_node()
-        >>> result_plot.show_emi_thresholds = True
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> plot.show_emi_thresholds = True
 
         """
         val = self._get_property("Show EMI Thresholds")
@@ -183,9 +183,9 @@ class ResultPlotNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> result_plot = revision.get_result_plot_node()
-        >>> result_plot.lock_axes = True
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> plot.lock_axes = True
 
         """
         val = self._get_property("Lock Axes")
@@ -199,7 +199,17 @@ class ResultPlotNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def x_axis_min(self) -> float:
-        """Set lower extent of horizontal axis."""
+        """Set lower extent of horizontal axis.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> plot.x_axis_min = 0
+
+        """
         val = self._get_property("X-axis Min")
         return float(val)
 
@@ -211,7 +221,17 @@ class ResultPlotNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def x_axis_max(self) -> float:
-        """Set upper extent of horizontal axis."""
+        """Set upper extent of horizontal axis.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> plot.x_axis_max = 0
+
+        """
         val = self._get_property("X-axis Max")
         return float(val)
 
@@ -223,7 +243,17 @@ class ResultPlotNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def y_axis_min(self) -> float:
-        """Set lower extent of vertical axis."""
+        """Set lower extent of vertical axis.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> plot.y_axis_min = 0
+
+        """
         val = self._get_property("Y-axis Min")
         return float(val)
 
@@ -235,7 +265,17 @@ class ResultPlotNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def y_axis_max(self) -> float:
-        """Set upper extent of vertical axis."""
+        """Set upper extent of vertical axis.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> plot.y_axis_max = 0
+
+        """
         val = self._get_property("Y-axis Max")
         return float(val)
 
@@ -252,6 +292,15 @@ class ResultPlotNode(EmitNode):
         Set maximum number of major tick-mark intervals along horizontal axis.
 
         Value should be between 1 and 30.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> plot.max_major_ticks_x = 1
+
         """
         val = self._get_property("Max Major Ticks X")
         return int(val)
@@ -270,6 +319,15 @@ class ResultPlotNode(EmitNode):
         along horizontal axis.
 
         Value should be between 0 and 100.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> plot.max_minor_ticks_x = 0
+
         """
         val = self._get_property("Max Minor Ticks X")
         return int(val)
@@ -287,6 +345,15 @@ class ResultPlotNode(EmitNode):
         Set maximum number of major tick-mark intervals along vertical axis.
 
         Value should be between 1 and 30.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> plot.max_major_ticks_y = 1
+
         """
         val = self._get_property("Max Major Ticks Y")
         return int(val)
@@ -305,6 +372,15 @@ class ResultPlotNode(EmitNode):
         along vertical axis.
 
         Value should be between 0 and 100.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> plot.max_minor_ticks_y = 0
+
         """
         val = self._get_property("Max Minor Ticks Y")
         return int(val)
@@ -320,6 +396,15 @@ class ResultPlotNode(EmitNode):
         """Configure axis text labels font family, typeface, and size.
 
         Value formatted like 'Sans Serif,10,-1,5,50,0,0,0,0,0'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> plot.axis_label_font = "example_value"
+
         """
         val = self._get_property("Axis Label Font")
         return val
@@ -335,6 +420,15 @@ class ResultPlotNode(EmitNode):
         """Configure axis tick numeric labels font family, typeface, and size.
 
         Value formatted like 'Sans Serif,10,-1,5,50,0,0,0,0,0'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> plot.axis_tick_label_font = "example_value"
+
         """
         val = self._get_property("Axis Tick Label Font")
         return val
@@ -355,7 +449,17 @@ class ResultPlotNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def major_grid_line_style(self) -> MajorGridLineStyleOption:
-        """Select line style of major-tick grid lines."""
+        """Select line style of major-tick grid lines.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> plot.major_grid_line_style = ResultPlotNode.MajorGridLineStyleOption.LINES
+
+        """
         val = self._get_property("Major Grid Line Style")
         val = self.MajorGridLineStyleOption[val.upper()]
         return val
@@ -371,6 +475,15 @@ class ResultPlotNode(EmitNode):
         """Set color of major-tick grid lines.
 
         Color should be in RGB form: #RRGGBB.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> plot.major_grid_color = "example_value"
+
         """
         val = self._get_property("Major Grid Color")
         return val
@@ -391,7 +504,17 @@ class ResultPlotNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def minor_grid_line_style(self) -> MinorGridLineStyleOption:
-        """Select line style of minor-tick grid lines."""
+        """Select line style of minor-tick grid lines.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> plot.minor_grid_line_style = ResultPlotNode.MinorGridLineStyleOption.LINES
+
+        """
         val = self._get_property("Minor Grid Line Style")
         val = self.MinorGridLineStyleOption[val.upper()]
         return val
@@ -407,6 +530,15 @@ class ResultPlotNode(EmitNode):
         """Set color of minor-tick grid lines.
 
         Color should be in RGB form: #RRGGBB.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> plot.minor_grid_color = "example_value"
+
         """
         val = self._get_property("Minor Grid Color")
         return val
@@ -422,6 +554,15 @@ class ResultPlotNode(EmitNode):
         """Set background color of entire plot.
 
         Color should be in RGB form: #RRGGBB.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> plot.background_color = "example_value"
+
         """
         val = self._get_property("Background Color")
         return val
@@ -440,7 +581,17 @@ class ResultPlotNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def bb_power_for_plots_unit(self) -> BBPowerforPlotsUnitOption:
-        """Units to use for plotting broadband power densities."""
+        """Units to use for plotting broadband power densities.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> plot.bb_power_for_plots_unit = ResultPlotNode.BBPowerforPlotsUnitOption.HERTZ
+
+        """
         val = self._get_property("BB Power for Plots Unit")
         val = self.BBPowerforPlotsUnitOption[val.upper()]
         return val
@@ -456,6 +607,15 @@ class ResultPlotNode(EmitNode):
         """Resolution bandwidth for broadband power.
 
         Value should be between 1.0 and 100e9.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> plot.bb_power_bandwidth = "100MHz"
+
         """
         val = self._get_property("BB Power Bandwidth")
         val = self._convert_from_internal_units(float(val), "")
@@ -473,6 +633,15 @@ class ResultPlotNode(EmitNode):
         """Toggles on/off using a log scale for the X-Axis.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> plot.log_scale = True
+
         """
         val = self._get_property("Log Scale")
         return val == "true"

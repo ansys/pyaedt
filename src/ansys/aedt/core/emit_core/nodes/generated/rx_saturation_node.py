@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -27,6 +27,8 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class RxSaturationNode(EmitNode):
+    """Provide rx saturation node."""
+
     def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
@@ -34,18 +36,36 @@ class RxSaturationNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
-        """The parent of this emit node."""
+        """The parent of this emit node.
+
+        Examples
+        --------
+        >>> rx_saturation.parent
+
+        """
         return self._parent
 
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node."""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> rx_saturation.node_type
+
+        """
         return self._node_type
 
     @min_aedt_version("2025.2")
     def import_csv_file(self, file_name: str) -> EmitNode:
-        """Import a CSV File..."""
+        """Import a CSV File....
+
+        Examples
+        --------
+        >>> rx_saturation.import_csv_file("C:\\EMIT\\data.csv")
+
+        """
         return self._import(file_name, "CsvFile")
 
     @min_aedt_version("2027.1")
@@ -60,7 +80,13 @@ class RxSaturationNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node"""
+        """Delete this node.
+
+        Examples
+        --------
+        >>> rx_saturation.delete()
+
+        """
         self._delete()
 
     @property
@@ -72,6 +98,11 @@ class RxSaturationNode(EmitNode):
             Value should be between 1 and 100e9.
         Amplitude:
             Value should be between -1000 and 1000.
+
+        Examples
+        --------
+        >>> rx_saturation.table_data = [(2, 25.0)]
+
         """
         return self._get_table_data()
 
@@ -83,7 +114,13 @@ class RxSaturationNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def enabled(self) -> bool:
-        """Enabled state for this node."""
+        """Enabled state for this node.
+
+        Examples
+        --------
+        >>> rx_saturation.enabled = True
+
+        """
         return self._get_property("Enabled") == "true"
 
     @enabled.setter

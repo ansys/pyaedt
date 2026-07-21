@@ -44,10 +44,10 @@ class CouplingLinkNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> app.couplings.add_link("HFSS_Design")
-        >>> revision = app.results.get_revision()
-        >>> coupling_link = revision.get_coupling_data_node().children[0]
-        >>> coupling_link.parent
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> link = cpl.children[0]
+        >>> link.parent
 
         """
         return self._parent
@@ -61,10 +61,10 @@ class CouplingLinkNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> app.couplings.add_link("HFSS_Design")
-        >>> revision = app.results.get_revision()
-        >>> coupling_link = revision.get_coupling_data_node().children[0]
-        >>> coupling_link.node_type
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> link = cpl.children[0]
+        >>> link.node_type
 
         """
         return self._node_type
@@ -123,10 +123,10 @@ class CouplingLinkNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> app.couplings.add_link("HFSS_Design")
-        >>> revision = app.results.get_revision()
-        >>> coupling_link = revision.get_coupling_data_node().children[0]
-        >>> coupling_link.enabled = False
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> link = cpl.children[0]
+        >>> link.enabled = True
 
         """
         val = self._get_property("Enabled")
@@ -146,10 +146,10 @@ class CouplingLinkNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> app.couplings.add_link("HFSS_Design")
-        >>> revision = app.results.get_revision()
-        >>> coupling_link = revision.get_coupling_data_node().children[0]
-        >>> coupling_link.ports = ["Antenna1", "Antenna2"]
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> link = cpl.children[0]
+        >>> link.ports
 
         """
         val = self._get_property("Ports")

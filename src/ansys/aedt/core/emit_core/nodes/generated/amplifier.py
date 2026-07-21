@@ -104,7 +104,7 @@ class Amplifier(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> amp = app.schematic.create_component("Amplifier")
-        >>> amp_copy = amp.duplicate("Amplifier_Copy")
+        >>> amp_copy = amp.duplicate("amp_copy")
 
         """
         return self._duplicate(new_name)
@@ -160,7 +160,7 @@ class Amplifier(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> amp = app.schematic.create_component("Amplifier")
-        >>> amp.noise_temperature = 290.0
+        >>> amp.noise_temperature = 0
 
         """
         val = self._get_property("Noise Temperature")
@@ -181,7 +181,7 @@ class Amplifier(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> amp = app.schematic.create_component("Amplifier")
-        >>> amp.notes = "LNA stage"
+        >>> amp.notes = "example_value"
 
         """
         val = self._get_property("Notes")
@@ -204,7 +204,7 @@ class Amplifier(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> amp = app.schematic.create_component("Amplifier")
-        >>> amp.gain = 15.0
+        >>> amp.gain = 0
 
         """
         val = self._get_property("Gain")
@@ -227,7 +227,7 @@ class Amplifier(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> amp = app.schematic.create_component("Amplifier")
-        >>> amp.center_frequency = "2.4GHz"
+        >>> amp.center_frequency = "100MHz"
 
         """
         val = self._get_property("Center Frequency")
@@ -252,7 +252,7 @@ class Amplifier(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> amp = app.schematic.create_component("Amplifier")
-        >>> amp.bandwidth = "20MHz"
+        >>> amp.bandwidth = "100MHz"
 
         """
         val = self._get_property("Bandwidth")
@@ -277,7 +277,7 @@ class Amplifier(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> amp = app.schematic.create_component("Amplifier")
-        >>> amp.noise_figure = 3.0
+        >>> amp.noise_figure = 0
 
         """
         val = self._get_property("Noise Figure")
@@ -300,7 +300,7 @@ class Amplifier(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> amp = app.schematic.create_component("Amplifier")
-        >>> amp.saturation_level = "10dBm"
+        >>> amp.saturation_level = "100MHz"
 
         """
         val = self._get_property("Saturation Level")
@@ -325,7 +325,7 @@ class Amplifier(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> amp = app.schematic.create_component("Amplifier")
-        >>> amp.p1_db_point_ref_input = "-10dBm"
+        >>> amp.p1_db_point_ref_input = "100MHz"
 
         """
         val = self._get_property("P1-dB Point, Ref. Input")
@@ -350,7 +350,7 @@ class Amplifier(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> amp = app.schematic.create_component("Amplifier")
-        >>> amp.ip3_ref_input = "5dBm"
+        >>> amp.ip3_ref_input = "100MHz"
 
         """
         val = self._get_property("IP3, Ref. Input")
@@ -375,7 +375,7 @@ class Amplifier(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> amp = app.schematic.create_component("Amplifier")
-        >>> amp.shape_factor = 2.0
+        >>> amp.shape_factor = 1
 
         """
         val = self._get_property("Shape Factor")
@@ -398,7 +398,7 @@ class Amplifier(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> amp = app.schematic.create_component("Amplifier")
-        >>> amp.reverse_isolation = 40.0
+        >>> amp.reverse_isolation = 0
 
         """
         val = self._get_property("Reverse Isolation")
@@ -421,7 +421,7 @@ class Amplifier(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> amp = app.schematic.create_component("Amplifier")
-        >>> amp.max_intermod_order = 5
+        >>> amp.max_intermod_order = 3
 
         """
         val = self._get_property("Max Intermod Order")

@@ -124,7 +124,7 @@ class RxMeasNode(EmitNode):
 
         Examples
         --------
-        >>> rx_meas.enabled = False
+        >>> rx_meas.enabled = True
 
         """
         return self._get_property("Enabled") == "true"

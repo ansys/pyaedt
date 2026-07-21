@@ -42,7 +42,7 @@ class RadioNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> radio = app.modeler.components.create_component("New Radio", "Radio1")
+        >>> radio = app.modeler.components.create_component("New Radio")
         >>> radio.node_type
 
         """
@@ -56,7 +56,7 @@ class RadioNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> radio = app.modeler.components.create_component("New Radio", "Radio1")
+        >>> radio = app.modeler.components.create_component("New Radio")
         >>> band = radio.add_band()
 
         """
@@ -70,7 +70,7 @@ class RadioNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> radio = app.modeler.components.create_component("New Radio", "Radio1")
+        >>> radio = app.modeler.components.create_component("New Radio")
         >>> folder = radio.add_folder()
 
         """
@@ -84,8 +84,8 @@ class RadioNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> radio = app.modeler.components.create_component("New Radio", "Radio1")
-        >>> radio_copy = radio.duplicate("Radio1_Copy")
+        >>> radio = app.modeler.components.create_component("New Radio")
+        >>> radio_copy = radio.duplicate("radio_copy")
 
         """
         return self._duplicate(new_name)
@@ -98,7 +98,7 @@ class RadioNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> radio = app.modeler.components.create_component("New Radio", "Radio1")
+        >>> radio = app.modeler.components.create_component("New Radio")
         >>> radio.delete()
 
         """
@@ -113,8 +113,8 @@ class RadioNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> radio = app.modeler.components.create_component("New Radio", "Radio1")
-        >>> radio.notes = "Primary receiver chain"
+        >>> radio = app.modeler.components.create_component("New Radio")
+        >>> radio.notes = "example_value"
 
         """
         val = self._get_property("Notes")

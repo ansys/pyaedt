@@ -44,9 +44,9 @@ class CouplingsNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> couplings.node_type
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> cpl.node_type
 
         """
         return self._node_type
@@ -59,8 +59,8 @@ class CouplingsNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
         >>> link = couplings.import_touchstone("C:\\EMIT\\antenna_link.s2p")
 
         """
@@ -74,9 +74,9 @@ class CouplingsNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> custom_coupling = couplings.add_custom_coupling()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> cust = cpl.add_custom_coupling()
 
         """
         return self._add_child_node("Custom Coupling")
@@ -89,8 +89,8 @@ class CouplingsNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
         >>> path_loss_coupling = couplings.add_path_loss_coupling()
 
         """
@@ -104,9 +104,9 @@ class CouplingsNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> two_ray_coupling = couplings.add_two_ray_path_loss_coupling()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> two_ray_path_loss_coupling = couplings.add_two_ray_path_loss_coupling()
 
         """
         return self._add_child_node("Two Ray Path Loss Coupling")
@@ -119,8 +119,8 @@ class CouplingsNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
         >>> log_distance_coupling = couplings.add_log_distance_coupling()
 
         """
@@ -134,9 +134,9 @@ class CouplingsNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> hata_coupling = couplings.add_hata_coupling()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> hata = cpl.add_hata_coupling()
 
         """
         return self._add_child_node("Hata Coupling")
@@ -149,8 +149,8 @@ class CouplingsNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
         >>> walfisch_ikegami_coupling = couplings.add_walfisch_ikegami_coupling()
 
         """
@@ -164,9 +164,9 @@ class CouplingsNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> erceg_coupling = couplings.add_erceg_coupling()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> ereg = cpl.add_erceg_coupling()
 
         """
         return self._add_child_node("Erceg Coupling")
@@ -179,9 +179,9 @@ class CouplingsNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> indoor_coupling = couplings.add_indoor_propagation_coupling()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> indoor_propagation_coupling = couplings.add_indoor_propagation_coupling()
 
         """
         return self._add_child_node("Indoor Propagation Coupling")
@@ -194,9 +194,9 @@ class CouplingsNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> channel_coupling = couplings.add_5g_channel_model_coupling()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> 5g_channel_model_coupling = couplings.add_5g_channel_model_coupling()
 
         """
         return self._add_child_node("5G Channel Model Coupling")
@@ -258,9 +258,9 @@ class CouplingsNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> couplings.minimum_allowed_coupling = -180.0
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> cpl.minimum_allowed_coupling = -1000
 
         """
         val = self._get_property("Minimum Allowed Coupling")
@@ -282,9 +282,9 @@ class CouplingsNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> couplings.global_default_coupling = -120.0
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> cpl.global_default_coupling = -1000
 
         """
         val = self._get_property("Global Default Coupling")
@@ -304,9 +304,9 @@ class CouplingsNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> couplings.antenna_tags
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> cpl.antenna_tags
 
         """
         val = self._get_property("Antenna Tags")

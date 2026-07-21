@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -29,6 +29,8 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class RxSpurNode(EmitNode):
+    """Provide rx spur node."""
+
     def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
@@ -36,20 +38,38 @@ class RxSpurNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
-        """The parent of this emit node."""
+        """The parent of this emit node.
+
+        Examples
+        --------
+        >>> rx_spur.parent
+
+        """
         return self._parent
 
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node."""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> rx_spur.node_type
+
+        """
         return self._node_type
 
     @min_aedt_version("2025.2")
     def import_csv_file(self, file_name: str) -> EmitNode:
-        """Import a CSV File...
+        """Import a CSV File....
 
-        Note: The CSV file should not have any header lines and must contain only numeric values."""
+        Note: The CSV file should not have any header lines and must contain only numeric values.
+
+        Examples
+        --------
+        >>> rx_spur.import_csv_file("C:\\EMIT\\data.csv")
+
+        """
         return self._import(file_name, "CsvFile")
 
     @min_aedt_version("2027.1")
@@ -64,7 +84,13 @@ class RxSpurNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node"""
+        """Delete this node.
+
+        Examples
+        --------
+        >>> rx_spur.delete()
+
+        """
         self._delete()
 
     @property
@@ -78,6 +104,11 @@ class RxSpurNode(EmitNode):
             Value should be greater than 1.0.
         Power:
             Value should be between -200.0 and 150.0.
+
+        Examples
+        --------
+        >>> rx_spur.table_data = [(2, 25.0)]
+
         """
         return self._get_table_data()
 
@@ -89,7 +120,13 @@ class RxSpurNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def enabled(self) -> bool:
-        """Enabled state for this node."""
+        """Enabled state for this node.
+
+        Examples
+        --------
+        >>> rx_spur.enabled = True
+
+        """
         return self._get_property("Enabled") == "true"
 
     @enabled.setter
@@ -104,7 +141,13 @@ class RxSpurNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def spur_table_units(self) -> SpurTableUnitsOption:
-        """Specifies the units for the Spurs."""
+        """Specifies the units for the Spurs.
+
+        Examples
+        --------
+        >>> rx_spur.spur_table_units = RxSpurNode.SpurTableUnitsOption.ABSOLUTE
+
+        """
         val = self._get_property("Spur Table Units")
         val = self.SpurTableUnitsOption[val.upper()]
         return val

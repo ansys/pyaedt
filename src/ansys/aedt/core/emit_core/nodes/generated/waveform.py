@@ -45,8 +45,8 @@ class Waveform(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> wf = emitter.get_waveforms()[0]
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
         >>> wf.parent
 
         """
@@ -61,8 +61,8 @@ class Waveform(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> wf = emitter.get_waveforms()[0]
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
         >>> wf.node_type
 
         """
@@ -106,9 +106,9 @@ class Waveform(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> waveform = emitter.get_waveforms()[0]
-        >>> waveform_copy = waveform.duplicate("Waveform_Copy")
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf_copy = wf.duplicate("wf_copy")
 
         """
         return self._duplicate(new_name)
@@ -121,24 +121,24 @@ class Waveform(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> waveform = emitter.get_waveforms()[0]
-        >>> waveform.delete()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.delete()
 
         """
         self._delete()
 
     @min_aedt_version("2025.2")
     def import_tx_measurement(self, file_name: str) -> EmitNode:
-        """Import a Measurement from a File.
+        """Import a Measurement from a File....
 
         Examples
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> waveform = emitter.get_waveforms()[0]
-        >>> tx_meas = waveform.import_tx_measurement(r"C:\\Measurements\\tx_measurement.csv")
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.import_tx_measurement("C:\\Measurements\\tx_measurement.csv")
 
         """
         return self._import(file_name, "TxMeasurement")
@@ -159,8 +159,8 @@ class Waveform(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> wf = emitter.get_waveforms()[0]
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
         >>> wf.enabled = True
 
         """
@@ -187,9 +187,9 @@ class Waveform(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> wf = emitter.get_waveforms()[0]
-        >>> wf.waveform = wf.WaveformOption.SPREAD_SPECTRUM_CLOCK
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.waveform = Waveform.WaveformOption.PERIODIC_CLOCK
 
         """
         val = self._get_property("Waveform")
@@ -212,9 +212,9 @@ class Waveform(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> wf = emitter.get_waveforms()[0]
-        >>> wf.start_frequency = "2.4 GHz"
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.start_frequency = "100MHz"
 
         """
         val = self._get_property("Start Frequency")
@@ -238,9 +238,9 @@ class Waveform(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> wf = emitter.get_waveforms()[0]
-        >>> wf.clock_duty_cycle = 0.5
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.clock_duty_cycle = 0.001
 
         """
         val = self._get_property("Clock Duty Cycle")
@@ -262,9 +262,9 @@ class Waveform(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> wf = emitter.get_waveforms()[0]
-        >>> wf.clock_risefall_time = "100 ps"
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.clock_risefall_time = "100MHz"
 
         """
         val = self._get_property("Clock Rise/Fall Time")
@@ -291,9 +291,9 @@ class Waveform(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> wf = emitter.get_waveforms()[0]
-        >>> wf.spreading_type = wf.SpreadingTypeOption.CENTER_SPREAD
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.spreading_type = Waveform.SpreadingTypeOption.LOW_SPREAD
 
         """
         val = self._get_property("Spreading Type")
@@ -316,9 +316,9 @@ class Waveform(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> waveform = emitter.get_waveforms()[0]
-        >>> waveform.spread_percentage = 5.0
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.spread_percentage = 0
 
         """
         val = self._get_property("Spread Percentage")
@@ -338,9 +338,9 @@ class Waveform(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> waveform = emitter.get_waveforms()[0]
-        >>> waveform.imported_spectrum = "Spectrum1"
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.imported_spectrum = "example_value"
 
         """
         val = self._get_property("Imported Spectrum")
@@ -360,9 +360,9 @@ class Waveform(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> waveform = emitter.get_waveforms()[0]
-        >>> waveform.raw_data_format
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.raw_data_format
 
         """
         val = self._get_property("Raw Data Format")
@@ -379,9 +379,9 @@ class Waveform(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> waveform = emitter.get_waveforms()[0]
-        >>> waveform.system_impedance = "50ohm"
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.system_impedance = "100MHz"
 
         """
         val = self._get_property("System Impedance")
@@ -405,9 +405,9 @@ class Waveform(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> waveform = emitter.get_waveforms()[0]
-        >>> waveform.advanced_extraction_params = True
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.advanced_extraction_params = True
 
         """
         val = self._get_property("Advanced Extraction Params")
@@ -432,9 +432,9 @@ class Waveform(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> waveform = emitter.get_waveforms()[0]
-        >>> waveform.nb_window_size = 5
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.nb_window_size = 0
 
         """
         val = self._get_property("NB Window Size")
@@ -458,9 +458,9 @@ class Waveform(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> waveform = emitter.get_waveforms()[0]
-        >>> waveform.bb_smoothing_factor = 4
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.bb_smoothing_factor = 0
 
         """
         val = self._get_property("BB Smoothing Factor")
@@ -482,9 +482,9 @@ class Waveform(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> waveform = emitter.get_waveforms()[0]
-        >>> waveform.nb_detector_threshold = 3
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.nb_detector_threshold = 2
 
         """
         val = self._get_property("NB Detector Threshold")
@@ -508,9 +508,9 @@ class Waveform(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> waveform = emitter.get_waveforms()[0]
-        >>> waveform.algorithm = waveform.AlgorithmOption.FFT
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.algorithm = Waveform.AlgorithmOption.FFT
 
         """
         val = self._get_property("Algorithm")
@@ -533,9 +533,9 @@ class Waveform(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> waveform = emitter.get_waveforms()[0]
-        >>> waveform.start_time = "1ns"
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.start_time = "100MHz"
 
         """
         val = self._get_property("Start Time")
@@ -557,9 +557,9 @@ class Waveform(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> waveform = emitter.get_waveforms()[0]
-        >>> waveform.stop_time = "10ns"
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.stop_time = "100MHz"
 
         """
         val = self._get_property("Stop Time")
@@ -583,9 +583,9 @@ class Waveform(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> waveform = emitter.get_waveforms()[0]
-        >>> waveform.max_frequency = "1GHz"
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.max_frequency = "100MHz"
 
         """
         val = self._get_property("Max Frequency")
@@ -618,9 +618,9 @@ class Waveform(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> waveform = emitter.get_waveforms()[0]
-        >>> waveform.window_type = waveform.WindowTypeOption.KAISER
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.window_type = Waveform.WindowTypeOption.RECTANGULAR
 
         """
         val = self._get_property("Window Type")
@@ -643,9 +643,9 @@ class Waveform(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> waveform = emitter.get_waveforms()[0]
-        >>> waveform.kaiser_parameter = 2.0
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.kaiser_parameter = 0
 
         """
         val = self._get_property("Kaiser Parameter")
@@ -667,9 +667,9 @@ class Waveform(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> waveform = emitter.get_waveforms()[0]
-        >>> waveform.adjust_coherent_gain = True
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.adjust_coherent_gain = True
 
         """
         val = self._get_property("Adjust Coherent Gain")
@@ -691,9 +691,9 @@ class Waveform(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> waveform = emitter.get_waveforms()[0]
-        >>> waveform.data_rate = "1Mbps"
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.data_rate = "100MHz"
 
         """
         val = self._get_property("Data Rate")
@@ -717,9 +717,9 @@ class Waveform(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> waveform = emitter.get_waveforms()[0]
-        >>> waveform.num_of_bits = 31
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.num_of_bits = 1
 
         """
         val = self._get_property("Num of Bits")
@@ -741,9 +741,9 @@ class Waveform(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> waveform = emitter.get_waveforms()[0]
-        >>> waveform.use_envelope = True
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.use_envelope = True
 
         """
         val = self._get_property("Use Envelope")
@@ -765,9 +765,9 @@ class Waveform(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> waveform = emitter.get_waveforms()[0]
-        >>> waveform.min_ptsnull = 4
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.min_ptsnull = 2
 
         """
         val = self._get_property("Min Pts/Null")

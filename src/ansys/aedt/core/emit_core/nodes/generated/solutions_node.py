@@ -40,10 +40,6 @@ class SolutionsNode(EmitNode):
 
         Examples
         --------
-        >>> from ansys.aedt.core import Emit
-        >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> solutions = next(node for node in revision.get_all_nodes() if node.node_type == "SolutionsNode")
         >>> solutions.parent
 
         """
@@ -56,10 +52,6 @@ class SolutionsNode(EmitNode):
 
         Examples
         --------
-        >>> from ansys.aedt.core import Emit
-        >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> solutions = next(node for node in revision.get_all_nodes() if node.node_type == "SolutionsNode")
         >>> solutions.node_type
 
         """
@@ -77,12 +69,7 @@ class SolutionsNode(EmitNode):
 
         Examples
         --------
-        >>> from ansys.aedt.core import Emit
-        >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> solutions = next(node for node in revision.get_all_nodes() if node.node_type == "SolutionsNode")
-        >>> solutions.enabled = False
-        >>> solutions.enabled
+        >>> solutions.enabled = True
 
         """
         val = self._get_property("Enabled")

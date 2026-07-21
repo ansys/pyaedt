@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -29,6 +29,8 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class EmitSceneNode(EmitNode):
+    """Provide EMIT scene node."""
+
     def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
@@ -36,17 +38,47 @@ class EmitSceneNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node."""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> scene = rev.get_scene_node()
+        >>> scene.node_type
+
+        """
         return self._node_type
 
     @min_aedt_version("2025.2")
     def add_emitter(self) -> EmitNode:
-        """Add a new emitter"""
+        """Add a new emitter
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> scene = rev.get_scene_node()
+        >>> emitter = scene_node.add_emitter()
+
+        """
         return self._add_child_node("Emitter")
 
     @min_aedt_version("2025.2")
     def add_group(self) -> EmitNode:
-        """Add a new scene group"""
+        """Add a new scene group
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> scene = rev.get_scene_node()
+        >>> group = scene_node.add_group()
+
+        """
         return self._add_child_node("Group")
 
     @min_aedt_version("2025.2")
@@ -69,13 +101,33 @@ class EmitSceneNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def add_antenna(self) -> EmitNode:
-        """Add a new antenna"""
+        """Add a new antenna
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> scene = rev.get_scene_node()
+        >>> antenna = scene_node.add_antenna()
+
+        """
         return self._add_child_node("Antenna")
 
     @property
     @min_aedt_version("2025.2")
     def notes(self) -> str:
-        """Expand to view/edit notes stored with the project."""
+        """Expand to view/edit notes stored with the project.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> scene = rev.get_scene_node()
+        >>> scene.notes = "example_value"
+
+        """
         val = self._get_property("Notes")
         return val
 
@@ -92,7 +144,17 @@ class EmitSceneNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def ground_plane_normal(self) -> GroundPlaneNormalOption:
-        """Specifies the axis of the normal to the ground plane."""
+        """Specifies the axis of the normal to the ground plane.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> scene = rev.get_scene_node()
+        >>> scene.ground_plane_normal = EmitSceneNode.GroundPlaneNormalOption.X_AXIS
+
+        """
         val = self._get_property("Ground Plane Normal")
         val = self.GroundPlaneNormalOption[val.upper()]
         return val
@@ -109,6 +171,15 @@ class EmitSceneNode(EmitNode):
 
         Offset of ground plane in direction normal to the ground planes
         orientation.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> scene = rev.get_scene_node()
+        >>> scene.gp_position_along_normal = "100MHz"
+
         """
         val = self._get_property("GP Position Along Normal")
         val = self._convert_from_internal_units(float(val), "Length")

@@ -71,7 +71,7 @@ class SamplingNode(EmitNode):
 
         Examples
         --------
-        >>> sampling.table_data = [("100 MHz", "300 MHz")]
+        >>> sampling.table_data = [(2, 25.0)]
 
         """
         return self._get_table_data()
@@ -93,8 +93,7 @@ class SamplingNode(EmitNode):
 
         Examples
         --------
-        >>> from ansys.aedt.core.emit_core.nodes.generated import SamplingNode
-        >>> sampling.sampling_type = SamplingNode.SamplingTypeOption.RANDOM_SAMPLING
+        >>> sampling.sampling_type = SamplingNode.SamplingTypeOption.SAMPLE_ALL_CHANNELS_IN_RANGES
 
         """
         val = self._get_property("Sampling Type")
@@ -138,7 +137,7 @@ class SamplingNode(EmitNode):
 
         Examples
         --------
-        >>> sampling.percentage_of_channels = 25
+        >>> sampling.percentage_of_channels = 1
 
         """
         val = self._get_property("Percentage of Channels")
@@ -158,7 +157,7 @@ class SamplingNode(EmitNode):
 
         Examples
         --------
-        >>> sampling.max_channels_range_band = 75
+        >>> sampling.max_channels_range_band = 1
 
         """
         val = self._get_property("Max # Channels/Range/Band")
@@ -178,7 +177,7 @@ class SamplingNode(EmitNode):
 
         Examples
         --------
-        >>> sampling.seed = 100
+        >>> sampling.seed = 0
 
         """
         val = self._get_property("Seed")

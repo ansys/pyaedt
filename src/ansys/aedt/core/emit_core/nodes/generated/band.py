@@ -45,8 +45,8 @@ class Band(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emit.get_radio().add_band()
         >>> band.parent
 
         """
@@ -61,8 +61,8 @@ class Band(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emit.get_radio().add_band()
         >>> band.node_type
 
         """
@@ -120,12 +120,9 @@ class Band(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> try:
-        >>>     band.duplicate("Band Copy")
-        >>> except NotImplementedError:
-        >>>     pass
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emit.get_radio().add_band()
+        >>> band_copy = band.duplicate("band_copy")
 
         """
         return self._duplicate(new_name)
@@ -138,8 +135,8 @@ class Band(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emit.get_radio().add_band()
         >>> band.delete()
 
         """
@@ -147,14 +144,14 @@ class Band(EmitNode):
 
     @min_aedt_version("2025.2")
     def import_rx_measurement(self, file_name: str) -> EmitNode:
-        """Import a Measurement from a File.
+        """Import a Measurement from a File....
 
         Examples
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emit.get_radio().add_band()
         >>> band.import_rx_measurement("C:\\Measurements\\rx_measurement.csv")
 
         """
@@ -162,14 +159,14 @@ class Band(EmitNode):
 
     @min_aedt_version("2025.2")
     def import_tx_measurement(self, file_name: str) -> EmitNode:
-        """Import a Measurement from a File.
+        """Import a Measurement from a File....
 
         Examples
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emit.get_radio().add_band()
         >>> band.import_tx_measurement("C:\\Measurements\\tx_measurement.csv")
 
         """
@@ -191,8 +188,8 @@ class Band(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emit.get_radio().add_band()
         >>> band.enabled = True
 
         """
@@ -214,8 +211,8 @@ class Band(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emit.get_radio().add_band()
         >>> band.use_dd_1494_mode = True
 
         """
@@ -240,8 +237,8 @@ class Band(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emit.get_radio().add_band()
         >>> band.use_emission_designator = True
 
         """
@@ -264,9 +261,9 @@ class Band(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> band.emission_designator = "10K0F3E"
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emit.get_radio().add_band()
+        >>> band.emission_designator = "example_value"
 
         """
         val = self._get_property("Emission Designator")
@@ -286,8 +283,8 @@ class Band(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emit.get_radio().add_band()
         >>> band.emission_designator_ch_bw
 
         """
@@ -304,8 +301,8 @@ class Band(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emit.get_radio().add_band()
         >>> band.emit_modulation_type
 
         """
@@ -326,8 +323,8 @@ class Band(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emit.get_radio().add_band()
         >>> band.override_emission_designator_bw = True
 
         """
@@ -350,9 +347,9 @@ class Band(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> band.channel_bandwidth = "200kHz"
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emit.get_radio().add_band()
+        >>> band.channel_bandwidth = "100MHz"
 
         """
         val = self._get_property("Channel Bandwidth")
@@ -387,9 +384,9 @@ class Band(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> band.modulation = band.ModulationOption.FM
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emit.get_radio().add_band()
+        >>> band.modulation = Band.ModulationOption.GENERIC
 
         """
         val = self._get_property("Modulation")
@@ -412,9 +409,9 @@ class Band(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> band.max_modulating_freq = "15kHz"
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emit.get_radio().add_band()
+        >>> band.max_modulating_freq = "100MHz"
 
         """
         val = self._get_property("Max Modulating Freq.")
@@ -438,9 +435,9 @@ class Band(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> band.modulation_index = 0.5
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emit.get_radio().add_band()
+        >>> band.modulation_index = 0.01
 
         """
         val = self._get_property("Modulation Index")
@@ -462,9 +459,9 @@ class Band(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> band.bit_rate = "1Mbps"
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emit.get_radio().add_band()
+        >>> band.bit_rate = "100MHz"
 
         """
         val = self._get_property("Bit Rate")
@@ -488,9 +485,9 @@ class Band(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> band.sidelobes = 2
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emit.get_radio().add_band()
+        >>> band.sidelobes = 0
 
         """
         val = self._get_property("Sidelobes")
@@ -512,9 +509,9 @@ class Band(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> band.freq_deviation = "25kHz"
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emit.get_radio().add_band()
+        >>> band.freq_deviation = "100MHz"
 
         """
         val = self._get_property("Freq. Deviation")
@@ -550,10 +547,9 @@ class Band(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> band.modulation = band.ModulationOption.PSK
-        >>> band.psk_type = band.PSKTypeOption.QPSK
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emit.get_radio().add_band()
+        >>> band.psk_type = Band.PSKTypeOption.BPSK
 
         """
         val = self._get_property("PSK Type")
@@ -579,10 +575,9 @@ class Band(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> band.modulation = band.ModulationOption.FSK
-        >>> band.fsk_type = band.FSKTypeOption.FSK_4
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emit.get_radio().add_band()
+        >>> band.fsk_type = Band.FSKTypeOption.FSK_2
 
         """
         val = self._get_property("FSK Type")
@@ -610,10 +605,9 @@ class Band(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> band.modulation = band.ModulationOption.QAM
-        >>> band.qam_type = band.QAMTypeOption.QAM_16
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emit.get_radio().add_band()
+        >>> band.qam_type = Band.QAMTypeOption.QAM_4
 
         """
         val = self._get_property("QAM Type")
@@ -641,10 +635,9 @@ class Band(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> band.modulation = band.ModulationOption.APSK
-        >>> band.apsk_type = band.APSKTypeOption.APSK_16
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emit.get_radio().add_band()
+        >>> band.apsk_type = Band.APSKTypeOption.APSK_4
 
         """
         val = self._get_property("APSK Type")
@@ -667,8 +660,8 @@ class Band(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emit.get_radio().add_band()
         >>> band.start_frequency = "100MHz"
 
         """
@@ -693,9 +686,9 @@ class Band(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> band.stop_frequency = "110MHz"
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emit.get_radio().add_band()
+        >>> band.stop_frequency = "100MHz"
 
         """
         val = self._get_property("Stop Frequency")
@@ -719,9 +712,9 @@ class Band(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> band.channel_spacing = "25kHz"
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emit.get_radio().add_band()
+        >>> band.channel_spacing = "100MHz"
 
         """
         val = self._get_property("Channel Spacing")
@@ -745,9 +738,9 @@ class Band(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> band.tx_offset = "10MHz"
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emit.get_radio().add_band()
+        >>> band.tx_offset = "100MHz"
 
         """
         val = self._get_property("Tx Offset")
@@ -776,9 +769,9 @@ class Band(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> band.radar_type = band.RadarTypeOption.FM_CW
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emit.get_radio().add_band()
+        >>> band.radar_type = Band.RadarTypeOption.CW
 
         """
         val = self._get_property("Radar Type")
@@ -801,8 +794,8 @@ class Band(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emit.get_radio().add_band()
         >>> band.hopping_radar = True
 
         """
@@ -828,8 +821,8 @@ class Band(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emit.get_radio().add_band()
         >>> band.post_october_2020_procurement = True
 
         """
@@ -852,9 +845,9 @@ class Band(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> band.hop_range_min_freq = "9.9GHz"
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emit.get_radio().add_band()
+        >>> band.hop_range_min_freq = "100MHz"
 
         """
         val = self._get_property("Hop Range Min Freq")
@@ -878,9 +871,9 @@ class Band(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> band.hop_range_max_freq = "10.1GHz"
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emit.get_radio().add_band()
+        >>> band.hop_range_max_freq = "100MHz"
 
         """
         val = self._get_property("Hop Range Max Freq")
@@ -904,9 +897,9 @@ class Band(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> band.pulse_duration = "10us"
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emit.get_radio().add_band()
+        >>> band.pulse_duration = "100MHz"
 
         """
         val = self._get_property("Pulse Duration")
@@ -930,9 +923,9 @@ class Band(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> band.pulse_rise_time = "1us"
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emit.get_radio().add_band()
+        >>> band.pulse_rise_time = "100MHz"
 
         """
         val = self._get_property("Pulse Rise Time")
@@ -956,9 +949,9 @@ class Band(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> band.pulse_fall_time = "1us"
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emit.get_radio().add_band()
+        >>> band.pulse_fall_time = "100MHz"
 
         """
         val = self._get_property("Pulse Fall Time")
@@ -982,9 +975,9 @@ class Band(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> band.pulse_repetition_rate = 1000.0
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emit.get_radio().add_band()
+        >>> band.pulse_repetition_rate = 0
 
         """
         val = self._get_property("Pulse Repetition Rate")
@@ -1006,9 +999,9 @@ class Band(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> band.number_of_chips = 16.0
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emit.get_radio().add_band()
+        >>> band.number_of_chips = 0
 
         """
         val = self._get_property("Number of Chips")
@@ -1030,9 +1023,9 @@ class Band(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> band.pulse_compression_ratio = 8.0
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emit.get_radio().add_band()
+        >>> band.pulse_compression_ratio = 0
 
         """
         val = self._get_property("Pulse Compression Ratio")
@@ -1054,9 +1047,9 @@ class Band(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> band.fm_chirp_period = "2ms"
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emit.get_radio().add_band()
+        >>> band.fm_chirp_period = "100MHz"
 
         """
         val = self._get_property("FM Chirp Period")
@@ -1082,9 +1075,9 @@ class Band(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> band.fm_freq_deviation = "5MHz"
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emit.get_radio().add_band()
+        >>> band.fm_freq_deviation = "100MHz"
 
         """
         val = self._get_property("FM Freq Deviation")
@@ -1111,9 +1104,9 @@ class Band(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> band.fm_freq_dev_bandwidth = "1MHz"
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emit.get_radio().add_band()
+        >>> band.fm_freq_dev_bandwidth = "100MHz"
 
         """
         val = self._get_property("FM Freq Dev Bandwidth")

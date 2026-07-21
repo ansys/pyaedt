@@ -36,13 +36,25 @@ class TxMeasNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
-        """The parent of this emit node."""
+        """The parent of this emit node.
+
+        Examples
+        --------
+        >>> tx_meas.parent
+
+        """
         return self._parent
 
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node."""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> tx_meas.node_type
+
+        """
         return self._node_type
 
     @min_aedt_version("2025.2")
@@ -51,10 +63,6 @@ class TxMeasNode(EmitNode):
 
         Examples
         --------
-        >>> from ansys.aedt.core import Emit
-        >>> app = Emit()
-        >>> radio = app.schematic.create_component("New Radio")
-        >>> tx_meas = radio.children[0].import_tx_measurement("C:\\Temp\\tx_measurement.csv")
         >>> tx_meas.delete()
 
         """
@@ -66,6 +74,11 @@ class TxMeasNode(EmitNode):
         """Name of the measurement source.
 
         Value should be a full file path.
+
+        Examples
+        --------
+        >>> tx_meas.file
+
         """
         val = self._get_property("File")
         return val
@@ -73,7 +86,13 @@ class TxMeasNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def transmit_frequency(self) -> float:
-        """Channel associated with the measurement file."""
+        """Channel associated with the measurement file.
+
+        Examples
+        --------
+        >>> tx_meas.transmit_frequency
+
+        """
         val = self._get_property("Transmit Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
         return float(val)
@@ -84,6 +103,11 @@ class TxMeasNode(EmitNode):
         """Include/Exclude Harmonics below the noise.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> tx_meas.exclude_harmonics_below_noise = True
+
         """
         val = self._get_property("Exclude Harmonics Below Noise")
         return val == "true"
@@ -96,7 +120,13 @@ class TxMeasNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def enabled(self) -> bool:
-        """Enabled state for this node."""
+        """Enabled state for this node.
+
+        Examples
+        --------
+        >>> tx_meas.enabled = True
+
+        """
         return self._get_property("Enabled") == "true"
 
     @enabled.setter
