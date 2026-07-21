@@ -27,11 +27,11 @@ import subprocess
 
 import pytest
 
-import ansys.aedt.core.filtersolutions_core as filtersolutions_core
 from ansys.aedt.core import settings
 from ansys.aedt.core.filtersolutions import DistributedDesign
 from ansys.aedt.core.filtersolutions import FilterDesignBase
 from ansys.aedt.core.filtersolutions import LumpedDesign
+import ansys.aedt.core.filtersolutions_core as filtersolutions_core
 from tests.conftest import DESKTOP_VERSION
 
 # Filter Solutions export attaches PyAEDT to the AEDT process started by the DLL.
