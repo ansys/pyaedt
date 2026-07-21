@@ -44,7 +44,7 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> filt = app.modeler.components.create_component("Filter")
+        >>> filt = app.schematic.create_component("Filter")
         >>> filt.node_type
 
         """
@@ -89,7 +89,7 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> filt = app.modeler.components.create_component("Filter")
+        >>> filt = app.schematic.create_component("Filter")
         >>> filt_copy = filt.duplicate("filt_copy")
 
         """
@@ -103,7 +103,7 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> filt = app.modeler.components.create_component("Filter")
+        >>> filt = app.schematic.create_component("Filter")
         >>> filt.delete()
 
         """
@@ -120,7 +120,7 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> filt = app.modeler.components.create_component("Filter")
+        >>> filt = app.schematic.create_component("Filter")
         >>> filt.filename = "example_value"
 
         """
@@ -143,7 +143,7 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> filt = app.modeler.components.create_component("Filter")
+        >>> filt = app.schematic.create_component("Filter")
         >>> filt.noise_temperature = 290.0
 
         """
@@ -164,7 +164,7 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> filt = app.modeler.components.create_component("Filter")
+        >>> filt = app.schematic.create_component("Filter")
         >>> filt.notes = "example_value"
 
         """
@@ -197,7 +197,7 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> filt = app.modeler.components.create_component("Filter")
+        >>> filt = app.schematic.create_component("Filter")
         >>> filt.filter_type = Filter.FilterTypeOption.BY_FILE
 
         """
@@ -221,7 +221,7 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> filt = app.modeler.components.create_component("Filter")
+        >>> filt = app.schematic.create_component("Filter")
         >>> filt.insertion_loss = 0
 
         """
@@ -244,7 +244,7 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> filt = app.modeler.components.create_component("Filter")
+        >>> filt = app.schematic.create_component("Filter")
         >>> filt.stop_band_attenuation = 40
 
         """
@@ -267,7 +267,7 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> filt = app.modeler.components.create_component("Filter")
+        >>> filt = app.schematic.create_component("Filter")
         >>> filt.max_pass_band = "120e6"
 
         """
@@ -292,7 +292,7 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> filt = app.modeler.components.create_component("Filter")
+        >>> filt = app.schematic.create_component("Filter")
         >>> filt.min_stop_band = "140e6"
 
         """
@@ -317,7 +317,7 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> filt = app.modeler.components.create_component("Filter")
+        >>> filt = app.schematic.create_component("Filter")
         >>> filt.max_stop_band = "60e6"
 
         """
@@ -342,7 +342,7 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> filt = app.modeler.components.create_component("Filter")
+        >>> filt = app.schematic.create_component("Filter")
         >>> filt.min_pass_band = "80e6"
 
         """
@@ -367,7 +367,7 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> filt = app.modeler.components.create_component("Filter")
+        >>> filt = app.schematic.create_component("Filter")
         >>> filt.bp_lower_stop_band = "80e6"
 
         """
@@ -395,7 +395,7 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> filt = app.modeler.components.create_component("Filter")
+        >>> filt = app.schematic.create_component("Filter")
         >>> filt.bp_lower_cutoff = "90e6"
 
         """
@@ -423,7 +423,7 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> filt = app.modeler.components.create_component("Filter")
+        >>> filt = app.schematic.create_component("Filter")
         >>> filt.bp_higher_cutoff = "110e6"
 
         """
@@ -451,7 +451,7 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> filt = app.modeler.components.create_component("Filter")
+        >>> filt = app.schematic.create_component("Filter")
         >>> filt.bp_higher_stop_band = "120e6"
 
         """
@@ -479,7 +479,7 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> filt = app.modeler.components.create_component("Filter")
+        >>> filt = app.schematic.create_component("Filter")
         >>> filt.bs_lower_cutoff = "80e6"
 
         """
@@ -507,7 +507,7 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> filt = app.modeler.components.create_component("Filter")
+        >>> filt = app.schematic.create_component("Filter")
         >>> filt.bs_lower_stop_band = "90e6"
 
         """
@@ -535,7 +535,7 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> filt = app.modeler.components.create_component("Filter")
+        >>> filt = app.schematic.create_component("Filter")
         >>> filt.bs_higher_stop_band = "110e6"
 
         """
@@ -563,7 +563,7 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> filt = app.modeler.components.create_component("Filter")
+        >>> filt = app.schematic.create_component("Filter")
         >>> filt.bs_higher_cutoff = "120e6"
 
         """
@@ -591,7 +591,7 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> filt = app.modeler.components.create_component("Filter")
+        >>> filt = app.schematic.create_component("Filter")
         >>> filt.lowest_tuned_frequency = "80e6"
 
         """
@@ -616,7 +616,7 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> filt = app.modeler.components.create_component("Filter")
+        >>> filt = app.schematic.create_component("Filter")
         >>> filt.highest_tuned_frequency = "120e6"
 
         """
@@ -641,7 +641,7 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> filt = app.modeler.components.create_component("Filter")
+        >>> filt = app.schematic.create_component("Filter")
         >>> filt.percent_bandwidth = 10
 
         """
@@ -664,7 +664,7 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> filt = app.modeler.components.create_component("Filter")
+        >>> filt = app.schematic.create_component("Filter")
         >>> filt.shape_factor = 2
 
         """
@@ -685,7 +685,7 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> filt = app.modeler.components.create_component("Filter")
+        >>> filt = app.schematic.create_component("Filter")
         >>> filt.warnings
 
         """
