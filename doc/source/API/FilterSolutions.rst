@@ -1,5 +1,5 @@
 Filter design
-====================
+=============
 This section describes the classes used for creating and modifying parameters in the ``filtersolutions`` module.
 The module provides tools for designing and customizing filter configurations.
 
@@ -9,7 +9,7 @@ Each class implements methods specific to its design approach while leveraging c
 
 
 Lumped design
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~
 The ``LumpedDesign`` module includes all the necessary classes for creating and modifying parameters used in lumped filter designs.
 Lumped filters use discrete components such as capacitors, inductors, and resistors.
 
@@ -54,7 +54,7 @@ They are accessible through:
 
 
 Distributed design
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~
 The ``DistributedDesign`` module includes all the necessary classes for creating and modifying parameters used in distributed filter designs.
 Distributed filters rely on transmission lines and resonators.
 
@@ -101,12 +101,10 @@ They are accessible through:
     ...
 
 
-
-
 .. _BaseFilterDesign:
 
 Base filter design
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~
 The ``FilterDesignBase`` module provides all the essential classes for creating and modifying the primary parameters applicable to all design types.
 
 * ``Attributes`` to define attributes and parameters of filters.

@@ -21,4 +21,4 @@ File structure example:
 
 :download:`Antenna Array example <../../Resources/array_example.json>`
 
-For a practical demonstration, see the `Antenna array example <https://aedt.docs.pyansys.com/version/stable/examples/02-HFSS/Array.html#sphx-glr-examples-02-hfss-array-py>`_.
+For a practical demonstration, see the `Antenna array example <https://examples.aedt.docs.pyansys.com/version/dev/examples/high_frequency/antenna/array.html>`_.

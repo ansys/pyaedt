@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -42,6 +42,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.checks import requires_graphical_dependency
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 if TYPE_CHECKING:
     from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
@@ -107,6 +108,14 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         Whether to remove lock to project before opening it or not.
         The default is ``False``, which means to not unlock
         the existing project if needed and raise an exception.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Hfss
+    >>> hfss = Hfss()
+    >>> hfss.modeler
+    >>> hfss.mesh
+
     """
 
     def __init__(
@@ -159,6 +168,13 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         Returns
         -------
         :class:`ansys.aedt.core.generic.configurations.Configurations`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.configurations
+
         """
         return self._configurations
 
@@ -170,6 +186,13 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         -------
         :class:`ansys.aedt.core.modeler.modeler_3d.Modeler3D` or :class:`ansys.aedt.core.modeler.modeler_2d.Modeler2D`
             Modeler object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.modeler
+
         """
         if self._modeler is None and self._odesign:
             self.logger.reset_timer()
@@ -189,6 +212,13 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         -------
         :class:`ansys.aedt.core.modules.mesh.Mesh`
             Mesh object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.mesh
+
         """
         if self._mesh is None and self._odesign:
             self.logger.reset_timer()
@@ -217,6 +247,13 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         -------
         :class:`ansys.aedt.core.visualization.post.post_common_3d.PostProcessor3D`
             PostProcessor object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.post
+
         """
         if self._post is None and self._odesign:
             from ansys.aedt.core.visualization.post import post_processor
@@ -232,6 +269,12 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         -------
         dict
             Dictionary of 3D components with their absolute paths.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.components3d
 
         """
         components_dict = {}
@@ -307,6 +350,13 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         -------
         :class:`ansys.aedt.core.generic.plot.ModelPlotter`
             Model Object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.plot(show=False, output_file="model.png")
+
         """
         return self.post.plot_model_obj(
             objects=assignment,
@@ -345,6 +395,13 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         References
         ----------
         >>> oDesign.ExportMeshStats
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.export_mesh_stats(setup="Setup1")
+
         """
         if not output_file:
             output_file = str(Path(self.working_directory) / "meshstats.ms")
@@ -365,6 +422,13 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         -------
         dict
             Dictionary of variables in the component file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.get_component_variables("Dipole_Antenna")
+
         """
         if isinstance(name, Path):
             name = str(name)
@@ -395,6 +459,13 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         References
         ----------
         >>> oDesign.GetPropertyValue
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.get_property_value("Box1", "Material", "boundary")
+
         """
         if property_type:
             property_type = property_type.lower()
@@ -463,6 +534,14 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         ----------
         >>> oEditor.Copy
         >>> oEditor.Paste
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss1 = Hfss(design="Design1")
+        >>> hfss2 = Hfss(design="Design2")
+        >>> hfss2.copy_solid_bodies_from(hfss1)
+
         """
         body_list = design.modeler.solid_names
         udc_list = design.modeler.user_defined_component_names
@@ -475,7 +554,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
             for udc in udc_list:
                 if (
                     original_design_type != dest_design_type
-                    and not design.modeler.user_defined_components[udc].is3dcomponent
+                    and not design.modeler.user_defined_components[udc].is_3d_component
                     or original_design_type == dest_design_type
                 ):
                     new_udc_list.append(udc)
@@ -583,6 +662,13 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         References
         ----------
         >>> oEditor.Import
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.import_3d_cad("model.step")
+
         """
         input_file = Path(input_file)
 
@@ -642,6 +728,13 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         References
         ----------
         >>> oEditor.Export
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.export_3d_model(file_name="model", file_format=".step")
+
         """
         return self.modeler.export_3d_model(
             file_name=file_name,
@@ -665,6 +758,13 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         References
         ----------
         >>> oModule.GetAllSources
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.get_all_sources()
+
         """
         return list(self.osolution.GetAllSources())
 
@@ -680,6 +780,13 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         References
         ----------
         >>> oModule.GetAllSources
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.get_all_source_modes()
+
         """
         return list(self.osolution.GetAllSourceModes())
 
@@ -702,6 +809,13 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         References
         ----------
         >>> oModule.SetSourceContexts
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.set_source_context(sources=["Port1"])
+
         """
         contexts = []
         for s in sources:
@@ -756,6 +870,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
 
         >>> obj_names_list = [box1.name, box2.name, cylinder1.name, cylinder2.name]
         >>> hfss.assign_material(obj_names_list, "aluminum")
+
         """
         matobj = None
         selections = self.modeler.convert_to_selections(assignment, True)
@@ -831,6 +946,13 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         References
         ----------
         >>> oEditor.GetObjectsByMaterial
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.get_all_conductors_names()
+
         """
         if len(self.modeler.objects) != len(self.modeler.object_names):
             self.modeler.refresh_all_ids()
@@ -855,6 +977,13 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         References
         ----------
         >>> oEditor.GetObjectsByMaterial
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.get_all_dielectrics_names()
+
         """
         if len(self.modeler.objects) != len(self.modeler.object_names):
             self.modeler.refresh_all_ids()
@@ -901,6 +1030,13 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         References
         ----------
         >>> oEditor.AssignMaterial
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.assignmaterial_from_sherlock_files("components.csv", "materials.csv")
+
         """
         with open_file(material_file) as csvfile:
             csv_input = csv.reader(csvfile)
@@ -1023,6 +1159,13 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.cleanup_solution()
+
         """
         if isinstance(variations, str):
             variations = [variations]
@@ -1042,6 +1185,13 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         -------
         :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.Stackup3D`
             Stackup class.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> stackup = hfss.add_stackup_3d()
+
         """
         from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
 
@@ -1071,6 +1221,13 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.flatten_3d_components()
+
         """
         if password is None:
             password = os.getenv("PYAEDT_ENCRYPTED_PASSWORD", "")
@@ -1160,6 +1317,12 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         Returns
         -------
         dict
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.identify_touching_conductors()
 
         """
         import pyvista as pv
@@ -1291,6 +1454,12 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         ----------
         >>> oEditor.ImportDXF
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.import_dxf("layout.dxf", layers=["Layer1"])
+
         """
         input_file = Path(input_file)
         if self.desktop_class.non_graphical and self.desktop_class.aedt_version_id < "2024.2":  # pragma: no cover
@@ -1344,7 +1513,9 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         input_file : str
             Path to the GDS file.
         mapping_layers : dict
-            Dictionary keys are GDS layer numbers, and the value is a tuple with the elevation and thickness.
+            The dictionary uses GDS layer numbers as keys.
+            Each value is either a tuple containing the elevation and thickness,
+            or a list consisting of that tuple along with a string representing the layer name.
         units : str, optional
             Length unit values. The default is ``"um"``.
         import_method : integer, optional
@@ -1356,7 +1527,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -1366,51 +1537,62 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         --------
         Import a GDS file in an HFSS 3D project.
 
-        >>> gds_path = r"C:\\temp\\gds1.gds"
+        >>> gds_path = r"gds1.gds"
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
-        >>> gds_number = {7: (100, 10), 9: (110, 5)}
+        >>> gds_number = {7: (100, 10), 9: [(110, 5), "my_layer"]}
         >>> hfss.import_gds_3d(gds_path, gds_number, units="um", import_method=1)
 
         """
         if self.desktop_class.non_graphical and self.desktop_class.aedt_version_id < "2024.1":  # pragma: no cover
-            self.logger.error("Method is supported only in graphical mode.")
-            return False
+            raise AEDTRuntimeError("Method is supported only in graphical mode.")
+
         if not check_if_path_exists(input_file):
-            self.logger.error("GDSII file does not exist. No layer is imported.")
-            return False
+            raise FileNotFoundError("GDSII file does not exist. No layer is imported.")
+
         if len(mapping_layers) == 0:
-            self.logger.error("Dictionary for GDSII layer numbers is empty. No layer is imported.")
-            return False
+            raise ValueError("Dictionary for GDSII layer numbers is empty. No layer is imported.")
 
         layermap = ["NAME:LayerMap"]
         ordermap = []
-        for i, k in enumerate(mapping_layers):
-            layername = "signal" + str(k)
+        for layer_index, layer_number in enumerate(mapping_layers):
+            value = mapping_layers[layer_number]
+            if isinstance(value, list) and len(value) == 2:
+                layer_name = value[1]
+                elevation, thickness = value[0]
+            elif isinstance(value, tuple):
+                layer_name = f"signal{layer_number}"
+                elevation, thickness = value
+            else:
+                raise TypeError(
+                    f"Mapping layers value for layer {layer_number} must be a tuple (elevation, thickness) or "
+                    f"a list of [tuple, layer_name]."
+                )
             layermap.append(
                 [
                     "NAME:LayerMapInfo",
                     "LayerNum:=",
-                    k,
+                    layer_number,
                     "DestLayer:=",
-                    layername,
+                    layer_name,
                     "layer_type:=",
                     "signal",
                 ]
             )
+
             ordermap1 = [
                 "entry:=",
                 [
                     "order:=",
-                    i,
+                    layer_index,
                     "layer:=",
-                    layername,
+                    layer_name,
                     "LayerNumber:=",
-                    k,
+                    layer_number,
                     "Thickness:=",
-                    unit_converter(mapping_layers[k][1], unit_system="Length", input_units=units, output_units="meter"),
+                    unit_converter(thickness, unit_system="Length", input_units=units, output_units="meter"),
                     "Elevation:=",
-                    unit_converter(mapping_layers[k][0], unit_system="Length", input_units=units, output_units="meter"),
+                    unit_converter(elevation, unit_system="Length", input_units=units, output_units="meter"),
                     "Color:=",
                     "color",
                 ],

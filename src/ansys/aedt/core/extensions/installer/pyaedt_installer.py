@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
+#
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,16 +22,21 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""Methods to add PyAEDT in AEDT."""
+"""Methods to add PyAEDT in AEDT.
+
+Examples
+--------
+>>> from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
+>>> add_pyaedt_to_aedt("C:\\\\Ansys\\\\PersonalLib")
+
+"""
 
 import logging
 import os
 
 from ansys.aedt.core.extensions import customize_automation_tab
 from ansys.aedt.core.generic.file_utils import read_toml
-from ansys.aedt.core.internal.desktop_sessions import (
-    _desktop_sessions,
-)
+from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 
 
 def _resolve_personal_lib(personal_lib):
@@ -81,6 +87,12 @@ def add_extension_manager(personal_lib, odesktop=None) -> bool:
         AEDT personal library folder.
     odesktop : oDesktop, optional
         Desktop session. The default is ``None``.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.installer.pyaedt_installer import add_extension_manager
+    >>> add_extension_manager("C:\\\\Ansys\\\\PersonalLib")
+
     """
     return _install_catalog_extension("ExtensionManager", personal_lib, odesktop)
 
@@ -94,6 +106,12 @@ def add_version_manager(personal_lib, odesktop=None) -> bool:
         AEDT personal library folder.
     odesktop : oDesktop, optional
         Desktop session. The default is ``None``.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.installer.pyaedt_installer import add_version_manager
+    >>> add_version_manager("C:\\\\Ansys\\\\PersonalLib")
+
     """
     return _install_catalog_extension("VersionManager", personal_lib, odesktop)
 
@@ -120,6 +138,12 @@ def add_pyaedt_to_aedt(
         The default is ``False``.
     odesktop : oDesktop, optional
         Desktop session. The default is ``None``.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
+    >>> add_pyaedt_to_aedt("C:\\\\Ansys\\\\PersonalLib", skip_extension_manager=True)
+
     """
     personal_lib = _resolve_personal_lib(personal_lib)
     if not personal_lib:
@@ -143,7 +167,9 @@ def add_pyaedt_to_aedt(
         extension_info = extensions_catalog.get(extension_key)
         if not extension_info:
             return
-        script_path = os.path.join(project_workflows_dir, extension_info["script"]) if extension_info["script"] else None
+        script_path = (
+            os.path.join(project_workflows_dir, extension_info["script"]) if extension_info["script"] else None
+        )
         icon_file = os.path.join(project_workflows_dir, "images", "large", extension_info["icon"])
         menu_kwargs = {
             "icon_file": icon_file,

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -33,11 +33,18 @@ except ImportError as e:  # pragma: no cover
     raise ImportError(msg) from e
 
 doc_app = typer.Typer(help="Documentation commands", no_args_is_help=False)
+"""Value for doc app."""
 
 
 @doc_app.callback(invoke_without_command=True)
 def doc_callback(ctx: typer.Context) -> None:
-    """Open the home page and display help when no subcommand is provided."""
+    """Open the home page and display help when no subcommand is provided.
+
+    Examples
+    --------
+        pyaedt doc
+
+    """
     if ctx.invoked_subcommand is None:
         from ansys.aedt.core.help import online_help
 
@@ -59,7 +66,13 @@ def examples() -> None:
 
 @doc_app.command(name="github", help="Open PyAEDT repository on GitHub")
 def github() -> None:
-    """Open Github url."""
+    """Open Github url.
+
+    Examples
+    --------
+        pyaedt doc github
+
+    """
     from ansys.aedt.core.help import online_help
 
     online_help.silent = False
@@ -68,7 +81,13 @@ def github() -> None:
 
 @doc_app.command(name="user-guide", help="Open the online user guide section of the PyAEDT documentation")
 def user_guide() -> None:
-    """Open User guide url."""
+    """Open User guide url.
+
+    Examples
+    --------
+        pyaedt doc user-guide
+
+    """
     from ansys.aedt.core.help import online_help
 
     online_help.silent = False
@@ -77,7 +96,13 @@ def user_guide() -> None:
 
 @doc_app.command(name="getting-started", help="Open the online getting started section of the PyAEDT documentation")
 def getting_started() -> None:
-    """Open Getting started url."""
+    """Open Getting started url.
+
+    Examples
+    --------
+        pyaedt doc getting-started
+
+    """
     from ansys.aedt.core.help import online_help
 
     online_help.silent = False
@@ -86,7 +111,13 @@ def getting_started() -> None:
 
 @doc_app.command(name="installation", help="Open the online installation section of the PyAEDT documentation")
 def installation() -> None:
-    """Open installation url."""
+    """Open installation url.
+
+    Examples
+    --------
+        pyaedt doc installation
+
+    """
     from ansys.aedt.core.help import online_help
 
     online_help.silent = False
@@ -95,7 +126,13 @@ def installation() -> None:
 
 @doc_app.command(name="api", help="Open the online API reference section of the PyAEDT documentation")
 def api() -> None:
-    """Open api reference url."""
+    """Open api reference url.
+
+    Examples
+    --------
+        pyaedt doc api
+
+    """
     from ansys.aedt.core.help import online_help
 
     online_help.silent = False
@@ -104,7 +141,13 @@ def api() -> None:
 
 @doc_app.command(name="changelog", help="Open the PyAEDT changelog")
 def changelog(pyaedt_version: str = typer.Argument(None)) -> None:
-    """Open API reference changelog."""
+    """Open API reference changelog.
+
+    Examples
+    --------
+        pyaedt doc changelog 0.22.0
+
+    """
     from ansys.aedt.core.help import online_help
 
     online_help.silent = False
@@ -113,7 +156,13 @@ def changelog(pyaedt_version: str = typer.Argument(None)) -> None:
 
 @doc_app.command(name="issues", help="Open the PyAEDT issues")
 def issues() -> None:
-    """Open api reference url."""
+    """Open api reference url.
+
+    Examples
+    --------
+        pyaedt doc issues
+
+    """
     from ansys.aedt.core.help import online_help
 
     online_help.silent = False
@@ -122,7 +171,13 @@ def issues() -> None:
 
 @doc_app.command(name="search", help="One or more search keywords for the documentation")
 def search(search_keys: list[str] = typer.Argument(None)) -> None:
-    """Search the online documentation."""
+    """Search the online documentation.
+
+    Examples
+    --------
+        pyaedt doc search hfss setup
+
+    """
     if not search_keys:
         typer.secho("✗ Error: Please provide at least one search keyword", fg=typer.colors.RED)
         typer.secho("Usage: pyaedt doc search <keyword1> [keyword2] ...", fg=typer.colors.YELLOW)

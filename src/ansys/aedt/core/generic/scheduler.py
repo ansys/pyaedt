@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -36,29 +36,113 @@ import re
 from ansys.aedt.core.base import PyAedtBase
 
 DEFAULT_AUTO_HPC = False
-"""Default setting for Auto HPC."""
+"""Default setting for Auto HPC.
+
+Examples
+--------
+>>> from ansys.aedt.core.generic.scheduler import DEFAULT_AUTO_HPC
+>>> DEFAULT_AUTO_HPC
+False
+"""
 DEFAULT_CLUSTER_NAME = "ClusterName"
-"""Default cluster name for the job submission."""
+"""Default cluster name for the job submission.
+
+Examples
+--------
+>>> from ansys.aedt.core.generic.scheduler import DEFAULT_CLUSTER_NAME
+>>> DEFAULT_CLUSTER_NAME
+'ClusterName'
+"""
 DEFAULT_CUSTOM_SUBMISSION_STRING = ""
-"""Default custom submission string for the job submission."""
+"""Default custom submission string for the job submission.
+
+Examples
+--------
+>>> from ansys.aedt.core.generic.scheduler import DEFAULT_CUSTOM_SUBMISSION_STRING
+>>> DEFAULT_CUSTOM_SUBMISSION_STRING
+''
+"""
 DEFAULT_JOB_NAME = "AEDT Simulation"
-"""Default job name for the job submission."""
+"""Default job name for the job submission.
+
+Examples
+--------
+>>> from ansys.aedt.core.generic.scheduler import DEFAULT_JOB_NAME
+>>> DEFAULT_JOB_NAME
+'AEDT Simulation'
+"""
 DEFAULT_NUM_CORES = 4
-"""Default number of cores for the job submission."""
+"""Default number of cores for the job submission.
+
+Examples
+--------
+>>> from ansys.aedt.core.generic.scheduler import DEFAULT_NUM_CORES
+>>> DEFAULT_NUM_CORES
+4
+"""
 DEFAULT_NUM_GPUS = 0
-"""Default number of GPUs for the job submission."""
+"""Default number of GPUs for the job submission.
+
+Examples
+--------
+>>> from ansys.aedt.core.generic.scheduler import DEFAULT_NUM_GPUS
+>>> DEFAULT_NUM_GPUS
+0
+"""
 DEFAULT_NUM_NODES = 1
-"""Default number of nodes for the job submission."""
+"""Default number of nodes for the job submission.
+
+Examples
+--------
+>>> from ansys.aedt.core.generic.scheduler import DEFAULT_NUM_NODES
+>>> DEFAULT_NUM_NODES
+1
+"""
 DEFAULT_NUM_TASKS = 1
-"""Default number of tasks for the job submission."""
+"""Default number of tasks for the job submission.
+
+Examples
+--------
+>>> from ansys.aedt.core.generic.scheduler import DEFAULT_NUM_TASKS
+>>> DEFAULT_NUM_TASKS
+1
+"""
 DEFAULT_MAX_TASKS_PER_NODE = 0
-"""Default maximum number of tasks per node (no limit) for the job submission."""
+"""Default maximum number of tasks per node (no limit) for the job submission.
+
+Examples
+--------
+>>> from ansys.aedt.core.generic.scheduler import DEFAULT_MAX_TASKS_PER_NODE
+>>> DEFAULT_MAX_TASKS_PER_NODE
+0
+"""
 DEFAULT_RAM_LIMIT = 90
-"""Default fraction of available RAM to be used for the job submission."""
+"""Default fraction of available RAM to be used for the job submission.
+
+Examples
+--------
+>>> from ansys.aedt.core.generic.scheduler import DEFAULT_RAM_LIMIT
+>>> DEFAULT_RAM_LIMIT
+90
+"""
 DEFAULT_RAM_PER_CORE = 2.0
-"""Default RAM in GB to be used per core for the job submission."""
+"""Default RAM in GB to be used per core for the job submission.
+
+Examples
+--------
+>>> from ansys.aedt.core.generic.scheduler import DEFAULT_RAM_PER_CORE
+>>> DEFAULT_RAM_PER_CORE
+2.0
+"""
 JOB_TEMPLATE_PATH = Path(__file__).resolve().parent.parent / "misc" / "Job_Settings_Template.txt"
-"""Path to the job settings template file."""
+"""Path to the job settings template file.
+
+Examples
+--------
+>>> from ansys.aedt.core.generic.scheduler import JOB_TEMPLATE_PATH
+>>> JOB_TEMPLATE_PATH.name
+'Job_Settings_Template.txt'
+"""
 
 
 class HPCMethod(IntEnum):
@@ -77,12 +161,23 @@ class HPCMethod(IntEnum):
         Specify only number of nodes and cores.
     USE_AUTO_HPC:
         Use Auto HPC.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.scheduler import HPCMethod
+    >>> HPCMethod.USE_AUTO_HPC.value
+    4
+
     """
 
     USE_TASKS_AND_CORES = 1
+    """Use tasks and cores option."""
     USE_RAM_CONSTRAINED = 2
+    """Use ram constrained option."""
     USE_NODES_AND_CORES = 3
+    """Use nodes and cores option."""
     USE_AUTO_HPC = 4
+    """Use auto hpc option."""
 
 
 def path_string(path: Path) -> str:
@@ -90,6 +185,13 @@ def path_string(path: Path) -> str:
 
     If the path has whitespace and the OS is Windows, the path will be
     enclosed in double quotes.
+
+    Examples
+    --------
+    >>> from pathlib import Path
+    >>> from ansys.aedt.core.generic.scheduler import path_string
+    >>> path_string(Path("C:\\Program Files\\AnsysEM\\v251"))
+
     """
     path_str = str(path)
     if platform.system() == "Windows" and " " in path_str:
@@ -110,6 +212,12 @@ def get_aedt_exe(version: str | None = None) -> Path:
     Returns
     -------
     Full path to the Ansys AEDT executable.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.scheduler import get_aedt_exe
+    >>> get_aedt_exe("25.1")
+
     """
     exe_name = "ansysedt.exe"
     #  Check in the current path.
@@ -154,13 +262,31 @@ def get_aedt_exe(version: str | None = None) -> Path:
 
 
 def load_template(template_path: Path) -> str:
-    """Load the job settings template from a file."""
+    """Load the job settings template from a file.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.scheduler import JOB_TEMPLATE_PATH
+    >>> from ansys.aedt.core.generic.scheduler import load_template
+    >>> load_template(JOB_TEMPLATE_PATH)
+
+    """
     with template_path.open("r", encoding="utf-8") as f:
         return f.read()
 
 
 def render_template(data: JobConfigurationData, template_path: Path) -> str:
-    """Render the job settings template with the provided data."""
+    """Render the job settings template with the provided data.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.scheduler import JOB_TEMPLATE_PATH
+    >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+    >>> from ansys.aedt.core.generic.scheduler import render_template
+    >>> config = JobConfigurationData()
+    >>> render_template(config, JOB_TEMPLATE_PATH)
+
+    """
     pattern = re.compile(r"\{\{(\w+)\}\}")
 
     def replacer(match):
@@ -242,93 +368,245 @@ class _ResourcesConfiguration:
 
     @property
     def cores_per_task(self) -> int | None:
-        """Get the number of cores assigned to each task."""
+        """Get the number of cores assigned to each task.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import _ResourcesConfiguration
+        >>> resources = _ResourcesConfiguration(False, 8, None, 1, 2, None, 90, 2.0)
+        >>> resources.cores_per_task
+        4
+
+        """
         return self.__num_cores // self.__num_tasks
 
     @property
     def exclusive(self) -> bool:
-        """Get whether nodes will be reserved for exclusive use by the HPC job."""
+        """Get whether nodes will be reserved for exclusive use by the HPC job.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import _ResourcesConfiguration
+        >>> resources = _ResourcesConfiguration(True, 8, None, 1, 2, None, 90, 2.0)
+        >>> resources.exclusive
+        True
+
+        """
         return self.__exclusive
 
     @exclusive.setter
     def exclusive(self, value: bool) -> None:
-        """Set whether nodes will be reserved for exclusive use by the HPC job."""
+        """Set whether nodes will be reserved for exclusive use by the HPC job.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import _ResourcesConfiguration
+        >>> resources = _ResourcesConfiguration(False, 8, None, 1, 2, None, 90, 2.0)
+        >>> resources.exclusive = True
+
+        """
         if not isinstance(value, bool):
             raise ValueError(f"exclusive must be a boolean, got {type(value).__name__}.")
         self.__exclusive = value
 
     @property
     def num_cores(self) -> int:
-        """Get the total number of compute cores to be used by the job."""
+        """Get the total number of compute cores to be used by the job.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import _ResourcesConfiguration
+        >>> resources = _ResourcesConfiguration(False, 8, None, 1, 2, None, 90, 2.0)
+        >>> resources.num_cores
+        8
+
+        """
         return self.__num_cores
 
     @num_cores.setter
     def num_cores(self, value: int) -> None:
-        """Set the total number of compute cores to be used by the job."""
+        """Set the total number of compute cores to be used by the job.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import _ResourcesConfiguration
+        >>> resources = _ResourcesConfiguration(False, 8, None, 1, 2, None, 90, 2.0)
+        >>> resources.num_cores = 16
+
+        """
         self.__num_cores = self.__validate_positive_int("num_cores", value)
 
     @property
     def num_gpus(self) -> int | None:
-        """Get the number of GPUs to be used for the simulation."""
+        """Get the number of GPUs to be used for the simulation.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import _ResourcesConfiguration
+        >>> resources = _ResourcesConfiguration(False, 8, 1, 1, 2, None, 90, 2.0)
+        >>> resources.num_gpus
+        1
+
+        """
         return self.__num_gpus
 
     @num_gpus.setter
     def num_gpus(self, value: int | None) -> None:
-        """Set the number of GPUs to be used for the simulation."""
+        """Set the number of GPUs to be used for the simulation.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import _ResourcesConfiguration
+        >>> resources = _ResourcesConfiguration(False, 8, None, 1, 2, None, 90, 2.0)
+        >>> resources.num_gpus = 1
+
+        """
         self.__num_gpus = self.__validate_optional_positive_int("num_gpus", value, strict=False)
 
     @property
     def num_nodes(self) -> int:
-        """Get the number of nodes for distribution of the HPC jobs."""
+        """Get the number of nodes for distribution of the HPC jobs.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import _ResourcesConfiguration
+        >>> resources = _ResourcesConfiguration(False, 8, None, 2, 2, None, 90, 2.0)
+        >>> resources.num_nodes
+        2
+
+        """
         return self.__num_nodes
 
     @num_nodes.setter
     def num_nodes(self, value: int) -> None:
-        """Set the number of nodes for distribution of the HPC jobs."""
+        """Set the number of nodes for distribution of the HPC jobs.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import _ResourcesConfiguration
+        >>> resources = _ResourcesConfiguration(False, 8, None, 1, 2, None, 90, 2.0)
+        >>> resources.num_nodes = 2
+
+        """
         self.__num_nodes = self.__validate_positive_int("num_nodes", value)
 
     @property
     def num_tasks(self) -> int:
-        """Get the number of tasks for the submission."""
+        """Get the number of tasks for the submission.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import _ResourcesConfiguration
+        >>> resources = _ResourcesConfiguration(False, 8, None, 1, 4, None, 90, 2.0)
+        >>> resources.num_tasks
+        4
+
+        """
         return self.__num_tasks
 
     @num_tasks.setter
     def num_tasks(self, value: int) -> None:
-        """Set the number of tasks for the submission."""
+        """Set the number of tasks for the submission.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import _ResourcesConfiguration
+        >>> resources = _ResourcesConfiguration(False, 8, None, 1, 2, None, 90, 2.0)
+        >>> resources.num_tasks = 4
+
+        """
         self.__num_tasks = self.__validate_positive_int("num_tasks", value)
 
     @property
     def max_tasks_per_node(self) -> int | None:
-        """Get the maximum number of tasks allowed to run on a single node."""
+        """Get the maximum number of tasks allowed to run on a single node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import _ResourcesConfiguration
+        >>> resources = _ResourcesConfiguration(False, 8, None, 1, 2, 2, 90, 2.0)
+        >>> resources.max_tasks_per_node
+        2
+
+        """
         return self.__max_tasks_per_node
 
     @max_tasks_per_node.setter
     def max_tasks_per_node(self, value: int | None) -> None:
-        """Set the maximum number of tasks allowed to run on a single node."""
+        """Set the maximum number of tasks allowed to run on a single node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import _ResourcesConfiguration
+        >>> resources = _ResourcesConfiguration(False, 8, None, 1, 2, None, 90, 2.0)
+        >>> resources.max_tasks_per_node = 2
+
+        """
         self.__max_tasks_per_node = self.__validate_optional_positive_int("max_tasks_per_node", value, strict=False)
 
     @property
     def ram_limit(self) -> int:
-        """Get the fraction of available RAM to be used by the simulation."""
+        """Get the fraction of available RAM to be used by the simulation.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import _ResourcesConfiguration
+        >>> resources = _ResourcesConfiguration(False, 8, None, 1, 2, None, 90, 2.0)
+        >>> resources.ram_limit
+        90
+
+        """
         return self.__ram_limit
 
     @ram_limit.setter
     def ram_limit(self, value: int) -> None:
-        """Set the fraction of available RAM to be used by the simulation."""
+        """Set the fraction of available RAM to be used by the simulation.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import _ResourcesConfiguration
+        >>> resources = _ResourcesConfiguration(False, 8, None, 1, 2, None, 90, 2.0)
+        >>> resources.ram_limit = 80
+
+        """
         self.__ram_limit = self.__validate_positive_int("ram_limit", value)
 
     @property
     def ram_per_core(self) -> float:
-        """Get the total RAM in GB to be used per core for the simulation job."""
+        """Get the total RAM in GB to be used per core for the simulation job.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import _ResourcesConfiguration
+        >>> resources = _ResourcesConfiguration(False, 8, None, 1, 2, None, 90, 2.5)
+        >>> resources.ram_per_core
+
+        """
         return self.__ram_per_core
 
     @ram_per_core.setter
     def ram_per_core(self, value: float) -> None:
-        """Set the total RAM in GB to be used per core for the simulation job."""
+        """Set the total RAM in GB to be used per core for the simulation job.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import _ResourcesConfiguration
+        >>> resources = _ResourcesConfiguration(False, 8, None, 1, 2, None, 90, 2.0)
+        >>> resources.ram_per_core = 3.0
+
+        """
         self.__ram_per_core = self.__validate_positive_float("ram_per_core", value)
 
     def check_consistency(self) -> None:
-        """Check the consistency of the resource configuration."""
+        """Check the consistency of the resource configuration.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import _ResourcesConfiguration
+        >>> resources = _ResourcesConfiguration(False, 8, 1, 1, 2, 4, 90, 2.0)
+        >>> resources.check_consistency()
+
+        """
         if self.__max_tasks_per_node is not None:
             if self.__num_tasks // self.__num_nodes > self.__max_tasks_per_node:
                 raise ValueError(
@@ -342,7 +620,15 @@ class _ResourcesConfiguration:
             )
 
     def align_dependent_attributes(self) -> None:
-        """Align dependent attributes based on the current configuration."""
+        """Align dependent attributes based on the current configuration.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import _ResourcesConfiguration
+        >>> resources = _ResourcesConfiguration(False, 8, None, 1, 2, None, 90, 2.0)
+        >>> resources.align_dependent_attributes()
+
+        """
         if self.__num_gpus is None:
             logging.info(f"Number of GPUs is not set. Setting it to {DEFAULT_NUM_GPUS}.")
             self.__num_gpus = DEFAULT_NUM_GPUS
@@ -381,22 +667,43 @@ class _ResourcesConfiguration:
 
 @dataclass
 class _ExecutionConfiguration:
-    """Configuration for the execution of the job."""
+    """Convert the JobConfigurationData to a dictionary.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+    >>> config = JobConfigurationData(num_cores=8, num_tasks=2)
+    >>> config.to_dict()
+
+    """
 
     auto_hpc: bool = DEFAULT_AUTO_HPC
+    """Value for auto hpc."""
     cluster_name: str = DEFAULT_CLUSTER_NAME
+    """Value for cluster name."""
     custom_submission_string: str = DEFAULT_CUSTOM_SUBMISSION_STRING
+    """Value for custom submission string."""
     job_name: str = DEFAULT_JOB_NAME
+    """Value for job name."""
     monitor: bool = True
+    """Value for monitor."""
     ng_solve: bool = False
+    """Value for ng solve."""
     product_full_path: str | None = None
+    """Path to product full."""
     shared_directory_linux: str | None = None
+    """Value for shared directory linux."""
     shared_directory_windows: str | None = None
+    """Value for shared directory windows."""
     use_ppe: bool = True
+    """Flag indicating whether ppe is enabled."""
     wait_for_license: bool = True
+    """Value for wait for license."""
 
 
 class JobConfigurationData(PyAedtBase):
+    """Store job configuration data."""
+
     def __init__(
         self,
         aedt_version: str | None = None,
@@ -518,72 +825,176 @@ class JobConfigurationData(PyAedtBase):
 
     @property
     def use_custom_submission_string(self) -> bool:
-        """Check if a custom submission string is provided."""
+        """Check if a custom submission string is provided.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData(custom_submission_string="-n 4")
+        >>> config.use_custom_submission_string
+
+        """
         return bool(self.custom_submission_string.strip())
 
     @property
     def fix_job_name(self) -> bool:
-        """Check if the job name is set to the default value."""
+        """Check if the job name is set to the default value.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData()
+        >>> config.fix_job_name
+
+        """
         return self.job_name == DEFAULT_JOB_NAME
 
     # === _ResourcesConfiguration properties ===
 
     @property
     def cores_per_task(self) -> int | None:
-        """Get the number of cores assigned to each task."""
+        """Get the number of cores assigned to each task.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData(num_cores=8, num_tasks=2)
+        >>> config.cores_per_task
+
+        """
         return self.__resources_conf.cores_per_task
 
     @property
     def exclusive(self) -> bool:
-        """Get whether nodes will be reserved for exclusive use by the HPC job."""
+        """Get whether nodes will be reserved for exclusive use by the HPC job.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData(exclusive=True)
+        >>> config.exclusive
+
+        """
         return self.__resources_conf.exclusive
 
     @exclusive.setter
     def exclusive(self, value: bool) -> None:
-        """Set whether nodes will be reserved for exclusive use by the HPC job."""
+        """Set whether nodes will be reserved for exclusive use by the HPC job.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData()
+        >>> config.exclusive = True
+
+        """
         self.__resources_conf.exclusive = value
 
     @property
     def num_cores(self) -> int:
-        """Get the total number of compute cores to be used by the job."""
+        """Get the total number of compute cores to be used by the job.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData(num_cores=8)
+        >>> config.num_cores
+
+        """
         return self.__resources_conf.num_cores
 
     @num_cores.setter
     def num_cores(self, value: int) -> None:
-        """Set the total number of compute cores to be used by the job."""
+        """Set the total number of compute cores to be used by the job.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData()
+        >>> config.num_cores = 16
+
+        """
         if value < self.num_tasks:
             logging.warning("Number of cores must be greater than or equal to the number of tasks.")
         self.__resources_conf.num_cores = value
 
     @property
     def num_gpus(self) -> int | None:
-        """Get the number of GPUs to be used for the simulation."""
+        """Get the number of GPUs to be used for the simulation.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData(num_gpus=1)
+        >>> config.num_gpus
+
+        """
         return self.__resources_conf.num_gpus
 
     @num_gpus.setter
     def num_gpus(self, value: int | None) -> None:
-        """Set the number of GPUs to be used for the simulation."""
+        """Set the number of GPUs to be used for the simulation.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData()
+        >>> config.num_gpus = 1
+
+        """
         self.__resources_conf.num_gpus = value
 
     @property
     def num_nodes(self) -> int:
-        """Get the number of nodes for distribution of the HPC jobs."""
+        """Get the number of nodes for distribution of the HPC jobs.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData(num_nodes=2)
+        >>> config.num_nodes
+
+        """
         return self.__resources_conf.num_nodes
 
     @num_nodes.setter
     def num_nodes(self, value: int) -> None:
-        """Set the number of nodes for distribution of the HPC jobs."""
+        """Set the number of nodes for distribution of the HPC jobs.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData()
+        >>> config.num_nodes = 2
+
+        """
         self.__resources_conf.num_nodes = value
         self.__update_hpc_method()
 
     @property
     def num_tasks(self) -> int:
-        """Get the number of tasks for the submission."""
+        """Get the number of tasks for the submission.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData(num_tasks=4)
+        >>> config.num_tasks
+
+        """
         return self.__resources_conf.num_tasks
 
     @num_tasks.setter
     def num_tasks(self, value: int) -> None:
-        """Set the number of tasks for the submission."""
+        """Set the number of tasks for the submission.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData()
+        >>> config.num_tasks = 4
+
+        """
         self.__resources_conf.num_tasks = value
         if self.num_tasks > self.num_cores:
             logging.warning("Number of tasks must be greater than than or equal to ``num_cores``.")
@@ -593,152 +1004,383 @@ class JobConfigurationData(PyAedtBase):
 
     @property
     def max_tasks_per_node(self) -> int | None:
-        """Get the maximum number of tasks allowed to run on a single node."""
+        """Get the maximum number of tasks allowed to run on a single node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData(max_tasks_per_node=2)
+        >>> config.max_tasks_per_node
+
+        """
         return self.__resources_conf.max_tasks_per_node
 
     @max_tasks_per_node.setter
     def max_tasks_per_node(self, value: int | None) -> None:
-        """Set the maximum number of tasks allowed to run on a single node."""
+        """Set the maximum number of tasks allowed to run on a single node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData()
+        >>> config.max_tasks_per_node = 2
+
+        """
         self.__resources_conf.max_tasks_per_node = value
 
     @property
     def ram_limit(self) -> int:
-        """Get the fraction of available RAM to be used by the simulation."""
+        """Get the fraction of available RAM to be used by the simulation.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData(ram_limit=80)
+        >>> config.ram_limit
+
+        """
         return self.__resources_conf.ram_limit
 
     @ram_limit.setter
     def ram_limit(self, value: int) -> None:
-        """Set the fraction of available RAM to be used by the simulation."""
+        """Set the fraction of available RAM to be used by the simulation.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData()
+        >>> config.ram_limit = 80
+
+        """
         self.__resources_conf.ram_limit = value
 
     @property
     def ram_per_core(self) -> float:
-        """Get the total RAM in GB to be used per core for the simulation job."""
+        """Get the total RAM in GB to be used per core for the simulation job.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData(ram_per_core=3.0)
+        >>> config.ram_per_core
+
+        """
         return self.__resources_conf.ram_per_core
 
     @ram_per_core.setter
     def ram_per_core(self, value: float) -> None:
-        """Set the total RAM in GB to be used per core for the simulation job."""
+        """Set the total RAM in GB to be used per core for the simulation job.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData()
+        >>> config.ram_per_core = 3.0
+
+        """
         self.__resources_conf.ram_per_core = value
 
     # === _ExecutionConfiguration properties ===
 
     @property
     def auto_hpc(self) -> bool:
-        """Get whether Auto HPC is enabled for the job submission."""
+        """Get whether Auto HPC is enabled for the job submission.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData(auto_hpc=True)
+        >>> config.auto_hpc
+
+        """
         return self.__execution_conf.auto_hpc
 
     @auto_hpc.setter
     def auto_hpc(self, value: bool) -> None:
-        """Set whether Auto HPC is enabled for the job submission."""
+        """Set whether Auto HPC is enabled for the job submission.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData()
+        >>> config.auto_hpc = True
+
+        """
         self.__execution_conf.auto_hpc = value
         self.__update_hpc_method()
 
     @property
     def cluster_name(self) -> str:
-        """Get the name of the cluster to be used for the job submission."""
+        """Get the name of the cluster to be used for the job submission.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData(cluster_name="ClusterA")
+        >>> config.cluster_name
+
+        """
         return self.__execution_conf.cluster_name
 
     @cluster_name.setter
     def cluster_name(self, value: str) -> None:
-        """Set the name of the cluster to be used for the job submission."""
+        """Set the name of the cluster to be used for the job submission.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData()
+        >>> config.cluster_name = "ClusterA"
+
+        """
         self.__execution_conf.cluster_name = value
 
     @property
     def custom_submission_string(self) -> str:
-        """Get the custom submission string for the job submission."""
+        """Get the custom submission string for the job submission.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData(custom_submission_string="-n 4")
+        >>> config.custom_submission_string
+
+        """
         return self.__execution_conf.custom_submission_string
 
     @custom_submission_string.setter
     def custom_submission_string(self, value: str) -> None:
-        """Set the custom submission string for the job submission."""
+        """Set the custom submission string for the job submission.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData()
+        >>> config.custom_submission_string = "-n 4"
+
+        """
         self.__execution_conf.custom_submission_string = value
 
     @property
     def job_name(self) -> str:
-        """Get the name to be assigned to the HPC job when it is launched."""
+        """Get the name to be assigned to the HPC job when it is launched.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData(job_name="BatchSolve")
+        >>> config.job_name
+
+        """
         return self.__execution_conf.job_name
 
     @job_name.setter
     def job_name(self, value: str) -> None:
-        """Set the name to be assigned to the HPC job when it is launched."""
+        """Set the name to be assigned to the HPC job when it is launched.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData()
+        >>> config.job_name = "BatchSolve"
+
+        """
         self.__execution_conf.job_name = value
 
     @property
     def monitor(self) -> bool:
-        """Get whether to open the monitor GUI after job submission."""
+        """Get whether to open the monitor GUI after job submission.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData(monitor=False)
+        >>> config.monitor
+
+        """
         return self.__execution_conf.monitor
 
     @monitor.setter
     def monitor(self, value: bool) -> None:
-        """Set whether to open the monitor GUI after job submission."""
+        """Set whether to open the monitor GUI after job submission.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData()
+        >>> config.monitor = False
+
+        """
         self.__execution_conf.monitor = value
 
     @property
     def ng_solve(self) -> bool:
-        """Get whether to run the solve in non-graphical mode."""
+        """Get whether to run the solve in non-graphical mode.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData(ng_solve=True)
+        >>> config.ng_solve
+
+        """
         return self.__execution_conf.ng_solve
 
     @ng_solve.setter
     def ng_solve(self, value: bool) -> None:
-        """Set whether to run the solve in non-graphical mode."""
+        """Set whether to run the solve in non-graphical mode.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData()
+        >>> config.ng_solve = True
+
+        """
         self.__execution_conf.ng_solve = value
 
     @property
     def product_full_path(self) -> str | None:
-        """Get the full path to the AEDT executable used for job submission."""
+        """Get the full path to the AEDT executable used for job submission.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData(product_full_path="C:\\Program Files\\AnsysEM\\v252\\Win64\\ansysedt.exe")
+        >>> config.product_full_path
+
+        """
         return self.__execution_conf.product_full_path
 
     @product_full_path.setter
     def product_full_path(self, value: str | None) -> None:
-        """Set the full path to the AEDT executable used for job submission."""
+        """Set the full path to the AEDT executable used for job submission.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData()
+        >>> config.product_full_path = "C:\\Program Files\\AnsysEM\\v252\\Win64\\ansysedt.exe"
+
+        """
         self.__execution_conf.product_full_path = value
 
     @property
     def shared_directory_linux(self) -> str | None:
-        """Get the path to the shared directory on Linux systems."""
+        """Get the path to the shared directory on Linux systems.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData(shared_directory_linux="/mnt/aedt_shared")
+        >>> config.shared_directory_linux
+
+        """
         return self.__execution_conf.shared_directory_linux
 
     @shared_directory_linux.setter
     def shared_directory_linux(self, value: str | None) -> None:
-        """Set the path to the shared directory on Linux systems."""
+        """Set the path to the shared directory on Linux systems.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData()
+        >>> config.shared_directory_linux = "/mnt/aedt_shared"
+
+        """
         self.__execution_conf.shared_directory_linux = value
 
     @property
     def shared_directory_windows(self) -> str | None:
-        """Get the path to the shared directory on Windows systems."""
+        """Get the path to the shared directory on Windows systems.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData(shared_directory_windows="C:\\AEDT\\shared")
+        >>> config.shared_directory_windows
+
+        """
         return self.__execution_conf.shared_directory_windows
 
     @shared_directory_windows.setter
     def shared_directory_windows(self, value: str | None) -> None:
-        """Set the path to the shared directory on Windows systems."""
+        """Set the path to the shared directory on Windows systems.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData()
+        >>> config.shared_directory_windows = "C:\\AEDT\\shared"
+
+        """
         self.__execution_conf.shared_directory_windows = value
 
     @property
     def use_ppe(self) -> bool:
-        """Get whether to use the "Pro/Premium/Enterprise" licence type."""
+        """Get whether to use the "Pro/Premium/Enterprise" licence type.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData(use_ppe=False)
+        >>> config.use_ppe
+
+        """
         return self.__execution_conf.use_ppe
 
     @use_ppe.setter
     def use_ppe(self, value: bool) -> None:
-        """Set whether to use the "Pro/Premium/Enterprise" licence type."""
+        """Set whether to use the "Pro/Premium/Enterprise" licence type.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData()
+        >>> config.use_ppe = False
+
+        """
         self.__execution_conf.use_ppe = value
 
     @property
     def wait_for_license(self) -> bool:
-        """Get whether to wait for an available license before submitting the job."""
+        """Get whether to wait for an available license before submitting the job.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData(wait_for_license=False)
+        >>> config.wait_for_license
+
+        """
         return self.__execution_conf.wait_for_license
 
     @wait_for_license.setter
     def wait_for_license(self, value: bool) -> None:
-        """Set whether to wait for an available license before submitting the job."""
+        """Set whether to wait for an available license before submitting the job.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData()
+        >>> config.wait_for_license = False
+
+        """
         self.__execution_conf.wait_for_license = value
 
     # === Public methods ===
 
     @classmethod
     def from_dict(cls, data: dict) -> JobConfigurationData:
-        """Create a JobConfigurationData instance from a dictionary."""
+        """Create a JobConfigurationData instance from a dictionary.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData.from_dict({"num_cores": 8, "num_tasks": 2})
+
+        """
         return cls(
             aedt_version=data.get("aedt_version"),
             auto_hpc=data.get("auto_hpc", False),
@@ -763,7 +1405,15 @@ class JobConfigurationData(PyAedtBase):
         )
 
     def to_dict(self) -> dict:
-        """Convert the JobConfigurationData to a dictionary."""
+        """Convert the JobConfigurationData to a dictionary.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData(num_cores=8, num_tasks=2)
+        >>> config.to_dict()
+
+        """
         return {
             "auto_hpc": self.auto_hpc,
             "cluster_name": self.cluster_name,
@@ -787,19 +1437,42 @@ class JobConfigurationData(PyAedtBase):
         }
 
     def to_json(self, path: str | Path):
-        """Save the job configuration to a JSON file."""
+        """Save the job configuration to a JSON file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData(num_cores=8)
+        >>> config.to_json(r"C:\\Temp\\job_settings.json")
+
+        """
         with open(path, "w") as f:
             json.dump(self.to_dict(), f, indent=4)
 
     @classmethod
     def from_json(cls, path: str | Path) -> JobConfigurationData:
-        """Load the job configuration from a JSON file."""
+        """Load the job configuration from a JSON file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData.from_json(r"C:\\Temp\\job_settings.json")
+
+        """
         with open(path, "r") as f:
             data = json.load(f)
         return cls.from_dict(data)
 
     def save_areg(self, file_path: str = "Job_Settings.areg") -> Path:
-        """Save the job settings to an AREG file."""
+        """Save the job settings to an AREG file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.scheduler import JobConfigurationData
+        >>> config = JobConfigurationData(num_cores=8)
+        >>> config.save_areg(r"C:\\Temp\\Job_Settings.areg")
+
+        """
         # Check if inconsistencies in resources configuration exist
         self.__resources_conf.check_consistency()
         self.__resources_conf.align_dependent_attributes()

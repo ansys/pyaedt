@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -44,6 +44,14 @@ class Quantity(float, PyAedtBase):
         Numerical value of the variable with or without units.
     unit : str
         Units for the value.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.numbers_utils import Quantity
+    >>> length = Quantity("10mm")
+    >>> length.unit_system
+    'Length'
+
     """
 
     def __new__(cls, expression, unit=None):
@@ -71,7 +79,15 @@ class Quantity(float, PyAedtBase):
                 self._parse_units(_unit)
 
     def to(self, unit: str) -> Quantity:
-        """Convert the actual number to new unit."""
+        """Convert the actual number to new unit.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.numbers_utils import Quantity
+        >>> Quantity("10mm").to("cm")
+        1cm
+
+        """
         if self.unit_system and unit in AEDT_UNITS[self.unit_system]:
             new_value = unit_converter(
                 self.value, unit_system=self.unit_system, input_units=self._unit, output_units=unit
@@ -97,6 +113,7 @@ class Quantity(float, PyAedtBase):
 
     @property
     def expression(self) -> str:
+        """Retrieve expression."""
         return f"{self._value}{self._unit}"
 
     @expression.setter
@@ -106,6 +123,15 @@ class Quantity(float, PyAedtBase):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.numbers_utils import Quantity
+        >>> length = Quantity("10mm")
+        >>> length.expression = "2cm"
+        >>> length.expression
+        '2cm'
+
         """
         self._value, _unit = decompose_variable_value(value)
         if _unit:
@@ -118,6 +144,13 @@ class Quantity(float, PyAedtBase):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.numbers_utils import Quantity
+        >>> Quantity("10mm").unit_system
+        'Length'
+
         """
         return self._unit_system
 
@@ -128,6 +161,13 @@ class Quantity(float, PyAedtBase):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.numbers_utils import Quantity
+        >>> Quantity("10mm").unit
+        'mm'
+
         """
         return self._unit
 
@@ -143,6 +183,13 @@ class Quantity(float, PyAedtBase):
         Returns
         -------
         float
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.numbers_utils import Quantity
+        >>> Quantity("10mm").value
+        10.0
+
         """
         return self._value
 
@@ -305,47 +352,112 @@ class Quantity(float, PyAedtBase):
         return np.array(self.value, dtype=dtype)
 
     def sqrt(self) -> Quantity:
-        """Square root of the value."""
+        """Square root of the value.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.numbers_utils import Quantity
+        >>> Quantity(9).sqrt()
+        3
+
+        """
         return Quantity(self.value**0.5, self.unit)
 
     def log10(self) -> Quantity:
-        """Logarithm base 10 of the value."""
+        """Logarithm base 10 of the value.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.numbers_utils import Quantity
+        >>> Quantity(100).log10()
+        2
+
+        """
         import numpy as np
 
         return Quantity(np.log10(self.value), self.unit)
 
     def sin(self) -> Quantity:
-        """Sine of the value."""
+        """Sine of the value.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.numbers_utils import Quantity
+        >>> Quantity(0).sin()
+        0
+
+        """
         import numpy as np
 
         return Quantity(np.sin(self.value), self.unit)
 
     def cos(self) -> Quantity:
-        """Cosine of the value."""
+        """Cosine of the value.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.numbers_utils import Quantity
+        >>> Quantity(0).cos()
+        1
+
+        """
         import numpy as np
 
         return Quantity(np.cos(self.value), self.unit)
 
     def arcsin(self) -> Quantity:
-        """Arcsine of the value."""
+        """Arcsine of the value.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.numbers_utils import Quantity
+        >>> Quantity(0).arcsin()
+        0
+
+        """
         import numpy as np
 
         return Quantity(np.arcsin(self.value), self.unit)
 
     def arccos(self) -> Quantity:
-        """Arccosine of the value."""
+        """Arccosine of the value.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.numbers_utils import Quantity
+        >>> Quantity(1).arccos()
+        0
+
+        """
         import numpy as np
 
         return Quantity(np.arccos(self.value), self.unit)
 
     def tan(self) -> Quantity:
-        """Tangent of the value."""
+        """Tangent of the value.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.numbers_utils import Quantity
+        >>> Quantity(0).tan()
+        0
+
+        """
         import numpy as np
 
         return Quantity(np.tan(self.value), self.unit)
 
     def arctan2(self, other: Quantity) -> Quantity:
-        """Arctangent of the value and another quantity."""
+        """Arctangent of the value and another quantity.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.numbers_utils import Quantity
+        >>> angle = Quantity(1).arctan2(Quantity(1))
+        >>> angle.value
+        0.7853981633974483
+
+        """
         import numpy as np
 
         return Quantity(np.arctan2(self.value, other), self.unit)
@@ -368,6 +480,13 @@ def decompose_variable_value(variable_value: str, full_variables: dict[str, Any]
     -------
     tuples
         Tuple with variable value and unit.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
+    >>> decompose_variable_value("10mm")
+    (10.0, 'mm')
+
     """
     # set default return values - then check for valid units
     if full_variables is None:
@@ -419,6 +538,13 @@ def is_close(a: float, b: float, relative_tolerance: float = 1e-9, absolute_tole
     -------
     bool
         ``True`` if the two numbers are closed, ``False`` otherwise.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.numbers_utils import is_close
+    >>> is_close(1.0, 1.0 + 1e-10)
+    True
+
     """
     return abs(a - b) <= max(relative_tolerance * max(abs(a), abs(b)), absolute_tolerance)
 
@@ -435,6 +561,13 @@ def is_number(a: Any) -> bool:
     -------
     bool
         ``True`` if it is a number, ``False`` otherwise.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.numbers_utils import is_number
+    >>> is_number("3.14")
+    True
+
     """
     if isinstance(a, float) or isinstance(a, int):
         return True
@@ -460,6 +593,13 @@ def is_array(a: Any) -> bool:
     -------
     bool
         ``True`` if it is an array, ``False`` otherwise.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.numbers_utils import is_array
+    >>> is_array("[1, 2, 3]")
+    True
+
     """
     try:
         v = list(ast.literal_eval(a))

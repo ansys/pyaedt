@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -126,6 +126,7 @@ class Emit(Design, PyAedtBase):
     >>> instance = interaction.worst_instance(ResultType.SENSITIVITY)
     >>> val = instance.value(ResultType.SENSITIVITY)
     >>> print(f"Worst-case sensitivity for Rx '{domain.rx_radio_name}' is {val}dB.")
+
     """
 
     def __init__(
@@ -196,6 +197,13 @@ class Emit(Design, PyAedtBase):
         -------
         :class:`ansys.aedt.core.modeler.schematic.ModelerEmit`
             Design oModeler.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.modeler
+
         """
         return self._modeler
 
@@ -207,6 +215,13 @@ class Emit(Design, PyAedtBase):
         -------
         ansys.aedt.core.emit_core.couplings.CouplingsEmit
             Couplings within the EMIT Design
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.couplings
+
         """
         return self._couplings
 
@@ -218,6 +233,13 @@ class Emit(Design, PyAedtBase):
         -------
         :class:`ansys.aedt.core.emit_core.emit_schematic.EmitSchematic`
             EMIT schematic.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.schematic
+
         """
         return self._schematic
 
@@ -245,8 +267,7 @@ class Emit(Design, PyAedtBase):
 
     @pyaedt_function_handler()
     def version(self, detailed: bool = False) -> str:
-        """
-        Get version information.
+        """Get version information.
 
         Parameters
         ----------
@@ -291,6 +312,13 @@ class Emit(Design, PyAedtBase):
         Bool
             ``True`` if the units were successfully changed and ``False``
             if there was an error.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.set_units("Frequency", "GHz")
+
         """
         if isinstance(unit_type, list):
             for t, v in zip(unit_type, unit_value):
@@ -339,6 +367,13 @@ class Emit(Design, PyAedtBase):
         Str or Dict
             If unit_type is specified returns the units for that type
             and if unit_type="", returns a Dict of all units.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.get_units("Frequency")
+
         """
         if not unit_type:
             return self._units
@@ -372,6 +407,13 @@ class Emit(Design, PyAedtBase):
 
         References
         ----------
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.save_project(file_name="emit_demo.aedt")
+
         """
         if self.__emit_api_enabled:
             self._emit_api.save_project()

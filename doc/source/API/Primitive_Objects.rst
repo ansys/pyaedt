@@ -107,7 +107,7 @@ They contain all getters and setters to simplify object manipulation.
 Coordinate systems and geometry operators
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This module contains all properties and methods needed to edit a
+The module contains all properties and methods needed to edit a
 coordinate system and a set of useful geometry operators.
 The ``CoordinateSystem`` class is accessible through the ``create_coordinate_system``
 method or the ``coordinate_systems`` list. The ``GeometryOperators`` class can be
