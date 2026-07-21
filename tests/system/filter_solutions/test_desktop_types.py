@@ -22,8 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import pytest
 import os
+
+import pytest
 
 from ansys.aedt.core import Circuit
 from ansys.aedt.core import Hfss
