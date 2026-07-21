@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -55,6 +55,7 @@ COIL_PARAMETERS = {
         "distance_turns": 3.0,
     },
 }
+"""Coil parameters."""
 
 
 class Coil(PyAedtBase):
@@ -66,6 +67,12 @@ class Coil(PyAedtBase):
         An AEDT application object.
     is_vertical : bool, optional
         Whether the coil is vertical or flat. The default is ``True``.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modeler.advanced_cad.coil import Coil
+    >>> obj = Coil()
+
     """
 
     def __init__(self, app, is_vertical: bool = True) -> None:
@@ -106,6 +113,20 @@ class Coil(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_flat_path(self) -> list:
+        """Create the path for a flat coil.
+
+        Returns
+        -------
+        list
+            A list of points representing the path of the flat coil.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.coil import Coil
+        >>> obj = Coil()
+        >>> obj.create_flat_path()
+
+        """
         num_points = 13 * self.turns + 7
 
         start_x = self.centre_x + 0.25 * self.inner_width
@@ -271,6 +292,20 @@ class Coil(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_vertical_path(self) -> list:
+        """Create the path for a vertical coil.
+
+        Returns
+        -------
+        list
+            A list of points representing the path of the vertical coil.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.coil import Coil
+        >>> obj = Coil()
+        >>> obj.create_vertical_path()
+
+        """
         num_points = 12 * self.turns + 2
 
         start_x, start_y, start_z = (
@@ -386,6 +421,13 @@ class Coil(PyAedtBase):
         -------
         str
             The name of the profile created for sweeping.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.coil import Coil
+        >>> obj = Coil()
+        >>> obj.create_sweep_profile(polyline=1)
+
         """
         profile = self._app.modeler.create_circle(
             "YZ", polyline.end_point, "wire_radius", num_sides="section_segmentation"

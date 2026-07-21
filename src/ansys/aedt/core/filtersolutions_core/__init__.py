@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -47,4 +47,5 @@ def _dll_interface(version: str | None = None) -> DllInterface:
 
 
 def api_version() -> str:
+    """Return api version."""
     return _dll_interface().api_version()

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -30,9 +30,18 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 
 class MathUtils(PyAedtBase):
-    """MathUtils is a utility class that provides methods for numerical comparisons and checks."""
+    """MathUtils is a utility class that provides methods for numerical comparisons and checks.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.math_utils import MathUtils
+    >>> MathUtils.is_zero(1e-16)
+    True
+
+    """
 
     EPSILON = float_info.epsilon * 10.0
+    """Epsilon."""
 
     @staticmethod
     @pyaedt_function_handler()
@@ -50,6 +59,12 @@ class MathUtils(PyAedtBase):
         -------
             bool
                 ``True`` if the number is numerically zero, ``False`` otherwise.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.math_utils import MathUtils
+        >>> MathUtils.is_zero(1e-16)
+        True
 
         """
         return abs(x) < eps
@@ -74,14 +89,20 @@ class MathUtils(PyAedtBase):
         -------
         bool
             ``True`` if the two numbers are closed, ``False`` otherwise.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.math_utils import MathUtils
+        >>> MathUtils.is_close(1.0, 1.0 + 1e-10)
+        True
+
         """
         return abs(a - b) <= max(relative_tolerance * max(abs(a), abs(b)), absolute_tolerance)
 
     @staticmethod
     @pyaedt_function_handler()
     def is_equal(a: float, b: float, eps: float = EPSILON) -> bool:
-        """
-        Return True if numbers a and b are equal within a small epsilon tolerance.
+        """Return True if numbers a and b are equal within a small epsilon tolerance.
 
         Parameters
         ----------
@@ -96,6 +117,13 @@ class MathUtils(PyAedtBase):
         -------
             bool
                 ``True`` if the absolute difference between a and b is less than epsilon, ``False`` otherwise.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.math_utils import MathUtils
+        >>> MathUtils.is_equal(2.0, 2.0)
+        True
+
         """
         return abs(a - b) < eps
 
@@ -121,6 +149,12 @@ class MathUtils(PyAedtBase):
         -------
         float
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.math_utils import MathUtils
+        >>> MathUtils.atan2(-0.0, -0.0)
+        0.0
+
         """
         if abs(y) < MathUtils.EPSILON:
             y = 0.0
@@ -142,6 +176,13 @@ class MathUtils(PyAedtBase):
         -------
         bool
             ``True`` if x is a scalar number, ``False`` otherwise.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.math_utils import MathUtils
+        >>> MathUtils.is_scalar_number(3.14)
+        True
+
         """
         return isinstance(x, (int, float))
 
@@ -160,6 +201,12 @@ class MathUtils(PyAedtBase):
         -------
         float, List
             Fixed value.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.math_utils import MathUtils
+        >>> MathUtils.fix_negative_zero([-0.0, 1.0])
+        [0.0, 1.0]
 
         """
         if isinstance(value, list):

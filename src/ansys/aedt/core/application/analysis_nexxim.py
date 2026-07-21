@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -21,6 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -110,6 +111,12 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         The default is ``False``, which means to not unlock
         the existing project if needed and raise an exception.
 
+    Examples
+    --------
+    >>> from ansys.aedt.core import Circuit
+    >>> circuit = Circuit()
+    >>> circuit.post
+
     """
 
     def __init__(
@@ -163,6 +170,13 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         Returns
         -------
         :class:`ansys.aedt.core.generic.configurations.ConfigurationsNexxim`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit()
+        >>> circuit.configurations
+
         """
         return self._configurations
 
@@ -183,6 +197,13 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         References
         ----------
         >>> oModule.RemoveSimSetup
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit()
+        >>> circuit.delete_setup("Setup1")
+
         """
         if name in self.setup_names:
             self.oanalysis.RemoveSimSetup([name])
@@ -205,6 +226,13 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit()
+        >>> circuit.push_down("U1")
+
         """
         out_name = ""
         if isinstance(component, CircuitComponent):
@@ -232,6 +260,13 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit()
+        >>> circuit.pop_up()
+
         """
         try:
             parent_name = self.odesign.GetName().split(";")[1].split("/")[0]
@@ -249,6 +284,13 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         -------
         :class:`ansys.aedt.core.visualization.post.post_circuit.PostProcessorCircuit`
             PostProcessor object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit()
+        >>> circuit.post
+
         """
         if self._post is None and self._odesign:
             from ansys.aedt.core.visualization.post import post_processor
@@ -263,6 +305,13 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         Returns
         -------
         :class:`ansys.aedt.core.modeler.schematic.ModelerNexxim`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit()
+        >>> circuit.modeler
+
         """
         if self._modeler is None and self._odesign:
             self.logger.reset_timer()
@@ -280,6 +329,13 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         References
         ----------
         >>> oModule.GetAllSolutionSetups
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit()
+        >>> circuit.setup_names
+
         """
         return [i.split(" : ")[0] for i in self.oanalysis.GetAllSolutionSetups()]
 
@@ -295,8 +351,15 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         References
         ----------
         >>> oDesign.GetChildObject("Excitations").GetChildNames()
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit()
+        >>> circuit.source_names
+
         """
-        return list(self.odesign.GetChildObject("Excitations").GetChildNames())
+        return list(self.get_oo_name(self.odesign, "Excitations"))
 
     @property
     def source_objects(self) -> list:
@@ -306,6 +369,13 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         -------
         list
             List of source objects.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit()
+        >>> circuit.source_objects
+
         """
         return [self.sources[name] for name in self.sources]
 
@@ -317,6 +387,12 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         -------
         list[:class:`ansys.aedt.core.modules.boundary.circuit_boundary.Sources`]
             List of sources.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit()
+        >>> circuit.sources
 
         """
         props = {}
@@ -367,6 +443,13 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         References
         ----------
         >>> oModule.GetExcitations
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit()
+        >>> circuit.excitation_names
+
         """
         return [p.replace("IPort@", "").split(";")[0] for p in self.modeler.oeditor.GetAllPorts() if "IPort@" in p]
 
@@ -382,6 +465,13 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         References
         ----------
         >>> oModule.GetExcitations
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit()
+        >>> circuit.design_excitations
+
         """
         props = {}
 
@@ -451,6 +541,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         >>> from ansys.aedt.core.generic.constants import Setups
         >>> app = Circuit()
         >>> app.create_setup(name="Setup1", setup_type=Setups.NexximLNA, Data="LINC 0GHz 4GHz 501")
+
         """
         if setup_type is None:
             setup_type = self.design_solutions.default_setup
@@ -474,3 +565,131 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         setup.update()
         self._setups = tmp_setups + [setup]
         return setup
+
+    @pyaedt_function_handler()
+    def change_properties(
+        self,
+        aedt_object: object,
+        tab_name: str,
+        property_object: str,
+        property_names: list,
+        property_values: list,
+        property_types: list = None,
+    ) -> bool:
+        """Change multiple properties.
+
+        Parameters
+        ----------
+        aedt_object :
+            AEDT object. It can be oproject, odesign, oeditor or any of the objects to which the property belongs.
+        tab_name : str
+            Name of the tab to update. Options are ``BaseElementTab``, ``EM Design``, and
+            ``FieldsPostProcessorTab``. The default is ``BaseElementTab``.
+        property_object : str
+            Name of the property object.
+        property_names : list
+            List of property names. For example, ``["prop1", "prop2"]``.
+        property_values : list
+            List of property values corresponding to the property names.
+        property_types : list, optional
+            List of property types corresponding to the property names.
+            Values are  ``"Value"``, ``"ButtonText"``, ``"Hidden"``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oEditor.ChangeProperty
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit()
+        >>> circuit.change_properties(circuit.odesign, "LocalVariableTab", "LocalVariables", ["Rload"], ["50ohm"])
+
+        """
+        button_list = [
+            "file",
+            "buffer_mode",
+            "logic_in",
+            "out_of_in",
+            "DataPattern",
+            "txrj",
+            "txpj",
+            "txuj",
+            "txcj",
+            "txrj",
+            "EyeMeasurementFunctions",
+        ]
+        if len(property_names) != len(property_values):
+            raise ValueError("``property_names`` and ``property_values`` must have the same length.")
+        if property_types and isinstance(property_types, str):
+            property_types = [property_types] * len(property_names)
+        elif property_types and len(property_types) != len(property_names):
+            raise ValueError("``property_names`` and ``property_types`` must have the same length.")
+        elif not property_types:
+            property_types = ["Value" if i not in button_list else "ButtonText" for i in property_names]
+        comp = [i for i in self.modeler.schematic.components.values() if i.composed_name == property_object][0]
+
+        if "buffer" in property_names:
+            comp.parameters["buffer"] = property_values[property_names.index("buffer")]
+        new_names = []
+        new_vals = []
+        new_types = []
+        for k, i, j in zip(property_names, property_values, property_types):
+            if k == "buffer":
+                continue
+            elif k == "buffer_mode":
+                comp.parameters["buffer_mode"] = i
+            else:
+                new_names.append(k)
+                new_vals.append(i)
+                new_types.append(j)
+
+        results = super().change_properties(aedt_object, tab_name, property_object, new_names, new_vals, new_types)
+        if results and "buffer" in property_names:
+            params = {i: k for i, k in zip(property_names, property_values)}
+            self._hide_circuit_ibis(params, comp)
+        return results
+
+    def _hide_circuit_ibis(self, params, comp):
+        input_buffer = False
+        output = False
+        if params["buffer"] == "input":
+            input_buffer = True
+            comp._change_property("buffer_mode", True, value_name="Hidden")
+        if params["buffer"] == "output":
+            output = True
+            comp._change_property("buffer_mode", True, value_name="Hidden")
+        if params["buffer"] == "input_output":
+            comp._change_property("buffer_mode", False, value_name="Hidden")
+            if params.get("buffer_mode"):
+                comp._change_property("buffer_mode", params["buffer_mode"])
+        if params["buffer"] == "three_state":
+            comp._change_property("buffer_mode", False, value_name="Hidden")
+            if params.get("buffer_mode"):
+                comp._change_property("buffer_mode", params["buffer_mode"])
+        comp._change_property("logic_in", True if input_buffer or output else False, value_name="Hidden")
+        comp._change_property("phase_delay", True if input_buffer else False, value_name="Hidden")
+        comp._change_property("UIorBPS", True if input_buffer else False, value_name="Hidden")
+        comp._change_property("UIorBPSValue", True if input_buffer else False, value_name="Hidden")
+        comp._change_property("repeat_count", True if input_buffer else False, value_name="Hidden")
+        comp._change_property("step_resp_num_ui", True if input_buffer else False, value_name="Hidden")
+        if self._aedt_version > "2025.2":
+            comp._change_property("DataPattern", True if input_buffer else False, value_name="Hidden")
+            comp._change_property("hold_last", True if input_buffer else False, value_name="Hidden")
+            comp._change_property("do_coding", True if input_buffer else False, value_name="Hidden")
+        else:
+            comp._change_property("BitPattern", True if input_buffer else False, value_name="Hidden")
+            comp._change_property("hold_last_bit", True if input_buffer else False, value_name="Hidden")
+            comp._change_property("do_encoding", True if input_buffer else False, value_name="Hidden")
+        comp._change_property("Disable_Tx_Jitter", True if input_buffer else False, value_name="Hidden")
+        comp._change_property("DCDFractionorTime", True if input_buffer else False, value_name="Hidden")
+        comp._change_property("dcd", True if input_buffer else False, value_name="Hidden")
+        comp._change_property("txrj", True if input_buffer else False, value_name="Hidden")
+        comp._change_property("txpj", True if input_buffer else False, value_name="Hidden")
+        comp._change_property("txuj", True if input_buffer else False, value_name="Hidden")
+        comp._change_property("txcj", True if input_buffer else False, value_name="Hidden")

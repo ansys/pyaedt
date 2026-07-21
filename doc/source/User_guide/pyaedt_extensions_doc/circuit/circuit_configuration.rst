@@ -1,5 +1,5 @@
 Circuit configuration
-====================
+=====================
 
 Introduction
 ------------

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -31,6 +31,8 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class LogDistanceCouplingNode(EmitNode):
+    """Provide log distance coupling node."""
+
     def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
@@ -38,13 +40,33 @@ class LogDistanceCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
-        """The parent of this emit node."""
+        """The parent of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
+        >>> coupling.parent
+
+        """
         return self._parent
 
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node."""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
+        >>> coupling.node_type
+
+        """
         return self._node_type
 
     @min_aedt_version("2027.1")
@@ -92,12 +114,32 @@ class LogDistanceCouplingNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
-        """Duplicate this node"""
+        """Duplicate this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
+        >>> coupling.duplicate("LogDistanceCopy")
+
+        """
         return self._duplicate(new_name)
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node"""
+        """Delete this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
+        >>> coupling.delete()
+
+        """
         self._delete()
 
     @property
@@ -106,6 +148,15 @@ class LogDistanceCouplingNode(EmitNode):
         """Enable/Disable coupling.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
+        >>> coupling.enabled = True
+
         """
         val = self._get_property("Enabled")
         return val == "true"
@@ -118,7 +169,18 @@ class LogDistanceCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def antenna_a(self) -> EmitNode:
-        """First antenna of the pair to apply the coupling values to."""
+        """First antenna of the pair to apply the coupling values to.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 1")
+        >>> revision = app.results.analyze()
+        >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
+        >>> coupling.antenna_a = revision.get_component_node("Antenna 1")
+
+        """
         val = self._get_property("Antenna A")
         return val
 
@@ -130,7 +192,18 @@ class LogDistanceCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def antenna_b(self) -> EmitNode:
-        """Second antenna of the pair to apply the coupling values to."""
+        """Second antenna of the pair to apply the coupling values to.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 2")
+        >>> revision = app.results.analyze()
+        >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
+        >>> coupling.antenna_b = revision.get_component_node("Antenna 2")
+
+        """
         val = self._get_property("Antenna B")
         return val
 
@@ -151,7 +224,17 @@ class LogDistanceCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def environment(self) -> EnvironmentOption:
-        """Specify the environment type for the Log Distance model."""
+        """Specify the environment type for the Log Distance model.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
+        >>> coupling.environment = coupling.EnvironmentOption.URBAN
+
+        """
         val = self._get_property("Environment")
         val = self.EnvironmentOption[val.upper()]
         return val
@@ -167,6 +250,15 @@ class LogDistanceCouplingNode(EmitNode):
         """Path Loss Exponent.
 
         Value should be between 0.0 and 100.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
+        >>> coupling.path_loss_exponent = 2.7
+
         """
         val = self._get_property("Path Loss Exponent")
         return float(val)
@@ -185,6 +277,15 @@ class LogDistanceCouplingNode(EmitNode):
         this node.
 
         Value should be between 0 and 100.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
+        >>> coupling.custom_fading_margin = 3.0
+
         """
         val = self._get_property("Custom Fading Margin")
         return float(val)
@@ -203,6 +304,15 @@ class LogDistanceCouplingNode(EmitNode):
         defined by this node.
 
         Value should be between 0 and 100.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
+        >>> coupling.polarization_mismatch = 1.5
+
         """
         val = self._get_property("Polarization Mismatch")
         return float(val)
@@ -221,6 +331,15 @@ class LogDistanceCouplingNode(EmitNode):
         defined by this node.
 
         Value should be between 0 and 100.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
+        >>> coupling.pointing_error_loss = 0.5
+
         """
         val = self._get_property("Pointing Error Loss")
         return float(val)
@@ -239,7 +358,17 @@ class LogDistanceCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def fading_type(self) -> FadingTypeOption:
-        """Specify the type of fading to include."""
+        """Specify the type of fading to include.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
+        >>> coupling.fading_type = coupling.FadingTypeOption.FAST_FADING_ONLY
+
+        """
         val = self._get_property("Fading Type")
         val = self.FadingTypeOption[val.upper()]
         return val
@@ -258,6 +387,15 @@ class LogDistanceCouplingNode(EmitNode):
         value plus the margin.
 
         Value should be between 0.0 and 100.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
+        >>> coupling.fading_availability = 99.5
+
         """
         val = self._get_property("Fading Availability")
         return float(val)
@@ -273,6 +411,15 @@ class LogDistanceCouplingNode(EmitNode):
         """Standard deviation modeling the random amount of shadowing loss.
 
         Value should be between 0.0 and 100.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
+        >>> coupling.std_deviation = 4.0
+
         """
         val = self._get_property("Std Deviation")
         return float(val)
@@ -288,6 +435,15 @@ class LogDistanceCouplingNode(EmitNode):
         """Adds a margin for rain attenuation to the computed coupling.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
+        >>> coupling.include_rain_attenuation = True
+
         """
         val = self._get_property("Include Rain Attenuation")
         return val == "true"
@@ -306,6 +462,15 @@ class LogDistanceCouplingNode(EmitNode):
         from 99-99.999%).
 
         Value should be between 99 and 99.999.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
+        >>> coupling.rain_availability = 99.9
+
         """
         val = self._get_property("Rain Availability")
         return float(val)
@@ -321,6 +486,15 @@ class LogDistanceCouplingNode(EmitNode):
         """Rain rate (mm/hr) exceeded for 0.01% of the time.
 
         Value should be between 0.0 and 1000.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
+        >>> coupling.rain_rate = 25.0
+
         """
         val = self._get_property("Rain Rate")
         return float(val)
@@ -339,6 +513,15 @@ class LogDistanceCouplingNode(EmitNode):
         horizontal.
 
         Value should be between 0.0 and 180.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
+        >>> coupling.polarization_tilt_angle = 45.0
+
         """
         val = self._get_property("Polarization Tilt Angle")
         return float(val)
@@ -357,6 +540,15 @@ class LogDistanceCouplingNode(EmitNode):
         the computed coupling.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
+        >>> coupling.include_atmospheric_absorption = True
+
         """
         val = self._get_property("Include Atmospheric Absorption")
         return val == "true"
@@ -372,6 +564,15 @@ class LogDistanceCouplingNode(EmitNode):
         """Air temperature in degrees Celsius.
 
         Value should be between -273.0 and 100.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
+        >>> coupling.temperature = 20.0
+
         """
         val = self._get_property("Temperature")
         return float(val)
@@ -387,6 +588,15 @@ class LogDistanceCouplingNode(EmitNode):
         """Total air pressure.
 
         Value should be between 0.0 and 2000.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
+        >>> coupling.total_air_pressure = 1013.25
+
         """
         val = self._get_property("Total Air Pressure")
         return float(val)
@@ -402,6 +612,15 @@ class LogDistanceCouplingNode(EmitNode):
         """Water vapor concentration.
 
         Value should be between 0.0 and 2000.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> coupling = revision.get_coupling_data_node().add_log_distance_coupling()
+        >>> coupling.water_vapor_concentration = 7.5
+
         """
         val = self._get_property("Water Vapor Concentration")
         return float(val)

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
 from itertools import combinations
 
 from ansys.aedt.core.base import PyAedtBase
@@ -32,6 +31,13 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 class ScatteringMethods(PyAedtBase):
     """Class containing all methods related to scattering matrix management that are common to Hfss, Circuit and
     Hfss3dLayout classes.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Hfss
+    >>> hfss = Hfss()
+    >>> hfss.get_all_return_loss_list()
+
     """
 
     def __init__(self, app) -> None:
@@ -53,6 +59,12 @@ class ScatteringMethods(PyAedtBase):
         list
             Strings representing the S parameters of the excitations.
             For example, ``["S(1, 1)", "S(1, 2)", S(2, 2)]``.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.get_all_sparameter_list
 
         """
         if not excitation_names:
@@ -98,6 +110,13 @@ class ScatteringMethods(PyAedtBase):
         References
         ----------
         >>> oEditor.GetAllPorts
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.get_all_return_loss_list(math_formula="dB")
+
         """
         if excitations is None:
             excitations = []
@@ -150,8 +169,15 @@ class ScatteringMethods(PyAedtBase):
             List of strings representing insertion losses of the excitations.
             For example, ``["S(1,2)"]``.
 
+        References
+        ----------
+        >>> oEditor.GetAllPorts
+
         Examples
         --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+
         >>> # Example 1: Get insertion loss between specific driver and receiver pairs
         >>> hfss.get_all_insertion_loss_list(
         ...     drivers=["Port1_TX", "Port2_TX", "Port3_TX"],
@@ -164,9 +190,6 @@ class ScatteringMethods(PyAedtBase):
         >>> hfss.get_all_insertion_loss_list(drivers_prefix_name="DIE", receivers_prefix_name="BGA")
         ['S(DIE_Port1,BGA_Port1)', 'S(DIE_Port2,BGA_Port2)']
 
-        References
-        ----------
-        >>> oEditor.GetAllPorts
         """
         if drivers is None:
             drivers = [i for i in list(self._app.excitation_names)]
@@ -246,6 +269,13 @@ class ScatteringMethods(PyAedtBase):
         References
         ----------
         >>> oEditor.GetAllPorts
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.get_next_xtalk_list()
+
         """
         next_xtalks = []
         if not drivers:
@@ -272,7 +302,7 @@ class ScatteringMethods(PyAedtBase):
         math_formula: str = "",
         nets: list | None = None,
     ) -> list[str]:
-        """Geta list of all the far end XTalks from two lists of excitations (driver and receiver).
+        """Get a list of all the far end XTalks from two lists of excitations (driver and receiver).
 
         Parameters
         ----------
@@ -306,6 +336,13 @@ class ScatteringMethods(PyAedtBase):
         References
         ----------
         >>> oEditor.GetAllPorts
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.get_fext_xtalk_list(drivers_prefix_name="TX", receivers_prefix_name="RX")
+
         """
         fext = []
         if drivers is None:
@@ -326,8 +363,7 @@ class ScatteringMethods(PyAedtBase):
     def get_touchstone_data(
         self, setup: str | None = None, sweep: str | None = None, variations: dict | None = None
     ) -> list:
-        """
-        Return a Touchstone data plot.
+        """Return a Touchstone data plot.
 
         Parameters
         ----------
@@ -346,6 +382,13 @@ class ScatteringMethods(PyAedtBase):
         References
         ----------
         >>> oModule.GetSolutionDataPerVariation
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.get_touchstone_data(setup="Setup1")
+
         """
         from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
 
@@ -415,6 +458,13 @@ class ScatteringMethods(PyAedtBase):
         References
         ----------
         >>> oDesign.ExportNetworkData
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.export_touchstone(setup="Setup1", output_file="touchstone.s2p")
+
         """
         if output_file is not None:
             output_file = str(output_file)

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -98,10 +98,12 @@ def test_litz_wire(m3d_app) -> None:
     m3d_app.materials["magnesium"].wire_type = "Round"
     m3d_app.materials["magnesium"].strand_number = 3
     m3d_app.materials["magnesium"].wire_diameter = "1mm"
+    m3d_app.materials["magnesium"].twisting_length_factor = "1.5"
     assert m3d_app.materials["magnesium"].stacking_type == "Litz Wire"
     assert m3d_app.materials["magnesium"].wire_type == "Round"
     assert m3d_app.materials["magnesium"].strand_number == 3
     assert m3d_app.materials["magnesium"].wire_diameter == "1mm"
+    assert m3d_app.materials["magnesium"].twisting_length_factor == "1.5"
 
     m3d_app.materials["magnesium"].wire_type = "Square"
     m3d_app.materials["magnesium"].wire_width = "2mm"

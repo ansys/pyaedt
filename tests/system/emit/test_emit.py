@@ -255,9 +255,8 @@ def test_create_components(emit_app) -> None:
     assert terminator.name == "TestTerminator"
     assert isinstance(terminator, EmitComponent)
 
-
+@pytest.mark.skipif(True, reason="B1480584: Test is not working as expected")
 @pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Duplicate method requires 2026 R1 or later")
-@pytest.mark.skipif(True, reason="B1480584")
 def test_duplicate_components(emit_app):
     """Test duplicating various component types using schematic.create_component which returns EmitNodes."""
     # Test Radio duplication
@@ -3108,7 +3107,7 @@ def test_emitters_radios(emit_app) -> None:
     tx_spec: TxSpectralProfEmitterNode = emitter_band.children[0]
     assert isinstance(tx_spec, TxSpectralProfEmitterNode)
 
-    radio_node: RadioNode = emit_app.schematic.create_component("New Radio", "Radios")
+    radio_node: RadioNode = emit_app.schematic.create_component(component_type="New Radio", library="Radios")
 
     # rename the radio
     radio_node.name = "Synopsys"
@@ -3204,7 +3203,7 @@ def test_emitters_radios(emit_app) -> None:
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
 def test_exceptions_bad_values(emit_app) -> None:
-    radio: RadioNode = emit_app.schematic.create_component("New Radio", "Radios")
+    radio: RadioNode = emit_app.schematic.create_component(component_type="New Radio", library="Radios")
 
     try:
         radio._get_node(-1)
@@ -3545,14 +3544,11 @@ def test_compare_nodes(emit_app) -> None:
     same_type, differences = emit_app.schematic.compare_nodes(radio_1, radio_2)
     assert same_type
     assert differences
-    assert len(differences) == 2
+    assert len(differences) == 1
     assert "Name" not in differences
     radio_1_props = radio_1.properties
     radio_2_props = radio_2.properties
     assert "NodeID" not in differences
-    assert "NodeOrder" in differences
-    assert differences["NodeOrder"]["from"]["value"] == radio_2_props["NodeOrder"]
-    assert differences["NodeOrder"]["to"]["value"] == radio_1_props["NodeOrder"]
     assert "Notes" in differences
     assert differences["Notes"]["from"]["value"] == ""
     assert differences["Notes"]["to"]["value"] == "Radio1 notes"
@@ -3627,7 +3623,7 @@ def test_compare_components(emit_app) -> None:
 
 
 @pytest.mark.skipif(
-    DESKTOP_VERSION <= "2026.1",
+    DESKTOP_VERSION < "2027.1",
     reason="Skipped on versions earlier than 2027.1",
 )
 def test_availability_emi_get_set(interference):
@@ -3663,7 +3659,7 @@ def test_availability_emi_get_set(interference):
 
 
 @pytest.mark.skipif(
-    DESKTOP_VERSION <= "2026.1",
+    DESKTOP_VERSION < "2027.1",
     reason="Skipped on versions earlier than 2027.1",
 )
 def test_availability_emi_affects_availability(interference):

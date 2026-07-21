@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -21,6 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
 from __future__ import annotations
 
 import math as mathlib
@@ -43,6 +44,7 @@ except ImportError as e:  # pragma: no cover
     raise ImportError(msg) from e
 
 logger = settings.logger
+"""Value for logger."""
 
 try:
     import osmnx as ox
@@ -52,10 +54,18 @@ except ImportError as e:  # pragma: no cover
 
 
 ZONE_LETTERS = "CDEFGHJKLMNPQRSTUVWXX"
+"""Zone letters."""
 
 
 class BuildingsPrep(PyAedtBase):
-    """Contains all basic functions needed to generate buildings stl files."""
+    """Contains all basic functions needed to generate buildings stl files.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modeler.advanced_cad.osm import BuildingsPrep
+    >>> obj = BuildingsPrep()
+
+    """
 
     def __init__(self, cad_path: str) -> None:
         self.cad_path = cad_path
@@ -74,6 +84,13 @@ class BuildingsPrep(PyAedtBase):
         Returns
         -------
         :class:`pyvista.PolyData`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.osm import BuildingsPrep
+        >>> obj = BuildingsPrep()
+        >>> obj.create_building_roof(all_pos=[1, 2, 3])
+
         """
         points = vtk.vtkPoints()
         for each in all_pos:
@@ -125,6 +142,13 @@ class BuildingsPrep(PyAedtBase):
         -------
         dict
             Info of generated stl file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.osm import BuildingsPrep
+        >>> obj = BuildingsPrep()
+        >>> obj.generate_buildings(center_lat_lon=[1, 2, 3], terrain_mesh=1)
+
         """
         gdf = ox.features.features_from_point(center_lat_lon, tags={"building": True}, dist=max_radius)
 
@@ -246,7 +270,14 @@ class BuildingsPrep(PyAedtBase):
 
 
 class RoadPrep(PyAedtBase):
-    """Contains all basic functions needed to generate road stl files."""
+    """Contains all basic functions needed to generate road stl files.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modeler.advanced_cad.osm import RoadPrep
+    >>> obj = RoadPrep()
+
+    """
 
     def __init__(self, cad_path: str) -> None:
         self.cad_path = cad_path
@@ -282,6 +313,13 @@ class RoadPrep(PyAedtBase):
         -------
         dict
             Info of generated stl file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.osm import RoadPrep
+        >>> obj = RoadPrep()
+        >>> obj.create_roads(center_lat_lon=[1, 2, 3], terrain_mesh=1)
+
         """
         graph = ox.graph_from_point(center_lat_lon, dist=max_radius, simplify=False, network_type="all")
 
@@ -366,7 +404,14 @@ class RoadPrep(PyAedtBase):
 
 
 class TerrainPrep(PyAedtBase):
-    """Contains all basic functions needed for creating a terrain stl mesh."""
+    """Contains all basic functions needed for creating a terrain stl mesh.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modeler.advanced_cad.osm import TerrainPrep
+    >>> obj = TerrainPrep()
+
+    """
 
     def __init__(self, cad_path: str = "./") -> None:
         self.cad_path = cad_path
@@ -397,6 +442,13 @@ class TerrainPrep(PyAedtBase):
         -------
         dict
             Info of generated stl file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.osm import TerrainPrep
+        >>> obj = TerrainPrep()
+        >>> obj.get_terrain(center_lat_lon=[1, 2, 3])
+
         """
         utm_center = convert_latlon_to_utm(center_lat_lon[0], center_lat_lon[1])
         logger.info("Generating Terrain")
@@ -453,6 +505,13 @@ class TerrainPrep(PyAedtBase):
         Returns
         -------
         tuple
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.osm import TerrainPrep
+        >>> obj = TerrainPrep()
+        >>> obj.get_elevation(center_lat_lon=[1, 2, 3])
+
         """
         latitude = center_lat_lon[0]
         longitude = center_lat_lon[1]
@@ -537,6 +596,12 @@ def convert_latlon_to_utm(
     -------
     tuple
         Tuple containing UTM East coordinate, North coordinate, zone letter, and zone number.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modeler.advanced_cad.osm import convert_latlon_to_utm
+    >>> convert_latlon_to_utm(latitude=1.0, longitude=1.0)
+
     """
     if latitude < -80.0 or latitude > 84.0:
         raise ValueError("Latitude out of range: must be between -80 degrees and 84 degrees.")
@@ -665,6 +730,12 @@ def convert_utm_to_latlon(
     -------
     tuple
         Tuple containing latitude and longitude.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modeler.advanced_cad.osm import convert_utm_to_latlon
+    >>> convert_utm_to_latlon(east=1.0, north=1.0, zone_number=1)
+
     """
     if not zone_letter and northern is None:
         raise ValueError("Set either zone_letter or northern.")
