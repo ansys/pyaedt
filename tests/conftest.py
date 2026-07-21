@@ -25,22 +25,17 @@
 from __future__ import annotations
 
 import fnmatch
-import inspect
 import json
 import os
 from pathlib import Path
 import shutil
-import sys
 import tempfile
-from unittest.mock import MagicMock
 
 import pytest
 
 from ansys.aedt.core import Desktop
 from ansys.aedt.core.aedt_logger import pyaedt_logger
-from ansys.aedt.core.generic.file_utils import available_file_name
 from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.hfss import Hfss
 
 # ================================
 # Category prefixes
@@ -255,6 +250,7 @@ def desktop(tmp_path_factory, request):
 
     desktop_app.temp_directory = base
     yield desktop_app
+
 
 def is_student_version():
     return False
