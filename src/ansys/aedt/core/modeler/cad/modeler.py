@@ -2115,6 +2115,16 @@ class NamedSelections(PropsManager, PyAedtBase):
         >>> lst1.create(assignment=["box1"], name="my_list", entity_type="Object")
         >>> m3d.release_desktop(False, False)
 
+        Returns
+        -------
+        bool
+            ``True`` when successful.
+
+        Raises
+        ------
+        AEDTRuntimeError
+            If the operation fails.
+
         References
         ----------
         >>> oEditor.CreateNamedSelection
@@ -2146,16 +2156,14 @@ class NamedSelections(PropsManager, PyAedtBase):
         try:
             self._modeler.oeditor.CreateNamedSelection(params, attr)
         except Exception:
-            raise AEDTRuntimeError("Failed to create named selection")
-
-        props = {}
-        props["Selection"] = selection
-        props["Type"] = sel_type
-        self.props = ListsProps(self, props)
-        # Keep compatibility with existing storage
-        self._modeler.user_lists.append(self)
-        self.name = name
-        return True
+            raise AEDTRuntimeError("Failed to create the named selection.")
+        else:
+            props = {"Selection": selection, "Type": sel_type}
+            self.props = ListsProps(self, props)
+            # Keep compatibility with existing storage
+            self._modeler.user_lists.append(self)
+            self.name = name
+            return True
 
     @pyaedt_function_handler()
     def delete(self) -> bool:
@@ -2170,6 +2178,11 @@ class NamedSelections(PropsManager, PyAedtBase):
         >>> sel = aedt_app.modeler.create_named_selection(name="test", assignment=aedt_app.modeler.object_names)
         >>> sel.delete()
         >>> aedt_app.release_desktop()
+
+        Returns
+        -------
+        bool
+            ``True`` when successful.
 
         References
         ----------
@@ -2201,7 +2214,7 @@ class NamedSelections(PropsManager, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -2254,6 +2267,11 @@ class NamedSelections(PropsManager, PyAedtBase):
         # Remove element from named selection
         >>> sel.update(selection=[box1.name], mode="Remove")
         >>> aedt_app.release_desktop()
+
+        Returns
+        -------
+        bool
+            ``True`` when successful.
 
         References
         ----------
@@ -2308,20 +2326,12 @@ class NamedSelections(PropsManager, PyAedtBase):
             "Mode:=",
             mode,
         ]
-        try:
-            self._modeler.oeditor.EditNamedSelection(argument1, argument2)
-        except Exception:
-            raise ValueError("Failed to update named selection")
-
-        # Update stored props to reflect the new selection/type when provided
-        # self.props calls __setitem__ and internally calls update()
-        # auto_update needs to be disabled
+        self._modeler.oeditor.EditNamedSelection(argument1, argument2)
         previous_auto_update = self.auto_update
         self.auto_update = False
         self.props["Selection"] = selection
         self.props["Type"] = entity_type
         self.auto_update = previous_auto_update
-
         return True
 
 

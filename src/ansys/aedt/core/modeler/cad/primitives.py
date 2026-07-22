@@ -1597,9 +1597,6 @@ class GeometryModeler(Modeler, PyAedtBase):
         """
         assignment = list(self.convert_to_selections(assignment, True))
 
-        if not assignment:
-            raise AEDTRuntimeError("`assignment` cannot be empty.")
-
         all_str_list = all(isinstance(obj, str) for obj in assignment)
         all_id_list = all(isinstance(obj, int) and not isinstance(obj, bool) for obj in assignment)
 
@@ -1607,8 +1604,6 @@ class GeometryModeler(Modeler, PyAedtBase):
             selection_type = "Object"
         elif all_id_list:
             selection_type = "Face"
-        else:
-            raise AEDTRuntimeError("`assignment` must contain only integers (face IDs) or only object names.")
 
         user_list = NamedSelections(self)
         result = user_list.create(assignment=assignment, name=name, entity_type=selection_type)

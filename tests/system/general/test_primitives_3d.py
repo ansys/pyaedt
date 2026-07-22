@@ -2572,6 +2572,8 @@ def test_create_named_selections(aedt_app) -> None:
     result = aedt_app.modeler.create_named_selection(name="test", assignment=aedt_app.modeler.object_names)
     assert result.name == "test"
     assert result.props["Selection"] == ", ".join([box1.name, box2.name])
+    with pytest.raises(AEDTRuntimeError):
+        aedt_app.modeler.create_named_selection(name="test", assignment=["invalid"])
 
 
 def test_delete_named_selections(aedt_app) -> None:
