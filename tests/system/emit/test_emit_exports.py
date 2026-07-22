@@ -34,6 +34,8 @@ from ansys.aedt.core.generic.general_methods import is_linux
 from tests import TESTS_EMIT_PATH
 from tests.conftest import DESKTOP_VERSION
 
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1") or (
