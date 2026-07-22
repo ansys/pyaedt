@@ -39,6 +39,23 @@ from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
 json_to_dict = read_json
 """Value for JSON to dict."""
 
+# ############################# Helper Functions for type checking ################################
+
+
+def _first_alpha_index(value: str) -> int | None:
+    """Return the first alphabetic index in a value string.
+
+    This helper primarily exists to handle ``re.search`` optional results in a
+    type-checker-friendly way before parsing numeric/unit parts.
+    """
+    loc = re.search("[a-zA-Z]", value)
+    if loc is None:
+        return None
+    return loc.span()[0]
+
+
+# #################################################################################################
+
 
 @pyaedt_function_handler()
 def _dict_items_to_list_items(d, k, idx: str = "name") -> None:
@@ -259,7 +276,7 @@ def format_decimals(el: float | int | str) -> str:
 
 
 @pyaedt_function_handler()
-def random_string(length: int = 6, only_digits: bool = False, char_set: str = None) -> str:
+def random_string(length: int = 6, only_digits: bool = False, char_set: str | None = None) -> str:
     """Generate a random string.
 
     Parameters
@@ -664,11 +681,13 @@ def float_units(val_str: str, units: str = "") -> float:
     if units not in unit_val:
         raise Exception("Specified unit string " + units + " not known!")
 
-    loc = re.search("[a-zA-Z]", val_str)
+    first_alpha_index = _first_alpha_index(val_str)
     try:
-        b = loc.span()[0]
-        var = [float(val_str[0:b]), val_str[b:]]
-        val = var[0] * unit_val[var[1]]
+        if first_alpha_index is None:
+            raise ValueError
+        magnitude = float(val_str[0:first_alpha_index])
+        unit_name = val_str[first_alpha_index:]
+        val = magnitude * unit_val[unit_name]
     except Exception:
         val = float(val_str)
 
