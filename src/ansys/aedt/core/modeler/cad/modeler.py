@@ -2080,7 +2080,7 @@ class Lists(PropsManager, PyAedtBase):
 
 
 class NamedSelections(PropsManager, PyAedtBase):
-    """Manages Named Selections (replacement for `Lists`)."""
+    """Manages Named Selections (replacement for `Lists`) from AEDT version >= 2026.1."""
 
     def __init__(self, modeler, props=None, name: str | None = None) -> None:
         self.auto_update = True
