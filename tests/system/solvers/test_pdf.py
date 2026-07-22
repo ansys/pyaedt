@@ -94,7 +94,7 @@ def test_create_pdf(test_tmp_dir) -> None:
 
 
 def test_create_pdf_oxide(test_tmp_dir) -> None:
-    report = AnsysReportPdfOxide(design_name="Design1", project_name="Coaxial")
+    report = AnsysReportPdfOxide(design="Design1", project="Coaxial")
     report.aedt_version = DESKTOP_VERSION
     assert "AnsysTemplate" in report.template_name
     report.template_name = "AnsysTemplate"

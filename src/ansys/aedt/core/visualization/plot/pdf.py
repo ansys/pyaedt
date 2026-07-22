@@ -59,7 +59,7 @@ class ReportSpec(PyAedtBase):
 
     document_prefix: str = "ANSS"
     """Value for document prefix."""
-    ansys_version: str = "2025R1"
+    ansys_version: str = "2026.1"
     """Value for ansys version."""
     revision: str = "Rev 1.0"
     """Value for revision."""
@@ -128,7 +128,7 @@ class AnsysReport(FPDF, PyAedtBase):
 
     def __init__(
         self,
-        version: str = "2025R1",
+        version: str = "2026.1",
         design_name: str = "design1",
         project_name: str = "AnsysProject",
         tempplate_json_file=None,
@@ -1116,16 +1116,16 @@ class AnsysReportPdfOxide(PyAedtBase):
 
     def __init__(
         self,
-        version: str = "2025R1",
-        design_name: str = "design1",
-        project_name: str = "AnsysProject",
-        tempplate_json_file=None,
+        version: str = "2026.1",
+        design: str = "design1",
+        project: str = "AnsysProject",
+        template_json=None,
     ) -> None:
         self.report_specs = ReportSpec()
-        self.read_template(tempplate_json_file)
+        self.read_template(template_json)
         self.report_specs.ansys_version = version
-        self.report_specs.design_name = design_name
-        self.report_specs.project_name = project_name
+        self.report_specs.design_name = design
+        self.report_specs.project_name = project
         self.use_portrait = True
         self.__chapter_idx = 0
         self.__sub_chapter_idx = 0
@@ -1152,6 +1152,15 @@ class AnsysReportPdfOxide(PyAedtBase):
 
     def _effective_width_mm(self, width_mm: float) -> float:
         return width_mm - self._left_margin_mm() - self._right_margin_mm()
+
+    def _content_start_y_mm(self) -> float:
+        return self._top_margin_mm() + 2.0
+
+    def _footer_clearance_mm(self) -> float:
+        return max(self._bottom_margin_mm(), 24.0)
+
+    def _content_end_y_mm(self, page_height_mm: float) -> float:
+        return page_height_mm - self._footer_clearance_mm()
 
     def _append_page(self, portrait: bool, page_format: str | tuple[float, float], kind: str = "content") -> None:
         page = _PdfOxidePage(portrait=portrait, page_format=page_format, kind=kind)
@@ -1477,9 +1486,33 @@ class AnsysReportPdfOxide(PyAedtBase):
             f"Design Name: {self.report_specs.design_name}"
         )
 
+    def _advance_content_page(
+        self,
+        page_builder,
+        page_width_mm: float,
+        page_height_mm: float,
+        page_number: int,
+        total_pages: int,
+        draw: bool,
+    ):
+        if draw:
+            self._render_footer(page_builder, page_width_mm, page_number, total_pages)
+            self._render_header(page_builder.new_page_same_size(), page_width_mm, page_height_mm)
+        else:
+            page_builder = page_builder.new_page_same_size()
+        return page_builder, self._content_start_y_mm(), page_number + 1
+
     def _render_text_block(
-        self, page_builder, block: _PdfOxideTextBlock, cursor_y_mm: float, page_width_mm: float, page_height_mm: float
-    ) -> tuple[float, list[tuple[int, str]]]:
+        self,
+        page_builder,
+        block: _PdfOxideTextBlock,
+        cursor_y_mm: float,
+        page_width_mm: float,
+        page_height_mm: float,
+        page_number: int,
+        total_pages: int,
+        draw: bool,
+    ):
         page_builder.font(_font_name(self.report_specs.font, bold=block.bold, italic=block.italic), block.font_size)
         available_width_pt = _mm_to_pt(self._effective_width_mm(page_width_mm))
         lines = _wrap_text_lines(page_builder, block.text, available_width_pt)
@@ -1487,19 +1520,36 @@ class AnsysReportPdfOxide(PyAedtBase):
         left_pt = _mm_to_pt(self._left_margin_mm())
         added_outline = []
         for index, line in enumerate(lines):
+            if cursor_y_mm + line_height_mm > self._content_end_y_mm(page_height_mm):
+                page_builder, cursor_y_mm, page_number = self._advance_content_page(
+                    page_builder, page_width_mm, page_height_mm, page_number, total_pages, draw
+                )
+                page_builder.font(
+                    _font_name(self.report_specs.font, bold=block.bold, italic=block.italic),
+                    block.font_size,
+                )
             y_pt = _mm_to_pt(page_height_mm - cursor_y_mm - line_height_mm)
             x_pt = left_pt
             if block.align == "center":
                 x_pt = left_pt + max(0.0, (available_width_pt - page_builder.measure(line)) / 2.0)
-            _draw_colored_text(page_builder, x_pt, y_pt, line, block.color)
+            if draw:
+                _draw_colored_text(page_builder, x_pt, y_pt, line, block.color)
             if index == 0 and block.outline_level is not None:
-                added_outline.append((block.outline_level, block.text.strip()))
+                added_outline.append((block.outline_level, block.text.strip(), page_number))
             cursor_y_mm += line_height_mm
-        return cursor_y_mm + 1.5, added_outline
+        return page_builder, cursor_y_mm + 1.5, page_number, added_outline
 
     def _render_image_block(
-        self, page_builder, block: _PdfOxideImageBlock, cursor_y_mm: float, page_width_mm: float, page_height_mm: float
-    ) -> tuple[float, list[tuple[int, str]]]:
+        self,
+        page_builder,
+        block: _PdfOxideImageBlock,
+        cursor_y_mm: float,
+        page_width_mm: float,
+        page_height_mm: float,
+        page_number: int,
+        total_pages: int,
+        draw: bool,
+    ):
         if block.path:
             image_bytes, image_width_px, image_height_px = _read_image_bytes(block.path)
         elif block.image_bytes:
@@ -1513,16 +1563,17 @@ class AnsysReportPdfOxide(PyAedtBase):
                 image_width_px = None
                 image_height_px = None
         else:
-            return cursor_y_mm, []
+            return page_builder, cursor_y_mm, page_number, []
 
         available_width_mm = self._effective_width_mm(page_width_mm)
         width_mm = block.width_mm or block.max_width_mm or available_width_mm
         height_mm = block.height_mm
+        page_capacity_mm = self._content_end_y_mm(page_height_mm) - self._content_start_y_mm()
         if image_width_px and image_height_px:
             aspect_ratio = image_height_px / image_width_px
             if block.keep_aspect_ratio:
                 max_width_mm = block.max_width_mm or available_width_mm
-                max_height_mm = block.max_height_mm or (page_height_mm - cursor_y_mm - self._bottom_margin_mm() - 10.0)
+                max_height_mm = block.max_height_mm or (self._content_end_y_mm(page_height_mm) - cursor_y_mm)
                 width_mm = max_width_mm
                 height_mm = width_mm * aspect_ratio
                 if height_mm > max_height_mm:
@@ -1533,22 +1584,50 @@ class AnsysReportPdfOxide(PyAedtBase):
         elif height_mm is None:
             height_mm = width_mm
 
+        if (
+            cursor_y_mm + height_mm > self._content_end_y_mm(page_height_mm)
+            and cursor_y_mm > self._content_start_y_mm()
+        ):
+            page_builder, cursor_y_mm, page_number = self._advance_content_page(
+                page_builder, page_width_mm, page_height_mm, page_number, total_pages, draw
+            )
+            if block.keep_aspect_ratio:
+                max_height_mm = block.max_height_mm or (self._content_end_y_mm(page_height_mm) - cursor_y_mm)
+                if height_mm > max_height_mm:
+                    if image_width_px and image_height_px:
+                        aspect_ratio = image_height_px / image_width_px
+                        height_mm = max_height_mm
+                        width_mm = height_mm / aspect_ratio
+            elif height_mm > page_capacity_mm and height_mm > 0:
+                scale = page_capacity_mm / height_mm
+                height_mm = page_capacity_mm
+                width_mm *= scale
+
+        if cursor_y_mm + height_mm > self._content_end_y_mm(page_height_mm) and height_mm > 0:
+            if image_width_px and image_height_px:
+                aspect_ratio = image_height_px / image_width_px
+                height_mm = max(1.0, self._content_end_y_mm(page_height_mm) - cursor_y_mm)
+                width_mm = height_mm / aspect_ratio
+            else:
+                height_mm = max(1.0, self._content_end_y_mm(page_height_mm) - cursor_y_mm)
+
         x_mm = self._left_margin_mm() + max(0.0, (available_width_mm - width_mm) / 2.0)
         y_pt = _mm_to_pt(page_height_mm - cursor_y_mm - height_mm)
-        page_builder.image_artifact(
-            image_bytes,
-            _mm_to_pt(x_mm),
-            y_pt,
-            _mm_to_pt(width_mm),
-            _mm_to_pt(height_mm),
-        )
+        if draw:
+            page_builder.image_artifact(
+                image_bytes,
+                _mm_to_pt(x_mm),
+                y_pt,
+                _mm_to_pt(width_mm),
+                _mm_to_pt(height_mm),
+            )
         cursor_y_mm += height_mm + 2.0
         outline_entries = []
         if block.caption:
             caption = f"Figure {self.__figure_idx}. {block.caption}"
             self.__figure_idx += 1
-            outline_entries.append((1, caption))
-            cursor_y_mm, _ = self._render_text_block(
+            outline_entries.append((2, caption, page_number))
+            page_builder, cursor_y_mm, page_number, _ = self._render_text_block(
                 page_builder,
                 _PdfOxideTextBlock(
                     text=caption,
@@ -1560,12 +1639,23 @@ class AnsysReportPdfOxide(PyAedtBase):
                 cursor_y_mm,
                 page_width_mm,
                 page_height_mm,
+                page_number,
+                total_pages,
+                draw,
             )
-        return cursor_y_mm + 1.0, outline_entries
+        return page_builder, cursor_y_mm + 1.0, page_number, outline_entries
 
     def _render_table_block(
-        self, page_builder, block: _PdfOxideTableBlock, cursor_y_mm: float, page_width_mm: float, page_height_mm: float
-    ) -> tuple[float, list[tuple[int, str]]]:
+        self,
+        page_builder,
+        block: _PdfOxideTableBlock,
+        cursor_y_mm: float,
+        page_width_mm: float,
+        page_height_mm: float,
+        page_number: int,
+        total_pages: int,
+        draw: bool,
+    ):
         available_width_mm = self._effective_width_mm(page_width_mm)
         normal_width_mm = min(available_width_mm, 160.0 if page_width_mm <= page_height_mm else 260.0)
         table_total_width_mm = available_width_mm if block.full_width else normal_width_mm
@@ -1580,8 +1670,15 @@ class AnsysReportPdfOxide(PyAedtBase):
         line_height_mm = _pt_to_mm(table_font * 1.3)
         padding_mm = 1.0
         cursor_y_mm += 1.0
+        outline_entries = [(2, f"Table {self.__table_idx}: {block.title}", page_number)]
+        rows = block.content
+        if not rows:
+            return page_builder, cursor_y_mm, page_number, outline_entries
 
-        for row_index, row in enumerate(block.content):
+        header_row = rows[0]
+        row_index = 0
+        while row_index < len(rows):
+            row = rows[row_index]
             row_font = _font_name(self.report_specs.font, bold=row_index == 0)
             page_builder.font(row_font, table_font)
             wrapped_cells = []
@@ -1591,6 +1688,26 @@ class AnsysReportPdfOxide(PyAedtBase):
                 wrapped = _wrap_text_lines(page_builder, str(datum), cell_width_pt)
                 wrapped_cells.append("\n".join(wrapped))
                 row_height_mm = max(row_height_mm, len(wrapped) * line_height_mm + 2 * padding_mm)
+
+            if (
+                cursor_y_mm + row_height_mm > self._content_end_y_mm(page_height_mm)
+                and cursor_y_mm > self._content_start_y_mm()
+            ):
+                page_builder, cursor_y_mm, page_number = self._advance_content_page(
+                    page_builder, page_width_mm, page_height_mm, page_number, total_pages, draw
+                )
+                if row_index > 0:
+                    row = header_row
+                    row_font = _font_name(self.report_specs.font, bold=True)
+                    page_builder.font(row_font, table_font)
+                    wrapped_cells = []
+                    row_height_mm = line_height_mm + 2 * padding_mm
+                    for col_index, datum in enumerate(row):
+                        cell_width_pt = _mm_to_pt(col_widths_mm[col_index] - 2 * padding_mm)
+                        wrapped = _wrap_text_lines(page_builder, str(datum), cell_width_pt)
+                        wrapped_cells.append("\n".join(wrapped))
+                        row_height_mm = max(row_height_mm, len(wrapped) * line_height_mm + 2 * padding_mm)
+                    row_index -= 1
 
             x_mm = self._left_margin_mm() + max(0.0, (available_width_mm - table_total_width_mm) / 2.0)
             for col_index, cell_text in enumerate(wrapped_cells):
@@ -1608,7 +1725,7 @@ class AnsysReportPdfOxide(PyAedtBase):
                         if isinstance(formatting, list) and len(formatting) > 1 and formatting[1]:
                             background = _rgb_fraction(formatting[1])
 
-                if background:
+                if draw and background:
                     page_builder.filled_rect(
                         _mm_to_pt(x_mm),
                         y_pt,
@@ -1616,20 +1733,22 @@ class AnsysReportPdfOxide(PyAedtBase):
                         _mm_to_pt(row_height_mm),
                         *background,
                     )
-                page_builder.stroke_rect(_mm_to_pt(x_mm), y_pt, _mm_to_pt(width_mm), _mm_to_pt(row_height_mm))
-                page_builder.font(row_font, table_font)
-                page_builder.text_in_rect(
-                    _mm_to_pt(x_mm + padding_mm),
-                    y_pt + _mm_to_pt(padding_mm),
-                    _mm_to_pt(width_mm - 2 * padding_mm),
-                    _mm_to_pt(row_height_mm - 2 * padding_mm),
-                    cell_text,
-                    "center",
-                )
+                if draw:
+                    page_builder.stroke_rect(_mm_to_pt(x_mm), y_pt, _mm_to_pt(width_mm), _mm_to_pt(row_height_mm))
+                    page_builder.font(row_font, table_font)
+                    page_builder.text_in_rect(
+                        _mm_to_pt(x_mm + padding_mm),
+                        y_pt + _mm_to_pt(padding_mm),
+                        _mm_to_pt(width_mm - 2 * padding_mm),
+                        _mm_to_pt(row_height_mm - 2 * padding_mm),
+                        cell_text,
+                        "center",
+                    )
                 x_mm += width_mm
             cursor_y_mm += row_height_mm
+            row_index += 1
 
-        cursor_y_mm, _ = self._render_text_block(
+        page_builder, cursor_y_mm, page_number, _ = self._render_text_block(
             page_builder,
             _PdfOxideTextBlock(
                 text=f"Table {self.__table_idx}: {block.title}",
@@ -1641,16 +1760,18 @@ class AnsysReportPdfOxide(PyAedtBase):
             cursor_y_mm + 1.0,
             page_width_mm,
             page_height_mm,
+            page_number,
+            total_pages,
+            draw,
         )
-        outline_entries = [(1, f"Table {self.__table_idx}: {block.title}")]
         self.__table_idx += 1
-        return cursor_y_mm + 1.0, outline_entries
+        return page_builder, cursor_y_mm + 1.0, page_number, outline_entries
 
     def _render_toc_page(
         self, page_builder, page_width_mm: float, page_height_mm: float, outline_entries: list[tuple[int, str, int]]
     ) -> None:
         cursor_y_mm = self._top_margin_mm() + 5.0
-        cursor_y_mm, _ = self._render_text_block(
+        _, cursor_y_mm, _, _ = self._render_text_block(
             page_builder,
             _PdfOxideTextBlock(
                 text="Table of contents:",
@@ -1661,21 +1782,18 @@ class AnsysReportPdfOxide(PyAedtBase):
             cursor_y_mm,
             page_width_mm,
             page_height_mm,
+            0,
+            0,
+            True,
         )
         cursor_y_mm += 3.0
         left_pt = _mm_to_pt(self._left_margin_mm())
         available_width_pt = _mm_to_pt(self._effective_width_mm(page_width_mm))
         page_builder.font(_font_name(self.report_specs.font), 12.0)
         for level, title, page_number in outline_entries:
-            prefix = " " * level * 4
             y_pt = _mm_to_pt(page_height_mm - cursor_y_mm - _pt_to_mm(12.0 * 1.2))
-            page_builder.text_in_rect(
-                left_pt,
-                y_pt,
-                available_width_pt,
-                _mm_to_pt(5.0),
-                f"{prefix}{title}",
-            )
+            indent_pt = _mm_to_pt(6.0 * level)
+            _draw_colored_text(page_builder, left_pt + indent_pt, y_pt, title, tuple(self.report_specs.font_color))
             page_builder.text_in_rect(
                 left_pt,
                 y_pt,
@@ -1685,6 +1803,66 @@ class AnsysReportPdfOxide(PyAedtBase):
                 "right",
             )
             cursor_y_mm += 5.5
+
+    def _count_physical_pages(self, pages: list[_PdfOxidePage], DocumentBuilder) -> int:
+        figure_idx = self.__figure_idx
+        table_idx = self.__table_idx
+        total_pages = 0
+        try:
+            for page in pages:
+                total_pages += 1
+                if page.kind != "content":
+                    continue
+                page_width_mm, page_height_mm = _page_size_mm(page.page_format, page.portrait)
+                page_builder = DocumentBuilder().page(_mm_to_pt(page_width_mm), _mm_to_pt(page_height_mm))
+                cursor_y_mm = self._content_start_y_mm()
+                current_page_number = total_pages
+                for block in page.blocks:
+                    if isinstance(block, _PdfOxideTextBlock):
+                        page_builder, cursor_y_mm, current_page_number, _ = self._render_text_block(
+                            page_builder,
+                            block,
+                            cursor_y_mm,
+                            page_width_mm,
+                            page_height_mm,
+                            current_page_number,
+                            0,
+                            False,
+                        )
+                    elif isinstance(block, _PdfOxideSpacerBlock):
+                        cursor_y_mm += block.lines * _pt_to_mm(self.report_specs.text_font_size)
+                        if cursor_y_mm > self._content_end_y_mm(page_height_mm):
+                            page_builder, cursor_y_mm, current_page_number = self._advance_content_page(
+                                page_builder, page_width_mm, page_height_mm, current_page_number, 0, False
+                            )
+                    elif isinstance(block, _PdfOxideImageBlock):
+                        page_builder, cursor_y_mm, current_page_number, _ = self._render_image_block(
+                            page_builder,
+                            block,
+                            cursor_y_mm,
+                            page_width_mm,
+                            page_height_mm,
+                            current_page_number,
+                            0,
+                            False,
+                        )
+                    elif isinstance(block, _PdfOxideTableBlock):
+                        page_builder, cursor_y_mm, current_page_number, _ = self._render_table_block(
+                            page_builder,
+                            block,
+                            cursor_y_mm,
+                            page_width_mm,
+                            page_height_mm,
+                            current_page_number,
+                            0,
+                            False,
+                        )
+                total_pages = current_page_number
+                page_builder.done()
+            return total_pages
+        finally:
+            self.__figure_idx = figure_idx
+            self.__table_idx = table_idx
 
     def save_pdf(self, file_path: str, file_name: str | None = None) -> str:
         """Save pdf."""
@@ -1702,12 +1880,12 @@ class AnsysReportPdfOxide(PyAedtBase):
         if self._toc_requested:
             pages.append(_PdfOxidePage(portrait=self.use_portrait, page_format="a4", kind="toc"))
 
+        total_pages = self._count_physical_pages(pages, DocumentBuilder)
         self.__figure_idx = 1
         self.__table_idx = 1
         outline_entries: list[tuple[int, str, int]] = []
-        total_pages = len(pages)
-
-        for page_number, page in enumerate(pages, start=1):
+        page_number = 1
+        for page in pages:
             page_width_mm, page_height_mm = _page_size_mm(page.page_format, page.portrait)
             page_builder = builder.page(_mm_to_pt(page_width_mm), _mm_to_pt(page_height_mm))
 
@@ -1715,33 +1893,66 @@ class AnsysReportPdfOxide(PyAedtBase):
                 self._render_header(page_builder, page_width_mm, page_height_mm)
                 self._render_cover_page(page_builder, page_width_mm, page_height_mm)
                 self._render_footer(page_builder, page_width_mm, page_number, total_pages)
+                page_number += 1
             elif page.kind == "toc":
                 self._render_header(page_builder, page_width_mm, page_height_mm)
                 self._render_toc_page(page_builder, page_width_mm, page_height_mm, outline_entries)
                 self._render_footer(page_builder, page_width_mm, page_number, total_pages)
+                page_number += 1
             else:
                 self._render_header(page_builder, page_width_mm, page_height_mm)
-                cursor_y_mm = self._top_margin_mm() + 2.0
+                cursor_y_mm = self._content_start_y_mm()
+                current_page_number = page_number
                 for block in page.blocks:
                     if isinstance(block, _PdfOxideTextBlock):
-                        cursor_y_mm, added_outline = self._render_text_block(
-                            page_builder, block, cursor_y_mm, page_width_mm, page_height_mm
+                        page_builder, cursor_y_mm, current_page_number, added_outline = self._render_text_block(
+                            page_builder,
+                            block,
+                            cursor_y_mm,
+                            page_width_mm,
+                            page_height_mm,
+                            current_page_number,
+                            total_pages,
+                            True,
                         )
-                        for level, title in added_outline:
-                            outline_entries.append((level, title, page_number))
+                        outline_entries.extend(added_outline)
                     elif isinstance(block, _PdfOxideSpacerBlock):
                         cursor_y_mm += block.lines * _pt_to_mm(self.report_specs.text_font_size)
+                        if cursor_y_mm > self._content_end_y_mm(page_height_mm):
+                            page_builder, cursor_y_mm, current_page_number = self._advance_content_page(
+                                page_builder,
+                                page_width_mm,
+                                page_height_mm,
+                                current_page_number,
+                                total_pages,
+                                True,
+                            )
                     elif isinstance(block, _PdfOxideImageBlock):
-                        cursor_y_mm, added_outline = self._render_image_block(
-                            page_builder, block, cursor_y_mm, page_width_mm, page_height_mm
+                        page_builder, cursor_y_mm, current_page_number, added_outline = self._render_image_block(
+                            page_builder,
+                            block,
+                            cursor_y_mm,
+                            page_width_mm,
+                            page_height_mm,
+                            current_page_number,
+                            total_pages,
+                            True,
                         )
-                        outline_entries.extend((level, title, page_number) for level, title in added_outline)
+                        outline_entries.extend(added_outline)
                     elif isinstance(block, _PdfOxideTableBlock):
-                        cursor_y_mm, added_outline = self._render_table_block(
-                            page_builder, block, cursor_y_mm, page_width_mm, page_height_mm
+                        page_builder, cursor_y_mm, current_page_number, added_outline = self._render_table_block(
+                            page_builder,
+                            block,
+                            cursor_y_mm,
+                            page_width_mm,
+                            page_height_mm,
+                            current_page_number,
+                            total_pages,
+                            True,
                         )
-                        outline_entries.extend((level, title, page_number) for level, title in added_outline)
-                self._render_footer(page_builder, page_width_mm, page_number, total_pages)
+                        outline_entries.extend(added_outline)
+                self._render_footer(page_builder, page_width_mm, current_page_number, total_pages)
+                page_number = current_page_number + 1
 
             builder = page_builder.done()
 
