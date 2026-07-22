@@ -303,11 +303,28 @@ def test_duplicate_components(emit_app):
     assert dup_terminator.name == "DuplicatedTerminator"
     assert isinstance(dup_terminator, Terminator)
 
-    # Test auto-generated name (no name parameter)
+    #------------------------------------------------------
+    # B1480584: test was crashing on the subsequent radio.duplicate()
+    # due to an undo stack issue. Verify that the fix worked and
+    # also check that undo/redo still work correctly.
+    rev: Revision = emit_app.results.analyze()
     auto_named_dup = radio.duplicate()
     assert auto_named_dup is not None
     assert auto_named_dup.name != "TestRadio"
     assert isinstance(auto_named_dup, RadioNode)
+
+    comps_before_undo = rev.get_all_component_nodes()
+    emit_app.odesign.Undo()
+    emit_app.odesign.Redo()  # Restore the duplicate before verifying undo behavior.
+    comps_after_undo_redo = rev.get_all_component_nodes()
+    assert len(comps_before_undo) == len(comps_after_undo_redo)
+    emit_app.odesign.Undo()  # Undo the redo operation above.
+    emit_app.odesign.Undo()  # Undo the duplicate created by radio.duplicate().
+    comps_after_undo = rev.get_all_component_nodes()
+    assert len(comps_after_undo) == len(comps_before_undo) - 1
+
+    #------------------------------------------------------
+
     # Test Cable duplication
     cable: Cable = emit_app.schematic.create_component("Cable", name="new Cable")
     dup_cable = cable.duplicate("dup Cable")
