@@ -34,6 +34,7 @@ from pathlib import Path
 import secrets
 import string
 import time
+import warnings
 
 import ansys.aedt.core
 from ansys.aedt.core.application.variables import Variable
@@ -51,6 +52,8 @@ from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.numbers_utils import is_number
 from ansys.aedt.core.generic.quaternion import Quaternion
+from ansys.aedt.core.internal.checks import min_aedt_version
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
@@ -63,6 +66,7 @@ from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
 from ansys.aedt.core.modeler.cad.modeler import FaceCoordinateSystem
 from ansys.aedt.core.modeler.cad.modeler import Lists
 from ansys.aedt.core.modeler.cad.modeler import Modeler
+from ansys.aedt.core.modeler.cad.modeler import NamedSelections
 from ansys.aedt.core.modeler.cad.modeler import ObjectCoordinateSystem
 from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modeler.cad.object_3d import PolylineSegment
@@ -1560,6 +1564,82 @@ class GeometryModeler(Modeler, PyAedtBase):
                 self._get_object_dict_by_material(self.materials.liquids),
             ]
         return obj_lst
+
+    @pyaedt_function_handler()
+    @min_aedt_version("2026.1")
+    def create_named_selection(self, name: str, assignment: list[str] | list[int]) -> NamedSelections | None:
+        """Create a new named selection given objects or face ids.
+
+        Method valid from AEDT 2026.1.
+
+        Parameters
+        ----------
+        name : str
+            Name of the named selection.
+        assignment : list of str or int
+            List of object names or face ids to include in the named selection.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modeler.Modeler.NamedSelections` or bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> aedt_app = Maxwell3d(version="2026.1")
+        >>> box1 = aedt_app.modeler.create_box([0, 0, 0], [1, 2, 3], name="box1")
+        >>> box2 = aedt_app.modeler.create_box([10, 10, 10], [1, 2, 3], name="box2")
+        >>> sel = aedt_app.modeler.create_named_selection(name="test", assignment=aedt_app.modeler.object_names)
+
+        References
+        ----------
+        >>> oEditor.CreateNamedSelection
+        """
+        assignment = list(self.convert_to_selections(assignment, True))
+
+        all_str_list = all(isinstance(obj, str) for obj in assignment)
+        all_id_list = all(isinstance(obj, int) and not isinstance(obj, bool) for obj in assignment)
+
+        if all_str_list:
+            selection_type = "Object"
+        elif all_id_list:
+            selection_type = "Face"
+
+        user_list = NamedSelections(self)
+        result = user_list.create(assignment=assignment, name=name, entity_type=selection_type)
+        if result:
+            return user_list
+        return False
+
+    @pyaedt_function_handler
+    @min_aedt_version("2026.1")
+    def get_named_selection_objects(self, name: str) -> list:
+        """Objects in named selection.
+
+        Method valid from AEDT 2026.1.
+
+        Parameters
+        ----------
+        name : str
+            Name of the named selection.
+
+        Returns
+        -------
+        list
+            List of objects contained in the named selection.
+
+        Reference
+        ---------
+        >>> oEditor.GetEntityIDsContainedByNamedSelection
+        """
+        try:
+            self.oeditor.GetNamedSelectionIDByName(name)
+        except Exception:
+            raise AEDTRuntimeError("Named selection does not exist.")
+
+        entity_ids = self.oeditor.GetEntityIDsContainedByNamedSelection(name)
+        selected_objects = [self.objects[int(entity_id)] for entity_id in entity_ids]
+        return selected_objects
 
     @pyaedt_function_handler()
     def _get_coordinates_data(self):  # pragma: no cover
@@ -5056,6 +5136,12 @@ class GeometryModeler(Modeler, PyAedtBase):
     def create_face_list(self, assignment: list, name: str = None) -> Lists | bool:
         """Create a list of faces given a list of face ID or a list of objects.
 
+        .. warning::
+
+            This method will be deprecated in future releases.
+            It is maintained for backward compatibility.
+            Use `create_named_selection` for AEDT releases >= 2026.1.
+
         Parameters
         ----------
         assignment : list
@@ -5072,14 +5158,13 @@ class GeometryModeler(Modeler, PyAedtBase):
         References
         ----------
         >>> oEditor.CreateEntityList
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.create_face_list(assignment="Box1")
-
         """
+        warnings.warn(
+            "`create_face_list` will soon be deprecated and will be removed in future releases."
+            "For AEDT version >= 2026.1 use `create_named_selection` instead.",
+            FutureWarning,
+            stacklevel=2,
+        )
         if name:
             for i in self.user_lists:
                 if i.name == name:
@@ -5103,6 +5188,12 @@ class GeometryModeler(Modeler, PyAedtBase):
     def create_object_list(self, assignment: list, name: str | None = None) -> Lists | bool:
         """Create an object list given a list of object names.
 
+        .. warning::
+
+            This method will be deprecated in future releases.
+            It is maintained for backward compatibility.
+            Use `create_named_selection` for AEDT releases >= 2026.1.
+
         Parameters
         ----------
         assignment : list
@@ -5118,14 +5209,13 @@ class GeometryModeler(Modeler, PyAedtBase):
         References
         ----------
         >>> oEditor.CreateEntityList
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-        >>> obj = GeometryModeler()
-        >>> obj.create_object_list(assignment="Box1")
-
         """
+        warnings.warn(
+            "`create_object_list` will soon be deprecated and will be removed in future releases."
+            "For AEDT version >= 2026.1 use `create_named_selection` instead.",
+            FutureWarning,
+            stacklevel=2,
+        )
         if name:
             for i in self.user_lists:
                 if i.name == name:

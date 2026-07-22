@@ -31,6 +31,8 @@ The modules provides functionalities for the 3D Modeler, 2D Modeler,
 
 from __future__ import annotations
 
+import warnings
+
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -39,6 +41,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.generic.quaternion import Quaternion
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
@@ -1886,10 +1889,15 @@ class Lists(PropsManager, PyAedtBase):
     --------
     >>> from ansys.aedt.core.modeler.cad.modeler import Lists
     >>> obj = Lists()
-
     """
 
     def __init__(self, modeler, props=None, name: str | None = None) -> None:
+        # Deprecated: Lists is replaced by NamedSelections from AEDT 2026.1.
+        warnings.warn(
+            "`Lists` is deprecated from AEDT 2026.1. Use `NamedSelections` instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         self.auto_update = True
         self._modeler = modeler
         self.name = name
@@ -1909,7 +1917,6 @@ class Lists(PropsManager, PyAedtBase):
         >>> from ansys.aedt.core.modeler.cad.modeler import Lists
         >>> obj = Lists()
         >>> obj.update()
-
         """
         # self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Reference CS", "Value:=", self.ref_cs]])
         object_list_new = self._list_verification(self.props["List"], self.props["Type"])
@@ -2070,6 +2077,262 @@ class Lists(PropsManager, PyAedtBase):
                 else:
                     object_list_new.append(int(element))
         return object_list_new
+
+
+class NamedSelections(PropsManager, PyAedtBase):
+    """Manages Named Selections (replacement for `Lists`) from AEDT version >= 2026.1."""
+
+    def __init__(self, modeler, props=None, name: str | None = None) -> None:
+        self.auto_update = True
+        self._modeler = modeler
+        self.name = name
+        # Reuse ListsProps for the simple properties structure
+        self.props = ListsProps(self, props)
+
+    @pyaedt_function_handler()
+    def create(
+        self, assignment: list | str | None = None, name: str | None = None, entity_type: str = "Object"
+    ) -> bool:
+        """Create a named selection.
+
+        Parameters
+        ----------
+        assignment : list or str, optional
+            List of object names or face ids or a comma-separated string.
+        name : str, optional
+            Name of the named selection. If not provided a unique name is generated.
+        entity_type : str optional
+            Type of the selection: ``"Object"`` or ``"Face"``. Default is ``"Object"``.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.cad.modeler import NamedSelections
+        >>> m3d = Maxwell3d(version="2026.1")
+        >>> box1 = m3d.modeler.create_box([1, 1, 1], [5, 2, 5], name="box1")
+        Create a new instance of NamedSelections
+        >>> lst1 = NamedSelections(m3d.modeler)
+        Create a named selection by specifying assignment and entity type
+        >>> lst1.create(assignment=["box1"], name="my_list", entity_type="Object")
+        >>> m3d.release_desktop(False, False)
+
+        Returns
+        -------
+        bool
+            ``True`` when successful.
+
+        Raises
+        ------
+        AEDTRuntimeError
+            If the operation fails.
+
+        References
+        ----------
+        >>> oEditor.CreateNamedSelection
+        """
+        if not name:
+            name = generate_unique_name(entity_type + "NamedSelection")
+
+        user_list_names = [sel for sel in self._modeler.user_lists if sel.name == name]
+        if name in user_list_names:
+            raise ValueError(f"Named selection with name '{name}' already exists.")
+
+        # Normalize selection
+        if isinstance(assignment, (list, tuple)):
+            if all(isinstance(x, int) for x in assignment):
+                selection = assignment
+                sel_type = "Face"
+            else:
+                selection = ", ".join([str(x) for x in assignment])
+                sel_type = entity_type
+        elif isinstance(assignment, str):
+            selection = assignment
+            sel_type = entity_type
+        else:
+            selection = ""
+            sel_type = entity_type
+
+        params = ["NAME:NamedSelectionParameters", "Type:=", sel_type, "Selection:=", selection]
+        attr = ["NAME:Attributes", "Name:=", name, "UDM ID:=", -1]
+        try:
+            self._modeler.oeditor.CreateNamedSelection(params, attr)
+        except Exception:
+            raise AEDTRuntimeError("Failed to create the named selection.")
+        else:
+            props = {"Selection": selection, "Type": sel_type}
+            self.props = ListsProps(self, props)
+            # Keep compatibility with existing storage
+            self._modeler.user_lists.append(self)
+            self.name = name
+            return True
+
+    @pyaedt_function_handler()
+    def delete(self) -> bool:
+        """Delete the named selection.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> aedt_app = Maxwell3d(version="2026.1")
+        >>> box1 = aedt_app.modeler.create_box([0, 0, 0], [1, 2, 3], name="box1")
+        >>> box2 = aedt_app.modeler.create_box([10, 10, 10], [1, 2, 3], name="box2")
+        >>> sel = aedt_app.modeler.create_named_selection(name="test", assignment=aedt_app.modeler.object_names)
+        >>> sel.delete()
+        >>> aedt_app.release_desktop()
+
+        Returns
+        -------
+        bool
+            ``True`` when successful.
+
+        References
+        ----------
+        >>> oEditor.Delete
+        """
+        self._modeler.oeditor.Delete(["NAME:Selections", "Selections:=", self.name])
+        self._modeler.user_lists.remove(self)
+        return True
+
+    @pyaedt_function_handler()
+    def rename(self, name: str) -> bool:
+        """Rename the named selection.
+
+        Parameters
+        ----------
+        name : str
+            New name for the named selection.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> aedt_app = Maxwell3d(version="2026.1")
+        >>> box1 = aedt_app.modeler.create_box([0, 0, 0], [1, 2, 3], name="box1")
+        >>> box2 = aedt_app.modeler.create_box([10, 10, 10], [1, 2, 3], name="box2")
+        >>> sel = aedt_app.modeler.create_named_selection(name="test", assignment=aedt_app.modeler.object_names)
+        >>> sel.rename(name="new_test")
+        >>> aedt_app.release_desktop()
+
+        Returns
+        -------
+        bool
+            ``True`` when successful.
+
+        References
+        ----------
+        >>> oEditor.ChangeProperty
+        """
+        argument = [
+            "NAME:AllTabs",
+            [
+                "NAME:Geometry3DListTab",
+                ["NAME:PropServers", self.name],
+                ["NAME:ChangedProps", ["NAME:Name", "Value:=", name]],
+            ],
+        ]
+        self._modeler.oeditor.ChangeProperty(argument)
+        self.name = name
+        return True
+
+    @pyaedt_function_handler()
+    def update(self, selection: list | str | None = None, entity_type: str = "Object", mode: str = "Reassign") -> bool:
+        """Update an existing named selection.
+
+        This method mirrors the signature and semantics of :class:`Lists.update` for
+        backward compatibility. If ``selection`` is ``None``, the stored properties
+        in ``self.props`` are used.
+
+        Parameters
+        ----------
+        selection : str or list, optional
+            Comma-separated string of object names or a list of names/ids. If
+            ``None``, uses the selection stored in ``self.props["Selection"]``.
+        entity_type : str, optional
+            Type of selection, e.g. ``"Object"`` or ``"Face"``. Default ``"Object"``.
+        mode : str, optional
+            Edit mode for the named selection.
+            Options are: ``"Reassign"``, ``"Add"`,``"Remove"``.
+            The default value is ``"Reassign"``.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> aedt_app = Maxwell3d(version="2026.1")
+        >>> box1 = aedt_app.modeler.create_box([0, 0, 0], [1, 2, 3], name="box1")
+        >>> box2 = aedt_app.modeler.create_box([10, 10, 10], [1, 2, 3], name="box2")
+        >>> sel = aedt_app.modeler.create_named_selection(name="test", assignment=aedt_app.modeler.object_names)
+        >>> box3 = aedt_app.modeler.create_box([20, 20, 20], [1, 2, 3], name="box3")
+        # Reassign named selection elements
+        >>> sel.update(selection=[box1.name, box3.name])
+        # Add new element to name selection
+        >>> sel.update(selection=[box2.name], mode="Add")
+        # Remove element from named selection
+        >>> sel.update(selection=[box1.name], mode="Remove")
+        >>> aedt_app.release_desktop()
+
+        Returns
+        -------
+        bool
+            ``True`` when successful.
+
+        References
+        ----------
+        >>> oEditor.EditNamedSelection
+        """
+        # If no selection provided, use stored properties
+        if selection is None:
+            selection = self.props.get("Selection", "")
+            entity_type = self.props.get("Type", entity_type)
+
+        # If caller provided a list, normalize using Lists._list_verification to keep
+        # behavior consistent with Lists.update
+        if isinstance(selection, (list, tuple)):
+            try:
+                if mode in ("Add", "Remove"):
+                    current_selection = [
+                        s.strip() for s in str(self.props.get("Selection", "")).split(",") if s.strip()
+                    ]
+
+                if mode == "Add":
+                    items_to_add = []
+                    for item in selection:
+                        item_str = str(item)
+                        if item_str not in current_selection and item_str not in items_to_add:
+                            items_to_add.append(item_str)
+                    selection = current_selection + items_to_add
+
+                elif mode == "Remove":
+                    items_to_remove = [str(item) for item in selection]
+                    selection = [item for item in current_selection if item not in items_to_remove]
+
+                object_list_new = Lists._list_verification(self, selection, entity_type)
+            except Exception:
+                # Fallback to simple string conversion if verification fails
+                selection = ", ".join([str(s) for s in selection])
+            else:
+                if entity_type == "Object":
+                    selection = ", ".join(object_list_new)
+                else:
+                    # For faces, keep a list of ints as EditNamedSelection accepts it
+                    selection = object_list_new
+
+        # If selection is a string, leave it as-is
+
+        argument1 = ["NAME:Selections", "Selections:=", self.name]
+        argument2 = [
+            "NAME:NamedSelectionParameters",
+            "Type:=",
+            entity_type,
+            "Selection:=",
+            selection,
+            "Mode:=",
+            mode,
+        ]
+        self._modeler.oeditor.EditNamedSelection(argument1, argument2)
+        previous_auto_update = self.auto_update
+        self.auto_update = False
+        self.props["Selection"] = selection
+        self.props["Type"] = entity_type
+        self.auto_update = previous_auto_update
+        return True
 
 
 class Modeler(PyAedtBase):
