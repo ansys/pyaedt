@@ -19,3 +19,10 @@ script = "../common/points_cloud.py"
 optional = true
 template = "run_pyaedt_toolkit_script"
 url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/project/point_cloud_generator.html"
+
+[HarmonicLoss]
+icon = "images/large/harmonics.png"
+name = "Harmonic Loss Input"
+script = "harmonic_loss.py"
+template = "run_pyaedt_toolkit_script"
+url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/q3d/harmonic_loss.html"
