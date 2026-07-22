@@ -34,6 +34,7 @@ from pathlib import Path
 import secrets
 import string
 import time
+import warnings
 
 import ansys.aedt.core
 from ansys.aedt.core.application.variables import Variable
@@ -51,6 +52,7 @@ from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.numbers_utils import is_number
 from ansys.aedt.core.generic.quaternion import Quaternion
+from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
@@ -1564,43 +1566,54 @@ class GeometryModeler(Modeler, PyAedtBase):
         return obj_lst
 
     @pyaedt_function_handler()
-    def create_named_selection(self, name: str, objects: list[str] | list[int]) -> str:
+    @min_aedt_version("2026.1")
+    def create_named_selection(self, name: str, assignment: list[str] | list[int]) -> NamedSelections | None:
         """Create a new named selection given objects or face ids.
+
+        Method valid from AEDT 2026.1.
 
         Parameters
         ----------
         name : str
             Name of the named selection.
-        objects : list of str or int
+        assignment : list of str or int
             List of object names or face ids to include in the named selection.
 
         Returns
         -------
-        str
-            Name of the created named selection.
+        :class:`ansys.aedt.core.modeler.Modeler.NamedSelections` or bool
 
         References
         ----------
         >>> oEditor.CreateNamedSelection
         """
-        is_str_list = all(isinstance(obj, str) for obj in objects)
-        is_id_list = all(isinstance(obj, int) for obj in objects)
+        assignment = list(self.convert_to_selections(assignment, True))
 
-        if is_str_list:
+        if not assignment:
+            raise AEDTRuntimeError("`assignment` cannot be empty.")
+
+        all_str_list = all(isinstance(obj, str) for obj in assignment)
+        all_id_list = all(isinstance(obj, int) and not isinstance(obj, bool) for obj in assignment)
+
+        if all_str_list:
             selection_type = "Object"
-            selection = ", ".join(objects)
-        elif is_id_list:
+        elif all_id_list:
             selection_type = "Face"
-            selection = objects
+        else:
+            raise AEDTRuntimeError("`assignment` must contain only integers (face IDs) or only object names.")
 
-        params = ["NAME:NamedSelectionParameters", "Type:=", selection_type, "Selection:=", selection]
-        attr = ["NAME:Attributes", "Name:=", name, "UDM ID:=", -1]
-        self.oeditor.CreateNamedSelection(params, attr)
-        return name
+        user_list = NamedSelections(self)
+        result = user_list.create(assignment=assignment, name=name, entity_type=selection_type)
+        if result:
+            return user_list
+        return False
 
     @pyaedt_function_handler
+    @min_aedt_version("2026.1")
     def get_named_selection_objects(self, name: str) -> list:
         """Objects in named selection.
+
+        Method valid from AEDT 2026.1.
 
         Parameters
         ----------
@@ -5117,121 +5130,107 @@ class GeometryModeler(Modeler, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def create_face_list(self, assignment: list, name: str = None) -> Lists | NamedSelections | bool:
+    def create_face_list(self, assignment: list, name: str = None) -> Lists | bool:
         """Create a list of faces given a list of face ID or a list of objects.
+
+        .. warning::
+
+            This method will be deprecated in future releases.
+            It is maintained for backward compatibility.
+            Use `create_named_selection` for AEDT releases >= 2026.1.
 
         Parameters
         ----------
         assignment : list
-            List of face ID or list of FacePrimitive objects.
+            List of face ID or list of objects
 
         name : str, optional
            Name of the new list.
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.Modeler.Lists` or
-        :class:`ansys.aedt.core.modeler.Modeler.NamedSelections`
+        :class:`ansys.aedt.core.modeler.Modeler.Lists`
             List object when successful, ``False`` when failed.
 
         References
         ----------
         >>> oEditor.CreateEntityList
-        >>> oEditor.CreateNamedSelection
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Maxwell3d
-        >>> m3d = Maxwell3d(version="2026.1")
-        >>> box1 = m3d.modeler.create_box([1, 1, 1], [5, 2, 5], name="box1")
-        >>> faces = m3d.modeler.get_object_faces(box1.name)
-        >>> fl = m3d.modeler.create_face_list(faces, "my_face_list")
-        >>> m3d.release_desktop(False, False)
         """
+        warnings.warn(
+            "`create_face_list` will soon be deprecated and will be removed in future releases."
+            "For AEDT version >= 2026.1 use `create_named_selection` instead.",
+            FutureWarning,
+            stacklevel=2,
+        )
         if name:
             for i in self.user_lists:
                 if i.name == name:
                     self.logger.warning("A List with the specified name already exists!")
                     return i
-        # Check whether all elements of list are either int or FacePrimitve objects
         assignment = self.convert_to_selections(assignment, True)
-        all_int = all(isinstance(item, int) for item in assignment)
-        all_face_primitive = all(isinstance(item, FacePrimitive) for item in assignment)
-
-        if not (all_int or all_face_primitive):
-            raise AEDTRuntimeError("`assignment` must contain only integers (face IDs) or only FacePrimitive objects.")
+        user_list = Lists(self)
         list_type = "Face"
-        if self._app._aedt_version >= "2026.1":
-            user_list = NamedSelections(self)
+        if user_list:
             result = user_list.create(assignment=assignment, name=name, entity_type=list_type)
             if result:
                 return user_list
+            else:  # pragma: no cover
+                self._app.logger.error("Wrong object definition. Review object list and type")
+                return False
         else:  # pragma: no cover
-            user_list = Lists(self)
-            result = user_list.create(assignment=assignment, name=name, entity_type=list_type)
-            if result:
-                return user_list
-        # If both failed raise an exception
-        raise AEDTRuntimeError("Failed to create faces list")
+            self._app.logger.error("User list object could not be created")
+            return False
 
     @pyaedt_function_handler()
-    def create_object_list(self, assignment: list, name: str | None = None) -> Lists | NamedSelections | bool:
+    def create_object_list(self, assignment: list, name: str | None = None) -> Lists | bool:
         """Create an object list given a list of object names.
+
+        .. warning::
+
+            This method will be deprecated in future releases.
+            It is maintained for backward compatibility.
+            Use `create_named_selection` for AEDT releases >= 2026.1.
 
         Parameters
         ----------
         assignment : list
-            List of object names or Object3D.
+            List of object names.
         name : str, optional
             Name of the new object list.
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.Modeler.Lists` or
-        :class:`ansys.aedt.core.modeler.Modeler.NamedSelections`
+        :class:`ansys.aedt.core.modeler.Modeler.Lists`
             List object when successful, ``False`` when failed.
 
         References
         ----------
         >>> oEditor.CreateEntityList
-        >>> oEditor.CreateNamedSelection
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Maxwell3d
-        >>> m3d = Maxwell3d(version="2026.1")
-        >>> box1 = m3d.modeler.create_box([1, 1, 1], [5, 2, 5], name="box1")
-        >>> box2 = m3d.modeler.create_box([2, 2, 2], [5, 2, 5], name="box2")
-        >>> lst = m3d.modeler.create_object_list(assignment=["box1", "box2"], name="my_list")
-        >>> m3d.release_desktop(False, False)
         """
+        warnings.warn(
+            "`create_object_list` will soon be deprecated and will be removed in future releases."
+            "For AEDT version >= 2026.1 use `create_named_selection` instead.",
+            FutureWarning,
+            stacklevel=2,
+        )
         if name:
             for i in self.user_lists:
                 if i.name == name:
                     self.logger.warning("A List with the specified name already exists!")
                     return i
-        # Check whether all elements of list are either string or Object3D objects
-        all_str = all(isinstance(item, str) for item in assignment)
-        all_object_3d = all(isinstance(item, Object3d) for item in assignment)
-
-        if not (all_str or all_object_3d):
-            raise AEDTRuntimeError("`assignment` must contain only strings (object names) or only Object3d objects.")
-
         assignment = self.convert_to_selections(assignment, True)
-        # Prefer NamedSelections and only fall back to legacy Lists if create() fails.
+        user_list = Lists(self)
         list_type = "Object"
-        if self._app._aedt_version >= "2026.1":
-            user_list = NamedSelections(self)
+        if user_list:
             result = user_list.create(assignment=assignment, name=name, entity_type=list_type)
             if result:
                 return user_list
+            else:  # pragma: no cover
+                self._app.logger.error("Wrong object definition. Review object list and type")
+                return False
         else:  # pragma: no cover
-            user_list = Lists(self)
-            result = user_list.create(assignment=assignment, name=name, entity_type=list_type)
-            if result:
-                return user_list
-        # If both failed raise exception
-        raise AEDTRuntimeError("Failed to create objects list")
+            self._app.logger.error("User list object could not be created")
+            return False
 
     @pyaedt_function_handler()
     def generate_object_history(self, assignment: str | int, non_model: bool = False) -> bool:

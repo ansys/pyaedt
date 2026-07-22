@@ -34,7 +34,6 @@ from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.generic.math_utils import MathUtils
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.quaternion import Quaternion
-from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
 from ansys.aedt.core.modeler.cad.modeler import FaceCoordinateSystem
@@ -343,8 +342,8 @@ def test_create_face_list(coaxial) -> None:
     assert fl2.update()
     assert coaxial.modeler.create_face_list(fl, "my_face_list") == fl2
     assert coaxial.modeler.create_face_list(fl)
-    with pytest.raises(AEDTRuntimeError):
-        coaxial.modeler.create_face_list(["outer2"])
+    assert coaxial.modeler.create_face_list([str(fl[0])])
+    assert not coaxial.modeler.create_face_list(["outer2"])
 
 
 def test_create_object_list(coaxial) -> None:
@@ -352,9 +351,6 @@ def test_create_object_list(coaxial) -> None:
     fl1 = coaxial.modeler.create_object_list([o2.name], "my_object_list")
     assert fl1
     assert fl1.update()
-    assert fl1.update(selection=[coaxial.modeler["inner"]], entity_type="Object", mode="Add")
-    assert fl1.update(selection=[coaxial.modeler["inner"]], entity_type="Object", mode="Remove")
-    assert fl1.update(selection=[coaxial.modeler["inner"]], entity_type="Object", mode="Reassign")
     assert coaxial.modeler.create_object_list([o2.name], "my_object_list") == fl1
     assert coaxial.modeler.create_object_list(["Core", "outer"])
     coaxial.modeler.user_lists[-1].props["List"] = ["outer", "Core", "inner"]
@@ -366,8 +362,7 @@ def test_create_object_list(coaxial) -> None:
     assert coaxial.modeler.user_lists[-1].rename("new_list")
     assert coaxial.modeler.user_lists[-1].delete()
     assert coaxial.modeler.create_object_list(["Core", "outer"])
-    with pytest.raises(AEDTRuntimeError):
-        coaxial.modeler.create_object_list(["Core2", "Core3"])
+    assert not coaxial.modeler.create_object_list(["Core2", "Core3"])
 
 
 def test_create_outer_face_list(aedt_app) -> None:
