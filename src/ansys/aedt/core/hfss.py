@@ -6223,6 +6223,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         link_to_hfss: bool | None = True,
         export_touchstone: bool | None = True,
         set_phase_center_per_port: bool | None = True,
+        use_existing_binary: bool = False,
     ) -> "FfdSolutionDataExporter | FfdSolutionData | bool":
         """Export the antenna parameters to Far Field Data (FFD) files and return an
         instance of the ``FfdSolutionDataExporter`` object.
@@ -6254,6 +6255,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             Whether to export touchstone file. The default is ``True``.
         set_phase_center_per_port : bool, optional
             Set phase center per port location. The default is ``True``.
+        use_existing_binary : bool, optional
+            Whether to reconstruct the far field from the binary radiation-surface
+            fields already stored in ``.aedtresults`` instead of exporting a new
+            ``.ffd`` through the solver. The default is ``False``. When ``True`` and
+            those fields are available (single antennas, explicit arrays and FA-DDM
+            solves), an :class:`FfdSolutionData` is returned without a solver
+            round-trip; otherwise (for example a CA-DDM design, which stores no
+            surface fields) the method falls back to the regular export.
 
         Returns
         -------
@@ -6275,6 +6284,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         """
         from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
         from ansys.aedt.core.visualization.post.farfield_exporter import FfdSolutionDataExporter
+
+        if use_existing_binary:
+            binary_data = self._far_field_from_binary(frequencies)
+            if binary_data:
+                return binary_data
+            self.logger.info("No binary radiation-surface fields found. Exporting the far field instead.")
 
         if not variations:
             variations = variation_string_to_dict(self.design_variation())
@@ -6345,6 +6360,33 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             return FfdSolutionData(input_file=metadata_file)
 
         raise AEDTRuntimeError("Farfield solution data could not be exported.")
+
+    @pyaedt_function_handler()
+    def _far_field_from_binary(self, frequencies=None):
+        """Reconstruct the far field from binary radiation-surface fields in ``.aedtresults``.
+
+        Returns an :class:`FfdSolutionData` when the design stores decodable surface
+        fields, or ``None`` so the caller can fall back to the solver export.
+        """
+        from ansys.aedt.core.visualization.advanced.farfield_binary import far_field_data_from_aedtresults
+        from ansys.aedt.core.visualization.advanced.farfield_binary import find_radiation_surface_folder
+
+        frequency_hz = None
+        if frequencies is not None:
+            first = frequencies[0] if isinstance(frequencies, (list, np.ndarray)) else frequencies
+            if isinstance(first, str):
+                from ansys.aedt.core.generic.constants import unit_converter
+                from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
+
+                value, units = decompose_variable_value(first)
+                frequency_hz = unit_converter(value, "Freq", units, "Hz") if units else float(value)
+            else:
+                frequency_hz = float(first)
+
+        folder = find_radiation_surface_folder(self.results_directory, frequency=frequency_hz)
+        if not folder:
+            return None
+        return far_field_data_from_aedtresults(folder, frequency=frequency_hz)
 
     @pyaedt_function_handler()
     def get_rcs_data(
