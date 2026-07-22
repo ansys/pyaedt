@@ -3106,6 +3106,22 @@ wheels = [
 ]
 
 [[package]]
+name = "pdf-oxide"
+version = "0.3.74"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/76/3f/ce4bfd761cf4de338ad5582a8d0488d60e1f91cbdf91b04929c723b33c11/pdf_oxide-0.3.74.tar.gz", hash = "sha256:1dee9fb9e534dfbd5f2d355c7c9531f562477bb048f3673e1657a4f778e9ffc2", size = 6669609, upload-time = "2026-07-14T03:59:25.288Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/bb/c9/b5881db9242a353c38eced6b69a39ca9a09d02b3f8e3191b4840ba4ae9f4/pdf_oxide-0.3.74-cp38-abi3-macosx_10_12_x86_64.whl", hash = "sha256:7ff7cfcf78c74be475fabee809c699c21f28dfe516c875024d9112ef4a906208", size = 10658599, upload-time = "2026-07-14T03:59:08.842Z" },
+    { url = "https://files.pythonhosted.org/packages/d6/49/ca6a3b1bef6f429aed7c369d54472dffb4afd0ea4a2bb8642ba049e51316/pdf_oxide-0.3.74-cp38-abi3-macosx_11_0_arm64.whl", hash = "sha256:2487c3a68840c3264c8c8a1477742ef979538a436f6dd8ca451b7db79c0df931", size = 10082756, upload-time = "2026-07-14T03:59:10.989Z" },
+    { url = "https://files.pythonhosted.org/packages/13/1c/6434ddcb34b3e0ae9205e367c64d8128d4402ebc7b8b80d93c935620819b/pdf_oxide-0.3.74-cp38-abi3-manylinux_2_28_aarch64.whl", hash = "sha256:d8fcc6f5c82e2053ac3d0287d1b83abe4b3ccf70b315b6a8669bce420adb8047", size = 10383542, upload-time = "2026-07-14T03:59:12.948Z" },
+    { url = "https://files.pythonhosted.org/packages/7b/4e/a8ee8b9b19ef5e2970cd74091fa3350604aed8deb39053ac60b77fa813cb/pdf_oxide-0.3.74-cp38-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:5644bdacc0b7f81facc656fef6732f413386f114534253cb807278df8afb588f", size = 11001863, upload-time = "2026-07-14T03:59:15.155Z" },
+    { url = "https://files.pythonhosted.org/packages/4a/84/d5a08188c1dd0758dfa844c7fc56851750df248e328a371bad0f5dec3574/pdf_oxide-0.3.74-cp38-abi3-musllinux_1_2_aarch64.whl", hash = "sha256:0034f26294a3ba0003f65ad6df0243144c89dcd1bc5e65a898ead12432768594", size = 10570413, upload-time = "2026-07-14T03:59:17.204Z" },
+    { url = "https://files.pythonhosted.org/packages/4a/f7/65f0098a6d41e28dcaaf35034fbfea7f2d82ee024947de904e1becc394e2/pdf_oxide-0.3.74-cp38-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:e327f935c97827e424417cd4373aab7747afc960549a07809f305847ade7f144", size = 11244439, upload-time = "2026-07-14T03:59:19.207Z" },
+    { url = "https://files.pythonhosted.org/packages/6d/b1/7628aff63753e0c4fbb04df222a1ffab57349ee7283c3490171ea0e50f6c/pdf_oxide-0.3.74-cp38-abi3-win_amd64.whl", hash = "sha256:a6a1492116971b20b9607d8ed11606f455d0d94296b32efbcaf110b7905e9e40", size = 11120657, upload-time = "2026-07-14T03:59:21.272Z" },
+    { url = "https://files.pythonhosted.org/packages/54/f5/24424d3f7951cfeb690af7998d8ca753dcdfc69ed447952779f120196c42/pdf_oxide-0.3.74-cp38-abi3-win_arm64.whl", hash = "sha256:eafa8c4b0f8fc8c46e61dec4c869ab1743e244cf99b1708d429ac1df4019675c", size = 10360350, upload-time = "2026-07-14T03:59:23.286Z" },
+]
+
+[[package]]
 name = "pdf2image"
 version = "1.17.0"
 source = { registry = "https://pypi.org/simple" }
@@ -3538,6 +3554,7 @@ all = [
     { name = "openpyxl" },
     { name = "osmnx" },
     { name = "pandas" },
+    { name = "pdf-oxide" },
     { name = "pyvista", extra = ["io"] },
     { name = "requests" },
     { name = "rpyc" },
@@ -3558,6 +3575,7 @@ all-dotnet = [
     { name = "openpyxl" },
     { name = "osmnx" },
     { name = "pandas" },
+    { name = "pdf-oxide" },
     { name = "pyvista", extra = ["io"] },
     { name = "pywin32", marker = "sys_platform == 'win32'" },
     { name = "requests" },
@@ -3581,6 +3599,7 @@ examples = [
     { name = "openpyxl" },
     { name = "osmnx" },
     { name = "pandas" },
+    { name = "pdf-oxide" },
     { name = "plotly" },
     { name = "pyvista", extra = ["jupyter"] },
     { name = "rpyc" },
@@ -3592,6 +3611,7 @@ graphics = [
     { name = "ansys-tools-visualization-interface" },
     { name = "fpdf2" },
     { name = "matplotlib" },
+    { name = "pdf-oxide" },
     { name = "pillow" },
     { name = "pyvista", extra = ["io"] },
     { name = "vtk" },
@@ -3689,6 +3709,10 @@ requires-dist = [
     { name = "pandas", marker = "extra == 'all'", specifier = ">=1.1.0" },
     { name = "pandas", marker = "extra == 'all-dotnet'", specifier = ">=1.1.0" },
     { name = "pandas", marker = "extra == 'examples'", specifier = ">=1.1.0" },
+    { name = "pdf-oxide", marker = "extra == 'all'" },
+    { name = "pdf-oxide", marker = "extra == 'all-dotnet'" },
+    { name = "pdf-oxide", marker = "extra == 'examples'" },
+    { name = "pdf-oxide", marker = "extra == 'graphics'" },
     { name = "pillow", marker = "extra == 'graphics'" },
     { name = "plotly", marker = "extra == 'examples'", specifier = ">=6.0" },
     { name = "psutil", specifier = ">=6.0.0" },

@@ -31,6 +31,7 @@ import pytest
 from ansys.aedt.core import Circuit
 from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
+from ansys.aedt.core.visualization.plot.pdf import AnsysReportPdfOxide
 from ansys.aedt.core.visualization.post.compliance import VirtualCompliance
 from ansys.aedt.core.visualization.post.compliance import VirtualComplianceGenerator
 from tests import TESTS_SOLVERS_PATH
@@ -89,6 +90,39 @@ def test_create_pdf(test_tmp_dir) -> None:
     report.add_toc()
     report.save_pdf(test_tmp_dir, "my_firstpdf.pdf")
     output = test_tmp_dir / "my_firstpdf.pdf"
+    assert output.exists()
+
+
+def test_create_pdf_oxide(test_tmp_dir) -> None:
+    report = AnsysReportPdfOxide(design="Design1", project="Coaxial")
+    report.aedt_version = DESKTOP_VERSION
+    assert "AnsysTemplate" in report.template_name
+    report.template_name = "AnsysTemplate"
+    assert report.project_name == "Coaxial"
+    report.project_name = "Coaxial1"
+    assert report.project_name == "Coaxial1"
+    assert report.design_name == "Design1"
+    report.design_name = "Design2"
+    assert report.design_name == "Design2"
+    report.create()
+    report.add_section()
+    report.add_chapter("Chapter 1")
+    report.add_sub_chapter("C1")
+    report.add_text("ciao")
+    report.add_text("hola", True, True)
+    report.add_empty_line(2)
+    report.add_page_break()
+    report.add_image(
+        str(Path(TESTS_SOLVERS_PATH) / "example_models" / TEST_SUBFOLDER / "Coax_HFSS.jpg"), "Coaxial Cable"
+    )
+    report.add_section(portrait=False, page_format="a3")
+    report.add_table("MyTable", [["x", "y"], ["0", "1"], ["2", "3"], ["10", "20"]], full_width=True)
+    report.add_table("MyTable2", [["x", "y"], ["0", "1"], ["2", "3"], ["10", "20"]])
+    report.add_section()
+    report.add_chart([0, 1, 2, 3, 4, 5], [10, 20, 4, 30, 40, 12], "Freq", "Val", "MyTable")
+    report.add_toc()
+    report.save_pdf(test_tmp_dir, "my_firstpdf_oxide.pdf")
+    output = test_tmp_dir / "my_firstpdf_oxide.pdf"
     assert output.exists()
 
 
