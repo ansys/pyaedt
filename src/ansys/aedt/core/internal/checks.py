@@ -37,6 +37,7 @@ _GRAPHICS_DEPENDENCIES = {
     "imageio": None,
     "matplotlib": None,
     "meshio": None,
+    "pdf_oxide": None,
     "pillow": None,
     "pyvista": None,
     "visualization_interface": None,
@@ -183,6 +184,8 @@ def check_dependency_available(dependency: str, warning: bool = False) -> bool |
             import imageio  # noqa: F401
         elif dependency == "meshio":
             import meshio  # noqa: F401
+        elif dependency == "pdf_oxide":
+            import pdf_oxide  # noqa: F401
         elif dependency == "fpdf":
             import fpdf  # noqa: F401
         elif dependency == "pillow":
