@@ -1583,6 +1583,14 @@ class GeometryModeler(Modeler, PyAedtBase):
         -------
         :class:`ansys.aedt.core.modeler.Modeler.NamedSelections` or bool
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> aedt_app = Maxwell3d(version="2026.1")
+        >>> box1 = aedt_app.modeler.create_box([0, 0, 0], [1, 2, 3], name="box1")
+        >>> box2 = aedt_app.modeler.create_box([10, 10, 10], [1, 2, 3], name="box2")
+        >>> sel = aedt_app.modeler.create_named_selection(name="test", assignment=aedt_app.modeler.object_names)
+
         References
         ----------
         >>> oEditor.CreateNamedSelection

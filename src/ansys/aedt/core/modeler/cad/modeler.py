@@ -2080,11 +2080,7 @@ class Lists(PropsManager, PyAedtBase):
 
 
 class NamedSelections(PropsManager, PyAedtBase):
-    """Manages Named Selections (replacement for `Lists`).
-
-    Keeps create and delete behavior and provides an ``update`` method that wraps
-    the native ``oEditor.EditNamedSelection`` call.
-    """
+    """Manages Named Selections (replacement for `Lists`)."""
 
     def __init__(self, modeler, props=None, name: str | None = None) -> None:
         self.auto_update = True
@@ -2168,12 +2164,12 @@ class NamedSelections(PropsManager, PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core import Maxwell3d
-        >>> m3d = Maxwell3d(version="2026.1")
-        >>> box1 = m3d.modeler.create_box([1, 1, 1], [5, 2, 5], name="box1")
-        Create Objects list and delete it afterward
-        >>> lst = m3d.modeler.create_object_list(assignment=["box1"], name="my_list")
-        >>> lst.delete()
-        >>> m3d.release_desktop(False, False)
+        >>> aedt_app = Maxwell3d(version="2026.1")
+        >>> box1 = aedt_app.modeler.create_box([0, 0, 0], [1, 2, 3], name="box1")
+        >>> box2 = aedt_app.modeler.create_box([10, 10, 10], [1, 2, 3], name="box2")
+        >>> sel = aedt_app.modeler.create_named_selection(name="test", assignment=aedt_app.modeler.object_names)
+        >>> sel.delete()
+        >>> aedt_app.release_desktop()
 
         References
         ----------
@@ -2195,12 +2191,12 @@ class NamedSelections(PropsManager, PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core import Maxwell3d
-        >>> m3d = Maxwell3d(version="2026.1")
-        >>> box1 = m3d.modeler.create_box([1, 1, 1], [5, 2, 5], name="box1")
-        Create Objects list and rename it afterward
-        >>> lst = m3d.modeler.create_object_list(assignment=["box1"], name="my_list")
-        >>> lst.rename(name="new_list")
-        >>> m3d.release_desktop(False, False)
+        >>> aedt_app = Maxwell3d(version="2026.1")
+        >>> box1 = aedt_app.modeler.create_box([0, 0, 0], [1, 2, 3], name="box1")
+        >>> box2 = aedt_app.modeler.create_box([10, 10, 10], [1, 2, 3], name="box2")
+        >>> sel = aedt_app.modeler.create_named_selection(name="test", assignment=aedt_app.modeler.object_names)
+        >>> sel.rename(name="new_test")
+        >>> aedt_app.release_desktop()
 
         Returns
         -------
@@ -2246,19 +2242,18 @@ class NamedSelections(PropsManager, PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core import Maxwell3d
-        >>> m3d = Maxwell3d(version="2026.1")
-        >>> box1 = m3d.modeler.create_box([1, 1, 1], [5, 2, 5], name="box1")
-        >>> box2 = m3d.modeler.create_box([2, 2, 2], [5, 2, 5], name="box2")
-        >>> box3 = m3d.modeler.create_box([3, 3, 3], [5, 2, 5], name="box3")
-        Create objects list
-        >>> lst = m3d.modeler.create_object_list(assignment=["box1"], name="my_list")
-        Add box2 in the NamedSelection "my_list"
-        >>> lst.update(selection=[m3d.modeler["box2"]], entity_type="Object", mode="Add")
-        Remove box2 in the NamedSelection "my_list"
-        >>> lst.update(selection=[m3d.modeler["box2"]], entity_type="Object", mode="Remove")
-        Reassign box2 in the NamedSelection "my_list"
-        >>> lst.update(selection=[m3d.modeler["box2"]], entity_type="Object", mode="Reassign")
-        >>> m3d.release_desktop(False, False)
+        >>> aedt_app = Maxwell3d(version="2026.1")
+        >>> box1 = aedt_app.modeler.create_box([0, 0, 0], [1, 2, 3], name="box1")
+        >>> box2 = aedt_app.modeler.create_box([10, 10, 10], [1, 2, 3], name="box2")
+        >>> sel = aedt_app.modeler.create_named_selection(name="test", assignment=aedt_app.modeler.object_names)
+        >>> box3 = aedt_app.modeler.create_box([20, 20, 20], [1, 2, 3], name="box3")
+        # Reassign named selection elements
+        >>> sel.update(selection=[box1.name, box3.name])
+        # Add new element to name selection
+        >>> sel.update(selection=[box2.name], mode="Add")
+        # Remove element from named selection
+        >>> sel.update(selection=[box1.name], mode="Remove")
+        >>> aedt_app.release_desktop()
 
         References
         ----------
@@ -2273,6 +2268,23 @@ class NamedSelections(PropsManager, PyAedtBase):
         # behavior consistent with Lists.update
         if isinstance(selection, (list, tuple)):
             try:
+                if mode in ("Add", "Remove"):
+                    current_selection = [
+                        s.strip() for s in str(self.props.get("Selection", "")).split(",") if s.strip()
+                    ]
+
+                if mode == "Add":
+                    items_to_add = []
+                    for item in selection:
+                        item_str = str(item)
+                        if item_str not in current_selection and item_str not in items_to_add:
+                            items_to_add.append(item_str)
+                    selection = current_selection + items_to_add
+
+                elif mode == "Remove":
+                    items_to_remove = [str(item) for item in selection]
+                    selection = [item for item in current_selection if item not in items_to_remove]
+
                 object_list_new = Lists._list_verification(self, selection, entity_type)
             except Exception:
                 # Fallback to simple string conversion if verification fails

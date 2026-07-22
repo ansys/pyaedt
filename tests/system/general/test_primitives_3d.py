@@ -35,6 +35,7 @@ from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.hfss import Hfss
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
+from ansys.aedt.core.modeler.cad.modeler import NamedSelections
 from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modeler.cad.polylines import Polyline
 from ansys.aedt.core.modeler.cad.primitives import PolylineSegment
@@ -2568,11 +2569,52 @@ def test_delete_all_points(aedt_app) -> None:
 def test_create_named_selections(aedt_app) -> None:
     box1 = aedt_app.modeler.create_box([0, 0, 0], [1, 2, 3], name="box1")
     box2 = aedt_app.modeler.create_box([10, 10, 10], [1, 2, 3], name="box2")
-
     result = aedt_app.modeler.create_named_selection(name="test", assignment=aedt_app.modeler.object_names)
-
     assert result.name == "test"
     assert result.props["Selection"] == ", ".join([box1.name, box2.name])
+
+
+def test_delete_named_selections(aedt_app) -> None:
+    aedt_app.modeler.create_box([0, 0, 0], [1, 2, 3], name="box1")
+    aedt_app.modeler.create_box([10, 10, 10], [1, 2, 3], name="box2")
+    result = aedt_app.modeler.create_named_selection(name="test", assignment=aedt_app.modeler.object_names)
+    assert len(aedt_app.modeler.user_lists) == 1
+    assert isinstance(aedt_app.modeler.user_lists[0], NamedSelections)
+    assert result.delete()
+    assert len(aedt_app.modeler.user_lists) == 0
+
+
+def test_rename_named_selections(aedt_app) -> None:
+    aedt_app.modeler.create_box([0, 0, 0], [1, 2, 3], name="box1")
+    aedt_app.modeler.create_box([10, 10, 10], [1, 2, 3], name="box2")
+    result = aedt_app.modeler.create_named_selection(name="test", assignment=aedt_app.modeler.object_names)
+    assert result.name == "test"
+    result.rename("new_name")
+    assert result.name == "new_name"
+
+
+def test_update_named_selections(aedt_app) -> None:
+    box1 = aedt_app.modeler.create_box([0, 0, 0], [1, 2, 3], name="box1")
+    box2 = aedt_app.modeler.create_box([10, 10, 10], [1, 2, 3], name="box2")
+    result = aedt_app.modeler.create_named_selection(name="test", assignment=aedt_app.modeler.object_names)
+    selection_list = [item.strip() for item in result.props["Selection"].split(",") if item.strip()]
+    assert box1.name in selection_list
+    assert box2.name in selection_list
+    box3 = aedt_app.modeler.create_box([20, 20, 20], [1, 2, 3], name="box3")
+    result.update(selection=[box1.name, box3.name])
+    selection_list = [item.strip() for item in result.props["Selection"].split(",") if item.strip()]
+    assert box1.name in selection_list
+    assert box3.name in selection_list
+    result.update(selection=[box2.name], mode="Add")
+    selection_list = [item.strip() for item in result.props["Selection"].split(",") if item.strip()]
+    assert box1.name in selection_list
+    assert box2.name in selection_list
+    assert box3.name in selection_list
+    result.update(selection=[box1.name], mode="Remove")
+    selection_list = [item.strip() for item in result.props["Selection"].split(",") if item.strip()]
+    assert box3.name in selection_list
+    assert box2.name in selection_list
+    assert box1.name not in selection_list
 
 
 def test_get_named_selection_objects(aedt_app) -> None:
