@@ -2629,3 +2629,6 @@ def test_get_named_selection_objects(aedt_app) -> None:
     assert isinstance(objs, list)
     assert box1 in objs
     assert box2 in objs
+
+    with pytest.raises(AEDTRuntimeError):
+        aedt_app.modeler.get_named_selection_objects(name="invalid")

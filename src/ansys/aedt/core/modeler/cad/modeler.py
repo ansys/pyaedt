@@ -2089,6 +2089,37 @@ class NamedSelections(PropsManager, PyAedtBase):
         # Reuse ListsProps for the simple properties structure
         self.props = ListsProps(self, props)
 
+    def _objects_verification(self, object_list, list_type):
+        object_list = self._modeler.convert_to_selections(object_list, True)
+        object_list_new = []
+        if list_type == "Object":
+            obj_names = [i for i in self._modeler.object_names]
+            check = [item for item in object_list if item in obj_names]
+            if check:
+                object_list_new = check
+            else:
+                return []
+
+        elif list_type == "Face":
+            object_list_new = []
+            for element in object_list:
+                if isinstance(element, str):
+                    if element.isnumeric():
+                        object_list_new.append(int(element))
+                    else:
+                        if element in self._modeler.object_names:
+                            obj_id = self._modeler.objects[element].id
+                            for sel in self._modeler.object_list:
+                                if sel.id == obj_id:
+                                    for f in sel.faces:
+                                        object_list_new.append(f.id)
+                                    break
+                        else:
+                            return []
+                else:
+                    object_list_new.append(int(element))
+        return object_list_new
+
     @pyaedt_function_handler()
     def create(
         self, assignment: list | str | None = None, name: str | None = None, entity_type: str = "Object"
@@ -2184,13 +2215,22 @@ class NamedSelections(PropsManager, PyAedtBase):
         bool
             ``True`` when successful.
 
+        Raises
+        ------
+        AEDTRuntimeError
+            If the operation fails.
+
         References
         ----------
         >>> oEditor.Delete
         """
         self._modeler.oeditor.Delete(["NAME:Selections", "Selections:=", self.name])
         self._modeler.user_lists.remove(self)
-        return True
+        user_list_names = [sel.name for sel in self._modeler.user_lists]
+        if self.name not in user_list_names:
+            return True
+        else:
+            raise AEDTRuntimeError("Failed to delete the named selection.")
 
     @pyaedt_function_handler()
     def rename(self, name: str) -> bool:
@@ -2216,6 +2256,11 @@ class NamedSelections(PropsManager, PyAedtBase):
         bool
             ``True`` when successful.
 
+        Raises
+        ------
+        AEDTRuntimeError
+            If the operation fails.
+
         References
         ----------
         >>> oEditor.ChangeProperty
@@ -2229,8 +2274,12 @@ class NamedSelections(PropsManager, PyAedtBase):
             ],
         ]
         self._modeler.oeditor.ChangeProperty(argument)
-        self.name = name
-        return True
+        user_list_names = [sel.name for sel in self._modeler.user_lists]
+        if name in user_list_names:
+            self.name = name
+            return True
+        else:
+            raise AEDTRuntimeError("Failed to rename the named selection.")
 
     @pyaedt_function_handler()
     def update(self, selection: list | str | None = None, entity_type: str = "Object", mode: str = "Reassign") -> bool:
@@ -2303,7 +2352,7 @@ class NamedSelections(PropsManager, PyAedtBase):
                     items_to_remove = [str(item) for item in selection]
                     selection = [item for item in current_selection if item not in items_to_remove]
 
-                object_list_new = Lists._list_verification(self, selection, entity_type)
+                object_list_new = self._objects_verification(self, selection, entity_type)
             except Exception:
                 # Fallback to simple string conversion if verification fails
                 selection = ", ".join([str(s) for s in selection])
