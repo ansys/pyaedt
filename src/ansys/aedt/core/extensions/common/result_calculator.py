@@ -24,7 +24,6 @@
 
 from __future__ import annotations
 
-from dataclasses import asdict
 import os
 from pathlib import Path
 import re
@@ -49,27 +48,16 @@ from matplotlib.figure import Figure
 
 from ansys.aedt.core import Desktop
 from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
-from ansys.aedt.core.extensions.misc import get_aedt_version
-from ansys.aedt.core.extensions.misc import get_arguments
-from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
-from ansys.aedt.core.extensions.misc import is_student
-from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from ansys.aedt.core.generic.general_methods import _check_psutil_connections
 from ansys.aedt.core.generic.general_methods import _normalize_version_to_string
 from ansys.aedt.core.generic.general_methods import active_sessions
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
-PORT = get_port()
-VERSION = get_aedt_version()
 AEDT_PROCESS_ID = get_process_id()
-IS_STUDENT = is_student()
 
 EXTENSION_TITLE = "Result Calculator"
-EXTENSION_DEFAULT_ARGUMENTS = {}
-
-result: Any = None
 
 
 class ResultDataService:
@@ -993,11 +981,10 @@ class TabSessionCascade:
             return  # cascade is coherent - leave it alone
 
         # Connected session changed since this tab was last visible.
-        self._reset_project_and_below(notify=False)
+        # Always notify downstream (report/trace) so they are cleared too.
+        self._reset_project_and_below()
         self._displayed_pid = current_pid
         if current_pid is None:
-            if self.on_downstream_reset is not None:
-                self.on_downstream_reset()
             return
 
         try:
@@ -1015,11 +1002,11 @@ class TabSessionCascade:
             self.session_cb.configure(state="readonly")
         self._session_map.clear()
         self._displayed_pid = None
-        self._reset_project_and_below(notify=True)
+        self._reset_project_and_below()
 
     # ---------------------------------------------------------------- private
 
-    def _reset_project_and_below(self, *, notify: bool = True) -> None:
+    def _reset_project_and_below(self) -> None:
         for cb, var in (
             (self.project_cb, self.project_var),
             (self.design_cb, self.design_var),
@@ -1028,11 +1015,11 @@ class TabSessionCascade:
                 var.set("")
                 cb["values"] = []
                 cb.configure(state="disabled")
-        if notify and self.on_downstream_reset is not None:
+        if self.on_downstream_reset is not None:
             self.on_downstream_reset()
 
     def _session_changed(self, _event=None) -> None:
-        self._reset_project_and_below(notify=True)
+        self._reset_project_and_below()
         label = self.session_var.get()
         pid = self._session_map.get(label)
         if pid is None:
@@ -1737,12 +1724,17 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
         r = self.ex_report.get()
         if not p or not d or not r:
             return
-        try:
-            payload = self.service.load_traces_for_report(p, d, r)
-        except Exception as exc:
-            messagebox.showerror("Load error", f"Failed to load traces:\n{exc}")
-            return
-        self._populate_cb(self.ex_trace_cb, self.ex_trace, payload)
+
+        def _task():
+            return self.service.load_traces_for_report(p, d, r)
+
+        def _on_done(result):
+            if isinstance(result, Exception):
+                messagebox.showerror("Load error", f"Failed to load traces:\n{result}")
+                return
+            self._populate_cb(self.ex_trace_cb, self.ex_trace, result)
+
+        self._run_async(_task, _on_done)
 
     def _ex_trace_changed(self, _event=None) -> None:
         self.btn_import_existing.configure(state="normal" if self.ex_trace.get() else "disabled")
@@ -2987,51 +2979,6 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
         return False
 
 
-def main(extension_args) -> bool:
-    _ = extension_args
-
-    # A command-line version is not possible due to the nature of the program.
-
-    app = ansys.aedt.core.Desktop(
-        new_desktop=False,
-        version=VERSION,
-        port=PORT,
-        aedt_process_id=AEDT_PROCESS_ID,
-        student_version=IS_STUDENT,
-    )
-    active_project: Any = app.active_project()
-    active_design: Any = app.active_design()
-
-    if active_project is None:
-        raise AEDTRuntimeError(
-            "No active project found. Please open or create a project before running this extension."
-        )
-
-    project_name = active_project.GetName()
-    if active_design.GetDesignType() == "HFSS 3D Layout Design":
-        design_name = active_design.GetDesignName()
-    else:
-        design_name = active_design.GetName()
-    aedtapp = get_pyaedt_app(project_name, design_name)
-
-    _ = aedtapp
-
-    if "PYTEST_CURRENT_TEST" not in os.environ:
-        app.release_desktop(False, False)
-
-    return True
-
-
-if __name__ == "__main__":
-    args = get_arguments(EXTENSION_DEFAULT_ARGUMENTS, EXTENSION_TITLE)
-
-    # Open UI
-    if not args["is_batch"]:  # pragma: no cover
-        ResultCalculatorExtension(withdraw=False)
-        tkinter.mainloop()
-
-        if result:
-            args.update(asdict(result))
-            main(args)
-    else:
-        main(args)
+if __name__ == "__main__":  # pragma: no cover
+    ResultCalculatorExtension(withdraw=False)
+    tkinter.mainloop()
