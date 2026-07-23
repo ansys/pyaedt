@@ -260,7 +260,21 @@ class ResultDataService:
             except Exception:
                 pass
             self.desktop = None
-        self.desktop = Desktop(new_desktop=False, port=session["port"], close_on_exit=False)
+
+        # PYAEDT_DESKTOP_PORT and PYAEDT_PROCESS_ID are set by AEDT in the
+        # environment and inherited by this subprocess. Desktop.__init__ reads
+        # them live and overrides the port/aedt_process_id arguments, which
+        # prevents connecting to any session other than the original one.
+        # Clear them temporarily so the explicit port argument is honoured.
+        old_port = os.environ.pop("PYAEDT_DESKTOP_PORT", None)
+        old_pid = os.environ.pop("PYAEDT_PROCESS_ID", None)
+        try:
+            self.desktop = Desktop(new_desktop=False, port=session["port"], close_on_exit=False)
+        finally:
+            if old_port is not None:
+                os.environ["PYAEDT_DESKTOP_PORT"] = old_port
+            if old_pid is not None:
+                os.environ["PYAEDT_PROCESS_ID"] = old_pid
 
     def iter_project_design_apps(self):
         """Yield (project_name, design_name, aedtapp) for available designs."""
