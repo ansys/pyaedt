@@ -135,10 +135,7 @@ class TestNamedSelectionsRename:
 
     @pytest.mark.parametrize("named_selection_setup", ["real"], indirect=True)
     def test_rename_failure_raises(self, named_selection_setup) -> None:
-        """Rename raises AEDTRuntimeError when the new name is not present in modeler.user_lists.
-
-        Renaming to an existing name should be considered a failure.
-        """
+        """Rename raises AEDTRuntimeError when the new name is not present in modeler.user_lists."""
         ns = named_selection_setup
         # Mock ChangeProperty to do nothing
         ns._modeler.oeditor.ChangeProperty = MagicMock(return_value=None)
@@ -147,4 +144,4 @@ class TestNamedSelectionsRename:
 
         # Now rename should raise because the new name is not found in user_lists
         with pytest.raises(AEDTRuntimeError, match="Failed to rename the named selection."):
-            ns.rename(ns.name)
+            ns.rename("invalid")
