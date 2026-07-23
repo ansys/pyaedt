@@ -24,6 +24,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 from pathlib import Path
 import re
@@ -1336,6 +1337,16 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
         )
         self.btn_store_formula.grid(row=0, column=2, padx=(6, 0))
 
+        # Button to export the formula result to a file (CSV, TSV, JSON, NumPy).
+        self.btn_export_formula = ttk.Button(
+            formula_frame,
+            text="Export to File…",
+            command=self._export_formula_result,
+            style="PyAEDT.TButton",
+            state="disabled",
+        )
+        self.btn_export_formula.grid(row=0, column=3, padx=(6, 0))
+
         self.formula_status = ttk.Label(formula_frame, text="", style="PyAEDT.TLabel")
         self.formula_status.grid(row=1, column=0, columnspan=3, sticky="w", pady=(2, 0))
 
@@ -1559,6 +1570,8 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
             self._formula_result = None
             if hasattr(self, "btn_store_formula"):
                 self.btn_store_formula.configure(state="disabled")
+            if hasattr(self, "btn_export_formula"):
+                self.btn_export_formula.configure(state="disabled")
             entry.configure(foreground=self._formula_fg_default)
             if status is not None:
                 status.configure(text="")
@@ -1571,6 +1584,8 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
             self._formula_result = None
             if hasattr(self, "btn_store_formula"):
                 self.btn_store_formula.configure(state="disabled")
+            if hasattr(self, "btn_export_formula"):
+                self.btn_export_formula.configure(state="disabled")
             entry.configure(foreground="red")
             if status is not None:
                 status.configure(text=f"Invalid: {exc}")
@@ -1580,6 +1595,8 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
         self._formula_result = (x, y)
         if hasattr(self, "btn_store_formula"):
             self.btn_store_formula.configure(state="normal")
+        if hasattr(self, "btn_export_formula"):
+            self.btn_export_formula.configure(state="normal")
         entry.configure(foreground=self._formula_fg_default)
         if status is not None:
             status.configure(text=f"OK - using: {', '.join(used)} ({len(x)} points)")
@@ -1610,6 +1627,61 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
         # Select the newly added trace for immediate visibility.
         if name in self.store.data:
             self.results_tree.selection_set(name)
+
+    def _export_formula_result(self) -> None:
+        """Export the current formula result to a file.
+
+        The file dialog lets the user choose among several formats:
+
+        * **CSV** (``.csv``) – comma-separated, two columns ``x,y``.
+        * **Tab-separated** (``.tsv``) – tab-delimited, two columns ``x\\ty``.
+        * **JSON** (``.json``) – dictionary with keys ``x``, ``y`` (lists) and
+          ``formula`` (the expression string).
+        * **NumPy compressed archive** (``.npz``) – created with
+          :func:`numpy.savez`; reload with ``np.load(path)['x']`` /
+          ``np.load(path)['y']``.
+        * **NumPy text** (``.txt``) – plain-text two-column file loadable with
+          :func:`numpy.loadtxt`.
+        """
+        if self._formula_result is None:
+            messagebox.showinfo("No result", "Enter a valid formula first.")
+            return
+        x, y = self._formula_result
+        formula_text = self.formula.get().strip()
+
+        filetypes = [
+            ("CSV – comma-separated (*.csv)", "*.csv"),
+            ("Tab-separated (*.tsv)", "*.tsv"),
+            ("JSON (*.json)", "*.json"),
+            ("NumPy compressed archive – np.load() (*.npz)", "*.npz"),
+            ("NumPy text – np.loadtxt() (*.txt)", "*.txt"),
+        ]
+        path = filedialog.asksaveasfilename(
+            title="Export formula result",
+            filetypes=filetypes,
+            defaultextension=".csv",
+        )
+        if not path:
+            return
+
+        try:
+            ext = Path(path).suffix.lower()
+            if ext == ".csv":
+                np.savetxt(path, np.column_stack([x, y]), delimiter=",", header="x,y", comments="")
+            elif ext == ".tsv":
+                np.savetxt(path, np.column_stack([x, y]), delimiter="\t", header="x\ty", comments="")
+            elif ext == ".json":
+                data = {"formula": formula_text, "x": x.tolist(), "y": y.tolist()}
+                with open(path, "w", encoding="utf-8") as fh:
+                    json.dump(data, fh, indent=2)
+            elif ext == ".npz":
+                np.savez(path, x=x, y=y)
+            else:
+                # .txt or any unknown extension → NumPy plain text (two columns).
+                np.savetxt(path, np.column_stack([x, y]), header="x y", comments="")
+            messagebox.showinfo("Export successful", f"Data saved to:\n{path}")
+        except Exception as exc:
+            messagebox.showerror("Export failed", str(exc))
 
     def _sync_interpolation_widgets(self) -> None:
         """Enable/disable the interpolation-only settings based on the checkbox."""
@@ -2790,44 +2862,61 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
         help_text = (
             "This extension lets you collect, plot and manage result traces from "
             "one or more AEDT sessions.\n\n"
-            "Tabs\n"
-            "  * Selected Traces: lists all traces you have imported or computed. "
-            "Select one or more rows to plot them. Double-click a Name cell to "
-            "rename it inline, or select a row and click Rename. "
-            "Use Ctrl/Shift-click for multi-select. "
-            "Click Remove Selected to delete traces, or Show Metadata to see "
-            "their origin details. "
-            "Type a formula in the Formula field to combine traces "
-            "(e.g. 'result_1 - result_2' or '20*log10(abs(R))'); "
-            "the curve is shown live in the plot. Click Store as Trace to save "
-            "the formula result as a new trace.\n"
-            "  * Existing Reports: pick a session, project, design, report and "
-            "trace, then click Import Trace to add it to Selected Traces.\n"
-            "  * Datasets: pick a session, project and design to browse its 2D "
-            "datasets. Select one and click Import Dataset to add it to Selected "
-            "Traces. You can also type x/y values manually and click "
-            "Create Dataset in AEDT to push a new dataset to the open session.\n"
-            "  * Load from File: choose a file format (CSV, TSV, custom separator "
-            "or Touchstone .sNp), browse for a file and click Preview to check "
-            "the parsed data. Click Import to add it to Selected Traces.\n"
-            "  * Settings: adjust how the Formula evaluator interpolates across "
-            "traces, and switch between the light and dark UI theme.\n\n"
-            "Sessions\n"
-            "  Use the AEDT Session dropdown at the top of each tab to select "
-            "which running AEDT instance to read from. Click "
-            "'Refresh AEDT sessions' to detect newly opened sessions or to "
-            "clear stale data and start fresh.\n\n"
-            "Trace names\n"
-            "  Names may only contain letters, digits and underscores. "
-            "Imported traces are named automatically (result_1, result_2, ...). "
-            "Formula results are named ans1, ans2, and so on. "
-            "Rename any trace at any time by double-clicking its Name cell.\n\n"
-            "Tips\n"
-            "  * Press F1 from anywhere in the window to jump to this tab.\n"
-            "  * Click on the empty area below the trace table to clear the "
-            "selection and view only the formula curve in the plot.\n"
-            "  * The plot toolbar (zoom, pan, save) is available below each "
-            "plot area."
+            "── Tabs ──────────────────────────────────────────────────────────────\n\n"
+            "Selected Traces\n"
+            "  Lists every trace you have imported or calculated. Select one or more "
+            "rows to plot them together. Use Ctrl-click or Shift-click for "
+            "multi-selection. Double-click a name cell to rename a trace inline.\n\n"
+            "  Formula bar  –  type any mathematical expression using trace names as "
+            "variables (e.g. 'result_1 - result_2' or '20*log10(abs(R))'). The "
+            "result curve is drawn live in the plot while you type. Once the formula "
+            "is valid, two actions become available:\n"
+            "    • Store as Trace  –  saves the result as a new permanent trace "
+            "(named ans1, ans2, …) so you can reuse it in further calculations.\n"
+            "    • Export to File…  –  saves the x/y data to a file. A save dialog "
+            "lets you choose the format:\n"
+            "        – CSV (.csv)               comma-separated, two columns x and y\n"
+            "        – Tab-separated (.tsv)     tab-delimited, two columns x and y\n"
+            "        – JSON (.json)             x and y as lists, plus the formula string\n"
+            "        – NumPy archive (.npz)     binary file; reload in Python with\n"
+            "                                   import numpy as np\n"
+            "                                   d = np.load('file.npz')\n"
+            "                                   x, y = d['x'], d['y']\n"
+            "        – NumPy text (.txt)        plain-text two-column file; reload with\n"
+            "                                   data = np.loadtxt('file.txt')\n"
+            "                                   x, y = data[:, 0], data[:, 1]\n\n"
+            "Existing Reports\n"
+            "  Browse reports that are already open in an AEDT session. Select a "
+            "session, project, design, report and trace, then click Import Trace to "
+            "add it to Selected Traces.\n\n"
+            "Datasets\n"
+            "  Browse 2D datasets defined inside an AEDT project. Select one and "
+            "click Import Dataset to add it to Selected Traces. You can also enter "
+            "x/y values manually and push a new dataset directly to AEDT with "
+            "Create Dataset in AEDT.\n\n"
+            "Load from File\n"
+            "  Import data from a file on disk. Supported formats include "
+            "CSV, tab-separated, files with a custom separator, and Touchstone "
+            "(.sNp) files. Use Preview to check the parsed data before importing.\n\n"
+            "Settings\n"
+            "  Control how the formula evaluator aligns and interpolates traces "
+            "that have different x-axis grids. You can also switch between the "
+            "light and dark UI themes here.\n\n"
+            "── Sessions ──────────────────────────────────────────────────────────\n\n"
+            "  The AEDT Session dropdown at the top of each tab selects which "
+            "running AEDT instance to read from. Click Refresh AEDT sessions to "
+            "detect newly opened instances or to clear stale data.\n\n"
+            "── Trace names ───────────────────────────────────────────────────────\n\n"
+            "  Names may only contain letters, digits and underscores. Imported "
+            "traces are named result_1, result_2, … and formula results are named "
+            "ans1, ans2, … You can rename any trace at any time by double-clicking "
+            "its name in the table.\n\n"
+            "── Tips ──────────────────────────────────────────────────────────────\n\n"
+            "  • Press F1 from anywhere in the window to jump to this Help tab.\n"
+            "  • Click on the empty area below the trace table to deselect all "
+            "traces and view only the live formula curve in the plot.\n"
+            "  • The plot toolbar below each chart provides zoom, pan, and "
+            "save-image controls."
         )
 
         help_box = tkinter.Text(self.tab_help, wrap="word", relief="flat", height=14)
