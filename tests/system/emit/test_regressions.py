@@ -48,7 +48,10 @@ from ansys.aedt.core.emit_core.nodes.generated import TxNbEmissionNode
 from ansys.aedt.core.emit_core.nodes.generated import TxSpectralProfNode
 from ansys.aedt.core.emit_core.nodes.generated import TxSpurNode
 from ansys.aedt.core.emit_core.nodes.generated import EmitSceneNode
+from ansys.aedt.core.emit_core.results.interaction import Interaction
+from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
 from ansys.aedt.core.emit_core.results.revision import Revision
+from ansys.aedt.core.emit_core.results.simulation import Simulation
 from tests.conftest import DESKTOP_VERSION
 
 
@@ -818,4 +821,157 @@ def test_defect_1475679_get_child_node_id_recurse(emit_app) -> None:
     for ant in antennas_recurse:
         ant_id_recurse = mod.GetChildNodeID(0, scene_node._node_id, ant, True)
         assert ant_id_recurse > 0
+
+
+@pytest.mark.skipif(not DESKTOP_VERSION or DESKTOP_VERSION < "2027.1", reason="Regression test for defect 1477851.")
+def test_defect_1477851_nto1_export(emit_app) -> None:
+    """Regression test for TFS defect 1477851.
+
+    Nto1 export from PyAEDT not working properly
+    https://tfs.ansys.com:8443/tfs/ANSYS_Development/Portfolio/_workitems/edit/1477851
+
+    Severity: Class 2 - Serious Problem
+
+    The Selection export only included 1-to-1 results. After the fix, exporting
+    with an empty interferer name (N-to-1 mode) produces combined
+    multi-aggressor rows with pipe-delimited aggressor names.
+    """
+    emit_app.schematic.create_radio_antenna("New Radio")
+    emit_app.schematic.create_radio_antenna("New Radio")
+    emit_app.schematic.create_radio_antenna("New Radio")
+
+    rev: Revision = emit_app.results.analyze()
+    sim: Simulation = rev.get_simulation()
+    sim.n_to_1_limit = -1
+    radios = rev.get_all_radio_nodes()
+    assert len(radios) >= 3
+
+    domain = InteractionDomain(emit_app)
+    domain.set_receiver(radio=radios[0])
+    domain.set_interferer(radio="")
+    sim.run(domain)
+
+    interaction = Interaction(emit_app, domain, rev)
+    temp_dir = tempfile.mkdtemp()
+    csv_path = os.path.join(temp_dir, "nto1_export.csv")
+    interaction.export_results(csv_path, True)
+    assert os.path.isfile(csv_path), "N-to-1 export should produce a file"
+
+    with open(csv_path, "r") as f:
+        content = f.read()
+
+    lines = content.strip().split("\n")
+    data_lines = [line for line in lines if not line.startswith("#")]
+
+    # 1 header + 2 one-to-one band-pair rows (1 per aggressor) + 1 N-to-1 = 4
+    assert len(data_lines) == 4, (
+        f"Expected 4 data lines (1 header + 2 one-to-one + 1 Nto1), got {len(data_lines)}"
+    )
+
+    nto1_rows = [line for line in data_lines[1:] if "|" in line.split(",")[0]]
+    assert len(nto1_rows) == 1, (
+        f"Expected exactly 1 N-to-1 row with pipe-delimited aggressor names, "
+        f"got {len(nto1_rows)}"
+    )
+
+
+@pytest.mark.skipif(not DESKTOP_VERSION or DESKTOP_VERSION < "2027.1", reason="Regression test for defect 1482347.")
+def test_defect_1482347_export_selection_no_extra_row(emit_app) -> None:
+    """Regression test for TFS defect 1482347.
+
+    [Scripting] Exporting EMIT results with script gives an extra line of data.
+    https://tfs.ansys.com:8443/tfs/ANSYS_Development/Portfolio/_workitems/edit/1482347
+
+    Severity: Class 2 - Minor Problem
+
+    The Tuple-based exportSelection (used by the script/COM API) was writing a
+    radio-level summary row that the manual (Node*-based) Export Selection did
+    not produce, causing an extra duplicate row when bands/channels were unscoped.
+    """
+    emit_app.schematic.create_radio_antenna("New Radio")
+    emit_app.schematic.create_radio_antenna("New Radio")
+
+    rev: Revision = emit_app.results.analyze()
+    sim: Simulation = rev.get_simulation()
+    radios = rev.get_all_radio_nodes()
+    assert len(radios) >= 2
+
+    domain = InteractionDomain(emit_app)
+    domain.set_receiver(radio=radios[1])
+    domain.set_interferer(radio=radios[0])
+    sim.run(domain)
+
+    temp_dir = tempfile.mkdtemp()
+    csv_path = os.path.join(temp_dir, "selection_1482347.csv")
+
+    interaction = Interaction(emit_app, domain, rev)
+    interaction.export_results(csv_path, continue_if_partial=True)
+    assert os.path.isfile(csv_path), "Selection export should produce a file"
+
+    with open(csv_path, "r") as f:
+        content = f.read()
+
+    lines = content.strip().split("\n")
+    comment_lines = [ln for ln in lines if ln.startswith("#")]
+    data_lines = [ln for ln in lines if not ln.startswith("#")]
+
+    assert len(comment_lines) >= 9, "Missing categorization header lines"
+    assert len(data_lines) >= 2, "Expected column header + at least 1 data row"
+    assert "EMI Margin" in data_lines[0], "First data line should be the column header"
+
+    data_rows = data_lines[1:]
+    unique_rows = set(data_rows)
+    assert len(data_rows) == len(unique_rows), (
+        f"Export contains {len(data_rows) - len(unique_rows)} duplicate data row(s). "
+        f"The radio-level summary row should not be emitted by the script export path."
+    )
+
+
+@pytest.mark.skipif(not DESKTOP_VERSION or DESKTOP_VERSION < "2027.1", reason="Regression test for defect 1482347.")
+def test_defect_1482347_export_selection_radio_vs_all(emit_app) -> None:
+    """Regression test for TFS defect 1482347 (discussion item).
+
+    Manual "Export Selection" produces no data when one side of the Scenario
+    Details view is a specific Radio and the other side is the top-level "All".
+    https://tfs.ansys.com:8443/tfs/ANSYS_Development/Portfolio/_workitems/edit/1482347
+
+    Root cause: DetResViewNode::firstSelectedNode used the parameterless
+    configurationNodes() overload, which could return a configuration with no
+    active bands on the requested side (tx or rx). The fix uses
+    configurationNodes(isRx) so the correct side-specific configuration is
+    always chosen.
+
+    This test exercises the script-API equivalent: export with a specific
+    receiver and an empty-string interferer (meaning "all aggressors").
+    """
+    emit_app.schematic.create_radio_antenna("New Radio")
+    emit_app.schematic.create_radio_antenna("New Radio")
+
+    rev: Revision = emit_app.results.analyze()
+    sim: Simulation = rev.get_simulation()
+    radios = rev.get_all_radio_nodes()
+    assert len(radios) >= 2
+
+    domain = InteractionDomain(emit_app)
+    domain.set_receiver(radio=radios[0])
+    domain.set_interferer(radio="")
+    sim.run(domain)
+
+    temp_dir = tempfile.mkdtemp()
+    csv_path = os.path.join(temp_dir, "radio_vs_all_1482347.csv")
+
+    sim.export_selection(domain, csv_path, continue_if_partial=True)
+    assert os.path.isfile(csv_path), "Selection export should produce a file"
+
+    with open(csv_path, "r") as f:
+        content = f.read()
+
+    lines = content.strip().split("\n")
+    data_lines = [ln for ln in lines if not ln.startswith("#")]
+
+    assert len(data_lines) >= 2, (
+        f"Expected column header + at least 1 data row for receiver-vs-all export, "
+        f"got {len(data_lines)} data line(s). "
+        f"Export Selection with Radio vs All should produce data."
+    )
 

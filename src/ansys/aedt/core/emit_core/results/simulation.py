@@ -287,20 +287,16 @@ class Simulation:
         >>> sim.export_selection(domain, "selection.csv")
         """
         self._revision._load_revision()
-        rx_radios = [domain.receiver_name]
-        rx_bands = [domain.receiver_band_name]
-        rx_freqs = [float(domain.receiver_channel_frequency)]
-        # Aggressor lists are ";"-delimited per tuple.
-        int_radios = [";".join(domain.interferer_names)]
-        int_bands = [";".join(domain.interferer_band_names)]
-        int_freqs = [";".join(str(f) for f in domain.interferer_channel_frequencies)]
+        int_radios = domain.interferer_names
+        int_bands = domain.interferer_band_names
+        int_freqs = [float(f) for f in domain.interferer_channel_frequencies]
         partial = self.emit_project._emit_com_module.ExportEmitResults(
             self._revision.results_index,
             "Selection",
             file_path,
-            rx_radios,
-            rx_bands,
-            rx_freqs,
+            domain.receiver_name,
+            domain.receiver_band_name,
+            float(domain.receiver_channel_frequency),
             int_radios,
             int_bands,
             int_freqs,
