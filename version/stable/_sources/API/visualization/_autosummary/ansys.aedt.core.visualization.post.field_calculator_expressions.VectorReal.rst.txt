@@ -1,0 +1,73 @@
+﻿VectorReal
+==========
+
+.. currentmodule:: ansys.aedt.core.visualization.post.field_calculator_expressions
+
+.. autoclass:: VectorReal
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      VectorReal.add
+      
+      
+      VectorReal.checkpoint
+      
+      
+      VectorReal.curl
+      
+      
+      VectorReal.divergence
+      
+      
+      VectorReal.evaluate
+      
+      
+      VectorReal.export
+      
+      
+      VectorReal.magnitude
+      
+      
+      VectorReal.scalar_x
+      
+      
+      VectorReal.scalar_y
+      
+      
+      VectorReal.scalar_z
+      
+      
+      VectorReal.smooth
+      
+      
+      VectorReal.stack_depth
+      
+      
+      VectorReal.to_dict
+      
+      
+      VectorReal.verify
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      VectorReal.is_complex
+      VectorReal.is_vector
+      VectorReal.operations
+      VectorReal.public_dir
+   
+   

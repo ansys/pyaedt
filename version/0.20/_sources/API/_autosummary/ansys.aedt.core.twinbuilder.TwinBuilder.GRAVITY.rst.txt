@@ -1,0 +1,6 @@
+GRAVITY
+=======
+
+.. currentmodule:: ansys.aedt.core.twinbuilder
+
+.. autoproperty:: TwinBuilder.GRAVITY

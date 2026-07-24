@@ -1,0 +1,6 @@
+axis\_directions
+================
+
+.. currentmodule:: ansys.aedt.core.circuit
+
+.. autoproperty:: Circuit.axis_directions

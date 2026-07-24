@@ -1,0 +1,6 @@
+col\_header2
+============
+
+.. currentmodule:: ansys.aedt.core.visualization.advanced.frtm_visualization
+
+.. autoproperty:: FRTMData.col_header2

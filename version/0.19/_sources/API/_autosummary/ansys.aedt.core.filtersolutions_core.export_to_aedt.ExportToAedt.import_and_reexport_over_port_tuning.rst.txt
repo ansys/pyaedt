@@ -1,0 +1,6 @@
+import\_and\_reexport\_over\_port\_tuning
+=========================================
+
+.. currentmodule:: ansys.aedt.core.filtersolutions_core.export_to_aedt
+
+.. automethod:: ExportToAedt.import_and_reexport_over_port_tuning

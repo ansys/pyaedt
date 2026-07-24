@@ -1,0 +1,6 @@
+assignment\_type
+================
+
+.. currentmodule:: ansys.aedt.core.visualization.post.field_calculator_expressions
+
+.. autoattribute:: Line.assignment_type

@@ -1,0 +1,6 @@
+include\_personal\_library
+==========================
+
+.. currentmodule:: ansys.aedt.core.modeler.circuits.primitives_emit
+
+.. autoproperty:: EmitComponents.include_personal_library

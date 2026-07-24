@@ -1,0 +1,6 @@
+range\_maximum
+==============
+
+.. currentmodule:: ansys.aedt.core.visualization.advanced.frtm_visualization
+
+.. autoproperty:: FRTMData.range_maximum

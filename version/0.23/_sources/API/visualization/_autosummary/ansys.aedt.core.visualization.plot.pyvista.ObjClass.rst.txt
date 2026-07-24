@@ -1,0 +1,23 @@
+﻿ObjClass
+========
+
+.. currentmodule:: ansys.aedt.core.visualization.plot.pyvista
+
+.. autoclass:: ObjClass
+
+   
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      ObjClass.color
+      ObjClass.public_dir
+   
+   

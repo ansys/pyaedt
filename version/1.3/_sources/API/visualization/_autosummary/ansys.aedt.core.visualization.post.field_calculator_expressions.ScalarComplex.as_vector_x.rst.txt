@@ -1,0 +1,6 @@
+as\_vector\_x
+=============
+
+.. currentmodule:: ansys.aedt.core.visualization.post.field_calculator_expressions
+
+.. automethod:: ScalarComplex.as_vector_x
