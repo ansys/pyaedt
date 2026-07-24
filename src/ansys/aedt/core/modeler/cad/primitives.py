@@ -1792,7 +1792,10 @@ class GeometryModeler(Modeler, PyAedtBase):
                             props["List"] = name_list
                         else:
                             props["List"] = data["GeometryEntityListParameters"]["EntityList"]
-                        design_lists.append(Lists(self, props, name))
+                        if self._app._aedt_version >= "2026.1":
+                            design_lists.append(NamedSelections(self, props, name))
+                        else:
+                            design_lists.append(Lists(self, props, name))
             except Exception:
                 self.logger.info("Lists were not retrieved from AEDT file")
         return design_lists

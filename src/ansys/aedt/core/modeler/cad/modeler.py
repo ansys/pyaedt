@@ -2089,37 +2089,6 @@ class NamedSelections(PropsManager, PyAedtBase):
         # Reuse ListsProps for the simple properties structure
         self.props = ListsProps(self, props)
 
-    def _objects_verification(self, object_list, list_type):
-        object_list = self._modeler.convert_to_selections(object_list, True)
-        object_list_new = []
-        if list_type == "Object":
-            obj_names = [i for i in self._modeler.object_names]
-            check = [item for item in object_list if item in obj_names]
-            if check:
-                object_list_new = check
-            else:
-                return []
-
-        elif list_type == "Face":
-            object_list_new = []
-            for element in object_list:
-                if isinstance(element, str):
-                    if element.isnumeric():
-                        object_list_new.append(int(element))
-                    else:
-                        if element in self._modeler.object_names:
-                            obj_id = self._modeler.objects[element].id
-                            for sel in self._modeler.object_list:
-                                if sel.id == obj_id:
-                                    for f in sel.faces:
-                                        object_list_new.append(f.id)
-                                    break
-                        else:
-                            return []
-                else:
-                    object_list_new.append(int(element))
-        return object_list_new
-
     @pyaedt_function_handler()
     def create(
         self, assignment: list | str | None = None, name: str | None = None, entity_type: str = "Object"
@@ -2189,7 +2158,7 @@ class NamedSelections(PropsManager, PyAedtBase):
         except Exception:
             raise AEDTRuntimeError("Failed to create the named selection.")
         else:
-            props = {"Selection": selection, "Type": sel_type}
+            props = {"List": assignment, "Type": sel_type, "ID": self._modeler.oeditor.GetNamedSelectionIDByName(name)}
             self.props = ListsProps(self, props)
             # Keep compatibility with existing storage
             self._modeler.user_lists.append(self)
@@ -2274,6 +2243,11 @@ class NamedSelections(PropsManager, PyAedtBase):
             ],
         ]
         self._modeler.oeditor.ChangeProperty(argument)
+        old_name = self.name
+        self.name = name
+        for sel in self._modeler.user_lists:
+            if sel is self or sel.name == old_name:
+                sel.name = name
         user_list_names = [sel.name for sel in self._modeler.user_lists]
         if name in user_list_names:
             self.name = name
@@ -2291,9 +2265,9 @@ class NamedSelections(PropsManager, PyAedtBase):
 
         Parameters
         ----------
-        selection : str or list, optional
-            Comma-separated string of object names or a list of names/ids. If
-            ``None``, uses the selection stored in ``self.props["Selection"]``.
+        selection : list, optional
+            List of object names or list of FacePrimitive Ids.
+            If ``None``, uses the selection stored in ``self.props["Selection"]``.
         entity_type : str, optional
             Type of selection, e.g. ``"Object"`` or ``"Face"``. Default ``"Object"``.
         mode : str, optional
@@ -2333,37 +2307,39 @@ class NamedSelections(PropsManager, PyAedtBase):
 
         # If caller provided a list, normalize using Lists._list_verification to keep
         # behavior consistent with Lists.update
-        if isinstance(selection, (list, tuple)):
-            try:
-                if mode in ("Add", "Remove"):
-                    current_selection = [
-                        s.strip() for s in str(self.props.get("Selection", "")).split(",") if s.strip()
-                    ]
+        object_list_new = []
+        try:
+            if mode in ("Add", "Remove"):
+                current_selection = self.props["List"]
 
-                if mode == "Add":
-                    items_to_add = []
-                    for item in selection:
-                        item_str = str(item)
-                        if item_str not in current_selection and item_str not in items_to_add:
-                            items_to_add.append(item_str)
-                    selection = current_selection + items_to_add
+            if mode == "Add":
+                items_to_add = []
+                for item in selection:
+                    item_str = str(item)
+                    if item_str not in current_selection and item_str not in items_to_add:
+                        items_to_add.append(item_str)
+                selection = current_selection + items_to_add
+                object_list_new = self._objects_verification(selection, entity_type)
 
-                elif mode == "Remove":
-                    items_to_remove = [str(item) for item in selection]
-                    selection = [item for item in current_selection if item not in items_to_remove]
+            elif mode == "Remove":
+                selection = [str(item) for item in selection]
+                object_list_new = [item for item in current_selection if str(item) not in selection]
+                # update object_list_new
+                # selection = [item for item in current_selection if item not in items_to_remove]
 
-                object_list_new = self._objects_verification(self, selection, entity_type)
-            except Exception:
-                # Fallback to simple string conversion if verification fails
-                selection = ", ".join([str(s) for s in selection])
+        except Exception:
+            # Fallback to simple string conversion if verification fails
+            selection = ", ".join([str(s) for s in selection])
+        else:
+            if entity_type == "Object":
+                selection = ", ".join(selection)
             else:
-                if entity_type == "Object":
-                    selection = ", ".join(object_list_new)
-                else:
-                    # For faces, keep a list of ints as EditNamedSelection accepts it
-                    selection = object_list_new
+                # For faces, keep a list of ints as EditNamedSelection accepts it
+                selection = object_list_new
 
-        # If selection is a string, leave it as-is
+        # if object_list_new is empty, it means that the provided objects do not exist
+        # if not object_list_new:
+        #     raise AEDTRuntimeError("Failed to update the named selection.")
 
         argument1 = ["NAME:Selections", "Selections:=", self.name]
         argument2 = [
@@ -2376,12 +2352,51 @@ class NamedSelections(PropsManager, PyAedtBase):
             mode,
         ]
         self._modeler.oeditor.EditNamedSelection(argument1, argument2)
+
+        # self._modeler.get_named_selection_objects(self.name):
+        # Verify the selection was updated correctly
+        expected_objects = [item.name for item in self._modeler.get_named_selection_objects(self.name)]
+        # if object_list_new is empty it means that user has provided invalid or non-existing objects.
+        if not object_list_new or not object_list_new == expected_objects:
+            raise AEDTRuntimeError("Failed to update the named selection.")
         previous_auto_update = self.auto_update
         self.auto_update = False
-        self.props["Selection"] = selection
+        self.props["List"] = object_list_new
         self.props["Type"] = entity_type
         self.auto_update = previous_auto_update
         return True
+
+    def _objects_verification(self, object_list, list_type):
+        object_list = self._modeler.convert_to_selections(object_list, True)
+        object_list_new = []
+        if list_type == "Object":
+            obj_names = [i for i in self._modeler.object_names]
+            # if user passes a non-existing object or an invalid object this check filters it out
+            check = [item for item in object_list if item in obj_names]
+            if check:
+                object_list_new = check
+            else:
+                return []
+
+        elif list_type == "Face":
+            object_list_new = []
+            for element in object_list:
+                if isinstance(element, str):
+                    if element.isnumeric():
+                        object_list_new.append(int(element))
+                    else:
+                        if element in self._modeler.object_names:
+                            obj_id = self._modeler.objects[element].id
+                            for sel in self._modeler.object_list:
+                                if sel.id == obj_id:
+                                    for f in sel.faces:
+                                        object_list_new.append(f.id)
+                                    break
+                        else:
+                            return []
+                else:
+                    object_list_new.append(int(element))
+        return object_list_new
 
 
 class Modeler(PyAedtBase):
