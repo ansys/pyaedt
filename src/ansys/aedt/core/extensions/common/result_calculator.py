@@ -1116,7 +1116,9 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
         self._fi_preview_xy: tuple[np.ndarray, np.ndarray] | None = None
         # Vertical padding (px) between the action buttons and the preview plot in Tab 2.
         # Increase this value to add more breathing room between the two sections.
-        self._ex_plot_top_pad: int = 100
+        self._ex_plot_top_pad: int = 80
+        # Vertical dimension (in rows) of the text boxes used for manual definition of dataset
+        self._ds_text_height: int = 4
 
         # 2) Call super() - this creates self.root and calls add_extension_content()
         super().__init__(EXTENSION_TITLE, withdraw=withdraw, add_custom_content=True)
@@ -1718,12 +1720,24 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
         self.tab_existing.columnconfigure(1, weight=1)
         self.tab_existing.rowconfigure(6, weight=1)
 
-        self._ex_cascade.build(self.tab_existing, start_row=0, row_cb_fn=self._row_cb)
-        self.ex_report_cb = self._row_cb(self.tab_existing, 3, "Report", self.ex_report, self._ex_report_changed, True)
-        self.ex_trace_cb = self._row_cb(self.tab_existing, 4, "Trace", self.ex_trace, self._ex_trace_changed, True)
+        # Use narrower comboboxes (width=30 instead of default 52)
+        def narrow_row_cb(parent, row, label, var, cb, disabled=False):
+            return self._row_cb(parent, row, label, var, cb, disabled, cb_width=30)
+
+        self._ex_cascade.build(self.tab_existing, start_row=0, row_cb_fn=narrow_row_cb)
+        self.ex_report_cb = narrow_row_cb(self.tab_existing, 3, "Report", self.ex_report, self._ex_report_changed, True)
+        self.ex_trace_cb = narrow_row_cb(self.tab_existing, 4, "Trace", self.ex_trace, self._ex_trace_changed, True)
+
+        # "Refresh AEDT sessions" placed inline at row 0 (same height as AEDT Session dropdown), column 2
+        ttk.Button(
+            self.tab_existing,
+            text="Refresh AEDT sessions",
+            command=self._refresh_exploration,
+            style="PyAEDT.TButton",
+        ).grid(row=0, column=2, padx=(0, 10), pady=5, sticky="e")
 
         ex_buttons = ttk.Frame(self.tab_existing, style="PyAEDT.TFrame")
-        ex_buttons.grid(row=5, column=0, columnspan=2, padx=10, pady=10, sticky="w")
+        ex_buttons.grid(row=5, column=0, columnspan=3, padx=10, pady=10, sticky="w")
 
         self.btn_import_existing = ttk.Button(
             ex_buttons,
@@ -1734,17 +1748,10 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
         )
         self.btn_import_existing.grid(row=0, column=0, padx=(0, 8))
 
-        ttk.Button(
-            ex_buttons,
-            text="Refresh AEDT sessions",
-            command=self._refresh_exploration,
-            style="PyAEDT.TButton",
-        ).grid(row=0, column=1)
-
         # Bottom preview of the selected trace (points connected by a line).
         # The top padding is controlled by self._ex_plot_top_pad (set in __init__).
         self._ex_plot = MatplotlibPlotWidget(self.tab_existing)
-        self._ex_plot.grid(row=6, column=0, columnspan=2, sticky="nsew", padx=10, pady=(self._ex_plot_top_pad, 10))
+        self._ex_plot.grid(row=6, column=0, columnspan=3, sticky="nsew", padx=10, pady=(self._ex_plot_top_pad, 10))
 
     def _on_tab_changed(self, _event=None) -> None:
         selected = self.tabs.select()
@@ -1977,7 +1984,7 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
         x_frame.grid(row=1, column=0, sticky="nsew")
         x_frame.columnconfigure(0, weight=1)
         x_frame.rowconfigure(0, weight=1)
-        self.ds_x_text = tkinter.Text(x_frame, width=30, height=8, wrap="none")
+        self.ds_x_text = tkinter.Text(x_frame, width=30, height=self._ds_text_height, wrap="none")
         x_sb_v = ttk.Scrollbar(x_frame, orient="vertical", command=self.ds_x_text.yview)
         x_sb_h = ttk.Scrollbar(x_frame, orient="horizontal", command=self.ds_x_text.xview)
         self.ds_x_text.configure(yscrollcommand=x_sb_v.set, xscrollcommand=x_sb_h.set)
@@ -1989,7 +1996,7 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
         y_frame.grid(row=1, column=1, sticky="nsew", padx=(10, 0))
         y_frame.columnconfigure(0, weight=1)
         y_frame.rowconfigure(0, weight=1)
-        self.ds_y_text = tkinter.Text(y_frame, width=30, height=8, wrap="none")
+        self.ds_y_text = tkinter.Text(y_frame, width=30, height=self._ds_text_height, wrap="none")
         y_sb_v = ttk.Scrollbar(y_frame, orient="vertical", command=self.ds_y_text.yview)
         y_sb_h = ttk.Scrollbar(y_frame, orient="horizontal", command=self.ds_y_text.xview)
         self.ds_y_text.configure(yscrollcommand=y_sb_v.set, xscrollcommand=y_sb_h.set)
@@ -2028,40 +2035,48 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
         self._ds_aedt_frame = ttk.Frame(tab, style="PyAEDT.TFrame")
         self._ds_aedt_frame.grid(row=7, column=0, sticky="ew", padx=10, pady=(0, 4))
         self._ds_aedt_frame.columnconfigure(1, weight=1)  # cascade CBs expand
-        self._ds_aedt_frame.columnconfigure(3, weight=1)  # dataset CB expands
 
         ttk.Label(
             self._ds_aedt_frame,
             text="Import dataset from AEDT",
             style="PyAEDT.TLabel",
             font=(self.theme.default_font[0], 10, "bold"),
-        ).grid(row=0, column=0, columnspan=4, sticky="w", pady=(0, 2))
+        ).grid(row=0, column=0, columnspan=3, sticky="w", pady=(0, 2))
 
         # Standard vertical cascade in the left column pair (col 0-1).
-        # Dataset is placed in the right column pair (col 2-3) at row 1.
-        #   row 1 → Session (col 0-1)  +  Dataset (col 2-3)
+        #   row 1 → Session (col 0-1)  |  Refresh button (col 2)
         #   row 2 → Project (col 0-1)
         #   row 3 → Design  (col 0-1)
+        #   row 4 → Dataset (col 0-1)
         self._ds_cascade.build(self._ds_aedt_frame, start_row=1, row_cb_fn=self._row_cb)
 
+        # "Refresh AEDT sessions" placed inline at row 1 (same height as AEDT Session dropdown), column 2
+        ttk.Button(
+            self._ds_aedt_frame,
+            text="Refresh AEDT sessions",
+            command=self._refresh_exploration,
+            style="PyAEDT.TButton",
+        ).grid(row=1, column=2, padx=(0, 10), pady=5, sticky="e")
+
+        # Dataset combobox placed below Design (row 4)
         self.ds_aedt_dataset_var = tkinter.StringVar()
         self.ds_aedt_dataset_cb = self._row_cb(
             self._ds_aedt_frame,
-            1,
+            4,
             "Dataset",
             self.ds_aedt_dataset_var,
             self._ds_aedt_dataset_changed,
             True,
-            2,
+            0,
         )
 
         # AEDT status label (ttk - inherits theme background)
         self.ds_aedt_status_label = ttk.Label(self._ds_aedt_frame, text="", style="PyAEDT.TLabel")
-        self.ds_aedt_status_label.grid(row=4, column=0, columnspan=4, sticky="ew", padx=2, pady=(4, 0))
+        self.ds_aedt_status_label.grid(row=5, column=0, columnspan=3, sticky="ew", padx=2, pady=(4, 0))
 
-        # "Add from AEDT" + Refresh buttons
+        # "Add from AEDT" + other action buttons
         aedt_btn_row = ttk.Frame(self._ds_aedt_frame, style="PyAEDT.TFrame")
-        aedt_btn_row.grid(row=5, column=0, columnspan=4, sticky="w", pady=(4, 6))
+        aedt_btn_row.grid(row=6, column=0, columnspan=3, sticky="w", pady=(4, 6))
         self.btn_ds_aedt_add = ttk.Button(
             aedt_btn_row,
             text="Add AEDT Dataset to Traces",
@@ -2072,22 +2087,16 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
         self.btn_ds_aedt_add.grid(row=0, column=0, padx=(0, 8))
         ttk.Button(
             aedt_btn_row,
-            text="Refresh AEDT sessions",
-            command=self._refresh_exploration,
-            style="PyAEDT.TButton",
-        ).grid(row=0, column=1, padx=(0, 8))
-        ttk.Button(
-            aedt_btn_row,
             text="Add Manual Dataset as Project Dataset",
             command=lambda: self._ds_push_to_aedt(is_project_dataset=True),
             style="PyAEDT.TButton",
-        ).grid(row=0, column=2, padx=(0, 8))
+        ).grid(row=0, column=1, padx=(0, 8))
         ttk.Button(
             aedt_btn_row,
             text="Add Manual Dataset as Design Dataset",
             command=lambda: self._ds_push_to_aedt(is_project_dataset=False),
             style="PyAEDT.TButton",
-        ).grid(row=0, column=3)
+        ).grid(row=0, column=2)
 
         # ---- Row 8: Shared preview plot (manual + AEDT) ----------------------
         self._ds_plot = MatplotlibPlotWidget(tab)
