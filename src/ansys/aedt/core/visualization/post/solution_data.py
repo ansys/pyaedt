@@ -683,7 +683,7 @@ class SolutionData(PyAedtBase):
         --------
         >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
         >>> obj = SolutionData()
-        >>> obj.get_expression_data(expression="dB(S(1,1))", formula=1)
+        >>> obj.get_expression_data(expression="dB(S(1,1))", formula="real")
 
         """
         if not expression:
