@@ -1109,8 +1109,14 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
         # Initialize caches for Dataset plots (Tab 4)
         self._ds_manual_xy: tuple[np.ndarray, np.ndarray] | None = None
         self._ds_aedt_xy: tuple[np.ndarray, np.ndarray, str] | None = None  # x, y, label
+        # Tab 2 - existing report trace preview.
+        self._ex_preview_xy: tuple[np.ndarray, np.ndarray] | None = None
+        self._ex_preview_key: tuple[str, str, str, str] | None = None
         # Tab 5 - file import
         self._fi_preview_xy: tuple[np.ndarray, np.ndarray] | None = None
+        # Vertical padding (px) between the action buttons and the preview plot in Tab 2.
+        # Increase this value to add more breathing room between the two sections.
+        self._ex_plot_top_pad: int = 100
 
         # 2) Call super() - this creates self.root and calls add_extension_content()
         super().__init__(EXTENSION_TITLE, withdraw=withdraw, add_custom_content=True)
@@ -1710,6 +1716,7 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
     # ----------------------------- Tab 2 ------------------------------------
     def _build_tab_existing(self) -> None:
         self.tab_existing.columnconfigure(1, weight=1)
+        self.tab_existing.rowconfigure(6, weight=1)
 
         self._ex_cascade.build(self.tab_existing, start_row=0, row_cb_fn=self._row_cb)
         self.ex_report_cb = self._row_cb(self.tab_existing, 3, "Report", self.ex_report, self._ex_report_changed, True)
@@ -1733,6 +1740,11 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
             command=self._refresh_exploration,
             style="PyAEDT.TButton",
         ).grid(row=0, column=1)
+
+        # Bottom preview of the selected trace (points connected by a line).
+        # The top padding is controlled by self._ex_plot_top_pad (set in __init__).
+        self._ex_plot = MatplotlibPlotWidget(self.tab_existing)
+        self._ex_plot.grid(row=6, column=0, columnspan=2, sticky="nsew", padx=10, pady=(self._ex_plot_top_pad, 10))
 
     def _on_tab_changed(self, _event=None) -> None:
         selected = self.tabs.select()
@@ -1771,6 +1783,7 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
         self._reset_cb(self.ex_report_cb, self.ex_report)
         self._reset_cb(self.ex_trace_cb, self.ex_trace)
         self.btn_import_existing.configure(state="disabled")
+        self._clear_ex_preview()
 
     def _on_ex_design_changed(self, p: str, d: str) -> None:
         """Fired by _ex_cascade when a valid design is selected."""
@@ -1790,6 +1803,7 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
     def _ex_report_changed(self, _event=None) -> None:
         self._reset_cb(self.ex_trace_cb, self.ex_trace)
         self.btn_import_existing.configure(state="disabled")
+        self._clear_ex_preview()
 
         p = self._ex_cascade.project_var.get()
         d = self._ex_cascade.design_var.get()
@@ -1809,13 +1823,75 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
         self._run_async(_task, _on_done)
 
     def _ex_trace_changed(self, _event=None) -> None:
-        self.btn_import_existing.configure(state="normal" if self.ex_trace.get() else "disabled")
+        trace_name = self.ex_trace.get()
+        # Keep the Import button disabled until the preview fetch completes
+        # successfully.  Enabling it immediately (before data is ready) would
+        # allow the user to trigger a second, concurrent AEDT call for the same
+        # trace while the preview is still in flight.
+        self.btn_import_existing.configure(state="disabled")
+
+        p = self._ex_cascade.project_var.get()
+        d = self._ex_cascade.design_var.get()
+        r = self.ex_report.get()
+        if not p or not d or not r or not trace_name:
+            self._clear_ex_preview()
+            return
+
+        preview_key = (p, d, r, trace_name)
+        self._ex_preview_key = preview_key
+
+        def _task():
+            return self.service.get_trace_data(p, d, r, trace_name)
+
+        def _on_done(result):
+            if self._ex_preview_key != preview_key:
+                return
+            if isinstance(result, Exception):
+                self._clear_ex_preview()
+                messagebox.showerror("Preview error", f"Failed to load trace preview:\n{result}")
+                return
+            self._ex_preview_xy = (result["x"], result["y"])
+            self._redraw_ex_preview()
+            # Enable Import only after data has been fetched successfully.
+            self.btn_import_existing.configure(state="normal")
+
+        self._run_async(_task, _on_done)
+
+    def _clear_ex_preview(self) -> None:
+        """Clear the Existing Reports preview plot and reset the current cache."""
+        self._ex_preview_xy = None
+        self._ex_preview_key = None
+        self._redraw_ex_preview()
+
+    def _redraw_ex_preview(self) -> None:
+        """Redraw the Existing Reports preview (no interpolation)."""
+        self._ex_plot.clear()
+        if self._ex_preview_xy is not None:
+            x, y = self._ex_preview_xy
+            self._ex_plot.ax.plot(x, y, "o-", markersize=3, linewidth=1.0)
+        self._ex_plot.redraw()
 
     def _import_existing_trace(self) -> None:
         p = self._ex_cascade.project_var.get()
         d = self._ex_cascade.design_var.get()
         r = self.ex_report.get()
         t = self.ex_trace.get()
+
+        def _do_import(x, y) -> None:
+            self.store.add(
+                x=x,
+                y=y,
+                source="existing_report",
+                metadata={"project": p, "design": d, "report": r, "trace": t},
+            )
+            self._refresh_results()
+            self.tabs.select(self.tab_results)
+
+        # If the preview already loaded this exact trace, reuse its data directly
+        # without spawning another async AEDT call.
+        if self._ex_preview_xy is not None and self._ex_preview_key == (p, d, r, t):
+            _do_import(*self._ex_preview_xy)
+            return
 
         def _task():
             return self.service.get_trace_data(p, d, r, t)
@@ -1824,14 +1900,11 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
             if isinstance(result, Exception):
                 messagebox.showerror("Import error", f"Failed to fetch trace data:\n{result}")
                 return
-            self.store.add(
-                x=result["x"],
-                y=result["y"],
-                source="existing_report",
-                metadata={"project": p, "design": d, "report": r, "trace": t},
-            )
-            self._refresh_results()
-            self.tabs.select(self.tab_results)
+            # Also cache the result as the current preview so future imports are instant.
+            self._ex_preview_xy = (result["x"], result["y"])
+            self._ex_preview_key = (p, d, r, t)
+            self._redraw_ex_preview()
+            _do_import(result["x"], result["y"])
 
         self._run_async(_task, _on_done)
 
@@ -2887,8 +2960,11 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
             "                                   x, y = data[:, 0], data[:, 1]\n\n"
             "Existing Reports\n"
             "  Browse reports that are already open in an AEDT session. Select a "
-            "session, project, design, report and trace, then click Import Trace to "
-            "add it to Selected Traces.\n\n"
+            "session, project, design, report and trace. As soon as the trace is "
+            "chosen a preview chart is drawn automatically at the bottom of the tab "
+            "showing the raw x/y data fetched from AEDT. "
+            "After the preview is loaded, the Import Trace button is enabled. "
+            "Click it to add the trace to Selected Traces.\n\n"
             "Datasets\n"
             "  Browse 2D datasets defined inside an AEDT project. Select one and "
             "click Import Dataset to add it to Selected Traces. You can also enter "
