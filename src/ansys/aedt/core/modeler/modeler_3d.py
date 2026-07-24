@@ -1794,16 +1794,18 @@ class Modeler3D(Primitives3D, PyAedtBase):
         n_cell_y = max(1, round(diag / (2 * target_pitch_y)))
         pitch_x = diag / (2 * n_cell_x)
         pitch_y = diag / (2 * n_cell_y)
-        amplitude = min(target_amplitude, (zmax - zmin) / 2.0 * 0.80)
+        amplitude = min(
+            target_amplitude, (zmax - zmin) / 2.0 * 0.80
+        )  # safety margin; it takes the amplitude from user input
 
         # HFSS design variables — span covers full diagonal, not just sub_w/sub_hy
         self._app["wv_pitch_w"] = f"{pitch_x}mm"
         self._app["wv_pitch_f"] = f"{pitch_y}mm"
         self._app["wv_bw_warp"] = f"{bw_warp}mm"
         self._app["wv_bw_fill"] = f"{bw_fill}mm"
-        self._app["wv_amp"]     = f"{amplitude}mm"
-        self._app["wv_span_x"]  = f"{diag / 2}mm"   # half-span: _t goes -diag/2 → +diag/2
-        self._app["wv_span_y"]  = f"{diag / 2}mm"
+        self._app["wv_amp"] = f"{amplitude}mm"
+        self._app["wv_span_x"] = f"{diag / 2}mm"  # half-span: _t goes -diag/2 → +diag/2
+        self._app["wv_span_y"] = f"{diag / 2}mm"
 
         n_pts_warp = facet_path_segs_per_half * 2 * n_cell_x
         n_pts_fill = facet_path_segs_per_half * 2 * n_cell_y
@@ -1936,8 +1938,8 @@ class Modeler3D(Primitives3D, PyAedtBase):
         for base, vec, n in [
             (f"{name_prefix}_WarpA", ["0mm", "2*wv_pitch_f", "0mm"], n_cell_y + n_offset_y),
             (f"{name_prefix}_WarpB", ["0mm", "2*wv_pitch_f", "0mm"], n_cell_y + n_offset_y),
-            (f"{name_prefix}_FillA", [f"2*wv_pitch_w", "0mm", "0mm"], n_cell_x + n_offset_x),
-            (f"{name_prefix}_FillB", [f"2*wv_pitch_w", "0mm", "0mm"], n_cell_x + n_offset_x),
+            (f"{name_prefix}_FillA", ["2*wv_pitch_w", "0mm", "0mm"], n_cell_x + n_offset_x),
+            (f"{name_prefix}_FillB", ["2*wv_pitch_w", "0mm", "0mm"], n_cell_x + n_offset_x),
         ]:
             if n < 2:
                 continue
