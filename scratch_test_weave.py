@@ -24,13 +24,13 @@ sub = hfss.modeler.create_box(
 )
 
 
-#yarn_names = hfss.modeler.define_weave(sub)
+# yarn_names = hfss.modeler.define_weave(sub)
 
 # Override one thing from the preset
 yarn_names = hfss.modeler.define_weave(sub, weave_style="7628", weave_rotate_deg=0)
 
 # Fully manual (existing behaviour, no change)
-#hfss.modeler.define_weave(sub, bw_warp=0.25, target_pitch_x=0.6, ...))
+# hfss.modeler.define_weave(sub, bw_warp=0.25, target_pitch_x=0.6, ...))
 
 # Basic checks
 print("Yarns created:", yarn_names)

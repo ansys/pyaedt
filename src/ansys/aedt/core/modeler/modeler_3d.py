@@ -49,32 +49,48 @@ if TYPE_CHECKING:
 
 WEAVE_STYLES = {
     "1067": dict(
-        target_pitch_x=0.28, target_pitch_y=0.28,
-        bw_warp=0.13, bw_fill=0.13,
-        ratio_warp=0.077, ratio_fill=0.077,
+        target_pitch_x=0.28,
+        target_pitch_y=0.28,
+        bw_warp=0.13,
+        bw_fill=0.13,
+        ratio_warp=0.077,
+        ratio_fill=0.077,
         target_amplitude=0.025,
-        yarn_permittivity=6.0, yarn_loss_tangent=0.004,
+        yarn_permittivity=6.0,
+        yarn_loss_tangent=0.004,
     ),
     "1080": dict(
-        target_pitch_x=0.40, target_pitch_y=0.40,
-        bw_warp=0.18, bw_fill=0.18,
-        ratio_warp=0.067, ratio_fill=0.067,
+        target_pitch_x=0.40,
+        target_pitch_y=0.40,
+        bw_warp=0.18,
+        bw_fill=0.18,
+        ratio_warp=0.067,
+        ratio_fill=0.067,
         target_amplitude=0.035,
-        yarn_permittivity=6.0, yarn_loss_tangent=0.004,
+        yarn_permittivity=6.0,
+        yarn_loss_tangent=0.004,
     ),
     "2116": dict(
-        target_pitch_x=0.50, target_pitch_y=0.50,
-        bw_warp=0.20, bw_fill=0.20,
-        ratio_warp=0.057, ratio_fill=0.057,
+        target_pitch_x=0.50,
+        target_pitch_y=0.50,
+        bw_warp=0.20,
+        bw_fill=0.20,
+        ratio_warp=0.057,
+        ratio_fill=0.057,
         target_amplitude=0.050,
-        yarn_permittivity=6.0, yarn_loss_tangent=0.004,
+        yarn_permittivity=6.0,
+        yarn_loss_tangent=0.004,
     ),
     "7628": dict(
-        target_pitch_x=0.80, target_pitch_y=0.80,
-        bw_warp=0.35, bw_fill=0.28,
-        ratio_warp=0.057, ratio_fill=0.057,
+        target_pitch_x=0.80,
+        target_pitch_y=0.80,
+        bw_warp=0.35,
+        bw_fill=0.28,
+        ratio_warp=0.057,
+        ratio_fill=0.057,
         target_amplitude=0.080,
-        yarn_permittivity=6.0, yarn_loss_tangent=0.004,
+        yarn_permittivity=6.0,
+        yarn_loss_tangent=0.004,
     ),
 }
 
@@ -865,7 +881,6 @@ class Modeler3D(Primitives3D, PyAedtBase):
             return wgbox, p1, p2
         else:
             return None
-
 
     @pyaedt_function_handler()
     def create_conical_rings(
@@ -1754,10 +1769,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         # 2. Apply preset FIRST so all parameter values are resolved before use
         if weave_style is not None:
             if weave_style not in WEAVE_STYLES:
-                raise ValueError(
-                    f"Unknown weave_style '{weave_style}'. "
-                    f"Valid options: {list(WEAVE_STYLES.keys())}"
-                )
+                raise ValueError(f"Unknown weave_style '{weave_style}'. Valid options: {list(WEAVE_STYLES.keys())}")
             preset = WEAVE_STYLES[weave_style]
             target_pitch_x = preset["target_pitch_x"]
             target_pitch_y = preset["target_pitch_y"]
@@ -1775,21 +1787,23 @@ class Modeler3D(Primitives3D, PyAedtBase):
             mat.permittivity = yarn_permittivity
             mat.dielectric_loss_tangent = yarn_loss_tangent
 
-        # Snap pitch to whole-cell count using final (possibly preset) values
-        n_cell_x = max(1, round(sub_w / (2 * target_pitch_x)))
-        n_cell_y = max(1, round(sub_hy / (2 * target_pitch_y)))
-        pitch_x = sub_w / (2 * n_cell_x)
-        pitch_y = sub_hy / (2 * n_cell_y)
+        # Circumscribed diagonal — ensures full coverage at any rotation angle
+        diag = math.sqrt(sub_w**2 + sub_hy**2)
+
+        n_cell_x = max(1, round(diag / (2 * target_pitch_x)))
+        n_cell_y = max(1, round(diag / (2 * target_pitch_y)))
+        pitch_x = diag / (2 * n_cell_x)
+        pitch_y = diag / (2 * n_cell_y)
         amplitude = min(target_amplitude, (zmax - zmin) / 2.0 * 0.80)
 
-        # HFSS design variables — set after preset resolution
+        # HFSS design variables — span covers full diagonal, not just sub_w/sub_hy
         self._app["wv_pitch_w"] = f"{pitch_x}mm"
         self._app["wv_pitch_f"] = f"{pitch_y}mm"
         self._app["wv_bw_warp"] = f"{bw_warp}mm"
         self._app["wv_bw_fill"] = f"{bw_fill}mm"
         self._app["wv_amp"]     = f"{amplitude}mm"
-        self._app["wv_span_x"]  = f"{sub_w}mm"
-        self._app["wv_span_y"]  = f"{sub_hy}mm"
+        self._app["wv_span_x"]  = f"{diag / 2}mm"   # half-span: _t goes -diag/2 → +diag/2
+        self._app["wv_span_y"]  = f"{diag / 2}mm"
 
         n_pts_warp = facet_path_segs_per_half * 2 * n_cell_x
         n_pts_fill = facet_path_segs_per_half * 2 * n_cell_y
@@ -1818,29 +1832,30 @@ class Modeler3D(Primitives3D, PyAedtBase):
         bbox = sub_obj.bounding_box
         xmin, ymin, zmin = bbox[0], bbox[1], bbox[2]
         xmax, ymax, zmax = bbox[3], bbox[4], bbox[5]
-        sub_w  = xmax - xmin
+        sub_w = xmax - xmin
         sub_hy = ymax - ymin
-        z_mid  = (zmin + zmax) / 2.0
-
+        z_mid = (zmin + zmax) / 2.0
 
         # 5. Local coordinate system anchored to substrate corner
         r = math.radians(weave_rotate_deg)
         cx, sx = math.cos(r), math.sin(r)
         self.create_coordinate_system(
-            origin=[xmin, ymin + weave_shift_y, z_mid],
+            origin=[xmin + sub_w / 2, ymin + sub_hy / 2 + weave_shift_y, z_mid],
             x_pointing=[cx, sx, 0],
             y_pointing=[-sx, cx, 0],
-            name=cs_name,   # ← was hardcoded "WeaveCS"
+            name=cs_name,  # ← was hardcoded "WeaveCS"
         )
         self.set_working_coordinate_system(cs_name)
+
         # 6. Inner helpers — use HFSS variables in all expressions (not raw floats)
         def _warp_yarn(name, phase):
             sign = "" if phase == "+" else "-"
             z0_expr = "wv_amp" if phase == "+" else "-wv_amp"
             self.create_equationbased_curve(
-                x_t="_t", y_t="0",
+                x_t="_t",
+                y_t="0",
                 z_t=f"{sign}wv_amp*cos(pi*_t/wv_pitch_w)",
-                t_start="0mm",
+                t_start="-wv_span_x",
                 t_end="wv_span_x",  # ← was: t_end=sub_w (dimensionless)
                 num_points=n_pts_warp,
                 name=name + "_path",
@@ -1864,13 +1879,14 @@ class Modeler3D(Primitives3D, PyAedtBase):
             sign = "" if phase == "+" else "-"
             z0_expr = "wv_amp" if phase == "+" else "-wv_amp"
             self.create_equationbased_curve(
-                x_t="0", y_t="_t",
+                x_t="0",
+                y_t="_t",
                 z_t=f"{sign}wv_amp*cos(pi*_t/wv_pitch_f)",
-                t_start="0mm",
+                t_start="-wv_span_y",
                 t_end="wv_span_y",  # ← was: t_end=sub_hy (dimensionless)
                 num_points=n_pts_fill,
                 name=name + "_path",
-                )
+            )
             # Create in XY plane, rotate 90° around X → cross-section lies in XZ plane
             self.create_ellipse(
                 orientation="XY",
@@ -1897,6 +1913,19 @@ class Modeler3D(Primitives3D, PyAedtBase):
         self.move(f"{name_prefix}_WarpB", ["0mm", "wv_pitch_f", "0mm"])
         self.move(f"{name_prefix}_FillB", ["wv_pitch_w", "0mm", "0mm"])
 
+        # Shift all 4 base yarns to negative corner of local CS
+        # so tiling covers -diag/2 → +diag/2 in both directions
+        half_diag = diag / 2
+        n_offset_y = math.ceil(half_diag / (2 * pitch_y))
+        n_offset_x = math.ceil(half_diag / (2 * pitch_x))
+        offset_y = f"-{2 * n_offset_y}*wv_pitch_f"
+        offset_x = f"-{2 * n_offset_x}*wv_pitch_w"
+
+        for name in [f"{name_prefix}_WarpA", f"{name_prefix}_WarpB"]:
+            self.move(name, ["0mm", offset_y, "0mm"])
+        for name in [f"{name_prefix}_FillA", f"{name_prefix}_FillB"]:
+            self.move(name, [offset_x, "0mm", "0mm"])
+
         weave_names = [
             f"{name_prefix}_WarpA",
             f"{name_prefix}_WarpB",
@@ -1905,10 +1934,10 @@ class Modeler3D(Primitives3D, PyAedtBase):
         ]
         # 8. Tile to fill full substrate footprint
         for base, vec, n in [
-            (f"{name_prefix}_WarpA", ["0mm", "2*wv_pitch_f", "0mm"], n_cell_y),
-            (f"{name_prefix}_WarpB", ["0mm", "2*wv_pitch_f", "0mm"], n_cell_y),
-            (f"{name_prefix}_FillA", ["2*wv_pitch_w", "0mm", "0mm"], n_cell_x),
-            (f"{name_prefix}_FillB", ["2*wv_pitch_w", "0mm", "0mm"], n_cell_x),
+            (f"{name_prefix}_WarpA", ["0mm", "2*wv_pitch_f", "0mm"], n_cell_y + n_offset_y),
+            (f"{name_prefix}_WarpB", ["0mm", "2*wv_pitch_f", "0mm"], n_cell_y + n_offset_y),
+            (f"{name_prefix}_FillA", [f"2*wv_pitch_w", "0mm", "0mm"], n_cell_x + n_offset_x),
+            (f"{name_prefix}_FillB", [f"2*wv_pitch_w", "0mm", "0mm"], n_cell_x + n_offset_x),
         ]:
             if n < 2:
                 continue
@@ -1920,19 +1949,30 @@ class Modeler3D(Primitives3D, PyAedtBase):
             if clone_names:
                 weave_names.extend(clone_names)
 
-        # 9. Clip yarn ends by intersecting each yarn with a substrate-shaped volume
-        #    — manifold-safe for any rotation angle, no knife-edge cuts
+        # 9. Clip to substrate footprint
+        #    — unite all yarns first (1 body), then single intersect with substrate clone
+        #    — fast: 2 AEDT calls instead of N*2
+        #    — removes yarns fully outside substrate automatically (unite ignores empties)
+        #    — manifold-safe: intersect of two closed solids always produces closed solid
         self.set_working_coordinate_system("Global")
-        for yarn_name in weave_names:
-            # Clone the substrate box as the clipping volume
-            clip_name = f"_WeaveClip_{yarn_name}"
-            self.create_box(
-                origin=[xmin, ymin, zmin],
-                sizes=[sub_w, sub_hy, zmax - zmin],
-                name=clip_name,
-            )
-            # Intersect: yarn is trimmed to substrate footprint, clip is consumed
-            self.intersect(assignment=[yarn_name, clip_name], keep_originals=False)
+
+        # 9a. Unite all yarn bodies into one
+        unified_name = f"{name_prefix}_Weave"
+        self.unite(weave_names)
+        # After unite, surviving body keeps the name of the first object
+        self[weave_names[0]].name = unified_name
+
+        # 9b. Single intersect with one substrate-shaped clip volume
+        clip_name = f"_WeaveClip_{name_prefix}"
+        self.create_box(
+            origin=[xmin, ymin, zmin],
+            sizes=[sub_w, sub_hy, zmax - zmin],
+            name=clip_name,
+        )
+        self.intersect(assignment=[unified_name, clip_name], keep_originals=False)
+
+        # Return as single-element list (or expand if caller needs individual yarns)
+        weave_names = [unified_name]
 
         # 10. Optionally carve yarn volumes out of the substrate
         if subtract_from_substrate:
