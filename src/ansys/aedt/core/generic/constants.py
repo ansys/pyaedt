@@ -289,6 +289,7 @@ def unit_converter(
             warnings.warn(f"Unknown units: '{output_units}'")
             return values
         else:
+            original_values = values
             input_is_list = isinstance(values, list)
             if not input_is_list:
                 values = [values]
@@ -301,7 +302,7 @@ def unit_converter(
                 if unit_system == "Temperature":
                     if input_callable is None or output_callable is None:
                         warnings.warn("Invalid temperature conversion units")
-                        return values
+                        return original_values
                     value = input_callable(value, False)
                     value = output_callable(value, output_units != "kel")
                 elif isinstance(input_unit, (int, float)) and isinstance(output_unit, (int, float)):
@@ -316,7 +317,7 @@ def unit_converter(
                     value = output_callable(value, True)
                 else:
                     warnings.warn("Invalid unit conversion configuration for unit system: " + unit_system)
-                    return values
+                    return original_values
 
                 converted_values.append(value)
             if input_is_list:
@@ -347,15 +348,16 @@ def scale_units(scale_to_unit: str) -> float:
 
     """
     sunit = 1.0
+    found_non_numeric = False
     for val in list(AEDT_UNITS.values()):
         for unit, scale_val in val.items():
             if scale_to_unit.lower() == unit.lower():
                 if isinstance(scale_val, (int, float)):
-                    sunit = float(scale_val)
+                    return float(scale_val)
+                found_non_numeric = True
                 break
-        else:
-            continue
-        break
+    if found_non_numeric:
+        warnings.warn(f"Unit '{scale_to_unit}' does not define a numeric scale factor")
     return sunit
 
 

@@ -218,6 +218,10 @@ def get_pyaedt_app(
             if project_name in list(desktop.project_list):
                 odesktop = desktop.odesktop
                 break
+        # NOTE: I think a ValueError is more appropriate here, but the original
+        # code used AttributeError in other places so we keep that error type for consistency.
+        if odesktop is None:
+            raise AttributeError(f"Project {project_name} doesn't exist in active desktop sessions.")
     elif _desktop_sessions:
         odesktop = list(_desktop_sessions.values())[-1].odesktop
     elif "oDesktop" in dir(sys.modules["__main__"]):  # ironpython
