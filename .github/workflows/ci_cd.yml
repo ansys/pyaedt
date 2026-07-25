@@ -166,7 +166,7 @@ jobs:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
         with:
           activate-environment: true
           enable-cache: false
@@ -251,7 +251,7 @@ jobs:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
         with:
           activate-environment: true
           enable-cache: false
@@ -334,7 +334,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
         with:
           activate-environment: true
           enable-cache: false
@@ -377,7 +377,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
         with:
           activate-environment: true
           enable-cache: false
@@ -424,7 +424,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
         with:
           activate-environment: true
           enable-cache: false
@@ -495,7 +495,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
         with:
           activate-environment: true
           enable-cache: false
@@ -559,7 +559,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
         with:
           activate-environment: true
           enable-cache: false
@@ -633,7 +633,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
         with:
           activate-environment: true
           enable-cache: false
@@ -700,7 +700,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
         with:
           activate-environment: true
           enable-cache: false
@@ -775,7 +775,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
         with:
           activate-environment: true
           enable-cache: false
@@ -840,7 +840,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
         with:
           activate-environment: true
           enable-cache: false
@@ -911,7 +911,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
         with:
           activate-environment: true
           enable-cache: false
@@ -975,7 +975,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
         with:
           activate-environment: true
           enable-cache: false
@@ -1046,7 +1046,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
         with:
           activate-environment: true
           enable-cache: false
@@ -1108,7 +1108,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
         with:
           activate-environment: true
           enable-cache: false
@@ -1147,17 +1147,88 @@ jobs:
           $prefixes += (python -c "import sys; print(sys.base_prefix)").Trim()
           $prefixes += (python -c "import sys; print(sys.prefix)").Trim()
 
+          $prefixes = $prefixes | Where-Object { $_ } | Select-Object -Unique
+
+          function Test-TclLibrary {
+            param(
+              [string]$TclPath,
+              [string]$TkPath
+            )
+
+            $previousTcl = $env:TCL_LIBRARY
+            $previousTk = $env:TK_LIBRARY
+
+            try {
+              $env:TCL_LIBRARY = $TclPath
+              if ($TkPath) {
+                $env:TK_LIBRARY = $TkPath
+              } else {
+                Remove-Item Env:TK_LIBRARY -ErrorAction SilentlyContinue
+              }
+
+              python -c "import tkinter; tkinter.Tcl()" | Out-Null
+              return $LASTEXITCODE -eq 0
+            } catch {
+              return $false
+            } finally {
+              if ($null -ne $previousTcl) {
+                $env:TCL_LIBRARY = $previousTcl
+              } else {
+                Remove-Item Env:TCL_LIBRARY -ErrorAction SilentlyContinue
+              }
+
+              if ($null -ne $previousTk) {
+                $env:TK_LIBRARY = $previousTk
+              } else {
+                Remove-Item Env:TK_LIBRARY -ErrorAction SilentlyContinue
+              }
+            }
+          }
+
           $tclDir = $null
+          $tkDir = $null
           foreach ($prefix in $prefixes) {
-            $tclDir = Get-ChildItem -Path "$prefix\tcl" -Filter "tcl*" -Directory -ErrorAction SilentlyContinue |
-              Where-Object { Test-Path (Join-Path $_.FullName "init.tcl") } |
-              Sort-Object Name -Descending | Select-Object -First 1
-            if ($tclDir) { break }
+            foreach ($subdir in @("tcl", "lib", "lib\tcl")) {
+              $root = Join-Path $prefix $subdir
+              if (-not (Test-Path $root)) {
+                continue
+              }
+
+              $candidateTclDirs = Get-ChildItem -Path $root -Filter "tcl*" -Directory -ErrorAction SilentlyContinue |
+                Where-Object { Test-Path (Join-Path $_.FullName "init.tcl") } |
+                Sort-Object Name -Descending
+
+              foreach ($candidateTclDir in $candidateTclDirs) {
+                $candidateTkDir = Get-ChildItem -Path $root -Filter "tk*" -Directory -ErrorAction SilentlyContinue |
+                  Where-Object { Test-Path (Join-Path $_.FullName "tk.tcl") } |
+                  Sort-Object Name -Descending | Select-Object -First 1
+
+                if (Test-TclLibrary -TclPath $candidateTclDir.FullName -TkPath $candidateTkDir.FullName) {
+                  $tclDir = $candidateTclDir
+                  $tkDir = $candidateTkDir
+                  break
+                }
+              }
+
+              if ($tclDir) {
+                break
+              }
+            }
+
+            if ($tclDir) {
+              break
+            }
           }
 
           if ($tclDir) {
             "tcl_library=$($tclDir.FullName)" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+            if ($tkDir) {
+              "tk_library=$($tkDir.FullName)" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+            }
             Write-Output "TCL_LIBRARY set to $($tclDir.FullName)"
+            if ($tkDir) {
+              Write-Output "TK_LIBRARY set to $($tkDir.FullName)"
+            }
           } else {
             Write-Warning "Could not locate a valid tcl directory in any of: $($prefixes -join ', ')"
           }
@@ -1167,6 +1238,7 @@ jobs:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS_NON_TESTMON: ${{ env.PYTEST_ARGUMENTS_NON_TESTMON }}
           TCL_LIBRARY: ${{ steps.fix-tcl.outputs.tcl_library }}
+          TK_LIBRARY: ${{ steps.fix-tcl.outputs.tk_library }}
         run: |
           $args = $env:PYTEST_ARGUMENTS_NON_TESTMON -split ' '
           pytest @args --timeout=600 tests/system/extensions
@@ -1202,7 +1274,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
         with:
           activate-environment: true
           enable-cache: false
@@ -1258,7 +1330,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
         with:
           activate-environment: true
           enable-cache: false
@@ -1326,7 +1398,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
         with:
           activate-environment: true
           enable-cache: false
