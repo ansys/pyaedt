@@ -282,19 +282,16 @@ wheels = [
 
 [[package]]
 name = "ansys-tools-visualization-interface"
-version = "0.13.3"
+version = "0.14.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "pyvista" },
-    { name = "trame" },
+    { name = "pyvista", extra = ["jupyter"] },
     { name = "trame-router" },
-    { name = "trame-vtk" },
-    { name = "trame-vuetify" },
     { name = "websockets" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/8f/f8/7d0b8e436c14d66696007a98443e247e4d8972931d75dce1ea894874f3f3/ansys_tools_visualization_interface-0.13.3.tar.gz", hash = "sha256:771f7527dfe3505ae8a4a7f237aadb043c46aceab31d493df09e96ffcb34084c", size = 360176, upload-time = "2026-05-22T13:37:13.835Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/27/6c/b9d9bb75ff7b8f822cf920a23c952e1f3d7f083a7c522a240a75d752cf81/ansys_tools_visualization_interface-0.14.0.tar.gz", hash = "sha256:b419f6c4aa04c583f606d6950729841a09cb338ff62c4012335b729000dd3b41", size = 379094, upload-time = "2026-07-22T09:21:13.923Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/67/7f/7a7b8a5201bbf24b83707331a74e4846a1a2a4e1d3c86ed7defe08bb7e01/ansys_tools_visualization_interface-0.13.3-py3-none-any.whl", hash = "sha256:f8a2825a5dde2c375db7c096eab29eb51d937375acc54b33ee38cc9683dea3b6", size = 434649, upload-time = "2026-05-22T13:37:11.985Z" },
+    { url = "https://files.pythonhosted.org/packages/79/3a/c1856dfd50c3ab4a55c5b5fdd0e68b2596da00ec911e9c824e5ed4ee6a2c/ansys_tools_visualization_interface-0.14.0-py3-none-any.whl", hash = "sha256:a7634ec951e03107486c1e38ad0bfd67a0ea41a0fa592efd9db54c4db9738f79", size = 464810, upload-time = "2026-07-22T09:21:11.81Z" },
 ]
 
 [[package]]
