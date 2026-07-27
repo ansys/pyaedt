@@ -282,19 +282,16 @@ wheels = [
 
 [[package]]
 name = "ansys-tools-visualization-interface"
-version = "0.13.3"
+version = "0.14.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "pyvista" },
-    { name = "trame" },
+    { name = "pyvista", extra = ["jupyter"] },
     { name = "trame-router" },
-    { name = "trame-vtk" },
-    { name = "trame-vuetify" },
     { name = "websockets" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/8f/f8/7d0b8e436c14d66696007a98443e247e4d8972931d75dce1ea894874f3f3/ansys_tools_visualization_interface-0.13.3.tar.gz", hash = "sha256:771f7527dfe3505ae8a4a7f237aadb043c46aceab31d493df09e96ffcb34084c", size = 360176, upload-time = "2026-05-22T13:37:13.835Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/27/6c/b9d9bb75ff7b8f822cf920a23c952e1f3d7f083a7c522a240a75d752cf81/ansys_tools_visualization_interface-0.14.0.tar.gz", hash = "sha256:b419f6c4aa04c583f606d6950729841a09cb338ff62c4012335b729000dd3b41", size = 379094, upload-time = "2026-07-22T09:21:13.923Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/67/7f/7a7b8a5201bbf24b83707331a74e4846a1a2a4e1d3c86ed7defe08bb7e01/ansys_tools_visualization_interface-0.13.3-py3-none-any.whl", hash = "sha256:f8a2825a5dde2c375db7c096eab29eb51d937375acc54b33ee38cc9683dea3b6", size = 434649, upload-time = "2026-05-22T13:37:11.985Z" },
+    { url = "https://files.pythonhosted.org/packages/79/3a/c1856dfd50c3ab4a55c5b5fdd0e68b2596da00ec911e9c824e5ed4ee6a2c/ansys_tools_visualization_interface-0.14.0-py3-none-any.whl", hash = "sha256:a7634ec951e03107486c1e38ad0bfd67a0ea41a0fa592efd9db54c4db9738f79", size = 464810, upload-time = "2026-07-22T09:21:11.81Z" },
 ]
 
 [[package]]
@@ -1937,7 +1934,7 @@ wheels = [
 
 [[package]]
 name = "jupyterlab"
-version = "4.6.0"
+version = "4.6.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "async-lru" },
@@ -1954,10 +1951,11 @@ dependencies = [
     { name = "tomli", marker = "python_full_version < '3.11'" },
     { name = "tornado" },
     { name = "traitlets" },
+    { name = "typing-extensions", marker = "python_full_version < '3.12'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/f8/3c/1ebd737b860cdbe61eed71536d06aab4e1781fbdcf07ecd5a1afe05b8adf/jupyterlab-4.6.0.tar.gz", hash = "sha256:6a8b88f2aae7ed4d012c634fc957c1a27f3aa217c32f0ced0175fac9ee17f9e5", size = 28181861, upload-time = "2026-06-18T13:52:56.039Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/7a/7f/51c0c856ab286bdaf5709cf61ed13584ed9d4bee906479707da45b11b353/jupyterlab-4.6.2.tar.gz", hash = "sha256:e18ce8b34f3de350e93cd5b2c4f3ae884cbe266eb76bf5d6825a4ed34c13bcff", size = 28183650, upload-time = "2026-07-21T12:05:24.051Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/0a/eb/aa48075d0aa3d0188db34ba2704f53791757743c0bb02e18c4eef989b6de/jupyterlab-4.6.0-py3-none-any.whl", hash = "sha256:b6938cb8a1ef3d43860ff4745a680c62cc0a9385f9672295bb56cd2e7cfeebe2", size = 17143447, upload-time = "2026-06-18T13:52:51.42Z" },
+    { url = "https://files.pythonhosted.org/packages/63/1f/e39b248c76bb3736bc05a9491a6aa1315414c32dea12f548ecc1b24c758e/jupyterlab-4.6.2-py3-none-any.whl", hash = "sha256:5964447036629adfcd3fc0969effc1da6f47d2cbd0a60b2c2eea7c31be0ec6a8", size = 17166703, upload-time = "2026-07-21T12:05:19.818Z" },
 ]
 
 [[package]]
@@ -5583,7 +5581,7 @@ wheels = [
 
 [[package]]
 name = "typer"
-version = "0.26.8"
+version = "0.27.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "annotated-doc" },
@@ -5591,9 +5589,9 @@ dependencies = [
     { name = "rich" },
     { name = "shellingham" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/7c/f7/68adc395201b20b872d68e975386832e8005ffeacedd43a1d837a32815be/typer-0.26.8.tar.gz", hash = "sha256:c244a6bd558886fe3f8780efb6bdd28bb9aff005a94eedebaa5cb32926fe2f7e", size = 202097, upload-time = "2026-06-26T09:22:45.705Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/37/78/fda3361b56efc27944f24225f6ecd13d96d6fcfe37bd0eb34e2f4c63f9fc/typer-0.27.0.tar.gz", hash = "sha256:629bd12ea5d13a17148125d9a264f949eb171fb3f120f9b04d85873cab054fa5", size = 203430, upload-time = "2026-07-15T19:21:07.007Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/80/87/b9fd69c92c6102a066e1b86a35243f53e70bd4c709f2a26d9f4fee4f4dc0/typer-0.26.8-py3-none-any.whl", hash = "sha256:3512ca79ac5c11113414b36e80281b872884477722440691c89d1112e321a49c", size = 122564, upload-time = "2026-06-26T09:22:44.72Z" },
+    { url = "https://files.pythonhosted.org/packages/40/03/26a383c9e58c213199d1aad1c3d353cfc22d4444ec6d2c0bf8ad02523843/typer-0.27.0-py3-none-any.whl", hash = "sha256:6f4b27631e47f077871b7dc30e933ec0131c1390fbe0e387ea5574b5bac9ccf1", size = 122716, upload-time = "2026-07-15T19:21:05.553Z" },
 ]
 
 [[package]]
