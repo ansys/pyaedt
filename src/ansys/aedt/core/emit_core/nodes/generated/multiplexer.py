@@ -137,6 +137,7 @@ class Multiplexer(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> mux = app.schematic.create_component("Multiplexer")
+        >>> mux.multiplexer_type = Multiplexer.MultiplexerTypeOption.BY_FILE
         >>> mux.filename = "example_value"
 
         """

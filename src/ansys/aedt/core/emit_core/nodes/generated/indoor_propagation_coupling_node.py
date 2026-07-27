@@ -433,6 +433,7 @@ class IndoorPropagationCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> indoor = cpl.add_indoor_prop_coupling()
+        >>> indoor.fading_type = IndoorPropagationCouplingNode.FadingTypeOption.FAST_FADING_ONLY
         >>> indoor.fading_availability = 90.0
 
         """
@@ -458,6 +459,7 @@ class IndoorPropagationCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> indoor = cpl.add_indoor_prop_coupling()
+        >>> indoor.fading_type = IndoorPropagationCouplingNode.FadingTypeOption.SHADOWING_ONLY
         >>> indoor.std_deviation = 8.0
 
         """
@@ -511,6 +513,7 @@ class IndoorPropagationCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> indoor = cpl.add_indoor_prop_coupling()
+        >>> indoor.include_rain_attenuation = True
         >>> indoor.rain_availability = 99.99
 
         """
@@ -536,6 +539,7 @@ class IndoorPropagationCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> indoor = cpl.add_indoor_prop_coupling()
+        >>> indoor.include_rain_attenuation = True
         >>> indoor.rain_rate = 8.0
 
         """
@@ -564,6 +568,7 @@ class IndoorPropagationCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> indoor = cpl.add_indoor_prop_coupling()
+        >>> indoor.include_rain_attenuation = True
         >>> indoor.polarization_tilt_angle = 0.0
 
         """
@@ -617,6 +622,7 @@ class IndoorPropagationCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> indoor = cpl.add_indoor_prop_coupling()
+        >>> indoor.include_atmospheric_absorption = True
         >>> indoor.temperature = 15.0
 
         """
@@ -642,6 +648,7 @@ class IndoorPropagationCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> indoor = cpl.add_indoor_prop_coupling()
+        >>> indoor.include_atmospheric_absorption = True
         >>> indoor.total_air_pressure = 1013
 
         """
@@ -667,6 +674,7 @@ class IndoorPropagationCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> indoor = cpl.add_indoor_prop_coupling()
+        >>> indoor.include_atmospheric_absorption = True
         >>> indoor.water_vapor_concentration = 7.5
 
         """

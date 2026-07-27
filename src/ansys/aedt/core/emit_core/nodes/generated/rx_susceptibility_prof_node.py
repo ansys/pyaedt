@@ -42,6 +42,11 @@ class RxSusceptibilityProfNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
         >>> rx_profile.parent
 
         """
@@ -54,6 +59,11 @@ class RxSusceptibilityProfNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
         >>> rx_profile.node_type
 
         """
@@ -95,6 +105,11 @@ class RxSusceptibilityProfNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
         >>> rx_saturation = rx_profile.add_rx_saturation()
 
         """
@@ -106,6 +121,11 @@ class RxSusceptibilityProfNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
         >>> rx_selectivity = rx_profile.add_rx_selectivity()
 
         """
@@ -117,6 +137,11 @@ class RxSusceptibilityProfNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
         >>> mixer_products = rx_profile.add_mixer_products()
 
         """
@@ -128,6 +153,11 @@ class RxSusceptibilityProfNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
         >>> spurious_responses = rx_profile.add_spurious_responses()
 
         """
@@ -140,6 +170,11 @@ class RxSusceptibilityProfNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
         >>> rx_profile.enabled = True
 
         """
@@ -163,6 +198,11 @@ class RxSusceptibilityProfNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
         >>> rx_profile.sensitivity_units = RxSusceptibilityProfNode.SensitivityUnitsOption.DBM
 
         """
@@ -184,6 +224,11 @@ class RxSusceptibilityProfNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
         >>> rx_profile.min_receive_signal_pwr = -120
 
         """
@@ -207,6 +252,11 @@ class RxSusceptibilityProfNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
         >>> rx_profile.snr_at_rx_signal_pwr = 10
 
         """
@@ -227,6 +277,11 @@ class RxSusceptibilityProfNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
         >>> rx_profile.processing_gain = 10
 
         """
@@ -250,6 +305,11 @@ class RxSusceptibilityProfNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
         >>> rx_profile.apply_pg_to_narrowband_only = False
 
         """
@@ -270,7 +330,12 @@ class RxSusceptibilityProfNode(EmitNode):
 
         Examples
         --------
-        >>> rx_profile.saturation_level = "0"
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> rx_profile.saturation_level = 0
 
         """
         val = self._get_property("Saturation Level")
@@ -292,6 +357,11 @@ class RxSusceptibilityProfNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
         >>> rx_profile.rx_noise_figure = 8
 
         """
@@ -312,7 +382,12 @@ class RxSusceptibilityProfNode(EmitNode):
 
         Examples
         --------
-        >>> rx_profile.receiver_sensitivity = "-120"
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> rx_profile.receiver_sensitivity = -120
 
         """
         val = self._get_property("Receiver Sensitivity")
@@ -334,6 +409,11 @@ class RxSusceptibilityProfNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
         >>> rx_profile.snrsinad_at_sensitivity = 10
 
         """
@@ -354,6 +434,11 @@ class RxSusceptibilityProfNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
         >>> rx_profile.perform_rx_intermod_analysis = False
 
         """
@@ -374,7 +459,13 @@ class RxSusceptibilityProfNode(EmitNode):
 
         Examples
         --------
-        >>> rx_profile.amplifier_saturation_level = "0"
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> rx_profile.perform_rx_intermod_analysis = True
+        >>> rx_profile.amplifier_saturation_level = 0
 
         """
         val = self._get_property("Amplifier Saturation Level")
@@ -398,7 +489,13 @@ class RxSusceptibilityProfNode(EmitNode):
 
         Examples
         --------
-        >>> rx_profile.p1_db_point_ref_input = "0"
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> rx_profile.perform_rx_intermod_analysis = True
+        >>> rx_profile.p1_db_point_ref_input = 0
 
         """
         val = self._get_property("P1-dB Point, Ref. Input")
@@ -420,7 +517,13 @@ class RxSusceptibilityProfNode(EmitNode):
 
         Examples
         --------
-        >>> rx_profile.ip3_ref_input = "10"
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> rx_profile.perform_rx_intermod_analysis = True
+        >>> rx_profile.ip3_ref_input = 10
 
         """
         val = self._get_property("IP3, Ref. Input")
@@ -442,6 +545,12 @@ class RxSusceptibilityProfNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> rx_profile.perform_rx_intermod_analysis = True
         >>> rx_profile.max_intermod_order = 5
 
         """

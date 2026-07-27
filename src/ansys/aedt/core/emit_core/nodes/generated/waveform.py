@@ -214,7 +214,8 @@ class Waveform(EmitNode):
         >>> app = Emit()
         >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
         >>> wf = emit.get_waveforms()[0]
-        >>> wf.start_frequency = "1e8"
+        >>> wf.modulation = Waveform.ModulationOption.GENERIC
+        >>> wf.start_frequency = 1e8
 
         """
         val = self._get_property("Start Frequency")
@@ -264,7 +265,7 @@ class Waveform(EmitNode):
         >>> app = Emit()
         >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
         >>> wf = emit.get_waveforms()[0]
-        >>> wf.clock_risefall_time = "0.0"
+        >>> wf.clock_risefall_time = 0.0
 
         """
         val = self._get_property("Clock Rise/Fall Time")
@@ -381,7 +382,7 @@ class Waveform(EmitNode):
         >>> app = Emit()
         >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
         >>> wf = emit.get_waveforms()[0]
-        >>> wf.system_impedance = "50.0"
+        >>> wf.system_impedance = 50.0
 
         """
         val = self._get_property("System Impedance")
@@ -434,6 +435,7 @@ class Waveform(EmitNode):
         >>> app = Emit()
         >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
         >>> wf = emit.get_waveforms()[0]
+        >>> wf.advanced_extraction_params = True
         >>> wf.nb_window_size = 20.0
 
         """
@@ -460,6 +462,7 @@ class Waveform(EmitNode):
         >>> app = Emit()
         >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
         >>> wf = emit.get_waveforms()[0]
+        >>> wf.advanced_extraction_params = True
         >>> wf.bb_smoothing_factor = 3.0
 
         """
@@ -484,6 +487,7 @@ class Waveform(EmitNode):
         >>> app = Emit()
         >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
         >>> wf = emit.get_waveforms()[0]
+        >>> wf.advanced_extraction_params = True
         >>> wf.nb_detector_threshold = 3.0
 
         """
@@ -535,7 +539,7 @@ class Waveform(EmitNode):
         >>> app = Emit()
         >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
         >>> wf = emit.get_waveforms()[0]
-        >>> wf.start_time = "0.0"
+        >>> wf.start_time = 0.0
 
         """
         val = self._get_property("Start Time")
@@ -559,7 +563,7 @@ class Waveform(EmitNode):
         >>> app = Emit()
         >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
         >>> wf = emit.get_waveforms()[0]
-        >>> wf.stop_time = "10.0e-9"
+        >>> wf.stop_time = 10.0e-9
 
         """
         val = self._get_property("Stop Time")
@@ -585,7 +589,7 @@ class Waveform(EmitNode):
         >>> app = Emit()
         >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
         >>> wf = emit.get_waveforms()[0]
-        >>> wf.max_frequency = "10.0e9"
+        >>> wf.max_frequency = 10.0e9
 
         """
         val = self._get_property("Max Frequency")
@@ -645,6 +649,7 @@ class Waveform(EmitNode):
         >>> app = Emit()
         >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
         >>> wf = emit.get_waveforms()[0]
+        >>> wf.window_type = Waveform.WindowTypeOption.KAISER
         >>> wf.kaiser_parameter = 0.5
 
         """
@@ -693,7 +698,7 @@ class Waveform(EmitNode):
         >>> app = Emit()
         >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
         >>> wf = emit.get_waveforms()[0]
-        >>> wf.data_rate = "800e6"
+        >>> wf.data_rate = 800e6
 
         """
         val = self._get_property("Data Rate")

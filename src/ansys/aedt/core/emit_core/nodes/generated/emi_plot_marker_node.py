@@ -42,6 +42,11 @@ class EmiPlotMarkerNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> marker = plot.children[0]
         >>> marker.parent
 
         """
@@ -54,6 +59,11 @@ class EmiPlotMarkerNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> marker = plot.children[0]
         >>> marker.node_type
 
         """
@@ -68,6 +78,11 @@ class EmiPlotMarkerNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> marker = plot.children[0]
         >>> marker.visible = False
 
         """
@@ -86,6 +101,11 @@ class EmiPlotMarkerNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> marker = plot.children[0]
         >>> marker.position_x
 
         """
@@ -99,6 +119,11 @@ class EmiPlotMarkerNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> marker = plot.children[0]
         >>> marker.position_y
 
         """
@@ -117,6 +142,11 @@ class EmiPlotMarkerNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> marker = plot.children[0]
         >>> marker.floating_label = True
 
         """
@@ -140,6 +170,11 @@ class EmiPlotMarkerNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> marker = plot.children[0]
         >>> marker.position_from_left = 100
 
         """
@@ -163,6 +198,11 @@ class EmiPlotMarkerNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> marker = plot.children[0]
         >>> marker.position_from_top = 0
 
         """
@@ -181,6 +221,11 @@ class EmiPlotMarkerNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> marker = plot.children[0]
         >>> marker.text = "$(ResultLabel)<br>Origin: $(ResultInfo)"
 
         """
@@ -204,6 +249,11 @@ class EmiPlotMarkerNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> marker = plot.children[0]
         >>> marker.horizontal_position = EmiPlotMarkerNode.HorizontalPositionOption.LEFT
 
         """
@@ -228,6 +278,11 @@ class EmiPlotMarkerNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> marker = plot.children[0]
         >>> marker.vertical_position = EmiPlotMarkerNode.VerticalPositionOption.CENTER
 
         """
@@ -252,6 +307,11 @@ class EmiPlotMarkerNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> marker = plot.children[0]
         >>> marker.text_alignment = EmiPlotMarkerNode.TextAlignmentOption.LEFT
 
         """
@@ -273,6 +333,11 @@ class EmiPlotMarkerNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> marker = plot.children[0]
         >>> marker.font = "Sans Serif,10,-1,5,75,0,0,0,0,0"
 
         """
@@ -293,6 +358,11 @@ class EmiPlotMarkerNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> marker = plot.children[0]
         >>> marker.color = "#000000"
 
         """
@@ -313,6 +383,11 @@ class EmiPlotMarkerNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> marker = plot.children[0]
         >>> marker.background_color = "#FFFFFF"
 
         """
@@ -333,6 +408,11 @@ class EmiPlotMarkerNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> marker = plot.children[0]
         >>> marker.border = True
 
         """
@@ -353,6 +433,12 @@ class EmiPlotMarkerNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> marker = plot.children[0]
+        >>> marker.border = True
         >>> marker.border_width = 2
 
         """
@@ -373,6 +459,12 @@ class EmiPlotMarkerNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> marker = plot.children[0]
+        >>> marker.border = True
         >>> marker.border_color = "#000000"
 
         """
@@ -409,6 +501,11 @@ class EmiPlotMarkerNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> marker = plot.children[0]
         >>> marker.symbol = EmiPlotMarkerNode.SymbolOption.ARROW
 
         """
@@ -430,6 +527,12 @@ class EmiPlotMarkerNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> marker = plot.children[0]
+        >>> marker._ = EmiPlotMarkerNode.Option.ARROW
         >>> marker.arrow_direction = -150
 
         """
@@ -450,6 +553,11 @@ class EmiPlotMarkerNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> marker = plot.children[0]
         >>> marker.symbol_size = 16
 
         """
@@ -470,6 +578,11 @@ class EmiPlotMarkerNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> marker = plot.children[0]
         >>> marker.symbol_color = "#000000"
 
         """
@@ -490,6 +603,11 @@ class EmiPlotMarkerNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> marker = plot.children[0]
         >>> marker.line_width = 2
 
         """
@@ -513,6 +631,11 @@ class EmiPlotMarkerNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.analyze()
+        >>> plot = rev.get_result_plot_node()
+        >>> marker = plot.children[0]
         >>> marker.filled = False
 
         """

@@ -348,6 +348,7 @@ class PropagationLossCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> prop = cpl.add_prop_loss_coupling()
+        >>> prop.fading_type = PropagationLossCouplingNode.FadingTypeOption.FAST_FADING_ONLY
         >>> prop.fading_availability = 90.0
 
         """
@@ -373,6 +374,7 @@ class PropagationLossCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> prop = cpl.add_prop_loss_coupling()
+        >>> prop.fading_type = PropagationLossCouplingNode.FadingTypeOption.SHADOWING_ONLY
         >>> prop.std_deviation = 8.0
 
         """
@@ -426,6 +428,7 @@ class PropagationLossCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> prop = cpl.add_prop_loss_coupling()
+        >>> prop.include_rain_attenuation = True
         >>> prop.rain_availability = 99.99
 
         """
@@ -451,6 +454,7 @@ class PropagationLossCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> prop = cpl.add_prop_loss_coupling()
+        >>> prop.include_rain_attenuation = True
         >>> prop.rain_rate = 8.0
 
         """
@@ -479,6 +483,7 @@ class PropagationLossCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> prop = cpl.add_prop_loss_coupling()
+        >>> prop.include_rain_attenuation = True
         >>> prop.polarization_tilt_angle = 0.0
 
         """
@@ -532,6 +537,7 @@ class PropagationLossCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> prop = cpl.add_prop_loss_coupling()
+        >>> prop.include_atmospheric_absorption = True
         >>> prop.temperature = 15.0
 
         """
@@ -557,6 +563,7 @@ class PropagationLossCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> prop = cpl.add_prop_loss_coupling()
+        >>> prop.include_atmospheric_absorption = True
         >>> prop.total_air_pressure = 1013
 
         """
@@ -582,6 +589,7 @@ class PropagationLossCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> prop = cpl.add_prop_loss_coupling()
+        >>> prop.include_atmospheric_absorption = True
         >>> prop.water_vapor_concentration = 7.5
 
         """

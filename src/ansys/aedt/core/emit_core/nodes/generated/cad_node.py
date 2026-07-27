@@ -417,6 +417,7 @@ class CADNode(EmitNode):
         >>> app = Emit()
         >>> rev = app.results.analyze()
         >>> cad = [c for c in rev.get_scene_node().children if c.node_type == "CADNode"][0]
+        >>> cad._ = True
         >>> cad.color = "#A0B4C8"
 
         """

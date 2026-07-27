@@ -40,6 +40,12 @@ class SolutionsNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> link = cpl.children[0]
+        >>> solutions = link.children[0]
         >>> solutions.parent
 
         """
@@ -52,6 +58,12 @@ class SolutionsNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> link = cpl.children[0]
+        >>> solutions = link.children[0]
         >>> solutions.node_type
 
         """
@@ -69,6 +81,12 @@ class SolutionsNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> link = cpl.children[0]
+        >>> solutions = link.children[0]
         >>> solutions.enabled = True
 
         """

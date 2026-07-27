@@ -40,6 +40,12 @@ class RxSaturationNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> rx_saturation = rx_profile.add_rx_saturation()
         >>> rx_saturation.parent
 
         """
@@ -52,6 +58,12 @@ class RxSaturationNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> rx_saturation = rx_profile.add_rx_saturation()
         >>> rx_saturation.node_type
 
         """
@@ -63,6 +75,12 @@ class RxSaturationNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> rx_saturation = rx_profile.add_rx_saturation()
         >>> rx_saturation.import_csv_file("C:\\EMIT\\data.csv")
 
         """
@@ -84,6 +102,12 @@ class RxSaturationNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> rx_saturation = rx_profile.add_rx_saturation()
         >>> rx_saturation.delete()
 
         """
@@ -101,6 +125,12 @@ class RxSaturationNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> rx_saturation = rx_profile.add_rx_saturation()
         >>> rx_saturation.table_data = [(2, 25.0)]
 
         """
@@ -118,6 +148,12 @@ class RxSaturationNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> rx_saturation = rx_profile.add_rx_saturation()
         >>> rx_saturation.enabled = True
 
         """

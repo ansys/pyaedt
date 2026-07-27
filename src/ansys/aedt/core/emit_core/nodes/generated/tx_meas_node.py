@@ -40,6 +40,11 @@ class TxMeasNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> tx_meas = band.import_tx_measurement("C:\\Measurements\\tx.csv")
         >>> tx_meas.parent
 
         """
@@ -52,6 +57,11 @@ class TxMeasNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> tx_meas = band.import_tx_measurement("C:\\Measurements\\tx.csv")
         >>> tx_meas.node_type
 
         """
@@ -63,6 +73,11 @@ class TxMeasNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> tx_meas = band.import_tx_measurement("C:\\Measurements\\tx.csv")
         >>> tx_meas.delete()
 
         """
@@ -77,6 +92,11 @@ class TxMeasNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> tx_meas = band.import_tx_measurement("C:\\Measurements\\tx.csv")
         >>> tx_meas.file
 
         """
@@ -90,6 +110,11 @@ class TxMeasNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> tx_meas = band.import_tx_measurement("C:\\Measurements\\tx.csv")
         >>> tx_meas.transmit_frequency
 
         """
@@ -106,6 +131,11 @@ class TxMeasNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> tx_meas = band.import_tx_measurement("C:\\Measurements\\tx.csv")
         >>> tx_meas.exclude_harmonics_below_noise = False
 
         """
@@ -124,6 +154,11 @@ class TxMeasNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> tx_meas = band.import_tx_measurement("C:\\Measurements\\tx.csv")
         >>> tx_meas.enabled = True
 
         """

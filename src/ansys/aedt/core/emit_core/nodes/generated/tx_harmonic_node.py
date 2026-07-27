@@ -42,6 +42,12 @@ class TxHarmonicNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_harmonics = spec.add_custom_tx_harmonics()
         >>> tx_harmonics.parent
 
         """
@@ -54,6 +60,12 @@ class TxHarmonicNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_harmonics = spec.add_custom_tx_harmonics()
         >>> tx_harmonics.node_type
 
         """
@@ -65,6 +77,12 @@ class TxHarmonicNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_harmonics = spec.add_custom_tx_harmonics()
         >>> tx_harmonics.import_csv_file("C:\\EMIT\\data.csv")
 
         """
@@ -86,6 +104,12 @@ class TxHarmonicNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_harmonics = spec.add_custom_tx_harmonics()
         >>> tx_harmonics.delete()
 
         """
@@ -103,6 +127,12 @@ class TxHarmonicNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_harmonics = spec.add_custom_tx_harmonics()
         >>> tx_harmonics.table_data = [(2, 25.0)]
 
         """
@@ -120,6 +150,12 @@ class TxHarmonicNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_harmonics = spec.add_custom_tx_harmonics()
         >>> tx_harmonics.enabled = True
 
         """
@@ -141,6 +177,12 @@ class TxHarmonicNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_harmonics = spec.add_custom_tx_harmonics()
         >>> tx_harmonics.harmonic_table_units = TxHarmonicNode.HarmonicTableUnitsOption.ABSOLUTE
 
         """

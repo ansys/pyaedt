@@ -377,6 +377,7 @@ class ErcegCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> ereg = cpl.add_erceg_coupling()
+        >>> ereg.fading_type = ErcegCouplingNode.FadingTypeOption.FAST_FADING_ONLY
         >>> ereg.fading_availability = 90.0
 
         """
@@ -402,6 +403,7 @@ class ErcegCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> ereg = cpl.add_erceg_coupling()
+        >>> ereg.fading_type = ErcegCouplingNode.FadingTypeOption.SHADOWING_ONLY
         >>> ereg.std_deviation = 8.0
 
         """
@@ -455,6 +457,7 @@ class ErcegCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> ereg = cpl.add_erceg_coupling()
+        >>> ereg.include_rain_attenuation = True
         >>> ereg.rain_availability = 99.99
 
         """
@@ -480,6 +483,7 @@ class ErcegCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> ereg = cpl.add_erceg_coupling()
+        >>> ereg.include_rain_attenuation = True
         >>> ereg.rain_rate = 8.0
 
         """
@@ -508,6 +512,7 @@ class ErcegCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> ereg = cpl.add_erceg_coupling()
+        >>> ereg.include_rain_attenuation = True
         >>> ereg.polarization_tilt_angle = 0.0
 
         """
@@ -561,6 +566,7 @@ class ErcegCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> ereg = cpl.add_erceg_coupling()
+        >>> ereg.include_atmospheric_absorption = True
         >>> ereg.temperature = 15.0
 
         """
@@ -586,6 +592,7 @@ class ErcegCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> ereg = cpl.add_erceg_coupling()
+        >>> ereg.include_atmospheric_absorption = True
         >>> ereg.total_air_pressure = 1013
 
         """
@@ -611,6 +618,7 @@ class ErcegCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> ereg = cpl.add_erceg_coupling()
+        >>> ereg.include_atmospheric_absorption = True
         >>> ereg.water_vapor_concentration = 7.5
 
         """

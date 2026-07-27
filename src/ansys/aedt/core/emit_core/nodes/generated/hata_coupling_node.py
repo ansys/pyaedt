@@ -378,6 +378,7 @@ class HataCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> hata = cpl.add_hata_coupling()
+        >>> hata.fading_type = HataCouplingNode.FadingTypeOption.FAST_FADING_ONLY
         >>> hata.fading_availability = 90.0
 
         """
@@ -403,6 +404,7 @@ class HataCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> hata = cpl.add_hata_coupling()
+        >>> hata.fading_type = HataCouplingNode.FadingTypeOption.SHADOWING_ONLY
         >>> hata.std_deviation = 8.0
 
         """
@@ -456,6 +458,7 @@ class HataCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> hata = cpl.add_hata_coupling()
+        >>> hata.include_rain_attenuation = True
         >>> hata.rain_availability = 99.99
 
         """
@@ -481,6 +484,7 @@ class HataCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> hata = cpl.add_hata_coupling()
+        >>> hata.include_rain_attenuation = True
         >>> hata.rain_rate = 8.0
 
         """
@@ -509,6 +513,7 @@ class HataCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> hata = cpl.add_hata_coupling()
+        >>> hata.include_rain_attenuation = True
         >>> hata.polarization_tilt_angle = 0.0
 
         """
@@ -562,6 +567,7 @@ class HataCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> hata = cpl.add_hata_coupling()
+        >>> hata.include_atmospheric_absorption = True
         >>> hata.temperature = 15.0
 
         """
@@ -587,6 +593,7 @@ class HataCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> hata = cpl.add_hata_coupling()
+        >>> hata.include_atmospheric_absorption = True
         >>> hata.total_air_pressure = 1013
 
         """
@@ -612,6 +619,7 @@ class HataCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> hata = cpl.add_hata_coupling()
+        >>> hata.include_atmospheric_absorption = True
         >>> hata.water_vapor_concentration = 7.5
 
         """

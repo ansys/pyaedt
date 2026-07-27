@@ -100,6 +100,7 @@ class Cable(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> cable = app.schematic.create_component("Cable")
+        >>> cable.cable_type = Cable.CableTypeOption.BY_FILE
         >>> cable.filename = "example_value"
 
         """
@@ -197,7 +198,7 @@ class Cable(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> cable = app.schematic.create_component("Cable")
-        >>> cable.length = "1.0"
+        >>> cable.length = 1.0
 
         """
         val = self._get_property("Length")
@@ -222,6 +223,7 @@ class Cable(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> cable = app.schematic.create_component("Cable")
+        >>> cable.cable_type = Cable.CableTypeOption.CONSTANT_LOSS
         >>> cable.loss_per_length = 0
 
         """
@@ -245,7 +247,8 @@ class Cable(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> cable = app.schematic.create_component("Cable")
-        >>> cable.measurement_length = "1.0"
+        >>> cable.cable_type = Cable.CableTypeOption.BY_FILE
+        >>> cable.measurement_length = 1.0
 
         """
         val = self._get_property("Measurement Length")
@@ -270,6 +273,7 @@ class Cable(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> cable = app.schematic.create_component("Cable")
+        >>> cable.cable_type = Cable.CableTypeOption.COAXIAL_CABLE
         >>> cable.resistive_loss_constant = 0
 
         """
@@ -293,6 +297,7 @@ class Cable(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> cable = app.schematic.create_component("Cable")
+        >>> cable.cable_type = Cable.CableTypeOption.COAXIAL_CABLE
         >>> cable.dielectric_loss_constant = 0
 
         """

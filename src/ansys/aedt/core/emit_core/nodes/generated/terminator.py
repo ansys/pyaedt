@@ -127,6 +127,7 @@ class Terminator(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> term = app.schematic.create_component("Terminator")
+        >>> term.terminator_type = Terminator.TerminatorTypeOption.BY_FILE
         >>> term.filename = "example_value"
 
         """
@@ -227,6 +228,7 @@ class Terminator(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> term = app.schematic.create_component("Terminator")
+        >>> term.terminator_type = Terminator.TerminatorTypeOption.PARAMETRIC
         >>> term.vswr = 1.0
 
         """

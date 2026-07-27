@@ -40,6 +40,12 @@ class RxSelectivityNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> rx_selectivity = rx_profile.add_rx_selectivity()
         >>> rx_selectivity.parent
 
         """
@@ -52,6 +58,12 @@ class RxSelectivityNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> rx_selectivity = rx_profile.add_rx_selectivity()
         >>> rx_selectivity.node_type
 
         """
@@ -63,6 +75,12 @@ class RxSelectivityNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> rx_selectivity = rx_profile.add_rx_selectivity()
         >>> rx_selectivity.import_csv_file("C:\\EMIT\\data.csv")
 
         """
@@ -84,6 +102,12 @@ class RxSelectivityNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> rx_selectivity = rx_profile.add_rx_selectivity()
         >>> rx_selectivity.delete()
 
         """
@@ -101,6 +125,12 @@ class RxSelectivityNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> rx_selectivity = rx_profile.add_rx_selectivity()
         >>> rx_selectivity.table_data = [(2, 25.0)]
 
         """
@@ -118,6 +148,12 @@ class RxSelectivityNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> rx_selectivity = rx_profile.add_rx_selectivity()
         >>> rx_selectivity.enabled = True
 
         """
@@ -140,6 +176,12 @@ class RxSelectivityNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> rx_selectivity = rx_profile.add_rx_selectivity()
         >>> rx_selectivity.use_arithmetic_mean = False
 
         """

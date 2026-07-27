@@ -178,7 +178,7 @@ class EmitSceneNode(EmitNode):
         >>> app = Emit()
         >>> rev = app.results.analyze()
         >>> scene = rev.get_scene_node()
-        >>> scene.gp_position_along_normal = "0.0"
+        >>> scene.gp_position_along_normal = 0.0
 
         """
         val = self._get_property("GP Position Along Normal")

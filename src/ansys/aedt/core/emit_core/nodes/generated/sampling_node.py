@@ -42,6 +42,10 @@ class SamplingNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> sampling = [c for c in radio.children if c.node_type == "SamplingNode"][0]
         >>> sampling.parent
 
         """
@@ -54,6 +58,10 @@ class SamplingNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> sampling = [c for c in radio.children if c.node_type == "SamplingNode"][0]
         >>> sampling.node_type
 
         """
@@ -71,6 +79,10 @@ class SamplingNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> sampling = [c for c in radio.children if c.node_type == "SamplingNode"][0]
         >>> sampling.table_data = [(2, 25.0)]
 
         """
@@ -93,6 +105,10 @@ class SamplingNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> sampling = [c for c in radio.children if c.node_type == "SamplingNode"][0]
         >>> sampling.sampling_type = SamplingNode.SamplingTypeOption.UNIFORM_SAMPLING
 
         """
@@ -117,6 +133,11 @@ class SamplingNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> sampling = [c for c in radio.children if c.node_type == "SamplingNode"][0]
+        >>> sampling.sampling_type = SamplingNode.SamplingTypeOption.RANDOM_SAMPLING
         >>> sampling.specify_percentage = False
 
         """
@@ -137,6 +158,12 @@ class SamplingNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> sampling = [c for c in radio.children if c.node_type == "SamplingNode"][0]
+        >>> sampling.sampling_type = SamplingNode.SamplingTypeOption.RANDOM_SAMPLING
+        >>> sampling.specify_percentage = True
         >>> sampling.percentage_of_channels = 50.0
 
         """
@@ -157,6 +184,11 @@ class SamplingNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> sampling = [c for c in radio.children if c.node_type == "SamplingNode"][0]
+        >>> sampling.sampling_type = SamplingNode.SamplingTypeOption.RANDOM_SAMPLING
         >>> sampling.max_channels_range_band = 1000
 
         """
@@ -177,6 +209,11 @@ class SamplingNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> sampling = [c for c in radio.children if c.node_type == "SamplingNode"][0]
+        >>> sampling.sampling_type = SamplingNode.SamplingTypeOption.RANDOM_SAMPLING
         >>> sampling.seed = 0
 
         """
@@ -198,6 +235,10 @@ class SamplingNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> sampling = [c for c in radio.children if c.node_type == "SamplingNode"][0]
         >>> sampling.total_tx_channels
 
         """
@@ -214,6 +255,10 @@ class SamplingNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> sampling = [c for c in radio.children if c.node_type == "SamplingNode"][0]
         >>> sampling.total_rx_channels
 
         """
@@ -227,6 +272,10 @@ class SamplingNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> sampling = [c for c in radio.children if c.node_type == "SamplingNode"][0]
         >>> sampling.warnings
 
         """

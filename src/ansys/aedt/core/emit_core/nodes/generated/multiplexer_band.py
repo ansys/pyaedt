@@ -42,6 +42,10 @@ class MultiplexerBand(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.schematic.create_component("Multiplexer")
+        >>> mplex_band = mux.children[0]
         >>> mplex_band.parent
 
         """
@@ -54,6 +58,10 @@ class MultiplexerBand(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.schematic.create_component("Multiplexer")
+        >>> mplex_band = mux.children[0]
         >>> mplex_band.node_type
 
         """
@@ -75,6 +83,10 @@ class MultiplexerBand(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.schematic.create_component("Multiplexer")
+        >>> mplex_band = mux.children[0]
         >>> mplex_band_copy = mplex_band.duplicate("mplex_band_copy")
 
         """
@@ -86,6 +98,10 @@ class MultiplexerBand(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.schematic.create_component("Multiplexer")
+        >>> mplex_band = mux.children[0]
         >>> mplex_band.delete()
 
         """
@@ -108,6 +124,10 @@ class MultiplexerBand(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.schematic.create_component("Multiplexer")
+        >>> mplex_band = mux.children[0]
         >>> mplex_band.passband_type = MultiplexerBand.PassbandTypeOption.BY_FILE
 
         """
@@ -129,6 +149,11 @@ class MultiplexerBand(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.schematic.create_component("Multiplexer")
+        >>> mplex_band = mux.children[0]
+        >>> mplex_band.passband_type = MultiplexerBand.PassbandTypeOption.BY_FILE
         >>> mplex_band.filename = "example_value"
 
         """
@@ -149,6 +174,11 @@ class MultiplexerBand(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.schematic.create_component("Multiplexer")
+        >>> mplex_band = mux.children[0]
+        >>> mplex_band.passband_type = MultiplexerBand.PassbandTypeOption.LOW_PASS
         >>> mplex_band.insertion_loss = 0
 
         """
@@ -169,6 +199,11 @@ class MultiplexerBand(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.schematic.create_component("Multiplexer")
+        >>> mplex_band = mux.children[0]
+        >>> mplex_band.passband_type = MultiplexerBand.PassbandTypeOption.LOW_PASS
         >>> mplex_band.stop_band_attenuation = 40
 
         """
@@ -189,7 +224,12 @@ class MultiplexerBand(EmitNode):
 
         Examples
         --------
-        >>> mplex_band.max_pass_band = "120e6"
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.schematic.create_component("Multiplexer")
+        >>> mplex_band = mux.children[0]
+        >>> mplex_band.passband_type = MultiplexerBand.PassbandTypeOption.LOW_PASS
+        >>> mplex_band.max_pass_band = 120e6
 
         """
         val = self._get_property("Max Pass Band")
@@ -211,7 +251,12 @@ class MultiplexerBand(EmitNode):
 
         Examples
         --------
-        >>> mplex_band.min_stop_band = "140e6"
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.schematic.create_component("Multiplexer")
+        >>> mplex_band = mux.children[0]
+        >>> mplex_band.passband_type = MultiplexerBand.PassbandTypeOption.LOW_PASS
+        >>> mplex_band.min_stop_band = 140e6
 
         """
         val = self._get_property("Min Stop Band")
@@ -233,7 +278,12 @@ class MultiplexerBand(EmitNode):
 
         Examples
         --------
-        >>> mplex_band.max_stop_band = "60e6"
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.schematic.create_component("Multiplexer")
+        >>> mplex_band = mux.children[0]
+        >>> mplex_band.passband_type = MultiplexerBand.PassbandTypeOption.HIGH_PASS
+        >>> mplex_band.max_stop_band = 60e6
 
         """
         val = self._get_property("Max Stop Band")
@@ -255,7 +305,12 @@ class MultiplexerBand(EmitNode):
 
         Examples
         --------
-        >>> mplex_band.min_pass_band = "80e6"
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.schematic.create_component("Multiplexer")
+        >>> mplex_band = mux.children[0]
+        >>> mplex_band.passband_type = MultiplexerBand.PassbandTypeOption.HIGH_PASS
+        >>> mplex_band.min_pass_band = 80e6
 
         """
         val = self._get_property("Min Pass Band")
@@ -277,7 +332,12 @@ class MultiplexerBand(EmitNode):
 
         Examples
         --------
-        >>> mplex_band.lower_stop_band = "80e6"
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.schematic.create_component("Multiplexer")
+        >>> mplex_band = mux.children[0]
+        >>> mplex_band.passband_type = MultiplexerBand.PassbandTypeOption.BAND_PASS
+        >>> mplex_band.lower_stop_band = 80e6
 
         """
         val = self._get_property("Lower Stop Band")
@@ -299,7 +359,12 @@ class MultiplexerBand(EmitNode):
 
         Examples
         --------
-        >>> mplex_band.lower_cutoff = "90e6"
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.schematic.create_component("Multiplexer")
+        >>> mplex_band = mux.children[0]
+        >>> mplex_band.passband_type = MultiplexerBand.PassbandTypeOption.BAND_PASS
+        >>> mplex_band.lower_cutoff = 90e6
 
         """
         val = self._get_property("Lower Cutoff")
@@ -321,7 +386,12 @@ class MultiplexerBand(EmitNode):
 
         Examples
         --------
-        >>> mplex_band.higher_cutoff = "110e6"
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.schematic.create_component("Multiplexer")
+        >>> mplex_band = mux.children[0]
+        >>> mplex_band.passband_type = MultiplexerBand.PassbandTypeOption.BAND_PASS
+        >>> mplex_band.higher_cutoff = 110e6
 
         """
         val = self._get_property("Higher Cutoff")
@@ -343,7 +413,12 @@ class MultiplexerBand(EmitNode):
 
         Examples
         --------
-        >>> mplex_band.higher_stop_band = "120e6"
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.schematic.create_component("Multiplexer")
+        >>> mplex_band = mux.children[0]
+        >>> mplex_band.passband_type = MultiplexerBand.PassbandTypeOption.BAND_PASS
+        >>> mplex_band.higher_stop_band = 120e6
 
         """
         val = self._get_property("Higher Stop Band")
@@ -363,6 +438,10 @@ class MultiplexerBand(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.schematic.create_component("Multiplexer")
+        >>> mplex_band = mux.children[0]
         >>> mplex_band.warnings
 
         """

@@ -264,6 +264,7 @@ class LogDistanceCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> logd = cpl.add_log_distance_coupling()
+        >>> logd.environment = LogDistanceCouplingNode.EnvironmentOption.CUSTOM
         >>> logd.path_loss_exponent = 2.0
 
         """
@@ -406,6 +407,7 @@ class LogDistanceCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> logd = cpl.add_log_distance_coupling()
+        >>> logd.fading_type = LogDistanceCouplingNode.FadingTypeOption.FAST_FADING_ONLY
         >>> logd.fading_availability = 90.0
 
         """
@@ -431,6 +433,7 @@ class LogDistanceCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> logd = cpl.add_log_distance_coupling()
+        >>> logd.fading_type = LogDistanceCouplingNode.FadingTypeOption.SHADOWING_ONLY
         >>> logd.std_deviation = 8.0
 
         """
@@ -484,6 +487,7 @@ class LogDistanceCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> logd = cpl.add_log_distance_coupling()
+        >>> logd.include_rain_attenuation = True
         >>> logd.rain_availability = 99.99
 
         """
@@ -509,6 +513,7 @@ class LogDistanceCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> logd = cpl.add_log_distance_coupling()
+        >>> logd.include_rain_attenuation = True
         >>> logd.rain_rate = 8.0
 
         """
@@ -537,6 +542,7 @@ class LogDistanceCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> logd = cpl.add_log_distance_coupling()
+        >>> logd.include_rain_attenuation = True
         >>> logd.polarization_tilt_angle = 0.0
 
         """
@@ -590,6 +596,7 @@ class LogDistanceCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> logd = cpl.add_log_distance_coupling()
+        >>> logd.include_atmospheric_absorption = True
         >>> logd.temperature = 15.0
 
         """
@@ -615,6 +622,7 @@ class LogDistanceCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> logd = cpl.add_log_distance_coupling()
+        >>> logd.include_atmospheric_absorption = True
         >>> logd.total_air_pressure = 1013
 
         """
@@ -640,6 +648,7 @@ class LogDistanceCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> logd = cpl.add_log_distance_coupling()
+        >>> logd.include_atmospheric_absorption = True
         >>> logd.water_vapor_concentration = 7.5
 
         """

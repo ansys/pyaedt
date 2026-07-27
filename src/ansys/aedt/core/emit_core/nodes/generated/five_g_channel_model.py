@@ -312,6 +312,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> fivg = cpl.add_5g_channel_model_coupling()
+        >>> fivg.include_bpl = True
         >>> fivg.nyu_bpl_model = FiveGChannelModel.NYUBPLModelOption.LOW_LOSS_MODEL
 
         """
@@ -455,6 +456,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> fivg = cpl.add_5g_channel_model_coupling()
+        >>> fivg.fading_type = FiveGChannelModel.FadingTypeOption.FAST_FADING_ONLY
         >>> fivg.fading_availability = 90.0
 
         """
@@ -480,6 +482,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> fivg = cpl.add_5g_channel_model_coupling()
+        >>> fivg.fading_type = FiveGChannelModel.FadingTypeOption.SHADOWING_ONLY
         >>> fivg.std_deviation = 8.0
 
         """
@@ -533,6 +536,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> fivg = cpl.add_5g_channel_model_coupling()
+        >>> fivg.include_rain_attenuation = True
         >>> fivg.rain_availability = 99.99
 
         """
@@ -558,6 +562,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> fivg = cpl.add_5g_channel_model_coupling()
+        >>> fivg.include_rain_attenuation = True
         >>> fivg.rain_rate = 8.0
 
         """
@@ -586,6 +591,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> fivg = cpl.add_5g_channel_model_coupling()
+        >>> fivg.include_rain_attenuation = True
         >>> fivg.polarization_tilt_angle = 0.0
 
         """
@@ -639,6 +645,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> fivg = cpl.add_5g_channel_model_coupling()
+        >>> fivg.include_atmospheric_absorption = True
         >>> fivg.temperature = 15.0
 
         """
@@ -664,6 +671,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> fivg = cpl.add_5g_channel_model_coupling()
+        >>> fivg.include_atmospheric_absorption = True
         >>> fivg.total_air_pressure = 1013
 
         """
@@ -689,6 +697,7 @@ class FiveGChannelModel(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> fivg = cpl.add_5g_channel_model_coupling()
+        >>> fivg.include_atmospheric_absorption = True
         >>> fivg.water_vapor_concentration = 7.5
 
         """

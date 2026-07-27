@@ -123,6 +123,7 @@ class Isolator(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> iso = app.schematic.create_component("Isolator")
+        >>> iso.isolator_type = Isolator.IsolatorTypeOption.BY_FILE
         >>> iso.filename = "example_value"
 
         """
@@ -219,6 +220,7 @@ class Isolator(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> iso = app.schematic.create_component("Isolator")
+        >>> iso.isolator_type = Isolator.IsolatorTypeOption.PARAMETRIC
         >>> iso.insertion_loss = 0
 
         """
@@ -245,6 +247,7 @@ class Isolator(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> iso = app.schematic.create_component("Isolator")
+        >>> iso.isolator_type = Isolator.IsolatorTypeOption.PARAMETRIC
         >>> iso.finite_reverse_isolation = False
 
         """
@@ -268,6 +271,8 @@ class Isolator(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> iso = app.schematic.create_component("Isolator")
+        >>> iso.isolator_type = Isolator.IsolatorTypeOption.PARAMETRIC
+        >>> iso.finite_reverse_isolation = True
         >>> iso.reverse_isolation = 20
 
         """
@@ -294,6 +299,7 @@ class Isolator(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> iso = app.schematic.create_component("Isolator")
+        >>> iso.isolator_type = Isolator.IsolatorTypeOption.PARAMETRIC
         >>> iso.finite_bandwidth = False
 
         """
@@ -317,6 +323,8 @@ class Isolator(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> iso = app.schematic.create_component("Isolator")
+        >>> iso.isolator_type = Isolator.IsolatorTypeOption.PARAMETRIC
+        >>> iso.finite_bandwidth = True
         >>> iso.out_of_band_attenuation = 40
 
         """
@@ -340,7 +348,9 @@ class Isolator(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> iso = app.schematic.create_component("Isolator")
-        >>> iso.lower_stop_band = "80e6"
+        >>> iso.isolator_type = Isolator.IsolatorTypeOption.PARAMETRIC
+        >>> iso.finite_bandwidth = True
+        >>> iso.lower_stop_band = 80e6
 
         """
         val = self._get_property("Lower Stop Band")
@@ -365,7 +375,9 @@ class Isolator(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> iso = app.schematic.create_component("Isolator")
-        >>> iso.lower_cutoff = "90e6"
+        >>> iso.isolator_type = Isolator.IsolatorTypeOption.PARAMETRIC
+        >>> iso.finite_bandwidth = True
+        >>> iso.lower_cutoff = 90e6
 
         """
         val = self._get_property("Lower Cutoff")
@@ -390,7 +402,9 @@ class Isolator(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> iso = app.schematic.create_component("Isolator")
-        >>> iso.higher_cutoff = "110e6"
+        >>> iso.isolator_type = Isolator.IsolatorTypeOption.PARAMETRIC
+        >>> iso.finite_bandwidth = True
+        >>> iso.higher_cutoff = 110e6
 
         """
         val = self._get_property("Higher Cutoff")
@@ -415,7 +429,9 @@ class Isolator(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> iso = app.schematic.create_component("Isolator")
-        >>> iso.higher_stop_band = "120e6"
+        >>> iso.isolator_type = Isolator.IsolatorTypeOption.PARAMETRIC
+        >>> iso.finite_bandwidth = True
+        >>> iso.higher_stop_band = 120e6
 
         """
         val = self._get_property("Higher Stop Band")

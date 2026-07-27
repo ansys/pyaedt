@@ -261,6 +261,7 @@ class WalfischCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> walf = cpl.add_walfisch_coupling()
+        >>> walf.path_loss_type = WalfischCouplingNode.PathLossTypeOption.NLOS
         >>> walf.environment = WalfischCouplingNode.EnvironmentOption.DENSE_METRO
 
         """
@@ -287,7 +288,8 @@ class WalfischCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> walf = cpl.add_walfisch_coupling()
-        >>> walf.roof_height = "30.0"
+        >>> walf.path_loss_type = WalfischCouplingNode.PathLossTypeOption.NLOS
+        >>> walf.roof_height = 30.0
 
         """
         val = self._get_property("Roof Height")
@@ -314,7 +316,8 @@ class WalfischCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> walf = cpl.add_walfisch_coupling()
-        >>> walf.distance_between_buildings = "30.0"
+        >>> walf.path_loss_type = WalfischCouplingNode.PathLossTypeOption.NLOS
+        >>> walf.distance_between_buildings = 30.0
 
         """
         val = self._get_property("Distance Between Buildings")
@@ -341,7 +344,8 @@ class WalfischCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> walf = cpl.add_walfisch_coupling()
-        >>> walf.street_width = "15.0"
+        >>> walf.path_loss_type = WalfischCouplingNode.PathLossTypeOption.NLOS
+        >>> walf.street_width = 15.0
 
         """
         val = self._get_property("Street Width")
@@ -368,6 +372,7 @@ class WalfischCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> walf = cpl.add_walfisch_coupling()
+        >>> walf.path_loss_type = WalfischCouplingNode.PathLossTypeOption.NLOS
         >>> walf.incidence_angle = 90.0
 
         """
@@ -510,6 +515,7 @@ class WalfischCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> walf = cpl.add_walfisch_coupling()
+        >>> walf.fading_type = WalfischCouplingNode.FadingTypeOption.FAST_FADING_ONLY
         >>> walf.fading_availability = 90.0
 
         """
@@ -535,6 +541,7 @@ class WalfischCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> walf = cpl.add_walfisch_coupling()
+        >>> walf.fading_type = WalfischCouplingNode.FadingTypeOption.SHADOWING_ONLY
         >>> walf.std_deviation = 8.0
 
         """
@@ -588,6 +595,7 @@ class WalfischCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> walf = cpl.add_walfisch_coupling()
+        >>> walf.include_rain_attenuation = True
         >>> walf.rain_availability = 99.99
 
         """
@@ -613,6 +621,7 @@ class WalfischCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> walf = cpl.add_walfisch_coupling()
+        >>> walf.include_rain_attenuation = True
         >>> walf.rain_rate = 8.0
 
         """
@@ -641,6 +650,7 @@ class WalfischCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> walf = cpl.add_walfisch_coupling()
+        >>> walf.include_rain_attenuation = True
         >>> walf.polarization_tilt_angle = 0.0
 
         """
@@ -694,6 +704,7 @@ class WalfischCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> walf = cpl.add_walfisch_coupling()
+        >>> walf.include_atmospheric_absorption = True
         >>> walf.temperature = 15.0
 
         """
@@ -719,6 +730,7 @@ class WalfischCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> walf = cpl.add_walfisch_coupling()
+        >>> walf.include_atmospheric_absorption = True
         >>> walf.total_air_pressure = 1013
 
         """
@@ -744,6 +756,7 @@ class WalfischCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> walf = cpl.add_walfisch_coupling()
+        >>> walf.include_atmospheric_absorption = True
         >>> walf.water_vapor_concentration = 7.5
 
         """

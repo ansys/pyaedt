@@ -42,6 +42,12 @@ class RxSpurNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> rx_spur = rx_profile.add_spurious_responses()
         >>> rx_spur.parent
 
         """
@@ -54,6 +60,12 @@ class RxSpurNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> rx_spur = rx_profile.add_spurious_responses()
         >>> rx_spur.node_type
 
         """
@@ -67,6 +79,12 @@ class RxSpurNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> rx_spur = rx_profile.add_spurious_responses()
         >>> rx_spur.import_csv_file("C:\\EMIT\\data.csv")
 
         """
@@ -88,6 +106,12 @@ class RxSpurNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> rx_spur = rx_profile.add_spurious_responses()
         >>> rx_spur.delete()
 
         """
@@ -107,6 +131,12 @@ class RxSpurNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> rx_spur = rx_profile.add_spurious_responses()
         >>> rx_spur.table_data = [(2, 25.0)]
 
         """
@@ -124,6 +154,12 @@ class RxSpurNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> rx_spur = rx_profile.add_spurious_responses()
         >>> rx_spur.enabled = True
 
         """
@@ -145,6 +181,12 @@ class RxSpurNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> rx_spur = rx_profile.add_spurious_responses()
         >>> rx_spur.spur_table_units = RxSpurNode.SpurTableUnitsOption.ABSOLUTE
 
         """

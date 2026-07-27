@@ -134,6 +134,7 @@ class ResultPlotNode(EmitNode):
         >>> app = Emit()
         >>> rev = app.results.analyze()
         >>> plot = rev.get_result_plot_node()
+        >>> plot.show_legend = True
         >>> plot.legend_font = "Sans Serif,10,-1,5,50,0,0,0,0,0"
 
         """
@@ -614,7 +615,7 @@ class ResultPlotNode(EmitNode):
         >>> app = Emit()
         >>> rev = app.results.analyze()
         >>> plot = rev.get_result_plot_node()
-        >>> plot.bb_power_bandwidth = "1.0"
+        >>> plot.bb_power_bandwidth = 1.0
 
         """
         val = self._get_property("BB Power Bandwidth")

@@ -42,6 +42,12 @@ class TxBbEmissionNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_bb_emission = spec.add_tx_broadband_noise_profile()
         >>> tx_bb_emission.parent
 
         """
@@ -54,6 +60,12 @@ class TxBbEmissionNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_bb_emission = spec.add_tx_broadband_noise_profile()
         >>> tx_bb_emission.node_type
 
         """
@@ -67,6 +79,12 @@ class TxBbEmissionNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_bb_emission = spec.add_tx_broadband_noise_profile()
         >>> tx_bb_emission.import_csv_file("C:\\EMIT\\data.csv")
 
         """
@@ -88,6 +106,12 @@ class TxBbEmissionNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_bb_emission = spec.add_tx_broadband_noise_profile()
         >>> tx_bb_emission.delete()
 
         """
@@ -105,6 +129,12 @@ class TxBbEmissionNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_bb_emission = spec.add_tx_broadband_noise_profile()
         >>> tx_bb_emission.table_data = [(2, 25.0)]
 
         """
@@ -122,6 +152,12 @@ class TxBbEmissionNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_bb_emission = spec.add_tx_broadband_noise_profile()
         >>> tx_bb_emission.enabled = True
 
         """
@@ -145,6 +181,12 @@ class TxBbEmissionNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_bb_emission = spec.add_tx_broadband_noise_profile()
         >>> tx_bb_emission.noise_behavior = TxBbEmissionNode.NoiseBehaviorOption.ABSOLUTE
 
         """
@@ -169,6 +211,13 @@ class TxBbEmissionNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_bb_emission = spec.add_tx_broadband_noise_profile()
+        >>> tx_bb_emission.noise_behavior = TxBbEmissionNode.NoiseBehaviorOption.EQUATION
         >>> tx_bb_emission.use_log_linear_interpolation = True
 
         """

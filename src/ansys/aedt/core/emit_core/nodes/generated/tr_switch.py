@@ -214,6 +214,7 @@ class TR_Switch(EmitNode):  # noqa: N801
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> trs = app.schematic.create_component("TR Switch")
+        >>> trs.finite_isolation = True
         >>> trs.isolation = 60
 
         """
@@ -263,6 +264,7 @@ class TR_Switch(EmitNode):  # noqa: N801
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> trs = app.schematic.create_component("TR Switch")
+        >>> trs.finite_bandwidth = True
         >>> trs.out_of_band_attenuation = 40
 
         """
@@ -286,7 +288,8 @@ class TR_Switch(EmitNode):  # noqa: N801
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> trs = app.schematic.create_component("TR Switch")
-        >>> trs.lower_stop_band = "80e6"
+        >>> trs.finite_bandwidth = True
+        >>> trs.lower_stop_band = 80e6
 
         """
         val = self._get_property("Lower Stop Band")
@@ -311,7 +314,8 @@ class TR_Switch(EmitNode):  # noqa: N801
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> trs = app.schematic.create_component("TR Switch")
-        >>> trs.lower_cutoff = "90e6"
+        >>> trs.finite_bandwidth = True
+        >>> trs.lower_cutoff = 90e6
 
         """
         val = self._get_property("Lower Cutoff")
@@ -336,7 +340,8 @@ class TR_Switch(EmitNode):  # noqa: N801
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> trs = app.schematic.create_component("TR Switch")
-        >>> trs.higher_cutoff = "110e6"
+        >>> trs.finite_bandwidth = True
+        >>> trs.higher_cutoff = 110e6
 
         """
         val = self._get_property("Higher Cutoff")
@@ -361,7 +366,8 @@ class TR_Switch(EmitNode):  # noqa: N801
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> trs = app.schematic.create_component("TR Switch")
-        >>> trs.higher_stop_band = "120e6"
+        >>> trs.finite_bandwidth = True
+        >>> trs.higher_stop_band = 120e6
 
         """
         val = self._get_property("Higher Stop Band")

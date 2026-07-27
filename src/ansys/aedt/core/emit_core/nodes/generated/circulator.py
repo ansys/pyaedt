@@ -123,6 +123,7 @@ class Circulator(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> circ = app.schematic.create_component("Circulator")
+        >>> circ.circulator_type = Circulator.CirculatorTypeOption.BY_FILE
         >>> circ.filename = "example_value"
 
         """
@@ -219,6 +220,7 @@ class Circulator(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> circ = app.schematic.create_component("Circulator")
+        >>> circ.circulator_type = Circulator.CirculatorTypeOption.PARAMETRIC
         >>> circ.insertion_loss = 0
 
         """
@@ -245,6 +247,7 @@ class Circulator(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> circ = app.schematic.create_component("Circulator")
+        >>> circ.circulator_type = Circulator.CirculatorTypeOption.PARAMETRIC
         >>> circ.finite_reverse_isolation = False
 
         """
@@ -268,6 +271,8 @@ class Circulator(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> circ = app.schematic.create_component("Circulator")
+        >>> circ.circulator_type = Circulator.CirculatorTypeOption.PARAMETRIC
+        >>> circ.finite_reverse_isolation = True
         >>> circ.reverse_isolation = 20
 
         """
@@ -294,6 +299,7 @@ class Circulator(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> circ = app.schematic.create_component("Circulator")
+        >>> circ.circulator_type = Circulator.CirculatorTypeOption.PARAMETRIC
         >>> circ.finite_bandwidth = False
 
         """
@@ -317,6 +323,8 @@ class Circulator(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> circ = app.schematic.create_component("Circulator")
+        >>> circ.circulator_type = Circulator.CirculatorTypeOption.PARAMETRIC
+        >>> circ.finite_bandwidth = True
         >>> circ.out_of_band_attenuation = 40
 
         """
@@ -340,7 +348,9 @@ class Circulator(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> circ = app.schematic.create_component("Circulator")
-        >>> circ.lower_stop_band = "80e6"
+        >>> circ.circulator_type = Circulator.CirculatorTypeOption.PARAMETRIC
+        >>> circ.finite_bandwidth = True
+        >>> circ.lower_stop_band = 80e6
 
         """
         val = self._get_property("Lower Stop Band")
@@ -365,7 +375,9 @@ class Circulator(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> circ = app.schematic.create_component("Circulator")
-        >>> circ.lower_cutoff = "90e6"
+        >>> circ.circulator_type = Circulator.CirculatorTypeOption.PARAMETRIC
+        >>> circ.finite_bandwidth = True
+        >>> circ.lower_cutoff = 90e6
 
         """
         val = self._get_property("Lower Cutoff")
@@ -390,7 +402,9 @@ class Circulator(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> circ = app.schematic.create_component("Circulator")
-        >>> circ.higher_cutoff = "110e6"
+        >>> circ.circulator_type = Circulator.CirculatorTypeOption.PARAMETRIC
+        >>> circ.finite_bandwidth = True
+        >>> circ.higher_cutoff = 110e6
 
         """
         val = self._get_property("Higher Cutoff")
@@ -415,7 +429,9 @@ class Circulator(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> circ = app.schematic.create_component("Circulator")
-        >>> circ.higher_stop_band = "120e6"
+        >>> circ.circulator_type = Circulator.CirculatorTypeOption.PARAMETRIC
+        >>> circ.finite_bandwidth = True
+        >>> circ.higher_stop_band = 120e6
 
         """
         val = self._get_property("Higher Stop Band")

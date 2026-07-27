@@ -400,6 +400,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> tray = cpl.add_two_ray_coupling()
+        >>> tray.fading_type = TwoRayPathLossCouplingNode.FadingTypeOption.FAST_FADING_ONLY
         >>> tray.fading_availability = 90.0
 
         """
@@ -425,6 +426,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> tray = cpl.add_two_ray_coupling()
+        >>> tray.fading_type = TwoRayPathLossCouplingNode.FadingTypeOption.SHADOWING_ONLY
         >>> tray.std_deviation = 8.0
 
         """
@@ -478,6 +480,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> tray = cpl.add_two_ray_coupling()
+        >>> tray.include_rain_attenuation = True
         >>> tray.rain_availability = 99.99
 
         """
@@ -503,6 +506,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> tray = cpl.add_two_ray_coupling()
+        >>> tray.include_rain_attenuation = True
         >>> tray.rain_rate = 8.0
 
         """
@@ -531,6 +535,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> tray = cpl.add_two_ray_coupling()
+        >>> tray.include_rain_attenuation = True
         >>> tray.polarization_tilt_angle = 0.0
 
         """
@@ -584,6 +589,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> tray = cpl.add_two_ray_coupling()
+        >>> tray.include_atmospheric_absorption = True
         >>> tray.temperature = 15.0
 
         """
@@ -609,6 +615,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> tray = cpl.add_two_ray_coupling()
+        >>> tray.include_atmospheric_absorption = True
         >>> tray.total_air_pressure = 1013
 
         """
@@ -634,6 +641,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
         >>> rev = app.results.get_revision()
         >>> cpl = rev.get_coupling_data_node()
         >>> tray = cpl.add_two_ray_coupling()
+        >>> tray.include_atmospheric_absorption = True
         >>> tray.water_vapor_concentration = 7.5
 
         """

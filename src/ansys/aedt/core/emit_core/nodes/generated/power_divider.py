@@ -123,6 +123,7 @@ class PowerDivider(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> pd = app.schematic.create_component("Power Divider")
+        >>> pd.power_divider_type = PowerDivider.PowerDividerTypeOption.BY_FILE
         >>> pd.filename = "example_value"
 
         """
@@ -223,6 +224,7 @@ class PowerDivider(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> pd = app.schematic.create_component("Power Divider")
+        >>> pd.power_divider_type = PowerDivider.PowerDividerTypeOption.P3_DB
         >>> pd.insertion_loss_above_ideal = 0
 
         """
@@ -249,6 +251,7 @@ class PowerDivider(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> pd = app.schematic.create_component("Power Divider")
+        >>> pd.power_divider_type = PowerDivider.PowerDividerTypeOption.P3_DB
         >>> pd.finite_isolation = False
 
         """
@@ -272,6 +275,8 @@ class PowerDivider(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> pd = app.schematic.create_component("Power Divider")
+        >>> pd.power_divider_type = PowerDivider.PowerDividerTypeOption.P3_DB
+        >>> pd.finite_isolation = True
         >>> pd.isolation = 20
 
         """
@@ -298,6 +303,7 @@ class PowerDivider(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> pd = app.schematic.create_component("Power Divider")
+        >>> pd.power_divider_type = PowerDivider.PowerDividerTypeOption.P3_DB
         >>> pd.finite_bandwidth = False
 
         """
@@ -321,6 +327,8 @@ class PowerDivider(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> pd = app.schematic.create_component("Power Divider")
+        >>> pd.power_divider_type = PowerDivider.PowerDividerTypeOption.P3_DB
+        >>> pd.finite_bandwidth = True
         >>> pd.out_of_band_attenuation = 40
 
         """
@@ -344,7 +352,9 @@ class PowerDivider(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> pd = app.schematic.create_component("Power Divider")
-        >>> pd.lower_stop_band = "80e6"
+        >>> pd.power_divider_type = PowerDivider.PowerDividerTypeOption.P3_DB
+        >>> pd.finite_bandwidth = True
+        >>> pd.lower_stop_band = 80e6
 
         """
         val = self._get_property("Lower Stop Band")
@@ -369,7 +379,9 @@ class PowerDivider(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> pd = app.schematic.create_component("Power Divider")
-        >>> pd.lower_cutoff = "90e6"
+        >>> pd.power_divider_type = PowerDivider.PowerDividerTypeOption.P3_DB
+        >>> pd.finite_bandwidth = True
+        >>> pd.lower_cutoff = 90e6
 
         """
         val = self._get_property("Lower Cutoff")
@@ -394,7 +406,9 @@ class PowerDivider(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> pd = app.schematic.create_component("Power Divider")
-        >>> pd.higher_cutoff = "110e6"
+        >>> pd.power_divider_type = PowerDivider.PowerDividerTypeOption.P3_DB
+        >>> pd.finite_bandwidth = True
+        >>> pd.higher_cutoff = 110e6
 
         """
         val = self._get_property("Higher Cutoff")
@@ -419,7 +433,9 @@ class PowerDivider(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> pd = app.schematic.create_component("Power Divider")
-        >>> pd.higher_stop_band = "120e6"
+        >>> pd.power_divider_type = PowerDivider.PowerDividerTypeOption.P3_DB
+        >>> pd.finite_bandwidth = True
+        >>> pd.higher_stop_band = 120e6
 
         """
         val = self._get_property("Higher Stop Band")

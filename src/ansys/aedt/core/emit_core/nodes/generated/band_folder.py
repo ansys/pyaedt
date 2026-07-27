@@ -40,6 +40,10 @@ class BandFolder(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band_folder = radio.add_folder()
         >>> band_folder.parent
 
         """
@@ -52,6 +56,10 @@ class BandFolder(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band_folder = radio.add_folder()
         >>> band_folder.node_type
 
         """
@@ -63,6 +71,10 @@ class BandFolder(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band_folder = radio.add_folder()
         >>> band = band_folder.add_band()
 
         """
@@ -74,6 +86,10 @@ class BandFolder(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band_folder = radio.add_folder()
         >>> band_folder_copy = band_folder.duplicate("band_folder_copy")
 
         """
@@ -85,6 +101,10 @@ class BandFolder(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band_folder = radio.add_folder()
         >>> band_folder.delete()
 
         """

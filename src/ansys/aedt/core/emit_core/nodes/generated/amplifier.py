@@ -227,7 +227,7 @@ class Amplifier(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> amp = app.schematic.create_component("Amplifier")
-        >>> amp.center_frequency = "250.0e6"
+        >>> amp.center_frequency = 250.0e6
 
         """
         val = self._get_property("Center Frequency")
@@ -252,7 +252,7 @@ class Amplifier(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> amp = app.schematic.create_component("Amplifier")
-        >>> amp.bandwidth = "500.0e6"
+        >>> amp.bandwidth = 500.0e6
 
         """
         val = self._get_property("Bandwidth")
@@ -300,7 +300,7 @@ class Amplifier(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> amp = app.schematic.create_component("Amplifier")
-        >>> amp.saturation_level = "0"
+        >>> amp.saturation_level = 0
 
         """
         val = self._get_property("Saturation Level")
@@ -325,7 +325,7 @@ class Amplifier(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> amp = app.schematic.create_component("Amplifier")
-        >>> amp.p1_db_point_ref_input = "0"
+        >>> amp.p1_db_point_ref_input = 0
 
         """
         val = self._get_property("P1-dB Point, Ref. Input")
@@ -350,7 +350,7 @@ class Amplifier(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> amp = app.schematic.create_component("Amplifier")
-        >>> amp.ip3_ref_input = "16"
+        >>> amp.ip3_ref_input = 16
 
         """
         val = self._get_property("IP3, Ref. Input")
