@@ -59,6 +59,7 @@ jobs:
           token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
           use-uv: true
           use-uv-lockfile: true
+          hide-log: false
 
   smoke-tests:
     name: Build wheelhouse and smoke tests
