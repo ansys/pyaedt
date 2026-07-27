@@ -2571,7 +2571,7 @@ def test_create_named_selections_objects(aedt_app) -> None:
     box2 = aedt_app.modeler.create_box([10, 10, 10], [1, 2, 3], name="box2")
     ns = aedt_app.modeler.create_named_selection(name="test", assignment=aedt_app.modeler.object_names)
     assert ns.name == "test"
-    assert ns.props["Selection"] == ", ".join([box1.name, box2.name])
+    assert ns.props["List"] == ", ".join([box1.name, box2.name])
     with pytest.raises(AEDTRuntimeError):
         aedt_app.modeler.create_named_selection(name="test", assignment=["invalid"])
 
