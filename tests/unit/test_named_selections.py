@@ -111,7 +111,7 @@ def test_delete_raises_when_user_lists_remove_fails(named_selection_setup) -> No
 
 
 @pytest.mark.parametrize("named_selection_setup", ["real"], indirect=True)
-def test_rename_success(self, named_selection_setup) -> None:
+def test_rename_success(named_selection_setup) -> None:
     """Rename succeeds when the new name is not already present.
 
     Simplified: mock ChangeProperty, ensure rename updates local name and
@@ -134,13 +134,17 @@ def test_rename_success(self, named_selection_setup) -> None:
 
 
 @pytest.mark.parametrize("named_selection_setup", ["real"], indirect=True)
-def test_rename_failure_raises(self, named_selection_setup) -> None:
+def test_rename_failure_raises(named_selection_setup) -> None:
     """Rename raises AEDTRuntimeError when the new name is not present in modeler.user_lists."""
     ns = named_selection_setup
     # Mock ChangeProperty to do nothing
     ns._modeler.oeditor.ChangeProperty = MagicMock(return_value=None)
-    # Simulate that ChangeProperty did not update modeler.user_lists: keep only ns
-    ns._modeler.user_lists = [ns]
+    ns.name = "old_name"
+    # Simulate that ChangeProperty did not update modeler.user_lists:
+    # keep a list that does not contain this instance nor the old name.
+    other_ns = MagicMock()
+    other_ns.name = "unrelated_name"
+    ns._modeler.user_lists = [other_ns]
 
     # Now rename should raise because the new name is not found in user_lists
     with pytest.raises(AEDTRuntimeError, match="Failed to rename the named selection."):
