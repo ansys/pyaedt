@@ -2566,7 +2566,7 @@ def test_delete_all_points(aedt_app) -> None:
     assert [] == aedt_app.modeler.oeditor.GetPoints()
 
 
-def test_create_named_selections(aedt_app) -> None:
+def test_create_named_selections_objects(aedt_app) -> None:
     box1 = aedt_app.modeler.create_box([0, 0, 0], [1, 2, 3], name="box1")
     box2 = aedt_app.modeler.create_box([10, 10, 10], [1, 2, 3], name="box2")
     ns = aedt_app.modeler.create_named_selection(name="test", assignment=aedt_app.modeler.object_names)
@@ -2576,7 +2576,7 @@ def test_create_named_selections(aedt_app) -> None:
         aedt_app.modeler.create_named_selection(name="test", assignment=["invalid"])
 
 
-def test_delete_named_selections(aedt_app) -> None:
+def test_delete_named_selections_objects(aedt_app) -> None:
     aedt_app.modeler.create_box([0, 0, 0], [1, 2, 3], name="box1")
     aedt_app.modeler.create_box([10, 10, 10], [1, 2, 3], name="box2")
     ns = aedt_app.modeler.create_named_selection(name="test", assignment=aedt_app.modeler.object_names)
@@ -2586,7 +2586,7 @@ def test_delete_named_selections(aedt_app) -> None:
     assert len(aedt_app.modeler.user_lists) == 0
 
 
-def test_rename_named_selections(aedt_app) -> None:
+def test_rename_named_selections_objects(aedt_app) -> None:
     aedt_app.modeler.create_box([0, 0, 0], [1, 2, 3], name="box1")
     aedt_app.modeler.create_box([10, 10, 10], [1, 2, 3], name="box2")
     ns = aedt_app.modeler.create_named_selection(name="test", assignment=aedt_app.modeler.object_names)
@@ -2595,31 +2595,115 @@ def test_rename_named_selections(aedt_app) -> None:
     assert ns.name == "new_name"
 
 
-def test_update_named_selections(aedt_app) -> None:
+def test_update_named_selections_objects(aedt_app) -> None:
     box1 = aedt_app.modeler.create_box([0, 0, 0], [1, 2, 3], name="box1")
     box2 = aedt_app.modeler.create_box([10, 10, 10], [1, 2, 3], name="box2")
     ns = aedt_app.modeler.create_named_selection(name="test", assignment=aedt_app.modeler.object_names)
     assert aedt_app.modeler[box1.name] in aedt_app.modeler.get_named_selection_objects(ns.name)
     assert aedt_app.modeler[box2.name] in aedt_app.modeler.get_named_selection_objects(ns.name)
     with pytest.raises(AEDTRuntimeError):
+        ns.update(selection=[])
+    with pytest.raises(AEDTRuntimeError):
         ns.update(selection=["invalid"])
     box3 = aedt_app.modeler.create_box([20, 20, 20], [1, 2, 3], name="box3")
     ns.update(selection=["invalid", box3.name])
+    aedt_app.save_project()
     assert aedt_app.modeler[box3.name] in aedt_app.modeler.get_named_selection_objects(ns.name)
     assert len(aedt_app.modeler.get_named_selection_objects(ns.name)) == 1
     ns.update(selection=[box1.name, box3.name])
+    aedt_app.save_project()
     assert aedt_app.modeler[box1.name] in aedt_app.modeler.get_named_selection_objects(ns.name)
     assert aedt_app.modeler[box3.name] in aedt_app.modeler.get_named_selection_objects(ns.name)
     assert len(aedt_app.modeler.get_named_selection_objects(ns.name)) == 2
     ns.update(selection=[box2.name], mode="Add")
+    aedt_app.save_project()
     assert aedt_app.modeler[box1.name] in aedt_app.modeler.get_named_selection_objects(ns.name)
     assert aedt_app.modeler[box2.name] in aedt_app.modeler.get_named_selection_objects(ns.name)
     assert aedt_app.modeler[box3.name] in aedt_app.modeler.get_named_selection_objects(ns.name)
     assert len(aedt_app.modeler.get_named_selection_objects(ns.name)) == 3
     ns.update(selection=[box1.name], mode="Remove")
+    aedt_app.save_project()
     assert aedt_app.modeler[box2.name] in aedt_app.modeler.get_named_selection_objects(ns.name)
     assert aedt_app.modeler[box3.name] in aedt_app.modeler.get_named_selection_objects(ns.name)
     assert len(aedt_app.modeler.get_named_selection_objects(ns.name)) == 2
+
+
+def test_create_named_selections_faces(aedt_app) -> None:
+    box1 = aedt_app.modeler.create_box([0, 0, 0], [1, 2, 3], name="box1")
+    box2 = aedt_app.modeler.create_box([10, 10, 10], [1, 2, 3], name="box2")
+    ns = aedt_app.modeler.create_named_selection(
+        name="test",
+        assignment=[
+            box1.faces[0],
+            box2.faces[0],
+        ],
+    )
+    assert ns.props["Type"] == "Face"
+    assert len(ns.props["List"]) == 2
+    with pytest.raises(AEDTRuntimeError):
+        aedt_app.modeler.create_named_selection(name="test", assignment=["invalid"])
+
+
+def test_delete_named_selections_faces(aedt_app) -> None:
+    box1 = aedt_app.modeler.create_box([0, 0, 0], [1, 2, 3], name="box1")
+    box2 = aedt_app.modeler.create_box([10, 10, 10], [1, 2, 3], name="box2")
+    ns = aedt_app.modeler.create_named_selection(
+        name="test",
+        assignment=[
+            box1.faces[0],
+            box2.faces[0],
+        ],
+    )
+    assert len(aedt_app.modeler.user_lists) == 1
+    assert isinstance(aedt_app.modeler.user_lists[0], NamedSelections)
+    assert ns.delete()
+    assert len(aedt_app.modeler.user_lists) == 0
+
+
+def test_rename_named_selections_faces(aedt_app) -> None:
+    box1 = aedt_app.modeler.create_box([0, 0, 0], [1, 2, 3], name="box1")
+    box2 = aedt_app.modeler.create_box([10, 10, 10], [1, 2, 3], name="box2")
+    ns = aedt_app.modeler.create_named_selection(
+        name="test",
+        assignment=[
+            box1.faces[0],
+            box2.faces[0],
+        ],
+    )
+    assert ns.name == "test"
+    ns.rename("new_name")
+    assert ns.name == "new_name"
+
+
+def test_update_named_selections_faces(aedt_app) -> None:
+    box1 = aedt_app.modeler.create_box([0, 0, 0], [1, 2, 3], name="box1")
+    box2 = aedt_app.modeler.create_box([10, 10, 10], [1, 2, 3], name="box2")
+    ns = aedt_app.modeler.create_named_selection(
+        name="test",
+        assignment=[
+            box1.faces[0],
+            box2.faces[0],
+        ],
+    )
+    assert box1.faces[0].id in aedt_app.modeler.get_named_selection_objects(ns.name)
+    assert box2.faces[0].id in aedt_app.modeler.get_named_selection_objects(ns.name)
+    with pytest.raises(AEDTRuntimeError):
+        ns.update(selection=["invalid"], entity_type="Face", mode="Add")
+    ns.update(
+        selection=[aedt_app.modeler["box2"].faces[1].id, aedt_app.modeler["box2"].faces[3].id],
+        entity_type="Face",
+        mode="Add",
+    )
+    assert box2.faces[1].id in aedt_app.modeler.get_named_selection_objects(ns.name)
+    assert box2.faces[3].id in aedt_app.modeler.get_named_selection_objects(ns.name)
+    ns.update(selection=[aedt_app.modeler["box1"].faces[1].id, "invalid"], entity_type="Face", mode="Add")
+    assert len(aedt_app.modeler.get_named_selection_objects(ns.name)) == 5
+    assert box2.faces[1].id in aedt_app.modeler.get_named_selection_objects(ns.name)
+    assert box2.faces[3].id in aedt_app.modeler.get_named_selection_objects(ns.name)
+    assert box1.faces[1].id in aedt_app.modeler.get_named_selection_objects(ns.name)
+    ns.update(selection=[box2.faces[1].id], entity_type="Face", mode="Reassign")
+    assert len(aedt_app.modeler.get_named_selection_objects(ns.name)) == 1
+    assert box2.faces[1].id in aedt_app.modeler.get_named_selection_objects(ns.name)
 
 
 def test_get_named_selection_objects(aedt_app) -> None:
@@ -2635,3 +2719,18 @@ def test_get_named_selection_objects(aedt_app) -> None:
 
     with pytest.raises(AEDTRuntimeError):
         aedt_app.modeler.get_named_selection_objects(name="invalid")
+
+
+def test_get_named_selection_faces(aedt_app) -> None:
+    box1 = aedt_app.modeler.create_box([0, 0, 0], [1, 2, 3], name="box1")
+    box2 = aedt_app.modeler.create_box([10, 10, 10], [1, 2, 3], name="box2")
+
+    ns = aedt_app.modeler.create_named_selection(
+        name="test",
+        assignment=[
+            box1.faces[0],
+            box2.faces[0],
+        ],
+    )
+    assert len(aedt_app.modeler.get_named_selection_objects(ns.name)) == 2
+    assert isinstance(all(aedt_app.modeler.get_named_selection_objects(ns.name)), int)

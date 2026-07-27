@@ -2256,7 +2256,7 @@ class NamedSelections(PropsManager, PyAedtBase):
             raise AEDTRuntimeError("Failed to rename the named selection.")
 
     @pyaedt_function_handler()
-    def update(self, selection: list | str | None = None, entity_type: str = "Object", mode: str = "Reassign") -> bool:
+    def update(self, selection: list | None = None, entity_type: str = "Object", mode: str = "Reassign") -> bool:
         """Update an existing named selection.
 
         This method mirrors the signature and semantics of :class:`Lists.update` for
@@ -2277,18 +2277,36 @@ class NamedSelections(PropsManager, PyAedtBase):
 
         Examples
         --------
+        Update Named Selection that contains objects
         >>> from ansys.aedt.core import Maxwell3d
         >>> aedt_app = Maxwell3d(version="2026.1")
         >>> box1 = aedt_app.modeler.create_box([0, 0, 0], [1, 2, 3], name="box1")
         >>> box2 = aedt_app.modeler.create_box([10, 10, 10], [1, 2, 3], name="box2")
         >>> sel = aedt_app.modeler.create_named_selection(name="test", assignment=aedt_app.modeler.object_names)
         >>> box3 = aedt_app.modeler.create_box([20, 20, 20], [1, 2, 3], name="box3")
-        # Reassign named selection elements
+        Reassign named selection elements
         >>> sel.update(selection=[box1.name, box3.name])
-        # Add new element to name selection
+        Add new element to name selection
         >>> sel.update(selection=[box2.name], mode="Add")
-        # Remove element from named selection
+        Remove element from named selection
         >>> sel.update(selection=[box1.name], mode="Remove")
+        >>> aedt_app.release_desktop()
+
+        Update Named Selection that contains faces
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> aedt_app = Maxwell3d(version="2026.1")
+        >>> box1 = aedt_app.modeler.create_box([0, 0, 0], [1, 2, 3], name="box1")
+        >>> box2 = aedt_app.modeler.create_box([10, 10, 10], [1, 2, 3], name="box2")
+        >>> ns = aedt_app.modeler.create_named_selection(name="test", assignment=[box1.faces[0], box2.faces[0]])
+        Add two new faces in Named Selection
+        >>> ns.update(
+        ...     selection=[
+        ...         aedt_app.modeler["box2"].faces[1].id,
+        ...         aedt_app.modeler["box2"].faces[3].id,
+        ...     ],
+        ...     entity_type="Face",
+        ...     mode="Add",
+        ... )
         >>> aedt_app.release_desktop()
 
         Returns
@@ -2300,46 +2318,21 @@ class NamedSelections(PropsManager, PyAedtBase):
         ----------
         >>> oEditor.EditNamedSelection
         """
-        # If no selection provided, use stored properties
+        if mode not in ["Add", "Remove", "Reassign"]:
+            raise AEDTRuntimeError(f"Invalid mode `{mode}`. Allowed values are `Add`, `Remove`, `Reassign`.")
+
+        # If no selection provided raise an exception
         if selection is None:
-            selection = self.props.get("Selection", "")
-            entity_type = self.props.get("Type", entity_type)
+            raise AEDTRuntimeError("No selection provided to update.")
 
-        # If caller provided a list, normalize using Lists._list_verification to keep
-        # behavior consistent with Lists.update
-        object_list_new = []
-        try:
-            if mode in ("Add", "Remove"):
-                current_selection = self.props["List"]
+        current_selection = self.props["List"]
 
-            if mode == "Add":
-                items_to_add = []
-                for item in selection:
-                    item_str = str(item)
-                    if item_str not in current_selection and item_str not in items_to_add:
-                        items_to_add.append(item_str)
-                selection = current_selection + items_to_add
-                object_list_new = self._objects_verification(selection, entity_type)
-
-            elif mode == "Remove":
-                selection = [str(item) for item in selection]
-                object_list_new = [item for item in current_selection if str(item) not in selection]
-                # update object_list_new
-                # selection = [item for item in current_selection if item not in items_to_remove]
-
-        except Exception:
-            # Fallback to simple string conversion if verification fails
-            selection = ", ".join([str(s) for s in selection])
+        object_list_new = self._objects_verification(selection, entity_type)
+        if entity_type == "Object":
+            selection = ", ".join(object_list_new)
         else:
-            if entity_type == "Object":
-                selection = ", ".join(selection)
-            else:
-                # For faces, keep a list of ints as EditNamedSelection accepts it
-                selection = object_list_new
-
-        # if object_list_new is empty, it means that the provided objects do not exist
-        # if not object_list_new:
-        #     raise AEDTRuntimeError("Failed to update the named selection.")
+            # For faces, keep a list of ints as EditNamedSelection accepts it
+            selection = object_list_new
 
         argument1 = ["NAME:Selections", "Selections:=", self.name]
         argument2 = [
@@ -2352,16 +2345,27 @@ class NamedSelections(PropsManager, PyAedtBase):
             mode,
         ]
         self._modeler.oeditor.EditNamedSelection(argument1, argument2)
+        # When updating a Named Selection the project must be saved
+        self._modeler._app.save_project()
 
-        # self._modeler.get_named_selection_objects(self.name):
         # Verify the selection was updated correctly
-        expected_objects = [item.name for item in self._modeler.get_named_selection_objects(self.name)]
+        named_selection_objects = self._modeler.get_named_selection_objects(self.name) or []
+        if entity_type == "Object":
+            expected_objects = [obj.name for obj in named_selection_objects]
+        else:
+            expected_objects = named_selection_objects
+        if mode == "Add":
+            expected_after = current_selection + object_list_new
+        elif mode == "Remove":
+            expected_after = [item for item in current_selection if item not in object_list_new]
+        else:  # Reassign
+            expected_after = object_list_new
         # if object_list_new is empty it means that user has provided invalid or non-existing objects.
-        if not object_list_new or not object_list_new == expected_objects:
+        if not object_list_new or set(expected_after) != set(expected_objects):
             raise AEDTRuntimeError("Failed to update the named selection.")
         previous_auto_update = self.auto_update
         self.auto_update = False
-        self.props["List"] = object_list_new
+        self.props["List"] = expected_after
         self.props["Type"] = entity_type
         self.auto_update = previous_auto_update
         return True
@@ -2380,22 +2384,14 @@ class NamedSelections(PropsManager, PyAedtBase):
 
         elif list_type == "Face":
             object_list_new = []
-            for element in object_list:
-                if isinstance(element, str):
-                    if element.isnumeric():
-                        object_list_new.append(int(element))
-                    else:
-                        if element in self._modeler.object_names:
-                            obj_id = self._modeler.objects[element].id
-                            for sel in self._modeler.object_list:
-                                if sel.id == obj_id:
-                                    for f in sel.faces:
-                                        object_list_new.append(f.id)
-                                    break
-                        else:
-                            return []
-                else:
-                    object_list_new.append(int(element))
+            faces = []
+            for obj in self._modeler.object_list:
+                faces.extend(f.id for f in obj.faces)
+            for face_id in object_list:
+                if face_id in faces:
+                    object_list_new.append(int(face_id))
+            if not object_list_new:
+                return []
         return object_list_new
 
 

@@ -1633,13 +1633,18 @@ class GeometryModeler(Modeler, PyAedtBase):
         >>> oEditor.GetEntityIDsContainedByNamedSelection
         """
         try:
-            self.oeditor.GetNamedSelectionIDByName(name)
+            ns_id = self.oeditor.GetNamedSelectionIDByName(name)
         except Exception:
             raise AEDTRuntimeError("Named selection does not exist.")
 
         entity_ids = self.oeditor.GetEntityIDsContainedByNamedSelection(name)
-        selected_objects = [self.objects[int(entity_id)] for entity_id in entity_ids]
-        return selected_objects
+
+        if (ns := next((n for n in self.user_lists if n.props.get("ID") == ns_id), None)) and ns.props.get(
+            "Type"
+        ) == "Object":
+            return [self.objects[int(entity_id)] for entity_id in entity_ids]
+
+        return [int(entity_id) for entity_id in entity_ids]
 
     @pyaedt_function_handler()
     def _get_coordinates_data(self):  # pragma: no cover
