@@ -2322,7 +2322,7 @@ class NamedSelections(PropsManager, PyAedtBase):
             raise AEDTRuntimeError(f"Invalid mode `{mode}`. Allowed values are `Add`, `Remove`, `Reassign`.")
 
         # If no selection provided raise an exception
-        if selection is None:
+        if not selection:
             raise AEDTRuntimeError("No selection provided to update.")
 
         current_selection = self.props["List"]
