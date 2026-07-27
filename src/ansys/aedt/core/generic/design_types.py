@@ -196,8 +196,8 @@ def get_pyaedt_app(
 
     Returns
     -------
-    :def :`ansys.aedt.core.Hfss`
-        Any of the PyAEDT App initialized.
+    _AppWithOProject | None
+        PyAEDT object with a given project name and design name or None if the design type is not supported.
 
     Examples
     --------
