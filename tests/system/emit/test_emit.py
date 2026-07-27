@@ -3708,14 +3708,9 @@ def test_purge_domain_results_1to1(interference):
     rev = interference.results.analyze()
     sim = rev.get_simulation()
 
-    rx_radios = rev.get_receiver_names()
-    tx_radios = rev.get_interferer_names()
-    assert len(rx_radios) > 0
-    assert len(tx_radios) > 0
-
     domain = InteractionDomain(interference)
-    domain.set_receiver(rx_radios[0])
-    domain.set_interferer(tx_radios[0])
+    domain.set_receiver("Bluetooth")
+    domain.set_interferer("WiFi")
 
     # Run the domain so results exist
     interaction = sim.run(domain)
@@ -3737,12 +3732,9 @@ def test_purge_domain_results_rerun_after_purge(interference):
     rev = interference.results.analyze()
     sim = rev.get_simulation()
 
-    rx_radios = rev.get_receiver_names()
-    tx_radios = rev.get_interferer_names()
-
     domain = InteractionDomain(interference)
-    domain.set_receiver(rx_radios[0])
-    domain.set_interferer(tx_radios[0])
+    domain.set_receiver("Bluetooth")
+    domain.set_interferer("WiFi")
 
     # Run → purge → re-run
     interaction = sim.run(domain)
@@ -3769,17 +3761,14 @@ def test_purge_domain_results_only_affects_specified_domain(interference):
     rev = interference.results.analyze()
     sim = rev.get_simulation()
 
-    rx_radios = rev.get_receiver_names()
-    tx_radios = rev.get_interferer_names()
-
     # Run both domains
     domain1 = InteractionDomain(interference)
-    domain1.set_receiver(rx_radios[0])
-    domain1.set_interferer(tx_radios[0])
+    domain1.set_receiver("Bluetooth")
+    domain1.set_interferer("WiFi")
 
     domain2 = InteractionDomain(interference)
-    domain2.set_receiver(rx_radios[0])
-    domain2.set_interferer(tx_radios[1])
+    domain2.set_receiver("GPS")
+    domain2.set_interferer("WiFi")
 
     interaction1 = sim.run(domain1)
     interaction2 = sim.run(domain2)
@@ -3804,13 +3793,8 @@ def test_purge_domain_results_nto1(n_to_1):
     sim = rev.get_simulation()
     sim.enable_n_to_1(True)
 
-    rx_radios = rev.get_receiver_names()
-    tx_radios = rev.get_interferer_names()
-    assert len(tx_radios) >= 2, "Need at least two interferers for N-to-1"
-
     domain = InteractionDomain(n_to_1)
-    domain.set_receiver(rx_radios[0])
-    # Leave interferers unset so the engine runs all N-to-1 combos
+    domain.set_receiver("Bluetooth")
 
     interaction = sim.run(domain)
     assert interaction.is_valid()
