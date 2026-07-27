@@ -7,6 +7,7 @@ Skills are organized as plugins under `.github/plugin/`. Always **read the skill
 | Skill | Skill file | Purpose |
 |---|---|---|
 | `pyaedt-cli` | `.github/plugin/pyaedt-cli/skills/SKILL.md` | Interact with AEDT via the `pyaedt` CLI |
+| `pyaedt-dev` | `.github/plugin/pyaedt-dev/skills/SKILL.md` | Contribute to PyAEDT development |
 
 ---
 
@@ -20,4 +21,14 @@ Skills are organized as plugins under `.github/plugin/`. Always **read the skill
 
 ```
 Read skill file: .github/plugin/pyaedt-cli/skills/SKILL.md
+```
+
+## pyaedt-dev (MANDATORY)
+**Read this skill file when the user wants to contribute to PyAEDT:**
+
+- Run or write tests
+- Follow code conventions or docstring style
+- Understand repo structure or contribute a new feature
+```
+Read skill file: .github/plugin/pyaedt-dev/skills/SKILL.md
 ```
