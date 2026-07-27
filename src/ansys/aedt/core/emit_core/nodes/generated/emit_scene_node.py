@@ -53,7 +53,7 @@ class EmitSceneNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def add_emitter(self) -> EmitNode:
-        """Add a new emitter
+        """Add a new emitter.
 
         Examples
         --------
@@ -68,7 +68,7 @@ class EmitSceneNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def add_group(self) -> EmitNode:
-        """Add a new scene group
+        """Add a new scene group.
 
         Examples
         --------
@@ -101,7 +101,7 @@ class EmitSceneNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def add_antenna(self) -> EmitNode:
-        """Add a new antenna
+        """Add a new antenna.
 
         Examples
         --------

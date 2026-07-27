@@ -101,7 +101,7 @@ class TxSpectralProfNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def add_narrowband_emissions_mask(self) -> EmitNode:
-        """Add a Transmitter Narrowband Emission Profile
+        """Add a Transmitter Narrowband Emission Profile.
 
         Examples
         --------
@@ -117,7 +117,7 @@ class TxSpectralProfNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def add_tx_broadband_noise_profile(self) -> EmitNode:
-        """Add a Transmitter Broadband Emission Profile
+        """Add a Transmitter Broadband Emission Profile.
 
         Examples
         --------
@@ -133,7 +133,7 @@ class TxSpectralProfNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def add_custom_tx_harmonics(self) -> EmitNode:
-        """Add Custom Tx Harmonics
+        """Add Custom Tx Harmonics.
 
         Examples
         --------
@@ -149,7 +149,7 @@ class TxSpectralProfNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def add_spurious_emissions(self) -> EmitNode:
-        """Add Transmitter Spurs
+        """Add Transmitter Spurs.
 
         Examples
         --------

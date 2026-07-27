@@ -52,7 +52,7 @@ class Multiplexer(EmitNode):
 
     @min_aedt_version("2025.2")
     def add_multiplexer_pass_band(self) -> EmitNode:
-        """Add a New Multiplexer Band to this Multiplexer
+        """Add a New Multiplexer Band to this Multiplexer.
 
         Examples
         --------

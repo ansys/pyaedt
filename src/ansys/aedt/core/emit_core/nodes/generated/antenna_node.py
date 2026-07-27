@@ -67,7 +67,7 @@ class AntennaNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def add_antenna_passband(self) -> EmitNode:
-        """Add a New Passband to this Antenna
+        """Add a New Passband to this Antenna.
 
         Examples
         --------
@@ -373,7 +373,7 @@ class AntennaNode(EmitNode):
         >>> app = Emit()
         >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
         >>> ant.antenna_type = AntennaNode.AntennaTypeOption.BY_FILE
-        >>> ant.antenna_file
+        >>> ant.antenna_file = "example_value"
 
         """
         val = self._get_property("Antenna File")

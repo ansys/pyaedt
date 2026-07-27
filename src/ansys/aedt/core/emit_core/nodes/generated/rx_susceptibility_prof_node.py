@@ -101,7 +101,7 @@ class RxSusceptibilityProfNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def add_rx_saturation(self) -> EmitNode:
-        """Add a Saturation Profile
+        """Add a Saturation Profile.
 
         Examples
         --------
@@ -117,7 +117,7 @@ class RxSusceptibilityProfNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def add_rx_selectivity(self) -> EmitNode:
-        """Add a Selectivity Profile
+        """Add a Selectivity Profile.
 
         Examples
         --------
@@ -133,7 +133,7 @@ class RxSusceptibilityProfNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def add_mixer_products(self) -> EmitNode:
-        """Add a Receiver Mixer Product Node
+        """Add a Receiver Mixer Product Node.
 
         Examples
         --------
@@ -149,7 +149,7 @@ class RxSusceptibilityProfNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def add_spurious_responses(self) -> EmitNode:
-        """Add Receiver Spurs
+        """Add Receiver Spurs.
 
         Examples
         --------

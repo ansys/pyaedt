@@ -341,7 +341,7 @@ class Waveform(EmitNode):
         >>> app = Emit()
         >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
         >>> wf = emit.get_waveforms()[0]
-        >>> wf.imported_spectrum
+        >>> wf.imported_spectrum = "example_value"
 
         """
         val = self._get_property("Imported Spectrum")
