@@ -289,7 +289,6 @@ def unit_converter(
             warnings.warn(f"Unknown units: '{output_units}'")
             return values
         else:
-            original_values = values
             input_is_list = isinstance(values, list)
             if not input_is_list:
                 values = [values]
@@ -301,8 +300,9 @@ def unit_converter(
             for value in values:
                 if unit_system == "Temperature":
                     if input_callable is None or output_callable is None:
-                        warnings.warn("Invalid temperature conversion units")
-                        return original_values
+                        raise ValueError(
+                            "Invalid temperature conversion configuration: Temperature units should map to callables"
+                        )
                     value = input_callable(value, False)
                     value = output_callable(value, output_units != "kel")
                 elif isinstance(input_unit, (int, float)) and isinstance(output_unit, (int, float)):
@@ -315,9 +315,11 @@ def unit_converter(
                 elif input_callable is not None and output_callable is not None:
                     value = input_callable(value, False)
                     value = output_callable(value, True)
+                # NOTE: This should never happen but better to be safe than sorry. If this happens, it means that the
+                # recent changes to AEDT_UNITS have introduced a unit conversion configuration that is not supported
+                # by the current implementation of unit_converter.
                 else:
-                    warnings.warn("Invalid unit conversion configuration for unit system: " + unit_system)
-                    return original_values
+                    raise ValueError(f"Invalid unit conversion configuration for unit system: {unit_system}")
 
                 converted_values.append(value)
             if input_is_list:
