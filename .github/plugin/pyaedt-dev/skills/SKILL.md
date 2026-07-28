@@ -49,6 +49,8 @@ If a request conflicts with these exclusions, ask before accessing excluded path
 - In sentences, use the comma (,) and period (.) to separate periods. Avoid dash unless they are part of the code or string literals.
 - To set off subordinate clauses or parenthetical remarks, use commas or parentheses instead of dashes.
 
+## Code comments rules
+- Always use English for code comments, docstrings, and documentation.
 
 ## Testing guidelines
 

@@ -381,10 +381,27 @@ class ResultDataService:
         if report is None:
             raise AEDTRuntimeError(f"Report '{report_name}' not found in design '{design_name}'.")
 
-        expr_data = report.get_solution_data().get_expression_data(expression=trace_name)
+        sol = report.get_solution_data()
+
+        # Fetch real part (default behaviour, formula='real')
+        expr_data_real = sol.get_expression_data(expression=trace_name, formula="real")
+        # Fetch imaginary part to detect whether the trace is complex
+        expr_data_imag = sol.get_expression_data(expression=trace_name, formula="imag")
+
+        y_real = np.asarray(expr_data_real[1], dtype=float)
+        y_imag = np.asarray(expr_data_imag[1], dtype=float)
+
+        is_complex = not np.all(y_imag == 0.0)
+
+        if is_complex:
+            y = y_real + 1j * y_imag
+        else:
+            y = y_real
+
         data = {
-            "x": np.asarray(expr_data[0]),
-            "y": np.asarray(expr_data[1]),
+            "x": np.asarray(expr_data_real[0], dtype=float),
+            "y": y,
+            "is_complex": is_complex,
         }
         report_entry[trace_name] = data
         return data
@@ -469,6 +486,7 @@ class ResultStore:
         source: str,
         metadata: dict[str, Any],
         name: str | None = None,
+        is_complex: bool | None = None,
     ) -> str:
         """Add a trace to the store.
 
@@ -483,7 +501,16 @@ class ResultStore:
             self._counter += 1
         elif name in self.data:
             raise ValueError(f"A trace named '{name}' already exists.")
-        self.data[name] = {"x": np.asarray(x), "y": np.asarray(y), "source": source, "metadata": metadata}
+        # Get is_complex from the array if not explicitly provided
+        if is_complex is None:
+            is_complex = np.iscomplexobj(y)
+        self.data[name] = {
+            "x": np.asarray(x),
+            "y": np.asarray(y),
+            "source": source,
+            "metadata": metadata,
+            "is_complex": is_complex,
+        }
         return name
 
     def remove(self, name: str) -> None:
@@ -614,9 +641,12 @@ class FormulaCalculator:
         except Exception as exc:  # pragma: no cover - re-raised as ValueError
             raise ValueError(str(exc)) from exc
 
-        y_arr = np.asarray(result, dtype=float)
+        y_arr = np.asarray(result)
+        if not np.iscomplexobj(y_arr):
+            y_arr = y_arr.astype(float)
         if y_arr.ndim == 0:
-            y_arr = np.full_like(x_axis, float(y_arr))
+            fill_val = complex(y_arr) if np.iscomplexobj(y_arr) else float(y_arr)
+            y_arr = np.full(x_axis.shape, fill_val, dtype=type(fill_val))
         if y_arr.shape != x_axis.shape:
             raise ValueError(f"Formula result shape {y_arr.shape} does not match x shape {x_axis.shape}.")
         return x_axis, y_arr, used_names
@@ -625,7 +655,8 @@ class FormulaCalculator:
     def _align(self, used: dict[str, dict[str, Any]]) -> tuple[np.ndarray, dict[str, np.ndarray]]:
         names = list(used.keys())
         xs = [np.asarray(used[n]["x"], dtype=float) for n in names]
-        ys = [np.asarray(used[n]["y"], dtype=float) for n in names]
+        # Preserve the dtype (float or complex) of each trace
+        ys = [np.asarray(used[n]["y"]) for n in names]
 
         if not self.interpolate:
             x_ref = xs[0]
@@ -651,11 +682,22 @@ class FormulaCalculator:
         return x_new, aligned
 
     def _interp_one(self, x_old: np.ndarray, y_old: np.ndarray, x_new: np.ndarray) -> np.ndarray:
+        """Default interpolation does not support complex numbers.
+        It is necessary to interpolate separately real and imaginary parts.
+        """
         # Ensure strictly increasing x for the interpolators.
         order = np.argsort(x_old)
         x_old = x_old[order]
         y_old = y_old[order]
 
+        if np.iscomplexobj(y_old):
+            real_part = self._interp_real(x_old, y_old.real, x_new)
+            imag_part = self._interp_real(x_old, y_old.imag, x_new)
+            return real_part + 1j * imag_part
+        return self._interp_real(x_old, y_old, x_new)
+
+    def _interp_real(self, x_old: np.ndarray, y_old: np.ndarray, x_new: np.ndarray) -> np.ndarray:
+        # arrays are already sorted by the caller (_interp_one)
         kind = self.interp_kind
         if kind == "linear":
             if self.interval_strategy == "extended":
@@ -1153,6 +1195,8 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
         self.set_interpolate = tkinter.BooleanVar(value=self.calculator.interpolate)
         self.set_interval_strategy = tkinter.StringVar(value=self.calculator.interval_strategy)
         self.set_interp_kind = tkinter.StringVar(value=self.calculator.interp_kind)
+        self.set_complex_mode = tkinter.StringVar(value="abs")
+        self.set_complex_mode.trace_add("write", lambda *_: (self._update_plot(), self._redraw_ex_preview()))
         for var in (self.set_num_points, self.set_interpolate, self.set_interval_strategy, self.set_interp_kind):
             var.trace_add("write", lambda *_: self._apply_settings_to_calculator())
 
@@ -1275,7 +1319,7 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
         table_frame.columnconfigure(0, weight=1)
         table_frame.rowconfigure(0, weight=1)
 
-        columns = ("name", "info", "project", "design", "points", "source")
+        columns = ("name", "info", "type", "project", "design", "points", "source")
         self.results_tree = ttk.Treeview(
             table_frame,
             columns=columns,
@@ -1285,15 +1329,17 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
         )
         self.results_tree.heading("name", text="Name")
         self.results_tree.heading("info", text="Expression / Report")
+        self.results_tree.heading("type", text="Type")
         self.results_tree.heading("project", text="Project")
         self.results_tree.heading("design", text="Design")
         self.results_tree.heading("points", text="Points")
         self.results_tree.heading("source", text="Source")
-        self.results_tree.column("name", width=140, anchor="w", stretch=False)
-        self.results_tree.column("info", width=240, anchor="w", stretch=True)
+        self.results_tree.column("name", width=100, anchor="w", stretch=False)
+        self.results_tree.column("info", width=200, anchor="w", stretch=True)
+        self.results_tree.column("type", width=60, anchor="c", stretch=False)
         self.results_tree.column("project", width=140, anchor="w", stretch=False)
         self.results_tree.column("design", width=140, anchor="w", stretch=False)
-        self.results_tree.column("points", width=70, anchor="e", stretch=False)
+        self.results_tree.column("points", width=60, anchor="e", stretch=False)
         self.results_tree.column("source", width=140, anchor="w", stretch=False)
         self.results_tree.grid(row=0, column=0, sticky="nsew")
 
@@ -1407,6 +1453,7 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
                 values=(
                     name,
                     self._trace_info_label(payload),
+                    "complex" if payload.get("is_complex") else "real",
                     meta.get("project", ""),
                     meta.get("design", ""),
                     len(payload["x"]),
@@ -1535,6 +1582,26 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
                 pass
             self._name_editor = None
 
+    def _plot_y(self, ax, x, y, label, **kwargs):
+        """Plot y handling complex values."""
+        if np.iscomplexobj(y):
+            mode = getattr(self, "set_complex_mode", None)
+            mode_val = mode.get() if mode is not None else "abs"
+            if mode_val == "abs + phase":
+                ax.plot(x, np.abs(y), label=f"{label} |·| of complex", **kwargs)
+                phase_kwargs = dict(kwargs)
+                phase_kwargs["linestyle"] = "--"
+                ax.plot(x, np.angle(y, deg=True), label=f"{label} phase (deg) of complex", **phase_kwargs)
+            elif mode_val == "real + imag":
+                ax.plot(x, y.real, label=f"{label} re of complex", **kwargs)
+                imag_kwargs = dict(kwargs)
+                imag_kwargs["linestyle"] = ":"
+                ax.plot(x, y.imag, label=f"{label} im of complex", **imag_kwargs)
+            else:  # "abs" (default)
+                ax.plot(x, np.abs(y), label=f"{label} |·| of complex", **kwargs)
+        else:
+            ax.plot(x, y, label=label, **kwargs)
+
     def _update_plot(self) -> None:
         if not hasattr(self, "_ax"):
             return
@@ -1547,12 +1614,13 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
                 continue
             info = self._trace_info_label(payload)
             label = f"{name} ({info})" if info else name
-            self._ax.plot(payload["x"], payload["y"], label=label)
+            self._plot_y(self._ax, payload["x"], payload["y"], label=label)
 
         # Overlay the formula result, if any, with an emphasised style.
         if self._formula_result is not None:
             x_f, y_f = self._formula_result
-            self._ax.plot(
+            self._plot_y(
+                self._ax,
                 x_f,
                 y_f,
                 label=f"= {self.formula.get().strip()}",
@@ -1877,7 +1945,17 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
         self._ex_plot.clear()
         if self._ex_preview_xy is not None:
             x, y = self._ex_preview_xy
-            self._ex_plot.ax.plot(x, y, "o-", markersize=3, linewidth=1.0)
+            self._plot_y(
+                self._ex_plot.ax,
+                x,
+                y,
+                label=self._ex_preview_key[3],
+                linestyle="-",
+                marker="o",
+                markersize=3,
+                linewidth=1.0,
+            )
+            self._ex_plot.ax.legend(loc="best", fontsize=8)
         self._ex_plot.redraw()
 
     def _import_existing_trace(self) -> None:
@@ -2897,27 +2975,39 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
             width=15,
         ).grid(row=5, column=1, sticky="w", padx=10, pady=4)
 
+        # Complex plot mode
+        ttk.Label(self.tab_settings, text="Complex plot mode", style="PyAEDT.TLabel").grid(
+            row=6, column=0, sticky="w", padx=10, pady=4
+        )
+        ttk.Combobox(
+            self.tab_settings,
+            textvariable=self.set_complex_mode,
+            values=["abs", "abs + phase", "real + imag"],
+            state="readonly",
+            width=15,
+        ).grid(row=6, column=1, sticky="w", padx=10, pady=4)
+
         # Theme section
         ttk.Separator(self.tab_settings, orient="horizontal").grid(
-            row=6, column=0, columnspan=2, sticky="ew", padx=10, pady=(15, 5)
+            row=7, column=0, columnspan=2, sticky="ew", padx=10, pady=(15, 5)
         )
         ttk.Label(
             self.tab_settings,
             text="Appearance",
             style="PyAEDT.TLabel",
             font=(self.theme.default_font[0], 11, "bold"),
-        ).grid(row=7, column=0, columnspan=2, sticky="w", padx=10, pady=(5, 5))
+        ).grid(row=8, column=0, columnspan=2, sticky="w", padx=10, pady=(5, 5))
 
         ttk.Label(
             self.tab_settings,
             text="Toggle light/dark theme:",
             style="PyAEDT.TLabel",
-        ).grid(row=8, column=0, sticky="w", padx=10, pady=4)
+        ).grid(row=9, column=0, sticky="w", padx=10, pady=4)
 
         # Reuse the base-class helper to create the standard Sun/Moon toggle
         # button. We override ``change_theme_button`` below so ``apply_theme``
         # can still find it for the glyph update.
-        self.add_toggle_theme_button(self.tab_settings, toggle_row=8, toggle_column=1)
+        self.add_toggle_theme_button(self.tab_settings, toggle_row=9, toggle_column=1)
 
     @property
     def change_theme_button(self) -> tkinter.Widget:
@@ -2950,10 +3040,12 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
             "── Selected Traces Tab ──\n\n"
             "Lists every trace you have imported or calculated. Select one or more "
             "rows to plot them together. Use Ctrl-click or Shift-click for "
-            "multi-selection. Double-click a name cell to rename a trace inline.\n\n"
+            "multi-selection. Double-click a name cell to rename a trace inline.\n"
+            "Traces with complex values are supported. 3D traces are not supported.\n\n"
             "Formula bar \n"
             "  • type any mathematical expression using trace names as "
             "variables (e.g. 'result_1 - result_2' or '20*log10(abs(R))').\n "
+            "  • The formula can mix real and complex traces as long as it defines a valid operation.\n"
             "  • The result curve is drawn live in the plot while you type.\n"
             "  • Once the formula is valid, two actions become available:\n"
             "     • Store as Trace  –  saves the result as a new permanent trace "
