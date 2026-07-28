@@ -221,7 +221,7 @@ class CouplingsNode(EmitNode):
             stringified data for the node returned if file_name not specified"""
         if antennas is not None and all(isinstance(x, AntennaNode) for x in antennas):
             a1, a2 = antennas
-            vals = f"{a1._full_node_name}|{a2._full_node_name}"
+            vals = f"{a1._full_node_name()}|{a2._full_node_name()}"
         else:
             vals = f"{ports}"
         return self._export_to_csv(file_name, "SelectedRxAntenna|SelectedTxAntenna", vals)
@@ -239,7 +239,7 @@ class CouplingsNode(EmitNode):
             the ports to export the data for."""
         if antennas is not None and all(isinstance(x, AntennaNode) for x in antennas):
             a1, a2 = antennas
-            vals = f"{a1._full_node_name}|{a2._full_node_name}"
+            vals = f"{a1._full_node_name()}|{a2._full_node_name()}"
         else:
             vals = f"{ports}"
         return self._plot("SelectedRxAntenna|SelectedTxAntenna", vals)
