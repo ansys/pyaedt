@@ -398,10 +398,18 @@ class ResultDataService:
         else:
             y = y_real
 
+        # Build axis labels
+        y_label = sol.active_expression
+        primary_sweep = sol.primary_sweep
+        sweep_unit = sol.units_sweeps.get(primary_sweep, "")
+        x_label = f"{primary_sweep} [{sweep_unit}]" if sweep_unit else primary_sweep
+
         data = {
             "x": np.asarray(expr_data_real[0], dtype=float),
             "y": y,
             "is_complex": is_complex,
+            "x_label": x_label,
+            "y_label": y_label,
         }
         report_entry[trace_name] = data
         return data
@@ -1336,7 +1344,7 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
         self.results_tree.heading("source", text="Source")
         self.results_tree.column("name", width=100, anchor="w", stretch=False)
         self.results_tree.column("info", width=200, anchor="w", stretch=True)
-        self.results_tree.column("type", width=60, anchor="c", stretch=False)
+        self.results_tree.column("type", width=60, anchor="center", stretch=False)
         self.results_tree.column("project", width=140, anchor="w", stretch=False)
         self.results_tree.column("design", width=140, anchor="w", stretch=False)
         self.results_tree.column("points", width=60, anchor="e", stretch=False)
@@ -1956,6 +1964,18 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
                 linewidth=1.0,
             )
             self._ex_plot.ax.legend(loc="best", fontsize=8)
+
+            # Set axis labels from cached trace data (if available)
+            p, d, r, trace_name = self._ex_preview_key
+            cached = self.service.existing_reports.get(p, {}).get(d, {}).get(r, {}).get(trace_name)
+            if isinstance(cached, dict):
+                x_label = cached.get("x_label", "")
+                y_label = cached.get("y_label", "")
+                if x_label:
+                    self._ex_plot.ax.set_xlabel(x_label, fontsize=8)
+                if y_label:
+                    self._ex_plot.ax.set_ylabel(y_label, fontsize=8)
+
         self._ex_plot.redraw()
 
     def _import_existing_trace(self) -> None:
