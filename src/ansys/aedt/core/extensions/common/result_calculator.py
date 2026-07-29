@@ -597,7 +597,7 @@ class FormulaCalculator:
 
     def __init__(
         self,
-        num_points: int = 1001,
+        num_points: int = 301,
         interpolate: bool = True,
         interval_strategy: str = "common",
         interp_kind: str = "linear",
