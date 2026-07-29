@@ -28,7 +28,6 @@ import json
 import os
 from pathlib import Path
 import re
-import threading
 import tkinter
 from tkinter import filedialog
 from tkinter import messagebox
@@ -1255,13 +1254,7 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
         ).grid(row=0, column=0, sticky="w")
 
         # Right: "Fetching data…" label + indeterminate bar (hidden when idle)
-        self._busy_label = ttk.Label(status_bar, text="Fetching data…", style="PyAEDT.TLabel")
-        self._busy_label.grid(row=0, column=1, padx=(0, 8))
-        self._busy_label.grid_remove()
-
-        self._progress_bar = ttk.Progressbar(status_bar, mode="indeterminate", length=200)
-        self._progress_bar.grid(row=0, column=2)
-        self._progress_bar.grid_remove()
+        self.add_busy_indicator(status_bar, row=0, column=1)
 
         # Collect all interactive widgets in Tab 2 and the AEDT section of
         # the Datasets tab so they can be bulk-disabled while an AEDT call is in flight.
@@ -3167,57 +3160,6 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
             except Exception:
                 pass
         self._saved_widget_states = {}
-
-    def _run_async(self, task, on_done) -> None:
-        """Run ``task()`` in a background thread; call ``on_done(result)`` in the main thread.
-
-        While the task is running:
-        - An indeterminate progress bar is shown at the bottom of the window.
-        - All interactive widgets in Tab 2 and the Datasets AEDT section are
-          disabled so the user cannot trigger a second AEDT call on top of an
-          in-flight one.
-        - Tab 1, Settings and Help remain fully usable.
-
-        ``on_done`` receives either the return value of ``task`` or the
-        Exception it raised, so the caller always checks
-        ``isinstance(result, Exception)``.
-
-        Usage pattern::
-
-            def _my_slow_method(self):
-                param = self.some_var.get()  # read StringVars HERE (main thread)
-
-                def _task():
-                    return self.service.slow_aedt_call(param)
-
-                def _on_done(result):
-                    if isinstance(result, Exception):
-                        messagebox.showerror(...)
-                        return
-                    # update UI with result …
-
-                self._run_async(_task, _on_done)
-        """
-        self._disable_aedt_tabs()
-        self._busy_label.grid()
-        self._progress_bar.start(10)
-        self._progress_bar.grid()
-
-        def _worker():
-            try:
-                result = task()
-            except Exception as exc:
-                result = exc
-            self.root.after(0, lambda: _finish(result))
-
-        def _finish(result):
-            self._progress_bar.stop()
-            self._progress_bar.grid_remove()
-            self._busy_label.grid_remove()
-            self._restore_aedt_tabs()
-            on_done(result)
-
-        threading.Thread(target=_worker, daemon=True).start()
 
     # ----------------------------- Helpers -----------------------------------
     def _row_cb(self, parent, row, label, var, callback, disabled=False, col_offset=0, cb_width=52):

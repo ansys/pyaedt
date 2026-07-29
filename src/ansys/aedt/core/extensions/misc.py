@@ -900,6 +900,200 @@ class ExtensionCommon(PyAedtBase):
         """
         raise NotImplementedError("Subclasses must implement this method.")
 
+    def _run_async(self, task, on_done) -> None:
+        """Run ``task()`` in a background thread and call ``on_done(result)`` on the main thread.
+
+        This method is the standard way to offload slow AEDT operations (e.g. loading
+        projects, fetching reports, pushing datasets) without freezing the Tkinter UI.
+
+        While the task is running, the following optional UI feedback is applied
+        automatically if the corresponding attributes are defined:
+
+        - ``self._progress_bar`` (``ttk.Progressbar``): an indeterminate progress bar
+          shown while the task is running. It is started before the task and stopped
+          once it completes. The easiest way to create this widget is to call
+          :meth:`add_busy_indicator` inside :meth:`add_extension_content`; it can
+          also be created manually and assigned to ``self._progress_bar``.
+
+        - ``self._busy_label`` (``ttk.Label``): a label shown next to the progress
+          bar during execution (e.g. ``"Fetching data…"``). Created automatically by
+          :meth:`add_busy_indicator`; can also be created manually and assigned to
+          ``self._busy_label``.
+
+        - ``self._disable_aedt_tabs()`` / ``self._restore_aedt_tabs()``: optional
+          methods that disable interactive widgets before the task starts and
+          re-enable them once it finishes. This prevents the user from triggering a
+          second AEDT call while one is already in flight. Subclasses that need this
+          protection must implement these two methods.
+
+        If any of the above attributes or methods are absent, that feature is silently
+        skipped, so the method works correctly even when :meth:`add_busy_indicator`
+        has not been called.
+
+        ``on_done`` always receives exactly one argument:
+
+        - The **return value** of ``task()`` on success.
+        - The **Exception** instance if ``task()`` raised one.
+
+        The caller is therefore responsible for checking::
+
+            if isinstance(result, Exception):
+                ...
+
+        Parameters
+        ----------
+        task : callable
+            A zero-argument callable executed in the background thread.
+            **Important**: read all Tkinter ``StringVar`` / widget values *before*
+            calling ``_run_async``, because Tkinter objects must only be accessed
+            from the main thread.
+        on_done : callable
+            A one-argument callable invoked back on the main thread when ``task``
+            completes (successfully or with an exception).
+
+        Notes
+        -----
+        The background thread is started as a daemon thread, so it will not prevent
+        the process from exiting if the main window is closed.
+
+        Examples
+        --------
+        Converting an existing blocking method to use ``_run_async``:
+
+        **Before** (blocks the UI until the AEDT call returns)::
+
+            def _on_design_changed(self, project, design):
+                result = self.service.load_reports_for_design(project, design)
+                self._populate_cb(self.report_cb, self.report_var, result)
+
+        **After** (non-blocking, UI stays responsive)::
+
+            def _on_design_changed(self, project, design):
+                # Read StringVar/widget values HERE, in the main thread.
+                p = project
+                d = design
+
+                def _task():
+                    # This runs in the background thread — no Tkinter access here.
+                    return self.service.load_reports_for_design(p, d)
+
+                def _on_done(result):
+                    # This runs back on the main thread — safe to update the UI.
+                    if isinstance(result, Exception):
+                        messagebox.showerror("Load error", f"Failed to load reports:\\n{result}")
+                        return
+                    self._populate_cb(self.report_cb, self.report_var, result)
+
+                self._run_async(_task, _on_done)
+
+        """
+        disable_func = getattr(self, "_disable_aedt_tabs", None)
+        restore_func = getattr(self, "_restore_aedt_tabs", None)
+        busy_label = getattr(self, "_busy_label", None)
+        progress_bar = getattr(self, "_progress_bar", None)
+
+        if disable_func:
+            disable_func()
+        if busy_label:
+            busy_label.grid()
+        if progress_bar:
+            progress_bar.start(10)
+            progress_bar.grid()
+
+        def _worker():
+            try:
+                result = task()
+            except Exception as exc:
+                result = exc
+            self.root.after(0, lambda: _finish(result))
+
+        def _finish(result):
+            if progress_bar:
+                progress_bar.stop()
+                progress_bar.grid_remove()
+            if busy_label:
+                busy_label.grid_remove()
+            if restore_func:
+                restore_func()
+            on_done(result)
+
+        threading.Thread(target=_worker, daemon=True).start()
+
+    def add_busy_indicator(
+        self,
+        parent: tkinter.Misc,
+        row: int,
+        column: int,
+        busy_text: str = "Fetching data…",
+        bar_length: int = 200,
+    ) -> None:
+        """Add a busy indicator composed of a label and an indeterminate progress bar.
+
+        The indicator is hidden by default and shown automatically by
+        :meth:`_run_async` while a background AEDT task is running.
+        Once the task completes, both widgets are hidden again.
+
+        Call this method inside :meth:`add_extension_content` to place the
+        indicator at any position in the layout. The two widgets are stored as
+        ``self._busy_label`` (``ttk.Label``) and ``self._progress_bar``
+        (``ttk.Progressbar``) so that :meth:`_run_async` picks them up
+        automatically — no further configuration is needed.
+
+        Parameters
+        ----------
+        parent : tkinter.Misc
+            The parent widget (e.g. ``self.root`` or a ``ttk.Frame``) in which
+            the indicator frame is placed.
+        row : int
+            Grid row where the indicator frame is placed inside ``parent``.
+        column : int
+            Grid column where the indicator frame is placed inside ``parent``.
+        busy_text : str, optional
+            Text shown on the label while the task is running.
+            Default is ``"Fetching data…"``.
+        bar_length : int, optional
+            Pixel length of the indeterminate progress bar. Default is ``200``.
+
+        Examples
+        --------
+        Minimal usage — place the indicator at the bottom of the root window::
+
+            class MyExtension(ExtensionProjectCommon):
+                def add_extension_content(self):
+                    # ... build the rest of the UI ...
+                    self.add_busy_indicator(self.root, row=10, column=0)
+
+        Then any slow AEDT call automatically shows the indicator::
+
+            def _on_design_changed(self, project, design):
+                p, d = project, design
+
+                def _task():
+                    return self.service.load_data(p, d)
+
+                def _on_done(result):
+                    if isinstance(result, Exception):
+                        messagebox.showerror("Error", str(result))
+                        return
+                    self._update_ui(result)
+
+                self._run_async(_task, _on_done)
+
+        """
+        indicator_frame = ttk.Frame(parent, style="PyAEDT.TFrame")
+        indicator_frame.grid(row=row, column=column, sticky="ew")
+
+        self._busy_label = ttk.Label(indicator_frame, text=busy_text, style="PyAEDT.TLabel")
+        self._busy_label.grid(row=0, column=0, padx=(0, 8))
+        self._busy_label.grid_remove()
+
+        self._progress_bar = ttk.Progressbar(indicator_frame, mode="indeterminate", length=bar_length)
+        self._progress_bar.grid(row=0, column=1)
+        self._progress_bar.grid_remove()
+
+        self._widgets["busy_label"] = self._busy_label
+        self._widgets["progress_bar"] = self._progress_bar
+
 
 class ExtensionIcepakCommon(ExtensionCommon):
     """Common methods for Icepak extensions.
