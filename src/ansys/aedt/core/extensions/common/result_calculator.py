@@ -2799,7 +2799,14 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
             self._fi_redraw_plot()
             return
         assert y is not None  # for type-checkers
-        label = self._fi_name_var.get().strip() or "preview"
+        base_label = self._fi_name_var.get().strip() or "preview"
+        fmt_name = self._fi_format_var.get() if hasattr(self, "_fi_format_var") else ""
+        if fmt_name.startswith("Touchstone"):
+            port_i = self._fi_xcol_var.get()
+            port_j = self._fi_ycol_var.get()
+            label = f"{base_label} ({port_i},{port_j})"
+        else:
+            label = base_label
         entry = (x, y, label)
         if getattr(self, "_fi_cumulate_var", None) and self._fi_cumulate_var.get():
             if not hasattr(self, "_fi_preview_list"):
