@@ -355,9 +355,9 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
 
         """
         boundary_name = generate_unique_name("Opening")
-        self.modeler.create_face_list(air_faces, "boundary_faces" + boundary_name)
         props = {}
         air_faces = self.modeler.convert_to_selections(air_faces, True)
+        self.modeler.create_face_list(air_faces, "boundary_faces" + boundary_name)
 
         props["Faces"] = air_faces
         props["Temperature"] = "AmbientTemp"
