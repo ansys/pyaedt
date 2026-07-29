@@ -3787,13 +3787,13 @@ def test_purge_domain_results_only_affects_specified_domain(interference):
     DESKTOP_VERSION < "2027.1",
     reason="Skipped on versions earlier than 2027.1",
 )
-def test_purge_domain_results_nto1(n_to_1):
+def test_purge_domain_results_nto1(interference):
     """purge_domain_results removes N-to-1 results for the specified receiver."""
-    rev = n_to_1.results.analyze()
+    rev = interference.results.analyze()
     sim = rev.get_simulation()
     sim.enable_n_to_1(True)
 
-    domain = InteractionDomain(n_to_1)
+    domain = InteractionDomain(interference)
     domain.set_receiver("Bluetooth")
 
     interaction = sim.run(domain)
