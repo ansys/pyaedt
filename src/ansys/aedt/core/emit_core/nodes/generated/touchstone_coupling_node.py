@@ -44,10 +44,10 @@ class TouchstoneCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> touchstone = couplings.import_touchstone(r"C:\\Temp\\coupling.s2p")
-        >>> touchstone.parent
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> ts = cpl.import_touchstone("C:\\EMIT\\link.s2p")
+        >>> ts.parent
 
         """
         return self._parent
@@ -61,10 +61,10 @@ class TouchstoneCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> touchstone = couplings.import_touchstone(r"C:\\Temp\\coupling.s2p")
-        >>> touchstone.node_type
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> ts = cpl.import_touchstone("C:\\EMIT\\link.s2p")
+        >>> ts.node_type
 
         """
         return self._node_type
@@ -120,10 +120,10 @@ class TouchstoneCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> touchstone = couplings.import_touchstone(r"C:\\Temp\\coupling.s2p")
-        >>> duplicate_coupling = touchstone.duplicate("Coupling_Copy")
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> ts = cpl.import_touchstone("C:\\EMIT\\link.s2p")
+        >>> ts_copy = ts.duplicate("ts_copy")
 
         """
         return self._duplicate(new_name)
@@ -136,10 +136,10 @@ class TouchstoneCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> touchstone = couplings.import_touchstone(r"C:\\Temp\\coupling.s2p")
-        >>> touchstone.delete()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> ts = cpl.import_touchstone("C:\\EMIT\\link.s2p")
+        >>> ts.delete()
 
         """
         self._delete()
@@ -155,11 +155,10 @@ class TouchstoneCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> touchstone = couplings.import_touchstone(r"C:\\Temp\\coupling.s2p")
-        >>> touchstone.enabled = True
-        >>> touchstone.enabled
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> ts = cpl.import_touchstone("C:\\EMIT\\link.s2p")
+        >>> ts.enabled = True
 
         """
         val = self._get_property("Enabled")
@@ -181,10 +180,10 @@ class TouchstoneCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> touchstone = couplings.import_touchstone(r"C:\\Temp\\coupling.s2p")
-        >>> touchstone.filename
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> ts = cpl.import_touchstone("C:\\EMIT\\link.s2p")
+        >>> ts.filename = "example_value"
 
         """
         val = self._get_property("Filename")
@@ -204,10 +203,10 @@ class TouchstoneCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> touchstone = couplings.import_touchstone(r"C:\\Temp\\coupling.s2p")
-        >>> touchstone.savant_matched_coupling_file
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> ts = cpl.import_touchstone("C:\\EMIT\\link.s2p")
+        >>> ts.savant_matched_coupling_file
 
         """
         val = self._get_property("Savant Matched Coupling File")
@@ -224,11 +223,10 @@ class TouchstoneCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> touchstone = couplings.import_touchstone(r"C:\\Temp\\coupling.s2p")
-        >>> touchstone.enable_em_isolation = True
-        >>> touchstone.enable_em_isolation
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> ts = cpl.import_touchstone("C:\\EMIT\\link.s2p")
+        >>> ts.enable_em_isolation = False
 
         """
         val = self._get_property("Enable EM Isolation")
@@ -248,13 +246,10 @@ class TouchstoneCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> touchstone = couplings.import_touchstone(r"C:\\Temp\\coupling.s2p")
-        >>> ant1 = app.schematic.create_component("Antenna", name="Antenna1")
-        >>> ant2 = app.schematic.create_component("Antenna", name="Antenna2")
-        >>> touchstone.port_antenna_assignment = [ant1, ant2]
-        >>> touchstone.port_antenna_assignment
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> ts = cpl.import_touchstone("C:\\EMIT\\link.s2p")
+        >>> ts.port_antenna_assignment
 
         """
         val = self._get_property("Port-Antenna Assignment")
@@ -282,11 +277,10 @@ class TouchstoneCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> touchstone = couplings.import_touchstone(r"C:\\Temp\\coupling.s2p")
-        >>> touchstone.notes = "Imported from measurement data."
-        >>> touchstone.notes
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> ts = cpl.import_touchstone("C:\\EMIT\\link.s2p")
+        >>> ts.notes = "example_value"
 
         """
         val = self._get_property("Notes")

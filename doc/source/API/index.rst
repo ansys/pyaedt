@@ -104,6 +104,7 @@ Example with ``Desktop`` class implicit initialization:
    Configuration
    SetupTemplates
    CableModeling
+   EMIT
    FilterSolutions
    Profiles
    Substrate

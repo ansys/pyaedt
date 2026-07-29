@@ -44,10 +44,8 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> _ = app.modeler.components.create_component("Band Pass", name="Input Filter")
-        >>> revision = app.results.analyze()
-        >>> filter_node = revision.get_component_node("Input Filter")
-        >>> filter_node.node_type
+        >>> filt = app.schematic.create_component("Filter")
+        >>> filt.node_type
 
         """
         return self._node_type
@@ -91,8 +89,8 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> filter_node = app.modeler.components.create_component("Filter", name="RF_Filter")
-        >>> filter_copy = filter_node.duplicate("RF_Filter_Copy")
+        >>> filt = app.schematic.create_component("Filter")
+        >>> filt_copy = filt.duplicate("filt_copy")
 
         """
         return self._duplicate(new_name)
@@ -105,8 +103,8 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> filter_node = app.modeler.components.create_component("Filter", name="RF_Filter")
-        >>> filter_node.delete()
+        >>> filt = app.schematic.create_component("Filter")
+        >>> filt.delete()
 
         """
         self._delete()
@@ -122,10 +120,9 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> _ = app.modeler.components.create_component("Band Pass", name="Input Filter")
-        >>> revision = app.results.analyze()
-        >>> filter_node = revision.get_component_node("Input Filter")
-        >>> filter_node.filename = r"C:\\Users\\Public\\Documents\\frontend_filter.s2p"
+        >>> filt = app.schematic.create_component("Filter")
+        >>> filt.filter_type = Filter.FilterTypeOption.BY_FILE
+        >>> filt.filename = "example_value"
 
         """
         val = self._get_property("Filename")
@@ -147,10 +144,8 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> _ = app.modeler.components.create_component("Band Pass", name="Input Filter")
-        >>> revision = app.results.analyze()
-        >>> filter_node = revision.get_component_node("Input Filter")
-        >>> filter_node.noise_temperature = 290.0
+        >>> filt = app.schematic.create_component("Filter")
+        >>> filt.noise_temperature = 290.0
 
         """
         val = self._get_property("Noise Temperature")
@@ -170,10 +165,8 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> _ = app.modeler.components.create_component("Band Pass", name="Input Filter")
-        >>> revision = app.results.analyze()
-        >>> filter_node = revision.get_component_node("Input Filter")
-        >>> filter_node.notes = "Front-end band-pass filter"
+        >>> filt = app.schematic.create_component("Filter")
+        >>> filt.notes = "example_value"
 
         """
         val = self._get_property("Notes")
@@ -205,10 +198,8 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> _ = app.modeler.components.create_component("Band Pass", name="Input Filter")
-        >>> revision = app.results.analyze()
-        >>> filter_node = revision.get_component_node("Input Filter")
-        >>> filter_node.filter_type = filter_node.FilterTypeOption.BAND_PASS
+        >>> filt = app.schematic.create_component("Filter")
+        >>> filt.filter_type = Filter.FilterTypeOption.BY_FILE
 
         """
         val = self._get_property("Filter Type")
@@ -231,10 +222,9 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> _ = app.modeler.components.create_component("Band Pass", name="Input Filter")
-        >>> revision = app.results.analyze()
-        >>> filter_node = revision.get_component_node("Input Filter")
-        >>> filter_node.insertion_loss = 1.2
+        >>> filt = app.schematic.create_component("Filter")
+        >>> filt.filter_type = Filter.FilterTypeOption.LOW_PASS
+        >>> filt.insertion_loss = 0
 
         """
         val = self._get_property("Insertion Loss")
@@ -256,10 +246,9 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> _ = app.modeler.components.create_component("Band Pass", name="Input Filter")
-        >>> revision = app.results.analyze()
-        >>> filter_node = revision.get_component_node("Input Filter")
-        >>> filter_node.stop_band_attenuation = 45.0
+        >>> filt = app.schematic.create_component("Filter")
+        >>> filt.filter_type = Filter.FilterTypeOption.LOW_PASS
+        >>> filt.stop_band_attenuation = 40
 
         """
         val = self._get_property("Stop band Attenuation")
@@ -281,10 +270,9 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> _ = app.modeler.components.create_component("Low Pass", name="Input Filter")
-        >>> revision = app.results.analyze()
-        >>> filter_node = revision.get_component_node("Input Filter")
-        >>> filter_node.max_pass_band = "2.5 GHz"
+        >>> filt = app.schematic.create_component("Filter")
+        >>> filt.filter_type = Filter.FilterTypeOption.LOW_PASS
+        >>> filt.max_pass_band = 120e6
 
         """
         val = self._get_property("Max Pass Band")
@@ -308,10 +296,9 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> _ = app.modeler.components.create_component("Low Pass", name="Input Filter")
-        >>> revision = app.results.analyze()
-        >>> filter_node = revision.get_component_node("Input Filter")
-        >>> filter_node.min_stop_band = "2.8 GHz"
+        >>> filt = app.schematic.create_component("Filter")
+        >>> filt.filter_type = Filter.FilterTypeOption.LOW_PASS
+        >>> filt.min_stop_band = 140e6
 
         """
         val = self._get_property("Min Stop Band")
@@ -335,10 +322,9 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> _ = app.modeler.components.create_component("High Pass", name="Input Filter")
-        >>> revision = app.results.analyze()
-        >>> filter_node = revision.get_component_node("Input Filter")
-        >>> filter_node.max_stop_band = "1.8 GHz"
+        >>> filt = app.schematic.create_component("Filter")
+        >>> filt.filter_type = Filter.FilterTypeOption.HIGH_PASS
+        >>> filt.max_stop_band = 60e6
 
         """
         val = self._get_property("Max Stop Band")
@@ -362,10 +348,9 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> _ = app.modeler.components.create_component("High Pass", name="Input Filter")
-        >>> revision = app.results.analyze()
-        >>> filter_node = revision.get_component_node("Input Filter")
-        >>> filter_node.min_pass_band = "2.1 GHz"
+        >>> filt = app.schematic.create_component("Filter")
+        >>> filt.filter_type = Filter.FilterTypeOption.HIGH_PASS
+        >>> filt.min_pass_band = 80e6
 
         """
         val = self._get_property("Min Pass Band")
@@ -389,10 +374,9 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> _ = app.modeler.components.create_component("Band Pass", name="Input Filter")
-        >>> revision = app.results.analyze()
-        >>> filter_node = revision.get_component_node("Input Filter")
-        >>> filter_node.bp_lower_stop_band = "2.35 GHz"
+        >>> filt = app.schematic.create_component("Filter")
+        >>> filt.filter_type = Filter.FilterTypeOption.BAND_PASS
+        >>> filt.bp_lower_stop_band = 80e6
 
         """
         if int(self._emit_obj.aedt_version_id[-3:]) < 261:
@@ -419,10 +403,9 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> _ = app.modeler.components.create_component("Band Pass", name="Input Filter")
-        >>> revision = app.results.analyze()
-        >>> filter_node = revision.get_component_node("Input Filter")
-        >>> filter_node.bp_lower_cutoff = "2.4 GHz"
+        >>> filt = app.schematic.create_component("Filter")
+        >>> filt.filter_type = Filter.FilterTypeOption.BAND_PASS
+        >>> filt.bp_lower_cutoff = 90e6
 
         """
         if int(self._emit_obj.aedt_version_id[-3:]) < 261:
@@ -449,10 +432,9 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> _ = app.modeler.components.create_component("Band Pass", name="Input Filter")
-        >>> revision = app.results.analyze()
-        >>> filter_node = revision.get_component_node("Input Filter")
-        >>> filter_node.bp_higher_cutoff = "2.48 GHz"
+        >>> filt = app.schematic.create_component("Filter")
+        >>> filt.filter_type = Filter.FilterTypeOption.BAND_PASS
+        >>> filt.bp_higher_cutoff = 110e6
 
         """
         if int(self._emit_obj.aedt_version_id[-3:]) < 261:
@@ -479,10 +461,9 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> _ = app.modeler.components.create_component("Band Pass", name="Input Filter")
-        >>> revision = app.results.analyze()
-        >>> filter_node = revision.get_component_node("Input Filter")
-        >>> filter_node.bp_higher_stop_band = "2.53 GHz"
+        >>> filt = app.schematic.create_component("Filter")
+        >>> filt.filter_type = Filter.FilterTypeOption.BAND_PASS
+        >>> filt.bp_higher_stop_band = 120e6
 
         """
         if int(self._emit_obj.aedt_version_id[-3:]) < 261:
@@ -509,9 +490,9 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> filter_node = app.modeler.components.create_component("Filter", name="RF_Filter")
-        >>> filter_node.filter_type = filter_node.FilterTypeOption.BAND_STOP
-        >>> filter_node.bs_lower_cutoff = "1.8GHz"
+        >>> filt = app.schematic.create_component("Filter")
+        >>> filt.filter_type = Filter.FilterTypeOption.BAND_STOP
+        >>> filt.bs_lower_cutoff = 80e6
 
         """
         if int(self._emit_obj.aedt_version_id[-3:]) < 261:
@@ -538,9 +519,9 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> filter_node = app.modeler.components.create_component("Filter", name="RF_Filter")
-        >>> filter_node.filter_type = filter_node.FilterTypeOption.BAND_STOP
-        >>> filter_node.bs_lower_stop_band = "1.7GHz"
+        >>> filt = app.schematic.create_component("Filter")
+        >>> filt.filter_type = Filter.FilterTypeOption.BAND_STOP
+        >>> filt.bs_lower_stop_band = 90e6
 
         """
         if int(self._emit_obj.aedt_version_id[-3:]) < 261:
@@ -567,9 +548,9 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> filter_node = app.modeler.components.create_component("Filter", name="RF_Filter")
-        >>> filter_node.filter_type = filter_node.FilterTypeOption.BAND_STOP
-        >>> filter_node.bs_higher_stop_band = "2.3GHz"
+        >>> filt = app.schematic.create_component("Filter")
+        >>> filt.filter_type = Filter.FilterTypeOption.BAND_STOP
+        >>> filt.bs_higher_stop_band = 110e6
 
         """
         if int(self._emit_obj.aedt_version_id[-3:]) < 261:
@@ -596,9 +577,9 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> filter_node = app.modeler.components.create_component("Filter", name="RF_Filter")
-        >>> filter_node.filter_type = filter_node.FilterTypeOption.BAND_STOP
-        >>> filter_node.bs_higher_cutoff = "2.2GHz"
+        >>> filt = app.schematic.create_component("Filter")
+        >>> filt.filter_type = Filter.FilterTypeOption.BAND_STOP
+        >>> filt.bs_higher_cutoff = 120e6
 
         """
         if int(self._emit_obj.aedt_version_id[-3:]) < 261:
@@ -625,9 +606,9 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> filter_node = app.modeler.components.create_component("Filter", name="RF_Filter")
-        >>> filter_node.filter_type = filter_node.FilterTypeOption.TUNABLE_BANDPASS
-        >>> filter_node.lowest_tuned_frequency = "900MHz"
+        >>> filt = app.schematic.create_component("Filter")
+        >>> filt.filter_type = Filter.FilterTypeOption.TUNABLE_BANDPASS
+        >>> filt.lowest_tuned_frequency = 80e6
 
         """
         val = self._get_property("Lowest Tuned Frequency")
@@ -651,9 +632,9 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> filter_node = app.modeler.components.create_component("Filter", name="RF_Filter")
-        >>> filter_node.filter_type = filter_node.FilterTypeOption.TUNABLE_BANDPASS
-        >>> filter_node.highest_tuned_frequency = "2.4GHz"
+        >>> filt = app.schematic.create_component("Filter")
+        >>> filt.filter_type = Filter.FilterTypeOption.TUNABLE_BANDPASS
+        >>> filt.highest_tuned_frequency = 120e6
 
         """
         val = self._get_property("Highest Tuned Frequency")
@@ -677,9 +658,9 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> filter_node = app.modeler.components.create_component("Filter", name="RF_Filter")
-        >>> filter_node.filter_type = filter_node.FilterTypeOption.TUNABLE_BANDPASS
-        >>> filter_node.percent_bandwidth = 12.5
+        >>> filt = app.schematic.create_component("Filter")
+        >>> filt.filter_type = Filter.FilterTypeOption.TUNABLE_BANDPASS
+        >>> filt.percent_bandwidth = 10
 
         """
         val = self._get_property("Percent Bandwidth")
@@ -701,9 +682,9 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> filter_node = app.modeler.components.create_component("Filter", name="RF_Filter")
-        >>> filter_node.filter_type = filter_node.FilterTypeOption.TUNABLE_BANDPASS
-        >>> filter_node.shape_factor = 1.8
+        >>> filt = app.schematic.create_component("Filter")
+        >>> filt.filter_type = Filter.FilterTypeOption.TUNABLE_BANDPASS
+        >>> filt.shape_factor = 2
 
         """
         val = self._get_property("Shape Factor")
@@ -723,8 +704,8 @@ class Filter(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> filter_node = app.modeler.components.create_component("Filter", name="RF_Filter")
-        >>> filter_node.warnings
+        >>> filt = app.schematic.create_component("Filter")
+        >>> filt.warnings
 
         """
         val = self._get_property("Warnings")

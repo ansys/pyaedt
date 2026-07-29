@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -29,6 +29,8 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class TxNbEmissionNode(EmitNode):
+    """Provide tx nb emission node."""
+
     def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
@@ -36,18 +38,54 @@ class TxNbEmissionNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
-        """The parent of this emit node."""
+        """The parent of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_nb_emission = spec.add_narrowband_emissions_mask()
+        >>> tx_nb_emission.parent
+
+        """
         return self._parent
 
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node."""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_nb_emission = spec.add_narrowband_emissions_mask()
+        >>> tx_nb_emission.node_type
+
+        """
         return self._node_type
 
     @min_aedt_version("2025.2")
     def import_csv_file(self, file_name: str) -> EmitNode:
-        """Import a CSV File..."""
+        """Import a CSV File....
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_nb_emission = spec.add_narrowband_emissions_mask()
+        >>> tx_nb_emission.import_csv_file("C:\\EMIT\\data.csv")
+
+        """
         return self._import(file_name, "CsvFile")
 
     @min_aedt_version("2027.1")
@@ -62,7 +100,19 @@ class TxNbEmissionNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node"""
+        """Delete this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_nb_emission = spec.add_narrowband_emissions_mask()
+        >>> tx_nb_emission.delete()
+
+        """
         self._delete()
 
     @property
@@ -74,6 +124,17 @@ class TxNbEmissionNode(EmitNode):
             Value should be between 1 and 100e9.
         Attenuation or Power:
             Value should be between -1000 and 1000.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_nb_emission = spec.add_narrowband_emissions_mask()
+        >>> tx_nb_emission.table_data = [(2, 25.0)]
+
         """
         return self._get_table_data()
 
@@ -85,7 +146,19 @@ class TxNbEmissionNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def enabled(self) -> bool:
-        """Enabled state for this node."""
+        """Enabled state for this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_nb_emission = spec.add_narrowband_emissions_mask()
+        >>> tx_nb_emission.enabled = True
+
+        """
         return self._get_property("Enabled") == "true"
 
     @enabled.setter
@@ -100,7 +173,19 @@ class TxNbEmissionNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def narrowband_behavior(self) -> NarrowbandBehaviorOption:
-        """Specifies the behavior of the parametric narrowband emissions mask."""
+        """Specifies the behavior of the parametric narrowband emissions mask.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_nb_emission = spec.add_narrowband_emissions_mask()
+        >>> tx_nb_emission.narrowband_behavior = TxNbEmissionNode.NarrowbandBehaviorOption.RELATIVE_FREQS_AND_ATTENUATION
+
+        """
         val = self._get_property("Narrowband Behavior")
         val = self.NarrowbandBehaviorOption[val.upper()]
         return val
@@ -113,7 +198,20 @@ class TxNbEmissionNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def measurement_frequency(self) -> float:
-        """Measurement frequency for the absolute freq/amp pairs."""
+        """Measurement frequency for the absolute freq/amp pairs.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_nb_emission = spec.add_narrowband_emissions_mask()
+        >>> tx_nb_emission.narrowband_behavior = TxNbEmissionNode.NarrowbandBehaviorOption.ABSOLUTE_FREQS_AND_POWER
+        >>> tx_nb_emission.measurement_frequency = 100e6
+
+        """
         val = self._get_property("Measurement Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
         return float(val)

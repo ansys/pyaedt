@@ -42,11 +42,11 @@ class TxSpectralProfEmitterNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter = app.schematic.create_component(
-        ...     name="Demo Emitter", component_type="New Emitter", library="Emitters"
-        ... )
-        >>> tx_spec = emitter.get_waveforms()[0].children[0]
-        >>> tx_spec.parent
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> radio = emit.get_radio()
+        >>> band = radio.children[0]
+        >>> tx_spec_emitter = band.children[0]
+        >>> tx_spec_emitter.parent
 
         """
         return self._parent
@@ -60,11 +60,11 @@ class TxSpectralProfEmitterNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter = app.schematic.create_component(
-        ...     name="Demo Emitter", component_type="New Emitter", library="Emitters"
-        ... )
-        >>> tx_spec = emitter.get_waveforms()[0].children[0]
-        >>> tx_spec.node_type
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> radio = emit.get_radio()
+        >>> band = radio.children[0]
+        >>> tx_spec_emitter = band.children[0]
+        >>> tx_spec_emitter.node_type
 
         """
         return self._node_type
@@ -81,68 +81,68 @@ class TxSpectralProfEmitterNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def add_narrowband_emissions_mask(self) -> EmitNode:
-        """Add a Transmitter Narrowband Emission Profile
+        """Add a Transmitter Narrowband Emission Profile.
 
         Examples
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter = app.schematic.create_component(
-        ...     name="Demo Emitter", component_type="New Emitter", library="Emitters"
-        ... )
-        >>> tx_spec = emitter.get_waveforms()[0].children[0]
-        >>> nb_mask = tx_spec.add_narrowband_emissions_mask()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> radio = emit.get_radio()
+        >>> band = radio.children[0]
+        >>> tx_spec_emitter = band.children[0]
+        >>> narrowband_emissions_mask = tx_spec_emitter.add_narrowband_emissions_mask()
 
         """
         return self._add_child_node("Narrowband Emissions Mask")
 
     @min_aedt_version("2025.2")
     def add_tx_broadband_noise_profile(self) -> EmitNode:
-        """Add a Transmitter Broadband Emission Profile
+        """Add a Transmitter Broadband Emission Profile.
 
         Examples
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter = app.schematic.create_component(
-        ...     name="Demo Emitter", component_type="New Emitter", library="Emitters"
-        ... )
-        >>> tx_spec = emitter.get_waveforms()[0].children[0]
-        >>> bb_noise = tx_spec.add_tx_broadband_noise_profile()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> radio = emit.get_radio()
+        >>> band = radio.children[0]
+        >>> tx_spec_emitter = band.children[0]
+        >>> tx_broadband_noise_profile = tx_spec_emitter.add_tx_broadband_noise_profile()
 
         """
         return self._add_child_node("Tx Broadband Noise Profile")
 
     @min_aedt_version("2025.2")
     def add_custom_tx_harmonics(self) -> EmitNode:
-        """Add Custom Tx Harmonics
+        """Add Custom Tx Harmonics.
 
         Examples
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter = app.schematic.create_component(
-        ...     name="Demo Emitter", component_type="New Emitter", library="Emitters"
-        ... )
-        >>> tx_spec = emitter.get_waveforms()[0].children[0]
-        >>> tx_harmonics = tx_spec.add_custom_tx_harmonics()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> radio = emit.get_radio()
+        >>> band = radio.children[0]
+        >>> tx_spec_emitter = band.children[0]
+        >>> custom_tx_harmonics = tx_spec_emitter.add_custom_tx_harmonics()
 
         """
         return self._add_child_node("Custom Tx Harmonics")
 
     @min_aedt_version("2025.2")
     def add_spurious_emissions(self) -> EmitNode:
-        """Add Transmitter Spurs
+        """Add Transmitter Spurs.
 
         Examples
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter = app.schematic.create_component(
-        ...     name="Demo Emitter", component_type="New Emitter", library="Emitters"
-        ... )
-        >>> tx_spec = emitter.get_waveforms()[0].children[0]
-        >>> spurs = tx_spec.add_spurious_emissions()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> radio = emit.get_radio()
+        >>> band = radio.children[0]
+        >>> tx_spec_emitter = band.children[0]
+        >>> spurious_emissions = tx_spec_emitter.add_spurious_emissions()
 
         """
         return self._add_child_node("Spurious Emissions")
@@ -156,11 +156,11 @@ class TxSpectralProfEmitterNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter = app.schematic.create_component(
-        ...     name="Demo Emitter", component_type="New Emitter", library="Emitters"
-        ... )
-        >>> tx_spec = emitter.get_waveforms()[0].children[0]
-        >>> tx_spec.enabled = True
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> radio = emit.get_radio()
+        >>> band = radio.children[0]
+        >>> tx_spec_emitter = band.children[0]
+        >>> tx_spec_emitter.enabled = True
 
         """
         return self._get_property("Enabled") == "true"
@@ -179,11 +179,11 @@ class TxSpectralProfEmitterNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter = app.schematic.create_component(
-        ...     name="Demo Emitter", component_type="New Emitter", library="Emitters"
-        ... )
-        >>> tx_spec = emitter.get_waveforms()[0].children[0]
-        >>> tx_spec.output_voltage_peak = "3.3 V"
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> radio = emit.get_radio()
+        >>> band = radio.children[0]
+        >>> tx_spec_emitter = band.children[0]
+        >>> tx_spec_emitter.output_voltage_peak = 3.3
 
         """
         val = self._get_property("Output Voltage Peak")
@@ -207,11 +207,12 @@ class TxSpectralProfEmitterNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter = app.schematic.create_component(
-        ...     name="Demo Emitter", component_type="New Emitter", library="Emitters"
-        ... )
-        >>> tx_spec = emitter.get_waveforms()[0].children[0]
-        >>> tx_spec.include_phase_noise = True
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> radio = emit.get_radio()
+        >>> band = radio.children[0]
+        >>> tx_spec_emitter = band.children[0]
+        >>> tx_spec_emitter.spectrum_type = TxSpectralProfEmitterNode.SpectrumTypeOption.NARROWBAND_AND_BROADBAND
+        >>> tx_spec_emitter.include_phase_noise = False
 
         """
         val = self._get_property("Include Phase Noise")
@@ -233,11 +234,11 @@ class TxSpectralProfEmitterNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter = app.schematic.create_component(
-        ...     name="Demo Emitter", component_type="New Emitter", library="Emitters"
-        ... )
-        >>> tx_spec = emitter.get_waveforms()[0].children[0]
-        >>> tx_spec.tx_broadband_noise = -165.0
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> radio = emit.get_radio()
+        >>> band = radio.children[0]
+        >>> tx_spec_emitter = band.children[0]
+        >>> tx_spec_emitter.tx_broadband_noise = -174
 
         """
         val = self._get_property("Tx Broadband Noise")
@@ -259,11 +260,12 @@ class TxSpectralProfEmitterNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter = app.schematic.create_component(
-        ...     name="Demo Emitter", component_type="New Emitter", library="Emitters"
-        ... )
-        >>> tx_spec = emitter.get_waveforms()[0].children[0]
-        >>> tx_spec.number_of_harmonics = 5
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> radio = emit.get_radio()
+        >>> band = radio.children[0]
+        >>> tx_spec_emitter = band.children[0]
+        >>> tx_spec_emitter.spectrum_type = TxSpectralProfEmitterNode.SpectrumTypeOption.NARROWBAND_AND_BROADBAND
+        >>> tx_spec_emitter.number_of_harmonics = 10
 
         """
         val = self._get_property("Number of Harmonics")
@@ -285,11 +287,12 @@ class TxSpectralProfEmitterNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter = app.schematic.create_component(
-        ...     name="Demo Emitter", component_type="New Emitter", library="Emitters"
-        ... )
-        >>> tx_spec = emitter.get_waveforms()[0].children[0]
-        >>> tx_spec.perform_tx_intermod_analysis = True
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> radio = emit.get_radio()
+        >>> band = radio.children[0]
+        >>> tx_spec_emitter = band.children[0]
+        >>> tx_spec_emitter.spectrum_type = TxSpectralProfEmitterNode.SpectrumTypeOption.NARROWBAND_AND_BROADBAND
+        >>> tx_spec_emitter.perform_tx_intermod_analysis = False
 
         """
         val = self._get_property("Perform Tx Intermod Analysis")
@@ -311,11 +314,12 @@ class TxSpectralProfEmitterNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter = app.schematic.create_component(
-        ...     name="Demo Emitter", component_type="New Emitter", library="Emitters"
-        ... )
-        >>> tx_spec = emitter.get_waveforms()[0].children[0]
-        >>> tx_spec.internal_amp_gain = 12.0
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> radio = emit.get_radio()
+        >>> band = radio.children[0]
+        >>> tx_spec_emitter = band.children[0]
+        >>> tx_spec_emitter.perform_tx_intermod_analysis = True
+        >>> tx_spec_emitter.internal_amp_gain = 30
 
         """
         val = self._get_property("Internal Amp Gain")
@@ -337,11 +341,12 @@ class TxSpectralProfEmitterNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter = app.schematic.create_component(
-        ...     name="Demo Emitter", component_type="New Emitter", library="Emitters"
-        ... )
-        >>> tx_spec = emitter.get_waveforms()[0].children[0]
-        >>> tx_spec.noise_figure = 4.5
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> radio = emit.get_radio()
+        >>> band = radio.children[0]
+        >>> tx_spec_emitter = band.children[0]
+        >>> tx_spec_emitter.perform_tx_intermod_analysis = True
+        >>> tx_spec_emitter.noise_figure = 5.0
 
         """
         val = self._get_property("Noise Figure")
@@ -363,11 +368,12 @@ class TxSpectralProfEmitterNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter = app.schematic.create_component(
-        ...     name="Demo Emitter", component_type="New Emitter", library="Emitters"
-        ... )
-        >>> tx_spec = emitter.get_waveforms()[0].children[0]
-        >>> tx_spec.amplifier_saturation_level = "27 dBm"
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> radio = emit.get_radio()
+        >>> band = radio.children[0]
+        >>> tx_spec_emitter = band.children[0]
+        >>> tx_spec_emitter.perform_tx_intermod_analysis = True
+        >>> tx_spec_emitter.amplifier_saturation_level = 0
 
         """
         val = self._get_property("Amplifier Saturation Level")
@@ -394,11 +400,12 @@ class TxSpectralProfEmitterNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter = app.schematic.create_component(
-        ...     name="Demo Emitter", component_type="New Emitter", library="Emitters"
-        ... )
-        >>> tx_spec = emitter.get_waveforms()[0].children[0]
-        >>> tx_spec.p1_db_point_ref_input = "15 dBm"
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> radio = emit.get_radio()
+        >>> band = radio.children[0]
+        >>> tx_spec_emitter = band.children[0]
+        >>> tx_spec_emitter.perform_tx_intermod_analysis = True
+        >>> tx_spec_emitter.p1_db_point_ref_input = 0
 
         """
         val = self._get_property("P1-dB Point, Ref. Input ")
@@ -422,11 +429,12 @@ class TxSpectralProfEmitterNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter = app.schematic.create_component(
-        ...     name="Demo Emitter", component_type="New Emitter", library="Emitters"
-        ... )
-        >>> tx_spec = emitter.get_waveforms()[0].children[0]
-        >>> tx_spec.ip3_ref_input = "20 dBm"
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> radio = emit.get_radio()
+        >>> band = radio.children[0]
+        >>> tx_spec_emitter = band.children[0]
+        >>> tx_spec_emitter.perform_tx_intermod_analysis = True
+        >>> tx_spec_emitter.ip3_ref_input = 10
 
         """
         val = self._get_property("IP3, Ref. Input")
@@ -450,11 +458,12 @@ class TxSpectralProfEmitterNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter = app.schematic.create_component(
-        ...     name="Demo Emitter", component_type="New Emitter", library="Emitters"
-        ... )
-        >>> tx_spec = emitter.get_waveforms()[0].children[0]
-        >>> tx_spec.reverse_isolation = -35.0
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> radio = emit.get_radio()
+        >>> band = radio.children[0]
+        >>> tx_spec_emitter = band.children[0]
+        >>> tx_spec_emitter.perform_tx_intermod_analysis = True
+        >>> tx_spec_emitter.reverse_isolation = 20
 
         """
         val = self._get_property("Reverse Isolation")
@@ -476,11 +485,12 @@ class TxSpectralProfEmitterNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter = app.schematic.create_component(
-        ...     name="Demo Emitter", component_type="New Emitter", library="Emitters"
-        ... )
-        >>> tx_spec = emitter.get_waveforms()[0].children[0]
-        >>> tx_spec.max_intermod_order = 7
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> radio = emit.get_radio()
+        >>> band = radio.children[0]
+        >>> tx_spec_emitter = band.children[0]
+        >>> tx_spec_emitter.perform_tx_intermod_analysis = True
+        >>> tx_spec_emitter.max_intermod_order = 5
 
         """
         val = self._get_property("Max Intermod Order")
