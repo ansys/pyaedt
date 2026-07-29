@@ -78,6 +78,31 @@ def _add_trace(store: ResultStore, name: str | None = None, n: int = 5) -> str:
     return store.add(x, y, source="test", metadata={}, name=name)
 
 
+def _make_sol_data(
+    x: list | np.ndarray,
+    y_real: list | np.ndarray,
+    y_imag: list | np.ndarray | None = None,
+    expression: str = "S11",
+    primary_sweep: str = "Freq",
+    sweep_unit: str = "GHz",
+) -> MagicMock:
+    """Build a mock solution-data object returned by report.get_solution_data()."""
+    if y_imag is None:
+        y_imag = [0.0] * len(y_real)
+    sol = MagicMock()
+    sol.active_expression = expression
+    sol.primary_sweep = primary_sweep
+    sol.units_sweeps = {primary_sweep: sweep_unit}
+
+    def _get_expression_data(expression, formula):  # noqa: ARG001
+        if formula == "real":
+            return (x, y_real)
+        return (x, y_imag)
+
+    sol.get_expression_data.side_effect = _get_expression_data
+    return sol
+
+
 # ===========================================================================
 # ResultStore tests
 # ===========================================================================
@@ -1023,20 +1048,21 @@ class TestResultDataService:
         service._cache_by_session[1] = ResultDataService._empty_session_cache()
         service.existing_reports.setdefault("Proj", {}).setdefault("Des", {})["Rep"] = {"S11": None}
 
-        expr_data = (np.array([1.0, 2.0, 3.0]), np.array([-10.0, -20.0, -30.0]))
-        sol_data = MagicMock()
-        sol_data.get_expression_data.return_value = expr_data
+        x = np.array([1.0, 2.0, 3.0])
+        y_real = np.array([-10.0, -20.0, -30.0])
+        sol = _make_sol_data(x, y_real)
 
         report = MagicMock()
         report.plot_name = "Rep"
-        report.get_solution_data.return_value = sol_data
+        report.get_solution_data.return_value = sol
         aedtapp = MagicMock()
         aedtapp.post.plots = [report]
         with patch.object(service, "_get_aedtapp", return_value=aedtapp):
             data = service.get_trace_data("Proj", "Des", "Rep", "S11")
 
-        np.testing.assert_array_equal(data["x"], expr_data[0])
-        np.testing.assert_array_equal(data["y"], expr_data[1])
+        np.testing.assert_array_equal(data["x"], x)
+        np.testing.assert_array_equal(data["y"], y_real)
+        assert data["is_complex"] is False
 
     def test_get_trace_data_uses_cache(self) -> None:
         service = _make_service()
@@ -1071,18 +1097,66 @@ class TestResultDataService:
         service._cache_by_session[1] = ResultDataService._empty_session_cache()
         service.existing_reports.setdefault("Proj", {}).setdefault("Des", {})["Rep"] = {"S11": None}
 
-        expr_data = ([1.0, 2.0], [-10.0, -20.0])  # plain lists, not ndarray
-        sol_data = MagicMock()
-        sol_data.get_expression_data.return_value = expr_data
+        sol = _make_sol_data([1.0, 2.0], [-10.0, -20.0])  # plain lists, not ndarray
         report = MagicMock()
         report.plot_name = "Rep"
-        report.get_solution_data.return_value = sol_data
+        report.get_solution_data.return_value = sol
         aedtapp = MagicMock()
         aedtapp.post.plots = [report]
         with patch.object(service, "_get_aedtapp", return_value=aedtapp):
             data = service.get_trace_data("Proj", "Des", "Rep", "S11")
         assert isinstance(data["x"], np.ndarray)
         assert isinstance(data["y"], np.ndarray)
+
+    def test_get_trace_data_complex_trace_returns_complex_y(self) -> None:
+        """When the imaginary part is non-zero, y must be a complex ndarray."""
+        service = _make_service()
+        service.desktop = MagicMock()
+        service.current_session_pid = 1
+        service._cache_by_session[1] = ResultDataService._empty_session_cache()
+        service.existing_reports.setdefault("Proj", {}).setdefault("Des", {})["Rep"] = {"S11": None}
+
+        x = np.array([1e9, 2e9, 3e9])
+        y_real = np.array([0.5, 0.3, 0.1])
+        y_imag = np.array([-0.2, -0.4, -0.6])
+        sol = _make_sol_data(x, y_real, y_imag)
+
+        report = MagicMock()
+        report.plot_name = "Rep"
+        report.get_solution_data.return_value = sol
+        aedtapp = MagicMock()
+        aedtapp.post.plots = [report]
+        with patch.object(service, "_get_aedtapp", return_value=aedtapp):
+            data = service.get_trace_data("Proj", "Des", "Rep", "S11")
+
+        assert data["is_complex"] is True
+        assert np.iscomplexobj(data["y"])
+        np.testing.assert_allclose(data["y"].real, y_real, atol=1e-12)
+        np.testing.assert_allclose(data["y"].imag, y_imag, atol=1e-12)
+
+    def test_get_trace_data_real_only_trace_is_not_complex(self) -> None:
+        """A trace with all-zero imaginary part must be marked as not complex."""
+        service = _make_service()
+        service.desktop = MagicMock()
+        service.current_session_pid = 1
+        service._cache_by_session[1] = ResultDataService._empty_session_cache()
+        service.existing_reports.setdefault("Proj", {}).setdefault("Des", {})["Rep"] = {"Mag": None}
+
+        x = np.array([0.0, 1.0])
+        y_real = np.array([1.0, 2.0])
+        y_imag = np.array([0.0, 0.0])
+        sol = _make_sol_data(x, y_real, y_imag, expression="Mag")
+
+        report = MagicMock()
+        report.plot_name = "Rep"
+        report.get_solution_data.return_value = sol
+        aedtapp = MagicMock()
+        aedtapp.post.plots = [report]
+        with patch.object(service, "_get_aedtapp", return_value=aedtapp):
+            data = service.get_trace_data("Proj", "Des", "Rep", "Mag")
+
+        assert data["is_complex"] is False
+        assert not np.iscomplexobj(data["y"])
 
     # ---- load_datasets_for_design ------------------------------------------
 
