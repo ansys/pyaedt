@@ -108,7 +108,7 @@ class ResultDataService:
         return self._current_cache["projects_designs"]
 
     @property
-    def existing_reports(self) -> dict[str, dict[str, dict[str, dict[str, dict[str, np.ndarray] | None]]]]:
+    def existing_reports(self) -> dict[str, dict[str, dict[str, dict[str, dict[str, Any] | None]]]]:
         return self._current_cache["existing_reports"]
 
     @property
@@ -366,9 +366,7 @@ class ResultDataService:
             return [], "No traces in this report"
         return sorted(report_entry.keys()), None
 
-    def get_trace_data(
-        self, project_name: str, design_name: str, report_name: str, trace_name: str
-    ) -> dict[str, np.ndarray]:
+    def get_trace_data(self, project_name: str, design_name: str, report_name: str, trace_name: str) -> dict[str, Any]:
         """Fetch (and cache) x/y data for a single trace of an existing report."""
         report_entry = self.existing_reports[project_name][design_name][report_name]
         cached = report_entry.get(trace_name)
