@@ -45,8 +45,9 @@ class TxSpectralProfNode(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
-        >>> tx_spec = radio.children[0].children[0]
-        >>> tx_spec.parent
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> spec.parent
 
         """
         return self._parent
@@ -61,8 +62,9 @@ class TxSpectralProfNode(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
-        >>> tx_spec = radio.children[0].children[0]
-        >>> tx_spec.node_type
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> spec.node_type
 
         """
         return self._node_type
@@ -99,22 +101,66 @@ class TxSpectralProfNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def add_narrowband_emissions_mask(self) -> EmitNode:
-        """Add a Transmitter Narrowband Emission Profile"""
+        """Add a Transmitter Narrowband Emission Profile.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> narrowband_emissions_mask = spec.add_narrowband_emissions_mask()
+
+        """
         return self._add_child_node("Narrowband Emissions Mask")
 
     @min_aedt_version("2025.2")
     def add_tx_broadband_noise_profile(self) -> EmitNode:
-        """Add a Transmitter Broadband Emission Profile"""
+        """Add a Transmitter Broadband Emission Profile.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_broadband_noise_profile = spec.add_tx_broadband_noise_profile()
+
+        """
         return self._add_child_node("Tx Broadband Noise Profile")
 
     @min_aedt_version("2025.2")
     def add_custom_tx_harmonics(self) -> EmitNode:
-        """Add Custom Tx Harmonics"""
+        """Add Custom Tx Harmonics.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> custom_tx_harmonics = spec.add_custom_tx_harmonics()
+
+        """
         return self._add_child_node("Custom Tx Harmonics")
 
     @min_aedt_version("2025.2")
     def add_spurious_emissions(self) -> EmitNode:
-        """Add Transmitter Spurs"""
+        """Add Transmitter Spurs.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> spurious_emissions = spec.add_spurious_emissions()
+
+        """
         return self._add_child_node("Spurious Emissions")
 
     @property
@@ -127,8 +173,9 @@ class TxSpectralProfNode(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
-        >>> tx_spec = radio.children[0].children[0]
-        >>> tx_spec.enabled = True
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> spec.enabled = True
 
         """
         return self._get_property("Enabled") == "true"
@@ -152,8 +199,9 @@ class TxSpectralProfNode(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
-        >>> tx_spec = radio.children[0].children[0]
-        >>> tx_spec.spectrum_type = tx_spec.SpectrumTypeOption.NARROWBAND_AND_BROADBAND
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> spec.spectrum_type = TxSpectralProfNode.SpectrumTypeOption.NARROWBAND_AND_BROADBAND
 
         """
         val = self._get_property("Spectrum Type")
@@ -179,8 +227,10 @@ class TxSpectralProfNode(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
-        >>> tx_spec = radio.children[0].children[0]
-        >>> tx_spec.tx_power = tx_spec.TxPowerOption.AVERAGE_POWER
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> spec.spectrum_type = TxSpectralProfNode.SpectrumTypeOption.NARROWBAND_AND_BROADBAND
+        >>> spec.tx_power = TxSpectralProfNode.TxPowerOption.PEAK_POWER
 
         """
         val = self._get_property("Tx Power")
@@ -204,8 +254,11 @@ class TxSpectralProfNode(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
-        >>> tx_spec = radio.children[0].children[0]
-        >>> tx_spec.peak_power = "30 dBm"
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> spec.tx_power = TxSpectralProfNode.TxPowerOption.PEAK_POWER
+        >>> spec.spectrum_type = TxSpectralProfNode.SpectrumTypeOption.NARROWBAND_AND_BROADBAND
+        >>> spec.peak_power = 40
 
         """
         val = self._get_property("Peak Power")
@@ -230,8 +283,11 @@ class TxSpectralProfNode(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
-        >>> tx_spec = radio.children[0].children[0]
-        >>> tx_spec.average_power = "27 dBm"
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> spec.tx_power = TxSpectralProfNode.TxPowerOption.AVERAGE_POWER
+        >>> spec.spectrum_type = TxSpectralProfNode.SpectrumTypeOption.NARROWBAND_AND_BROADBAND
+        >>> spec.average_power = 40
 
         """
         val = self._get_property("Average Power")
@@ -256,8 +312,10 @@ class TxSpectralProfNode(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
-        >>> tx_spec = radio.children[0].children[0]
-        >>> tx_spec.include_phase_noise = True
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> spec.spectrum_type = TxSpectralProfNode.SpectrumTypeOption.NARROWBAND_AND_BROADBAND
+        >>> spec.include_phase_noise = False
 
         """
         val = self._get_property("Include Phase Noise")
@@ -280,8 +338,9 @@ class TxSpectralProfNode(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
-        >>> tx_spec = radio.children[0].children[0]
-        >>> tx_spec.tx_broadband_noise = -160.0
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> spec.tx_broadband_noise = -174
 
         """
         val = self._get_property("Tx Broadband Noise")
@@ -308,8 +367,10 @@ class TxSpectralProfNode(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
-        >>> tx_spec = radio.children[0].children[0]
-        >>> tx_spec.harmonic_taper = tx_spec.HarmonicTaperOption.MIL_STD_461G
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> spec.spectrum_type = TxSpectralProfNode.SpectrumTypeOption.NARROWBAND_AND_BROADBAND
+        >>> spec.harmonic_taper = TxSpectralProfNode.HarmonicTaperOption.CONSTANT
 
         """
         val = self._get_property("Harmonic Taper")
@@ -333,8 +394,11 @@ class TxSpectralProfNode(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
-        >>> tx_spec = radio.children[0].children[0]
-        >>> tx_spec.harmonic_amplitude = -40.0
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> spec.harmonic_taper = TxSpectralProfNode.HarmonicTaperOption.CONSTANT
+        >>> spec.spectrum_type = TxSpectralProfNode.SpectrumTypeOption.NARROWBAND_AND_BROADBAND
+        >>> spec.harmonic_amplitude = -60
 
         """
         val = self._get_property("Harmonic Amplitude")
@@ -357,8 +421,11 @@ class TxSpectralProfNode(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
-        >>> tx_spec = radio.children[0].children[0]
-        >>> tx_spec.harmonic_slope = -18.0
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> spec.harmonic_taper = TxSpectralProfNode.HarmonicTaperOption.DUFF_MODEL
+        >>> spec.spectrum_type = TxSpectralProfNode.SpectrumTypeOption.NARROWBAND_AND_BROADBAND
+        >>> spec.harmonic_slope = -70
 
         """
         val = self._get_property("Harmonic Slope")
@@ -381,8 +448,11 @@ class TxSpectralProfNode(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
-        >>> tx_spec = radio.children[0].children[0]
-        >>> tx_spec.harmonic_intercept = -35.0
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> spec.harmonic_taper = TxSpectralProfNode.HarmonicTaperOption.DUFF_MODEL
+        >>> spec.spectrum_type = TxSpectralProfNode.SpectrumTypeOption.NARROWBAND_AND_BROADBAND
+        >>> spec.harmonic_intercept = -30
 
         """
         val = self._get_property("Harmonic Intercept")
@@ -408,8 +478,10 @@ class TxSpectralProfNode(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
-        >>> tx_spec = radio.children[0].children[0]
-        >>> tx_spec.enable_harmonic_bw_expansion = True
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> spec.spectrum_type = TxSpectralProfNode.SpectrumTypeOption.NARROWBAND_AND_BROADBAND
+        >>> spec.enable_harmonic_bw_expansion = False
 
         """
         val = self._get_property("Enable Harmonic BW Expansion")
@@ -432,8 +504,10 @@ class TxSpectralProfNode(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
-        >>> tx_spec = radio.children[0].children[0]
-        >>> tx_spec.number_of_harmonics = 6
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> spec.spectrum_type = TxSpectralProfNode.SpectrumTypeOption.NARROWBAND_AND_BROADBAND
+        >>> spec.number_of_harmonics = 10
 
         """
         val = self._get_property("Number of Harmonics")
@@ -456,8 +530,10 @@ class TxSpectralProfNode(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
-        >>> tx_spec = radio.children[0].children[0]
-        >>> tx_spec.second_harmonic_level = -42.0
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> spec.spectrum_type = TxSpectralProfNode.SpectrumTypeOption.NARROWBAND_AND_BROADBAND
+        >>> spec.second_harmonic_level = -60
 
         """
         val = self._get_property("Second Harmonic Level")
@@ -480,8 +556,10 @@ class TxSpectralProfNode(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
-        >>> tx_spec = radio.children[0].children[0]
-        >>> tx_spec.third_harmonic_level = -48.0
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> spec.spectrum_type = TxSpectralProfNode.SpectrumTypeOption.NARROWBAND_AND_BROADBAND
+        >>> spec.third_harmonic_level = -60
 
         """
         val = self._get_property("Third Harmonic Level")
@@ -506,8 +584,10 @@ class TxSpectralProfNode(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
-        >>> tx_spec = radio.children[0].children[0]
-        >>> tx_spec.other_harmonic_levels = -55.0
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> spec.spectrum_type = TxSpectralProfNode.SpectrumTypeOption.NARROWBAND_AND_BROADBAND
+        >>> spec.other_harmonic_levels = -60
 
         """
         val = self._get_property("Other Harmonic Levels")
@@ -530,8 +610,10 @@ class TxSpectralProfNode(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
-        >>> tx_spec = radio.children[0].children[0]
-        >>> tx_spec.perform_tx_intermod_analysis = True
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> spec.spectrum_type = TxSpectralProfNode.SpectrumTypeOption.NARROWBAND_AND_BROADBAND
+        >>> spec.perform_tx_intermod_analysis = False
 
         """
         val = self._get_property("Perform Tx Intermod Analysis")
@@ -554,8 +636,10 @@ class TxSpectralProfNode(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
-        >>> tx_spec = radio.children[0].children[0]
-        >>> tx_spec.internal_amp_gain = 10.0
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> spec.perform_tx_intermod_analysis = True
+        >>> spec.internal_amp_gain = 30
 
         """
         val = self._get_property("Internal Amp Gain")
@@ -578,8 +662,10 @@ class TxSpectralProfNode(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
-        >>> tx_spec = radio.children[0].children[0]
-        >>> tx_spec.noise_figure = 3.0
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> spec.perform_tx_intermod_analysis = True
+        >>> spec.noise_figure = 5.0
 
         """
         val = self._get_property("Noise Figure")
@@ -602,8 +688,10 @@ class TxSpectralProfNode(EmitNode):
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
         >>> radio = app.schematic.create_component("New Radio")
-        >>> tx_spec = radio.children[0].children[0]
-        >>> tx_spec.amplifier_saturation_level = "25 dBm"
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> spec.perform_tx_intermod_analysis = True
+        >>> spec.amplifier_saturation_level = 0
 
         """
         val = self._get_property("Amplifier Saturation Level")
@@ -630,10 +718,11 @@ class TxSpectralProfNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> tx_profile = band.children[0]
-        >>> tx_profile.p1_db_point_ref_input = "30 dBm"
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> spec.perform_tx_intermod_analysis = True
+        >>> spec.p1_db_point_ref_input = 0
 
         """
         val = self._get_property("P1-dB Point, Ref. Input ")
@@ -657,10 +746,11 @@ class TxSpectralProfNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> tx_profile = band.children[0]
-        >>> tx_profile.ip3_ref_input = "38 dBm"
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> spec.perform_tx_intermod_analysis = True
+        >>> spec.ip3_ref_input = 10
 
         """
         val = self._get_property("IP3, Ref. Input")
@@ -684,10 +774,11 @@ class TxSpectralProfNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> tx_profile = band.children[0]
-        >>> tx_profile.reverse_isolation = 45.0
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> spec.perform_tx_intermod_analysis = True
+        >>> spec.reverse_isolation = 20
 
         """
         val = self._get_property("Reverse Isolation")
@@ -709,10 +800,11 @@ class TxSpectralProfNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> tx_profile = band.children[0]
-        >>> tx_profile.max_intermod_order = 7
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> spec.perform_tx_intermod_analysis = True
+        >>> spec.max_intermod_order = 5
 
         """
         val = self._get_property("Max Intermod Order")
