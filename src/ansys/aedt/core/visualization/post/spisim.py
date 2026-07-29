@@ -432,6 +432,21 @@ class SpiSim(PyAedtBase):
             except IndexError:
                 self.logger.error(f"Failed to compute {parameter_name}. Check input parameters and retry")
                 return False
+        elif parameter_name == "ccICN":
+            try:
+                with open_file(out_file, "r") as infile:
+                    txt = infile.read()
+                    m = re.search(r"\[ParmDat\]\s*:\s*ccICNNext\s*=\s*([\d.]+)\s*,\s*ccICNFext\s*=\s*([\d.]+)", txt)
+                    if m:
+                        return [float(m.group(1)) * 0.001, float(m.group(2)) * 0.001]
+
+                self.logger.error(
+                    f"Failed to compute {parameter_name}. Check input parameters and retry"
+                )  # pragma: no cover
+                return False  # pragma: no cover
+            except IndexError:
+                self.logger.error(f"Failed to compute {parameter_name}. Check input parameters and retry")
+                return False
         return False
 
     @pyaedt_function_handler()
@@ -599,7 +614,7 @@ class SpiSim(PyAedtBase):
         bandwidth: float | None = None,
         use_pcie_icn: bool = False,
         compute_retries: int = 3,
-    ) -> bool | float:
+    ) -> bool | float | list:
         """Compute the integrated crosstalk noise (ICN) in volts using Ansys SPISIM from S-parameter file.
 
         .. warning::
@@ -630,7 +645,7 @@ class SpiSim(PyAedtBase):
 
         Returns
         -------
-        bool or float
+        bool or float or list
             ICN in volts from the SPISIM executable command, ``False`` when failed.
 
         Examples
@@ -688,7 +703,7 @@ class SpiSim(PyAedtBase):
         nb_retry = 0
         while nb_retry < compute_retries:
             out_processing = self.__compute_spisim("CalcICN", config_file)
-            results = self.__get_output_parameter_from_result(out_processing, "ICN")
+            results = self.__get_output_parameter_from_result(out_processing, "ICN" if not use_pcie_icn else "ccICN")
             if results:
                 return results
             self.logger.warning("Failing to compute ICN, retrying...")
