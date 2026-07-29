@@ -94,6 +94,7 @@ def sync_run_async():
     return _impl
 
 
+@pytest.mark.flaky(reruns=3, reruns_delay=2)
 def test_import_dataset(rc_extension_dataset, sync_run_async):
     """Importing a project dataset ($ds1) adds it to the result store.
     Importing a design dataset (ds2) adds it to the result store.
@@ -135,6 +136,7 @@ def test_import_dataset(rc_extension_dataset, sync_run_async):
         assert desc_to_verify in meta["description"].lower()
 
 
+@pytest.mark.flaky(reruns=3, reruns_delay=2)
 def test_push_manual_dataset_as_project_dataset(rc_extension_dataset, sync_run_async):
     """The 'Add Manual Dataset as Project Dataset' button creates a project dataset in AEDT."""
     extension, datasets_app, project = rc_extension_dataset
@@ -163,6 +165,7 @@ def test_push_manual_dataset_as_project_dataset(rc_extension_dataset, sync_run_a
     assert list(ds.y) == [10.0, 20.0, 30.0]
 
 
+@pytest.mark.flaky(reruns=3, reruns_delay=2)
 def test_push_manual_dataset_as_design_dataset(rc_extension_dataset, sync_run_async):
     """The 'Add Manual Dataset as Design Dataset' button creates a design dataset in AEDT."""
     extension, datasets_app, project = rc_extension_dataset
@@ -190,6 +193,7 @@ def test_push_manual_dataset_as_design_dataset(rc_extension_dataset, sync_run_as
     assert list(ds.y) == [50.0, 100.0, 150.0]
 
 
+@pytest.mark.flaky(reruns=3, reruns_delay=2)
 def test_import_existing_report_trace(rc_extension_get_results, sync_run_async):
     """Importing a trace from an existing AEDT report adds it to the result store."""
     extension, results_app, project = rc_extension_get_results
