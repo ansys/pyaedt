@@ -255,7 +255,6 @@ def test_create_components(emit_app) -> None:
     assert terminator.name == "TestTerminator"
     assert isinstance(terminator, EmitComponent)
 
-@pytest.mark.skipif(True, reason="B1480584: EDT crashing during test_duplicate_components")
 @pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Duplicate method requires 2026 R1 or later")
 def test_duplicate_components(emit_app):
     """Test duplicating various component types using schematic.create_component which returns EmitNodes."""
@@ -304,9 +303,6 @@ def test_duplicate_components(emit_app):
     assert isinstance(dup_terminator, Terminator)
 
     #------------------------------------------------------
-    # B1480584: test was crashing on the subsequent radio.duplicate()
-    # due to an undo stack issue. Verify that the fix worked and
-    # also check that undo/redo still work correctly.
     rev: Revision = emit_app.results.analyze()
     auto_named_dup = radio.duplicate()
     assert auto_named_dup is not None
@@ -319,7 +315,6 @@ def test_duplicate_components(emit_app):
     comps_after_undo_redo = rev.get_all_component_nodes()
     assert len(comps_before_undo) == len(comps_after_undo_redo)
     emit_app.odesign.Undo()  # Undo the redo operation above.
-    emit_app.odesign.Undo()  # Undo the duplicate created by radio.duplicate().
     comps_after_undo = rev.get_all_component_nodes()
     assert len(comps_after_undo) == len(comps_before_undo) - 1
 
