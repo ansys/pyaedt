@@ -2090,14 +2090,12 @@ class NamedSelections(PropsManager, PyAedtBase):
         self.props = ListsProps(self, props)
 
     @pyaedt_function_handler()
-    def create(
-        self, assignment: list | str | None = None, name: str | None = None, entity_type: str = "Object"
-    ) -> bool:
+    def create(self, assignment: list[str | int], name: str | None = None, entity_type: str = "Object") -> bool:
         """Create a named selection.
 
         Parameters
         ----------
-        assignment : list or str, optional
+        assignment : list
             List of object names or face ids or a comma-separated string.
         name : str, optional
             Name of the named selection. If not provided a unique name is generated.
@@ -2132,23 +2130,14 @@ class NamedSelections(PropsManager, PyAedtBase):
         if not name:
             name = generate_unique_name(entity_type + "NamedSelection")
 
-        user_list_names = [sel for sel in self._modeler.user_lists if sel.name == name]
-        if name in user_list_names:
+        if any(sel.name == name for sel in self._modeler.user_lists):
             raise ValueError(f"Named selection with name '{name}' already exists.")
 
-        # Normalize selection
-        if isinstance(assignment, (list, tuple)):
-            if all(isinstance(x, int) for x in assignment):
-                selection = assignment
-                sel_type = "Face"
-            else:
-                selection = ", ".join([str(x) for x in assignment])
-                sel_type = entity_type
-        elif isinstance(assignment, str):
+        if all(isinstance(x, int) for x in assignment):
             selection = assignment
-            sel_type = entity_type
+            sel_type = "Face"
         else:
-            selection = ""
+            selection = ", ".join([str(x) for x in assignment])
             sel_type = entity_type
 
         params = ["NAME:NamedSelectionParameters", "Type:=", sel_type, "Selection:=", selection]
@@ -2157,13 +2146,12 @@ class NamedSelections(PropsManager, PyAedtBase):
             self._modeler.oeditor.CreateNamedSelection(params, attr)
         except Exception:
             raise AEDTRuntimeError("Failed to create the named selection.")
-        else:
-            props = {"List": assignment, "Type": sel_type, "ID": self._modeler.oeditor.GetNamedSelectionIDByName(name)}
-            self.props = ListsProps(self, props)
-            # Keep compatibility with existing storage
-            self._modeler.user_lists.append(self)
-            self.name = name
-            return True
+        props = {"List": assignment, "Type": sel_type, "ID": self._modeler.oeditor.GetNamedSelectionIDByName(name)}
+        self.props = ListsProps(self, props)
+        # Keep compatibility with existing storage
+        self._modeler.user_lists.append(self)
+        self.name = name
+        return True
 
     @pyaedt_function_handler()
     def delete(self) -> bool:
@@ -2195,11 +2183,9 @@ class NamedSelections(PropsManager, PyAedtBase):
         """
         self._modeler.oeditor.Delete(["NAME:Selections", "Selections:=", self.name])
         self._modeler.user_lists.remove(self)
-        user_list_names = [sel.name for sel in self._modeler.user_lists]
-        if self.name not in user_list_names:
-            return True
-        else:
+        if any(sel.name == self.name for sel in self._modeler.user_lists):
             raise AEDTRuntimeError("Failed to delete the named selection.")
+        return True
 
     @pyaedt_function_handler()
     def rename(self, name: str) -> bool:
@@ -2250,7 +2236,6 @@ class NamedSelections(PropsManager, PyAedtBase):
                 sel.name = name
         user_list_names = [sel.name for sel in self._modeler.user_lists]
         if name in user_list_names:
-            self.name = name
             return True
         else:
             raise AEDTRuntimeError("Failed to rename the named selection.")
