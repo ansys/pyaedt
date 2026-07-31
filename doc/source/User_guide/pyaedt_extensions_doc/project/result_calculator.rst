@@ -1,5 +1,5 @@
 Result Calculator
-==================
+=================
 
 The Result Calculator extension allows you to collect, plot, and manage result traces from one or more AEDT sessions.
 You can import traces from existing reports, load datasets, read from files, and perform mathematical calculations over
@@ -18,10 +18,10 @@ This extension provides a comprehensive GUI for:
 - **Creating and loading datasets** by manual entry or directly from AEDT
 - **Loading external data** from various file formats including Touchstone files
 
-Main Tabs
+Main tabs
 =========
 
-Selected Traces
+Selected traces
 ---------------
 
 .. image:: ../../../_static/extensions/result_calculator_selected_traces.png
@@ -39,15 +39,15 @@ This tab displays all imported or calculated traces. You can:
 
 **Supported file formats for export:**
 
-- **CSV (.csv)** – Comma-separated values, two columns (x and y)
-- **TSV (.tsv)** – Tab-delimited, two columns (x and y)
-- **JSON (.json)** – x and y as lists, plus formula metadata
-- **NumPy archive (.npz)** – Binary NumPy format
-- **NumPy text (.txt)** – Plain-text two-column NumPy format
+- **CSV (.csv)**: Comma-separated values, two columns (x and y)
+- **TSV (.tsv)**: Tab-delimited, two columns (x and y)
+- **JSON (.json)**: x and y as lists, plus formula metadata
+- **NumPy archive (.npz)**: Binary NumPy format
+- **NumPy text (.txt)**: Plain-text two-column NumPy format
 
 **Formula capabilities:**
 
-- Use trace names as variables (e.g., ``result_1 - result_2``, ``20*log10(abs(R))``)
+- Use trace names as variables (for example, ``result_1 - result_2``, ``20*log10(abs(R))``)
 - Mix real and complex traces in calculations
 - Access NumPy functions: ``log10()``, ``abs()``, ``sqrt()``, ``sin()``, ``cos()``, etc.
 - Use mathematical constants: ``pi``, ``e``, ``inf``, ``nan``
@@ -59,7 +59,7 @@ This tab displays all imported or calculated traces. You can:
 - 2D traces (x/y pairs) with real or complex values
 - 3D traces are not supported
 
-Existing Reports
+Existing reports
 ----------------
 
 .. image:: ../../../_static/extensions/result_calculator_existing_reports.png
@@ -74,7 +74,7 @@ Browse and import traces from reports already open in AEDT sessions. This tab al
 - Preview raw x/y data automatically (displayed in a chart below)
 - Click "Import Trace" to import the selected traces into the Selected Traces tab
 
-The preview chart loads automatically once a trace is selected, showing exactly what will be imported.
+The preview chart loads automatically once a trace is selected, showing exactly what is imported.
 
 Datasets
 --------
@@ -85,7 +85,7 @@ Datasets
 
 This tab has two sections:
 
-**Manual Entry section:**
+**Manual entry section:**
 
 - Enter x and y values directly in text boxes (space or comma-separated)
 - Define a name and an optional description for the dataset
@@ -93,13 +93,13 @@ This tab has two sections:
 - Click "Clear" to reset the input fields
 - The imported dataset becomes available for use in calculations tab
 
-**AEDT Datasets section:**
+**AEDT datasets section:**
 
 - Browse 2D datasets defined in AEDT projects (supports both project and design datasets)
 - Select a dataset and click "Import Dataset" to add it to Selected Traces
 - Click "Add Manual Dataset as Project Dataset" or "Add Manual Dataset as Design Dataset" to push a manually defined dataset into the selected AEDT project or design
 
-Load from File
+Load from file
 --------------
 
 .. image:: ../../../_static/extensions/result_calculator_load_from_file.png
@@ -108,11 +108,11 @@ Load from File
 
 Import data from disk files in supported formats:
 
-- **CSV files** – Comma-separated values
-- **Tab-separated files** – TSV format
-- **Custom separator** – Specify any character as separator
-- **Touchstone files** (.sNp) – Network parameter data
-- **Other text files** – With configurable parsing options
+- **CSV files**: Comma-separated values
+- **Tab-separated files**: TSV format
+- **Custom separator**: Specify any character as separator
+- **Touchstone files** (.sNp): Network parameter data
+- **Other text files**: With configurable parsing options
 
 Features:
 
@@ -142,27 +142,27 @@ Settings tab allows you to configure how the extension handles data and displays
 
 Configure how the formula evaluator handles traces with different x-axis grids:
 
-- **Interpolate all traces onto a common x grid** – Align traces to a common x-axis grid (recommended for formulas)
-- **Interpolation points** – Resolution of the output interpolation grid (default: 301)
-- **x interval strategy** – Choose between:
+- **Interpolate all traces onto a common x grid**: Align traces to a common x-axis grid (recommended for formulas)
+- **Interpolation points**: Resolution of the output interpolation grid (default: 301)
+- **x interval strategy**, choose between:
 
-  - ``"common"`` (default) – Use the intersection of all x-axis ranges
-  - ``"extended"`` – Use the union and extrapolate missing data
+  - ``"common"`` (default): Use the intersection of all x-axis ranges
+  - ``"extended"``: Use the union and extrapolate missing data
 
-- **Interpolation algorithm** – Algorithm used for interpolation:
+- **Interpolation algorithm**, choose between:
 
-  - ``"linear"`` (default) – Fast and smooth
-  - ``"quadratic"`` – Higher accuracy
-  - ``"cubic"`` – Highest accuracy
-  - ``"nearest"`` – Step function
+  - ``"linear"`` (default): Fast and smooth
+  - ``"quadratic"``: Higher accuracy
+  - ``"cubic"``: Highest accuracy
+  - ``"nearest"``: Step function
 
-- **Complex plot mode** – Chose how to display complex data in plots:
+- **Complex plot mode**, chose how to display complex data in plots:
 
-  - ``"abs"`` – Magnitude (default)
-  - ``"abs + phase"`` – Magnitude and Phase angle in degrees
-  - ``"real + imag"`` – Real and imaginary parts
+  - ``"abs"``: Magnitude (default)
+  - ``"abs + phase"``: Magnitude and Phase angle in degrees
+  - ``"real + imag"``: Real and imaginary parts
 
-**UI Settings:**
+**UI settings:**
 
 - Switch between light and dark themes
 - View PyAEDT version information
@@ -177,14 +177,14 @@ Built-in help with:
 - Tips for using the extension
 - Code examples for reloading exported files in Python
 
-Working with AEDT Sessions
+Working with AEDT sessions
 ===========================
 
 **Session dropdown:**
 
 The AEDT Session dropdown at the top of the Existing Reports and in Datasets tabs selects which running AEDT
 instance to read from. This extension allows you to work with multiple AEDT instances simultaneously.
-The extension support graphical and non graphical sessions, as well as student versions.
+The extension supports graphical and non-graphical sessions, as well as student versions.
 All data is cached locally to speed up browsing and importing traces.
 
 **Refresh AEDT sessions:**
@@ -203,7 +203,7 @@ The dropdown shows:
 - Non-graphical mode indicator
 - Current process indicator
 
-Trace Naming
+Trace naming
 ============
 
 Trace names follow these conventions:
@@ -213,7 +213,7 @@ Trace names follow these conventions:
 - **Formula results:** Named ``ans1``, ``ans2``, etc.
 - **Renaming:** Double-click any trace name in the table to rename it inline
 
-Tips and Tricks
+Tips and tricks
 ===============
 
 - **Quick Help:** Press ``F1`` from anywhere to jump to the Help tab
@@ -222,7 +222,7 @@ Tips and Tricks
 - **Reload NumPy binary:** ``d = np.load('file.npz'); x, y = d['x'], d['y']``
 - **Reload NumPy text:** ``data = np.loadtxt('file.txt'); x, y = data[:, 0], data[:, 1]``
 
-Complex Numbers
+Complex numbers
 ===============
 
 The extension supports traces with complex values:
@@ -248,7 +248,7 @@ Click "Refresh AEDT sessions" to detect newly opened instances.
 
 - Verify trace names are spelled correctly (case-sensitive)
 - Ensure traces have compatible x-axis ranges for interpolation
-- Check that mathematical operations are valid (e.g., avoid division by zero)
+- Check that mathematical operations are valid (for example, avoid division by zero)
 - Adjust interpolation settings if traces have very different x-axis ranges
 
 **File import issues:**
@@ -259,7 +259,7 @@ Click "Refresh AEDT sessions" to detect newly opened instances.
 - Use the Preview feature to diagnose parsing issues
 
 
-API Usage Example
+API usage example
 =================
 
 The extension is launched from AEDT using PyAEDT Extension Manager.
