@@ -2095,7 +2095,7 @@ class Layers(PyAedtBase):
         else:
             self.logger.error("Stackup mode has to be Multizone, Overlap or Laminate.")
             return False
-        len_ll = len(list(self.layers.values())) + 1
+        len_layers_list = len(list(self.layers.values())) + 1
         for idx, v in enumerate(list(self.layers.values())):
             if v.type in ["signal", "dielectric"]:
                 if mode.lower() == "multizone":
@@ -2110,8 +2110,8 @@ class Layers(PyAedtBase):
                     new_v._thickness_units = v.thickness_units
                     new_v._lower_elevation = v.lower_elevation
                     new_v._material = self._app.materials[v.fill_material].name
-                    new_v.id = len_ll
-                    len_ll += 1
+                    new_v.id = len_layers_list
+                    len_layers_list += 1
                     args.append(new_v._get_layer_arg)
             args.append(v._get_layer_arg)
         if mode.lower() == "overlap":
