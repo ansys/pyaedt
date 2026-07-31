@@ -253,7 +253,7 @@ class ResultDataService:
             try:
                 self.desktop.release_desktop(False, False)
             except Exception:
-                logging.getLogger("Global").warning("Could not release existing desktop; continuing anyway.")
+                logging.getLogger("Global").debug("Could not release existing desktop; continuing anyway.")
             self.desktop = None
 
         # PYAEDT_DESKTOP_PORT and PYAEDT_PROCESS_ID are set by AEDT in the
@@ -1311,7 +1311,7 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
         except Exception:
             # Silently ignore: the user will still be able to pick a session
             # manually from the dropdowns.
-            logging.getLogger("Global").warning("Failed to autoconnect to session on startup.")
+            logging.getLogger("Global").debug("Failed to autoconnect to session on startup.")
 
     # ----------------------------- Tab 1 ------------------------------------
     def _build_tab_results(self) -> None:
@@ -1592,7 +1592,7 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
             try:
                 self._name_editor.destroy()
             except Exception:
-                logging.getLogger("Global").warning("Ignoring _name_editor destroy failure.")
+                logging.getLogger("Global").debug("Ignoring _name_editor destroy failure.")
             self._name_editor = None
 
     def _plot_y(self, ax, x, y, label, **kwargs):
@@ -3171,7 +3171,7 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
                 self._saved_widget_states[w] = state
                 w.configure(state="disabled")
             except Exception:
-                logging.getLogger("Global").warning("Cannot disable aedt tabs. Continuing anyway.")
+                logging.getLogger("Global").debug("Cannot disable aedt tabs. Continuing anyway.")
 
     def _restore_aedt_tabs(self) -> None:
         """Restore the widget states saved by _disable_aedt_tabs."""
@@ -3179,7 +3179,7 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
             try:
                 w.configure(state=state)
             except Exception:
-                logging.getLogger("Global").warning("Cannot restore aedt tabs. Continuing anyway.")
+                logging.getLogger("Global").debug("Cannot restore aedt tabs. Continuing anyway.")
         self._saved_widget_states = {}
 
     # ----------------------------- Helpers -----------------------------------
