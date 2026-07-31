@@ -252,15 +252,14 @@ def get_pyaedt_app(
     if design_name and design_name not in design_names:
         raise AttributeError(f"Design  {design_name} doesn't exist in current project.")
     if not design_name:
-        oDesign = oproject.GetActiveDesign()
+        oDesign: _ODesign = oproject.GetActiveDesign()
     else:
-        oDesign = oproject.SetActiveDesign(design_name)
+        oDesign: _ODesign = oproject.SetActiveDesign(design_name)
     if is_linux and settings.aedt_version == "2024.1":  # pragma: no cover
         time.sleep(1)
         odesktop.CloseAllWindows()
     if not oDesign:
         raise AttributeError("No design is present.")
-    odesign = cast(_ODesign, oDesign)
     design_type = odesign.GetDesignType()
     if design_type in app_map:
         version = odesktop.GetVersion().split(".")
