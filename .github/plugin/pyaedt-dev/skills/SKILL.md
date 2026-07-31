@@ -106,7 +106,7 @@ except Exception:
 
 # Good - pick one:
 except Exception as exc:
-    logger.debug("Ignoring cleanup error: %s", exc)
+    logging.getLogger("Global").debug("Ignoring cleanup error: %s", exc)
 # or
 except Exception:
     return
