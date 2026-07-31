@@ -260,7 +260,7 @@ def get_pyaedt_app(
         odesktop.CloseAllWindows()
     if not oDesign:
         raise AttributeError("No design is present.")
-    design_type = odesign.GetDesignType()
+    design_type = oDesign.GetDesignType()
     if design_type in app_map:
         version = odesktop.GetVersion().split(".")
         v = ".".join([version[0], version[1]])
