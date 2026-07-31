@@ -2131,7 +2131,7 @@ class NamedSelections(PropsManager, PyAedtBase):
             name = generate_unique_name(entity_type + "NamedSelection")
 
         if any(sel.name == name for sel in self._modeler.user_lists):
-            raise ValueError(f"Named selection with name '{name}' already exists.")
+            raise AEDTRuntimeError(f"Named selection with name '{name}' already exists.")
 
         if all(isinstance(x, int) for x in assignment):
             selection = assignment
