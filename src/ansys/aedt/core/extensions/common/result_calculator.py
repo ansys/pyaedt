@@ -25,6 +25,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 from pathlib import Path
 import re
@@ -248,7 +249,7 @@ class ResultDataService:
             try:
                 self.desktop.release_desktop(False, False)
             except Exception:
-                pass
+                logging.getLogger("Global").warning("Could not release existing desktop; continuing anyway.")
             self.desktop = None
 
         # PYAEDT_DESKTOP_PORT and PYAEDT_PROCESS_ID are set by AEDT in the
