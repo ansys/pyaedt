@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -255,6 +255,7 @@ def test_create_components(emit_app) -> None:
     assert terminator.name == "TestTerminator"
     assert isinstance(terminator, EmitComponent)
 
+
 @pytest.mark.skipif(True, reason="B1480584: EDT crashing during test_duplicate_components")
 @pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Duplicate method requires 2026 R1 or later")
 def test_duplicate_components(emit_app):
@@ -303,7 +304,7 @@ def test_duplicate_components(emit_app):
     assert dup_terminator.name == "DuplicatedTerminator"
     assert isinstance(dup_terminator, Terminator)
 
-    #------------------------------------------------------
+    # ------------------------------------------------------
     # B1480584: test was crashing on the subsequent radio.duplicate()
     # due to an undo stack issue. Verify that the fix worked and
     # also check that undo/redo still work correctly.
@@ -323,7 +324,7 @@ def test_duplicate_components(emit_app):
     comps_after_undo = rev.get_all_component_nodes()
     assert len(comps_after_undo) == len(comps_before_undo) - 1
 
-    #------------------------------------------------------
+    # ------------------------------------------------------
 
     # Test Cable duplication
     cable: Cable = emit_app.schematic.create_component("Cable", name="new Cable")
@@ -3563,8 +3564,6 @@ def test_compare_nodes(emit_app) -> None:
     assert differences
     assert len(differences) == 1
     assert "Name" not in differences
-    radio_1_props = radio_1.properties
-    radio_2_props = radio_2.properties
     assert "NodeID" not in differences
     assert "Notes" in differences
     assert differences["Notes"]["from"]["value"] == ""
@@ -3703,8 +3702,8 @@ def test_availability_emi_affects_availability(interference):
     DESKTOP_VERSION < "2027.1",
     reason="Skipped on versions earlier than 2027.1",
 )
-def test_purge_domain_results_1to1(interference):
-    """purge_domain_results removes 1-to-1 results so the interaction is no longer valid."""
+def test_purge_1to1(interference):
+    """Purge removes 1-to-1 results so the interaction is no longer valid."""
     rev = interference.results.analyze()
     sim = rev.get_simulation()
 
@@ -3717,7 +3716,7 @@ def test_purge_domain_results_1to1(interference):
     assert interaction.is_valid()
 
     # Purge the results for that domain
-    sim.purge_domain_results(domain)
+    sim.purge(domain)
 
     # The interaction object should no longer report valid results
     assert not interaction.is_valid()
@@ -3727,7 +3726,7 @@ def test_purge_domain_results_1to1(interference):
     DESKTOP_VERSION < "2027.1",
     reason="Skipped on versions earlier than 2027.1",
 )
-def test_purge_domain_results_rerun_after_purge(interference):
+def test_purge_rerun_after_purge(interference):
     """After purging, running the same domain produces valid results again."""
     rev = interference.results.analyze()
     sim = rev.get_simulation()
@@ -3740,7 +3739,7 @@ def test_purge_domain_results_rerun_after_purge(interference):
     interaction = sim.run(domain)
     assert interaction.is_valid()
 
-    sim.purge_domain_results(domain)
+    sim.purge(domain)
     assert not interaction.is_valid()
 
     interaction2 = sim.run(domain)
@@ -3756,8 +3755,8 @@ def test_purge_domain_results_rerun_after_purge(interference):
     DESKTOP_VERSION < "2027.1",
     reason="Skipped on versions earlier than 2027.1",
 )
-def test_purge_domain_results_only_affects_specified_domain(interference):
-    """purge_domain_results only removes results for the specified tx/rx pair."""
+def test_purge_only_affects_specified_domain(interference):
+    """Purge only removes results for the specified tx/rx pair."""
     rev = interference.results.analyze()
     sim = rev.get_simulation()
 
@@ -3776,7 +3775,7 @@ def test_purge_domain_results_only_affects_specified_domain(interference):
     assert interaction2.is_valid()
 
     # Purge only domain1
-    sim.purge_domain_results(domain1)
+    sim.purge(domain1)
 
     # domain1 results gone, domain2 results untouched
     assert not interaction1.is_valid()
@@ -3795,12 +3794,13 @@ def test_purge_domain_results_nto1(interference):
 
     domain = InteractionDomain(interference)
     domain.set_receiver("Bluetooth")
+    domain.set_interferer("")
 
     interaction = sim.run(domain)
     assert interaction.is_valid()
 
     # Purge N-to-1 results
-    sim.purge_domain_results(domain)
+    sim.purge(domain)
 
     assert not interaction.is_valid()
 
@@ -3809,7 +3809,7 @@ def test_purge_domain_results_nto1(interference):
     DESKTOP_VERSION < "2027.1",
     reason="Skipped on versions earlier than 2027.1",
 )
-def test_purge_domain_results_invalid_domain_raises(interference):
+def test_purge_invalid_domain_raises(interference):
     """purge_domain_results raises ValueError when the domain names a non-existent radio."""
     rev = interference.results.analyze()
     sim = rev.get_simulation()
@@ -3818,4 +3818,111 @@ def test_purge_domain_results_invalid_domain_raises(interference):
     domain.set_receiver("NonExistentRadio")
 
     with pytest.raises(ValueError):
-        sim.purge_domain_results(domain)
+        sim.purge(domain)
+
+
+@pytest.mark.skipif(
+    DESKTOP_VERSION < "2027.1",
+    reason="Skipped on versions earlier than 2027.1",
+)
+def test_purge_specific_1to1_and_n_to_1(interference):
+    """Run every combination, then purge one specific 1-to-1 pair and one receiver's N-to-1."""
+    rev = interference.results.analyze()
+    sim = rev.get_simulation()
+    sim.enable_n_to_1(True)
+
+    def has_results(domain):
+        """Report whether results exist for a domain without re-running it."""
+        return Interaction(interference, domain, rev).is_valid()
+
+    # An unspecified receiver combined with a single empty interferer runs every
+    # 1-to-1 band pair and every N-to-1 combination in the project.
+    run_all = InteractionDomain(interference)
+    run_all.set_interferer("")
+    all_results = sim.run(run_all)
+    assert all_results.is_valid()
+
+    bt_wifi = InteractionDomain(interference)
+    bt_wifi.set_receiver("Bluetooth")
+    bt_wifi.set_interferer("WiFi")
+
+    gps_wifi = InteractionDomain(interference)
+    gps_wifi.set_receiver("GPS")
+    gps_wifi.set_interferer("WiFi")
+
+    bt_n_to_1 = InteractionDomain(interference)
+    bt_n_to_1.set_receiver("Bluetooth")
+    bt_n_to_1.set_interferer("")
+
+    gps_n_to_1 = InteractionDomain(interference)
+    gps_n_to_1.set_receiver("GPS")
+    gps_n_to_1.set_interferer("")
+
+    # The full run covers all of these
+    assert has_results(bt_wifi)
+    assert has_results(gps_wifi)
+    assert has_results(bt_n_to_1)
+    assert has_results(gps_n_to_1)
+
+    # Purge only the Bluetooth/WiFi 1-to-1 pair
+    sim.purge(bt_wifi)
+    assert not has_results(bt_wifi)
+    assert has_results(gps_wifi)
+    assert has_results(gps_n_to_1)
+
+    # Purge only the GPS N-to-1 results. This is the same domain run() uses to
+    # simulate N-to-1 for a receiver, so it also covers that receiver's 1-to-1
+    # results.
+    sim.purge(gps_n_to_1)
+    assert not has_results(gps_n_to_1)
+    assert not has_results(gps_wifi)
+
+    # Re-running the full domain restores everything that was purged
+    all_results = sim.run(run_all)
+    assert all_results.is_valid()
+    assert has_results(bt_wifi)
+    assert has_results(gps_wifi)
+    assert has_results(bt_n_to_1)
+    assert has_results(gps_n_to_1)
+
+
+@pytest.mark.skipif(
+    DESKTOP_VERSION < "2027.1",
+    reason="Skipped on versions earlier than 2027.1",
+)
+def test_purge_warns_when_bands_specified(interference):
+    """Purge warns that band specifications are ignored, since it purges at the radio-pair level."""
+    rev = interference.results.analyze()
+    sim = rev.get_simulation()
+
+    band_warning = "band specifications will be ignored"
+
+    # A receiver band alone triggers the warning
+    rx_band_domain = InteractionDomain(interference)
+    rx_band_domain.set_receiver("GPS", "L2 P(Y)")
+    rx_band_domain.set_interferer("WiFi")
+    with pytest.warns(UserWarning, match=band_warning):
+        sim.purge(rx_band_domain)
+
+    # An interferer band alone triggers the warning
+    tx_band_domain = InteractionDomain(interference)
+    tx_band_domain.set_receiver("GPS")
+    tx_band_domain.set_interferer("WiFi", "HR-DSSS Tx - Ch 1-13")
+    with pytest.warns(UserWarning, match=band_warning):
+        sim.purge(tx_band_domain)
+
+    # Both bands specified triggers the warning
+    both_bands_domain = InteractionDomain(interference)
+    both_bands_domain.set_receiver("GPS", "L2 P(Y)")
+    both_bands_domain.set_interferer("WiFi", "HR-DSSS Tx - Ch 1-13")
+    with pytest.warns(UserWarning, match=band_warning):
+        sim.purge(both_bands_domain)
+
+    # No bands specified, so no band warning
+    no_band_domain = InteractionDomain(interference)
+    no_band_domain.set_receiver("GPS")
+    no_band_domain.set_interferer("WiFi")
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        sim.purge(no_band_domain)
+    assert not any(band_warning in str(w.message) for w in caught)
