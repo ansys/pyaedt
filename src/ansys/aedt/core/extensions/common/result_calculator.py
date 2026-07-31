@@ -647,7 +647,8 @@ class FormulaCalculator:
         # evaluation so the formula simply yields -inf/nan where appropriate.
         try:
             with np.errstate(all="ignore"):
-                result = eval(formula, {"__builtins__": {}}, namespace)  # noqa: S307
+                # namespace is restricted to _ALLOWED_GLOBALS (numpy functions only) with no builtins
+                result = eval(formula, {"__builtins__": {}}, namespace)  # noqa: S307  # nosec B307
         except Exception as exc:  # pragma: no cover - re-raised as ValueError
             raise ValueError(str(exc)) from exc
 
