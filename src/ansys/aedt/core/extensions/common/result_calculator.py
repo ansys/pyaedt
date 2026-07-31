@@ -101,8 +101,10 @@ class ResultDataService:
     @property
     def _current_cache(self) -> dict[str, Any]:
         self._ensure_connected()
-        assert self.current_session_pid is not None  # for type-checkers
-        return self._cache_by_session[self.current_session_pid]
+        session_pid = self.current_session_pid
+        if session_pid is None:
+            raise RuntimeError("Current session PID is not initialized.")
+        return self._cache_by_session[session_pid]
 
     @property
     def projects_designs(self) -> dict[str, list[str]]:
@@ -185,12 +187,14 @@ class ResultDataService:
 
     @property
     def projects_list(self):
-        assert self.desktop is not None
+        if self.desktop is None:
+            raise RuntimeError("Desktop session is not initialized.")
         return self.desktop.project_list
 
     @property
     def designs_by_project(self) -> dict[str, list[str]]:
-        assert self.desktop is not None
+        if self.desktop is None:
+            raise RuntimeError("Desktop session is not initialized.")
         output = {}
         for project in self.projects_list:
             output[project] = self.desktop.design_list(project)
@@ -269,7 +273,8 @@ class ResultDataService:
 
     def iter_project_design_apps(self):
         """Yield (project_name, design_name, aedtapp) for available designs."""
-        assert self.desktop is not None
+        if self.desktop is None:
+            raise RuntimeError("Desktop session is not initialized.")
         designs_map = self.designs_by_project
         for project_name in self.projects_list:
             for design_name in designs_map.get(project_name, []):
@@ -279,7 +284,8 @@ class ResultDataService:
 
     def _get_aedtapp(self, project_name: str, design_name: str) -> Any:
         """Get or create cached aedtapp instance"""
-        assert self.desktop is not None
+        if self.desktop is None:
+            raise RuntimeError("Desktop session is not initialized.")
         key = (project_name, design_name)
         if key not in self._aedtapp_cache:
             self._aedtapp_cache[key] = self.desktop[[project_name, design_name]]
@@ -300,8 +306,9 @@ class ResultDataService:
     def load_designs(self, project_name: str) -> tuple[list[str], str | None]:
         """Lazily load designs for a project. Shared cache between Tab 2 and Tab 4."""
         if project_name not in self.projects_designs:
+            if self.desktop is None:
+                raise RuntimeError("Desktop session is not initialized.")
             try:
-                assert self.desktop is not None
                 self.projects_designs[project_name] = list(self.desktop.design_list(project_name) or [])
             except Exception:
                 self.projects_designs[project_name] = []
@@ -1304,7 +1311,7 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
         except Exception:
             # Silently ignore: the user will still be able to pick a session
             # manually from the dropdowns.
-            pass
+            logging.getLogger("Global").warning("Failed to autoconnect to session on startup.")
 
     # ----------------------------- Tab 1 ------------------------------------
     def _build_tab_results(self) -> None:
@@ -1585,7 +1592,7 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
             try:
                 self._name_editor.destroy()
             except Exception:
-                pass
+                logging.getLogger("Global").warning("Ignoring _name_editor destroy failure.")
             self._name_editor = None
 
     def _plot_y(self, ax, x, y, label, **kwargs):
@@ -2416,7 +2423,8 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
                 foreground="red",
             )
         else:
-            assert y is not None  # for type-checkers
+            if y is None:  # for type-checkers
+                raise ValueError("Expected 'y' to be set when manual XY mode is used.")
             self._ds_manual_xy = (x, y)
             self.ds_status_label.configure(
                 text=f"{len(x)} point(s) - ready to add",
@@ -2805,7 +2813,8 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
             )
             self._fi_redraw_plot()
             return
-        assert y is not None  # for type-checkers
+        if y is None:
+            raise ValueError("y must not be None when generating the preview label.")
         base_label = self._fi_name_var.get().strip() or "preview"
         fmt_name = self._fi_format_var.get() if hasattr(self, "_fi_format_var") else ""
         if fmt_name.startswith("Touchstone"):
@@ -3162,7 +3171,7 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
                 self._saved_widget_states[w] = state
                 w.configure(state="disabled")
             except Exception:
-                pass
+                logging.getLogger("Global").warning("Cannot disable aedt tabs. Continuing anyway.")
 
     def _restore_aedt_tabs(self) -> None:
         """Restore the widget states saved by _disable_aedt_tabs."""
@@ -3170,7 +3179,7 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
             try:
                 w.configure(state=state)
             except Exception:
-                pass
+                logging.getLogger("Global").warning("Cannot restore aedt tabs. Continuing anyway.")
         self._saved_widget_states = {}
 
     # ----------------------------- Helpers -----------------------------------
