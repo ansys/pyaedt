@@ -2241,7 +2241,7 @@ class NamedSelections(PropsManager, PyAedtBase):
             raise AEDTRuntimeError("Failed to rename the named selection.")
 
     @pyaedt_function_handler()
-    def update(self, selection: list | None = None, entity_type: str = "Object", mode: str = "Reassign") -> bool:
+    def update(self, assignment: list | None = None, entity_type: str = "Object", mode: str = "Reassign") -> bool:
         """Update an existing named selection.
 
         This method mirrors the signature and semantics of :class:`Lists.update` for
@@ -2250,7 +2250,7 @@ class NamedSelections(PropsManager, PyAedtBase):
 
         Parameters
         ----------
-        selection : list, optional
+        assignment : list, optional
             List of object names or list of FacePrimitive Ids.
             If ``None``, uses the selection stored in ``self.props["Selection"]``.
         entity_type : str, optional
@@ -2307,12 +2307,12 @@ class NamedSelections(PropsManager, PyAedtBase):
             raise AEDTRuntimeError(f"Invalid mode `{mode}`. Allowed values are `Add`, `Remove`, `Reassign`.")
 
         # If no selection provided raise an exception
-        if not selection:
+        if not assignment:
             raise AEDTRuntimeError("No selection provided to update.")
 
         current_selection = self.props["List"]
 
-        object_list_new = self._objects_verification(selection, entity_type)
+        object_list_new = self._objects_verification(assignment, entity_type)
         if entity_type == "Object":
             selection = ", ".join(object_list_new)
         else:
