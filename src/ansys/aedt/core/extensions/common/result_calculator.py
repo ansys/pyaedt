@@ -184,10 +184,12 @@ class ResultDataService:
 
     @property
     def projects_list(self):
+        assert self.desktop is not None
         return self.desktop.project_list
 
     @property
     def designs_by_project(self) -> dict[str, list[str]]:
+        assert self.desktop is not None
         output = {}
         for project in self.projects_list:
             output[project] = self.desktop.design_list(project)
@@ -266,6 +268,7 @@ class ResultDataService:
 
     def iter_project_design_apps(self):
         """Yield (project_name, design_name, aedtapp) for available designs."""
+        assert self.desktop is not None
         designs_map = self.designs_by_project
         for project_name in self.projects_list:
             for design_name in designs_map.get(project_name, []):
@@ -275,6 +278,7 @@ class ResultDataService:
 
     def _get_aedtapp(self, project_name: str, design_name: str) -> Any:
         """Get or create cached aedtapp instance"""
+        assert self.desktop is not None
         key = (project_name, design_name)
         if key not in self._aedtapp_cache:
             self._aedtapp_cache[key] = self.desktop[[project_name, design_name]]
@@ -296,6 +300,7 @@ class ResultDataService:
         """Lazily load designs for a project. Shared cache between Tab 2 and Tab 4."""
         if project_name not in self.projects_designs:
             try:
+                assert self.desktop is not None
                 self.projects_designs[project_name] = list(self.desktop.design_list(project_name) or [])
             except Exception:
                 self.projects_designs[project_name] = []
@@ -1942,7 +1947,7 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
     def _redraw_ex_preview(self) -> None:
         """Redraw the Existing Reports preview (no interpolation)."""
         self._ex_plot.clear()
-        if self._ex_preview_xy is not None:
+        if self._ex_preview_xy is not None and self._ex_preview_key is not None:
             x, y = self._ex_preview_xy
             self._plot_y(
                 self._ex_plot.ax,
@@ -3176,10 +3181,10 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
         # Keep a handle to the callback so we can fire it programmatically
         # when auto-selecting a single-item dropdown (setting the StringVar
         # does NOT emit <<ComboboxSelected>>).
-        cb._on_change = callback  # type: ignore[attr-defined]
-        # Keep a handle to the label so callers can rename the row (e.g. the
+        setattr(cb, "_on_change", callback)
+        # Keep a handle to the label so callers can rename the row (for example the
         # Domain row becomes "Infinite Sphere" for Far Fields reports).
-        cb._label = lbl  # type: ignore[attr-defined]
+        setattr(cb, "_label", lbl)
         return cb
 
     def _reset_cb(self, cb: ttk.Combobox, var: tkinter.StringVar) -> None:
