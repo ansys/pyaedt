@@ -256,7 +256,7 @@ class ResultDataService:
                 logging.getLogger("Global").debug("Could not release existing desktop; continuing anyway.")
             self.desktop = None
 
-        # PYAEDT_DESKTOP_PORT and PYAEDT_PROCESS_ID are set by AEDT in the
+        # PYAEDT_DESKTOP_PORT and PYAEDT_PROCESS_ID are set by the Extension Manager in the
         # environment and inherited by this subprocess. Desktop.__init__ reads
         # them live and overrides the port/aedt_process_id arguments, which
         # prevents connecting to any session other than the original one.
