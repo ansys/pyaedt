@@ -1467,7 +1467,7 @@ class Design(AedtObjects, PyAedtBase):
         >>> app.odesign
 
         """
-        if settings.use_multi_desktop:  # pragma: no cover
+        if settings.use_multi_desktop and self._desktop_class.is_grpc_api:  # pragma: no cover
             self._desktop_class.grpc_plugin.recreate_application(True)
             if self._design_name:
                 self._odesign = self.oproject.SetActiveDesign(self._design_name)
@@ -1521,7 +1521,7 @@ class Design(AedtObjects, PyAedtBase):
         >>> app.oproject
 
         """
-        if settings.use_multi_desktop:  # pragma: no cover
+        if settings.use_multi_desktop and self._desktop_class.is_grpc_api:  # pragma: no cover
             self._desktop_class.grpc_plugin.recreate_application(True)
         return cast(_OProject, self._oproject)
 
