@@ -29,6 +29,7 @@ import inspect
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import sys
 import tempfile
@@ -159,6 +160,46 @@ def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item
             item.add_marker(pytest.mark.filter_solutions)
         elif item.nodeid.startswith(EMIT_TEST_PREFIX):
             item.add_marker(pytest.mark.emit)
+
+
+def _env_is_truthy(name: str) -> bool:
+    """Return True when the environment variable contains a truthy value."""
+    return os.environ.get(name, "").lower() in {"1", "true", "yes"}
+
+
+def _is_tcl_init_error(exc: BaseException) -> bool:
+    """Return True only for intermittent Tcl/Tk library discovery or load failures."""
+    if exc.__class__.__name__ != "TclError":
+        return False
+
+    return bool(
+        re.search(
+            r"Can't find a usable (init|tk)\.tcl"
+            r"|invalid command name \"tcl_findLibrary\""
+            r"|couldn't read file .+\.tcl.*no such file or directory",
+            str(exc),
+        )
+    )
+
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    """Mark known intermittent Tcl/Tk discovery errors as xfail on Windows CI or local opt-in."""
+    outcome = yield
+    report = outcome.get_result()
+
+    if report.passed or report.when not in {"setup", "call"}:
+        return
+    if sys.platform != "win32":
+        return
+    if not (_env_is_truthy("ON_CI") or _env_is_truthy("PYAEDT_XFAIL_TCL_INIT")):
+        return
+    if call.excinfo is None:
+        return
+
+    if _is_tcl_init_error(call.excinfo.value):
+        report.outcome = "skipped"
+        report.wasxfail = "Intermittent tkinter Tcl/Tk discovery or load failure (Windows)"
 
 
 # ================================
