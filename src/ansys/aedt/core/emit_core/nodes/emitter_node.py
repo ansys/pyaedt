@@ -55,6 +55,23 @@ class EmitterNode(EmitNode):
 
     """
 
+    @staticmethod
+    def _is_emitter_antenna(props: dict) -> bool:
+        antenna_type = props.get("Antenna Type") or props.get("SubType", "")
+        return antenna_type == "Emitter"
+
+    @staticmethod
+    def _find_emitter_radio_id(o_revision_data, result_id: int, emitter_name: str) -> int:
+        try:
+            return o_revision_data.GetComponentNodeID(result_id, emitter_name)
+        except Exception:
+            rf_systems_id = o_revision_data.GetTopLevelNodeID(result_id, "RF Systems")
+            radio_names = o_revision_data.GetChildNodeNames(result_id, rf_systems_id, "RadioNode", True)
+            for radio_name in radio_names:
+                if radio_name == emitter_name:
+                    return o_revision_data.GetChildNodeID(result_id, rf_systems_id, radio_name, True)
+            raise ValueError(f"No emitter radio found with name '{emitter_name}'.")
+
     def __init__(self, emit_obj, result_id, node_id) -> None:
         o_revision_data = emit_obj.odesign.GetModule("EmitCom")
         props = EmitNode.props_to_dict(o_revision_data.GetEmitNodeProperties(result_id, node_id, True))
@@ -63,11 +80,11 @@ class EmitterNode(EmitNode):
         radio_node_id = node_id
         antenna_node_id = None
 
-        if node_type == "AntennaNode" and props.get("SubType") == "Emitter":
+        if node_type == "AntennaNode" and self._is_emitter_antenna(props):
             antenna_node_id = node_id
             emitter_name = props.get("Name", "")
             if emitter_name:
-                radio_node_id = o_revision_data.GetComponentNodeID(result_id, emitter_name)
+                radio_node_id = self._find_emitter_radio_id(o_revision_data, result_id, emitter_name)
         elif node_type == "RadioNode" and props.get("IsEmitter") == "true":
             radio_node_id = node_id
 
