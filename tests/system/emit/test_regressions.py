@@ -768,7 +768,6 @@ def test_defect_1475694_iemit_dies_when_design_deleted(desktop, add_app) -> None
     app.close_project(app.project_name, save=False)
 
 
-@pytest.mark.skipif(True, reason="B1457557 - need to fix SceneGroupNode.add_group().")
 @pytest.mark.skipif(not DESKTOP_VERSION or DESKTOP_VERSION < "2027.1", reason="Regression test for defect 1475679.")
 def test_defect_1475679_get_child_node_id_recurse(emit_app) -> None:
     """Regression test for TFS defect 1475679.
@@ -797,7 +796,9 @@ def test_defect_1475679_get_child_node_id_recurse(emit_app) -> None:
     assert group_node
 
     # add an emitter directly under the group
+    # B1491226: add_emitter() must return EmitterNode (not AntennaNode)
     emitter_node: EmitterNode = group_node.add_emitter()
+    assert isinstance(emitter_node, EmitterNode)
     assert emitter_node
 
     # get the emitter's antenna

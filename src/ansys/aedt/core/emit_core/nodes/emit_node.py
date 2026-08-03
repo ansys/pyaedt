@@ -1359,6 +1359,10 @@ class EmitNode:
         try:
             new_id = self._oRevisionData.CreateEmitNode(self._result_id, self._node_id, child_name, child_type)
             new_node = self._get_node(new_id)
+            if child_type == "Emitter" and new_node is not None:
+                from ansys.aedt.core.emit_core.nodes.emitter_node import EmitterNode
+
+                return EmitterNode(self._emit_obj, self._result_id, new_node._node_id)
         except Exception as e:
             print(f"Failed to add child node of type {child_type} to node {self.name}. Error: {e}")
         return new_node
