@@ -173,9 +173,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         aedt_process_id: int | None = None,
         remove_lock: bool | None = False,
     ) -> None:
+        application = "CIRCUITNETLIST" if str(project).endswith(".cir") else "CIRCUIT"
         FieldAnalysisCircuit.__init__(
             self,
-            "CIRCUIT",
+            application,
             project,
             design,
             solution_type,
