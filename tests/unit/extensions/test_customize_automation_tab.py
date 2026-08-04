@@ -485,6 +485,28 @@ def test_add_automation_tab_resolves_image_linux_avoids_collision(tmp_path) -> N
     assert common_button.attrib["image"] == "images_common_images_large/pdf.png"
 
 
+@patch("ansys.aedt.core.extensions.customize_automation_tab.is_linux", True)
+def test_add_automation_tab_resolves_image_linux_custom(tmp_path) -> None:
+    """Custom extension icons must use a relative symlinked path on Linux too."""
+    icon_file = tmp_path / "custom_icon.png"
+    icon_file.write_text("icon")
+
+    tabconfig_path = add_automation_tab(
+        name="CustomToolkit",
+        lib_dir=tmp_path,
+        icon_file=str(icon_file),
+        product="Project",
+        template="run_pyaedt_toolkit_script",
+        is_custom=True,
+    )
+
+    parser = TabConfigParser(tabconfig_path)
+    panel = parser.get_panel("Panel_PyAEDT_Extensions")
+    button = panel.find("./button")
+    assert button.attrib["image"] == f"images/{icon_file.name}"
+    assert not Path(button.attrib["image"]).is_absolute()
+
+
 @patch("ansys.aedt.core.extensions.customize_automation_tab.is_linux", False)
 def test_add_automation_tab_custom_button_attributes(tmp_path) -> None:
     """Test custom extension attributes for add_automation_tab."""

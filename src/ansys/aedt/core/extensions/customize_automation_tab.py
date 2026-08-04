@@ -197,7 +197,9 @@ def add_automation_tab(
     default_icon_path = Path(ansys.aedt.core.extensions.__file__).parent / "images" / "large" / "pyansys.png"
 
     images_dir_name = "images"
-    if not is_custom and is_linux:  # pragma: no cover
+    if is_linux:  # pragma: no cover
+        # Absolute image paths are not supported by AEDT's TabConfig.xml on Linux, so
+        # built-in and custom extension icons alike must be symlinked into a relative path.
         if icon_file:
             images_source = Path(icon_file).parent
         else:
@@ -218,9 +220,9 @@ def add_automation_tab(
     def _resolve_image_path(path_value: Path | None, is_group_icon: bool = False) -> str | None:
         if not path_value:
             return None
-        if is_linux and not is_custom and is_group_icon:
+        if is_linux and is_group_icon:
             return f"{images_dir_name}/gallery/{path_value.name}"
-        elif is_linux and not is_custom:
+        elif is_linux:
             return f"{images_dir_name}/{path_value.name}"
         return path_value.as_posix()
 
@@ -264,7 +266,7 @@ def add_automation_tab(
             script = Path(name) / "run_pyaedt_toolkit_script"
             button_kwargs = {
                 "isLarge": "1",
-                "image": str(icon_path.as_posix()),
+                "image": _resolve_image_path(icon_path) or str(icon_path.as_posix()),
                 "script": str(script.as_posix()),
                 "custom_extension": "true",
                 "type": "custom",
