@@ -670,9 +670,13 @@ class ExtensionCommon(PyAedtBase):
         """
         theme_colors_dict = self.theme.light if theme_color == "light" else self.theme.dark
         self.root.configure(background=theme_colors_dict["widget_bg"])
+        self.root.option_add("*TCombobox*Listbox*Background", theme_colors_dict["combobox_readonly_bg"])
+        self.root.option_add("*TCombobox*Listbox*Foreground", theme_colors_dict["text"])
+        self.root.option_add("*TCombobox*Listbox*selectBackground", theme_colors_dict["button_active_bg"])
+        self.root.option_add("*TCombobox*Listbox*selectForeground", theme_colors_dict["text"])
         for widget in self.__find_all_widgets(
             cast(tkinter.Misc, self.root),
-            (tkinter.Text, tkinter.Listbox, tkinter.Canvas, tkinter.Scrollbar),
+            (tkinter.Text, tkinter.Listbox, tkinter.Canvas, tkinter.Scrollbar, tkinter.Entry),
         ):
             if isinstance(widget, tkinter.Text):
                 widget.configure(
@@ -692,6 +696,22 @@ class ExtensionCommon(PyAedtBase):
                     highlightthickness=0,
                     bd=0,
                 )
+            elif isinstance(widget, tkinter.Entry):
+                entry_kwargs = {}
+                if "background" in widget.keys():
+                    entry_kwargs["background"] = theme_colors_dict["combobox_bg"]
+                if "foreground" in widget.keys():
+                    entry_kwargs["foreground"] = theme_colors_dict["text"]
+                if "insertbackground" in widget.keys():
+                    entry_kwargs["insertbackground"] = theme_colors_dict["text"]
+                if "disabledbackground" in widget.keys():
+                    entry_kwargs["disabledbackground"] = theme_colors_dict["pane_bg"]
+                if "disabledforeground" in widget.keys():
+                    entry_kwargs["disabledforeground"] = theme_colors_dict["text"]
+                if "font" in widget.keys():
+                    entry_kwargs["font"] = self.theme.default_font
+                if entry_kwargs:
+                    widget.configure(**entry_kwargs)
             else:
                 if "background" in widget.keys():
                     cast(Any, widget).configure(background=theme_colors_dict["widget_bg"])
@@ -738,6 +758,10 @@ class ExtensionCommon(PyAedtBase):
         >>> extension.change_theme_button  # doctest: +SKIP
 
         """
+        button = self._widgets.get("change_theme_button")
+        if button is not None:
+            return cast(ttk.Button, button)
+
         res = cast(ttk.Button, self.root.nametowidget("theme_button_frame.theme_toggle_button"))
         return res
 
@@ -1678,27 +1702,28 @@ class ExtensionTheme(PyAedtBase):  # pragma: no cover
         )
 
         # --- Combobox ---------------------------------------------------------
-        style.configure(
-            "PyAEDT.TCombobox",
-            fieldbackground=colors["combobox_bg"],
-            background=colors["combobox_arrow_bg"],
-            foreground=colors["text"],
-            font=self.default_font,
-            arrowcolor=colors["combobox_arrow_fg"],
-            bordercolor=colors["button_border"],
-            lightcolor=colors["combobox_bg"],
-            darkcolor=colors["combobox_bg"],
-            padding=(4, 2),
-        )
-        style.map(
-            "PyAEDT.TCombobox",
-            fieldbackground=[("readonly", colors["combobox_readonly_bg"])],
-            foreground=[("readonly", colors["text"])],
-            bordercolor=[
-                ("focus", colors["button_border"]),
-                ("!focus", colors["button_border"]),
-            ],
-        )
+        for combobox_style in ("TCombobox", "PyAEDT.TCombobox"):
+            style.configure(
+                combobox_style,
+                fieldbackground=colors["combobox_bg"],
+                background=colors["combobox_arrow_bg"],
+                foreground=colors["text"],
+                font=self.default_font,
+                arrowcolor=colors["combobox_arrow_fg"],
+                bordercolor=colors["button_border"],
+                lightcolor=colors["combobox_bg"],
+                darkcolor=colors["combobox_bg"],
+                padding=(4, 2),
+            )
+            style.map(
+                combobox_style,
+                fieldbackground=[("readonly", colors["combobox_readonly_bg"])],
+                foreground=[("readonly", colors["text"])],
+                bordercolor=[
+                    ("focus", colors["button_border"]),
+                    ("!focus", colors["button_border"]),
+                ],
+            )
 
         # --- Checkbutton ------------------------------------------------------
         style.configure(
@@ -1800,16 +1825,17 @@ class ExtensionTheme(PyAedtBase):  # pragma: no cover
         )
 
         # --- Spinbox ----------------------------------------------------------
-        style.configure(
-            "PyAEDT.TSpinbox",
-            fieldbackground=colors["combobox_bg"],
-            background=colors["combobox_arrow_bg"],
-            foreground=colors["text"],
-            font=self.default_font,
-            bordercolor=colors["button_border"],
-            arrowcolor=colors["combobox_arrow_fg"],
-            padding=(4, 2),
-        )
+        for spinbox_style in ("TSpinbox", "PyAEDT.TSpinbox"):
+            style.configure(
+                spinbox_style,
+                fieldbackground=colors["combobox_bg"],
+                background=colors["combobox_arrow_bg"],
+                foreground=colors["text"],
+                font=self.default_font,
+                bordercolor=colors["button_border"],
+                arrowcolor=colors["combobox_arrow_fg"],
+                padding=(4, 2),
+            )
 
         # --- Scrollbar --------------------------------
         _scrollbar_cfg = dict(
@@ -1838,22 +1864,66 @@ class ExtensionTheme(PyAedtBase):  # pragma: no cover
         style.map("PyAEDT.Vertical.TScrollbar", **_scrollbar_map)
 
         # --- Entry --------------------------------
+        for entry_style in ("TEntry", "PyAEDT.TEntry"):
+            style.configure(
+                entry_style,
+                fieldbackground=colors["combobox_bg"],
+                foreground=colors["text"],
+                font=self.default_font,
+                bordercolor=colors["button_border"],
+                lightcolor=colors["combobox_bg"],
+                darkcolor=colors["combobox_bg"],
+                padding=(4, 2),
+            )
+            style.map(
+                entry_style,
+                bordercolor=[
+                    ("focus", colors["button_border"]),
+                    ("!focus", colors["button_border"]),
+                ],
+            )
+
+        # --- Treeview ---------------------------------------------------------
         style.configure(
-            "PyAEDT.TEntry",
-            fieldbackground=colors["combobox_bg"],
+            "Treeview",
+            background=colors["pane_bg"],
+            fieldbackground=colors["pane_bg"],
             foreground=colors["text"],
-            font=self.default_font,
             bordercolor=colors["button_border"],
-            lightcolor=colors["combobox_bg"],
-            darkcolor=colors["combobox_bg"],
-            padding=(4, 2),
+            lightcolor=colors["pane_bg"],
+            darkcolor=colors["pane_bg"],
+            rowheight=22,
+            font=self.default_font,
         )
         style.map(
-            "PyAEDT.TEntry",
-            bordercolor=[
-                ("focus", colors["button_border"]),
-                ("!focus", colors["button_border"]),
-            ],
+            "Treeview",
+            background=[("selected", colors["button_active_bg"])],
+            foreground=[("selected", colors["text"])],
+        )
+        style.configure(
+            "Treeview.Heading",
+            background=colors["button_bg"],
+            foreground=colors["text"],
+            bordercolor=colors["button_border"],
+            lightcolor=colors["button_bg"],
+            darkcolor=colors["button_bg"],
+            font=self.default_font,
+            padding=(6, 4),
+        )
+        style.map(
+            "Treeview.Heading",
+            background=[("active", colors["button_hover_bg"]), ("pressed", colors["button_active_bg"])],
+            foreground=[("active", colors["text"]), ("pressed", colors["text"])],
+        )
+
+        # --- Progress bar -----------------------------------------------------
+        style.configure(
+            "TProgressbar",
+            background=self._ANSYS_GOLD,
+            troughcolor=colors["pane_bg"],
+            bordercolor=colors["pane_bg"],
+            lightcolor=self._ANSYS_GOLD,
+            darkcolor=self._ANSYS_GOLD,
         )
 
 

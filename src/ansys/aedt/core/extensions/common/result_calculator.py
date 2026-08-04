@@ -40,8 +40,6 @@ from typing import cast
 import matplotlib
 import numpy as np
 
-import ansys.aedt.core
-
 matplotlib.use("TkAgg")
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.backends.backend_tkagg import NavigationToolbar2Tk
@@ -916,6 +914,7 @@ class MatplotlibPlotWidget:
         dpi: int = 100,
         frame_style: str = "PyAEDT.TFrame",
     ) -> None:
+        self._theme_colors: dict[str, str] | None = None
         self.frame = ttk.Frame(parent, style=frame_style)
         self.frame.columnconfigure(0, weight=1)
         self.frame.rowconfigure(1, weight=1)
@@ -937,13 +936,64 @@ class MatplotlibPlotWidget:
         self.toolbar.update()
         self.toolbar.pack(side="left", fill="x")
 
+    def apply_theme(self, colors: dict[str, str]) -> None:
+        """Apply PyAEDT colors to the embedded Matplotlib figure and toolbar."""
+        self._theme_colors = colors
+        self._apply_plot_theme()
+        self.canvas.draw_idle()
+
+    def _apply_plot_theme(self) -> None:
+        colors = self._theme_colors
+        if not colors:
+            return
+
+        self.figure.set_facecolor(colors["widget_bg"])
+        self.ax.set_facecolor(colors["pane_bg"])
+        self.ax.tick_params(axis="both", colors=colors["text"])
+        self.ax.xaxis.label.set_color(colors["text"])
+        self.ax.yaxis.label.set_color(colors["text"])
+        self.ax.title.set_color(colors["text"])
+        for spine in self.ax.spines.values():
+            spine.set_color(colors["button_border"])
+        self.ax.grid(True, color=colors["button_border"], alpha=0.35)
+
+        legend = self.ax.get_legend()
+        if legend is not None:
+            legend.get_frame().set_facecolor(colors["pane_bg"])
+            legend.get_frame().set_edgecolor(colors["button_border"])
+            for text in legend.get_texts():
+                text.set_color(colors["text"])
+
+        for canvas_widget in (self.canvas.get_tk_widget(), getattr(self.canvas, "_tkcanvas", None)):
+            if canvas_widget is not None:
+                canvas_widget.configure(background=colors["widget_bg"], highlightthickness=0, bd=0)
+
+        self.toolbar.configure(background=colors["widget_bg"], highlightthickness=0, bd=0)
+        for child in self.toolbar.winfo_children():
+            if isinstance(child, tkinter.Button):
+                child.configure(
+                    background=colors["button_bg"],
+                    foreground=colors["text"],
+                    activebackground=colors["button_hover_bg"],
+                    activeforeground=colors["text"],
+                    highlightthickness=0,
+                    bd=0,
+                    relief="flat",
+                )
+            elif isinstance(child, tkinter.Label):
+                child.configure(background=colors["widget_bg"], foreground=colors["text"])
+            elif isinstance(child, tkinter.Frame):
+                child.configure(background=colors["widget_bg"], highlightthickness=0, bd=0)
+
     def clear(self) -> None:
         """Clear the axes and restore the background grid."""
         self.ax.clear()
         self.ax.grid(True, alpha=0.3)
+        self._apply_plot_theme()
 
     def redraw(self) -> None:
         """Apply tight_layout and schedule a canvas redraw."""
+        self._apply_plot_theme()
         self.figure.tight_layout()
         self.canvas.draw_idle()
 
@@ -1252,21 +1302,14 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
         # ---- Permanent status bar (row=1, always visible - no layout shift) ----
         status_bar = ttk.Frame(self.root, style="PyAEDT.TFrame")
         status_bar.grid(row=1, column=0, sticky="ew", padx=10, pady=(0, 6))
-        status_bar.columnconfigure(0, weight=1)  # version label takes the left side
-
-        # Left: PyAEDT version
-        try:
-            _pyaedt_ver = ansys.aedt.core.__version__
-        except Exception:
-            _pyaedt_ver = "unknown"
-        ttk.Label(
-            status_bar,
-            text=f"PyAEDT v{_pyaedt_ver}",
-            style="PyAEDT.TLabel",
-        ).grid(row=0, column=0, sticky="w")
+        status_bar.columnconfigure(0, weight=1)
 
         # Right: "Fetching data…" label + indeterminate bar (hidden when idle)
         self.add_busy_indicator(status_bar, row=0, column=1)
+
+        # Keep the shared theme toggle always visible, aligned with the
+        # footer controls used by the other extensions.
+        self.add_toggle_theme_button(status_bar, toggle_row=0, toggle_column=2)
 
         # Collect all interactive widgets in Tab 2 and the AEDT section of
         # the Datasets tab so they can be bulk-disabled while an AEDT call is in flight.
@@ -1290,6 +1333,24 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
         # AEDT calls until the user picks a project.
         if self.service.current_session_pid is not None:
             self._ex_cascade.load_sessions()
+
+    def apply_theme(self, theme_color: str):
+        super().apply_theme(theme_color)
+
+        colors = self.theme.light if theme_color == "light" else self.theme.dark
+
+        if hasattr(self, "formula_entry"):
+            self.formula_entry.configure(
+                background=colors["combobox_bg"],
+                insertbackground=colors["text"],
+                disabledbackground=colors["pane_bg"],
+                disabledforeground=colors["text"],
+            )
+
+        for plot_name in ("_results_plot", "_ex_plot", "_ds_plot", "_fi_plot"):
+            plot = getattr(self, plot_name, None)
+            if plot is not None:
+                plot.apply_theme(colors)
 
     def _auto_connect_initial_session(self) -> None:
         sessions = self.service.active_sessions
@@ -2925,8 +2986,7 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
     def _build_tab_settings(self) -> None:
         """Build the Settings tab.
 
-        Hosts the controls that drive :class:`FormulaCalculator` plus the
-        light/dark theme toggle (moved here from the Help tab).
+        Hosts the controls that drive :class:`FormulaCalculator`.
         """
         self.tab_settings.columnconfigure(1, weight=1)
 
@@ -3020,39 +3080,6 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
             state="readonly",
             width=15,
         ).grid(row=6, column=1, sticky="w", padx=10, pady=4)
-
-        # Theme section
-        ttk.Separator(self.tab_settings, orient="horizontal").grid(
-            row=7, column=0, columnspan=2, sticky="ew", padx=10, pady=(15, 5)
-        )
-        ttk.Label(
-            self.tab_settings,
-            text="Appearance",
-            style="PyAEDT.TLabel",
-            font=(self.theme.default_font[0], 11, "bold"),
-        ).grid(row=8, column=0, columnspan=2, sticky="w", padx=10, pady=(5, 5))
-
-        ttk.Label(
-            self.tab_settings,
-            text="Toggle light/dark theme:",
-            style="PyAEDT.TLabel",
-        ).grid(row=9, column=0, sticky="w", padx=10, pady=4)
-
-        # Reuse the base-class helper to create the standard Sun/Moon toggle
-        # button. We override ``change_theme_button`` below so ``apply_theme``
-        # can still find it for the glyph update.
-        self.add_toggle_theme_button(self.tab_settings, toggle_row=9, toggle_column=1)
-
-    @property
-    def change_theme_button(self) -> tkinter.Widget:
-        """Locate the theme toggle button inside the Settings tab.
-
-        ``ExtensionCommon.change_theme_button`` looks up the widget starting
-        from ``self.root`` (it expects the toggle to be a direct child of the
-        root). We placed it inside ``self.tab_settings`` instead, so we
-        resolve the path from there.
-        """
-        return self.tab_settings.nametowidget("theme_button_frame.theme_toggle_button")
 
     # ----------------------------- Tab Help ---------------------------------
     def _build_tab_help(self) -> None:
