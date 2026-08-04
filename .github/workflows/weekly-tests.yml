@@ -11,8 +11,8 @@ env:
   ON_CI: True
   PYAEDT_EDB_XFAIL: "1"
   PYAEDT_LOCAL_SETTINGS_PATH: 'tests/pyaedt_settings.yaml'
-  PYTEST_ARGUMENTS: -vvv --color=yes -ra --durations=25 --maxfail=10 --junitxml=junit/test-results.xml --testmon
-  PYTEST_ARGUMENTS_NON_TESTMON: -vvv --color=yes -ra --durations=25 --maxfail=10 --junitxml=junit/test-results.xml
+  PYTEST_ARGUMENTS: -vvv --color=yes -rsa --durations=25 --maxfail=10 --junitxml=junit/test-results.xml --testmon
+  PYTEST_ARGUMENTS_NON_TESTMON: -vvv --color=yes -rsa --durations=25 --maxfail=10 --junitxml=junit/test-results.xml
   TESTMON_DATAFILE: '.testmondata'
   TESTMON_CACHE_KEY_SOLVERS_WIN: 'testmondata-solvers-win'
   TESTMON_CACHE_KEY_SOLVERS_LINUX: 'testmondata-solvers-linux'
