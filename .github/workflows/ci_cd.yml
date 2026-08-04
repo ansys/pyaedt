@@ -51,7 +51,7 @@ jobs:
       - name: Documentation build
         uses: ansys/actions/doc-build@84b6533ae76f5dde69a1df26c18682160a8121cf # v10.3.5
         with:
-          checkout: false
+          checkout: true
           skip-install: true
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           use-python-cache: false
