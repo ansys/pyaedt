@@ -1473,7 +1473,6 @@ def test_receiver_n_to_1_enabled(interference):
     DESKTOP_VERSION < "2027.1",
     reason="Skipped on versions earlier than 2027.1",
 )
-@pytest.mark.skipif(True, reason="Dialog popup bug")
 def test_analysis_enabled(n_to_1):
     """Test enabling/disabling radio pairs and receiver N-to-1 analysis."""
     # Generate a revision
