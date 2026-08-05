@@ -104,8 +104,8 @@ class FresnelExtension(ExtensionHFSSCommon):
         self.frequency_units: str | None = None
         self.fresnel_type: tkinter.StringVar | None = None
 
-        self.elevation_resolution_slider_values = [10.0, 7.5, 5.0]
-        self.azimuth_resolution_slider_values = [15.0, 10.0, 7.5]
+        self.elevation_resolution_slider_values = [15.0, 10.0, 5.0]
+        self.azimuth_resolution_slider_values = [22.5, 15.0, 7.5]
 
         self.elevation_resolution_values = [
             1.0,
@@ -122,8 +122,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             11.25,
             15.0,
             18.0,
-            22.5,
-            30.0,
+            22.5
         ]
         self.azimuth_resolution_values = self.elevation_resolution_values
 
