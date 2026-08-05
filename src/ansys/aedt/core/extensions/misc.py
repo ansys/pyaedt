@@ -711,7 +711,7 @@ class ExtensionCommon(PyAedtBase):
                 if "font" in widget.keys():
                     entry_kwargs["font"] = self.theme.default_font
                 if entry_kwargs:
-                    widget.configure(**entry_kwargs)
+                    cast(Any, widget).configure(**entry_kwargs)
             else:
                 if "background" in widget.keys():
                     cast(Any, widget).configure(background=theme_colors_dict["widget_bg"])

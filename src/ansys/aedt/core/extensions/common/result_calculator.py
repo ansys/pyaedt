@@ -658,12 +658,12 @@ class FormulaCalculator:
         except Exception as exc:  # pragma: no cover - re-raised as ValueError
             raise ValueError(str(exc)) from exc
 
-        y_arr = np.asarray(result)
+        y_arr: np.ndarray = np.asarray(result)
         if not np.iscomplexobj(y_arr):
             y_arr = y_arr.astype(float)
         if y_arr.ndim == 0:
             fill_val = complex(y_arr) if np.iscomplexobj(y_arr) else float(y_arr)
-            y_arr = np.full(x_axis.shape, fill_val, dtype=type(fill_val))
+            y_arr = np.full(x_axis.shape, fill_val)
         if y_arr.shape != x_axis.shape:
             raise ValueError(f"Formula result shape {y_arr.shape} does not match x shape {x_axis.shape}.")
         return x_axis, y_arr, used_names
