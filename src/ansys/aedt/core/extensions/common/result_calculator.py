@@ -936,13 +936,25 @@ class MatplotlibPlotWidget:
         self.toolbar.update()
         self.toolbar.pack(side="left", fill="x")
 
+        # Re-run tight_layout() on the first real <Configure> event,
+        # since Tk hasn't laid out the widget to its final size yet at construction time.
+        self._first_configure_id = self.canvas.get_tk_widget().bind("<Configure>", self._on_first_configure, add="+")
+
+    def _on_first_configure(self, _event=None) -> None:
+        tk_widget = self.canvas.get_tk_widget()
+        tk_widget.unbind("<Configure>", self._first_configure_id)
+        self.redraw()
+
     def apply_theme(self, colors: dict[str, str]) -> None:
         """Apply PyAEDT colors to the embedded Matplotlib figure and toolbar."""
         self._theme_colors = colors
-        self._apply_plot_theme()
+        self._apply_axes_theme()
+        self._apply_chrome_theme()
+        self.figure.tight_layout()
         self.canvas.draw_idle()
 
-    def _apply_plot_theme(self) -> None:
+    def _apply_axes_theme(self) -> None:
+        """Style the figure/axes."""
         colors = self._theme_colors
         if not colors:
             return
@@ -964,6 +976,12 @@ class MatplotlibPlotWidget:
             for text in legend.get_texts():
                 text.set_color(colors["text"])
 
+    def _apply_chrome_theme(self) -> None:
+        """Style the canvas widget and toolbar. Only needed when the theme actually changes."""
+        colors = self._theme_colors
+        if not colors:
+            return
+
         for canvas_widget in (self.canvas.get_tk_widget(), getattr(self.canvas, "_tkcanvas", None)):
             if canvas_widget is not None:
                 canvas_widget.configure(background=colors["widget_bg"], highlightthickness=0, bd=0)
@@ -980,6 +998,10 @@ class MatplotlibPlotWidget:
                     bd=0,
                     relief="flat",
                 )
+                # Icon bitmaps are recolored by matplotlib itself based on the button's background
+                # at the time of creation; re-run it now so dark backgrounds get a light icon too.
+                if getattr(child, "_image_file", None) is not None:
+                    NavigationToolbar2Tk._set_image_for_button(self.toolbar, child)
             elif isinstance(child, tkinter.Label):
                 child.configure(background=colors["widget_bg"], foreground=colors["text"])
             elif isinstance(child, tkinter.Frame):
@@ -989,11 +1011,11 @@ class MatplotlibPlotWidget:
         """Clear the axes and restore the background grid."""
         self.ax.clear()
         self.ax.grid(True, alpha=0.3)
-        self._apply_plot_theme()
+        self._apply_axes_theme()
 
     def redraw(self) -> None:
         """Apply tight_layout and schedule a canvas redraw."""
-        self._apply_plot_theme()
+        self._apply_axes_theme()
         self.figure.tight_layout()
         self.canvas.draw_idle()
 
@@ -1306,10 +1328,6 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
 
         # Right: "Fetching data…" label + indeterminate bar (hidden when idle)
         self.add_busy_indicator(status_bar, row=0, column=1)
-
-        # Keep the shared theme toggle always visible, aligned with the
-        # footer controls used by the other extensions.
-        self.add_toggle_theme_button(status_bar, toggle_row=0, toggle_column=2)
 
         # Collect all interactive widgets in Tab 2 and the AEDT section of
         # the Datasets tab so they can be bulk-disabled while an AEDT call is in flight.
@@ -3080,6 +3098,21 @@ class ResultCalculatorExtension(ExtensionProjectCommon):
             state="readonly",
             width=15,
         ).grid(row=6, column=1, sticky="w", padx=10, pady=4)
+
+        # ---- Appearance --------------------------------------------------
+        ttk.Separator(self.tab_settings, orient="horizontal").grid(
+            row=7, column=0, columnspan=2, sticky="ew", padx=10, pady=(12, 8)
+        )
+        ttk.Label(
+            self.tab_settings,
+            text="Appearance",
+            style="PyAEDT.TLabel",
+            font=(self.theme.default_font[0], 11, "bold"),
+        ).grid(row=8, column=0, columnspan=2, sticky="w", padx=10, pady=(0, 5))
+        ttk.Label(self.tab_settings, text="Theme", style="PyAEDT.TLabel").grid(
+            row=9, column=0, sticky="w", padx=10, pady=4
+        )
+        self.add_toggle_theme_button(self.tab_settings, toggle_row=9, toggle_column=1)
 
     # ----------------------------- Tab Help ---------------------------------
     def _build_tab_help(self) -> None:
