@@ -61,11 +61,6 @@ Error installing PyAEDT panels in AEDT
 Sometimes, the PyAEDT installer may fail when adding panels to AEDT.
 
 This is typically caused by insufficient write permissions to your PersonalLib directory.
-
-.. image:: ../Resources/toolkit_manager_3.png
-  :width: 800
-  :alt: PyAEDT toolkit manager 3
-
 If the virtual environment was successfully created, you can manually register the toolkit panels using the CLI command after activating it:
 
 .. code:: bash
