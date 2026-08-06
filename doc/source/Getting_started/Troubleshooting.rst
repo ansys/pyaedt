@@ -274,7 +274,7 @@ If you encounter such issue, you can try patching it by importing PyAEDT or PyED
 
 Extensions and panels
 ---------------------
-If you update PyAEDT from version **≤ 0.18.0 to a newer version**, you may need to recreate the virtual environment.
+If you update PyAEDT from a version below **0.18.0 to a newer version**, you may need to recreate the virtual environment.
 
 The management of extensions in AEDT has changed. Previously, extensions were copied to the _PersonalLib_ folder, which led to inconsistencies when updating PyAEDT extensions. This was because old extensions were not replaced until panels were reset, at which point the extension were copied from the virtual environment back into the _PersonalLib_ folder. Now, Extensions are loaded directly from the virtual environment, ensuring they remain up to date when PyAEDT is updated.
 
