@@ -111,18 +111,13 @@ framework that can run in any environment and supports client/server remote call
 Starting from 2022R2 the AEDT API has replaced the COM interface with a gRPC interface.
 
 
-.. list-table:: *gRPC Compatibility:*
-   :widths: 65 65 65
-   :header-rows: 1
+*gRPC compatibility on Windows:*
 
-   * - < 2022 R2
-     - 2022 R2
-     - > 2022 R2
-   * - Only ``Python.NET``
-     - | ``Python.NET``: *Default*
-       | Enable gRPC: ``ansys.aedt.core.settings.use_grpc_api = True``
-     - | gRPC: *Default*
-       | Enable ``Python.NET``: ``ansys.aedt.core.settings.use_grpc_api = False``
+- **Earlier than 2022 R2**: only ``Python.NET`` is available.
+- **2022 R2**: ``Python.NET`` is the default. To enable gRPC, set
+    ``ansys.aedt.core.settings.use_grpc_api = True``.
+- **Later than 2022 R2**: gRPC is the default. To enable ``Python.NET``, set
+    ``ansys.aedt.core.settings.use_grpc_api = False``.
 
 The options shown here apply only to the Windows platform.
 On Linux, the Python interface to AEDT uses gRPC for all versions.
