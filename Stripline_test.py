@@ -22,7 +22,7 @@ hfss["S"] = "0.15mm"  # edge-to-edge gap
 hfss["t"] = "0.035mm"  # copper thickness
 hfss["H"] = "0.25mm"  # single dielectric thickness (top + bottom)
 
-hfss["Ltot"] = "100mm"
+hfss["Ltot"] = "10mm"
 hfss["Pitch"] = "W + S"
 hfss["BoardW"] = "Ltot + 2mm"
 hfss["BoardY"] = "4mm"
@@ -113,8 +113,11 @@ traceN = hfss.modeler.create_polyline(
 # -------------------------------------------------------------
 # 6. Woven glass fill — one weave per substrate layer
 # -------------------------------------------------------------
-yarn_names_bot = hfss.modeler.define_weave(sub_bot, weave_style="7628", name_prefix="BotWeave", facet_ellipse_segs=6)
-yarn_names_top = hfss.modeler.define_weave(sub_top, weave_style="7628", name_prefix="TopWeave", facet_ellipse_segs=6)
+yarn_names_bot = hfss.modeler.create_weave(sub_bot, weave_style="7628", name_prefix="BotWeave")
+yarn_names_top = hfss.modeler.create_weave(sub_top, weave_style="7628", name_prefix="TopWeave")
+
+# yarn_names_bot = hfss.modeler.create_weave_homogenized(sub_bot, weave_style="7628", name_prefix="BotWeave")
+# yarn_names_top = hfss.modeler.create_weave_homogenized(sub_top, weave_style="7628", name_prefix="TopWeave")
 
 print(f"[Weave] bot yarns: {len(yarn_names_bot)},  top yarns: {len(yarn_names_top)}")
 
@@ -187,20 +190,20 @@ hfss.assign_radiation_boundary_to_objects(airbox.name)
 # 10. Solution setup
 # -------------------------------------------------------------
 setup = hfss.create_setup(name="Setup1")
-setup.props["Frequency"] = "20GHz"
+setup.props["Frequency"] = "50GHz"
 setup.props["MaximumPasses"] = 12
-setup.props["MaxDeltaS"] = 0.0
+setup.props["MaxDeltaS"] = 0.01
 setup.props["BasisOrder"] = 1
-setup.props["SetTrianglesForWavePort"] = True
-setup.props["MinTrianglesForWavePort"] = 500
-setup.props["MaxTrianglesForWavePort"] = 2000
+# setup.props["SetTrianglesForWavePort"] = True
+# setup.props["MinTrianglesForWavePort"] = 500
+# setup.props["MaxTrianglesForWavePort"] = 2000
 setup.update()
 setup.create_frequency_sweep(
     unit="GHz",
     name="Sweep1",
     start_frequency=1,
-    stop_frequency=20,
-    num_of_freq_points=501,
+    stop_frequency=70,
+    num_of_freq_points=1001,
     sweep_type="Interpolating",
 )
 
