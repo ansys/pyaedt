@@ -4,3 +4,9 @@ name = "Generate report"
 script = "create_report.py"
 optional = true
 template = "run_pyaedt_toolkit_script"
+
+[ResultCalculator]
+icon = "images/large/result_calculator.png"
+name = "Result Calculator"
+script = "result_calculator.py"
+template = "run_pyaedt_toolkit_script"
