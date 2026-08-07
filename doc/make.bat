@@ -42,12 +42,18 @@ goto end
 
 :clean
 echo Cleaning everything
+call :clean_internal
+goto end
+
+:clean_internal
 rmdir /s /q %SOURCEDIR%\examples > /NUL 2>&1
 rmdir /s /q %BUILDDIR% > /NUL 2>&1
 for /d /r %SOURCEDIR% %%d in (_autosummary) do @if exist "%%d" rmdir /s /q "%%d"
-goto end
+exit /b 0
 
 :html
+echo Cleaning previous documentation artifacts
+call :clean_internal
 echo Building HTML pages
 ::FIXME: currently linkcheck freezes and further investigation must be performed
 ::%SPHINXBUILD% -M linkcheck %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %LINKCHECKOPTS% %O%
@@ -57,11 +63,14 @@ echo "Build finished. The HTML pages are in %BUILDDIR%."
 goto end
 
 :pdf
+echo Cleaning previous documentation artifacts
+call :clean_internal
 echo Building PDF pages
 %SPHINXBUILD% -M latex %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
 cd "%BUILDDIR%\latex"
 for %%f in (*.tex) do (
-xelatex "%%f" --interaction=nonstopmode)
+	lualatex -interaction=nonstopmode "%%f" || exit /b 1
+)
 echo "Build finished. The PDF pages are in %BUILDDIR%."
 goto end
 
