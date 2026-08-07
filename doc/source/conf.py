@@ -366,6 +366,9 @@ latex_additional_files = [watermark, ansys_logo_white, ansys_logo_white_cropped]
 # variables are the title of pdf, watermark
 latex_elements = {"preamble": latex.generate_preamble(html_title)}
 
+# Use LuaLaTeX to avoid "TeX capacity exceeded [input stack size=10000]" on \sphinxmidrule
+latex_engine = "lualatex"
+
 linkcheck_ignore = [
     r"https://download.ansys.com/",
 ]

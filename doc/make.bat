@@ -69,7 +69,7 @@ echo Building PDF pages
 %SPHINXBUILD% -M latex %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
 cd "%BUILDDIR%\latex"
 for %%f in (*.tex) do (
-	xelatex -interaction=nonstopmode "%%f" || exit /b 1
+	lualatex -interaction=nonstopmode "%%f" || exit /b 1
 )
 echo "Build finished. The PDF pages are in %BUILDDIR%."
 goto end
