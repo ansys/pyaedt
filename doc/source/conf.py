@@ -364,9 +364,12 @@ latex_additional_files = [watermark, ansys_logo_white, ansys_logo_white_cropped]
 
 # Change the preamble of latex with customized title page
 # variables are the title of pdf, watermark
-latex_elements = {"preamble": latex.generate_preamble(html_title)}
+_sphinxmidrule_fix = (
+    # \sphinxmidrule -> \hline -> \cr -> \everycr -> \sphinxmidrule infinite loop in longtable
+    r"\makeatletter\renewcommand\sphinxmidrule{\hline}\makeatother"
+)
+latex_elements = {"preamble": latex.generate_preamble(html_title) + "\n" + _sphinxmidrule_fix}
 
-# Use LuaLaTeX to avoid "TeX capacity exceeded [input stack size=10000]" on \sphinxmidrule
 latex_engine = "lualatex"
 
 linkcheck_ignore = [
