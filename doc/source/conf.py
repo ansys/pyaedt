@@ -365,8 +365,8 @@ latex_additional_files = [watermark, ansys_logo_white, ansys_logo_white_cropped]
 # Change the preamble of latex with customized title page
 # variables are the title of pdf, watermark
 _sphinxmidrule_fix = (
-    # \sphinxmidrule -> \hline -> \cr -> \everycr -> \sphinxmidrule infinite loop in longtable
-    r"\makeatletter\renewcommand\sphinxmidrule{\hline}\makeatother"
+    # deferred: sphinxlatextables.sty defines \sphinxmidrule after the preamble runs
+    r"\AtBeginDocument{\renewcommand\sphinxmidrule{\hline}}"
 )
 latex_elements = {"preamble": latex.generate_preamble(html_title) + "\n" + _sphinxmidrule_fix}
 
