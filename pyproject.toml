@@ -322,7 +322,6 @@ exclude = [
     "src/ansys/aedt/core/emit_core",
     "src/ansys/aedt/core/filtersolutions_core",
     "src/ansys/aedt/core/generic/configurations.py",
-    "src/ansys/aedt/core/generic/file_utils.py",
     "src/ansys/aedt/core/generic/general_methods.py",
     "src/ansys/aedt/core/generic/ibis_reader.py",
     "src/ansys/aedt/core/generic/numbers_utils.py",
