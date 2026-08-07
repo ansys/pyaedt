@@ -191,7 +191,10 @@ class TxBbEmissionNode(EmitNode):
 
         """
         val = self._get_property("Noise Behavior")
-        val = self.NoiseBehaviorOption[val.upper()]
+        try:
+            val = self.NoiseBehaviorOption(val)
+        except ValueError:
+            val = self.NoiseBehaviorOption[val.upper()]
         return val
 
     @noise_behavior.setter

@@ -64,7 +64,8 @@ class Filter(EmitNode):
         Returns
         -------
         csv_data: str
-            stringified data for the node returned if file_name not specified"""
+            stringified data for the node returned if file_name not specified
+        """
         keys = "SelectedInputPort|SelectedOutputPort" + "|TestTunableFreq"
         vals = "1|2" + "|" + f"{channel_freq}"
         return self._export_to_csv(file_name, keys, vals)
@@ -76,7 +77,8 @@ class Filter(EmitNode):
         Parameters
         ----------
         channel_freq: float[optional]
-            tuned channel freq only used for tunable filters"""
+            tuned channel freq only used for tunable filters
+        """
         keys = "SelectedInputPort|SelectedOutputPort" + "|TestTunableFreq"
         vals = "1|2" + "|" + f"{channel_freq}"
         return self._plot(keys, vals)
@@ -203,7 +205,10 @@ class Filter(EmitNode):
 
         """
         val = self._get_property("Filter Type")
-        val = self.FilterTypeOption[val.upper()]
+        try:
+            val = self.FilterTypeOption(val)
+        except ValueError:
+            val = self.FilterTypeOption[val.upper()]
         return val
 
     @filter_type.setter

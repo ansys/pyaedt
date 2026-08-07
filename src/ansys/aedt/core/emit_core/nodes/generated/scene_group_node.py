@@ -114,9 +114,10 @@ class SceneGroupNode(EmitNode):
             defined in the CAD file (only applicable to gltf/glb files).
 
         Returns
-        ------
+        -------
         node : EmitNode
-            The node."""
+            The node.
+        """
         return self._import(file_name, "CAD", create_antennas=create_antennas)
 
     @min_aedt_version("2025.2")
@@ -267,7 +268,10 @@ class SceneGroupNode(EmitNode):
 
         """
         val = self._get_property("Orientation Mode")
-        val = self.OrientationModeOption[val.upper()]
+        try:
+            val = self.OrientationModeOption(val)
+        except ValueError:
+            val = self.OrientationModeOption[val.upper()]
         return val
 
     @orientation_mode.setter

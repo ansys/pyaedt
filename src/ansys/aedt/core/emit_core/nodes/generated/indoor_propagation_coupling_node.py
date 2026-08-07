@@ -22,11 +22,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from ansys.aedt.core.emit_core.nodes.generated import AntennaNode
-
 from enum import Enum
 
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+from ansys.aedt.core.emit_core.nodes.generated import AntennaNode
 from ansys.aedt.core.internal.checks import min_aedt_version
 
 
@@ -72,7 +71,9 @@ class IndoorPropagationCouplingNode(EmitNode):
         return self._node_type
 
     @min_aedt_version("2027.1")
-    def export_to_csv(self, file_name: str, antennas: tuple[AntennaNode, AntennaNode] | None = None, ports: str = "") -> str:
+    def export_to_csv(
+        self, file_name: str, antennas: tuple[AntennaNode, AntennaNode] | None = None, ports: str = ""
+    ) -> str:
         """Export's the data for this node
 
         Parameters
@@ -88,7 +89,8 @@ class IndoorPropagationCouplingNode(EmitNode):
         Returns
         -------
         csv_data: str
-            stringified data for the node returned if file_name not specified"""
+            stringified data for the node returned if file_name not specified
+        """
         if antennas is not None and all(isinstance(x, AntennaNode) for x in antennas):
             a1, a2 = antennas
             vals = f"{a1.name}|{a2.name}"
@@ -106,7 +108,8 @@ class IndoorPropagationCouplingNode(EmitNode):
             tuple of antenna nodes to pull the selected Tx and Rx antenna names from for the export.
             If not specified, will use the names specified by the ports parameter.
         ports: str, optional
-            the ports to export the data for."""
+            the ports to export the data for.
+        """
         if antennas is not None and all(isinstance(x, AntennaNode) for x in antennas):
             a1, a2 = antennas
             vals = f"{a1.name}|{a2.name}"
@@ -269,7 +272,10 @@ class IndoorPropagationCouplingNode(EmitNode):
 
         """
         val = self._get_property("Building Type")
-        val = self.BuildingTypeOption[val.upper()]
+        try:
+            val = self.BuildingTypeOption(val)
+        except ValueError:
+            val = self.BuildingTypeOption[val.upper()]
         return val
 
     @building_type.setter
@@ -408,7 +414,10 @@ class IndoorPropagationCouplingNode(EmitNode):
 
         """
         val = self._get_property("Fading Type")
-        val = self.FadingTypeOption[val.upper()]
+        try:
+            val = self.FadingTypeOption(val)
+        except ValueError:
+            val = self.FadingTypeOption[val.upper()]
         return val
 
     @fading_type.setter

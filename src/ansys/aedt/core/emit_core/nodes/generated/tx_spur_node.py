@@ -191,7 +191,10 @@ class TxSpurNode(EmitNode):
 
         """
         val = self._get_property("Spur Table Units")
-        val = self.SpurTableUnitsOption[val.upper()]
+        try:
+            val = self.SpurTableUnitsOption(val)
+        except ValueError:
+            val = self.SpurTableUnitsOption[val.upper()]
         return val
 
     @spur_table_units.setter

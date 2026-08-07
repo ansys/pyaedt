@@ -190,7 +190,10 @@ class RxMixerProductNode(EmitNode):
 
         """
         val = self._get_property("Mixer Product Taper")
-        val = self.MixerProductTaperOption[val.upper()]
+        try:
+            val = self.MixerProductTaperOption(val)
+        except ValueError:
+            val = self.MixerProductTaperOption[val.upper()]
         return val
 
     @mixer_product_taper.setter
@@ -498,7 +501,10 @@ class RxMixerProductNode(EmitNode):
 
         """
         val = self._get_property("Mixing Mode")
-        val = self.MixingModeOption[val.upper()]
+        try:
+            val = self.MixingModeOption(val)
+        except ValueError:
+            val = self.MixingModeOption[val.upper()]
         return val
 
     @mixing_mode.setter
@@ -581,7 +587,10 @@ class RxMixerProductNode(EmitNode):
 
         """
         val = self._get_property("Use High LO")
-        val = self.UseHighLOOption[val.upper()]
+        try:
+            val = self.UseHighLOOption(val)
+        except ValueError:
+            val = self.UseHighLOOption[val.upper()]
         return val
 
     @use_high_lo.setter
@@ -610,7 +619,10 @@ class RxMixerProductNode(EmitNode):
 
         """
         val = self._get_property("Mixer Product Table Units")
-        val = self.MixerProductTableUnitsOption[val.upper()]
+        try:
+            val = self.MixerProductTableUnitsOption(val)
+        except ValueError:
+            val = self.MixerProductTableUnitsOption[val.upper()]
         return val
 
     @mixer_product_table_units.setter

@@ -65,7 +65,8 @@ class Circulator(EmitNode):
         Returns
         -------
         csv_data: str
-            stringified data for the node returned if file_name not specified"""
+            stringified data for the node returned if file_name not specified
+        """
         keys = "SelectedInputPort|SelectedOutputPort"
         vals = f"{ports}"
         return self._export_to_csv(file_name, keys, vals)
@@ -78,7 +79,8 @@ class Circulator(EmitNode):
         ----------
         ports: str
             the ports to export the data for.
-            Default orientation port names: 1|2|3"""
+            Default orientation port names: 1|2|3
+        """
         keys = "SelectedInputPort|SelectedOutputPort"
         vals = f"{ports}"
         return self._plot(keys, vals)
@@ -200,7 +202,10 @@ class Circulator(EmitNode):
 
         """
         val = self._get_property("Circulator Type")
-        val = self.CirculatorTypeOption[val.upper()]
+        try:
+            val = self.CirculatorTypeOption(val)
+        except ValueError:
+            val = self.CirculatorTypeOption[val.upper()]
         return val
 
     @circulator_type.setter

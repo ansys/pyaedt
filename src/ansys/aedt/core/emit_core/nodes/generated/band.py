@@ -24,8 +24,8 @@
 
 from enum import Enum
 
-from ansys.aedt.core.generic import constants as consts
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+from ansys.aedt.core.generic import constants as consts
 from ansys.aedt.core.internal.checks import min_aedt_version
 
 
@@ -73,7 +73,9 @@ class Band(EmitNode):
         RX = "Rx"
 
     @min_aedt_version("2027.1")
-    def export_to_csv(self, file_name: str = "", channel_freq: float = 100e6, channel_type: ChannelType | None = None) -> str:
+    def export_to_csv(
+        self, file_name: str = "", channel_freq: float = 100e6, channel_type: ChannelType | None = None
+    ) -> str:
         """Export's the data for this node
 
         Parameters
@@ -88,7 +90,8 @@ class Band(EmitNode):
         Returns
         -------
         csv_data: str
-            stringified data for the node returned if file_name not specified"""
+            stringified data for the node returned if file_name not specified
+        """
         if channel_type is None or channel_type.value == "Tx":
             keys = "TraceChannelFreq|TraceChannelType|TraceTxOffsetFreq|NarrowOrBroad"
             offset = channel_freq + self.tx_offset
@@ -396,7 +399,10 @@ class Band(EmitNode):
 
         """
         val = self._get_property("Modulation")
-        val = self.ModulationOption[val.upper()]
+        try:
+            val = self.ModulationOption(val)
+        except ValueError:
+            val = self.ModulationOption[val.upper()]
         return val
 
     @modulation.setter
@@ -565,7 +571,10 @@ class Band(EmitNode):
 
         """
         val = self._get_property("PSK Type")
-        val = self.PSKTypeOption[val.upper()]
+        try:
+            val = self.PSKTypeOption(val)
+        except ValueError:
+            val = self.PSKTypeOption[val.upper()]
         return val
 
     @psk_type.setter
@@ -594,7 +603,10 @@ class Band(EmitNode):
 
         """
         val = self._get_property("FSK Type")
-        val = self.FSKTypeOption[val.upper()]
+        try:
+            val = self.FSKTypeOption(val)
+        except ValueError:
+            val = self.FSKTypeOption[val.upper()]
         return val
 
     @fsk_type.setter
@@ -625,7 +637,10 @@ class Band(EmitNode):
 
         """
         val = self._get_property("QAM Type")
-        val = self.QAMTypeOption[val.upper()]
+        try:
+            val = self.QAMTypeOption(val)
+        except ValueError:
+            val = self.QAMTypeOption[val.upper()]
         return val
 
     @qam_type.setter
@@ -656,7 +671,10 @@ class Band(EmitNode):
 
         """
         val = self._get_property("APSK Type")
-        val = self.APSKTypeOption[val.upper()]
+        try:
+            val = self.APSKTypeOption(val)
+        except ValueError:
+            val = self.APSKTypeOption[val.upper()]
         return val
 
     @apsk_type.setter
@@ -794,7 +812,10 @@ class Band(EmitNode):
 
         """
         val = self._get_property("Radar Type")
-        val = self.RadarTypeOption[val.upper()]
+        try:
+            val = self.RadarTypeOption(val)
+        except ValueError:
+            val = self.RadarTypeOption[val.upper()]
         return val
 
     @radar_type.setter

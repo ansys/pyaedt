@@ -183,11 +183,16 @@ class TxNbEmissionNode(EmitNode):
         >>> band = radio.children[0]
         >>> spec = band.children[0]
         >>> tx_nb_emission = spec.add_narrowband_emissions_mask()
-        >>> tx_nb_emission.narrowband_behavior = TxNbEmissionNode.NarrowbandBehaviorOption.RELATIVE_FREQS_AND_ATTENUATION
+        >>> tx_nb_emission.narrowband_behavior = (
+        ...     TxNbEmissionNode.NarrowbandBehaviorOption.RELATIVE_FREQS_AND_ATTENUATION
+        ... )
 
         """
         val = self._get_property("Narrowband Behavior")
-        val = self.NarrowbandBehaviorOption[val.upper()]
+        try:
+            val = self.NarrowbandBehaviorOption(val)
+        except ValueError:
+            val = self.NarrowbandBehaviorOption[val.upper()]
         return val
 
     @narrowband_behavior.setter

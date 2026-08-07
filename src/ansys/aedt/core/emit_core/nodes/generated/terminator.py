@@ -204,7 +204,10 @@ class Terminator(EmitNode):
 
         """
         val = self._get_property("Terminator Type")
-        val = self.TerminatorTypeOption[val.upper()]
+        try:
+            val = self.TerminatorTypeOption(val)
+        except ValueError:
+            val = self.TerminatorTypeOption[val.upper()]
         return val
 
     @terminator_type.setter

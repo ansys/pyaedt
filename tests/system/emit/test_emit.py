@@ -3702,6 +3702,24 @@ def test_availability_emi_affects_availability(interference):
     DESKTOP_VERSION < "2027.1",
     reason="Skipped on versions earlier than 2027.1",
 )
+def test_B1429409(emit_app):
+    """Test setting antenna type function"""
+    antenna = emit_app.schematic.create_component("Antenna", "TestAntenna")
+
+    antenna.antenna_type = AntennaNode.AntennaTypeOption.SHORT_DIPOLE
+    assert antenna.antenna_type == AntennaNode.AntennaTypeOption.SHORT_DIPOLE
+
+    antenna.antenna_type = AntennaNode.AntennaTypeOption.ISOTROPIC
+    assert antenna.antenna_type == AntennaNode.AntennaTypeOption.ISOTROPIC
+
+    antenna.antenna_type = AntennaNode.AntennaTypeOption.HALF_WAVE_DIPOLE
+    assert antenna.antenna_type == AntennaNode.AntennaTypeOption.HALF_WAVE_DIPOLE
+
+
+@pytest.mark.skipif(
+    DESKTOP_VERSION < "2027.1",
+    reason="Skipped on versions earlier than 2027.1",
+)
 def test_purge_1to1(interference):
     """Purge removes 1-to-1 results so the interaction is no longer valid."""
     rev = interference.results.analyze()

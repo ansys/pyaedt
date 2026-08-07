@@ -87,7 +87,8 @@ class RxSusceptibilityProfNode(EmitNode):
         Returns
         -------
         csv_data: str
-            stringified data for the node returned if file_name not specified"""
+            stringified data for the node returned if file_name not specified
+        """
         keys = "TraceChannelFreq|TraceChannelType"
         vals = f"{channel_freq}|Rx"
         return self._export_to_csv(file_name, keys, vals)
@@ -207,7 +208,10 @@ class RxSusceptibilityProfNode(EmitNode):
 
         """
         val = self._get_property("Sensitivity Units")
-        val = self.SensitivityUnitsOption[val.upper()]
+        try:
+            val = self.SensitivityUnitsOption(val)
+        except ValueError:
+            val = self.SensitivityUnitsOption[val.upper()]
         return val
 
     @sensitivity_units.setter

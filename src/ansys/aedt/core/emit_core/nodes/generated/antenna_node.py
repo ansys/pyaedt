@@ -224,7 +224,10 @@ class AntennaNode(EmitNode):
 
         """
         val = self._get_property("Orientation Mode")
-        val = self.OrientationModeOption[val.upper()]
+        try:
+            val = self.OrientationModeOption(val)
+        except ValueError:
+            val = self.OrientationModeOption[val.upper()]
         return val
 
     @orientation_mode.setter
@@ -354,7 +357,10 @@ class AntennaNode(EmitNode):
 
         """
         val = self._get_property("Antenna Type")
-        val = self.AntennaTypeOption[val.upper()]
+        try:
+            val = self.AntennaTypeOption(val)
+        except ValueError:
+            val = self.AntennaTypeOption[val.upper()]
         return val
 
     @antenna_type.setter
@@ -842,7 +848,10 @@ class AntennaNode(EmitNode):
 
         """
         val = self._get_property("Tapering Function")
-        val = self.TaperingFunctionOption[val.upper()]
+        try:
+            val = self.TaperingFunctionOption(val)
+        except ValueError:
+            val = self.TaperingFunctionOption[val.upper()]
         return val
 
     @tapering_function.setter
@@ -1001,7 +1010,10 @@ class AntennaNode(EmitNode):
 
         """
         val = self._get_property("Antenna Polarization")
-        val = self.AntennaPolarizationOption[val.upper()]
+        try:
+            val = self.AntennaPolarizationOption(val)
+        except ValueError:
+            val = self.AntennaPolarizationOption[val.upper()]
         return val
 
     @antenna_polarization.setter
