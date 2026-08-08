@@ -1,0 +1,6 @@
+value\_op
+=========
+
+.. currentmodule:: ansys.aedt.core.visualization.post.field_calculator_expressions
+
+.. autoattribute:: Surface.value_op

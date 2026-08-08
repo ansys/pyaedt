@@ -1,0 +1,6 @@
+public\_dir
+===========
+
+.. currentmodule:: ansys.aedt.core.visualization.advanced.hdm_plot
+
+.. autoproperty:: HDMPlotter.public_dir

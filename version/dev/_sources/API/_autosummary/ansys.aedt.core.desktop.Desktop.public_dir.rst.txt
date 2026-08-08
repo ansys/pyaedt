@@ -1,0 +1,6 @@
+public\_dir
+===========
+
+.. currentmodule:: ansys.aedt.core.desktop
+
+.. autoproperty:: Desktop.public_dir

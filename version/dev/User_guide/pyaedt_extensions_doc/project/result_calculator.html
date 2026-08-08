@@ -1,0 +1,1018 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Result Calculator &#8212; PyAEDT</title>
+  
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/ansys-sphinx-theme.css?v=cb878c6c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/ansys-sphinx-theme.css?v=cb878c6c" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://www.nerdfonts.com/assets/css/webfont.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=de68c915" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+
+
+  <!-- Include desired assets -->
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  
+
+  
+    <link href="../../../_static/css/breadcrumbs.css" rel="stylesheet" />
+  
+    <script src="../../../_static/documentation_options.js?v=49ec805c"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=49e1bf35"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'User_guide/pyaedt_extensions_doc/project/result_calculator';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://aedt.docs.pyansys.com/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.4.dev0" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  <meta property="og:site_name" content="PyAnsys" />
+  <meta name="physics" content="Electronics" />
+  <link rel="canonical" href="https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/project/result_calculator.html" />
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="https://docs.pyansys.com/">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/pyansys_logo_transparent_black.png" class="logo__image only-light" alt="PyAEDT - Home"/>
+    <img src="../../../_static/pyansys_logo_transparent_white.png" class="logo__image only-dark pst-js-only" alt="PyAEDT - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html" title="PyAEDT home">Home</a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../Getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../API/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://examples.aedt.docs.pyansys.com/">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../changelog.html">
+    Release notes
+  </a>
+</li>
+
+  </ul>
+</nav>
+</div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+      
+        <div class="navbar-item">
+<div class="search-bar pst-js-only" id="search-bar">
+  <form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" class="form-control" name="q" placeholder="Search the docs ..."
+      aria-label="Search the docs ..." autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false" />
+    <span class="search-button__kbd-shortcut">
+      <kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd>
+    </span>
+  </form>
+  
+  <div id="static-search-results" class="static-search-results" style="display:none;" tabindex="0"></div>
+  
+</div></div>
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i><span class="visually-hidden">Support</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+  
+
+  
+
+
+
+
+
+
+
+
+
+<div class="ast-announcement-wrap" role="region" aria-label="Announcement" hidden>
+    <div class="ast-announcement info">
+        <span class="ast-announcement-icon" aria-hidden="true"></span>
+        <span class="ast-announcement-text" id="ast-announcement-text"></span>
+        <!-- djlint:off H021-->
+        <!-- for inline styles -->
+        <a class="ast-announcement-details-btn" id="ast-announcement-details-btn"
+           href=""
+           data-ast-url=""
+           aria-label="View notifications"
+           style="display:none">View</a>
+        <!-- djlint:on -->
+        <!-- djlint:off H023-->
+        <!-- use entity reference for &times; -->
+        <button class="ast-announcement-close" id="ast-announcement-close" aria-label="Close announcement">&times;</button>
+        <!-- djlint:on -->
+    </div>
+</div>
+
+<!-- Modal overlay -->
+<!-- djlint:off H023-->
+<!-- use entity reference for &times; -->
+<div class="ast-announcement-overlay" id="ast-announcement-overlay" role="dialog" aria-modal="true" aria-label="Announcement details">
+    <div class="ast-announcement-modal info">
+        <div class="ast-announcement-modal-body"
+             data-ast-items='[]'>
+        </div>
+        <button class="ast-announcement-modal-close" id="ast-announcement-modal-close" aria-label="Close">&times;</button>
+    </div>
+</div>
+<!-- djlint:on -->
+
+<script src="../../../_static/js/announcement_banner.js"
+        data-base-url="../../../"></script>
+
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html" title="PyAEDT home">Home</a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../Getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../API/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://examples.aedt.docs.pyansys.com/">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../changelog.html">
+    Release notes
+  </a>
+</li>
+
+  </ul>
+</nav>
+</div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="search-bar pst-js-only" id="search-bar">
+  <form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" class="form-control" name="q" placeholder="Search the docs ..."
+      aria-label="Search the docs ..." autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false" />
+    <span class="search-button__kbd-shortcut">
+      <kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd>
+    </span>
+  </form>
+  
+  <div id="static-search-results" class="static-search-results" style="display:none;" tabindex="0"></div>
+  
+</div></div>
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i><span class="visually-hidden">Support</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+         
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="https://docs.pyansys.com/" class="nav-link">PyAnsys</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a
+        href="../../../index.html"
+        class="nav-link"
+        aria-label="Home"
+      >
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+      
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Result Calculator</span></li>
+    
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="result-calculator">
+<h1>Result Calculator<a class="headerlink" href="#result-calculator" title="Link to this heading">#</a></h1>
+<p>The Result Calculator extension allows you to collect, plot, and manage result traces from one or more AEDT sessions.
+You can import traces from existing reports, load datasets, read from files, and perform mathematical calculations over
+traces with support for complex values and different x-axis grids.</p>
+</section>
+<section id="overview">
+<h1>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h1>
+<p>This extension provides a comprehensive GUI for:</p>
+<ul class="simple">
+<li><p><strong>Importing traces</strong> from AEDT reports and datasets</p></li>
+<li><p><strong>Managing traces</strong> from multiple AEDT sessions simultaneously</p></li>
+<li><p><strong>Performing calculations</strong> using mathematical formulas with support for complex numbers</p></li>
+<li><p><strong>Exporting results</strong> to multiple file formats (CSV, TSV, JSON, NPZ, TXT)</p></li>
+<li><p><strong>Plotting and visualizing</strong> data with interactive plots</p></li>
+<li><p><strong>Creating and loading datasets</strong> by manual entry or directly from AEDT</p></li>
+<li><p><strong>Loading external data</strong> from various file formats including Touchstone files</p></li>
+</ul>
+</section>
+<section id="main-tabs">
+<h1>Main tabs<a class="headerlink" href="#main-tabs" title="Link to this heading">#</a></h1>
+<section id="selected-traces">
+<h2>Selected traces<a class="headerlink" href="#selected-traces" title="Link to this heading">#</a></h2>
+<a class="reference internal image-reference" href="../../../_images/result_calculator_selected_traces.png"><img alt="Selected Traces tab showing trace list and formula bar" src="../../../_images/result_calculator_selected_traces.png" width="800" />
+</a>
+<p>This tab displays all imported or calculated traces. You can:</p>
+<ul class="simple">
+<li><p>Select one or more rows to plot them together (Ctrl+click or Shift+click for multi-selection, click on an empty area to deselect all)</p></li>
+<li><p>Double-click a trace name to rename it inline</p></li>
+<li><p>Enter mathematical expressions in the formula bar (formulas are validated in real-time)</p></li>
+<li><p>View live formula results as you type</p></li>
+<li><p>Store calculated results as new permanent traces (named <code class="docutils literal notranslate"><span class="pre">ans1</span></code>, <code class="docutils literal notranslate"><span class="pre">ans2</span></code>, etc.)</p></li>
+<li><p>Export formula results to file in multiple formats</p></li>
+</ul>
+<p><strong>Supported file formats for export:</strong></p>
+<ul class="simple">
+<li><p><strong>CSV (.csv)</strong>: Comma-separated values, two columns (x and y)</p></li>
+<li><p><strong>TSV (.tsv)</strong>: Tab-delimited, two columns (x and y)</p></li>
+<li><p><strong>JSON (.json)</strong>: x and y as lists, plus formula metadata</p></li>
+<li><p><strong>NumPy archive (.npz)</strong>: Binary NumPy format</p></li>
+<li><p><strong>NumPy text (.txt)</strong>: Plain-text two-column NumPy format</p></li>
+</ul>
+<p><strong>Formula capabilities:</strong></p>
+<ul class="simple">
+<li><p>Use trace names as variables (for example, <code class="docutils literal notranslate"><span class="pre">result_1</span> <span class="pre">-</span> <span class="pre">result_2</span></code>, <code class="docutils literal notranslate"><span class="pre">20*log10(abs(R))</span></code>)</p></li>
+<li><p>Mix real and complex traces in calculations</p></li>
+<li><p>Access NumPy functions: <code class="docutils literal notranslate"><span class="pre">log10()</span></code>, <code class="docutils literal notranslate"><span class="pre">abs()</span></code>, <code class="docutils literal notranslate"><span class="pre">sqrt()</span></code>, <code class="docutils literal notranslate"><span class="pre">sin()</span></code>, <code class="docutils literal notranslate"><span class="pre">cos()</span></code>, etc.</p></li>
+<li><p>Use mathematical constants: <code class="docutils literal notranslate"><span class="pre">pi</span></code>, <code class="docutils literal notranslate"><span class="pre">e</span></code>, <code class="docutils literal notranslate"><span class="pre">inf</span></code>, <code class="docutils literal notranslate"><span class="pre">nan</span></code></p></li>
+<li><p>Reference NumPy directly with <code class="docutils literal notranslate"><span class="pre">np.</span></code> prefix for advanced operations</p></li>
+<li><p>The calculation engine does not verify whether operations are dimensionally or physically meaningful.</p></li>
+</ul>
+<p><strong>Supported data types:</strong></p>
+<ul class="simple">
+<li><p>2D traces (x/y pairs) with real or complex values</p></li>
+<li><p>3D traces are not supported</p></li>
+</ul>
+</section>
+<section id="existing-reports">
+<h2>Existing reports<a class="headerlink" href="#existing-reports" title="Link to this heading">#</a></h2>
+<a class="reference internal image-reference" href="../../../_images/result_calculator_existing_reports.png"><img alt="Existing Reports tab showing report browser and preview chart" src="../../../_images/result_calculator_existing_reports.png" width="800" />
+</a>
+<p>Browse and import traces from reports already open in AEDT sessions. This tab allows you to:</p>
+<ul class="simple">
+<li><p>Select an AEDT session from the dropdown</p></li>
+<li><p>Navigate through projects, designs, and reports</p></li>
+<li><p>Choose specific traces to preview</p></li>
+<li><p>Preview raw x/y data automatically (displayed in a chart below)</p></li>
+<li><p>Click “Import Trace” to import the selected traces into the Selected Traces tab</p></li>
+</ul>
+<p>The preview chart loads automatically once a trace is selected, showing exactly what is imported.</p>
+</section>
+<section id="datasets">
+<h2>Datasets<a class="headerlink" href="#datasets" title="Link to this heading">#</a></h2>
+<a class="reference internal image-reference" href="../../../_images/result_calculator_datasets.png"><img alt="Datasets tab showing AEDT dataset browser and manual entry section" src="../../../_images/result_calculator_datasets.png" width="800" />
+</a>
+<p>This tab has two sections:</p>
+<p><strong>Manual entry section:</strong></p>
+<ul class="simple">
+<li><p>Enter x and y values directly in text boxes (space or comma-separated)</p></li>
+<li><p>Define a name and an optional description for the dataset</p></li>
+<li><p>Click “Add Manual Dataset to Traces” to import the defined dataset in Selected Traces</p></li>
+<li><p>Click “Clear” to reset the input fields</p></li>
+<li><p>The imported dataset becomes available for use in calculations tab</p></li>
+</ul>
+<p><strong>AEDT datasets section:</strong></p>
+<ul class="simple">
+<li><p>Browse 2D datasets defined in AEDT projects (supports both project and design datasets)</p></li>
+<li><p>Select a dataset and click “Import Dataset” to add it to Selected Traces</p></li>
+<li><p>Click “Add Manual Dataset as Project Dataset” or “Add Manual Dataset as Design Dataset” to push a manually defined dataset into the selected AEDT project or design</p></li>
+</ul>
+</section>
+<section id="load-from-file">
+<h2>Load from file<a class="headerlink" href="#load-from-file" title="Link to this heading">#</a></h2>
+<a class="reference internal image-reference" href="../../../_images/result_calculator_load_from_file.png"><img alt="Load from File tab showing file browser and format options" src="../../../_images/result_calculator_load_from_file.png" width="800" />
+</a>
+<p>Import data from disk files in supported formats:</p>
+<ul class="simple">
+<li><p><strong>CSV files</strong>: Comma-separated values</p></li>
+<li><p><strong>Tab-separated files</strong>: TSV format</p></li>
+<li><p><strong>Custom separator</strong>: Specify any character as separator</p></li>
+<li><p><strong>Touchstone files</strong> (.sNp): Network parameter data</p></li>
+<li><p><strong>Other text files</strong>: With configurable parsing options</p></li>
+</ul>
+<p>Features:</p>
+<ul class="simple">
+<li><p>Browse and select files from disk</p></li>
+<li><p>Configure parsing options:</p>
+<ul>
+<li><p>delimiter (comma, tab, space, or custom)</p></li>
+<li><p>header rows to skip</p></li>
+<li><p>columns to read (x and y)</p></li>
+<li><p>for Touchstone files, specify the S-parameter index</p></li>
+</ul>
+</li>
+<li><p>Click “Preview” to plot parsed data before importing</p></li>
+<li><p>Click “Clear Preview” to reset the preview plot (selecting a new file automatically clears the preview)</p></li>
+<li><p>Click “Cumulate Plots” to overlay multiple columns/ports selection in the preview chart</p></li>
+<li><p>Click “Import to Traces” to import the selected data directly in Selected Traces</p></li>
+</ul>
+</section>
+<section id="settings">
+<h2>Settings<a class="headerlink" href="#settings" title="Link to this heading">#</a></h2>
+<a class="reference internal image-reference" href="../../../_images/result_calculator_settings.png"><img alt="Settings tab with interpolation and UI theme options" src="../../../_images/result_calculator_settings.png" width="800" />
+</a>
+<p>Settings tab allows you to configure how the extension handles data and displays information.</p>
+<p><strong>Interpolation settings:</strong></p>
+<p>Configure how the formula evaluator handles traces with different x-axis grids:</p>
+<ul class="simple">
+<li><p><strong>Interpolate all traces onto a common x grid</strong>: Align traces to a common x-axis grid (recommended for formulas)</p></li>
+<li><p><strong>Interpolation points</strong>: Resolution of the output interpolation grid (default: 301)</p></li>
+<li><p><strong>x interval strategy</strong>, choose between:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;common&quot;</span></code> (default): Use the intersection of all x-axis ranges</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;extended&quot;</span></code>: Use the union and extrapolate missing data</p></li>
+</ul>
+</li>
+<li><p><strong>Interpolation algorithm</strong>, choose between:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;linear&quot;</span></code> (default): Fast and smooth</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;quadratic&quot;</span></code>: Higher accuracy</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;cubic&quot;</span></code>: Highest accuracy</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;nearest&quot;</span></code>: Step function</p></li>
+</ul>
+</li>
+<li><p><strong>Complex plot mode</strong>, chose how to display complex data in plots:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;abs&quot;</span></code>: Magnitude (default)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;abs</span> <span class="pre">+</span> <span class="pre">phase&quot;</span></code>: Magnitude and Phase angle in degrees</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;real</span> <span class="pre">+</span> <span class="pre">imag&quot;</span></code>: Real and imaginary parts</p></li>
+</ul>
+</li>
+</ul>
+<p><strong>UI settings:</strong></p>
+<ul class="simple">
+<li><p>Switch between light and dark themes</p></li>
+<li><p>View PyAEDT version information</p></li>
+</ul>
+</section>
+<section id="help">
+<h2>Help<a class="headerlink" href="#help" title="Link to this heading">#</a></h2>
+<p>Built-in help with:</p>
+<ul class="simple">
+<li><p>Quick reference for all tabs</p></li>
+<li><p>Trace naming conventions</p></li>
+<li><p>Tips for using the extension</p></li>
+<li><p>Code examples for reloading exported files in Python</p></li>
+</ul>
+</section>
+</section>
+<section id="working-with-aedt-sessions">
+<h1>Working with AEDT sessions<a class="headerlink" href="#working-with-aedt-sessions" title="Link to this heading">#</a></h1>
+<p><strong>Session dropdown:</strong></p>
+<p>The AEDT Session dropdown at the top of the Existing Reports and in Datasets tabs selects which running AEDT
+instance to read from. This extension allows you to work with multiple AEDT instances simultaneously.
+The extension supports graphical and non-graphical sessions, as well as student versions.
+All data is cached locally to speed up browsing and importing traces.</p>
+<p><strong>Refresh AEDT sessions:</strong></p>
+<p>Click “Refresh AEDT sessions” to detect newly opened instances or clear stale session data from the cache.
+Imported traces are stored in the extension and are not affected by session refreshes.</p>
+<p><strong>Session information:</strong></p>
+<p>The dropdown shows:</p>
+<ul class="simple">
+<li><p>AEDT version</p></li>
+<li><p>Process ID (PID)</p></li>
+<li><p>Network port</p></li>
+<li><p>Student version indicator</p></li>
+<li><p>Non-graphical mode indicator</p></li>
+<li><p>Current process indicator</p></li>
+</ul>
+</section>
+<section id="trace-naming">
+<h1>Trace naming<a class="headerlink" href="#trace-naming" title="Link to this heading">#</a></h1>
+<p>Trace names follow these conventions:</p>
+<ul class="simple">
+<li><p><strong>Valid characters:</strong> Letters, digits, and underscores only</p></li>
+<li><p><strong>Imported traces:</strong> Named <code class="docutils literal notranslate"><span class="pre">result_1</span></code>, <code class="docutils literal notranslate"><span class="pre">result_2</span></code>, etc.</p></li>
+<li><p><strong>Formula results:</strong> Named <code class="docutils literal notranslate"><span class="pre">ans1</span></code>, <code class="docutils literal notranslate"><span class="pre">ans2</span></code>, etc.</p></li>
+<li><p><strong>Renaming:</strong> Double-click any trace name in the table to rename it inline</p></li>
+</ul>
+</section>
+<section id="tips-and-tricks">
+<h1>Tips and tricks<a class="headerlink" href="#tips-and-tricks" title="Link to this heading">#</a></h1>
+<ul class="simple">
+<li><p><strong>Quick Help:</strong> Press <code class="docutils literal notranslate"><span class="pre">F1</span></code> from anywhere to jump to the Help tab</p></li>
+<li><p><strong>Deselect all:</strong> Click the empty area below the trace table to deselect all traces and view only the live formula curve</p></li>
+<li><p><strong>Chart toolbar:</strong> Use the toolbar below each chart for zoom, pan, and save-image controls</p></li>
+<li><p><strong>Reload NumPy binary:</strong> <code class="docutils literal notranslate"><span class="pre">d</span> <span class="pre">=</span> <span class="pre">np.load('file.npz');</span> <span class="pre">x,</span> <span class="pre">y</span> <span class="pre">=</span> <span class="pre">d['x'],</span> <span class="pre">d['y']</span></code></p></li>
+<li><p><strong>Reload NumPy text:</strong> <code class="docutils literal notranslate"><span class="pre">data</span> <span class="pre">=</span> <span class="pre">np.loadtxt('file.txt');</span> <span class="pre">x,</span> <span class="pre">y</span> <span class="pre">=</span> <span class="pre">data[:,</span> <span class="pre">0],</span> <span class="pre">data[:,</span> <span class="pre">1]</span></code></p></li>
+</ul>
+</section>
+<section id="complex-numbers">
+<h1>Complex numbers<a class="headerlink" href="#complex-numbers" title="Link to this heading">#</a></h1>
+<p>The extension supports traces with complex values:</p>
+<ul class="simple">
+<li><p>Formulas can mix real and complex traces</p></li>
+<li><p>In the Selected Traces tab, a dropdown allows you to choose how to display complex results</p></li>
+</ul>
+</section>
+<section id="troubleshooting">
+<h1>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading">#</a></h1>
+<p><strong>No AEDT session available:</strong></p>
+<p>Make sure at least one AEDT instance is running before trying to import reports or datasets.
+Click “Refresh AEDT sessions” to detect newly opened instances.</p>
+<p><strong>Trace import fails:</strong></p>
+<ul class="simple">
+<li><p>Verify the design and report are available in the selected AEDT session</p></li>
+<li><p>Try refreshing the session list</p></li>
+<li><p>Check that the report contains at least one trace with x/y data</p></li>
+</ul>
+<p><strong>Formula evaluation errors:</strong></p>
+<ul class="simple">
+<li><p>Verify trace names are spelled correctly (case-sensitive)</p></li>
+<li><p>Ensure traces have compatible x-axis ranges for interpolation</p></li>
+<li><p>Check that mathematical operations are valid (for example, avoid division by zero)</p></li>
+<li><p>Adjust interpolation settings if traces have very different x-axis ranges</p></li>
+</ul>
+<p><strong>File import issues:</strong></p>
+<ul class="simple">
+<li><p>Verify file format matches the selected import options</p></li>
+<li><p>Check that CSV/TSV files have at least two columns (x and y)</p></li>
+<li><p>For Touchstone files, verify the file format (.s1p, .s2p, etc.)</p></li>
+<li><p>Use the Preview feature to diagnose parsing issues</p></li>
+</ul>
+</section>
+<section id="api-usage-example">
+<h1>API usage example<a class="headerlink" href="#api-usage-example" title="Link to this heading">#</a></h1>
+<p>The extension is launched from AEDT using PyAEDT Extension Manager.
+The extension can also be used standalone from the command line:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>result_calculator.py
+</pre></div>
+</div>
+<p>Alternatively, you can import and launch it programmatically:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">tkinter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ansys.aedt.core.extensions.common.result_calculator</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ResultCalculatorExtension</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Create and display the extension</span>
+<span class="n">ext</span> <span class="o">=</span> <span class="n">ResultCalculatorExtension</span><span class="p">(</span><span class="n">withdraw</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="c1"># Keep the window alive</span>
+<span class="n">tkinter</span><span class="o">.</span><span class="n">mainloop</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><strong>Note:</strong></p>
+<ul class="simple">
+<li><p>When launched standalone, the extension can still connect to any running AEDT session via the Session dropdown, allowing you to import reports and datasets from multiple AEDT instances.</p></li>
+<li><p>The extension cannot be used programmatically to import traces from AEDT sessions or perform calculations without the GUI.</p></li>
+</ul>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Result Calculator</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#main-tabs">Main tabs</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#selected-traces">Selected traces</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#existing-reports">Existing reports</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datasets">Datasets</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-from-file">Load from file</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#settings">Settings</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#help">Help</a></li>
+</ul>
+</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#working-with-aedt-sessions">Working with AEDT sessions</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#trace-naming">Trace naming</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#tips-and-tricks">Tips and tricks</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#complex-numbers">Complex numbers</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#troubleshooting">Troubleshooting</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#api-usage-example">API usage example</a></li>
+</ul>
+
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+
+  
+  <nav class="tocsection editthispage" aria-label="Edit this page">
+    <a href="https://github.com/ansys/pyaedt/edit/main/doc/source/User_guide/pyaedt_extensions_doc/project/result_calculator.rst" rel="noopener noreferrer">
+      <i class="fa-solid fa-pencil" aria-hidden="true"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </nav>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <ul class="this-page-menu">
+      <li><a href="../../../_sources/User_guide/pyaedt_extensions_doc/project/result_calculator.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+
+
+  <!-- Include desired assets -->
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.7/require.min.js"></script>
+
+<script>
+// Passing the search options to the search.js file
+const SEARCH_OPTIONS = JSON.parse('{"ignoreLocation": true, "keys": ["title", "text", "objectID"], "limit": 10, "minMatchCharLength": 2, "threshold": 0.5}');
+const SEARCH_FILE = "../../../_static/search.json";
+const ADVANCE_SEARCH_PATH = "../../../search.html";
+const EXTRA_SOURCES = JSON.parse('""');
+</script>
+
+
+<script src="../../../_static/js/search.js"></script>
+
+  
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<!--
+  Theme Version Footer
+  Displays the Sphinx theme version and the last updated date.
+  Accessibility and semantic improvements included.
+-->
+<footer class="theme-version" aria-label="Theme version and last update">
+  <span>
+    
+      Built with the
+      <a href="https://sphinxdocs.ansys.com/version/stable/index.html" target="_blank" rel="noopener noreferrer">
+        Ansys Sphinx Theme
+      </a>
+      1.10.0.
+    
+  </span>
+  <br />
+  <span>Last updated on <time id="ast_build_date"></time></span>
+</footer>
+<script>
+  // Set the last updated date in a readable format
+  (function() {
+    var options = { day: "numeric", month: "long", year: "numeric" };
+    var ast_lastModifiedDate = new Date(document.lastModified);
+    var ast_build_date = ast_lastModifiedDate.toLocaleDateString("en-US", options);
+    var dateElem = document.getElementById("ast_build_date");
+    if (dateElem) {
+      dateElem.textContent = ast_build_date;
+    }
+  })();
+</script></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

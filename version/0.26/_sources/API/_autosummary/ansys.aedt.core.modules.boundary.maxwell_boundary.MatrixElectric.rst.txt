@@ -1,0 +1,24 @@
+﻿MatrixElectric
+==============
+
+.. currentmodule:: ansys.aedt.core.modules.boundary.maxwell_boundary
+
+.. autoclass:: MatrixElectric
+
+   
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      MatrixElectric.matrix_name
+      MatrixElectric.signal_sources
+      MatrixElectric.ground_sources
+   
+   

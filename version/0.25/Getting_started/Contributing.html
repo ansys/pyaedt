@@ -1,0 +1,1445 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Contribute &#8212; PyAEDT</title>
+  
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/ansys-sphinx-theme.css?v=a23b20f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/ansys-sphinx-theme.css?v=a23b20f3" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://www.nerdfonts.com/assets/css/webfont.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=de68c915" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+
+  <!-- Include desired assets -->
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  
+
+  
+    <link href="../_static/css/breadcrumbs.css" rel="stylesheet" />
+  
+    <script src="../_static/documentation_options.js?v=69eaf3f7"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=49e1bf35"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'Getting_started/Contributing';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://aedt.docs.pyansys.com/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.25';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Developer notes" href="Developer_notes.html" />
+    <link rel="prev" title="Versions and interfaces" href="versioning.html" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.25.1" />
+  <meta property="og:site_name" content="PyAnsys" />
+  <meta name="physics" content="Electronics" />
+  <link rel="canonical" href="https://aedt.docs.pyansys.com/version/stable/Getting_started/Contributing.html" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="https://docs.pyansys.com/">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/pyansys_logo_transparent_black.png" class="logo__image only-light" alt="PyAEDT - Home"/>
+    <img src="../_static/pyansys_logo_transparent_white.png" class="logo__image only-dark pst-js-only" alt="PyAEDT - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html" title="PyAEDT home">Home</a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../User_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../API/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://examples.aedt.docs.pyansys.com/">
+    Examples
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../changelog.html">
+    Release notes
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav>
+</div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+      
+        <div class="navbar-item">
+<div class="search-bar pst-js-only" id="search-bar">
+  <form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" class="form-control" name="q" placeholder="Search the docs ..."
+      aria-label="Search the docs ..." autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false" />
+    <span class="search-button__kbd-shortcut">
+      <kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd>
+    </span>
+  </form>
+  
+  <div id="static-search-results" class="static-search-results" style="display:none;" tabindex="0"></div>
+  
+</div></div>
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+  
+    
+<!--
+  Announcement Version Loader
+  Dynamically loads the announcement.html content into the announcement_msg div.
+-->
+<div id="announcement_msg" aria-live="polite"></div>
+<script>
+  // Fetch and inject the announcement HTML content
+  fetch("announcement.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status} Announcement.html file not found, Please ignore this, if you are in dev/stable documentation`);
+      }
+      return response.text();
+    })
+    .then((text) => {
+      var msgDiv = document.getElementById("announcement_msg");
+      if (msgDiv) {
+        msgDiv.innerHTML = text;
+      }
+    })
+    .catch((error) => {
+      // Log only unexpected fetch errors
+      if (!(error.message && error.message.startsWith("HTTP error: 404"))) {
+        console.error(`Fetch problem: ${error.message} Announcement.html could not be loaded.`);
+      }
+    });
+</script>
+  
+
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html" title="PyAEDT home">Home</a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../User_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../API/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://examples.aedt.docs.pyansys.com/">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changelog.html">
+    Release notes
+  </a>
+</li>
+
+  </ul>
+</nav>
+</div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="search-bar pst-js-only" id="search-bar">
+  <form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" class="form-control" name="q" placeholder="Search the docs ..."
+      aria-label="Search the docs ..." autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false" />
+    <span class="search-button__kbd-shortcut">
+      <kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd>
+    </span>
+  </form>
+  
+  <div id="static-search-results" class="static-search-results" style="display:none;" tabindex="0"></div>
+  
+</div></div>
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="Installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../User_guide/index.html">User guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ClientServer.html">Client-server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="panels.html">AEDT panels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="versioning.html">Versions and interfaces</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Developer_notes.html">Developer notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="About.html">About PyAnsys and AEDT</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+         
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="https://docs.pyansys.com/" class="nav-link">PyAnsys</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a
+        href="../index.html"
+        class="nav-link"
+        aria-label="Home"
+      >
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="index.html" class="nav-link">Getting started</a>
+    </li>
+      
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Contribute</span></li>
+    
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="contribute">
+<span id="contributing-aedt"></span><h1>Contribute<a class="headerlink" href="#contribute" title="Link to this heading">#</a></h1>
+<p>Overall guidance on contributing to a PyAnsys repository appears in
+<a class="reference external" href="https://dev.docs.pyansys.com/how-to/contributing.html">Contribute</a>
+in the <em>PyAnsys Developer’s Guide</em>. Ensure that you are thoroughly familiar
+with this guide, paying particular attention to <a class="reference external" href="https://dev.docs.pyansys.com/how-to/index.html">Guidelines and Best Practices</a>, before attempting
+to contribute to PyAEDT.</p>
+<p>The following contribution information is specific to PyAEDT.</p>
+<section id="clone-the-repository">
+<h2>Clone the repository<a class="headerlink" href="#clone-the-repository" title="Link to this heading">#</a></h2>
+<p>To clone and install the latest version of PyAEDT in
+development mode, run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">ansys</span><span class="o">/</span><span class="n">pyaedt</span>
+<span class="n">cd</span> <span class="n">pyaedt</span>
+<span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="o">--</span><span class="n">upgrade</span> <span class="n">pip</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">e</span> <span class="o">.</span>
+</pre></div>
+</div>
+</section>
+<section id="development-environment-setup">
+<h2>Development environment setup<a class="headerlink" href="#development-environment-setup" title="Link to this heading">#</a></h2>
+<p>PyAEDT uses <strong>dependency groups</strong> (PEP 735) for managing development dependencies.
+This is a modern approach that replaces the older <code class="docutils literal notranslate"><span class="pre">[project.optional-dependencies]</span></code>
+mechanism for development-only dependencies.</p>
+<section id="dependency-groups-vs-optional-dependencies">
+<h3>Dependency groups vs optional dependencies<a class="headerlink" href="#dependency-groups-vs-optional-dependencies" title="Link to this heading">#</a></h3>
+<p>PyAEDT uses two mechanisms for managing dependencies:</p>
+<ul class="simple">
+<li><p><strong>Optional dependencies</strong> (<code class="docutils literal notranslate"><span class="pre">[project.optional-dependencies]</span></code>): Used for runtime features
+that users can optionally install (e.g., <code class="docutils literal notranslate"><span class="pre">dotnet</span></code>, <code class="docutils literal notranslate"><span class="pre">graphics</span></code>, <code class="docutils literal notranslate"><span class="pre">jupyter</span></code>, <code class="docutils literal notranslate"><span class="pre">all</span></code>).
+These are installed with <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">pyaedt[graphics]</span></code> or <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">sync</span> <span class="pre">--extra</span> <span class="pre">graphics</span></code>.</p></li>
+<li><p><strong>Dependency groups</strong> (<code class="docutils literal notranslate"><span class="pre">[dependency-groups]</span></code>): Used for development-only dependencies
+(e.g., <code class="docutils literal notranslate"><span class="pre">dev</span></code>, <code class="docutils literal notranslate"><span class="pre">doc</span></code>, <code class="docutils literal notranslate"><span class="pre">tests</span></code>). These are NOT included in the package distribution
+and are only used during development. They are installed with <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--group</span> <span class="pre">dev</span></code>
+or <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">sync</span> <span class="pre">--group</span> <span class="pre">dev</span></code>.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>After with PyAEDT 0.25, development dependencies have been migrated from
+<code class="docutils literal notranslate"><span class="pre">[project.optional-dependencies]</span></code> to <code class="docutils literal notranslate"><span class="pre">[dependency-groups]</span></code> following PEP 735.
+This ensures development dependencies are not accidentally included in package
+distributions. When using pip, ensure you have <code class="docutils literal notranslate"><span class="pre">pip</span></code> version 25.1 or later to use the
+new dependency group syntax.</p>
+</div>
+</section>
+</section>
+<section id="post-issues">
+<h2>Post issues<a class="headerlink" href="#post-issues" title="Link to this heading">#</a></h2>
+<p>Use the <a class="reference external" href="https://github.com/ansys/pyaedt/issues">PyAEDT Issues</a>
+page to submit questions, report bugs, and request new features.</p>
+<p>To reach the product support team, email <a class="reference external" href="mailto:pyansys&#46;core&#37;&#52;&#48;ansys&#46;com">pyansys<span>&#46;</span>core<span>&#64;</span>ansys<span>&#46;</span>com</a>.</p>
+</section>
+<section id="view-pyaedt-documentation">
+<h2>View PyAEDT documentation<a class="headerlink" href="#view-pyaedt-documentation" title="Link to this heading">#</a></h2>
+<p>Documentation for the latest stable release of PyAEDT is hosted at
+<a class="reference external" href="https://aedt.docs.pyansys.com">PyAEDT Documentation</a>.</p>
+<p>In the upper right corner of the documentation’s title bar, there is an option
+for switching from viewing the documentation for the latest stable release
+to viewing the documentation for the development version or previously
+released versions.</p>
+</section>
+<section id="code-style">
+<h2>Code style<a class="headerlink" href="#code-style" title="Link to this heading">#</a></h2>
+<p>PyAEDT complies with the <a class="reference external" href="https://dev.docs.pyansys.com/coding-style/index.html">PyAnsys code style</a>.
+<a class="reference external" href="https://pre-commit.com/">pre-commit</a> is applied within the CI/CD to ensure compliance.
+However, for local development, you might want to use <a class="reference external" href="https://prek.j178.dev/">prek</a>
+which is a drop-in alternative to <code class="docutils literal notranslate"><span class="pre">pre-commit</span></code> that is faster and more efficient in
+disk space usage. The <code class="docutils literal notranslate"><span class="pre">prek</span></code> Python package can be installed and run as follows:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>prek
+prek<span class="w"> </span>run<span class="w"> </span>--all-files
+</pre></div>
+</div>
+<p>You can also install this as a prek hook with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>prek<span class="w"> </span>install
+</pre></div>
+</div>
+<p>This way, it’s not possible for you to push code that fails the style checks.
+For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ prek install
+$ git commit -am &quot;Add my cool feature.&quot;
+black....................................................................Passed
+isort (python)...........................................................Passed
+flake8...................................................................Passed
+codespell................................................................Passed
+debug statements (python)................................................Passed
+trim trailing whitespace.................................................Passed
+Validate GitHub Workflows................................................Passed
+blacken-docs.............................................................Passed
+</pre></div>
+</div>
+<section id="naming-conventions">
+<h3>Naming conventions<a class="headerlink" href="#naming-conventions" title="Link to this heading">#</a></h3>
+<p>Consistency of names helps improve readability and
+ease of use. Starting with release 0.8 a concerted effort
+has been made to
+improve consistency of naming and adherence to
+<a href="#id2"><span class="problematic" id="id3">:ref:`PEP-8&lt;https://peps.python.org/pep-0008/&gt;`_</span></a>.</p>
+<p>For example, methods used to create or access entities in
+AEDT require that a name be passed to the method or function
+as an argument.
+It is tempting to
+include context as part of that variable name. For example, while it is tempting to use
+<code class="docutils literal notranslate"><span class="pre">setupname</span></code>
+as an argument to <a href="#id4"><span class="problematic" id="id5">:meth:`Hfss.create_setup`_</span></a>,
+the context “setup” is
+explicitly defined by the method name. The variable <code class="docutils literal notranslate"><span class="pre">name</span></code> provides
+a more compact
+description of the variable in this context.</p>
+<p>In previous PyAEDT versions, you can also find both <code class="docutils literal notranslate"><span class="pre">setup_name</span></code> and <code class="docutils literal notranslate"><span class="pre">setupname</span></code> used
+for various methods or classes.
+Improving naming consistency improves maintainability and readability.</p>
+<p>The following table illustrates the recommended conventions:</p>
+<div class="pst-scrollable-table-container"><table class="table" id="id6">
+<caption><span class="caption-text">Keywords and object names</span><a class="headerlink" href="#id6" title="Link to this table">#</a></caption>
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Old name</p></th>
+<th class="head"><p>New name</p></th>
+<th class="head"><p>Example</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">setupname</span></code>, <code class="docutils literal notranslate"><span class="pre">setup_name</span></code>, <code class="docutils literal notranslate"><span class="pre">sweepname</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Hfss.create_setup()</span></code>, <code class="docutils literal notranslate"><span class="pre">Hfss.create_linear_step_sweep()</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">usethickness</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">thickness</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Hfss.assign_finite_conductivity()</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">entities</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">assignment</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Maxwell.assign_current_density()</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">entity_list</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">assignment</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Maxwell.assign_symmetry()</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Take care to use descriptive names for
+variables and classes that adhere to PEP-8 and are consistent with conventions already
+used in PyAEDT.</p>
+</section>
+<section id="log-errors">
+<h3>Log errors<a class="headerlink" href="#log-errors" title="Link to this heading">#</a></h3>
+<p>PyAEDT has an internal logging tool named <code class="docutils literal notranslate"><span class="pre">Messenger</span></code>
+and a log file that is automatically generated in the project
+folder.</p>
+<p>The following examples demonstrate how <code class="docutils literal notranslate"><span class="pre">Messenger</span></code> is used to
+write both to the internal AEDT message windows and the log file:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;This is an error message.&quot;</span><span class="p">)</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;This is a warning message.&quot;</span><span class="p">)</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;This is an info message.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>These examples demonstrate how to write messages only to the log file:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;This is an error message.&quot;</span><span class="p">)</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;This is a warning message.&quot;</span><span class="p">)</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;This is an info message.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="handle-exceptions">
+<h3>Handle exceptions<a class="headerlink" href="#handle-exceptions" title="Link to this heading">#</a></h3>
+<p>PyAEDT uses a specific decorator, <code class="docutils literal notranslate"><span class="pre">&#64;pyaedt_function_handler</span></code>,
+to handle exceptions caused by methods and by the AEDT API.
+This exception handler decorator makes PyAEDT fault tolerant
+to errors that can occur in any method.</p>
+<p>For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">my_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var</span><span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p>Every method can return a value of <code class="docutils literal notranslate"><span class="pre">True</span></code> when successful or
+<code class="docutils literal notranslate"><span class="pre">False</span></code> when failed. When a failure occurs, the error
+handler returns information about the error in both the console and
+log file.</p>
+<p>Here is an example of an error:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">----------------------------------------------------------------------------------</span>
+<span class="n">PyAEDT</span> <span class="n">error</span> <span class="n">on</span> <span class="n">method</span> <span class="n">create_box</span><span class="p">:</span>  <span class="n">General</span> <span class="ow">or</span> <span class="n">AEDT</span> <span class="n">error</span><span class="o">.</span> <span class="n">Check</span> <span class="n">again</span>
+<span class="n">the</span> <span class="n">arguments</span> <span class="n">provided</span><span class="p">:</span>
+    <span class="n">position</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">dimensions_list</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">]</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">material</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="o">----------------------------------------------------------------------------------</span>
+
+<span class="p">(</span><span class="o">-</span><span class="mi">2147352567</span><span class="p">,</span> <span class="s1">&#39;Exception occurred.&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">2147024381</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+  <span class="n">File</span> <span class="s2">&quot;C:\GIT</span><span class="se">\r</span><span class="s2">epos\AnsysAutomation\PyAEDT\Primitives.py&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">1930</span><span class="p">,</span> <span class="ow">in</span> <span class="n">create_box</span>
+    <span class="n">o</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">createbox</span><span class="p">(</span><span class="n">vArg1</span><span class="p">,</span> <span class="n">vArg2</span><span class="p">)</span>
+
+<span class="o">************************************************************</span>
+<span class="n">Method</span> <span class="n">Docstring</span><span class="p">:</span>
+
+<span class="n">Create</span> <span class="n">a</span> <span class="n">box</span><span class="o">.</span>
+
+<span class="n">Parameters</span>
+<span class="o">----------</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+</section>
+<section id="hard-coded-values">
+<h3>Hard-coded values<a class="headerlink" href="#hard-coded-values" title="Link to this heading">#</a></h3>
+<p>Do not write hard-coded values to the registry. Instead, use the Configuration service.</p>
+</section>
+<section id="maximum-line-length">
+<h3>Maximum line length<a class="headerlink" href="#maximum-line-length" title="Link to this heading">#</a></h3>
+<p>Best practice is to keep the length at or below 120 characters for code,
+and comments. Lines longer than this might not display properly on some terminals
+and tools or might be difficult to follow.</p>
+</section>
+</section>
+<section id="extension-development-guide">
+<h2>Extension development guide<a class="headerlink" href="#extension-development-guide" title="Link to this heading">#</a></h2>
+<p>This section describes the steps to create and integrate a PyAEDT extension at the <strong>project level</strong>.
+Extensions are modular components that add functionality to the AEDT environment via the PyAEDT API.
+They follow a structured convention to ensure consistency, maintainability, and documentation.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To create an extension at an <strong>application level</strong>, for example Hfss, the process is similar.
+The main difference is that the extension file and documentation should be placed in the
+appropriate directory, for example <code class="docutils literal notranslate"><span class="pre">src/ansys/aedt/core/extensions/hfss</span></code> and
+<code class="docutils literal notranslate"><span class="pre">doc/source/User_guide/pyaedt_extensions_doc/hfss</span></code> respectively.</p>
+</div>
+<section id="step-1-create-the-extension-python-file">
+<h3>Step 1: Create the extension Python file<a class="headerlink" href="#step-1-create-the-extension-python-file" title="Link to this heading">#</a></h3>
+<p>Navigate to the directory <code class="docutils literal notranslate"><span class="pre">src/ansys/aedt/core/extension/project</span></code> and create a new Python file for
+your extension. The file name should be descriptive and follow the format <code class="docutils literal notranslate"><span class="pre">extension_name.py</span></code>, where
+<code class="docutils literal notranslate"><span class="pre">extension_name</span></code> is a lowercase, hyphen-separated name that describes the extension’s functionality.
+The extension file should follow the official
+<a class="reference external" href="https://github.com/ansys/pyaedt/blob/main/src/ansys/aedt/core/extensions/templates/template_get_started.py">template</a>
+and contain at least two classes:</p>
+<ol class="arabic simple">
+<li><p>A class that inherits from <code class="docutils literal notranslate"><span class="pre">ExtensionCommon</span></code> and implements the extension’s logic. By inheriting from
+<code class="docutils literal notranslate"><span class="pre">ExtensionCommon</span></code>, the extension’s theme and style are automatically set and can leverage standard
+extension methods like the theme button handling, access to the AEDT application, and more.
+The custom content of the extension should be defined in the <code class="docutils literal notranslate"><span class="pre">add_extension_content</span></code> method and
+should be called in the <code class="docutils literal notranslate"><span class="pre">__init__</span></code> method of the class. This method is where you can define the
+user interface (UI) elements, such as buttons, text fields, and other widgets to display. Below is
+an example of how to create a basic extension class:</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">ansys.aedt.core.extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExtensionCommon</span><span class="p">,</span> <span class="n">ExtensionData</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MyExtension</span><span class="p">(</span><span class="n">ExtensionCommon</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_extension_content</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_extension_content</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Define your UI elements here</span>
+        <span class="k">pass</span>
+</pre></div>
+</div>
+<p>2. A data class that inherits from <code class="docutils literal notranslate"><span class="pre">ExtensionCommonData</span></code>. This class should define the data that is provided
+and computed through the UI. Below is an example of how to create a data class for your extension:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">field</span>
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MyExtensionData</span><span class="p">(</span><span class="n">ExtensionCommonData</span><span class="p">):</span>
+    <span class="n">setup</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">assignments</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">[])</span>
+</pre></div>
+</div>
+<p>Splitting the extension logic into two classes allows for better separation of concerns and makes it easier to
+test and maintain the code. The first class handles the UI and user interactions, while the second class
+manages the data and logic behind the extension. On top of those classes, the file should also define a
+<code class="docutils literal notranslate"><span class="pre">main</span></code> function that is used to run the core logic behind the extension. This function should ingest an
+instance of the data class defined in the second step. Below is an example of how to define the <code class="docutils literal notranslate"><span class="pre">main</span></code>
+function:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">extension_data</span><span class="p">:</span> <span class="n">MyExtensionData</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="o">.</span><span class="n">setup</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">AEDTRuntimeError</span><span class="p">(</span><span class="s2">&quot;No setup provided to the extension.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Core logic of the extension goes here</span>
+</pre></div>
+</div>
+</section>
+<section id="step-2-add-unit-tests">
+<h3>Step 2: Add unit tests<a class="headerlink" href="#step-2-add-unit-tests" title="Link to this heading">#</a></h3>
+<p>Create a test file in the <code class="docutils literal notranslate"><span class="pre">tests/unit/extensions</span></code> directory with the same name as your extension file, but with a
+<code class="docutils literal notranslate"><span class="pre">test_</span></code> prefix. For example, if your extension file is named <code class="docutils literal notranslate"><span class="pre">my_extension.py</span></code>, the test file should be
+<code class="docutils literal notranslate"><span class="pre">test_my_extension.py</span></code>. This file should mainly contain unit tests for your extension’s UI components. For example
+checking that clicking a button triggers the expected action or that the UI elements are correctly initialized.
+If your extension requires AEDT to run, you should patch every method that requires AEDT to run, so that the test
+can be run without an active AEDT instance. This is important because unit tests should be fast and not depend on
+an external application like AEDT. You can use the <cite>unittest.mock</cite> library to patch methods and classes that
+require AEDT. A good example of such a test file is the
+<a class="reference external" href="https://github.com/ansys/pyaedt/blob/main/tests/unit/extensions/test_template_extension.py">test_template_extension.py</a>
+file where the instantiation of the <code class="docutils literal notranslate"><span class="pre">Desktop</span></code> class is patched to avoid the need for an active AEDT instance. Below
+is an example of how to create a unit test for your extension:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">unittest.mock</span><span class="w"> </span><span class="kn">import</span> <span class="n">patch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ansys.aedt.core.extensions.project.my_extension</span><span class="w"> </span><span class="kn">import</span> <span class="n">MyExtension</span><span class="p">,</span> <span class="n">MyExtensionData</span>
+
+
+<span class="nd">@patch</span><span class="p">(</span><span class="s2">&quot;ansys.aedt.core.extensions.misc.Desktop&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_my_extension</span><span class="p">(</span><span class="n">mock_desktop</span><span class="p">):</span>
+    <span class="n">extension</span> <span class="o">=</span> <span class="n">MyExtension</span><span class="p">()</span>
+
+    <span class="k">assert</span> <span class="s2">&quot;My extension title&quot;</span> <span class="o">==</span> <span class="n">extension</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="s2">&quot;light&quot;</span> <span class="o">==</span> <span class="n">extension</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">theme</span>
+    <span class="k">assert</span> <span class="s2">&quot;No active project&quot;</span> <span class="o">==</span> <span class="n">extension</span><span class="o">.</span><span class="n">active_project_name</span>
+
+    <span class="n">extension</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="step-3-add-system-tests">
+<h3>Step 3: Add system tests<a class="headerlink" href="#step-3-add-system-tests" title="Link to this heading">#</a></h3>
+<p>Like the previous step, create a test file in the <code class="docutils literal notranslate"><span class="pre">tests/system/extensions</span></code> directory with the same name as your
+extension file, but with a <code class="docutils literal notranslate"><span class="pre">test_</span></code> prefix. However, contrary to unit tests, system tests are meant to be run with
+an active AEDT instance. These tests should validate the overall functionality of the extension, ensuring that it
+behaves as expected when integrated into the AEDT environment.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">ansys.aedt.core.extensions.project.my_extension</span><span class="w"> </span><span class="kn">import</span> <span class="n">MyExtension</span><span class="p">,</span> <span class="n">MyExtensionData</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ansys.aedt.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">Hfss</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_my_extension_system</span><span class="p">(</span><span class="n">add_app</span><span class="p">):</span>
+
+    <span class="c1"># Create some data in AEDT to test the extension</span>
+    <span class="n">aedt_app</span> <span class="o">=</span> <span class="n">add_app</span><span class="p">(</span>
+        <span class="n">application</span><span class="o">=</span><span class="n">Hfss</span><span class="p">,</span> <span class="n">project_name</span><span class="o">=</span><span class="s2">&quot;my_project&quot;</span><span class="p">,</span> <span class="n">design_name</span><span class="o">=</span><span class="s2">&quot;my_design&quot;</span>
+    <span class="p">)</span>
+    <span class="n">aedt_app</span><span class="p">[</span><span class="s2">&quot;p1&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;100mm&quot;</span>
+    <span class="n">aedt_app</span><span class="p">[</span><span class="s2">&quot;p2&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;71mm&quot;</span>
+    <span class="n">test_points</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">[</span><span class="s2">&quot;0mm&quot;</span><span class="p">,</span> <span class="s2">&quot;p1&quot;</span><span class="p">,</span> <span class="s2">&quot;0mm&quot;</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">&quot;-p1&quot;</span><span class="p">,</span> <span class="s2">&quot;0mm&quot;</span><span class="p">,</span> <span class="s2">&quot;0mm&quot;</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">&quot;-p1/2&quot;</span><span class="p">,</span> <span class="s2">&quot;-p1/2&quot;</span><span class="p">,</span> <span class="s2">&quot;0mm&quot;</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">&quot;0mm&quot;</span><span class="p">,</span> <span class="s2">&quot;0mm&quot;</span><span class="p">,</span> <span class="s2">&quot;0mm&quot;</span><span class="p">],</span>
+    <span class="p">]</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">aedt_app</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">create_polyline</span><span class="p">(</span>
+        <span class="n">points</span><span class="o">=</span><span class="n">test_points</span><span class="p">,</span>
+        <span class="n">segment_type</span><span class="o">=</span><span class="n">PolylineSegment</span><span class="p">(</span><span class="s2">&quot;Spline&quot;</span><span class="p">,</span> <span class="n">num_points</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;spline_4pt&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Create the extension and set its data by clicking on the &quot;Generate&quot; button</span>
+    <span class="n">extension</span> <span class="o">=</span> <span class="n">MyExtension</span><span class="p">()</span>
+    <span class="n">extension</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">nametowidget</span><span class="p">(</span><span class="s2">&quot;generate&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">invoke</span><span class="p">()</span>
+
+    <span class="c1"># Check that the extension logic executes correctly</span>
+    <span class="k">assert</span> <span class="mi">2</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">aedt_app</span><span class="o">.</span><span class="n">variable_manager</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">main</span><span class="p">(</span><span class="n">extension</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="mi">7</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">aedt_app</span><span class="o">.</span><span class="n">variable_manager</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="run-tests-in-vscode-and-pycharm">
+<h3>Run tests in VSCode and PyCharm<a class="headerlink" href="#run-tests-in-vscode-and-pycharm" title="Link to this heading">#</a></h3>
+<p>This section explains how to run pytest unit and system tests in VSCode (Visual Studio Code) and PyCharm, and how to estimate coverage
+using the “Run with coverage” feature or pytest-cov.</p>
+</section>
+<section id="prerequisites">
+<h3>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Install pytest and pytest-cov in your environment if you haven’t already:</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>pytest<span class="w"> </span>pytest-cov
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Ensure your IDE is configured to use the Python interpreter where the packages are installed.</p></li>
+</ul>
+</section>
+<section id="vscode-ide">
+<h3>VSCode IDE<a class="headerlink" href="#vscode-ide" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p>Use the Test Explorer (Python extension) to discover and run tests:</p></li>
+</ol>
+<blockquote>
+<div><ul class="simple">
+<li><p>Open the Testing side bar (beaker icon).</p></li>
+<li><p>Run or debug individual tests, test files, or test suites from the UI.</p></li>
+</ul>
+</div></blockquote>
+<img alt="VSCode Test Explorer (placeholder)" src="../_images/vscode_run_tests.png" />
+<ol class="arabic simple" start="2">
+<li><p>Run tests and view coverage using the GUI</p></li>
+</ol>
+<blockquote>
+<div><ul class="simple">
+<li><p>VSCode:
+- Click the “Run Test with Coverage” button in the Test Explorer toolbar to run one or more tests with coverage.
+- After the tests complete, a coverage summary appears in the Test Explorer (coverage % by file), and covered/uncovered lines are highlighted in the editor.</p></li>
+</ul>
+</div></blockquote>
+<img alt="VSCode Test Explorer (placeholder)" src="../_images/coverage_vscode.png" />
+</section>
+<section id="brief-note">
+<h3>Brief note<a class="headerlink" href="#brief-note" title="Link to this heading">#</a></h3>
+<p>You can also run tests with coverage from a terminal in VSCode using pytest-cov:
+.. code:: bash</p>
+<blockquote>
+<div><p>pytest tests/unit –cov=src –cov-report=term-missing –cov-report=html</p>
+</div></blockquote>
+<p>This is an example command to run unit tests with coverage. Adjust the path to your test files as needed.</p>
+</section>
+<section id="pycharm-ide">
+<h3>PyCharm IDE<a class="headerlink" href="#pycharm-ide" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p>Configure pytest as the test runner:
+- Settings -&gt; Tools -&gt; Python Integrated Tools -&gt; Default test runner -&gt; pytest</p></li>
+<li><p>Run tests from the IDE:
+- Right-click a test file, folder, or test function and choose Run or Debug.
+- Use the dedicated test runner UI to run and inspect results.</p></li>
+</ol>
+<img alt="PyCharm test runner (placeholder)" src="../_images/pycharm_run_tests.png" />
+<ol class="arabic simple" start="3">
+<li><p>Run with coverage in PyCharm:
+- Right-click a test file or configuration and choose “Run ‘pytest in’ with Coverage”.
+- PyCharm shows a coverage summary and highlights covered and uncovered lines in the editor.</p></li>
+<li><p>Run with pytest-cov from a terminal in PyCharm (alternative):</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pytest<span class="w"> </span>tests/unit<span class="w"> </span>--cov<span class="o">=</span>src<span class="w"> </span>--cov-report<span class="o">=</span>term-missing<span class="w"> </span>--cov-report<span class="o">=</span>html
+</pre></div>
+</div>
+</section>
+<section id="interpreting-coverage-results">
+<h3>Interpreting coverage results<a class="headerlink" href="#interpreting-coverage-results" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Coverage percentage shows the portion of executed lines compared to total executable lines in the source files.</p></li>
+<li><p>Higher coverage is generally better, but 100% coverage does not guarantee bug-free code. At least 85% coverage for all the new code added to the repository is required.</p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">--cov-report=term-missing</span></code> to see which lines are not covered directly in the terminal.</p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">--cov-report=html</span></code> and open <code class="docutils literal notranslate"><span class="pre">htmlcov/index.html</span></code> in a browser for an easy-to-navigate, per-file coverage report.</p></li>
+<li><p>Run unit and system tests separately to estimate their individual contributions:</p></li>
+</ul>
+</section>
+<section id="best-practices">
+<h3>Best practices<a class="headerlink" href="#best-practices" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Aim to keep unit tests fast and isolated; use mocks for external systems like AEDT.</p></li>
+<li><p>Use the IDE “Run with coverage” feature for quick, visual feedback.</p></li>
+</ul>
+</section>
+<section id="step-4-add-the-extension-to-the-catalog">
+<h3>Step 4: Add the extension to the catalog<a class="headerlink" href="#step-4-add-the-extension-to-the-catalog" title="Link to this heading">#</a></h3>
+<p>Add your extension to the catalog by creating a new entry in the
+<code class="docutils literal notranslate"><span class="pre">toolkits_catalog.toml</span></code> file located in the <code class="docutils literal notranslate"><span class="pre">src/ansys/aedt/core/extensions/project</span></code> directory.
+The entry should follow the format of existing entries, specifying the name, script, icon, and template.
+For example, to add your extension, you would add an entry like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">MyExtension</span><span class="p">]</span>
+<span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;My Extension&quot;</span>
+<span class="n">script</span> <span class="o">=</span> <span class="s2">&quot;my_extension.py&quot;</span>
+<span class="n">icon</span> <span class="o">=</span> <span class="s2">&quot;images/large/my_extension_icon.png&quot;</span>
+<span class="n">template</span> <span class="o">=</span> <span class="s2">&quot;run_pyaedt_toolkit_script&quot;</span>
+</pre></div>
+</div>
+<p>The path to the image is relative to the directory where your extension is located. For example, if
+the extension is located in the <code class="docutils literal notranslate"><span class="pre">src/ansys/aedt/core/extensions/project</span></code> directory then, following
+the previous code block information, the path to the icon should be
+<code class="docutils literal notranslate"><span class="pre">src/ansys/aedt/core/extensions/project/images/large/my_extension_icon.png</span></code>.</p>
+</section>
+<section id="step-5-add-the-extension-to-the-documentation">
+<h3>Step 5: Add the extension to the documentation<a class="headerlink" href="#step-5-add-the-extension-to-the-documentation" title="Link to this heading">#</a></h3>
+<p>To ensure that your extension is documented, you need to add a new card to the
+<code class="docutils literal notranslate"><span class="pre">doc/source/User_guide/extensions.rst</span></code> file. This card links to the extension’s documentation page.
+The documentation page needs to be created in the <code class="docutils literal notranslate"><span class="pre">doc/source/User_guide/pyaedt_extensions_doc/project</span></code>
+directory and should contain a brief description of the extension, its functionality, and how to use it.
+Also, another card should be added to the
+<code class="docutils literal notranslate"><span class="pre">doc/source/User_guide/pyaedt_extensions_doc/project/index.rst</span></code> file to link to the extension’s documentation page.
+This ensures that the extension is discoverable in the documentation from the multiple pages that list all the
+extensions available in PyAEDT.</p>
+</section>
+</section>
+<section id="local-testing-parameters">
+<h2>Local testing parameters<a class="headerlink" href="#local-testing-parameters" title="Link to this heading">#</a></h2>
+<p>Two configuration files control test behavior:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">tests/local_config.json</span></code>: Contains parameters intended for modification during local testing.
+These settings control test execution behavior such as desktop version, graphical mode, and feature flags.
+<strong>This file does not exist by default and must be created manually</strong> in the <code class="docutils literal notranslate"><span class="pre">tests/</span></code> directory.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tests/pyaedt_settings.yaml</span></code>: Contains default PyAEDT settings applied to all tests.
+These settings are not intended for local modification.</p></li>
+</ul>
+<section id="creating-local-config-json">
+<h3>Creating local_config.json<a class="headerlink" href="#creating-local-config-json" title="Link to this heading">#</a></h3>
+<p>To customize local test execution, create a <code class="docutils literal notranslate"><span class="pre">local_config.json</span></code> file in the <code class="docutils literal notranslate"><span class="pre">tests/</span></code> directory
+at the top level of the repository. Below is an example configuration with descriptions of each parameter:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;desktopVersion&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025.2&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;NonGraphical&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;NewThread&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;skip_circuits&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;use_grpc&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;close_desktop&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;use_local_example_data&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;local_example_folder&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;skip_modelithics&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">    </span><span class="nt">&quot;use_pyedb_grpc&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Parameter descriptions:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">desktopVersion</span></code>: AEDT version to use for testing (for example, “2025.2,” “2024.1”).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">NonGraphical</span></code>: When <code class="docutils literal notranslate"><span class="pre">true</span></code>, runs AEDT in non-graphical mode (headless).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">NewThread</span></code>: Opens AEDT in a new thread.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">skip_circuits</span></code>: When <code class="docutils literal notranslate"><span class="pre">true</span></code>, skips Circuit-related tests.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">use_grpc</span></code>: When <code class="docutils literal notranslate"><span class="pre">true</span></code>, uses gRPC API for communication with AEDT.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">close_desktop</span></code>: When <code class="docutils literal notranslate"><span class="pre">true</span></code>, closes AEDT after tests complete.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">use_local_example_data</span></code>: When <code class="docutils literal notranslate"><span class="pre">true</span></code>, uses local example data for tests.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">local_example_folder</span></code>: Path to the local example data folder.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">skip_modelithics</span></code>: When <code class="docutils literal notranslate"><span class="pre">true</span></code>, skips Modelithics-related tests.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">use_pyedb_grpc</span></code>: When <code class="docutils literal notranslate"><span class="pre">true</span></code>, use PyEDB with gRPC for database access.</p></li>
+</ul>
+</section>
+<section id="replicating-ci-cd-environment">
+<h3>Replicating CI/CD environment<a class="headerlink" href="#replicating-ci-cd-environment" title="Link to this heading">#</a></h3>
+<p>The CI/CD pipeline loads <code class="docutils literal notranslate"><span class="pre">pyaedt_settings.yaml</span></code> via the environment variable:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">PYAEDT_LOCAL_SETTINGS_PATH</span><span class="o">=</span><span class="s1">&#39;tests/pyaedt_settings.yaml&#39;</span>
+</pre></div>
+</div>
+<p>To replicate the CI/CD environment locally, set this environment variable on your machine:</p>
+<ul class="simple">
+<li><p><strong>Windows (PowerShell)</strong>:</p></li>
+</ul>
+<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="nv">$env:PYAEDT_LOCAL_SETTINGS_PATH</span><span class="p">=</span><span class="s1">&#39;tests/pyaedt_settings.yaml&#39;</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><strong>Linux (Bash)</strong>:</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">PYAEDT_LOCAL_SETTINGS_PATH</span><span class="o">=</span><span class="s1">&#39;tests/pyaedt_settings.yaml&#39;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="testmon-in-ci-cd">
+<h2>Testmon in CI/CD<a class="headerlink" href="#testmon-in-ci-cd" title="Link to this heading">#</a></h2>
+<p>This section explains how PyAEDT uses <a class="reference external" href="https://testmon.org/">Testmon</a> to optimize test execution
+in the CI/CD pipeline by only running tests affected by code changes.</p>
+<section id="what-is-testmon">
+<h3>What is Testmon?<a class="headerlink" href="#what-is-testmon" title="Link to this heading">#</a></h3>
+<p>Testmon is a pytest plugin that monitors which source code files are used by each test and stores this
+dependency information in a database file (<code class="docutils literal notranslate"><span class="pre">.testmondata</span></code>). On subsequent test runs, Testmon analyzes
+which files have changed and selectively runs only the tests that depend on the modified code.</p>
+<p><strong>Key benefits:</strong></p>
+<ul class="simple">
+<li><p><strong>Faster CI pipelines</strong>: Only tests affected by changes are executed, significantly reducing test runtime.</p></li>
+<li><p><strong>Resource efficiency</strong>: Reduces computational costs on self-hosted runners and GitHub Actions.</p></li>
+<li><p><strong>Immediate feedback</strong>: Developers get quicker feedback on their changes.</p></li>
+</ul>
+<p><strong>How it works:</strong></p>
+<ol class="arabic simple">
+<li><p>Testmon creates a dependency graph mapping each test to the source files it uses.</p></li>
+<li><p>When code changes, Testmon compares the current state against the cached dependency data.</p></li>
+<li><p>Only tests with dependencies on changed files are selected for execution.</p></li>
+<li><p>The dependency database is cached between runs to maintain history.</p></li>
+</ol>
+<p><strong>Requirements and constraints:</strong></p>
+<p>For Testmon to work correctly, the following requirements must be met:</p>
+<ul class="simple">
+<li><p><strong>Dependency consistency</strong>: The Testmon cache must be built and used with the <strong>exact same dependency versions</strong>.
+If the environment changes (for example, package updates, different Python versions), the cache becomes invalid and must
+be regenerated. The CI/CD pipeline enforces this by using locked dependency files and consistent environments.</p></li>
+<li><p><strong>No pytest markers for test selection</strong>: Testmon relies on analyzing code dependencies to determine which tests to run.
+Using pytest markers (for example, <code class="docutils literal notranslate"><span class="pre">-m</span> <span class="pre">&quot;solvers&quot;</span></code>) forces Testmon to run with <cite>–testmon-noselect</cite> argument and leads to all tests being run, negating the benefits of selective testing. Instead, the way to select specific test suites is by providing the path to the test files (for example, <code class="docutils literal notranslate"><span class="pre">pytest</span> <span class="pre">tests/solvers</span></code>).</p></li>
+</ul>
+<p>If you want to learn more details about this implementation, check <cite>.github/workflows</cite> files inside the repository.</p>
+</section>
+<section id="testmon-workflow-during-pull-requests">
+<h3>Testmon workflow during pull requests<a class="headerlink" href="#testmon-workflow-during-pull-requests" title="Link to this heading">#</a></h3>
+<p>When a pull request is created or updated, the CI/CD pipeline executes the following workflow:</p>
+<ol class="arabic simple">
+<li><p><strong>Wait for cache update (if needed)</strong>: Before running tests, the workflow checks if the</p></li>
+</ol>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">update-testmondata-cache.yml</span></code> workflow is running on the <code class="docutils literal notranslate"><span class="pre">main</span></code> branch for the pull request’s base commit.
+If so, the PR workflow waits for it to complete to ensure it uses the most
+up-to-date cache data.</p>
+</div></blockquote>
+<ol class="arabic simple" start="2">
+<li><p><strong>Restore Testmon cache</strong>: Each job restores the <code class="docutils literal notranslate"><span class="pre">.testmondata</span></code> file from the GitHub Actions cache.</p></li>
+</ol>
+<blockquote>
+<div><p>The cache key includes:</p>
+<ul class="simple">
+<li><p>The test suite identifier (for example, <code class="docutils literal notranslate"><span class="pre">testmondata-unit-linux</span></code>).</p></li>
+<li><p>The branch name (<code class="docutils literal notranslate"><span class="pre">main</span></code>).</p></li>
+<li><p>The latest successful commit SHA (unique identifier of a commit) on <code class="docutils literal notranslate"><span class="pre">main</span></code>.</p></li>
+</ul>
+</div></blockquote>
+<ol class="arabic simple" start="3">
+<li><p><strong>Run selective tests</strong>: Pytest runs with the <code class="docutils literal notranslate"><span class="pre">--testmon</span></code> flag, which instructs Testmon to:</p></li>
+</ol>
+<blockquote>
+<div><ul class="simple">
+<li><p>Analyze which source files have changed compared to the cached state.</p></li>
+<li><p>Select only tests that depend on the changed files.</p></li>
+<li><p>Execute the selected tests.</p></li>
+</ul>
+</div></blockquote>
+<ol class="arabic simple" start="4">
+<li><p><strong>Report results</strong>: Test results and coverage are uploaded as artifacts without modifying the cache</p></li>
+</ol>
+<blockquote>
+<div><p>(only the <code class="docutils literal notranslate"><span class="pre">main</span></code> branch can update the shared cache).</p>
+</div></blockquote>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The PR workflow does <strong>not</strong> update the shared Testmon cache. This ensures that all PRs work from
+a consistent baseline derived from the <code class="docutils literal notranslate"><span class="pre">main</span></code> branch.</p>
+</div>
+</section>
+<section id="testmon-workflow-during-merge-to-main">
+<h3>Testmon workflow during merge to main<a class="headerlink" href="#testmon-workflow-during-merge-to-main" title="Link to this heading">#</a></h3>
+<p>When a pull request is merged to the <code class="docutils literal notranslate"><span class="pre">main</span></code> branch, the <code class="docutils literal notranslate"><span class="pre">update-testmondata-cache.yml</span></code> workflow triggers automatically:</p>
+<ol class="arabic simple">
+<li><p><strong>Run all affected tests</strong>: The workflow runs tests with Testmon to update the dependency data based on the newly merged code.</p></li>
+<li><p><strong>Delete old cache entries</strong>: Before saving, old cache entries for the same test suite are deleted to prevent cache accumulation.</p></li>
+<li><p><strong>Save updated cache</strong>: The updated <code class="docutils literal notranslate"><span class="pre">.testmondata</span></code> file is saved to GitHub Actions cache with a key that includes:</p></li>
+</ol>
+<ul class="simple">
+<li><p>The test suite identifier (for example, <cite>testmondata-unit-linux</cite>).</p></li>
+<li><p>The branch name (<code class="docutils literal notranslate"><span class="pre">main</span></code>).</p></li>
+<li><p>The commit SHA.</p></li>
+</ul>
+<ol class="arabic simple" start="4">
+<li><p><strong>Cache available for PRs</strong>: The new cache becomes the baseline for all subsequent pull requests.</p></li>
+</ol>
+<p>Each test suite maintains its own separate cache:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">testmondata-unit-linux</span></code>: Unit tests on Linux.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">testmondata-integration-linux</span></code>: Integration tests on Linux.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">testmondata-solvers-win</span></code>: Solver tests on Windows.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">testmondata-solvers-linux</span></code>: Solver tests on Linux.</p></li>
+<li><p>And other test suites (general, visualization, icepak, layout, extensions, filter, emit).</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For detailed information about edge cases, keeping PRs updated, and tracking coverage locally,
+see <a class="reference internal" href="Developer_notes.html#developer-notes"><span class="std std-ref">Developer notes</span></a>.</p>
+</div>
+</section>
+<section id="workflow-diagrams">
+<h3>Workflow diagrams<a class="headerlink" href="#workflow-diagrams" title="Link to this heading">#</a></h3>
+<p>The following diagrams illustrate the Testmon workflow in the CI/CD pipeline.</p>
+<p><strong>Diagram 1: PR workflow with Testmon</strong></p>
+<p>This diagram shows how the CI/CD pipeline handles a pull request with Testmon integration,
+including the cache waiting mechanism and selective test execution.</p>
+<img alt="PR Workflow with Testmon" class="only-dark align-center" src="../_images/testmon_pr_workflow_dark.png" />
+<img alt="PR Workflow with Testmon" class="only-light align-center" src="../_images/testmon_pr_workflow_light.png" />
+<p><strong>Diagram 2: Merge to main workflow</strong></p>
+<p>This diagram illustrates what happens when a PR is merged to the <code class="docutils literal notranslate"><span class="pre">main</span></code> branch and the
+cache update workflow is triggered.</p>
+<img alt="Merge to Main Cache Update Workflow" class="only-dark align-center" src="../_images/testmon_merge_workflow_dark.png" />
+<img alt="Merge to Main Cache Update Workflow" class="only-light align-center" src="../_images/testmon_merge_workflow_light.png" />
+<p><strong>Diagram 3: Multiple concurrent PRs</strong></p>
+<p>This diagram shows how multiple PRs can run concurrently, each restoring from the same
+baseline cache without interfering with each other.</p>
+<img alt="Multiple Concurrent PRs Workflow" class="only-dark align-center" src="../_images/testmon_concurrent_prs_dark.png" />
+<img alt="Multiple Concurrent PRs Workflow" class="only-light align-center" src="../_images/testmon_concurrent_prs_light.png" />
+<p><strong>Diagram 4: Cache update blocking scenario</strong></p>
+<p>This sequence diagram shows the timeline when a PR workflow starts while the cache update
+workflow is running, demonstrating the waiting and retry mechanism.</p>
+<img alt="Cache Update Blocking Scenario" class="only-dark align-center" src="../_images/testmon_blocking_scenario_dark.png" />
+<img alt="Cache Update Blocking Scenario" class="only-light align-center" src="../_images/testmon_blocking_scenario_light.png" />
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#clone-the-repository">Clone the repository</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#development-environment-setup">Development environment setup</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dependency-groups-vs-optional-dependencies">Dependency groups vs optional dependencies</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#post-issues">Post issues</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#view-pyaedt-documentation">View PyAEDT documentation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#code-style">Code style</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#naming-conventions">Naming conventions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#log-errors">Log errors</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#handle-exceptions">Handle exceptions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#hard-coded-values">Hard-coded values</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#maximum-line-length">Maximum line length</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#extension-development-guide">Extension development guide</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-create-the-extension-python-file">Step 1: Create the extension Python file</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-add-unit-tests">Step 2: Add unit tests</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-add-system-tests">Step 3: Add system tests</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#run-tests-in-vscode-and-pycharm">Run tests in VSCode and PyCharm</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#prerequisites">Prerequisites</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#vscode-ide">VSCode IDE</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#brief-note">Brief note</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pycharm-ide">PyCharm IDE</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#interpreting-coverage-results">Interpreting coverage results</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#best-practices">Best practices</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-add-the-extension-to-the-catalog">Step 4: Add the extension to the catalog</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-5-add-the-extension-to-the-documentation">Step 5: Add the extension to the documentation</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#local-testing-parameters">Local testing parameters</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-local-config-json">Creating local_config.json</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#replicating-ci-cd-environment">Replicating CI/CD environment</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#testmon-in-ci-cd">Testmon in CI/CD</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-testmon">What is Testmon?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#testmon-workflow-during-pull-requests">Testmon workflow during pull requests</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#testmon-workflow-during-merge-to-main">Testmon workflow during merge to main</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#workflow-diagrams">Workflow diagrams</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+
+  
+  <nav class="tocsection editthispage" aria-label="Edit this page">
+    <a href="https://github.com/ansys/pyaedt/edit/main/doc/source/Getting_started/Contributing.rst" rel="noopener noreferrer">
+      <i class="fa-solid fa-pencil" aria-hidden="true"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </nav>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <ul class="this-page-menu">
+      <li><a href="../_sources/Getting_started/Contributing.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+
+  <!-- Include desired assets -->
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.7/require.min.js"></script>
+
+<script>
+// Passing the search options to the search.js file
+const SEARCH_OPTIONS = JSON.parse('{"ignoreLocation": true, "keys": ["title", "text", "objectID"], "limit": 10, "minMatchCharLength": 2, "threshold": 0.5}');
+const SEARCH_FILE = "../_static/search.json";
+const ADVANCE_SEARCH_PATH = "../search.html";
+const EXTRA_SOURCES = JSON.parse('""');
+</script>
+
+
+<script src="../_static/js/search.js"></script>
+
+  
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright (c) 2026 ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<!--
+  Theme Version Footer
+  Displays the Sphinx theme version and the last updated date.
+  Accessibility and semantic improvements included.
+-->
+<footer class="theme-version" aria-label="Theme version and last update">
+  <span>
+    
+      Built with the
+      <a href="https://sphinxdocs.ansys.com/version/stable/index.html" target="_blank" rel="noopener noreferrer">
+        Ansys Sphinx Theme
+      </a>
+      1.7.0.
+    
+  </span>
+  <br />
+  <span>Last updated on <time id="ast_build_date"></time></span>
+</footer>
+<script>
+  // Set the last updated date in a readable format
+  (function() {
+    var options = { day: "numeric", month: "long", year: "numeric" };
+    var ast_lastModifiedDate = new Date(document.lastModified);
+    var ast_build_date = ast_lastModifiedDate.toLocaleDateString("en-US", options);
+    var dateElem = document.getElementById("ast_build_date");
+    if (dateElem) {
+      dateElem.textContent = ast_build_date;
+    }
+  })();
+</script></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

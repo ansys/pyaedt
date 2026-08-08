@@ -1,0 +1,6 @@
+get\_component\_variables
+=========================
+
+.. currentmodule:: ansys.aedt.core.q3d
+
+.. automethod:: Q3d.get_component_variables

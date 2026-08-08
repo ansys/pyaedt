@@ -1,0 +1,6 @@
+is\_complex
+===========
+
+.. currentmodule:: ansys.aedt.core.visualization.post.field_calculator_expressions
+
+.. autoattribute:: ScalarReal.is_complex

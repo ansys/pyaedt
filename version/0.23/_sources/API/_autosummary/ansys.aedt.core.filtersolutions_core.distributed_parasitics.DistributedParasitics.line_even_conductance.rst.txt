@@ -1,0 +1,6 @@
+line\_even\_conductance
+=======================
+
+.. currentmodule:: ansys.aedt.core.filtersolutions_core.distributed_parasitics
+
+.. autoproperty:: DistributedParasitics.line_even_conductance

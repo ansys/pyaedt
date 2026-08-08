@@ -1,0 +1,6 @@
+simulate\_tuning\_circuit\_port\_tuning
+=======================================
+
+.. currentmodule:: ansys.aedt.core.filtersolutions_core.export_to_aedt
+
+.. automethod:: ExportToAedt.simulate_tuning_circuit_port_tuning

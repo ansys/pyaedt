@@ -1,0 +1,38 @@
+﻿FrequencySweepProfile
+=====================
+
+.. currentmodule:: ansys.aedt.core.modules.profile
+
+.. autoclass:: FrequencySweepProfile
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      FrequencySweepProfile.keys
+      
+      
+      FrequencySweepProfile.table
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      FrequencySweepProfile.cpu_time
+      FrequencySweepProfile.frequencies
+      FrequencySweepProfile.max_memory
+      FrequencySweepProfile.process_steps
+      FrequencySweepProfile.real_time
+   
+   

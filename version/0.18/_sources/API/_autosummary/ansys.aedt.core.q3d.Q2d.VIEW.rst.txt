@@ -1,0 +1,6 @@
+VIEW
+====
+
+.. currentmodule:: ansys.aedt.core.q3d
+
+.. autoproperty:: Q2d.VIEW

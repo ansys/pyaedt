@@ -1,0 +1,27 @@
+﻿MaxwellReducedMatrix
+====================
+
+.. currentmodule:: ansys.aedt.core.modules.boundary.maxwell_boundary
+
+.. autoclass:: MaxwellReducedMatrix
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      MaxwellReducedMatrix.delete
+      
+      
+      MaxwellReducedMatrix.update
+      
+   
+   
+
+   
+   
+   

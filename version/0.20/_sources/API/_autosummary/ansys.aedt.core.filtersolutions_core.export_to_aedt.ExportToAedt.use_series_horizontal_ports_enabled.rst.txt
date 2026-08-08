@@ -1,0 +1,6 @@
+use\_series\_horizontal\_ports\_enabled
+=======================================
+
+.. currentmodule:: ansys.aedt.core.filtersolutions_core.export_to_aedt
+
+.. autoproperty:: ExportToAedt.use_series_horizontal_ports_enabled

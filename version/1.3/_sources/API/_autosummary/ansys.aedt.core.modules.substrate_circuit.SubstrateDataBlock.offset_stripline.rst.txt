@@ -1,0 +1,6 @@
+offset\_stripline
+=================
+
+.. currentmodule:: ansys.aedt.core.modules.substrate_circuit
+
+.. automethod:: SubstrateDataBlock.offset_stripline

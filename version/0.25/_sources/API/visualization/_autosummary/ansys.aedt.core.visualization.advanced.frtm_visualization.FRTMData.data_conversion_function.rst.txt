@@ -1,0 +1,6 @@
+data\_conversion\_function
+==========================
+
+.. currentmodule:: ansys.aedt.core.visualization.advanced.frtm_visualization
+
+.. autoproperty:: FRTMData.data_conversion_function

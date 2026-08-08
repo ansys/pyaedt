@@ -1,0 +1,6 @@
+cover\_metal\_thickness
+=======================
+
+.. currentmodule:: ansys.aedt.core.modules.substrate_circuit
+
+.. autoproperty:: SubstrateDataBlock.cover_metal_thickness
