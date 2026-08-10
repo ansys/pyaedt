@@ -122,7 +122,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             11.25,
             15.0,
             18.0,
-            22.5
+            22.5,
         ]
         self.azimuth_resolution_values = self.elevation_resolution_values
 
