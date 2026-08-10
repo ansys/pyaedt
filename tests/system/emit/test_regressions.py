@@ -768,6 +768,60 @@ def test_defect_1475694_iemit_dies_when_design_deleted(desktop, add_app) -> None
     app.close_project(app.project_name, save=False)
 
 
+@pytest.mark.skipif(not DESKTOP_VERSION or DESKTOP_VERSION < "2027.1", reason="Regression test for defect 1486446.")
+def test_defect_1486446_coupling_export_with_antennas_param(emit_app) -> None:
+    """Regression test for TFS defect 1486446.
+
+    [PyAEDT] Unable to export coupling data with PyAEDT
+    https://tfs.ansys.com:8443/tfs/ANSYS_Development/Portfolio/_workitems/edit/1486446
+
+    Severity: Class 2 - Serious Problem
+
+    Before the fix, CouplingsNode.export_to_csv with the antennas parameter
+    passed a method reference (missing parentheses on _full_node_name) instead
+    of the actual antenna full names, resulting in incorrect coupling data.
+    """
+    from ansys.aedt.core.emit_core.nodes.generated import HataCouplingNode
+
+    radio1, ant1_comp = emit_app.schematic.create_radio_antenna("New Radio")
+    radio2, ant2_comp = emit_app.schematic.create_radio_antenna("New Radio")
+
+    rev = emit_app.results.analyze()
+
+    scene_node = rev.get_scene_node()
+    ant_children = [c for c in scene_node.children if isinstance(c, AntennaNode)]
+    assert len(ant_children) >= 2
+    ant1, ant2 = ant_children[0], ant_children[1]
+
+    ant1.position_defined = True
+    ant1.position = "0 0 100"
+    ant2.position_defined = True
+    ant2.position = "1000 0 5"
+
+    coupling_data: CouplingsNode = rev.get_coupling_data_node()
+    hata = coupling_data._add_child_node("Hata Coupling")
+    hata.antenna_a = ant1.name
+    hata.antenna_b = ant2.name
+
+    ports_str = f"{ant1.name}|{ant2.name}"
+    data_via_ports = coupling_data.export_to_csv("", ports=ports_str)
+    assert data_via_ports is not None and len(data_via_ports) > 0, (
+        "Coupling export via ports parameter returned no data"
+    )
+
+    # B1486446: export_to_csv with antennas= passed method references instead
+    # of calling _full_node_name(); fixed by adding () to the method calls.
+    data_via_antennas = coupling_data.export_to_csv("", antennas=(ant1, ant2))
+    assert data_via_antennas is not None and len(data_via_antennas) > 0, (
+        "Coupling export via antennas parameter returned no data"
+    )
+
+    assert data_via_ports == data_via_antennas, (
+        "Coupling export with antennas= parameter produced different data than ports= parameter"
+    )
+
+
+@pytest.mark.skipif(True, reason="B1457557 - need to fix SceneGroupNode.add_group().")
 @pytest.mark.skipif(not DESKTOP_VERSION or DESKTOP_VERSION < "2027.1", reason="Regression test for defect 1475679.")
 def test_defect_1475679_get_child_node_id_recurse(emit_app) -> None:
     """Regression test for TFS defect 1475679.

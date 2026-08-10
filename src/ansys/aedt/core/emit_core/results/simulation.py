@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -544,6 +544,52 @@ class Simulation:
         if value < -300 or value > 300:
             raise ValueError("Availability EMI threshold must be between -300 and 300 dB.")
         self._emit_com_module.SetAvailabilityEmi(self._revision.results_index, value)
+
+    @min_aedt_version("2027.1")
+    def purge(self, domain: InteractionDomain):
+        """Purge the cached results that :func:`run` would produce for the given domain.
+        Purge occurs at the radio-pair level, so band specifications are ignored.
+
+        Parameters
+        ----------
+        domain : :class:`InteractionDomain`
+            Domain whose results should be purged.
+
+        Examples
+        --------
+        >>> domain = InteractionDomain(aedtapp)
+        >>> sim = aedtapp.results.current_revision.get_simulation()
+        >>> sim.purge(domain)
+        """
+        if self.is_domain_valid(domain) != "":
+            raise ValueError("Cannot purge results for an invalid domain. Check the domain validity first.")
+
+        if len(domain.interferer_names) > 1:
+            raise ValueError("Multiple interferers cannot be specified.")
+
+        # Match the warnings raised by run() for the same domain.
+        disconnected_radios = self._revision._get_disconnected_radios()
+        if len(disconnected_radios) > 0:
+            warnings.warn(
+                "Some radios are part of a system with unconnected ports or errors "
+                "and were not included in the EMIT analysis: " + ", ".join(disconnected_radios)
+            )
+
+        if domain.receiver_band_name or any(domain.interferer_band_names):
+            warnings.warn(
+                "Purging is performed at the radio-pair level; band specifications will be ignored.",
+                UserWarning,
+            )
+
+        self._emit_com_module.PurgeEmitDomain(
+            self._revision.results_index,
+            domain.receiver_name,
+            domain.receiver_band_name,
+            domain.receiver_channel_frequency,
+            domain.interferer_names,
+            domain.interferer_band_names,
+            domain.interferer_channel_frequencies,
+        )
 
     @min_aedt_version("2027.1")
     def get_radio_pair_enabled(self, receiver_name: str, interferer_name: str) -> bool:
