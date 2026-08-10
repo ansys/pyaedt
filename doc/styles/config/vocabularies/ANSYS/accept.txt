@@ -152,3 +152,4 @@ Security
 RCS
 [Tt]estmon
 [Uu]nary
+[Rr]esult [Cc]alculator
