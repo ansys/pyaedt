@@ -74,11 +74,18 @@ class Amplifier(EmitNode):
         Returns
         -------
         csv_data: str
-            stringified data for the node returned if file_name not specified"""
-        keys = "SelectedInputPort|SelectedOutputPort|TestTone1Freq|TestTone2Freq|TestTone1Amp|TestTone2Amp|TestTone1Bw|TestTone2Bw|TestNoiseLevel"
+            stringified data for the node returned if file_name not specified
+        """
+        keys = (
+            "SelectedInputPort|SelectedOutputPort|TestTone1Freq|TestTone2Freq"
+            "|TestTone1Amp|TestTone2Amp|TestTone1Bw|TestTone2Bw|TestNoiseLevel"
+        )
         if amp_props is None:
             amp_props = self.AmplifierPlotProps()
-        vals = f"1|2|{amp_props.tone1_freq}|{amp_props.tone2_freq}|{amp_props.tone1_amp}|{amp_props.tone2_amp}|{amp_props.tone1_bandwidth}|{amp_props.tone2_bandwidth}|{amp_props.noise_level}" 
+        vals = (
+            f"1|2|{amp_props.tone1_freq}|{amp_props.tone2_freq}|{amp_props.tone1_amp}"
+            f"|{amp_props.tone2_amp}|{amp_props.tone1_bandwidth}|{amp_props.tone2_bandwidth}|{amp_props.noise_level}"
+        )
         return self._export_to_csv(file_name, keys, vals)
 
     @min_aedt_version("2027.1")
@@ -88,11 +95,18 @@ class Amplifier(EmitNode):
         Parameters
         ----------
         amp_props: AmplifierPlotProps
-            two tone and test noise parameters to use for visualizing the amplifier's profile"""
-        keys = "SelectedInputPort|SelectedOutputPort|TestTone1Freq|TestTone2Freq|TestTone1Amp|TestTone2Amp|TestTone1Bw|TestTone2Bw|TestNoiseLevel"
+            two tone and test noise parameters to use for visualizing the amplifier's profile
+        """
+        keys = (
+            "SelectedInputPort|SelectedOutputPort|TestTone1Freq|TestTone2Freq"
+            "|TestTone1Amp|TestTone2Amp|TestTone1Bw|TestTone2Bw|TestNoiseLevel"
+        )
         if amp_props is None:
             amp_props = self.AmplifierPlotProps()
-        vals = f"1|2|{amp_props.tone1_freq}|{amp_props.tone2_freq}|{amp_props.tone1_amp}|{amp_props.tone2_amp}|{amp_props.tone1_bandwidth}|{amp_props.tone2_bandwidth}|{amp_props.noise_level}" 
+        vals = (
+            f"1|2|{amp_props.tone1_freq}|{amp_props.tone2_freq}|{amp_props.tone1_amp}"
+            f"|{amp_props.tone2_amp}|{amp_props.tone1_bandwidth}|{amp_props.tone2_bandwidth}|{amp_props.noise_level}"
+        )
         return self._plot(keys, vals)
 
     @min_aedt_version("2025.2")
