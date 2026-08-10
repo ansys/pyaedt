@@ -1509,7 +1509,7 @@ def active_sessions(
 
 
 @pyaedt_function_handler()
-def all_active_sessions() -> dict[str, dict]:
+def all_active_sessions() -> dict[str, dict[int, int]]:
     """Get information for active AEDT sessions.
 
     This function detects running AEDT processes and identifies their gRPC ports or
@@ -1529,8 +1529,8 @@ def all_active_sessions() -> dict[str, dict]:
 
     Returns
     -------
-    dict[str, dict]
-        Dictionary mapping AEDT process IDs to their corresponding ports.
+    dict[str, dict[int, int]]
+        Dictionary mapping AEDT version to the associated process IDs and their corresponding ports.
         Port is set to ``-1`` if the session is using COM instead of gRPC.
 
     Examples
