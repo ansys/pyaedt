@@ -1517,26 +1517,52 @@ def all_active_sessions() -> dict[str, dict[int, int]]:
     multiple detection strategies to ensure reliable session discovery.
 
     Detection Strategy (in order of execution):
-        1. **Process Discovery**: Searches for AEDT processes (ansysedt.exe or ansysedtsv.exe).
-        2. **Command-Line Parsing**: Extracts gRPC port from ``-grpcsrv`` command-line argument.
-        3. **Unix gRPC Analysis** (Linux only): Uses ``ss -Hnlp`` to find ports from socket files.
-        4. **TCP Connection Analysis**: Falls back to checking active TCP connections via psutil.
+        **Step 1: Process Discovery**
+            Searches for running AEDT processes by looking for executables:
+            - ``ansysedt.exe`` (standard version)
+            - ``ansysedtsv.exe`` (student version)
+
+        **Step 2: Command-Line Parsing**
+            For each discovered process, extracts the gRPC port from the ``-grpcsrv``
+            command-line argument if present. Initially sets port to ``-1`` (COM mode)
+            if no gRPC argument is found.
+
+        **Step 3: Unix Socket Analysis** (Linux only)
+            If any processes have port ``-1`` on Linux, runs ``ss -Hnlp`` to analyze
+            Unix domain sockets. AEDT local connections use socket files with names
+            like ``AnsysEMUDS-50051.sock`` from which port numbers are extracted.
+
+        **Step 4: Command-Line Version Detection**
+            Parses the full command-line path to extract:
+            - AEDT version
+            - Execution mode (``graphical`` or ``nongraphical``)
+            - Student version
+
+        **Step 5: TCP Connection Analysis**
+            For any processes still without port information, checks TCP network
+            connections to locate the listening gRPC port. Uses ``psutil`` to
+            correlate process IDs with active network connections.
 
     Port Detection Results:
-        - Positive integer, gRPC session on that port.
-        - ``-1``: COM session (no gRPC server running).
-
+        - **Positive integer**: gRPC session active on that port.
+        - **``-1``**: COM session (no gRPC server running).
 
     Returns
     -------
     dict[str, dict[int, int]]
-        Dictionary mapping AEDT version to the associated process IDs and their corresponding ports.
-        Port is set to ``-1`` if the session is using COM instead of gRPC.
+        Nested dictionary structure:
+
+        - **Outer key** (str): AEDT version identifier with format:
+          ``v<version>_<mode>[_student]`` (e.g., ``v241_graphical``, ``v251_nongraphical_student``)
+        - **Inner key** (int): Process ID (PID) of the AEDT session
+        - **Inner value** (int): gRPC port number, or ``-1`` for COM sessions
 
     Examples
     --------
     Get all active AEDT sessions (any version, any mode):
 
+    >>> from ansys.aedt.core.generic.general_methods import all_active_sessions
+    >>> sessions = all_active_sessions()
 
     """
     # Step 1: Determine target process names based on version type and operating system
@@ -1544,15 +1570,15 @@ def all_active_sessions() -> dict[str, dict[int, int]]:
 
     targets = ["ansysedtsv.exe", "ansysedt.exe"]
 
-    # Step 3: Get all matching AEDT processes from the system
+    # Step 2: Get all matching AEDT processes from the system
     # Returns list of tuples: [(pid, command_line_args), ...]
 
     target_processes = _get_target_processes(targets)
 
-    # Step 4: AEDT processes launched
+    # AEDT processes launched
     return_dict = {pid: -1 for pid, _ in target_processes}
 
-    # Step 5: On Linux, try to resolve unknown ports using Unix socket analysis
+    # Step 3: On Linux, try to resolve unknown ports using Unix socket analysis
     # In Linux, running AEDT locally uses Unix domain sockets with filenames containing port numbers
     # Example socket: AnsysEMUDS-50051.sock
     if is_linux and any(port == -1 for port in return_dict.values()):
@@ -1569,7 +1595,7 @@ def all_active_sessions() -> dict[str, dict[int, int]]:
             # Log but don't fail - we have other detection methods
             pyaedt_logger.debug(f"Failed to analyze Unix sockets for port detection: {str(e)}")
 
-    # Get all TCP connections for our AEDT processes
+    # Step 4: Get all TCP connections for AEDT processes
     connections = _check_psutil_connections(list(return_dict.keys()))
     return_dict_filtered = {}
     for pid, port in return_dict.items():
@@ -1596,17 +1622,18 @@ def all_active_sessions() -> dict[str, dict[int, int]]:
                 f"Failed to retrieve AEDT version, the version should be included in the command line: {cmdline}."
             )
 
-    # Step 6: Fallback method - Try to find ports by checking TCP network connections
+    # Step 5: Try to find ports by checking TCP network connections
     for version, sessions in return_dict_filtered.items():
         if any(port == -1 for port in sessions.values()):
             for pid in [i for i, v in sessions.items() if v == -1]:
                 version_number = version.replace("_student", "").replace("_nongraphical", "").replace("_graphical", "")
-                sessions[pid] = _check_connection_grpc_port(
+                sessions_pid = _check_connection_grpc_port(
                     connections,
                     pid,
                     version_number,
                     True if "nongraphical" in version else False,
                 )
+                return_dict_filtered[version][pid] = sessions_pid
 
     return return_dict_filtered
 
