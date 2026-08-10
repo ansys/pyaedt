@@ -1133,7 +1133,7 @@ class Desktop(PyAedtBase):
             self.logger.debug(f"Available sessions: {sessions}")
             if self.aedt_process_id in sessions:
                 if sessions[self.aedt_process_id] != -1:
-                    self.port = sessions[self.aedt_process_id]
+                    self.__port = sessions[self.aedt_process_id]
                     self.__starting_mode = "grpc"
                 else:
                     self.__starting_mode = "com"
@@ -3059,7 +3059,7 @@ class Desktop(PyAedtBase):
             oapp = self.grpc_plugin.CreateAedtApplication(
                 server_args.client_machine, self.port, self.non_graphical, new_desktop_required
             )
-            self.port = self.grpc_plugin.port
+            self.__port = self.grpc_plugin.port
             self.aedt_process_id = self.odesktop.GetProcessID()
 
             return oapp
@@ -3107,7 +3107,7 @@ class Desktop(PyAedtBase):
             for el in all_sessions.values():
                 if self.port in el.values():
                     self.logger.warning(f"Port {self.port} is already in use. Finding a new free port.")
-                    self.port = _find_free_port()
+                    self.__port = _find_free_port()
                     break
             return self.port
         elif settings.remote_rpc_session:  # remote session -> no port check
@@ -3129,7 +3129,7 @@ class Desktop(PyAedtBase):
                         f"Port {self.port} is already in use by another AEDT version. Finding a new free port."
                     )
                     self.new_desktop = True
-                    self.port = _find_free_port()
+                    self.__port = _find_free_port()
                     return self.port
             # No active sessions found, open a new AEDT session
             self.new_desktop = True
@@ -3137,19 +3137,19 @@ class Desktop(PyAedtBase):
 
     @pyaedt_function_handler()
     def _assign_port(self):
-        self.port = 0
+        self.__port = 0
         if settings.remote_rpc_session:
             self.logger.warning(
                 "Remote AEDT connection without specified port. Trying to use the port from the RPyC connection."
             )
             try:
-                self.port = settings.remote_rpc_session.port
+                self.__port = settings.remote_rpc_session.port
             except Exception:  # pragma: no cover
                 self.logger.debug("Failed to retrieve port from RPyC connection")
                 raise Exception("Failed to retrieve port from RPyC connection")
 
         elif settings.use_multi_desktop or self.new_desktop:
-            self.port = _find_free_port()
+            self.__port = _find_free_port()
             self.logger.info(f"New AEDT session is starting on gRPC port {self.port}.")
 
         else:
@@ -3159,7 +3159,7 @@ class Desktop(PyAedtBase):
                 non_graphical=self.non_graphical,
             )
             if sessions:
-                self.port = sessions[0]
+                self.__port = sessions[0]
                 if len(sessions) == 1:
                     self.logger.info(f"Found active AEDT gRPC session on port {self.port}.")
                 else:
@@ -3167,7 +3167,7 @@ class Desktop(PyAedtBase):
                         f"Multiple AEDT gRPC sessions are found. Setting the active session on port {self.port}."
                     )
             else:
-                self.port = _find_free_port()
+                self.__port = _find_free_port()
                 self.logger.info(f"New AEDT session is starting on gRPC port {self.port}.")
                 self.new_desktop = True
 
@@ -3324,7 +3324,7 @@ class Desktop(PyAedtBase):
             if self.new_desktop:
                 self.logger.info(f"Starting new AEDT gRPC session on port {self.port}.")
                 # Spawn AEDT process with gRPC server arguments
-                is_launched, self.port = launch_aedt(
+                is_launched, self.__port = launch_aedt(
                     installer, self.non_graphical, self.port, self.student_version, host=self.machine
                 )
                 if not is_launched:
