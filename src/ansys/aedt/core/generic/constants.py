@@ -27,6 +27,8 @@ from __future__ import absolute_import
 from enum import IntEnum
 from enum import auto
 import math
+from typing import Callable
+from typing import cast
 import warnings
 
 from ansys.aedt.core.generic.settings import settings
@@ -55,6 +57,31 @@ MILS2METER = 39370.078740157
 """Mils 2 meter."""
 SpeedOfLight = 299792458.0
 """Value for speed of light."""
+
+# Type aliases for type checking and readability
+UnitCallable = Callable[[float, bool], float]
+UnitEntry = int | float | UnitCallable | tuple[UnitCallable]
+
+# ############################# Helper Functions for type checking ################################
+
+
+# TODO: This is required because AEDT_UNITS is not only a dictionary of str to float, but also
+# contains callables for unit conversion. If we ever update AEDT_UNITS to be a dictionary of str to
+# float only, we can rework ``unit_converter`` and remove this helper function.
+def _to_unit_callable(unit_entry: UnitEntry) -> UnitCallable | None:
+    """Return a unit conversion callable when available.
+
+    This helper primarily exists to narrow ``UnitEntry`` variants in a
+    type-checker-friendly way before calling conversion functions.
+    """
+    if callable(unit_entry):
+        return cast(UnitCallable, unit_entry)
+    if isinstance(unit_entry, tuple) and len(unit_entry) == 1 and callable(unit_entry[0]):
+        return unit_entry[0]
+    return None
+
+
+# #################################################################################################
 
 
 def db20(x: float, inverse: bool = True) -> float:
@@ -266,26 +293,33 @@ def unit_converter(
             if not input_is_list:
                 values = [values]
             converted_values = []
+            input_unit = AEDT_UNITS[unit_system][input_units]
+            output_unit = AEDT_UNITS[unit_system][output_units]
+            input_callable = _to_unit_callable(input_unit)
+            output_callable = _to_unit_callable(output_unit)
             for value in values:
                 if unit_system == "Temperature":
-                    value = AEDT_UNITS[unit_system][input_units](value, False)
-                    value = AEDT_UNITS[unit_system][output_units](value, output_units != "kel")
-                elif not callable(AEDT_UNITS[unit_system][input_units]) and not callable(
-                    AEDT_UNITS[unit_system][output_units]
-                ):
-                    value = value * AEDT_UNITS[unit_system][input_units] / AEDT_UNITS[unit_system][output_units]
-                elif not callable(AEDT_UNITS[unit_system][input_units]) and callable(
-                    AEDT_UNITS[unit_system][output_units]
-                ):
-                    value = value * AEDT_UNITS[unit_system][input_units]
-                    value = AEDT_UNITS[unit_system][output_units](value, True)
-                elif callable(AEDT_UNITS[unit_system][input_units]) and not callable(
-                    AEDT_UNITS[unit_system][output_units]
-                ):
-                    value = AEDT_UNITS[unit_system][input_units](value, False) / AEDT_UNITS[unit_system][output_units]
+                    if input_callable is None or output_callable is None:
+                        raise ValueError(
+                            "Invalid temperature conversion configuration: Temperature units should map to callables"
+                        )
+                    value = input_callable(value, False)
+                    value = output_callable(value, output_units != "kel")
+                elif isinstance(input_unit, (int, float)) and isinstance(output_unit, (int, float)):
+                    value = value * input_unit / output_unit
+                elif isinstance(input_unit, (int, float)) and output_callable is not None:
+                    value = value * input_unit
+                    value = output_callable(value, True)
+                elif input_callable is not None and isinstance(output_unit, (int, float)):
+                    value = input_callable(value, False) / output_unit
+                elif input_callable is not None and output_callable is not None:
+                    value = input_callable(value, False)
+                    value = output_callable(value, True)
+                # NOTE: This should never happen but better to be safe than sorry. If this happens, it means that the
+                # recent changes to AEDT_UNITS have introduced a unit conversion configuration that is not supported
+                # by the current implementation of unit_converter.
                 else:
-                    value = AEDT_UNITS[unit_system][input_units](value, False)
-                    value = AEDT_UNITS[unit_system][output_units](value, True)
+                    raise ValueError(f"Invalid unit conversion configuration for unit system: {unit_system}")
 
                 converted_values.append(value)
             if input_is_list:
@@ -316,14 +350,16 @@ def scale_units(scale_to_unit: str) -> float:
 
     """
     sunit = 1.0
+    found_non_numeric = False
     for val in list(AEDT_UNITS.values()):
         for unit, scale_val in val.items():
             if scale_to_unit.lower() == unit.lower():
-                sunit = scale_val
+                if isinstance(scale_val, (int, float)):
+                    return float(scale_val)
+                found_non_numeric = True
                 break
-        else:
-            continue
-        break
+    if found_non_numeric:
+        warnings.warn(f"Unit '{scale_to_unit}' does not define a numeric scale factor")
     return sunit
 
 
