@@ -42,6 +42,7 @@ import threading
 import time
 from types import TracebackType
 from typing import Any
+from typing import cast
 
 from ansys.aedt.core.aedt_logger import AedtLogger
 from ansys.aedt.core.application.aedt_objects import AedtObjects
@@ -75,6 +76,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
+from ansys.aedt.core.generic.protocols import _OProject
 from ansys.aedt.core.generic.settings import inner_project_settings
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
@@ -239,7 +241,7 @@ class Design(AedtObjects, PyAedtBase):
         self._desktop = self._desktop_class.odesktop
         self._desktop_install_dir: str = self._desktop_class.aedt_install_dir
         self._odesign: Any = None
-        self._oproject: Any = None
+        self._oproject: _OProject | None = None
         if self._design_type == DesignType.HFSS.NAME:
             self.design_solutions = HFSSDesignSolution(None, self._design_type, self._aedt_version)
         elif self._design_type == DesignType.ICEPAK.NAME:
@@ -1499,7 +1501,7 @@ class Design(AedtObjects, PyAedtBase):
         self._design_name = None
 
     @property
-    def oproject(self) -> object:
+    def oproject(self) -> _OProject:
         """Project property.
 
         Returns
@@ -1521,7 +1523,7 @@ class Design(AedtObjects, PyAedtBase):
         """
         if settings.use_multi_desktop:  # pragma: no cover
             self._desktop_class.grpc_plugin.recreate_application(True)
-        return self._oproject
+        return cast(_OProject, self._oproject)
 
     @oproject.setter
     def oproject(self, proj_name: str = None) -> None:

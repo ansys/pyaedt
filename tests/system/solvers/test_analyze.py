@@ -700,6 +700,15 @@ def test_compute_icn(test_tmp_dir) -> None:
         compute_retries=10,
     )
     assert abs(icn - 0.000770524135501) < SMALL_NUMBER
+    icn = spisim.compute_icn(
+        port_order="EvenOdd",
+        fext_s4p=str(fext_s4p),
+        next_s4p=str(next_s4p),
+        bandwidth=10e9,
+        compute_retries=10,
+        use_pcie_icn=True,
+    )
+    assert isinstance(icn, list)
 
 
 def test_compute_com(test_tmp_dir) -> None:

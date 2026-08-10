@@ -48,7 +48,7 @@ jobs:
     steps:
       # Label based on modified files
       - name: Label based on changed files
-        uses: actions/labeler@f27b608878404679385c85cfa523b85ccb86e213 # v6.1.0
+        uses: actions/labeler@b8dd2d9be0f68b860e7dae5dae7d772984eacd6d # v6.2.0
         with:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
 
@@ -132,7 +132,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     # NOTE: Temporary pin of ansys/actions to avoid the breaking change side effect.
-    - uses: ansys/actions/doc-changelog@fc4141ba4ca3dc1672fa530cd744131b053dc419 # zizmor: ignore[stale-action-refs]
+    - uses: ansys/actions/doc-changelog@84b6533ae76f5dde69a1df26c18682160a8121cf # v10.3.5
       with:
         bot-email: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
         bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
