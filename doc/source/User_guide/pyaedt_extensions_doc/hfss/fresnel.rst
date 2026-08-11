@@ -12,9 +12,13 @@ Features
 The extension supports two regimes for processing Fresnel Coefficients:
 
 * **Isotropic**: Scans over the elevation angle (theta) only - coupling between the TE and TM polarizations is not considered
-* **Anisotropic**: Scans over both elevation (theta) and azimuth (phi) angles (not available yet) - considering the polarization coupling
+* **Anisotropic**: Scans over both elevation (theta) and azimuth (phi) angles - considering the polarization coupling
 
 Isotropic mode is available for all AEDT versions (as RTTBL version 1 and 2), while Anisotropic - only for 2027R1 and beyond (as RTTBL version 2).
+
+AEDT 2026R1 and earlier versions support only RTTBL 1.0.
+
+The preferable RTTBL version for AEDT 2027R1 and beyond is 2.0.
 
 Workflows
 ---------
@@ -80,8 +84,8 @@ Requirements
 ------------
 **General:**
 
-* Unit-cell HFSS design with Floquet ports defined
-* Lattice pair boundaries configured
+* Unit-cell HFSS Modal Design with Floquet Port(s) defined
+* Lattice Pair boundaries configured
 
 **Specific for the Extraction Workflow:**
 
@@ -89,7 +93,7 @@ Requirements
 * Theta scan step should be a divisor of 90 degrees
 * Phi scan step (if exists) should be a divisor of 180 degrees
 * Both spatial and frequency sampling distributions should be uniform
-* Isotropic Extraction procedure uses the current value of the phi scan angle
+* Isotropic Extraction procedure uses the current value of the Phi scan angle
 
 Command line usage
 ------------------
@@ -106,3 +110,63 @@ You can also launch the extension from the terminal:
    :maxdepth: 2
 
    ../commandline
+
+Relations between Unit-Cell S-parameters and Fresnel RT coefficients in SBR
+------------
+
+In the relations below, we consider that scan directions in the Unit-Cell are defined in the following ranges:
+
+:math:`\theta_scan^_UC=[0,90^\circ]` and :math:`\phi_scan^_UC=[0,360^\circ]`
+
+Floquet Ports of the Unit-Cell have only 2 modes: 1 - TE, 2 - TM.
+
+**Single-Sided Case:**
+
+The Floquet Port (FP) is supposed to be placed on the top face of the Unit-Cell.
+
+.. math:: R_{TE,TE} = S_{FP:1,\ FP:1}
+.. math:: R_{TE,TM} = S_{FP:1,\ FP:2}
+.. math:: R_{TM,TE} = -S_{FP:2,\ FP:1}
+.. math:: R_{TM,TM} = -S_{FP:2,\ FP:2}
+.. math:: \theta_refl = \theta_inc = \theta_scan^UC
+.. math:: \phi_inc = mod(\phi_scan_UC+180^\circ, 360^\circ)
+.. math:: \phi_refl = \phi_scan^UC
+
+**Double-Sided Case:**
+
+The Floquet Ports are supposed to be placed on the top (port I) and bottom (port II) faces of the Unit-Cell.
+Also, in the equations below, we base on the fact that both hemispaces are assigned with the same medium (vacuum).
+
+Independently of the excitation side,
+
+.. math:: \phi_inc = mod(\phi_scan^UC+180^\circ, 360^\circ)
+.. math:: \phi_refl = \phi_scan^UC
+.. math:: \phi_tr = \phi_scan^UC
+
+* Reflections from the top side
+.. math:: R_{TE,TE}^I = S_{I:1,\ I:1}
+.. math:: R_{TE,TM}^I = S_{I:1,\ I:2}
+.. math:: R_{TM,TE}^I = -S_{I:2,\ I:1}
+.. math:: R_{TM,TM}^I = -S_{I:2,\ I:2}
+.. math:: \theta_refl^I = \theta_inc^I = \theta_scan^UC
+
+* Reflections from the bottom side
+.. math:: R_{TE,TE}^II = S_{II:1,\ II:1}
+.. math:: R_{TE,TM}^II = -S_{II:1,\ II:2}
+.. math:: R_{TM,TE}^II = S_{II:2,\ II:1}
+.. math:: R_{TM,TM}^II = -S_{II:2,\ II:2}
+.. math:: \theta_refl^II = \theta_inc^II = 180^\circ - \theta_scan^UC
+
+* Transmission "top :math:`\rightarrow` bottom"
+.. math:: T_{TE,TE}^{II \leftarrow I} = S_{II:1,\ I:1}
+.. math:: T_{TE,TM}^{II \leftarrow I} = S_{II:1,\ I:2}
+.. math:: T_{TM,TE}^{II \leftarrow I} = S_{II:2,\ I:1}
+.. math:: T_{TM,TM}^{II \leftarrow I} = S_{II:2,\ I:2}
+.. math:: \theta_tr^{II \leftarrow I} = 180^\circ - \theta_scan^UC
+
+* Transmission "bottom :math:`\rightarrow` top"
+.. math:: T_{TE,TE}^{I \leftarrow II} = S_{I:1,\ II:1}
+.. math:: T_{TE,TM}^{I \leftarrow II} = -S_{I:1,\ II:2}
+.. math:: T_{TM,TE}^{I \leftarrow II} = -S_{I:2,\ II:1}
+.. math:: T_{TM,TM}^{I \leftarrow II} = S_{I:2,\ II:2}
+.. math:: \theta_tr^{I \leftarrow II} = \theta_scan^UC
