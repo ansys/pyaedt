@@ -199,7 +199,7 @@ class FresnelExtension(ExtensionHFSSCommon):
 
         anisotropic_button = ttk.Radiobutton(
             fresnel_frame,
-            text="Anisotropic - scan over elevation and azimuth (in progress)",
+            text="Anisotropic - scan over elevation and azimuth",
             value="anisotropic",
             style="PyAEDT.TRadiobutton",
             variable=self.fresnel_type,

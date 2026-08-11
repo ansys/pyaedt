@@ -681,7 +681,16 @@ class PostProcessorCommon(PyAedtBase):
         if names and not skip_plot:
             for name in names:
                 new_name = re.sub(r"(?<!\\)/", r"\\/", name.replace("\\", "\\\\"))
-                obj = self._app.get_oo_object(self.oreportsetup, new_name)
+                if self._app.desktop_class.aedt_version < "2027.1":
+                    # Before 2027R1, reports with "\" had to be escaped
+                    obj = self._app.get_oo_object(self.oreportsetup, new_name)
+                else:
+                    obj = self._app.get_oo_object(self.oreportsetup, name)
+
+                if not obj:
+                    self.logger.warning(f"Report {name} not found.")
+                    break
+
                 report_type = obj.GetPropValue("Report Type")
                 obj_child_names = self._app.get_oo_name(obj)
                 if report_type == "Standard" and any("Bit Error Rate" in i for i in obj_child_names):
@@ -691,8 +700,11 @@ class PostProcessorCommon(PyAedtBase):
                 solution = None
                 for trc_name in traces:
                     try:
-                        new_trace_name = re.sub(r"(?<!\\)/", r"\\/", trc_name.replace("\\", "\\\\"))
-                        solution = self._app.get_oo_property_value(obj, new_trace_name, "Solution")
+                        if self._app.desktop_class.aedt_version < "2027.1":
+                            new_trace_name = re.sub(r"(?<!\\)/", r"\\/", trc_name.replace("\\", "\\\\"))
+                            solution = self._app.get_oo_property_value(obj, new_trace_name, "Solution")
+                        else:
+                            solution = self._app.get_oo_property_value(obj, trc_name, "Solution")
                         break
                     except Exception:  # nosec
                         pass
