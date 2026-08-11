@@ -680,12 +680,8 @@ class PostProcessorCommon(PyAedtBase):
             skip_plot = True
         if names and not skip_plot:
             for name in names:
-                if self._app.desktop_class.aedt_version < "2027.1":
-                    # Before 2027R1, reports with "\" had to be escaped
-                    new_name = re.sub(r"(?<!\\)/", r"\\/", name.replace("\\", "\\\\"))
-                    obj = self._app.get_oo_object(self.oreportsetup, new_name)
-                else:
-                    obj = self._app.get_oo_object(self.oreportsetup, name)
+                new_name = self._rename_internal_object(name)
+                obj = self._app.get_oo_object(self.oreportsetup, new_name)
 
                 if not obj:
                     self.logger.warning(f"Report {name} not found.")
@@ -700,11 +696,8 @@ class PostProcessorCommon(PyAedtBase):
                 solution = None
                 for trc_name in traces:
                     try:
-                        if self._app.desktop_class.aedt_version < "2027.1":
-                            new_trace_name = re.sub(r"(?<!\\)/", r"\\/", trc_name.replace("\\", "\\\\"))
-                            solution = self._app.get_oo_property_value(obj, new_trace_name, "Solution")
-                        else:
-                            solution = self._app.get_oo_property_value(obj, trc_name, "Solution")
+                        new_trace_name = self._rename_internal_object(trc_name)
+                        solution = self._app.get_oo_property_value(obj, new_trace_name, "Solution")
                         break
                     except Exception:  # nosec
                         pass
@@ -2224,6 +2217,12 @@ class PostProcessorCommon(PyAedtBase):
 
         self.logger.error("Failed to create report.")
         return False  # pragma: no cover
+
+    @pyaedt_function_handler()
+    def _rename_internal_object(self, name: str) -> str:
+        if self._app.desktop_class.aedt_version < "2027.1":
+            return re.sub(r"(?<!\\)/", r"\\/", name.replace("\\", "\\\\"))
+        return name
 
     @requires_graphical_dependency("matplotlib")
     @pyaedt_function_handler()

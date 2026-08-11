@@ -26,7 +26,6 @@ from __future__ import annotations
 
 import copy
 import os
-import re
 from typing import TYPE_CHECKING
 
 from ansys.aedt.core.base import PyAedtBase
@@ -808,9 +807,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         except Exception:
             return _traces
         for el in oo_names:
-            new_trace_name = el
-            if self._app.desktop_class.aedt_version < "2027.1":
-                new_trace_name = re.sub(r"(?<!\\)/", r"\\/", el.replace("\\", "\\\\"))
+            new_trace_name = self._post._rename_internal_object(el)
             if {"Families", "Source"}.isdisjoint(set(self._app.get_oo_properties(oo, new_trace_name))):
                 continue
             try:
@@ -1302,9 +1299,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> obj.internal_plot_name
 
         """
-        if self._app.desktop_class.aedt_version < "2027.1":
-            return re.sub(r"(?<!\\)/", r"\\/", self.plot_name.replace("\\", "\\\\"))
-        return self.plot_name
+        return self._post._rename_internal_object(self.plot_name)
 
     @property
     def variations(self) -> dict:
