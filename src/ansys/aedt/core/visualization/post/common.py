@@ -680,9 +680,9 @@ class PostProcessorCommon(PyAedtBase):
             skip_plot = True
         if names and not skip_plot:
             for name in names:
-                new_name = re.sub(r"(?<!\\)/", r"\\/", name.replace("\\", "\\\\"))
                 if self._app.desktop_class.aedt_version < "2027.1":
                     # Before 2027R1, reports with "\" had to be escaped
+                    new_name = re.sub(r"(?<!\\)/", r"\\/", name.replace("\\", "\\\\"))
                     obj = self._app.get_oo_object(self.oreportsetup, new_name)
                 else:
                     obj = self._app.get_oo_object(self.oreportsetup, name)
