@@ -48,7 +48,6 @@ if TYPE_CHECKING:
     from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
     from ansys.aedt.core.modeler.cad.object_3d import Object3d
 
-
 WEAVE_STYLES = {
     "1067": dict(
         target_pitch_x=0.28,
