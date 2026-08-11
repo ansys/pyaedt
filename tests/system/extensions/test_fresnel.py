@@ -58,15 +58,15 @@ def test_fresnel_ui_interactions(aedt_app) -> None:
 
     elevation_slider.set(0)  # Coarse
     extension._elevation_slider_changed(0)
-    assert extension._widgets["theta_scan_max"].get() == 20.0
+    assert extension._widgets["theta_scan_max"].get() == 15.0
 
     elevation_slider.set(2)  # Fine
     extension._elevation_slider_changed(2)
-    assert extension._widgets["theta_scan_max"].get() == 20.0
+    assert extension._widgets["theta_scan_max"].get() == 15.0
 
     elevation_slider.set(1)  # Regular
     extension._elevation_slider_changed(1)
-    assert extension._widgets["theta_scan_max"].get() == 22.5
+    assert extension._widgets["theta_scan_max"].get() == 20.0
 
     # Test azimuth slider
     azimuth_slider = extension._widgets["azimuth_slider"]
