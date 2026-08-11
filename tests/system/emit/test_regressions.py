@@ -850,7 +850,9 @@ def test_defect_1475679_get_child_node_id_recurse(emit_app) -> None:
     assert group_node
 
     # add an emitter directly under the group
+    # B1491226: add_emitter() must return EmitterNode (not AntennaNode)
     emitter_node: EmitterNode = group_node.add_emitter()
+    assert isinstance(emitter_node, EmitterNode)
     assert emitter_node
 
     # get the emitter's antenna
