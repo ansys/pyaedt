@@ -214,7 +214,10 @@ class CADNode(EmitNode):
 
         """
         val = self._get_property("Orientation Mode")
-        val = self.OrientationModeOption[val.upper()]
+        try:
+            val = self.OrientationModeOption(val)
+        except ValueError:
+            val = self.OrientationModeOption[val.upper()]
         return val
 
     @orientation_mode.setter
@@ -317,7 +320,10 @@ class CADNode(EmitNode):
 
         """
         val = self._get_property("Render Mode")
-        val = self.RenderModeOption[val.upper()]
+        try:
+            val = self.RenderModeOption(val)
+        except ValueError:
+            val = self.RenderModeOption[val.upper()]
         return val
 
     @render_mode.setter

@@ -24,8 +24,8 @@
 
 from enum import Enum
 
-from ansys.aedt.core.generic import constants as consts
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+from ansys.aedt.core.generic import constants as consts
 from ansys.aedt.core.internal.checks import min_aedt_version
 
 
@@ -86,7 +86,8 @@ class Waveform(EmitNode):
         Returns
         -------
         csv_data: str
-            stringified data for the node returned if file_name not specified"""
+            stringified data for the node returned if file_name not specified
+        """
         keys = "TraceChannelFreq|TraceChannelType|NarrowOrBroad"
         vals = f"{channel_freq}|Tx|Narrowband"
         return self._export_to_csv(file_name, keys, vals)
@@ -193,7 +194,10 @@ class Waveform(EmitNode):
 
         """
         val = self._get_property("Waveform")
-        val = self.WaveformOption[val.upper()]
+        try:
+            val = self.WaveformOption(val)
+        except ValueError:
+            val = self.WaveformOption[val.upper()]
         return val
 
     @waveform.setter
@@ -298,7 +302,10 @@ class Waveform(EmitNode):
 
         """
         val = self._get_property("Spreading Type")
-        val = self.SpreadingTypeOption[val.upper()]
+        try:
+            val = self.SpreadingTypeOption(val)
+        except ValueError:
+            val = self.SpreadingTypeOption[val.upper()]
         return val
 
     @spreading_type.setter
@@ -518,7 +525,10 @@ class Waveform(EmitNode):
 
         """
         val = self._get_property("Algorithm")
-        val = self.AlgorithmOption[val.upper()]
+        try:
+            val = self.AlgorithmOption(val)
+        except ValueError:
+            val = self.AlgorithmOption[val.upper()]
         return val
 
     @algorithm.setter
@@ -628,7 +638,10 @@ class Waveform(EmitNode):
 
         """
         val = self._get_property("Window Type")
-        val = self.WindowTypeOption[val.upper()]
+        try:
+            val = self.WindowTypeOption(val)
+        except ValueError:
+            val = self.WindowTypeOption[val.upper()]
         return val
 
     @window_type.setter

@@ -47,8 +47,8 @@ class TxNbEmissionNode(EmitNode):
         >>> radio = app.schematic.create_component("New Radio")
         >>> band = radio.children[0]
         >>> spec = band.children[0]
-        >>> tx_nb_emission = spec.add_narrowband_emissions_mask()
-        >>> tx_nb_emission.parent
+        >>> nb_em = spec.add_narrowband_emissions_mask()
+        >>> nb_em.parent
 
         """
         return self._parent
@@ -65,8 +65,8 @@ class TxNbEmissionNode(EmitNode):
         >>> radio = app.schematic.create_component("New Radio")
         >>> band = radio.children[0]
         >>> spec = band.children[0]
-        >>> tx_nb_emission = spec.add_narrowband_emissions_mask()
-        >>> tx_nb_emission.node_type
+        >>> nb_em = spec.add_narrowband_emissions_mask()
+        >>> nb_em.node_type
 
         """
         return self._node_type
@@ -82,8 +82,8 @@ class TxNbEmissionNode(EmitNode):
         >>> radio = app.schematic.create_component("New Radio")
         >>> band = radio.children[0]
         >>> spec = band.children[0]
-        >>> tx_nb_emission = spec.add_narrowband_emissions_mask()
-        >>> tx_nb_emission.import_csv_file("C:\\EMIT\\data.csv")
+        >>> nb_em = spec.add_narrowband_emissions_mask()
+        >>> nb_em.import_csv_file("C:\\EMIT\\data.csv")
 
         """
         return self._import(file_name, "CsvFile")
@@ -109,8 +109,8 @@ class TxNbEmissionNode(EmitNode):
         >>> radio = app.schematic.create_component("New Radio")
         >>> band = radio.children[0]
         >>> spec = band.children[0]
-        >>> tx_nb_emission = spec.add_narrowband_emissions_mask()
-        >>> tx_nb_emission.delete()
+        >>> nb_em = spec.add_narrowband_emissions_mask()
+        >>> nb_em.delete()
 
         """
         self._delete()
@@ -132,8 +132,8 @@ class TxNbEmissionNode(EmitNode):
         >>> radio = app.schematic.create_component("New Radio")
         >>> band = radio.children[0]
         >>> spec = band.children[0]
-        >>> tx_nb_emission = spec.add_narrowband_emissions_mask()
-        >>> tx_nb_emission.table_data = [(2, 25.0)]
+        >>> nb_em = spec.add_narrowband_emissions_mask()
+        >>> nb_em.table_data = [(2, 25.0)]
 
         """
         return self._get_table_data()
@@ -155,8 +155,8 @@ class TxNbEmissionNode(EmitNode):
         >>> radio = app.schematic.create_component("New Radio")
         >>> band = radio.children[0]
         >>> spec = band.children[0]
-        >>> tx_nb_emission = spec.add_narrowband_emissions_mask()
-        >>> tx_nb_emission.enabled = True
+        >>> nb_em = spec.add_narrowband_emissions_mask()
+        >>> nb_em.enabled = True
 
         """
         return self._get_property("Enabled") == "true"
@@ -182,12 +182,15 @@ class TxNbEmissionNode(EmitNode):
         >>> radio = app.schematic.create_component("New Radio")
         >>> band = radio.children[0]
         >>> spec = band.children[0]
-        >>> tx_nb_emission = spec.add_narrowband_emissions_mask()
-        >>> tx_nb_emission.narrowband_behavior = TxNbEmissionNode.NarrowbandBehaviorOption.RELATIVE_FREQS_AND_ATTENUATION
+        >>> nb_em = spec.add_narrowband_emissions_mask()
+        >>> nb_em.narrowband_behavior = TxNbEmissionNode.NarrowbandBehaviorOption.RELATIVE_FREQS_AND_ATTENUATION
 
         """
         val = self._get_property("Narrowband Behavior")
-        val = self.NarrowbandBehaviorOption[val.upper()]
+        try:
+            val = self.NarrowbandBehaviorOption(val)
+        except ValueError:
+            val = self.NarrowbandBehaviorOption[val.upper()]
         return val
 
     @narrowband_behavior.setter
@@ -207,9 +210,9 @@ class TxNbEmissionNode(EmitNode):
         >>> radio = app.schematic.create_component("New Radio")
         >>> band = radio.children[0]
         >>> spec = band.children[0]
-        >>> tx_nb_emission = spec.add_narrowband_emissions_mask()
-        >>> tx_nb_emission.narrowband_behavior = TxNbEmissionNode.NarrowbandBehaviorOption.ABSOLUTE_FREQS_AND_POWER
-        >>> tx_nb_emission.measurement_frequency = 100e6
+        >>> nb_em = spec.add_narrowband_emissions_mask()
+        >>> nb_em.narrowband_behavior = TxNbEmissionNode.NarrowbandBehaviorOption.ABSOLUTE_FREQS_AND_POWER
+        >>> nb_em.measurement_frequency = 100e6
 
         """
         val = self._get_property("Measurement Frequency")

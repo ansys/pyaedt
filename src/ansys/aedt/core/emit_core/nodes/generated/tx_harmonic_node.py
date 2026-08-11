@@ -187,7 +187,10 @@ class TxHarmonicNode(EmitNode):
 
         """
         val = self._get_property("Harmonic Table Units")
-        val = self.HarmonicTableUnitsOption[val.upper()]
+        try:
+            val = self.HarmonicTableUnitsOption(val)
+        except ValueError:
+            val = self.HarmonicTableUnitsOption[val.upper()]
         return val
 
     @harmonic_table_units.setter

@@ -258,7 +258,10 @@ class EmiPlotMarkerNode(EmitNode):
 
         """
         val = self._get_property("Horizontal Position")
-        val = self.HorizontalPositionOption[val.upper()]
+        try:
+            val = self.HorizontalPositionOption(val)
+        except ValueError:
+            val = self.HorizontalPositionOption[val.upper()]
         return val
 
     @horizontal_position.setter
@@ -287,7 +290,10 @@ class EmiPlotMarkerNode(EmitNode):
 
         """
         val = self._get_property("Vertical Position")
-        val = self.VerticalPositionOption[val.upper()]
+        try:
+            val = self.VerticalPositionOption(val)
+        except ValueError:
+            val = self.VerticalPositionOption[val.upper()]
         return val
 
     @vertical_position.setter
@@ -316,7 +322,10 @@ class EmiPlotMarkerNode(EmitNode):
 
         """
         val = self._get_property("Text Alignment")
-        val = self.TextAlignmentOption[val.upper()]
+        try:
+            val = self.TextAlignmentOption(val)
+        except ValueError:
+            val = self.TextAlignmentOption[val.upper()]
         return val
 
     @text_alignment.setter
@@ -510,7 +519,10 @@ class EmiPlotMarkerNode(EmitNode):
 
         """
         val = self._get_property("Symbol")
-        val = self.SymbolOption[val.upper()]
+        try:
+            val = self.SymbolOption(val)
+        except ValueError:
+            val = self.SymbolOption[val.upper()]
         return val
 
     @symbol.setter

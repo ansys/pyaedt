@@ -113,7 +113,10 @@ class SamplingNode(EmitNode):
 
         """
         val = self._get_property("Sampling Type")
-        val = self.SamplingTypeOption[val.upper()]
+        try:
+            val = self.SamplingTypeOption(val)
+        except ValueError:
+            val = self.SamplingTypeOption[val.upper()]
         return val
 
     @sampling_type.setter

@@ -87,7 +87,8 @@ class TxSpectralProfNode(EmitNode):
         Returns
         -------
         csv_data: str
-            stringified data for the node returned if file_name not specified"""
+            stringified data for the node returned if file_name not specified
+        """
         keys = "TraceChannelFreq|TraceChannelType|NarrowOrBroad"
         vals = f"{channel_freq}|Tx|Narrowband"
         return self._export_to_csv(file_name, keys, vals)
@@ -205,7 +206,10 @@ class TxSpectralProfNode(EmitNode):
 
         """
         val = self._get_property("Spectrum Type")
-        val = self.SpectrumTypeOption[val.upper()]
+        try:
+            val = self.SpectrumTypeOption(val)
+        except ValueError:
+            val = self.SpectrumTypeOption[val.upper()]
         return val
 
     @spectrum_type.setter
@@ -234,7 +238,10 @@ class TxSpectralProfNode(EmitNode):
 
         """
         val = self._get_property("Tx Power")
-        val = self.TxPowerOption[val.upper()]
+        try:
+            val = self.TxPowerOption(val)
+        except ValueError:
+            val = self.TxPowerOption[val.upper()]
         return val
 
     @tx_power.setter
@@ -374,7 +381,10 @@ class TxSpectralProfNode(EmitNode):
 
         """
         val = self._get_property("Harmonic Taper")
-        val = self.HarmonicTaperOption[val.upper()]
+        try:
+            val = self.HarmonicTaperOption(val)
+        except ValueError:
+            val = self.HarmonicTaperOption[val.upper()]
         return val
 
     @harmonic_taper.setter

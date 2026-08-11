@@ -178,7 +178,10 @@ class Cable(EmitNode):
 
         """
         val = self._get_property("Cable Type")
-        val = self.CableTypeOption[val.upper()]
+        try:
+            val = self.CableTypeOption(val)
+        except ValueError:
+            val = self.CableTypeOption[val.upper()]
         return val
 
     @cable_type.setter

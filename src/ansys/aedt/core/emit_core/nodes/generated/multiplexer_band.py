@@ -132,7 +132,10 @@ class MultiplexerBand(EmitNode):
 
         """
         val = self._get_property("Passband Type")
-        val = self.PassbandTypeOption[val.upper()]
+        try:
+            val = self.PassbandTypeOption(val)
+        except ValueError:
+            val = self.PassbandTypeOption[val.upper()]
         return val
 
     @passband_type.setter

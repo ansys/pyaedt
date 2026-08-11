@@ -462,7 +462,10 @@ class ResultPlotNode(EmitNode):
 
         """
         val = self._get_property("Major Grid Line Style")
-        val = self.MajorGridLineStyleOption[val.upper()]
+        try:
+            val = self.MajorGridLineStyleOption(val)
+        except ValueError:
+            val = self.MajorGridLineStyleOption[val.upper()]
         return val
 
     @major_grid_line_style.setter
@@ -517,7 +520,10 @@ class ResultPlotNode(EmitNode):
 
         """
         val = self._get_property("Minor Grid Line Style")
-        val = self.MinorGridLineStyleOption[val.upper()]
+        try:
+            val = self.MinorGridLineStyleOption(val)
+        except ValueError:
+            val = self.MinorGridLineStyleOption[val.upper()]
         return val
 
     @minor_grid_line_style.setter
@@ -594,7 +600,10 @@ class ResultPlotNode(EmitNode):
 
         """
         val = self._get_property("BB Power for Plots Unit")
-        val = self.BBPowerforPlotsUnitOption[val.upper()]
+        try:
+            val = self.BBPowerforPlotsUnitOption(val)
+        except ValueError:
+            val = self.BBPowerforPlotsUnitOption[val.upper()]
         return val
 
     @bb_power_for_plots_unit.setter
