@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -444,8 +444,7 @@ class EmitNode:
             missing = [name for name in property_names if name not in props_dict]
             if missing:
                 raise ValueError(
-                    f"Properties not found or not available for {self._node_type} configuration: "
-                    f"{', '.join(missing)}"
+                    f"Properties not found or not available for {self._node_type} configuration: {', '.join(missing)}"
                 )
             props_dict = {name: props_dict[name] for name in property_names}
 
@@ -485,9 +484,7 @@ class EmitNode:
             return
 
         try:
-            available_props = self._oRevisionData.GetEmitNodeProperties(
-                self._result_id, self._node_id, skipChecks
-            )
+            available_props = self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, skipChecks)
         except Exception:
             errors = self._emit_obj.logger.aedt_messages.error_level
             msg = errors[-1] if errors else "Failed to get node properties."
@@ -496,14 +493,11 @@ class EmitNode:
         missing = [name for name in prop_keys if name not in available_dict]
         if missing:
             raise ValueError(
-                f"Properties not found or not available for {self._node_type} configuration: "
-                f"{', '.join(missing)}"
+                f"Properties not found or not available for {self._node_type} configuration: {', '.join(missing)}"
             )
 
         try:
-            self._oRevisionData.SetEmitNodeProperties(
-                self._result_id, self._node_id, prop_strings, skipChecks
-            )
+            self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, prop_strings, skipChecks)
         except Exception:
             raise ValueError(self._format_set_properties_error(prop_strings, prop_keys))
 
@@ -531,9 +525,7 @@ class EmitNode:
             prop_dict = {}
             for item in properties:
                 if not isinstance(item, str) or "=" not in item:
-                    raise TypeError(
-                        "When properties is a list, each item must be a 'name=value' string."
-                    )
+                    raise TypeError("When properties is a list, each item must be a 'name=value' string.")
                 key, value = item.split("=", 1)
                 stripped_key = key.strip()
                 stripped_value = value.strip()
@@ -541,9 +533,7 @@ class EmitNode:
         else:
             raise TypeError("properties must be a dict or list of 'name=value' strings.")
 
-        prop_strings = [
-            self._format_property_string(key, value) for key, value in prop_dict.items()
-        ]
+        prop_strings = [self._format_property_string(key, value) for key, value in prop_dict.items()]
         return prop_strings, list(prop_dict.keys())
 
     def _format_set_properties_error(self, prop_strings: list[str], prop_keys: list[str]) -> str:
@@ -565,9 +555,7 @@ class EmitNode:
         error_text = str(aedt_errors[-1]) if aedt_errors else None
         if not error_text:
             props_desc = ", ".join(repr(key) for key in prop_keys)
-            result = "Failed setting properties on {} node {} ({})".format(
-                self._node_type, repr(self.name), props_desc
-            )
+            result = "Failed setting properties on {} node {} ({})".format(self._node_type, repr(self.name), props_desc)
             return result
 
         matching_keys = [key for key in prop_keys if key in error_text]
@@ -644,12 +632,9 @@ class EmitNode:
         """
         prop_string = self._format_property_string(prop, value)
         try:
-            self._oRevisionData.SetEmitNodeProperties(
-                self._result_id, self._node_id, [prop_string], skipChecks)
+            self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [prop_string], skipChecks)
         except Exception:
-            raise ValueError(
-                self._format_set_properties_error([prop_string], [prop])
-            )
+            raise ValueError(self._format_set_properties_error([prop_string], [prop]))
 
     @staticmethod
     def _string_to_value_units(value) -> tuple[float, str]:
@@ -895,7 +880,9 @@ class EmitNode:
         """
         try:
             if import_type == "CAD":
-                node_id = self._oRevisionData.EmitNodeImport(self._result_id, self._node_id, file_path, import_type, create_antennas)
+                node_id = self._oRevisionData.EmitNodeImport(
+                    self._result_id, self._node_id, file_path, import_type, create_antennas
+                )
             else:
                 node_id = self._oRevisionData.EmitNodeImport(self._result_id, self._node_id, file_path, import_type)
         except Exception as e:
@@ -935,9 +922,7 @@ class EmitNode:
             data = self._oRevisionData.ExportTraceData(self._result_id, self.name, file_path, ",", keys, values)
             return data
         except Exception as e:
-            raise Exception(
-                f'Failed to export "{file_path}" as CSV: {e}'
-            ) from e
+            raise Exception(f'Failed to export "{file_path}" as CSV: {e}') from e
 
     @min_aedt_version("2027.1")
     def _plot(self, keys: str, values: str) -> None:
@@ -973,7 +958,7 @@ class EmitNode:
         y_vals = []
         for line in lines:
             parts = line.split(",")
-            x_vals.append(float(parts[0]) / 1e6) # convert to MHz
+            x_vals.append(float(parts[0]) / 1e6)  # convert to MHz
             y_vals.append(float(parts[1]))
 
         fig, ax = plt.subplots()
@@ -983,7 +968,6 @@ class EmitNode:
         ax.set_title(self.name)
         ax.grid(True)
         return fig
-
 
     @min_aedt_version("2025.2")
     def get_is_component(self) -> bool:

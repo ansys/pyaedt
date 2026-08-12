@@ -256,9 +256,7 @@ class EmitSchematic:
             raise AEDTRuntimeError(f"Failed to delete component '{name}': {e}")
 
     @pyaedt_function_handler
-    def compare_nodes(
-        self, node_1: EmitNode, node_2: EmitNode, exclude_props: list[str] = None
-    ) -> tuple[bool, dict]:
+    def compare_nodes(self, node_1: EmitNode, node_2: EmitNode, exclude_props: list[str] = None) -> tuple[bool, dict]:
         """Compare two EMIT nodes.
 
         Parameters
@@ -337,9 +335,7 @@ class EmitSchematic:
             return False, {}
 
         differences = {}
-        same_type, node_diffs = self.compare_nodes(
-            component_1, component_2, exclude_props=exclude_props
-        )
+        same_type, node_diffs = self.compare_nodes(component_1, component_2, exclude_props=exclude_props)
         if not same_type:
             return False, {}
 
@@ -370,9 +366,7 @@ class EmitSchematic:
                     "value": child_1.name,
                 }
             else:
-                same_child_type, nested_diffs = self.compare_components(
-                    child_1, child_2, exclude_props=exclude_props
-                )
+                same_child_type, nested_diffs = self.compare_components(child_1, child_2, exclude_props=exclude_props)
                 if not same_child_type:
                     child_diffs[child_name] = {
                         "from": {

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -28,32 +28,28 @@ import os
 import sys
 import tempfile
 
+import matplotlib
 import pytest
 
 from ansys.aedt.core.generic.general_methods import is_linux
 from tests import TESTS_EMIT_PATH
 from tests.conftest import DESKTOP_VERSION
 
-import matplotlib
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
 
 if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1") or (
     (3, 10) <= sys.version_info[0:2] <= (3, 12) and DESKTOP_VERSION > "2024.2"
 ):
     from ansys.aedt.core import Emit
-    from ansys.aedt.core.emit_core.emit_constants import TxRxMode
-    from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+    from ansys.aedt.core.emit_core.nodes.generated import Amplifier
     from ansys.aedt.core.emit_core.nodes.generated import AntennaNode
     from ansys.aedt.core.emit_core.nodes.generated import Band
-    from ansys.aedt.core.emit_core.nodes.generated import Amplifier
     from ansys.aedt.core.emit_core.nodes.generated import Cable
     from ansys.aedt.core.emit_core.nodes.generated import Circulator
     from ansys.aedt.core.emit_core.nodes.generated import CouplingsNode
     from ansys.aedt.core.emit_core.nodes.generated import Filter
     from ansys.aedt.core.emit_core.nodes.generated import Isolator
     from ansys.aedt.core.emit_core.nodes.generated import Multiplexer
-    from ansys.aedt.core.emit_core.nodes.generated import MultiplexerBand
     from ansys.aedt.core.emit_core.nodes.generated import PowerDivider
     from ansys.aedt.core.emit_core.nodes.generated import PropagationLossCouplingNode
     from ansys.aedt.core.emit_core.nodes.generated import RadioNode
@@ -70,9 +66,6 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1") o
     from ansys.aedt.core.emit_core.nodes.generated import TxNbEmissionNode
     from ansys.aedt.core.emit_core.nodes.generated import TxSpectralProfNode
     from ansys.aedt.core.emit_core.nodes.generated import TxSpurNode
-    from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
-    from ansys.aedt.core.emit_core.results.revision import Revision
-    from ansys.aedt.core.emit_core.emit_schematic import EmitSchematic
 
 TEST_SUBFOLDER = TESTS_EMIT_PATH / "example_models/TEMIT"
 
@@ -91,7 +84,7 @@ def _setup_two_radio_project(emit_app):
 
     ant1.position_defined = True
     ant1.position = "0 0 5"
-    
+
     ant2.position_defined = True
     ant2.position = "10 0 10"
 
@@ -230,10 +223,12 @@ class TestEmitExports:
         data = None
         with pytest.raises(Exception):
             data = circ_node.export_to_csv(ports="1|3")
-            
+
         assert data is None
         err_msg = emit_app._odesktop.GetMessages("", "", 2)[0]
-        assert "The reverse isolation is infinite." in err_msg, "Expected error message to contain 'The reverse isolation is infinite.'"
+        assert "The reverse isolation is infinite." in err_msg, (
+            "Expected error message to contain 'The reverse isolation is infinite.'"
+        )
         emit_app._odesktop.ClearMessages("", "", 2, 2)
 
         # set reverse isolation to a finite value and try again
@@ -479,7 +474,7 @@ class TestEmitExports:
 
         scene_node = revision.get_scene_node()
         ant_children = scene_node.children
-        ant_short_names = [c.name for c in ant_children if isinstance(c, AntennaNode)]  
+        ant_short_names = [c.name for c in ant_children if isinstance(c, AntennaNode)]
         ant_full_names = [c._full_node_name for c in ant_children if isinstance(c, AntennaNode)]
         assert len(ant_short_names) >= 2, "Expected at least 2 antennas in the scene."
 
@@ -490,7 +485,7 @@ class TestEmitExports:
         data2 = coupling_data.export_to_csv("", antennas=(ant_children[0], ant_children[1]))
         assert data2 is not None
         assert len(data2) > 0, "Coupling CSV export should return non-empty data."
-        assert data == data2, "Coupling CSV export should return the same data."    
+        assert data == data2, "Coupling CSV export should return the same data."
 
         # test path loss coupling node export
         path_loss: PropagationLossCouplingNode = coupling_data._add_child_node("Path Loss Coupling")
@@ -531,7 +526,7 @@ class TestEmitExports:
         band: Band = radio.children[0]
         assert band is not None
         band.stop_frequency = 200e6
-        
+
         data = band.export_to_csv("", channel_freq=150e6, channel_type=Band.ChannelType.TX)
         assert data is not None
         assert len(data) > 0, "Band CSV export should return non-empty data."
@@ -690,4 +685,3 @@ class TestEmitExports:
             png_path = os.path.join(export_dir, "rx_spurs_plot.png")
             fig.savefig(png_path)
             assert os.path.isfile(png_path) and os.path.getsize(png_path) > 0
-

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# -*- coding: utf-8 -*-
 import os
 import sys
 import tempfile
@@ -32,22 +31,22 @@ import psutil
 import pytest
 
 from ansys.aedt.core import Emit
-from ansys.aedt.core.emit_core.nodes.generated import AntennaNode
 from ansys.aedt.core.emit_core.nodes.emitter_node import EmitterNode
+from ansys.aedt.core.emit_core.nodes.generated import AntennaNode
 from ansys.aedt.core.emit_core.nodes.generated import CouplingsNode
-from ansys.aedt.core.emit_core.nodes.generated import SceneGroupNode
 from ansys.aedt.core.emit_core.nodes.generated import CustomCouplingNode
+from ansys.aedt.core.emit_core.nodes.generated import EmitSceneNode
 from ansys.aedt.core.emit_core.nodes.generated import RxMixerProductNode
 from ansys.aedt.core.emit_core.nodes.generated import RxSaturationNode
 from ansys.aedt.core.emit_core.nodes.generated import RxSelectivityNode
 from ansys.aedt.core.emit_core.nodes.generated import RxSpurNode
 from ansys.aedt.core.emit_core.nodes.generated import RxSusceptibilityProfNode
+from ansys.aedt.core.emit_core.nodes.generated import SceneGroupNode
 from ansys.aedt.core.emit_core.nodes.generated import TxBbEmissionNode
 from ansys.aedt.core.emit_core.nodes.generated import TxHarmonicNode
 from ansys.aedt.core.emit_core.nodes.generated import TxNbEmissionNode
 from ansys.aedt.core.emit_core.nodes.generated import TxSpectralProfNode
 from ansys.aedt.core.emit_core.nodes.generated import TxSpurNode
-from ansys.aedt.core.emit_core.nodes.generated import EmitSceneNode
 from ansys.aedt.core.emit_core.results.interaction import Interaction
 from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
 from ansys.aedt.core.emit_core.results.revision import Revision
@@ -761,8 +760,7 @@ def test_defect_1475694_iemit_dies_when_design_deleted(desktop, add_app) -> None
     time.sleep(3)
     iemit_after = _count_iemit_children(aedt_pid)
     assert iemit_after < iemit_before, (
-        f"iemit.exe processes were not cleaned up after design delete "
-        f"(before={iemit_before}, after={iemit_after})"
+        f"iemit.exe processes were not cleaned up after design delete (before={iemit_before}, after={iemit_after})"
     )
 
     app.close_project(app.project_name, save=False)
@@ -781,8 +779,6 @@ def test_defect_1486446_coupling_export_with_antennas_param(emit_app) -> None:
     passed a method reference (missing parentheses on _full_node_name) instead
     of the actual antenna full names, resulting in incorrect coupling data.
     """
-    from ansys.aedt.core.emit_core.nodes.generated import HataCouplingNode
-
     radio1, ant1_comp = emit_app.schematic.create_radio_antenna("New Radio")
     radio2, ant2_comp = emit_app.schematic.create_radio_antenna("New Radio")
 
@@ -866,7 +862,7 @@ def test_defect_1475679_get_child_node_id_recurse(emit_app) -> None:
     antennas = mod.GetChildNodeNames(0, scene_node._node_id, "AntennaNode", False)
     assert len(antennas) == 1
     assert ant1_node.name in antennas
-    
+
     antennas_recurse = mod.GetChildNodeNames(0, scene_node._node_id, "AntennaNode", True)
     assert len(antennas_recurse) == 3
     assert ant1_node.name in antennas_recurse
@@ -919,14 +915,11 @@ def test_defect_1477851_nto1_export(emit_app) -> None:
     data_lines = [line for line in lines if not line.startswith("#")]
 
     # 1 header + 2 one-to-one band-pair rows (1 per aggressor) + 1 N-to-1 = 4
-    assert len(data_lines) == 4, (
-        f"Expected 4 data lines (1 header + 2 one-to-one + 1 Nto1), got {len(data_lines)}"
-    )
+    assert len(data_lines) == 4, f"Expected 4 data lines (1 header + 2 one-to-one + 1 Nto1), got {len(data_lines)}"
 
     nto1_rows = [line for line in data_lines[1:] if "|" in line.split(",")[0]]
     assert len(nto1_rows) == 1, (
-        f"Expected exactly 1 N-to-1 row with pipe-delimited aggressor names, "
-        f"got {len(nto1_rows)}"
+        f"Expected exactly 1 N-to-1 row with pipe-delimited aggressor names, got {len(nto1_rows)}"
     )
 
 
@@ -1029,4 +1022,3 @@ def test_defect_1482347_export_selection_radio_vs_all(emit_app) -> None:
         f"got {len(data_lines)} data line(s). "
         f"Export Selection with Radio vs All should produce data."
     )
-

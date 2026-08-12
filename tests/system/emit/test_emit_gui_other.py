@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -36,15 +36,13 @@ Replicates the following legacy DlxPyScript tests:
 
 from __future__ import annotations
 
-import os
-import sys
-import tempfile
 import shutil
+import sys
 
 import pytest
 
-from tests.conftest import DESKTOP_VERSION
 from tests import TESTS_EMIT_PATH
+from tests.conftest import DESKTOP_VERSION
 
 if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1") or (
     (3, 10) <= sys.version_info[0:2] <= (3, 12) and DESKTOP_VERSION > "2024.2"
@@ -66,17 +64,14 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1") o
     from ansys.aedt.core.emit_core.nodes.generated import PowerDivider
     from ansys.aedt.core.emit_core.nodes.generated import PropagationLossCouplingNode
     from ansys.aedt.core.emit_core.nodes.generated import RadioNode
-    from ansys.aedt.core.emit_core.nodes.generated import RxSpurNode
-    from ansys.aedt.core.emit_core.nodes.generated import RxSusceptibilityProfNode
     from ansys.aedt.core.emit_core.nodes.generated import SamplingNode
     from ansys.aedt.core.emit_core.nodes.generated import Terminator
     from ansys.aedt.core.emit_core.nodes.generated import TwoRayPathLossCouplingNode
-    from ansys.aedt.core.emit_core.nodes.generated import TxSpectralProfNode
-    from ansys.aedt.core.emit_core.nodes.generated import TxSpurNode
     from ansys.aedt.core.emit_core.nodes.generated import WalfischCouplingNode
     from ansys.aedt.core.emit_core.results.revision import Revision
 
 TEST_SUBFOLDER = TESTS_EMIT_PATH / "example_models/TEMIT"
+
 
 @pytest.fixture
 def emit_app(add_app):
@@ -133,9 +128,7 @@ class TestEmitGuiOther:
         [1000, 10000, 20000] for each of 4 environment types, exporting
         12 CSV files total.
         """
-        revision, hata, ant1, ant2, scene, coupling_data = _setup_coupling_project(
-            emit_app, "Hata Coupling"
-        )
+        revision, hata, ant1, ant2, scene, coupling_data = _setup_coupling_project(emit_app, "Hata Coupling")
         short_names = [ant1.name, ant2.name]
         ports = f"{short_names[0]}|{short_names[1]}"
 
@@ -152,9 +145,7 @@ class TestEmitGuiOther:
             for distance in [1000, 10000, 20000]:
                 ant2.position = f"{distance} 0 5"
                 data = hata.export_to_csv("", ports=ports)
-                assert data is not None and len(data) > 0, (
-                    f"Hata export failed for env={env.name}, dist={distance}"
-                )
+                assert data is not None and len(data) > 0, f"Hata export failed for env={env.name}, dist={distance}"
                 export_count += 1
 
         assert export_count == 12
@@ -377,9 +368,7 @@ class TestEmitGuiOther:
         for distance in range(500, 5000, 400):
             ant1.position = f"{distance} 0 25"
             data = walf.export_to_csv("", ports=ports)
-            assert data is not None and len(data) > 0, (
-                f"WalfIkeg LOS failed: distance={distance}"
-            )
+            assert data is not None and len(data) > 0, f"WalfIkeg LOS failed: distance={distance}"
             export_count += 1
 
         assert export_count == 36  # 24 NLOS + 12 LOS
@@ -436,8 +425,8 @@ class TestEmitGuiOther:
         monotonically decreasing intercept points'
         """
         amp: Amplifier = emit_app.schematic.create_component("Amplifier")
-        amp.p1_db_point_ref_input = '-10.0 dBm'
-        amp.ip3_ref_input = '50.0 dBm'
+        amp.p1_db_point_ref_input = "-10.0 dBm"
+        amp.ip3_ref_input = "50.0 dBm"
         assert "intercept" in amp.warnings.lower() or "IIP3" in amp.warnings or "monotonically" in amp.warnings.lower()
 
     def test_component_warnings_multiplexer(self, emit_app):
