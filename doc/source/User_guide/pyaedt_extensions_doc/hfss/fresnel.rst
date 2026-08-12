@@ -84,7 +84,7 @@ Requirements
 ------------
 **General:**
 
-* Unit-cell HFSS Modal Design with Floquet Port(s) defined
+* Unit-cell HFSS Modal Design with Floquet Ports defined
 * Lattice Pair boundaries configured
 
 **Specific for the Extraction Workflow:**
@@ -111,10 +111,10 @@ You can also launch the extension from the terminal:
 
    ../commandline
 
-Relations between Unit-Cell S-parameters and Fresnel RT coefficients in SBR
+Relations between unit-cell S-parameters and Fresnel RT coefficients in SBR
 ---------------------------------------------------------------------------
 
-In the relations below, we consider that scan directions in the Unit-Cell are defined in the following ranges:
+The relations below consider that scan directions in the unit-cell are defined in the following ranges:
 
 :math:`\theta_scan^_UC=[0,90^\circ]` and :math:`\phi_scan^_UC=[0,360^\circ]`
 
@@ -135,7 +135,7 @@ The Floquet Port (FP) is supposed to be placed on the top face of the Unit-Cell.
 **Double-Sided Case:**
 
 The Floquet Ports are supposed to be placed on the top (port I) and bottom (port II) faces of the Unit-Cell.
-Also, in the equations below, we base on the fact that both hemispaces are assigned with the same medium (vacuum).
+Also, in the equations below, the assumption is that both hemispheres are assigned with the same medium (vacuum).
 
 Independently of the excitation side,
 
@@ -143,28 +143,32 @@ Independently of the excitation side,
 .. math:: \phi_refl = \phi_scan^UC
 .. math:: \phi_tr = \phi_scan^UC
 
-* Reflections from the top side
+Reflections from the top side:
+
 .. math:: R_{TE,TE}^I = S_{I:1,\ I:1}
 .. math:: R_{TE,TM}^I = S_{I:1,\ I:2}
 .. math:: R_{TM,TE}^I = -S_{I:2,\ I:1}
 .. math:: R_{TM,TM}^I = -S_{I:2,\ I:2}
 .. math:: \theta_refl^I = \theta_inc^I = \theta_scan^UC
 
-* Reflections from the bottom side
+Reflections from the bottom side:
+
 .. math:: R_{TE,TE}^II = S_{II:1,\ II:1}
 .. math:: R_{TE,TM}^II = -S_{II:1,\ II:2}
 .. math:: R_{TM,TE}^II = S_{II:2,\ II:1}
 .. math:: R_{TM,TM}^II = -S_{II:2,\ II:2}
 .. math:: \theta_refl^II = \theta_inc^II = 180^\circ - \theta_scan^UC
 
-* Transmission "top :math:`\rightarrow` bottom"
+Transmission from top to bottom:
+
 .. math:: T_{TE,TE}^{II \leftarrow I} = S_{II:1,\ I:1}
 .. math:: T_{TE,TM}^{II \leftarrow I} = S_{II:1,\ I:2}
 .. math:: T_{TM,TE}^{II \leftarrow I} = S_{II:2,\ I:1}
 .. math:: T_{TM,TM}^{II \leftarrow I} = S_{II:2,\ I:2}
 .. math:: \theta_tr^{II \leftarrow I} = 180^\circ - \theta_scan^UC
 
-* Transmission "bottom :math:`\rightarrow` top"
+Transmission from bottom to top:
+
 .. math:: T_{TE,TE}^{I \leftarrow II} = S_{I:1,\ II:1}
 .. math:: T_{TE,TM}^{I \leftarrow II} = -S_{I:1,\ II:2}
 .. math:: T_{TM,TE}^{I \leftarrow II} = -S_{I:2,\ II:1}
