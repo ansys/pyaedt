@@ -63,7 +63,7 @@ repos:
       - --start_year=2021
 
 - repo: https://github.com/astral-sh/ty-pre-commit
-  rev: d69b804e5f355d9ec0d5b3c9bcfb4e694dc3d412  # frozen: v0.0.49
+  rev: ac85803d0443afba1e0700690366fd2d39e02580  # frozen: v0.0.65
   hooks:
     - id: ty
 
