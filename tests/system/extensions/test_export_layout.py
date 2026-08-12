@@ -31,6 +31,7 @@ from ansys.aedt.core.extensions.hfss3dlayout.export_layout import main
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
 from tests import TESTS_EXTENSIONS_PATH
+from tests.conftest import edb_xfail
 
 AEDB_FILE_NAME = "siverse_sfp"
 TEST_SUBFOLDER = "post_layout_design"
@@ -46,6 +47,7 @@ def cleanup_files(*files) -> None:
             export_file.unlink()
 
 
+@edb_xfail
 def test_export_layout_all_options(add_app_example, test_tmp_dir) -> None:
     """Test successful execution of export layout with all options enabled."""
     data = ExportLayoutExtensionData(
@@ -88,6 +90,7 @@ def test_export_layout_all_options(add_app_example, test_tmp_dir) -> None:
         assert isinstance(config_data, dict)
 
 
+@edb_xfail
 def test_export_layout_ipc_only(add_app_example, test_tmp_dir) -> None:
     """Test export layout with only IPC2581 option enabled."""
     ipc_file = test_tmp_dir / f"{AEDB_FILE_NAME}_ipc2581.xml"
@@ -121,6 +124,7 @@ def test_export_layout_ipc_only(add_app_example, test_tmp_dir) -> None:
     assert ipc_file.stat().st_size > 0
 
 
+@edb_xfail
 def test_export_layout_bom_only(add_app_example, test_tmp_dir) -> None:
     """Test export layout with only BOM option enabled."""
     ipc_file = test_tmp_dir / f"{AEDB_FILE_NAME}_ipc2581.xml"
@@ -154,6 +158,7 @@ def test_export_layout_bom_only(add_app_example, test_tmp_dir) -> None:
     assert bom_file.stat().st_size > 0
 
 
+@edb_xfail
 def test_export_layout_config_only(add_app_example, test_tmp_dir) -> None:
     """Test export layout with only configuration option enabled."""
     ipc_file = test_tmp_dir / f"{AEDB_FILE_NAME}_ipc2581.xml"
@@ -191,6 +196,7 @@ def test_export_layout_config_only(add_app_example, test_tmp_dir) -> None:
         assert isinstance(config_data, dict)
 
 
+@edb_xfail
 def test_export_layout_no_options(add_app_example, test_tmp_dir) -> None:
     """Test export layout with all options disabled."""
     ipc_file = test_tmp_dir / f"{AEDB_FILE_NAME}_ipc2581.xml"

@@ -78,10 +78,15 @@ class CircuitConfigurationData(ExtensionCommonData):
 
     """
 
-    file_path: list[str] = field(default_factory=list)
+    file_path: list[Path] = field(default_factory=list)
     """Path to file."""
-    output_dir: str = EXTENSION_DEFAULT_ARGUMENTS["output_dir"]
+    output_dir: Path | str = EXTENSION_DEFAULT_ARGUMENTS["output_dir"]
     """Value for output dir."""
+
+    def __post_init__(self) -> None:
+        self.file_path = [Path(file) for file in self.file_path]
+        if self.output_dir:
+            self.output_dir = Path(self.output_dir)
 
 
 class CircuitConfigurationExtension(ExtensionCircuitCommon):
@@ -101,8 +106,8 @@ class CircuitConfigurationExtension(ExtensionCircuitCommon):
             withdraw=withdraw,
             add_custom_content=False,
         )
-        self.data: CircuitConfigurationData = CircuitConfigurationData()
-
+        data = CircuitConfigurationData()
+        self.data = data
         self.add_extension_content()
 
     def browse_file(self) -> None:
@@ -113,8 +118,11 @@ class CircuitConfigurationExtension(ExtensionCircuitCommon):
         )
         if file_path == "":
             return
+        data = self.data
+        if not isinstance(data, CircuitConfigurationData):
+            raise TypeError("Extension data must be CircuitConfigurationData.")
         for file in file_path:
-            self.data.file_path.append(Path(file))
+            data.file_path.append(Path(file))
         self.root.destroy()
 
     def output_dir(self) -> None:
@@ -125,7 +133,10 @@ class CircuitConfigurationExtension(ExtensionCircuitCommon):
         if output == "":
             return
 
-        self.data.output_dir = Path(output)
+        data = self.data
+        if not isinstance(data, CircuitConfigurationData):
+            raise TypeError("Extension data must be CircuitConfigurationData.")
+        data.output_dir = Path(output)
 
         self.root.destroy()
 
@@ -148,7 +159,7 @@ class CircuitConfigurationExtension(ExtensionCircuitCommon):
             command=lambda: self.browse_file(),
             style="PyAEDT.TButton",
         )
-        import_button.grid(row=0, column=0, **DEFAULT_PADDING)
+        import_button.grid(row=0, column=0, padx=DEFAULT_PADDING["padx"], pady=DEFAULT_PADDING["pady"])
         self._widgets["import_button"] = import_button
 
         lower_frame = ttk.Frame(self.root, style="PyAEDT.TFrame")
@@ -157,7 +168,7 @@ class CircuitConfigurationExtension(ExtensionCircuitCommon):
         export_button = ttk.Button(
             lower_frame, text="Export configuration", command=lambda: self.output_dir(), style="PyAEDT.TButton"
         )
-        export_button.grid(row=0, column=0, **DEFAULT_PADDING)
+        export_button.grid(row=0, column=0, padx=DEFAULT_PADDING["padx"], pady=DEFAULT_PADDING["pady"])
         self._widgets["export_button"] = export_button
         self.add_toggle_theme_button(lower_frame, 0, 1)
 
@@ -197,11 +208,11 @@ def main(data: CircuitConfigurationData) -> bool:
 
     if data.file_path:
         for file in data.file_path:
-            cir.configurations.import_config(file)
+            cir.configurations.import_config(str(file))
             cir.save_project()
 
     elif data.output_dir:
-        config_file = Path(data.output_dir) / "circuit_configuration.json"
+        config_file = Path(data.output_dir or ".") / "circuit_configuration.json"
         cir.configurations.export_config(str(config_file))
     else:
         raise AEDTRuntimeError("No file path or output directory provided.")
@@ -220,8 +231,9 @@ if __name__ == "__main__":  # pragma: no cover
 
         tkinter.mainloop()
 
-        if extension.data.file_path or extension.data.output_dir:
-            main(extension.data)
+        data = extension.data
+        if isinstance(data, CircuitConfigurationData) and (data.file_path or data.output_dir):
+            main(data)
 
     else:
         data = CircuitConfigurationData()

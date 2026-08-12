@@ -32,6 +32,8 @@ import tkinter
 from tkinter import filedialog
 from tkinter import ttk
 from typing import TYPE_CHECKING
+from typing import Any
+from typing import cast
 
 from pydantic import BaseModel
 from pydantic import Field
@@ -137,7 +139,7 @@ class MCADAssemblyFrontend(ExtensionHFSSCommon):
     tab_frame_main = None
     """Value for tab frame main."""
 
-    local_path = ""
+    local_path: Path | str = ""
     """Path to local."""
     config_data: dict = dict()
     """Value for config data."""
@@ -155,9 +157,7 @@ class MCADAssemblyFrontend(ExtensionHFSSCommon):
             toggle_column=0,
         )
 
-    def add_toggle_theme_button(
-        self, parent: tkinter.Widget, toggle_row: int | None = None, toggle_column: int | None = None
-    ) -> None:
+    def add_toggle_theme_button(self, parent: tkinter.Misc, toggle_row: int, toggle_column: int) -> None:
         """Create a button to toggle between light and dark themes.
 
         Examples
@@ -172,7 +172,7 @@ class MCADAssemblyFrontend(ExtensionHFSSCommon):
         button_frame = ttk.Frame(
             parent, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2, name="theme_button_frame"
         )
-        button_frame.pack(fill="both", expand=False, **{"padx": 5, "pady": 5})
+        button_frame.pack(fill="both", expand=False, padx=5, pady=5)
 
         ttk.Button(
             button_frame,
@@ -181,7 +181,7 @@ class MCADAssemblyFrontend(ExtensionHFSSCommon):
             command=lambda: self._run(self.config_data),
             style="PyAEDT.TButton",
             name="run",
-        ).pack(anchor="w", side="left", **{"padx": 15, "pady": 10})
+        ).pack(anchor="w", side="left", padx=15, pady=10)
 
         self._widgets["button_frame"] = button_frame
 
@@ -194,7 +194,7 @@ class MCADAssemblyFrontend(ExtensionHFSSCommon):
             name="theme_toggle_button",
         )
         # change_theme_button.grid(row=0, column=0, **{"padx": 15, "pady": 10})
-        change_theme_button.pack(anchor="e", side="right", **{"padx": 15, "pady": 10})
+        change_theme_button.pack(anchor="e", side="right", padx=15, pady=10)
         self._widgets["change_theme_button"] = change_theme_button
 
     def add_extension_content(self) -> None:
@@ -238,7 +238,12 @@ class MCADAssemblyFrontend(ExtensionHFSSCommon):
 def create_tab_main(tab_frame: tkinter.Widget, master: MCADAssemblyFrontend) -> None:
     """Create tab main."""
     tree = ttk.Treeview(tab_frame, name="tree")
-    tree.pack(expand=True, fill="both", **master.PACK_PARAMS)
+    tree.pack(
+        expand=True,
+        fill="both",
+        padx=master.PACK_PARAMS["padx"],
+        pady=master.PACK_PARAMS["pady"],
+    )
 
     ttk.Button(
         tab_frame,
@@ -247,7 +252,7 @@ def create_tab_main(tab_frame: tkinter.Widget, master: MCADAssemblyFrontend) -> 
         command=lambda: load_dict(tree, master),
         style="PyAEDT.TButton",
         name="load",
-    ).pack(anchor="w", **master.PACK_PARAMS)
+    ).pack(anchor="w", padx=master.PACK_PARAMS["padx"], pady=master.PACK_PARAMS["pady"])
 
 
 def load_dict(tree: ttk.Treeview, master: MCADAssemblyFrontend) -> None:
@@ -331,9 +336,9 @@ class Component(BaseModel):
     """Value for layout coordinate systems."""
     arranges: list[Arrange] = Field(default_factory=list)
     """Value for arranges."""
-    sub_components: dict | None = Field(default_factory=dict)
+    sub_components: dict[str, "Component"] = Field(default_factory=dict)
     """Value for sub components."""
-    password: str = None
+    password: str | None = None
     """Value for password."""
 
     # Mcad parameters
@@ -345,7 +350,7 @@ class Component(BaseModel):
     """Value for reference coordinate system."""
 
     # internal properties
-    __rotate_index: int | None = 0
+    __rotate_index: int = 0
 
     class Config:
         extra = "forbid"
@@ -358,15 +363,17 @@ class Component(BaseModel):
         data_["name"] = name
         return cls(**data_)
 
-    def _assemble_sub_components(self, hfss, cs_prefix: str = ""):
-        for name, comp in self.sub_components.items():
+    def _assemble_sub_components(self, hfss, cs_prefix: str | None = ""):
+        for _name, comp in self.sub_components.items():
             comp.assemble(hfss, cs_prefix)
 
     def _apply_arrange(self, hfss: "Hfss"):
         for i in self.arranges:
             if i.operation == "rotate":
-                self.__rotate_index = self.__rotate_index + 1
-                hfss.modeler.rotate(self.name, getattr(Axis, i.axis), i.angle)
+                self.__rotate_index += 1
+                axis = i.axis or "X"
+                angle = i.angle or "0deg"
+                hfss.modeler.rotate(self.name, getattr(Axis, axis), angle)
                 hfss.modeler.oeditor.ChangeProperty(
                     [
                         "NAME:AllTabs",
@@ -378,7 +385,7 @@ class Component(BaseModel):
                     ]
                 )
             elif i.operation == "move":
-                hfss.modeler.move(self.name, i.vector)
+                hfss.modeler.move(self.name, i.vector or ["0mm", "0mm", "0mm"])
 
     def assemble(self, hfss: "Hfss", cs_prefix: str | None = None):
         """Parameters
@@ -398,11 +405,12 @@ class Component(BaseModel):
         >>> component.assemble(hfss)
 
         """
+        modeler = cast(Any, hfss.modeler)
         if cs_prefix:
             self.target_coordinate_system = f"{cs_prefix}_{self.target_coordinate_system}"
 
         if self.component_type == "mcad":
-            comp = hfss.modeler.insert_3d_component(
+            comp = modeler.insert_3d_component(
                 name=self.name,
                 input_file=COMPONENT_MODELS[self.model],
                 coordinate_system=self.target_coordinate_system,
@@ -413,8 +421,8 @@ class Component(BaseModel):
         else:
             model_path = COMPONENT_MODELS[self.model]
             self.model = generate_unique_name(self.model)
-            hfss.modeler.add_layout_component_definition(file_path=model_path, name=self.model)
-            comp = hfss.modeler._insert_layout_component_instance(
+            modeler.add_layout_component_definition(file_path=model_path, name=self.model)
+            comp = modeler._insert_layout_component_instance(
                 name=self.name,
                 definition_name=self.model,
                 target_coordinate_system=self.target_coordinate_system,
@@ -422,10 +430,10 @@ class Component(BaseModel):
                 import_coordinate_systems=self.layout_coordinate_systems,
                 reference_coordinate_system=self.reference_coordinate_system,
             )
-            for new_name in list(hfss.modeler.oeditor.Get3DComponentPartNames(comp)):
-                hfss.modeler._create_object(new_name)
+            for new_name in list(modeler.oeditor.Get3DComponentPartNames(comp)):
+                modeler._create_object(new_name)
 
-            udm_obj = hfss.modeler._create_user_defined_component(comp)
+            udm_obj = modeler._create_user_defined_component(comp)
             udm_obj.name = comp
             self.name = comp
 
@@ -461,7 +469,7 @@ class MCADAssemblyBackend(BaseModel):
         extra = "forbid"
 
     @classmethod
-    def _load(cls, data: dict, cur_dir: str) -> "MCADAssemblyBackend":
+    def _load(cls, data: dict, cur_dir: str | Path) -> "MCADAssemblyBackend":
         cur_dir = Path(cur_dir)
 
         for name, file_path in data.get("component_models", {}).items():
@@ -498,5 +506,5 @@ if __name__ == "__main__":  # pragma: no cover
         temp = Path(tempfile.TemporaryDirectory(suffix=".ansys").name)
         temp.mkdir()
         extension: ExtensionCommon = MCADAssemblyFrontend(withdraw=False)
-        extension.working_directory = temp
+        cast(Any, extension).working_directory = temp
         tkinter.mainloop()

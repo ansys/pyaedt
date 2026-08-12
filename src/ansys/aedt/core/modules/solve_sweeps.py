@@ -895,6 +895,7 @@ class SweepMatrix(SweepCommon):
         count: float = None,
         unit: str = "GHz",
         clear: bool = False,
+        save_single_fields: bool = False,
     ) -> bool:
         """Add a subrange to the sweep.
 
@@ -914,6 +915,9 @@ class SweepMatrix(SweepCommon):
         clear : bool, optional
             Whether to replace the subrange. The default is ``False``, in which case
             subranges are appended.
+        save_single_fields : bool, optional
+            Whether to save the fields of the single point. The default is ``False``.
+            This parameter is used only for ``range_type="SinglePoints"``.
 
         Returns
         -------
@@ -922,9 +926,10 @@ class SweepMatrix(SweepCommon):
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.solve_sweeps import SweepMatrix
-        >>> obj = SweepMatrix()
-        >>> obj.add_subrange(range_type=1, start=[0, 0, 0])
+        >>> from ansys.aedt.core import Q3d
+        >>> app = Q3d()
+        >>> setup = app.create_setup()
+        >>> setup.create_single_point_sweep(save_single_field=[True, False, False], freq=[6, 10, 12], unit="GHz")
 
         """
         if clear:
@@ -951,6 +956,10 @@ class SweepMatrix(SweepCommon):
         elif range_type == "LogScale":
             sweep_range["RangeEnd"] = str(end) + unit
             sweep_range["RangeSamples"] = count
+        elif range_type == "SinglePoints":
+            sweep_range["RangeEnd"] = str(start) + unit
+            sweep_range["SaveSingleField"] = save_single_fields
+
         if not self.props.get("SweepRanges") or not self.props["SweepRanges"].get("Subrange"):
             self.props["SweepRanges"] = {"Subrange": []}
         self.props["SweepRanges"]["Subrange"].append(sweep_range)

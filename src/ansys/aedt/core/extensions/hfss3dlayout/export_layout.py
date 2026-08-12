@@ -27,6 +27,7 @@ import os
 from pathlib import Path
 import tkinter
 from tkinter import ttk
+from typing import cast
 
 import ansys.aedt.core
 from ansys.aedt.core import Edb
@@ -99,9 +100,9 @@ class ExportLayoutExtension(ExtensionHFSS3DLayoutCommon):
         )
 
         # Tkinter widgets
-        self.ipc_check = None
-        self.configuration_check = None
-        self.bom_check = None
+        self.ipc_check: tkinter.IntVar | None = None
+        self.configuration_check: tkinter.IntVar | None = None
+        self.bom_check: tkinter.IntVar | None = None
 
         # Trigger manually since add_extension_content requires it
         self.add_extension_content()
@@ -174,10 +175,15 @@ class ExportLayoutExtension(ExtensionHFSS3DLayoutCommon):
         self.bom_check.set(1)
 
         def callback(extension: ExportLayoutExtension) -> None:
+            ipc_check = extension.ipc_check
+            configuration_check = extension.configuration_check
+            bom_check = extension.bom_check
+            if ipc_check is None or configuration_check is None or bom_check is None:
+                raise RuntimeError("Export layout widgets are not initialized.")
             data = ExportLayoutExtensionData()
-            data.export_ipc = extension.ipc_check.get() == 1
-            data.export_configuration = extension.configuration_check.get() == 1
-            data.export_bom = extension.bom_check.get() == 1
+            data.export_ipc = ipc_check.get() == 1
+            data.export_configuration = configuration_check.get() == 1
+            data.export_bom = bom_check.get() == 1
             extension.data = data
             extension.root.destroy()
 
@@ -251,7 +257,7 @@ if __name__ == "__main__":  # pragma: no cover
         tkinter.mainloop()
 
         if extension.data is not None:
-            main(extension.data)
+            main(cast(ExportLayoutExtensionData, extension.data))
 
     else:
         data = ExportLayoutExtensionData()

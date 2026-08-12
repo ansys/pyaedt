@@ -636,6 +636,8 @@ class AMIEyeDiagram(CommonReport):
                         new_exprs.append(f"{expr_head}AfterProbe<" + expr + ">")
                     else:
                         new_exprs.append(expr)
+                else:
+                    new_exprs.append(expr)
             elif "eyeprobe" in expr.lower() or "eyesource" in expr.lower():
                 new_exprs.append(expr)
             elif ".int_ami" not in expr:

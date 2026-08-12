@@ -910,6 +910,27 @@ class Desktop(PyAedtBase):
         settings.aedt_version = value
 
     @property
+    def aedt_version(self) -> str:
+        """Retrieve AEDT version from AEDT.
+
+        Returns
+        -------
+        str
+            AEDT version.
+
+        References
+        ----------
+        >>> oDesktop.GetVersion
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> desktop = Desktop(version="2026.1")
+        >>> version = desktop.aedt_version
+        """
+        return self.odesktop.GetVersion()
+
+    @property
     def aedt_process_id(self) -> int:
         """Retrieve AEDT process id."""
         return self.__aedt_process_id
@@ -2571,7 +2592,7 @@ class Desktop(PyAedtBase):
 
             if not aedt_full_exe_path:
                 # Fallback to find the aedt executable
-                version = self.odesktop.GetVersion()[2:6]
+                version = self.aedt_version[2:6]
                 if version >= "22.2":
                     version_name = "v" + version.replace(".", "")
                 else:

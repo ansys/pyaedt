@@ -38,7 +38,11 @@ import tkinter
 from tkinter import ttk
 from tkinter.messagebox import showerror
 import traceback
+from types import TracebackType
+from typing import Any
 from typing import Callable
+from typing import Protocol
+from typing import cast
 
 import PIL.Image
 import PIL.ImageTk
@@ -61,7 +65,7 @@ MOON = "\u2600"
 """Moon."""
 SUN = "\u263d"
 """Sun."""
-DEFAULT_PADDING = {"padx": 10, "pady": 6}
+DEFAULT_PADDING: dict[str, Any] = {"padx": 10, "pady": 6}
 """Default padding."""
 DEFAULT_WIDTH = 10
 """Default width."""
@@ -168,7 +172,11 @@ def get_aedt_theme() -> str:
     return res
 
 
-def get_latest_version(package_name: str, timeout: int = (2, 2)) -> str:
+class DesignTypeApp(Protocol):
+    design_type: str
+
+
+def get_latest_version(package_name: str, timeout: int | tuple[int, int] = (2, 2)) -> str:
     """Return latest version string from PyPI or 'Unknown' on failure.
 
     Examples
@@ -350,6 +358,9 @@ def check_for_pyaedt_update_on_startup(
             if not latest:
                 log.debug("PyAEDT update check: no prompt required or latest unavailable.")
                 return
+            if declined_file is None:
+                log.debug("PyAEDT update check: declined file unavailable.")
+                return
             try:
                 root.after(0, lambda: show_update_callback(latest, declined_file))
             except Exception:
@@ -432,20 +443,26 @@ class ExtensionCommon(PyAedtBase):
         self.theme_color = theme_color
         self._widgets = {}
         self.__desktop = None
-        self.__aedt_application = None
+        self.__aedt_application: DesignTypeApp | None = None
         self.__data: ExtensionCommonData | None = None
         self._widgets["log_widget"] = None
         self._widgets["button_frame"] = None
 
         if toggle_row is not None and toggle_column is not None:
-            self.add_toggle_theme_button(self.root, toggle_row, toggle_column)
+            self.add_toggle_theme_button(cast(tkinter.Misc, self.root), toggle_row, toggle_column)
         if add_custom_content:
             self.add_extension_content()
 
         self.check_design_type()
         self.apply_theme(self.theme_color)
 
-    def add_toggle_theme_button(self, parent: tkinter.Widget, toggle_row: int, toggle_column: int):
+    def _get_root_theme(self) -> str:
+        return cast(str, getattr(self.root, "theme", "light"))
+
+    def _set_root_theme(self, theme_name: str) -> None:
+        setattr(self.root, "theme", theme_name)
+
+    def add_toggle_theme_button(self, parent: tkinter.Misc, toggle_row: int, toggle_column: int) -> None:
         """Create a button to toggle between light and dark themes.
 
         Examples
@@ -479,7 +496,7 @@ class ExtensionCommon(PyAedtBase):
         change_theme_button.grid(row=0, column=0)
         self._widgets["change_theme_button"] = change_theme_button
 
-    def add_logger(self, parent: tkinter.Widget, row: int, column: int):
+    def add_logger(self, parent: tkinter.Misc, row: int, column: int) -> None:
         """Add a logger text box and a button to show logs."""
         logger_frame = ttk.Frame(parent, style="PyAEDT.TFrame", name="logger_frame")
         logger_frame.grid(row=row, column=column, sticky="ew", **DEFAULT_PADDING)
@@ -537,12 +554,13 @@ class ExtensionCommon(PyAedtBase):
         >>> extension.toggle_theme()  # doctest: +SKIP
 
         """
-        if self.root.theme == "light":
+        root_theme = self._get_root_theme()
+        if root_theme == "light":
             self.apply_theme("dark")
-        elif self.root.theme == "dark":
+        elif root_theme == "dark":
             self.apply_theme("light")
         else:  # pragma: no cover
-            raise ValueError(f"Unknown theme: {self.root.theme}. Use 'light' or 'dark'.")
+            raise ValueError(f"Unknown theme: {root_theme}. Use 'light' or 'dark'.")
 
     def log_message(self, message: str):
         """Append a message to the log text box.
@@ -559,17 +577,24 @@ class ExtensionCommon(PyAedtBase):
             widget.insert("end", message + "\n")
             widget.configure(state="disabled")
 
+    @abstractmethod
+    def open_all_logs_window(self) -> None:
+        """Open a log viewer for the current extension."""
+        raise NotImplementedError
+
     def __init_root(self, title: str, withdraw: bool) -> tkinter.Tk:
         """Init Tk root window with error handling and icon."""
 
-        def show_error_with_details(self, exc, val, tb):  # pragma: no cover
+        def show_error_with_details(
+            self, exc: type[BaseException], val: BaseException, tb: TracebackType | None
+        ) -> object:  # pragma: no cover
             """Custom exception showing an error message with details button."""
             win = tkinter.Toplevel()
             win.title("Error")
             win.resizable(False, False)
             win.grab_set()
 
-            label = tkinter.Label(win, text=val, justify="left")
+            label = tkinter.Label(win, text=str(val), justify="left")
             label.grid(row=0, column=0, columnspan=2, **DEFAULT_PADDING)
 
             details_frame = ttk.Frame(win)
@@ -608,15 +633,18 @@ class ExtensionCommon(PyAedtBase):
             button_ok.grid(row=1, column=1, sticky="e", **DEFAULT_PADDING)
 
             details_frame.grid_remove()
+            return None
 
-        def report_callback_exception_withdraw(self, exc, val, tb):
+        def report_callback_exception_withdraw(
+            self, exc: type[BaseException], val: BaseException, tb: TracebackType | None
+        ) -> object:
             """Custom exception that raises the error without showing a message box."""
             raise val
 
         if withdraw:
-            tkinter.Tk.report_callback_exception = report_callback_exception_withdraw
+            tkinter.Tk.report_callback_exception = cast(Any, report_callback_exception_withdraw)
         else:
-            tkinter.Tk.report_callback_exception = show_error_with_details
+            tkinter.Tk.report_callback_exception = cast(Any, show_error_with_details)
 
         root = tkinter.Tk()
         root.title(title)
@@ -628,7 +656,7 @@ class ExtensionCommon(PyAedtBase):
             icon_path = Path(ansys.aedt.core.extensions.__path__[0]) / "images" / "large" / "logo.png"
             im = PIL.Image.open(icon_path)
             photo = PIL.ImageTk.PhotoImage(im, master=root)
-            root.iconphoto(True, photo)
+            root.iconphoto(True, cast(Any, photo))
 
         return root
 
@@ -642,9 +670,13 @@ class ExtensionCommon(PyAedtBase):
         """
         theme_colors_dict = self.theme.light if theme_color == "light" else self.theme.dark
         self.root.configure(background=theme_colors_dict["widget_bg"])
+        self.root.option_add("*TCombobox*Listbox*Background", theme_colors_dict["combobox_readonly_bg"])
+        self.root.option_add("*TCombobox*Listbox*Foreground", theme_colors_dict["text"])
+        self.root.option_add("*TCombobox*Listbox*selectBackground", theme_colors_dict["button_active_bg"])
+        self.root.option_add("*TCombobox*Listbox*selectForeground", theme_colors_dict["text"])
         for widget in self.__find_all_widgets(
-            self.root,
-            (tkinter.Text, tkinter.Listbox, tkinter.Canvas, tkinter.Scrollbar),
+            cast(tkinter.Misc, self.root),
+            (tkinter.Text, tkinter.Listbox, tkinter.Canvas, tkinter.Scrollbar, tkinter.Entry),
         ):
             if isinstance(widget, tkinter.Text):
                 widget.configure(
@@ -664,18 +696,34 @@ class ExtensionCommon(PyAedtBase):
                     highlightthickness=0,
                     bd=0,
                 )
+            elif isinstance(widget, tkinter.Entry):
+                entry_kwargs = {}
+                if "background" in widget.keys():
+                    entry_kwargs["background"] = theme_colors_dict["combobox_bg"]
+                if "foreground" in widget.keys():
+                    entry_kwargs["foreground"] = theme_colors_dict["text"]
+                if "insertbackground" in widget.keys():
+                    entry_kwargs["insertbackground"] = theme_colors_dict["text"]
+                if "disabledbackground" in widget.keys():
+                    entry_kwargs["disabledbackground"] = theme_colors_dict["pane_bg"]
+                if "disabledforeground" in widget.keys():
+                    entry_kwargs["disabledforeground"] = theme_colors_dict["text"]
+                if "font" in widget.keys():
+                    entry_kwargs["font"] = self.theme.default_font
+                if entry_kwargs:
+                    cast(Any, widget).configure(**entry_kwargs)
             else:
                 if "background" in widget.keys():
-                    widget.configure(background=theme_colors_dict["widget_bg"])
+                    cast(Any, widget).configure(background=theme_colors_dict["widget_bg"])
 
         button_text = None
         if theme_color == "light":
             self.theme.apply_light_theme(self.style)
-            self.root.theme = "light"
+            self._set_root_theme("light")
             button_text = SUN
         else:
             self.theme.apply_dark_theme(self.style)
-            self.root.theme = "dark"
+            self._set_root_theme("dark")
             button_text = MOON
 
         try:
@@ -686,7 +734,7 @@ class ExtensionCommon(PyAedtBase):
 
     def __find_all_widgets(
         self,
-        widget: tkinter.Widget,
+        widget: tkinter.Misc,
         widget_classes: type[tkinter.Widget] | tuple[type[tkinter.Widget], ...],
     ) -> list[tkinter.Widget]:
         """Return a list of all widgets of given type(s) in the widget hierarchy."""
@@ -702,7 +750,7 @@ class ExtensionCommon(PyAedtBase):
         self.root.destroy()
 
     @property
-    def change_theme_button(self) -> tkinter.Widget:
+    def change_theme_button(self) -> ttk.Button:
         """Return the theme toggle button.
 
         Examples
@@ -710,7 +758,11 @@ class ExtensionCommon(PyAedtBase):
         >>> extension.change_theme_button  # doctest: +SKIP
 
         """
-        res = self.root.nametowidget("theme_button_frame.theme_toggle_button")
+        button = self._widgets.get("change_theme_button")
+        if button is not None:
+            return cast(ttk.Button, button)
+
+        res = cast(ttk.Button, self.root.nametowidget("theme_button_frame.theme_toggle_button"))
         return res
 
     @property
@@ -764,7 +816,7 @@ class ExtensionCommon(PyAedtBase):
         return self.__desktop
 
     @property
-    def aedt_application(self) -> object:
+    def aedt_application(self) -> DesignTypeApp:
         """Return the active AEDT application instance.
 
         Examples
@@ -785,8 +837,11 @@ class ExtensionCommon(PyAedtBase):
                 raise AEDTRuntimeError(
                     "No active design found. Please open or create a design before running this extension."
                 )
-            self.__aedt_application = get_pyaedt_app(active_project_name, active_design_name)
-        return self.__aedt_application
+            self.__aedt_application = cast(DesignTypeApp, get_pyaedt_app(active_project_name, active_design_name))
+        app = self.__aedt_application
+        if app is None:  # pragma: no cover
+            raise AEDTRuntimeError("Unable to retrieve the active AEDT application.")
+        return app
 
     def release_desktop(self) -> bool:
         """Release AEDT desktop instance.
@@ -856,7 +911,7 @@ class ExtensionCommon(PyAedtBase):
         raise NotImplementedError("Subclasses must implement this method.")
 
     @abstractmethod
-    def check_design_type(self):
+    def check_design_type(self) -> None:
         """Check the design type.
 
         This method should be implemented by subclasses to add specific content
@@ -868,6 +923,200 @@ class ExtensionCommon(PyAedtBase):
 
         """
         raise NotImplementedError("Subclasses must implement this method.")
+
+    def _run_async(self, task, on_done) -> None:
+        """Run ``task()`` in a background thread and call ``on_done(result)`` on the main thread.
+
+        This method is the standard way to offload slow AEDT operations (e.g. loading
+        projects, fetching reports, pushing datasets) without freezing the Tkinter UI.
+
+        While the task is running, the following optional UI feedback is applied
+        automatically if the corresponding attributes are defined:
+
+        - ``self._progress_bar`` (``ttk.Progressbar``): an indeterminate progress bar
+          shown while the task is running. It is started before the task and stopped
+          once it completes. The easiest way to create this widget is to call
+          :meth:`add_busy_indicator` inside :meth:`add_extension_content`; it can
+          also be created manually and assigned to ``self._progress_bar``.
+
+        - ``self._busy_label`` (``ttk.Label``): a label shown next to the progress
+          bar during execution (e.g. ``"Fetching data…"``). Created automatically by
+          :meth:`add_busy_indicator`; can also be created manually and assigned to
+          ``self._busy_label``.
+
+        - ``self._disable_aedt_tabs()`` / ``self._restore_aedt_tabs()``: optional
+          methods that disable interactive widgets before the task starts and
+          re-enable them once it finishes. This prevents the user from triggering a
+          second AEDT call while one is already in flight. Subclasses that need this
+          protection must implement these two methods.
+
+        If any of the above attributes or methods are absent, that feature is silently
+        skipped, so the method works correctly even when :meth:`add_busy_indicator`
+        has not been called.
+
+        ``on_done`` always receives exactly one argument:
+
+        - The **return value** of ``task()`` on success.
+        - The **Exception** instance if ``task()`` raised one.
+
+        The caller is therefore responsible for checking::
+
+            if isinstance(result, Exception):
+                ...
+
+        Parameters
+        ----------
+        task : callable
+            A zero-argument callable executed in the background thread.
+            **Important**: read all Tkinter ``StringVar`` / widget values *before*
+            calling ``_run_async``, because Tkinter objects must only be accessed
+            from the main thread.
+        on_done : callable
+            A one-argument callable invoked back on the main thread when ``task``
+            completes (successfully or with an exception).
+
+        Notes
+        -----
+        The background thread is started as a daemon thread, so it will not prevent
+        the process from exiting if the main window is closed.
+
+        Examples
+        --------
+        Converting an existing blocking method to use ``_run_async``:
+
+        **Before** (blocks the UI until the AEDT call returns)::
+
+            def _on_design_changed(self, project, design):
+                result = self.service.load_reports_for_design(project, design)
+                self._populate_cb(self.report_cb, self.report_var, result)
+
+        **After** (non-blocking, UI stays responsive)::
+
+            def _on_design_changed(self, project, design):
+                # Read StringVar/widget values HERE, in the main thread.
+                p = project
+                d = design
+
+                def _task():
+                    # This runs in the background thread — no Tkinter access here.
+                    return self.service.load_reports_for_design(p, d)
+
+                def _on_done(result):
+                    # This runs back on the main thread — safe to update the UI.
+                    if isinstance(result, Exception):
+                        messagebox.showerror("Load error", f"Failed to load reports:\\n{result}")
+                        return
+                    self._populate_cb(self.report_cb, self.report_var, result)
+
+                self._run_async(_task, _on_done)
+
+        """
+        disable_func = getattr(self, "_disable_aedt_tabs", None)
+        restore_func = getattr(self, "_restore_aedt_tabs", None)
+        busy_label = getattr(self, "_busy_label", None)
+        progress_bar = getattr(self, "_progress_bar", None)
+
+        if disable_func:
+            disable_func()
+        if busy_label:
+            busy_label.grid()
+        if progress_bar:
+            progress_bar.start(10)
+            progress_bar.grid()
+
+        def _worker():
+            try:
+                result = task()
+            except Exception as exc:
+                result = exc
+            self.root.after(0, lambda: _finish(result))
+
+        def _finish(result):
+            if progress_bar:
+                progress_bar.stop()
+                progress_bar.grid_remove()
+            if busy_label:
+                busy_label.grid_remove()
+            if restore_func:
+                restore_func()
+            on_done(result)
+
+        threading.Thread(target=_worker, daemon=True).start()
+
+    def add_busy_indicator(
+        self,
+        parent: tkinter.Misc,
+        row: int,
+        column: int,
+        busy_text: str = "Fetching data…",
+        bar_length: int = 200,
+    ) -> None:
+        """Add a busy indicator composed of a label and an indeterminate progress bar.
+
+        The indicator is hidden by default and shown automatically by
+        :meth:`_run_async` while a background AEDT task is running.
+        Once the task completes, both widgets are hidden again.
+
+        Call this method inside :meth:`add_extension_content` to place the
+        indicator at any position in the layout. The two widgets are stored as
+        ``self._busy_label`` (``ttk.Label``) and ``self._progress_bar``
+        (``ttk.Progressbar``) so that :meth:`_run_async` picks them up
+        automatically — no further configuration is needed.
+
+        Parameters
+        ----------
+        parent : tkinter.Misc
+            The parent widget (e.g. ``self.root`` or a ``ttk.Frame``) in which
+            the indicator frame is placed.
+        row : int
+            Grid row where the indicator frame is placed inside ``parent``.
+        column : int
+            Grid column where the indicator frame is placed inside ``parent``.
+        busy_text : str, optional
+            Text shown on the label while the task is running.
+            Default is ``"Fetching data…"``.
+        bar_length : int, optional
+            Pixel length of the indeterminate progress bar. Default is ``200``.
+
+        Examples
+        --------
+        Minimal usage — place the indicator at the bottom of the root window::
+
+            class MyExtension(ExtensionProjectCommon):
+                def add_extension_content(self):
+                    # ... build the rest of the UI ...
+                    self.add_busy_indicator(self.root, row=10, column=0)
+
+        Then any slow AEDT call automatically shows the indicator::
+
+            def _on_design_changed(self, project, design):
+                p, d = project, design
+
+                def _task():
+                    return self.service.load_data(p, d)
+
+                def _on_done(result):
+                    if isinstance(result, Exception):
+                        messagebox.showerror("Error", str(result))
+                        return
+                    self._update_ui(result)
+
+                self._run_async(_task, _on_done)
+
+        """
+        indicator_frame = ttk.Frame(parent, style="PyAEDT.TFrame")
+        indicator_frame.grid(row=row, column=column, sticky="ew")
+
+        self._busy_label = ttk.Label(indicator_frame, text=busy_text, style="PyAEDT.TLabel")
+        self._busy_label.grid(row=0, column=0, padx=(0, 8))
+        self._busy_label.grid_remove()
+
+        self._progress_bar = ttk.Progressbar(indicator_frame, mode="indeterminate", length=bar_length)
+        self._progress_bar.grid(row=0, column=1)
+        self._progress_bar.grid_remove()
+
+        self._widgets["busy_label"] = self._busy_label
+        self._widgets["progress_bar"] = self._progress_bar
 
 
 class ExtensionIcepakCommon(ExtensionCommon):
@@ -995,6 +1244,16 @@ class ExtensionMaxwell3DCommon(ExtensionCommon):
             raise AEDTRuntimeError("This extension can only be used with Maxwell 3D designs.")
 
 
+class ExtensionQ3DCommon(ExtensionCommon):
+    """Common methods for Q3D Extractor extensions."""
+
+    def check_design_type(self) -> None:
+        """Check if the active design is a Maxwell 3D design."""
+        if self.aedt_application.design_type != "Q3D Extractor":
+            self.release_desktop()
+            raise AEDTRuntimeError("This extension can only be used with Q3D designs.")
+
+
 class ExtensionCircuitCommon(ExtensionCommon):
     """Common methods for Circuit extensions.
 
@@ -1112,16 +1371,21 @@ def create_default_ui(title: str, withdraw: bool = False) -> tuple[tkinter.Tk, E
     import ansys.aedt.core.extensions
     from ansys.aedt.core.extensions.misc import ExtensionTheme
 
-    def report_callback_exception(self, exc, val, tb):
+    def report_callback_exception(
+        self, exc: type[BaseException], val: BaseException, tb: TracebackType | None
+    ) -> object:
         showerror("Error", message=str(val))
+        return None
 
-    def report_callback_exception_withdraw(self, exc, val, tb):
+    def report_callback_exception_withdraw(
+        self, exc: type[BaseException], val: BaseException, tb: TracebackType | None
+    ) -> object:
         raise val
 
     if withdraw:
-        tkinter.Tk.report_callback_exception = report_callback_exception_withdraw
+        tkinter.Tk.report_callback_exception = cast(Any, report_callback_exception_withdraw)
     else:
-        tkinter.Tk.report_callback_exception = report_callback_exception
+        tkinter.Tk.report_callback_exception = cast(Any, report_callback_exception)
 
     root = tkinter.Tk()
 
@@ -1136,7 +1400,7 @@ def create_default_ui(title: str, withdraw: bool = False) -> tuple[tkinter.Tk, E
         photo = PIL.ImageTk.PhotoImage(im, master=root)
 
         # Set the icon for the main window
-        root.iconphoto(True, photo)
+        root.iconphoto(True, cast(Any, photo))
 
     # Configure style for ttk buttons
     style = ttk.Style()
@@ -1144,7 +1408,7 @@ def create_default_ui(title: str, withdraw: bool = False) -> tuple[tkinter.Tk, E
 
     # Apply light theme initially
     theme.apply_light_theme(style)
-    root.theme = "light"
+    setattr(root, "theme", "light")
 
     # Set background color of the window (optional)
     root.configure(bg=theme.light["widget_bg"])
@@ -1438,27 +1702,28 @@ class ExtensionTheme(PyAedtBase):  # pragma: no cover
         )
 
         # --- Combobox ---------------------------------------------------------
-        style.configure(
-            "PyAEDT.TCombobox",
-            fieldbackground=colors["combobox_bg"],
-            background=colors["combobox_arrow_bg"],
-            foreground=colors["text"],
-            font=self.default_font,
-            arrowcolor=colors["combobox_arrow_fg"],
-            bordercolor=colors["button_border"],
-            lightcolor=colors["combobox_bg"],
-            darkcolor=colors["combobox_bg"],
-            padding=(4, 2),
-        )
-        style.map(
-            "PyAEDT.TCombobox",
-            fieldbackground=[("readonly", colors["combobox_readonly_bg"])],
-            foreground=[("readonly", colors["text"])],
-            bordercolor=[
-                ("focus", colors["button_border"]),
-                ("!focus", colors["button_border"]),
-            ],
-        )
+        for combobox_style in ("TCombobox", "PyAEDT.TCombobox"):
+            style.configure(
+                combobox_style,
+                fieldbackground=colors["combobox_bg"],
+                background=colors["combobox_arrow_bg"],
+                foreground=colors["text"],
+                font=self.default_font,
+                arrowcolor=colors["combobox_arrow_fg"],
+                bordercolor=colors["button_border"],
+                lightcolor=colors["combobox_bg"],
+                darkcolor=colors["combobox_bg"],
+                padding=(4, 2),
+            )
+            style.map(
+                combobox_style,
+                fieldbackground=[("readonly", colors["combobox_readonly_bg"])],
+                foreground=[("readonly", colors["text"])],
+                bordercolor=[
+                    ("focus", colors["button_border"]),
+                    ("!focus", colors["button_border"]),
+                ],
+            )
 
         # --- Checkbutton ------------------------------------------------------
         style.configure(
@@ -1560,16 +1825,17 @@ class ExtensionTheme(PyAedtBase):  # pragma: no cover
         )
 
         # --- Spinbox ----------------------------------------------------------
-        style.configure(
-            "PyAEDT.TSpinbox",
-            fieldbackground=colors["combobox_bg"],
-            background=colors["combobox_arrow_bg"],
-            foreground=colors["text"],
-            font=self.default_font,
-            bordercolor=colors["button_border"],
-            arrowcolor=colors["combobox_arrow_fg"],
-            padding=(4, 2),
-        )
+        for spinbox_style in ("TSpinbox", "PyAEDT.TSpinbox"):
+            style.configure(
+                spinbox_style,
+                fieldbackground=colors["combobox_bg"],
+                background=colors["combobox_arrow_bg"],
+                foreground=colors["text"],
+                font=self.default_font,
+                bordercolor=colors["button_border"],
+                arrowcolor=colors["combobox_arrow_fg"],
+                padding=(4, 2),
+            )
 
         # --- Scrollbar --------------------------------
         _scrollbar_cfg = dict(
@@ -1598,22 +1864,66 @@ class ExtensionTheme(PyAedtBase):  # pragma: no cover
         style.map("PyAEDT.Vertical.TScrollbar", **_scrollbar_map)
 
         # --- Entry --------------------------------
+        for entry_style in ("TEntry", "PyAEDT.TEntry"):
+            style.configure(
+                entry_style,
+                fieldbackground=colors["combobox_bg"],
+                foreground=colors["text"],
+                font=self.default_font,
+                bordercolor=colors["button_border"],
+                lightcolor=colors["combobox_bg"],
+                darkcolor=colors["combobox_bg"],
+                padding=(4, 2),
+            )
+            style.map(
+                entry_style,
+                bordercolor=[
+                    ("focus", colors["button_border"]),
+                    ("!focus", colors["button_border"]),
+                ],
+            )
+
+        # --- Treeview ---------------------------------------------------------
         style.configure(
-            "PyAEDT.TEntry",
-            fieldbackground=colors["combobox_bg"],
+            "Treeview",
+            background=colors["pane_bg"],
+            fieldbackground=colors["pane_bg"],
             foreground=colors["text"],
-            font=self.default_font,
             bordercolor=colors["button_border"],
-            lightcolor=colors["combobox_bg"],
-            darkcolor=colors["combobox_bg"],
-            padding=(4, 2),
+            lightcolor=colors["pane_bg"],
+            darkcolor=colors["pane_bg"],
+            rowheight=22,
+            font=self.default_font,
         )
         style.map(
-            "PyAEDT.TEntry",
-            bordercolor=[
-                ("focus", colors["button_border"]),
-                ("!focus", colors["button_border"]),
-            ],
+            "Treeview",
+            background=[("selected", colors["button_active_bg"])],
+            foreground=[("selected", colors["text"])],
+        )
+        style.configure(
+            "Treeview.Heading",
+            background=colors["button_bg"],
+            foreground=colors["text"],
+            bordercolor=colors["button_border"],
+            lightcolor=colors["button_bg"],
+            darkcolor=colors["button_bg"],
+            font=self.default_font,
+            padding=(6, 4),
+        )
+        style.map(
+            "Treeview.Heading",
+            background=[("active", colors["button_hover_bg"]), ("pressed", colors["button_active_bg"])],
+            foreground=[("active", colors["text"]), ("pressed", colors["text"])],
+        )
+
+        # --- Progress bar -----------------------------------------------------
+        style.configure(
+            "TProgressbar",
+            background=self._ANSYS_GOLD,
+            troughcolor=colors["pane_bg"],
+            bordercolor=colors["pane_bg"],
+            lightcolor=self._ANSYS_GOLD,
+            darkcolor=self._ANSYS_GOLD,
         )
 
 

@@ -28,6 +28,8 @@ from pathlib import Path
 import tkinter
 from tkinter import filedialog
 from tkinter import ttk
+from typing import Any
+from typing import cast
 
 import ansys.aedt.core
 from ansys.aedt.core import get_pyaedt_app
@@ -100,6 +102,9 @@ class PushExcitation3DLayoutExtension(ExtensionHFSS3DLayoutCommon):
 
         # Initialize data
         self.data = PushExcitation3DLayoutExtensionData()
+        self.excitation_names: list[str] = []
+        self.port_combo: ttk.Combobox | None = None
+        self.file_entry: tkinter.Text | None = None
 
         self.__load_aedt_info()
         self.add_extension_content()
@@ -107,16 +112,27 @@ class PushExcitation3DLayoutExtension(ExtensionHFSS3DLayoutCommon):
         if not withdraw:
             self.root.mainloop()
 
+    def _app(self) -> Any:
+        return cast(Any, self.aedt_application)
+
+    def _port_combo(self) -> ttk.Combobox:
+        return cast(ttk.Combobox, self.port_combo)
+
+    def _file_entry(self) -> tkinter.Text:
+        return cast(tkinter.Text, self.file_entry)
+
     def __load_aedt_info(self):
         """Load AEDT information and validate the design."""
         if not self.aedt_application:
             raise AEDTRuntimeError("No active AEDT design found.")
 
-        if self.aedt_application.design_type != "HFSS 3D Layout Design":
+        app = self._app()
+
+        if app.design_type != "HFSS 3D Layout Design":
             raise AEDTRuntimeError("This extension only works with HFSS 3D Layout designs.")
 
         # Get excitation names
-        excitation_names = self.aedt_application.excitation_names
+        excitation_names = app.excitation_names
         if not excitation_names:
             raise AEDTRuntimeError("No excitations found in the design.")
 
@@ -162,8 +178,8 @@ class PushExcitation3DLayoutExtension(ExtensionHFSS3DLayoutCommon):
 
         # Generate button
         def callback(extension: PushExcitation3DLayoutExtension):
-            choice = extension.port_combo.get()
-            file_path_text = extension.file_entry.get("1.0", tkinter.END).strip()
+            choice = extension._port_combo().get()
+            file_path_text = extension._file_entry().get("1.0", tkinter.END).strip()
 
             if not choice:
                 extension.release_desktop()
@@ -211,8 +227,9 @@ class PushExcitation3DLayoutExtension(ExtensionHFSS3DLayoutCommon):
             ),
         )
         if filename:
-            self.file_entry.delete("1.0", tkinter.END)
-            self.file_entry.insert(tkinter.END, filename)
+            file_entry = self._file_entry()
+            file_entry.delete("1.0", tkinter.END)
+            file_entry.insert(tkinter.END, filename)
 
 
 def main(data: PushExcitation3DLayoutExtensionData) -> bool:
@@ -262,7 +279,7 @@ def main(data: PushExcitation3DLayoutExtensionData) -> bool:
 
     design_name = active_design.GetName().split(";")[1]
 
-    hfss_3dl = get_pyaedt_app(project_name, design_name)
+    hfss_3dl: Any = get_pyaedt_app(project_name, design_name)
 
     if hfss_3dl.design_type != "HFSS 3D Layout Design":
         raise AEDTRuntimeError("This extension only works with HFSS 3D Layout designs.")
@@ -287,7 +304,11 @@ if __name__ == "__main__":  # pragma: no cover
     # Open UI
     if not args["is_batch"]:
         extension = PushExcitation3DLayoutExtension(withdraw=False)
-        if extension.data.choice and extension.data.file_path:
+        if (
+            isinstance(extension.data, PushExcitation3DLayoutExtensionData)
+            and extension.data.choice
+            and extension.data.file_path
+        ):
             main(extension.data)
     else:
         data = PushExcitation3DLayoutExtensionData(**args)

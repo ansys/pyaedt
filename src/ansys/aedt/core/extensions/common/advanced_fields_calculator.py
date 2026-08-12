@@ -28,11 +28,11 @@ import os
 from pathlib import Path
 import tkinter
 from tkinter import ttk
+from typing import Any
 
 import ansys.aedt.core
 from ansys.aedt.core import get_pyaedt_app
 import ansys.aedt.core.extensions
-from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
@@ -99,8 +99,8 @@ class AdvancedFieldsCalculatorExtension(ExtensionProjectCommon):
             toggle_column=1,
         )
         # Add private attributes and initialize them through __load_expression_files
-        self.__setups = None
-        self.__available_descriptions = None
+        self.__setups: list[str] | None = None
+        self.__available_descriptions: dict[str, str] | None = None
         self.__load_expression_files()
         # Trigger manually since add_extension_content requires loading expression files first
         self.add_extension_content()
@@ -115,7 +115,8 @@ class AdvancedFieldsCalculatorExtension(ExtensionProjectCommon):
         >>> extension.check_design_type()
 
         """
-        if self.aedt_application.design_type not in [
+        app: Any = self.aedt_application
+        if app.design_type not in [
             "HFSS",
             "Icepak",
             "HFSS 3D",
@@ -131,8 +132,9 @@ class AdvancedFieldsCalculatorExtension(ExtensionProjectCommon):
                 "HFSS 3D, Maxwell 3D, Q3D, Maxwell 2D, Q2D, or Mechanical designs."
             )
 
-    def __load_expression_files(self):
+    def __load_expression_files(self) -> None:
         """Load expression files from the current directory and personal library."""
+        app: Any = self.aedt_application
         # Load new expressions from current directory
         current_directory = Path.cwd()
         toml_files = list(current_directory.glob("*.toml"))
@@ -140,35 +142,29 @@ class AdvancedFieldsCalculatorExtension(ExtensionProjectCommon):
             # Skip the pyproject.toml file to avoid warning messages
             if toml_file.name != "pyproject.toml":
                 self.desktop.logger.debug("Loading expression file: %s", toml_file)
-                self.aedt_application.post.fields_calculator.load_expression_file(toml_file)
+                app.post.fields_calculator.load_expression_file(toml_file)
 
         # Load new expressions from Personal Lib directory
-        personal_lib_directory = Path(self.aedt_application.personallib)
+        personal_lib_directory = Path(app.personallib)
         toml_files = list(personal_lib_directory.glob("*.toml"))
         for toml_file in toml_files:
             self.desktop.logger.debug("Loading expression file: %s", toml_file)
-            self.aedt_application.post.fields_calculator.load_expression_file(toml_file)
+            app.post.fields_calculator.load_expression_file(toml_file)
 
-        setups = self.aedt_application.existing_analysis_sweeps
+        setups = app.existing_analysis_sweeps
         if not setups:
             self.release_desktop()
             raise AEDTRuntimeError("No setups defined. Please define at least one setup in the project.")
         self.__setups = setups
 
         # Available fields calculator expressions
-        available_expressions = self.aedt_application.post.fields_calculator.expression_catalog
-        available_descriptions = {}
+        available_expressions = app.post.fields_calculator.expression_catalog
+        available_descriptions: dict[str, str] = {}
         for expression, expression_info in available_expressions.items():
-            if "design_type" in expression_info and self.aedt_application.design_type in expression_info["design_type"]:
-                if (
-                    "Transient" in self.aedt_application.solution_type
-                    and "Transient" in expression_info["solution_type"]
-                ):
+            if "design_type" in expression_info and app.design_type in expression_info["design_type"]:
+                if "Transient" in app.solution_type and "Transient" in expression_info["solution_type"]:
                     available_descriptions[expression] = expression_info["description"]
-                elif (
-                    "Transient" not in self.aedt_application.solution_type
-                    and "Transient" not in expression_info["solution_type"]
-                ):
+                elif "Transient" not in app.solution_type and "Transient" not in expression_info["solution_type"]:
                     available_descriptions[expression] = expression_info["description"]
         self.__available_descriptions = available_descriptions
 
@@ -182,11 +178,14 @@ class AdvancedFieldsCalculatorExtension(ExtensionProjectCommon):
         >>> extension.add_extension_content()
 
         """
+        setups = self.__setups or []
+        descriptions = self.__available_descriptions or {}
+
         label = ttk.Label(self.root, text="Solved setup:", style="PyAEDT.TLabel")
         label.grid(row=0, column=0, padx=15, pady=10)
 
         combo_setup = ttk.Combobox(self.root, width=30, style="PyAEDT.TCombobox", name="combo_setup")
-        combo_setup["values"] = self.__setups
+        combo_setup["values"] = setups
         combo_setup.current(0)
         combo_setup.grid(row=0, column=1, padx=15, pady=10)
         combo_setup.focus_set()
@@ -195,15 +194,14 @@ class AdvancedFieldsCalculatorExtension(ExtensionProjectCommon):
         label.grid(row=1, column=0, padx=15, pady=10)
 
         combo_calculation = ttk.Combobox(self.root, width=30, style="PyAEDT.TCombobox", name="combo_calculation")
-        combo_calculation["values"] = list(self.__available_descriptions.values())
+        combo_calculation["values"] = list(descriptions.values())
         combo_calculation.current(0)
         combo_calculation.grid(row=1, column=1, padx=15, pady=10)
         combo_calculation.focus_set()
 
         def callback(extension: AdvancedFieldsCalculatorExtension) -> None:
-            assignments = extension.aedt_application.modeler.convert_to_selections(
-                extension.aedt_application.modeler.selections, True
-            )
+            app: Any = extension.aedt_application
+            assignments = app.modeler.convert_to_selections(app.modeler.selections, True)
             calculation_label = combo_calculation.get()
             calculation = next(
                 (key for key, value in extension.available_descriptions.items() if value == calculation_label),
@@ -221,7 +219,7 @@ class AdvancedFieldsCalculatorExtension(ExtensionProjectCommon):
         ok_button.grid(row=2, column=0, padx=15, pady=10)
 
     @property
-    def available_descriptions(self) -> dict:
+    def available_descriptions(self) -> dict[str, str]:
         """Get available descriptions for fields calculator expressions.
 
         Examples
@@ -231,7 +229,7 @@ class AdvancedFieldsCalculatorExtension(ExtensionProjectCommon):
         >>> extension.available_descriptions
 
         """
-        return self.__available_descriptions
+        return self.__available_descriptions or {}
 
 
 def main(data: AdvancedFieldsCalculatorExtensionData) -> bool:
@@ -269,7 +267,7 @@ def main(data: AdvancedFieldsCalculatorExtensionData) -> bool:
     else:
         design_name = active_design.GetName()
 
-    aedt_app = get_pyaedt_app(project_name, design_name)
+    aedt_app: Any = get_pyaedt_app(project_name, design_name)
 
     assignments = []
     for assignment in data.assignments:
@@ -311,12 +309,13 @@ if __name__ == "__main__":  # pragma: no cover
 
     # Open UI
     if not args["is_batch"]:
-        extension: ExtensionCommon = AdvancedFieldsCalculatorExtension(withdraw=False)
+        extension = AdvancedFieldsCalculatorExtension(withdraw=False)
 
         tkinter.mainloop()
 
-        if extension.data is not None:
-            main(extension.data)
+        data = extension.data
+        if data is not None and isinstance(data, AdvancedFieldsCalculatorExtensionData):
+            main(data)
     else:
         data = AdvancedFieldsCalculatorExtensionData()
         for key, value in args.items():

@@ -238,7 +238,7 @@ class UserDefinedComponent(PyAedtBase):
         return self._layout_component
 
     @pyaedt_function_handler()
-    def history(self) -> "BinaryTreeNode":
+    def history(self) -> "BinaryTreeNode" | bool:
         """Component history.
 
         Returns

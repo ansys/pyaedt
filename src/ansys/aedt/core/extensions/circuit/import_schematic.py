@@ -89,7 +89,7 @@ class ImportSchematicExtension(ExtensionCircuitCommon):
             toggle_row=1,
             toggle_column=2,
         )
-        self._text_widget = None
+        self._text_widget: tkinter.Text | None = None
         self.add_extension_content()
 
     def add_extension_content(self) -> None:
@@ -117,7 +117,10 @@ class ImportSchematicExtension(ExtensionCircuitCommon):
         self._text_widget.grid(row=0, column=1, padx=5, pady=10)
 
         def browse_file() -> None:
-            current = self._text_widget.get(
+            text_widget = self._text_widget
+            if text_widget is None:
+                raise RuntimeError("Import schematic text widget is not initialized.")
+            current = text_widget.get(
                 "1.0",
                 tkinter.END,
             ).strip()
@@ -132,8 +135,8 @@ class ImportSchematicExtension(ExtensionCircuitCommon):
                 ),
             )
             if filename:
-                self._text_widget.delete("1.0", tkinter.END)
-                self._text_widget.insert(tkinter.END, filename)
+                text_widget.delete("1.0", tkinter.END)
+                text_widget.insert(tkinter.END, filename)
 
         browse_button = ttk.Button(
             self.root,
@@ -145,13 +148,17 @@ class ImportSchematicExtension(ExtensionCircuitCommon):
         browse_button.grid(row=0, column=2, padx=10, pady=10)
 
         def callback() -> None:
-            file_extension = self._text_widget.get(
+            text_widget = self._text_widget
+            if text_widget is None:
+                raise RuntimeError("Import schematic text widget is not initialized.")
+            file_extension = text_widget.get(
                 "1.0",
                 tkinter.END,
             ).strip()
             if not Path(file_extension).exists():
                 raise ValueError("File does not exist.")
-            self.data = ImportSchematicData(file_extension=file_extension)
+            data = ImportSchematicData(file_extension=file_extension)
+            self.data = data
             self.root.destroy()
 
         import_button = ttk.Button(
@@ -201,8 +208,9 @@ if __name__ == "__main__":  # pragma: no cover
     if not args.get("is_batch", False):
         extension = ImportSchematicExtension(withdraw=False)
         tkinter.mainloop()
-        if extension.data:
-            main(extension.data)
+        data = extension.data
+        if data and isinstance(data, ImportSchematicData):
+            main(data)
     else:
         data = ImportSchematicData()
         for key, value in args.items():

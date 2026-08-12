@@ -41,8 +41,10 @@ import os
 from pathlib import Path
 import sys
 import tempfile
+from typing import Any
 
-aedt_process_id = int(os.environ.get("PYAEDT_PROCESS_ID", None))
+aedt_process_id_env = os.environ.get("PYAEDT_PROCESS_ID")
+aedt_process_id = int(aedt_process_id_env) if aedt_process_id_env is not None else None
 """Value for AEDT process id."""
 version = os.environ.get("PYAEDT_DESKTOP_VERSION", None)
 """Value for version."""
@@ -166,17 +168,19 @@ if not error:
         try:
             import signal
 
-            def signal_handler(sig, frame) -> None:
+            def signal_handler(sig: int, frame: Any) -> None:
                 release(desktop)
                 sys.exit(0)
 
-            signal.signal(signal.SIGHUP, signal_handler)
-            signal.signal(signal.SIGTERM, signal_handler)
+            for signal_name in ("SIGHUP", "SIGTERM"):
+                signal_value = getattr(signal, signal_name, None)
+                if signal_value is not None:
+                    signal.signal(signal_value, signal_handler)
         except ImportError:
             pass
         atexit.register(release, desktop)
 
-if version > "2023.1":
+if version and version > "2023.1":
     log_file = Path(tempfile.gettempdir()) / "pyaedt_script.py"
     log_file = available_file_name(log_file)
 

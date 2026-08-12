@@ -368,7 +368,7 @@ class TabConfigParser:
             attrs = {"label": group_label}
             if group_image:
                 attrs["image"] = group_image
-            group_el = ET.SubElement(gallery_el, "group", **attrs)
+            group_el = ET.SubElement(gallery_el, "group", attrs)
         elif group_image:
             group_el.set("image", group_image)
         return group_el, gallery_el

@@ -119,6 +119,39 @@ class FieldsCalculator(PyAedtBase):
         """
         return list(self.expression_catalog.keys())
 
+    @property
+    def expressions(self):
+        """
+        Typed, fluent builder for Fields Calculator expressions.
+
+        Returns a
+        :class:`~ansys.aedt.core.visualization.post.field_calculator_expressions.FieldExpressions`
+        factory that produces strongly typed expression objects. Chaining their
+        ``.method()`` calls and the ``dot`` / ``cross`` helpers builds the
+        calculator operation stack with type safety, instead of assembling the
+        operation strings by hand.
+
+        Returns
+        -------
+        :class:`~ansys.aedt.core.visualization.post.field_calculator_expressions.FieldExpressions`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> from ansys.aedt.core.visualization.post.field_calculator_expressions import Volume
+        >>> hfss = Hfss()
+        >>> fx = hfss.post.fields_calculator.expressions
+        >>> e_vec = fx.vector("E")  # VectorComplex
+        >>> mag_e = e_vec.magnitude()  # ScalarReal
+        >>> value = mag_e.maximum(Volume("MySolid")).evaluate(setup="Setup1 : LastAdaptive")
+
+        """
+        from ansys.aedt.core.visualization.post.field_calculator_expressions import FieldExpressions
+
+        if getattr(self, "_expressions", None) is None:
+            self._expressions = FieldExpressions(self)
+        return self._expressions
+
     @pyaedt_function_handler()
     def add_expression(self, calculation: str | dict, assignment, name: str | None = None) -> str | bool:
         """Add named expression.
@@ -296,7 +329,7 @@ class FieldsCalculator(PyAedtBase):
         return str(Path(file_name).resolve())
 
     @pyaedt_function_handler()
-    def expression_plot(self, calculation: str, assignment: list, names: list, setup: str = None) -> list | bool:
+    def expression_plot(self, calculation: str, assignment: list, names: list, setup: str | None = None) -> list | bool:
         """Create plots defined in the expression catalog.
 
         Parameters
@@ -635,7 +668,7 @@ class FieldsCalculator(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def evaluate(self, expression: str, setup: str | None = None, intrinsics: dict | None = None) -> float:
+    def evaluate(self, expression: str, setup: str | None = None, intrinsics: dict | None = None) -> str | None:
         """Evaluate an expression and return the value.
 
         Parameters
@@ -689,20 +722,20 @@ class FieldsCalculator(PyAedtBase):
     def export(
         self,
         quantity: str,
-        solution: str = None,
-        variations: dict = None,
-        output_file: str = None,
-        intrinsics: dict = None,
-        sample_points: list = None,
+        solution: str | None = None,
+        variations: dict | None = None,
+        output_file: str | None = None,
+        intrinsics: dict | None = None,
+        sample_points: str | list | None = None,
         export_with_sample_points: bool = True,
         reference_coordinate_system: str = "Global",
         export_in_si_system: bool = True,
         export_field_in_reference: bool = True,
-        grid_type: str = None,
-        grid_center: list = None,
-        grid_start: list = None,
-        grid_stop: list = None,
-        grid_step: list = None,
+        grid_type: str | None = None,
+        grid_center: list | None = None,
+        grid_start: list | None = None,
+        grid_stop: list | None = None,
+        grid_step: list | None = None,
         is_vector: bool = False,
         assignment: str = "AllObjects",
         objects_type: str = "Vol",
@@ -860,16 +893,15 @@ class FieldsCalculator(PyAedtBase):
             )
             return False
 
-        if output_file:
-            output_file = Path(output_file)
+        resolved_output_file = Path(output_file) if output_file else None
 
-        if output_file.exists():
-            return str(output_file)
+        if resolved_output_file and resolved_output_file.exists():
+            return str(resolved_output_file)
         return False
 
     @pyaedt_function_handler()
     @min_aedt_version("2026.1")
-    def get_expressions(self, field_type: str = None) -> dict:  # pragma: no cover
+    def get_expressions(self, field_type: str | None = None) -> dict:  # pragma: no cover
         """Get dictionary of available Field Calculator expressions.
 
         Parameters
@@ -887,6 +919,7 @@ class FieldsCalculator(PyAedtBase):
         References
         ----------
         >>> oModule.GetFieldsCalculatorExpressions
+
         Example
         -------
         >>> from ansys.aedt.core import Hfss

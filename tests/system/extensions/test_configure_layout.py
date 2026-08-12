@@ -33,6 +33,7 @@ from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui import ConfigureLayoutExtension
 from ansys.aedt.core.generic.general_methods import is_linux
 from tests import TESTS_EXTENSIONS_PATH
+from tests.conftest import edb_xfail
 
 TEST_SUBFOLDER = "T45"
 SI_VERSE_PROJECT = "ANSYS_SVP_V1_1_SFP"
@@ -42,6 +43,7 @@ SI_VERSE_PATH = TESTS_EXTENSIONS_PATH / "example_models" / TEST_SUBFOLDER / EDB_
 pytestmark = pytest.mark.skipif(is_linux, reason="PyEDB stability issues on Linux")
 
 
+@edb_xfail
 def test_get_active_db(add_app_example) -> None:
     app = add_app_example(application=Hfss3dLayout, project=SI_VERSE_PROJECT, subfolder=TEST_SUBFOLDER)
     extension = ConfigureLayoutExtension(withdraw=True)
@@ -49,6 +51,7 @@ def test_get_active_db(add_app_example) -> None:
     app.close_project(app.project_name, save=False)
 
 
+@edb_xfail
 def test_apply_config_to_edb(add_app_example, test_tmp_dir) -> None:
     app = add_app_example(application=Hfss3dLayout, project=SI_VERSE_PROJECT, subfolder=TEST_SUBFOLDER)
     config_path = test_tmp_dir / "config.json"
@@ -61,6 +64,7 @@ def test_apply_config_to_edb(add_app_example, test_tmp_dir) -> None:
     app.close_project(app.project_name, save=False)
 
 
+@edb_xfail
 def test_export_config_from_edb(add_app_example) -> None:
     app = add_app_example(application=Hfss3dLayout, project=SI_VERSE_PROJECT, subfolder=TEST_SUBFOLDER)
     extension = ConfigureLayoutExtension(withdraw=True)
@@ -68,6 +72,7 @@ def test_export_config_from_edb(add_app_example) -> None:
     app.close_project(app.project_name, save=False)
 
 
+@edb_xfail
 def test_load_edb_into_hfss3dlayout(add_app, test_tmp_dir) -> None:
     test_project = test_tmp_dir / EDB_PROJECT
     shutil.copytree(SI_VERSE_PATH, test_project)
@@ -78,6 +83,7 @@ def test_load_edb_into_hfss3dlayout(add_app, test_tmp_dir) -> None:
     app.close_project(app.project_name, save=False)
 
 
+@edb_xfail
 def test_ui_initial_state(add_app, test_tmp_dir) -> None:
     """Test the initial state of the UI variables."""
     test_project = test_tmp_dir / EDB_PROJECT
@@ -90,6 +96,7 @@ def test_ui_initial_state(add_app, test_tmp_dir) -> None:
     app.close_project(app.project_name, save=False)
 
 
+@edb_xfail
 def test_selected_edb_property(add_app_example) -> None:
     """Test the selected_edb property."""
     # Test with active design

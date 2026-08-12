@@ -6,7 +6,7 @@ The script provides for choosing the PyAEDT script to execute.
 import os
 import sys
 
-from System.Windows.Forms import Form, Button, TextBox, Label, OpenFileDialog, DialogResult, FormBorderStyle
+from System.Windows.Forms import Form, Button, TextBox, Label, OpenFileDialog, DialogResult, FormBorderStyle, AnchorStyles
 from System.Windows.Forms import MessageBox, MessageBoxButtons, MessageBoxIcon
 is_linux = os.name == "posix"
 
@@ -18,6 +18,7 @@ else:
 sys.path.append(r"##EXTENSION_TEMPLATES##")
 
 import pyaedt_utils
+
 
 def build_command(python_exe, error_handler, pyaedt_script, script_args):
     """Build the command used to launch the selected script."""
@@ -48,37 +49,38 @@ def show_launcher_dialog(initial_dir, run_callback):
     Shows a GUI to select a file and run it without closing the launcher.
     """
 
-    top = 20
-    # Script file
+    top = 24
     f = Form()
     f.Text = "Run PyAEDT Script"
-    f.Width = 500
-    f.Height = 180
-    f.FormBorderStyle = FormBorderStyle.FixedDialog
-    f.MaximizeBox = False
+    f.Width = 760
+    f.Height = 300
+    f.FormBorderStyle = FormBorderStyle.Sizable
+    f.MaximizeBox = True
     f.MinimizeBox = False
     f.StartPosition = f.StartPosition.CenterScreen
     f.ControlBox = True
 
     lbl_file = Label()
     lbl_file.Text = "File name:"
-    lbl_file.Left = 12
+    lbl_file.Left = 16
     lbl_file.Top = top
     lbl_file.AutoSize = True
     f.Controls.Add(lbl_file)
 
     txt_file = TextBox()
-    txt_file.Left = 110
+    txt_file.Left = 150
     txt_file.Top = top
-    txt_file.Width = 320
+    txt_file.Width = 500
+    txt_file.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
     f.Controls.Add(txt_file)
 
     btn_browse = Button()
     btn_browse.Text = "..."
-    btn_browse.Left = 440
+    btn_browse.Left = 660
     btn_browse.Top = top - 3
-    btn_browse.Width = 30
-    btn_browse.Height = 23
+    btn_browse.Width = 40
+    btn_browse.Height = 26
+    btn_browse.Anchor = AnchorStyles.Top | AnchorStyles.Right
     f.Controls.Add(btn_browse)
 
     def browse_click(sender, args):
@@ -90,37 +92,45 @@ def show_launcher_dialog(initial_dir, run_callback):
 
     btn_browse.Click += browse_click
 
-    top += 30
-    # Args Label
+    top += 44
     lbl_args = Label()
     lbl_args.Text = "Script Arguments:"
-    lbl_args.Left = 12
+    lbl_args.Left = 16
     lbl_args.Top = top
     lbl_args.AutoSize = True
     f.Controls.Add(lbl_args)
 
     txt_args = TextBox()
-    txt_args.Left = 110
+    txt_args.Left = 150
     txt_args.Top = top
-    txt_args.Width = 320
+    txt_args.Width = 550
+    txt_args.Height = 72
+    txt_args.Multiline = True
+    txt_args.AcceptsReturn = True
+    txt_args.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right
     f.Controls.Add(txt_args)
 
-
-    # Execution
-    top += 40
+    top += 96
     btn_run = Button()
     btn_run.Text = "Run"
-    btn_run.Left = 315
+    btn_run.Left = 520
     btn_run.Top = top
+    btn_run.Width = 85
+    btn_run.Height = 30
+    btn_run.Anchor = AnchorStyles.Bottom | AnchorStyles.Right
     f.Controls.Add(btn_run)
 
     btn_cancel = Button()
     btn_cancel.Text = "Cancel"
     btn_cancel.DialogResult = DialogResult.Cancel
-    btn_cancel.Left = 395
+    btn_cancel.Left = 615
     btn_cancel.Top = top
+    btn_cancel.Width = 85
+    btn_cancel.Height = 30
+    btn_cancel.Anchor = AnchorStyles.Bottom | AnchorStyles.Right
     f.Controls.Add(btn_cancel)
 
+    f.AcceptButton = btn_run
     f.CancelButton = btn_cancel
 
     def cancel_click(sender, args):
@@ -148,7 +158,6 @@ def show_launcher_dialog(initial_dir, run_callback):
 
     btn_run.Click += run_click
 
-    # Show
     f.ShowDialog()
 
 

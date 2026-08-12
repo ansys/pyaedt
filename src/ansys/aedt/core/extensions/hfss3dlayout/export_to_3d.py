@@ -26,6 +26,7 @@ from dataclasses import dataclass
 import os
 import tkinter
 from tkinter import ttk
+from typing import cast
 
 import ansys.aedt.core
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
@@ -96,7 +97,7 @@ class ExportTo3DExtension(ExtensionHFSS3DLayoutCommon):
         self.__load_aedt_info()
 
         # Tkinter widgets
-        self.combo_choice = None
+        self.combo_choice: ttk.Combobox | None = None
 
         # Trigger manually since add_extension_content requires info
         self.add_extension_content()
@@ -133,7 +134,10 @@ class ExportTo3DExtension(ExtensionHFSS3DLayoutCommon):
         self.combo_choice.focus_set()
 
         def callback(extension: ExportTo3DExtension) -> None:
-            choice = extension.combo_choice.get()
+            combo_choice = extension.combo_choice
+            if combo_choice is None:
+                raise RuntimeError("Export choice widget is not initialized.")
+            choice = combo_choice.get()
 
             export_data = ExportTo3DExtensionData(choice=choice)
             extension.data = export_data
@@ -232,7 +236,7 @@ if __name__ == "__main__":  # pragma: no cover
         tkinter.mainloop()
 
         if extension.data is not None:
-            main(extension.data)
+            main(cast(ExportTo3DExtensionData, extension.data))
 
     else:
         data = ExportTo3DExtensionData()

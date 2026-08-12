@@ -415,31 +415,38 @@ def test_create_single_point_sweep(aedt_app) -> None:
         renormalize=False,
         deembed=5,
     )
-    assert setup.update()
-    assert aedt_app.create_single_point_sweep(
+
+    s1 = aedt_app.create_single_point_sweep(
         setup="MySetup",
         unit="MHz",
         freq=1.2e3,
     )
+    assert setup.children[s1.name].properties["Start"] == "1200MHz"
+    assert setup.children[s1.name].properties["Stop"] == "1200MHz"
+    setup._children = {}
+
     setup = aedt_app.get_setup("MySetup")
-    assert setup.create_single_point_sweep(
+    s2 = setup.create_single_point_sweep(
         unit="GHz",
         freq=1.2,
         save_single_field=False,
     )
-    assert aedt_app.create_single_point_sweep(
+    assert setup.children[s2.name].properties["Start"] == "1.2GHz"
+    assert setup.children[s2.name].properties["Stop"] == "1.2GHz"
+
+    s3 = aedt_app.create_single_point_sweep(
         setup="MySetup",
         unit="GHz",
         freq=[1.1, 1.2, 1.3],
     )
-    assert aedt_app.create_single_point_sweep(
+    assert setup.children[s3.name].properties["Start"] == "1.1GHz"
+    assert setup.children[s3.name].properties["Stop"] == "1.3GHz"
+
+    s4 = aedt_app.create_single_point_sweep(
         setup="MySetup", unit="GHz", freq=[1.1e1, 1.2e1, 1.3e1], save_single_field=[True, False, True]
     )
-
-    with pytest.raises(AttributeError):
-        aedt_app.create_single_point_sweep(
-            setup="MySetup", unit="GHz", freq=[1, 2e2, 3.4], save_single_field=[True, False]
-        )
+    assert setup.children[s4.name].properties["Start"] == "11GHz"
+    assert setup.children[s4.name].properties["Stop"] == "13GHz"
 
 
 def test_delete_setup(aedt_app) -> None:

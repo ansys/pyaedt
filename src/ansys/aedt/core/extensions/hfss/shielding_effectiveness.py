@@ -27,6 +27,8 @@ import os
 from pathlib import Path
 import tkinter
 from tkinter import ttk
+from typing import Any
+from typing import cast
 
 import numpy as np
 
@@ -126,25 +128,28 @@ class ShieldingEffectivenessExtension(ExtensionHFSSCommon):
         self.__load_aedt_info()
 
         # Tkinter widgets
-        self.sphere_size_entry = None
-        self.x_pol_entry = None
-        self.y_pol_entry = None
-        self.z_pol_entry = None
-        self.start_frequency_entry = None
-        self.stop_frequency_entry = None
-        self.start_frequency_units = None
-        self.stop_frequency_units = None
-        self.points_entry = None
-        self.cores_entry = None
-        self.dipole_checkbutton = None
-        self.dipole_var = None
+        self.sphere_size_entry: tkinter.Text | None = None
+        self.x_pol_entry: tkinter.Text | None = None
+        self.y_pol_entry: tkinter.Text | None = None
+        self.z_pol_entry: tkinter.Text | None = None
+        self.start_frequency_entry: tkinter.Text | None = None
+        self.stop_frequency_entry: tkinter.Text | None = None
+        self.start_frequency_units: ttk.Combobox | None = None
+        self.stop_frequency_units: ttk.Combobox | None = None
+        self.points_entry: tkinter.Text | None = None
+        self.cores_entry: tkinter.Text | None = None
+        self.dipole_checkbutton: ttk.Checkbutton | None = None
+        self.dipole_var: tkinter.IntVar | None = None
 
         # Trigger manually since add_extension_content requires loading info first
         self.add_extension_content()
 
+    def _app(self) -> Any:
+        return cast(Any, self.aedt_application)
+
     def __load_aedt_info(self):
         """Load info."""
-        object_names = self.aedt_application.modeler.object_names
+        object_names = self._app().modeler.object_names
         if len(object_names) != 1:
             self.release_desktop()
             raise AEDTRuntimeError("There should be only one object in the design.")
@@ -244,19 +249,31 @@ class ShieldingEffectivenessExtension(ExtensionHFSSCommon):
         self.cores_entry.insert(tkinter.END, "4")
         self.cores_entry.grid(row=8, column=1, pady=10, padx=10)
 
-        def callback(extension: ShieldingEffectivenessExtension):
-            sphere_size_val = float(extension.sphere_size_entry.get("1.0", tkinter.END).strip())
+        def callback(extension: ShieldingEffectivenessExtension) -> None:
+            sphere_size_entry = cast(tkinter.Text, extension.sphere_size_entry)
+            x_pol_entry = cast(tkinter.Text, extension.x_pol_entry)
+            y_pol_entry = cast(tkinter.Text, extension.y_pol_entry)
+            z_pol_entry = cast(tkinter.Text, extension.z_pol_entry)
+            start_frequency_entry = cast(tkinter.Text, extension.start_frequency_entry)
+            stop_frequency_entry = cast(tkinter.Text, extension.stop_frequency_entry)
+            start_frequency_units_widget = cast(ttk.Combobox, extension.start_frequency_units)
+            stop_frequency_units_widget = cast(ttk.Combobox, extension.stop_frequency_units)
+            points_entry = cast(tkinter.Text, extension.points_entry)
+            cores_entry = cast(tkinter.Text, extension.cores_entry)
+            dipole_var = cast(tkinter.IntVar, extension.dipole_var)
+
+            sphere_size_val = float(sphere_size_entry.get("1.0", tkinter.END).strip())
             if sphere_size_val <= 0:
                 extension.release_desktop()
                 raise AEDTRuntimeError("Sphere size must be greater than zero.")
 
-            x_pol_val = float(extension.x_pol_entry.get("1.0", tkinter.END).strip())
-            y_pol_val = float(extension.y_pol_entry.get("1.0", tkinter.END).strip())
-            z_pol_val = float(extension.z_pol_entry.get("1.0", tkinter.END).strip())
+            x_pol_val = float(x_pol_entry.get("1.0", tkinter.END).strip())
+            y_pol_val = float(y_pol_entry.get("1.0", tkinter.END).strip())
+            z_pol_val = float(z_pol_entry.get("1.0", tkinter.END).strip())
 
             # Get frequency units from both dropdowns - use start frequency units
-            start_frequency_units = extension.start_frequency_units.get()
-            stop_frequency_units = extension.stop_frequency_units.get()
+            start_frequency_units = start_frequency_units_widget.get()
+            stop_frequency_units = stop_frequency_units_widget.get()
 
             # Ensure both frequencies use the same units
             if start_frequency_units != stop_frequency_units:
@@ -265,24 +282,24 @@ class ShieldingEffectivenessExtension(ExtensionHFSSCommon):
 
             frequency_units_val = start_frequency_units
 
-            start_frequency_val = float(extension.start_frequency_entry.get("1.0", tkinter.END).strip())
-            stop_frequency_val = float(extension.stop_frequency_entry.get("1.0", tkinter.END).strip())
+            start_frequency_val = float(start_frequency_entry.get("1.0", tkinter.END).strip())
+            stop_frequency_val = float(stop_frequency_entry.get("1.0", tkinter.END).strip())
 
             if start_frequency_val >= stop_frequency_val:
                 extension.release_desktop()
                 raise AEDTRuntimeError("Start frequency must be less than stop frequency.")
 
-            points_val = int(extension.points_entry.get("1.0", tkinter.END).strip())
+            points_val = int(points_entry.get("1.0", tkinter.END).strip())
             if points_val <= 0:
                 extension.release_desktop()
                 raise AEDTRuntimeError("Points must be greater than zero.")
 
-            cores_val = int(extension.cores_entry.get("1.0", tkinter.END).strip())
+            cores_val = int(cores_entry.get("1.0", tkinter.END).strip())
             if cores_val <= 0:
                 extension.release_desktop()
                 raise AEDTRuntimeError("Cores must be greater than zero.")
 
-            dipole_type_val = "Electric" if extension.dipole_var.get() == 1 else "Magnetic"
+            dipole_type_val = "Electric" if dipole_var.get() == 1 else "Magnetic"
 
             shielding_data = ShieldingEffectivenessExtensionData(
                 sphere_size=sphere_size_val,
@@ -363,7 +380,7 @@ def main(data: ShieldingEffectivenessExtensionData) -> bool:
 
     design_name = active_design.GetName()
 
-    aedtapp = get_pyaedt_app(project_name, design_name)
+    aedtapp: Any = get_pyaedt_app(project_name, design_name)
 
     if aedtapp.design_type != "HFSS":  # pragma: no cover
         app.logger.error("Active design is not HFSS.")
@@ -569,11 +586,11 @@ if __name__ == "__main__":  # pragma: no cover
 
     # Open UI
     if not args["is_batch"]:
-        extension: ExtensionHFSSCommon = ShieldingEffectivenessExtension(withdraw=False)
+        extension = ShieldingEffectivenessExtension(withdraw=False)
 
         tkinter.mainloop()
 
-        if extension.data is not None:
+        if isinstance(extension.data, ShieldingEffectivenessExtensionData):
             main(extension.data)
 
     else:

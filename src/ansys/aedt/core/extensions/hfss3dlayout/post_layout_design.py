@@ -27,6 +27,8 @@ import os
 import tkinter
 from tkinter import messagebox
 from tkinter import ttk
+from typing import Any
+from typing import cast
 
 import ansys.aedt.core
 from ansys.aedt.core import get_pyaedt_app
@@ -77,7 +79,7 @@ class PostLayoutDesignExtensionData(ExtensionCommonData):
 
     action: str = EXTENSION_DEFAULT_ARGUMENTS["action"]
     """Value for action."""
-    selections: list = None
+    selections: list[str] | None = None
     """Value for selections."""
     radius: str = EXTENSION_DEFAULT_ARGUMENTS["radius"]
     """Value for radius."""
@@ -92,7 +94,7 @@ class PostLayoutDesignExtensionData(ExtensionCommonData):
 
     def __post_init__(self) -> None:
         if self.selections is None:
-            self.selections = EXTENSION_DEFAULT_ARGUMENTS["selections"].copy()
+            self.selections = cast(list[str], EXTENSION_DEFAULT_ARGUMENTS["selections"]).copy()
 
 
 class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
@@ -140,21 +142,27 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
         self.microvia_split_via_var = tkinter.BooleanVar()
 
         # Initialize shared pedb instance
-        self._pedb = None
+        self._pedb: Any | None = None
 
         # Set initial values based on defaults
-        self.antipad_race_track_var.set(EXTENSION_DEFAULT_ARGUMENTS["race_track"])
-        self.microvia_signal_only_var.set(EXTENSION_DEFAULT_ARGUMENTS["signal_only"])
-        self.microvia_split_via_var.set(EXTENSION_DEFAULT_ARGUMENTS["split_via"])
+        self.antipad_race_track_var.set(cast(bool, EXTENSION_DEFAULT_ARGUMENTS["race_track"]))
+        self.microvia_signal_only_var.set(cast(bool, EXTENSION_DEFAULT_ARGUMENTS["signal_only"]))
+        self.microvia_split_via_var.set(cast(bool, EXTENSION_DEFAULT_ARGUMENTS["split_via"]))
 
         # Trigger manually since add_extension_content requires loading info first
         self.add_extension_content()
+
+    def _app(self) -> Any:
+        return cast(Any, self.aedt_application)
+
+    def _text_widget(self, key: str) -> tkinter.Text:
+        return cast(tkinter.Text, self._widgets[key])
 
     @property
     def pedb(self):
         """Retrieve pedb."""
         if self._pedb is None:
-            self._pedb = self.aedt_application.modeler.primitives.edb
+            self._pedb = self._app().modeler.primitives.edb
         return self._pedb
 
     def __del__(self) -> None:
@@ -229,16 +237,14 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
         self._widgets["notebook"].add(self._widgets["microvia_frame"], text="Micro Via")
 
         # Microvia UI components
-        grid_params = {"padx": 15, "pady": 10}
-
         # Padstack definition entry
         self._widgets["microvia_label"] = ttk.Label(
             self._widgets["microvia_frame"], text="Padstack Def:", width=20, style="PyAEDT.TLabel"
         )
-        self._widgets["microvia_label"].grid(row=0, column=0, **grid_params)
+        self._widgets["microvia_label"].grid(row=0, column=0, padx=15, pady=10)
 
         self._widgets["microvia_selection_entry"] = tkinter.Text(self._widgets["microvia_frame"], width=20, height=1)
-        self._widgets["microvia_selection_entry"].grid(row=0, column=1, **grid_params)
+        self._widgets["microvia_selection_entry"].grid(row=0, column=1, padx=15, pady=10)
 
         self._widgets["microvia_selection_button"] = ttk.Button(
             self._widgets["microvia_frame"],
@@ -247,17 +253,17 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
             width=20,
             style="PyAEDT.TButton",
         )
-        self._widgets["microvia_selection_button"].grid(row=0, column=2, **grid_params)
+        self._widgets["microvia_selection_button"].grid(row=0, column=2, padx=15, pady=10)
 
         # Etching angle entry
         self._widgets["microvia_angle_label"] = ttk.Label(
             self._widgets["microvia_frame"], text="Etching Angle (deg):", width=20, style="PyAEDT.TLabel"
         )
-        self._widgets["microvia_angle_label"].grid(row=1, column=0, **grid_params)
+        self._widgets["microvia_angle_label"].grid(row=1, column=0, padx=15, pady=10)
 
         self._widgets["microvia_angle_entry"] = tkinter.Text(self._widgets["microvia_frame"], width=20, height=1)
         self._widgets["microvia_angle_entry"].insert(tkinter.END, "75")
-        self._widgets["microvia_angle_entry"].grid(row=1, column=1, **grid_params)
+        self._widgets["microvia_angle_entry"].grid(row=1, column=1, padx=15, pady=10)
 
         # Signal only checkbox
         self._widgets["microvia_signal_only_cb"] = ttk.Checkbutton(
@@ -267,7 +273,7 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
             width=20,
             style="PyAEDT.TCheckbutton",
         )
-        self._widgets["microvia_signal_only_cb"].grid(row=2, column=0, **grid_params)
+        self._widgets["microvia_signal_only_cb"].grid(row=2, column=0, padx=15, pady=10)
 
         # Split via checkbox
         self._widgets["microvia_split_via_cb"] = ttk.Checkbutton(
@@ -277,7 +283,7 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
             width=20,
             style="PyAEDT.TCheckbutton",
         )
-        self._widgets["microvia_split_via_cb"].grid(row=2, column=1, **grid_params)
+        self._widgets["microvia_split_via_cb"].grid(row=2, column=1, padx=15, pady=10)
 
         # Create button
         self._widgets["microvia_create_button"] = ttk.Button(
@@ -286,21 +292,22 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
             command=self._microvia_callback,
             style="PyAEDT.TButton",
         )
-        self._widgets["microvia_create_button"].grid(row=3, column=0, **grid_params)
+        self._widgets["microvia_create_button"].grid(row=3, column=0, padx=15, pady=10)
 
     def _get_antipad_selections(self) -> None:
         """Get selections for antipad operation."""
         try:
-            selected = self.aedt_application.oeditor.GetSelections()
-            self._widgets["antipad_selections_entry"].delete(1.0, tkinter.END)
-            self._widgets["antipad_selections_entry"].insert(tkinter.END, ",".join(selected))
+            selected = self._app().oeditor.GetSelections()
+            antipad_entry = self._text_widget("antipad_selections_entry")
+            antipad_entry.delete(1.0, tkinter.END)
+            antipad_entry.insert(tkinter.END, ",".join(selected))
         except Exception as e:
             messagebox.showerror("Error", f"Error getting selections: {str(e)}")
 
     def _get_microvia_selections(self) -> None:
         """Get selections for microvia operation."""
         try:
-            selected = self.aedt_application.oeditor.GetSelections()
+            selected = self._app().oeditor.GetSelections()
             temp = []
             for i in selected:
                 if i in self.pedb.padstacks.instances_by_name:
@@ -309,16 +316,17 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
                     if pdef_name not in temp:
                         temp.append(pdef_name)
 
-            self._widgets["microvia_selection_entry"].delete(1.0, tkinter.END)
-            self._widgets["microvia_selection_entry"].insert(tkinter.END, ",".join(temp))
+            microvia_entry = self._text_widget("microvia_selection_entry")
+            microvia_entry.delete(1.0, tkinter.END)
+            microvia_entry.insert(tkinter.END, ",".join(temp))
         except Exception as e:
             messagebox.showerror("Error", f"Error getting padstack definitions: {str(e)}")
 
     def _antipad_callback(self) -> None:
         """Handle antipad creation."""
         try:
-            selections_text = self._widgets["antipad_selections_entry"].get(1.0, tkinter.END).strip()
-            radius = self._widgets["antipad_radius_entry"].get(1.0, tkinter.END).strip()
+            selections_text = self._text_widget("antipad_selections_entry").get(1.0, tkinter.END).strip()
+            radius = self._text_widget("antipad_radius_entry").get(1.0, tkinter.END).strip()
             race_track = self.antipad_race_track_var.get()
 
             if not selections_text:
@@ -350,8 +358,8 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
                 self._pedb.close()
                 self._pedb = None
 
-            selections_text = self._widgets["microvia_selection_entry"].get(1.0, tkinter.END).strip()
-            angle_text = self._widgets["microvia_angle_entry"].get(1.0, tkinter.END).strip()
+            selections_text = self._text_widget("microvia_selection_entry").get(1.0, tkinter.END).strip()
+            angle_text = self._text_widget("microvia_angle_entry").get(1.0, tkinter.END).strip()
             signal_only = self.microvia_signal_only_var.get()
             split_via = self.microvia_split_via_var.get()
 
@@ -412,7 +420,7 @@ def main(data: PostLayoutDesignExtensionData) -> bool:
 
     design_name = design_name.split(";")[1] if ";" in design_name else design_name
 
-    h3d = get_pyaedt_app(project_name, design_name)
+    h3d: Any = get_pyaedt_app(project_name, design_name)
 
     if h3d.design_type != "HFSS 3D Layout Design":
         if "PYTEST_CURRENT_TEST" not in os.environ:
@@ -603,7 +611,7 @@ if __name__ == "__main__":  # pragma: no cover
 
         tkinter.mainloop()
 
-        if extension.data is not None:
+        if isinstance(extension.data, PostLayoutDesignExtensionData):
             main(extension.data)
 
     else:
