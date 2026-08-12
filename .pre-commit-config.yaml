@@ -17,7 +17,7 @@ exclude: |
 repos:
 
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: 2700fd5671c633760d912769c041bfcde2b9a01b  # frozen: v0.15.22
+  rev: 39d9ac5938dadb73df0564a45f163e25ff9fa6e2  # frozen: v0.16.1
   hooks:
     - id: ruff-check
     - id: ruff-format
@@ -63,7 +63,7 @@ repos:
       - --start_year=2021
 
 - repo: https://github.com/astral-sh/ty-pre-commit
-  rev: d69b804e5f355d9ec0d5b3c9bcfb4e694dc3d412  # frozen: v0.0.49
+  rev: ac85803d0443afba1e0700690366fd2d39e02580  # frozen: v0.0.65
   hooks:
     - id: ty
 
