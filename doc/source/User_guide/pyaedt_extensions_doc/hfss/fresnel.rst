@@ -111,8 +111,8 @@ You can also launch the extension from the terminal:
 
    ../commandline
 
-Relations between unit-cell s-parameters and Fresnel RT coefficients in SBR
----------------------------------------------------------------------------
+Relations between unit-cell s-parameters and Fresnel coefficients
+-----------------------------------------------------------------
 
 The relations below consider that scan directions in the unit-cell are defined in the following ranges:
 
@@ -145,6 +145,16 @@ Independently of the excitation side,
 
 Reflections from the top side:
 
+.. raw:: html
+
+   <div class="math">
+   \[R_{TE,TE}^I = S_{I:1,\ I:1}\]
+   \[R_{TE,TM}^I = S_{I:1,\ I:2}\]
+   \[R_{TM,TE}^I = -S_{I:2,\ I:1}\]
+   \[R_{TM,TM}^I = -S_{I:2,\ I:2}\]
+   \[\theta_refl^I = \theta_inc^I = \theta_scan^UC\]
+   </div>
+
 .. math:: R_{TE,TE}^I = S_{I:1,\ I:1}
 .. math:: R_{TE,TM}^I = S_{I:1,\ I:2}
 .. math:: R_{TM,TE}^I = -S_{I:2,\ I:1}
@@ -161,6 +171,16 @@ Reflections from the bottom side:
 
 Transmission from top to bottom:
 
+.. raw:: html
+
+   <div class="math">
+   \[T_{TE,TE}^{II \leftarrow I} = S_{II:1,\ I:1}\]
+   \[T_{TE,TM}^{II \leftarrow I} = S_{II:1,\ I:2}\]
+   \[T_{TM,TE}^{II \leftarrow I} = S_{II:2,\ I:1}\]
+   \[T_{TM,TM}^{II \leftarrow I} = S_{II:2,\ I:2}\]
+   \[\theta_tr^{II \leftarrow I} = 180^\circ - \theta_scan^UC\]
+   </div>
+
 .. math:: T_{TE,TE}^{II \leftarrow I} = S_{II:1,\ I:1}
 .. math:: T_{TE,TM}^{II \leftarrow I} = S_{II:1,\ I:2}
 .. math:: T_{TM,TE}^{II \leftarrow I} = S_{II:2,\ I:1}
@@ -168,6 +188,16 @@ Transmission from top to bottom:
 .. math:: \theta_tr^{II \leftarrow I} = 180^\circ - \theta_scan^UC
 
 Transmission from bottom to top:
+
+.. raw:: html
+
+   <div class="math">
+   \[T_{TE,TE}^{I \leftarrow II} = S_{I:1,\ II:1}\]
+   \[T_{TE,TM}^{I \leftarrow II} = -S_{I:1,\ II:2}\]
+   \[T_{TM,TE}^{I \leftarrow II} = -S_{I:2,\ II:1}\]
+   \[T_{TM,TM}^{I \leftarrow II} = S_{I:2,\ II:2}\]
+   \[\theta_tr^{I \leftarrow II} = \theta_scan^UC\]
+   </div>
 
 .. math:: T_{TE,TE}^{I \leftarrow II} = S_{I:1,\ II:1}
 .. math:: T_{TE,TM}^{I \leftarrow II} = -S_{I:1,\ II:2}
