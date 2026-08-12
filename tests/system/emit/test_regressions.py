@@ -748,7 +748,7 @@ def test_defect_1475694_iemit_dies_when_design_deleted(desktop, add_app) -> None
     app = add_app(application=Emit)
     design_name = app.design_name
 
-    radio = app.schematic.create_component("New Radio")
+    _ = app.schematic.create_component("New Radio")
     app.results.analyze()
 
     time.sleep(2)
