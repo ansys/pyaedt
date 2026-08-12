@@ -272,8 +272,8 @@ class EmitSchematic:
         Returns
         -------
         tuple[bool, dict]
-            A tuple containing a boolean indicating if the nodes are the same type and a dictionary of non-matching properties.
-            The dictionary contains the differences between the nodes.
+            A tuple containing a boolean indicating if the nodes are the same type and a dictionary of 
+            non-matching properties. The dictionary contains the differences between the nodes.
         """
         if node_1._node_type != node_2._node_type:
             return False, {}
