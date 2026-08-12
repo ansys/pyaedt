@@ -111,7 +111,7 @@ You can also launch the extension from the terminal:
 
    ../commandline
 
-Relations between unit-cell S-parameters and Fresnel RT coefficients in SBR
+Relations between unit-cell s-parameters and Fresnel RT coefficients in SBR
 ---------------------------------------------------------------------------
 
 The relations below consider that scan directions in the unit-cell are defined in the following ranges:
