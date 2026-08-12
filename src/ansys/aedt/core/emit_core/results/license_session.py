@@ -57,5 +57,5 @@ class LicenseSession:
         # Destructor timing is implementation-dependent, so this is best-effort.
         try:
             self.check_in()
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"Error in LicenseSession destructor: {e}")
