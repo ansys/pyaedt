@@ -1,7 +1,7 @@
 Fresnel coefficients (RTTBL extraction)
 =======================================
 
-With this extension, you can export Fresnel Coefficients for periodic structures from an HFSS Unit-Cell design with
+With this extension, you can export Fresnel Coefficients for periodic structures from an HFSS unit-cell design with
 Floquet ports in the RTTBL file format for further use in SBR+ for Fresnel (SBR+) Boundary Condition assignment.
 
 You can access the extension from the icon created on the **Automation** tab using the Extension Manager.
@@ -84,7 +84,7 @@ Requirements
 ------------
 **General:**
 
-* Unit-cell HFSS Modal Design with Floquet Ports defined
+* unit-cell HFSS Modal Design with Floquet Port(s) defined
 * Lattice Pair boundaries configured
 
 **Specific for the Extraction Workflow:**
@@ -111,18 +111,18 @@ You can also launch the extension from the terminal:
 
    ../commandline
 
-Relations between unit-cell s-parameters and Fresnel coefficients
------------------------------------------------------------------
+Relations between unit-cell S-parameters and Fresnel RT coefficients in SBR
+---------------------------------------------------------------------------
 
 The relations below consider that scan directions in the unit-cell are defined in the following ranges:
 
 :math:`\theta_scan^_UC=[0,90^\circ]` and :math:`\phi_scan^_UC=[0,360^\circ]`
 
-Floquet Ports of the Unit-Cell have only 2 modes: 1 - TE, 2 - TM.
+Floquet Ports of the unit-cell have only 2 modes: 1 - TE, 2 - TM.
 
 **Single-Sided Case:**
 
-The Floquet Port (FP) is supposed to be placed on the top face of the Unit-Cell.
+The Floquet Port (FP) is supposed to be placed on the top face of the unit-cell.
 
 .. math:: R_{TE,TE} = S_{FP:1,\ FP:1}
 .. math:: R_{TE,TM} = S_{FP:1,\ FP:2}
@@ -134,7 +134,7 @@ The Floquet Port (FP) is supposed to be placed on the top face of the Unit-Cell.
 
 **Double-Sided Case:**
 
-The Floquet Ports are supposed to be placed on the top (port I) and bottom (port II) faces of the Unit-Cell.
+The Floquet Ports are supposed to be placed on the top (port TOP) and bottom (port BOT) faces of the Unit-Cell.
 Also, in the equations below, the assumption is that both hemispheres are assigned with the same medium (vacuum).
 
 Independently of the excitation side,
@@ -143,64 +143,34 @@ Independently of the excitation side,
 .. math:: \phi_refl = \phi_scan^UC
 .. math:: \phi_tr = \phi_scan^UC
 
-Reflections from the top side:
+* Reflections from the top side
 
-.. raw:: html
+.. math:: R_{TE,TE}^{TOP} = S_{TOP:1,\ TOP:1}
+.. math:: R_{TE,TM}^{TOP} = S_{TOP:1,\ TOP:2}
+.. math:: R_{TM,TE}^{TOP} = -S_{TOP:2,\ TOP:1}
+.. math:: R_{TM,TM}^{TOP} = -S_{TOP:2,\ TOP:2}
+.. math:: \theta_refl^{TOP} = \theta_inc^{TOP} = \theta_scan^UC
 
-   <div class="math">
-   \[R_{TE,TE}^I = S_{I:1,\ I:1}\]
-   \[R_{TE,TM}^I = S_{I:1,\ I:2}\]
-   \[R_{TM,TE}^I = -S_{I:2,\ I:1}\]
-   \[R_{TM,TM}^I = -S_{I:2,\ I:2}\]
-   \[\theta_refl^I = \theta_inc^I = \theta_scan^UC\]
-   </div>
+* Reflections from the bottom side
 
-.. math:: R_{TE,TE}^I = S_{I:1,\ I:1}
-.. math:: R_{TE,TM}^I = S_{I:1,\ I:2}
-.. math:: R_{TM,TE}^I = -S_{I:2,\ I:1}
-.. math:: R_{TM,TM}^I = -S_{I:2,\ I:2}
-.. math:: \theta_refl^I = \theta_inc^I = \theta_scan^UC
+.. math:: R_{TE,TE}^{BOT} = S_{BOT:1,\ BOT:1}
+.. math:: R_{TE,TM}^{BOT} = -S_{BOT:1,\ BOT:2}
+.. math:: R_{TM,TE}^{BOT} = S_{BOT:2,\ BOT:1}
+.. math:: R_{TM,TM}^{BOT} = -S_{BOT:2,\ BOT:2}
+.. math:: \theta_refl^{BOT} = \theta_inc^{BOT} = 180^\circ - \theta_scan^UC
 
-Reflections from the bottom side:
+* Transmission "top :math:`\rightarrow` bottom"
 
-.. math:: R_{TE,TE}^II = S_{II:1,\ II:1}
-.. math:: R_{TE,TM}^II = -S_{II:1,\ II:2}
-.. math:: R_{TM,TE}^II = S_{II:2,\ II:1}
-.. math:: R_{TM,TM}^II = -S_{II:2,\ II:2}
-.. math:: \theta_refl^II = \theta_inc^II = 180^\circ - \theta_scan^UC
+.. math:: T_{TE,TE}^{BOT \leftarrow TOP} = S_{BOT:1,\ TOP:1}
+.. math:: T_{TE,TM}^{BOT \leftarrow TOP} = S_{BOT:1,\ TOP:2}
+.. math:: T_{TM,TE}^{BOT \leftarrow TOP} = S_{BOT:2,\ TOP:1}
+.. math:: T_{TM,TM}^{BOT \leftarrow TOP} = S_{BOT:2,\ TOP:2}
+.. math:: \theta_tr^{BOT \leftarrow TOP} = 180^\circ - \theta_scan^UC
 
-Transmission from top to bottom:
+* Transmission "bottom :math:`\rightarrow` top"
 
-.. raw:: html
-
-   <div class="math">
-   \[T_{TE,TE}^{II \leftarrow I} = S_{II:1,\ I:1}\]
-   \[T_{TE,TM}^{II \leftarrow I} = S_{II:1,\ I:2}\]
-   \[T_{TM,TE}^{II \leftarrow I} = S_{II:2,\ I:1}\]
-   \[T_{TM,TM}^{II \leftarrow I} = S_{II:2,\ I:2}\]
-   \[\theta_tr^{II \leftarrow I} = 180^\circ - \theta_scan^UC\]
-   </div>
-
-.. math:: T_{TE,TE}^{II \leftarrow I} = S_{II:1,\ I:1}
-.. math:: T_{TE,TM}^{II \leftarrow I} = S_{II:1,\ I:2}
-.. math:: T_{TM,TE}^{II \leftarrow I} = S_{II:2,\ I:1}
-.. math:: T_{TM,TM}^{II \leftarrow I} = S_{II:2,\ I:2}
-.. math:: \theta_tr^{II \leftarrow I} = 180^\circ - \theta_scan^UC
-
-Transmission from bottom to top:
-
-.. raw:: html
-
-   <div class="math">
-   \[T_{TE,TE}^{I \leftarrow II} = S_{I:1,\ II:1}\]
-   \[T_{TE,TM}^{I \leftarrow II} = -S_{I:1,\ II:2}\]
-   \[T_{TM,TE}^{I \leftarrow II} = -S_{I:2,\ II:1}\]
-   \[T_{TM,TM}^{I \leftarrow II} = S_{I:2,\ II:2}\]
-   \[\theta_tr^{I \leftarrow II} = \theta_scan^UC\]
-   </div>
-
-.. math:: T_{TE,TE}^{I \leftarrow II} = S_{I:1,\ II:1}
-.. math:: T_{TE,TM}^{I \leftarrow II} = -S_{I:1,\ II:2}
-.. math:: T_{TM,TE}^{I \leftarrow II} = -S_{I:2,\ II:1}
-.. math:: T_{TM,TM}^{I \leftarrow II} = S_{I:2,\ II:2}
-.. math:: \theta_tr^{I \leftarrow II} = \theta_scan^UC
+.. math:: T_{TE,TE}^{TOP \leftarrow BOT} = S_{TOP:1,\ BOT:1}
+.. math:: T_{TE,TM}^{TOP \leftarrow BOT} = -S_{TOP:1,\ BOT:2}
+.. math:: T_{TM,TE}^{TOP \leftarrow BOT} = -S_{TOP:2,\ BOT:1}
+.. math:: T_{TM,TM}^{TOP \leftarrow BOT} = S_{TOP:2,\ BOT:2}
+.. math:: \theta_tr^{TOP \leftarrow BOT} = \theta_scan^UC
