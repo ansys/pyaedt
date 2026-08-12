@@ -84,7 +84,7 @@ Requirements
 ------------
 **General:**
 
-* unit-cell HFSS Modal Design with Floquet Port(s) defined
+* Unit-cell HFSS Modal Design with Floquet ports defined
 * Lattice Pair boundaries configured
 
 **Specific for the Extraction Workflow:**
@@ -134,7 +134,7 @@ The Floquet Port (FP) is supposed to be placed on the top face of the unit-cell.
 
 **Double-Sided Case:**
 
-The Floquet Ports are supposed to be placed on the top (port TOP) and bottom (port BOT) faces of the Unit-Cell.
+The Floquet Ports are supposed to be placed on the top (port TOP) and bottom (port BOT) faces of the unit-cell.
 Also, in the equations below, the assumption is that both hemispheres are assigned with the same medium (vacuum).
 
 Independently of the excitation side,
