@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+
 class LicenseSession:
     """Manage an EMIT solver license session for AEDT 2027.1+."""
 
