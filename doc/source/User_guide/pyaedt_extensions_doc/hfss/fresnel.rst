@@ -145,15 +145,15 @@ Independently of the excitation side,
 
 Reflections from the top side:
 
-.. <!-- vale off: Google.FirstPerson -->
-
 .. math:: R_{TE,TE}^I = S_{I:1,\ I:1}
-.. math:: R_{TE,TM}^I = S_{I:1,\ I:2}
-.. math:: R_{TM,TE}^I = -S_{I:2,\ I:1}
-.. math:: R_{TM,TM}^I = -S_{I:2,\ I:2}
-.. math:: \theta_refl^I = \theta_inc^I = \theta_scan^UC
 
-.. <!-- vale on: Google.FirstPerson -->
+.. math:: R_{TE,TM}^I = S_{I:1,\ I:2}
+
+.. math:: R_{TM,TE}^I = -S_{I:2,\ I:1}
+
+.. math:: R_{TM,TM}^I = -S_{I:2,\ I:2}
+
+.. math:: \theta_refl^I = \theta_inc^I = \theta_scan^UC
 
 Reflections from the bottom side:
 
@@ -165,24 +165,24 @@ Reflections from the bottom side:
 
 Transmission from top to bottom:
 
-.. <!-- vale off: Google.FirstPerson -->
-
 .. math:: T_{TE,TE}^{II \leftarrow I} = S_{II:1,\ I:1}
-.. math:: T_{TE,TM}^{II \leftarrow I} = S_{II:1,\ I:2}
-.. math:: T_{TM,TE}^{II \leftarrow I} = S_{II:2,\ I:1}
-.. math:: T_{TM,TM}^{II \leftarrow I} = S_{II:2,\ I:2}
-.. math:: \theta_tr^{II \leftarrow I} = 180^\circ - \theta_scan^UC
 
-.. <!-- vale on: Google.FirstPerson -->
+.. math:: T_{TE,TM}^{II \leftarrow I} = S_{II:1,\ I:2}
+
+.. math:: T_{TM,TE}^{II \leftarrow I} = S_{II:2,\ I:1}
+
+.. math:: T_{TM,TM}^{II \leftarrow I} = S_{II:2,\ I:2}
+
+.. math:: \theta_tr^{II \leftarrow I} = 180^\circ - \theta_scan^UC
 
 Transmission from bottom to top:
 
-.. <!-- vale off: Google.FirstPerson -->
-
 .. math:: T_{TE,TE}^{I \leftarrow II} = S_{I:1,\ II:1}
-.. math:: T_{TE,TM}^{I \leftarrow II} = -S_{I:1,\ II:2}
-.. math:: T_{TM,TE}^{I \leftarrow II} = -S_{I:2,\ II:1}
-.. math:: T_{TM,TM}^{I \leftarrow II} = S_{I:2,\ II:2}
-.. math:: \theta_tr^{I \leftarrow II} = \theta_scan^UC
 
-.. <!-- vale on: Google.FirstPerson -->
+.. math:: T_{TE,TM}^{I \leftarrow II} = -S_{I:1,\ II:2}
+
+.. math:: T_{TM,TE}^{I \leftarrow II} = -S_{I:2,\ II:1}
+
+.. math:: T_{TM,TM}^{I \leftarrow II} = S_{I:2,\ II:2}
+
+.. math:: \theta_tr^{I \leftarrow II} = \theta_scan^UC
