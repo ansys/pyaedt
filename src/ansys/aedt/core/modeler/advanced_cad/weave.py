@@ -92,6 +92,13 @@ WEAVE_STYLES = {
 class Weave(PyAedtBase):
     """Class to create weaves in AEDT.
 
+    Preset weave geometry values in :data:`WEAVE_STYLES` were adapted from the
+    BGF Technical Data Book.
+
+    References
+    ----------
+    BGF Technical Data Book, numeric weave presets adapted from published tables.
+
     Parameters
     ----------
     app:
@@ -106,7 +113,7 @@ class Weave(PyAedtBase):
 
     """
 
-    def __init__(self, app: "Hfss | Maxwell3d | Q3d | Icepak") -> None:
+    def __init__(self, app: Hfss | Maxwell3d | Q3d | Icepak) -> None:
         """Constructor for Weave."""
         self._app = app
         self.logger = self._app.logger
@@ -131,6 +138,22 @@ class Weave(PyAedtBase):
 
     @property
     def yarn_material(self) -> str:
+        """Yarn material name.
+
+        Returns
+        -------
+        str
+            Name of the yarn material.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> obj = Weave(hfss)
+        >>> mat = obj.yarn_material
+
+        """
         return self._yarn_material
 
     @yarn_material.setter
@@ -139,16 +162,48 @@ class Weave(PyAedtBase):
 
     @property
     def yarn_permittivity(self) -> float:
+        """Yarn relative permittivity (Dk).
+
+        Returns
+        -------
+        float
+            Relative permittivity used for yarn material.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> obj = Weave(hfss)
+        >>> dk = obj.yarn_permittivity
+
+        """
         return self._yarn_permittivity
 
     @yarn_permittivity.setter
     def yarn_permittivity(self, value: float) -> None:
         if value <= 0:
-            raise ValueError("yarn_permittivity must be positive")
+            raise ValueError("yarn_permittivity must be positive.")
         self._yarn_permittivity = float(value)
 
     @property
     def yarn_loss_tangent(self) -> float:
+        """Yarn dielectric loss tangent.
+
+        Returns
+        -------
+        float
+            Dielectric loss tangent for yarn material.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> obj = Weave(hfss)
+        >>> lt = obj.yarn_loss_tangent
+
+        """
         return self._yarn_loss_tangent
 
     @yarn_loss_tangent.setter
@@ -157,6 +212,22 @@ class Weave(PyAedtBase):
 
     @property
     def target_pitch_x(self) -> float:
+        """Target pitch in the X direction in millimeters.
+
+        Returns
+        -------
+        float
+            Target weave pitch along X in millimeters.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> obj = Weave(hfss)
+        >>> px = obj.target_pitch_x
+
+        """
         return self._target_pitch_x
 
     @target_pitch_x.setter
@@ -167,6 +238,22 @@ class Weave(PyAedtBase):
 
     @property
     def target_pitch_y(self) -> float:
+        """Target pitch in the Y direction in millimeters.
+
+        Returns
+        -------
+        float
+            Target weave pitch along Y in millimeters.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> obj = Weave(hfss)
+        >>> py = obj.target_pitch_y
+
+        """
         return self._target_pitch_y
 
     @target_pitch_y.setter
@@ -177,6 +264,22 @@ class Weave(PyAedtBase):
 
     @property
     def target_amplitude(self) -> float:
+        """Target amplitude of yarn undulation in millimeters.
+
+        Returns
+        -------
+        float
+            Undulation amplitude in millimeters.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> obj = Weave(hfss)
+        >>> a = obj.target_amplitude
+
+        """
         return self._target_amplitude
 
     @target_amplitude.setter
@@ -185,6 +288,22 @@ class Weave(PyAedtBase):
 
     @property
     def warp_width(self) -> float:
+        """Warp yarn width in millimeters.
+
+        Returns
+        -------
+        float
+            Width of warp yarn cross-section in millimeters.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> obj = Weave(hfss)
+        >>> w = obj.warp_width
+
+        """
         return self._warp_width
 
     @warp_width.setter
@@ -193,6 +312,22 @@ class Weave(PyAedtBase):
 
     @property
     def fill_width(self) -> float:
+        """Fill yarn width in millimeters.
+
+        Returns
+        -------
+        float
+            Width of fill yarn cross-section in millimeters.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> obj = Weave(hfss)
+        >>> f = obj.fill_width
+
+        """
         return self._fill_width
 
     @fill_width.setter
@@ -201,6 +336,22 @@ class Weave(PyAedtBase):
 
     @property
     def ratio_warp(self) -> float:
+        """Warp height ratio (relative factor used to compute yarn height).
+
+        Returns
+        -------
+        float
+            Ratio applied to `warp_width` to compute vertical yarn height.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> obj = Weave(hfss)
+        >>> r = obj.ratio_warp
+
+        """
         return self._ratio_warp
 
     @ratio_warp.setter
@@ -209,6 +360,22 @@ class Weave(PyAedtBase):
 
     @property
     def ratio_fill(self) -> float:
+        """Fill height ratio (relative factor used to compute yarn height).
+
+        Returns
+        -------
+        float
+            Ratio applied to `fill_width` to compute vertical yarn height.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> obj = Weave(hfss)
+        >>> r = obj.ratio_fill
+
+        """
         return self._ratio_fill
 
     @ratio_fill.setter
@@ -216,39 +383,118 @@ class Weave(PyAedtBase):
         self._ratio_fill = float(value)
 
     @property
-    def weave_shift_y(self) -> float:
+    def shift_y(self) -> float:
+        """Y-shift applied to the weave coordinate system in millimeters.
+
+        Returns
+        -------
+        float
+            Offset applied along Y when creating the weave.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> obj = Weave(hfss)
+        >>> s = obj.shift_y
+        """
         return self._weave_shift_y
 
-    @weave_shift_y.setter
-    def weave_shift_y(self, value: float) -> None:
+    @shift_y.setter
+    def shift_y(self, value: float) -> None:
         self._weave_shift_y = float(value)
 
     @property
-    def weave_rotate_deg(self) -> float:
+    def rotate(self) -> float:
+        """Rotation applied to the weave coordinate system in degrees.
+
+        Returns
+        -------
+        float
+            Rotation angle in degrees.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> obj = Weave(hfss)
+        >>> r = obj.rotate
+
+        """
         return self._weave_rotate_deg
 
-    @weave_rotate_deg.setter
-    def weave_rotate_deg(self, value: float) -> None:
+    @rotate.setter
+    def rotate(self, value: float) -> None:
         self._weave_rotate_deg = float(value)
 
     @property
-    def facet_ellipse_segs(self) -> int:
+    def facet_ellipse_segments(self) -> int:
+        """Number of segments used to approximate yarn ellipse profiles.
+
+        Returns
+        -------
+        int
+            Number of segments for ellipse approximations.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> obj = Weave(hfss)
+        >>> n = obj.facet_ellipse_segments
+
+        """
         return self._facet_ellipse_segs
 
-    @facet_ellipse_segs.setter
-    def facet_ellipse_segs(self, value: int) -> None:
+    @facet_ellipse_segments.setter
+    def facet_ellipse_segments(self, value: int) -> None:
         self._facet_ellipse_segs = int(value)
 
     @property
-    def facet_path_segs_per_half(self) -> int:
+    def facet_path_segments_per_half(self) -> int:
+        """Path segmentation per half-period used to discretize yarn paths.
+
+        Returns
+        -------
+        int
+            Number of path segments per half-period.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> obj = Weave(hfss)
+        >>> n = obj.facet_path_segments_per_half
+
+        """
         return self._facet_path_segs_per_half
 
-    @facet_path_segs_per_half.setter
-    def facet_path_segs_per_half(self, value: int) -> None:
+    @facet_path_segments_per_half.setter
+    def facet_path_segments_per_half(self, value: int) -> None:
         self._facet_path_segs_per_half = int(value)
 
     @property
     def subtract_from_substrate(self) -> bool:
+        """Whether the created weave bodies should be subtracted from the substrate.
+
+        Returns
+        -------
+        bool
+            If True, weave bodies are subtracted from the substrate.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> obj = Weave(hfss)
+        >>> flag = obj.subtract_from_substrate
+
+        """
         return self._subtract_from_substrate
 
     @subtract_from_substrate.setter
@@ -257,6 +503,22 @@ class Weave(PyAedtBase):
 
     @property
     def sectors_per_pitch(self) -> int:
+        """Number of homogenized sectors per weave pitch.
+
+        Returns
+        -------
+        int
+            Number of sectors used when creating homogenized regions per pitch.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> obj = Weave(hfss)
+        >>> s = obj.sectors_per_pitch
+
+        """
         return self._sectors_per_pitch
 
     @sectors_per_pitch.setter
@@ -266,7 +528,21 @@ class Weave(PyAedtBase):
 
     @property
     def weave_parameters(self) -> dict:
-        """Return current weave parameters as a dictionary."""
+        """Current weave parameters as a dictionary.
+
+        Returns
+        -------
+        dict
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> obj = Weave(hfss)
+        >>> param = obj.weave_parameters
+
+        """
         return {
             "yarn_material": self.yarn_material,
             "yarn_permittivity": self.yarn_permittivity,
@@ -278,17 +554,17 @@ class Weave(PyAedtBase):
             "fill_width": self.fill_width,
             "ratio_warp": self.ratio_warp,
             "ratio_fill": self.ratio_fill,
-            "weave_shift_y": self.weave_shift_y,
-            "weave_rotate_deg": self.weave_rotate_deg,
-            "facet_ellipse_segs": self.facet_ellipse_segs,
-            "facet_path_segs_per_half": self.facet_path_segs_per_half,
+            "shift_y": self.shift_y,
+            "rotate": self.rotate,
+            "facet_ellipse_segments": self.facet_ellipse_segments,
+            "facet_path_segments_per_half": self.facet_path_segments_per_half,
             "subtract_from_substrate": self.subtract_from_substrate,
             "sectors_per_pitch": self.sectors_per_pitch,
         }
 
     @classmethod
     def from_dict(cls, app: Hfss | Maxwell3d | Q3d | Icepak, data: dict) -> Weave:
-        """Create a `Weave` instance from a parameters dictionary.
+        """Create a `Weave` instance from a dictionary.
 
         Parameters
         ----------
@@ -301,15 +577,26 @@ class Weave(PyAedtBase):
         -------
         Weave
             Configured Weave instance.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> weave1 = Weave(hfss)
+        >>> param = weave1.weave_parameters
+        >>> weave2 = Weave.from_dict(hfss, param)
+
         """
         w = cls(app)
         for k, v in data.items():
             if hasattr(w, k):
                 try:
                     setattr(w, k, v)
-                except Exception:
-                    # best-effort: skip invalid assignments
-                    w.logger.debug(f"Weave.from_dict: skipped setting {k}={v}")
+                except Exception:  # pragma: no cover
+                    w.logger.debug(f"Skipped setting {k}={v}")
+            else:
+                w.logger.debug(f"Key {k} is not defined.")
         return w
 
     def export_to_json(self, output_file: str | Path) -> bool:
@@ -317,7 +604,7 @@ class Weave(PyAedtBase):
 
         Parameters
         ----------
-        output_file : str or :class:`pathlib.Path`
+        output_file: str or :class:`pathlib.Path`
             Full path to the file, including its extension.
 
         Returns
@@ -327,26 +614,70 @@ class Weave(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core.generic.file_utils import write_configuration_file
-        >>> write_configuration_file({"units": "mm"}, r"C:\\Temp\\settings.json")
+        >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> weave = Weave(hfss)
+        >>> weave.export_to_json(r"C:\\Temp\\parameters.json")
+
         """
         return write_configuration_file(self.weave_parameters, str(output_file))
 
     @classmethod
-    def load_from_json(cls, app: Hfss | Maxwell3d | Q3d | Icepak, json_path: str | Path) -> Weave:
-        """Load weave parameters from a JSON or TOML file and return a configured Weave."""
-        data = read_configuration_file(str(json_path))
+    def load_from_json(cls, app: Hfss | Maxwell3d | Q3d | Icepak, input_file: str | Path) -> Weave:
+        """Load weave parameters from a JSON or TOML file and return a configured Weave.
+
+        Parameters
+        ----------
+        app:
+            AEDT application instance used by the `Weave` object.
+        input_file: str or :class:`pathlib.Path`
+            Full path to the file, including its extension.
+
+        Returns
+        -------
+        Weave
+            Configured Weave instance.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> weave1 = Weave(hfss)
+        >>> weave1.export_to_json(r"C:\\Temp\\parameters.json")
+        >>> weave2 = Weave.load_from_json(r"C:\\Temp\\parameters.json")
+
+        """
+        data = read_configuration_file(str(input_file))
         if not isinstance(data, dict):
             raise ValueError("Configuration file did not contain a dictionary")
         return cls.from_dict(app, data)
 
     @pyaedt_function_handler()
-    def set_weave_style(self, weave_style: str):
-        """Resolve weave preset values from `WEAVE_STYLES`."""
-        if weave_style not in WEAVE_STYLES:
-            msg = f"Unknown weave style '{weave_style}'. Available options are: {list(WEAVE_STYLES.keys())}"
+    def set_weave_style(self, style: str) -> None:
+        """Resolve weave preset values from `WEAVE_STYLES`.
+
+        Parameters
+        ----------
+        style: str
+            Weave style. Styles are available in WEAVE_STYLES constant.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
+        >>> from ansys.aedt.core.modeler.advanced_cad.weave import WEAVE_STYLES
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> weave1 = Weave(hfss)
+        >>> style1 = list(WEAVE_STYLES.keys())[0]
+        >>> weave1.set_weave_style(style1)
+
+        """
+        if style not in WEAVE_STYLES:
+            msg = f"Unknown weave style '{style}'. Available options are: {list(WEAVE_STYLES.keys())}"
             raise ValueError(msg)
-        preset = WEAVE_STYLES[weave_style]
+        preset = WEAVE_STYLES[style]
         self.target_pitch_x = preset["target_pitch_x"]
         self.target_pitch_y = preset["target_pitch_y"]
         self.warp_width = preset["warp_width"]
@@ -363,9 +694,38 @@ class Weave(PyAedtBase):
         substrate: Object3d,
         weave_style: str | None = None,
         name: str | None = None,
-    ) -> list:
-        # Delegate heavy implementation to the modeler while adapting names
+    ) -> Object3d:
+        """Resolve weave preset values from `WEAVE_STYLES`.
+
+        Parameters
+        ----------
+        substrate: Object3d
+            Substrate object used to get the weave bounding box.
+        weave_style: str, optional
+            Weave style. Styles are available in WEAVE_STYLES constant.
+        name: str, optional
+            Name prefix for the created weave bodies. The default is ``None``, in which case the
+            default name is assigned.
+
+        Returns
+        -------
+        Object3d
+            The created weave object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> sub = hfss.modeler.create_box([0, 0, 0], [5, 10, 2])
+        >>> weave = Weave(hfss)
+        >>> weave.create_weave(sub)
+
+        """
         m = self._app.modeler
+
+        if not name:
+            name = "Fiber"
 
         bbox = substrate.bounding_box
         xmin, ymin, zmin = bbox[0], bbox[1], bbox[2]
@@ -403,8 +763,8 @@ class Weave(PyAedtBase):
         self._app[f"{name}_span_x"] = f"{diag / 2}mm"
         self._app[f"{name}_span_y"] = f"{diag / 2}mm"
 
-        n_pts_warp = self.facet_path_segs_per_half * 2 * n_cell_x
-        n_pts_fill = self.facet_path_segs_per_half * 2 * n_cell_y
+        n_pts_warp = self.facet_path_segments_per_half * 2 * n_cell_x
+        n_pts_fill = self.facet_path_segments_per_half * 2 * n_cell_y
 
         cs_name = f"{name}_CS"
         existing_cs_names = [cs.name for cs in m.coordinate_systems]
@@ -426,27 +786,27 @@ class Weave(PyAedtBase):
 
         z_mid = (zmin + zmax) / 2.0
 
-        r = math.radians(self.weave_rotate_deg)
+        r = math.radians(self.rotate)
         cx, sx = math.cos(r), math.sin(r)
         m.create_coordinate_system(
-            origin=[xmin + sub_w / 2, ymin + sub_hy / 2 + self.weave_shift_y, z_mid],
+            origin=[xmin + sub_w / 2, ymin + sub_hy / 2 + self.shift_y, z_mid],
             x_pointing=[cx, sx, 0],
             y_pointing=[-sx, cx, 0],
             name=cs_name,
         )
         m.set_working_coordinate_system(cs_name)
 
-        def _warp_yarn(name, phase):
+        def _warp_yarn(name_with_prefix, phase):
             sign = "" if phase == "+" else "-"
             z0_expr = f"{name}_amplitude" if phase == "+" else f"-{name}_amplitude"
             m.create_equationbased_curve(
                 x_t="_t",
                 y_t="0",
-                z_t=f"{sign}{name}amplitude*cos(pi*_t/{name}_pitch_x)",
+                z_t=f"{sign}{name}_amplitude*cos(pi*_t/{name}_pitch_x)",
                 t_start=f"-{name}_span_x",
                 t_end=f"{name}_span_x",
                 num_points=n_pts_warp,
-                name=name + "_path",
+                name=name_with_prefix + "_path",
             )
             m.create_ellipse(
                 orientation="YZ",
@@ -454,26 +814,26 @@ class Weave(PyAedtBase):
                 major_radius=f"{name}_warp_width/2",
                 ratio=self.ratio_warp,
                 is_covered=True,
-                segments=self.facet_ellipse_segs,
-                name=name + "_prof",
+                segments=self.facet_ellipse_segments,
+                name=name_with_prefix + "_prof",
             )
-            m.sweep_along_path(name + "_prof", name + "_path")
-            obj = m[name + "_prof"]
-            obj.name = name
+            m.sweep_along_path(name_with_prefix + "_prof", name_with_prefix + "_path")
+            obj = m[name_with_prefix + "_prof"]
+            obj.name = name_with_prefix
             obj.material_name = self.yarn_material
-            return m[name]
+            return m[name_with_prefix]
 
-        def _fill_yarn(name, phase):
+        def _fill_yarn(name_with_prefix, phase):
             sign = "" if phase == "+" else "-"
-            z0_expr = f"{name}amplitude" if phase == "+" else f"-{name}amplitude"
+            z0_expr = f"{name}_amplitude" if phase == "+" else f"-{name}_amplitude"
             m.create_equationbased_curve(
                 x_t="0",
                 y_t="_t",
-                z_t=f"{sign}{name}amplitude*cos(pi*_t/{name}_pitch_y)",
+                z_t=f"{sign}{name}_amplitude*cos(pi*_t/{name}_pitch_y)",
                 t_start=f"-{name}_span_y",
                 t_end=f"{name}_span_y",
                 num_points=n_pts_fill,
-                name=name + "_path",
+                name=name_with_prefix + "_path",
             )
             m.create_ellipse(
                 orientation="XY",
@@ -481,16 +841,16 @@ class Weave(PyAedtBase):
                 major_radius=f"{name}_fill_width/2",
                 ratio=self.ratio_fill,
                 is_covered=True,
-                segments=self.facet_ellipse_segs,
-                name=name + "_prof",
+                segments=self.facet_ellipse_segments,
+                name=name_with_prefix + "_prof",
             )
-            m.rotate(name + "_prof", axis="X", angle="90deg")
-            m.move(name + "_prof", ["0mm", "0mm", z0_expr])
-            m.sweep_along_path(name + "_prof", name + "_path")
-            obj = m[name + "_prof"]
-            obj.name = name
+            m.rotate(name_with_prefix + "_prof", axis="X", angle="90deg")
+            m.move(name_with_prefix + "_prof", ["0mm", "0mm", z0_expr])
+            m.sweep_along_path(name_with_prefix + "_prof", name_with_prefix + "_path")
+            obj = m[name_with_prefix + "_prof"]
+            obj.name = name_with_prefix
             obj.material_name = self.yarn_material
-            return m[name]
+            return m[name_with_prefix]
 
         _warp_yarn(f"{name}_WarpA", "+")
         _warp_yarn(f"{name}_WarpB", "-")
@@ -536,30 +896,28 @@ class Weave(PyAedtBase):
 
         m.set_working_coordinate_system("Global")
 
-        unified_name = f"{name}_Weave"
         m.unite(weave_names)
-        m[weave_names[0]].name = unified_name
+        m[weave_names[0]].name = name
 
-        clip_name = f"_WeaveClip_{name}"
+        weave_obj = m[name]
+
+        clip_name = f"WeaveClip_{name}"
         m.create_box(
             origin=[xmin, ymin, zmin],
             sizes=[sub_w, sub_hy, zmax - zmin],
             name=clip_name,
         )
-        m.intersect(assignment=[unified_name, clip_name], keep_originals=False)
-
-        weave_names = [unified_name]
+        m.intersect(assignment=[weave_obj.name, clip_name], keep_originals=False)
 
         if self.subtract_from_substrate:
             m.subtract(
                 blank_list=[substrate.name],
-                tool_list=weave_names,
+                tool_list=weave_obj.name,
                 keep_originals=True,
             )
 
         m.set_working_coordinate_system("Global")
-        self.logger.info(f"Weave '{name}' created: {len(weave_names)} yarn body/bodies.")
-        return weave_names
+        return weave_obj
 
     @pyaedt_function_handler()
     def create_weave_homogenized(
