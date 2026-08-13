@@ -695,7 +695,7 @@ class Weave(PyAedtBase):
         weave_style: str | None = None,
         name: str | None = None,
     ) -> Object3d:
-        """Resolve weave preset values from `WEAVE_STYLES`.
+        """Create a woven yarn geometry (warp and fill) clipped to the provided reference object.
 
         Parameters
         ----------
@@ -928,7 +928,7 @@ class Weave(PyAedtBase):
         weave_style: str | None = None,
         name: str | None = None,
     ) -> list[Object3d]:
-        """Resolve weave preset values from `WEAVE_STYLES`.
+        """Create a homogenized approximation of the weave as material sectors covering the reference object.
 
         Parameters
         ----------
@@ -942,8 +942,8 @@ class Weave(PyAedtBase):
 
         Returns
         -------
-        Object3d
-            The created weave object.
+        list
+            List of created objects.
 
         Examples
         --------
