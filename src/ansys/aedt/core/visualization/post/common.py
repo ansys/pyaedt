@@ -680,8 +680,13 @@ class PostProcessorCommon(PyAedtBase):
             skip_plot = True
         if names and not skip_plot:
             for name in names:
-                new_name = re.sub(r"(?<!\\)/", r"\\/", name.replace("\\", "\\\\"))
+                new_name = self._rename_internal_object(name)
                 obj = self._app.get_oo_object(self.oreportsetup, new_name)
+
+                if not obj:
+                    self.logger.warning(f"Report {name} not found.")
+                    break
+
                 report_type = obj.GetPropValue("Report Type")
                 obj_child_names = self._app.get_oo_name(obj)
                 if report_type == "Standard" and any("Bit Error Rate" in i for i in obj_child_names):
@@ -691,7 +696,7 @@ class PostProcessorCommon(PyAedtBase):
                 solution = None
                 for trc_name in traces:
                     try:
-                        new_trace_name = re.sub(r"(?<!\\)/", r"\\/", trc_name.replace("\\", "\\\\"))
+                        new_trace_name = self._rename_internal_object(trc_name)
                         solution = self._app.get_oo_property_value(obj, new_trace_name, "Solution")
                         break
                     except Exception:  # nosec
@@ -2212,6 +2217,12 @@ class PostProcessorCommon(PyAedtBase):
 
         self.logger.error("Failed to create report.")
         return False  # pragma: no cover
+
+    @pyaedt_function_handler()
+    def _rename_internal_object(self, name: str) -> str:
+        if self._app.desktop_class.aedt_version < "2027.1":
+            return re.sub(r"(?<!\\)/", r"\\/", name.replace("\\", "\\\\"))
+        return name
 
     @requires_graphical_dependency("matplotlib")
     @pyaedt_function_handler()

@@ -1567,7 +1567,7 @@ class GeometryModeler(Modeler, PyAedtBase):
 
     @pyaedt_function_handler()
     @min_aedt_version("2026.1")
-    def create_named_selection(self, name: str, assignment: list[str] | list[int]) -> NamedSelections | None:
+    def create_named_selection(self, name: str, assignment: list[str | int]) -> NamedSelections | None:
         """Create a new named selection given objects or face ids.
 
         Method valid from AEDT 2026.1.

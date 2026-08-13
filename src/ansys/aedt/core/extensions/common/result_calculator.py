@@ -239,7 +239,7 @@ class ResultDataService:
             )
             session.update(self._extract_session_metadata(cmdline))
 
-        return sorted(sessions_by_pid.values(), key=lambda session: int(session["pid"]))
+        return sorted(sessions_by_pid.values(), key=lambda session: cast(int, session["pid"]))
 
     def _connect_to_session(self, session):
         """Connect to the AEDT desktop described by ``session``.
