@@ -691,7 +691,7 @@ class Weave(PyAedtBase):
     @pyaedt_function_handler()
     def create_weave(
         self,
-        substrate: Object3d,
+        assignment: int | str | Object3d,
         weave_style: str | None = None,
         name: str | None = None,
     ) -> Object3d:
@@ -699,8 +699,8 @@ class Weave(PyAedtBase):
 
         Parameters
         ----------
-        substrate: Object3d
-            Substrate object used to get the weave bounding box.
+        assignment : int, str, or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+            Reference body used to create the weave.
         weave_style: str, optional
             Weave style. Styles are available in WEAVE_STYLES constant.
         name: str, optional
@@ -726,6 +726,8 @@ class Weave(PyAedtBase):
 
         if not name:
             name = "Fiber"
+
+        substrate = m._resolve_object(assignment)
 
         bbox = substrate.bounding_box
         xmin, ymin, zmin = bbox[0], bbox[1], bbox[2]
@@ -922,91 +924,53 @@ class Weave(PyAedtBase):
     @pyaedt_function_handler()
     def create_weave_homogenized(
         self,
-        substrate: "Object3d",
+        assignment: int | str | Object3d,
         weave_style: str | None = None,
-        sectors_per_pitch: int | None = None,
-        name_prefix: str | None = None,
-        yarn_permittivity: float | None = None,
-        yarn_loss_tangent: float | None = None,
-        target_pitch_x: float | None = None,
-        target_pitch_y: float | None = None,
-        warp_width: float | None = None,
-        fill_width: float | None = None,
-        ratio_warp: float | None = None,
-        ratio_fill: float | None = None,
-    ) -> list:
-        # Prefer instance value when caller omits the argument
-        sectors_per_pitch = self.sectors_per_pitch if sectors_per_pitch is None else sectors_per_pitch
-        name_prefix = self.name_prefix if name_prefix is None else name_prefix
-        yarn_permittivity = self.yarn_permittivity if yarn_permittivity is None else yarn_permittivity
-        yarn_loss_tangent = self.yarn_loss_tangent if yarn_loss_tangent is None else yarn_loss_tangent
-        target_pitch_x = self.target_pitch_x if target_pitch_x is None else target_pitch_x
-        target_pitch_y = self.target_pitch_y if target_pitch_y is None else target_pitch_y
-        warp_width = self.warp_width if warp_width is None else warp_width
-        fill_width = self.fill_width if fill_width is None else fill_width
-        ratio_warp = self.ratio_warp if ratio_warp is None else ratio_warp
-        ratio_fill = self.ratio_fill if ratio_fill is None else ratio_fill
+        name: str | None = None,
+    ) -> list[Object3d]:
+        """Resolve weave preset values from `WEAVE_STYLES`.
 
-        if sectors_per_pitch < 1:
-            msg = f"sectors_per_pitch must be >= 1, got {sectors_per_pitch}."
-            self.logger.error(msg)
+        Parameters
+        ----------
+        assignment : int, str, or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+            Reference body used to create the weave.
+        weave_style: str, optional
+            Weave style. Styles are available in WEAVE_STYLES constant.
+        name: str, optional
+            Name prefix for the created weave bodies. The default is ``None``, in which case the
+            default name is assigned.
+
+        Returns
+        -------
+        Object3d
+            The created weave object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> sub = hfss.modeler.create_box([0, 0, 0], [5, 10, 2])
+        >>> weave = Weave(hfss)
+        >>> weave.create_weave(sub)
+
+        """
+        m = self._app.modeler
+
+        substrate = m._resolve_object(assignment)
+
+        if not name:
+            name = "Fiber"
+
+        if weave_style is not None and weave_style in WEAVE_STYLES:
+            self.set_weave_style(weave_style)
+
+        self.shift_y = 0.0
+
+        if self.sectors_per_pitch < 1:
+            msg = f"sectors_per_pitch must be >= 1, got {self.sectors_per_pitch}."
             raise ValueError(msg)
 
-        (
-            target_pitch_x,
-            target_pitch_y,
-            warp_width,
-            fill_width,
-            ratio_warp,
-            ratio_fill,
-            _target_amplitude_unused,
-            yarn_permittivity,
-            yarn_loss_tangent,
-        ) = Weave._resolve_weave_style(
-            weave_style,
-            target_pitch_x,
-            target_pitch_y,
-            warp_width,
-            fill_width,
-            ratio_warp,
-            ratio_fill,
-            0.0,
-            yarn_permittivity,
-            yarn_loss_tangent,
-            self.logger,
-            name_prefix,
-        )
-
-        return self._create_weave_homogenized(
-            substrate=substrate,
-            name_prefix=name_prefix,
-            sectors_per_pitch=sectors_per_pitch,
-            target_pitch_x=target_pitch_x,
-            target_pitch_y=target_pitch_y,
-            warp_width=warp_width,
-            fill_width=fill_width,
-            ratio_warp=ratio_warp,
-            ratio_fill=ratio_fill,
-            yarn_permittivity=yarn_permittivity,
-            yarn_loss_tangent=yarn_loss_tangent,
-        )
-
-    @pyaedt_function_handler()
-    def _create_weave_homogenized(
-        self,
-        substrate: "Object3d",
-        name_prefix: str,
-        sectors_per_pitch: int,
-        target_pitch_x: float,
-        target_pitch_y: float,
-        warp_width: float,
-        fill_width: float,
-        ratio_warp: float,
-        ratio_fill: float,
-        yarn_permittivity: float,
-        yarn_loss_tangent: float,
-    ) -> list:
-        m = self._app.modeler
         bbox = substrate.bounding_box
         xmin, ymin, zmin = bbox[0], bbox[1], bbox[2]
         xmax, ymax, zmax = bbox[3], bbox[4], bbox[5]
@@ -1015,36 +979,36 @@ class Weave(PyAedtBase):
         thickness = zmax - zmin
 
         resin_mat = self._app.materials[substrate.material_name]
-        resin_permittivity = resin_mat.permittivity.value
-        resin_loss_tangent = resin_mat.dielectric_loss_tangent.value
+        resin_permittivity = float(resin_mat.permittivity.value)
+        resin_loss_tangent = float(resin_mat.dielectric_loss_tangent.value)
 
-        h_warp = min(thickness, warp_width * ratio_warp)
-        h_fill = min(thickness, fill_width * ratio_fill)
+        h_warp = min(thickness, self.warp_width * self.ratio_warp)
+        h_fill = min(thickness, self.fill_width * self.ratio_fill)
 
-        n_sectors_x = max(1, round((sub_w / target_pitch_x) * sectors_per_pitch))
-        n_sectors_y = max(1, round((sub_hy / target_pitch_y) * sectors_per_pitch))
+        n_sectors_x = max(1, round((sub_w / self.target_pitch_x) * self.sectors_per_pitch))
+        n_sectors_y = max(1, round((sub_hy / self.target_pitch_y) * self.sectors_per_pitch))
         sector_w = sub_w / n_sectors_x
         sector_h = sub_hy / n_sectors_y
 
-        pitch_x = sub_w / max(1, round(sub_w / target_pitch_x))
-        pitch_y = sub_hy / max(1, round(sub_hy / target_pitch_y))
+        pitch_x = sub_w / max(1, round(sub_w / self.target_pitch_x))
+        pitch_y = sub_hy / max(1, round(sub_hy / self.target_pitch_y))
 
-        stale = [n for n in m.solid_names if n.startswith(f"{name_prefix}_Sector_")]
+        stale = [n for n in m.solid_names if n.startswith(f"{name}_Sector_")]
         if stale:
             m.delete(stale)
-            self.logger.info(f"Weave '{name_prefix}' (homogenized): removed {len(stale)} stale sector bodies.")
+            self.logger.info(f"Weave '{name}' (homogenized): removed {len(stale)} stale sector bodies.")
 
         dk_cache = {}
-        sector_names = []
+        sector_objs = []
         for i in range(n_sectors_x):
             x_center = (i + 0.5) * sector_w
             x_mod = x_center % pitch_x
-            fill_present = abs(x_mod - pitch_x / 2.0) <= (fill_width / 2.0)
+            fill_present = abs(x_mod - pitch_x / 2.0) <= (self.fill_width / 2.0)
 
             for j in range(n_sectors_y):
                 y_center = (j + 0.5) * sector_h
                 y_mod = y_center % pitch_y
-                warp_present = abs(y_mod - pitch_y / 2.0) <= (warp_width / 2.0)
+                warp_present = abs(y_mod - pitch_y / 2.0) <= (self.warp_width / 2.0)
 
                 f_yarn = 0.0
                 if warp_present:
@@ -1055,9 +1019,9 @@ class Weave(PyAedtBase):
 
                 key = round(f_yarn, 6)
                 if key not in dk_cache:
-                    dk_eff = f_yarn * yarn_permittivity + (1 - f_yarn) * resin_permittivity
-                    tand_eff = f_yarn * yarn_loss_tangent + (1 - f_yarn) * resin_loss_tangent
-                    mat_name = f"{name_prefix}_HomogMat_{len(dk_cache)}"
+                    dk_eff = f_yarn * self.yarn_permittivity + (1 - f_yarn) * resin_permittivity
+                    tand_eff = f_yarn * self.yarn_loss_tangent + (1 - f_yarn) * resin_loss_tangent
+                    mat_name = f"{name}_HomogMat_{len(dk_cache)}"
                     if mat_name not in self._app.materials.material_keys:
                         mat = self._app.materials.add_material(mat_name)
                     else:
@@ -1067,18 +1031,13 @@ class Weave(PyAedtBase):
                     dk_cache[key] = (mat_name, dk_eff, tand_eff)
 
                 mat_name, dk_eff, tand_eff = dk_cache[key]
-                name = f"{name_prefix}_Sector_{i}_{j}"
-                m.create_box(
+                new_name = f"{name}_Sector_{i}_{j}"
+                new_sector_obj = m.create_box(
                     origin=[xmin + i * sector_w, ymin + j * sector_h, zmin],
                     sizes=[sector_w, sector_h, thickness],
-                    name=name,
+                    name=new_name,
                     material=mat_name,
                 )
-                sector_names.append(name)
+                sector_objs.append(new_sector_obj)
 
-        self.logger.info(
-            f"Weave '{name_prefix}' (homogenized): {len(sector_names)} sectors created "
-            f"({n_sectors_x}x{n_sectors_y} grid), {len(dk_cache)} distinct Dk_eff region(s): "
-            + ", ".join(f"{v[1]:.3f}" for v in dk_cache.values())
-        )
-        return sector_names
+        return sector_objs
