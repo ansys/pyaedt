@@ -113,12 +113,7 @@ class Weave(PyAedtBase):
 
     """
 
-    def __init__(self, app: Hfss | Maxwell3d | Q3d | Icepak) -> None:
-        """Constructor for Weave."""
-        self._app = app
-        self.logger = self._app.logger
-
-        # Instance-configurable parameters with sensible defaults
+    def __init__(self) -> None:
         self._yarn_material = "eglass"
         self._yarn_permittivity = 6.0
         self._yarn_loss_tangent = 0.004
@@ -130,7 +125,7 @@ class Weave(PyAedtBase):
         self._ratio_warp = 0.057
         self._ratio_fill = 0.057
         self._weave_shift_y = 0.0
-        self._weave_rotate_deg = 0.0
+        self._rotation = 0.0
         self._facet_ellipse_segs = 8
         self._facet_path_segs_per_half = 6
         self._subtract_from_substrate = False
@@ -406,7 +401,7 @@ class Weave(PyAedtBase):
         self._weave_shift_y = float(value)
 
     @property
-    def rotate(self) -> float:
+    def rotation(self) -> float:
         """Rotation applied to the weave coordinate system in degrees.
 
         Returns
@@ -420,14 +415,14 @@ class Weave(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> obj = Weave(hfss)
-        >>> r = obj.rotate
+        >>> r = obj.rotation
 
         """
-        return self._weave_rotate_deg
+        return self._rotation
 
-    @rotate.setter
-    def rotate(self, value: float) -> None:
-        self._weave_rotate_deg = float(value)
+    @rotation.setter
+    def rotation(self, value: float) -> None:
+        self._rotation = float(value)
 
     @property
     def facet_ellipse_segments(self) -> int:
@@ -525,6 +520,7 @@ class Weave(PyAedtBase):
     def sectors_per_pitch(self, value: int) -> None:
         if int(value) < 1:
             raise ValueError("sectors_per_pitch must be >= 1")
+        self._sectors_per_pitch = int(value)
 
     @property
     def weave_parameters(self) -> dict:
@@ -555,7 +551,7 @@ class Weave(PyAedtBase):
             "ratio_warp": self.ratio_warp,
             "ratio_fill": self.ratio_fill,
             "shift_y": self.shift_y,
-            "rotate": self.rotate,
+            "rotation": self.rotation,
             "facet_ellipse_segments": self.facet_ellipse_segments,
             "facet_path_segments_per_half": self.facet_path_segments_per_half,
             "subtract_from_substrate": self.subtract_from_substrate,
@@ -563,13 +559,11 @@ class Weave(PyAedtBase):
         }
 
     @classmethod
-    def from_dict(cls, app: Hfss | Maxwell3d | Q3d | Icepak, data: dict) -> Weave:
+    def from_dict(cls, data: dict) -> Weave:
         """Create a `Weave` instance from a dictionary.
 
         Parameters
         ----------
-        app:
-            AEDT application instance used by the `Weave` object.
         data: dict
             Dictionary with parameter keys matching `weave_parameters`.
 
@@ -588,15 +582,10 @@ class Weave(PyAedtBase):
         >>> weave2 = Weave.from_dict(hfss, param)
 
         """
-        w = cls(app)
+        w = cls()
         for k, v in data.items():
             if hasattr(w, k):
-                try:
-                    setattr(w, k, v)
-                except Exception:  # pragma: no cover
-                    w.logger.debug(f"Skipped setting {k}={v}")
-            else:
-                w.logger.debug(f"Key {k} is not defined.")
+                setattr(w, k, v)
         return w
 
     def export_to_json(self, output_file: str | Path) -> bool:
@@ -624,13 +613,11 @@ class Weave(PyAedtBase):
         return write_configuration_file(self.weave_parameters, str(output_file))
 
     @classmethod
-    def load_from_json(cls, app: Hfss | Maxwell3d | Q3d | Icepak, input_file: str | Path) -> Weave:
+    def load_from_json(cls, input_file: str | Path) -> Weave:
         """Load weave parameters from a JSON or TOML file and return a configured Weave.
 
         Parameters
         ----------
-        app:
-            AEDT application instance used by the `Weave` object.
         input_file: str or :class:`pathlib.Path`
             Full path to the file, including its extension.
 
@@ -651,8 +638,8 @@ class Weave(PyAedtBase):
         """
         data = read_configuration_file(str(input_file))
         if not isinstance(data, dict):
-            raise ValueError("Configuration file did not contain a dictionary")
-        return cls.from_dict(app, data)
+            raise ValueError("Configuration file did not contain a dictionary.")
+        return cls.from_dict(data)
 
     @pyaedt_function_handler()
     def set_weave_style(self, style: str) -> None:
@@ -691,6 +678,7 @@ class Weave(PyAedtBase):
     @pyaedt_function_handler()
     def create_weave(
         self,
+        app: Hfss | Maxwell3d | Q3d | Icepak,
         assignment: int | str | Object3d,
         weave_style: str | None = None,
         name: str | None = None,
@@ -699,6 +687,8 @@ class Weave(PyAedtBase):
 
         Parameters
         ----------
+        app:
+            AEDT application instance used by the `Weave` object.
         assignment : int, str, or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Reference body used to create the weave.
         weave_style: str, optional
@@ -718,11 +708,12 @@ class Weave(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> sub = hfss.modeler.create_box([0, 0, 0], [5, 10, 2])
-        >>> weave = Weave(hfss)
-        >>> weave.create_weave(sub)
+        >>> weave = Weave()
+        >>> weave.create_weave(hfss, sub)
 
         """
-        m = self._app.modeler
+        m = app.modeler
+        logger = app.logger
 
         if not name:
             name = "Fiber"
@@ -738,8 +729,8 @@ class Weave(PyAedtBase):
         if weave_style is not None and weave_style in WEAVE_STYLES:
             self.set_weave_style(weave_style)
 
-        if self.yarn_material not in self._app.materials.material_keys:
-            mat = self._app.materials.add_material(self.yarn_material)
+        if self.yarn_material not in app.materials.material_keys:
+            mat = app.materials.add_material(self.yarn_material)
             mat.permittivity = self.yarn_permittivity
             mat.dielectric_loss_tangent = self.yarn_loss_tangent
 
@@ -751,19 +742,14 @@ class Weave(PyAedtBase):
         pitch_y = diag / (2 * n_cell_y)
         max_amplitude = (zmax - zmin) / 2.0 * 0.80
         amplitude = min(self.target_amplitude, max_amplitude)
-        if self.target_amplitude > max_amplitude:
-            self.logger.warning(
-                f"Weave '{name}': requested amplitude {self.target_amplitude}mm exceeds the safe "
-                f"limit for the substrate thickness. Clamped to {amplitude:.4f}mm."
-            )
 
-        self._app[f"{name}_pitch_x"] = f"{pitch_x}mm"
-        self._app[f"{name}_pitch_y"] = f"{pitch_y}mm"
-        self._app[f"{name}_warp_width"] = f"{self.warp_width}mm"
-        self._app[f"{name}_fill_width"] = f"{self.fill_width}mm"
-        self._app[f"{name}_amplitude"] = f"{amplitude}mm"
-        self._app[f"{name}_span_x"] = f"{diag / 2}mm"
-        self._app[f"{name}_span_y"] = f"{diag / 2}mm"
+        app[f"{name}_pitch_x"] = f"{pitch_x}mm"
+        app[f"{name}_pitch_y"] = f"{pitch_y}mm"
+        app[f"{name}_warp_width"] = f"{self.warp_width}mm"
+        app[f"{name}_fill_width"] = f"{self.fill_width}mm"
+        app[f"{name}_amplitude"] = f"{amplitude}mm"
+        app[f"{name}_span_x"] = f"{diag / 2}mm"
+        app[f"{name}_span_y"] = f"{diag / 2}mm"
 
         n_pts_warp = self.facet_path_segments_per_half * 2 * n_cell_x
         n_pts_fill = self.facet_path_segments_per_half * 2 * n_cell_y
@@ -773,7 +759,7 @@ class Weave(PyAedtBase):
         if cs_name in existing_cs_names:
             cs_to_delete = next(cs for cs in m.coordinate_systems if cs.name == cs_name)
             cs_to_delete.delete()
-            self.logger.info(f"Weave '{name}': deleted existing coordinate system '{cs_name}'.")
+            logger.info(f"Weave '{name}': deleted existing coordinate system '{cs_name}'.")
 
         weave_prefixes = (
             f"{name}_WarpA",
@@ -784,11 +770,11 @@ class Weave(PyAedtBase):
         stale = [n for n in m.solid_names if n.startswith(weave_prefixes)]
         if stale:
             m.delete(stale)
-            self.logger.info(f"Weave '{name}': removed {len(stale)} stale yarn bodies.")
+            logger.info(f"Weave '{name}': removed {len(stale)} stale yarn bodies.")
 
         z_mid = (zmin + zmax) / 2.0
 
-        r = math.radians(self.rotate)
+        r = math.radians(self.rotation)
         cx, sx = math.cos(r), math.sin(r)
         m.create_coordinate_system(
             origin=[xmin + sub_w / 2, ymin + sub_hy / 2 + self.shift_y, z_mid],
@@ -924,6 +910,7 @@ class Weave(PyAedtBase):
     @pyaedt_function_handler()
     def create_weave_homogenized(
         self,
+        app: Hfss | Maxwell3d | Q3d | Icepak,
         assignment: int | str | Object3d,
         weave_style: str | None = None,
         name: str | None = None,
@@ -932,6 +919,8 @@ class Weave(PyAedtBase):
 
         Parameters
         ----------
+        app:
+            AEDT application instance used by the `Weave` object.
         assignment : int, str, or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Reference body used to create the weave.
         weave_style: str, optional
@@ -951,11 +940,12 @@ class Weave(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> sub = hfss.modeler.create_box([0, 0, 0], [5, 10, 2])
-        >>> weave = Weave(hfss)
-        >>> weave.create_weave(sub)
+        >>> weave = Weave()
+        >>> weave.create_weave(hfss, sub)
 
         """
-        m = self._app.modeler
+        m = app.modeler
+        logger = app.logger
 
         substrate = m._resolve_object(assignment)
 
@@ -978,7 +968,7 @@ class Weave(PyAedtBase):
         sub_hy = ymax - ymin
         thickness = zmax - zmin
 
-        resin_mat = self._app.materials[substrate.material_name]
+        resin_mat = app.materials[substrate.material_name]
         resin_permittivity = float(resin_mat.permittivity.value)
         resin_loss_tangent = float(resin_mat.dielectric_loss_tangent.value)
 
@@ -996,7 +986,7 @@ class Weave(PyAedtBase):
         stale = [n for n in m.solid_names if n.startswith(f"{name}_Sector_")]
         if stale:
             m.delete(stale)
-            self.logger.info(f"Weave '{name}' (homogenized): removed {len(stale)} stale sector bodies.")
+            logger.info(f"Weave '{name}' (homogenized): removed {len(stale)} stale sector bodies.")
 
         dk_cache = {}
         sector_objs = []
@@ -1022,10 +1012,10 @@ class Weave(PyAedtBase):
                     dk_eff = f_yarn * self.yarn_permittivity + (1 - f_yarn) * resin_permittivity
                     tand_eff = f_yarn * self.yarn_loss_tangent + (1 - f_yarn) * resin_loss_tangent
                     mat_name = f"{name}_HomogMat_{len(dk_cache)}"
-                    if mat_name not in self._app.materials.material_keys:
-                        mat = self._app.materials.add_material(mat_name)
+                    if mat_name not in app.materials.material_keys:
+                        mat = app.materials.add_material(mat_name)
                     else:
-                        mat = self._app.materials[mat_name]
+                        mat = app.materials[mat_name]
                     mat.permittivity = dk_eff
                     mat.dielectric_loss_tangent = tand_eff
                     dk_cache[key] = (mat_name, dk_eff, tand_eff)
