@@ -99,11 +99,6 @@ class Weave(PyAedtBase):
     ----------
     BGF Technical Data Book, numeric weave presets adapted from published tables.
 
-    Parameters
-    ----------
-    app:
-        AEDT application object.
-
     Examples
     --------
     >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
@@ -637,8 +632,6 @@ class Weave(PyAedtBase):
 
         """
         data = read_configuration_file(str(input_file))
-        if not isinstance(data, dict):
-            raise ValueError("Configuration file did not contain a dictionary.")
         return cls.from_dict(data)
 
     @pyaedt_function_handler()
@@ -716,7 +709,7 @@ class Weave(PyAedtBase):
         logger = app.logger
 
         if not name:
-            name = "Fiber"
+            name = "Weave"
 
         substrate = m._resolve_object(assignment)
 
@@ -760,17 +753,6 @@ class Weave(PyAedtBase):
             cs_to_delete = next(cs for cs in m.coordinate_systems if cs.name == cs_name)
             cs_to_delete.delete()
             logger.info(f"Weave '{name}': deleted existing coordinate system '{cs_name}'.")
-
-        weave_prefixes = (
-            f"{name}_WarpA",
-            f"{name}_WarpB",
-            f"{name}_FillA",
-            f"{name}_FillB",
-        )
-        stale = [n for n in m.solid_names if n.startswith(weave_prefixes)]
-        if stale:
-            m.delete(stale)
-            logger.info(f"Weave '{name}': removed {len(stale)} stale yarn bodies.")
 
         z_mid = (zmin + zmax) / 2.0
 
@@ -945,7 +927,6 @@ class Weave(PyAedtBase):
 
         """
         m = app.modeler
-        logger = app.logger
 
         substrate = m._resolve_object(assignment)
 
@@ -982,11 +963,6 @@ class Weave(PyAedtBase):
 
         pitch_x = sub_w / max(1, round(sub_w / self.target_pitch_x))
         pitch_y = sub_hy / max(1, round(sub_hy / self.target_pitch_y))
-
-        stale = [n for n in m.solid_names if n.startswith(f"{name}_Sector_")]
-        if stale:
-            m.delete(stale)
-            logger.info(f"Weave '{name}' (homogenized): removed {len(stale)} stale sector bodies.")
 
         dk_cache = {}
         sector_objs = []

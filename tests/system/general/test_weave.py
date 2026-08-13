@@ -88,11 +88,11 @@ def test_weave_properties() -> None:
     assert w.ratio_warp == pytest.approx(0.06)
     assert w.ratio_fill == pytest.approx(0.07)
 
-    # Shift / rotation
+    # Shift / rotate
     w.shift_y = 1.23
-    w.rotation = 12.5
+    w.rotate = 12.5
     assert w.shift_y == pytest.approx(1.23)
-    assert w.rotation == pytest.approx(12.5)
+    assert w.rotate == pytest.approx(12.5)
 
     # Faceting
     w.facet_ellipse_segments = 10
@@ -135,10 +135,8 @@ def test_weave_properties() -> None:
 
 def test_weave_from_dict() -> None:
     """Validate Weave from dict."""
-    weave_dict = {"sectors_per_pitch": 30, "hola": 2}
-
+    weave_dict = {"sectors_per_pitch": 30, "hola": "TestWeave"}
     weave = Weave.from_dict(weave_dict)
-
     assert weave.sectors_per_pitch == 30
     assert not getattr(weave, "hola", None)
 
@@ -147,6 +145,7 @@ def test_weave_export_load_json(test_tmp_dir) -> None:
     """Validate Weave export and load file."""
     output_path = test_tmp_dir / "weave.json"
     w1 = Weave()
+    w1.yarn_material = "custom_mat"
     assert w1.export_to_json(output_path)
     assert output_path.exists()
 
@@ -160,17 +159,32 @@ def test_weave_style() -> None:
     style1 = list(WEAVE_STYLES.keys())[0]
     props = WEAVE_STYLES[style1]
 
+    with pytest.raises(ValueError):
+        w.set_weave_style("invented")
+
     w.set_weave_style(style1)
+    assert w.target_pitch_x == pytest.approx(props["target_pitch_x"])
+    assert w.warp_width == pytest.approx(props["warp_width"])
 
-    assert w.yarn_material == props["yarn_material"]
+
+def test_weave_create(hfss_app) -> None:
+    """Minimal test for create_weave method."""
+    box = hfss_app.modeler.create_box([0, 0, 0], [1, 1, 0.1])
+    w = Weave()
+    result = w.create_weave(hfss_app, box)
+    assert isinstance(result, Object3d)
+    assert result.name == "Weave"
+
+    # Test duplicated weave with the same CS
+    result2 = w.create_weave(hfss_app, box, name="Weave")
+    assert isinstance(result2, Object3d)
+    assert len(hfss_app.modeler.solid_names) == 2
 
 
-def test_weave_create(icepak_app) -> None:
-    """Validate Weave creation."""
-    box = icepak_app.modeler.create_box([0, 10, 0], [1, 1, 0.1])
-
-    w1 = Weave()
-
-    weave_obj = w1.create_weave(icepak_app, box, weave_style="1080")
-
-    assert isinstance(weave_obj, Object3d)
+def test_weave_create_homogenized(hfss_app) -> None:
+    """Minimal test for create_weave_homogenized method."""
+    box = hfss_app.modeler.create_box([0, 0, 0], [1, 1, 0.1])
+    w = Weave()
+    result = w.create_weave_homogenized(hfss_app, box, name="HomWeave")
+    assert isinstance(result, list)
+    assert len(result) == 4
