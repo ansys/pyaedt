@@ -47,53 +47,6 @@ if TYPE_CHECKING:
     from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
     from ansys.aedt.core.modeler.cad.object_3d import Object3d
 
-WEAVE_STYLES = {
-    "1067": dict(
-        target_pitch_x=0.28,
-        target_pitch_y=0.28,
-        warp_width=0.13,
-        fill_width=0.13,
-        ratio_warp=0.077,
-        ratio_fill=0.077,
-        target_amplitude=0.025,
-        yarn_permittivity=6.0,
-        yarn_loss_tangent=0.004,
-    ),
-    "1080": dict(
-        target_pitch_x=0.40,
-        target_pitch_y=0.40,
-        warp_width=0.18,
-        fill_width=0.18,
-        ratio_warp=0.067,
-        ratio_fill=0.067,
-        target_amplitude=0.035,
-        yarn_permittivity=6.0,
-        yarn_loss_tangent=0.004,
-    ),
-    "2116": dict(
-        target_pitch_x=0.50,
-        target_pitch_y=0.50,
-        warp_width=0.20,
-        fill_width=0.20,
-        ratio_warp=0.057,
-        ratio_fill=0.057,
-        target_amplitude=0.050,
-        yarn_permittivity=6.0,
-        yarn_loss_tangent=0.004,
-    ),
-    "7628": dict(
-        target_pitch_x=0.80,
-        target_pitch_y=0.80,
-        warp_width=0.35,
-        fill_width=0.28,
-        ratio_warp=0.057,
-        ratio_fill=0.057,
-        target_amplitude=0.080,
-        yarn_permittivity=6.0,
-        yarn_loss_tangent=0.004,
-    ),
-}
-
 
 class Modeler3D(Primitives3D, PyAedtBase):
     """Provides the Modeler 3D application interface.
