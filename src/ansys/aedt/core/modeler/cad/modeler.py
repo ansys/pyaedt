@@ -764,7 +764,7 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
             self._props = CsProps(self, props)
             if "KernelVersion" in self.props:
                 del self.props["KernelVersion"]
-        self._ref_cs = ""
+        self._ref_cs = None
         self._quaternion = None
         self._mode = None
 
@@ -815,12 +815,12 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         return self._props
 
     @property
-    def ref_cs(self) -> str:
+    def ref_cs(self) -> str | None:
         """Reference coordinate system getter and setter.
 
         Returns
         -------
-        str
+        str or None
 
         Examples
         --------
@@ -1408,15 +1408,15 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
             self._props = CsProps(self, props)
             if "KernelVersion" in self.props:
                 del self.props["KernelVersion"]
-        self._ref_cs = ""
+        self._ref_cs = None
 
     @property
-    def ref_cs(self) -> str:
+    def ref_cs(self) -> str | None:
         """Reference coordinate system.
 
         Returns
         -------
-        str
+        str or None
 
         Examples
         --------
@@ -1444,7 +1444,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
             self._modeler.logger.error("Failed to set Coordinate CS Reference.")
 
     @property
-    def props(self) -> "CsProps":
+    def props(self) -> CsProps:
         """Properties of the coordinate system.
 
         Returns
