@@ -1,0 +1,124 @@
+$begin '$base_index$'
+  $begin 'properties'
+    all_levels=000000000000
+    time(year=000000002026, month=000000000003, day=000000000020, hour=000000000016, min=000000000005, sec=000000000042)
+    version=000000000000
+  $end 'properties'
+  $begin '$base_index$'
+    $index$(pos=000000007521, lin=000000000103, lvl=000000000000)
+  $end '$base_index$'
+$end '$base_index$'
+$begin 'SolutionBlock1'
+	ProductName=''
+	CircuitName='ATA_Analysis'
+	VersionID=16144
+	PostProcess=false
+	LossLess=true
+	NextUniqueID=16299
+	MoveBackwards=false
+	$begin 'VariationIDs'
+		Map(V='aqw=\'100\' coax_feed_xoffset=\'-0.40000000000000002mm\' coax_feed_yoffset=\'0.90000000000000002mm\' coax_inner_pin_radius=\'0.16700000000000001mm\' copper_e=\'70um\' cutoff=\'1.1000000000000001mm\' cY=\'22.5mm\' E1=\'2mm\' E2=\'-2mm\' E3=\'-2mm\' E4=\'4mm\' E5=\'2mm\' finger_diameter=\'5mm\' finger_length=\'6mm\' finger_X=\'5\' finger_Y=\'8\' foam_lower_elevation=\'0mm\' foam_thickness=\'7mm\' glass_t=\'0.69999999999999996mm\' GND_lower_elevation=\'0mm\' ITO_t=\'0.01mm\' ITO_X_pitch=\'4.5mm\' ITO_X_w=\'4.0999999999999996mm\' ITO_Y_pitch=\'5mm\' ITO_Y_w=\'1.1000000000000001mm\' L1=\'8.9837699999999998mm\' L2=\'8.9837699999999998mm\' laminate=\'0.5mm\' metal_t=\'0.01mm\' metal_w=\'0.10000000000000001mm\' mp=\'0.20000000000000001mm\' mt=\'0.29999999999999999mm\' mXd=\'-2mm\' mXp=\'21.100000000000001mm\' mXpr=\'23.899999999999999mm\' mXps=\'-7mm\' myd=\'-1mm\' OCA1_t=\'0.050000000000000003mm\' OCA2_t=\'0.10000000000000001mm\' Ofs_fedX=\'1.75mm\' Ofs_fedY=\'6mm\' Ofs_short=\'10mm\' patch_lower_elevation=\'7mm\' patch_xsize=\'12mm\' patch_ysize=\'12mm\' pet1_t=\'0.12mm\' pet2_t=\'0.12mm\' Pz=\'2mm\' short_p=\'15mm\' substrate_xsize=\'13mm\' substrate_ysize=\'13mm\' substrate_zsize=\'2mm\' W1=\'1.5mm\' W2=\'1.5mm\' X_lines=\'16\' xrs=\'45.299999999999997mm\' Y_lines=\'9\'', ID=16202)
+	$end 'VariationIDs'
+	$begin 'LinkedDataList'
+	$end 'LinkedDataList'
+	MeshAssemVersionID=0
+	$begin 'NextAssemVersionID'
+		NextUniqueID=1
+		MoveBackwards=false
+	$end 'NextAssemVersionID'
+	$begin 'MI'
+	$end 'MI'
+	VersionID2=0
+$end 'SolutionBlock1'
+$begin 'BlockMapName'
+	FileHeader='SolutionBlock1'
+	'SolutionKey(SimSetup=6101, Instance=\'SetupDefinition\', Solution=-1, VersionID=16144)'='SolutionBlock5'
+	'SolutionKey(SimSetup=6101, Instance=\'SolutionDefinition\', Solution=6102, VersionID=16201)'='SolutionBlock2'
+	'SolutionKey(SimSetup=6101, Instance=\'SolutionDefinition\', Solution=6103, VersionID=16201)'='SolutionBlock3'
+	'SolutionKey(SimSetup=6101, Instance=\'SolutionDefinition\', Solution=6106, VersionID=16201)'='SolutionBlock4'
+$end 'BlockMapName'
+$begin 'SolutionBlock2'
+	SolutionName='AdaptivePass'
+	SolutionID=6102
+	V=16201
+	$begin 'States'
+	$end 'States'
+	$begin 'Definition'
+		SamplingInterpolation=false
+		Frequencies(3000000000)
+		SolutionType=6
+		CenterFreq=0
+	$end 'Definition'
+	IsImported=false
+	IsTable=false
+	IsMatrixDataTable=false
+	SweepID=-1
+	KeepAllFastSweepFields=false
+$end 'SolutionBlock2'
+$begin 'SolutionBlock3'
+	SolutionName='LastAdaptive'
+	SolutionID=6103
+	V=16201
+	$begin 'States'
+	$end 'States'
+	$begin 'Definition'
+		SamplingInterpolation=false
+		Frequencies(3000000000)
+		SolutionType=6
+		CenterFreq=0
+	$end 'Definition'
+	IsImported=false
+	IsTable=false
+	IsMatrixDataTable=false
+	SweepID=-1
+	KeepAllFastSweepFields=false
+$end 'SolutionBlock3'
+$begin 'SolutionBlock4'
+	SolutionName='Sweep'
+	SolutionID=6106
+	V=16201
+	$begin 'States'
+	$end 'States'
+	$begin 'Definition'
+		SamplingInterpolation=false
+		Frequencies(0, 10000000, 20000000, 30000000, 40000000, 50000000, 60000000, 70000000, 80000000, 90000000, 100000000, 110000000, 120000000, 130000000, 140000000, 150000000, 160000000, 170000000, 180000000, 190000000, 200000000, 210000000, 220000000, 230000000, 240000000, 250000000, 260000000, 270000000, 280000000, 290000000, 300000000, 310000000, 320000000, 330000000, 340000000, 350000000, 360000000, 370000000, 380000000, 390000000, 400000000, 410000000, 420000000, 430000000, 440000000, 450000000, 460000000, 470000000, 480000000, 490000000, 500000000, 510000000, 520000000, 530000000, 540000000, 550000000, 560000000, 570000000, 580000000, 590000000, 600000000, 610000000, 620000000, 630000000, 640000000, 650000000, 660000000, 670000000, 680000000, 690000000, 700000000, 710000000, 720000000, 730000000, 740000000, 750000000, 760000000, 770000000, 780000000, 790000000, 800000000, 810000000, 820000000, 830000000, 840000000, 850000000, 860000000, 870000000, 880000000, 890000000, 900000000, 910000000, 920000000, 930000000, 940000000, 950000000, 960000000, 970000000, 980000000, 990000000, 1000000000, 1010000000, 1020000000, 1030000000, 1040000000, 1050000000, 1060000000, 1070000000, 1080000000, 1090000000, 1100000000, 1110000000, 1120000000, 1130000000, 1140000000, 1150000000, 1160000000, 1170000000, 1180000000, 1190000000, 1200000000, 1210000000, 1220000000, 1230000000, 1240000000, 1250000000, 1260000000, 1270000000, 1280000000, 1290000000, 1300000000, 1310000000, 1320000000, 1330000000, 1340000000, 1350000000, 1360000000, 1370000000, 1380000000, 1390000000, 1400000000, 1410000000, 1420000000, 1430000000, 1440000000, 1450000000, 1460000000, 1470000000, 1480000000, 1490000000, 1500000000, 1510000000, 1520000000, 1530000000, 1540000000, 1550000000, 1560000000, 1570000000, 1580000000, 1590000000, 1600000000, 1610000000, 1620000000, 1630000000, 1640000000, 1650000000, 1660000000, 1670000000, 1680000000, 1690000000, 1700000000, 1710000000, 1720000000, 1730000000, 1740000000, 1750000000, 1760000000, 1770000000, 1780000000, 1790000000, 1800000000, 1810000000, 1820000000, 1830000000, 1840000000, 1850000000, 1860000000, 1870000000, 1880000000, 1890000000, 1900000000, 1910000000, 1920000000, 1930000000, 1940000000, 1950000000, 1960000000, 1970000000, 1980000000, 1990000000, 2000000000, 2010000000, 2020000000, 2030000000, 2040000000, 2050000000, 2060000000, 2070000000, 2080000000, 2090000000, 2100000000, 2110000000, 2120000000, 2130000000, 2140000000, 2150000000, 2160000000, 2170000000, 2180000000, 2190000000, 2200000000, 2210000000, 2220000000, 2230000000, 2240000000, 2250000000, 2260000000, 2270000000, 2280000000, 2290000000, 2300000000, 2310000000, 2320000000, 2330000000, 2340000000, 2350000000, 2360000000, 2370000000, 2380000000, 2390000000, 2400000000, 2410000000, 2420000000, 2430000000, 2440000000, 2450000000, 2460000000, 2470000000, 2480000000, 2490000000, 2500000000, 2510000000, 2520000000, 2530000000, 2540000000, 2550000000, 2560000000, 2570000000, 2580000000, 2590000000, 2600000000, 2610000000, 2620000000, 2630000000, 2640000000, 2650000000, 2660000000, 2670000000, 2680000000, 2690000000, 2700000000, 2710000000, 2720000000, 2730000000, 2740000000, 2750000000, 2760000000, 2770000000, 2780000000, 2790000000, 2800000000, 2810000000, 2820000000, 2830000000, 2840000000, 2850000000, 2860000000, 2870000000, 2880000000, 2890000000, 2900000000, 2910000000, 2920000000, 2930000000, 2940000000, 2950000000, 2960000000, 2970000000, 2980000000, 2990000000, 3000000000)
+		SolutionType=5
+		CenterFreq=0
+	$end 'Definition'
+	IsImported=false
+	IsTable=false
+	IsMatrixDataTable=false
+	SweepID=0
+	KeepAllFastSweepFields=false
+$end 'SolutionBlock4'
+$begin 'SolutionBlock5'
+	SimSetupID=6101
+	SimSetupName='Setup'
+	VersionID=16144
+	IsImported=false
+	IsTable=false
+	SolveSetupID=4
+	MeshAssemVersionID=0
+	$begin 'NextAssemVersionID'
+		NextUniqueID=1
+		MoveBackwards=false
+	$end 'NextAssemVersionID'
+	$begin 'ADP'
+	$end 'ADP'
+	$begin 'SU'
+	$end 'SU'
+	$begin 'MI'
+	$end 'MI'
+$end 'SolutionBlock5'
+$begin '$index$'
+	$begin '$index$'
+		BlockMapName(pos=2107, lin=23, lvl=0)
+		SolutionBlock2(pos=2621, lin=30, lvl=0)
+		SolutionBlock3(pos=2982, lin=48, lvl=0)
+		SolutionBlock4(pos=3343, lin=66, lvl=0)
+		SolutionBlock5(pos=7179, lin=84, lvl=0)
+		SolutionBlock1(pos=370, lin=1, lvl=0)
+		$base_index$(pos=0, lin=1, lvl=0)
+		$index$(pos=7521, lin=103, lvl=0)
+	$end '$index$'
+$end '$index$'

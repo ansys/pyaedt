@@ -1,0 +1,20 @@
+# Blank lines and lines starting with '#' are ignored
+@ DlxCdVersion = "1"
+
+# RowCount = {number of rows}
+@ RowCount = "6"
+
+# ColumnCount = {number of columns}
+@ ColumnCount = "2"
+
+# DataFormat = {Text,Binary}
+@ DataFormat = "Text"
+
+@ BeginData
+#             Bandwidth      Attenuation (dB)
+                3000000                    81 
+                 810000                    81 
+                 800000                    71 
+                 610000                    71 
+                 600000                    66 
+                 210000                    66 

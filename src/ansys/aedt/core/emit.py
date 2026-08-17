@@ -33,6 +33,7 @@ from ansys.aedt.core.emit_core.emit_constants import emit_unit_type_string_to_en
 from ansys.aedt.core.emit_core.emit_schematic import EmitSchematic
 from ansys.aedt.core.emit_core.results.results import Results
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.modeler.schematic import ModelerEmit
 
 
@@ -169,7 +170,7 @@ class Emit(Design, PyAedtBase):
         self._modeler = ModelerEmit(self)
         self._couplings = CouplingsEmit(self)
         self._schematic = EmitSchematic(self)
-        if self._aedt_version > "2023.1":
+        if self._aedt_version > "2023.1" and self._aedt_version < "2027.1":
             # the next 2 lines of code are needed to point
             # the EMIT object to the correct EmiApiPython
             # module for the current AEDT version
@@ -181,6 +182,9 @@ class Emit(Design, PyAedtBase):
             """''Result'' object for the selected design."""
 
             self.__emit_api_enabled = True
+        elif self._aedt_version >= "2027.1":
+            self.results = Results(self)
+            """''Result'' object for the selected design."""
 
     def _init_from_design(self, *args, **kwargs) -> None:
         self.__init__(*args, **kwargs)
@@ -238,6 +242,28 @@ class Emit(Design, PyAedtBase):
 
         """
         return self._schematic
+
+    @property
+    @min_aedt_version("2025.1")
+    def _emit_com_module(self):
+        """Retrieve the EmitCom module from the Emit instance.
+
+        Returns
+        -------
+        object
+            The EmitCom module.
+
+        Raises
+        ------
+        RuntimeError
+            If the EmitCom module cannot be retrieved.
+        """
+        if not hasattr(self, "_odesign"):
+            raise RuntimeError("Emit instance does not have a valid '_odesign' attribute.")
+        try:
+            return self._odesign.GetModule("EmitCom")
+        except Exception as e:
+            raise RuntimeError(f"Failed to retrieve EmitCom module: {e}")
 
     @pyaedt_function_handler()
     def version(self, detailed: bool = False) -> str:

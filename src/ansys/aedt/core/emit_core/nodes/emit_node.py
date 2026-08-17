@@ -36,22 +36,23 @@ from ansys.aedt.core.emit_core.emit_constants import EMIT_VALID_UNITS
 from ansys.aedt.core.emit_core.emit_constants import data_rate_conv
 from ansys.aedt.core.emit_core.emit_function_validator import FunctionValidator
 import ansys.aedt.core.generic.constants as consts
+from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.checks import min_aedt_version
 
+# Type variable to be used in methods that might receive a subclass of EmitNode
 T = TypeVar("T", bound="EmitNode")
-"""Type variable to be used in methods that might receive a subclass of EmitNode."""
+
+_FLOAT_LIST_PROPERTIES = (
+    "Position",
+    "Relative Position",
+    "Orientation",
+    "Relative Orientation",
+    "Frequency Domain",
+)
 
 
 class EmitNode:
-    """Emit node class for managing and interacting with EMIT nodes.
-
-    Examples
-    --------
-    >>> from ansys.aedt.core import Emit
-    >>> app = Emit()
-    >>> node = app.schematic.create_component("Bluetooth")
-
-    """
+    """Emit node class for managing and interacting with EMIT nodes."""
 
     def __init__(self, emit_obj, result_id, node_id) -> None:
         self._emit_obj = emit_obj
@@ -61,22 +62,14 @@ class EmitNode:
         self._node_id = node_id
         self._valid = True
         self._is_component = False
+        self._odesktop = emit_obj.odesktop
 
     def __eq__(self, other):
         return (self._result_id == other._result_id) and (self._node_id == other._node_id)
 
     @property
     def odesktop(self):
-        """Desktop instance used for version checking.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Emit
-        >>> app = Emit()
-        >>> node = app.schematic.create_component("Bluetooth")
-        >>> node.odesktop
-
-        """
+        """Desktop instance used for version checking."""
         return self._emit_obj.odesktop
 
     @staticmethod
@@ -92,18 +85,11 @@ class EmitNode:
         -------
         dict
             Properties returned as a dictionary.
-
-        Examples
-        --------
-        >>> EmitNode.props_to_dict(["Name=Radio1", "Type=RadioNode"])
-
         """
         result = {}
         for prop in props:
-            split_prop = prop.split("=")
-            if split_prop[1].find("|") != -1:
-                result[split_prop[0]] = split_prop[1].split("|")
-            result[split_prop[0]] = split_prop[1]
+            key, _, val = prop.partition("=")
+            result[key] = val
         return result
 
     @property
@@ -115,14 +101,6 @@ class EmitNode:
         -------
         bool
             ``True`` if the object is valid, ``False`` otherwise.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Emit
-        >>> app = Emit()
-        >>> node = app.schematic.create_component("Bluetooth")
-        >>> node.valid
-
         """
         return self._valid
 
@@ -135,14 +113,6 @@ class EmitNode:
         -------
         str
             Name of the node.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Emit
-        >>> app = Emit()
-        >>> node = app.schematic.create_component("Bluetooth")
-        >>> node.name
-
         """
         return self._get_property("Name", True)
 
@@ -160,14 +130,6 @@ class EmitNode:
         ------
         ValueError
             If the node is read-only or cannot be renamed.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Emit
-        >>> app = Emit()
-        >>> node = app.schematic.create_component("Bluetooth")
-        >>> node.name = "Bluetooth_1"
-
         """
         if self._result_id > 0:
             raise ValueError("This node is read-only for kept results.")
@@ -216,14 +178,6 @@ class EmitNode:
         -------
         Str
             Full node name of this node's parent node.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Emit
-        >>> app = Emit()
-        >>> node = app.schematic.create_component("Bluetooth")
-        >>> node.parent_name
-
         """
         return self._get_property("Parent", True)
 
@@ -264,14 +218,6 @@ class EmitNode:
         -------
         dict
             Dictionary of the node's properties with display name as key.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Emit
-        >>> app = Emit()
-        >>> node = app.schematic.create_component("Bluetooth")
-        >>> node.properties
-
         """
         props = self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, True)
         props = self.props_to_dict(props)
@@ -286,14 +232,6 @@ class EmitNode:
         -------
         str
             Warning message(s).
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Emit
-        >>> app = Emit()
-        >>> node = app.schematic.create_component("Bluetooth")
-        >>> node.warnings
-
         """
         node_warnings = ""
         try:
@@ -314,14 +252,6 @@ class EmitNode:
         -------
         list
             Allowed child types.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Emit
-        >>> app = Emit()
-        >>> node = app.schematic.create_component("Antenna")
-        >>> node.allowed_child_types
-
         """
         return self._oRevisionData.GetAllowedChildTypes(self._result_id, self._node_id)
 
@@ -342,7 +272,6 @@ class EmitNode:
         Examples
         --------
         >>> new_node = node._get_node(node_id)
-
         """
         from ansys.aedt.core.emit_core.nodes import generated
         from ansys.aedt.core.emit_core.nodes.emitter_node import EmitterNode
@@ -386,37 +315,285 @@ class EmitNode:
         -------
         list[EmitNode]
             List of child nodes.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Emit
-        >>> app = Emit()
-        >>> emitter, _ = app.schematic.create_radio_antenna("Bluetooth")
-        >>> emitter.children
-
         """
         child_names = self._oRevisionData.GetChildNodeNames(self._result_id, self._node_id)
         child_ids = [self._oRevisionData.GetChildNodeID(self._result_id, self._node_id, name) for name in child_names]
         child_nodes = [self._get_node(child_id) for child_id in child_ids]
         return child_nodes
 
-    @min_aedt_version("2025.2")
-    def _get_property(self, prop: str, skipChecks: bool = False, isTable: bool = False) -> str | list[str]:
-        """Fetch the value of a given property.
+    @staticmethod
+    def _parse_property_value(
+        prop: str, val: str | list[str], isTable: bool = False
+    ) -> str | list[str] | list[float] | list[tuple[str, ...]]:
+        """Parse a property value into a list of strings or floats.
 
         Parameters
         ----------
         prop : str
-            Name of the property.
-        skipChecks : bool, optional
-            Skip checks. The default is ``False``.
+            Property name.
+        val : str or list[str]
+            Property value.
         isTable : bool, optional
-            Skip checks. The default is ``False``.
+            Whether the property is a table.
 
         Returns
         -------
-        str, or list
+        str | list[str] | list[float] | list[tuple[str, ...]]
+            Parsed property value.
+        """
+        raw_val = val
+
+        if prop in _FLOAT_LIST_PROPERTIES:
+            if isinstance(raw_val, list):
+                return [float(x) for x in raw_val]
+            return [float(x) for x in raw_val.split()]
+
+        if isTable:
+            rows = raw_val.split(";") if isinstance(raw_val, str) else raw_val
+            if isinstance(rows, str):
+                rows = rows.split(";")
+            return [tuple(row.split("|")) for row in rows if row]
+
+        if isinstance(raw_val, list):
+            return raw_val
+        if "|" in raw_val:
+            return raw_val.split("|")
+        return raw_val
+
+    @staticmethod
+    def _format_property_value(prop: str, value) -> str:
+        """Format a property value into a string.
+
+        Parameters
+        ----------
+        prop : str
+            Property name.
+        value : bool | float | list[float] | str
             Property value.
+
+        Returns
+        -------
+        str
+            Formatted property value.
+        """
+        if isinstance(value, bool):
+            return str(value).lower()
+        if prop in _FLOAT_LIST_PROPERTIES:
+            if isinstance(value, list):
+                space = " "
+                return space.join(str(x) for x in value)
+            if isinstance(value, str) and value.startswith("[") and value.endswith("]"):
+                parsed = ast.literal_eval(value)
+                if isinstance(parsed, list):
+                    space = " "
+                    return space.join(str(x) for x in parsed)
+        if isinstance(value, list):
+            pipe = "|"
+            return pipe.join(str(x) for x in value)
+        return str(value)
+
+    @staticmethod
+    def _format_property_string(prop: str, value) -> str:
+        """Format a property name and value into an EmitCom ``name=value`` string."""
+        formatted_value = EmitNode._format_property_value(prop, value)
+        result = prop + chr(61) + formatted_value
+        return result
+
+    @min_aedt_version("2025.2")
+    @pyaedt_function_handler()
+    def get_properties(
+        self,
+        property_names: list[str] | None = None,
+        skipChecks: bool = True,
+        raw: bool = True,
+    ) -> dict[str, str | list[str] | list[float]]:
+        """Get all of a node's properties in a single API call.
+
+        This method is intended for scripts that need to read multiple properties efficiently.
+
+        Parameters
+        ----------
+        property_names : list[str], optional
+            Property names to return. When ``None``, all properties are returned.
+        skipChecks : bool, optional
+            Whether to skip property visibility checks. The default is ``True``.
+        raw : bool, optional
+            When ``True``, return string values
+            When ``False``, parse values such as position and orientation into
+            lists of floats. The default is ``True``.
+
+        Returns
+        -------
+        dict
+            Dictionary of property names and values.
+
+        Raises
+        ------
+        ValueError
+            If a requested property is not found or not available.
+        """
+        try:
+            props = self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, skipChecks)
+        except Exception:
+            errors = self._emit_obj.logger.aedt_messages.error_level
+            msg = errors[-1] if errors else "Failed to get node properties."
+            raise ValueError(str(msg))
+        props_dict = self.props_to_dict(props)
+
+        if property_names is not None:
+            missing = [name for name in property_names if name not in props_dict]
+            if missing:
+                raise ValueError(
+                    f"Properties not found or not available for {self._node_type} configuration: {', '.join(missing)}"
+                )
+            props_dict = {name: props_dict[name] for name in property_names}
+
+        if raw:
+            return props_dict
+
+        return {name: self._parse_property_value(name, value) for name, value in props_dict.items()}
+
+    @min_aedt_version("2025.2")
+    @pyaedt_function_handler()
+    def set_properties(
+        self,
+        properties: dict[str, str | bool | float | list] | list[str],
+        skipChecks: bool = True,
+    ) -> None:
+        """Set multiple node properties simultaneously.
+
+        This method is intended for scripts that need to write multiple properties efficiently.
+
+        Parameters
+        ----------
+        properties : dict or list[str]
+            Properties to set. Either a dictionary of property names and values or
+            a list of ``'name=value'`` strings as used by EmitCom.
+        skipChecks : bool, optional
+            Whether to skip property visibility checks. The default is ``True``.
+
+        Raises
+        ------
+        TypeError
+            If ``properties`` is not a dictionary or list of strings.
+        ValueError
+            If property assignment fails.
+        """
+        prop_strings, prop_keys = self._normalize_properties_input(properties)
+        if not prop_strings:
+            return
+
+        try:
+            available_props = self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, skipChecks)
+        except Exception:
+            errors = self._emit_obj.logger.aedt_messages.error_level
+            msg = errors[-1] if errors else "Failed to get node properties."
+            raise ValueError(str(msg))
+        available_dict = self.props_to_dict(available_props)
+        missing = [name for name in prop_keys if name not in available_dict]
+        if missing:
+            raise ValueError(
+                f"Properties not found or not available for {self._node_type} configuration: {', '.join(missing)}"
+            )
+
+        try:
+            self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, prop_strings, skipChecks)
+        except Exception:
+            raise ValueError(self._format_set_properties_error(prop_strings, prop_keys))
+
+    def _normalize_properties_input(self, properties: object) -> tuple[list[str], list[str]]:
+        """Normalize the properties input into a list of strings and a list of keys.
+
+        Parameters
+        ----------
+        properties : object
+            Properties to normalize.
+
+        Returns
+        -------
+        tuple[list[str], list[str]]
+            List of property strings and list of property keys.
+
+        Raises
+        ------
+        TypeError
+            If ``properties`` is not a dictionary or list of strings.
+        """
+        if isinstance(properties, dict):
+            prop_dict = properties
+        elif isinstance(properties, list):
+            prop_dict = {}
+            for item in properties:
+                if not isinstance(item, str) or "=" not in item:
+                    raise TypeError("When properties is a list, each item must be a 'name=value' string.")
+                key, value = item.split("=", 1)
+                stripped_key = key.strip()
+                stripped_value = value.strip()
+                prop_dict[stripped_key] = stripped_value
+        else:
+            raise TypeError("properties must be a dict or list of 'name=value' strings.")
+
+        prop_strings = [self._format_property_string(key, value) for key, value in prop_dict.items()]
+        return prop_strings, list(prop_dict.keys())
+
+    def _format_set_properties_error(self, prop_strings: list[str], prop_keys: list[str]) -> str:
+        """Format the error message for setting properties.
+
+        Parameters
+        ----------
+        prop_strings : list[str]
+            List of property strings.
+        prop_keys : list[str]
+            List of property keys.
+
+        Returns
+        -------
+        str
+            Formatted error message.
+        """
+        aedt_errors = self._emit_obj.logger.aedt_messages.error_level
+        error_text = str(aedt_errors[-1]) if aedt_errors else None
+        if not error_text:
+            props_desc = ", ".join(repr(key) for key in prop_keys)
+            result = "Failed setting properties on {} node {} ({})".format(self._node_type, repr(self.name), props_desc)
+            return result
+
+        matching_keys = [key for key in prop_keys if key in error_text]
+        if len(prop_keys) > 1 and not matching_keys:
+            props_desc = ", ".join(repr(key) for key in prop_keys)
+            result = "{} (while setting {})".format(error_text, props_desc)
+            return result
+        if len(prop_keys) == 1 and prop_keys[0] not in error_text:
+            result = "{} (property {})".format(error_text, repr(prop_keys[0]))
+            return result
+        return error_text
+
+    @min_aedt_version("2025.2")
+    def _get_property(
+        self, prop: str, skipChecks: bool = False, isTable: bool = False
+    ) -> str | list[str] | list[float] | list[tuple[str, ...]]:
+        """Get a single property value.
+
+        Parameters
+        ----------
+        prop : str
+            Property name.
+        skipChecks : bool, optional
+            Whether to skip property visibility checks.
+        isTable : bool, optional
+            Whether the property is a table.
+
+        Returns
+        -------
+        str | list[str] | list[float] | list[tuple[str, ...]]
+            Property value.
+
+        Raises
+        ------
+        ValueError
+            If the property is not found or not available.
+        Exception
+            If an error occurs.
         """
         try:
             props = self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, skipChecks)
@@ -427,29 +604,7 @@ class EmitNode:
 
             selected_kv_pair = selected_kv_pairs[0]
             val = selected_kv_pair[1]
-
-            # Convert position and orientation properties to list of floats
-            convert_to_float = [
-                "Position",
-                "Relative Position",
-                "Orientation",
-                "Relative Orientation",
-                "Frequency Domain",
-            ]
-            if prop in convert_to_float:
-                return [float(x) for x in val.split()]
-
-            if isTable:
-                # Node Prop tables
-                # Data formatted using compact string serialization
-                # with ';' separating rows and '|' separating columns
-                rows = val.split(";")
-                table = [tuple(row.split("|")) for row in rows if row]
-                return table
-            elif val.find("|") != -1:
-                return val.split("|")
-            else:
-                return val
+            return self._parse_property_value(prop, val, isTable)
         except ValueError:
             raise
         except Exception:
@@ -457,32 +612,29 @@ class EmitNode:
 
     @min_aedt_version("2025.2")
     def _set_property(self, prop, value, skipChecks: bool = False):
-        convert_from_float = [
-            "Position",
-            "Relative Position",
-            "Orientation",
-            "Relative Orientation",
-            "Frequency Domain",
-        ]
-        if prop in convert_from_float:
-            if isinstance(value, list):
-                value = " ".join(str(x) for x in value)
-            elif isinstance(value, str) and value.startswith("[") and value.endswith("]"):
-                parsed = ast.literal_eval(value)
-                if isinstance(parsed, list):
-                    value = " ".join(str(x) for x in parsed)
+        """Set a single property value.
+
+        Parameters
+        ----------
+        prop : str
+            Property name.
+        value : str | bool | float | list[float] | list[tuple[str, ...]]
+            Property value.
+        skipChecks : bool, optional
+            Whether to skip property visibility checks.
+
+        Raises
+        ------
+        ValueError
+            If the property is not found or not available.
+        Exception
+            If an error occurs.
+        """
+        prop_string = self._format_property_string(prop, value)
         try:
-            self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"{prop}={value}"], skipChecks)
+            self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [prop_string], skipChecks)
         except Exception:
-            error_text = None
-            if len(self._emit_obj.logger.messages.error_level) > 0:
-                error_text = self._emit_obj.logger.aedt_messages.error_level[-1]
-            else:
-                error_text = (
-                    f'Exception in SetEmitNodeProperties: Failed setting property "{prop}" to "{value}" for '
-                    f'{self.properties["Type"]} node "{self.name}"'
-                )
-            raise ValueError(error_text)
+            raise ValueError(self._format_set_properties_error([prop_string], [prop]))
 
     @staticmethod
     def _string_to_value_units(value) -> tuple[float, str]:
@@ -602,6 +754,33 @@ class EmitNode:
             self._oRevisionData.DeleteEmitNode(self._result_id, self._node_id)
 
     @min_aedt_version("2025.2")
+    def _rename(self, requested_name: str) -> str:
+        """Renames the node/component.
+
+        .. deprecated: 0.21.3
+            Use name property instead
+
+        Parameters
+        ----------
+        requested_name : str
+            New name for the node/component.
+
+        Returns
+        -------
+        str
+            New name of the node/component.
+
+        Raises
+        ------
+        ValueError
+            If the node is read-only and cannot be renamed.
+        """
+        warnings.warn("This method is deprecated in 0.21.3. Use the name property instead.", DeprecationWarning)
+        self.name = requested_name
+
+        return self.name
+
+    @min_aedt_version("2025.2")
     def _duplicate(self: T, new_name: str = "") -> T:
         """Duplicate component using oEditor's Copy/Paste.
         New component is placed under existing components in the schematic window.
@@ -680,7 +859,7 @@ class EmitNode:
         return new_component
 
     @min_aedt_version("2025.2")
-    def _import(self, file_path: str, import_type: str):
+    def _import(self, file_path: str, import_type: str, create_antennas: bool = False):
         """Imports a file into an Emit node.
 
         Parameters
@@ -690,6 +869,9 @@ class EmitNode:
         import_type : str
             Type of import. Options are: CsvFile, TxMeasurement, RxMeasurement,
             SpectralData, TouchstoneCoupling, CAD.
+        create_antennas : bool, optional
+            Whether to automatically create antennas for any mounting points
+            defined in the CAD file (only applicable to gltf/glb files).
 
         Returns
         -------
@@ -697,16 +879,14 @@ class EmitNode:
             The node.
         """
         try:
-            node_id = self._oRevisionData.EmitNodeImport(self._result_id, self._node_id, file_path, import_type)
-        except Exception:
-            error_text = None
-            if len(self._emit_obj.logger.messages.error_level) > 0:
-                error_text = self._emit_obj.logger.aedt_messages.error_level[-1]
-            else:
-                error_text = (
-                    f'Exception in EmitNodeImport: Failed to import: "{file_path}" of node type: "{import_type}"'
+            if import_type == "CAD":
+                node_id = self._oRevisionData.EmitNodeImport(
+                    self._result_id, self._node_id, file_path, import_type, create_antennas
                 )
-            raise Exception(error_text)
+            else:
+                node_id = self._oRevisionData.EmitNodeImport(self._result_id, self._node_id, file_path, import_type)
+        except Exception as e:
+            raise Exception(f'Failed to import "{file_path}" as "{import_type}": {e}') from e
         return self._get_node(node_id)
 
     @min_aedt_version("2025.2")
@@ -720,6 +900,75 @@ class EmitNode:
         """
         self._oRevisionData.EmitExportModel(self._result_id, self._node_id, file_path)
 
+    @min_aedt_version("2027.1")
+    def _export_to_csv(self, file_path: str, keys: str, values: str) -> None:
+        """Exports an Emit node's trace data to a CSV file.
+
+        Parameters
+        ----------
+        file_path : str
+            Full path to export the data to.
+        keys : str
+            Keys to export the data for.
+        values : str
+            Values to export the data for.
+
+        Returns
+        -------
+        str
+            The exported data as a string if no file path is provided.
+        """
+        try:
+            data = self._oRevisionData.ExportTraceData(self._result_id, self.name, file_path, ",", keys, values)
+            return data
+        except Exception as e:
+            raise Exception(f'Failed to export "{file_path}" as CSV: {e}') from e
+
+    @min_aedt_version("2027.1")
+    def _plot(self, keys: str, values: str) -> None:
+        """Plots an Emit node's trace data using matplotlib.
+
+        Parameters
+        ----------
+        keys : str
+            Keys to export the data for.
+        values : str
+            Values to export the data for.
+
+        Returns
+        -------
+        matplotlib.pyplot.Figure
+            The plot figure with frequency in MHz.
+        """
+        try:
+            import matplotlib.pyplot as plt
+        except ImportError:
+            raise ImportError("matplotlib is required for plotting. Install it with: pip install matplotlib")
+
+        try:
+            csv_data = self._oRevisionData.ExportTraceData(self._result_id, self.name, "", ",", keys, values)
+        except Exception as e:
+            raise Exception(f"Failed to retrieve trace data for plotting: {e}") from e
+
+        lines = [line for line in csv_data.strip().split("\n") if line.strip()]
+        if len(lines) < 2:
+            raise ValueError("Trace data has no plottable rows.")
+
+        x_vals = []
+        y_vals = []
+        for line in lines:
+            parts = line.split(",")
+            x_vals.append(float(parts[0]) / 1e6)  # convert to MHz
+            y_vals.append(float(parts[1]))
+
+        fig, ax = plt.subplots()
+        ax.plot(x_vals, y_vals)
+        ax.set_xlabel("Frequency (MHz)")
+        ax.set_ylabel("Amplitude (dB/dBm)")
+        ax.set_title(self.name)
+        ax.grid(True)
+        return fig
+
     @min_aedt_version("2025.2")
     def get_is_component(self) -> bool:
         """Check if node is also a component.
@@ -728,14 +977,6 @@ class EmitNode:
         -------
         bool
             ``True`` if the node is a component. ``False`` otherwise.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Emit
-        >>> app = Emit()
-        >>> node = app.schematic.create_component("Bluetooth")
-        >>> node.get_is_component()
-
         """
         return self._is_component
 
@@ -1102,6 +1343,10 @@ class EmitNode:
         try:
             new_id = self._oRevisionData.CreateEmitNode(self._result_id, self._node_id, child_name, child_type)
             new_node = self._get_node(new_id)
+            if child_type == "Emitter" and new_node is not None:
+                from ansys.aedt.core.emit_core.nodes.emitter_node import EmitterNode
+
+                return EmitterNode(self._emit_obj, self._result_id, new_node._node_id)
         except Exception as e:
             print(f"Failed to add child node of type {child_type} to node {self.name}. Error: {e}")
         return new_node
