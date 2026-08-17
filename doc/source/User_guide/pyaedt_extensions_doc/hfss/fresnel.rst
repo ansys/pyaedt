@@ -116,7 +116,7 @@ Relations between unit-cell s-parameters and Fresnel coefficients in SBR
 
 The relations below consider that scan directions in the unit-cell are defined in the following ranges:
 
-:math:`\theta_scan^_UC=[0,90^\circ]` and :math:`\phi_scan^_UC=[0,360^\circ]`
+:math:`\theta_{scan}^{UC}=[0,90^{\circ}]` and :math:`\phi_{scan}^{UC}=[0,360^{\circ}]`
 
 Floquet Ports of the unit-cell have only 2 modes: 1 - TE, 2 - TM.
 
@@ -128,9 +128,9 @@ The Floquet Port (FP) is supposed to be placed on the top face of the unit-cell.
 .. math:: R_{TE,TM} = S_{FP:1,\ FP:2}
 .. math:: R_{TM,TE} = -S_{FP:2,\ FP:1}
 .. math:: R_{TM,TM} = -S_{FP:2,\ FP:2}
-.. math:: \theta_refl = \theta_inc = \theta_scan^UC
-.. math:: \phi_inc = mod(\phi_scan_UC+180^\circ, 360^\circ)
-.. math:: \phi_refl = \phi_scan^UC
+.. math:: \theta_{refl} = \theta_{inc} = \theta_{scan}^{UC}
+.. math:: \phi_{inc} = mod(\phi_{scan}^{UC}+180^{\circ}, 360^{\circ})
+.. math:: \phi_{refl} = \phi_{scan}^{UC}
 
 **Double-Sided Case:**
 
@@ -139,9 +139,9 @@ Also, in the equations below, the assumption is that both hemispheres are assign
 
 Independently of the excitation side,
 
-.. math:: \phi_inc = mod(\phi_scan^UC+180^\circ, 360^\circ)
-.. math:: \phi_refl = \phi_scan^UC
-.. math:: \phi_tr = \phi_scan^UC
+.. math:: \phi_{inc} = mod(\phi_{scan}^{UC}+180^{\circ}, 360^{\circ})
+.. math:: \phi_{refl} = \phi_{scan}^{UC}
+.. math:: \phi_{tr} = \phi_{scan}^{UC}
 
 * Reflections from the top side
 
@@ -149,7 +149,7 @@ Independently of the excitation side,
 .. math:: R_{TE,TM}^{TOP} = S_{TOP:1,\ TOP:2}
 .. math:: R_{TM,TE}^{TOP} = -S_{TOP:2,\ TOP:1}
 .. math:: R_{TM,TM}^{TOP} = -S_{TOP:2,\ TOP:2}
-.. math:: \theta_refl^{TOP} = \theta_inc^{TOP} = \theta_scan^UC
+.. math:: \theta_{refl}^{TOP} = \theta_{inc}^{TOP} = \theta_{scan}^{UC}
 
 * Reflections from the bottom side
 
@@ -157,7 +157,7 @@ Independently of the excitation side,
 .. math:: R_{TE,TM}^{BOT} = -S_{BOT:1,\ BOT:2}
 .. math:: R_{TM,TE}^{BOT} = S_{BOT:2,\ BOT:1}
 .. math:: R_{TM,TM}^{BOT} = -S_{BOT:2,\ BOT:2}
-.. math:: \theta_refl^{BOT} = \theta_inc^{BOT} = 180^\circ - \theta_scan^UC
+.. math:: \theta_{refl}^{BOT} = \theta_{inc}^{BOT} = 180^{\circ} - \theta_{scan}^{UC}
 
 * Transmission "top :math:`\rightarrow` bottom"
 
@@ -165,7 +165,7 @@ Independently of the excitation side,
 .. math:: T_{TE,TM}^{BOT \leftarrow TOP} = S_{BOT:1,\ TOP:2}
 .. math:: T_{TM,TE}^{BOT \leftarrow TOP} = S_{BOT:2,\ TOP:1}
 .. math:: T_{TM,TM}^{BOT \leftarrow TOP} = S_{BOT:2,\ TOP:2}
-.. math:: \theta_tr^{BOT \leftarrow TOP} = 180^\circ - \theta_scan^UC
+.. math:: \theta_{tr}^{BOT \leftarrow TOP} = 180^{\circ} - \theta_{scan}^{UC}
 
 * Transmission "bottom :math:`\rightarrow` top"
 
@@ -173,4 +173,4 @@ Independently of the excitation side,
 .. math:: T_{TE,TM}^{TOP \leftarrow BOT} = -S_{TOP:1,\ BOT:2}
 .. math:: T_{TM,TE}^{TOP \leftarrow BOT} = -S_{TOP:2,\ BOT:1}
 .. math:: T_{TM,TM}^{TOP \leftarrow BOT} = S_{TOP:2,\ BOT:2}
-.. math:: \theta_tr^{TOP \leftarrow BOT} = \theta_scan^UC
+.. math:: \theta_{tr}^{TOP \leftarrow BOT} = \theta_{scan}^{UC}
