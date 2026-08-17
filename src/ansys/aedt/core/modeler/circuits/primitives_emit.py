@@ -743,7 +743,7 @@ class EmitComponent(PyAedtBase):
     @pyaedt_function_handler()
     def get_node_properties(self, node: str | None = None) -> dict:
         """Return the properties of the given node (property group).
-	
+
         .. deprecated:: 0.25.2
             Use properties method from emit_node.py instead.
 
@@ -877,7 +877,7 @@ class EmitComponent(PyAedtBase):
     @pyaedt_function_handler()
     def get_type(self) -> str:
         """Get the property ``Type`` of a component.
-	
+
         .. deprecated:: 0.25.2
             This method is deprecated in 0.25.2.
             Use node_type property from emit_node.py instead.
