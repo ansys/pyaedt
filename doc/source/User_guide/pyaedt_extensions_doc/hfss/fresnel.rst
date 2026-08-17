@@ -116,7 +116,7 @@ Relations between unit-cell s-parameters and Fresnel coefficients in SBR
 
 The relations below consider that scan directions in the unit-cell are defined in the following ranges:
 
-:math:`\theta_scan^_UC=[0,90^\circ]` and :math:`\phi_scan^_UC=[0,360^\circ]`
+:math:`\theta_scan^{UC}=[0,90^{\circ}]` and :math:`\phi_scan^{UC}=[0,360^{\circ}]`
 
 Floquet Ports of the unit-cell have only 2 modes: 1 - TE, 2 - TM.
 
