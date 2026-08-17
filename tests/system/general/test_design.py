@@ -521,9 +521,9 @@ def test_get_design_settings(add_app) -> None:
     if DESKTOP_VERSION < "2027.1":
         assert "GravityDir" in design_settings_dict
     else:
-        assert "XComponent" in design_settings_dict
-        assert "YComponent" in design_settings_dict
-        assert "ZComponent" in design_settings_dict
+        assert "GravityVectorX" in design_settings_dict
+        assert "GravityVectorY" in design_settings_dict
+        assert "GravityVectorZ" in design_settings_dict
     ipk.close_project()
 
 
