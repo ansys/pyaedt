@@ -139,7 +139,7 @@ class BaseCoordinateSystem(PropsManager, PyAedtBase):
         self.name = name
 
     def _get_coordinates_data(self) -> None:
-        self._props = {}
+        self._props = CsProps(self, {})
         id2name = {1: "Global"}
         name2refid = {}
         if self._modeler._app.design_properties and "ModelSetup" in self._modeler._app.design_properties:
@@ -453,7 +453,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
     def __init__(self, modeler, props=None, name: str | None = None, face_id=None) -> None:
         BaseCoordinateSystem.__init__(self, modeler, name)
         self.face_id = face_id
-        self._props = None
+        self._props = CsProps(self, {})
         if props:
             self._props = CsProps(self, props)
             if "KernelVersion" in self.props:
@@ -474,7 +474,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         >>> obj.props
 
         """
-        if self._props or settings.aedt_version <= "2022.2" or self.name is None:
+        if self._props or (settings.aedt_version is None or settings.aedt_version <= "2022.2") or self.name is None:
             return self._props
         self._get_coordinates_data()
         return self._props
@@ -751,15 +751,15 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
     """
 
     def __repr__(self) -> str:
-        return self.name
+        return self.name or ""
 
     def __str__(self) -> str:
-        return self.name
+        return self.name or ""
 
     def __init__(self, modeler, props=None, name: str | None = None) -> None:
         BaseCoordinateSystem.__init__(self, modeler, name)
         self.model_units = self._modeler.model_units
-        self._props = None
+        self._props = CsProps(self, {})
         if props:
             self._props = CsProps(self, props)
             if "KernelVersion" in self.props:
@@ -788,7 +788,7 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
             self._mode = "zxz"
         elif "ZYZ" in mode_parameter:
             self._mode = "zyz"
-        return self._mode
+        return self._mode or ""
 
     @mode.setter
     def mode(self, value: str) -> None:
@@ -809,18 +809,18 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         >>> obj.props
 
         """
-        if self._props or settings.aedt_version <= "2022.2" or self.name is None:
+        if self._props or (settings.aedt_version is None or settings.aedt_version <= "2022.2") or self.name is None:
             return self._props
         self._get_coordinates_data()
         return self._props
 
     @property
-    def ref_cs(self) -> str:
+    def ref_cs(self) -> str | None:
         """Reference coordinate system getter and setter.
 
         Returns
         -------
-        str
+        str or None
 
         Examples
         --------
@@ -829,7 +829,7 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         >>> obj.ref_cs
 
         """
-        if self._ref_cs or settings.aedt_version <= "2022.2":
+        if self._ref_cs or (settings.aedt_version is None or settings.aedt_version <= "2022.2"):
             return self._ref_cs
         obj1 = self._modeler.oeditor.GetChildObject(self.name)
         self._ref_cs = obj1.GetPropValue("Reference CS")
@@ -837,7 +837,7 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
 
     @ref_cs.setter
     def ref_cs(self, value: str) -> None:
-        if settings.aedt_version <= "2022.2":
+        if settings.aedt_version is None or settings.aedt_version <= "2022.2":
             self._ref_cs = value
             self.update()
         obj1 = self._modeler.oeditor.GetChildObject(self.name)
@@ -872,7 +872,7 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
                 f"'Mode must be 'Axis/Position', 'Euler Angle ZYZ' or 'Euler Angle ZXZ', not {self.props['Mode']}."
             )
 
-        props = ["NAME:ChangedProps"]
+        props: list = ["NAME:ChangedProps"]
 
         props.append(
             [
@@ -1295,32 +1295,35 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         if self._quaternion:
             return self._quaternion
         self._get_numeric_value(init=True)
-        if self.mode == "axis" or self.mode == "view":
-            x1 = self.props["XAxisXvec"]
-            x2 = self.props["XAxisYvec"]
-            x3 = self.props["XAxisZvec"]
-            y1 = self.props["YAxisXvec"]
-            y2 = self.props["YAxisYvec"]
-            y3 = self.props["YAxisZvec"]
-            x_axis = (x1, x2, x3)
-            x_pointing_num = [self._get_numeric_value(i) for i in x_axis]
-            y_axis = (y1, y2, y3)
-            y_pointing_num = [self._get_numeric_value(i) for i in y_axis]
-            x, y, z = CoordinateSystem.pointing_to_axis(x_pointing_num, y_pointing_num)
-            m = Quaternion.axis_to_rotation_matrix(x, y, z)
-            self._quaternion = Quaternion.from_rotation_matrix(m)
-        elif self.mode == "zxz":
-            a = self._get_numeric_value(self.props["Phi"])
-            b = self._get_numeric_value(self.props["Theta"])
-            g = self._get_numeric_value(self.props["Psi"])
-            self._quaternion = Quaternion.from_euler((a, b, g), "zxz")
-        elif self.mode == "zyz" or self.mode == "axisrotation":
-            a = self._get_numeric_value(self.props["Phi"])
-            b = self._get_numeric_value(self.props["Theta"])
-            g = self._get_numeric_value(self.props["Psi"])
-            self._quaternion = Quaternion.from_euler((a, b, g), "zyz")
-
-        self._get_numeric_value(destroy=True)
+        try:
+            if self.mode == "axis" or self.mode == "view":
+                x1 = self.props["XAxisXvec"]
+                x2 = self.props["XAxisYvec"]
+                x3 = self.props["XAxisZvec"]
+                y1 = self.props["YAxisXvec"]
+                y2 = self.props["YAxisYvec"]
+                y3 = self.props["YAxisZvec"]
+                x_axis = (x1, x2, x3)
+                x_pointing_num = [self._get_numeric_value(i) for i in x_axis]
+                y_axis = (y1, y2, y3)
+                y_pointing_num = [self._get_numeric_value(i) for i in y_axis]
+                x, y, z = CoordinateSystem.pointing_to_axis(x_pointing_num, y_pointing_num)
+                m = Quaternion.axis_to_rotation_matrix(x, y, z)
+                self._quaternion = Quaternion.from_rotation_matrix(m)
+            elif self.mode == "zxz":
+                a = self._get_numeric_value(self.props["Phi"])
+                b = self._get_numeric_value(self.props["Theta"])
+                g = self._get_numeric_value(self.props["Psi"])
+                self._quaternion = Quaternion.from_euler((a, b, g), "zxz")
+            elif self.mode == "zyz" or self.mode == "axisrotation":
+                a = self._get_numeric_value(self.props["Phi"])
+                b = self._get_numeric_value(self.props["Theta"])
+                g = self._get_numeric_value(self.props["Psi"])
+                self._quaternion = Quaternion.from_euler((a, b, g), "zyz")
+            else:
+                raise ValueError(f"Unsupported coordinate system mode: {self.mode}")
+        finally:
+            self._get_numeric_value(destroy=True)
         return self._quaternion
 
     @property
@@ -1400,7 +1403,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
     def __init__(self, modeler, props=None, name: str | None = None, entity_id=None) -> None:
         BaseCoordinateSystem.__init__(self, modeler, name)
         self.entity_id = entity_id
-        self._props = None
+        self._props = CsProps(self, {})
         if props:
             self._props = CsProps(self, props)
             if "KernelVersion" in self.props:
@@ -1408,12 +1411,12 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         self._ref_cs = None
 
     @property
-    def ref_cs(self) -> str:
+    def ref_cs(self) -> str | None:
         """Reference coordinate system.
 
         Returns
         -------
-        str
+        str or None
 
         Examples
         --------
@@ -1422,7 +1425,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         >>> obj.ref_cs
 
         """
-        if self._ref_cs or settings.aedt_version <= "2022.2":
+        if self._ref_cs or (settings.aedt_version is None or settings.aedt_version <= "2022.2"):
             return self._ref_cs
         obj1 = self._modeler.oeditor.GetChildObject(self.name)
         self._ref_cs = obj1.GetPropValue("Reference CS")
@@ -1430,7 +1433,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
 
     @ref_cs.setter
     def ref_cs(self, value: str) -> None:
-        if settings.aedt_version <= "2022.2":
+        if settings.aedt_version is None or settings.aedt_version <= "2022.2":
             self._ref_cs = value
             self.update()
         obj1 = self._modeler.oeditor.GetChildObject(self.name)
@@ -1441,7 +1444,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
             self._modeler.logger.error("Failed to set Coordinate CS Reference.")
 
     @property
-    def props(self) -> "CsProps":
+    def props(self) -> CsProps:
         """Properties of the coordinate system.
 
         Returns
@@ -1455,7 +1458,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         >>> obj.props
 
         """
-        if self._props or settings.aedt_version <= "2022.2" or self.name is None:
+        if self._props or (settings.aedt_version is None or settings.aedt_version <= "2022.2") or self.name is None:
             return self._props
         self._get_coordinates_data()
         return self._props
