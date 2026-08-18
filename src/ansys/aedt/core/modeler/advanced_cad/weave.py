@@ -26,6 +26,8 @@ from __future__ import annotations
 
 import math
 from typing import TYPE_CHECKING
+from typing import Any
+from typing import cast
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import read_configuration_file
@@ -40,6 +42,7 @@ if TYPE_CHECKING:
     from ansys.aedt.core import Maxwell3d
     from ansys.aedt.core import Q3d
     from ansys.aedt.core.modeler.cad.object_3d import Object3d
+    from ansys.aedt.core.modeler.modeler_3d import Modeler3D
 
 WEAVE_STYLES = {
     "1067": dict(
@@ -657,7 +660,7 @@ class Weave(PyAedtBase):
         >>> weave.create_weave(hfss, sub)
 
         """
-        m = app.modeler
+        m = cast("Modeler3D", app.modeler)
         logger = app.logger
 
         if not name:
@@ -878,7 +881,7 @@ class Weave(PyAedtBase):
         >>> weave.create_weave(hfss, sub)
 
         """
-        m = app.modeler
+        m = cast("Modeler3D", app.modeler)
 
         substrate = m._resolve_object(assignment)
 
@@ -902,8 +905,9 @@ class Weave(PyAedtBase):
         thickness = zmax - zmin
 
         resin_mat = app.materials[substrate.material_name]
-        resin_permittivity = float(resin_mat.permittivity.value)
-        resin_loss_tangent = float(resin_mat.dielectric_loss_tangent.value)
+
+        resin_permittivity = self._extract_numeric_scalar(resin_mat.permittivity.value)
+        resin_loss_tangent = self._extract_numeric_scalar(resin_mat.dielectric_loss_tangent.value)
 
         h_warp = min(thickness, self.warp_width * self.ratio_warp)
         h_fill = min(thickness, self.fill_width * self.ratio_fill)
@@ -959,3 +963,25 @@ class Weave(PyAedtBase):
                 sector_objs.append(new_sector_obj)
 
         return sector_objs
+
+    @staticmethod
+    def _extract_numeric_scalar(val: Any) -> float:  # pragma: no cover
+        """Return a scalar numeric value from possibly nested sequences.
+
+        Walks into lists taking the first element until an int/float/str
+        is found, then converts it to float. Raises TypeError if no numeric
+        scalar can be extracted.
+        """
+        if isinstance(val, (int, float, str)):
+            return float(val)
+        if isinstance(val, (list, tuple)):
+            if not val:
+                raise TypeError("Material property is an empty sequence")
+            elem: Any = val[0]
+            while isinstance(elem, (list, tuple)):
+                if not elem:
+                    raise TypeError("Material property contains an empty sequence")
+                elem = elem[0]
+            if isinstance(elem, (int, float, str)):
+                return float(elem)
+        raise TypeError("Cannot extract numeric value from material property")
