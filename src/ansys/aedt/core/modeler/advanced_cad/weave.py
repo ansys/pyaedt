@@ -92,20 +92,14 @@ WEAVE_STYLES = {
 class Weave(PyAedtBase):
     """Class to create weaves in AEDT.
 
-    Preset weave geometry values in :data:`WEAVE_STYLES` were adapted from the
-    BGF Technical Data Book.
-
-    References
-    ----------
-    BGF Technical Data Book, numeric weave presets adapted from published tables.
-
     Examples
     --------
     >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
     >>> from ansys.aedt.core import Hfss
     >>> hfss = Hfss()
-    >>> obj = Weave(hfss)
-
+    >>> obj = Weave()
+    >>> sub = hfss.modeler.create_box([0, 0, 0], [5, 10, 2])
+    >>> w1 = weave.create_weave(hfss, sub)
     """
 
     def __init__(self) -> None:
@@ -138,9 +132,7 @@ class Weave(PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> obj = Weave(hfss)
+        >>> obj = Weave()
         >>> mat = obj.yarn_material
 
         """
@@ -162,9 +154,7 @@ class Weave(PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> obj = Weave(hfss)
+        >>> obj = Weave()
         >>> dk = obj.yarn_permittivity
 
         """
@@ -188,9 +178,7 @@ class Weave(PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> obj = Weave(hfss)
+        >>> obj = Weave()
         >>> lt = obj.yarn_loss_tangent
 
         """
@@ -212,9 +200,7 @@ class Weave(PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> obj = Weave(hfss)
+        >>> obj = Weave()
         >>> px = obj.target_pitch_x
 
         """
@@ -238,9 +224,7 @@ class Weave(PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> obj = Weave(hfss)
+        >>> obj = Weave()
         >>> py = obj.target_pitch_y
 
         """
@@ -264,9 +248,7 @@ class Weave(PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> obj = Weave(hfss)
+        >>> obj = Weave()
         >>> a = obj.target_amplitude
 
         """
@@ -288,9 +270,7 @@ class Weave(PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> obj = Weave(hfss)
+        >>> obj = Weave()
         >>> w = obj.warp_width
 
         """
@@ -312,9 +292,7 @@ class Weave(PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> obj = Weave(hfss)
+        >>> obj = Weave()
         >>> f = obj.fill_width
 
         """
@@ -336,9 +314,7 @@ class Weave(PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> obj = Weave(hfss)
+        >>> obj = Weave()
         >>> r = obj.ratio_warp
 
         """
@@ -360,9 +336,7 @@ class Weave(PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> obj = Weave(hfss)
+        >>> obj = Weave()
         >>> r = obj.ratio_fill
 
         """
@@ -384,9 +358,7 @@ class Weave(PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> obj = Weave(hfss)
+        >>> obj = Weave()
         >>> s = obj.shift_y
         """
         return self._weave_shift_y
@@ -407,9 +379,7 @@ class Weave(PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> obj = Weave(hfss)
+        >>> obj = Weave()
         >>> r = obj.rotation
 
         """
@@ -431,9 +401,7 @@ class Weave(PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> obj = Weave(hfss)
+        >>> obj = Weave()
         >>> n = obj.facet_ellipse_segments
 
         """
@@ -455,9 +423,7 @@ class Weave(PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> obj = Weave(hfss)
+        >>> obj = Weave()
         >>> n = obj.facet_path_segments_per_half
 
         """
@@ -479,9 +445,7 @@ class Weave(PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> obj = Weave(hfss)
+        >>> obj = Weave()
         >>> flag = obj.subtract_from_substrate
 
         """
@@ -503,9 +467,7 @@ class Weave(PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> obj = Weave(hfss)
+        >>> obj = Weave()
         >>> s = obj.sectors_per_pitch
 
         """
@@ -528,9 +490,7 @@ class Weave(PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> obj = Weave(hfss)
+        >>> obj = Weave()
         >>> param = obj.weave_parameters
 
         """
@@ -570,11 +530,9 @@ class Weave(PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> weave1 = Weave(hfss)
+        >>> weave1 = Weave()
         >>> param = weave1.weave_parameters
-        >>> weave2 = Weave.from_dict(hfss, param)
+        >>> weave2 = Weave.from_dict(param)
 
         """
         w = cls()
@@ -599,9 +557,7 @@ class Weave(PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> weave = Weave(hfss)
+        >>> weave = Weave()
         >>> weave.export_to_json(r"C:\\Temp\\parameters.json")
 
         """
@@ -624,9 +580,7 @@ class Weave(PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> weave1 = Weave(hfss)
+        >>> weave1 = Weave()
         >>> weave1.export_to_json(r"C:\\Temp\\parameters.json")
         >>> weave2 = Weave.load_from_json(r"C:\\Temp\\parameters.json")
 
@@ -647,9 +601,7 @@ class Weave(PyAedtBase):
         --------
         >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
         >>> from ansys.aedt.core.modeler.advanced_cad.weave import WEAVE_STYLES
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> weave1 = Weave(hfss)
+        >>> weave1 = Weave()
         >>> style1 = list(WEAVE_STYLES.keys())[0]
         >>> weave1.set_weave_style(style1)
 
