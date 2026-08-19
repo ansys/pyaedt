@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -21,9 +21,9 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
 from __future__ import annotations
 
-import codecs
 import csv
 import fnmatch
 import json
@@ -33,8 +33,10 @@ from pathlib import Path
 import re
 import string
 import tempfile
+from typing import IO
 from typing import TYPE_CHECKING
-from typing import TextIO
+from typing import Any
+from typing import Literal
 
 if TYPE_CHECKING:
     import pandas
@@ -47,13 +49,17 @@ from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
+StrPath = str | Path
+"""Type alias for parameters that accept either a string or a :class:`pathlib.Path`."""
 is_linux = os.name == "posix"
+"""Flag indicating whether linux is enabled."""
 is_windows = not is_linux
+"""Flag indicating whether windows is enabled."""
 
 
 # Path processing
 @pyaedt_function_handler()
-def normalize_path(input_dir: str | Path, sep: str = None) -> str:
+def normalize_path(input_dir: StrPath, sep: str | None = None) -> str:
     """Normalize path separators.
 
     Parameters
@@ -67,6 +73,12 @@ def normalize_path(input_dir: str | Path, sep: str = None) -> str:
     -------
     str
         Path normalized to new separator.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.file_utils import normalize_path
+    >>> normalize_path(r"C:\\Projects\\Motor\\test.aedt")
+
     """
     path = Path(input_dir)
     if sep:
@@ -75,7 +87,7 @@ def normalize_path(input_dir: str | Path, sep: str = None) -> str:
 
 
 @pyaedt_function_handler()
-def get_filename_without_extension(input_file: str | Path) -> str:
+def get_filename_without_extension(input_file: StrPath) -> str:
     """Get the filename without its extension.
 
     Parameters
@@ -87,13 +99,19 @@ def get_filename_without_extension(input_file: str | Path) -> str:
     -------
     str
        Name of the file without extension.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.file_utils import get_filename_without_extension
+    >>> get_filename_without_extension(r"C:\\Projects\\Motor\\test.aedt")
+
     """
     path = Path(input_file)
     return str(path.stem)
 
 
 @pyaedt_function_handler()
-def is_project_locked(input_file: str | Path) -> bool:
+def is_project_locked(input_file: StrPath) -> bool:
     """Check if the AEDT project lock file exists.
 
     Parameters
@@ -105,6 +123,12 @@ def is_project_locked(input_file: str | Path) -> bool:
     -------
     bool
         ``True`` when successful, ``False`` when failed.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.file_utils import is_project_locked
+    >>> is_project_locked(r"C:\\Projects\\Motor\\test.aedt")
+
     """
     input_file = Path(input_file)
     if settings.remote_rpc_session:
@@ -116,7 +140,7 @@ def is_project_locked(input_file: str | Path) -> bool:
 
 
 @pyaedt_function_handler()
-def remove_project_lock(input_file: str | Path) -> bool:
+def remove_project_lock(input_file: StrPath) -> bool:
     """Check if the AEDT project exists and try to remove the lock file.
 
     .. note::
@@ -131,6 +155,12 @@ def remove_project_lock(input_file: str | Path) -> bool:
     -------
     bool
         ``True`` when successful, ``False`` when failed.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.file_utils import remove_project_lock
+    >>> remove_project_lock(r"C:\\Projects\\Motor\\test.aedt")
+
     """
     input_file = Path(input_file)
     input_file_locked = Path(str(input_file) + ".lock")
@@ -143,7 +173,7 @@ def remove_project_lock(input_file: str | Path) -> bool:
 
 
 @pyaedt_function_handler()
-def check_and_download_file(remote_path: str | Path, overwrite: bool = True) -> str:
+def check_and_download_file(remote_path: StrPath, overwrite: bool = True) -> str:
     """Check if a file is remote. Download it or return the path.
 
     Parameters
@@ -158,9 +188,17 @@ def check_and_download_file(remote_path: str | Path, overwrite: bool = True) -> 
     -------
     str
         Path to the remote file.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.file_utils import check_and_download_file
+    >>> check_and_download_file(r"C:\\Projects\\Motor\\meshstats.ms")
+
     """
     remote_path = Path(remote_path)
     if settings.remote_rpc_session:
+        if settings.remote_rpc_session_temp_folder is None:
+            raise AEDTRuntimeError("Remote RPC session temp folder is not set.")
         remote_path = _check_path(remote_path)
         local_path = Path(settings.remote_rpc_session_temp_folder) / Path(remote_path).name
         if settings.remote_rpc_session.filemanager.pathexists(remote_path):
@@ -170,7 +208,7 @@ def check_and_download_file(remote_path: str | Path, overwrite: bool = True) -> 
 
 
 @pyaedt_function_handler()
-def check_if_path_exists(path: str | Path) -> bool:
+def check_if_path_exists(path: StrPath) -> bool:
     """Check whether a path exists on a local or on a remote machine (for remote sessions only).
 
     Parameters
@@ -182,6 +220,12 @@ def check_if_path_exists(path: str | Path) -> bool:
     -------
     bool
         ``True`` when exist, ``False`` when fails.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.file_utils import check_if_path_exists
+    >>> check_if_path_exists(r"C:\\Projects\\Motor\\test.aedt")
+
     """
     path = Path(path)
     if settings.remote_rpc_session:
@@ -190,7 +234,7 @@ def check_if_path_exists(path: str | Path) -> bool:
 
 
 @pyaedt_function_handler()
-def check_and_download_folder(local_path: str | Path, remote_path: str | Path, overwrite: bool = True) -> str:
+def check_and_download_folder(local_path: StrPath, remote_path: StrPath, overwrite: bool = True) -> str:
     """Download remote folder.
 
     Parameters
@@ -207,6 +251,12 @@ def check_and_download_folder(local_path: str | Path, remote_path: str | Path, o
     -------
     str
         Path to the local folder if downloaded, otherwise the remote path.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.file_utils import check_and_download_folder
+    >>> check_and_download_folder(r"C:\\Projects\\LocalCopy", r"C:\\Projects\\RemoteCopy")
+
     """
     local_path = str(local_path)
     remote_path = str(remote_path)
@@ -219,12 +269,12 @@ def check_and_download_folder(local_path: str | Path, remote_path: str | Path, o
 
 
 @pyaedt_function_handler()
-def generate_unique_name(root_name: str, suffix: str = "", n: int = 6) -> str:
+def generate_unique_name(root_name: str | None, suffix: str = "", n: int = 6) -> str:
     """Generate a new name given a root name and optional suffix.
 
     Parameters
     ----------
-    root_name : str
+    root_name : str or None
         Root name to add random characters to.
     suffix : string, optional
         Suffix to add. The default is ``''``.
@@ -235,7 +285,16 @@ def generate_unique_name(root_name: str, suffix: str = "", n: int = 6) -> str:
     -------
     str
         Newly generated name.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.file_utils import generate_unique_name
+    >>> generate_unique_name("Setup")
+
     """
+    if root_name is None:
+        root_name = ""
+
     alphabet = string.ascii_uppercase + string.digits
 
     import secrets
@@ -249,7 +308,7 @@ def generate_unique_name(root_name: str, suffix: str = "", n: int = 6) -> str:
 
 
 @pyaedt_function_handler()
-def generate_unique_folder_name(root_name: str = None, folder_name: str = None) -> str:
+def generate_unique_folder_name(root_name: str | None = None, folder_name: str | None = None) -> str:
     """Generate a new AEDT folder name given a root name.
 
     Parameters
@@ -263,9 +322,15 @@ def generate_unique_folder_name(root_name: str = None, folder_name: str = None) 
     -------
     str
         Newly generated name.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.file_utils import generate_unique_folder_name
+    >>> generate_unique_folder_name(root_name=r"C:\\Projects", folder_name="MyFolder")
+
     """
     if not root_name:
-        if settings.remote_rpc_session:
+        if settings.remote_rpc_session and settings.remote_rpc_session_temp_folder:
             root_name = settings.remote_rpc_session_temp_folder
         else:
             root_name = tempfile.gettempdir()
@@ -281,7 +346,10 @@ def generate_unique_folder_name(root_name: str = None, folder_name: str = None) 
 
 @pyaedt_function_handler()
 def generate_unique_project_name(
-    root_name: str = None, folder_name: str = None, project_name: str = None, project_format: str = "aedt"
+    root_name: str | None = None,
+    folder_name: str | None = None,
+    project_name: str | None = None,
+    project_format: str = "aedt",
 ):
     """Generate a new AEDT project name given a root name.
 
@@ -302,6 +370,12 @@ def generate_unique_project_name(
     -------
     str
         Newly generated name.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.file_utils import generate_unique_project_name
+    >>> generate_unique_project_name(root_name=r"C:\\Projects", project_name="Motor", project_format="aedt")
+
     """
     if not project_name:
         project_name = generate_unique_name("Project", n=3)
@@ -316,7 +390,7 @@ def generate_unique_project_name(
 
 
 @pyaedt_function_handler()
-def available_file_name(full_file_name: str | Path) -> Path:
+def available_file_name(full_file_name: StrPath) -> Path:
     """Provide a file name that doesn't exist.
 
     If the input file name exists, increment the base
@@ -332,6 +406,13 @@ def available_file_name(full_file_name: str | Path) -> Path:
     class:`pathlib.Path`
         Valid file name with increment suffix `"_n.ext"`.  If the file doesn't
         exist, the original file name will be returned as a ``Path`` object.
+
+    Examples
+    --------
+    >>> from pathlib import Path
+    >>> from ansys.aedt.core.generic.file_utils import available_file_name
+    >>> available_file_name(Path(r"C:\\Temp\\results.csv"))
+
     """
     p = Path(full_file_name)
     candidate = p
@@ -343,7 +424,7 @@ def available_file_name(full_file_name: str | Path) -> Path:
 
 
 @pyaedt_function_handler()
-def recursive_glob(path: str | Path, file_pattern: str):
+def recursive_glob(path: StrPath, file_pattern: str):
     """Get a list of files matching a pattern, searching recursively from a start path.
 
     Parameters
@@ -357,6 +438,12 @@ def recursive_glob(path: str | Path, file_pattern: str):
     -------
     list
         List of files matching the given pattern.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.file_utils import recursive_glob
+    >>> recursive_glob(r"C:\\Temp\\Projects", "*.aedt")
+
     """
     path = Path(path)
     if settings.remote_rpc_session:
@@ -374,8 +461,8 @@ def recursive_glob(path: str | Path, file_pattern: str):
 
 @pyaedt_function_handler()
 def open_file(
-    file_path: str | Path, file_options: str = "r", encoding: str = None, override_existing: bool = True
-) -> TextIO | None:
+    file_path: StrPath, file_options: str = "r", encoding: str | None = None, override_existing: bool = True
+) -> IO[Any] | None:
     """Open a file and return the object.
 
     Parameters
@@ -394,8 +481,15 @@ def open_file(
 
     Returns
     -------
-    Union[TextIO, None]
+    Union[IO[Any], None]
         Opened file object or ``None`` if the file or folder does not exist.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.file_utils import open_file
+    >>> with open_file(r"C:\\Temp\\notes.txt", "w") as file_obj:
+    ...     _ = file_obj.write("PyAEDT")
+
     """
     file_path = Path(file_path)
     dir_name = file_path.parent
@@ -424,7 +518,7 @@ def open_file(
 
 
 @pyaedt_function_handler()
-def read_json(input_file: str | Path, encoding: str = "utf-8") -> dict:
+def read_json(input_file: StrPath, encoding: str = "utf-8") -> dict:
     """Load a JSON file to a dictionary.
 
     Parameters
@@ -438,6 +532,12 @@ def read_json(input_file: str | Path, encoding: str = "utf-8") -> dict:
     -------
     dict
         Parsed JSON file as a dictionary.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.file_utils import read_json
+    >>> read_json(r"C:\\Temp\\settings.json")
+
     """
     json_data = {}
     with open_file(input_file, encoding=encoding) as json_file:
@@ -450,7 +550,7 @@ def read_json(input_file: str | Path, encoding: str = "utf-8") -> dict:
 
 
 @pyaedt_function_handler()
-def read_toml(input_file: str | Path) -> dict:
+def read_toml(input_file: StrPath) -> dict:
     """Read a TOML file and return as a dictionary.
 
     Parameters
@@ -462,6 +562,12 @@ def read_toml(input_file: str | Path) -> dict:
     -------
     dict
         Parsed TOML file as a dictionary.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.file_utils import read_toml
+    >>> read_toml(r"C:\\Temp\\settings.toml")
+
     """
     import toml
 
@@ -469,7 +575,7 @@ def read_toml(input_file: str | Path) -> dict:
 
 
 @pyaedt_function_handler()
-def read_csv(input_file: str | Path, encoding: str = "utf-8") -> list:
+def read_csv(input_file: StrPath, encoding: str = "utf-8") -> list:
     """Read information from a CSV file and return a list.
 
     Parameters
@@ -483,11 +589,17 @@ def read_csv(input_file: str | Path, encoding: str = "utf-8") -> list:
     -------
     list
         Content of the CSV file.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.file_utils import read_csv
+    >>> read_csv(r"C:\\Temp\\losses.csv")
+
     """
-    file_name = check_and_download_file(input_file)
+    file_path = Path(check_and_download_file(input_file))
 
     lines = []
-    with codecs.open(file_name, "rb", encoding) as csvfile:
+    with file_path.open("r", encoding=encoding) as csvfile:
         reader = csv.reader(csvfile, delimiter=",")
         for row in reader:
             lines.append(row)
@@ -495,7 +607,7 @@ def read_csv(input_file: str | Path, encoding: str = "utf-8") -> list:
 
 
 @pyaedt_function_handler()
-def read_csv_pandas(input_file: str | Path, encoding: str = "utf-8") -> "pandas.DataFrame" | None:
+def read_csv_pandas(input_file: StrPath, encoding: str = "utf-8") -> "pandas.DataFrame | None":
     """Read information from a CSV file and return a list.
 
     Parameters
@@ -509,6 +621,12 @@ def read_csv_pandas(input_file: str | Path, encoding: str = "utf-8") -> "pandas.
     -------
     :class:`pandas.DataFrame`
         CSV file content.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.file_utils import read_csv_pandas
+    >>> read_csv_pandas(r"C:\\Temp\\losses.csv")
+
     """
     input_file = Path(input_file)
     input_file = check_and_download_file(input_file)
@@ -523,7 +641,11 @@ def read_csv_pandas(input_file: str | Path, encoding: str = "utf-8") -> "pandas.
 
 @pyaedt_function_handler()
 def write_csv(
-    output_file: str, list_data: list, delimiter: str = ",", quote_char: str = "|", quoting: int = csv.QUOTE_MINIMAL
+    output_file: str,
+    list_data: list,
+    delimiter: str = ",",
+    quote_char: str = "|",
+    quoting: Literal[0, 1, 2, 3] = csv.QUOTE_MINIMAL,
 ) -> bool:
     """Write data to a CSV .
 
@@ -553,6 +675,13 @@ def write_csv(
     ------
     bool
         ``True`` when successful, ``False`` when failed.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.file_utils import write_csv
+    >>> data = [["Freq", "Gain"], [1e9, 10.5]]
+    >>> write_csv(r"C:\\Temp\\gain.csv", data)
+
     """
     f = open(output_file, "w", newline="")
     writer = csv.writer(f, delimiter=delimiter, quotechar=quote_char, quoting=quoting)
@@ -563,7 +692,7 @@ def write_csv(
 
 
 @pyaedt_function_handler()
-def read_tab(input_file: str | Path) -> list:
+def read_tab(input_file: StrPath) -> list:
     """Read information from a TAB file and return a list.
 
     Parameters
@@ -575,6 +704,12 @@ def read_tab(input_file: str | Path) -> list:
     -------
     list
         TAB file content.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.file_utils import read_tab
+    >>> read_tab(r"C:\\Temp\\mesh.tab")
+
     """
     with open_file(input_file) as my_file:
         lines = my_file.readlines()
@@ -582,7 +717,7 @@ def read_tab(input_file: str | Path) -> list:
 
 
 @pyaedt_function_handler()
-def read_xlsx(input_file: str | Path):
+def read_xlsx(input_file: StrPath):
     """Read information from an XLSX file and return a list.
 
     Parameters
@@ -594,6 +729,12 @@ def read_xlsx(input_file: str | Path):
     -------
     list
         XLSX file content.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.file_utils import read_xlsx
+    >>> read_xlsx(r"C:\\Temp\\stackup.xlsx")
+
     """
     file_name = check_and_download_file(input_file)
     try:
@@ -607,14 +748,14 @@ def read_xlsx(input_file: str | Path):
 
 
 @pyaedt_function_handler()
-def _check_path(path_to_check: str | Path) -> str:
+def _check_path(path_to_check: StrPath) -> str:
     path_to_check = str(path_to_check)
     return path_to_check.replace("\\", "/") if path_to_check[0] != "\\" else path_to_check
 
 
 # AEDT files parsing
 @pyaedt_function_handler()
-def read_component_file(input_file: str | Path) -> dict:
+def read_component_file(input_file: StrPath) -> dict:
     """Read the component file and extract variables.
 
     Parameters
@@ -626,6 +767,12 @@ def read_component_file(input_file: str | Path) -> dict:
     -------
     dict
         Dictionary of variables in the component file.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.file_utils import read_component_file
+    >>> read_component_file(r"C:\\Temp\\filter.a3dcomp")
+
     """
     variables = {}
     file_path = Path(input_file)
@@ -654,7 +801,7 @@ def read_component_file(input_file: str | Path) -> dict:
 
 @pyaedt_function_handler()
 def parse_excitation_file(
-    input_file: str | Path,
+    input_file: StrPath,
     is_time_domain: bool = True,
     x_scale: float = 1.0,
     y_scale: float = 1,
@@ -691,6 +838,12 @@ def parse_excitation_file(
     -------
     tuple or bool
         Frequency, magnitude and phase.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.file_utils import parse_excitation_file
+    >>> parse_excitation_file(r"C:\\Temp\\source.csv", is_time_domain=True)
+
     """
     import numpy as np
 
@@ -737,7 +890,7 @@ def parse_excitation_file(
 
 
 @pyaedt_function_handler()
-def tech_to_control_file(input_file: str | Path, units: str = "nm", output_file: str | Path = None):
+def tech_to_control_file(input_file: StrPath, units: str = "nm", output_file: StrPath | None = None):
     """Convert a TECH file to an XML file for use in a GDS or DXF import.
 
     Parameters
@@ -753,6 +906,12 @@ def tech_to_control_file(input_file: str | Path, units: str = "nm", output_file:
     -------
     str
         Output file path.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.file_utils import tech_to_control_file
+    >>> tech_to_control_file(r"C:\\Temp\\layers.tech")
+
     """
     result = []
     input_file = Path(input_file)
@@ -797,7 +956,7 @@ def tech_to_control_file(input_file: str | Path, units: str = "nm", output_file:
 
 # CAD parsing
 @pyaedt_function_handler()
-def get_dxf_layers(input_file: str | Path) -> list[str]:
+def get_dxf_layers(input_file: StrPath) -> list[str]:
     """Read a DXF file and return all layer names.
 
     Parameters
@@ -809,6 +968,12 @@ def get_dxf_layers(input_file: str | Path) -> list[str]:
     -------
     list
         List of layers in the DXF file.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.file_utils import get_dxf_layers
+    >>> get_dxf_layers(r"C:\\Temp\\board_outline.dxf")
+
     """
     file_path = Path(input_file)
 
@@ -831,7 +996,7 @@ def get_dxf_layers(input_file: str | Path) -> list[str]:
 
 # Configuration file
 @pyaedt_function_handler()
-def read_configuration_file(input_file: str | Path) -> dict | list:
+def read_configuration_file(input_file: StrPath) -> dict | list:
     """Parse a file and return the information in a list or dictionary.
 
     Parameters
@@ -843,6 +1008,12 @@ def read_configuration_file(input_file: str | Path) -> dict | list:
     -------
     Union[Dict, List]
         Dictionary if configuration file is ``"toml"`` or ``"json"``, List is ``"csv"``, ``"tab"`` or ``"xlsx"``.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.file_utils import read_configuration_file
+    >>> read_configuration_file(r"C:\\Temp\\settings.json")
+
     """
     file_path = Path(input_file)
     ext = Path(file_path).suffix
@@ -859,7 +1030,7 @@ def read_configuration_file(input_file: str | Path) -> dict | list:
 
 
 @pyaedt_function_handler()
-def write_configuration_file(input_data: dict, output_file: str | Path) -> bool:
+def write_configuration_file(input_data: dict, output_file: StrPath) -> bool:
     """Create a configuration file in JSON or TOML format from a dictionary.
 
     Parameters
@@ -873,18 +1044,25 @@ def write_configuration_file(input_data: dict, output_file: str | Path) -> bool:
     -------
     bool
         ``True`` when successful, ``False`` when failed.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.file_utils import write_configuration_file
+    >>> write_configuration_file({"units": "mm"}, r"C:\\Temp\\settings.json")
+
     """
     ext = Path(output_file).suffix
     if ext == ".json":
         return _create_json_file(input_data, output_file)
     elif ext == ".toml":
         return _create_toml_file(input_data, output_file)
+    raise ValueError(f"Unsupported file extension: {ext}. Supported extensions are JSON and TOML.")
 
 
 # Operators
 @pyaedt_function_handler()
 def compute_fft(
-    time_values: "pandas.Series", data_values: "pandas.Series", window: str = None
+    time_values: "pandas.Series", data_values: "pandas.Series", window: str | None = None
 ) -> tuple | bool:  # pragma: no cover
     """Compute FFT of input transient data.
 
@@ -901,6 +1079,13 @@ def compute_fft(
     -------
     tuple or bool
         Frequency and values.
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> from ansys.aedt.core.generic.file_utils import compute_fft
+    >>> compute_fft(pd.Series([0.0, 1e-9, 2e-9]), pd.Series([0.0, 1.0, 0.0]))
+
     """
     import numpy as np
 
@@ -933,7 +1118,7 @@ def compute_fft(
 
 @pyaedt_function_handler()
 def available_license_feature(
-    feature: str = "electronics_desktop", input_dir: str | Path = None, port: int = 1055, name: str = "127.0.0.1"
+    feature: str = "electronics_desktop", input_dir: StrPath | None = None, port: int = 1055, name: str = "127.0.0.1"
 ) -> int:  # pragma: no cover
     """Check available license feature.
 
@@ -963,14 +1148,20 @@ def available_license_feature(
     -------
     int
         Number of available license features, ``False`` when license server is down.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.file_utils import available_license_feature
+    >>> available_license_feature(feature="electronics_desktop")
+
     """
     import subprocess  # nosec
 
-    if os.getenv("ANSYSLMD_LICENSE_FILE", None):
-        name_env = os.getenv("ANSYSLMD_LICENSE_FILE")
+    name_env = os.getenv("ANSYSLMD_LICENSE_FILE", None)
+    if name_env is not None:
         name_env = name_env.split(",")[0].split("@")
         if len(name_env) == 2:
-            port = name_env[0]
+            port = int(name_env[0])
             name = name_env[1]
 
     if not input_dir and aedt_versions.current_version:
@@ -1096,7 +1287,7 @@ def _create_toml_file(input_dict, full_toml_path) -> bool:
     return True
 
 
-def _uname(name: str = None) -> str:
+def _uname(name: str | None = None) -> str:
     """Append a 6-digit hash code to a specified name.
 
     Parameters

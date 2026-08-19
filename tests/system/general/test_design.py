@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -31,6 +31,7 @@ import pytest
 from ansys.aedt.core import Hfss
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import Maxwell3d
+from ansys.aedt.core import MaxwellCircuit
 from ansys.aedt.core import get_pyaedt_app
 from ansys.aedt.core.application.aedt_objects import AedtObjects
 from ansys.aedt.core.application.design import DesignSettings
@@ -492,12 +493,22 @@ def test_toolkit(aedt_app, test_tmp_dir) -> None:
     assert customize_automation_tab.remove_script_from_menu(desktop_object=aedt_app.desktop_class, name="test_toolkit")
 
 
-def test_load_project(aedt_app, desktop, test_tmp_dir) -> None:
-    new_project = test_tmp_dir / "new.aedt"
-    aedt_app.save_project(file_name=str(new_project))
-    aedt_app.close_project(name="new")
-    aedt_app = desktop.load_project(str(new_project))
-    assert aedt_app
+def test_load_project(add_app, desktop, test_tmp_dir) -> None:
+    _ = add_app(application=Icepak, close_projects=False)
+    cir = add_app(application=MaxwellCircuit, close_projects=False)
+
+    project_name = cir.project_name
+    project_file = cir.project_file
+    cir.save_project()
+    cir.close_project(name=project_name)
+
+    aedt_app = desktop.load_project(project_file)
+    apps = []
+    for design in aedt_app.desktop_class.design_list():
+        apps.append(get_pyaedt_app(design_name=design, project_name=project_name))
+
+    assert len(apps) == 2
+    aedt_app.close_project(name=aedt_app.project_name)
 
 
 def test_get_design_settings(add_app) -> None:
@@ -508,7 +519,12 @@ def test_get_design_settings(add_app) -> None:
     assert "AmbTemp" in design_settings_dict
     assert "AmbRadTemp" in design_settings_dict
     assert "GravityVec" in design_settings_dict
-    assert "GravityDir" in design_settings_dict
+    if DESKTOP_VERSION < "2027.1":
+        assert "GravityDir" in design_settings_dict
+    else:
+        assert "GravityVectorX" in design_settings_dict
+        assert "GravityVectorY" in design_settings_dict
+        assert "GravityVectorZ" in design_settings_dict
     ipk.close_project()
 
 

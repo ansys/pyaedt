@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,7 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""This module contains the ``Hfss3dLayout`` class."""
+"""The module contains the ``Hfss3dLayout`` class."""
+
+from __future__ import annotations
 
 import fnmatch
 import io
@@ -30,7 +32,6 @@ import os
 from pathlib import Path
 import re
 from typing import TYPE_CHECKING
-from typing import Union
 
 from ansys.aedt.core.application.analysis_3d_layout import FieldAnalysis3DLayout
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
@@ -200,6 +201,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss3d = Hfss3dLayout()
+        >>> hfss3d.ic_mode
+
         """
         return self.get_oo_property_value(self.odesign, "Design Settings", "Design Mode/IC")
 
@@ -210,7 +218,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
     @pyaedt_function_handler()
     def create_edge_port(
         self,
-        assignment: Union[str, "Line3dLayout"],
+        assignment: str | "Line3dLayout",
         edge_number: int,
         is_circuit_port: bool | None = False,
         is_wave_port: bool | None = False,
@@ -254,6 +262,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oEditor.CreateEdgePort
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss3d = Hfss3dLayout()
+        >>> hfss3d.create_edge_port(assignment="line1", edge_number=0)
+
         """
         assignment = self.modeler.convert_to_selections(assignment, False)
         listp = self.port_list
@@ -352,6 +367,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
 
         References
         ----------
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss3d = Hfss3dLayout()
+        >>> hfss3d.create_wave_port(assignment="line1", edge_number=0)
+
         """
         port_name = self.create_edge_port(
             assignment,
@@ -396,6 +418,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oEditor.CreateEdgePort
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss3d = Hfss3dLayout()
+        >>> hfss3d.create_wave_port_from_two_conductors(assignment=["line1", "line2"], edge_numbers=[0, 0])
+
         """
         if edge_numbers is None:
             edge_numbers = [""]
@@ -445,6 +474,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
             ``True`` when successful, ``False`` when failed.
 
 
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss3d = Hfss3dLayout()
+        >>> hfss3d.dissolve_component(component="U1")
+
         """
         self.oeditor.DissolveComponents(["NAME:elements", component])
         return True
@@ -468,6 +504,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oEditor.AddPortsToNet
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss3d = Hfss3dLayout()
+        >>> hfss3d.create_ports_by_nets(nets="GND")
+
         """
         nets = nets if isinstance(nets, list) else [nets]
         previous_ports = set(self.port_list)
@@ -506,6 +549,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oEditor.CreateEdgePort
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss3d = Hfss3dLayout()
+        >>> hfss3d.create_ports_on_component_by_nets(component="U1", nets="DDR4_A0")
+
         """
         listp = self.port_list
         if isinstance(nets, list):
@@ -549,6 +599,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oEditor.CreateEdgePort
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss3d = Hfss3dLayout()
+        >>> hfss3d.create_pec_on_component_by_nets(component="U1", nets="GND")
+
         """
         if isinstance(nets, list):
             pass
@@ -583,6 +640,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oEditor.CreateEdgePort
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss3d = Hfss3dLayout()
+        >>> hfss3d.create_differential_port(via_signal="via1", via_reference=0.1, name="diff_port1")
+
         """
         listp = self.port_list
         if name in self.port_list:
@@ -633,6 +697,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oEditor.CreateEdgePort
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss3d = Hfss3dLayout()
+        >>> hfss3d.create_coax_port(via="via1", radial_extent=0.1)
+
         """
         listp = self.port_list
         if via in self.port_list:
@@ -693,6 +764,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oEditor.CreatePin
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss3d = Hfss3dLayout()
+        >>> hfss3d.create_pin_port(name="pin_port1", x=0, y=0)
+
         """
         layers = self.modeler.layers.all_signal_layers
         if not top_layer:
@@ -752,6 +830,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         ----------
         >>> oModule.Delete
         >>> oModule.DeleteExcitations
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss3d = Hfss3dLayout()
+        >>> hfss3d.delete_port(name="port1")
+
         """
         if remove_geometry:
             self.oexcitation.Delete(name)
@@ -780,6 +865,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oModule.ImportEDB
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss3d = Hfss3dLayout()
+        >>> hfss3d.import_edb(input_folder="c:/temp/my_design.aedb")
+
         """
         if "edb.def" not in input_folder:
             input_folder = Path(input_folder) / "edb.def"
@@ -818,6 +910,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oDesign.ValidateDesign
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss3d = Hfss3dLayout()
+        >>> messages, is_valid = hfss3d.validate_full_design()
+
         """
         if name is None:
             name = self.design_name
@@ -927,6 +1026,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oModule.CreateReport
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss3d = Hfss3dLayout()
+        >>> hfss3d.create_scattering()
+
         """
         solution_data = "Standard"
         if "Modal" in self.solution_type:
@@ -1098,6 +1204,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oDesign.DesignOptions
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss3d = Hfss3dLayout()
+        >>> hfss3d.set_meshing_settings(mesh_method="PhiPlus")
+
         """
         settings = []
         settings.append("NAME:options")
@@ -1125,7 +1238,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         interpolation_tol_percent: float | None = 0.5,
         interpolation_max_solutions: int | None = 250,
         use_q3d_for_dc: bool | None = False,
-    ) -> Union["SweepHFSS3DLayout", bool]:
+    ) -> "SweepHFSS3DLayout" | bool:
         """Create a sweep with the specified number of points.
 
         Parameters
@@ -1170,6 +1283,15 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oModule.AddSweep
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss3d = Hfss3dLayout()
+        >>> hfss3d.create_linear_count_sweep(
+        ...     setup="Setup1", unit="GHz", start_frequency=1, stop_frequency=10, num_of_freq_points=101
+        ... )
+
         """
         if sweep_type not in ["Discrete", "Interpolating", "Fast"]:
             raise AttributeError(
@@ -1230,7 +1352,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         interpolation_tol_percent: float | None = 0.5,
         interpolation_max_solutions: int | None = 250,
         use_q3d_for_dc: bool | None = False,
-    ) -> Union["SweepHFSS3DLayout", bool]:
+    ) -> "SweepHFSS3DLayout" | bool:
         """Create a sweep with the specified frequency step.
 
         Parameters
@@ -1275,6 +1397,15 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oModule.AddSweep
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss3d = Hfss3dLayout()
+        >>> hfss3d.create_linear_step_sweep(
+        ...     setup="Setup1", unit="GHz", start_frequency=1, stop_frequency=10, step_size=0.1
+        ... )
+
         """
         if sweep_type not in ["Discrete", "Interpolating", "Fast"]:
             raise AttributeError(
@@ -1329,7 +1460,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         name: str | None = None,
         save_fields: bool | None = False,
         save_rad_fields_only: bool | None = False,
-    ) -> Union["SweepHFSS", bool]:
+    ) -> SweepHFSS | bool:
         """Create a sweep with a single frequency point.
 
         Parameters
@@ -1356,6 +1487,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oModule.AddSweep
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss3d = Hfss3dLayout()
+        >>> hfss3d.create_single_point_sweep(setup="Setup1", unit="GHz", freq=5.0)
+
         """
         if name is None:
             sweep_name = generate_unique_name("SinglePoint")
@@ -1392,6 +1530,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
                     for f in freq:
                         sweepdata.add_subrange(range_type="SinglePoint", start=f, unit=unit)
                 self.logger.info("Single point sweep %s has been correctly created.", sweep_name)
+
+                # Reset children to populate again the new properties
+                s._children = {}
+
                 return sweepdata
         return False
 
@@ -1433,7 +1575,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
             aedb_path = aedb_path.replace(old_name, project_name)
             self.logger.warning("aedb_exists. Renaming it to %s", project_name)
         if xml_path is None:
-            xml_path = Path("").name
+            xml_path = Path().name
         elif Path(xml_path).suffix == ".tech":
             xml_path = Path(tech_to_control_file(xml_path)).name
         if cad_format == "gds":
@@ -1484,6 +1626,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oModule.ImportGDSII
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss3d = Hfss3dLayout()
+        >>> hfss3d.import_gds(input_file="c:/temp/design.gds")
+
         """
         return self._import_cad(input_file, "gds", output_dir, control_file, set_as_active, close_active_project)
 
@@ -1523,6 +1672,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oModule.ImportDXF
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss3d = Hfss3dLayout()
+        >>> hfss3d.import_dxf(input_file="c:/temp/design.dxf")
+
         """
         return self._import_cad(input_file, "dxf", output_dir, control_file, set_as_active, close_active_project)
 
@@ -1560,6 +1716,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oModule.ImportGerber
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss3d = Hfss3dLayout()
+        >>> hfss3d.import_gerber(input_file="c:/temp/design.zip")
+
         """
         return self._import_cad(input_file, "gerber", output_dir, control_file, set_as_active, close_active_project)
 
@@ -1597,6 +1760,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oModule.ImportExtracta
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss3d = Hfss3dLayout()
+        >>> hfss3d.import_brd(input_file="c:/temp/design.brd")
+
         """
         return self._import_cad(input_file, "brd", output_dir, control_file, set_as_active, close_active_project)
 
@@ -1634,6 +1804,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oModule.ImportAWRMicrowaveOffice
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss3d = Hfss3dLayout()
+        >>> hfss3d.import_awr(input_file="c:/temp/design.emp")
+
         """
         return self._import_cad(input_file, "awr", output_dir, control_file, set_as_active, close_active_project)
 
@@ -1671,6 +1848,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oModule.ImportAWRMicrowaveOffice
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss3d = Hfss3dLayout()
+        >>> hfss3d.import_ipc2581(input_file="c:/temp/design.xml")
+
         """
         return self._import_cad(input_file, "ipc2581", output_dir, control_file, set_as_active, close_active_project)
 
@@ -1708,6 +1892,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oModule.ImportAWRMicrowaveOffice
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss3d = Hfss3dLayout()
+        >>> hfss3d.import_odb(input_file="c:/temp/design.tgz")
+
         """
         return self._import_cad(input_file, "odb++", output_dir, control_file, set_as_active, close_active_project)
 
@@ -1861,6 +2052,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oModule.SetDiffPairs
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss3d = Hfss3dLayout()
+        >>> hfss3d.set_differential_pair(assignment="port1", reference="port2")
+
         """
         if not differential_mode:
             differential_mode = generate_unique_name("Diff")
@@ -1947,12 +2145,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         >>> from ansys.aedt.core import Hfss3dLayout
         >>> hfss = Hfss3dLayout()
         >>> hfss.get_defined_diff_pairs()
+
         """
         list_output = []
         if len(self.excitation_names) != 0:
             tmpfile1 = Path(self.working_directory) / generate_unique_name("tmp")
             file_flag = self.save_diff_pairs_to_file(tmpfile1)
-            if file_flag and os.stat(tmpfile1).st_size != 0:
+            if file_flag and tmpfile1.stat().st_size != 0:
                 with open_file(tmpfile1, "r") as fi:
                     fi_lst = fi.readlines()
                 list_output = [line.split(",")[4] for line in fi_lst]
@@ -1988,6 +2187,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oModule.LoadDiffPairsFromFile
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss3d = Hfss3dLayout()
+        >>> hfss3d.load_diff_pairs_from_file(input_file="c:/temp/diff_pairs.txt")
+
         """
         if not Path(input_file).is_file():  # pragma: no cover
             raise ValueError(f"{input_file}: Unable to find the specified file.")
@@ -2026,6 +2232,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oModule.SaveDiffPairsToFile
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss3d = Hfss3dLayout()
+        >>> hfss3d.save_diff_pairs_to_file(output_file="c:/temp/diff_pairs.txt")
+
         """
         self.oexcitation.SaveDiffPairsToFile(str(output_file))
 
@@ -2047,6 +2260,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         -------
         str
             File name if successful.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss3d = Hfss3dLayout()
+        >>> hfss3d.export_3d_model()
+
         """
         if not output_file:
             if settings.aedt_version > "2022.2":
@@ -2070,6 +2290,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         bool
             ``True`` if rigid flex is turned off, ``False``` if rigid flex is turned off.
             In non-graphical, ``True`` is always returned due to a bug in the native API.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss3d = Hfss3dLayout()
+        >>> hfss3d.enable_rigid_flex()
+
         """
         if settings.aedt_version >= "2022.2":
             self.modeler.oeditor.ProcessBentModelCmd()
@@ -2120,6 +2347,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss3d = Hfss3dLayout()
+        >>> hfss3d.edit_hfss_extents(diel_extent_type="ConformalExtent", air_vertical_positive_padding="10mm")
+
         """
         arg = ["NAME:HfssExportInfo"]
         if diel_extent_type:
@@ -2175,6 +2409,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         -------
         str
             Path for the parasolid file in the results folder.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss3d = Hfss3dLayout()
+        >>> model_path = hfss3d.get_model_from_mesh_results()
+
         """
         startpath = Path(self.results_directory) / self.design_name
         if not binary:
@@ -2242,6 +2483,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss3d = Hfss3dLayout()
+        >>> hfss3d.edit_source_from_file(source="port1", input_file="c:/temp/source_data.csv")
+
         """
 
         def find_scale(data, header_line):
@@ -2366,6 +2614,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         Returns
         -------
         from ansys.aedt.core.modules.solutions.SolutionData
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss3d = Hfss3dLayout()
+        >>> solution_data = hfss3d.get_dcir_solution_data(setup="Setup1")
+
         """
         all_categories = self.post.available_quantities_categories(context=show, is_siwave_dc=True)
         if category not in all_categories:
@@ -2390,6 +2645,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         Returns
         -------
         pandas.Dataframe
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss3d = Hfss3dLayout()
+        >>> df = hfss3d.get_dcir_element_data_loop_resistance(setup="Setup1")
+
         """
         import pandas as pd
 
@@ -2430,6 +2692,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         Returns
         -------
         pandas.Dataframe
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss3d = Hfss3dLayout()
+        >>> df = hfss3d.get_dcir_element_data_current_source(setup="Setup1")
+
         """
         import pandas as pd
 
@@ -2464,6 +2733,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         Returns
         -------
         pandas.Dataframe
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss3d = Hfss3dLayout()
+        >>> df = hfss3d.get_dcir_element_data_via(setup="Setup1")
+
         """
         import pandas as pd
 
@@ -2513,6 +2789,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         >>> from ansys.aedt.core import Hfss3dLayout
         >>> h3d = Hfss3dLayout()
         >>> h3d.show_extent(show=True)
+
         """
         try:
             self.oeditor.SetHfssExtentsVisible(show)
@@ -2544,6 +2821,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         >>> from ansys.aedt.core import Hfss3dLayout
         >>> h3d = Hfss3dLayout()
         >>> h3d.change_options(color_by_net=True)
+
         """
         try:
             options = ["NAME:options", "ColorByNet:=", color_by_net, "CN:=", self.design_name]
@@ -2573,6 +2851,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oDesign.SetDesignSettings
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> hfss3d = Hfss3dLayout()
+        >>> hfss3d.export_touchstone_on_completion(export=True)
+
         """
         if export:
             self.logger.info("Enabling Export On Completion")
@@ -2635,6 +2920,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         >>> from ansys.aedt.core import Hfss3dlayout
         >>> h3d = Hfss3dlayout()
         >>> h3d.import_table(input_file="my_file.csv")
+
         """
         columns_separator_map = {"Space": 0, "Tab": 1, "Comma": 2, "Period": 3}
         if column_separator not in ["Space", "Tab", "Comma", "Period"]:
@@ -2706,6 +2992,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         >>> h3d = Hfss3dlayout()
         >>> table_name = h3d.import_table(input_file="my_file.csv")
         >>> h3d.delete_imported_data(table_name)
+
         """
         if name not in self.existing_analysis_sweeps:
             self.logger.error("Data does not exist.")

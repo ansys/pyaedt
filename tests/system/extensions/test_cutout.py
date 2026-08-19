@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
 import shutil
 
 import pytest
@@ -34,12 +33,14 @@ from ansys.aedt.core.extensions.hfss3dlayout.cutout import main
 from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
 from tests import TESTS_EXTENSIONS_PATH
 from tests.conftest import DESKTOP_VERSION
+from tests.conftest import edb_xfail
 
 AEDB_FILE_NAME = "ANSYS-HSD_V1"
 TEST_SUBFOLDER = "T45"
 SI_VERSE_PATH = TESTS_EXTENSIONS_PATH / "example_models" / TEST_SUBFOLDER / (AEDB_FILE_NAME + ".aedb")
 
 
+@edb_xfail
 def test_cutout_success(add_app_example, test_tmp_dir) -> None:
     """Test the successful execution of the cutout operation in Hfss3dLayout."""
     test_project = test_tmp_dir / (AEDB_FILE_NAME + ".aedb")

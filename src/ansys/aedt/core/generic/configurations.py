@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -21,6 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
 from collections import defaultdict
 import copy
 from datetime import datetime
@@ -29,6 +30,7 @@ import math
 import os
 from pathlib import Path
 import tempfile
+from typing import Any
 
 import ansys.aedt.core
 from ansys.aedt.core import __version__
@@ -42,8 +44,10 @@ from ansys.aedt.core.generic.file_utils import write_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.numbers_utils import is_number
+from ansys.aedt.core.generic.protocols import _AppWithOProject
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
+from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
@@ -82,6 +86,13 @@ def _find_datasets(d, out_list) -> None:
 class ConfigurationsOptions(PyAedtBase):
     """Options class for the configurations.
     User can enable or disable import export components.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Hfss
+    >>> hfss = Hfss()
+    >>> hfss.configurations.options
+
     """
 
     def __init__(self, is_layout: bool = False) -> None:
@@ -118,6 +129,13 @@ class ConfigurationsOptions(PyAedtBase):
         Returns
         -------
         float
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.configurations.options.object_mapping_tolerance = 1e-6
+
         """
         return self._object_mapping_tolerance
 
@@ -138,6 +156,7 @@ class ConfigurationsOptions(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.export_variables = False  # Disable the variables export
+
         """
         return self._export_variables
 
@@ -158,6 +177,7 @@ class ConfigurationsOptions(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.export_setups = False  # Disable the setup export
+
         """
         return self._export_setups
 
@@ -178,6 +198,7 @@ class ConfigurationsOptions(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.export_optimizations = False  # Disable the optimization export
+
         """
         return self._export_optimizations
 
@@ -198,6 +219,7 @@ class ConfigurationsOptions(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.export_parametrics = False  # Disable the parametrics export
+
         """
         return self._export_parametrics
 
@@ -218,6 +240,7 @@ class ConfigurationsOptions(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.export_boundaries = False  # Disable the boundaries export
+
         """
         return self._export_boundaries
 
@@ -233,6 +256,12 @@ class ConfigurationsOptions(PyAedtBase):
         -------
         bool
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.configurations.options.import_datasets = False
+
         """
         return self._import_datasets
 
@@ -247,6 +276,12 @@ class ConfigurationsOptions(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.configurations.options.export_datasets = False
 
         """
         return self._export_datasets
@@ -268,6 +303,7 @@ class ConfigurationsOptions(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.export_mesh_operations = False  # Disable the mesh operations export
+
         """
         return self._export_mesh_operations
 
@@ -288,6 +324,7 @@ class ConfigurationsOptions(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.export_coordinate_systems = False  # Disable the coordinate systems export
+
         """
         return self._export_coordinate_systems
 
@@ -328,6 +365,7 @@ class ConfigurationsOptions(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.export_export_materials = False  # Disable the materials export
+
         """
         return self._export_materials
 
@@ -348,6 +386,7 @@ class ConfigurationsOptions(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.export_object_properties = False  # Disable the object properties export
+
         """
         return self._export_object_properties
 
@@ -368,6 +407,7 @@ class ConfigurationsOptions(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.import_variables = False  # Disable the variables import
+
         """
         return self._import_variables
 
@@ -388,6 +428,7 @@ class ConfigurationsOptions(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.import_setups = False  # Disable the setup import
+
         """
         return self._import_setups
 
@@ -408,6 +449,7 @@ class ConfigurationsOptions(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.import_optimizations = False  # Disable the optimization import
+
         """
         return self._import_optimizations
 
@@ -428,6 +470,7 @@ class ConfigurationsOptions(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.import_parametrics = False  # Disable the parametrics import
+
         """
         return self._import_parametrics
 
@@ -448,6 +491,7 @@ class ConfigurationsOptions(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.import_boundaries = False  # Disable the boundaries import
+
         """
         return self._import_boundaries
 
@@ -468,6 +512,7 @@ class ConfigurationsOptions(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.import_mesh_operations = False  # Disable the mesh operations import
+
         """
         return self._import_mesh_operations
 
@@ -488,6 +533,7 @@ class ConfigurationsOptions(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.import_coordinate_systems = False  # Disable the coordinate systems import
+
         """
         return self._import_coordinate_systems
 
@@ -528,6 +574,7 @@ class ConfigurationsOptions(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.import_import_materials = False  # Disable the materials import
+
         """
         return self._import_materials
 
@@ -544,6 +591,7 @@ class ConfigurationsOptions(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.import_output_variables = False  # Disable the materials import
+
         """
         return self._import_output_variables
 
@@ -568,6 +616,7 @@ class ConfigurationsOptions(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.import_object_properties = False  # Disable the object properties import
+
         """
         return self._import_object_properties
 
@@ -588,6 +637,7 @@ class ConfigurationsOptions(PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.skip_import_if_exists = False  # Disable the update of existing properties
+
         """
         return self._skip_import_if_exists
 
@@ -615,6 +665,13 @@ class ConfigurationsOptions(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.configurations.options.unset_all_export()
+
         """
         for prop in vars(self):
             if prop.startswith("_export_"):
@@ -628,6 +685,13 @@ class ConfigurationsOptions(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.configurations.options.set_all_export()
+
         """
         for prop in vars(self):
             if prop.startswith("_export_"):
@@ -641,6 +705,13 @@ class ConfigurationsOptions(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.configurations.options.unset_all_import()
+
         """
         for prop in vars(self):
             if prop.startswith("_import_"):
@@ -654,6 +725,13 @@ class ConfigurationsOptions(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.configurations.options.set_all_import()
+
         """
         for prop in vars(self):
             if prop.startswith("_import_"):
@@ -665,6 +743,13 @@ class ImportResults(PyAedtBase):
     """Contains the results of the import operations.
 
     Each result can be ``True`` or ``False``.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Hfss
+    >>> hfss = Hfss()
+    >>> hfss.configurations.results
+
     """
 
     def __init__(self) -> None:
@@ -696,6 +781,14 @@ class ImportResults(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.configurations.import_config(r"C:\\Temp\\hfss_config.json")
+        >>> hfss.configurations.results.global_import_success
+
         """
         for prop, value in vars(self).items():
             if prop.startswith("import_") and value is False:
@@ -704,7 +797,15 @@ class ImportResults(PyAedtBase):
 
 
 class Configurations(PyAedtBase):
-    """Enables export and import of a JSON configuration file that can be applied to a new or existing design."""
+    """Enables export and import of a JSON configuration file that can be applied to a new or existing design.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Hfss
+    >>> hfss = Hfss()
+    >>> hfss.configurations
+
+    """
 
     def __init__(self, app) -> None:
         self._app = app
@@ -713,12 +814,19 @@ class Configurations(PyAedtBase):
         self._schema = None
 
     @property
-    def schema(self) -> dict:
+    def schema(self) -> dict | None:
         """Schema dictionary.
 
         Returns
         -------
-        dict
+        dict or None
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.configurations.schema
+
         """
         if self._schema:
             return self._schema
@@ -837,46 +945,31 @@ class Configurations(PyAedtBase):
             self._app.logger.warning(f"Failed to add CS {name} ")
             return False
 
-    # @pyaedt_function_handler()
-    # def _update_face_coordinate_systems(self, name, props):
-    #     update = False
-    #     for cs in self._app.modeler.coordinate_systems:
-    #         if cs.name == name:
-    #             if not self.options.skip_import_if_exists:
-    #                 cs.props = props
-    #                 cs.update()
-    #             update = True
-    #     if update:
-    #         return True
-    #     cs = FaceCoordinateSystem(self._app.modeler, props, name)
-    #     try:
-    #         cs._modeler.oeditor.CreateFaceCS(cs._face_parameters, cs._attributes)
-    #         cs._modeler.coordinate_systems.append(cs)
-    #         self._app.logger.info("Face Coordinate System {} added.".format(name))
-    #     except Exception:
-    #         self._app.logger.warning("Failed to add CS {} ".format(name))
-
     @pyaedt_function_handler()
-    def _update_object_properties(self, name: str, val) -> bool:
+    def _update_object_properties(self, name: str, val) -> bool | None:
         if name in self._app.modeler.object_names:
-            arg = ["NAME:AllTabs", ["NAME:Geometry3DAttributeTab", ["NAME:PropServers", name]]]
-            arg2 = ["NAME:ChangedProps"]
+            arg: list[str | list[Any]] = ["NAME:AllTabs"]
+            tab: list[Any] = ["NAME:Geometry3DAttributeTab", ["NAME:PropServers", name]]
+            change_props = ["NAME:ChangedProps"]
             if self._app.modeler[name].is_3d or self._app.design_type in ["Maxwell 2D", "2D Extractor"]:
                 if val.get("Material", None):
-                    arg2.append(["NAME:Material", "Value:=", chr(34) + val["Material"] + chr(34)])
+                    change_props.append(["NAME:Material", "Value:=", chr(34) + val["Material"] + chr(34)])
                 if val.get("SolveInside", None):
-                    arg2.append(["NAME:Solve Inside", "Value:=", val["SolveInside"]])
+                    change_props.append(["NAME:Solve Inside", "Value:=", val["SolveInside"]])
             if val.get("Model", None):
-                arg2.append(["NAME:Model", "Value:=", val["Model"]])
+                change_props.append(["NAME:Model", "Value:=", val["Model"]])
             if val.get("Group", None):
-                arg2.append(["NAME:Group", "Value:=", val["Group"]])
+                change_props.append(["NAME:Group", "Value:=", val["Group"]])
             if val.get("Transparency", None):
-                arg2.append(["NAME:Transparent", "Value:=", val["Transparency"]])
+                change_props.append(["NAME:Transparent", "Value:=", val["Transparency"]])
             if val.get("Color", None):
-                arg2.append(["NAME:Color", "R:=", val["Color"][0], "G:=", val["Color"][1], "B:=", val["Color"][2]])
+                change_props.append(
+                    ["NAME:Color", "R:=", val["Color"][0], "G:=", val["Color"][1], "B:=", val["Color"][2]]
+                )
             if val.get("CoordinateSystem", None):
-                arg2.append(["NAME:Orientation", "Value:=", val["CoordinateSystem"]])
-            arg[1].append(arg2)
+                change_props.append(["NAME:Orientation", "Value:=", val["CoordinateSystem"]])
+            tab.append(change_props)
+            arg.append(tab)
             try:
                 self._app.modeler.oeditor.ChangeProperty(arg)
                 return True
@@ -1058,6 +1151,13 @@ class Configurations(PyAedtBase):
         bool
             ``True`` if the configuration file is valid, ``False`` otherwise.
             If the validation fails, a warning is also written to the logger.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.configurations.validate(r"C:\\Temp\\hfss_config.json")
+
         """
         from jsonschema import exceptions
         from jsonschema import validate
@@ -1098,6 +1198,13 @@ class Configurations(PyAedtBase):
         -------
         dict, bool
             Config dictionary.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.configurations.import_config(r"C:\\Temp\\hfss_config.json")
+
         """
         if len(args) > 0:  # pragma: no cover
             raise TypeError("import_config expected at most 1 arguments, got %d" % (len(args) + 1))
@@ -1341,14 +1448,6 @@ class Configurations(PyAedtBase):
                         dict_out["coordinatesystems"][cs.name]["Reference CS"] = cs.ref_cs
                     cs.auto_update = legacy_update
 
-    # @pyaedt_function_handler()
-    # def _export_face_coordinate_systems(self, dict_out):
-    #     if self._app.modeler.coordinate_systems:
-    #         dict_out["facecoordinatesystems"] = {}
-    #         for cs in self._app.modeler.coordinate_systems:
-    #             if isinstance(cs, FaceCoordinateSystem):
-    #                 dict_out["facecoordinatesystems"][cs.name] = cs.props
-
     @pyaedt_function_handler()
     def _export_objects_properties(self, dict_out):
         if self._app.design_type in ["Twin Builder", "RMxprt", "ModelCreation", "Circuit Design", "Circuit Netlist"]:
@@ -1473,15 +1572,16 @@ class Configurations(PyAedtBase):
             dict_out["material datasets"] = datasets
 
     @pyaedt_function_handler()
-    def export_config(self, config_file: str | None = None, overwrite: bool | None = False) -> str:
+    def export_config(self, config_file: str | Path | None = None, overwrite: bool | None = False) -> str:
         """Export current design properties to a JSON or TOML file.
 
         The sections to be exported are defined with ``configuration.options`` class.
 
         Parameters
         ----------
-        config_file : str, optional
-            Full path to json file. If ``None``, then the config file will be saved in working directory.
+        config_file : str or Path, optional
+            Full path to json file.
+            If ``None``, then the config file will be saved in the working directory.
         overwrite : bool, optional
             If ``True`` the json file will be overwritten if already existing.
             If ``False`` and the version is compatible, the data in the existing file will be updated.
@@ -1491,6 +1591,13 @@ class Configurations(PyAedtBase):
         -------
         str
             Exported config file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.configurations.export_config(r"C:\\Temp\\hfss_config.json", overwrite=True)
+
         """
         if not config_file:
             config_file = Path(self._app.working_directory) / (generate_unique_name(self._app.design_name) + ".json")
@@ -1528,6 +1635,8 @@ class Configurations(PyAedtBase):
 
 
 class ConfigurationOptionsIcepak(ConfigurationsOptions, PyAedtBase):
+    """Provide configuration options icepak."""
+
     def __init__(self, app) -> None:
         ConfigurationsOptions.__init__(self)
         self._export_monitor = True
@@ -1537,6 +1646,7 @@ class ConfigurationOptionsIcepak(ConfigurationsOptions, PyAedtBase):
 
     @property
     def import_monitor(self):
+        """Retrieve import monitor."""
         return self._import_monitor
 
     @import_monitor.setter
@@ -1545,6 +1655,7 @@ class ConfigurationOptionsIcepak(ConfigurationsOptions, PyAedtBase):
 
     @property
     def export_monitor(self):
+        """Retrieve export monitor."""
         return self._export_monitor
 
     @export_monitor.setter
@@ -1553,6 +1664,7 @@ class ConfigurationOptionsIcepak(ConfigurationsOptions, PyAedtBase):
 
     @property
     def import_native_components(self):
+        """Retrieve import native components."""
         return self._import_native_components
 
     @import_native_components.setter
@@ -1561,6 +1673,7 @@ class ConfigurationOptionsIcepak(ConfigurationsOptions, PyAedtBase):
 
     @property
     def export_native_components(self):
+        """Retrieve export native components."""
         return self._export_native_components
 
     @export_native_components.setter
@@ -1569,6 +1682,8 @@ class ConfigurationOptionsIcepak(ConfigurationsOptions, PyAedtBase):
 
 
 class ConfigurationOptions3DLayout(ConfigurationsOptions, PyAedtBase):
+    """Provide configuration options 3 D layout."""
+
     def __init__(self, app) -> None:
         ConfigurationsOptions.__init__(self)
         self._export_mesh_operations = False
@@ -1582,7 +1697,15 @@ class ConfigurationOptions3DLayout(ConfigurationsOptions, PyAedtBase):
 
 
 class Configurations3DLayout(Configurations, PyAedtBase):
-    """Enables export and import configuration options to be applied to a new or existing 3DLayout design."""
+    """Enables export and import configuration options to be applied to a new or existing 3DLayout design.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Hfss3dLayout
+    >>> h3d = Hfss3dLayout()
+    >>> h3d.configurations
+
+    """
 
     def __init__(self, app) -> None:
         Configurations.__init__(self, app)
@@ -1590,23 +1713,32 @@ class Configurations3DLayout(Configurations, PyAedtBase):
 
 
 class ConfigurationsIcepak(Configurations, PyAedtBase):
-    """Enables export and import configuration options to be applied on a new or existing design."""
+    """Enables export and import configuration options to be applied on a new or existing design.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Icepak
+    >>> icepak = Icepak()
+    >>> icepak.configurations
+
+    """
 
     def __init__(self, app) -> None:
         Configurations.__init__(self, app)
         self.options = ConfigurationOptionsIcepak(app)
 
     @pyaedt_function_handler()
-    def _update_object_properties(self, name: str, val) -> bool:
+    def _update_object_properties(self, name: str, val) -> bool | None:
         if name in self._app.modeler.object_names:
-            arg = ["NAME:AllTabs", ["NAME:Geometry3DAttributeTab", ["NAME:PropServers", name]]]
-            arg2 = ["NAME:ChangedProps"]
+            arg: list[str | list[Any]] = ["NAME:AllTabs"]
+            tab: list[Any] = ["NAME:Geometry3DAttributeTab", ["NAME:PropServers", name]]
+            change_props = ["NAME:ChangedProps"]
             if val.get("Material", None):
-                arg2.append(["NAME:Material", "Value:=", chr(34) + val["Material"] + chr(34)])
+                change_props.append(["NAME:Material", "Value:=", chr(34) + val["Material"] + chr(34)])
             if val.get("SolveInside", None):
-                arg2.append(["NAME:Solve Inside", "Value:=", val["SolveInside"]])
+                change_props.append(["NAME:Solve Inside", "Value:=", val["SolveInside"]])
             try:
-                arg2.append(
+                change_props.append(
                     [
                         "NAME:Surface Material",
                         "Value:=",
@@ -1614,7 +1746,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                     ]
                 )
             except TypeError:
-                arg2.append(
+                change_props.append(
                     [
                         "NAME:Surface Material",
                         "Value:=",
@@ -1622,16 +1754,19 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                     ]
                 )
             if val.get("Model", None):
-                arg2.append(["NAME:Model", "Value:=", val["Model"]])
+                change_props.append(["NAME:Model", "Value:=", val["Model"]])
             if val.get("Group", None):
-                arg2.append(["NAME:Group", "Value:=", val["Group"]])
+                change_props.append(["NAME:Group", "Value:=", val["Group"]])
             if val.get("Transparency", None):
-                arg2.append(["NAME:Transparent", "Value:=", val["Transparency"]])
+                change_props.append(["NAME:Transparent", "Value:=", val["Transparency"]])
             if val.get("Color", None):
-                arg2.append(["NAME:Color", "R:=", val["Color"][0], "G:=", val["Color"][1], "B:=", val["Color"][1]])
+                change_props.append(
+                    ["NAME:Color", "R:=", val["Color"][0], "G:=", val["Color"][1], "B:=", val["Color"][1]]
+                )
             if val.get("CoordinateSystem", None):
-                arg2.append(["NAME:Orientation", "Value:=", val["CoordinateSystem"]])
-            arg[1].append(arg2)
+                change_props.append(["NAME:Orientation", "Value:=", val["CoordinateSystem"]])
+            tab.append(change_props)
+            arg.append(tab)
             try:
                 self._app.modeler.oeditor.ChangeProperty(arg)
                 return True
@@ -1698,7 +1833,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
     @pyaedt_function_handler()
     def _export_mesh_operations(self, dict_out):
         dict_out["mesh"] = {}
-        args = ["NAME:Settings"]
+        args: list[str | bool] = ["NAME:Settings"]
         args += self._app.mesh.global_mesh_region.settings.parse_settings_as_args()
         mop = {}
         _arg2dict(args, mop)
@@ -1715,15 +1850,19 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                 args += ["UserSpecifiedSettings:=", not mesh.manual_settings]
                 mop = {}
                 _arg2dict(args, mop)
-                if (
-                    mesh.name not in ["Settings", "Global"]
-                    and self._app.modeler[args[-3][0]].history().command == "CreateSubRegion"
-                ):
-                    mop[mesh.name]["_subregion_information"] = {
-                        "pad_vals": mesh.assignment.padding_values,
-                        "pad_types": mesh.assignment.padding_types,
-                        "parts": list(mesh.assignment.parts.keys()),
-                    }
+                if mesh.name not in ["Settings", "Global"]:
+                    assignment = args[-3]
+                    if (
+                        isinstance(assignment, list)
+                        and assignment
+                        and isinstance(assignment[0], str)
+                        and self._app.modeler[assignment[0]].history().command == "CreateSubRegion"
+                    ):
+                        mop[mesh.name]["_subregion_information"] = {
+                            "pad_vals": mesh.assignment.padding_values,
+                            "pad_types": mesh.assignment.padding_types,
+                            "parts": list(mesh.assignment.parts.keys()),
+                        }
                 if mesh.name in mop:
                     dict_out["mesh"][mesh.name] = mop[mesh.name]
                 self._map_object(mop, dict_out)
@@ -1747,6 +1886,13 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
         -------
         bool
             ``True`` if successful.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Icepak
+        >>> icepak = Icepak()
+        >>> icepak.configurations.update_monitor("Object", "Box1", "Temperature", "Box1Temp")
+
         """
         if m_case == "Point":
             self._app.monitor.assign_point_monitor(m_object, monitor_quantity=m_quantity, monitor_name=m_name)
@@ -1833,6 +1979,13 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
         -------
         dict, bool
             Config dictionary.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Icepak
+        >>> icepak = Icepak()
+        >>> icepak.configurations.import_config(r"C:\\Temp\\icepak_config.json")
+
         """
         if len(args) == 0:
             exclude_set = set()
@@ -1843,7 +1996,8 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
         dict_in = read_configuration_file(config_file)
         self.results._reset_results()
 
-        if self.options.import_native_components and dict_in.get("native components", None):
+        # TODO: See https://github.com/ansys/pyaedt/issues/7919
+        if self.options.import_native_components and dict_in.get("native components", None):  # ty: ignore[unresolved-attribute]
             result_coordinate_systems = True
             add_cs = list(dict_in["coordinatesystems"].keys())
             available_cs = ["Global"] + [cs.name for cs in self._app.modeler.coordinate_systems]
@@ -1866,10 +2020,14 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                     result_native_component = False
 
         dict_in = Configurations.import_config(self, config_file)
-        if self.options.import_monitor and dict_in.get("monitor", None):  # backward compatibility
+        # TODO: See https://github.com/ansys/pyaedt/issues/7919
+        # If statement used for backward compatibility
+        if self.options.import_monitor and dict_in.get("monitor", None):  # ty: ignore[unresolved-attribute]
             dict_in["monitors"] = dict_in.pop("monitor")
-        if self.options.import_monitor and dict_in.get("monitors", None):
-            if not isinstance(dict_in["monitors"], list):  # backward compatibility
+        # TODO: See https://github.com/ansys/pyaedt/issues/7919
+        if self.options.import_monitor and dict_in.get("monitors", None):  # ty: ignore[unresolved-attribute]
+            # If statement used for backward compatibility
+            if not isinstance(dict_in["monitors"], list):
                 mon_list = []
                 for k, v in dict_in["monitors"].items():
                     v["Name"] = k
@@ -1887,7 +2045,8 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                 ):  # pragma: no cover
                     self.results.import_monitor = False
         try:
-            self.results.import_native_components = result_native_component
+            # TODO: See https://github.com/ansys/pyaedt/issues/7919
+            self.results.import_native_components = result_native_component  # ty: ignore[unresolved-attribute]
             self.results.import_coordinate_systems = result_coordinate_systems
         except UnboundLocalError:
             pass
@@ -2021,7 +2180,6 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
 
     @pyaedt_function_handler
     def _update_native_components(self, native_name, native_dict) -> bool:
-        from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 
         def apply_operations_to_native_components(obj, operation_dict, native_dict) -> bool:  # pragma: no cover
             cache_cs = self._app.oeditor.GetActiveCoordinateSystem()
@@ -2186,7 +2344,8 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                         set(self._app.oeditor.Get3DComponentInstanceNames(definition_names))
                         - instance_names[definition_names]
                     )[0]
-                native.component_name = definition_names
+                # TODO: See https://github.com/ansys/pyaedt/issues/7919
+                native.component_name = definition_names  # ty: ignore[unresolved-attribute]
                 native.name = instance_names
                 if nc_dict["NativeComponentDefinitionProvider"]["Type"] == "PCB" and nc_dict[
                     "NativeComponentDefinitionProvider"
@@ -2195,7 +2354,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                     design = nc_dict["NativeComponentDefinitionProvider"]["DefnLink"]["Design"]
                     from ansys.aedt.core.generic.design_types import get_pyaedt_app
 
-                    app = get_pyaedt_app(prj, design)
+                    app: _AppWithOProject = get_pyaedt_app(prj, design)
                     app.oproject.Close()
                 user_defined_component = UserDefinedComponent(
                     self._app.modeler, instance_names, nc_dict["NativeComponentDefinitionProvider"], native_dict["Type"]
@@ -2210,7 +2369,8 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                 ][0]
                 self._app.modeler.refresh_all_ids()
                 self._app.materials._load_from_project()
-                if native.component_name not in self._app.native_components:
+                # TODO: See https://github.com/ansys/pyaedt/issues/7919
+                if native.component_name not in self._app.native_components:  # ty: ignore[unresolved-attribute]
                     self._app._native_components.append(native)
                 if instance_dict.get("Operations", None):
                     for _, operation_dict in instance_dict["Operations"].items():
@@ -2223,15 +2383,23 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
 
 
 class ConfigurationsNexxim(Configurations, PyAedtBase):
-    """Enables export and import configuration options to be applied to a new or existing Nexxim design."""
+    """Enables export and import configuration options to be applied to a new or existing Nexxim design.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Circuit
+    >>> circuit = Circuit()
+    >>> circuit.configurations
+
+    """
 
     @pyaedt_function_handler()
-    def export_config(self, config_file: str | None = None, overwrite: bool | None = False) -> str:
+    def export_config(self, config_file: str | Path | None = None, overwrite: bool | None = False) -> str:
         """Export current design properties to a JSON or TOML file.
 
         Parameters
         ----------
-        config_file : str, optional
+        config_file : str or Path , optional
             Full path to json file. If ``None``, then the config file will be saved in working directory.
         overwrite : bool, optional
             If ``True`` the json file will be overwritten if already existing.
@@ -2242,6 +2410,13 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
         -------
         str
             Exported config file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit()
+        >>> circuit.configurations.export_config(r"C:\\Temp\\circuit_config.json", overwrite=True)
+
         """
         if not config_file:
             config_file = Path(self._app.working_directory) / (generate_unique_name(self._app.design_name) + ".json")
@@ -2420,7 +2595,6 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
     def import_config(self, config_file: str, *args) -> dict:
         """Import configuration settings from a JSON or TOML file and apply it to the current design.
 
-
         Parameters
         ----------
         config_file : str
@@ -2430,6 +2604,13 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
         -------
         dict, bool
             Config dictionary.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit()
+        >>> circuit.configurations.import_config(r"C:\\Temp\\circuit_config.json")
+
         """
         if len(args) > 0:  # pragma: no cover
             raise TypeError("import_config expected at most 1 arguments, got %d" % (len(args) + 1))
@@ -2617,28 +2798,37 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                         if i in new_comp_params and j != new_comp_params and j != f'"{new_comp_params}"'
                     }
                     if params:
-                        try:
-                            values = [
-                                i[1:-1] if isinstance(i, str) and i.startswith('"') and is_number(i[1:-1]) else i
-                                for i in list(params.values())
-                            ]
-                            self._app.change_properties(
-                                self._app.oeditor,
-                                "PassedParameterTab",
-                                new_comp.composed_name,
-                                list(params.keys()),
-                                values,
-                            )
-                        except Exception:  # pragma: no cover
-                            self._app.logger.warning(
-                                f"Failed to set one of the properties for component {new_comp.composed_name}"
-                            )
+                        # applying single settings to ibis because of parameters relationships.
+                        if component_type in ["ibis", "ami"]:
                             for ppn, ppv in params.items():
                                 new_comp.parameters[ppn] = (
                                     ppv[1:-1]
                                     if isinstance(ppv, str) and ppv.startswith('"') and is_number(ppv[1:-1])
                                     else ppv
                                 )
+                        else:
+                            try:
+                                values = [
+                                    i[1:-1] if isinstance(i, str) and i.startswith('"') and is_number(i[1:-1]) else i
+                                    for i in list(params.values())
+                                ]
+                                self._app.change_properties(
+                                    self._app.oeditor,
+                                    "PassedParameterTab",
+                                    new_comp.composed_name,
+                                    list(params.keys()),
+                                    values,
+                                )
+                            except Exception:  # pragma: no cover
+                                self._app.logger.warning(
+                                    f"Failed to set one of the properties for component {new_comp.composed_name}"
+                                )
+                                for ppn, ppv in params.items():
+                                    new_comp.parameters[ppn] = (
+                                        ppv[1:-1]
+                                        if isinstance(ppv, str) and ppv.startswith('"') and is_number(ppv[1:-1])
+                                        else ppv
+                                    )
 
         comp_list = list(self._app.modeler.schematic.components.values())
         for i, j in data["pin_mapping"].items():

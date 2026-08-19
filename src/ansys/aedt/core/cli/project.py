@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,7 +22,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""Project and design management commands."""
+"""Project and design management commands.
+
+Examples
+--------
+    pyaedt project list --port 50051
+
+"""
 
 from __future__ import annotations
 
@@ -38,29 +44,51 @@ except ImportError:  # pragma: no cover
 from ansys.aedt.core.cli import common
 
 project_app = typer.Typer(help="Project and design management commands")
+"""Value for project app."""
 
 
 class AEDTAppType(str, Enum):
+    """Provide AEDT app type."""
+
     Hfss = "Hfss"
+    """HFSS option."""
     Maxwell2d = "Maxwell2d"
+    """Maxwell 2 d option."""
     Maxwell3d = "Maxwell3d"
+    """Maxwell 3 d option."""
     Q3d = "Q3d"
+    """Q 3 d option."""
     Q2d = "Q2d"
+    """Q 2 d option."""
     Icepak = "Icepak"
+    """Icepak option."""
     Circuit = "Circuit"
+    """Circuit option."""
     TwinBuilder = "TwinBuilder"
+    """Twin builder option."""
     Mechanical = "Mechanical"
+    """Mechanical option."""
     Emit = "Emit"
+    """EMIT option."""
     Rmxprt = "Rmxprt"
+    """RMxprt option."""
     Hfss3dLayout = "Hfss3dLayout"
+    """HFSS 3 d layout option."""
     MaxwellCircuit = "MaxwellCircuit"
+    """Maxwell circuit option."""
 
 
 @project_app.command(name="list")
 def list_projects(
     port: int = typer.Option(..., "--port", help="gRPC port of the AEDT instance"),
 ) -> None:
-    """List open projects together with their designs."""
+    """List open projects together with their designs.
+
+    Examples
+    --------
+        pyaedt project list --port 50051
+
+    """
     try:
         d = common.get_desktop(port=port)
         projects = common.list_projects_with_designs(d)
@@ -95,7 +123,13 @@ def open_project(
     port: int = typer.Option(..., "--port", help="gRPC port of the AEDT instance"),
     non_graphical: bool = typer.Option(False, "--non-graphical", "-ng", help="Open in non-graphical mode"),
 ) -> None:
-    """Open an AEDT project file."""
+    """Open an AEDT project file.
+
+    Examples
+    --------
+        pyaedt project open "C:\\Projects\\Demo.aedt" --port 50051
+
+    """
     try:
         d = common.get_desktop(port=port)
         d.odesktop.OpenProject(path)
@@ -121,7 +155,13 @@ def save_project(
     path: str = typer.Option(None, "--path", help="Save-as path ending with .aedt (omit to save in place)"),
     port: int = typer.Option(..., "--port", help="gRPC port of the AEDT instance"),
 ) -> None:
-    """Save the active AEDT project. Use --path for Save As."""
+    """Save the active AEDT project. Use --path for Save As.
+
+    Examples
+    --------
+        pyaedt project save --port 50051 --path "C:\\Projects\\Demo_copy.aedt"
+
+    """
     try:
         d = common.get_desktop(port=port)
         proj = d.odesktop.GetActiveProject()
@@ -158,7 +198,13 @@ def create_project(
     design: str = typer.Option(None, "--design", "-d", help="Design name to create"),
     design_type: AEDTAppType = typer.Option(None, "--type", "-t", help="Design type (required with --design)"),
 ) -> None:
-    """Create a project, or create a design in a specified project."""
+    """Create a project, or create a design in a specified project.
+
+    Examples
+    --------
+        pyaedt project create --port 50051 --project Demo --design Filter --type Hfss
+
+    """
     try:
         if not project:
             raise typer.BadParameter("--project is required.")
@@ -233,7 +279,13 @@ def close_project(
     port: int = typer.Option(..., "--port", help="gRPC port of the AEDT instance"),
     project: str = typer.Option(None, "--project", help="Project name to close (closes active if omitted)"),
 ) -> None:
-    """Close an AEDT project."""
+    """Close an AEDT project.
+
+    Examples
+    --------
+        pyaedt project close --port 50051 --project Demo
+
+    """
     try:
         d = common.get_desktop(port=port)
         odesktop = d.odesktop

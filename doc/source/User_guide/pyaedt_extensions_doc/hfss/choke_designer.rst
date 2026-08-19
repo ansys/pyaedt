@@ -29,13 +29,11 @@ Using the extension
 1. Open the **Automation** tab in the HFSS interface.
 2. Locate and click the **Choke designer** icon under the Extension Manager.
 3. In the GUI, users can interact with the following options:
-   - Adjust configuration parameters in the **Left panel** using radio buttons for options such as number of windings and layer types.
-   - Modify detailed parameters for the core and windings in the **Right Panel** under respective tabs.
-   - Use the buttons at the bottom to:
-     - Save the current configuration as a `.json` file.
-     - Load an existing configuration file.
-     - Export to HFSS.
-     - Toggle between light and dark themes.
+   Adjust configuration parameters in the **Left panel** using radio buttons for options such as number of windings and layer types.
+
+   Modify detailed parameters for the core and windings in the **Right Panel** under respective tabs.
+
+   Use the buttons at the bottom to save the current configuration as a ``.json`` file, load an existing configuration file, export to HFSS, and toggle between light and dark themes.
 4. Click on **Export to HFSS** to export design to HFSS.
 
 .. note::

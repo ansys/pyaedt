@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -30,8 +30,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 
 class Results:
-    """
-    Provides the ``Results`` object.
+    """Provides the ``Results`` object.
 
     Parameters
     ----------
@@ -45,6 +44,7 @@ class Results:
     >>> aedtapp.results = Results()
     >>> revision = aedtapp.results.analyze()
     >>> receivers = revision.get_receiver_names()
+
     """
 
     def __init__(self, emit_obj) -> None:
@@ -114,6 +114,7 @@ class Results:
         Examples
         --------
         >>> aedtapp.results.delete_revision("Revision 10")
+
         """
         if self.aedt_version > 251:
             if revision_name in self.design.GetKeptResultNames():
@@ -140,8 +141,7 @@ class Results:
 
     @staticmethod
     def interaction_domain() -> "emit_core.emit_api_python().InteractionDomain":
-        """
-        Get an ``InteractionDomain`` object.
+        """Get an ``InteractionDomain`` object.
 
         Returns
         -------
@@ -176,8 +176,7 @@ class Results:
 
     @pyaedt_function_handler()
     def revision_names(self) -> list[str]:
-        """
-        Return a list of all the revision names.
+        """Return a list of all the revision names.
 
         Parameters
         ----------
@@ -187,13 +186,19 @@ class Results:
         -------
         revision_names : list str
             List of all revision names.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.results.revision_names()
+
         """
         return [rev.name for rev in self.revisions]
 
     @pyaedt_function_handler
     def get_revision(self, revision_name: str = None) -> Revision:
-        """
-        Load the specified revision.
+        """Load the specified revision.
 
         Parameters
         ----------
@@ -211,6 +216,7 @@ class Results:
         >>> rev = aedtapp.results.get_revision("Revision 15")
         >>> interferers = rev.get_interferer_names()
         >>> receivers = rev.get_receiver_names()
+
         """
         # no revisions to load, create a new one
         if len(self.revisions) == 0:
@@ -257,6 +263,7 @@ class Results:
         >>> rev = aedtapp.results.analyze()
         >>> interferers = rev.get_interferer_names()
         >>> receivers = rev.get_receiver_names()
+
         """
         if self.aedt_version > 251:
             if self.current_revision:

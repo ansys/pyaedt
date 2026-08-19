@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,10 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-Module containing the class: `PostProcessor3D`.
+"""Module containing the class: `PostProcessor3D`.
 
-This module provides all functionalities for creating and editing plots in the 3D tools.
+The module provides all functionalities for creating and editing plots in the 3D tools.
 
 """
 
@@ -86,6 +85,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
     >>> from ansys.aedt.core import Hfss
     >>> hfss = Hfss()
     >>> post = hfss.post
+
     """
 
     def __init__(self, app) -> None:
@@ -117,6 +117,13 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         -------
         str
            Model units, such as ``"mm"``.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+        >>> obj = PostProcessor3D()
+        >>> obj.model_units
+
         """
         return self._app.units.length
 
@@ -128,6 +135,13 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         -------
         type
             Solution module.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+        >>> obj = PostProcessor3D()
+        >>> obj.post_osolution
+
         """
         return self._post_osolution
 
@@ -142,6 +156,13 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         References
         ----------
         >>> oDesign.GetModule("FieldsReporter")
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+        >>> obj = PostProcessor3D()
+        >>> obj.ofieldsreporter
+
         """
         return self._app.ofieldsreporter
 
@@ -153,6 +174,13 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         -------
         str
             Field plot names.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+        >>> obj = PostProcessor3D()
+        >>> obj.field_plot_names
+
         """
         return self._app.ofieldsreporter.GetChildNames()
 
@@ -379,6 +407,13 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         References
         ----------
         >>> oDesign.ChangeProperty
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+        >>> obj = PostProcessor3D()
+        >>> obj.change_field_property(plot_name=1, property_name=1, property_value=1)
+
         """
         self._odesign.ChangeProperty(
             [
@@ -476,6 +511,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         >>> # Intrinsics is not provided and is automatically computed from the setup.
         >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name)
         >>> plot1 = aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name)
+
         """
         intrinsics = self._check_intrinsics(intrinsics, solution, return_list=True)
         self.logger.info(f"Exporting {quantity} field. Be patient")
@@ -629,6 +665,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         >>> setup = "Setup1 : LastAdaptive"
         >>> path = "Field.fld"
         >>> hfss.post.export_field_file_on_grid("E", setup, var, path, "Cartesian", [0, 0, 0], intrinsics="8GHz")
+
         """
         intrinsics = self._check_intrinsics(intrinsics, solution, return_list=True)
         self.logger.info("Exporting %s field. Be patient", quantity)
@@ -803,18 +840,22 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         >>> m3d = Maxwell3d()
         >>> # Intrinsics is provided as a string.
         >>> fld_file1 = "test_fld_hfss1.fld"
-        >>> hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file1, assignment="Box1",
-        >>>                                 intrinsics="1GHz"
+        >>> m3d.post.export_field_file(quantity="Mag_E", output_file=fld_file1, assignment="Box1", intrinsics="1GHz")
         >>> # Intrinsics is provided as dictionary. Phase is automatically assigned to 0deg.
         >>> fld_file2 = "test_fld_hfss2.fld"
-        >>> hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
-        >>>                                intrinsics={"frequency":"1GHz"})
+        >>> m3d.post.export_field_file(
+        ...     quantity="Mag_E", output_file=fld_file2, assignment="Box1", intrinsics={"frequency": "1GHz"}
+        ... )
         >>> # Intrinsics is provided as dictionary. Phase is provided.
-        >>> hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
-        >>>                                 intrinsics={"frequency":"1GHz", "phase":"30deg"})
+        >>> m3d.post.export_field_file(
+        ...     quantity="Mag_E",
+        ...     output_file=fld_file2,
+        ...     assignment="Box1",
+        ...     intrinsics={"frequency": "1GHz", "phase": "30deg"},
+        ... )
         >>> # Intrinsics is not provided. It is computed from the setup arguments.
-        >>>  hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
-        >>>                                     )
+        >>> m3d.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1")
+
         """
         intrinsics = self._check_intrinsics(intrinsics, solution, return_list=True)
         self.logger.info(f"Exporting '{quantity}' field. Please be patient.")
@@ -937,6 +978,13 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         References
         ----------
         >>> oModule.ExportFieldPlot
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+        >>> obj = PostProcessor3D()
+        >>> obj.export_field_plot(plot_name=1, output_dir="directory")
+
         """
         if not file_name:
             file_name = plot_name
@@ -1077,6 +1125,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         >>> # Intrinsics is not provided and is computed from the setup.
         >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name)
         >>> plot1 = aedtapp.post.create_fieldplot_line("Polyline1", quantity_name, setup_name)
+
         """
         intrinsics = self._check_intrinsics(intrinsics, setup=setup)
         if plot_name and plot_name in list(self.field_plots.keys()):
@@ -1130,6 +1179,13 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         References
         ----------
         >>> oModule.CreateFieldPlot
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+        >>> obj = PostProcessor3D()
+        >>> obj.create_fieldplot_surface(assignment="Box1", quantity=1)
+
         """
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info(f"Plot {plot_name} exists. returning the object.")
@@ -1216,6 +1272,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         >>> # Intrinsics is not provided and is computed from the setup.
         >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name)
         >>> plot1 = aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name)
+
         """
         if intrinsics is None:
             intrinsics = {}
@@ -1279,6 +1336,13 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         References
         ----------
         >>> oModule.CreateFieldPlot
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+        >>> obj = PostProcessor3D()
+        >>> obj.create_fieldplot_volume(assignment="Box1", quantity=1)
+
         """
         assignment = self._app.modeler.convert_to_selections(assignment, True)
 
@@ -1365,6 +1429,13 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         ----------
         >>> oModule.ExportPlotImageToFile
         >>> oModule.ExportModelImageToFile
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+        >>> obj = PostProcessor3D()
+        >>> obj.export_field_jpg(file_name=r"example.jpg", plot_name=1, folder_name="directory")
+
         """
         if self.post_solution_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
             wireframes = []
@@ -1424,6 +1495,13 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         References
         ----------
         >>> oModule.DeleteFieldPlot
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+        >>> obj = PostProcessor3D()
+        >>> obj.delete_field_plot(name="MyObject")
+
         """
         self.ofieldsreporter.DeleteFieldPlot([name])
         self.field_plots.pop(name, None)
@@ -1487,6 +1565,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         >>> from ansys.aedt.core import Q3d
         >>> q3d = Q3d(non_graphical=False)
         >>> output_file = q3d.post.export_model_picture(full_name=Path(q3d.working_directory) / "images1.jpg")
+
         """
         if selections:
             selections = self._app.modeler.convert_to_selections(selections, False)
@@ -1576,6 +1655,13 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         -------
         list
             Paths for OBJ files.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+        >>> obj = PostProcessor3D()
+        >>> obj.export_model_obj(assignment="Box1", export_path="directory")
+
         """
         if assignment and not isinstance(assignment, (list, tuple)):
             assignment = [assignment]
@@ -1682,6 +1768,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         >>> hfss.post.export_mesh_obj(setup=None, intrinsics=None)
         >>> # Export report using arguments.
         >>> hfss.post.export_mesh_obj(setup="MySetup : LastAdaptive", intrinsics={"w1": "5mm", "l1": "3mm"})
+
         """
         project_path = self._app.working_directory
 
@@ -1730,6 +1817,13 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         -------
         :class:`IPython.core.display.Image`
             Jupyter notebook image.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+        >>> obj = PostProcessor3D()
+        >>> obj.nb_display(show_axis=True, show_grid=True)
+
         """
         try:
             from IPython.display import Image
@@ -1764,6 +1858,13 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         -------
         np.ndarray
             Numpy array containing ``[theta_range, phi_range, Etheta, Ephi]``.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+        >>> obj = PostProcessor3D()
+        >>> obj.get_efields_data(setup_sweep_name=1, ff_setup=1)
+
         """
         if not setup_sweep_name:
             setup_sweep_name = self._app.nominal_adaptive
@@ -1851,6 +1952,13 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         -------
         :class:`ansys.aedt.core.generic.plot.ModelPlotter`
             Model Object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+        >>> obj = PostProcessor3D()
+        >>> obj.get_model_plotter_geometries(objects=["Box1"], plot_as_separate_objects=True)
+
         """
         from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 
@@ -1932,6 +2040,13 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         -------
         :class:`ansys.aedt.core.generic.plot.ModelPlotter`
             Model Object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+        >>> obj = PostProcessor3D()
+        >>> obj.plot_model_obj(objects=["Box1"], show=True)
+
         """
         model = self.get_model_plotter_geometries(
             objects=objects,
@@ -2038,6 +2153,13 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         -------
         :class:`ansys.aedt.core.generic.plot.ModelPlotter`
             Model Object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+        >>> obj = PostProcessor3D()
+        >>> obj.plot_field_from_fieldplot(plot_name=1)
+
         """
         is_pcb = False
         if self._app.solution_type in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
@@ -2189,6 +2311,13 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         -------
         :class:`ansys.aedt.core.visualization.plot.pyvista.ModelPlotter`
             Model Object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+        >>> obj = PostProcessor3D()
+        >>> obj.plot_field(quantity=1, assignment="Box1")
+
         """
         intrinsics = self._check_intrinsics(intrinsics, setup=setup)
         if filter_objects is None:
@@ -2331,6 +2460,13 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         -------
         :class:`ansys.aedt.core.generic.plot.ModelPlotter`
             Model Object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+        >>> obj = PostProcessor3D()
+        >>> obj.plot_animated_field(quantity=1, assignment="Box1")
+
         """
         if isinstance(export_path, Path):
             export_path = str(export_path)
@@ -2444,6 +2580,13 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         -------
         :class:`ansys.aedt.core.generic.plot.ModelPlotter`
             Model Object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+        >>> obj = PostProcessor3D()
+        >>> obj.animate_fields_from_aedtplt(plot_name=1)
+
         """
         if isinstance(project_path, Path):
             project_path = str(project_path)
@@ -2527,6 +2670,13 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         -------
          bool
              ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+        >>> obj = PostProcessor3D()
+        >>> obj.create_3d_plot(solution_data=1)
+
         """
         if nominal_value:
             solution_data.intrinsics[nominal_sweep] = nominal_value
@@ -2581,6 +2731,13 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
 
         Returns
         -------
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+        >>> obj = PostProcessor3D()
+        >>> obj.plot_scene(frames=["Box1"], gif_path="directory")
+
         """
         if isinstance(frames, str) and Path(frames).exists():
             with open_file(frames, "r") as f:
@@ -2629,8 +2786,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         setup: str = None,
         intrinsics: dict[str, str] | None = None,
     ) -> tuple[tuple[float, float, float], float]:
-        """
-        Calculates the position and value of the field maximum or minimum.
+        """Calculate the position and value of the field maximum or minimum.
 
         Parameters
         ----------
@@ -2654,6 +2810,13 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
 
               - A tuple of three floats representing the (x, y, z) coordinates of the maximum point.
               - A float representing the value associated with the maximum point.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+        >>> obj = PostProcessor3D()
+        >>> obj.get_field_extremum(assignment="Box1", max_min=1, location=1, field=1)
+
         """
         if assignment not in self._app.modeler.object_names:
             raise ValueError(f"Object '{assignment}' does not exist.")

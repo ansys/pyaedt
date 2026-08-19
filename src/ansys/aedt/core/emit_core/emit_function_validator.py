@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,7 +22,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""EMIT function validator for restricted math expressions."""
+"""EMIT function validator for restricted math expressions.
+
+Examples
+--------
+>>> import ast
+>>> from ansys.aedt.core.emit_core.emit_function_validator import FunctionValidator
+>>> FunctionValidator().visit(ast.parse("abs(RF - IF)"))
+
+"""
 
 import ast
 
@@ -43,6 +51,13 @@ class FunctionValidator(ast.NodeVisitor):
         - Variables: RF, IF, LO
         - Function calls: abs(x), trunc(x)
         - Parentheses: via AST grouping
+
+    Examples
+    --------
+    >>> import ast
+    >>> validator = FunctionValidator()
+    >>> validator.visit(ast.parse("RF + LO"))
+
     """
 
     def visit_Module(self, node: ast.Module):
@@ -53,6 +68,13 @@ class FunctionValidator(ast.NodeVisitor):
         node : ast.Module
             The Module node to visit. Expected to contain a single expression
             when using mode="eval".
+
+        Examples
+        --------
+        >>> import ast
+        >>> module = ast.parse("RF + IF")
+        >>> FunctionValidator().visit_Module(module)
+
         """
         for stmt in node.body:
             self.visit(stmt)
@@ -64,6 +86,13 @@ class FunctionValidator(ast.NodeVisitor):
         ----------
         node : ast.Expr
             The Expr node to visit.
+
+        Examples
+        --------
+        >>> import ast
+        >>> expr = ast.parse("RF + IF").body[0]
+        >>> FunctionValidator().visit_Expr(expr)
+
         """
         self.visit(node.value)
 
@@ -81,6 +110,13 @@ class FunctionValidator(ast.NodeVisitor):
         ------
         ValueError
             If the operator is not one of +, -, *, /.
+
+        Examples
+        --------
+        >>> import ast
+        >>> bin_op = ast.parse("RF + LO").body[0].value
+        >>> FunctionValidator().visit_BinOp(bin_op)
+
         """
         if not isinstance(node.op, (ast.Add, ast.Sub, ast.Mult, ast.Div)):
             raise ValueError("Only +, -, *, / are allowed")
@@ -104,6 +140,13 @@ class FunctionValidator(ast.NodeVisitor):
             If the function call is not a simple function name, if the function is not
             in the allowed list, if keyword arguments are used, or if the number of
             arguments is not exactly one.
+
+        Examples
+        --------
+        >>> import ast
+        >>> call = ast.parse("abs(RF)").body[0].value
+        >>> FunctionValidator().visit_Call(call)
+
         """
         if not isinstance(node.func, ast.Name):
             raise ValueError("Only simple function calls are allowed")
@@ -130,6 +173,13 @@ class FunctionValidator(ast.NodeVisitor):
         ------
         ValueError
             If the variable name is not in the allowed list.
+
+        Examples
+        --------
+        >>> import ast
+        >>> name = ast.parse("RF").body[0].value
+        >>> FunctionValidator().visit_Name(name)
+
         """
         if node.id not in EMIT_FN_ALLOWED_VARS:
             raise ValueError(f"Unknown variable: {node.id}")
@@ -148,6 +198,13 @@ class FunctionValidator(ast.NodeVisitor):
         ------
         ValueError
             If the constant is not a numeric type (int or float).
+
+        Examples
+        --------
+        >>> import ast
+        >>> constant = ast.parse("10").body[0].value
+        >>> FunctionValidator().visit_Constant(constant)
+
         """
         if not isinstance(node.value, (int, float)):
             raise ValueError("Only numeric constants allowed")
@@ -162,5 +219,12 @@ class FunctionValidator(ast.NodeVisitor):
         ----------
         node : ast.AST
             The AST node to visit.
+
+        Examples
+        --------
+        >>> import ast
+        >>> expr = ast.parse("RF + LO").body[0]
+        >>> FunctionValidator().generic_visit(expr)
+
         """
         return super().generic_visit(node)

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -32,6 +32,7 @@ from ansys.aedt.core import Icepak
 from ansys.aedt.core import Mechanical
 from ansys.aedt.core.generic.aedt_constants import DesignType
 from ansys.aedt.core.generic.constants import Plane
+from ansys.aedt.core.generic.constants import SolutionsMechanical
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
@@ -165,3 +166,20 @@ def test_add_mesh_link(aedt_app, test_tmp_dir) -> None:
     assert setup.add_mesh_link(design="MechanicalDesign2", project=str(example_project_copy))
     aedt_app.close_project(example_project)
     example_project_copy.unlink(missing_ok=True)
+
+
+def test_assign_thermal_condition_uniform(aedt_app):
+    aedt_app.solution_type = SolutionsMechanical.Structural
+    aedt_app.modeler.create_box([0, 0, 0], [10, 10, 3], "Box_warm", "copper")
+    th1 = aedt_app.assign_thermal_condition_uniform(
+        assignment=["Box_warm"], name="ThermalCond_Box", temperature="100cel"
+    )
+    assert th1.props["Objects"] == ["Box_warm"]
+    assert th1.props["Uniform"]
+    assert th1.props["ThermalCondition"] == "100cel"
+
+    aedt_app.solution_type = SolutionsMechanical.Thermal
+    with pytest.raises(AEDTRuntimeError):
+        _ = aedt_app.assign_thermal_condition_uniform(
+            assignment=["Box_warm"], name="ThermalCond_Box", temperature="100cel"
+        )

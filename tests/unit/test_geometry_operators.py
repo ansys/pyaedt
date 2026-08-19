@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -23,9 +23,11 @@
 # SOFTWARE.
 
 import math
+from unittest.mock import NonCallableMock
 
 import pytest
 
+from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import Axis
 from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.generic.constants import SweepDraft
@@ -335,6 +337,30 @@ def test_unit_converter() -> None:
     assert unit_converter(10, "Power", "W", "dBW") == 10
     assert unit_converter(10, "Power", "dBm", "W") == 0.01
     assert unit_converter(10, "Power", "dBW", "W") == 10
+
+
+def test_unit_converter_temperature_invalid_configuration(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Test that unit_converter raises a ValueError when an invalid temperature conversion configuration is provided."""
+    monkeypatch.setitem(AEDT_UNITS["Temperature"], "cel", 1.0)
+
+    with pytest.raises(ValueError, match="Invalid temperature conversion configuration"):
+        unit_converter(10, "Temperature", "cel", "fah")
+
+
+def test_unit_converter_invalid_configuration(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Test that unit_converter raises a ValueError when the unit configuration is invalid."""
+    key = "DummyKey"
+    monkeypatch.setitem(
+        AEDT_UNITS,
+        key,
+        {
+            "input_unit": NonCallableMock(),
+            "output_unit": NonCallableMock(),
+        },
+    )
+
+    with pytest.raises(ValueError, match=f"Invalid unit conversion configuration for unit system: {key}"):
+        unit_converter(10, key, "input_unit", "output_unit")
 
 
 def test_are_segments_intersecting() -> None:

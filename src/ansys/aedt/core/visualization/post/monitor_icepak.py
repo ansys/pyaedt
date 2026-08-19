@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -49,6 +49,7 @@ quantities_dict_1 = {  # pragma: no cover
     29: "HeatFlux",
     31: "HeatFlowRate",
 }
+"""Value for quantities dict 1."""
 
 quantities_dict_2 = {  # pragma: no cover
     8: "Speed",
@@ -68,6 +69,7 @@ quantities_dict_2 = {  # pragma: no cover
     32: "TemperatureMinimum",
     33: "HeatFlowRate",
 }
+"""Value for quantities dict 2."""
 
 
 quantities_type_dict = {  # pragma: no cover
@@ -88,10 +90,18 @@ quantities_type_dict = {  # pragma: no cover
     "TemperatureMaximum": ["Face"],
     "TemperatureMinimum": ["Face"],
 }
+"""Value for quantities type dict."""
 
 
 class Monitor(PyAedtBase):
-    """Provides Icepak monitor methods."""
+    """Provides Icepak monitor methods.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post.monitor_icepak import Monitor
+    >>> obj = Monitor()
+
+    """
 
     def __init__(self, p_app) -> None:
         self._face_monitors = {}
@@ -229,6 +239,13 @@ class Monitor(PyAedtBase):
         Returns
         -------
         oEditor COM Object
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.monitor_icepak import Monitor
+        >>> obj = Monitor()
+        >>> obj.get_icepak_monitor_object(monitor_name=1)
+
         """
         return self._app.get_oo_object(self._app.get_oo_object(self._app.odesign, "Monitor"), monitor_name)
 
@@ -240,6 +257,12 @@ class Monitor(PyAedtBase):
         -------
         dict
             Face monitor objects dictionary.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.monitor_icepak import Monitor
+        >>> obj = Monitor()
+        >>> obj.face_monitors
 
         """
         return self._face_monitors
@@ -253,6 +276,12 @@ class Monitor(PyAedtBase):
         dict
             Point monitor objects dictionary.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.monitor_icepak import Monitor
+        >>> obj = Monitor()
+        >>> obj.point_monitors
+
         """
         return self._point_monitors
 
@@ -264,6 +293,12 @@ class Monitor(PyAedtBase):
         -------
         dict
             Monitor objects dictionary.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.monitor_icepak import Monitor
+        >>> obj = Monitor()
+        >>> obj.all_monitors
 
         """
         out_dict = {}
@@ -378,6 +413,12 @@ class Monitor(PyAedtBase):
         ----------
         >>> oModule.AssignPointMonitor
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.monitor_icepak import Monitor
+        >>> obj = Monitor()
+        >>> obj.assign_point_monitor_to_vertex(vertex_id=[1])
+
         """
         if isinstance(vertex_id, int):
             vertex_id = [vertex_id]
@@ -434,6 +475,7 @@ class Monitor(PyAedtBase):
         >>> surface = icepak.modeler.create_rectangle(Plane.XY, [0, 0, 0], [10, 20], name="Surface1")
         >>> icepak.assign_surface_monitor("Surface1", monitor_name="monitor")
         'monitor'
+
         """
         if isinstance(surface_name, str):
             surface_name = [surface_name]
@@ -482,6 +524,13 @@ class Monitor(PyAedtBase):
         References
         ----------
         >>> oModule.AssignFaceMonitor
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.monitor_icepak import Monitor
+        >>> obj = Monitor()
+        >>> obj.assign_face_monitor(face_id=[1])
+
         """
         if isinstance(face_id, int):
             face_id = [face_id]
@@ -538,6 +587,7 @@ class Monitor(PyAedtBase):
         >>> box = icepak.modeler.create_box([1, 1, 1], [3, 3, 3], "BlockBox1", "copper")
         >>> icepak.assign_point_monitor(box.name, monitor_name="monitor2")
         "'monitor2'
+
         """
         if not isinstance(name, list):
             name = [name]
@@ -591,6 +641,12 @@ class Monitor(PyAedtBase):
         ----------
         >>> oModule.DeleteMonitors
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.monitor_icepak import Monitor
+        >>> obj = Monitor()
+        >>> obj.delete_monitor(monitor_name=1)
+
         """
         try:
             self._omonitor.DeleteMonitors([monitor_name])
@@ -603,9 +659,8 @@ class Monitor(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def get_monitor_object_assignment(self, monitor: str | "FaceMonitor" | "PointMonitor") -> str:
-        """
-        Get the object that the monitor is applied to.
+    def get_monitor_object_assignment(self, monitor: "str | FaceMonitor | PointMonitor") -> str:
+        """Get the object that the monitor is applied to.
 
         Parameters
         ----------
@@ -616,6 +671,13 @@ class Monitor(PyAedtBase):
         -------
         str
             Name of the object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.monitor_icepak import Monitor
+        >>> obj = Monitor()
+        >>> obj.get_monitor_object_assignment(monitor=1)
+
         """
         if isinstance(monitor, str):
             monitor = self.all_monitors[monitor]
@@ -655,6 +717,13 @@ class Monitor(PyAedtBase):
         -------
         str
             Name of the monitor object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.monitor_icepak import Monitor
+        >>> obj = Monitor()
+        >>> obj.insert_monitor_object_from_dict(monitor_dict={"Name": "Value"})
+
         """
         m_case = monitor_dict["Type"]
         m_quantity = monitor_dict["Quantity"]
@@ -690,7 +759,14 @@ class Monitor(PyAedtBase):
 
 
 class ObjectMonitor(PyAedtBase):
-    """Provides Icepak Monitor methods and properties."""
+    """Provides Icepak Monitor methods and properties.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post.monitor_icepak import ObjectMonitor
+    >>> obj = ObjectMonitor()
+
+    """
 
     def __init__(self, monitor_name, monitor_type, monitor_id, quantity, app) -> None:
         self._name = monitor_name
@@ -701,45 +777,69 @@ class ObjectMonitor(PyAedtBase):
 
     @property
     def geometry_assignment(self) -> str:
-        """
-        Get the geometry assignment for the monitor object.
+        """Get the geometry assignment for the monitor object.
 
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.monitor_icepak import ObjectMonitor
+        >>> obj = ObjectMonitor()
+        >>> obj.geometry_assignment
+
         """
         return self._app.monitor.get_monitor_object_assignment(self)
 
     @property
     def name(self) -> str:
-        """
-        Get the name of the monitor object.
+        """Get the name of the monitor object.
 
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.monitor_icepak import ObjectMonitor
+        >>> obj = ObjectMonitor()
+        >>> obj.name
+
         """
         return self._name
 
     @property
     def id(self) -> str | int:
-        """
-        Get the name, or id of geometry assignment.
+        """Get the name, or id of geometry assignment.
 
         Returns
         -------
         str or int
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.monitor_icepak import ObjectMonitor
+        >>> obj = ObjectMonitor()
+        >>> obj.id
+
         """
         return self._id
 
     @property
     def properties(self) -> dict:
-        """
-        Get a dictionary of properties.
+        """Get a dictionary of properties.
 
         Returns
         -------
         dict
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.monitor_icepak import ObjectMonitor
+        >>> obj = ObjectMonitor()
+        >>> obj.properties
+
         """
         return {
             "Name": self.name,
@@ -753,36 +853,54 @@ class ObjectMonitor(PyAedtBase):
 
     @pyaedt_function_handler
     def delete(self) -> bool:
-        """
-        Delete a monitor object.
+        """Delete a monitor object.
 
         Returns
         -------
         bool
             ``True`` if successful.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.monitor_icepak import ObjectMonitor
+        >>> obj = ObjectMonitor()
+        >>> obj.delete()
+
         """
         self._app.monitor.delete_monitor(self.name)
         return True
 
     @property
     def quantities(self) -> list:
-        """
-        Get the quantities being monitored.
+        """Get the quantities being monitored.
 
         Returns
         -------
         list
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.monitor_icepak import ObjectMonitor
+        >>> obj = ObjectMonitor()
+        >>> obj.quantities
+
         """
         return self._quantities
 
     @property
     def type(self) -> str:
-        """
-        Get the monitor type.
+        """Get the monitor type.
 
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.monitor_icepak import ObjectMonitor
+        >>> obj = ObjectMonitor()
+        >>> obj.type
+
         """
         return self._type
 
@@ -817,6 +935,13 @@ class ObjectMonitor(PyAedtBase):
         dict
             Dictionary containing the variables names and values and the monitor values for each
             variation.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.monitor_icepak import ObjectMonitor
+        >>> obj = ObjectMonitor()
+        >>> obj.value(setup="Setup1", quantity=["Box1"])
+
         """
         if not setup:
             setup = self._app.existing_analysis_sweeps[0]
@@ -864,20 +989,33 @@ class ObjectMonitor(PyAedtBase):
 
 
 class PointMonitor(ObjectMonitor):
-    """Provides Icepak point monitor methods and properties."""
+    """Provides Icepak point monitor methods and properties.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post.monitor_icepak import PointMonitor
+    >>> obj = PointMonitor()
+
+    """
 
     def __init__(self, monitor_name, monitor_type, point_id, quantity, app) -> None:
         ObjectMonitor.__init__(self, monitor_name, monitor_type, point_id, quantity, app)
 
     @property
     def location(self) -> list:
-        """
-        Get the monitor point location.
+        """Get the monitor point location.
 
         Returns
         -------
         list
             List of floats containing [x, y, z] position.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.monitor_icepak import PointMonitor
+        >>> obj = PointMonitor()
+        >>> obj.location
+
         """
         return [
             float(i.strip(self._app.modeler.model_units))
@@ -888,20 +1026,33 @@ class PointMonitor(ObjectMonitor):
 
 
 class FaceMonitor(ObjectMonitor):
-    """Provides Icepak face monitor properties and methods."""
+    """Provides Icepak face monitor properties and methods.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post.monitor_icepak import FaceMonitor
+    >>> obj = FaceMonitor()
+
+    """
 
     def __init__(self, monitor_name, monitor_type, face_id, quantity, app) -> None:
         ObjectMonitor.__init__(self, monitor_name, monitor_type, face_id, quantity, app)
 
     @property
     def location(self) -> list:
-        """
-        Get the monitor location in terms of face or surface center.
+        """Get the monitor location in terms of face or surface center.
 
         Returns
         -------
         list
             List of floats containing [x, y, z] position.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.monitor_icepak import FaceMonitor
+        >>> obj = FaceMonitor()
+        >>> obj.location
+
         """
         if self.type == "Face":
             for f in self._app.modeler.get_object_from_name(self.geometry_assignment).faces:

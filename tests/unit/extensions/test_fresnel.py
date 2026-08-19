@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -44,7 +44,9 @@ def mock_hfss_app_fresnel(mock_hfss_app):
             "Design2",
         ]
         mock_desktop_instance.aedt_version_id = "2026.1"
+        mock_desktop_instance.aedt_version = "2026.1.0"
         mock_desktop_property.return_value = mock_desktop_instance
+        mock_hfss_app.mock_desktop_instance = mock_desktop_instance
 
         mock_hfss_app.design_setups = {}
 
@@ -63,6 +65,20 @@ def test_default(mock_hfss_app_fresnel):
 
     assert EXTENSION_TITLE == extension.root.title()
     assert "light" == extension.root.theme
+    extension.rttbl_version = "1.0"
+
+    extension.root.destroy()
+
+
+def test_version_2(mock_hfss_app_fresnel):
+    """Test instantiation of the Fresnel extension."""
+    mock_hfss_app_fresnel.mock_desktop_instance.aedt_version = "2027.1.0"
+    mock_hfss_app_fresnel.design_setups = {}
+    extension = FresnelExtension(withdraw=True)
+
+    assert EXTENSION_TITLE == extension.root.title()
+    assert "light" == extension.root.theme
+    extension.rttbl_version = "2.0"
 
     extension.root.destroy()
 

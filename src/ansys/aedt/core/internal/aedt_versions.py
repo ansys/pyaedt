@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,9 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""This module contains the ``AedtVersions`` class.
+"""The module contains the ``AedtVersions`` class.
 
-The constant ``CURRENT_STABLE_AEDT_VERSION`` set in this module should be updated
+The constant ``CURRENT_STABLE_AEDT_VERSION`` set in the module should be updated
 every time a new stable version is released.
 Ideally, it should be the same as ``conftest.default_version``
 """
@@ -38,14 +38,22 @@ from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.settings import settings
 
 CURRENT_STABLE_AEDT_VERSION = 2026.1
+"""Current stable AEDT version."""
 
 module_file_path = __file__
+"""Path to module file path."""
 
 
 class AedtVersions(PyAedtBase):
     """Class to get the AEDT versions on the system.
 
     It caches the data to avoid inspecting the environment variables multiple times.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.internal.aedt_versions import AedtVersions
+    >>> obj = AedtVersions()
+
     """
 
     def __init__(self) -> None:
@@ -93,6 +101,7 @@ class AedtVersions(PyAedtBase):
 
     @property
     def pyaedt_edt_version(self):
+        """Retrieve pyaedt edt version."""
         if self._pyaedt_edt_version is None:
             self.is_pyaedt_in_edt()
 
@@ -103,6 +112,13 @@ class AedtVersions(PyAedtBase):
         """Return a list of installed AEDT versions on ``ANSYSEM_ROOT``.
 
         The list is ordered: first normal versions, then client versions, finally student versions.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.internal.aedt_versions import AedtVersions
+        >>> obj = AedtVersions()
+        >>> obj.list_installed_ansysem
+
         """
         if self._list_installed_ansysem is None:
             version_pattern = re.compile(r"^(ANSYSEM_ROOT|ANSYSEM_PY_CLIENT_ROOT|ANSYSEMSV_ROOT)\d{3}$")
@@ -131,6 +147,13 @@ class AedtVersions(PyAedtBase):
 
         This method returns a dictionary, with the version as the key and installation path
         as the value.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.internal.aedt_versions import AedtVersions
+        >>> obj = AedtVersions()
+        >>> obj.installed_versions
+
         """
         if self._installed_versions is None:
             return_dict = {}
@@ -186,7 +209,15 @@ class AedtVersions(PyAedtBase):
 
     @property
     def stable_versions(self) -> list:
-        """Get all stable versions installed on the system"""
+        """Get all stable versions installed on the system
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.internal.aedt_versions import AedtVersions
+        >>> obj = AedtVersions()
+        >>> obj.stable_versions
+
+        """
         if self._stable_versions is None:
             try:
                 self._stable_versions = [
@@ -198,7 +229,15 @@ class AedtVersions(PyAedtBase):
 
     @property
     def current_version(self) -> str:
-        """Get the most recent stable AEDT version."""
+        """Get the most recent stable AEDT version.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.internal.aedt_versions import AedtVersions
+        >>> obj = AedtVersions()
+        >>> obj.current_version
+
+        """
         if self._current_version is None:
             if self.stable_versions:
                 self._current_version = self.stable_versions[0]
@@ -208,7 +247,15 @@ class AedtVersions(PyAedtBase):
 
     @property
     def current_student_version(self) -> str:
-        """Get the current stable AEDT student version."""
+        """Get the current stable AEDT student version.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.internal.aedt_versions import AedtVersions
+        >>> obj = AedtVersions()
+        >>> obj.current_student_version
+
+        """
         if self._current_student_version is None:
             stable_student_versions = [v for v in self.stable_versions if "SV" in v]
             if stable_student_versions:
@@ -219,7 +266,15 @@ class AedtVersions(PyAedtBase):
 
     @property
     def latest_version(self) -> str:
-        """Get the latest AEDT version, even if it is pre-release."""
+        """Get the latest AEDT version, even if it is pre-release.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.internal.aedt_versions import AedtVersions
+        >>> obj = AedtVersions()
+        >>> obj.latest_version
+
+        """
         if self._latest_version is None:
             try:
                 self._latest_version = list(self.installed_versions.keys())[0]
@@ -244,8 +299,8 @@ class AedtVersions(PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core import desktop
-        >>> desktop.get_version_env_variable("2026.1")
-        'ANSYSEM_ROOT212'
+        >>> desktop.aedt_versions.get_version_env_variable("2026.1")
+        'ANSYSEM_ROOT261'
 
         """
         version_env_var = "ANSYSEM_ROOT"
@@ -262,3 +317,4 @@ class AedtVersions(PyAedtBase):
 
 
 aedt_versions = AedtVersions()
+"""Value for AEDT versions."""

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -27,6 +27,8 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class AntennaPassband(EmitNode):
+    """Provide antenna passband."""
+
     def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
@@ -45,12 +47,35 @@ class AntennaPassband(EmitNode):
 
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
-        """Duplicate this node"""
+        """Duplicate this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> passband = antenna.add_antenna_passband()
+        >>> try:
+        >>>     passband.duplicate("Antenna Passband Copy")
+        >>> except NotImplementedError:
+        >>>     pass
+
+        """
         return self._duplicate(new_name)
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node"""
+        """Delete this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> passband = antenna.add_antenna_passband()
+        >>> passband.delete()
+
+        """
         self._delete()
 
     @property
@@ -85,6 +110,15 @@ class AntennaPassband(EmitNode):
         """Out of band antenna loss.
 
         Value should be between 0 and 200.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> passband = antenna.add_antenna_passband()
+        >>> passband.out_of_band_attenuation = 20
+
         """
         val = self._get_property("Out of Band Attenuation")
         return float(val)
@@ -100,6 +134,15 @@ class AntennaPassband(EmitNode):
         """Lower stop band frequency.
 
         Value should be between 1 and 100e9.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> passband = antenna.add_antenna_passband()
+        >>> passband.lower_stop_band = "2.2GHz"
+
         """
         val = self._get_property("Lower Stop Band")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -117,6 +160,15 @@ class AntennaPassband(EmitNode):
         """Lower cutoff frequency.
 
         Value should be between 1 and 100e9.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> passband = antenna.add_antenna_passband()
+        >>> passband.lower_cutoff = "2.3GHz"
+
         """
         val = self._get_property("Lower Cutoff")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -134,6 +186,15 @@ class AntennaPassband(EmitNode):
         """Higher cutoff frequency.
 
         Value should be between 1 and 100e9.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> passband = antenna.add_antenna_passband()
+        >>> passband.higher_cutoff = "2.5GHz"
+
         """
         val = self._get_property("Higher Cutoff")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -151,6 +212,15 @@ class AntennaPassband(EmitNode):
         """Higher stop band frequency.
 
         Value should be between 1 and 100e9.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> passband = antenna.add_antenna_passband()
+        >>> passband.higher_stop_band = "2.6GHz"
+
         """
         val = self._get_property("Higher Stop Band")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -165,7 +235,17 @@ class AntennaPassband(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def notes(self) -> str:
-        """Expand to view/edit notes stored with the project."""
+        """Expand to view/edit notes stored with the project.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> passband = antenna.add_antenna_passband()
+        >>> passband.notes = "Measured passband for the roof antenna."
+
+        """
         val = self._get_property("Notes")
         return val
 

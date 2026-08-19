@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -42,6 +42,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.visualization.advanced.doa import DirectionOfArrival
 
 current_python_version = sys.version_info[:2]
+"""Value for current python version."""
 if current_python_version < (3, 10):  # pragma: no cover
     raise Exception("Python 3.10 or higher is required for Monostatic RCS post-processing.")
 
@@ -61,6 +62,7 @@ class FRTMData(PyAedtBase):
     >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
     >>> file = "RxSignal.frtm"
     >>> data = RangeDopplerData(file)
+
     """
 
     def __init__(self, input_file: str | Path) -> None:
@@ -109,152 +111,392 @@ class FRTMData(PyAedtBase):
 
     @property
     def dlxcd_version(self) -> str:
-        """DlxCd version."""
+        """DlxCd version.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+        >>> obj = FRTMData()
+        >>> obj.dlxcd_version
+
+        """
         return self.__dlxcd_version
 
     @property
     def row_count(self) -> int:
-        """Number of rows in the dataset."""
+        """Number of rows in the dataset.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+        >>> obj = FRTMData()
+        >>> obj.row_count
+
+        """
         return self.__row_count
 
     @property
     def col_count(self) -> int:
-        """Number of columns in the dataset."""
+        """Number of columns in the dataset.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+        >>> obj = FRTMData()
+        >>> obj.col_count
+
+        """
         return self.__col_count
 
     @property
     def col_header1(self) -> list:
-        """Primary column header names."""
+        """Primary column header names.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+        >>> obj = FRTMData()
+        >>> obj.col_header1
+
+        """
         return self.__col_header1
 
     @property
     def col_header2(self) -> list:
-        """Secondary column header names."""
+        """Secondary column header names.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+        >>> obj = FRTMData()
+        >>> obj.col_header2
+
+        """
         return self.__col_header2
 
     @property
     def binary_record_length(self) -> int:
-        """Length of each binary record."""
+        """Length of each binary record.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+        >>> obj = FRTMData()
+        >>> obj.binary_record_length
+
+        """
         return self.__binary_record_length
 
     @property
     def binary_start_byte(self) -> int:
-        """Start byte index for binary data."""
+        """Start byte index for binary data.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+        >>> obj = FRTMData()
+        >>> obj.binary_start_byte
+
+        """
         return self.__binary_start_byte
 
     @property
     def binary_byte_type_line(self) -> str:
-        """Byte type definition line for binary parsing."""
+        """Byte type definition line for binary parsing.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+        >>> obj = FRTMData()
+        >>> obj.binary_byte_type_line
+
+        """
         return self.__binary_byte_type_line
 
     @property
     def radar_waveform(self) -> str:
-        """Radar waveform configuration."""
+        """Radar waveform configuration.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+        >>> obj = FRTMData()
+        >>> obj.radar_waveform
+
+        """
         return self.__radar_waveform
 
     @property
     def radar_channels(self) -> list:
-        """List of radar channel configurations."""
+        """List of radar channel configurations.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+        >>> obj = FRTMData()
+        >>> obj.radar_channels
+
+        """
         return self.__radar_channels
 
     @property
     def time_start(self) -> float:
-        """Start time of the radar data collection."""
+        """Start time of the radar data collection.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+        >>> obj = FRTMData()
+        >>> obj.time_start
+
+        """
         return self.__time_start
 
     @property
     def time_stop(self) -> float:
-        """Stop time of the radar data collection."""
+        """Stop time of the radar data collection.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+        >>> obj = FRTMData()
+        >>> obj.time_stop
+
+        """
         return self.__time_stop
 
     @property
     def cpi_frames(self) -> int:
-        """Number of coherent processing interval frames."""
+        """Number of coherent processing interval frames.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+        >>> obj = FRTMData()
+        >>> obj.cpi_frames
+
+        """
         return self.__cpi_frames
 
     @property
     def time_sweep(self) -> float:
-        """Sweep duration for each pulse."""
+        """Sweep duration for each pulse.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+        >>> obj = FRTMData()
+        >>> obj.time_sweep
+
+        """
         return self.__time_sweep
 
     @property
     def cpi_duration(self) -> float:
-        """Coherent processing interval duration."""
+        """Coherent processing interval duration.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+        >>> obj = FRTMData()
+        >>> obj.cpi_duration
+
+        """
         return self.__cpi_duration
 
     @property
     def pulse_repetition_frequency(self) -> float:
-        """Pulse repetition frequency (Hz)."""
+        """Pulse repetition frequency (Hz).
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+        >>> obj = FRTMData()
+        >>> obj.pulse_repetition_frequency
+
+        """
         return 1 / self.__cpi_duration
 
     @property
     def time_duration(self) -> float:
-        """Total time duration of signal capture."""
+        """Total time duration of signal capture.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+        >>> obj = FRTMData()
+        >>> obj.time_duration
+
+        """
         return self.__time_duration
 
     @property
     def frequency_domain_type(self) -> str:
-        """Type of frequency domain representation."""
+        """Type of frequency domain representation.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+        >>> obj = FRTMData()
+        >>> obj.frequency_domain_type
+
+        """
         return self.__frequency_domain_type
 
     @property
     def frequency_start(self) -> float:
-        """Start frequency (Hz)."""
+        """Start frequency (Hz).
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+        >>> obj = FRTMData()
+        >>> obj.frequency_start
+
+        """
         return self.__frequency_start
 
     @property
     def frequency_stop(self) -> float:
-        """Stop frequency (Hz)."""
+        """Stop frequency (Hz).
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+        >>> obj = FRTMData()
+        >>> obj.frequency_stop
+
+        """
         return self.__frequency_stop
 
     @property
     def frequency_number(self) -> int:
-        """Number of frequency steps."""
+        """Number of frequency steps.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+        >>> obj = FRTMData()
+        >>> obj.frequency_number
+
+        """
         return self.__frequency_number
 
     @property
     def frequency_sweep(self) -> list:
-        """Available frequencies."""
+        """Available frequencies.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+        >>> obj = FRTMData()
+        >>> obj.frequency_sweep
+
+        """
         return self.__frequency_sweep
 
     @property
     def frequency_delta(self) -> float:
-        """Frequency step size."""
+        """Frequency step size.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+        >>> obj = FRTMData()
+        >>> obj.frequency_delta
+
+        """
         return self.__frequency_delta
 
     @property
     def frequency_bandwidth(self) -> float:
-        """Total bandwidth of frequency sweep."""
+        """Total bandwidth of frequency sweep.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+        >>> obj = FRTMData()
+        >>> obj.frequency_bandwidth
+
+        """
         return self.__frequency_bandwidth
 
     @property
     def frequency_center(self) -> float:
-        """Center frequency of the sweep."""
+        """Center frequency of the sweep.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+        >>> obj = FRTMData()
+        >>> obj.frequency_center
+
+        """
         return self.__frequency_center
 
     @property
     def antenna_names(self) -> list:
-        """Names of the antennas used."""
+        """Names of the antennas used.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+        >>> obj = FRTMData()
+        >>> obj.antenna_names
+
+        """
         return self.__antenna_names
 
     @property
     def channel_number(self) -> int:
-        """Number of radar channels."""
+        """Number of radar channels.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+        >>> obj = FRTMData()
+        >>> obj.channel_number
+
+        """
         return self.__channel_number
 
     @property
     def coupling_combos(self) -> list:
-        """List of transmit-receive antenna combinations."""
+        """List of transmit-receive antenna combinations.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+        >>> obj = FRTMData()
+        >>> obj.coupling_combos
+
+        """
         return self.__coupling_combos
 
     @property
     def channel_names(self) -> list:
-        """Names assigned to radar channels."""
+        """Names assigned to radar channels.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+        >>> obj = FRTMData()
+        >>> obj.channel_names
+
+        """
         return self.__channel_names
 
     @property
     def receiver_position(self) -> list:
-        """Position of receivers respected the transmitters."""
+        """Position of receivers respected the transmitters.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+        >>> obj = FRTMData()
+        >>> obj.receiver_position
+
+        """
         return self.__receiver_position
 
     @receiver_position.setter
@@ -264,19 +506,43 @@ class FRTMData(PyAedtBase):
 
     @property
     def all_data(self) -> dict:
-        """Complete dataset."""
+        """Complete dataset.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+        >>> obj = FRTMData()
+        >>> obj.all_data
+
+        """
         return self.__all_data
 
     @property
     def range_resolution(self) -> float:
-        """Radar range resolution (meters)."""
+        """Radar range resolution (meters).
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+        >>> obj = FRTMData()
+        >>> obj.range_resolution
+
+        """
         bw = self.frequency_bandwidth
         rr = SpeedOfLight / 2 / bw
         return rr
 
     @property
     def range_maximum(self) -> float:
-        """Maximum detectable range (meters)."""
+        """Maximum detectable range (meters).
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+        >>> obj = FRTMData()
+        >>> obj.range_maximum
+
+        """
         rr = self.range_resolution
         max_range = rr * self.frequency_number
         if self.col_count != 2:  # I
@@ -285,7 +551,15 @@ class FRTMData(PyAedtBase):
 
     @property
     def velocity_resolution(self) -> float:
-        """Velocity resolution (m/s)."""
+        """Velocity resolution (m/s).
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+        >>> obj = FRTMData()
+        >>> obj.velocity_resolution
+
+        """
         fc = self.frequency_center
         tpt = self.time_duration
         vr = SpeedOfLight / (2 * fc * tpt)
@@ -293,7 +567,15 @@ class FRTMData(PyAedtBase):
 
     @property
     def velocity_maximum(self) -> float:
-        """Maximum measurable velocity (m/s)."""
+        """Maximum measurable velocity (m/s).
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+        >>> obj = FRTMData()
+        >>> obj.velocity_maximum
+
+        """
         vr = self.velocity_resolution
         time_step = self.cpi_frames
         vp = time_step * vr
@@ -313,6 +595,13 @@ class FRTMData(PyAedtBase):
         - `"norm"`: Normalizes the data to have values between 0 and 1.
         - `"ang"`: Computes the phase angle of the data in radians.
         - `"ang_deg"`: Computes the phase angle of the data in degrees.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+        >>> obj = FRTMData()
+        >>> obj.data_conversion_function
+
         """
         return self.__data_conversion_function
 
@@ -324,8 +613,7 @@ class FRTMData(PyAedtBase):
 
     @pyaedt_function_handler()
     def get_data_pulse(self, pulse: int = None) -> np.ndarray:
-        """
-        Get the data for a specified pulse.
+        """Get the data for a specified pulse.
 
         Parameters
         ----------
@@ -344,6 +632,7 @@ class FRTMData(PyAedtBase):
         >>> data = RangeDopplerData(file)
         >>> pulse_number = data.cpi_frames
         >>> data_pulse = data.get_data_pulse(0)
+
         """
         if pulse is None:
             pulse = int(self.cpi_frames / 2)
@@ -358,8 +647,7 @@ class FRTMData(PyAedtBase):
 
     @pyaedt_function_handler()
     def convert_frequency_range(self, pulse: int = None, window: str = None, size: int = None) -> np.ndarray:
-        """
-        Convert frequency domain radar data to range domain using IFFT with optional windowing and resampling.
+        """Convert frequency domain radar data to range domain using IFFT with optional windowing and resampling.
 
         This method applies a window to the frequency-domain radar data, scales it for energy preservation,
         and then computes the IFFT to convert to range domain. It supports optional up and down-sampling
@@ -384,6 +672,7 @@ class FRTMData(PyAedtBase):
         >>> file = "RxSignal.frtm"
         >>> data = RangeDopplerData(file)
         >>> data_range = data.convert_frequency_range()
+
         """
         data_conversion_function_original = self.data_conversion_function
         self.data_conversion_function = None
@@ -418,8 +707,7 @@ class FRTMData(PyAedtBase):
 
     @pyaedt_function_handler()
     def range_profile(self, data: np.ndarray, window: str = None, size: int = None) -> np.ndarray:
-        """
-        Calculate the range profile of a specific CPI frame.
+        """Calculate the range profile of a specific CPI frame.
 
         Parameters
         ----------
@@ -444,6 +732,7 @@ class FRTMData(PyAedtBase):
         >>> data_channel_1 = data.all_data[channel_name]
         >>> data_pulse_0 = data_channel_1[0]
         >>> range_profile = data.range_profile(data_pulse_0)
+
         """
         data_conversion_function_original = self.data_conversion_function
         self.data_conversion_function = None
@@ -477,8 +766,7 @@ class FRTMData(PyAedtBase):
     def range_doppler(
         self, channel: str = None, window: str = "Hann", range_bins: int = None, doppler_bins: int = None
     ) -> np.ndarray:
-        """
-        Calculate the range-Doppler map of a frame.
+        """Calculate the range-Doppler map of a frame.
 
         Parameters
         ----------
@@ -508,6 +796,7 @@ class FRTMData(PyAedtBase):
         >>> data = RangeDopplerData(file)
         >>> channel_name = data.channel_names[0]
         >>> range_doppler = data.range_doppler(channel_name)
+
         """
         if channel is None:
             channel = self.channel_names[0]
@@ -579,8 +868,7 @@ class FRTMData(PyAedtBase):
         field_of_view: list = None,
         range_bin_index: int = None,
     ) -> np.ndarray:
-        """
-        Compute the range-angle map using direction of arrival estimation methods.
+        """Compute the range-angle map using direction of arrival estimation methods.
 
         Parameters
         ----------
@@ -612,6 +900,7 @@ class FRTMData(PyAedtBase):
         >>> file = "RxSignal.frtm"
         >>> data = RangeDopplerData(file)
         >>> range_angle_map = data.range_angle_map()
+
         """
         if field_of_view is None:
             field_of_view = [-90, 90]
@@ -690,6 +979,7 @@ class FRTMData(PyAedtBase):
         >>> file = "RxSignal.frtm"
         >>> data = RangeDopplerData(file)
         >>> window = data.window_function("Hann")
+
         """
         if window is None or window == "Flat":
             win = np.ones(size)
@@ -875,6 +1165,7 @@ class FRTMPlotter(PyAedtBase):
     >>> from ansys.aedt.core.visualization.advanced.doppler_range_visualization import RangeDopplerData
     >>> file = "RxSignal.frtm"
     >>> data = RangeDopplerData(file)
+
     """
 
     def __init__(self, frtm_data) -> None:
@@ -887,12 +1178,28 @@ class FRTMPlotter(PyAedtBase):
 
     @property
     def all_data(self) -> dict:
-        """RCS data object."""
+        """RCS data object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMPlotter
+        >>> obj = FRTMPlotter()
+        >>> obj.all_data
+
+        """
         return self.__all_data
 
     @property
     def frames(self) -> list:
-        """Frames."""
+        """Frames.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMPlotter
+        >>> obj = FRTMPlotter()
+        >>> obj.frames
+
+        """
         return list(self.__all_data.keys())
 
     @pyaedt_function_handler()
@@ -968,6 +1275,7 @@ class FRTMPlotter(PyAedtBase):
         >>> frtm_plotter.plot_range_profile(frame=frame_number)
         >>> frtm_plotter.plot_range_profile(output_file="range_profile.gif", animation=True, show=False)
         >>> frtm_plotter.plot_range_profile(animation=False)
+
         """
         from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 
@@ -1102,6 +1410,7 @@ class FRTMPlotter(PyAedtBase):
         >>> frame_number = frtm_plotter.frames[0]
         >>> frtm_plotter.plot_range_doppler(frame=frame_number)
         >>> frtm_plotter.plot_range_doppler(output_file="range_doppler.gif", animation=True, show=False)
+
         """
         from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 
@@ -1267,6 +1576,7 @@ class FRTMPlotter(PyAedtBase):
         >>> frame_number = frtm_plotter.frames[0]
         >>> frtm_plotter.plot_range_angle_map(frame=frame_number)
         >>> frtm_plotter.plot_range_angle_map(output_file="range_angle_map.gif", animation=True, show=False)
+
         """
         from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 
@@ -1379,6 +1689,7 @@ class FRTMPlotter(PyAedtBase):
 
 @pyaedt_function_handler()
 def get_results_files(input_dir: str, var_name: str = "time_var") -> dict:
+    """Retrieve results files."""
     path = Path(input_dir)
 
     # Find all CSV files recursively

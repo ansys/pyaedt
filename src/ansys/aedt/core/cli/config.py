@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,7 +22,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""Test configuration management for local_config.json (conftest)."""
+"""Test configuration management for local_config.json (conftest).
+
+Examples
+--------
+    pyaedt config test --show
+
+"""
 
 try:
     import typer
@@ -42,6 +48,7 @@ from ansys.aedt.core.cli.common import prompt_config_value
 from ansys.aedt.core.cli.common import save_config
 
 test_config_app = typer.Typer(help="Test configuration management (local_config.json)", invoke_without_command=True)
+"""Value for test config app."""
 
 CONFIG_DESCRIPTIONS = {
     "desktopVersion": "AEDT version to use",
@@ -55,6 +62,7 @@ CONFIG_DESCRIPTIONS = {
     "skip_modelithics": "Skip Modelithics tests",
     "use_pyedb_grpc": "Use PyEDB with gRPC for database access",
 }
+"""Configuration descriptions."""
 
 
 @test_config_app.callback(invoke_without_command=True)
@@ -62,7 +70,13 @@ def test_config_callback(
     ctx: typer.Context,
     show: bool = typer.Option(False, "--show", "-s", help="Show current configuration without modifying"),
 ) -> None:
-    """Create or modify local_config.json in the tests folder interactively."""
+    """Create or modify local_config.json in the tests folder interactively.
+
+    Examples
+    --------
+        pyaedt config test --show
+
+    """
     if ctx.invoked_subcommand is not None:
         return
 

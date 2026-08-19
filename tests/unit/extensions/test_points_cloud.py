@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -80,6 +80,7 @@ def test_point_cloud_extension_generate_button_multiple_objects(mock_hfss_app_wi
     assert [long_name] == data.choice
     assert 1000 == data.points
     assert "" == data.output_file
+    assert not data.in_volume
 
 
 @patch("tkinter.filedialog.asksaveasfilename")

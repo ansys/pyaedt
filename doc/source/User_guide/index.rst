@@ -74,12 +74,26 @@ For end-to-end examples, see `Examples <https://examples.aedt.docs.pyansys.com>`
 
             How to generate reports, images, and PDF files.
 
+   .. grid-item-card:: Field expression builder
+            :link: field_expression_builder
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            How to build Fields Calculator expressions with a typed API.
+
    .. grid-item-card:: EMIT Modeler
             :link: emit_modeler
             :link-type: doc
             :margin: 2 2 0 0
 
             How to create and analyze EMIT designs.
+
+   .. grid-item-card:: Desktop sessions
+            :link: desktop_sessions
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            How to use the Desktop class to gain full control of the AEDT application.
 
    .. grid-item-card:: Security considerations
             :link: security_consideration
@@ -93,6 +107,7 @@ For end-to-end examples, see `Examples <https://examples.aedt.docs.pyansys.com>`
    :maxdepth: 2
 
    intro
+   desktop_sessions
    extensions
    modeler
    mesh
@@ -101,5 +116,6 @@ For end-to-end examples, see `Examples <https://examples.aedt.docs.pyansys.com>`
    variables
    files
    postprocessing
+   field_expression_builder
    emit_modeler
    security_consideration

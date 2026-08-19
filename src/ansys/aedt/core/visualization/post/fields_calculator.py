@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -35,6 +35,7 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 PARENT_DIR = Path(__file__).parent
+"""Parent dir."""
 
 
 class FieldsCalculator(PyAedtBase):
@@ -108,8 +109,48 @@ class FieldsCalculator(PyAedtBase):
         -------
         list
             List of available expressions in the catalog.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculator
+        >>> obj = FieldsCalculator()
+        >>> obj.expression_names
+
         """
         return list(self.expression_catalog.keys())
+
+    @property
+    def expressions(self):
+        """
+        Typed, fluent builder for Fields Calculator expressions.
+
+        Returns a
+        :class:`~ansys.aedt.core.visualization.post.field_calculator_expressions.FieldExpressions`
+        factory that produces strongly typed expression objects. Chaining their
+        ``.method()`` calls and the ``dot`` / ``cross`` helpers builds the
+        calculator operation stack with type safety, instead of assembling the
+        operation strings by hand.
+
+        Returns
+        -------
+        :class:`~ansys.aedt.core.visualization.post.field_calculator_expressions.FieldExpressions`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> from ansys.aedt.core.visualization.post.field_calculator_expressions import Volume
+        >>> hfss = Hfss()
+        >>> fx = hfss.post.fields_calculator.expressions
+        >>> e_vec = fx.vector("E")  # VectorComplex
+        >>> mag_e = e_vec.magnitude()  # ScalarReal
+        >>> value = mag_e.maximum(Volume("MySolid")).evaluate(setup="Setup1 : LastAdaptive")
+
+        """
+        from ansys.aedt.core.visualization.post.field_calculator_expressions import FieldExpressions
+
+        if getattr(self, "_expressions", None) is None:
+            self._expressions = FieldExpressions(self)
+        return self._expressions
 
     @pyaedt_function_handler()
     def add_expression(self, calculation: str | dict, assignment, name: str | None = None) -> str | bool:
@@ -161,6 +202,7 @@ class FieldsCalculator(PyAedtBase):
         ... }
         >>> expr_name = hfss.post.fields_calculator.add_expression(my_expression, "Polyline1")
         >>> hfss.desktop_class.release_desktop(False, False)
+
         """
         if assignment is not None:
             assignment = self.__app.modeler.convert_to_selections(assignment, return_list=True)[0]
@@ -261,6 +303,13 @@ class FieldsCalculator(PyAedtBase):
         -------
         str, bool
             Path of the calculator expression file when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculator
+        >>> obj = FieldsCalculator()
+        >>> obj.create_expression_file(name="MyObject", operations=["Box1"])
+
         """
         file_name = generate_unique_project_name(
             root_name=self.__app.toolkit_directory,
@@ -280,7 +329,7 @@ class FieldsCalculator(PyAedtBase):
         return str(Path(file_name).resolve())
 
     @pyaedt_function_handler()
-    def expression_plot(self, calculation: str, assignment: list, names: list, setup: str = None) -> list | bool:
+    def expression_plot(self, calculation: str, assignment: list, names: list, setup: str | None = None) -> list | bool:
         """Create plots defined in the expression catalog.
 
         Parameters
@@ -307,6 +356,7 @@ class FieldsCalculator(PyAedtBase):
         >>> expr_name = hfss.post.fields_calculator.add_expression("voltage_line", "Polyline1")
         >>> reports = hfss.post.fields_calculator.expression_plot("voltage_line", "Polyline1", [name])
         >>> hfss.desktop_class.release_desktop(False, False)
+
         """
         if assignment is not None:
             assignment = self.__app.modeler.convert_to_selections(assignment, return_list=True)
@@ -394,6 +444,7 @@ class FieldsCalculator(PyAedtBase):
         >>> expr_name = hfss.post.fields_calculator.add_expression("voltage_line", "Polyline1")
         >>> hfss.post.fields_calculator.delete_expression(expr_name)
         >>> hfss.desktop_class.release_desktop(False, False)
+
         """
         if not name:
             self.ofieldsreporter.ClearAllNamedExpr()
@@ -416,6 +467,13 @@ class FieldsCalculator(PyAedtBase):
         -------
         bool
             ``True`` when it exists, ``False`` otherwise.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculator
+        >>> obj = FieldsCalculator()
+        >>> obj.is_expression_defined(name="MyObject")
+
         """
         is_defined = self.ofieldsreporter.DoesNamedExpressionExists(name)
         if is_defined == 1:
@@ -435,6 +493,13 @@ class FieldsCalculator(PyAedtBase):
         -------
         bool
             ``True`` if the named expression is general, ``False`` otherwise.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculator
+        >>> obj = FieldsCalculator()
+        >>> obj.is_general_expression(name="MyObject")
+
         """
         if name not in self.expression_names:
             self.__app.logger.error("Named expression not available.")
@@ -467,6 +532,7 @@ class FieldsCalculator(PyAedtBase):
         >>> my_toml = str(Path("my_path_to_toml") / "my_toml.toml")
         >>> new_catalog = hfss.post.fields_calculator.load_expression_file(my_toml)
         >>> hfss.desktop_class.release_desktop(False, False)
+
         """
         if not Path(input_file).is_file():
             self.__app.logger.error("File does not exist.")
@@ -495,6 +561,13 @@ class FieldsCalculator(PyAedtBase):
         -------
         dict or bool
             Expression if the input expression is valid, ``False`` otherwise.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculator
+        >>> obj = FieldsCalculator()
+        >>> obj.validate_expression(expression="dB(S(1,1))")
+
         """
         from jsonschema import exceptions
         from jsonschema import validate
@@ -555,6 +628,7 @@ class FieldsCalculator(PyAedtBase):
         >>> file_path = Path(hfss.working_directory) / "my_expr.fld"
         >>> hfss.post.fields_calculator.write("voltage_line", file_path, hfss.nominal_adaptive)
         >>> hfss.desktop_class.release_desktop(False, False)
+
         """
         if not self.is_expression_defined(expression):
             self.__app.logger.error("Expression does not exist in current stack.")
@@ -584,7 +658,7 @@ class FieldsCalculator(PyAedtBase):
                 continue
             args.append(f"{k}:=")
             args.append(v)
-        if self.__app.aedt_version_id < "2026.1":
+        if self.__app.desktop_class.aedt_version_id < "2026.1":
             self.ofieldsreporter.CalculatorWrite(output_file, ["Solution:=", setup], args)
         else:
             solution_args = ["NAME:Setup", "Solution:=", setup]
@@ -594,7 +668,7 @@ class FieldsCalculator(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def evaluate(self, expression: str, setup: str | None = None, intrinsics: dict | None = None) -> float:
+    def evaluate(self, expression: str, setup: str | None = None, intrinsics: dict | None = None) -> str | None:
         """Evaluate an expression and return the value.
 
         Parameters
@@ -619,6 +693,13 @@ class FieldsCalculator(PyAedtBase):
         -------
         float
             Value computed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculator
+        >>> obj = FieldsCalculator()
+        >>> obj.evaluate(expression="dB(S(1,1))")
+
         """
         out_file = Path(self.__app.working_directory) / (generate_unique_name("expression") + ".fld")
         self.write(expression, setup=setup, intrinsics=intrinsics, output_file=str(out_file))
@@ -641,20 +722,20 @@ class FieldsCalculator(PyAedtBase):
     def export(
         self,
         quantity: str,
-        solution: str = None,
-        variations: dict = None,
-        output_file: str = None,
-        intrinsics: dict = None,
-        sample_points: list = None,
+        solution: str | None = None,
+        variations: dict | None = None,
+        output_file: str | None = None,
+        intrinsics: dict | None = None,
+        sample_points: str | list | None = None,
         export_with_sample_points: bool = True,
         reference_coordinate_system: str = "Global",
         export_in_si_system: bool = True,
         export_field_in_reference: bool = True,
-        grid_type: str = None,
-        grid_center: list = None,
-        grid_start: list = None,
-        grid_stop: list = None,
-        grid_step: list = None,
+        grid_type: str | None = None,
+        grid_center: list | None = None,
+        grid_start: list | None = None,
+        grid_stop: list | None = None,
+        grid_step: list | None = None,
         is_vector: bool = False,
         assignment: str = "AllObjects",
         objects_type: str = "Vol",
@@ -662,15 +743,14 @@ class FieldsCalculator(PyAedtBase):
         """Export the field quantity at the top of the register to a file, mapping it to a grid of points.
 
         Two options are available for defining the grid points on which to export:
-        -   Input grid points from file : Maps the field quantity to a customized grid of points.
-                                          Before using this command, you must create a file containing the points
-                                          and units.
-        -   Calculate grid points : Maps the field quantity to a three-dimensional Cartesian grid.
-                                    You specify the dimensions and spacing of the grid in the x, y, and z directions,
-                                    with units. The initial units are taken from the model.
-                                    Other grid options are: Cylindrical, in which case rho, phi and z directions must be
-                                    specified, or Spherical, in which case r, theta and phi directions must be
-                                    specified.
+
+                - Input grid points from file: maps the field quantity to a customized grid of points.
+                    Before using this command, create a file containing the points and units.
+                - Calculate grid points: maps the field quantity to a three-dimensional Cartesian grid.
+                    You specify the dimensions and spacing of the grid in the x, y, and z directions,
+                    with units. The initial units are taken from the model. Other grid options are
+                    Cylindrical, in which case rho, phi and z directions must be specified, or
+                    Spherical, in which case r, theta and phi directions must be specified.
 
         If you want to adopt the first option you must provide either the file containing the grid of points
         or a list of sample points in ``sample_points``. In the latter case, a new file is created
@@ -702,10 +782,13 @@ class FieldsCalculator(PyAedtBase):
             Intrinsic variables required to compute the field before the export.
             These are typically: frequency, time and phase.
             It can be provided either as a dictionary or as a string.
+
             If it is a dictionary, keys depend on the solution type and can be expressed in lower or camel case as:
+
             - ``"Freq"`` or ``"Frequency"``
             - ``"Time"``
             - ``"Phase"``
+
             If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
             The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         sample_points : str, list
@@ -724,9 +807,11 @@ class FieldsCalculator(PyAedtBase):
             The default is ``True``.
         grid_type : str
             Type of the grid to export. The options are:
+
             - ``Cartesian``
             - ``Cylindrical``
             - ``Spherical``
+
         grid_center : list, optional
             The ``[x, y, z]`` coordinates for the center of the grid.
             The default is ``[0, 0, 0]``. This parameter is disabled if ``gridtype=
@@ -747,6 +832,13 @@ class FieldsCalculator(PyAedtBase):
         -------
         bool or str
             The path to the exported field file when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculator
+        >>> obj = FieldsCalculator()
+        >>> obj.export(quantity=1)
+
         """
         if sample_points:
             if isinstance(sample_points, str):
@@ -801,16 +893,15 @@ class FieldsCalculator(PyAedtBase):
             )
             return False
 
-        if output_file:
-            output_file = Path(output_file)
+        resolved_output_file = Path(output_file) if output_file else None
 
-        if output_file.exists():
-            return str(output_file)
+        if resolved_output_file and resolved_output_file.exists():
+            return str(resolved_output_file)
         return False
 
     @pyaedt_function_handler()
     @min_aedt_version("2026.1")
-    def get_expressions(self, field_type: str = None) -> dict:  # pragma: no cover
+    def get_expressions(self, field_type: str | None = None) -> dict:  # pragma: no cover
         """Get dictionary of available Field Calculator expressions.
 
         Parameters
@@ -828,6 +919,7 @@ class FieldsCalculator(PyAedtBase):
         References
         ----------
         >>> oModule.GetFieldsCalculatorExpressions
+
         Example
         -------
         >>> from ansys.aedt.core import Hfss
@@ -835,6 +927,13 @@ class FieldsCalculator(PyAedtBase):
         >>> poly = hfss.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="Polyline1")
         >>> exprs = hfss.post.fields_calculator.get_expressions()
         >>> hfss.desktop_class.release_desktop(False, False)
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculator
+        >>> obj = FieldsCalculator()
+        >>> obj.get_expressions(field_type=1)
+
         """
         expressions = {}
         field_type = field_type or ""

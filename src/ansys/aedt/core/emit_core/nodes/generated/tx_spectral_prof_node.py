@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -29,6 +29,8 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class TxSpectralProfNode(EmitNode):
+    """Provide tx spectral prof node."""
+
     def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
@@ -36,13 +38,33 @@ class TxSpectralProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
-        """The parent of this emit node."""
+        """The parent of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> tx_spec = radio.children[0].children[0]
+        >>> tx_spec.parent
+
+        """
         return self._parent
 
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node."""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> tx_spec = radio.children[0].children[0]
+        >>> tx_spec.node_type
+
+        """
         return self._node_type
 
     @min_aedt_version("2025.2")
@@ -68,7 +90,17 @@ class TxSpectralProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def enabled(self) -> bool:
-        """Enabled state for this node."""
+        """Enabled state for this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> tx_spec = radio.children[0].children[0]
+        >>> tx_spec.enabled = True
+
+        """
         return self._get_property("Enabled") == "true"
 
     @enabled.setter
@@ -83,7 +115,17 @@ class TxSpectralProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def spectrum_type(self) -> SpectrumTypeOption:
-        """Specifies EMI Margins to calculate."""
+        """Specifies EMI Margins to calculate.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> tx_spec = radio.children[0].children[0]
+        >>> tx_spec.spectrum_type = tx_spec.SpectrumTypeOption.NARROWBAND_AND_BROADBAND
+
+        """
         val = self._get_property("Spectrum Type")
         val = self.SpectrumTypeOption[val.upper()]
         return val
@@ -100,7 +142,17 @@ class TxSpectralProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def tx_power(self) -> TxPowerOption:
-        """Method used to specify the power."""
+        """Method used to specify the power.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> tx_spec = radio.children[0].children[0]
+        >>> tx_spec.tx_power = tx_spec.TxPowerOption.AVERAGE_POWER
+
+        """
         val = self._get_property("Tx Power")
         val = self.TxPowerOption[val.upper()]
         return val
@@ -116,6 +168,15 @@ class TxSpectralProfNode(EmitNode):
         """Tx's carrier frequency peak power.
 
         Value should be between -1000 and 1000.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> tx_spec = radio.children[0].children[0]
+        >>> tx_spec.peak_power = "30 dBm"
+
         """
         val = self._get_property("Peak Power")
         val = self._convert_from_internal_units(float(val), "Power")
@@ -133,6 +194,15 @@ class TxSpectralProfNode(EmitNode):
         """Tx's fundamental level specified by average power.
 
         Value should be between -1000 and 1000.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> tx_spec = radio.children[0].children[0]
+        >>> tx_spec.average_power = "27 dBm"
+
         """
         val = self._get_property("Average Power")
         val = self._convert_from_internal_units(float(val), "Power")
@@ -150,6 +220,15 @@ class TxSpectralProfNode(EmitNode):
         """Include oscillator phase noise in Tx spectral profile.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> tx_spec = radio.children[0].children[0]
+        >>> tx_spec.include_phase_noise = True
+
         """
         val = self._get_property("Include Phase Noise")
         return val == "true"
@@ -165,6 +244,15 @@ class TxSpectralProfNode(EmitNode):
         """Transmitters broadband noise level.
 
         Value should be less than 1000.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> tx_spec = radio.children[0].children[0]
+        >>> tx_spec.tx_broadband_noise = -160.0
+
         """
         val = self._get_property("Tx Broadband Noise")
         return float(val)
@@ -183,7 +271,17 @@ class TxSpectralProfNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def harmonic_taper(self) -> HarmonicTaperOption:
-        """Taper type used to set amplitude of harmonics."""
+        """Taper type used to set amplitude of harmonics.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> tx_spec = radio.children[0].children[0]
+        >>> tx_spec.harmonic_taper = tx_spec.HarmonicTaperOption.MIL_STD_461G
+
+        """
         val = self._get_property("Harmonic Taper")
         val = self.HarmonicTaperOption[val.upper()]
         return val
@@ -199,6 +297,15 @@ class TxSpectralProfNode(EmitNode):
         """Amplitude (relative to the carrier power) of harmonics.
 
         Value should be between -1000 and 0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> tx_spec = radio.children[0].children[0]
+        >>> tx_spec.harmonic_amplitude = -40.0
+
         """
         val = self._get_property("Harmonic Amplitude")
         return float(val)
@@ -214,6 +321,15 @@ class TxSpectralProfNode(EmitNode):
         """Rate of decrease for harmonics' amplitudes (dB/decade).
 
         Value should be between -1000 and 0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> tx_spec = radio.children[0].children[0]
+        >>> tx_spec.harmonic_slope = -18.0
+
         """
         val = self._get_property("Harmonic Slope")
         return float(val)
@@ -229,6 +345,15 @@ class TxSpectralProfNode(EmitNode):
         """Amplitude intercept at the fundamental (dBc).
 
         Value should be between -1000 and 0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> tx_spec = radio.children[0].children[0]
+        >>> tx_spec.harmonic_intercept = -35.0
+
         """
         val = self._get_property("Harmonic Intercept")
         return float(val)
@@ -247,6 +372,15 @@ class TxSpectralProfNode(EmitNode):
         number.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> tx_spec = radio.children[0].children[0]
+        >>> tx_spec.enable_harmonic_bw_expansion = True
+
         """
         val = self._get_property("Enable Harmonic BW Expansion")
         return val == "true"
@@ -262,6 +396,15 @@ class TxSpectralProfNode(EmitNode):
         """Maximum number of harmonics modeled.
 
         Value should be between 1 and 1000.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> tx_spec = radio.children[0].children[0]
+        >>> tx_spec.number_of_harmonics = 6
+
         """
         val = self._get_property("Number of Harmonics")
         return int(val)
@@ -277,6 +420,15 @@ class TxSpectralProfNode(EmitNode):
         """Amplitude (relative to the carrier power) of the 2nd harmonic.
 
         Value should be between -1000 and 0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> tx_spec = radio.children[0].children[0]
+        >>> tx_spec.second_harmonic_level = -42.0
+
         """
         val = self._get_property("Second Harmonic Level")
         return float(val)
@@ -292,6 +444,15 @@ class TxSpectralProfNode(EmitNode):
         """Amplitude (relative to the carrier power) of the 3rd harmonic.
 
         Value should be between -1000 and 0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> tx_spec = radio.children[0].children[0]
+        >>> tx_spec.third_harmonic_level = -48.0
+
         """
         val = self._get_property("Third Harmonic Level")
         return float(val)
@@ -309,6 +470,15 @@ class TxSpectralProfNode(EmitNode):
         Amplitude (relative to the carrier power) of the higher order harmonics.
 
         Value should be between -1000 and 0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> tx_spec = radio.children[0].children[0]
+        >>> tx_spec.other_harmonic_levels = -55.0
+
         """
         val = self._get_property("Other Harmonic Levels")
         return float(val)
@@ -324,6 +494,15 @@ class TxSpectralProfNode(EmitNode):
         """Performs a non-linear intermod analysis for the Tx.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> tx_spec = radio.children[0].children[0]
+        >>> tx_spec.perform_tx_intermod_analysis = True
+
         """
         val = self._get_property("Perform Tx Intermod Analysis")
         return val == "true"
@@ -339,6 +518,15 @@ class TxSpectralProfNode(EmitNode):
         """Internal Tx Amplifier's Gain.
 
         Value should be between -1000 and 1000.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> tx_spec = radio.children[0].children[0]
+        >>> tx_spec.internal_amp_gain = 10.0
+
         """
         val = self._get_property("Internal Amp Gain")
         return float(val)
@@ -354,6 +542,15 @@ class TxSpectralProfNode(EmitNode):
         """Internal Tx Amplifier's noise figure.
 
         Value should be between 0 and 50.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> tx_spec = radio.children[0].children[0]
+        >>> tx_spec.noise_figure = 3.0
+
         """
         val = self._get_property("Noise Figure")
         return float(val)
@@ -369,6 +566,15 @@ class TxSpectralProfNode(EmitNode):
         """Internal Tx Amplifier's Saturation Level.
 
         Value should be between -200 and 200.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> tx_spec = radio.children[0].children[0]
+        >>> tx_spec.amplifier_saturation_level = "25 dBm"
+
         """
         val = self._get_property("Amplifier Saturation Level")
         val = self._convert_from_internal_units(float(val), "Power")
@@ -389,6 +595,16 @@ class TxSpectralProfNode(EmitNode):
         saturates the internal Tx amplifier.
 
         Value should be between -200 and 200.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> tx_profile = band.children[0]
+        >>> tx_profile.p1_db_point_ref_input = "30 dBm"
+
         """
         val = self._get_property("P1-dB Point, Ref. Input ")
         val = self._convert_from_internal_units(float(val), "Power")
@@ -406,6 +622,16 @@ class TxSpectralProfNode(EmitNode):
         """Internal Tx Amplifier's 3rd order intercept point.
 
         Value should be between -200 and 200.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> tx_profile = band.children[0]
+        >>> tx_profile.ip3_ref_input = "38 dBm"
+
         """
         val = self._get_property("IP3, Ref. Input")
         val = self._convert_from_internal_units(float(val), "Power")
@@ -423,6 +649,16 @@ class TxSpectralProfNode(EmitNode):
         """Internal Tx Amplifier's Reverse Isolation.
 
         Value should be between -200 and 200.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> tx_profile = band.children[0]
+        >>> tx_profile.reverse_isolation = 45.0
+
         """
         val = self._get_property("Reverse Isolation")
         return float(val)
@@ -438,6 +674,16 @@ class TxSpectralProfNode(EmitNode):
         """Internal Tx Amplifier's maximum intermod order to compute.
 
         Value should be between 3 and 20.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> tx_profile = band.children[0]
+        >>> tx_profile.max_intermod_order = 7
+
         """
         val = self._get_property("Max Intermod Order")
         return int(val)

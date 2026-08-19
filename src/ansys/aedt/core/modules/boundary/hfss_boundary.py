@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -43,6 +43,7 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
     >>> sphere1.props["ThetaStop"] = "90deg"
     >>> sphere1.props["ThetaStep"] = "2deg"
     >>> sphere1.delete()
+
     """
 
     def __init__(self, app, component_name, props, component_type) -> None:
@@ -78,7 +79,15 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
     @property
     def props(self) -> BoundaryProps:
-        """Field Properties."""
+        """Field Properties.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FieldSetup
+        >>> obj = FieldSetup()
+        >>> obj.props
+
+        """
         if not self.__props and self._app.design_properties:
             if (
                 self.type == "FarFieldSphere"
@@ -97,7 +106,15 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
     @property
     def name(self) -> str:
-        """Boundary Name."""
+        """Boundary Name.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FieldSetup
+        >>> obj = FieldSetup()
+        >>> obj.name
+
+        """
         if self._child_object:
             self._name = str(self.properties["Name"])
         return self._name
@@ -127,6 +144,12 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FieldSetup
+        >>> obj = FieldSetup()
+        >>> obj.create()
+
         """
         if self.type == "FarFieldSphere":
             self._app.oradfield.InsertInfiniteSphereSetup(self._get_args())
@@ -154,6 +177,13 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FieldSetup
+        >>> obj = FieldSetup()
+        >>> obj.update()
+
         """
         if self.type == "FarFieldSphere":
             self._app.oradfield.EditInfiniteSphereSetup(self.name, self._get_args())
@@ -180,6 +210,12 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FieldSetup
+        >>> obj = FieldSetup()
+        >>> obj.delete()
+
         """
         self._app.oradfield.DeleteSetup([self.name])
         for el in self._app.field_setups:
@@ -201,6 +237,7 @@ class FarFieldSetup(FieldSetup):
     >>> sphere1.props["ThetaStop"] = "90deg"
     >>> sphere1.props["ThetaStep"] = "2deg"
     >>> sphere1.delete()
+
     """
 
     def __init__(self, app, component_name, props, component_type, units: str = "deg") -> None:
@@ -209,7 +246,15 @@ class FarFieldSetup(FieldSetup):
 
     @property
     def definition(self) -> str:
-        """Set/Get the Far Field Angle Definition."""
+        """Set/Get the Far Field Angle Definition.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
+        >>> obj = FarFieldSetup()
+        >>> obj.definition
+
+        """
         return self.props["CSDefinition"]
 
     @definition.setter
@@ -271,7 +316,15 @@ class FarFieldSetup(FieldSetup):
 
     @property
     def use_custom_radiation_surface(self) -> bool:
-        """Set/Get the Far Field Radiation Surface Enable."""
+        """Set/Get the Far Field Radiation Surface Enable.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
+        >>> obj = FarFieldSetup()
+        >>> obj.use_custom_radiation_surface
+
+        """
         return self.props["UseCustomRadiationSurface"]
 
     @use_custom_radiation_surface.setter
@@ -281,7 +334,15 @@ class FarFieldSetup(FieldSetup):
 
     @property
     def custom_radiation_surface(self) -> str:
-        """Set/Get the Far Field Radiation Surface FaceList."""
+        """Set/Get the Far Field Radiation Surface FaceList.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
+        >>> obj = FarFieldSetup()
+        >>> obj.custom_radiation_surface
+
+        """
         return self.props["CustomRadiationSurface"]
 
     @custom_radiation_surface.setter
@@ -296,7 +357,15 @@ class FarFieldSetup(FieldSetup):
 
     @property
     def use_local_coordinate_system(self) -> bool:
-        """Set/Get the usage of a custom Coordinate System."""
+        """Set/Get the usage of a custom Coordinate System.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
+        >>> obj = FarFieldSetup()
+        >>> obj.use_local_coordinate_system
+
+        """
         return self.props["UseLocalCS"]
 
     @use_local_coordinate_system.setter
@@ -306,7 +375,15 @@ class FarFieldSetup(FieldSetup):
 
     @property
     def local_coordinate_system(self) -> str:
-        """Set/Get the custom Coordinate System name."""
+        """Set/Get the custom Coordinate System name.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
+        >>> obj = FarFieldSetup()
+        >>> obj.local_coordinate_system
+
+        """
         try:
             return self.properties["Coordinate System"]
         except Exception:  # pragma: no cover
@@ -324,7 +401,15 @@ class FarFieldSetup(FieldSetup):
 
     @property
     def polarization(self) -> str:
-        """Set/Get the Far Field Polarization."""
+        """Set/Get the Far Field Polarization.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
+        >>> obj = FarFieldSetup()
+        >>> obj.polarization
+
+        """
         return self.props["Polarization"]
 
     @polarization.setter
@@ -334,7 +419,15 @@ class FarFieldSetup(FieldSetup):
 
     @property
     def slant_angle(self) -> float:
-        """Set/Get the Far Field Slant Angle if Polarization is Set to `Slant`."""
+        """Set/Get the Far Field Slant Angle if Polarization is Set to `Slant`.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
+        >>> obj = FarFieldSetup()
+        >>> obj.slant_angle
+
+        """
         if self.props["Polarization"] == "Slant":
             return self.props["SlantAngle"]
         else:
@@ -348,7 +441,15 @@ class FarFieldSetup(FieldSetup):
 
     @property
     def theta_start(self) -> float:
-        """Set/Get the Far Field Theta Start Angle if Definition is Set to `Theta-Phi`."""
+        """Set/Get the Far Field Theta Start Angle if Definition is Set to `Theta-Phi`.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
+        >>> obj = FarFieldSetup()
+        >>> obj.theta_start
+
+        """
         if "ThetaStart" in self.props:
             return self.props["ThetaStart"]
         else:
@@ -356,7 +457,15 @@ class FarFieldSetup(FieldSetup):
 
     @property
     def theta_stop(self) -> float:
-        """Set/Get the Far Field Theta Stop Angle if Definition is Set to `Theta-Phi`."""
+        """Set/Get the Far Field Theta Stop Angle if Definition is Set to `Theta-Phi`.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
+        >>> obj = FarFieldSetup()
+        >>> obj.theta_stop
+
+        """
         if "ThetaStop" in self.props:
             return self.props["ThetaStop"]
         else:
@@ -364,7 +473,15 @@ class FarFieldSetup(FieldSetup):
 
     @property
     def theta_step(self) -> float:
-        """Set/Get the Far Field Theta Step Angle if Definition is Set to `Theta-Phi`."""
+        """Set/Get the Far Field Theta Step Angle if Definition is Set to `Theta-Phi`.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
+        >>> obj = FarFieldSetup()
+        >>> obj.theta_step
+
+        """
         if "ThetaStep" in self.props:
             return self.props["ThetaStep"]
         else:
@@ -372,7 +489,15 @@ class FarFieldSetup(FieldSetup):
 
     @property
     def phi_start(self) -> float:
-        """Set/Get the Far Field Phi Start Angle if Definition is Set to `Theta-Phi`."""
+        """Set/Get the Far Field Phi Start Angle if Definition is Set to `Theta-Phi`.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
+        >>> obj = FarFieldSetup()
+        >>> obj.phi_start
+
+        """
         if "PhiStart" in self.props:
             return self.props["PhiStart"]
         else:
@@ -380,7 +505,15 @@ class FarFieldSetup(FieldSetup):
 
     @property
     def phi_stop(self) -> float:
-        """Set/Get the Far Field Phi Stop Angle if Definition is Set to `Theta-Phi`."""
+        """Set/Get the Far Field Phi Stop Angle if Definition is Set to `Theta-Phi`.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
+        >>> obj = FarFieldSetup()
+        >>> obj.phi_stop
+
+        """
         if "PhiStop" in self.props:
             return self.props["PhiStop"]
         else:
@@ -388,7 +521,15 @@ class FarFieldSetup(FieldSetup):
 
     @property
     def phi_step(self) -> float:
-        """Set/Get the Far Field Phi Step Angle if Definition is Set to `Theta-Phi`."""
+        """Set/Get the Far Field Phi Step Angle if Definition is Set to `Theta-Phi`.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
+        >>> obj = FarFieldSetup()
+        >>> obj.phi_step
+
+        """
         if "PhiStep" in self.props:
             return self.props["PhiStep"]
         else:
@@ -396,7 +537,15 @@ class FarFieldSetup(FieldSetup):
 
     @property
     def azimuth_start(self) -> float:
-        """Set/Get the Far Field Azimuth Start Angle if Definition is Set to `Az Over El` or `El Over Az`."""
+        """Set/Get the Far Field Azimuth Start Angle if Definition is Set to `Az Over El` or `El Over Az`.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
+        >>> obj = FarFieldSetup()
+        >>> obj.azimuth_start
+
+        """
         if "AzimuthStart" in self.props:
             return self.props["AzimuthStart"]
         else:
@@ -404,7 +553,15 @@ class FarFieldSetup(FieldSetup):
 
     @property
     def azimuth_stop(self) -> float:
-        """Set/Get the Far Field Azimuth Stop Angle if Definition is Set to `Az Over El` or `El Over Az`."""
+        """Set/Get the Far Field Azimuth Stop Angle if Definition is Set to `Az Over El` or `El Over Az`.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
+        >>> obj = FarFieldSetup()
+        >>> obj.azimuth_stop
+
+        """
         if "AzimuthStop" in self.props:
             return self.props["AzimuthStop"]
         else:
@@ -412,7 +569,15 @@ class FarFieldSetup(FieldSetup):
 
     @property
     def azimuth_step(self) -> float:
-        """Set/Get the Far Field Azimuth Step Angle if Definition is Set to `Az Over El` or `El Over Az`."""
+        """Set/Get the Far Field Azimuth Step Angle if Definition is Set to `Az Over El` or `El Over Az`.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
+        >>> obj = FarFieldSetup()
+        >>> obj.azimuth_step
+
+        """
         if "AzimuthStep" in self.props:
             return self.props["AzimuthStep"]
         else:
@@ -420,7 +585,15 @@ class FarFieldSetup(FieldSetup):
 
     @property
     def elevation_start(self) -> float:
-        """Set/Get the Far Field Elevation Start Angle if Definition is Set to `Az Over El` or `El Over Az`."""
+        """Set/Get the Far Field Elevation Start Angle if Definition is Set to `Az Over El` or `El Over Az`.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
+        >>> obj = FarFieldSetup()
+        >>> obj.elevation_start
+
+        """
         if "ElevationStart" in self.props:
             return self.props["ElevationStart"]
         else:
@@ -428,7 +601,15 @@ class FarFieldSetup(FieldSetup):
 
     @property
     def elevation_stop(self) -> float:
-        """Set/Get the Far Field Elevation Stop Angle if Definition is Set to `Az Over El` or `El Over Az`."""
+        """Set/Get the Far Field Elevation Stop Angle if Definition is Set to `Az Over El` or `El Over Az`.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
+        >>> obj = FarFieldSetup()
+        >>> obj.elevation_stop
+
+        """
         if "ElevationStop" in self.props:
             return self.props["ElevationStop"]
         else:
@@ -436,7 +617,15 @@ class FarFieldSetup(FieldSetup):
 
     @property
     def elevation_step(self) -> float:
-        """Set/Get the Far Field Elevation Step Angle if Definition is Set to `Az Over El` or `El Over Az`."""
+        """Set/Get the Far Field Elevation Step Angle if Definition is Set to `Az Over El` or `El Over Az`.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
+        >>> obj = FarFieldSetup()
+        >>> obj.elevation_step
+
+        """
         if "ElevationStep" in self.props:
             return self.props["ElevationStep"]
         else:
@@ -526,6 +715,7 @@ class NearFieldSetup(FieldSetup):
     >>> from ansys.aedt.core import Hfss
     >>> hfss = Hfss()
     >>> rectangle1 = hfss.insert_near_field_rectangle()
+
     """
 
     def __init__(self, app, component_name, props, component_type) -> None:

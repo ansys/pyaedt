@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -32,14 +32,17 @@ from tkinter import filedialog
 from tkinter import messagebox
 from tkinter import simpledialog
 from tkinter import ttk
+from typing import Any
+from typing import cast
 import webbrowser
 
 import PIL.Image
-import PIL.ImageTk
 import PIL.ImageOps
+import PIL.ImageTk
 
 from ansys.aedt.core.extensions import EXTENSIONS_PATH
 from ansys.aedt.core.extensions.customize_automation_tab import AEDT_APPLICATIONS
+from ansys.aedt.core.extensions.customize_automation_tab import DesktopLike
 from ansys.aedt.core.extensions.customize_automation_tab import add_script_to_menu
 from ansys.aedt.core.extensions.customize_automation_tab import available_toolkits
 from ansys.aedt.core.extensions.customize_automation_tab import get_custom_extension_image
@@ -58,27 +61,39 @@ from ansys.aedt.core.generic.aedt_constants import DesignType
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 
 EXTENSION_TITLE = "Extension Manager"
+"""Title displayed for the extension."""
 
 # Default width and height for the extension window
 WIDTH = 900
+"""Default width."""
 HEIGHT = 450
+"""Default height."""
 
 # Maximum dimensions for the extension window
 MAX_WIDTH = 900
+"""Maximum width."""
 MAX_HEIGHT = 550
+"""Maximum height."""
 
 # Minimum dimensions for the extension window
 MIN_WIDTH = 850
+"""Minimum width."""
 MIN_HEIGHT = 400
+"""Minimum height."""
 
 # Maximum characters shown in an extension card title before truncation
 MAX_CARD_LABEL_CHARS = 18
+"""Max card label chars."""
 
 AEDT_EXTENSION_APPLICATIONS = [
     "Common",
@@ -94,12 +109,37 @@ AEDT_EXTENSION_APPLICATIONS = [
     "EMIT",
     "TwinBuilder",
 ]
+"""AEDT extension applications."""
 
 
 class ExtensionManager(ExtensionProjectCommon):
-    """Extension for move it in AEDT."""
+    """Extension for move it in AEDT.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.installer.extension_manager import ExtensionManager
+    >>> manager = ExtensionManager(withdraw=True)
+
+    """
 
     OPTIONAL_EXTENSION_TOOLTIP = "This extension requires optional dependencies and is currently unavailable."
+    """Optional extension tooltip."""
+
+    def _theme_colors(self) -> dict[str, str]:
+        theme_name = cast(str, getattr(self.root, "theme", "light"))
+        return self.theme.light if theme_name == "light" else self.theme.dark
+
+    def _iter_widgets_by_type(self, widget: tkinter.Misc, widget_class: type[tkinter.Widget]) -> list[tkinter.Widget]:
+        widgets: list[tkinter.Widget] = []
+        if isinstance(widget, widget_class):
+            widgets.append(widget)
+        for child in widget.winfo_children():
+            widgets.extend(self._iter_widgets_by_type(child, widget_class))
+        return widgets
+
+    @staticmethod
+    def _noop() -> None:
+        return None
 
     def _resolve_category_folder(self, category: str) -> str:
         """Resolve the extension folder name from a category or product name.
@@ -139,37 +179,35 @@ class ExtensionManager(ExtensionProjectCommon):
             toggle_row=4,
             toggle_column=1,
         )
-        self.active_process = None
-        self.active_extension = None
+        self.active_process: subprocess.Popen[str] | None = None
+        self.active_extension: str | None = None
 
         # Selector for whether optional extensions are enabled.
         # This is used to disable interaction with extensions that
         # require dependencies not included in the base pyaedt install
-        self._optional_extensions = None
+        self._optional_extensions: bool | None = None
 
         self.python_interpreter = Path(sys.executable)
-        self.toolkits = None
+        self.toolkits: dict[str, dict[str, dict[str, Any]]] = {}
         self.add_to_aedt_var = tkinter.BooleanVar(value=True)
-        self.current_category = (
-            "Common"  # Default to Project application
-        )
+        self.current_category = "Common"  # Default to Project application
 
         # Tkinter widgets
-        self.right_panel = None
-        self.images = []
+        self.right_panel: ttk.Frame | None = None
+        self.images: list[PIL.ImageTk.PhotoImage] = []
 
         # Log variables
         self.full_log_buffer = []  # store tuples (text, tag)
-        self.logs_window = None
-        self.logs_text_widget = None
-        self._log_stream_threads = []
+        self.logs_window: tkinter.Toplevel | None = None
+        self.logs_text_widget: tkinter.Text | None = None
+        self._log_stream_threads: list[Any] = []
         self.apply_theme(self.theme_color)
 
         # Trigger manually since add_extension_content requires loading expression files first
         self.add_extension_content()
 
         # Add logger
-        self.add_logger(self.root, row=4, column=0)
+        self.add_logger(cast(tkinter.Widget, self.root), row=4, column=0)
 
         self.root.minsize(MIN_WIDTH, MIN_HEIGHT)
         self.root.maxsize(MAX_WIDTH, MAX_HEIGHT)
@@ -180,15 +218,23 @@ class ExtensionManager(ExtensionProjectCommon):
         # After UI initialization schedule the non-blocking update check
         try:
             check_for_pyaedt_update_on_startup(
-            self.root,
-            self.desktop.personallib,
-            self.show_pyaedt_update_popup,
+                cast(tkinter.Widget, self.root),
+                self.desktop.personallib,
+                self.show_pyaedt_update_popup,
             )
         except Exception:  # don't let update checker break the UI
             logging.getLogger("Global").debug("Failed to start pyaedt update checker", exc_info=True)
 
     def add_extension_content(self) -> None:
-        """Add custom content to the extension."""
+        """Add custom content to the extension.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.installer.extension_manager import ExtensionManager
+        >>> manager = ExtensionManager(withdraw=True)
+        >>> manager.add_extension_content()
+
+        """
         # Main container (horizontal layout)
         container = ttk.Frame(self.root, style="PyAEDT.TFrame")
         container.grid(row=1, column=0, columnspan=2, sticky="nsew")
@@ -197,21 +243,13 @@ class ExtensionManager(ExtensionProjectCommon):
         self.root.grid_columnconfigure(0, weight=1)
 
         # Left panel (Programs) with scrolling
-        left_panel = ttk.Frame(
-            container, style="PyAEDT.TFrame"
-        )
+        left_panel = ttk.Frame(container, style="PyAEDT.TFrame")
         left_panel.grid(row=0, column=0, sticky="nsew", padx=(0, 2))
 
         # Create scrollable left panel
-        left_canvas = tkinter.Canvas(
-            left_panel, highlightthickness=0, bd=0, width=135
-        )
-        left_scrollbar = ttk.Scrollbar(
-            left_panel, orient="vertical", command=left_canvas.yview
-        )
-        left_scroll_frame = ttk.Frame(
-            left_canvas, style="PyAEDT.TFrame"
-        )
+        left_canvas = tkinter.Canvas(left_panel, highlightthickness=0, bd=0, width=135)
+        left_scrollbar = ttk.Scrollbar(left_panel, orient="vertical", command=left_canvas.yview)
+        left_scroll_frame = ttk.Frame(left_canvas, style="PyAEDT.TFrame")
 
         # Apply theme to left canvas
         self.apply_canvas_theme(left_canvas)
@@ -219,9 +257,7 @@ class ExtensionManager(ExtensionProjectCommon):
         # Configure scrolling for left panel
         def _on_left_mousewheel(event) -> None:  # pragma: no cover
             if _left_content_overflows():
-                left_canvas.yview_scroll(
-                    int(-1 * (event.delta / 120)), "units"
-                )
+                left_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
 
         def _left_content_overflows():  # pragma: no cover
             left_canvas.update_idletasks()
@@ -239,9 +275,7 @@ class ExtensionManager(ExtensionProjectCommon):
             left_canvas.unbind_all("<MouseWheel>")
 
         def _configure_left_scroll_region(e) -> None:  # pragma: no cover
-            left_canvas.configure(
-                scrollregion=left_canvas.bbox("all")
-            )
+            left_canvas.configure(scrollregion=left_canvas.bbox("all"))
             # Show/hide scrollbar based on content overflows
             if _left_content_overflows():
                 left_scrollbar.grid(row=0, column=1, sticky="ns")
@@ -250,12 +284,8 @@ class ExtensionManager(ExtensionProjectCommon):
 
         left_canvas.bind("<Enter>", _bind_left_mousewheel)
         left_canvas.bind("<Leave>", _unbind_left_mousewheel)
-        left_scroll_frame.bind(
-            "<Configure>", _configure_left_scroll_region
-        )
-        left_window_id = left_canvas.create_window(
-            (0, 0), window=left_scroll_frame, anchor="nw"
-        )
+        left_scroll_frame.bind("<Configure>", _configure_left_scroll_region)
+        left_window_id = left_canvas.create_window((0, 0), window=left_scroll_frame, anchor="nw")
         left_canvas.configure(yscrollcommand=left_scrollbar.set)
 
         # Keep the inner frame as wide as the canvas so buttons fill
@@ -272,9 +302,7 @@ class ExtensionManager(ExtensionProjectCommon):
         left_panel.grid_columnconfigure(0, weight=1)
 
         # Right panel (Extensions)
-        self.right_panel = ttk.Frame(
-            container, style="PyAEDT.TFrame"
-        )
+        self.right_panel = ttk.Frame(container, style="PyAEDT.TFrame")
         self.right_panel.grid(row=0, column=1, sticky="nsew")
 
         container.grid_rowconfigure(0, weight=1)
@@ -299,8 +327,16 @@ class ExtensionManager(ExtensionProjectCommon):
         if self.current_category:
             self.load_extensions(self.current_category)
 
-    def load_extensions(self, category: str):
-        """Load application extensions."""
+    def load_extensions(self, category: str) -> None:
+        """Load application extensions.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.installer.extension_manager import ExtensionManager
+        >>> manager = ExtensionManager(withdraw=True)
+        >>> manager.load_extensions("Common")
+
+        """
         icon_category = self._resolve_category_folder(category)
         # Track the current category for UI refresh
         mapped_category = AEDT_APPLICATIONS.get(str(category).lower())
@@ -311,33 +347,25 @@ class ExtensionManager(ExtensionProjectCommon):
             self.current_category = category
         else:
             matched = next(
-                (
-                    v
-                    for v in AEDT_APPLICATIONS.values()
-                    if v.lower() == str(category).lower()
-                ),
+                (v for v in AEDT_APPLICATIONS.values() if v.lower() == str(category).lower()),
                 None,
             )
             self.current_category = matched or category
 
         # Clear right panel
+        if self.right_panel is None:
+            return
         for widget in self.right_panel.winfo_children():
             widget.destroy()
 
-        canvas = tkinter.Canvas(
-            self.right_panel, highlightthickness=0, bd=0
-        )
-        v_scrollbar = ttk.Scrollbar(
-            self.right_panel, orient="vertical", command=canvas.yview
-        )
+        canvas = tkinter.Canvas(self.right_panel, highlightthickness=0, bd=0)
+        v_scrollbar = ttk.Scrollbar(self.right_panel, orient="vertical", command=canvas.yview)
         h_scrollbar = ttk.Scrollbar(
             self.right_panel,
             orient="horizontal",
             command=canvas.xview,
         )
-        scroll_frame = ttk.Frame(
-            canvas, style="PyAEDT.TFrame"
-        )
+        scroll_frame = ttk.Frame(canvas, style="PyAEDT.TFrame")
 
         # Apply theme to canvas
         self.apply_canvas_theme(canvas)
@@ -346,16 +374,12 @@ class ExtensionManager(ExtensionProjectCommon):
         def _on_mousewheel(event) -> None:  # pragma: no cover
             # Only scroll if content overflows the canvas
             if _content_overflows_vertically():
-                canvas.yview_scroll(
-                    int(-1 * (event.delta / 120)), "units"
-                )
+                canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
 
         def _on_shift_mousewheel(event) -> None:  # pragma: no cover
             # Horizontal scrolling with Shift+MouseWheel
             if _content_overflows_horizontally():
-                canvas.xview_scroll(
-                    int(-1 * (event.delta / 120)), "units"
-                )
+                canvas.xview_scroll(int(-1 * (event.delta / 120)), "units")
 
         def _content_overflows_vertically():  # pragma: no cover
             # Check if scroll region height > canvas height
@@ -379,9 +403,7 @@ class ExtensionManager(ExtensionProjectCommon):
 
         def _bind_mousewheel(event) -> None:  # pragma: no cover
             canvas.bind_all("<MouseWheel>", _on_mousewheel)
-            canvas.bind_all(
-                "<Shift-MouseWheel>", _on_shift_mousewheel
-            )
+            canvas.bind_all("<Shift-MouseWheel>", _on_shift_mousewheel)
 
         def _unbind_mousewheel(event) -> None:  # pragma: no cover
             canvas.unbind_all("<MouseWheel>")
@@ -436,13 +458,13 @@ class ExtensionManager(ExtensionProjectCommon):
         # Load extensions from TOML
         category_toolkits = self._get_category_toolkits(self.current_category)
         extensions = list(category_toolkits.keys())
-        options = {}
-        toml_names = set()
+        options: dict[str, str] = {}
+        toml_names: list[str] = []
         if extensions:
             options["Custom"] = "Custom"
             for extension_name in extensions:
                 options[extension_name] = category_toolkits[extension_name].get("name", extension_name)
-                toml_names.add(category_toolkits[extension_name].get("name", extension_name))
+                toml_names.append(cast(str, category_toolkits[extension_name].get("name", extension_name)))
         else:
             options["Custom"] = "Custom"
 
@@ -452,21 +474,15 @@ class ExtensionManager(ExtensionProjectCommon):
         tabconfig_path = xml_dir / "TabConfig.xml"
         logger = logging.getLogger("Global")
         if xml_dir.is_dir() and tabconfig_path.is_file():
-            get_custom_extensions_from_tabconfig(
-                tabconfig_path, toml_names, options, logger=logger
-            )
+            get_custom_extensions_from_tabconfig(str(tabconfig_path), toml_names, options, logger=logger)
 
         for index, option in enumerate(options):
             row = (index // 4) + 1
             col = index % 4
 
             # Create main card container
-            card = ttk.Frame(
-                scroll_frame, style="PyAEDT.Card.TFrame"
-            )
-            card.grid(
-                row=row, column=col, padx=10, pady=10, sticky="nsew"
-            )
+            card = ttk.Frame(scroll_frame, style="PyAEDT.Card.TFrame")
+            card.grid(row=row, column=col, padx=10, pady=10, sticky="nsew")
 
             # Main icon – always centred in the card.
             main_icon_frame = ttk.Frame(card, style="PyAEDT.TFrame")
@@ -483,24 +499,21 @@ class ExtensionManager(ExtensionProjectCommon):
                 has_url = extension_info.get("url", None) is not None
 
             # If this is a custom extension from XML, use image and script fields
-            if (
-                option not in category_toolkits and
-                option != "Custom"
-            ):
+            if option not in category_toolkits and option != "Custom":
                 # Find the button element again to get image and script
-                try: # pragma: no cover
+                try:  # pragma: no cover
                     toolkit_dir = Path(self.desktop.personallib) / "Toolkits"
                     xml_dir = toolkit_dir / self.current_category
                     tabconfig_path = xml_dir / "TabConfig.xml"
                     logger = logging.getLogger("Global")
-                    image_path = get_custom_extension_image(tabconfig_path, option, logger=logger)
+                    image_path = get_custom_extension_image(str(tabconfig_path), option, logger=logger)
                     if image_path:
                         image_path_full = (xml_dir / image_path).resolve()
                     else:
                         image_path_full = ""
-                except Exception: # pragma: no cover
+                except Exception:  # pragma: no cover
                     image_path_full = ""
-                if image_path_full and Path(image_path_full).is_file(): # pragma: no cover
+                if image_path_full and Path(image_path_full).is_file():  # pragma: no cover
                     try:
                         img = PIL.Image.open(str(image_path_full))
                         photo = self.create_theme_background_image(img, (48, 48))
@@ -525,16 +538,9 @@ class ExtensionManager(ExtensionProjectCommon):
                     icon.pack()
             elif option.lower() == "custom":
                 try:
-                    icon_path = (
-                        EXTENSIONS_PATH
-                        / "images"
-                        / "large"
-                        / "pyansys.png"
-                    )
+                    icon_path = EXTENSIONS_PATH / "images" / "large" / "pyansys.png"
                     img = PIL.Image.open(str(icon_path))
-                    photo = self.create_theme_background_image(
-                        img, (48, 48)
-                    )
+                    photo = self.create_theme_background_image(img, (48, 48))
                     self.images.append(photo)
                     icon = ttk.Label(main_icon_frame, image=photo)
                     icon.pack()
@@ -551,27 +557,16 @@ class ExtensionManager(ExtensionProjectCommon):
                     # Try to find the icon for this specific extension
                     extension_info = category_toolkits[option]
                     if extension_info.get("icon"):
-                        icon_path = (
-                            EXTENSIONS_PATH
-                            / icon_category
-                            / extension_info["icon"]
-                        )
+                        icon_path = EXTENSIONS_PATH / icon_category / extension_info["icon"]
                     else:
-                        icon_path = (
-                            EXTENSIONS_PATH
-                            / "images"
-                            / "large"
-                            / "pyansys.png"
-                        )
+                        icon_path = EXTENSIONS_PATH / "images" / "large" / "pyansys.png"
 
                     # Load image and preserve transparency
                     img = PIL.Image.open(str(icon_path))
 
                     # Use the extracted method for theme background
                     # handling
-                    photo = self.create_theme_background_image(
-                        img, (48, 48)
-                    )
+                    photo = self.create_theme_background_image(img, (48, 48))
                     self.images.append(photo)
                     icon = ttk.Label(main_icon_frame, image=photo)
                     icon.pack()
@@ -619,9 +614,7 @@ class ExtensionManager(ExtensionProjectCommon):
             is_toolkit = False
             if option.lower() != "custom" and option in category_toolkits:
                 extension_info = category_toolkits[option]
-                is_extension = (
-                    extension_info.get("script", None) is not None
-                )
+                is_extension = extension_info.get("script", None) is not None
                 is_toolkit = not is_extension
             # For custom extensions from XML, treat as extension (show Launch button)
             if option not in category_toolkits and option != "Custom":
@@ -633,19 +626,13 @@ class ExtensionManager(ExtensionProjectCommon):
             # top-right corner of the card so the main icon stays
             # centred.
             if is_extension:
-                overlay_frame = tkinter.Frame(
-                    card, highlightthickness=0
-                )
+                overlay_frame = tkinter.Frame(card, highlightthickness=0)
                 overlay_frame.place(relx=1.0, y=4, anchor="ne", x=-4)
 
-                pin_icon = self.create_pin_icon(
-                    overlay_frame, category, option, disabled=is_optional
-                )
+                pin_icon = self.create_pin_icon(overlay_frame, category, option, disabled=is_optional)
                 pin_icon.pack()
             # Show appropriate buttons based on type
-            if (option.lower() == "custom" or
-                (option not in category_toolkits and
-                 option != "Custom")):
+            if option.lower() == "custom" or (option not in category_toolkits and option != "Custom"):
                 # Custom extensions get a shortcut button for pinning
                 button_frame = ttk.Frame(card, style="PyAEDT.TFrame")
                 button_frame.pack(padx=10, pady=(0, 10), fill="x")
@@ -654,8 +641,7 @@ class ExtensionManager(ExtensionProjectCommon):
                     button_frame,
                     text="Launch",
                     style="PyAEDT.ActionLaunch.TButton",
-                    command=lambda cat=category,
-                    opt=option: self.launch_extension(cat, opt),
+                    command=lambda cat=category, opt=option: self.launch_extension(cat, opt),
                 )
                 custom_btn.pack(expand=True, fill="x")
             elif is_toolkit:
@@ -666,15 +652,9 @@ class ExtensionManager(ExtensionProjectCommon):
                 web_btn = ttk.Button(
                     button_frame,
                     text="Open Web",
-                    style=(
-                        "PyAEDT.ActionDisabled.TButton"
-                        if is_optional
-                        else "PyAEDT.ActionWeb.TButton"
-                    ),
+                    style=("PyAEDT.ActionDisabled.TButton" if is_optional else "PyAEDT.ActionWeb.TButton"),
                     command=(
-                        None
-                        if is_optional
-                        else lambda cat=category, opt=option: self.launch_web_url(cat, opt)
+                        self._noop if is_optional else lambda cat=category, opt=option: self.launch_web_url(cat, opt)
                     ),
                     cursor="" if is_optional else "hand2",
                     takefocus=not is_optional,
@@ -690,15 +670,9 @@ class ExtensionManager(ExtensionProjectCommon):
                 launch_btn = ttk.Button(
                     button_frame,
                     text="Launch",
-                    style=(
-                        "PyAEDT.ActionDisabled.TButton"
-                        if is_optional
-                        else "PyAEDT.ActionLaunch.TButton"
-                    ),
+                    style=("PyAEDT.ActionDisabled.TButton" if is_optional else "PyAEDT.ActionLaunch.TButton"),
                     command=(
-                        None
-                        if is_optional
-                        else lambda cat=category, opt=option: self.launch_extension(cat, opt)
+                        self._noop if is_optional else lambda cat=category, opt=option: self.launch_extension(cat, opt)
                     ),
                     cursor="" if is_optional else "hand2",
                     takefocus=not is_optional,
@@ -711,8 +685,16 @@ class ExtensionManager(ExtensionProjectCommon):
         for col in range(4):
             scroll_frame.grid_columnconfigure(col, weight=1, uniform="card")
 
-    def launch_extension(self, category: str, option: str):
-        """Launch extension without pinning it to AEDT top bar."""
+    def launch_extension(self, category: str, option: str) -> None:
+        """Launch extension without pinning it to AEDT top bar.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.installer.extension_manager import ExtensionManager
+        >>> manager = ExtensionManager(withdraw=True)
+        >>> manager.launch_extension("Common", "Custom")
+
+        """
         if self.is_optional_extension_disabled(category, option):
             self._log_optional_extension_blocked(option)
             return
@@ -723,28 +705,31 @@ class ExtensionManager(ExtensionProjectCommon):
         self.active_extension = None
         category_folder = self._resolve_category_folder(category)
         is_custom = option.lower() == "custom"
-        script_file = None
-        script_field = None
+        script_file: Path | None = None
+        script_field: str | None = None
         option_label = option
         logger = logging.getLogger("Global")
-        if option not in self.toolkits.get(self.current_category, {}) and option != "Custom": # pragma: no cover
+        current_toolkits = self.toolkits.get(self.current_category, {})
+        if option not in current_toolkits and option != "Custom":  # pragma: no cover
             toolkit_dir = Path(self.desktop.personallib) / "Toolkits"
             xml_dir = toolkit_dir / self.current_category
             tabconfig_path = xml_dir / "TabConfig.xml"
             if xml_dir.is_dir() and tabconfig_path.is_file():
-                script_field = get_custom_extension_script(tabconfig_path, option, logger=logger)
+                script_field = get_custom_extension_script(str(tabconfig_path), option, logger=logger)
                 if script_field:
                     script_file = (xml_dir / script_field).resolve()
                 else:
                     script_file = None
                 option_label = option
             if not script_file:
-                messagebox.showinfo("Error", f"Script {script_field} for custom extension "
-                                             f"'{option}' not found.")
+                messagebox.showinfo("Error", f"Script {script_field} for custom extension '{option}' not found.")
                 return
         elif is_custom:
             script_file, display_name = self.handle_custom_extension()
             if script_file is None:
+                self.desktop.logger.info("Exited custom extension setup.")
+                return
+            if display_name is None:
                 self.desktop.logger.info("Exited custom extension setup.")
                 return
             option_label = display_name
@@ -752,12 +737,10 @@ class ExtensionManager(ExtensionProjectCommon):
             # PyAEDT built-in extensions
             option_label = option
             category_toolkits = self.toolkits.get(self.current_category, {})
-            if category_toolkits.get(option, {}).get("script", None):
-                script_file = (
-                    EXTENSIONS_PATH
-                    / category_folder
-                    / self.toolkits[self.current_category][option]["script"]
-                )
+            extension_info = category_toolkits.get(option, {})
+            script_name = cast(str | None, extension_info.get("script", None))
+            if script_name:
+                script_file = EXTENSIONS_PATH / category_folder / script_name
             else:
                 messagebox.showinfo("Error", "Wrong extension.")
                 return
@@ -786,7 +769,8 @@ class ExtensionManager(ExtensionProjectCommon):
             # Refresh the custom extensions
             self.load_extensions(category)
             self.desktop.logger.info(
-                "Extension %s pinned successfully. If the extension is not visible, create a new AEDT session or create a new project.",
+                "Extension %s pinned successfully. "
+                "If the extension is not visible, create a new AEDT session or create a new project.",
                 option_label,
             )
 
@@ -806,9 +790,13 @@ class ExtensionManager(ExtensionProjectCommon):
         if not script_file.suffix == ".py":
             script_file = script_file.with_suffix(".py")
         self.active_extension = option
-        self.active_process = subprocess.Popen([
-            self.python_interpreter, str(script_file)
-        ], shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)  # nosec
+        self.active_process = subprocess.Popen(
+            [self.python_interpreter, str(script_file)],
+            shell=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )  # nosec
 
         # Start streaming logs
         self._start_log_stream_threads()
@@ -816,43 +804,40 @@ class ExtensionManager(ExtensionProjectCommon):
     def _start_log_stream_threads(self) -> None:
         """Start background threads to capture stdout and stderr."""
         import threading
+
         if not self.active_process:
             return
+
         def reader(stream, tag) -> None:
-            for line in iter(stream.readline, ''):
-                self._append_full_log(line.rstrip('\n'), tag)
+            for line in iter(stream.readline, ""):
+                self._append_full_log(line.rstrip("\n"), tag)
             stream.close()
+
         for thr in self._log_stream_threads:
             if thr.is_alive():
                 return  # already running
         self._log_stream_threads = []
-        t_out = threading.Thread(
-            target=reader, args=(self.active_process.stdout, 'stdout'), daemon=True
-        )
-        t_err = threading.Thread(
-            target=reader, args=(self.active_process.stderr, 'stderr'), daemon=True
-        )
+        t_out = threading.Thread(target=reader, args=(self.active_process.stdout, "stdout"), daemon=True)
+        t_err = threading.Thread(target=reader, args=(self.active_process.stderr, "stderr"), daemon=True)
         t_out.start()
         t_err.start()
         self._log_stream_threads.extend([t_out, t_err])
         # Schedule periodic UI refresh
         self.root.after(500, self._periodic_log_refresh)
 
-    def _append_full_log(self, text, tag):
+    def _append_full_log(self, text: str, tag: str) -> None:
         self.full_log_buffer.append((text, tag))
         # Keep size bounded (optional)
         if len(self.full_log_buffer) > 10000:
             self.full_log_buffer = self.full_log_buffer[-8000:]
 
-    def _periodic_log_refresh(self) -> None: # pragma: no cover
+    def _periodic_log_refresh(self) -> None:  # pragma: no cover
         # If detached window open update it
         if self.logs_window and self.logs_text_widget:
             try:
                 self._update_logs_text_widget()
             except Exception:
-                messagebox.showerror(
-                    "Error", "Logs window error. Closing it."
-                )
+                messagebox.showerror("Error", "Logs window error. Closing it.")
         # Reschedule if process still running
         if self.active_process and self.active_process.poll() is None:
             self.root.after(500, self._periodic_log_refresh)
@@ -863,18 +848,18 @@ class ExtensionManager(ExtensionProjectCommon):
             return
         # Save current view to auto-scroll only if at bottom
         at_end = False
-        if widget.index('end-1c') == widget.index('insert'):
+        if widget.index("end-1c") == widget.index("insert"):
             at_end = True
-        widget.configure(state='normal')
-        widget.delete('1.0', 'end')
+        widget.configure(state="normal")
+        widget.delete("1.0", "end")
         for line, tag in self.full_log_buffer:
-            if tag == 'stderr':
-                widget.insert('end', line + '\n', 'stderr')
+            if tag == "stderr":
+                widget.insert("end", line + "\n", "stderr")
             else:
-                widget.insert('end', line + '\n')
-        widget.configure(state='disabled')
+                widget.insert("end", line + "\n")
+        widget.configure(state="disabled")
         if at_end:
-            widget.see('end')
+            widget.see("end")
 
     def _close_logs_window(self) -> None:  # pragma: no cover
         """Close and cleanup the detached logs window."""
@@ -882,9 +867,7 @@ class ExtensionManager(ExtensionProjectCommon):
             try:
                 self.logs_window.destroy()
             except Exception:
-                messagebox.showerror(
-                    "Error", "Failed to close logs window."
-                )
+                messagebox.showerror("Error", "Failed to close logs window.")
             finally:
                 # Clear reference so future checks see it's closed
                 self.logs_window = None
@@ -892,83 +875,77 @@ class ExtensionManager(ExtensionProjectCommon):
 
     def open_all_logs_window(self) -> None:  # override base
         # Toggle behavior: if already open, close it on button click
-        if self.logs_window and tkinter.Toplevel.winfo_exists(
-            self.logs_window
-        ):
+        if self.logs_window and tkinter.Toplevel.winfo_exists(self.logs_window):
             try:
                 self._close_logs_window()
                 return
             except Exception:  # pragma: no cover
-                messagebox.showerror(
-                    "Error", "Failed to close existing logs window."
-                )
+                messagebox.showerror("Error", "Failed to close existing logs window.")
                 return
         self.logs_window = tkinter.Toplevel(self.root)
-        self.logs_window.title('Extension Logs')
-        self.logs_window.geometry('700x400')
-        self.logs_window.protocol(
-            'WM_DELETE_WINDOW', self._close_logs_window
-        )
+        self.logs_window.title("Extension Logs")
+        self.logs_window.geometry("700x400")
+        self.logs_window.protocol("WM_DELETE_WINDOW", self._close_logs_window)
 
         # Match the Toplevel background to the current theme.
-        theme_colors = (
-            self.theme.light if self.root.theme == 'light'
-            else self.theme.dark
-        )
-        self.logs_window.configure(background=theme_colors['widget_bg'])
+        theme_colors = self._theme_colors()
+        self.logs_window.configure(background=theme_colors["widget_bg"])
 
         # Top-right buttons frame
-        top_btn_frame = ttk.Frame(self.logs_window, style='PyAEDT.TFrame')
-        top_btn_frame.pack(fill='x', padx=5, pady=(5, 0))
+        top_btn_frame = ttk.Frame(self.logs_window, style="PyAEDT.TFrame")
+        top_btn_frame.pack(fill="x", padx=5, pady=(5, 0))
 
         # Place buttons on the right side of the top bar
         export_btn = ttk.Button(
             top_btn_frame,
-            text='Export',
-            style='PyAEDT.TButton',
+            text="Export",
+            style="PyAEDT.TButton",
             command=self._export_logs,
             width=10,
         )
-        export_btn.pack(side='right', padx=(5, 0))
+        export_btn.pack(side="right", padx=(5, 0))
 
         clear_btn = ttk.Button(
             top_btn_frame,
-            text='Clear',
-            style='PyAEDT.TButton',
+            text="Clear",
+            style="PyAEDT.TButton",
             command=self._clear_logs,
             width=10,
         )
-        clear_btn.pack(side='right')
+        clear_btn.pack(side="right")
 
         # Text area + scrollbars container (below top buttons)
-        text_frame = ttk.Frame(self.logs_window, style='PyAEDT.TFrame')
-        text_frame.pack(fill='both', expand=True, padx=5, pady=(5, 5))
+        text_frame = ttk.Frame(self.logs_window, style="PyAEDT.TFrame")
+        text_frame.pack(fill="both", expand=True, padx=5, pady=(5, 5))
 
         # Vertical and horizontal scrollbars
-        v_scroll = ttk.Scrollbar(text_frame, orient='vertical')
-        h_scroll = ttk.Scrollbar(text_frame, orient='horizontal')
+        v_scroll = ttk.Scrollbar(text_frame, orient="vertical")
+        h_scroll = ttk.Scrollbar(text_frame, orient="horizontal")
 
         txt = tkinter.Text(
-            text_frame, wrap='none',
-            xscrollcommand=h_scroll.set, yscrollcommand=v_scroll.set,
-            highlightthickness=0, bd=0,
+            text_frame,
+            wrap="none",
+            xscrollcommand=h_scroll.set,
+            yscrollcommand=v_scroll.set,
+            highlightthickness=0,
+            bd=0,
         )
         # Attach scroll commands
         v_scroll.config(command=txt.yview)
         h_scroll.config(command=txt.xview)
 
         # Layout: vertical scrollbar on right, horizontal at bottom
-        v_scroll.pack(side='right', fill='y')
-        h_scroll.pack(side='bottom', fill='x')
-        txt.pack(side='left', fill='both', expand=True)
+        v_scroll.pack(side="right", fill="y")
+        h_scroll.pack(side="bottom", fill="x")
+        txt.pack(side="left", fill="both", expand=True)
 
         # Apply theme colors
         txt.configure(
-            background=theme_colors['pane_bg'],
-            foreground=theme_colors['text'],
+            background=theme_colors["pane_bg"],
+            foreground=theme_colors["text"],
             font=self.theme.default_font,
         )
-        txt.tag_config('stderr', foreground='red')
+        txt.tag_config("stderr", foreground="red")
         self.logs_text_widget = txt
         self._update_logs_text_widget()
 
@@ -977,60 +954,58 @@ class ExtensionManager(ExtensionProjectCommon):
         self.full_log_buffer.clear()
         if self.logs_text_widget:
             try:
-                self.logs_text_widget.configure(state='normal')
-                self.logs_text_widget.delete('1.0', 'end')
-                self.logs_text_widget.configure(state='disabled')
+                self.logs_text_widget.configure(state="normal")
+                self.logs_text_widget.delete("1.0", "end")
+                self.logs_text_widget.configure(state="disabled")
             except Exception:  # pragma: no cover
-                messagebox.showerror(
-                    "Error", "Failed to clear logs window."
-                )
+                messagebox.showerror("Error", "Failed to clear logs window.")
 
     def _export_logs(self) -> None:
         """Export logs to a text file."""
         if not self.full_log_buffer:
-            messagebox.showinfo(
-                'Export Logs', 'No logs to export.'
-            )
+            messagebox.showinfo("Export Logs", "No logs to export.")
             return
         file_path = filedialog.asksaveasfilename(
-            title='Save Logs',
-            defaultextension='.txt',
-            filetypes=[('Text Files', '*.txt'), ('All Files', '*.*')],
+            title="Save Logs",
+            defaultextension=".txt",
+            filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")],
         )
         if not file_path:
             return
         try:
-            with open(file_path, 'w', encoding='utf-8') as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 for line, tag in self.full_log_buffer:
-                    if tag == 'stderr':
-                        f.write('[ERR] ' + line + '\n')
+                    if tag == "stderr":
+                        f.write("[ERR] " + line + "\n")
                     else:
-                        f.write(line + '\n')
-            messagebox.showinfo(
-                'Export Logs', f'Logs saved to\n{file_path}'
-            )
+                        f.write(line + "\n")
+            messagebox.showinfo("Export Logs", f"Logs saved to\n{file_path}")
         except Exception as e:
-            messagebox.showerror(
-                'Export Logs', f'Failed to save logs: {e}'
-            )
+            messagebox.showerror("Export Logs", f"Failed to save logs: {e}")
 
-    def pin_extension(self, category: str, option: str):
-        """Pin extension to AEDT to bar."""
+    def pin_extension(self, category: str, option: str) -> None:
+        """Pin extension to AEDT to bar.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.installer.extension_manager import ExtensionManager
+        >>> manager = ExtensionManager(withdraw=True)
+        >>> manager.pin_extension("Common", "Custom")
+
+        """
         if self.is_optional_extension_disabled(category, option):
             self._log_optional_extension_blocked(option)
             return
         if option.lower() == "custom":
-            script_file, option = self.handle_custom_extension()
-            icon = (
-                EXTENSIONS_PATH / "images" / "large" / "pyansys.png"
-            )
+            script_file, custom_option = self.handle_custom_extension()
+            icon = EXTENSIONS_PATH / "images" / "large" / "pyansys.png"
             # If the user selected a script, copy it into personal lib Toolkits/<product>/<option>/Lib
-            if not script_file:
+            if not script_file or custom_option is None:
                 self.desktop.logger.info("No script selected for custom extension. Aborting pin.")
                 return
             try:
                 add_script_to_menu(
-                    name=option,
+                    name=custom_option,
                     script_file=str(script_file),
                     template_file="run_pyaedt_toolkit_script",
                     icon_file=str(icon),
@@ -1039,27 +1014,21 @@ class ExtensionManager(ExtensionProjectCommon):
                     personal_lib=self.desktop.personallib,
                     is_custom=True,
                 )
-                msg = (f"Extension {option} pinned successfully.\n"
-                       f"If the extension is not visible create a new AEDT session or create a new project.")
+                msg = (
+                    f"Extension {custom_option} pinned successfully.\n"
+                    f"If the extension is not visible create a new AEDT session or create a new project."
+                )
                 self.desktop.logger.info(msg)
                 self.log_message(msg)
             except Exception as e:
-                self.desktop.logger.error(f"Failed to pin custom extension {option}: {e}")
+                self.desktop.logger.error(f"Failed to pin custom extension {custom_option}: {e}")
                 messagebox.showerror("Error", f"Failed to pin custom extension: {e}")
                 return
         else:
             if self.toolkits[self.current_category][option].get("script", None):
                 category_folder = self._resolve_category_folder(category)
-                script_file = (
-                    EXTENSIONS_PATH
-                    / category_folder
-                    / self.toolkits[self.current_category][option]["script"]
-                )
-                icon = (
-                    EXTENSIONS_PATH
-                    / category_folder
-                    / self.toolkits[self.current_category][option]["icon"]
-                )
+                script_file = EXTENSIONS_PATH / category_folder / self.toolkits[self.current_category][option]["script"]
+                icon = EXTENSIONS_PATH / category_folder / self.toolkits[self.current_category][option]["icon"]
                 # Pin the extension
                 add_script_to_menu(
                     name=option,
@@ -1070,8 +1039,10 @@ class ExtensionManager(ExtensionProjectCommon):
                     copy_to_personal_lib=False,
                     personal_lib=self.desktop.personallib,
                 )
-                msg = (f"Extension {option} pinned successfully.\n"
-                       f"If the extension is not visible create a new AEDT session or create a new project.")
+                msg = (
+                    f"Extension {option} pinned successfully.\n"
+                    f"If the extension is not visible create a new AEDT session or create a new project."
+                )
                 self.desktop.logger.info(msg)
                 self.log_message(msg)
                 # # Refresh toolkit UI
@@ -1085,35 +1056,44 @@ class ExtensionManager(ExtensionProjectCommon):
         # Refresh the extension manager UI to show the unpin button
         self.load_extensions(category)
 
-    def handle_custom_extension(self):
-        """Handle custom extension pin to the top bar."""
+    def handle_custom_extension(self) -> tuple[Path | None, str | None]:
+        """Handle custom extension pin to the top bar.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.installer.extension_manager import ExtensionManager
+        >>> manager = ExtensionManager(withdraw=True)
+        >>> manager.handle_custom_extension()
+
+        """
         # Prompt user for script file and extension name
-        result = {"script_file": None, "display_name": None}
+        script_result: Path | None = None
+        display_name_result: str | None = None
         # Create a single dialog window for all inputs
         dialog = tkinter.Toplevel(self.root)
         dialog.title("Custom Extension Setup")
         dialog.resizable(False, False)
 
         # Apply theme to dialog
-        theme_colors = (
-            self.theme.light if self.root.theme == "light"
-            else self.theme.dark
-        )
+        theme_colors = self._theme_colors()
         dialog.configure(background=theme_colors["widget_bg"])
 
         # Script file selection
         ttk.Label(
-            dialog, text="Select Extension Script:",
+            dialog,
+            text="Select Extension Script:",
             style="PyAEDT.TLabel",
         ).pack(padx=10, pady=(10, 2), anchor="w")
         script_var = tkinter.StringVar()
         script_entry = ttk.Entry(
-            dialog, textvariable=script_var, width=60,
+            dialog,
+            textvariable=script_var,
+            width=60,
             style="PyAEDT.TEntry",
         )
         script_entry.pack(padx=10, pady=2, fill="x")
 
-        def browse_script() -> None: # pragma: no cover
+        def browse_script() -> None:  # pragma: no cover
             file_path = filedialog.askopenfilename(
                 title="Select Python script",
                 filetypes=[("Python Files", "*.py"), ("All Files", "*.*")],
@@ -1122,19 +1102,24 @@ class ExtensionManager(ExtensionProjectCommon):
                 script_var.set(file_path)
 
         browse_btn = ttk.Button(
-            dialog, text="Browse...", command=browse_script,
+            dialog,
+            text="Browse...",
+            command=browse_script,
             style="PyAEDT.TButton",
         )
         browse_btn.pack(padx=10, pady=2, anchor="e")
 
         # Extension name input
         ttk.Label(
-            dialog, text="Extension Name:",
+            dialog,
+            text="Extension Name:",
             style="PyAEDT.TLabel",
         ).pack(padx=10, pady=(10, 2), anchor="w")
         name_var = tkinter.StringVar(value="Custom Extension")
         name_entry = ttk.Entry(
-            dialog, textvariable=name_var, width=60,
+            dialog,
+            textvariable=name_var,
+            width=60,
             style="PyAEDT.TEntry",
         )
         name_entry.pack(padx=10, pady=2, fill="x")
@@ -1144,18 +1129,16 @@ class ExtensionManager(ExtensionProjectCommon):
         btn_frame.pack(padx=10, pady=10, fill="x")
 
         def on_ok() -> None:
+            nonlocal display_name_result
+            nonlocal script_result
             script = script_var.get().strip()
             name = name_var.get().strip()
 
             # Basic validation
             if not script:
-                script = (
-                    EXTENSIONS_PATH
-                    / "templates"
-                    / "template_get_started.py"
-                )
+                script = EXTENSIONS_PATH / "templates" / "template_get_started.py"
             script_path = Path(script)
-            if not name: # pragma: no cover
+            if not name:  # pragma: no cover
                 messagebox.showerror("Error", "Please enter an extension name.")
                 return
 
@@ -1186,22 +1169,24 @@ class ExtensionManager(ExtensionProjectCommon):
                 )
                 return
 
-            result["script_file"] = script_path.resolve()
-            result["display_name"] = name
+            script_result = script_path.resolve()
+            display_name_result = name
             dialog.destroy()
 
         def on_cancel() -> None:
-            result["script_file"] = None
-            result["display_name"] = None
             dialog.destroy()
 
         ok_btn = ttk.Button(
-            btn_frame, text="OK", command=on_ok,
+            btn_frame,
+            text="OK",
+            command=on_ok,
             style="PyAEDT.TButton",
         )
         ok_btn.pack(side="right", padx=(5, 0))
         cancel_btn = ttk.Button(
-            btn_frame, text="Cancel", command=on_cancel,
+            btn_frame,
+            text="Cancel",
+            command=on_cancel,
             style="PyAEDT.TButton",
         )
         cancel_btn.pack(side="right")
@@ -1209,16 +1194,18 @@ class ExtensionManager(ExtensionProjectCommon):
         dialog.grab_set()
         self.root.wait_window(dialog)
 
-        if result["script_file"]:
-            return result["script_file"], result["display_name"]
+        if script_result:
+            return script_result, display_name_result
         return None, None
 
-    def create_theme_background_image(self, img: PIL.ImageTk.PhotoImage, target_size: tuple = None) -> PIL.ImageTk.PhotoImage:
+    def create_theme_background_image(
+        self, img: PIL.Image.Image, target_size: tuple[int, int] | None = None
+    ) -> PIL.ImageTk.PhotoImage:
         """Create a background image with theme color for transparency.
 
         Parameters
         ----------
-        img : PIL.ImageTk.PhotoImage
+        img : PIL.Image.Image
             The image to process.
         target_size : tuple, optional
             Target size to resize the image to (width, height).
@@ -1227,34 +1214,33 @@ class ExtensionManager(ExtensionProjectCommon):
         -------
         PIL.ImageTk.PhotoImage
             The processed image ready for tkinter.
+
+        Examples
+        --------
+        >>> import PIL.Image
+        >>> from ansys.aedt.core.extensions.installer.extension_manager import ExtensionManager
+        >>> manager = ExtensionManager(withdraw=True)
+        >>> image = PIL.Image.open("C:\\\\Temp\\\\icon.png")
+        >>> manager.create_theme_background_image(image, (48, 48))
+
         """
         # Resize if target size is specified
         if target_size:
-            img = img.resize(target_size, PIL.Image.LANCZOS)
+            img = img.resize(target_size, PIL.Image.Resampling.LANCZOS)
 
         # Get current theme colors for background
-        theme_colors = (
-            self.theme.light
-            if self.root.theme == "light"
-            else self.theme.dark
-        )
+        theme_colors = self._theme_colors()
 
         # Create a background with theme color for transparency
         if img.mode == "RGBA" or "transparency" in img.info:
             # Create background with theme color
             bg_color = theme_colors["widget_bg"]
             # Convert hex to RGB
-            bg_rgb = tuple(
-                int(bg_color[i : i + 2], 16) for i in (1, 3, 5)
-            )
+            bg_rgb = tuple(int(bg_color[i : i + 2], 16) for i in (1, 3, 5))
             # Make background fully transparent
-            background = PIL.Image.new(
-                "RGBA", img.size, bg_rgb + (0,)
-            )
+            background = PIL.Image.new("RGBA", img.size, bg_rgb + (0,))
             # Blend with original image
-            img = PIL.Image.alpha_composite(
-                background, img.convert("RGBA")
-            )
+            img = PIL.Image.alpha_composite(background, img.convert("RGBA"))
 
         return PIL.ImageTk.PhotoImage(img, master=self.root)
 
@@ -1263,7 +1249,7 @@ class ExtensionManager(ExtensionProjectCommon):
         parent: tkinter.Widget,
         category: str,
         option: str,
-        size=(20, 20),
+        size: tuple[int, int] = (20, 20),
         disabled: bool = False,
     ) -> ttk.Label:
         """Create a pin icon based on extension installation status.
@@ -1285,36 +1271,29 @@ class ExtensionManager(ExtensionProjectCommon):
         -------
         ttk.Label
             The pin icon label widget.
+
+        Examples
+        --------
+        >>> import tkinter as tk
+        >>> from ansys.aedt.core.extensions.installer.extension_manager import ExtensionManager
+        >>> manager = ExtensionManager(withdraw=True)
+        >>> frame = tk.Frame(manager.root)
+        >>> manager.create_pin_icon(frame, "Common", "Custom")
+
         """
         is_pinned = self.check_extension_pinned(category, option)
 
         if is_pinned:
-            pin_path = (
-                EXTENSIONS_PATH
-                / "installer"
-                / "images"
-                / "large"
-                / "pin.png"
-            )
+            pin_path = EXTENSIONS_PATH / "installer" / "images" / "large" / "pin.png"
             tooltip_text = "Click to unpin extension"
         else:
-            pin_path = (
-                EXTENSIONS_PATH
-                / "installer"
-                / "images"
-                / "large"
-                / "unpin.png"
-            )
+            pin_path = EXTENSIONS_PATH / "installer" / "images" / "large" / "unpin.png"
             tooltip_text = "Click to pin extension"
 
         # Load pin image
         pin_img = PIL.Image.open(str(pin_path))
         if disabled:
-            theme_colors = (
-                self.theme.light
-                if self.root.theme == "light"
-                else self.theme.dark
-            )
+            theme_colors = self._theme_colors()
             alpha = pin_img.convert("RGBA").getchannel("A").point(lambda value: int(value * 0.6))
             grayscale = PIL.ImageOps.grayscale(pin_img.convert("RGBA"))
             pin_img = PIL.ImageOps.colorize(
@@ -1325,9 +1304,7 @@ class ExtensionManager(ExtensionProjectCommon):
             pin_img.putalpha(alpha)
 
         # Use the extracted method for theme background handling
-        pin_photo = self.create_theme_background_image(
-            pin_img, target_size=size
-        )
+        pin_photo = self.create_theme_background_image(pin_img, target_size=size)
         self.images.append(pin_photo)
 
         pin_label = ttk.Label(
@@ -1357,6 +1334,13 @@ class ExtensionManager(ExtensionProjectCommon):
             The category/product name.
         option : str
             The extension name.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.installer.extension_manager import ExtensionManager
+        >>> manager = ExtensionManager(withdraw=True)
+        >>> manager.on_pin_click("Common", "Custom")
+
         """
         if self.is_optional_extension_disabled(category, option):
             self._log_optional_extension_blocked(option)
@@ -1369,12 +1353,18 @@ class ExtensionManager(ExtensionProjectCommon):
             self.pin_extension(category, option)
 
     def apply_canvas_theme(self, canvas: tkinter.Canvas):
-        """Apply theme to a specific canvas widget."""
-        theme_colors = (
-            self.theme.light
-            if self.root.theme == "light"
-            else self.theme.dark
-        )
+        """Apply theme to a specific canvas widget.
+
+        Examples
+        --------
+        >>> import tkinter as tk
+        >>> from ansys.aedt.core.extensions.installer.extension_manager import ExtensionManager
+        >>> manager = ExtensionManager(withdraw=True)
+        >>> canvas = tk.Canvas(manager.root)
+        >>> manager.apply_canvas_theme(canvas)
+
+        """
+        theme_colors = self._theme_colors()
         canvas.configure(
             background=theme_colors["widget_bg"],
             highlightthickness=0,
@@ -1382,17 +1372,23 @@ class ExtensionManager(ExtensionProjectCommon):
         )
 
     def toggle_theme(self) -> None:
-        """Toggle between light and dark themes and refresh UI."""
+        """Toggle between light and dark themes and refresh UI.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.installer.extension_manager import ExtensionManager
+        >>> manager = ExtensionManager(withdraw=True)
+        >>> manager.toggle_theme()
+
+        """
         super().toggle_theme()
 
         # Clear the images cache to force recreation with new theme
         self.images.clear()
 
         # Update all canvas elements in the UI
-        for widget in self._ExtensionCommon__find_all_widgets(
-            self.root, tkinter.Canvas
-        ):
-            self.apply_canvas_theme(widget)
+        for widget in self._iter_widgets_by_type(self.root, tkinter.Canvas):
+            self.apply_canvas_theme(cast(tkinter.Canvas, widget))
 
         # Recreate the extension content with new theme-appropriate
         # images
@@ -1401,25 +1397,22 @@ class ExtensionManager(ExtensionProjectCommon):
     def confirm_unpin(self, category: str, option: str):
         # If custom extension, label starts with 'custom_'
         is_custom = option.startswith("custom_")
-        if option.lower() == "custom": # pragma: no cover
-            option = simpledialog.askstring(
-                "Extension Name", "Extension name to unpin:",
+        if option.lower() == "custom":  # pragma: no cover
+            chosen_option = simpledialog.askstring(
+                "Extension Name",
+                "Extension name to unpin:",
             )
-            if not option:
-                messagebox.showinfo(
-                    "Information", "Wrong extension name."
-                )
+            if not chosen_option:
+                messagebox.showinfo("Information", "Wrong extension name.")
                 return
+            option = chosen_option
             is_custom = option.startswith("custom_")
         product = category
         toolkit_dir = Path(self.desktop.personallib) / "Toolkits"
-        if not is_extension_in_panel(
-            str(toolkit_dir), product, option
-        ):
+        if not is_extension_in_panel(str(toolkit_dir), product, option):
             messagebox.showinfo(
                 "Information",
-                f"'{option}' extension is already unpined "
-                f"or does not exist in {category}.",
+                f"'{option}' extension is already unpined or does not exist in {category}.",
             )
             return
         answer = messagebox.askyesno(
@@ -1429,16 +1422,13 @@ class ExtensionManager(ExtensionProjectCommon):
         if answer:
             try:
                 remove_script_from_menu(
-                    desktop_object=self.desktop,
+                    desktop_object=cast(DesktopLike, self.desktop),
                     name=option,
                     product=category,
                 )
                 # If custom, delete its files
                 if is_custom:
-                    custom_dir = (
-                        Path(self.desktop.personallib)
-                        / "Toolkits" / category / option
-                    )
+                    custom_dir = Path(self.desktop.personallib) / "Toolkits" / category / option
                     shutil.rmtree(custom_dir, ignore_errors=True)
 
                 # if hasattr(self.desktop, "odesktop"):
@@ -1447,10 +1437,8 @@ class ExtensionManager(ExtensionProjectCommon):
                 self.log_message(f"{option} extension removed successfully.")
                 if self.current_category:
                     self.load_extensions(category)
-            except Exception: # pragma: no cover
-                messagebox.showerror(
-                    "Error", "Extension could not be removed."
-                )
+            except Exception:  # pragma: no cover
+                messagebox.showerror("Error", "Extension could not be removed.")
 
     def check_extension_pinned(self, category: str, option: str) -> bool:
         """Check if an extension is pined in AEDT.
@@ -1466,21 +1454,34 @@ class ExtensionManager(ExtensionProjectCommon):
         -------
         bool
             True if the extension is pinned, False otherwise.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.installer.extension_manager import ExtensionManager
+        >>> manager = ExtensionManager(withdraw=True)
+        >>> manager.check_extension_pinned("Common", "Custom")
+
         """
-        if option.lower() == "custom": # pragma: no cover
+        if option.lower() == "custom":  # pragma: no cover
             return False  # Custom extensions are not tracked
 
         try:
             product = AEDT_APPLICATIONS.get(str(category).lower(), category)
             toolkit_dir = Path(self.desktop.personallib) / "Toolkits"
-            return is_extension_in_panel(
-                str(toolkit_dir), product, option
-            )
-        except Exception: # pragma: no cover
+            return is_extension_in_panel(str(toolkit_dir), product, option)
+        except Exception:  # pragma: no cover
             return False
 
     def launch_web_url(self, category: str, option: str) -> bool:
-        """Launch web URL for an extension or toolkit."""
+        """Launch web URL for an extension or toolkit.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.installer.extension_manager import ExtensionManager
+        >>> manager = ExtensionManager(withdraw=True)
+        >>> manager.launch_web_url("Common", "Custom")
+
+        """
         try:
             if option.lower() == "custom":
                 # For custom option, open PyAEDT documentation
@@ -1491,7 +1492,7 @@ class ExtensionManager(ExtensionProjectCommon):
                 self.log_message(msg)
                 return True
             else:
-                extension_info = self.toolkits[category][option]
+                extension_info = self._get_category_toolkits(category).get(option, {})
                 url = extension_info.get("url", None)
                 if url:
                     webbrowser.open(str(url))
@@ -1500,18 +1501,16 @@ class ExtensionManager(ExtensionProjectCommon):
                     self.log_message(msg)
                     return True
                 else:
-                    messagebox.showinfo(
-                        "Error", "No URL found for this extension."
-                    )
+                    messagebox.showinfo("Error", "No URL found for this extension.")
                     return False
-        except Exception as e: # pragma: no cover
+        except Exception as e:  # pragma: no cover
             msg = "Could not open web URL."
             self.log_message(msg)
             self.desktop.logger.error(f"Error opening web URL: {e}")
             messagebox.showerror("Error", msg)
             return False
 
-    def _get_extension_info(self, category: str, option: str) -> dict:
+    def _get_extension_info(self, category: str, option: str) -> dict[str, Any]:
         """Return toolkit metadata for a built-in extension entry."""
         if not self.toolkits or option.lower() == "custom":
             return {}
@@ -1519,7 +1518,15 @@ class ExtensionManager(ExtensionProjectCommon):
 
     @property
     def optional_extensions(self) -> bool:
-        """Whether optional extensions are enabled for interaction."""
+        """Whether optional extensions are enabled for interaction.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.installer.extension_manager import ExtensionManager
+        >>> manager = ExtensionManager(withdraw=True)
+        >>> manager.optional_extensions
+
+        """
         optional_extensions = getattr(self, "_optional_extensions", None)
         if optional_extensions is None:
             optional_extensions = not aedt_versions.is_pyaedt_in_edt()
@@ -1528,15 +1535,39 @@ class ExtensionManager(ExtensionProjectCommon):
 
     @optional_extensions.setter
     def optional_extensions(self, value: bool) -> None:
-        """Enable or disable optional extensions globally."""
+        """Enable or disable optional extensions globally.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.installer.extension_manager import ExtensionManager
+        >>> manager = ExtensionManager(withdraw=True)
+        >>> manager.optional_extensions = False
+
+        """
         self._optional_extensions = bool(value)
 
     def is_optional_extension(self, category: str, option: str) -> bool:
-        """Whether the extension entry is marked optional in the catalog."""
+        """Whether the extension entry is marked optional in the catalog.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.installer.extension_manager import ExtensionManager
+        >>> manager = ExtensionManager(withdraw=True)
+        >>> manager.is_optional_extension("Common", "Custom")
+
+        """
         return bool(self._get_extension_info(category, option).get("optional", False))
 
     def is_optional_extension_disabled(self, category: str, option: str) -> bool:
-        """Whether an optional extension should be shown as disabled."""
+        """Whether an optional extension should be shown as disabled.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.installer.extension_manager import ExtensionManager
+        >>> manager = ExtensionManager(withdraw=True)
+        >>> manager.is_optional_extension_disabled("Common", "Custom")
+
+        """
         return self.is_optional_extension(category, option) and not self.optional_extensions
 
     def _log_optional_extension_blocked(self, option: str) -> None:
@@ -1545,18 +1576,24 @@ class ExtensionManager(ExtensionProjectCommon):
         self.desktop.logger.info(msg)
         self.log_message(msg)
 
-    def show_pyaedt_update_popup(self, latest_version: str, declined_file_path: Path): # pragma: no cover
-        """Display a modal dialog offering Decline or Remind later and instruct user to open Version Manager."""
+    def show_pyaedt_update_popup(self, latest_version: str, declined_file_path: Path):  # pragma: no cover
+        """Display a modal dialog offering Decline or Remind later and instruct user to open Version Manager.
+
+        Examples
+        --------
+        >>> from pathlib import Path
+        >>> from ansys.aedt.core.extensions.installer.extension_manager import ExtensionManager
+        >>> manager = ExtensionManager(withdraw=True)
+        >>> manager.show_pyaedt_update_popup("0.17.0", Path("C:\\\\Temp\\\\declined_version.txt"))
+
+        """
         try:
             dlg = tkinter.Toplevel(self.root)
             dlg.title("PyAEDT Update")
             dlg.resizable(False, False)
 
             # Apply theme to dialog
-            theme_colors = (
-                self.theme.light if self.root.theme == "light"
-                else self.theme.dark
-            )
+            theme_colors = self._theme_colors()
             dlg.configure(background=theme_colors["widget_bg"])
 
             # Center dialog
@@ -1571,9 +1608,7 @@ class ExtensionManager(ExtensionProjectCommon):
 
             # Create frame for label and changelog button
             label_frame = ttk.Frame(dlg, style="PyAEDT.TFrame")
-            label_frame.pack(
-                padx=20, pady=(20, 10), expand=True, fill="both"
-            )
+            label_frame.pack(padx=20, pady=(20, 10), expand=True, fill="both")
 
             ttk.Label(
                 label_frame,
@@ -1590,24 +1625,13 @@ class ExtensionManager(ExtensionProjectCommon):
 
             def open_changelog() -> None:
                 try:
-                    url = ("https://aedt.docs.pyansys.com/version/stable/"
-                           "changelog.html")
+                    url = "https://aedt.docs.pyansys.com/version/stable/changelog.html"
                     webbrowser.open(str(url))
-                    logging.getLogger("Global").info(
-                        "Opened PyAEDT changelog."
-                    )
+                    logging.getLogger("Global").info("Opened PyAEDT changelog.")
                 except Exception:
-                    logging.getLogger("Global").debug(
-                        "Failed to open changelog", exc_info=True
-                    )
+                    logging.getLogger("Global").debug("Failed to open changelog", exc_info=True)
 
-            changelog_btn = ttk.Button(
-                label_frame,
-                text="?",
-                command=open_changelog,
-                style="PyAEDT.TButton",
-                width=3
-            )
+            changelog_btn = ttk.Button(label_frame, text="?", command=open_changelog, style="PyAEDT.TButton", width=3)
             changelog_btn.pack(side="right", padx=(5, 0))
             ToolTip(changelog_btn, "View changelog")
 
@@ -1618,13 +1642,10 @@ class ExtensionManager(ExtensionProjectCommon):
                 try:
                     from ansys.aedt.core.extensions.misc import decline_pyaedt_update
 
-                    decline_pyaedt_update(
-                        declined_file_path, latest_version
-                    )
+                    decline_pyaedt_update(declined_file_path, latest_version)
                 except Exception:
                     logging.getLogger("Global").debug(
-                        "PyAEDT update popup: failed to record "
-                        "declined version.",
+                        "PyAEDT update popup: failed to record declined version.",
                         exc_info=True,
                     )
                 dlg.destroy()
@@ -1632,29 +1653,22 @@ class ExtensionManager(ExtensionProjectCommon):
             def remind() -> None:
                 dlg.destroy()
 
-            ttk.Button(
-                btn_frame, text="Decline", command=decline,
-                style="PyAEDT.TButton"
-            ).pack(side="left", expand=True, fill="x", padx=5)
-            ttk.Button(
-                btn_frame, text="Remind later", command=remind,
-                style="PyAEDT.TButton"
-            ).pack(side="left", expand=True, fill="x", padx=5)
+            ttk.Button(btn_frame, text="Decline", command=decline, style="PyAEDT.TButton").pack(
+                side="left", expand=True, fill="x", padx=5
+            )
+            ttk.Button(btn_frame, text="Remind later", command=remind, style="PyAEDT.TButton").pack(
+                side="left", expand=True, fill="x", padx=5
+            )
 
             dlg.transient(self.root)
             dlg.grab_set()
             self.root.wait_window(dlg)
         except Exception:
-            logging.getLogger("Global").debug(
-                "PyAEDT update popup: failed to display.",
-                exc_info=True
-            )
+            logging.getLogger("Global").debug("PyAEDT update popup: failed to display.", exc_info=True)
 
 
 if __name__ == "__main__":  # pragma: no cover
     # Open UI
-    extension: ExtensionProjectCommon = ExtensionManager(
-        withdraw=False
-    )
+    extension: ExtensionProjectCommon = ExtensionManager(withdraw=False)
 
     tkinter.mainloop()

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,12 +22,20 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""This module contains the ``Desktop`` class.
+"""The module contains the ``Desktop`` class.
 
-This module is used to initialize AEDT and the message manager for managing AEDT.
-You can initialize this module before launching an app or
+The module is used to initialize AEDT and the message manager for managing AEDT.
+You can initialize The module before launching an app or
 have the app automatically initialize it to the latest installed AEDT version.
+
+Examples
+--------
+>>> from ansys.aedt.core import Desktop
+>>> desktop = Desktop(version="2026.1", non_graphical=True)
+
 """
+
+from __future__ import annotations
 
 import atexit
 import datetime
@@ -77,21 +85,41 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
 
 ON_CI = os.getenv("ON_CI", "false").lower() == "true"
+"""Flag indicating whether execution is running on CI."""
 LOOPBACK_HOSTS = ("localhost", "127.0.0.1")
-"""Tuple of loopback host names."""
+"""Tuple of loopback host names.
+
+Examples
+--------
+>>> from ansys.aedt.core.desktop import LOOPBACK_HOSTS
+>>> "localhost" in LOOPBACK_HOSTS
+True
+"""
 
 pathname = Path(__file__)
+"""Value for pathname."""
 pyaedtversion = __version__
+"""Value for pyaedtversion."""
 modules = [tup[1] for tup in pkgutil.iter_modules()]
+"""Value for modules."""
 
 
 class TransportMode(str, Enum):
-    """Enum containing the different modes of connection."""
+    """Enum containing the different modes of connection.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.desktop import TransportMode
+    >>> TransportMode.INSECURE.value
+    "insecure"
+
+    """
 
     (INSECURE, UDS, MTLS, WNUA) = ("insecure", "uds", "mtls", "wnua")
 
 
 def get_local_ip(host):
+    """Retrieve local ip."""
     try:
         host = host if host else socket.gethostname()
         return socket.gethostbyname(host)
@@ -149,27 +177,62 @@ class _ServerArgs:
 
     @property
     def mode(self) -> "TransportMode":
-        """Get transport mode."""
+        """Get transport mode.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.desktop import _get_grpcsrv_args
+        >>> _get_grpcsrv_args("localhost", 50051).mode
+
+        """
         return self.__mode
 
     @property
     def host(self) -> str:
-        """Get host."""
+        """Get host.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.desktop import _get_grpcsrv_args
+        >>> _get_grpcsrv_args("localhost", 50051).host
+
+        """
         return self.__host
 
     @property
     def port(self) -> int:
-        """Get port."""
+        """Get port.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.desktop import _get_grpcsrv_args
+        >>> _get_grpcsrv_args("localhost", 50051).port
+
+        """
         return self.__port
 
     @property
     def host_ip(self) -> str:
-        """Get host ip."""
+        """Get host ip.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.desktop import _get_grpcsrv_args
+        >>> _get_grpcsrv_args("localhost", 50051).host_ip
+
+        """
         return get_local_ip(self.host)
 
     @property
     def client_machine(self) -> str:
-        """Get client machine."""
+        """Get client machine.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.desktop import _get_grpcsrv_args
+        >>> _get_grpcsrv_args("localhost", 50051).client_machine
+
+        """
         machine = self.host
         if str(self).endswith((":SecureMode", ":InsecureMode")):
             host_ip = self.host
@@ -317,6 +380,7 @@ def launch_aedt(
     ...     port=50052,
     ...     student_version=True,
     ... )
+
     """
     if settings.grpc_local and settings.grpc_listen_all:
         raise AEDTRuntimeError(
@@ -416,6 +480,12 @@ def launch_aedt_in_lsf(non_graphical: bool, port: int, host: str | None = None):
 
         Do not execute this function with untrusted input parameters.
         See the :ref:`security guide<security_launch_aedt>` for details.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.desktop import launch_aedt_in_lsf
+    >>> success, host = launch_aedt_in_lsf(non_graphical=True, port=50051)
+
     """
     for k, v in settings.aedt_environment_variables.items():
         os.environ[k] = v
@@ -551,6 +621,14 @@ def exception_to_desktop(ex_value: str, tb_data: str) -> None:  # pragma: no cov
     tb_data : str
         Traceback data.
 
+    Examples
+    --------
+    >>> from ansys.aedt.core.desktop import exception_to_desktop
+    >>> try:
+    ...     raise RuntimeError("Example failure")
+    ... except RuntimeError as exc:
+    ...     exception_to_desktop(str(exc), exc.__traceback__)
+
     """
     tb_trace = traceback.format_tb(tb_data)
     tblist = tb_trace[0].split("\n")
@@ -560,6 +638,7 @@ def exception_to_desktop(ex_value: str, tb_data: str) -> None:  # pragma: no cov
 
 
 def is_student_version(oDesktop: object) -> bool:
+    """Check whether student version."""
     edt_root = Path(oDesktop.GetExeDir())
     if is_windows and Path(edt_root).is_dir():
         if any("ansysedtsv" in fn.lower() for fn in os.listdir(edt_root)):  # pragma no cover
@@ -575,7 +654,7 @@ class Desktop(PyAedtBase):
     version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case the
         active setup or latest installed version is used.
-        Examples of input values are ``261``, ``26.1``,``2026.1``,``"2026.1"``.
+        Examples of input values are ``261``, ``26.1``, ``2026.1``, ``"2026.1"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -585,21 +664,29 @@ class Desktop(PyAedtBase):
         another instance of the ``version`` is active on the machine.
         The default is ``True``.
     close_on_exit : bool, optional
-        Whether to close AEDT on exit. The default is ``True``.
-        This option is used only when Desktop is used in a context manager (``with`` statement).
-        If Desktop is used outside a context manager, see the ``release_desktop`` arguments.
+        Whether to close AEDT on exit. The default is ``None``, which means the behavior is chosen automatically:
+
+        - If ``Desktop`` is used in a context manager (``with`` statement), the context manager take
+          precedence and AEDT will be closed on exit (equivalent to ``close_on_exit=True``).
+        - If PyAEDT actually starts a new AEDT session, the session will be closed on exit (``close_on_exit=True``).
+        - If PyAEDT connects to an existing AEDT session, the session will not be closed
+          on exit (``close_on_exit=False``).
+
+        A user-specified boolean (``True`` or ``False``) always overrides the automatic behavior.
+    When ``Desktop`` is used outside a context manager, the ``release_desktop`` method arguments offer
+        finer control over releasing and closing behavior.
     student_version : bool, optional
         Whether to open the AEDT student version. The default is
         ``False``.
     machine : str, optional
         Machine name to connect the oDesktop session to. This parameter works only in 2022 R2
         and later. The remote server must be up and running with the command
-        ``"ansysedt.exe -grpcsrv portnum"``. If the machine is `"localhost"`, the server also
+        ``"ansysedt.exe -grpcsrv portnum"``. If the machine is ``"localhost"``, the server also
         starts if not present.
     port : int, optional
         Port number on which to start the oDesktop communication on the already existing server.
         This parameter is ignored when creating a new server. It works only in 2022 R2 and
-        later. The remote server must be up and running with the command `"ansysedt.exe -grpcsrv portnum"`.
+        later. The remote server must be up and running with the command ``"ansysedt.exe -grpcsrv portnum"``.
     aedt_process_id : int, optional
         Process ID for the instance of AEDT to point PyAEDT at. The default is
         ``None``. This parameter is only used when ``new_desktop = False``.
@@ -623,6 +710,7 @@ class Desktop(PyAedtBase):
     PyAEDT INFO: Python version ...
     >>> hfss = ansys.aedt.core.Hfss(design="HFSSDesign1")
     PyAEDT INFO: No project is defined. Project...
+
     """
 
     # _sessions = {}
@@ -683,7 +771,7 @@ class Desktop(PyAedtBase):
         version: str | None = None,
         non_graphical: bool | None = False,
         new_desktop: bool | None = True,
-        close_on_exit: bool | None = True,
+        close_on_exit: bool | None = None,
         student_version: bool | None = False,
         machine: str | None = None,
         port: int | None = 0,
@@ -711,7 +799,7 @@ class Desktop(PyAedtBase):
         self.__non_graphical = (
             True if os.getenv("PYAEDT_NON_GRAPHICAL", "false").lower() in ("true", "1", "t") else non_graphical
         )
-        self.__close_on_exit = close_on_exit
+        self.__close_on_exit_arg = close_on_exit
         self.__machine = machine if machine else None
         self.__port = port
         self.__is_grpc_api = True
@@ -759,7 +847,6 @@ class Desktop(PyAedtBase):
         if "console" in self.__starting_mode:  # pragma no cover
             # technically not a startup mode, we have just to load oDesktop
             self.odesktop = sys.modules["__main__"].oDesktop
-            self.close_on_exit = False
             try:
                 self.non_graphical = self.odesktop.GetIsNonGraphical()
             except Exception:  # pragma: no cover
@@ -777,6 +864,15 @@ class Desktop(PyAedtBase):
                 if not result:
                     raise Exception("Failed to connect to AEDT via gRPC.")
 
+        # Setting close_on_exit based on the logic above.
+        # If PyAEDT attaches to a session close_on_exits defaults to False.
+        if "console" in self.__starting_mode:
+            self.__close_on_exit = False
+        elif close_on_exit is None:
+            self.__close_on_exit = self.new_desktop
+        else:
+            self.__close_on_exit = close_on_exit
+
         # Setup logging.
         self.__set_logger_file()
 
@@ -789,15 +885,21 @@ class Desktop(PyAedtBase):
 
         self._check_new_desktop(aedt_process_id, student_version)
 
+        # Fix the self.aedt_version_string using the updated self.aedt_version_id
+        self.aedt_version_string = self.aedt_version_string[:-6] + str(self.aedt_version_id)
+
         # save the current desktop session in the database
         _desktop_sessions[self.aedt_process_id] = self
         # Register the desktop closure to be called at exit unless asked not to.
         atexit.register(
-            lambda: self.__release_and_close_desktop(close_projects=close_on_exit, close_aedt_app=close_on_exit)
+            lambda: self.__release_and_close_desktop(
+                close_projects=self.__close_on_exit, close_aedt_app=self.__close_on_exit
+            )
         )
 
     @property
     def aedt_version_id(self) -> str | None:
+        """Retrieve AEDT version id."""
         return self.__aedt_version_id
 
     @aedt_version_id.setter
@@ -810,7 +912,29 @@ class Desktop(PyAedtBase):
         settings.aedt_version = value
 
     @property
+    def aedt_version(self) -> str:
+        """Retrieve AEDT version from AEDT.
+
+        Returns
+        -------
+        str
+            AEDT version.
+
+        References
+        ----------
+        >>> oDesktop.GetVersion
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> desktop = Desktop(version="2026.1")
+        >>> version = desktop.aedt_version
+        """
+        return self.odesktop.GetVersion()
+
+    @property
     def aedt_process_id(self) -> int:
+        """Retrieve AEDT process id."""
         return self.__aedt_process_id
 
     @aedt_process_id.setter
@@ -829,7 +953,15 @@ class Desktop(PyAedtBase):
 
     @property
     def launched_by_pyaedt(self) -> bool:
-        """Flag to check if AEDT was launched by PyAEDT."""
+        """Flag to check if AEDT was launched by PyAEDT.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> d = Desktop(non_graphical=True)
+        >>> d.launched_by_pyaedt
+
+        """
         return self.__launched_by_pyaedt
 
     @launched_by_pyaedt.setter
@@ -838,7 +970,15 @@ class Desktop(PyAedtBase):
 
     @property
     def non_graphical(self) -> bool:
-        """Whether AEDT is running in non-graphical mode."""
+        """Whether AEDT is running in non-graphical mode.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> d = Desktop(non_graphical=True)
+        >>> d.non_graphical
+
+        """
         return self.__non_graphical
 
     @non_graphical.setter
@@ -847,7 +987,15 @@ class Desktop(PyAedtBase):
 
     @property
     def close_on_exit(self) -> bool:
-        """Whether AEDT will close on exit."""
+        """Whether AEDT will close on exit.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> d = Desktop(non_graphical=True, close_on_exit=False)
+        >>> d.close_on_exit
+
+        """
         return self.__close_on_exit
 
     @close_on_exit.setter
@@ -856,7 +1004,15 @@ class Desktop(PyAedtBase):
 
     @property
     def machine(self) -> str:
-        """Machine name."""
+        """Machine name.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> d = Desktop(non_graphical=True)
+        >>> d.machine
+
+        """
         if self.__machine is None:
             self._check_machine()
         return self.__machine
@@ -867,7 +1023,15 @@ class Desktop(PyAedtBase):
 
     @property
     def port(self) -> int:
-        """Port number."""
+        """Port number.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> d = Desktop(non_graphical=True)
+        >>> d.port
+
+        """
         if not self.__port:
             self._assign_port()
         return self.__port
@@ -878,7 +1042,15 @@ class Desktop(PyAedtBase):
 
     @property
     def is_grpc_api(self) -> bool:
-        """Whether the connection is through gRPC API."""
+        """Whether the connection is through gRPC API.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> d = Desktop(non_graphical=True)
+        >>> d.is_grpc_api
+
+        """
         return self.__is_grpc_api
 
     @is_grpc_api.setter
@@ -887,7 +1059,15 @@ class Desktop(PyAedtBase):
 
     @property
     def student_version(self) -> bool:
-        """Whether AEDT is the student version."""
+        """Whether AEDT is the student version.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> d = Desktop(non_graphical=True)
+        >>> d.student_version
+
+        """
         return self.__student_version
 
     @student_version.setter
@@ -896,7 +1076,15 @@ class Desktop(PyAedtBase):
 
     @property
     def new_desktop(self) -> bool:
-        """Whether a new session will be started or not."""
+        """Whether a new session will be started or not.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> d = Desktop(non_graphical=True, new_desktop=True)
+        >>> d.new_desktop
+
+        """
         return self.__new_desktop
 
     @new_desktop.setter
@@ -905,7 +1093,15 @@ class Desktop(PyAedtBase):
 
     @property
     def aedt_version_string(self) -> str:
-        """AEDT version string."""
+        """AEDT version string.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> d = Desktop(non_graphical=True)
+        >>> d.aedt_version_string
+
+        """
         return self.__aedt_version_string
 
     @aedt_version_string.setter
@@ -914,6 +1110,15 @@ class Desktop(PyAedtBase):
 
     @pyaedt_function_handler()
     def check_starting_mode(self) -> None:
+        """Check the starting mode.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> d = Desktop(non_graphical=True)
+        >>> d.check_starting_mode()
+
+        """
         # start the AEDT opening decision tree
         # starting_mode can be one of these: "grpc", "com", "console_in", "console_out"
 
@@ -922,11 +1127,7 @@ class Desktop(PyAedtBase):
             self.aedt_version_id.replace("SV", "") if "SV" in (self.aedt_version_id or "") else self.aedt_version_id
         )
 
-        if is_linux:
-            self.__starting_mode = "grpc"
-        elif is_windows and "pythonnet" not in modules:
-            self.__starting_mode = "grpc"
-        elif settings.remote_rpc_session:
+        if settings.remote_rpc_session:
             self.__starting_mode = "grpc"
         elif self.aedt_process_id and not self.new_desktop:  # pragma: no cover
             # connecting to an existing session has the precedence over use_grpc_api user preference
@@ -948,6 +1149,10 @@ class Desktop(PyAedtBase):
                     f"The version specified ({self.aedt_version_id}) doesn't correspond "
                     "to the pid specified ({self.aedt_process_id})"
                 )
+        elif is_windows and "pythonnet" not in modules:
+            self.__starting_mode = "grpc"
+        elif is_linux:
+            self.__starting_mode = "grpc"
         elif float(aedt_version_id) < 2022.2:  # pragma no cover
             raise Exception("Unsupported AEDT version")
         elif float(aedt_version_id) == 2022.2:  # pragma no cover
@@ -970,7 +1175,15 @@ class Desktop(PyAedtBase):
 
     @property
     def aedt_install_dir(self):
-        """AEDT installation path."""
+        """AEDT installation path.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> d = Desktop(non_graphical=True)
+        >>> d.aedt_install_dir
+
+        """
         return self.__aedt_install_dir
 
     @aedt_install_dir.setter
@@ -1004,7 +1217,11 @@ class Desktop(PyAedtBase):
         # Write the trace stack to the log file if an exception occurred in the main script.
         if ex_type:
             self.__exception(ex_value, ex_traceback)
-        if self.close_on_exit:
+        if self.__close_on_exit_arg is None:
+            should_close = True  # context manager default
+        else:
+            should_close = self.__close_on_exit_arg  # user choice
+        if should_close:
             self.close_desktop()
             self.__closed = True
         else:
@@ -1063,27 +1280,65 @@ class Desktop(PyAedtBase):
         -------
         float
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> d = Desktop(non_graphical=True)
+        >>> d.are_there_simulations_running
+
         """
         return self.odesktop.AreThereSimulationsRunning()
 
     @property
     def current_version(self) -> str:
-        """Current AEDT version."""
+        """Current AEDT version.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> d = Desktop(non_graphical=True)
+        >>> d.current_version
+
+        """
         return aedt_versions.current_version
 
     @property
     def current_student_version(self) -> str:
-        """Current AEDT student  version."""
+        """Current AEDT student  version.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> desktop = Desktop(version="2026.1")
+        >>> desktop.current_student_version
+
+        """
         return aedt_versions.current_student_version
 
     @property
     def installed_versions(self) -> dict:
-        """Dictionary of AEDT versions installed on the system and their installation paths."""
+        """Dictionary of AEDT versions installed on the system and their installation paths.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> desktop = Desktop(version="2026.1")
+        >>> desktop.installed_versions
+
+        """
         return aedt_versions.installed_versions
 
     @property
     def install_path(self) -> str:
-        """Installation path for AEDT."""
+        """Installation path for AEDT.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> desktop = Desktop(version="2026.1")
+        >>> desktop.install_path
+
+        """
         version_key = settings.aedt_version
         try:
             return self.installed_versions[version_key]
@@ -1115,12 +1370,13 @@ class Desktop(PyAedtBase):
         >>> import shutil
         >>> from ansys.aedt.core import Desktop
         >>> from pathlib import Path
-        >>> working_folder = Path("C:\") / "path" / "to" / "target_folder"  # Windows
+        >>> working_folder = Path("C:/") / "path" / "to" / "target_folder"  # Windows
         >>> d = Desktop(version=261)
         >>> example_path = d.get_example("5G_SIW_Aperture_Antenna")
         >>> new_project = working_folder / example_path.name
         >>> working_folder.mkdir(parents=True, exist_ok=True)
         >>> shutil.copytree(example_path, new_project)  # Copy example to new working folder.
+
         """
         root = Path(self.install_path) / "Examples" / folder_name
 
@@ -1143,7 +1399,15 @@ class Desktop(PyAedtBase):
 
     @property
     def logger(self) -> Logger:
-        """AEDT logger."""
+        """AEDT logger.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> desktop = Desktop(version="2026.1")
+        >>> desktop.logger.info("PyAEDT desktop ready")
+
+        """
         if self.__logger is None:
             self.__logger = pyaedt_logger
             if settings.enable_screen_logs:
@@ -1171,6 +1435,7 @@ class Desktop(PyAedtBase):
         >>> from ansys.aedt.core import Desktop
         >>> d = Desktop()
         >>> d.odesktop
+
         """
         if settings.use_grpc_api:
             tries = 0
@@ -1192,7 +1457,15 @@ class Desktop(PyAedtBase):
 
     @property
     def messenger(self) -> Logger:
-        """Messenger manager for the AEDT logger."""
+        """Messenger manager for the AEDT logger.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> desktop = Desktop(version="2026.1")
+        >>> desktop.messenger.info("Desktop connected")
+
+        """
         return pyaedt_logger
 
     @property
@@ -1203,6 +1476,12 @@ class Desktop(PyAedtBase):
         -------
         str
             Full absolute path for the ``PersonalLib`` directory.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> desktop = Desktop(version="2026.1")
+        >>> desktop.personallib
 
         """
         return self.odesktop.GetPersonalLibDirectory()
@@ -1215,6 +1494,12 @@ class Desktop(PyAedtBase):
         -------
         str
             Full absolute path for the ``ProjectDirectory`` directory.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> desktop = Desktop(version="2026.1")
+        >>> desktop.global_project_directory
 
         """
         return self.odesktop.GetProjectDirectory()
@@ -1232,6 +1517,12 @@ class Desktop(PyAedtBase):
         str
             Full absolute path for the ``TempDirectory`` directory.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> desktop = Desktop(version="2026.1")
+        >>> desktop.temp_directory
+
         """
         return self.odesktop.GetTempDirectory()
 
@@ -1248,6 +1539,12 @@ class Desktop(PyAedtBase):
         str
             Full absolute path for the ``python`` directory.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> desktop = Desktop(version="2026.1")
+        >>> desktop.src_dir
+
         """
         return Path(__file__)
 
@@ -1259,6 +1556,12 @@ class Desktop(PyAedtBase):
         -------
         str
             Full absolute path for the ``SysLib`` directory.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> desktop = Desktop(version="2026.1")
+        >>> desktop.syslib
 
         """
         return self.odesktop.GetLibraryDirectory()
@@ -1272,6 +1575,12 @@ class Desktop(PyAedtBase):
         str
            Full absolute path for the ``pyaedt`` directory.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> desktop = Desktop(version="2026.1")
+        >>> desktop.pyaedt_dir
+
         """
         return Path(__file__).parent
 
@@ -1284,11 +1593,18 @@ class Desktop(PyAedtBase):
         str
             Full absolute path for the ``UserLib`` directory.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> desktop = Desktop(version="2026.1")
+        >>> desktop.userlib
+
         """
         return self.odesktop.GetUserLibDirectory()
 
     @property
     def grpc_mode(self) -> str:
+        """Retrieve gRPC mode."""
         server_args: _ServerArgs = _get_grpcsrv_args(self.machine, self.port)
         return server_args.mode
 
@@ -1319,6 +1635,14 @@ class Desktop(PyAedtBase):
         ----------
         >>> oProject.GetActiveDesign
         >>> oProject.SetActiveDesign
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> desktop = Desktop(version="2026.1")
+        >>> project = desktop.active_project()
+        >>> desktop.active_design(project)
+
         """
         if not project_object:
             project_object = self.active_project()
@@ -1359,6 +1683,13 @@ class Desktop(PyAedtBase):
         ----------
         >>> oDesktop.GetActiveProject
         >>> oDesktop.SetActiveProject
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> desktop = Desktop(version="2026.1")
+        >>> desktop.active_project()
+
         """
         if not name:
             active_project = self.odesktop.GetActiveProject()
@@ -1378,7 +1709,15 @@ class Desktop(PyAedtBase):
 
     @property
     def active_project_name(self) -> str | None:
-        """Get the name of the active project."""
+        """Get the name of the active project.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> desktop = Desktop(version="2026.1")
+        >>> desktop.active_project_name
+
+        """
         active_project = self.active_project()
         if not active_project:
             return None
@@ -1390,7 +1729,15 @@ class Desktop(PyAedtBase):
 
     @property
     def active_design_name(self) -> str | None:
-        """Get the display name of the active design."""
+        """Get the display name of the active design.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> desktop = Desktop(version="2026.1")
+        >>> desktop.active_design_name
+
+        """
         project_name = self.active_project_name
         if not project_name:
             return None
@@ -1413,6 +1760,13 @@ class Desktop(PyAedtBase):
         References
         ----------
         >>> oDesktop.CloseAllWindows
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> desktop = Desktop(version="2026.1")
+        >>> desktop.close_windows()
+
         """
         self.odesktop.CloseAllWindows()
         return True
@@ -1425,6 +1779,12 @@ class Desktop(PyAedtBase):
         -------
         List
             List of projects.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> desktop = Desktop(version="2026.1")
+        >>> desktop.project_list
 
         """
         return list(self.odesktop.GetProjectList())
@@ -1446,6 +1806,13 @@ class Desktop(PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> desktop = Desktop(version="2026.1")
+        >>> desktop.analyze_all()
+
         """
         if not project:
             oproject = self.active_project()
@@ -1468,6 +1835,13 @@ class Desktop(PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> desktop = Desktop(version="2026.1")
+        >>> desktop.clear_messages()
+
         """
         self.odesktop.ClearMessages("", "", 3)
         return True
@@ -1489,6 +1863,13 @@ class Desktop(PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> desktop = Desktop(version="2026.1")
+        >>> desktop.save_project(project_path=r"C:\\Projects\\MyProject.aedt")
+
         """
         if not project_name:
             oproject = self.odesktop.GetActiveProject()
@@ -1522,6 +1903,12 @@ class Desktop(PyAedtBase):
         str
             Path to the project.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> desktop = Desktop(version="2026.1")
+        >>> desktop.project_path()
+
         """
         if not project_name:
             oproject = self.active_project()
@@ -1545,6 +1932,13 @@ class Desktop(PyAedtBase):
         -------
         List
             List of the designs.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> desktop = Desktop(version="2026.1")
+        >>> desktop.design_list()
+
         """
         updateddeslist = []
         if not project:
@@ -1575,6 +1969,13 @@ class Desktop(PyAedtBase):
         -------
         str
             Design type.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> desktop = Desktop(version="2026.1")
+        >>> desktop.design_type()
+
         """
         if not project_name:
             oproject = self.active_project()
@@ -1617,12 +2018,12 @@ class Desktop(PyAedtBase):
         return str(ex_value)
 
     @pyaedt_function_handler()
-    def load_project(self, project_file: str, design_name: str | None = None) -> bool | object:
+    def load_project(self, project_file: str | Path, design_name: str | None = None) -> bool | object:
         """Open an AEDT project based on a project and optional design.
 
         Parameters
         ----------
-        project_file : str
+        project_file : str or :class:`pathlib.Path`
             Full path and name for the project.
         design_name : str, optional
             Design name. The default is ``None``.
@@ -1636,20 +2037,33 @@ class Desktop(PyAedtBase):
         ----------
         >>> oDesktop.OpenProject
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> desktop = Desktop(version="2026.1")
+        >>> desktop.load_project(project_file=r"C:\\Projects\\MyProject.aedt")
+
         """
-        if Path(project_file).stem in self.project_list:
-            proj = self.active_project(Path(project_file).stem)
+        project_file = Path(project_file)
+        project_file_stem = project_file.stem
+
+        if project_file_stem in self.project_list:
+            proj = self.active_project(project_file_stem)
         else:
-            lock_file = project_file + ".lock"
-            if os.path.exists(lock_file):
+            lock_file = str(project_file) + ".lock"
+            if Path(lock_file).exists():
                 raise RuntimeError("Project is locked. Close or remove the lock before proceeding.")
-            proj = self.odesktop.OpenProject(project_file)
+            proj = self.odesktop.OpenProject(str(project_file))
         if proj:
             active_design = self.active_design(proj)
             if design_name and design_name in proj.GetChildNames():  # pragma: no cover
                 return self[[proj.GetName(), design_name]]
             elif active_design:
-                return self[[proj.GetName(), active_design.GetName()]]
+                aedt_design_name = active_design.GetName()
+                if ";" in aedt_design_name:
+                    # This is for circuit and layout designs
+                    aedt_design_name = aedt_design_name.split(";")[1]
+                return self[[proj.GetName(), aedt_design_name]]
             return True
         else:  # pragma: no cover
             return False
@@ -1757,6 +2171,7 @@ class Desktop(PyAedtBase):
         return True
 
     def __del__(self):
+        """Release AEDT and delete PyAEDT object."""
         self.__release_and_close_desktop(self.close_on_exit, self.close_on_exit)
 
     @pyaedt_function_handler()
@@ -1920,6 +2335,12 @@ class Desktop(PyAedtBase):
             .. note::
                Because of an API limitation, this method returns ``True`` even when the key is wrong.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> desktop = Desktop(version="2026.1")
+        >>> desktop.change_license_type("Pool")
+
         """
         try:
             self.odesktop.SetRegistryString("Desktop/Settings/ProjectOptions/HPCLicenseType", license_type)
@@ -1935,6 +2356,12 @@ class Desktop(PyAedtBase):
         bool
            ``True`` when successful, ``False`` when failed.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> desktop = Desktop(version="2026.1")
+        >>> desktop.enable_optimetrics()
+
         """
         try:
             return self.change_registry_key("Desktop/Settings/ProjectOptions/EnableLegacyOptimetricsTools", 1)
@@ -1949,6 +2376,12 @@ class Desktop(PyAedtBase):
         -------
         bool
            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> desktop = Desktop(version="2026.1")
+        >>> desktop.disable_optimetrics()
 
         """
         try:
@@ -1971,6 +2404,13 @@ class Desktop(PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> desktop = Desktop(version="2026.1")
+        >>> desktop.change_registry_key("Desktop/Settings/ProjectOptions/EnableLegacyOptimetricsTools", 1)
+
         """
         if isinstance(key_value, str):
             try:
@@ -2010,6 +2450,12 @@ class Desktop(PyAedtBase):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> desktop = Desktop(version="2026.1")
+        >>> desktop.change_active_dso_config_name(product_name="HFSS", config_name="Local")
+
         """
         try:
             self.change_registry_key(f"Desktop/ActiveDSOConfigurations/{product_name}", config_name)
@@ -2037,6 +2483,13 @@ class Desktop(PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> desktop = Desktop(version="2026.1")
+        >>> desktop.change_registry_from_file(registry_file=r"C:\\Configs\\DesktopConfig.acf")
+
         """
         try:
             self.odesktop.SetRegistryFromFile(registry_file)
@@ -2064,6 +2517,12 @@ class Desktop(PyAedtBase):
         -------
         list
             List of toolkit names.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> Desktop.get_available_toolkits()
+
         """
         from ansys.aedt.core.extensions.customize_automation_tab import available_toolkits
 
@@ -2099,7 +2558,7 @@ class Desktop(PyAedtBase):
         wait_for_license : bool, optional
              Whether to wait for a license to become available. The default is ``True``.
         setting_file : str, optional
-            Job settings file. The file has the "*.areg" format.
+            Job settings file. The file has the ``.areg`` format.
             The default value is ``None`` in which case a default template will be used.
 
         Returns
@@ -2117,15 +2576,14 @@ class Desktop(PyAedtBase):
         >>> desktop = Desktop(version="2024.2")
         Use template
         >>> job_id1 = desktop.submit_job(
-        ...     project_file="C:/projects/my_project.aedt",
+        ...     project_file="my_project.aedt",
         ...     cluster_name="my_cluster",
         ...     nodes=2,
         ...     cores=64,
         ... )
-        >>> job_id2 = desktop.submit_job(
-        ...     project_file="C:/projects/my_project2.aedt", setting_file="my_settings_file.areg"
-        ... )
-        >>> desktop.launch_job_monitor("C:/projects/my_project.aedt")
+        >>> job_id2 = desktop.submit_job(project_file="my_project2.aedt", setting_file="my_settings_file.areg")
+        >>> desktop.launch_job_monitor("my_project.aedt")
+
         """
         # Save and close project if opened before submitting
         project_path = Path(project_file).parent
@@ -2143,7 +2601,7 @@ class Desktop(PyAedtBase):
 
             if not aedt_full_exe_path:
                 # Fallback to find the aedt executable
-                version = self.odesktop.GetVersion()[2:6]
+                version = self.aedt_version[2:6]
                 if version >= "22.2":
                     version_name = "v" + version.replace(".", "")
                 else:
@@ -2220,6 +2678,13 @@ class Desktop(PyAedtBase):
         References
         ----------
         >>> oDesktop.LaunchJobMonitor
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> desktop = Desktop(version="2026.1")
+        >>> desktop.launch_job_monitor(input_file=r"C:\\Projects\\MyProject.aedt")
+
         """
         return self.odesktop.LaunchJobMonitor(str(input_file))
 
@@ -2235,6 +2700,13 @@ class Desktop(PyAedtBase):
         References
         ----------
         >>> oDesktop.RefreshJobMonitor
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> desktop = Desktop(version="2026.1")
+        >>> desktop.job_status()
+
         """
         return self.odesktop.RefreshJobMonitor()
 
@@ -2252,8 +2724,8 @@ class Desktop(PyAedtBase):
         ----------
         scheduler_type : str
             Name of the scheduler.
-            Options are `"RSM"``, `""Windows HPC"``, `""HPC Platform Services``, `""Remote RSM"``,
-             `""Ansys Cloud Burst Compute"``.
+            Options are ``"RSM"``, ``"Windows HPC"``, ``"HPC Platform Services"``, ``"Remote RSM"``,
+            and ``"Ansys Cloud Burst Compute"``.
         address : str, optional
             String specifying the IP address or hostname of the head node or for the
             remote host running the RSM service.
@@ -2280,6 +2752,7 @@ class Desktop(PyAedtBase):
         >>> d.select_scheduler("HPC Platform Services", address="https://myserver.com:8443/hps/")
         >>> job_id = d.submit_job("via_gsg.aedt")
         >>> d.release_desktop(False, False)
+
         """
         if not address:
             return self.odesktop.SelectScheduler(scheduler_type)
@@ -2296,6 +2769,12 @@ class Desktop(PyAedtBase):
         Returns
         -------
         dict
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> desktop = Desktop(version="2026.1")
+        >>> desktop.get_monitor_data()
 
         """
         counts = {"profile": 0, "convergence": 0, "sweptvar": 0, "progress": 0, "variations": 0, "displaytype": 0}
@@ -2328,6 +2807,12 @@ class Desktop(PyAedtBase):
         -------
         str
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> desktop = Desktop(version="2026.1")
+        >>> desktop.stop_simulations()
+
         """
         return self.odesktop.StopSimulations(clean_stop)
 
@@ -2338,7 +2823,7 @@ class Desktop(PyAedtBase):
     def __init_desktop(self) -> None:
         # run it after the settings.non_graphical is set
         self.pyaedt_version = __version__
-        settings.aedt_version = self.odesktop.GetVersion()[0:6]
+        self.aedt_version_id = self.odesktop.GetVersion()[0:6]
         self.odesktop.RestoreWindow()
         self.aedt_install_dir = self.odesktop.GetExeDir()
 
@@ -2347,7 +2832,18 @@ class Desktop(PyAedtBase):
             raise AEDTRuntimeError("AEDT is not installed on your system. Install AEDT version 2022 R2 or higher.")
         specified_version = _normalize_version_to_string(specified_version)
         if not specified_version:
-            if student_version and self.current_student_version:
+            if self.aedt_process_id is not None:
+                specified_version = next(
+                    (
+                        installed_aedt[0:6]
+                        for installed_aedt in aedt_versions.installed_versions.keys()
+                        if is_number(installed_aedt[0:6])
+                        and self.aedt_process_id
+                        in active_sessions(installed_aedt[0:6], self.student_version, self.non_graphical)
+                    ),
+                    None,
+                )
+            elif student_version and self.current_student_version:
                 specified_version = self.current_student_version
             elif student_version and self.current_version:
                 specified_version = self.current_version
@@ -2396,7 +2892,6 @@ class Desktop(PyAedtBase):
 
         # Save the version information in the instance and global settings for later use
         self.aedt_version_id = specified_version
-        settings.aedt_version = specified_version
 
         # Save the version string for COM dispatching
         self.aedt_version_string = version
@@ -2483,9 +2978,7 @@ class Desktop(PyAedtBase):
         # we should have a check here to see if AEDT is really started
         self.is_grpc_api = False
 
-    def __initialize(
-        self,
-    ):
+    def __initialize(self, new_desktop_required=None):
         """Initialize connection to a new or existing AEDT desktop instance.
 
         This internal method handles the initialization of AEDT desktop connections,
@@ -2506,6 +2999,13 @@ class Desktop(PyAedtBase):
         - Connects to gRPC server already launched by ``launch_aedt()``
         - Retrieves desktop stub from gRPC channel
         - Validates connection to AEDT instance
+
+        Parameters
+        ----------
+        new_desktop_required : bool, optional
+            Whether a new AEDT desktop instance is required.
+            If ``None``, the method uses the value of ``self.new_desktop``. In gRPC mode, the desktop is usually already
+            launched by ``launch_aedt()``. A new desktop might still be required as a fallback method.
 
         Returns
         -------
@@ -2532,6 +3032,9 @@ class Desktop(PyAedtBase):
         __dispatch_win32 : Fallback COM dispatch method
         launch_aedt : Function that spawns AEDT process with gRPC server
         """
+        if new_desktop_required is None:
+            new_desktop_required = self.new_desktop
+
         if not self.is_grpc_api:  # pragma: no cover
             from ansys.aedt.core.internal.clr_module import _clr
 
@@ -2539,7 +3042,7 @@ class Desktop(PyAedtBase):
             AnsoftCOMUtil = __import__("Ansys.Ansoft.CoreCOMScripting")
             self.COMUtil = AnsoftCOMUtil.Ansoft.CoreCOMScripting.Util.COMUtil
             StandalonePyScriptWrapper = AnsoftCOMUtil.Ansoft.CoreCOMScripting.COM.StandalonePyScriptWrapper
-            if self.non_graphical or self.new_desktop:
+            if self.non_graphical or new_desktop_required:
                 self.launched_by_pyaedt = True
                 return StandalonePyScriptWrapper.CreateObjectNew(self.non_graphical)
             else:
@@ -2567,19 +3070,10 @@ class Desktop(PyAedtBase):
             server_args: _ServerArgs = _get_grpcsrv_args(self.machine, self.port)
 
             oapp = self.grpc_plugin.CreateAedtApplication(
-                server_args.client_machine, self.port, self.non_graphical, self.new_desktop
+                server_args.client_machine, self.port, self.non_graphical, new_desktop_required
             )
             self.port = self.grpc_plugin.port
             self.aedt_process_id = self.odesktop.GetProcessID()
-            # NOTE: This is particularly necessary for rpyc connections where the version information is not available
-            # until after the connection is established and the desktop object is retrieved.
-            if self.aedt_version_id is None:
-                self.logger.debug("AEDT version is not set. Attempting to determine version from base path.")
-                aedt_version = next(
-                    (version for version, path in aedt_versions.installed_versions.items() if path == base_path), None
-                )
-                if aedt_version:
-                    self.aedt_version_id = aedt_version
 
             return oapp
 
@@ -2825,10 +3319,11 @@ class Desktop(PyAedtBase):
                     )
                 self.launched_by_pyaedt = True
 
-            self.new_desktop = not is_launched
-
             # Establish gRPC connection (implementation details)
-            result = self.__initialize()
+            # In gRPC mode, the desktop is usually already launched by ``launch_aedt()``.
+            # If ``launch_aedt()`` fails to start a new desktop, ``__initialize`` can try to start is through the API
+            # as a fallback method, otherwise it just connects.
+            result = self.__initialize(new_desktop_required=not is_launched)
 
             if ON_CI:
                 # Release lock file after successful launch

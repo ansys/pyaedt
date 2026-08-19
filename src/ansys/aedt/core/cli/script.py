@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,7 +22,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""Script execution commands."""
+"""Script execution commands.
+
+Examples
+--------
+    pyaedt script run "C:\\Scripts\\post_process.py"
+
+"""
 
 from __future__ import annotations
 
@@ -46,10 +52,14 @@ def run_script(
     port: int | None = typer.Option(None, "--port", help="gRPC port of the AEDT instance"),
     ironpython: bool = typer.Option(False, "--ironpython", help="Run an Ironpython script"),
 ) -> None:
-    """
-    Execute a Python script file in a subprocess.
+    """Execute a Python script file in a subprocess.
 
     The current environment variables are copied into the child process.
+
+    Examples
+    --------
+        pyaedt script run "C:\\Scripts\\post_process.py"
+
     """
     try:
         path = Path(script_path)

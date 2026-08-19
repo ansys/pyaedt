@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -21,12 +21,22 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 
 
 class AedtUnits(PyAedtBase):
-    """Class containing all default AEDT units. All properties are read-only except length units."""
+    """Class containing all default AEDT units. All properties are read-only except length units.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Hfss
+    >>> hfss = Hfss()
+    >>> hfss.units.length
+    >>> hfss.units.frequency
+
+    """
 
     def __init__(self, aedt_object=None) -> None:
         self.__app = aedt_object
@@ -50,6 +60,20 @@ class AedtUnits(PyAedtBase):
         self._units_by_system = {}
 
     def get_unit_by_system(self, unit_system: str) -> str | None:
+        """Get the unit for a given unit system.
+
+        Parameters
+        ----------
+        unit_system : str
+            The unit system to get the unit for.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.units.get_unit_by_system("Length")
+
+        """
         if unit_system in self._units_by_system:
             return self._units_by_system[unit_system]
         val = self._get_model_unit(unit_system)
@@ -65,6 +89,13 @@ class AedtUnits(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.units.rescale_model
+
         """
         return self._rescale_model
 
@@ -80,26 +111,42 @@ class AedtUnits(PyAedtBase):
                 return
 
     @property
-    def frequency(self) -> str:
+    def frequency(self) -> str | None:
         """Default frequency units to be used in active design.
+
         The setter doesn't change AEDT default units.
 
         Returns
         -------
         str
             Unit value.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.units.frequency
+
         """
         return self._frequency
 
     @property
-    def length(self) -> str:
+    def length(self) -> str | None:
         """Default length unit to be used in active design.
+
         The setter changes AEDT default units.
 
         Returns
         -------
         str
             Unit value.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.units.length
+
         """
         if self._length is None and self.__app:
             if "GetActiveUnits" in dir(self.__app.oeditor):
@@ -126,169 +173,261 @@ class AedtUnits(PyAedtBase):
             raise AttributeError(f"Unit {value} is incorrect.")
 
     @property
-    def angle(self) -> str:
+    def angle(self) -> str | None:
         """Default angle unit to be used in active design.
+
         The setter doesn't change AEDT default units.
 
         Returns
         -------
         str
             Unit value.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.units.angle
+
         """
         return self._angle
 
     @property
-    def resistance(self) -> str:
+    def resistance(self) -> str | None:
         """Default resistance unit to be used in active design.
-        The setter doesn't change AEDT default units.
 
+        The setter doesn't change AEDT default units.
 
         Returns
         -------
         str
             Unit value.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.units.resistance
+
         """
         return self._resistance
 
     @property
-    def power(self) -> str:
+    def power(self) -> str | None:
         """Default power unit to be used in active design.
-        The setter doesn't change AEDT default units.
 
+        The setter doesn't change AEDT default units.
 
         Returns
         -------
         str
             Unit value.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.units.power
+
         """
         return self._power
 
     @property
-    def time(self) -> str:
+    def time(self) -> str | None:
         """Default time unit to be used in active design.
-        The setter doesn't change AEDT default units.
 
+        The setter doesn't change AEDT default units.
 
         Returns
         -------
         str
             Unit value.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.units.time
+
         """
         return self._time
 
     @property
-    def temperature(self) -> str:
+    def temperature(self) -> str | None:
         """Default temperature unit to be used in active design.
-        The setter doesn't change AEDT default units.
 
+        The setter doesn't change AEDT default units.
 
         Returns
         -------
         str
             Unit value.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.units.temperature
+
         """
         return self._temperature
 
     @property
-    def inductance(self) -> str:
+    def inductance(self) -> str | None:
         """Default inductance unit to be used in active design.
-        The setter doesn't change AEDT default units.
 
+        The setter doesn't change AEDT default units.
 
         Returns
         -------
         str
             Unit value.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.units.inductance
+
         """
         return self._inductance
 
     @property
-    def voltage(self) -> str:
+    def voltage(self) -> str | None:
         """Default voltage unit to be used in active design.
-        The setter doesn't change AEDT default units.
 
+        The setter doesn't change AEDT default units.
 
         Returns
         -------
         str
             Unit value.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.units.voltage
+
         """
         return self._voltage
 
     @property
-    def current(self) -> str:
+    def current(self) -> str | None:
         """Default current unit to be used in active design.
-        The setter doesn't change AEDT default units.
 
+        The setter doesn't change AEDT default units.
 
         Returns
         -------
         str
             Unit value.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.units.current
+
         """
         return self._current
 
     @property
-    def angular_speed(self) -> str:
+    def angular_speed(self) -> str | None:
         """Default angular speed unit to be used in active design.
-        The setter doesn't change AEDT default units.
 
+        The setter doesn't change AEDT default units.
 
         Returns
         -------
         str
             Unit value.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.units.angular_speed
+
         """
         return self._angular_speed
 
     @property
-    def capacitance(self) -> str:
+    def capacitance(self) -> str | None:
         """Default capacitance unit to be used in active design.
-        The setter doesn't change AEDT default units.
 
+        The setter doesn't change AEDT default units.
 
         Returns
         -------
         str
             Unit value.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.units.capacitance
+
         """
         return self._capacitance
 
     @property
     def conductance(self) -> str:
         """Default conductance unit to be used in active design.
-        The setter doesn't change AEDT default units.
 
+        The setter doesn't change AEDT default units.
 
         Returns
         -------
         str
             Unit value.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.units.conductance
+
         """
         return self._conductance
 
     @property
-    def mass(self) -> str:
+    def mass(self) -> str | None:
         """Default mass unit to be used in active design.
-        The setter doesn't change AEDT default units.
 
+        The setter doesn't change AEDT default units.
 
         Returns
         -------
         str
             Unit value.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.units.mass
+
         """
         return self._mass
 
     @property
-    def speed(self) -> str:
+    def speed(self) -> str | None:
         """Default speed unit to be used in active design.
-        The setter doesn't change AEDT default units.
 
+        The setter doesn't change AEDT default units.
 
         Returns
         -------
         str
             Unit value.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.units.speed
+
         """
         return self._speed

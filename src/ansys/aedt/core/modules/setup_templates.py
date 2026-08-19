@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -39,19 +39,32 @@ def HFSS3DLayout_AdaptiveFrequencyData(freq):
     list
         List of frequency data.
 
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.setup_templates import HFSS3DLayout_AdaptiveFrequencyData
+    >>> HFSS3DLayout_AdaptiveFrequencyData(1.0)
+
     """
     value = dict({"AdaptiveFrequency": freq, "MaxDelta": "0.02", "MaxPasses": 10, "Expressions": []})
     return value
 
 
 meshlink = dict({"ImportMesh": False})
+"""Value for meshlink."""
 autosweep = dict({"RangeType": "LinearCount", "RangeStart": "1GHz", "RangeEnd": "10GHz", "RangeCount": "501"})
+"""Value for autosweep."""
 autosweeps = dict({"Sweep": autosweep})
+"""Value for autosweeps."""
 multifreq = dict({"1GHz": [0.02], "2GHz": [0.02], "5GHz": [0.02]})
+"""Value for multifreq."""
 sweepsbr = dict({"RangeType": "LinearStep", "RangeStart": "1GHz", "RangeEnd": "10GHz", "RangeStep": "1GHz"})
+"""Value for sweepsbr."""
 sweepssbr = dict({"Sweep": sweepsbr})
+"""Value for sweepssbr."""
 muoption = dict({"MuNonLinearBH": True})
+"""Value for muoption."""
 transientelectrostatic = dict({"SaveField": True, "Stop": "100s", "InitialStep": "0.01s", "MaxStep": "5s"})
+"""Value for transientelectrostatic."""
 transienthfss = dict(
     {
         "TimeProfile": "Broadband Pulse",
@@ -67,6 +80,7 @@ transienthfss = dict(
         "TerminateOnMaximum": 0,
     }
 )
+"""Value for transienthfss."""
 HFSSDrivenAuto = dict(
     {
         "IsEnabled": True,
@@ -295,6 +309,7 @@ SweepEddyCurrent = dict(
         "RangeEnd": "1e-06GHz",
     }
 )
+"""Value for sweep eddy current."""
 
 EddyCurrent = dict(
     {
@@ -347,6 +362,7 @@ DCBiasedEddyCurrent = dict(
         "DCPercentError": 1,
     }
 )
+"""Value for dc biased eddy current."""
 
 
 ElectricTransient = dict(
@@ -551,8 +567,11 @@ SteadyFlowOnly = dict(
 """Icepak steady flow setup properties and default values."""
 
 Q3DCond = dict({"MaxPass": 10, "MinPass": 1, "MinConvPass": 1, "PerError": 1, "PerRefine": 30})
+"""Value for Q 3 D cond."""
 Q3DMult = dict({"MaxPass": 1, "MinPass": 1, "MinConvPass": 1, "PerError": 1, "PerRefine": 30})
+"""Value for Q 3 D mult."""
 Q3DDC = dict({"SolveResOnly": False, "Cond": Q3DCond, "Mult": Q3DMult})
+"""Q 3 ddc."""
 Q3DCap = dict(
     {
         "MaxPass": 10,
@@ -565,7 +584,9 @@ Q3DCap = dict(
         "Solver Type": "Iterative",
     }
 )
+"""Value for Q 3 D cap."""
 Q3DAC = dict({"MaxPass": 10, "MinPass": 1, "MinConvPass": 1, "PerError": 1, "PerRefine": 30})
+"""Q 3 dac."""
 Matrix = dict(
     {
         "AdaptiveFreq": "1GHz",
@@ -579,8 +600,11 @@ Matrix = dict(
 """Q3D Extractor setup properties and default values."""
 
 OutputQuantities = {}
+"""Value for output quantities."""
 NoiseOutputQuantities = {}
+"""Value for noise output quantities."""
 SweepDefinition = dict({"Variable": "Freq", "Data": "LINC 1GHz 5GHz 501", "OffsetF1": False, "Synchronize": 0})
+"""Value for sweep definition."""
 NexximLNA = dict(
     {
         "DataBlockID": 16,
@@ -645,6 +669,7 @@ NexximQuickEye = dict(
         "QuickEyeAnalysis": [False, "1e-9", False, "0", "", True],
     }
 )
+"""Value for nexxim quick eye."""
 NexximVerifEye = dict(
     {
         "DataBlockID": 27,
@@ -659,6 +684,7 @@ NexximVerifEye = dict(
         "VerifEyeAnalysis": [False, "1e-9", False, "0", "", True],
     }
 )
+"""Value for nexxim verif eye."""
 NexximAMI = dict(
     {
         "DataBlockID": 29,
@@ -675,11 +701,17 @@ NexximAMI = dict(
         "AMIAnalysis": [32, False, False],
     }
 )
+"""Value for nexxim AMI."""
 NexximOscillatorRSF = {}
+"""Value for nexxim oscillator rsf."""
 NexximOscillator1T = {}
+"""Value for nexxim oscillator 1 T."""
 NexximOscillatorNT = {}
+"""Value for nexxim oscillator nt."""
 NexximHarmonicBalance1T = {}
+"""Value for nexxim harmonic balance 1 T."""
 NexximHarmonicBalanceNT = {}
+"""Value for nexxim harmonic balance nt."""
 NexximSystem = dict(
     {
         "DataBlockID": 32,
@@ -695,7 +727,9 @@ NexximSystem = dict(
         "HSPICETransientOtherData": [3],
     }
 )
+"""Value for nexxim system."""
 NexximTVNoise = {}
+"""Value for nexxim tv noise."""
 HSPICE = dict(
     {
         "DataBlockID": 30,
@@ -710,8 +744,10 @@ HSPICE = dict(
         "SystemFDAnalysis": [False],
     }
 )
+"""Hspice."""
 
 HFSS3DLayout_Properties = dict({"Enable": "true"})
+"""Value for HFSS3DLayout properties."""
 HFSS3DLayout_AdvancedSettings = dict(
     {
         "AccuracyLevel": 2,
@@ -762,6 +798,7 @@ HFSS3DLayout_AdvancedSettings = dict(
         "PhiMesherDeltaZRatio": 100000,  # 2023.1
     }
 )
+"""Value for HFSS3DLayout AdvancedSettings."""
 HFSS3DLayout_CurveApproximation = dict(
     {
         "ArcAngle": "30deg",
@@ -773,6 +810,7 @@ HFSS3DLayout_CurveApproximation = dict(
         "Replace3DTriangles": True,
     }
 )
+"""Value for HFSS3DLayout CurveApproximation."""
 HFSS3DLayout_Q3D_DCSettings = dict(
     {
         "SolveResOnly": True,
@@ -781,6 +819,7 @@ HFSS3DLayout_Q3D_DCSettings = dict(
         "Solution Order": "Normal",
     }
 )
+"""Value for HFSS3DLayout Q3D DCSettings."""
 
 CGDataBlock = dict(
     {
@@ -797,6 +836,7 @@ CGDataBlock = dict(
         "UseLossConv": True,
     }
 )
+"""Value for cg data block."""
 RLDataBlock = dict(
     {
         "MaxPass": 10,
@@ -812,6 +852,7 @@ RLDataBlock = dict(
         "UseLossConv": True,
     }
 )
+"""Value for rl data block."""
 Open = dict(
     {
         "AdaptiveFreq": "1GHz",
@@ -1114,6 +1155,7 @@ TransientFlowOnly = dict(
 """Icepak Transient Flow only setup properties and default values."""
 
 HFSS3DLayout_SingleFrequencyDataList = dict({"AdaptiveFrequencyData": HFSS3DLayout_AdaptiveFrequencyData("5GHz")})
+"""Value for HFSS3DLayout SingleFrequencyDataList."""
 HFSS3DLayout_BroadbandFrequencyDataList = dict(
     {
         "AdaptiveFrequencyData": [
@@ -1122,6 +1164,7 @@ HFSS3DLayout_BroadbandFrequencyDataList = dict(
         ]
     }
 )
+"""Value for HFSS3DLayout BroadbandFrequencyDataList."""
 HFSS3DLayout_MultiFrequencyDataList = dict(
     {
         "AdaptiveFrequencyData": [
@@ -1131,6 +1174,7 @@ HFSS3DLayout_MultiFrequencyDataList = dict(
         ]
     }
 )
+"""Value for HFSS3DLayout MultiFrequencyDataList."""
 HFSS3DLayout_AdaptiveSettings = dict(
     {
         "DoAdaptive": True,
@@ -1146,6 +1190,7 @@ HFSS3DLayout_AdaptiveSettings = dict(
         "MultiFrequencyDataList": HFSS3DLayout_MultiFrequencyDataList,
     }
 )
+"""Value for HFSS3DLayout AdaptiveSettings."""
 HFSS3DLayout = dict(
     {
         "Properties": HFSS3DLayout_Properties,
@@ -1209,6 +1254,7 @@ HFSS3DLayout = dict(
         "AdaptiveSettings": HFSS3DLayout_AdaptiveSettings,
     }
 )
+"""Value for HFSS 3 D layout."""
 
 HFSS3DLayout_v231 = dict(
     {
@@ -1289,6 +1335,7 @@ HFSS3DLayout_v231 = dict(
 """HFSS 3D Layout setup properties and default values."""
 
 HFSS3DLayout_SweepDataList = {}
+"""Value for HFSS3DLayout SweepDataList."""
 HFSS3DLayout_SIWAdvancedSettings = dict(
     {
         "IncludeCoPlaneCoupling": True,
@@ -1312,6 +1359,7 @@ HFSS3DLayout_SIWAdvancedSettings = dict(
         "IgnoreNonFunctionalPads": True,
     }
 )
+"""Value for HFSS3DLayout SIWAdvancedSettings."""
 HFSS3DLayout_SIWDCSettings = dict(
     {
         "UseDCCustomSettings": False,
@@ -1321,6 +1369,7 @@ HFSS3DLayout_SIWDCSettings = dict(
         "DCSliderPos": 1,
     }
 )
+"""Value for HFSS3DLayout SIWDCSettings."""
 HFSS3DLayout_SIWDCAdvancedSettings = dict(
     {
         "DcMinPlaneAreaToMesh": "0.25mm2",
@@ -1339,6 +1388,7 @@ HFSS3DLayout_SIWDCAdvancedSettings = dict(
         "NumViaSides": 8,
     }
 )
+"""Value for HFSS3DLayout SIWDCAdvancedSettings."""
 HFSS3DLayout_SIWDCIRSettings = dict(
     {
         "IcepakTempFile": "D:/Program Files/AnsysEM/AnsysEM21.2/Win64/",
@@ -1354,6 +1404,7 @@ HFSS3DLayout_SIWDCIRSettings = dict(
         "UseLoopResForPerPin": False,
     }
 )
+"""Value for HFSS3DLayout SIWDCIRSettings."""
 
 HFSS3DLayout_SimulationSettings = dict(
     {
@@ -1368,6 +1419,7 @@ HFSS3DLayout_SimulationSettings = dict(
         "SIWDCIRSettings": HFSS3DLayout_SIWDCIRSettings,
     }
 )
+"""Value for HFSS3DLayout SimulationSettings."""
 
 HFSS3DLayout_ACSimulationSettings = dict(
     {
@@ -1381,6 +1433,7 @@ HFSS3DLayout_ACSimulationSettings = dict(
         "SIWDCAdvancedSettings": HFSS3DLayout_SIWDCAdvancedSettings,
     }
 )
+"""Value for HFSS3DLayout ACSimulationSettings."""
 
 RaptorX_GeneralSettings = dict(
     {
@@ -1393,8 +1446,10 @@ RaptorX_GeneralSettings = dict(
         "SaveRFM": False,
     }
 )
+"""Value for RaptorX GeneralSettings."""
 
 RaptorXOptions = dict({"B0": []})
+"""Value for raptor X options."""
 
 RaptorXAdvancedSettings = dict(
     {
@@ -1425,6 +1480,7 @@ RaptorXAdvancedSettings = dict(
         "NetSettingsOptions": RaptorXOptions,
     }
 )
+"""Value for raptor X advanced settings."""
 
 RaptorX_SimulationSettings = dict(
     {
@@ -1434,6 +1490,7 @@ RaptorX_SimulationSettings = dict(
         "SweepDataList": HFSS3DLayout_SweepDataList,
     }
 )
+"""Value for RaptorX SimulationSettings."""
 
 RaptorX = dict(
     {
@@ -1446,6 +1503,7 @@ RaptorX = dict(
         "SimulationSettings": RaptorX_SimulationSettings,
     }
 )
+"""Value for raptor X."""
 
 SiwaveAC3DLayout = dict(
     {
@@ -1459,6 +1517,7 @@ SiwaveAC3DLayout = dict(
         "SweepDataList": HFSS3DLayout_SweepDataList,
     }
 )
+"""Value for siwave ac 3 D layout."""
 
 SiwaveDC3DLayout = dict(
     {
@@ -1471,6 +1530,7 @@ SiwaveDC3DLayout = dict(
         "SweepDataList": HFSS3DLayout_SweepDataList,
     }
 )
+"""Value for siwave dc 3 D layout."""
 
 HFSS3DLayout_LNASimulationSettings = dict(
     {
@@ -1484,6 +1544,7 @@ HFSS3DLayout_LNASimulationSettings = dict(
         "FilterText": "",
     }
 )
+"""Value for HFSS3DLayout LNASimulationSettings."""
 LNA_Sweep = dict(
     {
         "DataId": "Sweep0",
@@ -1492,7 +1553,9 @@ LNA_Sweep = dict(
         "SolutionID": -1,
     }
 )
+"""Value for lna sweep."""
 HFSS3DLayout_LNAData = dict({"LNA Sweep 1": LNA_Sweep})
+"""Value for HFSS3DLayout LNAData."""
 LNA3DLayout = dict(
     {
         "Properties": HFSS3DLayout_Properties,
@@ -1505,6 +1568,7 @@ LNA3DLayout = dict(
         "Data": HFSS3DLayout_LNAData,
     }
 )
+"""Value for lna 3 D layout."""
 MechTerm = dict(
     {
         "Enabled": True,
@@ -1535,6 +1599,7 @@ MechTransientThermal = dict(
         "SaveFieldsType": "None",
     }
 )
+"""Value for mech transient thermal."""
 
 MechModal = dict(
     {
@@ -1575,7 +1640,14 @@ RmxprtDefault = dict(
 """RMxprt Default setup properties and default values."""
 
 GRM = copy.deepcopy(RmxprtDefault)
-"""RMxprt GRM Generic Rotating Machine setup properties and default values."""
+"""RMxprt GRM Generic Rotating Machine setup properties and default values.
+
+Examples
+--------
+>>> from ansys.aedt.core.modules.setup_templates import GRM
+>>> GRM
+
+"""
 
 GRM["RatedPowerFactor"] = "0.8"
 GRM["Frequency"] = "60Hz"
@@ -1598,14 +1670,32 @@ DFIG = dict(
 """RMxprt DFIG Doubly-fed induction generator setup properties."""
 
 TPIM = copy.deepcopy(RmxprtDefault)
+"""Tpim."""
+
 TPIM["Frequency"] = "60Hz"
 TPIM["WindingConnection"] = 0
 
-"""RMxprt TPIM Three-Phase Induction Machine setup properties."""
+"""RMxprt TPIM Three-Phase Induction Machine setup properties.
+
+Examples
+--------
+>>> from ansys.aedt.core.modules.setup_templates import TPIM
+>>> TPIM
+
+"""
+
 SPIM = copy.deepcopy(RmxprtDefault)
+"""Spim."""
 SPIM["Frequency"] = "60Hz"
 
-"""RMxprt SPIM Single-Phase Induction Machine setup properties."""
+"""RMxprt SPIM Single-Phase Induction Machine setup properties.
+
+Examples
+--------
+>>> from ansys.aedt.core.modules.setup_templates import SPIM
+>>> SPIM
+
+"""
 
 TPSM = dict(
     {
@@ -1627,21 +1717,40 @@ TPSM = dict(
 """RMxprt TPSM=SYNM Three-phase Synchronous Machine/Generator setup properties."""
 
 NSSM = TPSM  # Non-salient Synchronous Machine defaults: same as salient synch mach
+"""Nssm."""
 
 ASSM = BLDC = PMDC = SRM = RmxprtDefault
+"""Assm."""
 # --- ALL USING RMxprt DEFAULT VALUES --- #
 # ASSM = Adjustable-speed Synchronous Machine
 # BLDC = Brushless DC Machine
 # PMDC = Permanent Magnet DC Machine
 # SRM = Switched Reluctance Machine
 LSSM = copy.deepcopy(RmxprtDefault)
+"""Lssm."""
 LSSM["WindingConnection"] = False
 
-"""RMxprt LSSM Line-start Synchronous Machine setup properties."""
+"""RMxprt LSSM Line-start Synchronous Machine setup properties.
+
+Examples
+--------
+>>> from ansys.aedt.core.modules.setup_templates import LSSM
+>>> LSSM
+
+"""
 UNIM = copy.deepcopy(RmxprtDefault)
+"""Unim."""
+
 UNIM["Frequency"] = "60Hz"
 
-"""RMxprt UNIM Universal Machine setup properties."""
+"""RMxprt UNIM Universal Machine setup properties.
+
+Examples
+--------
+>>> from ansys.aedt.core.modules.setup_templates import UNIM
+>>> UNIM
+
+"""
 
 DCM = dict(
     {
@@ -1677,6 +1786,7 @@ CPSM = dict(
 """RMxprt CPSM Claw-pole synchronous machine/generator setup properties."""
 
 TR = {}
+"""Tr."""
 
 # Default sweep settings for Q3D
 SweepQ3D = dict(
@@ -1690,6 +1800,7 @@ SweepQ3D = dict(
         "SaveRadFields": False,
     }
 )
+"""Value for sweep Q 3 D."""
 
 SweepHfss3D = dict(
     {
@@ -1723,8 +1834,10 @@ SweepHfss3D = dict(
         "SMatrixOnlySolveAbove": "1MHz",
     }
 )
+"""Value for sweep HFSS 3 D."""
 
 enabled = dict({"Enable": "true"})
+"""Value for enabled."""
 
 Sweep3DLayout = dict(
     {
@@ -1757,6 +1870,7 @@ Sweep3DLayout = dict(
         "FreqSweepType": "kInterpolating",
     }
 )
+"""Value for sweep 3 D layout."""
 
 SweepSiwave = dict(
     {
@@ -1796,6 +1910,7 @@ SweepSiwave = dict(
         "HFSSRegionsParallelSimConfig": {},
     }
 )
+"""Value for sweep siwave."""
 
 SweepRaptorX = dict(
     {
@@ -2061,6 +2176,7 @@ SweepRaptorX = dict(
         "MeshFreqPoints": [],
     }
 )
+"""Value for sweep raptor X."""
 
 icepak_newkeys_241 = {
     "GPU Convergence Criteria - Flow": "0.001",
@@ -2098,13 +2214,20 @@ icepak_newkeys_241 = {
     "2D Profile Interpolation Method": "Inverse Distance Weighted",
     "TEC Coupling": False,
 }
+"""Value for icepak newkeys 241."""
 
 SteadyTemperatureOnly_241 = copy.deepcopy(SteadyTemperatureOnly)
+"""Value for SteadyTemperatureOnly 241."""
 SteadyFlowOnly_241 = copy.deepcopy(SteadyFlowOnly)
+"""Value for SteadyFlowOnly 241."""
 SteadyTemperatureAndFlow_241 = copy.deepcopy(SteadyTemperatureAndFlow)
+"""Value for SteadyTemperatureAndFlow 241."""
 TransientTemperatureOnly_241 = copy.deepcopy(TransientTemperatureOnly)
+"""Value for TransientTemperatureOnly 241."""
 TransientTemperatureAndFlow_241 = copy.deepcopy(TransientTemperatureAndFlow)
+"""Value for TransientTemperatureAndFlow 241."""
 TransientFlowOnly_241 = copy.deepcopy(TransientFlowOnly)
+"""Value for TransientFlowOnly 241."""
 SteadyTemperatureOnly_241.update(icepak_newkeys_241)
 SteadyFlowOnly_241.update(icepak_newkeys_241)
 SteadyTemperatureAndFlow_241.update(icepak_newkeys_241)
@@ -2113,6 +2236,7 @@ TransientTemperatureAndFlow_241.update(icepak_newkeys_241)
 TransientFlowOnly_241.update(icepak_newkeys_241)
 
 list_modules = dir()
+"""Value for list modules."""
 
 icepak_forced_convection_update = {
     "Convergence Criteria - Energy": "1e-12",
@@ -2120,6 +2244,7 @@ icepak_forced_convection_update = {
     "Linear Solver Residual Reduction Tolerance - Temperature": "1e-06",
     "Sequential Solve of Flow and Energy Equations": True,
 }
+"""Value for icepak forced convection update."""
 
 icepak_natural_convection_update = {
     "Include Gravity": True,
@@ -2136,10 +2261,20 @@ icepak_natural_convection_update = {
     "Linear Solver Termination Criterion - Temperature": "1e-06",
     "Linear Solver Residual Reduction Tolerance - Temperature": "1e-06",
 }
+"""Value for icepak natural convection update."""
 
 
 class SetupKeys:
-    """Provides setup keys."""
+    """Provides setup keys.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.setup_templates import SetupKeys
+    >>> obj = SetupKeys()
+    >>> obj.SetupNames[0]
+    'HFSSDrivenAuto'
+
+    """
 
     SetupNames = [
         "HFSSDrivenAuto",
@@ -2206,6 +2341,7 @@ class SetupKeys:
         "ElectricDCConduction",
         "RaptorX",
     ]
+    """Value for setup names."""
 
     SetupTemplates = {
         0: HFSSDrivenAuto,
@@ -2269,11 +2405,14 @@ class SetupKeys:
         58: DCConduction,
         59: ACConduction,
     }
+    """Value for setup templates."""
 
     SetupTemplates_231 = {
         29: HFSS3DLayout_v231,
     }
+    """Value for SetupTemplates 231."""
     SetupTemplates_232 = {}
+    """Value for SetupTemplates 232."""
 
     SetupTemplates_241 = {
         11: SteadyTemperatureAndFlow_241,
@@ -2284,13 +2423,16 @@ class SetupKeys:
         38: TransientFlowOnly_241,
         62: RaptorX,
     }
+    """Value for SetupTemplates 241."""
     SetupTemplates_251 = {
         60: DCBiasedEddyCurrent,
     }
+    """Value for SetupTemplates 251."""
 
     SetupTemplates_252 = {
         61: ElectroDCConduction,
     }
+    """Value for SetupTemplates 252."""
 
     @staticmethod
     def _add_to_template(template_in, template_to_append):
@@ -2318,8 +2460,7 @@ class SetupKeys:
         return template
 
     def get_default_icepak_template(self, default_type: str = "Default") -> dict:
-        """
-        Update the setup based on the class arguments or a dictionary.
+        """Update the setup based on the class arguments or a dictionary.
 
         Parameters
         ----------
@@ -2333,6 +2474,11 @@ class SetupKeys:
         dict
             Dictionary containing the Icepak default setup for the chosen simulation type.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.setup_templates import SetupKeys
+        >>> obj = SetupKeys()
+        >>> obj.get_default_icepak_template("Default")
 
         """
         icepak_setups_n = [11, 12, 13, 36, 37, 38]

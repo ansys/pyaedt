@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,7 +22,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""Export commands."""
+"""Export commands.
+
+Examples
+--------
+>>> pyaedt export screenshot --port 50051 --path "design.jpg"
+
+"""
 
 from __future__ import annotations
 
@@ -40,6 +46,7 @@ except ImportError:  # pragma: no cover
 from ansys.aedt.core.cli import common
 
 export_app = typer.Typer(help="Export commands")
+"""Value for export app."""
 
 
 @export_app.command("screenshot")
@@ -49,7 +56,13 @@ def screenshot(
     project: str = typer.Option(None, "--project", help="Project containing the design to capture"),
     design: str = typer.Option(None, "--design", "-d", help="Design to capture"),
 ) -> None:
-    """Capture a screenshot of the AEDT design view."""
+    """Capture a screenshot of the AEDT design view.
+
+    Examples
+    --------
+        pyaedt export screenshot --port 50051 --path "C:\\Users\\username\\Desktop\\design.jpg"
+
+    """
     try:
         _, app, context = common.get_design_app(port=port, project_name=project, design_name=design)
         try:
@@ -83,7 +96,13 @@ def export_config(
     design: str = typer.Option(None, "--design", "-d", help="Design to export config from"),
     overwrite: bool = typer.Option(False, "--overwrite", help="Overwrite existing config file"),
 ) -> None:
-    """Export design configuration (parameters, setup, etc.) as JSON."""
+    """Export design configuration (parameters, setup, etc.) as JSON.
+
+    Examples
+    --------
+        pyaedt export config --port 50051 --output "C:\\Users\\username\\Desktop\\design.json"
+
+    """
     try:
         temp_config_file = None
         _, app, context = common.get_design_app(port=port, project_name=project, design_name=design)
