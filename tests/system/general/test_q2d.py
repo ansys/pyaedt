@@ -323,8 +323,8 @@ def test_import_dxf(aedt_app) -> None:
 
 
 def test_export_w_elements_from_sweep(q2d_solved_sweep_app, test_tmp_dir) -> None:
-    export_folder = test_tmp_dir / "export_folder"
-    files = q2d_solved_sweep_app.export_w_elements(export_folder)
+    with pytest.warns(DeprecationWarning, match="export_w_elements"):
+        files = q2d_solved_sweep_app.export_w_elements(test_tmp_dir)
     assert len(files) == 3
     for file in files:
         ext = Path(file).suffix
@@ -333,15 +333,16 @@ def test_export_w_elements_from_sweep(q2d_solved_sweep_app, test_tmp_dir) -> Non
 
 
 def test_export_w_elements_from_nominal(q2d_solved_nominal_app, test_tmp_dir) -> None:
-    export_folder = test_tmp_dir / "export_folder"
-    files = q2d_solved_nominal_app.export_w_elements(export_folder)
+    with pytest.warns(DeprecationWarning, match="export_w_elements"):
+        files = q2d_solved_nominal_app.export_w_elements(test_tmp_dir)
     assert len(files) == 1
     for file in files:
         ext = Path(file).suffix
         assert ext == ".sp"
         assert Path(file).is_file()
 
-    files = q2d_solved_nominal_app.export_w_elements()
+    with pytest.warns(DeprecationWarning, match="export_w_elements"):
+        files = q2d_solved_nominal_app.export_w_elements()
     assert len(files) == 1
     for file in files:
         ext = Path(file).suffix
