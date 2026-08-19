@@ -472,10 +472,11 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
             raise RuntimeError("At least two radios are required.")
 
         rev = app.results.analyze()
+        sim = rev.get_simulation()
 
         if app.desktop_class.aedt_version_id < "2027.1":
             domain = app.results.interaction_domain()
-            colors, matrix = rev.interference_type_classification(
+            colors, matrix = sim.interference_type_classification(
                 domain=domain,
                 interferer_type=InterfererType().TRANSMITTERS_AND_EMITTERS,
                 use_filter=True,
@@ -483,7 +484,6 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
             )
         else:
             domain = InteractionDomain(app)
-            sim = rev.get_simulation()
             colors, matrix = sim.interference_type_classification(
                 domain=domain,
                 interferer_type=InterfererType().TRANSMITTERS_AND_EMITTERS,
@@ -520,9 +520,10 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
             global_levels = self._protection_levels.get("Global", current_values)
 
         rev = app.results.analyze()
+        sim = rev.get_simulation()
         if app.desktop_class.aedt_version_id < "2027.1":
             domain = app.results.interaction_domain()
-            colors, matrix = rev.protection_level_classification(
+            colors, matrix = sim.protection_level_classification(
                 domain=domain,
                 interferer_type=InterfererType().TRANSMITTERS,
                 global_protection_level=self._global_protection_level,
@@ -533,7 +534,6 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
             )
         else:
             domain = InteractionDomain(app)
-            sim = rev.get_simulation()
             colors, matrix = sim.protection_level_classification(
                 domain=domain,
                 interferer_type=InterfererType().TRANSMITTERS,
