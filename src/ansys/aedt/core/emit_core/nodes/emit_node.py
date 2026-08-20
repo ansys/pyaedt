@@ -38,6 +38,7 @@ from ansys.aedt.core.emit_core.emit_function_validator import FunctionValidator
 import ansys.aedt.core.generic.constants as consts
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.checks import min_aedt_version
+from ansys.aedt.core.internal.checks import requires_graphical_dependency
 
 # Type variable to be used in methods that might receive a subclass of EmitNode
 T = TypeVar("T", bound="EmitNode")
@@ -925,6 +926,7 @@ class EmitNode:
             raise Exception(f'Failed to export "{file_path}" as CSV: {e}') from e
 
     @min_aedt_version("2027.1")
+    @requires_graphical_dependency("matplotlib")
     def _plot(self, keys: str, values: str) -> None:
         """Plots an Emit node's trace data using matplotlib.
 
@@ -940,10 +942,7 @@ class EmitNode:
         matplotlib.pyplot.Figure
             The plot figure with frequency in MHz.
         """
-        try:
-            import matplotlib.pyplot as plt
-        except ImportError:
-            raise ImportError("matplotlib is required for plotting. Install it with: pip install matplotlib")
+        import matplotlib.pyplot as plt
 
         try:
             csv_data = self._oRevisionData.ExportTraceData(self._result_id, self.name, "", ",", keys, values)
