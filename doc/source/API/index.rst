@@ -5,11 +5,15 @@ API reference
 This section describes PyAEDT core classes, methods, and functions
 for AEDT apps and modules. Use the search feature or click links
 to view API documentation.
+
+
 The Ansys Electronics Desktop (AEDT) is a platform that enables true electronics system design.
 `AEDT <https://www.ansys.com/products/electronics>`_ provides access to the Ansys gold-standard
 electro-magnetics simulation solutions such as Ansys HFSS,
 Ansys Maxwell, Ansys Q3D Extractor, Ansys SIwave, and Ansys Icepak using electrical CAD (ECAD) and
 Mechanical CAD (MCAD) workflows.
+
+
 In addition, it includes direct links to the complete Ansys portfolio of thermal, fluid,
 and Mechanical solvers for comprehensive multiphysics analysis.
 Tight integration among these solutions provides unprecedented ease of use for setup and
@@ -82,6 +86,11 @@ Example with ``Desktop`` class implicit initialization:
     # ...
     circuit.release_desktop()
 
+To learn best practices for starting and managing AEDT sessions with the
+``Desktop`` class, see the Desktop sessions guide: :doc:`../User_guide/desktop_sessions`.
+
+For the per-application API reference, see the Application page: :doc:`Application`.
+
 
 .. toctree::
    :maxdepth: 2
@@ -104,8 +113,6 @@ Example with ``Desktop`` class implicit initialization:
    Configuration
    SetupTemplates
    CableModeling
-   EMIT
-   FilterSolutions
    Profiles
    Substrate
    generic
