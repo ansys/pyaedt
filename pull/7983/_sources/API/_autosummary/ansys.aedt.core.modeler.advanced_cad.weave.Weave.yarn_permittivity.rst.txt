@@ -1,0 +1,6 @@
+yarn\_permittivity
+==================
+
+.. currentmodule:: ansys.aedt.core.modeler.advanced_cad.weave
+
+.. autoproperty:: Weave.yarn_permittivity

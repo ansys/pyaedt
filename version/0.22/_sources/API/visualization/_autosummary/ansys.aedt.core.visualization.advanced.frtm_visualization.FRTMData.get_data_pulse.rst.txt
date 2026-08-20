@@ -1,0 +1,6 @@
+get\_data\_pulse
+================
+
+.. currentmodule:: ansys.aedt.core.visualization.advanced.frtm_visualization
+
+.. automethod:: FRTMData.get_data_pulse

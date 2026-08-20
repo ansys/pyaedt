@@ -1,0 +1,6 @@
+unit\_system
+============
+
+.. currentmodule:: ansys.aedt.core.generic.numbers_utils
+
+.. autoproperty:: Quantity.unit_system

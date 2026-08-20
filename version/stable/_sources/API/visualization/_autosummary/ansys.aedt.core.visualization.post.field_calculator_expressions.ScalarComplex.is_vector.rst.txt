@@ -1,0 +1,6 @@
+is\_vector
+==========
+
+.. currentmodule:: ansys.aedt.core.visualization.post.field_calculator_expressions
+
+.. autoattribute:: ScalarComplex.is_vector

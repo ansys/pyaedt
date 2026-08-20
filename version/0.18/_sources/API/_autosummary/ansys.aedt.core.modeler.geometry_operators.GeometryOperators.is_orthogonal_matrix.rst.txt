@@ -1,0 +1,6 @@
+is\_orthogonal\_matrix
+======================
+
+.. currentmodule:: ansys.aedt.core.modeler.geometry_operators
+
+.. automethod:: GeometryOperators.is_orthogonal_matrix

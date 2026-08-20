@@ -1,0 +1,6 @@
+excitation\_names
+=================
+
+.. currentmodule:: ansys.aedt.core.icepak
+
+.. autoproperty:: Icepak.excitation_names

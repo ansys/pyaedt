@@ -1,0 +1,6 @@
+VIEW
+====
+
+.. currentmodule:: ansys.aedt.core.hfss
+
+.. autoproperty:: Hfss.VIEW

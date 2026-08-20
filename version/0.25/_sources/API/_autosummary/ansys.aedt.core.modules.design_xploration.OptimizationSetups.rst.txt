@@ -1,0 +1,37 @@
+﻿OptimizationSetups
+==================
+
+.. currentmodule:: ansys.aedt.core.modules.design_xploration
+
+.. autoclass:: OptimizationSetups
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      OptimizationSetups.add
+      
+      
+      OptimizationSetups.delete
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      OptimizationSetups.design_setups
+      OptimizationSetups.optimodule
+      OptimizationSetups.p_app
+      OptimizationSetups.public_dir
+   
+   

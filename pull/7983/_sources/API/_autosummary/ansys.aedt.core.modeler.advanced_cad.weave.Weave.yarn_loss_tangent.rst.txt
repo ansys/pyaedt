@@ -1,0 +1,6 @@
+yarn\_loss\_tangent
+===================
+
+.. currentmodule:: ansys.aedt.core.modeler.advanced_cad.weave
+
+.. autoproperty:: Weave.yarn_loss_tangent

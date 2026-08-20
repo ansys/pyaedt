@@ -1,0 +1,6 @@
+metal\_specify\_type
+====================
+
+.. currentmodule:: ansys.aedt.core.modules.substrate_circuit
+
+.. autoproperty:: SubstrateDataBlock.metal_specify_type

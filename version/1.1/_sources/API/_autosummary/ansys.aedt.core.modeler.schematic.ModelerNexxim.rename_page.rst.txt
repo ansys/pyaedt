@@ -1,0 +1,6 @@
+rename\_page
+============
+
+.. currentmodule:: ansys.aedt.core.modeler.schematic
+
+.. automethod:: ModelerNexxim.rename_page

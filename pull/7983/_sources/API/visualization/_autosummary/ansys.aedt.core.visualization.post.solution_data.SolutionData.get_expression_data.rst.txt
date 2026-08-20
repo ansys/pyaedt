@@ -1,0 +1,6 @@
+get\_expression\_data
+=====================
+
+.. currentmodule:: ansys.aedt.core.visualization.post.solution_data
+
+.. automethod:: SolutionData.get_expression_data

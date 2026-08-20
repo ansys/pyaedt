@@ -1,0 +1,60 @@
+﻿SubstrateManager
+================
+
+.. currentmodule:: ansys.aedt.core.modules.substrate_circuit
+
+.. autoclass:: SubstrateManager
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      SubstrateManager.add_coplanar_waveguide
+      
+      
+      SubstrateManager.add_grounded_coplanar_waveguide
+      
+      
+      SubstrateManager.add_microstrip
+      
+      
+      SubstrateManager.add_offset_stripline
+      
+      
+      SubstrateManager.add_rectangular_waveguide
+      
+      
+      SubstrateManager.add_slotline
+      
+      
+      SubstrateManager.add_stripline
+      
+      
+      SubstrateManager.add_substrate_reference
+      
+      
+      SubstrateManager.add_suspended_stripline
+      
+      
+      SubstrateManager.delete
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      SubstrateManager.all
+      SubstrateManager.names
+      SubstrateManager.public_dir
+   
+   

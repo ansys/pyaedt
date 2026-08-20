@@ -1,0 +1,6 @@
+matrix\_name
+============
+
+.. currentmodule:: ansys.aedt.core.modules.boundary.maxwell_boundary
+
+.. autoattribute:: MatrixElectric.matrix_name

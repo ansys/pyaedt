@@ -1,0 +1,6 @@
+twisting\_length\_factor
+========================
+
+.. currentmodule:: ansys.aedt.core.modules.material
+
+.. autoproperty:: Material.twisting_length_factor

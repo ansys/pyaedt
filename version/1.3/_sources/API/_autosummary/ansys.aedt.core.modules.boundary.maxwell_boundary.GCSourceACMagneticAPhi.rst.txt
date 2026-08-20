@@ -1,0 +1,23 @@
+﻿GCSourceACMagneticAPhi
+======================
+
+.. currentmodule:: ansys.aedt.core.modules.boundary.maxwell_boundary
+
+.. autoclass:: GCSourceACMagneticAPhi
+
+   
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      GCSourceACMagneticAPhi.signal_sources
+      GCSourceACMagneticAPhi.ground_sources
+   
+   

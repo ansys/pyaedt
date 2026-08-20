@@ -1,0 +1,6 @@
+names
+=====
+
+.. currentmodule:: ansys.aedt.core.modules.substrate_circuit
+
+.. autoproperty:: SubstrateManager.names

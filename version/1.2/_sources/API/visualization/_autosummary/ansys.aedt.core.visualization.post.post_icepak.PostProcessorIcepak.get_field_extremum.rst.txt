@@ -1,0 +1,6 @@
+get\_field\_extremum
+====================
+
+.. currentmodule:: ansys.aedt.core.visualization.post.post_icepak
+
+.. automethod:: PostProcessorIcepak.get_field_extremum
