@@ -1,5 +1,5 @@
-EMIT design
-===========
+EMIT
+====
 This section describes the classes used for building and querying EMIT designs through the ``emit_core`` module.
 The module provides tools for constructing RF system schematics, defining coupling between antennas, and
 analyzing electromagnetic interference.

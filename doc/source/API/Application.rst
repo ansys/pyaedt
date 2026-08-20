@@ -28,10 +28,14 @@ Available PyAEDT apps are:
      ansys.aedt.core.maxwellcircuit.MaxwellCircuit
      ansys.aedt.core.twinbuilder.TwinBuilder
 
+
 See also:
 
-- :doc:`EMIT`: EMIT design documentation
-- :doc:`FilterSolutions`: Filter solutions documentation
+.. toctree::
+    :maxdepth: 1
+
+    EMIT
+    FilterSolutions
 
 
 All other classes and methods are inherited into the app class.
