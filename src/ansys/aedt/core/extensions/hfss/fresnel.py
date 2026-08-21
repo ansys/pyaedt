@@ -827,8 +827,6 @@ class FresnelExtension(ExtensionHFSSCommon):
         self.active_setup_sweep = self.active_setup.name + " : " + self.sweep.name
         app.create_fresnel_variables(self.active_setup_sweep)
 
-        app.save_project()
-
         self._button("start_button").grid()
 
         cast(Any, self._widgets["tabs"]).hide(self._widgets["extraction_tab"])
