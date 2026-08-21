@@ -1102,10 +1102,17 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
             if not isinstance(variations, list):
                 raise AEDTRuntimeError("Variations must be provided as a list.")
             for x in range(0, len(variations)):
-                name = variations[x].replace(" ", "").split(":")[0]
-                value = variations[x].replace(" ", "").split(":")[1]
-                solved_variations = self.post.get_solution_data(variations={name: [value]})
+                raw = variations[x]
+                if ":" in raw:
+                    name, value = raw.split(":", 1)
+                elif "=" in raw:
+                    name, value = raw.split("=", 1)
+                else:
+                    name, value = raw, ""
 
+                name = name.strip()
+                value = value.strip()
+                solved_variations = self.post.get_solution_data(variations={name: [value]})
                 if not solved_variations or not solved_variations.variations[0]:
                     raise AEDTRuntimeError("Provided variation doesn't exist.")
                 variation = f"{name}='{value}'"
@@ -2297,7 +2304,6 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
             expression += ":"
             expression += source
             expression += ","
-
             if "Sink" not in [self.design_excitations[source].type, self.design_excitations[sink].type]:
                 move_sink.append(sink)
             elif self.design_excitations[sink].type == "Source":
@@ -2650,8 +2656,8 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
     new_desktop : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``version`` is active on the
-        machine. The default is ``False``. This parameter is ignored
-        when a script is launched within AEDT.
+        machine. The default is ``False``. This parameter is ignored when
+        a script is launched within AEDT.
     close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
@@ -2663,9 +2669,10 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         `"ansysedt.exe -grpcsrv portnum"`. If the machine is `"localhost"`,
         the server also starts if not present.
     port : int, optional
-        Port number on which to start the oDesktop communication on an already existing server.
-        This parameter is ignored when creating a new server. It works only in 2022 R2 or later.
-        The remote server must be up and running with the command `"ansysedt.exe -grpcsrv portnum"`.
+        Port number on which to start the oDesktop communication on an already
+        existing server. This parameter is ignored when a new server is created.
+        It works only in 2022 R2 and later. The remote server must be up and
+        running with the command `"ansysedt.exe -grpcsrv portnum"`.
     aedt_process_id : int, optional
         Process ID for the instance of AEDT to point PyAEDT at. The default is
         ``None``. This parameter is only used when ``new_desktop = False``.
@@ -2986,6 +2993,9 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
     def export_w_elements(self, export_folder: str | Path | None = None) -> list:
         """Export all W-elements to files.
 
+        .. deprecated:: 1.5.0
+           Use :meth:`export_equivalent_circuit` instead.
+
         Parameters
         ----------
         export_folder : str or :class:`pathlib.Path`, optional
@@ -2995,114 +3005,43 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         Returns
         -------
         list
-            List of all exported files.
+            List of exported files.
 
         Examples
         --------
         >>> from ansys.aedt.core.q3d import Q2d
-        >>> obj = Q2d()
-        >>> obj.export_w_elements("C:/Users/UserName/ExportedWElements")
+        >>> q2d = Q2d()
+        >>> exported_files = q2d.export_w_elements(export_folder=q2d.working_directory)
+        >>> q2d.release_desktop(True, True)
 
         """
+        import warnings
+
+        warnings.warn(
+            "`export_w_elements` is deprecated and will be removed in 1.5.0. Use `export_equivalent_circuit` instead.",
+            DeprecationWarning,
+        )
+
         exported_files = []
         if not export_folder:
             export_folder = self.working_directory
-        if not Path(export_folder).exists():
-            Path(export_folder).mkdir()
-        setups = self.oanalysis.GetSetups()
+        setups = self.setup_names
 
         for s in setups:
-            sweeps = self.oanalysis.GetSweeps(s)
-            if not sweeps:
-                sweeps = ["LastAdaptive"]
+            sweeps = self.get_sweeps(s)
             for sweep in sweeps:
-                variation_array = self.list_of_variations(s, sweep)
-                solution_name = f"{s} : {sweep}"
-                if len(variation_array) == 1:
-                    try:
-                        export_file = f"{self.project_name}_{s}_{sweep}.sp"
-                        export_path = Path(export_folder) / export_file
-                        subckt_name = f"w_{self.project_name}"
-                        self.oanalysis.ExportCircuit(
-                            solution_name,
-                            variation_array[0],
-                            str(export_path),
-                            [
-                                "NAME:CircuitData",
-                                "MatrixName:=",
-                                "Original",
-                                "NumberOfCells:=",
-                                "1",
-                                "UserHasChangedSettings:=",
-                                True,
-                                "IncludeCap:=",
-                                False,
-                                "IncludeCond:=",
-                                False,
-                                ["NAME:CouplingLimits", "CouplingLimitType:=", "None"],
-                                "IncludeR:=",
-                                False,
-                                "IncludeL:=",
-                                False,
-                                "ExportDistributed:=",
-                                True,
-                                "LumpedLength:=",
-                                "1meter",
-                                "RiseTime:=",
-                                "1e-09s",
-                            ],
-                            subckt_name,
-                            "WElement",
-                            0,
-                        )
-                        exported_files.append(export_path)
-                        self.logger.info("Exported W-element: %s", export_path)
-                    except Exception:  # pragma: no cover
-                        self.logger.warning("Export W-element failed")
-                else:
-                    varCount = 0
-                    for variation in variation_array:
-                        varCount += 1
-                        try:
-                            export_file = f"{self.project_name}_{s}_{sweep}_{varCount}.sp"
-                            export_path = Path(export_folder) / export_file
-                            subckt_name = f"w_{self.project_name}_{varCount}"
-                            self.oanalysis.ExportCircuit(
-                                solution_name,
-                                variation,
-                                str(export_path),
-                                [
-                                    "NAME:CircuitData",
-                                    "MatrixName:=",
-                                    "Original",
-                                    "NumberOfCells:=",
-                                    "1",
-                                    "UserHasChangedSettings:=",
-                                    True,
-                                    "IncludeCap:=",
-                                    False,
-                                    "IncludeCond:=",
-                                    False,
-                                    ["NAME:CouplingLimits", "CouplingLimitType:=", "None"],
-                                    "IncludeR:=",
-                                    False,
-                                    "IncludeL:=",
-                                    False,
-                                    "ExportDistributed:=",
-                                    True,
-                                    "LumpedLength:=",
-                                    "1meter",
-                                    "RiseTime:=",
-                                    "1e-09s",
-                                ],
-                                subckt_name,
-                                "WElement",
-                                0,
-                            )
-                            exported_files.append(export_path)
-                            self.logger.info("Exported W-element: %s", export_path)
-                        except Exception:  # pragma: no cover
-                            self.logger.warning("Export W-element failed")
+                export_path = Path(export_folder) / f"{self.project_name}_{s}_{sweep}.sp"
+                subckt_name = f"w_{self.project_name}"
+                variations = self.list_of_variations(s, sweep)
+                for variation in variations:
+                    self.export_equivalent_circuit(
+                        output_file=export_path,
+                        variations=[variation.split("=", 1)[0] + "=" + variation.split("=", 1)[1].strip().strip("\"'")],
+                        model=subckt_name,
+                        file_type="WElement",
+                    )
+                    exported_files.append(export_path)
+                self.logger.info("Exported W-element: %s", export_path)
         return exported_files
 
     @pyaedt_function_handler()

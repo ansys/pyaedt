@@ -829,7 +829,10 @@ class Analysis(Design, PyAedtBase):
             or self.design_type == "2D Extractor"
         ):
             try:
-                return list(self.osolution.ListVariations(f"{setup} : {sweep}"))
+                if self._aedt_version < "2027.1":
+                    return list(self.osolution.ListVariations(f"{setup} : {sweep}"))
+                else:
+                    return self.osolution.GetAvailableVariations(f"{setup} : {sweep}")
             except Exception:
                 return [""]
         else:
