@@ -74,6 +74,128 @@ class Modeler3D(Primitives3D, PyAedtBase):
         return self
 
     @pyaedt_function_handler()
+    def export_image(
+        self,
+        output_file: str | Path,
+        width: int = 0,
+        height: int = 0,
+        show_axis: bool = True,
+        show_grid: bool = True,
+        show_ruler: bool = True,
+        show_region: str = "Default",
+        selections: str | list[str] | None = None,
+        auto_fit: bool = True,
+        orientation: str = "",
+        show_orientation_gadget: bool = False,
+        background_type: str = "Default",
+    ) -> str:
+        """Export a 3D model image with detailed display settings.
+
+        Parameters
+        ----------
+        output_file : str or :class:`pathlib.Path`
+            Full path and name for the exported image file.
+        width : int, optional
+            Image width in pixels. The default is ``0``, which uses the
+            desktop width.
+        height : int, optional
+            Image height in pixels. The default is ``0``, which uses the
+            desktop height.
+        show_axis : bool, optional
+            Whether to display the axis triad. The default is ``True``.
+        show_grid : bool, optional
+            Whether to display the grid. The default is ``True``.
+        show_ruler : bool, optional
+            Whether to display the ruler. The default is ``True``.
+        show_region : str, optional
+            Region visibility setting. The default is ``"Default"``.
+        selections : str or list of str, optional
+            Model objects to include in the image. The default is
+            ``None``.
+        auto_fit : bool, optional
+            Whether to automatically fit the model in the image. The
+            default is ``True``.
+        orientation : str, optional
+            View orientation or a custom orientation name. The default is
+            an empty string.
+        show_orientation_gadget : bool, optional
+            Whether to display the orientation gadget. The default is
+            ``False``.
+        background_type : str, optional
+            Background type. Options are ``"Default"``, ``"Plain"``,
+            ``"LinearGradient"``, and ``"RadialGradient"``. The default is
+            ``"Default"``.
+
+        Returns
+        -------
+        str
+            Full path to the exported image file.
+
+        References
+        ----------
+        >>> oEditor.ExportModelImageToFile
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss(non_graphical=False)
+        >>> image = app.modeler.export_image("C:/temp/model.png", width=1920, height=1080)
+
+        """
+        if selections:
+            selections = self.convert_to_selections(selections, False)
+        else:
+            selections = ""
+
+        arg = [
+            "NAME:SaveImageParams",
+            "ShowAxis:=",
+            str(show_axis),
+            "ShowGrid:=",
+            str(show_grid),
+            "ShowRuler:=",
+            str(show_ruler),
+            "ShowRegion:=",
+            show_region,
+            "Selections:=",
+            selections,
+            "AutoFit:=",
+            str(auto_fit),
+            "Orientation:=",
+            orientation,
+            "ShowOrientationGadget:=",
+            str(show_orientation_gadget),
+            "BackgroundType:=",
+            background_type,
+            [
+                "NAME:BackgroundColor",
+                "R:=",
+                -1,
+                "G:=",
+                -1,
+                "B:=",
+                -1,
+            ],
+            [
+                "NAME:BackgroundContrastColor",
+                "R:=",
+                -1,
+                "G:=",
+                -1,
+                "B:=",
+                -1,
+            ],
+        ]
+        output_file = str(output_file)
+        self.oeditor.ExportModelImageToFile(
+            output_file,
+            width,
+            height,
+            arg,
+        )
+        return output_file
+
+    @pyaedt_function_handler()
     def create_3dcomponent(
         self,
         input_file: str,

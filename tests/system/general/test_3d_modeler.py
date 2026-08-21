@@ -1203,6 +1203,25 @@ def test_copy_solid_bodies_udm(hfss_app, add_app) -> None:
     dest.copy_solid_bodies_from(hfss_app)
 
 
+def test_export_image(aedt_app, test_tmp_dir) -> None:
+    """Test exporting a 3D model image."""
+    aedt_app.modeler.create_box([0, 0, 0], [10, 10, 10], name="image_export_box")
+    output_file = test_tmp_dir / "model.png"
+
+    image_path = aedt_app.modeler.export_image(
+        output_file,
+        width=1920,
+        height=1080,
+        show_grid=False,
+        orientation="top",
+        show_orientation_gadget=True,
+        background_type="Plain",
+    )
+
+    assert image_path == str(output_file)
+    assert output_file.is_file()
+
+
 def test_create_conical_rings(aedt_app) -> None:
     position = aedt_app.modeler.Position(0, 0, 0)
     rings1 = aedt_app.modeler.create_conical_rings("Z", position, 20, 10, 20, 1)
