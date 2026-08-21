@@ -1002,8 +1002,6 @@ class FresnelExtension(ExtensionHFSSCommon):
         # Solve
         app.analyze_setup(cores=cores, num_variations_to_distribute=tasks, name=active_parametric)
 
-        app.save_project()
-
         is_valid = self._validate(self.active_setup_sweep)
 
         if is_valid:
@@ -1037,6 +1035,10 @@ class FresnelExtension(ExtensionHFSSCommon):
         )
 
         settings.enable_desktop_logs = enable_log
+
+        # Project can only be saved when the extension is going to be released
+        app.save_project()
+
         self.release_desktop()
 
         self.root.destroy()
