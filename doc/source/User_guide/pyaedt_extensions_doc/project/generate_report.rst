@@ -1,4 +1,4 @@
-Generate Report
+Generate report
 ===============
 
 The Generate Report extension creates a PDF report for the active AEDT design.
