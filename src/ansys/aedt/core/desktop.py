@@ -35,6 +35,8 @@ Examples
 
 """
 
+from __future__ import annotations
+
 import atexit
 import datetime
 from difflib import get_close_matches
@@ -2012,12 +2014,12 @@ class Desktop(PyAedtBase):
         return str(ex_value)
 
     @pyaedt_function_handler()
-    def load_project(self, project_file: str, design_name: str | None = None) -> bool | object:
+    def load_project(self, project_file: str | Path, design_name: str | None = None) -> bool | object:
         """Open an AEDT project based on a project and optional design.
 
         Parameters
         ----------
-        project_file : str
+        project_file : str or :class:`pathlib.Path`
             Full path and name for the project.
         design_name : str, optional
             Design name. The default is ``None``.
@@ -2038,19 +2040,26 @@ class Desktop(PyAedtBase):
         >>> desktop.load_project(project_file=r"C:\\Projects\\MyProject.aedt")
 
         """
-        if Path(project_file).stem in self.project_list:
-            proj = self.active_project(Path(project_file).stem)
+        project_file = Path(project_file)
+        project_file_stem = project_file.stem
+
+        if project_file_stem in self.project_list:
+            proj = self.active_project(project_file_stem)
         else:
-            lock_file = project_file + ".lock"
-            if os.path.exists(lock_file):
+            lock_file = str(project_file) + ".lock"
+            if Path(lock_file).exists():
                 raise RuntimeError("Project is locked. Close or remove the lock before proceeding.")
-            proj = self.odesktop.OpenProject(project_file)
+            proj = self.odesktop.OpenProject(str(project_file))
         if proj:
             active_design = self.active_design(proj)
             if design_name and design_name in proj.GetChildNames():  # pragma: no cover
                 return self[[proj.GetName(), design_name]]
             elif active_design:
-                return self[[proj.GetName(), active_design.GetName()]]
+                aedt_design_name = active_design.GetName()
+                if ";" in aedt_design_name:
+                    # This is for circuit and layout designs
+                    aedt_design_name = aedt_design_name.split(";")[1]
+                return self[[proj.GetName(), aedt_design_name]]
             return True
         else:  # pragma: no cover
             return False
