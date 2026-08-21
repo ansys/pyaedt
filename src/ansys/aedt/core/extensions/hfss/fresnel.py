@@ -1036,9 +1036,6 @@ class FresnelExtension(ExtensionHFSSCommon):
 
         settings.enable_desktop_logs = enable_log
 
-        # Project can only be saved when the extension is going to be released
-        app.save_project()
-
         self.release_desktop()
 
         self.root.destroy()
