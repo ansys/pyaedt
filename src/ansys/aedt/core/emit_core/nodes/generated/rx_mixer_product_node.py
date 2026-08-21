@@ -42,6 +42,12 @@ class RxMixerProductNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> mixer_products = rx_profile.add_mixer_products()
         >>> mixer_products.parent
 
         """
@@ -54,6 +60,12 @@ class RxMixerProductNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> mixer_products = rx_profile.add_mixer_products()
         >>> mixer_products.node_type
 
         """
@@ -61,14 +73,30 @@ class RxMixerProductNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def import_csv_file(self, file_name: str) -> EmitNode:
-        """Import a CSV File.
+        """Import a CSV File....
 
         Examples
         --------
-        >>> mixer_products.import_csv_file("C:\\Temp\\rx_mixer_products.csv")
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> mixer_products = rx_profile.add_mixer_products()
+        >>> mixer_products.import_csv_file("C:\\EMIT\\data.csv")
 
         """
-        return self._import(file_name, "Csv")
+        return self._import(file_name, "CsvFile")
+
+    @min_aedt_version("2027.1")
+    def export_to_csv(self, file_name: str) -> str:
+        """Export's the data for this node"""
+        return self._export_to_csv(file_name, "", "")
+
+    @min_aedt_version("2027.1")
+    def plot(self):
+        """Bring up a Cartesian plot for this node"""
+        return self._plot("", "")
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
@@ -76,6 +104,12 @@ class RxMixerProductNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> mixer_products = rx_profile.add_mixer_products()
         >>> mixer_products.delete()
 
         """
@@ -95,7 +129,13 @@ class RxMixerProductNode(EmitNode):
 
         Examples
         --------
-        >>> mixer_products.table_data = [(1, 1, -35.0)]
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> mixer_products = rx_profile.add_mixer_products()
+        >>> mixer_products.table_data = [(2, 25.0)]
 
         """
         return self._get_table_data()
@@ -112,6 +152,12 @@ class RxMixerProductNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> mixer_products = rx_profile.add_mixer_products()
         >>> mixer_products.enabled = True
 
         """
@@ -134,12 +180,20 @@ class RxMixerProductNode(EmitNode):
 
         Examples
         --------
-        >>> from ansys.aedt.core.emit_core.nodes.generated import RxMixerProductNode
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> mixer_products = rx_profile.add_mixer_products()
         >>> mixer_products.mixer_product_taper = RxMixerProductNode.MixerProductTaperOption.CONSTANT
 
         """
         val = self._get_property("Mixer Product Taper")
-        val = self.MixerProductTaperOption[val.upper()]
+        try:
+            val = self.MixerProductTaperOption(val)
+        except ValueError:
+            val = self.MixerProductTaperOption[val.upper()]
         return val
 
     @mixer_product_taper.setter
@@ -156,7 +210,14 @@ class RxMixerProductNode(EmitNode):
 
         Examples
         --------
-        >>> mixer_products.mixer_product_susceptibility = -10.0
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> mixer_products = rx_profile.add_mixer_products()
+        >>> mixer_products.mixer_product_taper = RxMixerProductNode.MixerProductTaperOption.CONSTANT
+        >>> mixer_products.mixer_product_susceptibility = 60
 
         """
         val = self._get_property("Mixer Product Susceptibility")
@@ -176,7 +237,13 @@ class RxMixerProductNode(EmitNode):
 
         Examples
         --------
-        >>> mixer_products.spurious_rejection = 50.0
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> mixer_products = rx_profile.add_mixer_products()
+        >>> mixer_products.spurious_rejection = 60
 
         """
         val = self._get_property("Spurious Rejection")
@@ -196,7 +263,14 @@ class RxMixerProductNode(EmitNode):
 
         Examples
         --------
-        >>> mixer_products.minimum_tuning_frequency = "900MHz"
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> mixer_products = rx_profile.add_mixer_products()
+        >>> mixer_products.mixer_product_taper = RxMixerProductNode.MixerProductTaperOption.MIL_STD_461G
+        >>> mixer_products.minimum_tuning_frequency = 90e6
 
         """
         val = self._get_property("Minimum Tuning Frequency")
@@ -218,7 +292,14 @@ class RxMixerProductNode(EmitNode):
 
         Examples
         --------
-        >>> mixer_products.maximum_tuning_frequency = "2GHz"
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> mixer_products = rx_profile.add_mixer_products()
+        >>> mixer_products.mixer_product_taper = RxMixerProductNode.MixerProductTaperOption.MIL_STD_461G
+        >>> mixer_products.maximum_tuning_frequency = 110e6
 
         """
         val = self._get_property("Maximum Tuning Frequency")
@@ -243,7 +324,14 @@ class RxMixerProductNode(EmitNode):
 
         Examples
         --------
-        >>> mixer_products.mixer_product_slope = 12.0
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> mixer_products = rx_profile.add_mixer_products()
+        >>> mixer_products.mixer_product_taper = RxMixerProductNode.MixerProductTaperOption.DUFF_MODEL
+        >>> mixer_products.mixer_product_slope = 35
 
         """
         val = self._get_property("Mixer Product Slope")
@@ -263,7 +351,14 @@ class RxMixerProductNode(EmitNode):
 
         Examples
         --------
-        >>> mixer_products.mixer_product_intercept = 35.0
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> mixer_products = rx_profile.add_mixer_products()
+        >>> mixer_products.mixer_product_taper = RxMixerProductNode.MixerProductTaperOption.DUFF_MODEL
+        >>> mixer_products.mixer_product_intercept = 75
 
         """
         val = self._get_property("Mixer Product Intercept")
@@ -286,7 +381,14 @@ class RxMixerProductNode(EmitNode):
 
         Examples
         --------
-        >>> mixer_products.bandwidth_80_db = "20MHz"
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> mixer_products = rx_profile.add_mixer_products()
+        >>> mixer_products.mixer_product_taper = RxMixerProductNode.MixerProductTaperOption.MIL_STD_461G
+        >>> mixer_products.bandwidth_80_db = 1.0e6
 
         """
         val = self._get_property("Bandwidth 80 dB")
@@ -308,7 +410,13 @@ class RxMixerProductNode(EmitNode):
 
         Examples
         --------
-        >>> mixer_products.image_rejection = 45.0
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> mixer_products = rx_profile.add_mixer_products()
+        >>> mixer_products.image_rejection = 60
 
         """
         val = self._get_property("Image Rejection")
@@ -328,6 +436,12 @@ class RxMixerProductNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> mixer_products = rx_profile.add_mixer_products()
         >>> mixer_products.maximum_rf_harmonic_order = 3
 
         """
@@ -348,7 +462,13 @@ class RxMixerProductNode(EmitNode):
 
         Examples
         --------
-        >>> mixer_products.maximum_lo_harmonic_order = 2
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> mixer_products = rx_profile.add_mixer_products()
+        >>> mixer_products.maximum_lo_harmonic_order = 3
 
         """
         val = self._get_property("Maximum LO Harmonic Order")
@@ -371,12 +491,20 @@ class RxMixerProductNode(EmitNode):
 
         Examples
         --------
-        >>> from ansys.aedt.core.emit_core.nodes.generated import RxMixerProductNode
-        >>> mixer_products.mixing_mode = RxMixerProductNode.MixingModeOption.LO_ABOVE_TUNED_RF_FREQUENCY
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> mixer_products = rx_profile.add_mixer_products()
+        >>> mixer_products.mixing_mode = RxMixerProductNode.MixingModeOption.LO_BELOW_TUNED_RF_FREQUENCY
 
         """
         val = self._get_property("Mixing Mode")
-        val = self.MixingModeOption[val.upper()]
+        try:
+            val = self.MixingModeOption(val)
+        except ValueError:
+            val = self.MixingModeOption[val.upper()]
         return val
 
     @mixing_mode.setter
@@ -393,7 +521,13 @@ class RxMixerProductNode(EmitNode):
 
         Examples
         --------
-        >>> mixer_products.first_if_frequency = "70MHz"
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> mixer_products = rx_profile.add_mixer_products()
+        >>> mixer_products.first_if_frequency = "0.0"
 
         """
         val = self._get_property("First IF Frequency")
@@ -411,7 +545,14 @@ class RxMixerProductNode(EmitNode):
 
         Examples
         --------
-        >>> mixer_products.rf_transition_frequency = "1.5GHz"
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> mixer_products = rx_profile.add_mixer_products()
+        >>> mixer_products.mixing_mode = RxMixerProductNode.MixingModeOption.LO_ABOVEBELOW_TUNED_RF_FREQUENCY
+        >>> mixer_products.rf_transition_frequency = 100e6
 
         """
         val = self._get_property("RF Transition Frequency")
@@ -435,12 +576,21 @@ class RxMixerProductNode(EmitNode):
 
         Examples
         --------
-        >>> from ansys.aedt.core.emit_core.nodes.generated import RxMixerProductNode
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> mixer_products = rx_profile.add_mixer_products()
+        >>> mixer_products.mixing_mode = RxMixerProductNode.MixingModeOption.LO_ABOVEBELOW_TUNED_RF_FREQUENCY
         >>> mixer_products.use_high_lo = RxMixerProductNode.UseHighLOOption.ABOVE_TRANSITION_FREQUENCY
 
         """
         val = self._get_property("Use High LO")
-        val = self.UseHighLOOption[val.upper()]
+        try:
+            val = self.UseHighLOOption(val)
+        except ValueError:
+            val = self.UseHighLOOption[val.upper()]
         return val
 
     @use_high_lo.setter
@@ -459,12 +609,20 @@ class RxMixerProductNode(EmitNode):
 
         Examples
         --------
-        >>> from ansys.aedt.core.emit_core.nodes.generated import RxMixerProductNode
-        >>> mixer_products.mixer_product_table_units = RxMixerProductNode.MixerProductTableUnitsOption.RELATIVE
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> mixer_products = rx_profile.add_mixer_products()
+        >>> mixer_products.mixer_product_table_units = RxMixerProductNode.MixerProductTableUnitsOption.ABSOLUTE
 
         """
         val = self._get_property("Mixer Product Table Units")
-        val = self.MixerProductTableUnitsOption[val.upper()]
+        try:
+            val = self.MixerProductTableUnitsOption(val)
+        except ValueError:
+            val = self.MixerProductTableUnitsOption[val.upper()]
         return val
 
     @mixer_product_table_units.setter
