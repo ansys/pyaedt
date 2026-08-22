@@ -547,6 +547,9 @@
 <li class="toctree-l2"><a class="reference internal" href="_autosummary/ansys.aedt.core.modeler.cad.elements_3d.BinaryTreeNode.html">BinaryTreeNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="_autosummary/ansys.aedt.core.modeler.cad.modeler.CoordinateSystem.html">CoordinateSystem</a></li>
 <li class="toctree-l2"><a class="reference internal" href="_autosummary/ansys.aedt.core.modeler.geometry_operators.GeometryOperators.html">GeometryOperators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/ansys.aedt.core.modeler.advanced_cad.coil.Coil.html">Coil</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/ansys.aedt.core.modeler.advanced_cad.weave.Weave.html">Weave</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/ansys.aedt.core.modeler.advanced_cad.choke.Choke.html">Choke</a></li>
 <li class="toctree-l2"><a class="reference internal" href="MultiPartComponent.html">Multi-part components</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Stackup3D.html">Stackup 3D components</a></li>
 </ul>
@@ -797,8 +800,27 @@ imported and used because it is made by static methods.</p>
 </section>
 <section id="advanced-modeler-operations">
 <h2>Advanced modeler operations<a class="headerlink" href="#advanced-modeler-operations" title="Link to this heading">#</a></h2>
-<p>PyAEDT includes some advanced modeler tools like <code class="docutils literal notranslate"><span class="pre">MultiPartComponent</span></code> for 3D component
-management and <code class="docutils literal notranslate"><span class="pre">Stackup3D</span></code> for parametric creation of 3D modeler stackups.</p>
+<p>PyAEDT provides higher-level modeling helpers that implement common CAD patterns and
+parameterized workflows. Examples include <code class="docutils literal notranslate"><span class="pre">MultiPartComponent</span></code> for 3D component
+management, <code class="docutils literal notranslate"><span class="pre">Stackup3D</span></code> for parametric stackup creation, and specialized helpers
+such as <code class="docutils literal notranslate"><span class="pre">Coil</span></code> and <code class="docutils literal notranslate"><span class="pre">Weave</span></code> for winding and fiber-weave geometries. These helpers
+wrap lower-level modeler primitives to offer reusable, parameter-driven operations;
+they live in the <code class="docutils literal notranslate"><span class="pre">ansys.aedt.core.modeler.advanced_cad</span></code> package and are typically
+instantiated with the application object.</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.modeler.advanced_cad.coil.Coil.html#ansys.aedt.core.modeler.advanced_cad.coil.Coil" title="ansys.aedt.core.modeler.advanced_cad.coil.Coil"><code class="xref py py-obj docutils literal notranslate"><span class="pre">coil.Coil</span></code></a></p></td>
+<td><p>Class to create coils in AEDT.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.modeler.advanced_cad.weave.Weave.html#ansys.aedt.core.modeler.advanced_cad.weave.Weave" title="ansys.aedt.core.modeler.advanced_cad.weave.Weave"><code class="xref py py-obj docutils literal notranslate"><span class="pre">weave.Weave</span></code></a></p></td>
+<td><p>Class to create weaves in AEDT.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.modeler.advanced_cad.choke.Choke.html#ansys.aedt.core.modeler.advanced_cad.choke.Choke" title="ansys.aedt.core.modeler.advanced_cad.choke.Choke"><code class="xref py py-obj docutils literal notranslate"><span class="pre">choke.Choke</span></code></a></p></td>
+<td><p>Class to create chokes in AEDT.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="MultiPartComponent.html">Multi-part components</a><ul>
@@ -854,7 +876,9 @@ management and <code class="docutils literal notranslate"><span class="pre">Stac
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#objects">Objects</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#coordinate-systems-and-geometry-operators">Coordinate systems and geometry operators</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#advanced-modeler-operations">Advanced modeler operations</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#advanced-modeler-operations">Advanced modeler operations</a><ul class="nav section-nav flex-column">
+</ul>
+</li>
 </ul>
   </nav></div>
 
