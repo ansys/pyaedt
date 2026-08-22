@@ -4756,7 +4756,7 @@ wheels = [
 
 [[package]]
 name = "scikit-rf"
-version = "2.0.1"
+version = "2.1.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
@@ -4766,9 +4766,9 @@ dependencies = [
     { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/5c/bc/febd32a1c01d73abee0535a276181a67b2e2dba155386ef3501cc4cf49e3/scikit_rf-2.0.1.tar.gz", hash = "sha256:c0dead33a315c9b70a07200d26bda2779e7eb543bf790cf7963aeb4e9d97a870", size = 585098, upload-time = "2026-07-03T07:21:55.459Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/9c/b2/13c0ea0f4a015e7e9b1cbee3cede611c76561400aa988acb0692643068df/scikit_rf-2.1.0.tar.gz", hash = "sha256:f9aa5b25777d26d8b8f06a3f7d9f95795786ce496bbaf9121047dc412b974d3f", size = 617558, upload-time = "2026-08-13T16:39:14.821Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/be/77/09c70ceb86a3406d274bcb8373414fe5f7d0544cd0e3919627ee68cda3fb/scikit_rf-2.0.1-py3-none-any.whl", hash = "sha256:aa483acc54a4ba2b9dd59bcb1b49ccd1b7011b1ad625237a38ef35bb2eab1c90", size = 634199, upload-time = "2026-07-03T07:21:54.026Z" },
+    { url = "https://files.pythonhosted.org/packages/9a/4c/f9f754511c46ab1057618c3ec5508bbc95bf1b7d1d1194f4c3f4ed1739ee/scikit_rf-2.1.0-py3-none-any.whl", hash = "sha256:d963709b101d90e66172ba889e7377cb68f1ad78fe494a1b5b32b242b54a32c0", size = 667132, upload-time = "2026-08-13T16:39:13.518Z" },
 ]
 
 [[package]]
