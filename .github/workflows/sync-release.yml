@@ -153,7 +153,7 @@ jobs:
       pull-requests: read # Read PR title
     steps:
       - name: Check the title of the pull request
-        uses: ansys/actions/check-pr-title@84b6533ae76f5dde69a1df26c18682160a8121cf # v10.3.5
+        uses: ansys/actions/check-pr-title@d98e1a4008dab392f8c114a483c2c5624076ccd6 # v11.0.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           use-upper-case: true
@@ -197,7 +197,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: ansys/actions/check-vulnerabilities@84b6533ae76f5dde69a1df26c18682160a8121cf # v10.3.5
+      - uses: ansys/actions/check-vulnerabilities@d98e1a4008dab392f8c114a483c2c5624076ccd6 # v11.0.1
         with:
           dev-mode: true
           extra-targets: 'all'
@@ -212,7 +212,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: ansys/actions/check-actions-security@84b6533ae76f5dde69a1df26c18682160a8121cf # v10.3.5
+      - uses: ansys/actions/check-actions-security@d98e1a4008dab392f8c114a483c2c5624076ccd6 # v11.0.1
         with:
           generate-summary: true
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -226,7 +226,7 @@ jobs:
       contents: read
     steps:
       - name: Check documentation style
-        uses: ansys/actions/doc-style@84b6533ae76f5dde69a1df26c18682160a8121cf # v10.3.5
+        uses: ansys/actions/doc-style@d98e1a4008dab392f8c114a483c2c5624076ccd6 # v11.0.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           files: '["doc/source", ".github/plugin", ".github/skills"]'
@@ -239,7 +239,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Documentation build
-        uses: ansys/actions/doc-build@84b6533ae76f5dde69a1df26c18682160a8121cf # v10.3.5
+        uses: ansys/actions/doc-build@d98e1a4008dab392f8c114a483c2c5624076ccd6 # v11.0.1
         with:
           dependencies: "graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra"
           skip-install: true
@@ -268,7 +268,7 @@ jobs:
     steps:
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse
-        uses: ansys/actions/build-wheelhouse@84b6533ae76f5dde69a1df26c18682160a8121cf # v10.3.5
+        uses: ansys/actions/build-wheelhouse@d98e1a4008dab392f8c114a483c2c5624076ccd6 # v11.0.1
         with:
           attest-provenance: true
           library-name: ${{ env.PACKAGE_NAME }}
