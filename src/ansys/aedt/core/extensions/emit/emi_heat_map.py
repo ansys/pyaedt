@@ -155,7 +155,7 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
 
     def _get_active_frequencies(self, radio: str, band: str, mode: int) -> FrequencyList:
         """Get active frequencies through the API supported by the AEDT version.
-        
+
         Parameters
         ----------
         radio : str
@@ -164,7 +164,7 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
             Name of the band.
         mode : int
             TxRxMode value (0=TX, 1=RX, 2=BOTH).
-            
+
         Returns
         -------
         FrequencyList
@@ -406,7 +406,9 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
         self._emi = []
         self._aggressor_band = self._aggressor_band_combo.get()
         if self._aggressor and self._aggressor_band:
-            self._aggressor_frequencies = self._get_active_frequencies(self._aggressor, self._aggressor_band, TxRxMode.TX)
+            self._aggressor_frequencies = self._get_active_frequencies(
+                self._aggressor, self._aggressor_band, TxRxMode.TX
+            )
 
     def _extract_data(self):
         """Extract EMI data for all channel combinations between selected bands."""
