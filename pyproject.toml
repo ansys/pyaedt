@@ -343,6 +343,9 @@ exclude = [
 [tool.ty.rules]
 unresolved-import = "ignore"
 
+[tool.uv.audit]
+malware-check = true
+
 [tool.codespell]
 ignore-words = "ignore_words.txt"
 skip = """
