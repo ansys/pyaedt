@@ -55,7 +55,6 @@ def aedt_app(request, add_app, test_tmp_dir):
 
 
 @pytest.mark.parametrize("output_as_dict, expected_type", [(True, dict), (False, list)])
-@pytest.mark.parametrize("output_as_dict, expected_type", [(True, dict), (False, list)])
 def test_variations(aedt_app, output_as_dict, expected_type):
     variations = aedt_app.available_variations.variations(
         setup_sweep=aedt_app.nominal_sweep,
