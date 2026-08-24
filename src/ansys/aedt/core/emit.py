@@ -175,6 +175,7 @@ class Emit(Design, PyAedtBase):
             # the EMIT object to the correct EmiApiPython
             # module for the current AEDT version
             emit_core._set_api(self.aedt_version_id)
+            emit_core._init_enums(self.aedt_version_id)
             self._emit_api = emit_core.emit_api_python().EmitApi()
             """Instance of the EMIT API."""
 

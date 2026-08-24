@@ -787,7 +787,10 @@ class Simulation:
                     # powerAtRx, but need to look at all tx channels since coupling
                     # can change over a transmitter's bandwidth
                     rx_band: Band
-                    rx_freq = rx_band.get_active_frequencies(is_rx=True, units="Hz")[0]
+                    if self.aedt_version < 271:
+                        rx_freq = self._revision.get_active_frequencies(rx_radio.name, rx_band.name, mode_rx)[0]
+                    else:
+                        rx_freq = rx_band.get_active_frequencies(is_rx=True, units="Hz")[0]
 
                     rx_start_freq = rx_band.start_frequency
                     rx_stop_freq = rx_band.stop_frequency
@@ -803,7 +806,10 @@ class Simulation:
                             continue
 
                         domain.set_receiver(rx_radio.name, rx_band.name, rx_freq, "Hz")
-                        tx_freqs = tx_band.get_active_frequencies(is_rx=False, units="Hz")
+                        if self.aedt_version < 271:
+                            tx_freqs = self._revision.get_active_frequencies(tx_radio.name, tx_band.name, mode_tx)
+                        else:
+                            tx_freqs = tx_band.get_active_frequencies(is_rx=False, units="Hz")
                         for tx_freq in tx_freqs:
                             domain.set_interferer(tx_radio.name, tx_band.name, tx_freq, "Hz")
                             instance = interaction.get_instance(domain)
@@ -998,7 +1004,10 @@ class Simulation:
                     # Can look at any Rx freq since susceptibility won't impact
                     # powerAtRx, but need to look at all tx channels since coupling
                     # can change over a transmitter's bandwidth
-                    rx_freq = rx_band.get_active_frequencies(is_rx=True, units="Hz")[0]
+                    if self.aedt_version < 271:
+                        rx_freq = self._revision.get_active_frequencies(rx_radio.name, rx_band.name, mode_rx)[0]
+                    else:
+                        rx_freq = rx_band.get_active_frequencies(is_rx=True, units="Hz")[0]
                     domain.set_receiver(rx_radio.name, rx_band.name)
                     domain.set_interferer(tx_radio.name, tx_band.name)
                     interaction = self.run(domain)
@@ -1006,7 +1015,10 @@ class Simulation:
                     if not interaction.is_valid():
                         continue
                     domain.set_receiver(rx_radio.name, rx_band.name, rx_freq, "Hz")
-                    tx_freqs = tx_band.get_active_frequencies(is_rx=False, units="Hz")
+                    if self.aedt_version < 271:
+                        tx_freqs = self._revision.get_active_frequencies(tx_radio.name, tx_band.name, mode_tx)
+                    else:
+                        tx_freqs = tx_band.get_active_frequencies(is_rx=False, units="Hz")
 
                     power_list = []
 

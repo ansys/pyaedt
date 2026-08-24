@@ -153,6 +153,19 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
     def _aggressor_frequency_list(self) -> FrequencyList:
         return cast(FrequencyList, self._aggressor_frequencies)
 
+    def _get_active_frequencies(self, radio: str, band: str, mode: TxRxMode) -> FrequencyList:
+        """Get active frequencies through the API supported by the AEDT version."""
+        app = self._app()
+        revision = self._revision_obj()
+        if app.desktop_class.aedt_version_id >= "2027.1":
+            radio_node = revision.get_component_node(radio)
+            band_nodes = revision.get_all_band_nodes(radio_node, tx_rx_mode=mode, enabled_only=True)
+            band_node = next((node for node in band_nodes if node.name == band), None)
+            if band_node is None:
+                raise ValueError(f"Band {band!r} was not found for radio {radio!r}.")
+            return band_node.get_active_frequencies(is_rx=mode == TxRxMode.RX)
+        return revision.get_active_frequencies(radio, band, mode, units="Hz")
+
     def add_extension_content(self) -> None:
         """Build the UI for the EMI heat map extension.
 
@@ -340,11 +353,7 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
         """Handle victim band selection change."""
         self._emi = []
         self._victim_band = self._victim_band_combo.get()
-        self._victim_frequencies = self._revision_obj().get_active_frequencies(
-            self._victim,
-            self._victim_band,
-            TxRxMode.RX,
-        )
+        self._victim_frequencies = self._get_active_frequencies(self._victim, self._victim_band, TxRxMode.RX)
 
     def _on_aggressor_changed(self, event=None):
         """Handle aggressor radio selection change."""
@@ -380,9 +389,7 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
         """Handle aggressor band selection change."""
         self._emi = []
         self._aggressor_band = self._aggressor_band_combo.get()
-        self._aggressor_frequencies = self._revision_obj().get_active_frequencies(
-            self._aggressor, self._aggressor_band, TxRxMode.TX
-        )
+        self._aggressor_frequencies = self._get_active_frequencies(self._aggressor, self._aggressor_band, TxRxMode.TX)
 
     def _extract_data(self):
         """Extract EMI data for all channel combinations between selected bands."""

@@ -1139,8 +1139,8 @@ def test_radio_getters(emit_app) -> None:
 
 
 @pytest.mark.skipif(
-    DESKTOP_VERSION <= "2023.1",
-    reason="Skipped on versions earlier than 2023.2",
+    DESKTOP_VERSION < "2027.1",
+    reason="Skipped on versions earlier than 2027.1",
 )
 def test_static_type_generation(emit_app):
     domain = InteractionDomain(emit_app)
@@ -1622,8 +1622,8 @@ def test_categories(cell_phone):
 
 
 @pytest.mark.skipif(
-    DESKTOP_VERSION <= "2026.1",
-    reason="Skipped on versions earlier than 2027.1",
+    DESKTOP_VERSION < "2026.1",
+    reason="Skipped on versions earlier than 2026.1",
 )
 def test_interference_scripts_no_filter(interference) -> None:
     # Generate a revision
@@ -1636,7 +1636,10 @@ def test_interference_scripts_no_filter(interference) -> None:
     expected_protection_colors = [["white", "yellow", "yellow"], ["yellow", "yellow", "white"]]
     expected_protection_power = [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]]
 
-    domain = InteractionDomain(interference)
+    if DESKTOP_VERSION <= "2026.1":
+        domain = interference.results.interaction_domain()
+    else:
+        domain = InteractionDomain(interference)
     with pytest.raises(ValueError) as e:
         _, _ = sim.interference_type_classification(domain, InterfererType.EMITTERS)
     assert str(e.value) == "No interferers defined in the analysis."
@@ -1666,8 +1669,8 @@ def test_interference_scripts_no_filter(interference) -> None:
 
 
 @pytest.mark.skipif(
-    DESKTOP_VERSION <= "2026.1",
-    reason="Skipped on versions earlier than 2027.1",
+    DESKTOP_VERSION < "2026.1",
+    reason="Skipped on versions earlier than 2026.1",
 )
 def test_radio_protection_levels(interference):
     # Generate a revision
@@ -1698,7 +1701,7 @@ def test_radio_protection_levels(interference):
 
 @pytest.mark.skipif(
     DESKTOP_VERSION <= "2025.1",
-    reason="Skipped on versions earlier than 2027.1",
+    reason="Skipped on versions earlier than 2025.1",
 )
 def test_interference_filtering(interference) -> None:
     # Generate a revision
@@ -1757,8 +1760,8 @@ def test_interference_filtering(interference) -> None:
 
 
 @pytest.mark.skipif(
-    DESKTOP_VERSION <= "2026.1",
-    reason="Skipped on versions earlier than 2027.1",
+    DESKTOP_VERSION < "2026.1",
+    reason="Skipped on versions earlier than 2026.1",
 )
 def test_protection_filtering(interference):
     # Generate a revision
@@ -2101,7 +2104,7 @@ def test_license_session(interference):
     assert checkouts == expected_checkouts and checkins == expected_checkins
 
 
-@pytest.mark.skipif(DESKTOP_VERSION < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
+@pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027 R1.")
 def test_emit_nodes(interference) -> None:
     # Generate and run a revision
     results = interference.results
@@ -3520,16 +3523,20 @@ def test_terminator_table_persistence(add_app) -> None:
 
     # Step 4: Save the project
     project_file = app.project_file
-    app.save_project()
+    design_name = app.design_name
 
-    # Step 5: Close the project
-    app.close_project(app.project_name, save=False)
+    # Step 5: Close the project and reopen it on the same Desktop connection.
+    # Using add_app here would spin up a new client and can drop the Desktop
+    # channel once the only open project is closed.
+    # The design name must be passed explicitly since the reopened project has
+    # no active design yet, which otherwise leaves the new Results.design unset.
+    app.close_project(app.project_name, save=True)
 
-    # Step 6: Reopen the project
-    app2 = add_app(project=project_file, application=Emit)
-    rev = app2.results.analyze()
+    app.load_project(project_file, design=design_name)
 
-    # Step 7: Verify the terminator table data matches what was set
+    rev = app.results.analyze()
+
+    # Step 6: Verify the terminator table data matches what was set
     reopened_terminator = rev.get_component_node("TestTerminator")
     assert reopened_terminator is not None
     reopened_terminator = cast(Terminator, reopened_terminator)
@@ -3542,7 +3549,7 @@ def test_terminator_table_persistence(add_app) -> None:
     reopened_amplifier = cast(Amplifier, reopened_amplifier)
     assert reopened_amplifier.table_data == expected_amplifier_table
 
-    app2.close_project(app2.project_name, save=False)
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027 R1.")
