@@ -57,6 +57,7 @@ jobs:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           python-package-name: ${{ env.PACKAGE_NAME }}
           token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
+          use-uv-audit: true
 
   vulnerabilities-no-hide:
     name: "Vulnerabilities no hide"
@@ -72,3 +73,4 @@ jobs:
           python-package-name: ${{ env.PACKAGE_NAME }}
           token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
           hide-log: false
+          use-uv-audit: true
