@@ -1,0 +1,24 @@
+﻿PieceWiseLinearDictionary
+=========================
+
+.. currentmodule:: ansys.aedt.core.modules.boundary.icepak_boundary
+
+.. autoclass:: PieceWiseLinearDictionary
+
+   
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      PieceWiseLinearDictionary.dataset_name
+      PieceWiseLinearDictionary.props
+      PieceWiseLinearDictionary.public_dir
+   
+   

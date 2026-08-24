@@ -1,0 +1,6 @@
+public\_dir
+===========
+
+.. currentmodule:: ansys.aedt.core.modeler.circuits.primitives_twin_builder
+
+.. autoproperty:: TwinBuilderComponents.public_dir

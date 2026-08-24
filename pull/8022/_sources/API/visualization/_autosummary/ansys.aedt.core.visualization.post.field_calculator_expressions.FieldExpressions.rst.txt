@@ -1,0 +1,55 @@
+﻿FieldExpressions
+================
+
+.. currentmodule:: ansys.aedt.core.visualization.post.field_calculator_expressions
+
+.. autoclass:: FieldExpressions
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      FieldExpressions.complex_constant
+      
+      
+      FieldExpressions.function
+      
+      
+      FieldExpressions.named_expression
+      
+      
+      FieldExpressions.normal_vector
+      
+      
+      FieldExpressions.scalar
+      
+      
+      FieldExpressions.scalar_constant
+      
+      
+      FieldExpressions.tangent_vector
+      
+      
+      FieldExpressions.vector
+      
+      
+      FieldExpressions.vector_constant
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      FieldExpressions.public_dir
+   
+   
