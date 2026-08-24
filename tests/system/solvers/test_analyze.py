@@ -58,6 +58,7 @@ ERL_PROJECT = "erl_unit_test"
 COM_PROJECT = "com_unit_test_23r2"
 COMPONENT = "Circ_Patch_5GHz_232.a3dcomp"
 SMALL_NUMBER = 1e-10  # Used for checking equivalence.
+MAXWELL_VARIATIONS = "maxwell_variations"
 
 
 @pytest.fixture
@@ -139,8 +140,8 @@ def m3dtransient(add_app_example):
 
 
 @pytest.fixture
-def m3d_app(add_app):
-    app = add_app(application=Maxwell3d)
+def m3d_app(add_app_example):
+    app = add_app_example(application=Maxwell3d, project=MAXWELL_VARIATIONS, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(save=False)
 
@@ -811,23 +812,7 @@ def test_custom_hpc_from_file(icepak_solved) -> None:
 
 
 def test_apply_solved_variations(m3d_app) -> None:
-    m3d_app["a"] = "10mm"
-    m3d_app["b"] = "20mm"
-    m3d_app["$c"] = "30mm"
-    box = m3d_app.modeler.create_box([0, 0, 0], ["a", "b", "$c"], name="Box", material="copper")
-    m3d_app.modeler.create_region([100, 100, 0, 0, 100, 100])
-
-    m3d_app.assign_current(box.bottom_face_y, "1A")
-    m3d_app.assign_current(box.top_face_y, "1A", swap_direction=True)
-
-    setup = m3d_app.create_setup()
-    param = m3d_app.parametrics.add("a", 5, 10, 2, "LinearCount")
-    param.add_variation("b", 10, variation_type="SingleValue")
-    param.add_variation("$c", 30, variation_type="SingleValue")
-    param.props["ProdOptiSetupDataV2"]["SaveFields"] = True
-    param.analyze()
-
-    variations = m3d_app.available_variations.variations(f"{setup.name} : LastAdaptive", True)
+    variations = m3d_app.available_variations.variations(m3d_app.nominal_adaptive, True)
 
     assert m3d_app.apply_solved_variation(variations[0])
     assert m3d_app["a"] == "5mm"
