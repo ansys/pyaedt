@@ -133,7 +133,7 @@ doc = [
 ]
 quality = [
   "prek==0.4.5",
-  "ruff==0.15.18",
+  "ruff==0.16.0",
   "ty==0.0.49",
 ]
 tests = [
@@ -321,7 +321,15 @@ exclude = [
     "src/ansys/aedt/core/application",
     "src/ansys/aedt/core/emit_core",
     "src/ansys/aedt/core/filtersolutions_core",
-    "src/ansys/aedt/core/generic",
+    "src/ansys/aedt/core/generic/configurations.py",
+    "src/ansys/aedt/core/generic/general_methods.py",
+    "src/ansys/aedt/core/generic/ibis_reader.py",
+    "src/ansys/aedt/core/generic/numbers_utils.py",
+    "src/ansys/aedt/core/generic/math_utils.py",
+    "src/ansys/aedt/core/generic/python_optimizers.py",
+    "src/ansys/aedt/core/generic/quaternion.py",
+    "src/ansys/aedt/core/generic/scheduler.py",
+    "src/ansys/aedt/core/generic/settings.py",
     "src/ansys/aedt/core/internal",
     "src/ansys/aedt/core/misc",
     "src/ansys/aedt/core/modeler",

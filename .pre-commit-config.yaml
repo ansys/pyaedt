@@ -4,6 +4,9 @@ ci:
   # Auto update set to quarterly in order to mainly leverage dependabot for pre-commit hook
   # and avoid closing PRs every weeks.
   autoupdate_schedule: quarterly
+  # ty-pre-commit does not work with the pre-commit.ci runner, for more information see
+  # https://github.com/astral-sh/ty-pre-commit#running-pre-commit-in-ci-with-ty-pre-commit
+  skip: [ty]
 
 exclude: |
   (?x)(
@@ -14,13 +17,13 @@ exclude: |
 repos:
 
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: 01a675ea018f2fb714478a5ffb83fcea8374bb06  # frozen: v0.15.21
+  rev: 7c55798a78262d14b2074abf623d8a992ebb70d4  # frozen: v0.16.2
   hooks:
     - id: ruff-check
     - id: ruff-format
 
 - repo: https://github.com/codespell-project/codespell
-  rev: 2ccb47ff45ad361a21071a7eedda4c37e6ae8c5a  # frozen: v2.4.2
+  rev: 57b21406f092110c18776e39b0bda50d37c945c8  # frozen: v2.4.3
   hooks:
     - id: codespell
       args: ["--ignore-words", "doc/styles/config/vocabularies/ANSYS/accept.txt"]
@@ -45,12 +48,6 @@ repos:
     - id: blacken-docs
       additional_dependencies: [black==26.5.1]
 
-# This validates our pre-commit.ci configuration
-- repo: https://github.com/pre-commit-ci/pre-commit-ci-config
-  rev: 500543de231a91e6157db630075d70320709b834  # frozen: v1.6.1
-  hooks:
-    - id: check-pre-commit-ci-config
-
 - repo: https://github.com/ansys/pre-commit-hooks
   rev: 55c5b6a5439abd847613579c6924da750e8b78b2  # frozen: v0.8.0
   hooks:
@@ -64,3 +61,14 @@ repos:
       args:
       - --custom_template=mit_license.jinja2
       - --start_year=2021
+
+- repo: https://github.com/astral-sh/ty-pre-commit
+  rev: a4405bd34b6505ed51226ba2a5b5428625177d6a  # frozen: v0.0.69
+  hooks:
+    - id: ty
+
+# Keep this hook at the end so all hook ids are known when validating ci.skip.
+- repo: https://github.com/pre-commit-ci/pre-commit-ci-config
+  rev: 500543de231a91e6157db630075d70320709b834  # frozen: v1.6.1
+  hooks:
+    - id: check-pre-commit-ci-config

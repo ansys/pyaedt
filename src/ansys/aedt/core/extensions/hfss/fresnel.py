@@ -104,8 +104,8 @@ class FresnelExtension(ExtensionHFSSCommon):
         self.frequency_units: str | None = None
         self.fresnel_type: tkinter.StringVar | None = None
 
-        self.elevation_resolution_slider_values = [10.0, 7.5, 5.0]
-        self.azimuth_resolution_slider_values = [15.0, 10.0, 7.5]
+        self.elevation_resolution_slider_values = [15.0, 10.0, 5.0]
+        self.azimuth_resolution_slider_values = [22.5, 15.0, 7.5]
 
         self.elevation_resolution_values = [
             1.0,
@@ -113,6 +113,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             1.5,
             2.0,
             2.5,
+            3.0,
             3.75,
             5.0,
             6.0,
@@ -123,7 +124,6 @@ class FresnelExtension(ExtensionHFSSCommon):
             15.0,
             18.0,
             22.5,
-            30.0,
         ]
         self.azimuth_resolution_values = self.elevation_resolution_values
 
@@ -200,7 +200,7 @@ class FresnelExtension(ExtensionHFSSCommon):
 
         anisotropic_button = ttk.Radiobutton(
             fresnel_frame,
-            text="Anisotropic - scan over elevation and azimuth (in progress)",
+            text="Anisotropic - scan over elevation and azimuth",
             value="anisotropic",
             style="PyAEDT.TRadiobutton",
             variable=self.fresnel_type,
@@ -827,8 +827,6 @@ class FresnelExtension(ExtensionHFSSCommon):
         self.active_setup_sweep = self.active_setup.name + " : " + self.sweep.name
         app.create_fresnel_variables(self.active_setup_sweep)
 
-        app.save_project()
-
         self._button("start_button").grid()
 
         cast(Any, self._widgets["tabs"]).hide(self._widgets["extraction_tab"])
@@ -1004,8 +1002,6 @@ class FresnelExtension(ExtensionHFSSCommon):
         # Solve
         app.analyze_setup(cores=cores, num_variations_to_distribute=tasks, name=active_parametric)
 
-        app.save_project()
-
         is_valid = self._validate(self.active_setup_sweep)
 
         if is_valid:
@@ -1039,6 +1035,7 @@ class FresnelExtension(ExtensionHFSSCommon):
         )
 
         settings.enable_desktop_logs = enable_log
+
         self.release_desktop()
 
         self.root.destroy()

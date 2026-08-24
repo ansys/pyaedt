@@ -41,6 +41,7 @@ file_path
 fix_disjoints
 Floquet
 FRTM
+Fresnel
 getters
 Github
 globals
@@ -100,6 +101,7 @@ reusability
 RF
 RMXprt
 RTTBL
+SBR
 scipy
 setters
 SIwave
@@ -152,3 +154,4 @@ Security
 RCS
 [Tt]estmon
 [Uu]nary
+[Rr]esult [Cc]alculator
