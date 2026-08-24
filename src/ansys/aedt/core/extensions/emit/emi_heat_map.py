@@ -179,7 +179,7 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
             if band_node is None:
                 raise ValueError(f"Band {band!r} was not found for radio {radio!r}.")
             return band_node.get_active_frequencies(is_rx=mode == TxRxMode.RX)
-        return revision.get_active_frequencies(radio, band, mode, units="Hz")
+        return revision.get_active_frequencies(radio, band, mode)
 
     def add_extension_content(self) -> None:
         """Build the UI for the EMI heat map extension.

@@ -158,14 +158,12 @@ class Revision:
         if self.revision_loaded:
             return
         self.parent_results._unload_revisions()
-        # For the current revision (results_index=0), it's already loaded, so skip load_project
-        if self.results_index == 0:
-            self.revision_loaded = True
-            return
-        # For kept revisions (results_index != 0), load the project from disk
         if self.aedt_version < 271:
+            # The EmitApiPython backend keeps its own project state, so it must be
+            # loaded for every revision, including the current one.
             self.emit_project._emit_api.load_project(self.path)
-        else:
+        elif self.results_index != 0:
+            # For the current revision (results_index=0), it's already loaded, so skip load_project
             self.emit_project.load_project(self.path)
         self.revision_loaded = True
 
