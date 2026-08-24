@@ -577,7 +577,7 @@ class Revision:
 
     @pyaedt_function_handler()
     def get_active_frequencies(
-        self, radio_name: str, band_name: str, tx_rx_mode: TxRxMode, units: str = ""
+        self, radio_name: str, band_name: str, tx_rx_mode: int | TxRxMode, units: str = ""
     ) -> list[float]:
         """
         Get a list of active frequencies for a ``tx`` or ``rx`` band in a radio/emitter.
@@ -588,8 +588,9 @@ class Revision:
             Name of the radio/emitter.
         band_name : str
            Name of the band.
-        tx_rx_mode : :class:`emit_constants.TxRxMode`
+        tx_rx_mode : int | :class:`emit_constants.TxRxMode`
             Specifies whether to get ``tx`` or ``rx`` radio frequencies.
+            Accepts TxRxMode enum values (which are int: 0=TX, 1=RX, 2=BOTH).
         units : str, optional
             Units for the frequencies. The default is ``None`` which uses the units
             specified globally for the project.
