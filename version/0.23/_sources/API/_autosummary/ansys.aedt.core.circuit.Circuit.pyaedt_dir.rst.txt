@@ -1,6 +1,0 @@
-pyaedt\_dir
-===========
-
-.. currentmodule:: ansys.aedt.core.circuit
-
-.. autoproperty:: Circuit.pyaedt_dir

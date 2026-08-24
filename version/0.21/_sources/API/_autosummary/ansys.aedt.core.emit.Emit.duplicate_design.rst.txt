@@ -1,6 +1,0 @@
-duplicate\_design
-=================
-
-.. currentmodule:: ansys.aedt.core.emit
-
-.. automethod:: Emit.duplicate_design

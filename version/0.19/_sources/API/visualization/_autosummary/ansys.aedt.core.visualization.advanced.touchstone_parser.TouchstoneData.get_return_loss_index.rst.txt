@@ -1,6 +1,0 @@
-﻿get\_return\_loss\_index
-========================
-
-.. currentmodule:: ansys.aedt.core.visualization.advanced.touchstone_parser
-
-.. automethod:: TouchstoneData.get_return_loss_index

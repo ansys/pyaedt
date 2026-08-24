@@ -1,6 +1,0 @@
-temp\_directory
-===============
-
-.. currentmodule:: ansys.aedt.core.hfss3dlayout
-
-.. autoproperty:: Hfss3dLayout.temp_directory

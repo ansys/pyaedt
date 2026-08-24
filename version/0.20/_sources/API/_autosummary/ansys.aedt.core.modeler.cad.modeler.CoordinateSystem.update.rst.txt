@@ -1,6 +1,0 @@
-update
-======
-
-.. currentmodule:: ansys.aedt.core.modeler.cad.modeler
-
-.. automethod:: CoordinateSystem.update

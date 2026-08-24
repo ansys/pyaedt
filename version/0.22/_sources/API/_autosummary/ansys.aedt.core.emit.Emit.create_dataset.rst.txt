@@ -1,6 +1,0 @@
-create\_dataset
-===============
-
-.. currentmodule:: ansys.aedt.core.emit
-
-.. automethod:: Emit.create_dataset

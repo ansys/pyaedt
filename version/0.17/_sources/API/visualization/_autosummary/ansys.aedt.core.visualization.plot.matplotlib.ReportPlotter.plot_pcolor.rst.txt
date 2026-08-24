@@ -1,6 +1,0 @@
-plot\_pcolor
-============
-
-.. currentmodule:: ansys.aedt.core.visualization.plot.matplotlib
-
-.. automethod:: ReportPlotter.plot_pcolor

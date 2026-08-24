@@ -1,6 +1,0 @@
-export\_results
-===============
-
-.. currentmodule:: ansys.aedt.core.maxwellcircuit
-
-.. automethod:: MaxwellCircuit.export_results

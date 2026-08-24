@@ -1,6 +1,0 @@
-jsonalize\_tree
-===============
-
-.. currentmodule:: ansys.aedt.core.visualization.report.eye
-
-.. automethod:: AMIConturEyeDiagram.jsonalize_tree

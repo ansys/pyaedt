@@ -1,6 +1,0 @@
-copy\_design\_from
-==================
-
-.. currentmodule:: ansys.aedt.core.icepak
-
-.. automethod:: Icepak.copy_design_from

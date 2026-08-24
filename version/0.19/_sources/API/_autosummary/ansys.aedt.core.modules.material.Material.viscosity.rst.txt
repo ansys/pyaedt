@@ -1,6 +1,0 @@
-viscosity
-=========
-
-.. currentmodule:: ansys.aedt.core.modules.material
-
-.. autoproperty:: Material.viscosity

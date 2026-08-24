@@ -1,6 +1,0 @@
-export\_variables\_to\_csv
-==========================
-
-.. currentmodule:: ansys.aedt.core.circuit
-
-.. automethod:: Circuit.export_variables_to_csv

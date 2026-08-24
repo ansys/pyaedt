@@ -1,6 +1,0 @@
-source\_names
-=============
-
-.. currentmodule:: ansys.aedt.core.modules.boundary.maxwell_boundary
-
-.. autoattribute:: GroupSourcesMagnetostatic.source_names

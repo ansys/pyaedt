@@ -1,6 +1,0 @@
-setup\_names
-============
-
-.. currentmodule:: ansys.aedt.core.maxwell
-
-.. autoproperty:: Maxwell3d.setup_names

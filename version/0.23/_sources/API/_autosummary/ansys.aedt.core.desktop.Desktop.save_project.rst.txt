@@ -1,6 +1,0 @@
-save\_project
-=============
-
-.. currentmodule:: ansys.aedt.core.desktop
-
-.. automethod:: Desktop.save_project

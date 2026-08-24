@@ -1,6 +1,0 @@
-capacitor\_rp
-=============
-
-.. currentmodule:: ansys.aedt.core.filtersolutions_core.distributed_parasitics
-
-.. autoproperty:: DistributedParasitics.capacitor_rp

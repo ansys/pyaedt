@@ -1,6 +1,0 @@
-create\_dataset
-===============
-
-.. currentmodule:: ansys.aedt.core.twinbuilder
-
-.. automethod:: TwinBuilder.create_dataset

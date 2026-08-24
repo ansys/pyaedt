@@ -1,6 +1,0 @@
-excitations\_by\_type
-=====================
-
-.. currentmodule:: ansys.aedt.core.maxwell
-
-.. autoproperty:: Maxwell2d.excitations_by_type

@@ -1,6 +1,0 @@
-input\_file
-===========
-
-.. currentmodule:: ansys.aedt.core.visualization.advanced.rcs_visualization
-
-.. autoproperty:: MonostaticRCSData.input_file

@@ -1,6 +1,0 @@
-create\_subsheet
-================
-
-.. currentmodule:: ansys.aedt.core.twinbuilder
-
-.. automethod:: TwinBuilder.create_subsheet

@@ -1,6 +1,0 @@
-data\_set
-=========
-
-.. currentmodule:: ansys.aedt.core.modules.material
-
-.. autoproperty:: MatProperty.data_set

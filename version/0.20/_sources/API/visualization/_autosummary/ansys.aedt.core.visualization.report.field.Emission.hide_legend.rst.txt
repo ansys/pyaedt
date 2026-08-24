@@ -1,6 +1,0 @@
-hide\_legend
-============
-
-.. currentmodule:: ansys.aedt.core.visualization.report.field
-
-.. automethod:: Emission.hide_legend

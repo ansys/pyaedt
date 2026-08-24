@@ -1,6 +1,0 @@
-column\_name
-============
-
-.. currentmodule:: ansys.aedt.core.visualization.post.rcs_exporter
-
-.. autoproperty:: MonostaticRCSExporter.column_name

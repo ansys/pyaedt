@@ -1,6 +1,0 @@
-GRAVITY
-=======
-
-.. currentmodule:: ansys.aedt.core.circuit
-
-.. autoproperty:: Circuit.GRAVITY

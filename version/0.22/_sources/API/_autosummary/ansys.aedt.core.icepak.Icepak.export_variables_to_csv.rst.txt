@@ -1,6 +1,0 @@
-export\_variables\_to\_csv
-==========================
-
-.. currentmodule:: ansys.aedt.core.icepak
-
-.. automethod:: Icepak.export_variables_to_csv

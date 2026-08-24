@@ -1,6 +1,0 @@
-configurations
-==============
-
-.. currentmodule:: ansys.aedt.core.mechanical
-
-.. autoproperty:: Mechanical.configurations

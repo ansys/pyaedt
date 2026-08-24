@@ -1,6 +1,0 @@
-add\_info\_message
-==================
-
-.. currentmodule:: ansys.aedt.core.aedt_logger
-
-.. automethod:: AedtLogger.add_info_message

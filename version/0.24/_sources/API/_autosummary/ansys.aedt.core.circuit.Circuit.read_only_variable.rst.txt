@@ -1,6 +1,0 @@
-read\_only\_variable
-====================
-
-.. currentmodule:: ansys.aedt.core.circuit
-
-.. automethod:: Circuit.read_only_variable

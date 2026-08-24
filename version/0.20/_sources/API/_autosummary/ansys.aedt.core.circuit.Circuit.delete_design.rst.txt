@@ -1,6 +1,0 @@
-delete\_design
-==============
-
-.. currentmodule:: ansys.aedt.core.circuit
-
-.. automethod:: Circuit.delete_design

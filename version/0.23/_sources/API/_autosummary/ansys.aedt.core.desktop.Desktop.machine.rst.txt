@@ -1,6 +1,0 @@
-machine
-=======
-
-.. currentmodule:: ansys.aedt.core.desktop
-
-.. autoproperty:: Desktop.machine

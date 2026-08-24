@@ -1,6 +1,0 @@
-split\_wide\_angle
-==================
-
-.. currentmodule:: ansys.aedt.core.filtersolutions_core.distributed_radial
-
-.. autoproperty:: DistributedRadial.split_wide_angle

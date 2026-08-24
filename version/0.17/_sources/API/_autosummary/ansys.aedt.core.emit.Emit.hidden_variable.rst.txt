@@ -1,6 +1,0 @@
-hidden\_variable
-================
-
-.. currentmodule:: ansys.aedt.core.emit
-
-.. automethod:: Emit.hidden_variable

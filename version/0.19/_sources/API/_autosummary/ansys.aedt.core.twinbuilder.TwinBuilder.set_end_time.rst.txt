@@ -1,6 +1,0 @@
-set\_end\_time
-==============
-
-.. currentmodule:: ansys.aedt.core.twinbuilder
-
-.. automethod:: TwinBuilder.set_end_time

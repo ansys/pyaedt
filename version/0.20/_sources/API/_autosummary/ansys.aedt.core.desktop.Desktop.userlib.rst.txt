@@ -1,6 +1,0 @@
-userlib
-=======
-
-.. currentmodule:: ansys.aedt.core.desktop
-
-.. autoproperty:: Desktop.userlib

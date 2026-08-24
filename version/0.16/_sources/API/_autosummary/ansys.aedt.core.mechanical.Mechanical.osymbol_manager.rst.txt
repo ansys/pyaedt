@@ -1,6 +1,0 @@
-osymbol\_manager
-================
-
-.. currentmodule:: ansys.aedt.core.mechanical
-
-.. autoproperty:: Mechanical.osymbol_manager

@@ -1,6 +1,0 @@
-﻿format\_timedelta
-=================
-
-.. currentmodule:: ansys.aedt.core.modules.profile
-
-.. autofunction:: format_timedelta

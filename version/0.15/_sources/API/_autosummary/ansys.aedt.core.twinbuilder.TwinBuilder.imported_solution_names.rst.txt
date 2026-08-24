@@ -1,6 +1,0 @@
-imported\_solution\_names
-=========================
-
-.. currentmodule:: ansys.aedt.core.twinbuilder
-
-.. autoproperty:: TwinBuilder.imported_solution_names

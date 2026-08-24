@@ -1,6 +1,0 @@
-opadstack\_manager
-==================
-
-.. currentmodule:: ansys.aedt.core.maxwell
-
-.. autoproperty:: Maxwell3d.opadstack_manager

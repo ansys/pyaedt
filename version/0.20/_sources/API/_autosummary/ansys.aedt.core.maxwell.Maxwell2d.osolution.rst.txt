@@ -1,6 +1,0 @@
-osolution
-=========
-
-.. currentmodule:: ansys.aedt.core.maxwell
-
-.. autoproperty:: Maxwell2d.osolution

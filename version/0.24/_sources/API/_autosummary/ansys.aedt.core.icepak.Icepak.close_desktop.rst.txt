@@ -1,6 +1,0 @@
-close\_desktop
-==============
-
-.. currentmodule:: ansys.aedt.core.icepak
-
-.. automethod:: Icepak.close_desktop

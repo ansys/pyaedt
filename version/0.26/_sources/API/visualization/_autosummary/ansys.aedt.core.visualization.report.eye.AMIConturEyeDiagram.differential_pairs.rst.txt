@@ -1,6 +1,0 @@
-differential\_pairs
-===================
-
-.. currentmodule:: ansys.aedt.core.visualization.report.eye
-
-.. autoproperty:: AMIConturEyeDiagram.differential_pairs

@@ -1,6 +1,0 @@
-oboundary
-=========
-
-.. currentmodule:: ansys.aedt.core.rmxprt
-
-.. autoproperty:: Rmxprt.oboundary

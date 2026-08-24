@@ -1,6 +1,0 @@
-design\_list
-============
-
-.. currentmodule:: ansys.aedt.core.emit
-
-.. autoproperty:: Emit.design_list

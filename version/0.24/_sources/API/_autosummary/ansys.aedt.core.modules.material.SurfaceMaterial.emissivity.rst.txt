@@ -1,6 +1,0 @@
-emissivity
-==========
-
-.. currentmodule:: ansys.aedt.core.modules.material
-
-.. autoproperty:: SurfaceMaterial.emissivity

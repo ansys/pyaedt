@@ -1,6 +1,0 @@
-setup\_names
-============
-
-.. currentmodule:: ansys.aedt.core.mechanical
-
-.. autoproperty:: Mechanical.setup_names

@@ -1,6 +1,0 @@
-﻿add\_sub\_chapter
-=================
-
-.. currentmodule:: ansys.aedt.core.visualization.plot.pdf
-
-.. automethod:: AnsysReport.add_sub_chapter

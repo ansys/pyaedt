@@ -1,6 +1,0 @@
-apply\_solved\_variation
-========================
-
-.. currentmodule:: ansys.aedt.core.maxwellcircuit
-
-.. automethod:: MaxwellCircuit.apply_solved_variation

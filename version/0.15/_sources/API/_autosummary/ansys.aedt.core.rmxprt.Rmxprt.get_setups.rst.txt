@@ -1,6 +1,0 @@
-get\_setups
-===========
-
-.. currentmodule:: ansys.aedt.core.rmxprt
-
-.. automethod:: Rmxprt.get_setups

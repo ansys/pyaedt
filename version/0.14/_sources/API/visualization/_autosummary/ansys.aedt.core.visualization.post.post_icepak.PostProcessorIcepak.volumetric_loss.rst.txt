@@ -1,6 +1,0 @@
-volumetric\_loss
-================
-
-.. currentmodule:: ansys.aedt.core.visualization.post.post_icepak
-
-.. automethod:: PostProcessorIcepak.volumetric_loss

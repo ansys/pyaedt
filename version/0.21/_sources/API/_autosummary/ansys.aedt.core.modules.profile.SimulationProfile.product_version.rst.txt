@@ -1,6 +1,0 @@
-product\_version
-================
-
-.. currentmodule:: ansys.aedt.core.modules.profile
-
-.. autoproperty:: SimulationProfile.product_version

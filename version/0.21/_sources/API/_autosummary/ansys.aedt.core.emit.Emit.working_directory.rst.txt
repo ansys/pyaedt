@@ -1,6 +1,0 @@
-working\_directory
-==================
-
-.. currentmodule:: ansys.aedt.core.emit
-
-.. autoproperty:: Emit.working_directory

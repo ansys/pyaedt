@@ -1,6 +1,0 @@
-﻿normalize\_path
-===============
-
-.. currentmodule:: ansys.aedt.core.generic.file_utils
-
-.. autofunction:: normalize_path

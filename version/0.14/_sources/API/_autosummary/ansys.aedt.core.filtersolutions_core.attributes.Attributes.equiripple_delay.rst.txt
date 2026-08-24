@@ -1,6 +1,0 @@
-equiripple\_delay
-=================
-
-.. currentmodule:: ansys.aedt.core.filtersolutions_core.attributes
-
-.. autoproperty:: Attributes.equiripple_delay

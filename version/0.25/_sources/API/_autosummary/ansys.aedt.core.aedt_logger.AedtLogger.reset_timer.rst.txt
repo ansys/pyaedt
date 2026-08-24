@@ -1,6 +1,0 @@
-reset\_timer
-============
-
-.. currentmodule:: ansys.aedt.core.aedt_logger
-
-.. automethod:: AedtLogger.reset_timer

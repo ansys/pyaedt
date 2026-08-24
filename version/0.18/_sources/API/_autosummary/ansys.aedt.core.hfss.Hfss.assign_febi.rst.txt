@@ -1,6 +1,0 @@
-assign\_febi
-============
-
-.. currentmodule:: ansys.aedt.core.hfss
-
-.. automethod:: Hfss.assign_febi

@@ -1,6 +1,0 @@
-data\_conversion\_function
-==========================
-
-.. currentmodule:: ansys.aedt.core.visualization.advanced.rcs_visualization
-
-.. autoproperty:: MonostaticRCSData.data_conversion_function

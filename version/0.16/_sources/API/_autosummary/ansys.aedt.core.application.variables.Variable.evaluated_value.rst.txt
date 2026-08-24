@@ -1,6 +1,0 @@
-evaluated\_value
-================
-
-.. currentmodule:: ansys.aedt.core.application.variables
-
-.. autoproperty:: Variable.evaluated_value

@@ -1,6 +1,0 @@
-library\_list
-=============
-
-.. currentmodule:: ansys.aedt.core.maxwell
-
-.. autoproperty:: Maxwell3d.library_list

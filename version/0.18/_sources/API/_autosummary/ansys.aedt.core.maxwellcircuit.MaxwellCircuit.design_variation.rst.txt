@@ -1,6 +1,0 @@
-design\_variation
-=================
-
-.. currentmodule:: ansys.aedt.core.maxwellcircuit
-
-.. automethod:: MaxwellCircuit.design_variation

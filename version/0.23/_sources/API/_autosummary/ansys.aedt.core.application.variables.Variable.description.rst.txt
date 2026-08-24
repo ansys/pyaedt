@@ -1,6 +1,0 @@
-description
-===========
-
-.. currentmodule:: ansys.aedt.core.application.variables
-
-.. autoproperty:: Variable.description

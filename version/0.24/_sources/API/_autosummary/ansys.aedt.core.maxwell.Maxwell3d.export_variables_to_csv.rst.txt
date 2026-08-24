@@ -1,6 +1,0 @@
-export\_variables\_to\_csv
-==========================
-
-.. currentmodule:: ansys.aedt.core.maxwell
-
-.. automethod:: Maxwell3d.export_variables_to_csv

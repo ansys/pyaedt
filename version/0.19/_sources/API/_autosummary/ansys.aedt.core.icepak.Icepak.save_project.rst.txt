@@ -1,6 +1,0 @@
-save\_project
-=============
-
-.. currentmodule:: ansys.aedt.core.icepak
-
-.. automethod:: Icepak.save_project

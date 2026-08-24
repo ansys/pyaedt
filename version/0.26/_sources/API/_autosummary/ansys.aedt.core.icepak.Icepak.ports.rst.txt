@@ -1,6 +1,0 @@
-ports
-=====
-
-.. currentmodule:: ansys.aedt.core.icepak
-
-.. autoproperty:: Icepak.ports

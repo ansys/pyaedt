@@ -1,6 +1,0 @@
-secondary\_sweep\_range
-=======================
-
-.. currentmodule:: ansys.aedt.core.visualization.report.field
-
-.. autoproperty:: FarField.secondary_sweep_range

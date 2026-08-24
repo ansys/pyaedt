@@ -1,6 +1,0 @@
-validate\_simple
-================
-
-.. currentmodule:: ansys.aedt.core.hfss
-
-.. automethod:: Hfss.validate_simple

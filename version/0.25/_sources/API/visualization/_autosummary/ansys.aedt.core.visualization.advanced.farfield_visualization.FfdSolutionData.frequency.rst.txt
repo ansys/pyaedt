@@ -1,6 +1,0 @@
-frequency
-=========
-
-.. currentmodule:: ansys.aedt.core.visualization.advanced.farfield_visualization
-
-.. autoproperty:: FfdSolutionData.frequency

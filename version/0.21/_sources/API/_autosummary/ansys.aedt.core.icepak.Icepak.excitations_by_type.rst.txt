@@ -1,6 +1,0 @@
-excitations\_by\_type
-=====================
-
-.. currentmodule:: ansys.aedt.core.icepak
-
-.. autoproperty:: Icepak.excitations_by_type

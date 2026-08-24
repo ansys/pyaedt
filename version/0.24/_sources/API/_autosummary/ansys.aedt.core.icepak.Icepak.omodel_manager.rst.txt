@@ -1,6 +1,0 @@
-omodel\_manager
-===============
-
-.. currentmodule:: ansys.aedt.core.icepak
-
-.. autoproperty:: Icepak.omodel_manager

@@ -1,6 +1,0 @@
-filter\_class
-=============
-
-.. currentmodule:: ansys.aedt.core.filtersolutions_core.attributes
-
-.. autoproperty:: Attributes.filter_class

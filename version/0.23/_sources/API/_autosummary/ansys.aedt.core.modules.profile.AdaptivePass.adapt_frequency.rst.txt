@@ -1,6 +1,0 @@
-adapt\_frequency
-================
-
-.. currentmodule:: ansys.aedt.core.modules.profile
-
-.. autoproperty:: AdaptivePass.adapt_frequency

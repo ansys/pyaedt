@@ -1,6 +1,0 @@
-osymbol\_manager
-================
-
-.. currentmodule:: ansys.aedt.core.circuit
-
-.. autoproperty:: Circuit.osymbol_manager

@@ -1,6 +1,0 @@
-materials
-=========
-
-.. currentmodule:: ansys.aedt.core.rmxprt
-
-.. autoproperty:: Rmxprt.materials

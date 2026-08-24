@@ -1,6 +1,0 @@
-set\_license\_type
-==================
-
-.. currentmodule:: ansys.aedt.core.circuit
-
-.. automethod:: Circuit.set_license_type

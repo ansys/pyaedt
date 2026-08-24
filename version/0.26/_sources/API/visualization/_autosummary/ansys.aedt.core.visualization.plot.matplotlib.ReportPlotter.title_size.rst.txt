@@ -1,6 +1,0 @@
-title\_size
-===========
-
-.. currentmodule:: ansys.aedt.core.visualization.plot.matplotlib
-
-.. autoproperty:: ReportPlotter.title_size

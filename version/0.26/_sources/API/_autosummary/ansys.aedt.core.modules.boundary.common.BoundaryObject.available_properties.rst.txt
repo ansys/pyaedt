@@ -1,6 +1,0 @@
-available\_properties
-=====================
-
-.. currentmodule:: ansys.aedt.core.modules.boundary.common
-
-.. autoproperty:: BoundaryObject.available_properties

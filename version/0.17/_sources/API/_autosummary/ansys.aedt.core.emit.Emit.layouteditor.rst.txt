@@ -1,6 +1,0 @@
-layouteditor
-============
-
-.. currentmodule:: ansys.aedt.core.emit
-
-.. autoproperty:: Emit.layouteditor

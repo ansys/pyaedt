@@ -1,6 +1,0 @@
-optimize\_port\_tuning
-======================
-
-.. currentmodule:: ansys.aedt.core.filtersolutions_core.export_to_aedt
-
-.. automethod:: ExportToAedt.optimize_port_tuning

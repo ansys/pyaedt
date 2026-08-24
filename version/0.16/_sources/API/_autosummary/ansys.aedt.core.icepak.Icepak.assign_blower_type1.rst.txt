@@ -1,6 +1,0 @@
-assign\_blower\_type1
-=====================
-
-.. currentmodule:: ansys.aedt.core.icepak
-
-.. automethod:: Icepak.assign_blower_type1

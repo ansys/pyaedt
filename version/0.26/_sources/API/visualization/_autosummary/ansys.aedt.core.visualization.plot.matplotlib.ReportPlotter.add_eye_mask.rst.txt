@@ -1,6 +1,0 @@
-add\_eye\_mask
-==============
-
-.. currentmodule:: ansys.aedt.core.visualization.plot.matplotlib
-
-.. automethod:: ReportPlotter.add_eye_mask

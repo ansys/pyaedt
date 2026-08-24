@@ -1,6 +1,0 @@
-SOLUTIONS
-=========
-
-.. currentmodule:: ansys.aedt.core.mechanical
-
-.. autoproperty:: Mechanical.SOLUTIONS

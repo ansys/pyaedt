@@ -1,6 +1,0 @@
-omaterial\_manager
-==================
-
-.. currentmodule:: ansys.aedt.core.emit
-
-.. autoproperty:: Emit.omaterial_manager

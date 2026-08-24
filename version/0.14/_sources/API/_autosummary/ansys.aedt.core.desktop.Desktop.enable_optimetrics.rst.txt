@@ -1,6 +1,0 @@
-enable\_optimetrics
-===================
-
-.. currentmodule:: ansys.aedt.core.desktop
-
-.. automethod:: Desktop.enable_optimetrics

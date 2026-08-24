@@ -1,6 +1,0 @@
-set\_hpc\_from\_file
-====================
-
-.. currentmodule:: ansys.aedt.core.mechanical
-
-.. automethod:: Mechanical.set_hpc_from_file

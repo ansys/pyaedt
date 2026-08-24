@@ -1,6 +1,0 @@
-apply\_solved\_variation
-========================
-
-.. currentmodule:: ansys.aedt.core.circuit
-
-.. automethod:: Circuit.apply_solved_variation

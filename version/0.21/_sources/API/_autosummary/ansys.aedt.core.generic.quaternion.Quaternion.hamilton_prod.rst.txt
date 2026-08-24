@@ -1,6 +1,0 @@
-hamilton\_prod
-==============
-
-.. currentmodule:: ansys.aedt.core.generic.quaternion
-
-.. automethod:: Quaternion.hamilton_prod

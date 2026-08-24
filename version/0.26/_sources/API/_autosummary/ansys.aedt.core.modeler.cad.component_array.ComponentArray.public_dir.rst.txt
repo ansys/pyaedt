@@ -1,6 +1,0 @@
-public\_dir
-===========
-
-.. currentmodule:: ansys.aedt.core.modeler.cad.component_array
-
-.. autoproperty:: ComponentArray.public_dir

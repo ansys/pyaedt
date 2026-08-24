@@ -1,6 +1,0 @@
-si\_value
-=========
-
-.. currentmodule:: ansys.aedt.core.application.variables
-
-.. autoproperty:: Variable.si_value

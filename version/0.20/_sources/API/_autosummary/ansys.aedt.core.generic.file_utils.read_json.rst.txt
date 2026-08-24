@@ -1,6 +1,0 @@
-﻿read\_json
-==========
-
-.. currentmodule:: ansys.aedt.core.generic.file_utils
-
-.. autofunction:: read_json

@@ -1,6 +1,0 @@
-omaxwell\_parameters
-====================
-
-.. currentmodule:: ansys.aedt.core.q3d
-
-.. autoproperty:: Q2d.omaxwell_parameters

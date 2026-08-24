@@ -1,6 +1,0 @@
-set\_impedance\_multiplier
-==========================
-
-.. currentmodule:: ansys.aedt.core.hfss
-
-.. automethod:: Hfss.set_impedance_multiplier

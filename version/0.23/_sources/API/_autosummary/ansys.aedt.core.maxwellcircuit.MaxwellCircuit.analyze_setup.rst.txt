@@ -1,6 +1,0 @@
-analyze\_setup
-==============
-
-.. currentmodule:: ansys.aedt.core.maxwellcircuit
-
-.. automethod:: MaxwellCircuit.analyze_setup

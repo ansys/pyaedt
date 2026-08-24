@@ -1,6 +1,0 @@
-setup\_sweeps\_names
-====================
-
-.. currentmodule:: ansys.aedt.core.maxwell
-
-.. autoproperty:: Maxwell3d.setup_sweeps_names

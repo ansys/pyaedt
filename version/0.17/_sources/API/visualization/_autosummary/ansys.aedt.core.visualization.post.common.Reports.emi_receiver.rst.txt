@@ -1,6 +1,0 @@
-emi\_receiver
-=============
-
-.. currentmodule:: ansys.aedt.core.visualization.post.common
-
-.. automethod:: Reports.emi_receiver

@@ -1,6 +1,0 @@
-substrate\_conductor\_thickness
-===============================
-
-.. currentmodule:: ansys.aedt.core.filtersolutions_core.distributed_substrate
-
-.. autoproperty:: DistributedSubstrate.substrate_conductor_thickness

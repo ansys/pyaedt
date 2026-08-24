@@ -1,6 +1,0 @@
-analyze
-=======
-
-.. currentmodule:: ansys.aedt.core.hfss
-
-.. automethod:: Hfss.analyze

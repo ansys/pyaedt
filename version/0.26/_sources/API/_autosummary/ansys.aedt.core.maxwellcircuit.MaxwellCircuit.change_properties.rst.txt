@@ -1,6 +1,0 @@
-change\_properties
-==================
-
-.. currentmodule:: ansys.aedt.core.maxwellcircuit
-
-.. automethod:: MaxwellCircuit.change_properties

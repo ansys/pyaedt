@@ -1,6 +1,0 @@
-port
-====
-
-.. currentmodule:: ansys.aedt.core.desktop
-
-.. autoproperty:: Desktop.port

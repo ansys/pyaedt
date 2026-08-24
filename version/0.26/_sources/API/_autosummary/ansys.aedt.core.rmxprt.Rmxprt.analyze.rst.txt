@@ -1,6 +1,0 @@
-analyze
-=======
-
-.. currentmodule:: ansys.aedt.core.rmxprt
-
-.. automethod:: Rmxprt.analyze

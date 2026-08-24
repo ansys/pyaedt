@@ -1,6 +1,0 @@
-assign\_recirculation\_opening
-==============================
-
-.. currentmodule:: ansys.aedt.core.icepak
-
-.. automethod:: Icepak.assign_recirculation_opening

@@ -1,6 +1,0 @@
-project\_datasets
-=================
-
-.. currentmodule:: ansys.aedt.core.hfss
-
-.. autoproperty:: Hfss.project_datasets

@@ -1,6 +1,0 @@
-copy\_report\_data
-==================
-
-.. currentmodule:: ansys.aedt.core.visualization.post.post_common_3d
-
-.. automethod:: PostProcessor3D.copy_report_data

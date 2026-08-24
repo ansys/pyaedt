@@ -1,6 +1,0 @@
-set\_custom\_hpc\_options
-=========================
-
-.. currentmodule:: ansys.aedt.core.twinbuilder
-
-.. automethod:: TwinBuilder.set_custom_hpc_options

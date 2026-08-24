@@ -1,6 +1,0 @@
-oradfield
-=========
-
-.. currentmodule:: ansys.aedt.core.emit
-
-.. autoproperty:: Emit.oradfield

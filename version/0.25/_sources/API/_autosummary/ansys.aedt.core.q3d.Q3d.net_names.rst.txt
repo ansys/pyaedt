@@ -1,6 +1,0 @@
-net\_names
-==========
-
-.. currentmodule:: ansys.aedt.core.q3d
-
-.. autoproperty:: Q3d.net_names

@@ -1,6 +1,0 @@
-axis\_directions
-================
-
-.. currentmodule:: ansys.aedt.core.twinbuilder
-
-.. autoproperty:: TwinBuilder.axis_directions

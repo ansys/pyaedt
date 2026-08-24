@@ -1,6 +1,0 @@
-set\_units
-==========
-
-.. currentmodule:: ansys.aedt.core.emit
-
-.. automethod:: Emit.set_units

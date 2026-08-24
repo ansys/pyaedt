@@ -1,6 +1,0 @@
-axis\_directions
-================
-
-.. currentmodule:: ansys.aedt.core.rmxprt
-
-.. autoproperty:: Rmxprt.axis_directions

@@ -1,6 +1,0 @@
-apply\_solved\_variation
-========================
-
-.. currentmodule:: ansys.aedt.core.mechanical
-
-.. automethod:: Mechanical.apply_solved_variation

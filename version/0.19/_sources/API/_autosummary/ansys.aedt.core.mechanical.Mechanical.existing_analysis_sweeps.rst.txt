@@ -1,6 +1,0 @@
-existing\_analysis\_sweeps
-==========================
-
-.. currentmodule:: ansys.aedt.core.mechanical
-
-.. autoproperty:: Mechanical.existing_analysis_sweeps

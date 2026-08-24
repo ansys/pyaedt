@@ -1,6 +1,0 @@
-sub\_design\_id
-===============
-
-.. currentmodule:: ansys.aedt.core.visualization.report.field
-
-.. autoproperty:: AntennaParameters.sub_design_id

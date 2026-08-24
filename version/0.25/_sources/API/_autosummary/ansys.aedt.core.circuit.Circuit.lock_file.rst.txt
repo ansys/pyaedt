@@ -1,6 +1,0 @@
-lock\_file
-==========
-
-.. currentmodule:: ansys.aedt.core.circuit
-
-.. autoproperty:: Circuit.lock_file

@@ -1,6 +1,0 @@
-import\_parametrics
-===================
-
-.. currentmodule:: ansys.aedt.core.generic.configurations
-
-.. autoproperty:: ConfigurationsOptions.import_parametrics

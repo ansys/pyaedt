@@ -1,6 +1,0 @@
-origin
-======
-
-.. currentmodule:: ansys.aedt.core.modeler.cad.modeler
-
-.. autoproperty:: CoordinateSystem.origin

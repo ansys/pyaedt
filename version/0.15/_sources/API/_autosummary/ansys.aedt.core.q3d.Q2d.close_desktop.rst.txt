@@ -1,6 +1,0 @@
-close\_desktop
-==============
-
-.. currentmodule:: ansys.aedt.core.q3d
-
-.. automethod:: Q2d.close_desktop

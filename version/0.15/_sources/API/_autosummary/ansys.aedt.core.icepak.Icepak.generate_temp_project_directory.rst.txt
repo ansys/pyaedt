@@ -1,6 +1,0 @@
-generate\_temp\_project\_directory
-==================================
-
-.. currentmodule:: ansys.aedt.core.icepak
-
-.. automethod:: Icepak.generate_temp_project_directory

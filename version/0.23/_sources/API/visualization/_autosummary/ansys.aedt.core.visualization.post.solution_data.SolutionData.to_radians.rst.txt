@@ -1,6 +1,0 @@
-to\_radians
-===========
-
-.. currentmodule:: ansys.aedt.core.visualization.post.solution_data
-
-.. automethod:: SolutionData.to_radians

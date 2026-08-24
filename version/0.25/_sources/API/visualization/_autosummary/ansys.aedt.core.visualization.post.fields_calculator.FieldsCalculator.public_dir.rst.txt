@@ -1,6 +1,0 @@
-public\_dir
-===========
-
-.. currentmodule:: ansys.aedt.core.visualization.post.fields_calculator
-
-.. autoproperty:: FieldsCalculator.public_dir

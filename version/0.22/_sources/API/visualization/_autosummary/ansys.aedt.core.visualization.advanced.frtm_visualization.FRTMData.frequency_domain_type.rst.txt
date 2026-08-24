@@ -1,6 +1,0 @@
-frequency\_domain\_type
-=======================
-
-.. currentmodule:: ansys.aedt.core.visualization.advanced.frtm_visualization
-
-.. autoproperty:: FRTMData.frequency_domain_type

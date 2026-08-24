@@ -1,6 +1,0 @@
-public\_dir
-===========
-
-.. currentmodule:: ansys.aedt.core.modules.design_xploration
-
-.. autoproperty:: SetupOpti.public_dir

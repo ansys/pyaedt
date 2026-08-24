@@ -1,6 +1,0 @@
-SETUPS
-======
-
-.. currentmodule:: ansys.aedt.core.rmxprt
-
-.. autoproperty:: Rmxprt.SETUPS

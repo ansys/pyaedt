@@ -1,6 +1,0 @@
-axis\_directions
-================
-
-.. currentmodule:: ansys.aedt.core.maxwellcircuit
-
-.. autoproperty:: MaxwellCircuit.axis_directions

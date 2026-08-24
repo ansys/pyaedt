@@ -1,6 +1,0 @@
-primary\_sweep
-==============
-
-.. currentmodule:: ansys.aedt.core.visualization.report.standard
-
-.. autoproperty:: Standard.primary_sweep

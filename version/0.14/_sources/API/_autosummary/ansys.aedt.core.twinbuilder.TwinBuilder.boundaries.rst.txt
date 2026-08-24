@@ -1,6 +1,0 @@
-boundaries
-==========
-
-.. currentmodule:: ansys.aedt.core.twinbuilder
-
-.. autoproperty:: TwinBuilder.boundaries

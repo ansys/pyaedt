@@ -1,6 +1,0 @@
-oreportsetup
-============
-
-.. currentmodule:: ansys.aedt.core.maxwellcircuit
-
-.. autoproperty:: MaxwellCircuit.oreportsetup

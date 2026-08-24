@@ -1,6 +1,0 @@
-ifft
-====
-
-.. currentmodule:: ansys.aedt.core.visualization.post.solution_data
-
-.. automethod:: SolutionData.ifft

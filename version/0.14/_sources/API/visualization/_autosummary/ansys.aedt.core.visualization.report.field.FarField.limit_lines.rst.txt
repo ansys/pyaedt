@@ -1,6 +1,0 @@
-limit\_lines
-============
-
-.. currentmodule:: ansys.aedt.core.visualization.report.field
-
-.. autoproperty:: FarField.limit_lines

@@ -1,6 +1,0 @@
-get\_example
-============
-
-.. currentmodule:: ansys.aedt.core.desktop
-
-.. automethod:: Desktop.get_example

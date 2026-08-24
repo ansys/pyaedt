@@ -1,6 +1,0 @@
-﻿add\_page\_break
-================
-
-.. currentmodule:: ansys.aedt.core.visualization.plot.pdf
-
-.. automethod:: AnsysReport.add_page_break

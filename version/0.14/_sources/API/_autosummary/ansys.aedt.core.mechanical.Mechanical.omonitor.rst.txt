@@ -1,6 +1,0 @@
-omonitor
-========
-
-.. currentmodule:: ansys.aedt.core.mechanical
-
-.. autoproperty:: Mechanical.omonitor

@@ -1,6 +1,0 @@
-grpc\_mode
-==========
-
-.. currentmodule:: ansys.aedt.core.desktop
-
-.. autoproperty:: Desktop.grpc_mode

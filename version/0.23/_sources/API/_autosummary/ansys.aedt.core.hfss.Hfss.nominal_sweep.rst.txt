@@ -1,6 +1,0 @@
-nominal\_sweep
-==============
-
-.. currentmodule:: ansys.aedt.core.hfss
-
-.. autoproperty:: Hfss.nominal_sweep

@@ -1,6 +1,0 @@
-poissons\_ratio
-===============
-
-.. currentmodule:: ansys.aedt.core.modules.material
-
-.. autoproperty:: Material.poissons_ratio

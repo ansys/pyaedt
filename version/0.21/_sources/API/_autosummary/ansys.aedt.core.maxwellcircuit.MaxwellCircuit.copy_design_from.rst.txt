@@ -1,6 +1,0 @@
-copy\_design\_from
-==================
-
-.. currentmodule:: ansys.aedt.core.maxwellcircuit
-
-.. automethod:: MaxwellCircuit.copy_design_from

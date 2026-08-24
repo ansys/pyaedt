@@ -1,6 +1,0 @@
-modelithics\_resistor\_family\_list\_count
-==========================================
-
-.. currentmodule:: ansys.aedt.core.filtersolutions_core.export_to_aedt
-
-.. autoproperty:: ExportToAedt.modelithics_resistor_family_list_count

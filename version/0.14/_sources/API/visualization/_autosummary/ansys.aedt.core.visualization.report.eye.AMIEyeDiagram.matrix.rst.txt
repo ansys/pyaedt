@@ -1,6 +1,0 @@
-matrix
-======
-
-.. currentmodule:: ansys.aedt.core.visualization.report.eye
-
-.. autoproperty:: AMIEyeDiagram.matrix

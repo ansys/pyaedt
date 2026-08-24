@@ -1,6 +1,0 @@
-group\_delay\_ripple\_period
-============================
-
-.. currentmodule:: ansys.aedt.core.filtersolutions_core.attributes
-
-.. autoproperty:: Attributes.group_delay_ripple_period

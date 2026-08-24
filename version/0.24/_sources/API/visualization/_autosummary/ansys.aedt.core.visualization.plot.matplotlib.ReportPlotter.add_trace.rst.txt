@@ -1,6 +1,0 @@
-add\_trace
-==========
-
-.. currentmodule:: ansys.aedt.core.visualization.plot.matplotlib
-
-.. automethod:: ReportPlotter.add_trace

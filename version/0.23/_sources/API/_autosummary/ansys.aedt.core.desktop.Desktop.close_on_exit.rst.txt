@@ -1,6 +1,0 @@
-close\_on\_exit
-===============
-
-.. currentmodule:: ansys.aedt.core.desktop
-
-.. autoproperty:: Desktop.close_on_exit

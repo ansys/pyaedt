@@ -1,6 +1,0 @@
-export\_design
-==============
-
-.. currentmodule:: ansys.aedt.core.filtersolutions_core.export_to_aedt
-
-.. automethod:: ExportToAedt.export_design

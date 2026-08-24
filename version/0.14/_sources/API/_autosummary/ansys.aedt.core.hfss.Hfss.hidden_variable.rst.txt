@@ -1,6 +1,0 @@
-hidden\_variable
-================
-
-.. currentmodule:: ansys.aedt.core.hfss
-
-.. automethod:: Hfss.hidden_variable

@@ -1,6 +1,0 @@
-﻿recursive\_glob
-===============
-
-.. currentmodule:: ansys.aedt.core.generic.file_utils
-
-.. autofunction:: recursive_glob

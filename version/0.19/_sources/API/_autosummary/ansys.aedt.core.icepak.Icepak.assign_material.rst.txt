@@ -1,6 +1,0 @@
-assign\_material
-================
-
-.. currentmodule:: ansys.aedt.core.icepak
-
-.. automethod:: Icepak.assign_material

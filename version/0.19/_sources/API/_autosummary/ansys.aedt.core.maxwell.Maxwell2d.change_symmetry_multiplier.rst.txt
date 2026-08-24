@@ -1,6 +1,0 @@
-change\_symmetry\_multiplier
-============================
-
-.. currentmodule:: ansys.aedt.core.maxwell
-
-.. automethod:: Maxwell2d.change_symmetry_multiplier

@@ -1,6 +1,0 @@
-import\_dataset3d
-=================
-
-.. currentmodule:: ansys.aedt.core.twinbuilder
-
-.. automethod:: TwinBuilder.import_dataset3d

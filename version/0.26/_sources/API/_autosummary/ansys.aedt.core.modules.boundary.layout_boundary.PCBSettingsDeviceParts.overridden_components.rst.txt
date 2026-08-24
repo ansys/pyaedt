@@ -1,6 +1,0 @@
-overridden\_components
-======================
-
-.. currentmodule:: ansys.aedt.core.modules.boundary.layout_boundary
-
-.. autoproperty:: PCBSettingsDeviceParts.overridden_components

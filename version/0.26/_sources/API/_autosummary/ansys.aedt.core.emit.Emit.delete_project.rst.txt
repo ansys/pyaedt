@@ -1,6 +1,0 @@
-delete\_project
-===============
-
-.. currentmodule:: ansys.aedt.core.emit
-
-.. automethod:: Emit.delete_project

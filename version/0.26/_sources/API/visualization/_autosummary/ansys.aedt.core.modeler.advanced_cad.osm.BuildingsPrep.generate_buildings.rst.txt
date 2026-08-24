@@ -1,6 +1,0 @@
-generate\_buildings
-===================
-
-.. currentmodule:: ansys.aedt.core.modeler.advanced_cad.osm
-
-.. automethod:: BuildingsPrep.generate_buildings

@@ -1,6 +1,0 @@
-set\_connectors\_modeling
-=========================
-
-.. currentmodule:: ansys.aedt.core.modules.boundary.layout_boundary
-
-.. automethod:: PCBSettingsPackageParts.set_connectors_modeling

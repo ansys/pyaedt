@@ -1,6 +1,0 @@
-limit\_lines
-============
-
-.. currentmodule:: ansys.aedt.core.visualization.report.field
-
-.. autoproperty:: AntennaParameters.limit_lines

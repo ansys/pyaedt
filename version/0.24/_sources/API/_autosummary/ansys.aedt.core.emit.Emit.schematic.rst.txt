@@ -1,6 +1,0 @@
-schematic
-=========
-
-.. currentmodule:: ansys.aedt.core.emit
-
-.. autoproperty:: Emit.schematic

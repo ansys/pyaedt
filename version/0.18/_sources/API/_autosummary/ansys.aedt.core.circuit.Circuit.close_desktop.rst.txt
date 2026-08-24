@@ -1,6 +1,0 @@
-close\_desktop
-==============
-
-.. currentmodule:: ansys.aedt.core.circuit
-
-.. automethod:: Circuit.close_desktop

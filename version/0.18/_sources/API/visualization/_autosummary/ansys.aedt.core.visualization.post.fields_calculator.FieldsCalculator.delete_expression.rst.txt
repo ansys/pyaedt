@@ -1,6 +1,0 @@
-delete\_expression
-==================
-
-.. currentmodule:: ansys.aedt.core.visualization.post.fields_calculator
-
-.. automethod:: FieldsCalculator.delete_expression

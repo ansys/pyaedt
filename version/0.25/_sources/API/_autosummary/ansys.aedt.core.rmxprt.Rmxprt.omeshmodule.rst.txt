@@ -1,6 +1,0 @@
-omeshmodule
-===========
-
-.. currentmodule:: ansys.aedt.core.rmxprt
-
-.. autoproperty:: Rmxprt.omeshmodule

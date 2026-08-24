@@ -1,6 +1,0 @@
-real
-====
-
-.. currentmodule:: ansys.aedt.core.generic.numbers_utils
-
-.. autoattribute:: Quantity.real

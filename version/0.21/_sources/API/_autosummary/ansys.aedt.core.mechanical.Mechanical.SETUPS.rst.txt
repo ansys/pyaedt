@@ -1,6 +1,0 @@
-SETUPS
-======
-
-.. currentmodule:: ansys.aedt.core.mechanical
-
-.. autoproperty:: Mechanical.SETUPS

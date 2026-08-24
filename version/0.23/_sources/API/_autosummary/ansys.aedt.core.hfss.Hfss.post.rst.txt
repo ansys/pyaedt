@@ -1,6 +1,0 @@
-post
-====
-
-.. currentmodule:: ansys.aedt.core.hfss
-
-.. autoproperty:: Hfss.post

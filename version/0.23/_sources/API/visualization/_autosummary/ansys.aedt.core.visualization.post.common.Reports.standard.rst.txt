@@ -1,6 +1,0 @@
-standard
-========
-
-.. currentmodule:: ansys.aedt.core.visualization.post.common
-
-.. automethod:: Reports.standard

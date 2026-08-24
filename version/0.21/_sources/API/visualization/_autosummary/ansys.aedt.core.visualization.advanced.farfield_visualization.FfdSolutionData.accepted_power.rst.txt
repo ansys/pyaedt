@@ -1,6 +1,0 @@
-accepted\_power
-===============
-
-.. currentmodule:: ansys.aedt.core.visualization.advanced.farfield_visualization
-
-.. autoproperty:: FfdSolutionData.accepted_power

@@ -1,6 +1,0 @@
-create\_dataset3d
-=================
-
-.. currentmodule:: ansys.aedt.core.hfss
-
-.. automethod:: Hfss.create_dataset3d

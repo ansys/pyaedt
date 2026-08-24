@@ -1,6 +1,0 @@
-has\_definition\_parameters
-===========================
-
-.. currentmodule:: ansys.aedt.core.application.variables
-
-.. autoproperty:: Variable.has_definition_parameters

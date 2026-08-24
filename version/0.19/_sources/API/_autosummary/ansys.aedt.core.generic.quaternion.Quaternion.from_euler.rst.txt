@@ -1,6 +1,0 @@
-from\_euler
-===========
-
-.. currentmodule:: ansys.aedt.core.generic.quaternion
-
-.. automethod:: Quaternion.from_euler

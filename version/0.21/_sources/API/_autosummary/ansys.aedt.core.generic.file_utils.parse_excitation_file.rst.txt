@@ -1,6 +1,0 @@
-﻿parse\_excitation\_file
-=======================
-
-.. currentmodule:: ansys.aedt.core.generic.file_utils
-
-.. autofunction:: parse_excitation_file

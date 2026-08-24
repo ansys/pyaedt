@@ -1,6 +1,0 @@
-inductor\_q
-===========
-
-.. currentmodule:: ansys.aedt.core.filtersolutions_core.lumped_parasitics
-
-.. autoproperty:: LumpedParasitics.inductor_q

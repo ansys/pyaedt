@@ -1,6 +1,0 @@
-post\_processing\_cells
-=======================
-
-.. currentmodule:: ansys.aedt.core.modeler.cad.component_array
-
-.. autoproperty:: ComponentArray.post_processing_cells

@@ -1,6 +1,0 @@
-as\_integer\_ratio
-==================
-
-.. currentmodule:: ansys.aedt.core.generic.numbers_utils
-
-.. automethod:: Quantity.as_integer_ratio

@@ -1,6 +1,0 @@
-substrate\_er
-=============
-
-.. currentmodule:: ansys.aedt.core.filtersolutions_core.distributed_substrate
-
-.. autoproperty:: DistributedSubstrate.substrate_er

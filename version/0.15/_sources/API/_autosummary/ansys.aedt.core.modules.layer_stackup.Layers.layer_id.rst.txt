@@ -1,6 +1,0 @@
-layer\_id
-=========
-
-.. currentmodule:: ansys.aedt.core.modules.layer_stackup
-
-.. automethod:: Layers.layer_id

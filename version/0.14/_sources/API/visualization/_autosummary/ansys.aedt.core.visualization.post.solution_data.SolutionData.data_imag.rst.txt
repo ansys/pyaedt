@@ -1,6 +1,0 @@
-data\_imag
-==========
-
-.. currentmodule:: ansys.aedt.core.visualization.post.solution_data
-
-.. automethod:: SolutionData.data_imag

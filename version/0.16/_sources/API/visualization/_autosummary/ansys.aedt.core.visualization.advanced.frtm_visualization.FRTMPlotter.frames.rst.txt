@@ -1,6 +1,0 @@
-frames
-======
-
-.. currentmodule:: ansys.aedt.core.visualization.advanced.frtm_visualization
-
-.. autoproperty:: FRTMPlotter.frames

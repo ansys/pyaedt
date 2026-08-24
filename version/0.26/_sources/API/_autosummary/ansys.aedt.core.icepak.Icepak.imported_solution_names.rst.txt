@@ -1,6 +1,0 @@
-imported\_solution\_names
-=========================
-
-.. currentmodule:: ansys.aedt.core.icepak
-
-.. autoproperty:: Icepak.imported_solution_names

@@ -1,6 +1,0 @@
-archive\_project
-================
-
-.. currentmodule:: ansys.aedt.core.hfss3dlayout
-
-.. automethod:: Hfss3dLayout.archive_project

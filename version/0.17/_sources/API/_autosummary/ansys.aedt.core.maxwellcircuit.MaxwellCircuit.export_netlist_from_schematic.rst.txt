@@ -1,6 +1,0 @@
-export\_netlist\_from\_schematic
-================================
-
-.. currentmodule:: ansys.aedt.core.maxwellcircuit
-
-.. automethod:: MaxwellCircuit.export_netlist_from_schematic

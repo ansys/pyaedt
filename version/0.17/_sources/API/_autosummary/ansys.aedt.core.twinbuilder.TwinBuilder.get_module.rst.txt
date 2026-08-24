@@ -1,6 +1,0 @@
-get\_module
-===========
-
-.. currentmodule:: ansys.aedt.core.twinbuilder
-
-.. automethod:: TwinBuilder.get_module

@@ -1,6 +1,0 @@
-get\_dxf\_layers
-================
-
-.. currentmodule:: ansys.aedt.core.maxwell
-
-.. automethod:: Maxwell2d.get_dxf_layers

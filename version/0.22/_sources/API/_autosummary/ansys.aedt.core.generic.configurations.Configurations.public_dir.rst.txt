@@ -1,6 +1,0 @@
-public\_dir
-===========
-
-.. currentmodule:: ansys.aedt.core.generic.configurations
-
-.. autoproperty:: Configurations.public_dir

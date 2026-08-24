@@ -1,6 +1,0 @@
-substrate\_cover\_height
-========================
-
-.. currentmodule:: ansys.aedt.core.filtersolutions_core.distributed_substrate
-
-.. autoproperty:: DistributedSubstrate.substrate_cover_height

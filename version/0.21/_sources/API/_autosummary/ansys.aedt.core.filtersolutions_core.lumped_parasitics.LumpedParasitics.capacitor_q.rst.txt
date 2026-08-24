@@ -1,6 +1,0 @@
-capacitor\_q
-============
-
-.. currentmodule:: ansys.aedt.core.filtersolutions_core.lumped_parasitics
-
-.. autoproperty:: LumpedParasitics.capacitor_q

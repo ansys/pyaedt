@@ -1,6 +1,0 @@
-﻿nastran\_to\_stl
-================
-
-.. currentmodule:: ansys.aedt.core.visualization.advanced.misc
-
-.. autofunction:: nastran_to_stl

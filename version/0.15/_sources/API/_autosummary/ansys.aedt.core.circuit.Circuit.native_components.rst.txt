@@ -1,6 +1,0 @@
-native\_components
-==================
-
-.. currentmodule:: ansys.aedt.core.circuit
-
-.. autoproperty:: Circuit.native_components

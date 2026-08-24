@@ -1,6 +1,0 @@
-frequency\_stop
-===============
-
-.. currentmodule:: ansys.aedt.core.visualization.advanced.frtm_visualization
-
-.. autoproperty:: FRTMData.frequency_stop

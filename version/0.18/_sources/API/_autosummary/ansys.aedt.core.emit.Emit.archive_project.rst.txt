@@ -1,6 +1,0 @@
-archive\_project
-================
-
-.. currentmodule:: ansys.aedt.core.emit
-
-.. automethod:: Emit.archive_project

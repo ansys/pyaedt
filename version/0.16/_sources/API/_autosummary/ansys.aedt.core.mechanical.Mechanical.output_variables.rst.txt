@@ -1,6 +1,0 @@
-output\_variables
-=================
-
-.. currentmodule:: ansys.aedt.core.mechanical
-
-.. autoproperty:: Mechanical.output_variables

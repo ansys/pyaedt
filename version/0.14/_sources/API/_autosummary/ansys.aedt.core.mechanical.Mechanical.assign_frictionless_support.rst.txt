@@ -1,6 +1,0 @@
-assign\_frictionless\_support
-=============================
-
-.. currentmodule:: ansys.aedt.core.mechanical
-
-.. automethod:: Mechanical.assign_frictionless_support

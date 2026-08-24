@@ -1,6 +1,0 @@
-value\_with\_units
-==================
-
-.. currentmodule:: ansys.aedt.core.maxwell
-
-.. automethod:: Maxwell3d.value_with_units

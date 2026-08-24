@@ -1,6 +1,0 @@
-ooutput\_variable
-=================
-
-.. currentmodule:: ansys.aedt.core.hfss3dlayout
-
-.. autoproperty:: Hfss3dLayout.ooutput_variable

@@ -1,6 +1,0 @@
-template\_name
-==============
-
-.. currentmodule:: ansys.aedt.core.visualization.post.compliance
-
-.. autoproperty:: VirtualCompliance.template_name

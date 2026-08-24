@@ -1,6 +1,0 @@
-delete\_design
-==============
-
-.. currentmodule:: ansys.aedt.core.emit
-
-.. automethod:: Emit.delete_design

@@ -1,6 +1,0 @@
-assign\_edge\_cut
-=================
-
-.. currentmodule:: ansys.aedt.core.modules.mesh
-
-.. automethod:: Mesh.assign_edge_cut

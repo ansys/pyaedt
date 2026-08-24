@@ -1,6 +1,0 @@
-public\_dir
-===========
-
-.. currentmodule:: ansys.aedt.core.modules.mesh_3d_layout
-
-.. autoproperty:: Mesh3d.public_dir

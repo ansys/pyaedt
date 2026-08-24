@@ -1,6 +1,0 @@
-plot\_scene
-===========
-
-.. currentmodule:: ansys.aedt.core.visualization.post.post_icepak
-
-.. automethod:: PostProcessorIcepak.plot_scene

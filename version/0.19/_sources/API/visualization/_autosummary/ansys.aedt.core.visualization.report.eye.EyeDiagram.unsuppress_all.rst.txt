@@ -1,6 +1,0 @@
-unsuppress\_all
-===============
-
-.. currentmodule:: ansys.aedt.core.visualization.report.eye
-
-.. automethod:: EyeDiagram.unsuppress_all

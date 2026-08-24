@@ -1,6 +1,0 @@
-real\_time
-==========
-
-.. currentmodule:: ansys.aedt.core.modules.profile
-
-.. autoproperty:: ProfileStep.real_time

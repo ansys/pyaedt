@@ -1,6 +1,0 @@
-polarization
-============
-
-.. currentmodule:: ansys.aedt.core.modules.boundary.hfss_boundary
-
-.. autoproperty:: FarFieldSetup.polarization

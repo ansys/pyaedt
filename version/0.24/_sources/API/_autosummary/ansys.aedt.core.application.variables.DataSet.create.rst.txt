@@ -1,6 +1,0 @@
-create
-======
-
-.. currentmodule:: ansys.aedt.core.application.variables
-
-.. automethod:: DataSet.create

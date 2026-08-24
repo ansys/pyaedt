@@ -1,6 +1,0 @@
-modeler
-=======
-
-.. currentmodule:: ansys.aedt.core.mechanical
-
-.. autoproperty:: Mechanical.modeler

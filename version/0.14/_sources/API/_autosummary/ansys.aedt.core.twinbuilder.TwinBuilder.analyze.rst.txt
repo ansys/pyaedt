@@ -1,6 +1,0 @@
-analyze
-=======
-
-.. currentmodule:: ansys.aedt.core.twinbuilder
-
-.. automethod:: TwinBuilder.analyze

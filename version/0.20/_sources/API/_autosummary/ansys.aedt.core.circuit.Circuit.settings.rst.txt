@@ -1,6 +1,0 @@
-settings
-========
-
-.. currentmodule:: ansys.aedt.core.circuit
-
-.. autoproperty:: Circuit.settings

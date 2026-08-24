@@ -1,6 +1,0 @@
-read\_design\_data
-==================
-
-.. currentmodule:: ansys.aedt.core.emit
-
-.. automethod:: Emit.read_design_data

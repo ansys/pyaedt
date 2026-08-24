@@ -1,6 +1,0 @@
-enforce\_touchstone\_model\_passive
-===================================
-
-.. currentmodule:: ansys.aedt.core.modeler.circuits.object_3d_circuit
-
-.. automethod:: CircuitComponent.enforce_touchstone_model_passive

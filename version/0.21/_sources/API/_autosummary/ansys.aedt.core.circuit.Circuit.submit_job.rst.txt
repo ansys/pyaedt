@@ -1,6 +1,0 @@
-submit\_job
-===========
-
-.. currentmodule:: ansys.aedt.core.circuit
-
-.. automethod:: Circuit.submit_job

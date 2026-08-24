@@ -1,6 +1,0 @@
-info
-====
-
-.. currentmodule:: ansys.aedt.core.mechanical
-
-.. autoproperty:: Mechanical.info

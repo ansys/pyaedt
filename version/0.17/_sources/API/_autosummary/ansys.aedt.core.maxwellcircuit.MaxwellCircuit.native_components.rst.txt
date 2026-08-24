@@ -1,6 +1,0 @@
-native\_components
-==================
-
-.. currentmodule:: ansys.aedt.core.maxwellcircuit
-
-.. autoproperty:: MaxwellCircuit.native_components

@@ -1,6 +1,0 @@
-project\_logger
-===============
-
-.. currentmodule:: ansys.aedt.core.aedt_logger
-
-.. autoproperty:: AedtLogger.project_logger

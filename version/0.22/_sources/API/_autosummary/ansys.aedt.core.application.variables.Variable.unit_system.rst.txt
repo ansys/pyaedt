@@ -1,6 +1,0 @@
-unit\_system
-============
-
-.. currentmodule:: ansys.aedt.core.application.variables
-
-.. autoproperty:: Variable.unit_system

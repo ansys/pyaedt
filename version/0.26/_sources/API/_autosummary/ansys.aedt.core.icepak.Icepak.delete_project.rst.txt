@@ -1,6 +1,0 @@
-delete\_project
-===============
-
-.. currentmodule:: ansys.aedt.core.icepak
-
-.. automethod:: Icepak.delete_project

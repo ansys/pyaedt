@@ -1,6 +1,0 @@
-export\_csv
-===========
-
-.. currentmodule:: ansys.aedt.core.visualization.post.field_summary
-
-.. automethod:: FieldSummary.export_csv

@@ -1,6 +1,0 @@
-from\_axis\_angle
-=================
-
-.. currentmodule:: ansys.aedt.core.generic.quaternion
-
-.. automethod:: Quaternion.from_axis_angle

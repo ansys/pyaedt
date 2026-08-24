@@ -1,6 +1,0 @@
-max\_time
-=========
-
-.. currentmodule:: ansys.aedt.core.modules.profile
-
-.. autoproperty:: SimulationProfile.max_time

@@ -1,6 +1,0 @@
-toggle\_net
-===========
-
-.. currentmodule:: ansys.aedt.core.q3d
-
-.. automethod:: Q3d.toggle_net

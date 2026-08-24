@@ -1,6 +1,0 @@
-Submodels
-=========
-
-.. currentmodule:: ansys.aedt.core.modules.mesh_icepak
-
-.. autoproperty:: MeshRegion.Submodels

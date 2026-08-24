@@ -1,6 +1,0 @@
-time\_step\_keys
-================
-
-.. currentmodule:: ansys.aedt.core.modules.profile
-
-.. automethod:: TransientProfile.time_step_keys

@@ -1,6 +1,0 @@
-keys
-====
-
-.. currentmodule:: ansys.aedt.core.modules.profile
-
-.. automethod:: FrequencySweepProfile.keys

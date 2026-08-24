@@ -1,6 +1,0 @@
-polygons
-========
-
-.. currentmodule:: ansys.aedt.core.modeler.modeler_pcb
-
-.. autoproperty:: Modeler3DLayout.polygons

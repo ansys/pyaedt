@@ -1,6 +1,0 @@
-assign\_cylindrical\_gap
-========================
-
-.. currentmodule:: ansys.aedt.core.modules.mesh
-
-.. automethod:: Mesh.assign_cylindrical_gap

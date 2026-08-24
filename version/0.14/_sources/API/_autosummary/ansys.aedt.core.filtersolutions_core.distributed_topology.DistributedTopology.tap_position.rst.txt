@@ -1,6 +1,0 @@
-tap\_position
-=============
-
-.. currentmodule:: ansys.aedt.core.filtersolutions_core.distributed_topology
-
-.. autoproperty:: DistributedTopology.tap_position

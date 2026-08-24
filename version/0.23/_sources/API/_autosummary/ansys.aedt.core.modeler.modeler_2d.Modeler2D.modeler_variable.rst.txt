@@ -1,6 +1,0 @@
-modeler\_variable
-=================
-
-.. currentmodule:: ansys.aedt.core.modeler.modeler_2d
-
-.. automethod:: Modeler2D.modeler_variable

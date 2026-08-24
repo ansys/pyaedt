@@ -1,6 +1,0 @@
-remove\_cables
-==============
-
-.. currentmodule:: ansys.aedt.core.modules.cable_modeling
-
-.. automethod:: Cable.remove_cables

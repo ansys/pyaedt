@@ -1,6 +1,0 @@
-touchstone\_data
-================
-
-.. currentmodule:: ansys.aedt.core.visualization.advanced.farfield_visualization
-
-.. autoproperty:: FfdSolutionData.touchstone_data

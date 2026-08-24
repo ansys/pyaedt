@@ -1,6 +1,0 @@
-rl\_fields
-==========
-
-.. currentmodule:: ansys.aedt.core.visualization.post.common
-
-.. automethod:: Reports.rl_fields

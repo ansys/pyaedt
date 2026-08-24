@@ -1,6 +1,0 @@
-VIEW
-====
-
-.. currentmodule:: ansys.aedt.core.twinbuilder
-
-.. autoproperty:: TwinBuilder.VIEW

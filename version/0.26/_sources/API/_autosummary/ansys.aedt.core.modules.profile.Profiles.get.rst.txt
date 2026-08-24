@@ -1,6 +1,0 @@
-get
-===
-
-.. currentmodule:: ansys.aedt.core.modules.profile
-
-.. automethod:: Profiles.get

@@ -1,6 +1,0 @@
-delete\_project
-===============
-
-.. currentmodule:: ansys.aedt.core.maxwell
-
-.. automethod:: Maxwell2d.delete_project

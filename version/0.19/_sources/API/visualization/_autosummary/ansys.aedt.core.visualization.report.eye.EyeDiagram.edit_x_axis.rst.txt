@@ -1,6 +1,0 @@
-edit\_x\_axis
-=============
-
-.. currentmodule:: ansys.aedt.core.visualization.report.eye
-
-.. automethod:: EyeDiagram.edit_x_axis

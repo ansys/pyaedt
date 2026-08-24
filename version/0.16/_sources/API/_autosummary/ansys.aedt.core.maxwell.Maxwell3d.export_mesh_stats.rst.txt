@@ -1,6 +1,0 @@
-export\_mesh\_stats
-===================
-
-.. currentmodule:: ansys.aedt.core.maxwell
-
-.. automethod:: Maxwell3d.export_mesh_stats

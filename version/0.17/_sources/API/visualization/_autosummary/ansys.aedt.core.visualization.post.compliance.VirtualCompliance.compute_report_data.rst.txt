@@ -1,6 +1,0 @@
-compute\_report\_data
-=====================
-
-.. currentmodule:: ansys.aedt.core.visualization.post.compliance
-
-.. automethod:: VirtualCompliance.compute_report_data

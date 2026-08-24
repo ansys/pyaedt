@@ -1,6 +1,0 @@
-public\_dir
-===========
-
-.. currentmodule:: ansys.aedt.core.modeler.cad.elements_3d
-
-.. autoproperty:: FacePrimitive.public_dir

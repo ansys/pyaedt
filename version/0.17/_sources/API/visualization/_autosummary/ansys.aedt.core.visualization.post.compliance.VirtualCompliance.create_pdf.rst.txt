@@ -1,6 +1,0 @@
-create\_pdf
-===========
-
-.. currentmodule:: ansys.aedt.core.visualization.post.compliance
-
-.. automethod:: VirtualCompliance.create_pdf

@@ -1,6 +1,0 @@
-create\_output\_variable
-========================
-
-.. currentmodule:: ansys.aedt.core.circuit
-
-.. automethod:: Circuit.create_output_variable

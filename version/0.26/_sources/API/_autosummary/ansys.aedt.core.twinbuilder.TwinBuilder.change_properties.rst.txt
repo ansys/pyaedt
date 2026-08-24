@@ -1,6 +1,0 @@
-change\_properties
-==================
-
-.. currentmodule:: ansys.aedt.core.twinbuilder
-
-.. automethod:: TwinBuilder.change_properties

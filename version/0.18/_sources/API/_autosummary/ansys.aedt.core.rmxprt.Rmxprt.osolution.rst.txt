@@ -1,6 +1,0 @@
-osolution
-=========
-
-.. currentmodule:: ansys.aedt.core.rmxprt
-
-.. autoproperty:: Rmxprt.osolution

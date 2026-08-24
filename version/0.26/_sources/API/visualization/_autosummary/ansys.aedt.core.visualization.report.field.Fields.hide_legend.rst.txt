@@ -1,6 +1,0 @@
-hide\_legend
-============
-
-.. currentmodule:: ansys.aedt.core.visualization.report.field
-
-.. automethod:: Fields.hide_legend

@@ -1,6 +1,0 @@
-public\_dir
-===========
-
-.. currentmodule:: ansys.aedt.core.generic.numbers_utils
-
-.. autoproperty:: Quantity.public_dir

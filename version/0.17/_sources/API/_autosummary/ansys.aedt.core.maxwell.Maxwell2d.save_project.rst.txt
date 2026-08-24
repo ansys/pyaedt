@@ -1,6 +1,0 @@
-save\_project
-=============
-
-.. currentmodule:: ansys.aedt.core.maxwell
-
-.. automethod:: Maxwell2d.save_project

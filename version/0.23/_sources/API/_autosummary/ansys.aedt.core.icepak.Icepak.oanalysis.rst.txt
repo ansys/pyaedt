@@ -1,6 +1,0 @@
-oanalysis
-=========
-
-.. currentmodule:: ansys.aedt.core.icepak
-
-.. autoproperty:: Icepak.oanalysis

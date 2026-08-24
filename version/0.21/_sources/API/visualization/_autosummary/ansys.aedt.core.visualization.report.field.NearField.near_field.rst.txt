@@ -1,6 +1,0 @@
-near\_field
-===========
-
-.. currentmodule:: ansys.aedt.core.visualization.report.field
-
-.. autoproperty:: NearField.near_field

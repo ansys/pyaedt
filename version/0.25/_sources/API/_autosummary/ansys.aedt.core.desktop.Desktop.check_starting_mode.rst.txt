@@ -1,6 +1,0 @@
-check\_starting\_mode
-=====================
-
-.. currentmodule:: ansys.aedt.core.desktop
-
-.. automethod:: Desktop.check_starting_mode

@@ -1,6 +1,0 @@
-rename\_design
-==============
-
-.. currentmodule:: ansys.aedt.core.emit
-
-.. automethod:: Emit.rename_design

@@ -1,6 +1,0 @@
-omodel\_manager
-===============
-
-.. currentmodule:: ansys.aedt.core.twinbuilder
-
-.. autoproperty:: TwinBuilder.omodel_manager

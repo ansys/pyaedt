@@ -1,6 +1,0 @@
-autosave\_disable
-=================
-
-.. currentmodule:: ansys.aedt.core.icepak
-
-.. automethod:: Icepak.autosave_disable

@@ -1,6 +1,0 @@
-pyaedt\_dir
-===========
-
-.. currentmodule:: ansys.aedt.core.mechanical
-
-.. autoproperty:: Mechanical.pyaedt_dir

@@ -1,6 +1,0 @@
-﻿step\_name\_map
-===============
-
-.. currentmodule:: ansys.aedt.core.modules.profile
-
-.. autofunction:: step_name_map

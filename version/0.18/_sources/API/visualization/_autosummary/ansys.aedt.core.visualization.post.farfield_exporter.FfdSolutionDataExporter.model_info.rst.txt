@@ -1,6 +1,0 @@
-model\_info
-===========
-
-.. currentmodule:: ansys.aedt.core.visualization.post.farfield_exporter
-
-.. autoproperty:: FfdSolutionDataExporter.model_info

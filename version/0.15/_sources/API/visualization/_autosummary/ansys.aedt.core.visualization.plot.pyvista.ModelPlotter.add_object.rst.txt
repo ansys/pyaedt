@@ -1,6 +1,0 @@
-add\_object
-===========
-
-.. currentmodule:: ansys.aedt.core.visualization.plot.pyvista
-
-.. automethod:: ModelPlotter.add_object

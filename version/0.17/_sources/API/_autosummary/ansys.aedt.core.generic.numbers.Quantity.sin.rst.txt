@@ -1,6 +1,0 @@
-sin
-===
-
-.. currentmodule:: ansys.aedt.core.generic.numbers
-
-.. automethod:: Quantity.sin

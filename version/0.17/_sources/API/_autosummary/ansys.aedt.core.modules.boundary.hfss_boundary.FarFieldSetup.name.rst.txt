@@ -1,6 +1,0 @@
-name
-====
-
-.. currentmodule:: ansys.aedt.core.modules.boundary.hfss_boundary
-
-.. autoproperty:: FarFieldSetup.name

@@ -1,6 +1,0 @@
-imported\_solution\_names
-=========================
-
-.. currentmodule:: ansys.aedt.core.q3d
-
-.. autoproperty:: Q3d.imported_solution_names

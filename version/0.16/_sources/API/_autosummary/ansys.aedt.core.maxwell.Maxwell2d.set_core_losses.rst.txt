@@ -1,6 +1,0 @@
-set\_core\_losses
-=================
-
-.. currentmodule:: ansys.aedt.core.maxwell
-
-.. automethod:: Maxwell2d.set_core_losses

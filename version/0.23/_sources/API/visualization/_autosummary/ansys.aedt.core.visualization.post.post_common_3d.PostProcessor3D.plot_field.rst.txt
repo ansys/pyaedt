@@ -1,6 +1,0 @@
-plot\_field
-===========
-
-.. currentmodule:: ansys.aedt.core.visualization.post.post_common_3d
-
-.. automethod:: PostProcessor3D.plot_field

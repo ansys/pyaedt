@@ -1,6 +1,0 @@
-items
-=====
-
-.. currentmodule:: ansys.aedt.core.modules.profile
-
-.. automethod:: Profiles.items

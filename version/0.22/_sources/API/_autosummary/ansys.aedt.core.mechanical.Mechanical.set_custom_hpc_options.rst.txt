@@ -1,6 +1,0 @@
-set\_custom\_hpc\_options
-=========================
-
-.. currentmodule:: ansys.aedt.core.mechanical
-
-.. automethod:: Mechanical.set_custom_hpc_options

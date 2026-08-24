@@ -1,6 +1,0 @@
-traces
-======
-
-.. currentmodule:: ansys.aedt.core.visualization.report.field
-
-.. autoproperty:: Fields.traces

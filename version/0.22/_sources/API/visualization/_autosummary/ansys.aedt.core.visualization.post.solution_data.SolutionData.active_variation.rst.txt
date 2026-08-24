@@ -1,6 +1,0 @@
-active\_variation
-=================
-
-.. currentmodule:: ansys.aedt.core.visualization.post.solution_data
-
-.. autoproperty:: SolutionData.active_variation

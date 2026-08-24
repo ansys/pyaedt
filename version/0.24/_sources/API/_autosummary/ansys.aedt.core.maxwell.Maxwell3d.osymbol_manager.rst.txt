@@ -1,6 +1,0 @@
-osymbol\_manager
-================
-
-.. currentmodule:: ansys.aedt.core.maxwell
-
-.. autoproperty:: Maxwell3d.osymbol_manager

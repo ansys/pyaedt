@@ -1,6 +1,0 @@
-enable\_stdout\_log
-===================
-
-.. currentmodule:: ansys.aedt.core.aedt_logger
-
-.. automethod:: AedtLogger.enable_stdout_log

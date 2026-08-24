@@ -1,6 +1,0 @@
-autosave\_enable
-================
-
-.. currentmodule:: ansys.aedt.core.maxwell
-
-.. automethod:: Maxwell2d.autosave_enable

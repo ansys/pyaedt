@@ -1,6 +1,0 @@
-design\_setups
-==============
-
-.. currentmodule:: ansys.aedt.core.modules.design_xploration
-
-.. autoproperty:: OptimizationSetups.design_setups

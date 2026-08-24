@@ -1,6 +1,0 @@
-return\_path
-============
-
-.. currentmodule:: ansys.aedt.core.modules.boundary.maxwell_boundary
-
-.. autoattribute:: SourceACMagnetic.return_path

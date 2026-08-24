@@ -1,6 +1,0 @@
-osymbol\_manager
-================
-
-.. currentmodule:: ansys.aedt.core.q3d
-
-.. autoproperty:: Q2d.osymbol_manager

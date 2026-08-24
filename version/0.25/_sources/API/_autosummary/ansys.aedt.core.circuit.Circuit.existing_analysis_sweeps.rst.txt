@@ -1,6 +1,0 @@
-existing\_analysis\_sweeps
-==========================
-
-.. currentmodule:: ansys.aedt.core.circuit
-
-.. autoproperty:: Circuit.existing_analysis_sweeps

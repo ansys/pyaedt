@@ -1,6 +1,0 @@
-export\_results
-===============
-
-.. currentmodule:: ansys.aedt.core.hfss
-
-.. automethod:: Hfss.export_results

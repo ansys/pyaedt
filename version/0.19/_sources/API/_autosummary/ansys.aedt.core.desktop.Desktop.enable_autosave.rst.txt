@@ -1,6 +1,0 @@
-enable\_autosave
-================
-
-.. currentmodule:: ansys.aedt.core.desktop
-
-.. automethod:: Desktop.enable_autosave

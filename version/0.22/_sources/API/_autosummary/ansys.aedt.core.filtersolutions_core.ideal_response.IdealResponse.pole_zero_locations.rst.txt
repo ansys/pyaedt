@@ -1,6 +1,0 @@
-pole\_zero\_locations
-=====================
-
-.. currentmodule:: ansys.aedt.core.filtersolutions_core.ideal_response
-
-.. automethod:: IdealResponse.pole_zero_locations

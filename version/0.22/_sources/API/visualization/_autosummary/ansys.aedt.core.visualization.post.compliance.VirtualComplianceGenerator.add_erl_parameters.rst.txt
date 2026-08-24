@@ -1,6 +1,0 @@
-add\_erl\_parameters
-====================
-
-.. currentmodule:: ansys.aedt.core.visualization.post.compliance
-
-.. automethod:: VirtualComplianceGenerator.add_erl_parameters

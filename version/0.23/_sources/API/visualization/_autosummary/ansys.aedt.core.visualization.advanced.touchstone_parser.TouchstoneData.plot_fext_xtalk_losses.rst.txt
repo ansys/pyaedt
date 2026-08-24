@@ -1,6 +1,0 @@
-﻿plot\_fext\_xtalk\_losses
-=========================
-
-.. currentmodule:: ansys.aedt.core.visualization.advanced.touchstone_parser
-
-.. automethod:: TouchstoneData.plot_fext_xtalk_losses

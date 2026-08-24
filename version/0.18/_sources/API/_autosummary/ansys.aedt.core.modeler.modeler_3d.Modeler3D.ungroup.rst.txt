@@ -1,6 +1,0 @@
-ungroup
-=======
-
-.. currentmodule:: ansys.aedt.core.modeler.modeler_3d
-
-.. automethod:: Modeler3D.ungroup

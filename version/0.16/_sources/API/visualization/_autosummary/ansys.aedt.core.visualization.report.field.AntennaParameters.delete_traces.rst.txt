@@ -1,6 +1,0 @@
-delete\_traces
-==============
-
-.. currentmodule:: ansys.aedt.core.visualization.report.field
-
-.. automethod:: AntennaParameters.delete_traces

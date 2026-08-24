@@ -1,6 +1,0 @@
-unsuppress\_all
-===============
-
-.. currentmodule:: ansys.aedt.core.visualization.report.emi
-
-.. automethod:: EMIReceiver.unsuppress_all

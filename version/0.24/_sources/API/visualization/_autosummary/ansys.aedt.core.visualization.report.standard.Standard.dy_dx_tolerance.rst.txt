@@ -1,6 +1,0 @@
-dy\_dx\_tolerance
-=================
-
-.. currentmodule:: ansys.aedt.core.visualization.report.standard
-
-.. autoproperty:: Standard.dy_dx_tolerance

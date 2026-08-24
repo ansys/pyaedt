@@ -1,6 +1,0 @@
-jsonalize\_tree
-===============
-
-.. currentmodule:: ansys.aedt.core.modules.mesh_icepak
-
-.. automethod:: GlobalMeshRegion.jsonalize_tree

@@ -1,6 +1,0 @@
-public\_dir
-===========
-
-.. currentmodule:: ansys.aedt.core.visualization.post.spisim
-
-.. autoproperty:: SpiSim.public_dir

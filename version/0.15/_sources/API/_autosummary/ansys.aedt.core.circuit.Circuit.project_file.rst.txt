@@ -1,6 +1,0 @@
-project\_file
-=============
-
-.. currentmodule:: ansys.aedt.core.circuit
-
-.. autoproperty:: Circuit.project_file

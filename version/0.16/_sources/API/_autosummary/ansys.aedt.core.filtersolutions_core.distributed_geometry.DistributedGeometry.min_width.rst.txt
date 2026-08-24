@@ -1,6 +1,0 @@
-min\_width
-==========
-
-.. currentmodule:: ansys.aedt.core.filtersolutions_core.distributed_geometry
-
-.. autoproperty:: DistributedGeometry.min_width

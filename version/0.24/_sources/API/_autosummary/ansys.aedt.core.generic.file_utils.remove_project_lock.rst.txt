@@ -1,6 +1,0 @@
-﻿remove\_project\_lock
-=====================
-
-.. currentmodule:: ansys.aedt.core.generic.file_utils
-
-.. autofunction:: remove_project_lock

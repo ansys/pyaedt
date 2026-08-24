@@ -1,6 +1,0 @@
-max\_frequency
-==============
-
-.. currentmodule:: ansys.aedt.core.visualization.report.standard
-
-.. autoproperty:: Spectral.max_frequency

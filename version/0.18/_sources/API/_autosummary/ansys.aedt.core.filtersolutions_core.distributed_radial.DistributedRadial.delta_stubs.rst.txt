@@ -1,6 +1,0 @@
-delta\_stubs
-============
-
-.. currentmodule:: ansys.aedt.core.filtersolutions_core.distributed_radial
-
-.. autoproperty:: DistributedRadial.delta_stubs

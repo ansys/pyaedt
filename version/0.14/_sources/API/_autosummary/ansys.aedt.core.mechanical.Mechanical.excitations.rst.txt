@@ -1,6 +1,0 @@
-excitations
-===========
-
-.. currentmodule:: ansys.aedt.core.mechanical
-
-.. autoproperty:: Mechanical.excitations

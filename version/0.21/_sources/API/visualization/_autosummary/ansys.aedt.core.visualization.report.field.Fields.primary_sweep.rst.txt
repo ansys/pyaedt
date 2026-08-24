@@ -1,6 +1,0 @@
-primary\_sweep
-==============
-
-.. currentmodule:: ansys.aedt.core.visualization.report.field
-
-.. autoproperty:: Fields.primary_sweep

@@ -1,6 +1,0 @@
-open\_ends
-==========
-
-.. currentmodule:: ansys.aedt.core.filtersolutions_core.distributed_topology
-
-.. autoproperty:: DistributedTopology.open_ends

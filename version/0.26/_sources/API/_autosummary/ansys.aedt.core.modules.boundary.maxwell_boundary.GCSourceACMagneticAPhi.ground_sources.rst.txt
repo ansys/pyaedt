@@ -1,6 +1,0 @@
-ground\_sources
-===============
-
-.. currentmodule:: ansys.aedt.core.modules.boundary.maxwell_boundary
-
-.. autoattribute:: GCSourceACMagneticAPhi.ground_sources

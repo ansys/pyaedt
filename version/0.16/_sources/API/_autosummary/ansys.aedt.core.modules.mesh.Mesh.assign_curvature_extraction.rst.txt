@@ -1,6 +1,0 @@
-assign\_curvature\_extraction
-=============================
-
-.. currentmodule:: ansys.aedt.core.modules.mesh
-
-.. automethod:: Mesh.assign_curvature_extraction

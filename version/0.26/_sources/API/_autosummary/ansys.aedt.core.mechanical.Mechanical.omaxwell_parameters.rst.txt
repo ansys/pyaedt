@@ -1,6 +1,0 @@
-omaxwell\_parameters
-====================
-
-.. currentmodule:: ansys.aedt.core.mechanical
-
-.. autoproperty:: Mechanical.omaxwell_parameters

@@ -1,6 +1,0 @@
-apply\_solved\_variation
-========================
-
-.. currentmodule:: ansys.aedt.core.icepak
-
-.. automethod:: Icepak.apply_solved_variation

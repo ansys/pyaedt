@@ -1,6 +1,0 @@
-desktop\_install\_dir
-=====================
-
-.. currentmodule:: ansys.aedt.core.hfss
-
-.. autoproperty:: Hfss.desktop_install_dir

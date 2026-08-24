@@ -1,6 +1,0 @@
-osolution
-=========
-
-.. currentmodule:: ansys.aedt.core.icepak
-
-.. autoproperty:: Icepak.osolution

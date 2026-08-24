@@ -1,6 +1,0 @@
-children
-========
-
-.. currentmodule:: ansys.aedt.core.modules.boundary.hfss_boundary
-
-.. autoproperty:: NearFieldSetup.children

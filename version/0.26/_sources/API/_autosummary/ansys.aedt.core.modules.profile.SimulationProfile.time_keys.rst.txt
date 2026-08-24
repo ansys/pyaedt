@@ -1,6 +1,0 @@
-time\_keys
-==========
-
-.. currentmodule:: ansys.aedt.core.modules.profile
-
-.. automethod:: SimulationProfile.time_keys

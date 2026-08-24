@@ -1,6 +1,0 @@
-student\_version
-================
-
-.. currentmodule:: ansys.aedt.core.desktop
-
-.. autoproperty:: Desktop.student_version

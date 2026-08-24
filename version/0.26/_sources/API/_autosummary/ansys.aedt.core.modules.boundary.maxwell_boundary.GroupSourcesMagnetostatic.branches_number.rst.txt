@@ -1,6 +1,0 @@
-branches\_number
-================
-
-.. currentmodule:: ansys.aedt.core.modules.boundary.maxwell_boundary
-
-.. autoattribute:: GroupSourcesMagnetostatic.branches_number

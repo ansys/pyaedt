@@ -1,6 +1,0 @@
-omodel\_manager
-===============
-
-.. currentmodule:: ansys.aedt.core.circuit
-
-.. autoproperty:: Circuit.omodel_manager

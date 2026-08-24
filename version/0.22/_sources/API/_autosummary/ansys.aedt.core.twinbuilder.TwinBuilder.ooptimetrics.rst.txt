@@ -1,6 +1,0 @@
-ooptimetrics
-============
-
-.. currentmodule:: ansys.aedt.core.twinbuilder
-
-.. autoproperty:: TwinBuilder.ooptimetrics

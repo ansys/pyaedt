@@ -1,6 +1,0 @@
-locked
-======
-
-.. currentmodule:: ansys.aedt.core.modules.layer_stackup
-
-.. autoproperty:: Layer.locked

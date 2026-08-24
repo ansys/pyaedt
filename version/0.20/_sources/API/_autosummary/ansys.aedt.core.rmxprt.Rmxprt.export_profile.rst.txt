@@ -1,6 +1,0 @@
-export\_profile
-===============
-
-.. currentmodule:: ansys.aedt.core.rmxprt
-
-.. automethod:: Rmxprt.export_profile

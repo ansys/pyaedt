@@ -1,6 +1,0 @@
-delete\_setup
-=============
-
-.. currentmodule:: ansys.aedt.core.q3d
-
-.. automethod:: Q2d.delete_setup

@@ -1,6 +1,0 @@
-omodel\_manager
-===============
-
-.. currentmodule:: ansys.aedt.core.mechanical
-
-.. autoproperty:: Mechanical.omodel_manager

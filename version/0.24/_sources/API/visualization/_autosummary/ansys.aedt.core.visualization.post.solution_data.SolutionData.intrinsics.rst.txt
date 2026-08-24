@@ -1,6 +1,0 @@
-intrinsics
-==========
-
-.. currentmodule:: ansys.aedt.core.visualization.post.solution_data
-
-.. autoproperty:: SolutionData.intrinsics

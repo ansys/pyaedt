@@ -1,6 +1,0 @@
-assign\_layered\_impedance
-==========================
-
-.. currentmodule:: ansys.aedt.core.hfss
-
-.. automethod:: Hfss.assign_layered_impedance

@@ -1,6 +1,0 @@
-﻿get\_mesh\_process\_name
-========================
-
-.. currentmodule:: ansys.aedt.core.modules.profile
-
-.. autofunction:: get_mesh_process_name
