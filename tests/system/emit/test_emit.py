@@ -1676,7 +1676,11 @@ def test_radio_protection_levels(interference):
     # Generate a revision
     rev = interference.results.analyze()
     sim = rev.get_simulation()
-    domain = InteractionDomain(interference)
+
+    if DESKTOP_VERSION <= "2026.1":
+        domain = interference.results.interaction_domain()
+    else:
+        domain = InteractionDomain(interference)
 
     # Test protection level with radio-specific protection levels
     expected_protection_colors = [["white", "orange", "red"], ["yellow", "orange", "white"]]
@@ -1709,7 +1713,10 @@ def test_interference_filtering(interference) -> None:
     sim = rev.get_simulation()
 
     # Test with active filtering
-    domain = InteractionDomain(interference)
+    if DESKTOP_VERSION <= "2026.1":
+        domain = interference.results.interaction_domain()
+    else:
+        domain = InteractionDomain(interference)
     all_interference_colors = [
         [["white", "green", "orange"], ["orange", "green", "white"]],
         [["white", "green", "red"], ["red", "green", "white"]],
@@ -1769,7 +1776,10 @@ def test_protection_filtering(interference):
     sim = rev.get_simulation()
 
     # Test with active filtering
-    domain = InteractionDomain(interference)
+    if DESKTOP_VERSION <= "2026.1":
+        domain = interference.results.interaction_domain()
+    else:
+        domain = InteractionDomain(interference)
     all_protection_colors = [
         [["white", "yellow", "yellow"], ["yellow", "yellow", "white"]],
         [["white", "yellow", "yellow"], ["yellow", "yellow", "white"]],

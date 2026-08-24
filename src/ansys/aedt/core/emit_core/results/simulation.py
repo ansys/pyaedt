@@ -792,9 +792,18 @@ class Simulation:
                     else:
                         rx_freq = rx_band.get_active_frequencies(is_rx=True, units="Hz")[0]
 
-                    rx_start_freq = rx_band.start_frequency
-                    rx_stop_freq = rx_band.stop_frequency
-                    rx_channel_bandwidth = rx_band.channel_bandwidth
+                    if self.aedt_version < 271:
+                        # Legacy API returns frequencies in project default units (MHz).
+                        # Band extents are in Hz, so convert to MHz for comparison.
+                        hz_to_mhz = 1e-6
+                        rx_start_freq = rx_band.start_frequency * hz_to_mhz
+                        rx_stop_freq = rx_band.stop_frequency * hz_to_mhz
+                        rx_channel_bandwidth = rx_band.channel_bandwidth * hz_to_mhz
+                    else:
+                        # Modern API returns frequencies in Hz, band extents are also in Hz.
+                        rx_start_freq = rx_band.start_frequency
+                        rx_stop_freq = rx_band.stop_frequency
+                        rx_channel_bandwidth = rx_band.channel_bandwidth
 
                     for tx_band in tx_band_nodes:
                         tx_band: Band
@@ -805,13 +814,19 @@ class Simulation:
                         if not interaction.is_valid():
                             continue
 
-                        domain.set_receiver(rx_radio.name, rx_band.name, rx_freq, "Hz")
+                        if self.aedt_version < 271:
+                            domain.set_receiver(rx_radio.name, rx_band.name, rx_freq)
+                        else:
+                            domain.set_receiver(rx_radio.name, rx_band.name, rx_freq, "Hz")
                         if self.aedt_version < 271:
                             tx_freqs = self._revision.get_active_frequencies(tx_radio.name, tx_band.name, mode_tx)
                         else:
                             tx_freqs = tx_band.get_active_frequencies(is_rx=False, units="Hz")
                         for tx_freq in tx_freqs:
-                            domain.set_interferer(tx_radio.name, tx_band.name, tx_freq, "Hz")
+                            if self.aedt_version < 271:
+                                domain.set_interferer(tx_radio.name, tx_band.name, tx_freq)
+                            else:
+                                domain.set_interferer(tx_radio.name, tx_band.name, tx_freq, "Hz")
                             instance = interaction.get_instance(domain)
                             if not instance.has_valid_values():
                                 # check for saturation somewhere in the chain
@@ -1014,7 +1029,10 @@ class Simulation:
                     # check for valid interaction, this would catch any disabled radio pairs
                     if not interaction.is_valid():
                         continue
-                    domain.set_receiver(rx_radio.name, rx_band.name, rx_freq, "Hz")
+                    if self.aedt_version < 271:
+                        domain.set_receiver(rx_radio.name, rx_band.name, rx_freq)
+                    else:
+                        domain.set_receiver(rx_radio.name, rx_band.name, rx_freq, "Hz")
                     if self.aedt_version < 271:
                         tx_freqs = self._revision.get_active_frequencies(tx_radio.name, tx_band.name, mode_tx)
                     else:
@@ -1023,7 +1041,10 @@ class Simulation:
                     power_list = []
 
                     for tx_freq in tx_freqs:
-                        domain.set_interferer(tx_radio.name, tx_band.name, tx_freq, "Hz")
+                        if self.aedt_version < 271:
+                            domain.set_interferer(tx_radio.name, tx_band.name, tx_freq)
+                        else:
+                            domain.set_interferer(tx_radio.name, tx_band.name, tx_freq, "Hz")
                         instance = interaction.get_instance(domain)
                         if not instance.has_valid_values():
                             # check for saturation somewhere in the chain
