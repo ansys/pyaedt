@@ -33,7 +33,6 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 # NOTE: This should be updated for any modifications in pyaedt's graphics install target.
 # Graphics dependencies cache
 _GRAPHICS_DEPENDENCIES = {
-    "fpdf": None,
     "imageio": None,
     "matplotlib": None,
     "meshio": None,
@@ -186,8 +185,6 @@ def check_dependency_available(dependency: str, warning: bool = False) -> bool |
             import meshio  # noqa: F401
         elif dependency == "pdf_oxide":
             import pdf_oxide  # noqa: F401
-        elif dependency == "fpdf":
-            import fpdf  # noqa: F401
         elif dependency == "pillow":
             import PIL  # noqa: F401
 

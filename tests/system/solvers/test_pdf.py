@@ -31,7 +31,6 @@ import pytest
 from ansys.aedt.core import Circuit
 from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
-from ansys.aedt.core.visualization.plot.pdf import AnsysReportPdfOxide
 from ansys.aedt.core.visualization.post.compliance import VirtualCompliance
 from ansys.aedt.core.visualization.post.compliance import VirtualComplianceGenerator
 from tests import TESTS_SOLVERS_PATH
@@ -76,6 +75,7 @@ def test_create_pdf(test_tmp_dir) -> None:
     report.add_section()
     report.add_chapter("Chapter 1")
     report.add_sub_chapter("C1")
+    report.add_caption("Figure 1: Coaxial cable")
     report.add_text("ciao")
     report.add_text("hola", True, True)
     report.add_empty_line(2)
@@ -93,8 +93,8 @@ def test_create_pdf(test_tmp_dir) -> None:
     assert output.exists()
 
 
-def test_create_pdf_oxide(test_tmp_dir) -> None:
-    report = AnsysReportPdfOxide(design="Design1", project="Coaxial")
+def test_create_pdf_with_long_table_cell_text(test_tmp_dir) -> None:
+    report = AnsysReport(design_name="Design1", project_name="Coaxial")
     report.aedt_version = DESKTOP_VERSION
     assert "AnsysTemplate" in report.template_name
     report.template_name = "AnsysTemplate"
@@ -116,7 +116,20 @@ def test_create_pdf_oxide(test_tmp_dir) -> None:
         str(Path(TESTS_SOLVERS_PATH) / "example_models" / TEST_SUBFOLDER / "Coax_HFSS.jpg"), "Coaxial Cable"
     )
     report.add_section(portrait=False, page_format="a3")
-    report.add_table("MyTable", [["x", "y"], ["0", "1"], ["2", "3"], ["10", "20"]], full_width=True)
+    long_text = (
+        "Some super long text that should be wrapped into multiple lines. It contains several sentences and should be "
+        "split into lines that do not exceed a certain length. The purpose of this test is to ensure that the wrapping "
+        "function works correctly and produces lines of appropriate length."
+    )
+    long_text_2 = (
+        "Some super long text that should be wrapped into multiple lines. It contains several sentences and should be "
+        "split into lines that do not exceed a certain length. The purpose of this test is to ensure that the wrapping "
+        "function works correctly and produces lines of appropriate length. This text is even longer than the previous "
+        "one and should be wrapped into multiple lines. It contains several sentences and should be "
+    )
+    report.add_table(
+        "MyTable", [["x", "y"], ["0", "1"], ["2", "3"], ["10", "20"], [long_text, long_text_2]], full_width=True
+    )
     report.add_table("MyTable2", [["x", "y"], ["0", "1"], ["2", "3"], ["10", "20"]])
     report.add_section()
     report.add_chart([0, 1, 2, 3, 4, 5], [10, 20, 4, 30, 40, 12], "Freq", "Val", "MyTable")

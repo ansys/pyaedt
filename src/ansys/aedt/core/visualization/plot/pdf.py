@@ -28,15 +28,6 @@ import io
 import json
 import os
 
-try:
-    from fpdf import FPDF
-    from fpdf import FontFace
-except ImportError as e:  # pragma: no cover
-    from ansys.aedt.core.internal.checks import install_message
-
-    msg_error = install_message("fpdf", "graphics", level="module")
-    raise ImportError(msg_error) from e
-
 from ansys.aedt.core import __version__
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.aedt_constants import DesignType
@@ -121,828 +112,6 @@ class ReportSpec(PyAedtBase):
     """Value for font header color."""
     font_caption_color: list = field(default_factory=lambda: [0, 0, 0])
     """Value for font caption color."""
-
-
-class AnsysReport(FPDF, PyAedtBase):
-    """Provide ansys report."""
-
-    def __init__(
-        self,
-        version: str = "2026.1",
-        design_name: str = "design1",
-        project_name: str = "AnsysProject",
-        tempplate_json_file=None,
-    ) -> None:
-        super().__init__()
-        self.report_specs = ReportSpec()
-        self.read_template(tempplate_json_file)
-        self.report_specs.ansys_version = version
-        self.report_specs.design_name = design_name
-        self.report_specs.project_name = project_name
-        self.use_portrait = True
-        self.__chapter_idx = 0
-        self.__sub_chapter_idx = 0
-        self.__figure_idx = 1
-        self.__table_idx = 1
-        self._left_margin = 0
-        self.set_top_margin(unit_converter(self.report_specs.top_margin, input_units=self.report_specs.units))
-        self.set_right_margin(unit_converter(self.report_specs.right_margin, input_units=self.report_specs.units))
-        self.set_left_margin(unit_converter(self.report_specs.left_margin, input_units=self.report_specs.units))
-        self.set_auto_page_break(
-            True, margin=unit_converter(self.report_specs.bottom_margin, input_units=self.report_specs.units)
-        )
-        self.alias_nb_pages()
-
-    def read_template(self, template_file: str = None) -> None:
-        """Read pdf template.
-
-        Parameters
-        ----------
-        template_file : str
-            Path to the json template file.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.visualization.plot.pdf import AnsysReport
-        >>> obj = AnsysReport()
-        >>> obj.read_template()
-
-        """
-        if template_file:
-            self.report_specs.template_name = template_file
-        if os.path.exists(self.report_specs.template_name):
-            with open_file(self.report_specs.template_name, "r") as f:
-                tdata = json.load(f)
-            self.report_specs = ReportSpec(**tdata)
-
-    def __add_cover_page(self) -> None:
-        self.add_page("P" if self.use_portrait else "L")
-        self.set_font(self.report_specs.font.lower(), "b", self.report_specs.cover_subtitle_font_size)
-        self.y += 40
-        self.cell(
-            0,
-            12,
-            "Simulation Report",
-            new_x="LMARGIN",
-            new_y="NEXT",
-            align="L",
-        )
-        self.ln(10)
-        self.set_font(self.report_specs.font.lower(), "B", self.report_specs.cover_title_font_size)
-        self.cell(
-            0,
-            16,
-            f"Project Name: {self.report_specs.project_name}",
-            new_x="LMARGIN",
-            new_y="NEXT",
-            align="L",
-        )
-        self.cell(
-            0,
-            16,
-            f"Design Name: {self.report_specs.design_name}",
-            new_x="LMARGIN",
-            new_y="NEXT",
-            align="L",
-        )
-
-    def header(self) -> None:
-        """Header.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.visualization.plot.pdf import AnsysReport
-        >>> obj = AnsysReport()
-        >>> obj.header()
-
-        """
-        from datetime import date
-
-        def add_field(field_name, field_value) -> None:
-            self.set_font(self.report_specs.font.lower(), size=self.report_specs.header_font_size)
-            self.cell(
-                0,
-                3,
-                field_name,
-                new_x="LMARGIN",
-                new_y="NEXT",
-                align="L",
-            )
-            self.set_x(line_x)
-            self.cell(
-                0,
-                3,
-                field_value,
-                new_x="LMARGIN",
-                new_y="NEXT",
-                align="L",
-            )
-
-        # Logo
-        self.set_y(15)
-        if self._left_margin == 0:
-            self._left_margin = self.l_margin
-        self.set_x(self._left_margin)
-        line_x = self.x
-        line_y = self.y
-        delta = (self.w - self.r_margin - self._left_margin) / 5 - 10
-        self.set_text_color(*self.report_specs.font_header_color)
-
-        add_field("Project Name", self.report_specs.project_name)
-        self.set_y(line_y)
-        line_x += delta
-        self.set_x(line_x)
-        add_field("Design Name", self.report_specs.design_name)
-
-        self.set_y(line_y)
-        line_x += delta
-        self.set_x(line_x)
-        add_field("Ansys Version", self.report_specs.ansys_version)
-        self.set_y(line_y)
-        line_x += delta
-        self.set_x(line_x)
-        add_field("PyAEDT Version", self.report_specs.pyaedt_version)
-        self.set_y(line_y)
-        line_x += delta
-        self.set_x(line_x)
-
-        add_field("Date", str(date.today()))
-        self.set_y(line_y)
-        line_x += delta
-        self.set_x(line_x)
-        add_field("Revision", self.report_specs.revision)
-        self.set_y(10)
-        line_x += delta
-        self.set_x(self.w - self.r_margin - 33)
-        self.image(
-            self.report_specs.logo_name,
-            self.x,
-            self.y,
-            unit_converter(self.report_specs.header_image_width, input_units=self.report_specs.units),
-        )
-        self.set_x(self._left_margin)
-        self.set_y(self.t_margin)
-        self.line(x1=self._left_margin, y1=self.t_margin - 7, x2=self.w - self.r_margin, y2=self.t_margin - 7)
-
-    # Page footer
-    def footer(self) -> None:
-        """Footer.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.visualization.plot.pdf import AnsysReport
-        >>> obj = AnsysReport()
-        >>> obj.footer()
-
-        """
-        # Position at 1.5 cm from bottom
-        self.set_y(-15)
-        self.set_x(self._left_margin)
-        # Arial italic 8
-        self.set_font("helvetica", "I", 8)
-        self.set_text_color(*self.report_specs.font_header_color)
-        # Page number
-        self.cell(0, 10, self.report_specs.footer_text, 0, align="L")
-        self.cell(0, 10, "Page " + str(self.page_no()) + "/{nb}", align="R")
-
-    def create(self, add_cover_page: bool = True, add_new_section_after: bool = True) -> bool:
-        """Create a new report using ``report_specs`` properties.
-
-        Parameters
-        ----------
-        add_cover_page : bool, optional
-            Whether to add cover page or not. Default is ``True``.
-        add_new_section_after : bool, optional
-            Whether if add a new section after the cover page or not.
-
-        Returns
-        -------
-        :class:`AnsysReport`
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.visualization.plot.pdf import AnsysReport
-        >>> obj = AnsysReport()
-        >>> obj.create()
-
-        """
-        if add_cover_page:
-            self.__add_cover_page()
-        if add_new_section_after:
-            self.add_page("P" if self.use_portrait else "L")
-        self._left_margin = self.l_margin
-        return True
-
-    def add_project_info(self, design) -> bool:
-        """Add project information.
-
-        Parameters
-        ----------
-        design : object
-            Starting application object. For example, ``hfss1= HFSS3DLayout()``.
-
-        Returns
-        -------
-        bool
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.visualization.plot.pdf import AnsysReport
-        >>> obj = AnsysReport()
-        >>> obj.add_project_info()
-
-        """
-        self.add_page("P" if self.use_portrait else "L")
-        self.add_chapter(f"Design {design.design_name} Info")
-        msg = f"This section will contain information about project {design.project_name}"
-        msg += f" for design {design.design_name}."
-        self.add_text(msg)
-        msg = f"The design is a {design.design_type} model."
-        self.add_text(msg)
-        if design.design_type in [
-            "Q3D Extractor",
-            "Maxwell 3D",
-            "HFSS",
-            "Icepak",
-            DesignType.ICEPAKFEA,
-            "Maxwell 2D",
-            "2D Extractor",
-        ]:
-            msg = f"Simulation bounding box is {design.modeler.get_model_bounding_box()}."
-            self.add_text(msg)
-            image_path = os.path.join(design.working_directory, "model.jpg")
-            design.plot(
-                show=False,
-                output_file=image_path,
-                dark_mode=False,
-                show_grid=False,
-                show_bounding=False,
-            )
-            self.add_image(image_path, "Model Image")
-        elif design.design_type in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
-            stats = design.modeler.edb.get_statistics()
-            msg = f"The layout has {stats.num_capacitors} capacitors, {stats.num_resistors} resistors,"
-            msg += f"{stats.num_inductors} inductors. The design size is {stats.layout_size}."
-            self.add_text(msg)
-            msg = f"Furthermore, the layout has {stats.num_nets} nets, {stats.num_traces} traces,"
-            msg += f" {stats.num_vias} vias. The stackup total thickness is {stats.stackup_thickness}."
-            image_path = os.path.join(design.working_directory, "model.jpg")
-            design.modeler.edb.nets.plot(show=False, save_plot=image_path)
-            if os.path.exists(image_path):
-                self.add_image(image_path, "Model Image")
-        elif design.design_type in ["Circuit Design"]:
-            msg = f"The schematic has {len(design.modeler.schematic.components)} components."
-            self.add_text(msg)
-
-        if design.setups:
-            msg = f"The design has {len(design.setups)} simulation setups."
-            self.add_text(msg)
-
-        return True
-
-    @property
-    def template_name(self) -> str:
-        """Name of the template to use.
-
-        It can be a full json path or a string of a json contained in ``"Images"`` folder.
-
-        Returns
-        -------
-        str
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.visualization.plot.pdf import AnsysReport
-        >>> obj = AnsysReport()
-        >>> obj.template_name
-
-        """
-        return self.report_specs.template_name
-
-    @template_name.setter
-    def template_name(self, value: str) -> None:
-        self.report_specs.template_name = value
-
-    @property
-    def design_name(self) -> str:
-        """Get/set the design name for report header.
-
-        Returns
-        -------
-        str
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.visualization.plot.pdf import AnsysReport
-        >>> obj = AnsysReport()
-        >>> obj.design_name
-
-        """
-        return self.report_specs.design_name
-
-    @design_name.setter
-    def design_name(self, value: str) -> None:
-        self.report_specs.design_name = value
-
-    @property
-    def project_name(self) -> str:
-        """Get/set the project name for report header.
-
-        Returns
-        -------
-        str
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.visualization.plot.pdf import AnsysReport
-        >>> obj = AnsysReport()
-        >>> obj.project_name
-
-        """
-        return self.report_specs.project_name
-
-    @project_name.setter
-    def project_name(self, value: str) -> None:
-        self.report_specs.project_name = value
-
-    @property
-    def aedt_version(self) -> str:
-        """Get/set the aedt version for report header.
-
-        Returns
-        -------
-        str
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.visualization.plot.pdf import AnsysReport
-        >>> obj = AnsysReport()
-        >>> obj.aedt_version
-
-        """
-        return self.report_specs.ansys_version
-
-    @aedt_version.setter
-    def aedt_version(self, value: str) -> None:
-        self.report_specs.ansys_version = value
-
-    def add_section(self, portrait: bool = None, page_format: str = "a4") -> None:
-        """Add a new section to Pdf.
-
-        Parameters
-        ----------
-        portrait : bool, optional
-            Section orientation. Default ``True`` for portrait.
-        page_format : str, optional
-            Currently supported formats are a3, a4, a5, letter, legal or a tuple (width, height).
-
-        Returns
-        -------
-        int,
-            Section id.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.visualization.plot.pdf import AnsysReport
-        >>> obj = AnsysReport()
-        >>> obj.add_section()
-
-        """
-        orientation = "portrait"
-        if portrait is False:
-            orientation = "landscape"
-        elif portrait is None:
-            orientation = "P" if self.use_portrait else "L"
-        self.add_page(orientation=orientation, format=page_format)
-
-    def add_chapter(self, chapter_name: str) -> bool:
-        """Add a new chapter.
-
-        Parameters
-        ----------
-        chapter_name : str
-            Chapter name.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.visualization.plot.pdf import AnsysReport
-        >>> obj = AnsysReport()
-        >>> obj.add_chapter("Chapter 1")
-
-        """
-        self.__chapter_idx += 1
-        self.__sub_chapter_idx = 0
-        txt = f"{self.__chapter_idx} {chapter_name}"
-        self.set_font(self.report_specs.font.lower(), "B", self.report_specs.title_font_size)
-        self.start_section(txt)
-        self.set_text_color(*self.report_specs.font_chapter_color)
-        self.cell(
-            0,
-            12,
-            txt,
-            new_x="LMARGIN",
-            new_y="NEXT",
-            align="L",
-        )
-        self.set_font(self.report_specs.font.lower(), "I", self.report_specs.text_font_size)
-        self.set_text_color(*self.report_specs.font_color)
-        return True
-
-    def add_sub_chapter(self, chapter_name: str) -> bool:
-        """Add a new sub-chapter.
-
-        Parameters
-        ----------
-        chapter_name : str
-            Chapter name.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.visualization.plot.pdf import AnsysReport
-        >>> obj = AnsysReport()
-        >>> obj.add_sub_chapter("Sub-chapter 1")
-
-        """
-        self.__sub_chapter_idx += 1
-        txt = f"     {self.__chapter_idx}.{self.__sub_chapter_idx} {chapter_name}"
-        self.set_font(self.report_specs.font.lower(), "I", self.report_specs.subtitle_font_size)
-        self.start_section(txt.strip(), level=1)
-        self.set_text_color(*self.report_specs.font_subchapter_color)
-        self.cell(
-            0,
-            10,
-            txt,
-            new_x="LMARGIN",
-            new_y="NEXT",
-            align="L",
-        )
-        self.set_font(self.report_specs.font.lower(), "I", self.report_specs.text_font_size)
-        self.set_text_color(*self.report_specs.font_color)
-
-        return True
-
-    def add_image(
-        self,
-        path: str,
-        caption: str = "",
-        width: int = 0,
-        height: int = 0,
-    ) -> bool:
-        """Add a new image.
-
-        Parameters
-        ----------
-        path : str
-            Image path.
-        caption : str, optional
-            Image caption.
-        width : int, optional
-            Image width in millimeters.
-        height : int, optional
-            Image height in millimeters.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.visualization.plot.pdf import AnsysReport
-        >>> obj = AnsysReport()
-        >>> obj.add_image("image_path", "Image caption", width=100, height=100)
-
-        """
-        if width == 0:
-            width = self.epw
-
-        self.image(path, h=height, w=width, x=self.epw / 2 - width / 2 + self._left_margin)
-        if caption:
-            caption = f"Figure {self.__figure_idx}. {caption}"
-            self.add_caption(caption)
-            self.__figure_idx += 1
-        return True
-
-    @requires_graphical_dependency("pillow")
-    def add_image_with_aspect_ratio(
-        self, path: str, caption: str = "", max_width: float = None, max_height: float = None
-    ) -> bool:
-        """Add an image to the PDF while maintaining its aspect ratio and fitting within the specified dimensions.
-
-        Parameters
-        ----------
-        path: str
-            Path to the image file.
-        caption: str, optional
-            Image caption.
-        max_width: float, int, optional
-            Maximum width available for the image.
-        max_height: float, int, optional
-            Maximum height available for the image.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.visualization.plot.pdf import AnsysReport
-        >>> obj = AnsysReport()
-        >>> obj.add_image_with_aspect_ratio("path/to/image.png", caption="My Image", max_width=150, max_height=100)
-
-        """
-        from PIL import Image
-
-        # Get image dimensions
-        with Image.open(path) as img:
-            img_width, img_height = img.size
-
-        # Get page dimensions
-        if max_width is None:
-            max_width = self.epw - 50  # Default to page width minus margins
-        if max_height is None:
-            max_height = self.eph - 30 - (self.y - self.t_margin)  # Default to page height minus margins
-            if max_height < 0:
-                self.add_page_break()
-                max_height = self.eph - 30 - (self.y - self.t_margin)
-        # Calculate aspect ratio
-        aspect_ratio = img_width / img_height
-
-        # Scale dimensions to fit within max_width and max_height
-        if max_width / aspect_ratio <= max_height:
-            width = max_width
-            height = max_width / aspect_ratio
-        else:
-            height = max_height
-            width = max_height * aspect_ratio
-
-        # Add the image to the PDF
-        return self.add_image(path, caption=caption, width=width, height=height)
-
-    def add_caption(self, content: str) -> None:
-        """Add a new caption.
-
-        Parameters
-        ----------
-        content : str
-            Caption name.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.visualization.plot.pdf import AnsysReport
-        >>> obj = AnsysReport()
-        >>> obj.add_caption("Figure 1: My Figure")
-
-        """
-        self.set_font(self.report_specs.font.lower(), "I", self.report_specs.caption_font_size)
-        self.set_text_color(*self.report_specs.font_caption_color)
-        self.start_section(content, level=1)
-        self.cell(
-            0,
-            6,
-            content,
-            new_x="LMARGIN",
-            new_y="NEXT",
-            align="C",
-        )
-        self.set_font(self.report_specs.font.lower(), "I", self.report_specs.text_font_size)
-        self.set_text_color(*self.report_specs.font_color)
-
-    def add_empty_line(self, num_lines: int = 1) -> None:
-        """Add a new empty line.
-
-        Parameters
-        ----------
-        num_lines : int, optional
-            Number of lines to add.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.visualization.plot.pdf import AnsysReport
-        >>> obj = AnsysReport()
-        >>> obj.add_empty_line(num_lines=2)
-
-        """
-        self.ln(num_lines * self.font_size)
-
-    def add_page_break(self) -> None:
-        """Add a new page break line.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.visualization.plot.pdf import AnsysReport
-        >>> obj = AnsysReport()
-        >>> obj.add_page_break()
-
-        """
-        self.add_page("P" if self.use_portrait else "L")
-
-    def add_table(
-        self,
-        title: str,
-        content: list[list],
-        formatting: list = None,
-        col_widths: list = None,
-    ) -> None:
-        """Add a new table from a list of data.
-
-        Data shall be a list of list where every line is either a row or a column.
-
-        Parameters
-        ----------
-        title : str
-            Table title.
-        content : list of list
-            Table content.
-        formatting : list, optional
-            List of formatting elements for the table rows. The length of the formatting has
-            to be equal to the length of content. Every element is a list of two elements
-            (color, background_color).  Color is a RGB list.
-        col_widths : list, optional
-            List of column widths.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.visualization.plot.pdf import AnsysReport
-        >>> obj = AnsysReport()
-        >>> obj.add_table("Table Title", [["Header1", "Header2"], ["Row1Col1", "Row1Col2"], ["Row2Col1", "Row2Col2"]])
-
-        """
-        self.set_font(self.report_specs.font.lower(), size=self.report_specs.text_font_size)
-        self.set_font(self.report_specs.font.lower(), size=self.report_specs.table_font_size)
-        with self.table(
-            borders_layout="MINIMAL",
-            cell_fill_color=200,  # grey
-            cell_fill_mode="ROWS",
-            line_height=self.font_size * 2.5,
-            text_align="CENTER",
-            width=160 if self.use_portrait else 260,
-            col_widths=col_widths,
-            num_heading_rows=1,
-            repeat_headings=1,
-        ) as table:
-            for i, data_row in enumerate(content):
-                fill_color = None
-                font_color = self.report_specs.font_color
-
-                if formatting:
-                    try:
-                        font_color = formatting[i][0] if formatting[i][0] else self.report_specs.font_color
-                        fill_color = formatting[i][1] if formatting[i][1] else None
-                    except IndexError:
-                        pass
-                style = FontFace(color=font_color, fill_color=fill_color)
-
-                row = table.row()
-                for datum in data_row:
-                    row.cell(str(datum), style=style)
-        self.add_caption(f"Table {self.__table_idx}: {title}")
-        self.__table_idx += 1
-
-    def add_text(self, content: str, bold: bool = False, italic: bool = False) -> None:
-        """Add a new text.
-
-        Parameters
-        ----------
-        content : str
-            Text content.
-        bold : bool, optional
-            Whether if text is bold or not. Default is ``True``.
-        italic : bool, optional
-            Whether if text is italic or not. Default is ``True``.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.visualization.plot.pdf import AnsysReport
-        >>> obj = AnsysReport()
-        >>> obj.add_text("Some text content", bold=True, italic=False)
-
-        """
-        font_type = ""
-        if bold:
-            font_type = "B"
-        if italic:
-            font_type += "I"
-        self.set_font(self.report_specs.font.lower(), font_type.lower(), self.report_specs.text_font_size)
-        self.set_text_color(*self.report_specs.font_color)
-
-        self.multi_cell(
-            0,
-            6,
-            content,
-            new_x="LMARGIN",
-            new_y="NEXT",
-            align="L",
-        )
-
-    def add_toc(self) -> None:
-        """Add toc.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.visualization.plot.pdf import AnsysReport
-        >>> obj = AnsysReport()
-        >>> obj.add_toc()
-
-        """
-
-        def p(section_toc, **kwargs) -> None:
-            # Inserts a paragraph
-            self.cell(w=self.epw, h=self.font_size, text=section_toc, new_x="LMARGIN", new_y="NEXT", **kwargs)
-
-        self.add_page("P" if self.use_portrait else "L")
-        self.set_font(self.report_specs.font.lower(), size=self.report_specs.title_font_size)
-        self.set_text_color(*self.report_specs.font_color)
-        self.underline = True
-        self.x = self._left_margin
-        p("Table of contents:")
-        self.underline = False
-        self.y += 10
-        self.set_font(self.report_specs.font, size=12)
-
-        for section in self._outline:
-            link = self.add_link()
-            self.set_link(link, page=section.page_number)
-            string1 = f"{' ' * section.level * 2} {section.name}"[:70]
-            string2 = f"Page {section.page_number}"
-            self.set_x(self._left_margin * 2)
-            self.cell(
-                w=self.epw - self._left_margin - self.r_margin,
-                h=self.font_size,
-                text=string1,
-                new_x="LMARGIN",
-                new_y="LAST",
-                align="L",
-                link=link,
-            )
-            self.set_x(self._left_margin * 2)
-            self.cell(
-                w=self.epw - self._left_margin - self.r_margin,
-                h=self.font_size,
-                text=string2,
-                new_x="LMARGIN",
-                new_y="NEXT",
-                align="R",
-                link=link,
-            )
-
-    def save_pdf(self, file_path: str, file_name: str | None = None) -> str:
-        """Save pdf.
-
-        Parameters
-        ----------
-        file_path : str
-            Pdf path.
-        file_name : str, optional
-            File name.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.visualization.plot.pdf import AnsysReport
-        >>> obj = AnsysReport()
-        >>> obj.save_pdf("path/to/save", "report.pdf")
-
-        """
-        self.output(os.path.join(file_path, file_name))
-        return str(os.path.join(file_path, file_name))
-
-    @requires_graphical_dependency("matplotlib", "pillow")
-    def add_chart(self, x_values: list, y_values: list, x_caption: str, y_caption: str, title: str) -> None:
-        """Add a chart to the report using matplotlib.
-
-        Parameters
-        ----------
-        x_values : list
-            list of float x values.
-        y_values : list
-            List of float y values.
-        x_caption : str
-            X axis caption.
-        y_caption : str
-            Y axis caption.
-        title : str
-            Chart title.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.visualization.plot.pdf import AnsysReport
-        >>> obj = AnsysReport()
-        >>> obj.add_chart([1, 2, 3], [4, 5, 6], "X Axis", "Y Axis", "Sample Chart")
-
-        """
-        from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-        from matplotlib.figure import Figure
-        import numpy as np
-        from PIL import Image
-
-        dpi = 100.0
-        figsize = (2000 / dpi, 2000 / dpi)
-        fig = Figure(figsize=figsize, dpi=dpi)
-        fig.subplots_adjust(top=0.8)
-        ax = fig.add_subplot(1, 1, 1)
-        ax.set_ylabel(y_caption)
-        ax.set_title(title)
-        x = np.array(x_values)
-        y = np.array(y_values)
-        ax.plot(x, y, color="blue", lw=2)
-
-        ax.set_xlabel(x_caption)
-        # Converting Figure to an image:
-        canvas = FigureCanvas(fig)
-        canvas.draw()
-        img = Image.fromarray(np.asarray(canvas.buffer_rgba()))
-        self.image(img, w=self.epw)  # Make the image full width
 
 
 @dataclass
@@ -1095,6 +264,24 @@ def _wrap_text_lines(page_builder, text: str, max_width_pt: float) -> list[str]:
             continue
         current_line = ""
         for word in paragraph.split():
+            if page_builder.measure(word) > max_width_pt:
+                if current_line:
+                    lines.append(current_line)
+                    current_line = ""
+                word_lines = []
+                word_line = ""
+                for character in word:
+                    candidate = word_line + character
+                    if word_line and page_builder.measure(candidate) > max_width_pt:
+                        word_lines.append(word_line)
+                        word_line = character
+                    else:
+                        word_line = candidate
+                if word_line:
+                    word_lines.append(word_line)
+                lines.extend(word_lines[:-1])
+                current_line = word_lines[-1]
+                continue
             candidate = word if not current_line else f"{current_line} {word}"
             if current_line and page_builder.measure(candidate) > max_width_pt:
                 lines.append(current_line)
@@ -1111,21 +298,21 @@ def _draw_colored_text(page_builder, x_pt: float, y_pt: float, text: str, color:
     page_builder.at(x_pt, y_pt).inline_color(red, green, blue, str(text))
 
 
-class AnsysReportPdfOxide(PyAedtBase):
-    """Provide a pdf-oxide based Ansys report implementation."""
+class AnsysReport(PyAedtBase):
+    """Provide an Ansys report implementation based on pdf-oxide."""
 
     def __init__(
         self,
         version: str = "2026.1",
-        design: str = "design1",
-        project: str = "AnsysProject",
-        template_json=None,
+        design_name: str = "design1",
+        project_name: str = "AnsysProject",
+        template_json_file: str | None = None,
     ) -> None:
         self.report_specs = ReportSpec()
-        self.read_template(template_json)
+        self.read_template(template_json_file)
         self.report_specs.ansys_version = version
-        self.report_specs.design_name = design
-        self.report_specs.project_name = project
+        self.report_specs.design_name = design_name
+        self.report_specs.project_name = project_name
         self.use_portrait = True
         self.__chapter_idx = 0
         self.__sub_chapter_idx = 0
@@ -1134,9 +321,17 @@ class AnsysReportPdfOxide(PyAedtBase):
         self._pages: list[_PdfOxidePage] = []
         self._toc_requested = False
         self._current_page: _PdfOxidePage | None = None
+        self._active_page_builder = None
+        self._active_page_width_mm: float | None = None
+        self._active_page_height_mm: float | None = None
+        self._active_page_number: int | None = None
+        self._active_total_pages: int | None = None
 
     def _margin_mm(self, value: float) -> float:
-        return unit_converter(value, input_units=self.report_specs.units, output_units="mm")
+        converted_value = unit_converter(value, input_units=self.report_specs.units, output_units="mm")
+        if isinstance(converted_value, (int, float)):
+            return float(converted_value)
+        raise TypeError("Report margins must be scalar values.")
 
     def _top_margin_mm(self) -> float:
         return self._margin_mm(self.report_specs.top_margin)
@@ -1170,9 +365,11 @@ class AnsysReportPdfOxide(PyAedtBase):
     def _ensure_current_page(self) -> _PdfOxidePage:
         if self._current_page is None:
             self.add_section()
+        if self._current_page is None:  # pragma: no cover
+            raise RuntimeError("Unable to create a report page.")
         return self._current_page
 
-    def read_template(self, template_file: str = None) -> None:
+    def read_template(self, template_file: str | None = None) -> None:
         """Read pdf template."""
         if template_file:
             self.report_specs.template_name = template_file
@@ -1180,6 +377,53 @@ class AnsysReportPdfOxide(PyAedtBase):
             with open_file(self.report_specs.template_name, "r") as f:
                 tdata = json.load(f)
             self.report_specs = ReportSpec(**tdata)
+
+    def header(self) -> None:
+        """Render the page header.
+
+        Override this method to customize headers. It is called for every rendered page.
+        """
+        if (
+            self._active_page_builder is not None
+            and self._active_page_width_mm is not None
+            and self._active_page_height_mm is not None
+        ):
+            self._render_header(
+                self._active_page_builder,
+                self._active_page_width_mm,
+                self._active_page_height_mm,
+            )
+
+    def footer(self) -> None:
+        """Render the page footer.
+
+        Override this method to customize footers. It is called for every rendered page.
+        """
+        if (
+            self._active_page_builder is not None
+            and self._active_page_width_mm is not None
+            and self._active_page_number is not None
+            and self._active_total_pages is not None
+        ):
+            self._render_footer(
+                self._active_page_builder,
+                self._active_page_width_mm,
+                self._active_page_number,
+                self._active_total_pages,
+            )
+
+    def _invoke_header(self, page_builder, page_width_mm: float, page_height_mm: float) -> None:
+        self._active_page_builder = page_builder
+        self._active_page_width_mm = page_width_mm
+        self._active_page_height_mm = page_height_mm
+        self.header()
+
+    def _invoke_footer(self, page_builder, page_width_mm: float, page_number: int, total_pages: int) -> None:
+        self._active_page_builder = page_builder
+        self._active_page_width_mm = page_width_mm
+        self._active_page_number = page_number
+        self._active_total_pages = total_pages
+        self.footer()
 
     def create(self, add_cover_page: bool = True, add_new_section_after: bool = True) -> bool:
         """Create a new report using ``report_specs`` properties."""
@@ -1196,7 +440,7 @@ class AnsysReportPdfOxide(PyAedtBase):
             self.add_section()
         return True
 
-    def add_section(self, portrait: bool = None, page_format: str = "a4") -> None:
+    def add_section(self, portrait: bool | None = None, page_format: str = "a4") -> None:
         """Add a new section to Pdf."""
         if portrait is None:
             portrait = self.use_portrait
@@ -1236,6 +480,19 @@ class AnsysReportPdfOxide(PyAedtBase):
         )
         return True
 
+    def add_caption(self, content: str) -> None:
+        """Add a centered italic caption."""
+        self._ensure_current_page().blocks.append(
+            _PdfOxideTextBlock(
+                text=content,
+                font_size=self.report_specs.caption_font_size,
+                color=tuple(self.report_specs.font_caption_color),
+                italic=True,
+                align="center",
+                outline_level=1,
+            )
+        )
+
     def add_text(self, content: str, bold: bool = False, italic: bool = False) -> None:
         """Add a new text."""
         self._ensure_current_page().blocks.append(
@@ -1266,7 +523,7 @@ class AnsysReportPdfOxide(PyAedtBase):
 
     @requires_graphical_dependency("pillow")
     def add_image_with_aspect_ratio(
-        self, path: str, caption: str = "", max_width: float = None, max_height: float = None
+        self, path: str, caption: str = "", max_width: float | None = None, max_height: float | None = None
     ) -> bool:
         """Add an image while maintaining its aspect ratio."""
         self._ensure_current_page().blocks.append(
@@ -1284,8 +541,8 @@ class AnsysReportPdfOxide(PyAedtBase):
         self,
         title: str,
         content: list[list],
-        formatting: list = None,
-        col_widths: list = None,
+        formatting: list | None = None,
+        col_widths: list | None = None,
         full_width: bool = False,
     ) -> None:
         """Add a new table from a list of data."""
@@ -1496,8 +753,9 @@ class AnsysReportPdfOxide(PyAedtBase):
         draw: bool,
     ):
         if draw:
-            self._render_footer(page_builder, page_width_mm, page_number, total_pages)
-            self._render_header(page_builder.new_page_same_size(), page_width_mm, page_height_mm)
+            self._invoke_footer(page_builder, page_width_mm, page_number, total_pages)
+            page_builder = page_builder.new_page_same_size()
+            self._invoke_header(page_builder, page_width_mm, page_height_mm)
         else:
             page_builder = page_builder.new_page_same_size()
         return page_builder, self._content_start_y_mm(), page_number + 1
@@ -1686,7 +944,7 @@ class AnsysReportPdfOxide(PyAedtBase):
             for col_index, datum in enumerate(row):
                 cell_width_pt = _mm_to_pt(col_widths_mm[col_index] - 2 * padding_mm)
                 wrapped = _wrap_text_lines(page_builder, str(datum), cell_width_pt)
-                wrapped_cells.append("\n".join(wrapped))
+                wrapped_cells.append(wrapped)
                 row_height_mm = max(row_height_mm, len(wrapped) * line_height_mm + 2 * padding_mm)
 
             if (
@@ -1705,12 +963,12 @@ class AnsysReportPdfOxide(PyAedtBase):
                     for col_index, datum in enumerate(row):
                         cell_width_pt = _mm_to_pt(col_widths_mm[col_index] - 2 * padding_mm)
                         wrapped = _wrap_text_lines(page_builder, str(datum), cell_width_pt)
-                        wrapped_cells.append("\n".join(wrapped))
+                        wrapped_cells.append(wrapped)
                         row_height_mm = max(row_height_mm, len(wrapped) * line_height_mm + 2 * padding_mm)
                     row_index -= 1
 
             x_mm = self._left_margin_mm() + max(0.0, (available_width_mm - table_total_width_mm) / 2.0)
-            for col_index, cell_text in enumerate(wrapped_cells):
+            for col_index, cell_lines in enumerate(wrapped_cells):
                 width_mm = col_widths_mm[col_index]
                 y_pt = _mm_to_pt(page_height_mm - cursor_y_mm - row_height_mm)
                 formatting = None
@@ -1736,14 +994,15 @@ class AnsysReportPdfOxide(PyAedtBase):
                 if draw:
                     page_builder.stroke_rect(_mm_to_pt(x_mm), y_pt, _mm_to_pt(width_mm), _mm_to_pt(row_height_mm))
                     page_builder.font(row_font, table_font)
-                    page_builder.text_in_rect(
-                        _mm_to_pt(x_mm + padding_mm),
-                        y_pt + _mm_to_pt(padding_mm),
-                        _mm_to_pt(width_mm - 2 * padding_mm),
-                        _mm_to_pt(row_height_mm - 2 * padding_mm),
-                        cell_text,
-                        "center",
-                    )
+                    cell_width_pt = _mm_to_pt(width_mm - 2 * padding_mm)
+                    for line_index, line in enumerate(cell_lines):
+                        text_x_pt = _mm_to_pt(x_mm + padding_mm) + max(
+                            0.0, (cell_width_pt - page_builder.measure(line)) / 2.0
+                        )
+                        text_y_pt = _mm_to_pt(
+                            page_height_mm - cursor_y_mm - padding_mm - (line_index + 1) * line_height_mm
+                        )
+                        page_builder.at(text_x_pt, text_y_pt).text(line)
                 x_mm += width_mm
             cursor_y_mm += row_height_mm
             row_index += 1
@@ -1866,6 +1125,8 @@ class AnsysReportPdfOxide(PyAedtBase):
 
     def save_pdf(self, file_path: str, file_name: str | None = None) -> str:
         """Save pdf."""
+        if file_name is None:
+            raise TypeError("file_name must be provided.")
         DocumentBuilder = _pdf_oxide_imports()
         output_path = os.path.join(file_path, file_name)
         builder = (
@@ -1890,17 +1151,17 @@ class AnsysReportPdfOxide(PyAedtBase):
             page_builder = builder.page(_mm_to_pt(page_width_mm), _mm_to_pt(page_height_mm))
 
             if page.kind == "cover":
-                self._render_header(page_builder, page_width_mm, page_height_mm)
+                self._invoke_header(page_builder, page_width_mm, page_height_mm)
                 self._render_cover_page(page_builder, page_width_mm, page_height_mm)
-                self._render_footer(page_builder, page_width_mm, page_number, total_pages)
+                self._invoke_footer(page_builder, page_width_mm, page_number, total_pages)
                 page_number += 1
             elif page.kind == "toc":
-                self._render_header(page_builder, page_width_mm, page_height_mm)
+                self._invoke_header(page_builder, page_width_mm, page_height_mm)
                 self._render_toc_page(page_builder, page_width_mm, page_height_mm, outline_entries)
-                self._render_footer(page_builder, page_width_mm, page_number, total_pages)
+                self._invoke_footer(page_builder, page_width_mm, page_number, total_pages)
                 page_number += 1
             else:
-                self._render_header(page_builder, page_width_mm, page_height_mm)
+                self._invoke_header(page_builder, page_width_mm, page_height_mm)
                 cursor_y_mm = self._content_start_y_mm()
                 current_page_number = page_number
                 for block in page.blocks:
@@ -1951,7 +1212,7 @@ class AnsysReportPdfOxide(PyAedtBase):
                             True,
                         )
                         outline_entries.extend(added_outline)
-                self._render_footer(page_builder, page_width_mm, current_page_number, total_pages)
+                self._invoke_footer(page_builder, page_width_mm, current_page_number, total_pages)
                 page_number = current_page_number + 1
 
             builder = page_builder.done()
