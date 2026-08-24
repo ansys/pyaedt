@@ -23,6 +23,12 @@ enabling straightforward and efficient automation in your workflow.
     PyEDB is a Python client library for processing complex and large layout designs in the Ansys
     Electronics Database (EDB) format, which stores information describing designs for AEDT.
 
+.. note::
+    If you want to access the documentation for an earlier version of the project which is not listed
+    `here <https://aedt.docs.pyansys.com/version/index.html>`_, please note that it can be downloaded
+    in PDF and HTML formats for all releases directly from the 
+    `releases section on GitHub <https://github.com/ansys/pyaedt/releases>`_, under the corresponding revision.
+
 .. grid:: 2
 
     .. grid-item-card:: Getting started :fa:`person-running`
