@@ -2,10 +2,11 @@
 # This file configures PyAEDT settings for all tests
 
 log:
-  enable_local_log_file: false
-  enable_global_log_file: false
-  enable_desktop_logs: false
-  enable_file_logs: false
+  enable_local_log_file: true
+  enable_global_log_file: true
+  enable_desktop_logs: true
+  enable_file_logs: true
+  enable_debug_logger: true
 
 general:
   number_of_grpc_api_retries: 6

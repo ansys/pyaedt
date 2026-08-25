@@ -24,7 +24,6 @@
 
 from __future__ import annotations
 
-import fnmatch
 import inspect
 import json
 import os
@@ -32,7 +31,6 @@ from pathlib import Path
 import re
 import shutil
 import sys
-import tempfile
 from unittest.mock import MagicMock
 
 import pytest
@@ -207,60 +205,60 @@ def pytest_runtest_makereport(item, call):
 # ================================
 
 
-@pytest.fixture(scope="session", autouse=True)
-def clean_old_pytest_temps(tmp_path_factory) -> None:
-    """Delete previous pytest temp dirs before starting a new session."""
-    # Clean pytest temp dirs
-    base = tmp_path_factory.getbasetemp().parent
-    current = tmp_path_factory.getbasetemp().name
-    for entry in base.iterdir():
-        if entry.is_dir() and entry.name.startswith("pytest-") and entry.name != current:
-            try:
-                shutil.rmtree(entry, ignore_errors=True)
-            except Exception as e:
-                pyaedt_logger.debug(f"Error {type(e)} occurred while deleting pytest directory: {e}")
-
-    # Clean pkg- temp dirs from system temp
-    temp_dir = Path(tempfile.gettempdir())
-    for entry in temp_dir.iterdir():
-        if entry.is_dir() and entry.name.startswith("pkg-"):
-            try:
-                shutil.rmtree(entry, ignore_errors=True)
-            except Exception as e:
-                pyaedt_logger.debug(f"Error {type(e)} occurred while deleting temp directory: {e}")
-
-
-@pytest.fixture(scope="session", autouse=True)
-def cleanup_all_tmp_at_end(tmp_path_factory):
-    """Cleanup: Remove all files and directories under pytest's basetemp at session end."""
-    base = tmp_path_factory.getbasetemp()
-    temp_dir = Path(tempfile.gettempdir())
-
-    yield
-
-    # Now the session is over, try to remove everything inside `base`
-    try:
-        for log_file in base.glob("*.log"):
-            try:
-                log_file.unlink()
-            except Exception as e:
-                pyaedt_logger.debug(f"Failed to delete {log_file}: {e}")
-    except Exception:
-        pyaedt_logger.warning(f"Failed to cleanup logs in {base}")
-
-    # Remove pkg- temp dirs from system temp
-    try:
-        for entry in temp_dir.iterdir():
-            if entry.is_dir() and entry.name.startswith("pkg-"):
-                shutil.rmtree(entry, ignore_errors=True)
-            elif entry.is_file():
-                if fnmatch.fnmatch(entry.name, "pyaedt_*.log") or fnmatch.fnmatch(entry.name, "pyedb_*.log"):
-                    try:
-                        entry.unlink()
-                    except Exception as e:
-                        pyaedt_logger.debug(f"Error deleting log: {e}")
-    except Exception:
-        pyaedt_logger.warning(f"Failed to cleanup {temp_dir}")
+# @pytest.fixture(scope="session", autouse=True)
+# def clean_old_pytest_temps(tmp_path_factory) -> None:
+#     """Delete previous pytest temp dirs before starting a new session."""
+#     # Clean pytest temp dirs
+#     base = tmp_path_factory.getbasetemp().parent
+#     current = tmp_path_factory.getbasetemp().name
+#     for entry in base.iterdir():
+#         if entry.is_dir() and entry.name.startswith("pytest-") and entry.name != current:
+#             try:
+#                 shutil.rmtree(entry, ignore_errors=True)
+#             except Exception as e:
+#                 pyaedt_logger.debug(f"Error {type(e)} occurred while deleting pytest directory: {e}")
+#
+#     # Clean pkg- temp dirs from system temp
+#     temp_dir = Path(tempfile.gettempdir())
+#     for entry in temp_dir.iterdir():
+#         if entry.is_dir() and entry.name.startswith("pkg-"):
+#             try:
+#                 shutil.rmtree(entry, ignore_errors=True)
+#             except Exception as e:
+#                 pyaedt_logger.debug(f"Error {type(e)} occurred while deleting temp directory: {e}")
+#
+#
+# @pytest.fixture(scope="session", autouse=True)
+# def cleanup_all_tmp_at_end(tmp_path_factory):
+#     """Cleanup: Remove all files and directories under pytest's basetemp at session end."""
+#     base = tmp_path_factory.getbasetemp()
+#     temp_dir = Path(tempfile.gettempdir())
+#
+#     yield
+#
+#     # Now the session is over, try to remove everything inside `base`
+#     try:
+#         for log_file in base.glob("*.log"):
+#             try:
+#                 log_file.unlink()
+#             except Exception as e:
+#                 pyaedt_logger.debug(f"Failed to delete {log_file}: {e}")
+#     except Exception:
+#         pyaedt_logger.warning(f"Failed to cleanup logs in {base}")
+#
+#     # Remove pkg- temp dirs from system temp
+#     try:
+#         for entry in temp_dir.iterdir():
+#             if entry.is_dir() and entry.name.startswith("pkg-"):
+#                 shutil.rmtree(entry, ignore_errors=True)
+#             elif entry.is_file():
+#                 if fnmatch.fnmatch(entry.name, "pyaedt_*.log") or fnmatch.fnmatch(entry.name, "pyedb_*.log"):
+#                     try:
+#                         entry.unlink()
+#                     except Exception as e:
+#                         pyaedt_logger.debug(f"Error deleting log: {e}")
+#     except Exception:
+#         pyaedt_logger.warning(f"Failed to cleanup {temp_dir}")
 
 
 # ================================
@@ -315,8 +313,8 @@ def desktop(tmp_path_factory, request):
 def test_tmp_dir(file_tmp_root, request):
     d = file_tmp_root / request.node.name.split("[", 1)[0]
 
-    if d.exists():
-        shutil.rmtree(d, ignore_errors=True)
+    # if d.exists():
+    #     shutil.rmtree(d, ignore_errors=True)
     d.mkdir(parents=True, exist_ok=True)
     return d
 
