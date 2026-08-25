@@ -1655,7 +1655,7 @@ class Design(AedtObjects, PyAedtBase):
             else:  # pragma: no cover
                 raise RuntimeError("Project is locked. Close or remove the lock before proceeding.")
 
-        proj = self.odesktop.OpenProject(project_path)
+        self.odesktop.OpenProject(project_path)
         pname = self.check_if_project_is_loaded(project_path)
         if not pname:  # pragma: no cover
             raise Exception("Failed to open project due to unexpected reason. Check it and retry.")
