@@ -1666,13 +1666,12 @@ class Design(AedtObjects, PyAedtBase):
         # In Linux there is a known issue when multiple designs are available (Circuit designs mainly),
         # that it is needed to close all windows.
         if not is_windows and settings.aedt_version:
-            time.sleep(1)
+            time.sleep(0.5)
             self.desktop_class.close_windows()
 
         # Ensure handlers and logging are set up for the opened project.
         self._add_handler()
         self.logger.info("Project %s has been opened.", self._oproject.GetName())
-        time.sleep(0.5)
         return cast(_OProject, proj)
 
     @property
