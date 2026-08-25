@@ -36,7 +36,6 @@ from unittest.mock import MagicMock
 import pytest
 
 from ansys.aedt.core import Desktop
-from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.file_utils import available_file_name
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.hfss import Hfss
@@ -272,10 +271,10 @@ def file_tmp_root(tmp_path_factory, request):
     name = module_path.stem
     root = tmp_path_factory.mktemp(f"{name}-")
     yield root
-    try:
-        shutil.rmtree(root, ignore_errors=True)
-    except Exception:
-        pyaedt_logger.warning(f"Failed to cleanup temporary directory {root}")
+    # try:
+    #     shutil.rmtree(root, ignore_errors=True)
+    # except Exception:
+    #     pyaedt_logger.warning(f"Failed to cleanup temporary directory {root}")
 
 
 @pytest.fixture(scope="module")
