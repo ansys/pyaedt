@@ -1567,12 +1567,6 @@ class Design(AedtObjects, PyAedtBase):
                         self._add_handler()
                         self.logger.info("Project %s set to active.", pname)
                     elif Path(project).exists():
-                        if is_project_locked(project):
-                            if self._remove_lock:  # pragma: no cover
-                                self.logger.warning("Project is locked. Removing it and opening.")
-                                remove_project_lock(project)
-                            else:  # pragma: no cover
-                                raise RuntimeError("Project is locked. Close or remove the lock before proceeding.")
                         self.logger.info("AEDT project found. Loading it.")
                         self._oproject = self._open_project(project)
                     else:
@@ -1593,12 +1587,6 @@ class Design(AedtObjects, PyAedtBase):
                     self._add_handler()
                     self.logger.info("Project %s set to active.", pname)
                 else:
-                    if is_project_locked(proj_name):
-                        if self._remove_lock:  # pragma: no cover
-                            self.logger.warning("Project is locked. Removing it and opening.")
-                            remove_project_lock(proj_name)
-                        else:  # pragma: no cover
-                            raise RuntimeError("Project is locked. Close or remove the lock before proceeding.")
                     self._oproject = self._open_project(proj_name)
             elif settings.force_error_on_missing_project and ".aedt" in proj_name:
                 raise Exception("Project doesn't exist. Check it and retry.")
