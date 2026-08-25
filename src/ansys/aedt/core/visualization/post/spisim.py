@@ -278,8 +278,10 @@ class SpiSim(PyAedtBase):
         self.touchstone_file = touchstone_file
         if settings.aedt_version:
             self.desktop_install_dir = os.environ[env_value(settings.aedt_version)]
+            self.__version = settings.aedt_version
         else:
             self.desktop_install_dir = os.environ[env_value(aedt_versions.current_version)]
+            self.__version = aedt_versions.current_version
         os.environ["ANSYSEM_ROOT_PATH"] = self.desktop_install_dir
         self.logger = settings.logger
         self._working_directory = ""
@@ -612,10 +614,10 @@ class SpiSim(PyAedtBase):
         next_s4p: str | list | None = None,
         fext_s4p: str | list | None = None,
         bandwidth: float | None = None,
-        use_pcie_icn: bool = False,
+        use_pcie_icn: int | bool | str = False,
         compute_retries: int = 3,
     ) -> bool | float | list:
-        """Compute the integrated crosstalk noise (ICN) in volts using Ansys SPISIM from S-parameter file.
+        """Compute integrated crosstalk noise (ICN) in volts using Ansys SPISIM from S-parameter files.
 
         .. warning::
 
@@ -630,13 +632,19 @@ class SpiSim(PyAedtBase):
             which case this parameter is ignored.
         port_order : str, optional
             Whether to use "``EvenOdd``" or "``Incremental``" numbering for S4P files.
-            The default is ``None``. This parameter is ignored if there are more than four ports.
+            The default is ``"EVENODD"``. This parameter is ignored if there are more than four ports.
         next_s4p : str, list, optional
             Near End ``s4p`` or list of ``s4p``. The default is ``None``.
         fext_s4p : str, list, optional
             Far End ``s4p`` or list of ``s4p``. The default is ``None``.
-        use_pcie_icn : bool, optional
-            Whether to use ``PCIE`` or ``COM`` method to compute ``ICN``. The default is ``COM``.
+        use_pcie_icn : int, bool, str, optional
+            ICN calculation standard to use. The default is ``False``, which uses
+            ``"COM_CHNICN"`` and returns the ``"ICN"`` result. Passing ``True`` uses
+            ``"PCIE_CCICN"`` and returns the ``"ccICN"`` result. Integer values map to
+            ``0`` for ``"COM_CHNICN"``, ``1`` for ``"PCIE_CCICN"``, and ``2`` for
+            ``"CUSTOMER_CCICN"``. String values can be ``"COM_CHNICN"``,
+            ``"PCIE_CCICN"``, or ``"CUSTOMER_CCICN"``. ``"CUSTOMER_CCICN"`` is
+            supported in AEDT 2027 R1 and later.
         bandwidth : float, str, optional
             Application bandwidth in hertz (Hz), which is the inverse of one UI (unit interval). The value
             can be a float or a string with the unit ("m", "g"). The default is ``25e9``.
@@ -658,18 +666,46 @@ class SpiSim(PyAedtBase):
         >>> icn = spisim.compute_icn(port_order="EvenOdd", fext_s4p=fext_s4p, next_s4p=next_s4p, bandwidth=10e9)
 
         """
+        if self.__version < "2027.1" and use_pcie_icn == 2 or use_pcie_icn == "CUSTOMER_CCICN":
+            raise AEDTRuntimeError("CUSTOMER_CCICN is not supported in version lower than 2027.1.")
+
+        if isinstance(use_pcie_icn, int):
+            if use_pcie_icn == 0:  # pragma: no cover
+                standard = "COM_CHNICN"
+            elif use_pcie_icn == 1:
+                standard = "PCIE_CCICN"
+            else:  # pragma: no cover
+                standard = "CUSTOMER_CCICN"
+        elif isinstance(use_pcie_icn, str) and use_pcie_icn in ["COM_CHNICN", "PCIE_CCICN", "CUSTOMER_CCICN"]:
+            standard = use_pcie_icn
+        else:
+            standard = "PCIE_CCICN" if use_pcie_icn else "COM_CHNICN"
         wd = Path(self.working_directory) / "icn"
         wd.mkdir(parents=True, exist_ok=True)
-
         cfg_dict = {
             "INPARRY": "",
             "MIXMODE": "",
             "NEXTSRC": "",
             "FEXTSRC": "",
             "VICTSRC": "",
-            "ICNCALC": "PCIE_CCICN" if use_pcie_icn else "COM_CHNICN",
+            "ICNCALC": standard,
             "MAXFREQ": 25e9,
         }
+
+        if self.__version >= "2027.1":  # pragma: no cover
+            cfg_dict.update(
+                {
+                    "ANT": 1.0,
+                    "AFT": 0.8,
+                    "KXA": 22.75,
+                    "KXB": 8.5,
+                    "FR": 24.0,
+                    "FB": 64.0,
+                    "SIGTYPE": "PAM4",
+                    "RESAMPLE_ALGORITHM": "None",
+                    "RESAMPLE_INTERVAL": 10.0,
+                }
+            )
 
         if config_file:
             with open_file(config_file, "r") as fp:
