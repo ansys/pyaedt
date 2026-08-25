@@ -158,7 +158,6 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
         --------
         >>> from ansys.aedt.core.extensions.emit.emi_heat_map import EMIHeatmapExtension
         >>> extension = EMIHeatmapExtension(withdraw=True)
-        >>> extension.add_extension_content()
 
         """
         root = self.root
