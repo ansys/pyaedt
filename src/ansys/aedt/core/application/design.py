@@ -1506,7 +1506,7 @@ class Design(AedtObjects, PyAedtBase):
 
         Returns
         -------
-            Project object
+        Project object
 
         References
         ----------
@@ -1574,9 +1574,7 @@ class Design(AedtObjects, PyAedtBase):
                             else:  # pragma: no cover
                                 raise RuntimeError("Project is locked. Close or remove the lock before proceeding.")
                         self.logger.info("AEDT project found. Loading it.")
-                        self._oproject = self.odesktop.OpenProject(project)
-                        self._add_handler()
-                        self.logger.info("Project %s has been opened.", self._oproject.GetName())
+                        self._oproject = self._open_project(project)
                         time.sleep(0.5)
                     else:
                         oTool = self.odesktop.GetTool("ImportExport")
@@ -1602,12 +1600,10 @@ class Design(AedtObjects, PyAedtBase):
                             remove_project_lock(proj_name)
                         else:  # pragma: no cover
                             raise RuntimeError("Project is locked. Close or remove the lock before proceeding.")
-                    self._oproject = self.odesktop.OpenProject(proj_name)
+                    self._oproject = self._open_project(proj_name)
                     if not is_windows and settings.aedt_version:
                         time.sleep(1)
                         self.desktop_class.close_windows()
-                    self._add_handler()
-                    self.logger.info("Project %s has been opened.", self._oproject.GetName())
                     time.sleep(0.5)
             elif settings.force_error_on_missing_project and ".aedt" in proj_name:
                 raise Exception("Project doesn't exist. Check it and retry.")
@@ -1651,6 +1647,43 @@ class Design(AedtObjects, PyAedtBase):
             Path(self.toolkit_directory) / f"pyaedt_{self._oproject.GetName()}.log",
             project_name=self.project_name,
         )
+
+    @pyaedt_function_handler()
+    def _open_project(self, project_path: str) -> _OProject:
+        """Open a project and ensure the active project object is resolved.
+
+        This centralizes logic around calling ``oDesktop.OpenProject`` and
+        handling cases where the method does not return the project object
+        correctly by falling back to ``check_if_project_is_loaded``.
+
+        Returns
+        -------
+        Project object
+
+        References
+        ----------
+        >>> oDesktop.OpenProject
+
+        """
+        if is_project_locked(project_path):
+            if self._remove_lock:  # pragma: no cover
+                self.logger.warning("Project is locked. Removing it and opening.")
+                remove_project_lock(project_path)
+            else:  # pragma: no cover
+                raise RuntimeError("Project is locked. Close or remove the lock before proceeding.")
+
+        proj = self.odesktop.OpenProject(project_path)
+        if not proj:
+            pname = self.check_if_project_is_loaded(project_path)
+            if not pname:  # pragma: no cover
+                raise Exception("Failed to open project due to unexpected reason. Check it and retry.")
+            proj = self.desktop_class.active_project(pname)
+
+        # Ensure handlers and logging are set up for the opened project.
+        self._oproject = proj
+        self._add_handler()
+        self.logger.info("Project %s has been opened.", self._oproject.GetName())
+        return cast(_OProject, proj)
 
     @property
     def desktop_install_dir(self) -> str:
@@ -3156,7 +3189,7 @@ class Design(AedtObjects, PyAedtBase):
         >>> app.load_project(r"C:\\temp\\project.aedt")
 
         """
-        proj = self.odesktop.OpenProject(file_name)
+        proj = self._open_project(file_name)
         if close_active and self.oproject:
             self._close_edb()
             self.close_project(self.project_name, save=set_active)
@@ -4289,7 +4322,7 @@ class Design(AedtObjects, PyAedtBase):
         project = Path(project)
         # open the origin project
         if project.exists():
-            proj_from = self.odesktop.OpenProject(str(project))
+            proj_from = self._open_project(str(project))
             proj_from_name = proj_from.GetName()
         else:
             return None
