@@ -1601,9 +1601,6 @@ class Design(AedtObjects, PyAedtBase):
                         else:  # pragma: no cover
                             raise RuntimeError("Project is locked. Close or remove the lock before proceeding.")
                     self._oproject = self._open_project(proj_name)
-                    if not is_windows and settings.aedt_version:
-                        time.sleep(1)
-                        self.desktop_class.close_windows()
                     time.sleep(0.5)
             elif settings.force_error_on_missing_project and ".aedt" in proj_name:
                 raise Exception("Project doesn't exist. Check it and retry.")
@@ -1677,10 +1674,17 @@ class Design(AedtObjects, PyAedtBase):
             pname = self.check_if_project_is_loaded(project_path)
             if not pname:  # pragma: no cover
                 raise Exception("Failed to open project due to unexpected reason. Check it and retry.")
-            proj = self.desktop_class.active_project(pname)
+            proj = self.desktop_class.active_project(str(pname))
+
+        self._oproject = proj
+
+        # In Linux there is a known issue when multiple designs are available (Circuit designs mainly),
+        # that it is needed to close all windows.
+        if not is_windows and settings.aedt_version:
+            time.sleep(1)
+            self.desktop_class.close_windows()
 
         # Ensure handlers and logging are set up for the opened project.
-        self._oproject = proj
         self._add_handler()
         self.logger.info("Project %s has been opened.", self._oproject.GetName())
         return cast(_OProject, proj)
