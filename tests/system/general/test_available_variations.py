@@ -54,18 +54,20 @@ def aedt_app(request, add_app, test_tmp_dir):
             app.close_project(app.project_name, save=False)
 
 
-@pytest.mark.parametrize("output_as_dict, expected_type", [(True, dict), (False, list)])
-def test_variations(aedt_app, output_as_dict, expected_type):
+@pytest.mark.parametrize("output_as_dict", [True, False])
+def test_variations(aedt_app, output_as_dict):
     variations = aedt_app.available_variations.variations(
         setup_sweep=aedt_app.nominal_sweep,
         output_as_dict=output_as_dict,
     )
-    assert isinstance(variations, expected_type)
+    assert isinstance(variations, list)
 
-    if not output_as_dict:
-        # Expected shape: list[variation], where variation is flat alternating pairs:
-        # ["fc:=", ["30GHz"], "w:=", ["0.02"], ...]
-        assert isinstance(variations, list)
+    # Expected shape: list[variation]
+    # if output_as_dict=True expected type is list of dicts
+    # otherwise a list of lists
+    if output_as_dict:
+        assert all(isinstance(variation, dict) for variation in variations)
+    else:
         for variation in variations:
             assert isinstance(variation, list)
             assert len(variation) % 2 == 0  # key/value alternating entries
