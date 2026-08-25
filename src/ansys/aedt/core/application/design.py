@@ -1575,7 +1575,6 @@ class Design(AedtObjects, PyAedtBase):
                                 raise RuntimeError("Project is locked. Close or remove the lock before proceeding.")
                         self.logger.info("AEDT project found. Loading it.")
                         self._oproject = self._open_project(project)
-                        time.sleep(0.5)
                     else:
                         oTool = self.odesktop.GetTool("ImportExport")
                         if ".def" in proj_name:
@@ -1601,7 +1600,6 @@ class Design(AedtObjects, PyAedtBase):
                         else:  # pragma: no cover
                             raise RuntimeError("Project is locked. Close or remove the lock before proceeding.")
                     self._oproject = self._open_project(proj_name)
-                    time.sleep(0.5)
             elif settings.force_error_on_missing_project and ".aedt" in proj_name:
                 raise Exception("Project doesn't exist. Check it and retry.")
             else:
@@ -1687,6 +1685,7 @@ class Design(AedtObjects, PyAedtBase):
         # Ensure handlers and logging are set up for the opened project.
         self._add_handler()
         self.logger.info("Project %s has been opened.", self._oproject.GetName())
+        time.sleep(0.5)
         return cast(_OProject, proj)
 
     @property
@@ -3192,7 +3191,7 @@ class Design(AedtObjects, PyAedtBase):
         >>> app.load_project(r"C:\\temp\\project.aedt")
 
         """
-        proj = self._open_project(file_name)
+        proj = self.odesktop.OpenProject(file_name)
         if close_active and self.oproject:
             self._close_edb()
             self.close_project(self.project_name, save=set_active)
@@ -4325,7 +4324,7 @@ class Design(AedtObjects, PyAedtBase):
         project = Path(project)
         # open the origin project
         if project.exists():
-            proj_from = self._open_project(str(project))
+            proj_from = self.odesktop.OpenProject(str(project))
             proj_from_name = proj_from.GetName()
         else:
             return None
