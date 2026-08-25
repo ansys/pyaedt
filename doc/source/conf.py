@@ -323,6 +323,14 @@ html_theme_options = {
         "limit": 10,
         "ignoreLocation": True,
     },
+    "announcement_banner": [
+        {
+            "message": "Documentation artifacts for versions prior to 0.27 are available for download"
+            "on the GitHub release page.",
+            "type": "info",
+            "link": "https://github.com/ansys/pyaedt/releases",
+        },
+    ],
 }
 
 
