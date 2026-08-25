@@ -709,7 +709,14 @@ class AnsysReport(PyAedtBase):
         for index, (label, value) in enumerate(fields):
             x_pt = fields_left_pt + column_width_pt * index
             _draw_colored_text(page_builder, x_pt, label_y_pt, label, text_color)
-            _draw_colored_text(page_builder, x_pt, value_y_pt, value, text_color)
+            for line_index, line in enumerate(_wrap_text_lines(page_builder, str(value), column_width_pt)):
+                _draw_colored_text(
+                    page_builder,
+                    x_pt,
+                    value_y_pt - line_index * self.report_specs.header_font_size,
+                    line,
+                    text_color,
+                )
 
         line_y_pt = _mm_to_pt(page_height_mm - (self._top_margin_mm() - 7.0))
         page_builder.stroke_line(margin_left_pt, line_y_pt, page_width_pt - margin_right_pt, line_y_pt)
