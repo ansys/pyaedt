@@ -691,21 +691,19 @@ class SpiSim(PyAedtBase):
             "ICNCALC": standard,
             "MAXFREQ": 25e9,
         }
-
+        custom_settings = {
+            "ANT": 1.0,
+            "AFT": 0.8,
+            "KXA": 22.75,
+            "KXB": 8.5,
+            "FR": 24.0,
+            "FB": 64.0,
+            "SIGTYPE": "PAM4",
+            "RESAMPLE_ALGORITHM": "None",
+            "RESAMPLE_INTERVAL": 10.0,
+        }
         if self.__version >= "2027.1":  # pragma: no cover
-            cfg_dict.update(
-                {
-                    "ANT": 1.0,
-                    "AFT": 0.8,
-                    "KXA": 22.75,
-                    "KXB": 8.5,
-                    "FR": 24.0,
-                    "FB": 64.0,
-                    "SIGTYPE": "PAM4",
-                    "RESAMPLE_ALGORITHM": "None",
-                    "RESAMPLE_INTERVAL": 10.0,
-                }
-            )
+            cfg_dict.update(custom_settings)
 
         if config_file:
             with open_file(config_file, "r") as fp:
@@ -713,7 +711,12 @@ class SpiSim(PyAedtBase):
                 for line in lines:
                     if not line.startswith("#") and "=" in line:
                         split_line = [i.strip() for i in line.split("=")]
-                        cfg_dict[split_line[0]] = split_line[1]
+                        if (
+                            self.__version >= "2027.1"
+                            or self.__version < "2027.1"
+                            and split_line[0] not in custom_settings
+                        ):
+                            cfg_dict[split_line[0]] = split_line[1]
 
         cfg_dict["MIXMODE"] = port_order
         if not isinstance(next_s4p, list):
