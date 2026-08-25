@@ -1698,7 +1698,6 @@ class Design(AedtObjects, PyAedtBase):
         str
             AEDT installation directory.
 
-
         Examples
         --------
         >>> from ansys.aedt.core import Hfss
