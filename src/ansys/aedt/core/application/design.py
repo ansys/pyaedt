@@ -1603,10 +1603,8 @@ class Design(AedtObjects, PyAedtBase):
                         else:  # pragma: no cover
                             raise RuntimeError("Project is locked. Close or remove the lock before proceeding.")
                     self._oproject = self.odesktop.OpenProject(proj_name)
-                    if not self._oproject:
-                        messages = self.odesktop.GetMessages("", "", 2)
-                        for message in messages:
-                            self.logger.error(message)
+                    pname = self.check_if_project_is_loaded(proj_name)
+                    self._oproject = self.desktop_class.active_project(pname)
                     if not is_windows and settings.aedt_version:
                         time.sleep(1)
                         self.desktop_class.close_windows()
