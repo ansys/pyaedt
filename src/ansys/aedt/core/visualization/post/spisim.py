@@ -643,8 +643,9 @@ class SpiSim(PyAedtBase):
             ``"PCIE_CCICN"`` and returns the ``"ccICN"`` result. Integer values map to
             ``0`` for ``"COM_CHNICN"``, ``1`` for ``"PCIE_CCICN"``, and ``2`` for
             ``"CUSTOMER_CCICN"``. String values can be ``"COM_CHNICN"``,
-            ``"PCIE_CCICN"``, or ``"CUSTOMER_CCICN"``. ``"CUSTOMER_CCICN"`` is
+            ``"PCIE_CCICN"``, or ``"CUSTOMER_CCICN"``. ``"CUSTOMER_CCICN"`` is a generic custom parameters approach
             supported in AEDT 2027 R1 and later.
+            In order to customize parameters for `"CUSTOMER_CCICN"`` user can provide a custom `"config_file"``.
         bandwidth : float, str, optional
             Application bandwidth in hertz (Hz), which is the inverse of one UI (unit interval). The value
             can be a float or a string with the unit ("m", "g"). The default is ``25e9``.
