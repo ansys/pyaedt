@@ -60,9 +60,12 @@ jobs:
           )
           dir "%USERPROFILE%\EMIT_HANGS" /s
           echo EMIT_HANGS_PATH=%USERPROFILE%\EMIT_HANGS>>%GITHUB_ENV%
+          echo EMIT_FAILS_PROTECTION_FILTERING=%USERPROFILE%\EMIT_FAILS_PROTECTION_FILTERING>>%GITHUB_ENV%
 
       - name: Upload hang file
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: emit_hangs
-          path: ${{ env.EMIT_HANGS_PATH }}
+          path: |
+            ${{ env.EMIT_HANGS_PATH }}
+            ${{ env.EMIT_FAILS_PROTECTION_FILTERING }}
