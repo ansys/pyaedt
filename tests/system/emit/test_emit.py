@@ -49,7 +49,7 @@ from tests import TESTS_EMIT_PATH
 from tests.conftest import DESKTOP_VERSION
 
 # Temporarily skip Emit system tests when running in CI (keeps CI green until fixed)
-if os.getenv("CI") or os.getenv("GITHUB_ACTIONS"):
+if os.getenv("ON_CI") or os.getenv("GITHUB_ACTIONS"):
     pytest.skip("Temporarily skipping Emit tests in CI", allow_module_level=True)
 
 # Prior to 2025R1, the Emit API supported Python 3.8,3.9,3.10,3.11
