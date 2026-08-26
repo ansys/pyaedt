@@ -881,9 +881,12 @@ class EmitNode:
         """
         try:
             if import_type == "CAD":
-                node_id = self._oRevisionData.EmitNodeImport(
-                    self._result_id, self._node_id, file_path, import_type, create_antennas
-                )
+                if int(self._emit_obj.aedt_version_id[-3:]) >= 271:
+                    node_id = self._oRevisionData.EmitNodeImport(
+                        self._result_id, self._node_id, file_path, import_type, create_antennas
+                    )
+                else:
+                    node_id = self._oRevisionData.EmitNodeImport(self._result_id, self._node_id, file_path, import_type)
             else:
                 node_id = self._oRevisionData.EmitNodeImport(self._result_id, self._node_id, file_path, import_type)
         except Exception as e:

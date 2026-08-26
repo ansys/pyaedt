@@ -99,7 +99,10 @@ class EmitterNode(EmitNode):
             antennas = o_revision_data.GetChildNodeNames(result_id, scene_node_id, "AntennaNode", True)
             for ant in antennas:
                 if ant == self._radio_node.name:
-                    ant_id = o_revision_data.GetChildNodeID(result_id, scene_node_id, ant, True)
+                    if emit_obj.desktop_class.current_version < '2027.1':
+                        ant_id = o_revision_data.GetChildNodeID(result_id, scene_node_id, ant)
+                    else:
+                        ant_id = o_revision_data.GetChildNodeID(result_id, scene_node_id, ant, True)
                     self._antenna_node = AntennaNode(emit_obj, result_id, ant_id)
                     break
 

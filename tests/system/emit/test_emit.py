@@ -2601,7 +2601,10 @@ def test_all_generated_emit_node_properties(emit_app) -> None:
     pref_node = revision.get_preferences_node()
     revision._emit_com.SetEmitNodeProperties(0, pref_node._node_id, ["Ignore Purge Warning=True"])
 
-    domain = InteractionDomain(emit_app)
+    if DESKTOP_VERSION <= "2026.1":
+        domain = emit_app.results.interaction_domain()
+    else:
+        domain = InteractionDomain(emit_app)
     log_progress("Running simulation...")
     revision.run(domain)
 
@@ -3501,7 +3504,7 @@ def test_27_components_catalog(emit_app) -> None:
     assert len(comps_in_schematic) == 2  # default antenna/radio should remain
 
 
-@pytest.mark.skipif(DESKTOP_VERSION < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
+@pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027 R1.")
 def test_terminator_table_persistence(add_app) -> None:
     """Test that terminator and amplifier table data persists across save/close/reopen.
     Fixes D1434602: AEDT crashes after adding a row to amplifier/terminator table
