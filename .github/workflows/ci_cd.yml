@@ -48,14 +48,21 @@ jobs:
     name: Emit hangs
     runs-on: [self-hosted, pyaedt-ci-0]
     steps:
-      - name: Resolve home dir
-        shell: bash
+      - name: Debug home and folder
+        shell: cmd
         run: |
-          echo "HOME_DIR=$HOME" >> "$GITHUB_ENV"
-          echo "HOME_DIR=$HOME"
+          echo USERPROFILE=%USERPROFILE%
+          if exist "%USERPROFILE%\EMIT_HANGS" (
+          echo EMIT_HANGS exists
+          ) else (
+          echo EMIT_HANGS missing
+          exit /b 1
+          )
+          dir "%USERPROFILE%\EMIT_HANGS" /s
+          echo EMIT_HANGS_PATH=%USERPROFILE%\EMIT_HANGS>>%GITHUB_ENV%
 
       - name: Upload hang file
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: emit_hangs
-          path: ${{ env.HOME_DIR }}/EMIT_HANGS
+          path: ${{ env.EMIT_HANGS_PATH }}
