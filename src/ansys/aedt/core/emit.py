@@ -507,7 +507,7 @@ class Emit(Design, PyAedtBase):
 
             kernel32.CloseHandle(snapshot)
         except Exception:
-            pass
+            warnings.warn("Emit._has_iemit_children() failed to enumerate processes.")
         return False
 
     @staticmethod
