@@ -24,6 +24,7 @@
 
 from __future__ import annotations
 
+import concurrent.futures
 import time
 import warnings
 
@@ -250,12 +251,20 @@ class Revision:
                 )
                 warnings.warn(err_msg)
 
+        run_timeout = getattr(self.emit_project, "_engine_run_timeout_s", 120)
         max_retries = 3
         backoff_ms = 200
         for attempt in range(max_retries):
             try:
-                interaction = engine.run(domain)
+                with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+                    future = executor.submit(engine.run, domain)
+                    interaction = future.result(timeout=run_timeout)
                 break
+            except concurrent.futures.TimeoutError:
+                raise TimeoutError(
+                    f"engine.run() timed out after {run_timeout}s. "
+                    "The iemit.exe subprocess may be unresponsive."
+                )
             except Exception as e:
                 err_str = str(e).lower()
                 is_transient = "unavailable" in err_str or "deadline" in err_str or "timeout" in err_str
@@ -301,12 +310,20 @@ class Revision:
         if throttle_ms > 0:
             time.sleep(throttle_ms / 1000.0)
 
+        run_timeout = getattr(self.emit_project, "_engine_run_timeout_s", 120)
         max_retries = 3
         backoff_ms = 200
         for attempt in range(max_retries):
             try:
-                interaction = engine.run(domain)
+                with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+                    future = executor.submit(engine.run, domain)
+                    interaction = future.result(timeout=run_timeout)
                 return interaction
+            except concurrent.futures.TimeoutError:
+                raise TimeoutError(
+                    f"engine.run() timed out after {run_timeout}s. "
+                    "The iemit.exe subprocess may be unresponsive."
+                )
             except Exception as e:
                 err_str = str(e).lower()
                 is_transient = "unavailable" in err_str or "deadline" in err_str or "timeout" in err_str

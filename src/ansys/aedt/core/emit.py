@@ -22,6 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import concurrent.futures
+import subprocess
 import time
 import warnings
 
@@ -186,6 +188,10 @@ class Emit(Design, PyAedtBase):
         # Throttle delay (ms) between consecutive engine.run() calls.
         # Non-zero for AEDT <= 26.1 to avoid overwhelming the iemit gRPC server.
         self._engine_throttle_ms = 50 if self._aedt_version <= "2026.1" else 0
+
+        # Timeout (seconds) for each engine.run() gRPC call. Prevents indefinite
+        # hangs if iemit becomes unresponsive.
+        self._engine_run_timeout_s = 300
 
     def _init_from_design(self, *args, **kwargs) -> None:
         self.__init__(*args, **kwargs)
@@ -395,7 +401,12 @@ class Emit(Design, PyAedtBase):
 
         """
         if self.__emit_api_enabled:
-            self._emit_api.save_project()
+            try:
+                self._call_with_timeout(self._emit_api.save_project, timeout_seconds=60)
+            except TimeoutError:
+                warnings.warn("EMIT save_project timed out - iemit may be unresponsive")
+            except Exception:
+                pass
 
         result = Design.save_project(self, file_name, overwrite, refresh_ids)
 
@@ -404,9 +415,9 @@ class Emit(Design, PyAedtBase):
     def close_project(self, name: str = None, save: bool = True) -> bool:
         """Close an AEDT project with a quiesce barrier for EMIT.
 
-        On AEDT <= 26.1, adds a brief delay after closing to allow the iemit
-        subprocess event pipeline to fully drain before a subsequent InsertDesign.
-        This prevents the DesignInstanceBase assertion crash that causes hangs.
+        On AEDT <= 26.1, waits for any child iemit.exe processes to terminate
+        after closing, preventing the DesignInstanceBase assertion crash.
+        The close itself is timeout-protected to avoid hanging if AEDT is stuck.
 
         Parameters
         ----------
@@ -420,7 +431,63 @@ class Emit(Design, PyAedtBase):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        result = Design.close_project(self, name, save)
+        try:
+            result = self._call_with_timeout(
+                Design.close_project, args=(self, name, save), timeout_seconds=60
+            )
+        except TimeoutError:
+            warnings.warn(
+                "Emit.close_project() timed out after 60s - AEDT may be unresponsive. "
+                "Continuing without confirmation of close."
+            )
+            result = False
+
         if self._aedt_version <= "2026.1":
-            time.sleep(1.0)
+            self._wait_for_iemit_exit(timeout_seconds=15)
         return result
+
+    def _wait_for_iemit_exit(self, timeout_seconds: float = 15) -> None:
+        """Wait for child iemit.exe processes of the AEDT session to terminate.
+
+        Falls back to a fixed sleep if process introspection is unavailable.
+        """
+        aedt_pid = getattr(self.desktop_class, "aedt_process_id", None)
+        if not aedt_pid:
+            time.sleep(2.0)
+            return
+
+        deadline = time.monotonic() + timeout_seconds
+        while time.monotonic() < deadline:
+            if not self._has_iemit_children(aedt_pid):
+                return
+            time.sleep(0.25)
+
+    @staticmethod
+    def _has_iemit_children(parent_pid: int) -> bool:
+        """Check if the given process has any iemit.exe child processes (Windows)."""
+        try:
+            result = subprocess.run(
+                ["wmic", "process", "where",
+                 f"(ParentProcessId={parent_pid} and Name='iemit.exe')",
+                 "get", "ProcessId"],
+                capture_output=True, text=True, timeout=5
+            )
+            lines = [ln.strip() for ln in result.stdout.splitlines() if ln.strip() and ln.strip() != "ProcessId"]
+            return len(lines) > 0
+        except Exception:
+            return False
+
+    @staticmethod
+    def _call_with_timeout(func, args=(), kwargs=None, timeout_seconds=120):
+        """Call a function with a timeout. Raises TimeoutError if it exceeds the limit."""
+        if kwargs is None:
+            kwargs = {}
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+            future = executor.submit(func, *args, **kwargs)
+            try:
+                return future.result(timeout=timeout_seconds)
+            except concurrent.futures.TimeoutError:
+                raise TimeoutError(
+                    f"EMIT operation timed out after {timeout_seconds}s. "
+                    "The iemit.exe subprocess may be unresponsive."
+                )
