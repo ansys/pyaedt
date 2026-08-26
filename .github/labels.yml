@@ -142,3 +142,10 @@
 - name: release-maintenance
   description: Related to maintenance of the release branch
   color: f78c37
+
+  # Used by CI workflows to skip the "Wait for master cache update" step.
+  # Add this label to a pull request when you want to avoid waiting for the
+  # testmon cache update during CI runs.
+- name: skip-testmon
+  description: Skip the testmon cache wait step in CI
+  color: 9e9e9e
