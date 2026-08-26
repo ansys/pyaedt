@@ -2122,7 +2122,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
             active_project = self.desktop_class.active_project()
         else:
             self.oproject = source_project_path
-            # self._desktop.OpenProject(source_project_path)
             active_project = self.desktop_class.active_project(source_project_name)
 
         active_design = self.desktop_class.active_design(active_project, source_design)
