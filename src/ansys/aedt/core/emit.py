@@ -498,8 +498,10 @@ class Emit(Design, PyAedtBase):
                 return False
 
             while True:
-                if (entry.th32ParentProcessID == parent_pid
-                        and entry.szExeFile.decode("utf-8", errors="ignore").lower() == "iemit.exe"):
+                if (
+                    entry.th32ParentProcessID == parent_pid
+                    and entry.szExeFile.decode("utf-8", errors="ignore").lower() == "iemit.exe"
+                ):
                     kernel32.CloseHandle(snapshot)
                     return True
                 if not kernel32.Process32Next(snapshot, ctypes.byref(entry)):
