@@ -251,7 +251,7 @@ class Revision:
                 )
                 warnings.warn(err_msg)
 
-        run_timeout = getattr(self.emit_project, "_engine_run_timeout_s", 120)
+        run_timeout = getattr(self.emit_project, "_engine_run_timeout_s", 300)
         max_retries = 3
         backoff_ms = 200
         for attempt in range(max_retries):
