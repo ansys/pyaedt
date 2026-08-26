@@ -3595,13 +3595,13 @@ class GeometryModeler(Modeler, PyAedtBase):
             return True
 
     @pyaedt_function_handler()
-    def move(self, assignment: list, vector: list) -> bool:
+    def move(self, assignment: list | str, vector: list) -> bool:
         """Move objects from a list.
 
         Parameters
         ----------
-        assignment : list, Position object
-            List of object IDs.
+        assignment : list or str
+            List of object IDs or object name.
         vector : list
             Vector of the direction move. It can be a list of the ``[x, y, z]``
             coordinates or a Position object.

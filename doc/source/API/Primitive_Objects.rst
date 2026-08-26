@@ -148,11 +148,26 @@ imported and used because it is made by static methods.
 Advanced modeler operations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-PyAEDT includes some advanced modeler tools like ``MultiPartComponent`` for 3D component
-management and ``Stackup3D`` for parametric creation of 3D modeler stackups.
+PyAEDT provides higher-level modeling helpers that implement common CAD patterns and
+parameterized workflows. Examples include ``MultiPartComponent`` for 3D component
+management, ``Stackup3D`` for parametric stackup creation, and specialized helpers
+such as ``Coil`` and ``Weave`` for winding and fiber-weave geometries. These helpers
+wrap lower-level modeler primitives to offer reusable, parameter-driven operations;
+they live in the ``ansys.aedt.core.modeler.advanced_cad`` package and are typically
+instantiated with the application object.
+
+.. currentmodule:: ansys.aedt.core.modeler.advanced_cad
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+   coil.Coil
+   weave.Weave
+   choke.Choke
 
 .. toctree::
-   :maxdepth: 2
+    :maxdepth: 2
 
-   MultiPartComponent
-   Stackup3D
+    MultiPartComponent
+    Stackup3D

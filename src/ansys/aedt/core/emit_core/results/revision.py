@@ -24,6 +24,7 @@
 
 from __future__ import annotations
 
+import time
 import warnings
 
 from ansys.aedt.core.emit_core.emit_constants import EmiCategoryFilter
@@ -260,6 +261,94 @@ class Revision:
         """
         warnings.warn("This function is deprecated. Use `get_simulation().run()` instead.", DeprecationWarning)
         return self.get_simulation().run(domain)
+        if domain.receiver_channel_frequency > 0:
+            raise ValueError("The domain must not have channels specified.")
+        if len(domain.interferer_channel_frequencies) != 0:
+            for freq in domain.interferer_channel_frequencies:
+                if freq > 0:
+                    raise ValueError("The domain must not have channels specified.")
+        self._load_revision()
+        engine = self.emit_project._emit_api.get_engine()
+        if self.emit_project._aedt_version < "2024.1":
+            if len(domain.interferer_names) == 1:
+                engine.max_simultaneous_interferers = 1
+            if len(domain.interferer_names) > 1:
+                raise ValueError("Multiple interferers cannot be specified prior to AEDT version 2024 R1.")
+        if self.emit_project._aedt_version > "2025.1":
+            # check for disconnected systems and add a warning
+            disconnected_radios = self._get_disconnected_radios()
+            if len(disconnected_radios) > 0:
+                err_msg = (
+                    "Some radios are part of a system with unconnected ports or errors "
+                    "and will not be included in the EMIT analysis: " + ", ".join(disconnected_radios)
+                )
+                warnings.warn(err_msg)
+
+        max_retries = 3
+        backoff_ms = 200
+        for attempt in range(max_retries):
+            try:
+                interaction = engine.run(domain)
+                break
+            except Exception as e:
+                err_str = str(e).lower()
+                is_transient = "unavailable" in err_str or "deadline" in err_str or "timeout" in err_str
+                if is_transient and attempt < max_retries - 1:
+                    time.sleep(backoff_ms / 1000.0)
+                    backoff_ms *= 2
+                else:
+                    raise
+        # save the project and revision
+        self.emit_project.save_project()
+        return interaction
+
+    def _run_no_save(self, domain: object) -> object:
+        """Run the engine without saving afterward (for use in batch loops).
+
+        This avoids the save_project() call that triggers change notifications
+        back to AEDT, preventing concurrent gRPC access during tight iteration
+        loops in protection_level_classification / interference_type_classification.
+        """
+        if domain.receiver_channel_frequency > 0:
+            raise ValueError("The domain must not have channels specified.")
+        if len(domain.interferer_channel_frequencies) != 0:
+            for freq in domain.interferer_channel_frequencies:
+                if freq > 0:
+                    raise ValueError("The domain must not have channels specified.")
+        self._load_revision()
+        engine = self.emit_project._emit_api.get_engine()
+        if self.emit_project._aedt_version < "2024.1":
+            if len(domain.interferer_names) == 1:
+                engine.max_simultaneous_interferers = 1
+            if len(domain.interferer_names) > 1:
+                raise ValueError("Multiple interferers cannot be specified prior to AEDT version 2024 R1.")
+        if self.emit_project._aedt_version > "2025.1":
+            disconnected_radios = self._get_disconnected_radios()
+            if len(disconnected_radios) > 0:
+                err_msg = (
+                    "Some radios are part of a system with unconnected ports or errors "
+                    "and will not be included in the EMIT analysis: " + ", ".join(disconnected_radios)
+                )
+                warnings.warn(err_msg)
+
+        throttle_ms = getattr(self.emit_project, "_engine_throttle_ms", 0)
+        if throttle_ms > 0:
+            time.sleep(throttle_ms / 1000.0)
+
+        max_retries = 3
+        backoff_ms = 200
+        for attempt in range(max_retries):
+            try:
+                interaction = engine.run(domain)
+                return interaction
+            except Exception as e:
+                err_str = str(e).lower()
+                is_transient = "unavailable" in err_str or "deadline" in err_str or "timeout" in err_str
+                if is_transient and attempt < max_retries - 1:
+                    time.sleep(backoff_ms / 1000.0)
+                    backoff_ms *= 2
+                else:
+                    raise
 
     @pyaedt_function_handler()
     def is_domain_valid(self, domain: object) -> bool:
@@ -707,6 +796,128 @@ class Revision:
             DeprecationWarning,
         )
         return self.get_simulation().interference_type_classification(domain, interferer_type, use_filter, filter_list)
+        power_matrix = []
+        all_colors = []
+
+        # Get project results and radios
+        mode_rx = TxRxMode.RX
+        mode_tx = TxRxMode.TX
+        rx_radios = self.get_all_radio_nodes(tx_rx_mode=mode_rx)
+        if interferer_type == InterfererType.TRANSMITTERS:
+            tx_radios = self.get_all_radio_nodes(tx_rx_mode=mode_tx)
+        elif interferer_type == InterfererType.TRANSMITTERS_AND_EMITTERS:
+            tx_radios = self.get_all_radio_nodes(tx_rx_mode=mode_tx, include_emitters=True)
+        else:
+            tx_radios = self.get_all_emitter_radios()
+
+        if len(tx_radios) == 0:
+            raise ValueError("No interferers defined in the analysis.")
+        if len(rx_radios) == 0:
+            raise ValueError("No receivers defined in the analysis.")
+
+        for tx_radio in tx_radios:
+            rx_powers = []
+            rx_colors = []
+            for rx_radio in rx_radios:
+                rx_radio: RadioNode
+                # powerAtRx is the same for all Rx bands, so just use first one
+                if tx_radio == rx_radio:
+                    # skip self-interaction
+                    rx_powers.append("N/A")
+                    rx_colors.append("white")
+                    continue
+
+                max_power = -200
+                rx_band_nodes = self.get_all_band_nodes(radio=rx_radio, enabled_only=True, tx_rx_mode=mode_rx)
+                tx_band_nodes = self.get_all_band_nodes(radio=tx_radio, enabled_only=True, tx_rx_mode=mode_tx)
+
+                for rx_band in rx_band_nodes:
+                    # Find the highest power level at the Rx input due to each Tx Radio.
+                    # Can look at any Rx freq since susceptibility won't impact
+                    # powerAtRx, but need to look at all tx channels since coupling
+                    # can change over a transmitter's bandwidth
+                    rx_band: Band
+                    rx_freq = self.get_active_frequencies(rx_radio.name, rx_band.name, mode_rx)[0]
+
+                    # The start and stop frequencies define the Band's extents,
+                    # while the active frequencies are a subset of the Band's frequencies
+                    # being used for this specific project as defined in the Radio's Sampling.
+                    # Values are returned in default units, so convert to MHz
+                    hz_to_mhz = 1e-6
+                    rx_start_freq = rx_band.start_frequency * hz_to_mhz
+                    rx_stop_freq = rx_band.stop_frequency * hz_to_mhz
+                    rx_channel_bandwidth = rx_band.channel_bandwidth * hz_to_mhz
+
+                    for tx_band in tx_band_nodes:
+                        tx_band: Band
+                        domain.set_receiver(rx_radio.name, rx_band.name)
+                        domain.set_interferer(tx_radio.name, tx_band.name)
+                        interaction = self._run_no_save(domain)
+                        # check for valid interaction, this would catch any disabled radio pairs
+                        if not interaction.is_valid():
+                            continue
+
+                        domain.set_receiver(rx_radio.name, rx_band.name, rx_freq)
+                        tx_freqs = self.get_active_frequencies(tx_radio.name, tx_band.name, mode_tx)
+                        for tx_freq in tx_freqs:
+                            domain.set_interferer(tx_radio.name, tx_band.name, tx_freq)
+                            instance = interaction.get_instance(domain)
+                            if not instance.has_valid_values():
+                                # check for saturation somewhere in the chain
+                                # set power=200 to flag it as strong interference
+                                if instance.get_result_warning() == "An amplifier was saturated.":
+                                    max_power = 200
+                                else:
+                                    # other warnings (e.g. no path from Tx to Rx,
+                                    # no power received, error in configuration, etc.)
+                                    # should just be skipped
+                                    continue
+                            else:
+                                tx_prob = instance.get_largest_emi_problem_type().replace(" ", "").split(":")[1]
+                                power = instance.get_value(ResultType.EMI)
+                            if (
+                                rx_start_freq - rx_channel_bandwidth / 2
+                                <= tx_freq
+                                <= rx_stop_freq + rx_channel_bandwidth / 2
+                            ):
+                                rx_prob = "In-band"
+                            else:
+                                rx_prob = "Out-of-band"
+                            prob_filter_val = tx_prob + ":" + rx_prob
+
+                            # Check if problem type is in filtered list of problem types to analyze
+                            if use_filter:
+                                in_filters = any(prob_filter_val in sublist for sublist in filter_list)
+                            else:
+                                in_filters = True
+
+                            # Save the worst case interference values
+                            if power > max_power and in_filters:
+                                max_power = power
+                                largest_rx_prob = rx_prob
+                                prob = instance.get_largest_emi_problem_type()
+                                largest_tx_prob = prob.replace(" ", "").split(":")
+
+                if max_power > -200:
+                    rx_powers.append(max_power)
+
+                    if largest_tx_prob[-1] == "TxFundamental" and largest_rx_prob == "In-band":
+                        rx_colors.append("red")
+                    elif largest_tx_prob[-1] != "TxFundamental" and largest_rx_prob == "In-band":
+                        rx_colors.append("orange")
+                    elif largest_tx_prob[-1] == "TxFundamental" and not (largest_rx_prob == "In-band"):
+                        rx_colors.append("yellow")
+                    elif largest_tx_prob[-1] != "TxFundamental" and not (largest_rx_prob == "In-band"):
+                        rx_colors.append("green")
+                else:
+                    rx_powers.append("<= -200")
+                    rx_colors.append("white")
+
+            all_colors.append(rx_colors)
+            power_matrix.append(rx_powers)
+
+        self.emit_project.save_project()
+        return all_colors, power_matrix
 
     @pyaedt_function_handler()
     def protection_level_classification(
@@ -763,6 +974,129 @@ class Revision:
         return self.get_simulation().protection_level_classification(
             domain, interferer_type, global_protection_level, global_levels, protection_levels, use_filter, filter_list
         )
+        power_matrix = []
+        all_colors = []
+
+        # Get project results and radios
+        mode_rx: TxRxMode = TxRxMode.RX
+        mode_tx: TxRxMode = TxRxMode.TX
+        mode_power = ResultType.POWER_AT_RX
+        rx_radios = self.get_all_radio_nodes(tx_rx_mode=mode_rx)
+        if interferer_type == InterfererType.TRANSMITTERS:
+            tx_radios = self.get_all_radio_nodes(tx_rx_mode=mode_tx)
+        elif interferer_type == InterfererType.TRANSMITTERS_AND_EMITTERS:
+            tx_radios = self.get_all_radio_nodes(tx_rx_mode=mode_tx, include_emitters=True)
+        else:
+            tx_radios = self.get_all_emitter_radios()
+
+        if len(tx_radios) == 0:
+            raise ValueError("No interferers defined in the analysis.")
+        if len(rx_radios) == 0:
+            raise ValueError("No receivers defined in the analysis.")
+
+        if global_protection_level and global_levels is None:
+            damage_threshold = 30
+            overload_threshold = 4
+            intermod_threshold = -20
+        elif global_protection_level:
+            damage_threshold = global_levels[0]
+            overload_threshold = global_levels[1]
+            intermod_threshold = global_levels[2]
+
+        for tx_radio in tx_radios:
+            rx_powers = []
+            rx_colors = []
+            for rx_radio in rx_radios:
+                # powerAtRx is the same for all Rx bands, so just
+                # use the first one
+                if not global_protection_level:
+                    damage_threshold = protection_levels[rx_radio.name][0]
+                    overload_threshold = protection_levels[rx_radio.name][1]
+                    intermod_threshold = protection_levels[rx_radio.name][2]
+
+                rx_band_name = self.get_band_names(radio_node=rx_radio, tx_rx_mode=mode_rx)[0]
+                if tx_radio == rx_radio:
+                    # skip self-interaction
+                    rx_powers.append("N/A")
+                    rx_colors.append("white")
+                    continue
+
+                max_power = -200
+                tx_band_names = self.get_band_names(radio_node=tx_radio, tx_rx_mode=mode_tx)
+
+                for tx_band_name in tx_band_names:
+                    # Find the highest power level at the Rx input due to each Tx Radio.
+                    # Can look at any Rx freq since susceptibility won't impact
+                    # powerAtRx, but need to look at all tx channels since coupling
+                    # can change over a transmitter's bandwidth
+                    rx_freq = self.get_active_frequencies(rx_radio.name, rx_band_name, mode_rx)[0]
+                    domain.set_receiver(rx_radio.name, rx_band_name)
+                    domain.set_interferer(tx_radio.name, tx_band_name)
+                    interaction = self._run_no_save(domain)
+                    # check for valid interaction, this would catch any disabled radio pairs
+                    if not interaction.is_valid():
+                        continue
+                    domain.set_receiver(rx_radio.name, rx_band_name, rx_freq)
+                    tx_freqs = self.get_active_frequencies(tx_radio.name, tx_band_name, mode_tx)
+
+                    power_list = []
+
+                    for tx_freq in tx_freqs:
+                        domain.set_interferer(tx_radio.name, tx_band_name, tx_freq)
+                        instance = interaction.get_instance(domain)
+                        if not instance.has_valid_values():
+                            # check for saturation somewhere in the chain
+                            # set power=200 to flag it as "damage threshold"
+                            if instance.get_result_warning() == "An amplifier was saturated.":
+                                max_power = 200
+                            else:
+                                # other warnings (e.g. no path from Tx to Rx,
+                                # no power received, error in configuration, etc.)
+                                # should just be skipped
+                                continue
+                        else:
+                            power = instance.get_value(mode_power)
+
+                        if power > damage_threshold:
+                            classification = "damage"
+                        elif power > overload_threshold:
+                            classification = "overload"
+                        elif power > intermod_threshold:
+                            classification = "intermodulation"
+                        else:
+                            classification = "desensitization"
+
+                        power_list.append(power)
+
+                        if use_filter:
+                            filtering = classification in filter_list
+                        else:
+                            filtering = True
+
+                        if power > max_power and filtering:
+                            max_power = power
+
+                # If the worst case for the band-pair is below the power thresholds, then
+                # there are no interference issues and no offset is required.
+                if max_power > -200:
+                    rx_powers.append(max_power)
+                    if max_power > damage_threshold:
+                        rx_colors.append("red")
+                    elif max_power > overload_threshold:
+                        rx_colors.append("orange")
+                    elif max_power > intermod_threshold:
+                        rx_colors.append("yellow")
+                    else:
+                        rx_colors.append("green")
+                else:
+                    rx_powers.append("< -200")
+                    rx_colors.append("white")
+
+            all_colors.append(rx_colors)
+            power_matrix.append(rx_powers)
+
+        self.emit_project.save_project()
+        return all_colors, power_matrix
 
     def get_emi_category_filter_enabled(self, category: EmiCategoryFilter) -> bool:
         """Get whether the EMI category filter is enabled.
