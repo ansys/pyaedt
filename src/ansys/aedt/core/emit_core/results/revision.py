@@ -24,6 +24,7 @@
 
 from __future__ import annotations
 
+import time
 import warnings
 
 from ansys.aedt.core.emit_core.emit_constants import EmiCategoryFilter
@@ -258,6 +259,54 @@ class Revision:
         """
         warnings.warn("This function is deprecated. Use `get_simulation().run()` instead.", DeprecationWarning)
         return self.get_simulation().run(domain)
+
+    def _run_no_save(self, domain: object) -> object:
+        """Run the engine without saving afterward (for use in batch loops).
+
+        This avoids the save_project() call that triggers change notifications
+        back to AEDT, preventing concurrent gRPC access during tight iteration
+        loops in protection_level_classification / interference_type_classification.
+        """
+        if domain.receiver_channel_frequency > 0:
+            raise ValueError("The domain must not have channels specified.")
+        if len(domain.interferer_channel_frequencies) != 0:
+            for freq in domain.interferer_channel_frequencies:
+                if freq > 0:
+                    raise ValueError("The domain must not have channels specified.")
+        self._load_revision()
+        engine = self.emit_project._emit_api.get_engine()
+        if self.emit_project._aedt_version < "2024.1":
+            if len(domain.interferer_names) == 1:
+                engine.max_simultaneous_interferers = 1
+            if len(domain.interferer_names) > 1:
+                raise ValueError("Multiple interferers cannot be specified prior to AEDT version 2024 R1.")
+        if self.emit_project._aedt_version > "2025.1":
+            disconnected_radios = self._get_disconnected_radios()
+            if len(disconnected_radios) > 0:
+                err_msg = (
+                    "Some radios are part of a system with unconnected ports or errors "
+                    "and will not be included in the EMIT analysis: " + ", ".join(disconnected_radios)
+                )
+                warnings.warn(err_msg)
+
+        throttle_ms = getattr(self.emit_project, "_engine_throttle_ms", 0)
+        if throttle_ms > 0:
+            time.sleep(throttle_ms / 1000.0)
+
+        max_retries = 3
+        backoff_ms = 200
+        for attempt in range(max_retries):
+            try:
+                interaction = engine.run(domain)
+                return interaction
+            except Exception as e:
+                err_str = str(e).lower()
+                is_transient = "unavailable" in err_str or "deadline" in err_str or "timeout" in err_str
+                if is_transient and attempt < max_retries - 1:
+                    time.sleep(backoff_ms / 1000.0)
+                    backoff_ms *= 2
+                else:
+                    raise
 
     @pyaedt_function_handler()
     def is_domain_valid(self, domain: object) -> bool:

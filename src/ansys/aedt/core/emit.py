@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import time
 import warnings
 
 from ansys.aedt.core import emit_core
@@ -186,6 +187,10 @@ class Emit(Design, PyAedtBase):
         elif self._aedt_version >= "2027.1":
             self.results = Results(self)
             """''Result'' object for the selected design."""
+
+        # Throttle delay (ms) between consecutive engine.run() calls.
+        # Non-zero for AEDT <= 26.1 to avoid overwhelming the iemit gRPC server.
+        self._engine_throttle_ms = 50 if self._aedt_version <= "2026.1" else 0
 
     def _init_from_design(self, *args, **kwargs) -> None:
         self.__init__(*args, **kwargs)
@@ -421,4 +426,28 @@ class Emit(Design, PyAedtBase):
 
         result = Design.save_project(self, file_name, overwrite, refresh_ids)
 
+        return result
+
+    def close_project(self, name: str = None, save: bool = True) -> bool:
+        """Close an AEDT project with a quiesce barrier for EMIT.
+
+        On AEDT <= 26.1, adds a brief delay after closing to allow the iemit
+        subprocess event pipeline to fully drain before a subsequent InsertDesign.
+        This prevents the DesignInstanceBase assertion crash that causes hangs.
+
+        Parameters
+        ----------
+        name : str, optional
+            Name of the project. The default is ``None``.
+        save : bool, optional
+            Whether to save the project before closing. The default is ``True``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        result = Design.close_project(self, name, save)
+        if self._aedt_version <= "2026.1":
+            time.sleep(1.0)
         return result
