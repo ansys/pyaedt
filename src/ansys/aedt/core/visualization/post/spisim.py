@@ -642,10 +642,10 @@ class SpiSim(PyAedtBase):
             ``"COM_CHNICN"`` and returns the ``"ICN"`` result. Passing ``True`` uses
             ``"PCIE_CCICN"`` and returns the ``"ccICN"`` result. Integer values map to
             ``0`` for ``"COM_CHNICN"``, ``1`` for ``"PCIE_CCICN"``, and ``2`` for
-            ``"CUSTOMER_CCICN"``. String values can be ``"COM_CHNICN"``,
-            ``"PCIE_CCICN"``, or ``"CUSTOMER_CCICN"``. ``"CUSTOMER_CCICN"`` is a generic custom parameters approach
+            ``"GENERIC_CCICN"``. String values can be ``"COM_CHNICN"``,
+            ``"PCIE_CCICN"``, or ``"GENERIC_CCICN"``. ``"GENERIC_CCICN"`` is a generic custom parameters approach
             supported in AEDT 2027 R1 and later.
-            In order to customize parameters for `"CUSTOMER_CCICN"`` user can provide a custom `"config_file"``.
+            In order to customize parameters for ``"GENERIC_CCICN"`` user can provide a custom ``"config_file"``.
         bandwidth : float, str, optional
             Application bandwidth in hertz (Hz), which is the inverse of one UI (unit interval). The value
             can be a float or a string with the unit ("m", "g"). The default is ``25e9``.
@@ -667,8 +667,8 @@ class SpiSim(PyAedtBase):
         >>> icn = spisim.compute_icn(port_order="EvenOdd", fext_s4p=fext_s4p, next_s4p=next_s4p, bandwidth=10e9)
 
         """
-        if self.__version < "2027.1" and use_pcie_icn == 2 or use_pcie_icn == "CUSTOMER_CCICN":
-            raise AEDTRuntimeError("CUSTOMER_CCICN is not supported in version lower than 2027.1.")
+        if self.__version < "2027.1" and use_pcie_icn == 2 or use_pcie_icn in ["CUSTOMER_CCICN", "GENERIC_CCICN"]:
+            raise AEDTRuntimeError("GENERIC_CCICN is not supported in version lower than 2027.1.")
 
         if isinstance(use_pcie_icn, int):
             if use_pcie_icn == 0:  # pragma: no cover
@@ -677,7 +677,14 @@ class SpiSim(PyAedtBase):
                 standard = "PCIE_CCICN"
             else:  # pragma: no cover
                 standard = "CUSTOMER_CCICN"
-        elif isinstance(use_pcie_icn, str) and use_pcie_icn in ["COM_CHNICN", "PCIE_CCICN", "CUSTOMER_CCICN"]:
+        elif isinstance(use_pcie_icn, str) and use_pcie_icn in [
+            "COM_CHNICN",
+            "PCIE_CCICN",
+            "CUSTOMER_CCICN",
+            "GENERIC_CCICN",
+        ]:
+            if use_pcie_icn == "GENERIC_CCICN":
+                use_pcie_icn = "CUSTOMER_CCICN"
             standard = use_pcie_icn
         else:
             standard = "PCIE_CCICN" if use_pcie_icn else "COM_CHNICN"
