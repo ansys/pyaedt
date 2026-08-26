@@ -48,7 +48,7 @@ from ansys.aedt.core.internal.errors import GrpcApiError
 from tests import TESTS_EMIT_PATH
 from tests.conftest import DESKTOP_VERSION
 
-# Temporarily skip Emit system tests in CI when explicitly requested.
+# Temporarily skip all Emit system tests in CI when explicitly requested.
 # Use SKIP_EMIT_TESTS to make the skip opt-in and reversible from CI config.
 if os.getenv("SKIP_EMIT_TESTS", "").lower() in ("1", "true", "yes"):
     pytest.skip("SKIP_EMIT_TESTS set; skipping Emit tests in CI", allow_module_level=True)
