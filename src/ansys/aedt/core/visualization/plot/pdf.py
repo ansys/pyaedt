@@ -834,20 +834,43 @@ class AnsysReport(PyAedtBase):
         width_mm = block.width_mm or block.max_width_mm or available_width_mm
         height_mm = block.height_mm
         page_capacity_mm = self._content_end_y_mm(page_height_mm) - self._content_start_y_mm()
+        caption_height_mm = _pt_to_mm(self.report_specs.caption_font_size * 1.35) + 3.0 if block.caption else 0.0
+        minimum_image_width_mm = 50.0
+        minimum_image_height_mm = 35.0
         if image_width_px and image_height_px:
             aspect_ratio = image_height_px / image_width_px
             if block.keep_aspect_ratio:
-                max_width_mm = block.max_width_mm or available_width_mm
-                max_height_mm = block.max_height_mm or (self._content_end_y_mm(page_height_mm) - cursor_y_mm)
+                max_width_mm = block.max_width_mm or max(0.0, available_width_mm - 50.0)
+                max_height_mm = block.max_height_mm or max(
+                    0.0, self._content_end_y_mm(page_height_mm) - cursor_y_mm - caption_height_mm
+                )
                 width_mm = max_width_mm
                 height_mm = width_mm * aspect_ratio
-                if height_mm > max_height_mm:
+                if max_height_mm and height_mm > max_height_mm:
                     height_mm = max_height_mm
                     width_mm = height_mm / aspect_ratio
             elif height_mm is None:
                 height_mm = width_mm * aspect_ratio
         elif height_mm is None:
             height_mm = width_mm
+
+        if (
+            block.keep_aspect_ratio
+            and cursor_y_mm > self._content_start_y_mm()
+            and (width_mm < minimum_image_width_mm or height_mm < minimum_image_height_mm)
+        ):
+            page_builder, cursor_y_mm, page_number = self._advance_content_page(
+                page_builder, page_width_mm, page_height_mm, page_number, total_pages, draw
+            )
+            max_width_mm = block.max_width_mm or max(0.0, available_width_mm - 50.0)
+            max_height_mm = block.max_height_mm or max(
+                0.0, self._content_end_y_mm(page_height_mm) - cursor_y_mm - caption_height_mm
+            )
+            width_mm = max_width_mm
+            height_mm = width_mm * aspect_ratio if image_width_px and image_height_px else width_mm
+            if max_height_mm and height_mm > max_height_mm and image_width_px and image_height_px:
+                height_mm = max_height_mm
+                width_mm = height_mm / aspect_ratio
 
         if (
             cursor_y_mm + height_mm > self._content_end_y_mm(page_height_mm)
@@ -857,7 +880,9 @@ class AnsysReport(PyAedtBase):
                 page_builder, page_width_mm, page_height_mm, page_number, total_pages, draw
             )
             if block.keep_aspect_ratio:
-                max_height_mm = block.max_height_mm or (self._content_end_y_mm(page_height_mm) - cursor_y_mm)
+                max_height_mm = block.max_height_mm or max(
+                    0.0, self._content_end_y_mm(page_height_mm) - cursor_y_mm - caption_height_mm
+                )
                 if height_mm > max_height_mm:
                     if image_width_px and image_height_px:
                         aspect_ratio = image_height_px / image_width_px
@@ -932,6 +957,40 @@ class AnsysReport(PyAedtBase):
             col_widths_mm = [table_total_width_mm / len(block.content[0])] * len(block.content[0])
 
         table_font = self.report_specs.table_font_size
+        page_builder.font(_font_name(self.report_specs.font), table_font)
+        line_counts = [
+            max(
+                1,
+                max(
+                    (
+                        len(_wrap_text_lines(page_builder, str(row[index]), _mm_to_pt(col_widths_mm[index] - 2.0)))
+                        for index in range(min(len(row), len(col_widths_mm)))
+                    ),
+                    default=1,
+                ),
+            )
+            for row in block.content
+        ]
+        sorted_counts = sorted(line_counts)
+        typical_lines = sorted_counts[len(sorted_counts) // 2] if sorted_counts else 1
+        while table_font > 6 and max(line_counts, default=1) > max(3, typical_lines * 2):
+            table_font -= 1
+            page_builder.font(_font_name(self.report_specs.font), table_font)
+            line_counts = [
+                max(
+                    1,
+                    max(
+                        (
+                            len(_wrap_text_lines(page_builder, str(row[index]), _mm_to_pt(col_widths_mm[index] - 2.0)))
+                            for index in range(min(len(row), len(col_widths_mm)))
+                        ),
+                        default=1,
+                    ),
+                )
+                for row in block.content
+            ]
+            sorted_counts = sorted(line_counts)
+            typical_lines = sorted_counts[len(sorted_counts) // 2] if sorted_counts else 1
         line_height_mm = _pt_to_mm(table_font * 1.3)
         padding_mm = 1.0
         cursor_y_mm += 1.0
@@ -941,6 +1000,33 @@ class AnsysReport(PyAedtBase):
             return page_builder, cursor_y_mm, page_number, outline_entries
 
         header_row = rows[0]
+        if len(rows) > 1:
+            page_builder.font(_font_name(self.report_specs.font, bold=True), table_font)
+            header_lines = [
+                _wrap_text_lines(page_builder, str(datum), _mm_to_pt(col_widths_mm[index] - 2 * padding_mm))
+                for index, datum in enumerate(header_row)
+            ]
+            page_builder.font(_font_name(self.report_specs.font), table_font)
+            first_data_lines = [
+                _wrap_text_lines(page_builder, str(datum), _mm_to_pt(col_widths_mm[index] - 2 * padding_mm))
+                for index, datum in enumerate(rows[1])
+            ]
+            header_height_mm = max(
+                (max(len(lines), 1) * line_height_mm + 2 * padding_mm for lines in header_lines),
+                default=line_height_mm + 2 * padding_mm,
+            )
+            first_data_height_mm = max(
+                (max(len(lines), 1) * line_height_mm + 2 * padding_mm for lines in first_data_lines),
+                default=line_height_mm + 2 * padding_mm,
+            )
+            first_rows_height_mm = header_height_mm + first_data_height_mm
+            if (
+                cursor_y_mm + first_rows_height_mm > self._content_end_y_mm(page_height_mm)
+                and cursor_y_mm > self._content_start_y_mm()
+            ):
+                page_builder, cursor_y_mm, page_number = self._advance_content_page(
+                    page_builder, page_width_mm, page_height_mm, page_number, total_pages, draw
+                )
         row_index = 0
         while row_index < len(rows):
             row = rows[row_index]
@@ -1034,7 +1120,12 @@ class AnsysReport(PyAedtBase):
         return page_builder, cursor_y_mm + 1.0, page_number, outline_entries
 
     def _render_toc_page(
-        self, page_builder, page_width_mm: float, page_height_mm: float, outline_entries: list[tuple[int, str, int]]
+        self,
+        page_builder,
+        page_width_mm: float,
+        page_height_mm: float,
+        outline_entries: list[tuple[int, str, int]],
+        toc_page: int = 0,
     ) -> None:
         cursor_y_mm = self._top_margin_mm() + 5.0
         _, cursor_y_mm, _, _ = self._render_text_block(
@@ -1055,20 +1146,41 @@ class AnsysReport(PyAedtBase):
         cursor_y_mm += 3.0
         left_pt = _mm_to_pt(self._left_margin_mm())
         available_width_pt = _mm_to_pt(self._effective_width_mm(page_width_mm))
-        page_builder.font(_font_name(self.report_specs.font), 12.0)
-        for level, title, page_number in outline_entries:
-            y_pt = _mm_to_pt(page_height_mm - cursor_y_mm - _pt_to_mm(12.0 * 1.2))
+        toc_entry_font_size = 10.0
+        entries_per_page = max(1, int((self._content_end_y_mm(page_height_mm) - cursor_y_mm - 5.0) / 5.5))
+        start = toc_page * entries_per_page
+        end = start + entries_per_page
+        for level, title, page_number in outline_entries[start:end]:
+            entry_font_size = toc_entry_font_size + (1.0 if level == 0 else 0.0)
+            page_builder.font(_font_name(self.report_specs.font, bold=level == 0), entry_font_size)
+            y_pt = _mm_to_pt(page_height_mm - cursor_y_mm - _pt_to_mm(entry_font_size * 1.2))
             indent_pt = _mm_to_pt(6.0 * level)
-            _draw_colored_text(page_builder, left_pt + indent_pt, y_pt, title, tuple(self.report_specs.font_color))
+            page_builder.at(left_pt + indent_pt, y_pt).text(title).link_page(max(0, page_number - 1))
+            page_builder.font(_font_name(self.report_specs.font), entry_font_size)
             page_builder.text_in_rect(
                 left_pt,
                 y_pt,
                 available_width_pt,
-                _mm_to_pt(5.0),
+                _pt_to_mm(entry_font_size * 1.2),
                 f"Page {page_number}",
                 "right",
             )
-            cursor_y_mm += 5.5
+            cursor_y_mm += _pt_to_mm(entry_font_size * 1.2) + 1.5
+
+    def _toc_entry_count(self, pages: list[_PdfOxidePage]) -> int:
+        """Estimate the number of entries needed to paginate the table of contents."""
+        count = 0
+        for page in pages:
+            if page.kind != "content":
+                continue
+            for block in page.blocks:
+                if isinstance(block, _PdfOxideTextBlock) and block.outline_level is not None:
+                    count += 1
+                elif isinstance(block, _PdfOxideImageBlock) and block.caption:
+                    count += 1
+                elif isinstance(block, _PdfOxideTableBlock):
+                    count += 1
+        return count
 
     def _count_physical_pages(self, pages: list[_PdfOxidePage], DocumentBuilder) -> int:
         figure_idx = self.__figure_idx
@@ -1146,13 +1258,22 @@ class AnsysReport(PyAedtBase):
 
         pages = list(self._pages)
         if self._toc_requested:
-            pages.append(_PdfOxidePage(portrait=self.use_portrait, page_format="a4", kind="toc"))
+            toc_page_height_mm = _page_size_mm("a4", self.use_portrait)[1]
+            toc_start_y_mm = self._top_margin_mm() + 5.0 + _pt_to_mm(self.report_specs.title_font_size * 1.35) + 3.0
+            toc_entries_per_page = max(
+                1, int((self._content_end_y_mm(toc_page_height_mm) - toc_start_y_mm - 5.0) / 5.5)
+            )
+            toc_page_count = max(1, (self._toc_entry_count(pages) + toc_entries_per_page - 1) // toc_entries_per_page)
+            pages.extend(
+                _PdfOxidePage(portrait=self.use_portrait, page_format="a4", kind="toc") for _ in range(toc_page_count)
+            )
 
         total_pages = self._count_physical_pages(pages, DocumentBuilder)
         self.__figure_idx = 1
         self.__table_idx = 1
         outline_entries: list[tuple[int, str, int]] = []
         page_number = 1
+        toc_page = 0
         for page in pages:
             page_width_mm, page_height_mm = _page_size_mm(page.page_format, page.portrait)
             page_builder = builder.page(_mm_to_pt(page_width_mm), _mm_to_pt(page_height_mm))
@@ -1164,9 +1285,10 @@ class AnsysReport(PyAedtBase):
                 page_number += 1
             elif page.kind == "toc":
                 self._invoke_header(page_builder, page_width_mm, page_height_mm)
-                self._render_toc_page(page_builder, page_width_mm, page_height_mm, outline_entries)
+                self._render_toc_page(page_builder, page_width_mm, page_height_mm, outline_entries, toc_page)
                 self._invoke_footer(page_builder, page_width_mm, page_number, total_pages)
                 page_number += 1
+                toc_page += 1
             else:
                 self._invoke_header(page_builder, page_width_mm, page_height_mm)
                 cursor_y_mm = self._content_start_y_mm()
