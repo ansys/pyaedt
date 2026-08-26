@@ -432,9 +432,7 @@ class Emit(Design, PyAedtBase):
             ``True`` when successful, ``False`` when failed.
         """
         try:
-            result = self._call_with_timeout(
-                Design.close_project, args=(self, name, save), timeout_seconds=60
-            )
+            result = self._call_with_timeout(Design.close_project, args=(self, name, save), timeout_seconds=60)
         except TimeoutError:
             warnings.warn(
                 "Emit.close_project() timed out after 60s - AEDT may be unresponsive. "
@@ -467,10 +465,17 @@ class Emit(Design, PyAedtBase):
         """Check if the given process has any iemit.exe child processes (Windows)."""
         try:
             result = subprocess.run(
-                ["wmic", "process", "where",
-                 f"(ParentProcessId={parent_pid} and Name='iemit.exe')",
-                 "get", "ProcessId"],
-                capture_output=True, text=True, timeout=5
+                [
+                    "wmic",
+                    "process",
+                    "where",
+                    f"(ParentProcessId={parent_pid} and Name='iemit.exe')",
+                    "get",
+                    "ProcessId",
+                ],
+                capture_output=True,
+                text=True,
+                timeout=5,
             )
             lines = [ln.strip() for ln in result.stdout.splitlines() if ln.strip() and ln.strip() != "ProcessId"]
             return len(lines) > 0
@@ -488,6 +493,5 @@ class Emit(Design, PyAedtBase):
                 return future.result(timeout=timeout_seconds)
             except concurrent.futures.TimeoutError:
                 raise TimeoutError(
-                    f"EMIT operation timed out after {timeout_seconds}s. "
-                    "The iemit.exe subprocess may be unresponsive."
+                    f"EMIT operation timed out after {timeout_seconds}s. The iemit.exe subprocess may be unresponsive."
                 )

@@ -262,8 +262,7 @@ class Revision:
                 break
             except concurrent.futures.TimeoutError:
                 raise TimeoutError(
-                    f"engine.run() timed out after {run_timeout}s. "
-                    "The iemit.exe subprocess may be unresponsive."
+                    f"engine.run() timed out after {run_timeout}s. The iemit.exe subprocess may be unresponsive."
                 )
             except Exception as e:
                 err_str = str(e).lower()
@@ -321,8 +320,7 @@ class Revision:
                 return interaction
             except concurrent.futures.TimeoutError:
                 raise TimeoutError(
-                    f"engine.run() timed out after {run_timeout}s. "
-                    "The iemit.exe subprocess may be unresponsive."
+                    f"engine.run() timed out after {run_timeout}s. The iemit.exe subprocess may be unresponsive."
                 )
             except Exception as e:
                 err_str = str(e).lower()
