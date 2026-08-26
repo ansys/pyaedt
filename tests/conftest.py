@@ -40,6 +40,7 @@ import pytest
 from ansys.aedt.core import Desktop
 from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.file_utils import available_file_name
+from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.hfss import Hfss
 
@@ -387,12 +388,12 @@ def add_app_example(test_tmp_dir, desktop, tmp_path_factory):
         if not is_edb:
             aedt_project = base / f"{project}.aedt"
             if aedt_project.exists():
-                dst = test_tmp_dir / aedt_project.name
+                dst = test_tmp_dir / f"{generate_unique_name(project)}.aedt"
                 shutil.copy2(aedt_project, dst)
                 test_project = dst
             elif aedt_project.with_suffix(aedt_project.suffix + "z").exists():
                 example_project_z = aedt_project.with_suffix(aedt_project.suffix + "z")
-                dst = test_tmp_dir / example_project_z.name
+                dst = test_tmp_dir / f"{generate_unique_name(project)}.aedtz"
                 shutil.copy2(example_project_z, dst)
                 test_project = dst
             else:
