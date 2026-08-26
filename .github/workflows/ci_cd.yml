@@ -49,13 +49,13 @@ jobs:
     runs-on: [self-hosted, pyaedt-ci-0]
     steps:
       - name: Resolve home dir
-        shell: pwsh
+        shell: bash
         run: |
-          "HOME_DIR=$env:USERPROFILE" >> $env:GITHUB_ENV
-          Write-Host "HOME_DIR=$env:USERPROFILE"
+          echo "HOME_DIR=$HOME" >> "$GITHUB_ENV"
+          echo "HOME_DIR=$HOME"
 
       - name: Upload hang file
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: emit_hangs
-          path: ${{ env.HOME_DIR }}\EMIT_HANGS
+          path: ${{ env.HOME_DIR }}/EMIT_HANGS
