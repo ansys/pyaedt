@@ -23,7 +23,8 @@
 # SOFTWARE.
 
 import concurrent.futures
-import subprocess
+import ctypes
+import ctypes.wintypes
 import time
 import warnings
 
@@ -406,7 +407,7 @@ class Emit(Design, PyAedtBase):
             except TimeoutError:
                 warnings.warn("EMIT save_project timed out - iemit may be unresponsive")
             except Exception:
-                pass
+                warnings.warn("EMIT unknown error occurred during save_project")
 
         result = Design.save_project(self, file_name, overwrite, refresh_ids)
 
@@ -462,25 +463,52 @@ class Emit(Design, PyAedtBase):
 
     @staticmethod
     def _has_iemit_children(parent_pid: int) -> bool:
-        """Check if the given process has any iemit.exe child processes (Windows)."""
+        """Check if the given process has any iemit.exe child processes (Windows).
+
+        Uses the Windows Toolhelp32 API via ctypes to enumerate processes
+        without spawning a subprocess.
+        """
+        TH32CS_SNAPPROCESS = 0x00000002
+
+        class PROCESSENTRY32(ctypes.Structure):
+            _fields_ = [
+                ("dwSize", ctypes.wintypes.DWORD),
+                ("cntUsage", ctypes.wintypes.DWORD),
+                ("th32ProcessID", ctypes.wintypes.DWORD),
+                ("th32DefaultHeapID", ctypes.POINTER(ctypes.c_ulong)),
+                ("th32ModuleID", ctypes.wintypes.DWORD),
+                ("cntThreads", ctypes.wintypes.DWORD),
+                ("th32ParentProcessID", ctypes.wintypes.DWORD),
+                ("pcPriClassBase", ctypes.c_long),
+                ("dwFlags", ctypes.wintypes.DWORD),
+                ("szExeFile", ctypes.c_char * 260),
+            ]
+
         try:
-            result = subprocess.run(
-                [
-                    "wmic",
-                    "process",
-                    "where",
-                    f"(ParentProcessId={parent_pid} and Name='iemit.exe')",
-                    "get",
-                    "ProcessId",
-                ],
-                capture_output=True,
-                text=True,
-                timeout=5,
-            )
-            lines = [ln.strip() for ln in result.stdout.splitlines() if ln.strip() and ln.strip() != "ProcessId"]
-            return len(lines) > 0
+            kernel32 = ctypes.windll.kernel32
+            snapshot = kernel32.CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0)
+            if snapshot == -1:
+                return False
+
+            entry = PROCESSENTRY32()
+            entry.dwSize = ctypes.sizeof(PROCESSENTRY32)
+
+            if not kernel32.Process32First(snapshot, ctypes.byref(entry)):
+                kernel32.CloseHandle(snapshot)
+                return False
+
+            while True:
+                if (entry.th32ParentProcessID == parent_pid
+                        and entry.szExeFile.decode("utf-8", errors="ignore").lower() == "iemit.exe"):
+                    kernel32.CloseHandle(snapshot)
+                    return True
+                if not kernel32.Process32Next(snapshot, ctypes.byref(entry)):
+                    break
+
+            kernel32.CloseHandle(snapshot)
         except Exception:
-            return False
+            pass
+        return False
 
     @staticmethod
     def _call_with_timeout(func, args=(), kwargs=None, timeout_seconds=120):
