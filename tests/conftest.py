@@ -337,7 +337,7 @@ def add_app(test_tmp_dir, desktop, tmp_path_factory):
                 desktop.odesktop.CloseProject(project_name)
 
         if project is None:
-            project = "pyaedt_test"
+            project = generate_unique_name("pyaedt_test")
 
         if project and Path(project).is_file():
             project_file = Path(project)
