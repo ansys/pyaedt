@@ -211,8 +211,6 @@ jobs:
 
   system-tests-emit-windows:
     name: Test EMIT (windows)
-    needs: [integration-tests, analyze-changes]
-    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
