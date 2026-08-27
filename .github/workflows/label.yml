@@ -132,7 +132,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     # NOTE: Temporary pin of ansys/actions to avoid the breaking change side effect.
-    - uses: ansys/actions/doc-changelog@84b6533ae76f5dde69a1df26c18682160a8121cf # v10.3.5
+    - uses: ansys/actions/doc-changelog@0b23d99e6800f16337ff173fcfbfcc1251130e99 # v11.0.2
       with:
         bot-email: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
         bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
