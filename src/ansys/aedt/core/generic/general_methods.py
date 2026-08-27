@@ -1519,23 +1519,22 @@ def all_active_sessions() -> dict[str, dict[int, int]]:
             - ``ansysedt.exe`` (standard version)
             - ``ansysedtsv.exe`` (student version)
 
-        **Step 2: Command-Line Parsing**
             For each discovered process, extracts the gRPC port from the ``-grpcsrv``
             command-line argument if present. Initially sets port to ``-1`` (COM mode)
             if no gRPC argument is found.
 
-        **Step 3: Unix Socket Analysis** (Linux only)
+        **Step 2: Unix Socket Analysis** (Linux only)
             If any processes have port ``-1`` on Linux, runs ``ss -Hnlp`` to analyze
             Unix domain sockets. AEDT local connections use socket files with names
             like ``AnsysEMUDS-50051.sock`` from which port numbers are extracted.
 
-        **Step 4: Command-Line Version Detection**
+        **Step 3: Command-Line Version Detection**
             Parses the full command-line path to extract:
             - AEDT version
             - Execution mode (``graphical`` or ``nongraphical``)
             - Student version
 
-        **Step 5: TCP Connection Analysis**
+        **Step 4: TCP Connection Analysis**
             For any processes still without port information, checks TCP network
             connections to locate the listening gRPC port. Uses ``psutil`` to
             correlate process IDs with active network connections.
@@ -1562,40 +1561,36 @@ def all_active_sessions() -> dict[str, dict[int, int]]:
     >>> sessions = all_active_sessions()
 
     """
-    # Step 1: Determine target process names based on version type and operating system
-    # Student version uses different executable names (ansysedtsv vs ansysedt)
-
-    targets = ["ansysedtsv.exe", "ansysedt.exe"]
-
-    # Step 2: Get all matching AEDT processes from the system
+    # Step 1: Determine target process names based on version type and operating system.
+    # Student version uses different executable names (ansysedtsv vs ansysedt).
     # Returns list of tuples: [(pid, command_line_args), ...]
 
-    target_processes = _get_target_processes(targets)
+    target_processes = _get_target_processes(["ansysedtsv.exe", "ansysedt.exe"])
 
     # AEDT processes launched
-    return_dict = {pid: -1 for pid, _ in target_processes}
+    res = {pid: -1 for pid, _ in target_processes}
 
-    # Step 3: On Linux, try to resolve unknown ports using Unix socket analysis
+    # Step 2: On Linux, try to resolve unknown ports using Unix socket analysis
     # In Linux, running AEDT locally uses Unix domain sockets with filenames containing port numbers
     # Example socket: AnsysEMUDS-50051.sock
-    if is_linux and any(port == -1 for port in return_dict.values()):
+    if is_linux and any(port == -1 for port in res.values()):
         try:
             # Run 'ss -Hnlp' command to get Unix socket information
             sockets = _run_ss()  # Returns {pid: port} mapping from socket filenames
 
-            # Update return_dict with discovered ports
+            # Update res with discovered ports
             for pid, port in sockets.items():
                 # Only update if PID is in our results and port is still unknown (-1)
-                if pid in return_dict and return_dict[pid] == -1:
-                    return_dict[pid] = port
+                if pid in res and res[pid] == -1:
+                    res[pid] = port
         except Exception as e:
             # Log but don't fail - we have other detection methods
             pyaedt_logger.debug(f"Failed to analyze Unix sockets for port detection: {str(e)}")
 
-    # Step 4: Get all TCP connections for AEDT processes
-    connections = _check_psutil_connections(list(return_dict.keys()))
+    # Step 3: Get all TCP connections for AEDT processes
+    connections = _check_psutil_connections(list(res.keys()))
     return_dict_filtered = {}
-    for pid, port in return_dict.items():
+    for pid, port in res.items():
         cmdline = ""
         if pid in connections and len(connections[pid]) > 0 and "cmdline" in connections[pid][0]:
             cmdline = connections[pid][0]["cmdline"]
@@ -1619,7 +1614,7 @@ def all_active_sessions() -> dict[str, dict[int, int]]:
                 f"Failed to retrieve AEDT version, the version should be included in the command line: {cmdline}."
             )
 
-    # Step 5: Try to find ports by checking TCP network connections
+    # Step 4: Try to find ports by checking TCP network connections
     for version, sessions in return_dict_filtered.items():
         if any(port == -1 for port in sessions.values()):
             for pid in [i for i, v in sessions.items() if v == -1]:
