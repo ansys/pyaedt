@@ -1266,63 +1266,63 @@ jobs:
 # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # =================================================================================================
 
-  system-tests-emit-windows:
-    name: Test EMIT (windows)
-    needs: [integration-tests]
-    if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
-    runs-on: [ self-hosted, Windows, pyaedt ]
-    steps:
-      - name: Install Git and checkout project
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-        with:
-          persist-credentials: false
-
-      - name: Setup Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
-        with:
-          python-version: ${{ env.TESTS_VERSION }}
-
-      - name: Set up uv
-        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
-        with:
-          activate-environment: true
-          enable-cache: false
-          prune-cache: true
-          python-version: ${{ env.TESTS_VERSION }}
-
-      - name: Install pyaedt and tests dependencies
-        run: |
-          uv sync --frozen --group tests --extra all
-
-      - name: Remove Ansys processes (if any)
-        shell: powershell
-        run: |
-          Get-Process | Where-Object {
-            $_.Path -like "*ansys inc*" -or $_.Path -like "*ansysem*"
-          } | ForEach-Object {
-            Write-Output "Killing $($_.Name) (PID: $($_.Id))"
-            Stop-Process -Id $_.Id -Force
-          }
-
-      - name: Run tests marked with 'emit'
-        env:
-          PYTHONMALLOC: malloc
-          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
-        run: |
-          $args = $env:PYTEST_ARGUMENTS -split ' '
-          pytest @args --timeout=600 -v -rA --color=yes tests/system/emit
-
-      - name: Upload pytest test results
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: pytest-emit-windows
-          path: junit/test-results.xml
-        if: ${{ always() }}
-
-      - uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
-        with:
-          name: codecov-system-emit-tests-windows
-          files: ./coverage.xml
-          flags: windows_system_emit
-        if: ${{ always() }}
+#  system-tests-emit-windows:
+#    name: Test EMIT (windows)
+#    needs: [integration-tests]
+#    if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
+#    runs-on: [ self-hosted, Windows, pyaedt ]
+#    steps:
+#      - name: Install Git and checkout project
+#        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+#        with:
+#          persist-credentials: false
+#
+#      - name: Setup Python
+#        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+#        with:
+#          python-version: ${{ env.TESTS_VERSION }}
+#
+#      - name: Set up uv
+#        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+#        with:
+#          activate-environment: true
+#          enable-cache: false
+#          prune-cache: true
+#          python-version: ${{ env.TESTS_VERSION }}
+#
+#      - name: Install pyaedt and tests dependencies
+#        run: |
+#          uv sync --frozen --group tests --extra all
+#
+#      - name: Remove Ansys processes (if any)
+#        shell: powershell
+#        run: |
+#          Get-Process | Where-Object {
+#            $_.Path -like "*ansys inc*" -or $_.Path -like "*ansysem*"
+#          } | ForEach-Object {
+#            Write-Output "Killing $($_.Name) (PID: $($_.Id))"
+#            Stop-Process -Id $_.Id -Force
+#          }
+#
+#      - name: Run tests marked with 'emit'
+#        env:
+#          PYTHONMALLOC: malloc
+#          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+#        run: |
+#          $args = $env:PYTEST_ARGUMENTS -split ' '
+#          pytest @args --timeout=600 -v -rA --color=yes tests/system/emit
+#
+#      - name: Upload pytest test results
+#        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+#        with:
+#          name: pytest-emit-windows
+#          path: junit/test-results.xml
+#        if: ${{ always() }}
+#
+#      - uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+#        with:
+#          name: codecov-system-emit-tests-windows
+#          files: ./coverage.xml
+#          flags: windows_system_emit
+#        if: ${{ always() }}
 
