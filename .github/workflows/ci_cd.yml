@@ -243,11 +243,11 @@ jobs:
         if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip-testmon') }}
         uses: ./.github/actions/check-cache
 
-      - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
-        with:
-          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-          cache-key: ${{ env.TESTMON_CACHE_KEY_EMIT_WIN }}
+#      - name: Restore testmondata cache
+#        uses: ./.github/actions/testmon-cache
+#        with:
+#          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+#          cache-key: ${{ env.TESTMON_CACHE_KEY_FILTER_WIN }}
 
       - name: Remove Ansys processes (if any)
         shell: powershell
