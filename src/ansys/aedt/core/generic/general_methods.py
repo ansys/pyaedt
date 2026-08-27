@@ -1685,8 +1685,6 @@ def grpc_active_sessions(
         Whether to check for student version sessions. The default is ``False``.
     non_graphical : bool, optional
         Whether to check only for active non-graphical sessions. The default is ``False``.
-    machine : str, optional
-        Specific machine IP address. The default is ``None``, in which case local machine is checked.
 
     Returns
     -------
