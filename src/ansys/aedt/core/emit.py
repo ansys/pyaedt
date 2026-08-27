@@ -25,6 +25,7 @@
 import concurrent.futures
 import ctypes
 import ctypes.wintypes
+import logging
 import time
 import warnings
 
@@ -154,6 +155,9 @@ class Emit(Design, PyAedtBase):
         self._units = {}
         """Default EMIT units."""
 
+        logger = logging.getLogger("Global")
+        logger.info(f"[EMIT] __init__: project={project}, design={design}, aedt_process_id={aedt_process_id}")
+
         Design.__init__(
             self,
             "EMIT",
@@ -169,6 +173,11 @@ class Emit(Design, PyAedtBase):
             port=port,
             aedt_process_id=aedt_process_id,
             remove_lock=remove_lock,
+        )
+        logger.info(
+            f"[EMIT] __init__: Design.__init__ completed. "
+            f"project_name={getattr(self, 'project_name', None)}, "
+            f"design_name={getattr(self, 'design_name', None)}"
         )
         self._modeler = ModelerEmit(self)
         self._couplings = CouplingsEmit(self)
@@ -401,13 +410,17 @@ class Emit(Design, PyAedtBase):
         >>> app.save_project(file_name="emit_demo.aedt")
 
         """
+        logger = logging.getLogger("Global")
         if self.__emit_api_enabled:
             try:
+                logger.info("[EMIT] save_project: calling _emit_api.save_project() with 60s timeout")
                 self._call_with_timeout(self._emit_api.save_project, timeout_seconds=60)
+                logger.info("[EMIT] save_project: _emit_api.save_project() completed successfully")
             except TimeoutError:
+                logger.error("[EMIT] save_project: _emit_api.save_project() TIMED OUT after 60s")
                 warnings.warn("EMIT save_project timed out - iemit may be unresponsive")
-            except Exception:
-                warnings.warn("EMIT unknown error occurred during save_project")
+            except Exception as ex:
+                logger.error(f"[EMIT] save_project: _emit_api.save_project() raised {type(ex).__name__}: {ex}")
 
         result = Design.save_project(self, file_name, overwrite, refresh_ids)
 
@@ -432,17 +445,32 @@ class Emit(Design, PyAedtBase):
         bool
             ``True`` when successful, ``False`` when failed.
         """
+        logger = logging.getLogger("Global")
+        logger.info(f"[EMIT] close_project: name={name}, save={save}")
         try:
             result = self._call_with_timeout(Design.close_project, args=(self, name, save), timeout_seconds=90)
+            logger.info(f"[EMIT] close_project: Design.close_project returned {result}")
         except TimeoutError:
+            logger.error("[EMIT] close_project: TIMED OUT after 90s - AEDT may be unresponsive")
             warnings.warn(
-                "Emit.close_project() timed out after 60s - AEDT may be unresponsive. "
+                "Emit.close_project() timed out after 90s - AEDT may be unresponsive. "
                 "Continuing without confirmation of close."
             )
             result = False
+        except Exception as ex:
+            logger.error(f"[EMIT] close_project: exception {type(ex).__name__}: {ex}")
+            result = False
+
+        try:
+            projects_after = [p.GetName() for p in self.odesktop.GetProjects()]
+            logger.info(f"[EMIT] close_project: projects still open after close: {projects_after}")
+        except Exception:
+            pass
 
         if self._aedt_version <= "2026.1":
             self._wait_for_iemit_exit(timeout_seconds=30)
+            logger.info("[EMIT] close_project: post-close settle delay (3s) for AEDT internal cleanup")
+            time.sleep(3.0)
         return result
 
     def _wait_for_iemit_exit(self, timeout_seconds: float = 30) -> None:
@@ -450,16 +478,30 @@ class Emit(Design, PyAedtBase):
 
         Falls back to a fixed sleep if process introspection is unavailable.
         """
+        logger = logging.getLogger("Global")
         aedt_pid = getattr(self.desktop_class, "aedt_process_id", None)
         if not aedt_pid:
+            logger.info("[EMIT] _wait_for_iemit_exit: no aedt_pid available, sleeping 2s")
             time.sleep(2.0)
             return
 
-        deadline = time.monotonic() + timeout_seconds
+        start = time.monotonic()
+        deadline = start + timeout_seconds
+        has_children = self._has_iemit_children(aedt_pid)
+        if not has_children:
+            logger.info(f"[EMIT] _wait_for_iemit_exit: no iemit children of PID {aedt_pid}, continuing immediately")
+            return
+
+        logger.info(f"[EMIT] _wait_for_iemit_exit: iemit children found for PID {aedt_pid}, waiting up to {timeout_seconds}s")
         while time.monotonic() < deadline:
+            time.sleep(0.5)
             if not self._has_iemit_children(aedt_pid):
+                elapsed = time.monotonic() - start
+                logger.info(f"[EMIT] _wait_for_iemit_exit: iemit processes exited after {elapsed:.1f}s")
                 return
-            time.sleep(0.25)
+
+        elapsed = time.monotonic() - start
+        logger.warning(f"[EMIT] _wait_for_iemit_exit: TIMED OUT after {elapsed:.1f}s, iemit still running")
 
     @staticmethod
     def _has_iemit_children(parent_pid: int) -> bool:

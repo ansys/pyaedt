@@ -25,6 +25,7 @@
 from __future__ import annotations
 
 import concurrent.futures
+import logging
 import time
 import warnings
 
@@ -254,6 +255,7 @@ class Revision:
         run_timeout = getattr(self.emit_project, "_engine_run_timeout_s", 300)
         max_retries = 3
         backoff_ms = 200
+        logger = logging.getLogger("Global")
         for attempt in range(max_retries):
             try:
                 with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
@@ -261,6 +263,7 @@ class Revision:
                     interaction = future.result(timeout=run_timeout)
                 break
             except concurrent.futures.TimeoutError:
+                logger.error(f"[EMIT] run: engine.run() TIMED OUT after {run_timeout}s (attempt {attempt+1})")
                 raise TimeoutError(
                     f"engine.run() timed out after {run_timeout}s. The iemit.exe subprocess may be unresponsive."
                 )
@@ -268,9 +271,14 @@ class Revision:
                 err_str = str(e).lower()
                 is_transient = "unavailable" in err_str or "deadline" in err_str or "timeout" in err_str
                 if is_transient and attempt < max_retries - 1:
+                    logger.warning(
+                        f"[EMIT] run: transient error on attempt {attempt+1}: {e}. "
+                        f"Retrying in {backoff_ms}ms..."
+                    )
                     time.sleep(backoff_ms / 1000.0)
                     backoff_ms *= 2
                 else:
+                    logger.error(f"[EMIT] run: engine.run() FAILED (attempt {attempt+1}): {e}")
                     raise
         # save the project and revision
         self.emit_project.save_project()
@@ -312,6 +320,7 @@ class Revision:
         run_timeout = getattr(self.emit_project, "_engine_run_timeout_s", 120)
         max_retries = 3
         backoff_ms = 200
+        logger = logging.getLogger("Global")
         for attempt in range(max_retries):
             try:
                 with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
@@ -319,6 +328,7 @@ class Revision:
                     interaction = future.result(timeout=run_timeout)
                 return interaction
             except concurrent.futures.TimeoutError:
+                logger.error(f"[EMIT] _run_no_save: engine.run() TIMED OUT after {run_timeout}s (attempt {attempt+1})")
                 raise TimeoutError(
                     f"engine.run() timed out after {run_timeout}s. The iemit.exe subprocess may be unresponsive."
                 )
@@ -326,9 +336,14 @@ class Revision:
                 err_str = str(e).lower()
                 is_transient = "unavailable" in err_str or "deadline" in err_str or "timeout" in err_str
                 if is_transient and attempt < max_retries - 1:
+                    logger.warning(
+                        f"[EMIT] _run_no_save: transient error on attempt {attempt+1}: {e}. "
+                        f"Retrying in {backoff_ms}ms..."
+                    )
                     time.sleep(backoff_ms / 1000.0)
                     backoff_ms *= 2
                 else:
+                    logger.error(f"[EMIT] _run_no_save: engine.run() FAILED (attempt {attempt+1}): {e}")
                     raise
 
     @pyaedt_function_handler()
@@ -854,6 +869,8 @@ class Revision:
             all_colors.append(rx_colors)
             power_matrix.append(rx_powers)
 
+        logger = logging.getLogger("Global")
+        logger.info("[EMIT] interference_type_classification: batch complete, saving project")
         self.emit_project.save_project()
         return all_colors, power_matrix
 
@@ -1023,6 +1040,8 @@ class Revision:
             all_colors.append(rx_colors)
             power_matrix.append(rx_powers)
 
+        logger = logging.getLogger("Global")
+        logger.info("[EMIT] protection_level_classification: batch complete, saving project")
         self.emit_project.save_project()
         return all_colors, power_matrix
 
