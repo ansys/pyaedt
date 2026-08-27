@@ -445,7 +445,7 @@ class Emit(Design, PyAedtBase):
             self._wait_for_iemit_exit(timeout_seconds=30)
         return result
 
-    def _wait_for_iemit_exit(self, timeout_seconds: float = 15) -> None:
+    def _wait_for_iemit_exit(self, timeout_seconds: float = 30) -> None:
         """Wait for child iemit.exe processes of the AEDT session to terminate.
 
         Falls back to a fixed sleep if process introspection is unavailable.
