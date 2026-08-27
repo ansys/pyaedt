@@ -1209,18 +1209,18 @@ jobs:
 #        run: |
 #          $args = $env:PYTEST_ARGUMENTS -split ' '
 #          pytest @args --timeout=600 -v -rA --color=yes tests/system/emit
-
-      - uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
-        with:
-          name: codecov-system-emit-tests-windows
-          files: ./coverage.xml
-          flags: windows_system_emit
-
-      - name: Upload pytest test results
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: pytest-emit-windows
-          path: junit/test-results.xml
+#
+#      - uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+#        with:
+#          name: codecov-system-emit-tests-windows
+#          files: ./coverage.xml
+#          flags: windows_system_emit
+#
+#      - name: Upload pytest test results
+#        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+#        with:
+#          name: pytest-emit-windows
+#          path: junit/test-results.xml
 
   package:
     name: Package library
@@ -1237,7 +1237,6 @@ jobs:
             system-tests-extensions-windows,
             system-tests-extensions-linux,
             system-tests-filter-windows,
-            system-tests-emit-windows,
             doc-build]
     runs-on: ubuntu-latest
     permissions:
