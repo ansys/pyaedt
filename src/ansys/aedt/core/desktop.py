@@ -3106,9 +3106,7 @@ class Desktop(PyAedtBase):
         all_sessions = all_active_sessions()
         base = self.aedt_version_id[2:4] + self.aedt_version_id[5]
         student = "_student" if self.student_version else ""
-        mode, mode_neg = (
-            ("_nongraphical", "_graphical") if self.non_graphical else ("_graphical", "_nongraphical")
-        )
+        mode, mode_neg = ("_nongraphical", "_graphical") if self.non_graphical else ("_graphical", "_nongraphical")
         version = f"{base}{mode}{student}"
         version_neg = f"{base}{mode_neg}{student}"
 
@@ -3120,7 +3118,7 @@ class Desktop(PyAedtBase):
                     break
             return self.port
         elif settings.remote_rpc_session:  # remote session -> no port check
-            self.logger.warning(f"Remote session activated, no port checking.")
+            self.logger.warning("Remote session activated, no port checking.")
             self.new_desktop = False
             return self.port
         elif version in all_sessions and self.port in all_sessions[version].values():

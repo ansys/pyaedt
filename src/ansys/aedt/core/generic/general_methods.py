@@ -1350,8 +1350,7 @@ def is_grpc_session_active(
         return _is_port_occupied(port, machine)
 
     return (
-        port
-        in active_sessions(version=version, student_version=student_version, non_graphical=non_graphical).values()
+        port in active_sessions(version=version, student_version=student_version, non_graphical=non_graphical).values()
     )
 
 
