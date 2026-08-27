@@ -129,7 +129,7 @@ checks performed by the library (this order matches the implementation in
   that session, PyAEDT connects to it (reuse).
 - If there is an active session for the same AEDT version but the opposite display mode
   (graphical vs non-graphical) using the requested port, PyAEDT flips the ``non_graphical``
-  flag and connect to that session.
+  flag and connect to that session (reuse).
 - If the requested port is in use by a different AEDT version, PyAEDT treats this as a
   conflict and (to avoid attaching to the wrong version) select a new free port and start
   a new session (``new_desktop`` becomes ``True``).
