@@ -151,9 +151,9 @@ def test_new_session_port_0_with_remote_rpc_session(all_active_sessions, mock_se
 def test_new_session_port_0_with_active_sessions_different_version(find_free_port, all_active_sessions, mock_settings):
     """New AEDT session on port 0 with active sessions in different versions."""
     # Start 2026.1 (new_desktop=True)
-    d4 = _make_desktop(port=BASE_PORT, version="2026.1", student_version=False, non_graphical=False, new_desktop=True)
     all_active_sessions.return_value = ACTIVE_SESSIONS
     find_free_port.return_value = RANDOM_PORT
+    d4 = _make_desktop(port=BASE_PORT, version="2026.1", student_version=False, non_graphical=False, new_desktop=True)
     assert d4._validate_port() == RANDOM_PORT
     d4._Desktop__logger.info.assert_called_with(f"New AEDT session is starting on gRPC port {RANDOM_PORT}.")
 
@@ -164,9 +164,9 @@ def test_new_session_port_0_with_active_sessions_and_new_desktop_false(
     find_free_port, all_active_sessions, mock_settings
 ):
     """New AEDT session on port 0 with active sessions flips new_desktop to True."""
-    d5 = _make_desktop(port=BASE_PORT, version="2026.1", student_version=False, non_graphical=False, new_desktop=False)
     all_active_sessions.return_value = ACTIVE_SESSIONS
     find_free_port.return_value = RANDOM_PORT
+    d5 = _make_desktop(port=BASE_PORT, version="2026.1", student_version=False, non_graphical=False, new_desktop=False)
     assert d5._validate_port() == RANDOM_PORT
     assert d5.new_desktop
 
@@ -176,9 +176,9 @@ def test_new_session_port_0_with_active_sessions_and_new_desktop_false(
 def test_new_session_port_0_with_multi_desktop_enabled(find_free_port, all_active_sessions, mock_settings):
     """New AEDT session on port 0 with multi-desktop enabled."""
     mock_settings.use_multi_desktop = True
-    d = _make_desktop(port=BASE_PORT, version="2026.1", student_version=False, non_graphical=False, new_desktop=False)
     all_active_sessions.return_value = {}
     find_free_port.return_value = RANDOM_PORT
+    d = _make_desktop(port=BASE_PORT, version="2026.1", student_version=False, non_graphical=False, new_desktop=False)
     res = d._validate_port()
     assert res == RANDOM_PORT
     d._Desktop__logger.info.assert_called_with(f"New AEDT session is starting on gRPC port {RANDOM_PORT}.")
@@ -213,11 +213,11 @@ def test_new_session_with_remote_rpc_session_uses_base_port(all_active_sessions,
 def test_new_session_occupied_port_finds_free_port(find_free_port, all_active_sessions, mock_settings):
     """New AEDT session with occupied port finds a free port."""
     # Start 2026.1 (new_desktop=True), but port is occupied
+    all_active_sessions.return_value = ACTIVE_SESSIONS
+    find_free_port.return_value = RANDOM_PORT
     d4 = _make_desktop(
         port=DEFAULT_PORT, version="2026.1", student_version=False, non_graphical=False, new_desktop=True
     )
-    all_active_sessions.return_value = ACTIVE_SESSIONS
-    find_free_port.return_value = RANDOM_PORT
     assert d4._validate_port() == RANDOM_PORT
     d4._Desktop__logger.warning.assert_called_with(f"Port {DEFAULT_PORT} is already in use. Finding a new free port.")
 
@@ -226,11 +226,11 @@ def test_new_session_occupied_port_finds_free_port(find_free_port, all_active_se
 @patch("ansys.aedt.core.desktop._find_free_port")
 def test_new_session_student_version_occupied_by_other_version(find_free_port, all_active_sessions, mock_settings):
     """New student version session when port is occupied by another version."""
+    all_active_sessions.return_value = ACTIVE_SESSIONS
+    find_free_port.return_value = RANDOM_PORT
     d5 = _make_desktop(
         port=DEFAULT_PORT, version="2025.2", student_version=True, non_graphical=False, new_desktop=False
     )
-    all_active_sessions.return_value = ACTIVE_SESSIONS
-    find_free_port.return_value = RANDOM_PORT
     assert d5._validate_port() == RANDOM_PORT
     assert d5.new_desktop
 
@@ -240,10 +240,9 @@ def test_new_session_student_version_occupied_by_other_version(find_free_port, a
 def test_new_session_unoccupied_port_flips_new_desktop_to_true(find_free_port, all_active_sessions, mock_settings):
     """New session on unoccupied port flips new_desktop to True."""
     base_port = 1
-
-    d6 = _make_desktop(port=base_port, version="2025.2", student_version=True, non_graphical=False, new_desktop=False)
     all_active_sessions.return_value = ACTIVE_SESSIONS
     find_free_port.return_value = RANDOM_PORT
+    d6 = _make_desktop(port=base_port, version="2025.2", student_version=True, non_graphical=False, new_desktop=False)
     assert d6._validate_port() == base_port
     assert d6.new_desktop
 
@@ -252,11 +251,11 @@ def test_new_session_unoccupied_port_flips_new_desktop_to_true(find_free_port, a
 @patch("ansys.aedt.core.desktop._find_free_port")
 def test_connect_session_with_port_finds_session(find_free_port, all_active_sessions, mock_settings):
     """Connect to AEDT session with port finds existing session."""
+    all_active_sessions.return_value = ACTIVE_SESSIONS
+    find_free_port.return_value = RANDOM_PORT
     d1 = _make_desktop(
         port=DEFAULT_PORT, version="2026.1", student_version=False, non_graphical=False, new_desktop=False
     )
-    all_active_sessions.return_value = ACTIVE_SESSIONS
-    find_free_port.return_value = RANDOM_PORT
     assert d1._validate_port() == DEFAULT_PORT
     d1._Desktop__logger.info.assert_called_with(f"Port {DEFAULT_PORT} session has been found.")
 
@@ -307,11 +306,11 @@ def test_connect_session_via_tcp_connections(get_target_processes, check_psutil_
     }
 
     target_process = [(11111, ["v261/ansysedt.exe", "-grpcsrv", f"127.0.0.1:{RANDOM_PORT}", "-ng"])]
+    check_psutil_connections.return_value = connections
+    get_target_processes.return_value = target_process
     d4 = _make_desktop(
         port=RANDOM_PORT, version="2026.1", student_version=False, non_graphical=False, new_desktop=False
     )
-    check_psutil_connections.return_value = connections
-    get_target_processes.return_value = target_process
     assert d4._validate_port() == RANDOM_PORT
     d4._Desktop__logger.warning.assert_called_with(
         f"Port {RANDOM_PORT} is already in use in non_graphical mode. Using it."
