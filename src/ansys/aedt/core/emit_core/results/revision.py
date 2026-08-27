@@ -263,7 +263,7 @@ class Revision:
                     interaction = future.result(timeout=run_timeout)
                 break
             except concurrent.futures.TimeoutError:
-                logger.error(f"[EMIT] run: engine.run() TIMED OUT after {run_timeout}s (attempt {attempt+1})")
+                logger.error(f"[EMIT] run: engine.run() TIMED OUT after {run_timeout}s (attempt {attempt + 1})")
                 raise TimeoutError(
                     f"engine.run() timed out after {run_timeout}s. The iemit.exe subprocess may be unresponsive."
                 )
@@ -272,13 +272,12 @@ class Revision:
                 is_transient = "unavailable" in err_str or "deadline" in err_str or "timeout" in err_str
                 if is_transient and attempt < max_retries - 1:
                     logger.warning(
-                        f"[EMIT] run: transient error on attempt {attempt+1}: {e}. "
-                        f"Retrying in {backoff_ms}ms..."
+                        f"[EMIT] run: transient error on attempt {attempt + 1}: {e}. Retrying in {backoff_ms}ms..."
                     )
                     time.sleep(backoff_ms / 1000.0)
                     backoff_ms *= 2
                 else:
-                    logger.error(f"[EMIT] run: engine.run() FAILED (attempt {attempt+1}): {e}")
+                    logger.error(f"[EMIT] run: engine.run() FAILED (attempt {attempt + 1}): {e}")
                     raise
         # save the project and revision
         self.emit_project.save_project()
@@ -328,7 +327,9 @@ class Revision:
                     interaction = future.result(timeout=run_timeout)
                 return interaction
             except concurrent.futures.TimeoutError:
-                logger.error(f"[EMIT] _run_no_save: engine.run() TIMED OUT after {run_timeout}s (attempt {attempt+1})")
+                logger.error(
+                    f"[EMIT] _run_no_save: engine.run() TIMED OUT after {run_timeout}s (attempt {attempt + 1})"
+                )
                 raise TimeoutError(
                     f"engine.run() timed out after {run_timeout}s. The iemit.exe subprocess may be unresponsive."
                 )
@@ -337,13 +338,13 @@ class Revision:
                 is_transient = "unavailable" in err_str or "deadline" in err_str or "timeout" in err_str
                 if is_transient and attempt < max_retries - 1:
                     logger.warning(
-                        f"[EMIT] _run_no_save: transient error on attempt {attempt+1}: {e}. "
+                        f"[EMIT] _run_no_save: transient error on attempt {attempt + 1}: {e}. "
                         f"Retrying in {backoff_ms}ms..."
                     )
                     time.sleep(backoff_ms / 1000.0)
                     backoff_ms *= 2
                 else:
-                    logger.error(f"[EMIT] _run_no_save: engine.run() FAILED (attempt {attempt+1}): {e}")
+                    logger.error(f"[EMIT] _run_no_save: engine.run() FAILED (attempt {attempt + 1}): {e}")
                     raise
 
     @pyaedt_function_handler()

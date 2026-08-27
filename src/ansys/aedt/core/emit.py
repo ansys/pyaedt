@@ -492,7 +492,9 @@ class Emit(Design, PyAedtBase):
             logger.info(f"[EMIT] _wait_for_iemit_exit: no iemit children of PID {aedt_pid}, continuing immediately")
             return
 
-        logger.info(f"[EMIT] _wait_for_iemit_exit: iemit children found for PID {aedt_pid}, waiting up to {timeout_seconds}s")
+        logger.info(
+            f"[EMIT] _wait_for_iemit_exit: iemit children found for PID {aedt_pid}, waiting up to {timeout_seconds}s"
+        )
         while time.monotonic() < deadline:
             time.sleep(0.5)
             if not self._has_iemit_children(aedt_pid):
