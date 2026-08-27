@@ -174,7 +174,7 @@ def test_new_session_port_0_with_multi_desktop_enabled(find_free_port, all_activ
 
 
 @patch("ansys.aedt.core.desktop.all_active_sessions", return_value={})
-def test_new_session_with_new_desktop_false_flips_to_true(all_active_sessions, mock_settings):
+def test_new_session_with_new_desktop_false_flips_to_true(mock_settings):
     """New AEDT session with new_desktop=False flips to True."""
     d2 = _make_desktop(
         port=DEFAULT_PORT, version="2026.1", student_version=False, non_graphical=False, new_desktop=False
@@ -185,7 +185,7 @@ def test_new_session_with_new_desktop_false_flips_to_true(all_active_sessions, m
 
 
 @patch("ansys.aedt.core.desktop.all_active_sessions", return_value={})
-def test_new_session_with_remote_rpc_session_uses_base_port(all_active_sessions, mock_settings):
+def test_new_session_with_remote_rpc_session_uses_base_port(mock_settings):
     """New AEDT session with remote RPC session uses base port."""
     mock_settings.remote_rpc_session = MagicMock()
     d3 = _make_desktop(
@@ -241,14 +241,14 @@ def test_connect_session_with_port_finds_session(find_free_port, all_active_sess
 
 
 @patch("ansys.aedt.core.desktop.grpc_active_sessions", return_value=[DEFAULT_PORT, 50052])
-def test_connect_session_no_port_multiple_sessions(grpc_active_sessions, mock_settings):
+def test_connect_session_no_port_multiple_sessions(mock_settings):
     """Connect to AEDT session without port when multiple sessions exist."""
     d2 = _make_desktop(version="2025.2", student_version=True, non_graphical=True, new_desktop=False)
     assert d2._validate_port() == DEFAULT_PORT
 
 
 @patch("ansys.aedt.core.desktop.grpc_active_sessions", return_value=[DEFAULT_PORT])
-def test_connect_session_no_port_single_session(grpc_active_sessions, mock_settings):
+def test_connect_session_no_port_single_session(mock_settings):
     """Connect to AEDT session without port when single session exists."""
     d3 = _make_desktop(version="2025.2", student_version=True, non_graphical=True, new_desktop=False)
     assert d3._validate_port() == DEFAULT_PORT
