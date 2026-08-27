@@ -433,7 +433,7 @@ class Emit(Design, PyAedtBase):
             ``True`` when successful, ``False`` when failed.
         """
         try:
-            result = self._call_with_timeout(Design.close_project, args=(self, name, save), timeout_seconds=60)
+            result = self._call_with_timeout(Design.close_project, args=(self, name, save), timeout_seconds=90)
         except TimeoutError:
             warnings.warn(
                 "Emit.close_project() timed out after 60s - AEDT may be unresponsive. "
@@ -442,7 +442,7 @@ class Emit(Design, PyAedtBase):
             result = False
 
         if self._aedt_version <= "2026.1":
-            self._wait_for_iemit_exit(timeout_seconds=15)
+            self._wait_for_iemit_exit(timeout_seconds=30)
         return result
 
     def _wait_for_iemit_exit(self, timeout_seconds: float = 15) -> None:
