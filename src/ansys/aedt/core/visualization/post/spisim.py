@@ -762,29 +762,30 @@ class SpiSim(PyAedtBase):
         ft_multiplier = 4 if not use_pcie_icn else 1.25
         fb_multiplier = 1 if not use_pcie_icn else 1.25
         cfg_dict["MAXFREQ"] = (
-            cfg_dict["MAXFREQ"] if cfg_dict["MAXFREQ"] else bandwidth if bandwidth is not None else default_max_freq
+            cfg_dict["MAXFREQ"] if cfg_dict.get("MAXFREQ") else bandwidth if bandwidth is not None else default_max_freq
         )
-        cfg_dict["FB"] = (
-            cfg_dict["FB"]
-            if cfg_dict["FB"]
-            else bandwidth
-            if bandwidth is not None
-            else default_max_freq * fb_multiplier
-        )
-        cfg_dict["FR"] = (
-            cfg_dict["FR"]
-            if cfg_dict["FB"]
-            else bandwidth * 0.75
-            if bandwidth is not None
-            else default_max_freq * fr_multiplier
-        )
-        cfg_dict["FT"] = (
-            cfg_dict["FT"]
-            if cfg_dict["FT"]
-            else bandwidth * 4
-            if bandwidth is not None
-            else default_max_freq * ft_multiplier
-        )
+        if self.__version >= "2027.1":  # pragma: no cover
+            cfg_dict["FB"] = (
+                cfg_dict["FB"]
+                if cfg_dict.get("FB")
+                else bandwidth
+                if bandwidth is not None
+                else default_max_freq * fb_multiplier
+            )
+            cfg_dict["FR"] = (
+                cfg_dict["FR"]
+                if cfg_dict.get("FR")
+                else bandwidth * 0.75
+                if bandwidth is not None
+                else default_max_freq * fr_multiplier
+            )
+            cfg_dict["FT"] = (
+                cfg_dict["FT"]
+                if cfg_dict.get("FT")
+                else bandwidth * 4
+                if bandwidth is not None
+                else default_max_freq * ft_multiplier
+            )
 
         config_file = str(wd / "spisim_icn.cfg")
         with open_file(config_file, "w") as fp:
