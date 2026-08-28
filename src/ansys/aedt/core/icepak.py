@@ -3699,7 +3699,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         else:  # pragma: no cover
             return None
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def assign_solid_block(
         self,
         object_name: str | list,
@@ -3819,7 +3819,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         bound = self._create_boundary(boundary_name, props, "Block")
         return bound
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def assign_hollow_block(
         self,
         object_name: str | list,
@@ -5647,7 +5647,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
             high_side_rad_material=high_side_rad_material,
         )
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def __create_dataset_assignment(self, type_assignment, ds_name, scale):
         """Create dataset condition assignments.
 
@@ -5678,7 +5678,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
             scale = str(scale)
         return PieceWiseLinearDictionary(type_assignment, ds, scale)
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def create_temp_dep_assignment(self, ds_name: str, scale: str | float | None = 1) -> PieceWiseLinearDictionary:
         """Create a temperature-dependent assignment from a dataset.
 
@@ -5704,7 +5704,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         """
         return self.__create_dataset_assignment("Temp Dep", ds_name, scale)
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def create_dataset_transient_assignment(
         self, ds_name: str, scale: str | float | None = 1
     ) -> PieceWiseLinearDictionary:
@@ -5732,7 +5732,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         """
         return self.__create_dataset_assignment("Transient", ds_name, scale)
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def create_linear_transient_assignment(self, intercept: str, slope: str) -> LinearDictionary:
         """Create an object to assign the linear transient condition to.
 
@@ -5762,7 +5762,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         """
         return LinearDictionary(intercept, slope)
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def create_powerlaw_transient_assignment(
         self, intercept: str, coefficient: str, scaling_exponent: str
     ) -> PowerLawDictionary:
@@ -5797,7 +5797,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         """
         return PowerLawDictionary(intercept, coefficient, scaling_exponent)
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def create_exponential_transient_assignment(
         self, vertical_offset: str, coefficient: str, exponent_coefficient: str
     ) -> ExponentialDictionary:
@@ -5832,7 +5832,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         """
         return ExponentialDictionary(vertical_offset, coefficient, exponent_coefficient)
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def create_sinusoidal_transient_assignment(
         self, vertical_offset: str, vertical_scaling: str, period: str, period_offset: str
     ) -> SinusoidalDictionary:
@@ -5869,7 +5869,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         """
         return SinusoidalDictionary(vertical_offset, vertical_scaling, period, period_offset)
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def create_square_wave_transient_assignment(
         self, on_value: str, initial_time_off: str, on_time: str, off_time: str, off_value: str
     ) -> SquareWaveDictionary:

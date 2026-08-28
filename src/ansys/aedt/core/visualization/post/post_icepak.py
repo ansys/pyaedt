@@ -176,7 +176,7 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
             var = {line[0]: [float(line[1]), float(line[2])] for line in reader}
         return [export_file, vol_flow, p_rise, var]
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def _parse_field_summary_content(self, fs, setup_name, design_variation, quantity_name):
         content = fs.get_field_summary_data(setup=setup_name, variation=design_variation)
         pattern = r"\[([^]]*)\]"

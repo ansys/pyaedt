@@ -43,6 +43,7 @@ import time
 import traceback
 from typing import TYPE_CHECKING
 from typing import Callable
+from typing import ParamSpec
 from typing import TypeVar
 
 if TYPE_CHECKING:
@@ -61,7 +62,14 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.internal.errors import MethodNotSupportedError
 
+# _F: a callable type variable used when the decorator returns the function unchanged.
 _F = TypeVar("_F", bound=Callable[..., Any])
+# _P: captures the full parameter signature of the decorated function so that
+#     wrappers preserve argument names, types, and defaults for type checkers.
+_P = ParamSpec("_P")
+# _R: the return type of the decorated function, kept generic so the wrapper
+#     advertises the same return type as the original.
+_R = TypeVar("_R")
 
 system = platform.system()
 """Value for system."""
@@ -237,8 +245,8 @@ def raise_exception_or_return_false(e):
         return False
 
 
-def _function_handler_wrapper(user_function, **deprecated_kwargs):
-    def wrapper(*args, **kwargs):
+def _function_handler_wrapper(user_function: Callable[_P, _R], **deprecated_kwargs) -> Callable[_P, _R]:
+    def wrapper(*args: _P.args, **kwargs: _P.kwargs) -> _R:
         if deprecated_kwargs and kwargs:
             deprecate_kwargs(user_function.__name__, kwargs, deprecated_kwargs)
         try:
@@ -351,7 +359,7 @@ def deprecate_argument(arg_name: str, version: str = None, message: str = None, 
     return decorator
 
 
-def pyaedt_function_handler(direct_func: _F | None = None, **deprecated_kwargs) -> _F:
+def pyaedt_function_handler(**deprecated_kwargs: str) -> Callable[[Callable[_P, _R]], Callable[_P, _R]]:
     """Decorator that provides exception handling, execution logging, and deprecated kwargs management.
 
     On successful execution, the decorated function returns its normal return value.
@@ -378,14 +386,8 @@ def pyaedt_function_handler(direct_func: _F | None = None, **deprecated_kwargs) 
     3
 
     """
-    if callable(direct_func):
-        user_function = direct_func
-        wrapper = _function_handler_wrapper(user_function, **deprecated_kwargs)
-        return update_wrapper(wrapper, user_function)
-    elif direct_func is not None:
-        raise TypeError("Expected first argument to be a callable, or None")
 
-    def decorating_function(user_function):
+    def decorating_function(user_function: Callable[_P, _R]) -> Callable[_P, _R]:
         wrapper = _function_handler_wrapper(user_function, **deprecated_kwargs)
         return update_wrapper(wrapper, user_function)
 
