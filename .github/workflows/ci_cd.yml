@@ -262,7 +262,10 @@ jobs:
         timeout-minutes: 180
         env:
           PYTHONMALLOC: malloc
-          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+          # Not PYTEST_ARGUMENTS: it carries --testmon, which deselects every test
+          # once the first run records them as passed and unchanged, so runs 2 and 3
+          # collect 0 items and exit 0 without testing anything.
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS_NON_TESTMON }}
         shell: powershell
         run: |
           $args = $env:PYTEST_ARGUMENTS -split ' '
