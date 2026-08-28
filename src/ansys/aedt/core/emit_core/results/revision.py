@@ -24,8 +24,8 @@
 
 from __future__ import annotations
 
-import concurrent.futures
 import logging
+import threading
 import time
 import warnings
 
@@ -45,6 +45,35 @@ from ansys.aedt.core.emit_core.nodes.generated import ResultPlotNode
 from ansys.aedt.core.emit_core.nodes.generated import Waveform
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.checks import min_aedt_version
+
+
+def _run_engine_with_timeout(engine, domain, timeout_seconds):
+    """Call ``engine.run(domain)`` on a daemon thread, bounded by a timeout.
+
+    A raw daemon thread is used rather than ``concurrent.futures``: executor
+    workers are non-daemon and are joined by CPython's atexit hook, so a native
+    call that never returns would hang interpreter shutdown even after the
+    timeout was reported.
+    """
+    outcome = {}
+
+    def _target():
+        try:
+            outcome["value"] = engine.run(domain)
+        except BaseException as exc:
+            outcome["error"] = exc
+
+    thread = threading.Thread(target=_target, daemon=True)
+    thread.start()
+    thread.join(timeout_seconds)
+
+    if thread.is_alive():
+        raise TimeoutError(
+            f"engine.run() timed out after {timeout_seconds}s. The iemit.exe subprocess may be unresponsive."
+        )
+    if "error" in outcome:
+        raise outcome["error"]
+    return outcome.get("value")
 
 
 class Revision:
@@ -258,19 +287,12 @@ class Revision:
         logger = logging.getLogger("Global")
         for attempt in range(max_retries):
             try:
-                executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
-                future = executor.submit(engine.run, domain)
-                interaction = future.result(timeout=run_timeout)
-                executor.shutdown(wait=False)
+                interaction = _run_engine_with_timeout(engine, domain, run_timeout)
                 break
-            except concurrent.futures.TimeoutError:
-                executor.shutdown(wait=False, cancel_futures=True)
+            except TimeoutError:
                 logger.error(f"[EMIT] run: engine.run() TIMED OUT after {run_timeout}s (attempt {attempt + 1})")
-                raise TimeoutError(
-                    f"engine.run() timed out after {run_timeout}s. The iemit.exe subprocess may be unresponsive."
-                )
+                raise
             except Exception as e:
-                executor.shutdown(wait=False)
                 err_str = str(e).lower()
                 is_transient = "unavailable" in err_str or "deadline" in err_str or "timeout" in err_str
                 if is_transient and attempt < max_retries - 1:
@@ -325,21 +347,13 @@ class Revision:
         logger = logging.getLogger("Global")
         for attempt in range(max_retries):
             try:
-                executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
-                future = executor.submit(engine.run, domain)
-                interaction = future.result(timeout=run_timeout)
-                executor.shutdown(wait=False)
-                return interaction
-            except concurrent.futures.TimeoutError:
-                executor.shutdown(wait=False, cancel_futures=True)
+                return _run_engine_with_timeout(engine, domain, run_timeout)
+            except TimeoutError:
                 logger.error(
                     f"[EMIT] _run_no_save: engine.run() TIMED OUT after {run_timeout}s (attempt {attempt + 1})"
                 )
-                raise TimeoutError(
-                    f"engine.run() timed out after {run_timeout}s. The iemit.exe subprocess may be unresponsive."
-                )
+                raise
             except Exception as e:
-                executor.shutdown(wait=False)
                 err_str = str(e).lower()
                 is_transient = "unavailable" in err_str or "deadline" in err_str or "timeout" in err_str
                 if is_transient and attempt < max_retries - 1:

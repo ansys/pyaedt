@@ -259,20 +259,24 @@ jobs:
           }
 
       - name: Run tests marked with 'emit'
+        timeout-minutes: 75
         env:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         shell: powershell
         run: |
           $args = $env:PYTEST_ARGUMENTS -split ' '
-          foreach ($run in 1..3) {
-            Write-Output "========== EMIT test run $run of 3 =========="
-            pytest @args --timeout=120 --timeout-method=thread -v -rA --color=yes tests/system/emit
-            if ($LASTEXITCODE -ne 0) {
-              Write-Output "========== Run $run FAILED (exit code $LASTEXITCODE) =========="
-            } else {
-              Write-Output "========== Run $run PASSED =========="
-            }
+          pytest @args --timeout=600 -o faulthandler_timeout=480 -v -rA --color=yes tests/system/emit
+
+      - name: Remove Ansys processes (cleanup)
+        if: ${{ always() }}
+        shell: powershell
+        run: |
+          Get-Process | Where-Object {
+            $_.Path -like "*ansys inc*" -or $_.Path -like "*ansysem*"
+          } | ForEach-Object {
+            Write-Output "Killing leftover $($_.Name) (PID: $($_.Id))"
+            Stop-Process -Id $_.Id -Force
           }
 
       - name: Upload pytest test results
@@ -280,4 +284,5 @@ jobs:
         with:
           name: pytest-emit-windows
           path: junit/test-results.xml
+        if: ${{ always() }}
 

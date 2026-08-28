@@ -22,10 +22,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import concurrent.futures
 import ctypes
 import ctypes.wintypes
 import logging
+import threading
 import time
 import warnings
 
@@ -413,11 +413,11 @@ class Emit(Design, PyAedtBase):
         logger = logging.getLogger("Global")
         if self.__emit_api_enabled:
             try:
-                logger.info("[EMIT] save_project: calling _emit_api.save_project() with 30s timeout")
-                self._call_with_timeout(self._emit_api.save_project, timeout_seconds=30)
+                logger.info("[EMIT] save_project: calling _emit_api.save_project() with 60s timeout")
+                self._call_with_timeout(self._emit_api.save_project, timeout_seconds=60)
                 logger.info("[EMIT] save_project: _emit_api.save_project() completed successfully")
             except TimeoutError:
-                logger.error("[EMIT] save_project: _emit_api.save_project() TIMED OUT after 30s")
+                logger.error("[EMIT] save_project: _emit_api.save_project() TIMED OUT after 60s")
                 warnings.warn("EMIT save_project timed out - iemit may be unresponsive")
             except Exception as ex:
                 logger.error(f"[EMIT] save_project: _emit_api.save_project() raised {type(ex).__name__}: {ex}")
@@ -448,12 +448,12 @@ class Emit(Design, PyAedtBase):
         logger = logging.getLogger("Global")
         logger.info(f"[EMIT] close_project: name={name}, save={save}")
         try:
-            result = self._call_with_timeout(Design.close_project, args=(self, name, save), timeout_seconds=30)
+            result = self._call_with_timeout(Design.close_project, args=(self, name, save), timeout_seconds=90)
             logger.info(f"[EMIT] close_project: Design.close_project returned {result}")
         except TimeoutError:
-            logger.error("[EMIT] close_project: TIMED OUT after 30s - AEDT may be unresponsive")
+            logger.error("[EMIT] close_project: TIMED OUT after 90s - AEDT may be unresponsive")
             warnings.warn(
-                "Emit.close_project() timed out after 30s - AEDT may be unresponsive. "
+                "Emit.close_project() timed out after 90s - AEDT may be unresponsive. "
                 "Continuing without confirmation of close."
             )
             result = False
@@ -469,7 +469,7 @@ class Emit(Design, PyAedtBase):
 
         if self._aedt_version <= "2026.1":
             self._wait_for_iemit_exit(timeout_seconds=30)
-            logger.info("[EMIT] close_project: post-close settle delay (2s) for AEDT internal cleanup")
+            logger.info("[EMIT] close_project: post-close settle delay (3s) for AEDT internal cleanup")
             time.sleep(3.0)
         return result
 
@@ -560,19 +560,29 @@ class Emit(Design, PyAedtBase):
     def _call_with_timeout(func, args=(), kwargs=None, timeout_seconds=120):
         """Call a function with a timeout. Raises TimeoutError if it exceeds the limit.
 
-        Uses a daemon thread so that a timed-out native call will not prevent
-        the Python process from continuing or exiting.
+        A raw daemon thread is used rather than ``concurrent.futures``: executor
+        workers are non-daemon and are joined by CPython's atexit hook, so a
+        native call that never returns would hang interpreter shutdown even
+        after the timeout was reported.
         """
         if kwargs is None:
             kwargs = {}
-        executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
-        future = executor.submit(func, *args, **kwargs)
-        try:
-            result = future.result(timeout=timeout_seconds)
-            executor.shutdown(wait=False)
-            return result
-        except concurrent.futures.TimeoutError:
-            executor.shutdown(wait=False, cancel_futures=True)
+        outcome = {}
+
+        def _target():
+            try:
+                outcome["value"] = func(*args, **kwargs)
+            except BaseException as exc:
+                outcome["error"] = exc
+
+        thread = threading.Thread(target=_target, daemon=True)
+        thread.start()
+        thread.join(timeout_seconds)
+
+        if thread.is_alive():
             raise TimeoutError(
                 f"EMIT operation timed out after {timeout_seconds}s. The iemit.exe subprocess may be unresponsive."
             )
+        if "error" in outcome:
+            raise outcome["error"]
+        return outcome.get("value")
