@@ -45,6 +45,7 @@ from pydantic import BaseModel
 from pydantic import Field
 
 from ansys.aedt.core.base import PyAedtBase
+from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import env_value
@@ -616,7 +617,7 @@ class SpiSim(PyAedtBase):
         port_order: str = "EVENODD",
         next_s4p: str | list | None = None,
         fext_s4p: str | list | None = None,
-        bandwidth: float | None = None,
+        bandwidth: float | str | None = None,
         use_pcie_icn: int | bool | str = False,
         compute_retries: int = 3,
     ) -> bool | float | list:
@@ -651,7 +652,7 @@ class SpiSim(PyAedtBase):
             In order to customize parameters for ``"GENERIC_CCICN"`` user can provide a custom ``"config_file"``.
         bandwidth : float, str, optional
             Application bandwidth in hertz (Hz), which is the inverse of one UI (unit interval). The value
-            can be a float or a string with the unit ("m", "g"). The default is ``25e9``.
+            can be a float or a string with the unit (for example, "2GHz"). The default is ``25e9``.
         compute_retries : int, optional
             Number of retries to compute ICN. The default is ``3``.
 
@@ -714,7 +715,8 @@ class SpiSim(PyAedtBase):
             "RESAMPLE_ALGORITHM": "None",
             "RESAMPLE_INTERVAL": 10.0,
         }
-        # SpiSim 2027.1 requires Frequency values in GHz while previous releases expects then in Hertz.
+
+        # SpiSim 2027.1 requires frequency values in GHz while previous releases expects then in hertz.
         multiplier = 1
         if self.__version >= "2027.1":  # pragma: no cover
             cfg_dict.update(custom_settings)
@@ -724,6 +726,7 @@ class SpiSim(PyAedtBase):
             with open_file(config_file, "r") as fp:
                 lines = fp.readlines()
                 for line in lines:
+                    # Skip comments and keep lines with ´=´
                     if not line.startswith("#") and "=" in line:
                         split_line = [i.strip() for i in line.split("=")]
                         if (
@@ -749,14 +752,21 @@ class SpiSim(PyAedtBase):
         if bandwidth:
             if is_number(bandwidth):
                 bandwidth = bandwidth / multiplier
-            if isinstance(bandwidth, str):
+            elif isinstance(bandwidth, str):
                 val, unit = decompose_variable_value(bandwidth)
-                if unit.lower() == "m":
-                    bandwidth = val * 1e3 / multiplier
-                elif unit.lower() == "k":
-                    bandwidth = val * 1e6 / multiplier
-                elif unit.lower() == "g":
-                    bandwidth = val / multiplier
+                unit_system = "Frequency"
+                output_units = "Hz"
+                if unit in ["g", "m", "k"]:
+                    unit_system = "None"
+                    output_units = ""
+
+                new_bandwidth = unit_converter(
+                    values=val, unit_system=unit_system, input_units=unit, output_units=output_units
+                )
+                bandwidth = new_bandwidth / multiplier
+            else:  # pragma: no cover
+                raise ValueError("Bandwidth must be a number.")
+
         default_max_freq = 25e9 / multiplier
         fr_multiplier = 0.75 if not use_pcie_icn else 1
         ft_multiplier = 4 if not use_pcie_icn else 1.25
