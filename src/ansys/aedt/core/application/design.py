@@ -4177,6 +4177,29 @@ class Design(AedtObjects, PyAedtBase):
         if not is_windows and settings.aedt_version and self.design_type == DesignType.CIRCUIT.NAME:
             time.sleep(1)
             self.desktop_class.close_windows()
+        if new_design is None and design_type == DesignType.EMIT.NAME:
+            # The active_design() fallback below must not be reached for EMIT: calling
+            # SetActiveDesign on a design that InsertDesign failed to return deadlocks
+            # inside AEDT and never returns or raises. Retrying the insert instead
+            # recovers, since the failure is transient while the previous design's
+            # iemit.exe is still shutting down.
+            delay = 2
+            for attempt in range(3):
+                time.sleep(delay)
+                delay *= 2
+                self.logger.warning(
+                    "InsertDesign returned no EMIT design, retrying (%s/3).",
+                    attempt + 1,
+                )
+                unique_design_name = self._generate_unique_design_name(design_name)
+                new_design = self._oproject.InsertDesign(
+                    design_type, unique_design_name, self.default_solution_type, ""
+                )
+                if new_design is not None:
+                    break
+            if new_design is None:
+                self.logger.error("Failed to create EMIT design after 3 retries.")
+                return
         if new_design is None:  # pragma: no cover
             new_design = self.desktop_class.active_design(self.oproject, unique_design_name, self.design_type)
             if new_design is None:
