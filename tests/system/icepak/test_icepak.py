@@ -1513,7 +1513,7 @@ def test_assign_adiabatic_plate(ipk_app) -> None:
 
 
 def test_assign_resistance(ipk_app) -> None:
-    box = ipk_app.modeler.create_box([5, 5, 5], [1, 2, 3], "ResistanceBox", "copper")
+    box = ipk_app.modeler.create_box([5, 5, 5], [1, 2, 3], "ResistanceBox", "air")
     assert ipk_app.assign_device_resistance(
         box.name,
         boundary_name=None,
