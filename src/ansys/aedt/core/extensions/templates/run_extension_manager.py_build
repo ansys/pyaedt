@@ -49,9 +49,21 @@ install_path = os.path.abspath(os.path.join(oDesktop.GetExeDir(), ".."))
 
 # Check if the script is running using CPython interpreter from AEDT installation
 pyaedt_path = None
+version = oDesktop.GetVersion()
+
 if install_path in os.path.abspath(r"##EXTENSION_TEMPLATES##"):
-    pyaedt_path = os.path.join(install_path, "AnsysEM", "commonfiles", "CPython", "3_10", folder, "Release",
-                               "Ansys", "PyAEDT")
+    if version < "2027.1":
+        # Before 2027R1, Python interpreter was 3.10 and PyAEDT was placed in AnsysEM commonfiles.
+        pyaedt_path = os.path.join(install_path, "AnsysEM", "commonfiles", "CPython", "3_10", folder, "Release",
+                                   "Ansys", "PyAEDT")
+    else:
+        # Check if PyAEDT is placed in AnsysEM directory first
+        pyaedt_path = os.path.join(install_path, "AnsysEM", "commonfiles", "CPython", "3_13", folder, "Release",
+                                   "Ansys", "PyAEDT")
+        if not os.path.isdir(pyaedt_path):
+            # As a fallback check if PyAEDT is placed in install_path
+            pyaedt_path = os.path.join(install_path, "commonfiles", "CPython", "3_13", folder, "Release",
+                                       "Ansys", "PyAEDT")
 
 if pyaedt_path:
     sys.path.append(pyaedt_path)
