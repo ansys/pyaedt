@@ -159,7 +159,7 @@ class Results:
             raise ValueError("An EMIT object must be initialized before any static member of the Results.")
         return domain
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def _unload_revisions(self) -> None:
         """Convenience function to set all revisions as ``unloaded``
 
@@ -196,7 +196,7 @@ class Results:
         """
         return [rev.name for rev in self.revisions]
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def get_revision(self, revision_name: str = None) -> Revision:
         """Load the specified revision.
 

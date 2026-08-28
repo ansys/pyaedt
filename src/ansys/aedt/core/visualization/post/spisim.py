@@ -814,7 +814,7 @@ class SpiSim(PyAedtBase):
         self.logger.error("Failed to compute ICN.")
         return False
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def compute_com(
         self,
         standard: int = 1,
@@ -885,7 +885,7 @@ class SpiSim(PyAedtBase):
         com_param.set_parameter("RESULT_DIR", self.working_directory)
         return self.__compute_com(com_param)
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def __compute_com(
         self,
         com_parameter,
