@@ -1506,7 +1506,7 @@ class Design(AedtObjects, PyAedtBase):
 
         Returns
         -------
-            Project object
+        Project object
 
         References
         ----------
@@ -1567,17 +1567,8 @@ class Design(AedtObjects, PyAedtBase):
                         self._add_handler()
                         self.logger.info("Project %s set to active.", pname)
                     elif Path(project).exists():
-                        if is_project_locked(project):
-                            if self._remove_lock:  # pragma: no cover
-                                self.logger.warning("Project is locked. Removing it and opening.")
-                                remove_project_lock(project)
-                            else:  # pragma: no cover
-                                raise RuntimeError("Project is locked. Close or remove the lock before proceeding.")
                         self.logger.info("AEDT project found. Loading it.")
-                        self._oproject = self.odesktop.OpenProject(project)
-                        self._add_handler()
-                        self.logger.info("Project %s has been opened.", self._oproject.GetName())
-                        time.sleep(0.5)
+                        self._oproject = self._open_project(project)
                     else:
                         oTool = self.odesktop.GetTool("ImportExport")
                         if ".def" in proj_name:
@@ -1596,19 +1587,7 @@ class Design(AedtObjects, PyAedtBase):
                     self._add_handler()
                     self.logger.info("Project %s set to active.", pname)
                 else:
-                    if is_project_locked(proj_name):
-                        if self._remove_lock:  # pragma: no cover
-                            self.logger.warning("Project is locked. Removing it and opening.")
-                            remove_project_lock(proj_name)
-                        else:  # pragma: no cover
-                            raise RuntimeError("Project is locked. Close or remove the lock before proceeding.")
-                    self._oproject = self.odesktop.OpenProject(proj_name)
-                    if not is_windows and settings.aedt_version:
-                        time.sleep(1)
-                        self.desktop_class.close_windows()
-                    self._add_handler()
-                    self.logger.info("Project %s has been opened.", self._oproject.GetName())
-                    time.sleep(0.5)
+                    self._oproject = self._open_project(proj_name)
             elif settings.force_error_on_missing_project and ".aedt" in proj_name:
                 raise Exception("Project doesn't exist. Check it and retry.")
             else:
@@ -1652,6 +1631,49 @@ class Design(AedtObjects, PyAedtBase):
             project_name=self.project_name,
         )
 
+    @pyaedt_function_handler()
+    def _open_project(self, project_path: str) -> _OProject:
+        """Open a project and ensure the active project object is resolved.
+
+        This centralizes logic around calling ``oDesktop.OpenProject`` and
+        handling cases where the method does not return the project object
+        correctly by falling back to ``check_if_project_is_loaded``.
+
+        Returns
+        -------
+        Project object
+
+        References
+        ----------
+        >>> oDesktop.OpenProject
+
+        """
+        if is_project_locked(project_path):
+            if self._remove_lock:  # pragma: no cover
+                self.logger.warning("Project is locked. Removing it and opening.")
+                remove_project_lock(project_path)
+            else:  # pragma: no cover
+                raise RuntimeError("Project is locked. Close or remove the lock before proceeding.")
+
+        self.odesktop.OpenProject(project_path)
+        pname = self.check_if_project_is_loaded(project_path)
+        if not pname:  # pragma: no cover
+            raise Exception("Failed to open project due to unexpected reason. Check it and retry.")
+        proj = self.desktop_class.active_project(str(pname))
+
+        self._oproject = proj
+
+        # In Linux there is a known issue when multiple designs are available (Circuit designs mainly),
+        # that it is needed to close all windows.
+        if not is_windows and settings.aedt_version:
+            time.sleep(0.5)
+            self.desktop_class.close_windows()
+
+        # Ensure handlers and logging are set up for the opened project.
+        self._add_handler()
+        self.logger.info("Project %s has been opened.", self._oproject.GetName())
+        return cast(_OProject, proj)
+
     @property
     def desktop_install_dir(self) -> str:
         """AEDT installation directory.
@@ -1660,7 +1682,6 @@ class Design(AedtObjects, PyAedtBase):
         -------
         str
             AEDT installation directory.
-
 
         Examples
         --------
