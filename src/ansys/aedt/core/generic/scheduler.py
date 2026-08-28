@@ -258,7 +258,10 @@ def get_aedt_exe(version: str | None = None) -> Path:
 
     # Convert version like "25.1" -> "251"
     desired_suffix = version.replace(".", "")
-    return Path(version_map.get(desired_suffix)) / exe_name
+    resolved = version_map.get(desired_suffix)
+    if resolved is None:
+        raise ValueError(f"AEDT version '{version}' not found in environment variables.")
+    return Path(resolved) / exe_name
 
 
 def load_template(template_path: Path) -> str:
