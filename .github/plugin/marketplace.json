@@ -37,6 +37,45 @@
             "skills": [
                 "./skills/pyaedt-cli"
             ]
+        },
+        {
+            "name": "pyaedt-dev",
+            "source": ".github/plugin/pyaedt-dev",
+            "description": "PyAEDT development skills for writing, documenting, testing, and maintaining PyAEDT Python code.",
+            "version": "1.0.dev0",
+            "author": {
+                "name": "PyAnsys"
+            },
+            "homepage": "https://github.com/ansys/pyaedt",
+            "repository": "https://github.com/ansys/pyaedt",
+            "keywords": [
+                "AEDT",
+                "PyAnsys",
+                "claude",
+                "copilot",
+                "PyAEDT",
+                "development",
+                "numpydoc",
+                "testing"
+            ],
+            "category": "development",
+            "tags": [
+                "AEDT",
+                "claude-code",
+                "copilot",
+                "contributing",
+                "documentation",
+                "PyAEDT",
+                "testing"
+            ],
+            "skills": [
+                "./skills/pyaedt-code-placement",
+                "./skills/pyaedt-docstrings",
+                "./skills/pyaedt-testing",
+                "./skills/pyaedt-refactor",
+                "./skills/pyaedt-branch-naming",
+                "./skills/pyaedt-contribution"
+            ]
         }
     ]
 }
