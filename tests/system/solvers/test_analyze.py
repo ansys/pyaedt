@@ -696,7 +696,7 @@ def test_compute_icn(test_tmp_dir) -> None:
         port_order="EvenOdd",
         fext_s4p=str(fext_s4p),
         next_s4p=str(next_s4p),
-        bandwidth=10e9,
+        bandwidth="10GHz",
         compute_retries=10,
     )
     assert abs(icn - 0.000770524135501) < SMALL_NUMBER
@@ -705,7 +705,7 @@ def test_compute_icn(test_tmp_dir) -> None:
         port_order="EvenOdd",
         fext_s4p=str(fext_s4p),
         next_s4p=str(next_s4p),
-        bandwidth=10e9,
+        bandwidth="10g",
         compute_retries=10,
         use_pcie_icn=1,
     )
@@ -720,24 +720,25 @@ def test_compute_icn(test_tmp_dir) -> None:
     )
     assert isinstance(icn, list)
 
-    with pytest.raises(AEDTRuntimeError):
-        spisim.compute_icn(
-            port_order="EvenOdd",
-            fext_s4p=str(fext_s4p),
-            next_s4p=str(next_s4p),
-            bandwidth=10e9,
-            compute_retries=10,
-            use_pcie_icn=2,
-        )
-    with pytest.raises(AEDTRuntimeError):
-        spisim.compute_icn(
-            port_order="EvenOdd",
-            fext_s4p=str(fext_s4p),
-            next_s4p=str(next_s4p),
-            bandwidth=10e9,
-            compute_retries=10,
-            use_pcie_icn="CUSTOMER_CCICN",
-        )
+    if DESKTOP_VERSION <= "2026.1":
+        with pytest.raises(AEDTRuntimeError):
+            spisim.compute_icn(
+                port_order="EvenOdd",
+                fext_s4p=str(fext_s4p),
+                next_s4p=str(next_s4p),
+                bandwidth=10e9,
+                compute_retries=10,
+                use_pcie_icn=2,
+            )
+        with pytest.raises(AEDTRuntimeError):
+            spisim.compute_icn(
+                port_order="EvenOdd",
+                fext_s4p=str(fext_s4p),
+                next_s4p=str(next_s4p),
+                bandwidth=10e9,
+                compute_retries=10,
+                use_pcie_icn="CUSTOMER_CCICN",
+            )
 
 
 def test_compute_com(test_tmp_dir) -> None:

@@ -31,6 +31,7 @@ from tkinter import filedialog
 from tkinter import ttk
 from typing import Any
 
+import numpy as np
 import pandas as pd
 
 import ansys.aedt.core
@@ -223,7 +224,7 @@ def main(data: ExtensionData) -> bool:
 
     # A row is removed only if every source mask is True for that row
     rows_all_small = pd.concat(src_masks, axis=1).all(axis=1) if src_masks else pd.Series(False, index=df.index)
-    q3d_sources_filtered = df[~rows_all_small]
+    q3d_sources_filtered = df[np.logical_not(rows_all_small)]
 
     # Save filtered data back to a new CSV file
 
