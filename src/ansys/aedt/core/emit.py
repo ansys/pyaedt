@@ -201,7 +201,7 @@ class Emit(Design, PyAedtBase):
 
         # Timeout (seconds) for each engine.run() gRPC call. Prevents indefinite
         # hangs if iemit becomes unresponsive.
-        self._engine_run_timeout_s = 60
+        self._engine_run_timeout_s = 300
 
     def _init_from_design(self, *args, **kwargs) -> None:
         self.__init__(*args, **kwargs)
@@ -468,9 +468,9 @@ class Emit(Design, PyAedtBase):
             pass
 
         if self._aedt_version <= "2026.1":
-            self._wait_for_iemit_exit(timeout_seconds=10)
+            self._wait_for_iemit_exit(timeout_seconds=30)
             logger.info("[EMIT] close_project: post-close settle delay (2s) for AEDT internal cleanup")
-            time.sleep(2.0)
+            time.sleep(3.0)
         return result
 
     def _wait_for_iemit_exit(self, timeout_seconds: float = 30) -> None:
@@ -482,7 +482,7 @@ class Emit(Design, PyAedtBase):
         aedt_pid = getattr(self.desktop_class, "aedt_process_id", None)
         if not aedt_pid:
             logger.info("[EMIT] _wait_for_iemit_exit: no aedt_pid available, sleeping 2s")
-            time.sleep(2.0)
+            time.sleep(3.0)
             return
 
         start = time.monotonic()
@@ -558,14 +558,21 @@ class Emit(Design, PyAedtBase):
 
     @staticmethod
     def _call_with_timeout(func, args=(), kwargs=None, timeout_seconds=120):
-        """Call a function with a timeout. Raises TimeoutError if it exceeds the limit."""
+        """Call a function with a timeout. Raises TimeoutError if it exceeds the limit.
+
+        Uses a daemon thread so that a timed-out native call will not prevent
+        the Python process from continuing or exiting.
+        """
         if kwargs is None:
             kwargs = {}
-        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
-            future = executor.submit(func, *args, **kwargs)
-            try:
-                return future.result(timeout=timeout_seconds)
-            except concurrent.futures.TimeoutError:
-                raise TimeoutError(
-                    f"EMIT operation timed out after {timeout_seconds}s. The iemit.exe subprocess may be unresponsive."
-                )
+        executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+        future = executor.submit(func, *args, **kwargs)
+        try:
+            result = future.result(timeout=timeout_seconds)
+            executor.shutdown(wait=False)
+            return result
+        except concurrent.futures.TimeoutError:
+            executor.shutdown(wait=False, cancel_futures=True)
+            raise TimeoutError(
+                f"EMIT operation timed out after {timeout_seconds}s. The iemit.exe subprocess may be unresponsive."
+            )

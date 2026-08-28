@@ -48,7 +48,7 @@ from ansys.aedt.core.internal.errors import GrpcApiError
 from tests import TESTS_EMIT_PATH
 from tests.conftest import DESKTOP_VERSION
 
-pytestmark = [pytest.mark.timeout(120)]
+pytestmark = [pytest.mark.timeout(300)]
 
 # Prior to 2025R1, the Emit API supported Python 3.8,3.9,3.10,3.11
 # Starting with 2025R1, the Emit API supports Python 3.10,3.11,3.12

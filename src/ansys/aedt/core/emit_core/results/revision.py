@@ -258,16 +258,19 @@ class Revision:
         logger = logging.getLogger("Global")
         for attempt in range(max_retries):
             try:
-                with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
-                    future = executor.submit(engine.run, domain)
-                    interaction = future.result(timeout=run_timeout)
+                executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+                future = executor.submit(engine.run, domain)
+                interaction = future.result(timeout=run_timeout)
+                executor.shutdown(wait=False)
                 break
             except concurrent.futures.TimeoutError:
+                executor.shutdown(wait=False, cancel_futures=True)
                 logger.error(f"[EMIT] run: engine.run() TIMED OUT after {run_timeout}s (attempt {attempt + 1})")
                 raise TimeoutError(
                     f"engine.run() timed out after {run_timeout}s. The iemit.exe subprocess may be unresponsive."
                 )
             except Exception as e:
+                executor.shutdown(wait=False)
                 err_str = str(e).lower()
                 is_transient = "unavailable" in err_str or "deadline" in err_str or "timeout" in err_str
                 if is_transient and attempt < max_retries - 1:
@@ -316,17 +319,19 @@ class Revision:
         if throttle_ms > 0:
             time.sleep(throttle_ms / 1000.0)
 
-        run_timeout = getattr(self.emit_project, "_engine_run_timeout_s", 120)
+        run_timeout = getattr(self.emit_project, "_engine_run_timeout_s", 300)
         max_retries = 3
         backoff_ms = 200
         logger = logging.getLogger("Global")
         for attempt in range(max_retries):
             try:
-                with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
-                    future = executor.submit(engine.run, domain)
-                    interaction = future.result(timeout=run_timeout)
+                executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+                future = executor.submit(engine.run, domain)
+                interaction = future.result(timeout=run_timeout)
+                executor.shutdown(wait=False)
                 return interaction
             except concurrent.futures.TimeoutError:
+                executor.shutdown(wait=False, cancel_futures=True)
                 logger.error(
                     f"[EMIT] _run_no_save: engine.run() TIMED OUT after {run_timeout}s (attempt {attempt + 1})"
                 )
@@ -334,6 +339,7 @@ class Revision:
                     f"engine.run() timed out after {run_timeout}s. The iemit.exe subprocess may be unresponsive."
                 )
             except Exception as e:
+                executor.shutdown(wait=False)
                 err_str = str(e).lower()
                 is_transient = "unavailable" in err_str or "deadline" in err_str or "timeout" in err_str
                 if is_transient and attempt < max_retries - 1:
