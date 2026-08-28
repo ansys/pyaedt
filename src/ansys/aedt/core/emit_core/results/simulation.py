@@ -135,13 +135,12 @@ class Simulation:
         >>> sim.run(domain)
 
         """
-        if self.aedt_version < 271:
-            if domain.receiver_channel_frequency > 0:
-                raise ValueError("The domain must not have channels specified.")
-            if len(domain.interferer_channel_frequencies) != 0:
-                for freq in domain.interferer_channel_frequencies:
-                    if freq > 0:
-                        raise ValueError("The domain must not have channels specified.")
+        if domain.receiver_channel_frequency > 0:
+            raise ValueError("The domain must not have channels specified.")
+        if len(domain.interferer_channel_frequencies) != 0:
+            for freq in domain.interferer_channel_frequencies:
+                if freq > 0:
+                    raise ValueError("The domain must not have channels specified.")
         self._revision._load_revision()
         if self.aedt_version < 241:
             if len(domain.interferer_names) == 1:

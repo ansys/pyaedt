@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import sys
+from pathlib import Path
 
 # Import required modules
 import pytest
@@ -38,6 +39,15 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1") o
     (3, 10) <= sys.version_info[0:2] <= (3, 12) and DESKTOP_VERSION > "2024.2"
 ):
     from ansys.aedt.core import Emit
+
+def _resolve_emit_examples_path(desktop) -> Path:
+    """Prefer EMIT examples from the running Desktop install, otherwise use local test data."""
+    install_dir = getattr(desktop, "aedt_install_dir", None)
+    if install_dir:
+        candidate = Path(install_dir) / "Examples" / "EMIT"
+        if candidate.is_dir():
+            return candidate
+    return TESTS_EMIT_PATH / "example_models/TEMIT"
 
 TEST_SUBFOLDER = TESTS_EMIT_PATH / "example_models/TEMIT"
 
@@ -55,11 +65,11 @@ def emit_app(add_app):
 
 
 @pytest.fixture
-def cell_phone(add_app_example):
+def cell_phone(add_app_example, desktop):
     app = add_app_example(
-        project="Cell Phone",
+        project="Cell Phone RFI Desense",
         application=Emit,
-        subfolder=TEST_SUBFOLDER,
+        subfolder=_resolve_emit_examples_path(desktop),
     )
     yield app
     app.close_project(app.project_name, save=False)
@@ -138,6 +148,12 @@ def test_interaction_domain(cell_phone):
         == f"Interferer channel 50.000000 Hz not found in band '{TX1BANDNAME}' of '{TX1NAME}'."
     )
 
+    radios = rev.get_all_radio_nodes()
+    gps = next((r for r in radios if r.name == "GPS Receiver"), None)
+    bands = rev.get_all_band_nodes(radio=gps, enabled_only=True)
+    L1 = next((b for b in bands if b.name == "L1"), None)
+    L1.enabled = False
+    
     domain.set_interferers(radios=["GPS Receiver"], bands=["L1"])
     assert sim.is_domain_valid(domain) == "Interferer band 'L1' disabled."
 

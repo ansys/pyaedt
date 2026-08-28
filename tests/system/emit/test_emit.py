@@ -101,6 +101,14 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1") o
 
 TEST_SUBFOLDER = TESTS_EMIT_PATH / "example_models/TEMIT"
 
+def _resolve_emit_examples_path(desktop) -> Path:
+    """Prefer EMIT examples from the running Desktop install, otherwise use local test data."""
+    install_dir = getattr(desktop, "aedt_install_dir", None)
+    if install_dir:
+        candidate = Path(install_dir) / "Examples" / "EMIT"
+        if candidate.is_dir():
+            return candidate
+    return TESTS_EMIT_PATH / "example_models/TEMIT"
 
 @pytest.fixture
 def interference(add_app_example):
@@ -110,11 +118,11 @@ def interference(add_app_example):
 
 
 @pytest.fixture
-def cell_phone(add_app_example):
+def cell_phone(add_app_example, desktop):
     app = add_app_example(
-        project="Cell Phone",
+        project="Cell Phone RFI Desense",
         application=Emit,
-        subfolder=TEST_SUBFOLDER,
+        subfolder=_resolve_emit_examples_path(desktop),
     )
     yield app
     app.close_project(app.project_name, save=False)
@@ -1577,7 +1585,7 @@ def test_categories(cell_phone):
 
     instance = interaction.get_worst_instance(ResultType.EMI)
     emi_value = instance.get_value(ResultType.EMI)
-    assert emi_value == 9.37
+    assert emi_value == -3.87
 
     problem_type = instance.get_largest_emi_problem_type()
     assert problem_type == EMIInterfererType.OUT_OF_CHANNEL_TX_FUNDAMENTAL
@@ -1587,8 +1595,7 @@ def test_categories(cell_phone):
 
     instance = interaction.get_worst_instance(ResultType.EMI)
     emi_value = instance.get_value(ResultType.EMI)
-    assert emi_value == 3.54
-
+    assert emi_value == -5.95
     problem_type = instance.get_largest_emi_problem_type()
     assert problem_type == EMIInterfererType.IN_CHANNEL_TX_BROADBAND
 
@@ -1597,7 +1604,7 @@ def test_categories(cell_phone):
 
     instance = interaction.get_worst_instance(ResultType.EMI)
     emi_value = instance.get_value(ResultType.EMI)
-    assert emi_value == -0.92
+    assert emi_value == -6.94
 
     problem_type = instance.get_largest_emi_problem_type()
     assert problem_type == EMIInterfererType.OUT_OF_CHANNEL_TX_HARMONIC_SPURIOUS

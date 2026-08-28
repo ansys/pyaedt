@@ -64,8 +64,7 @@ class Interaction:
             raise ValueError("Interaction is not valid: " + error)
 
         if result_type == ResultType.POWER_AT_RX:
-            warnings.warn("Worst case instances are not available for Power At Rx.")
-            return None
+            raise ValueError("Worst case instances are not available for Power At Rx.")
 
         # N-to-1 worst instance cannot be scoped to a specific receiver channel.
         # Catch this before the gRPC call to provide a clearer error message.
