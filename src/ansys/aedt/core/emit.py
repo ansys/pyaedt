@@ -201,7 +201,7 @@ class Emit(Design, PyAedtBase):
 
         # Timeout (seconds) for each engine.run() gRPC call. Prevents indefinite
         # hangs if iemit becomes unresponsive.
-        self._engine_run_timeout_s = 300
+        self._engine_run_timeout_s = 60
 
     def _init_from_design(self, *args, **kwargs) -> None:
         self.__init__(*args, **kwargs)
@@ -413,11 +413,11 @@ class Emit(Design, PyAedtBase):
         logger = logging.getLogger("Global")
         if self.__emit_api_enabled:
             try:
-                logger.info("[EMIT] save_project: calling _emit_api.save_project() with 60s timeout")
-                self._call_with_timeout(self._emit_api.save_project, timeout_seconds=60)
+                logger.info("[EMIT] save_project: calling _emit_api.save_project() with 30s timeout")
+                self._call_with_timeout(self._emit_api.save_project, timeout_seconds=30)
                 logger.info("[EMIT] save_project: _emit_api.save_project() completed successfully")
             except TimeoutError:
-                logger.error("[EMIT] save_project: _emit_api.save_project() TIMED OUT after 60s")
+                logger.error("[EMIT] save_project: _emit_api.save_project() TIMED OUT after 30s")
                 warnings.warn("EMIT save_project timed out - iemit may be unresponsive")
             except Exception as ex:
                 logger.error(f"[EMIT] save_project: _emit_api.save_project() raised {type(ex).__name__}: {ex}")
@@ -448,12 +448,12 @@ class Emit(Design, PyAedtBase):
         logger = logging.getLogger("Global")
         logger.info(f"[EMIT] close_project: name={name}, save={save}")
         try:
-            result = self._call_with_timeout(Design.close_project, args=(self, name, save), timeout_seconds=90)
+            result = self._call_with_timeout(Design.close_project, args=(self, name, save), timeout_seconds=30)
             logger.info(f"[EMIT] close_project: Design.close_project returned {result}")
         except TimeoutError:
-            logger.error("[EMIT] close_project: TIMED OUT after 90s - AEDT may be unresponsive")
+            logger.error("[EMIT] close_project: TIMED OUT after 30s - AEDT may be unresponsive")
             warnings.warn(
-                "Emit.close_project() timed out after 90s - AEDT may be unresponsive. "
+                "Emit.close_project() timed out after 30s - AEDT may be unresponsive. "
                 "Continuing without confirmation of close."
             )
             result = False
@@ -468,9 +468,9 @@ class Emit(Design, PyAedtBase):
             pass
 
         if self._aedt_version <= "2026.1":
-            self._wait_for_iemit_exit(timeout_seconds=30)
-            logger.info("[EMIT] close_project: post-close settle delay (3s) for AEDT internal cleanup")
-            time.sleep(3.0)
+            self._wait_for_iemit_exit(timeout_seconds=10)
+            logger.info("[EMIT] close_project: post-close settle delay (2s) for AEDT internal cleanup")
+            time.sleep(2.0)
         return result
 
     def _wait_for_iemit_exit(self, timeout_seconds: float = 30) -> None:

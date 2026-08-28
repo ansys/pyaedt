@@ -267,7 +267,7 @@ jobs:
           $args = $env:PYTEST_ARGUMENTS -split ' '
           foreach ($run in 1..3) {
             Write-Output "========== EMIT test run $run of 3 =========="
-            pytest @args --timeout=600 -v -rA --color=yes tests/system/emit
+            pytest @args --timeout=120 --timeout-method=thread -v -rA --color=yes tests/system/emit
             if ($LASTEXITCODE -ne 0) {
               Write-Output "========== Run $run FAILED (exit code $LASTEXITCODE) =========="
             } else {

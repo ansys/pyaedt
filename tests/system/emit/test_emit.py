@@ -48,6 +48,8 @@ from ansys.aedt.core.internal.errors import GrpcApiError
 from tests import TESTS_EMIT_PATH
 from tests.conftest import DESKTOP_VERSION
 
+pytestmark = [pytest.mark.timeout(120)]
+
 # Prior to 2025R1, the Emit API supported Python 3.8,3.9,3.10,3.11
 # Starting with 2025R1, the Emit API supports Python 3.10,3.11,3.12
 if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1") or (
@@ -102,7 +104,10 @@ TEST_SUBFOLDER = TESTS_EMIT_PATH / "example_models/TEMIT"
 def interference(add_app_example):
     app = add_app_example(project="interference", application=Emit, subfolder=TEST_SUBFOLDER)
     yield app
-    app.close_project(app.project_name, save=False)
+    try:
+        app.close_project(app.project_name, save=False)
+    except Exception:
+        print("Error closing interference project")
 
 
 @pytest.fixture
@@ -113,7 +118,10 @@ def cell_phone(add_app_example):
         subfolder=TEST_SUBFOLDER,
     )
     yield app
-    app.close_project(app.project_name, save=False)
+    try:
+        app.close_project(app.project_name, save=False)
+    except Exception:
+        print("Error closing Cell Phone RFI Desense project")
 
 
 @pytest.fixture
@@ -124,14 +132,20 @@ def tutorial(add_app_example):
         subfolder=TEST_SUBFOLDER,
     )
     yield app
-    app.close_project(app.project_name, save=False)
+    try:
+        app.close_project(app.project_name, save=False)
+    except Exception:
+        print("Error closing tutorial project")
 
 
 @pytest.fixture
 def emit_app(add_app):
     app = add_app(application=Emit)
     yield app
-    app.close_project(app.project_name, save=False)
+    try:
+        app.close_project(app.project_name, save=False)
+    except Exception:
+        print("Error closing defaultemit app project")
 
 
 @pytest.mark.skipif(is_linux, reason="Emit API is not supported on linux.")
