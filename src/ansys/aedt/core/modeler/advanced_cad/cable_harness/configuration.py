@@ -468,7 +468,8 @@ class CableBundleConfig:
     Parameters
     ----------
     units : str
-        Dimensional unit for all lengths (e.g. ``'mm'``).
+        Dimensional unit for all lengths.  Only ``'mm'`` is supported;
+        the builder treats every length as millimetres unconditionally.
     materials : dict of str to Material
         Named material definitions.
     conductors : dict of str to Conductor
@@ -650,7 +651,11 @@ class CableBundleConfig:
             name: Conductor(
                 name=name,
                 equivalent_radius=float(
-                    props.get("conductor_equivalent_radius") or props.get("conductor_radius", 0.227),
+                    props["conductor_equivalent_radius"]
+                    if "conductor_equivalent_radius" in props
+                    else props["conductor_radius"]
+                    if "conductor_radius" in props
+                    else 0.227
                 ),
                 awg=props.get("awg"),
                 strand_count=props.get("strand_count"),
@@ -850,8 +855,8 @@ class CableBundleConfig:
                 initial_step=float(tran_raw["initial_step"]),
                 source=TransientSource(
                     kind=src_raw.get("type", "pwl"),
-                    time=list(src_raw.get("time", [])),
-                    amplitude=list(src_raw.get("amplitude", [])),
+                    time=[float(v) for v in src_raw.get("time", [])],
+                    amplitude=[float(v) for v in src_raw.get("amplitude", [])],
                     source_impedance=float(src_raw.get("source_impedance", 50.0)),
                     raw=src_raw,
                 ),
@@ -896,6 +901,8 @@ class CableBundleConfig:
                     errors.append(f"Pair {pair.name!r} references unknown conductor {member!r}.")
             if pair.name not in self.cross_section.pair_locations:
                 errors.append(f"Pair {pair.name!r} has no entry in cross_section.pair_locations.")
+            if pair.twist_pitch <= 0:
+                errors.append(f"Pair {pair.name!r} has twist_pitch={pair.twist_pitch}; twist_pitch must be > 0.")
 
         for member in self.bundle.members:
             if member not in self.pairs:
@@ -923,6 +930,7 @@ class CableBundleConfig:
                 errors.append(f"Route {route.name!r} must be an (N>=2, 3) point list.")
 
         errors.extend(self._pair_shield_interference_errors())
+        errors.extend(self._positivity_and_nesting_errors())
 
         if errors:
             raise AEDTRuntimeError("Invalid cable-bundle configuration:\n  - " + "\n  - ".join(errors))
@@ -955,6 +963,69 @@ class CableBundleConfig:
                         f"Reduce geometry.pair_shield_radius or spread "
                         f"cross_section.pair_locations.",
                     )
+        return out
+
+    def _positivity_and_nesting_errors(self) -> list[str]:
+        """Return geometry errors for non-positive radii and nesting violations.
+
+        Returns
+        -------
+        list of str
+            Error messages, one per violated constraint.
+        """
+        out: list[str] = []
+        g = self.simulation.geometry
+
+        for name, cond in self.conductors.items():
+            if cond.equivalent_radius <= 0:
+                out.append(f"Conductor {name!r} equivalent_radius={cond.equivalent_radius}; must be > 0.")
+
+        ins_r = self.insulation.outer_radius
+        if ins_r <= 0:
+            out.append(f"insulation.outer_radius={ins_r}; must be > 0.")
+
+        offset = g.pair_wire_center_offset
+        if offset < 0:
+            out.append(f"geometry.pair_wire_center_offset={offset}; must be >= 0.")
+
+        psr = g.pair_shield_radius
+        if psr <= 0:
+            out.append(f"geometry.pair_shield_radius={psr}; must be > 0.")
+
+        osr = g.overall_shield_radius
+        if osr <= 0:
+            out.append(f"geometry.overall_shield_radius={osr}; must be > 0.")
+
+        jor = self.bundle.jacket_outer_radius
+        if jor <= 0:
+            out.append(f"bundle.jacket_outer_radius={jor}; must be > 0.")
+
+        for name, cond in self.conductors.items():
+            if cond.equivalent_radius > 0 and ins_r > 0 and cond.equivalent_radius >= ins_r:
+                out.append(
+                    f"Conductor {name!r} equivalent_radius={cond.equivalent_radius} >= "
+                    f"insulation.outer_radius={ins_r}; conductor must fit inside insulation."
+                )
+
+        if ins_r > 0 and offset >= 0 and psr > 0 and (ins_r + offset) > psr:
+            out.append(
+                f"insulation.outer_radius={ins_r} + geometry.pair_wire_center_offset={offset} "
+                f"= {ins_r + offset:.4g} > geometry.pair_shield_radius={psr}; "
+                f"insulated wire extends outside pair shield."
+            )
+
+        if psr > 0 and osr > 0 and psr >= osr:
+            out.append(
+                f"geometry.pair_shield_radius={psr} >= geometry.overall_shield_radius={osr}; "
+                f"pair shield must be smaller than the overall shield."
+            )
+
+        if osr > 0 and jor > 0 and osr >= jor:
+            out.append(
+                f"geometry.overall_shield_radius={osr} >= bundle.jacket_outer_radius={jor}; "
+                f"overall shield must fit inside the jacket."
+            )
+
         return out
 
     # -- Convenience -----------------------------------------------------------

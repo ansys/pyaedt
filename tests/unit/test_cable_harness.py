@@ -28,6 +28,7 @@ import copy
 import json
 import math
 from unittest.mock import MagicMock
+from unittest.mock import patch
 
 import numpy as np
 import pytest
@@ -541,8 +542,13 @@ class TestRoutedCableBundle:
         assert artifacts.pair_shields == ["cbl_pair1_foil_shield"]
         assert artifacts.overall_shield == ["cbl_overall_braid"]
         assert artifacts.jacket == ["cbl_pvc_jacket"]
-        assert artifacts.ports == ["P_w1_in", "P_w1_out", "P_w2_in", "P_w2_out"]
-        assert artifacts.datasets == ["ZT_pair1", "ZT_overall_braid"]
+        assert artifacts.ports == ["cbl_P_w1_in", "cbl_P_w1_out", "cbl_P_w2_in", "cbl_P_w2_out"]
+        assert artifacts.datasets == [
+            "cbl_ZT_pair1_re",
+            "cbl_ZT_pair1_im",
+            "cbl_ZT_overall_braid_re",
+            "cbl_ZT_overall_braid_im",
+        ]
         assert set(artifacts.as_dict()) == set(BuildArtifacts().as_dict())
 
     def test_ensure_materials_creates_and_assigns_properties(self, configuration, mock_hfss):
@@ -575,17 +581,17 @@ class TestRoutedCableBundle:
         bundle.assign_shield_boundaries()
 
         dataset_call = mock_hfss.create_dataset.call_args_list[0]
-        assert dataset_call.args[0] == "ZT_pair1"
+        assert dataset_call.args[0] == "cbl_ZT_pair1_re"
         assert dataset_call.args[1] == frequencies.tolist()
         assert len(dataset_call.args[2]) == 3
-        assert all(value > 0.0 for value in dataset_call.args[2])
+        assert all(np.isfinite(value) for value in dataset_call.args[2])
         assert dataset_call.kwargs["x_unit"] == "Hz"
         assert dataset_call.kwargs["y_unit"] == "ohm"
 
         boundary_call = mock_hfss.assign_impedance_to_sheet.call_args_list[0]
         assert boundary_call.args[0] == "cbl_pair1_foil_shield"
-        assert boundary_call.kwargs["resistance"] == "pwl(ZT_pair1, Freq)"
-        assert boundary_call.kwargs["reactance"] == 0
+        assert boundary_call.kwargs["resistance"] == "pwl(cbl_ZT_pair1_re, Freq)"
+        assert boundary_call.kwargs["reactance"] == "pwl(cbl_ZT_pair1_im, Freq)"
 
     def test_shield_model_factory_can_be_injected(self, configuration, mock_hfss):
         """Test that a custom shield model factory overrides the analytic models."""
@@ -599,7 +605,9 @@ class TestRoutedCableBundle:
         bundle.build_geometry()
         bundle.assign_shield_boundaries()
 
-        assert mock_hfss.create_dataset.call_args_list[0].args[2] == [1.0, 2.0]
+        circ = 2.0 * math.pi * 1.15e-3
+        expected = [pytest.approx(1.0 * circ), pytest.approx(2.0 * circ)]
+        assert mock_hfss.create_dataset.call_args_list[0].args[2] == expected
 
     def test_create_ports_uses_the_overall_shield_as_reference(self, configuration, mock_hfss):
         """Test that a port is created at each conductor end against the shield reference."""
@@ -609,10 +617,10 @@ class TestRoutedCableBundle:
 
         assert mock_hfss.circuit_port.call_count == 4
         first = mock_hfss.circuit_port.call_args_list[0]
-        assert first.kwargs["name"] == "P_w1_in"
+        assert first.kwargs["name"] == "cbl_P_w1_in"
         assert first.kwargs["impedance"] == 50.0
         assert first.kwargs["renorm_impedance"] == "50.0"
-        assert bundle.port_pairs["w1"] == ("P_w1_in", "P_w1_out")
+        assert bundle.port_pairs["w1"] == ("cbl_P_w1_in", "cbl_P_w1_out")
 
     def test_create_ports_before_geometry_raises(self, configuration, mock_hfss):
         """Test that creating ports before the geometry exists reports a clear error."""
@@ -637,8 +645,10 @@ class TestRoutedCableBundle:
 
         assert mock_hfss.set_differential_pair.call_count == 2
         first = mock_hfss.set_differential_pair.call_args_list[0]
-        assert first.kwargs["assignment"] == "P_w1_in"
-        assert first.kwargs["reference"] == "P_w2_in"
+        assert first.kwargs["assignment"] == "cbl_P_w1_in"
+        assert first.kwargs["reference"] == "cbl_P_w2_in"
+        assert first.kwargs["common_mode"] == "cbl_CM0"
+        assert first.kwargs["differential_mode"] == "cbl_DM0"
         assert first.kwargs["differential_reference"] == 100.0
         assert first.kwargs["common_reference"] == 25.0
 
@@ -661,6 +671,14 @@ class TestRoutedCableBundle:
         assert sweep["stop_frequency"] == 1.0e9
         assert sweep["num_of_freq_points"] == 101
         assert sweep["sweep_type"] == "Interpolating"
+
+    def test_create_setup_raises_when_hfss_fails(self, configuration, mock_hfss):
+        """Test that a failed setup creation is surfaced as an error."""
+        mock_hfss.create_setup.return_value = False
+        bundle = RoutedCableBundle(configuration, mock_hfss)
+
+        with pytest.raises(AEDTRuntimeError, match="Failed to create the HFSS setup 'Sparam'"):
+            bundle.create_setup(name="Sparam")
 
     def test_build_can_skip_optional_steps(self, configuration, mock_hfss):
         """Test that ports, boundaries, and differential pairs can be skipped."""
@@ -691,3 +709,195 @@ class TestRoutedCableBundle:
 
         with pytest.raises(AEDTRuntimeError, match="could not be assigned"):
             bundle.assign_shield_boundaries()
+
+    def test_transfer_impedance_unit_conversion_is_pinned(self, configuration, mock_hfss):
+        """Test that ohm/m values from the shield model are correctly converted to ohm/square in the dataset.
+
+        With a fake shield model returning 3+4j ohm/m, the _re dataset must equal
+        3 * 2*pi*r and the _im dataset must equal 4 * 2*pi*r, where r is the shield
+        radius in metres. The pair and overall shields use their respective radii.
+        """
+        fake_zt = 3.0 + 4.0j  # ohm/m — constant at every frequency
+        fake_model = MeasuredShield(np.array([1e6]), np.array([fake_zt]))
+        bundle = RoutedCableBundle(
+            configuration,
+            mock_hfss,
+            frequencies=np.array([1e6]),
+            shield_model_factory=lambda shield, **kw: fake_model,
+        )
+        bundle.build_geometry()
+        bundle.assign_shield_boundaries()
+
+        r_pair = 1.15e-3  # m — pair_shield_radius from CONFIG
+        r_overall = 3.6e-3  # m — overall_shield_radius from CONFIG
+        calls = mock_hfss.create_dataset.call_args_list
+        # Order: pair_re, pair_im, overall_re, overall_im
+        re_pair = calls[0].args[2][0]
+        im_pair = calls[1].args[2][0]
+        re_overall = calls[2].args[2][0]
+        im_overall = calls[3].args[2][0]
+
+        assert re_pair == pytest.approx(3.0 * 2.0 * math.pi * r_pair, rel=1e-9)
+        assert im_pair == pytest.approx(4.0 * 2.0 * math.pi * r_pair, rel=1e-9)
+        assert re_overall == pytest.approx(3.0 * 2.0 * math.pi * r_overall, rel=1e-9)
+        assert im_overall == pytest.approx(4.0 * 2.0 * math.pi * r_overall, rel=1e-9)
+
+    def test_build_raises_on_second_call(self, configuration, mock_hfss):
+        """Test that calling build() twice on the same instance raises AEDTRuntimeError."""
+        bundle = RoutedCableBundle(configuration, mock_hfss)
+        bundle.build(create_ports=False, assign_shield_boundaries=False, define_differential_pairs=False)
+        with pytest.raises(AEDTRuntimeError, match="already been built"):
+            bundle.build(create_ports=False, assign_shield_boundaries=False, define_differential_pairs=False)
+
+    def test_build_geometry_raises_on_second_call(self, configuration, mock_hfss):
+        """Test that calling build_geometry() twice on the same instance raises AEDTRuntimeError."""
+        bundle = RoutedCableBundle(configuration, mock_hfss)
+        bundle.build_geometry()
+        with pytest.raises(AEDTRuntimeError, match="already exists"):
+            bundle.build_geometry()
+
+    def test_lumped_port_type_warns_once_and_creates_circuit_ports(self, configuration, mock_hfss):
+        """Test that a lumped port type logs exactly one warning and still creates circuit ports."""
+        configuration.simulation.ports.kind = "lumped"
+        bundle = RoutedCableBundle(configuration, mock_hfss)
+        bundle.build_geometry()
+        bundle.create_ports()
+
+        bundle.logger.warning.assert_called_once()
+        assert mock_hfss.circuit_port.call_count == 4  # 2 conductors × 2 ends
+
+    def test_create_dataset_failure_raises(self, configuration, mock_hfss):
+        """Test that a False return from create_dataset is surfaced as AEDTRuntimeError naming the dataset."""
+        mock_hfss.create_dataset.return_value = False
+        bundle = RoutedCableBundle(configuration, mock_hfss, frequencies=np.array([1e6]))
+        bundle.build_geometry()
+        with pytest.raises(AEDTRuntimeError, match="cbl_ZT_pair1_re"):
+            bundle.assign_shield_boundaries()
+
+    def test_ensure_materials_sets_per_material_properties(self, configuration, mock_hfss):
+        """Test that distinct mock objects per material receive the correct physical properties.
+
+        A side_effect that returns a separate MagicMock per material name allows asserting
+        that the conductor (copper) gets conductivity and the dielectric (pe_foam) gets
+        permittivity and loss_tangent independently.
+        """
+        material_mocks = {name: MagicMock() for name in ["copper", "aluminum", "pe_foam", "pvc"]}
+        mock_hfss.materials.add_material.side_effect = lambda name: material_mocks[name]
+
+        RoutedCableBundle(configuration, mock_hfss).ensure_materials()
+
+        assert material_mocks["copper"].conductivity == 5.8e7
+        assert material_mocks["aluminum"].conductivity == 3.5e7
+        assert material_mocks["pe_foam"].permittivity == 1.5
+        assert material_mocks["pe_foam"].dielectric_loss_tangent == 0.0005
+        assert material_mocks["pvc"].permittivity == 3.0
+        assert material_mocks["pvc"].dielectric_loss_tangent == 0.02
+
+
+class TestConfigurationHardeningRegression:
+    """Regression tests for the hardening fixes applied to CableBundleConfig.validate()."""
+
+    def test_validate_rejects_zero_twist_pitch(self, configuration):
+        """Test that twist_pitch == 0 is rejected with a clear message."""
+        configuration.pairs["pair1"].twist_pitch = 0.0
+        with pytest.raises(AEDTRuntimeError, match="twist_pitch"):
+            configuration.validate()
+
+    def test_validate_rejects_negative_twist_pitch(self, configuration):
+        """Test that a negative twist pitch is rejected by validate()."""
+        configuration.pairs["pair1"].twist_pitch = -5.0
+        with pytest.raises(AEDTRuntimeError, match="twist_pitch"):
+            configuration.validate()
+
+    def test_validate_rejects_pair_shield_nesting_violation(self, configuration):
+        """Test that pair_shield_radius < insulation.outer_radius + pair_wire_center_offset is rejected."""
+        # insulation.outer_radius=0.55, pair_wire_center_offset=0.58 → sum=1.13 > 0.5
+        configuration.simulation.geometry.pair_shield_radius = 0.5
+        with pytest.raises(AEDTRuntimeError, match="insulated wire extends outside pair shield"):
+            configuration.validate()
+
+    def test_validate_rejects_zero_conductor_radius(self, configuration):
+        """Test that conductor_equivalent_radius of zero is rejected by the positivity check."""
+        configuration.conductors["w1"].equivalent_radius = 0.0
+        with pytest.raises(AEDTRuntimeError, match="equivalent_radius"):
+            configuration.validate()
+
+
+class TestTransferImpedanceHardeningRegression:
+    """Regression tests for the hardening fixes applied to BraidShield and MeasuredShield."""
+
+    def test_braid_diffusion_term_is_grid_independent(self):
+        """Test that the diffusion term value at 1 GHz is identical regardless of the surrounding frequency grid."""
+        braid = ti.BraidShield(
+            sigma=5.8e7,
+            wire_diameter_m=0.1e-3,
+            carriers=16,
+            wires_per_carrier=8,
+            weave_angle_deg=30.0,
+            cable_radius_m=3.6e-3,
+        )
+        value_single = braid._diffusion_term(np.array([1e9]))[0]
+        value_grid = braid._diffusion_term(np.array([1e3, 1e6, 1e9]))[2]
+        assert value_single == pytest.approx(value_grid)
+
+        # An empty frequency array must not raise IndexError.
+        result = braid._diffusion_term(np.array([]))
+        assert result.shape == (0,)
+
+        # DC limit: as f -> 0 the diffusion term approaches dc_resistance_per_m.
+        # At 1 mHz the where-branch in _diffusion_impedance fires (|gamma_t| << 1e-6),
+        # so the DC limit is exact.
+        dc_value = braid._diffusion_term(np.array([1e-3]))[0].real
+        assert dc_value == pytest.approx(braid.dc_resistance_per_m, rel=1e-9)
+
+    def test_braid_optical_coverage_clips_to_one_for_dense_braid(self):
+        """Test that fill_factor > 1 clamps optical_coverage to 1.0 and emits a warning."""
+        braid = ti.BraidShield(
+            sigma=5.8e7,
+            wire_diameter_m=1.0e-3,  # deliberately large → fill_factor >> 1
+            carriers=16,
+            wires_per_carrier=8,
+            weave_angle_deg=30.0,
+            cable_radius_m=3.6e-3,
+        )
+        assert braid.fill_factor > 1.0  # raw value is unclipped
+        with patch("ansys.aedt.core.aedt_logger.pyaedt_logger") as mock_log:
+            cov = braid.optical_coverage
+        assert cov == 1.0
+        mock_log.warning.assert_called_once()
+
+    def test_report_zt_logs_at_spot_frequencies(self):
+        """Test that report_zt emits one header line plus one line per checkpoint frequency."""
+        freqs = np.array([1e3, 1e6, 1e8, 1e9])
+        zt = np.array([1.0, 2.0, 3.0, 4.0]) * 1e-3  # ohm/m — simple real values
+        with patch("ansys.aedt.core.aedt_logger.pyaedt_logger") as mock_log:
+            ti.report_zt("test_shield", zt, freqs)
+        # 1 header + 4 checkpoints = 5 info calls
+        assert mock_log.info.call_count == 5
+        # Second call: f_actual=1e3 Hz, mag = 1e-3 * 1e3 = 1.0 mOhm/m
+        second = mock_log.info.call_args_list[1]
+        assert second.args[2] == pytest.approx(1.0)  # mag argument
+
+    def test_measured_shield_clamps_out_of_range_frequencies(self):
+        """Test that MeasuredShield clamps to boundary values rather than extrapolating."""
+        frequencies = np.array([1e3, 1e6, 1e9])
+        values = np.array([1.0 + 0.0j, 2.0 + 0.0j, 4.0 + 0.0j])
+        model = MeasuredShield(frequencies, values)
+
+        below = model.transfer_impedance(np.array([1.0]))  # below lowest tabulated frequency
+        above = model.transfer_impedance(np.array([1e12]))  # above highest tabulated frequency
+
+        assert below[0].real == pytest.approx(1.0)  # clamped to first tabulated value
+        assert above[0].real == pytest.approx(4.0)  # clamped to last tabulated value
+
+
+class TestShieldModelsHardeningRegression:
+    """Regression tests for hardening fixes in shield_models.build_shield_model."""
+
+    def test_factory_raises_for_braid_missing_required_key(self, configuration):
+        """Test that build_shield_model raises ShieldModelError naming the missing key for a braid shield."""
+        shield = configuration.bundle.overall_shield  # braid
+        # Omit wires_per_carrier and weave_angle
+        shield.construction = {"wire_diameter": 0.1, "carriers": 16}
+        with pytest.raises(ShieldModelError, match="missing required key"):
+            build_shield_model(shield, radius_mm=3.6, materials=configuration.materials)

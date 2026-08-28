@@ -144,6 +144,10 @@ def build_shield_model(
 
     if shield.is_braid:
         c = shield.construction or {}
+        required = ("wire_diameter", "carriers", "wires_per_carrier", "weave_angle")
+        missing = [k for k in required if k not in c]
+        if missing:
+            raise ShieldModelError(f"Braid shield construction block is missing required key(s): {missing!r}.")
         return ti.BraidShield(
             sigma=float(sigma),
             wire_diameter_m=float(c["wire_diameter"]) * 1e-3,

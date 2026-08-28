@@ -8,8 +8,8 @@
   "properties": {
     "units": {
       "type": "string",
-      "description": "Dimensional unit for all lengths in this file.",
-      "enum": ["mm", "cm", "m", "in", "mil", "um"]
+      "description": "Dimensional unit for all lengths in this file. Only millimetres ('mm') are supported; the builder treats all lengths as mm unconditionally.",
+      "enum": ["mm"]
     },
     "materials": {
       "type": "object",

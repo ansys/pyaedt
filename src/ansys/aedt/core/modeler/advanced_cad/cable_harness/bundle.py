@@ -129,8 +129,10 @@ class RoutedCableBundle(PyAedtBase):
         Open HFSS design using a ``"DrivenTerminal"`` or ``"DrivenModal"`` solution type. The caller
         owns the lifecycle of this object.
     name_prefix : str, optional
-        Prefix applied to every created object, dataset, boundary, and port so that several bundles
-        can coexist in one design. The default is ``"cbl"``.
+        Prefix applied to **every** created entity — modeler objects, impedance-boundary names,
+        transfer-impedance dataset names, port names, and differential-mode names — so that several
+        bundles with different prefixes can coexist in one design without name collisions.
+        The default is ``"cbl"``.
     frequencies : numpy.ndarray, optional
         Frequency grid in Hz on which the transfer impedance is evaluated for the boundary datasets.
         The default is ``None``, in which case 71 logarithmically spaced points from 1 kHz to 10 GHz
@@ -234,7 +236,19 @@ class RoutedCableBundle(PyAedtBase):
         -------
         :class:`BuildArtifacts`
             Names of every entity created, for use by downstream steps.
+
+        Raises
+        ------
+        AEDTRuntimeError
+            If geometry has already been built on this instance. Create a new
+            :class:`RoutedCableBundle` instance, or use a different ``name_prefix``, to build again.
         """
+        if self.created.conductors:
+            raise AEDTRuntimeError(
+                f"This RoutedCableBundle (prefix='{self.name_prefix}') has already been built. "
+                "Geometry objects already exist in the design. "
+                "Create a new RoutedCableBundle instance or use a different name_prefix to build again."
+            )
         self.ensure_materials()
         self.build_geometry()
         if assign_shield_boundaries:
@@ -273,7 +287,18 @@ class RoutedCableBundle(PyAedtBase):
         -------
         bool
             ``True`` when the geometry is created.
+
+        Raises
+        ------
+        AEDTRuntimeError
+            If geometry has already been built on this instance. Create a new
+            :class:`RoutedCableBundle` instance, or use a different ``name_prefix``, to build again.
         """
+        if self.created.conductors:
+            raise AEDTRuntimeError(
+                f"Geometry for RoutedCableBundle (prefix='{self.name_prefix}') already exists in the design. "
+                "Create a new RoutedCableBundle instance or use a different name_prefix to build again."
+            )
         self._build_pairs()
         self._build_overall_shield_and_jacket()
         return True
@@ -299,7 +324,13 @@ class RoutedCableBundle(PyAedtBase):
             )
             transfer_impedance = model.transfer_impedance(self.frequencies)
             sheet = f"{self.name_prefix}_{pair.name}_foil_shield"
-            self._assign_transfer_impedance(sheet, f"ZT_{pair.name}", transfer_impedance, f"Zt_{pair.name}")
+            self._assign_transfer_impedance(
+                sheet,
+                f"{self.name_prefix}_ZT_{pair.name}",
+                transfer_impedance,
+                f"{self.name_prefix}_Zt_{pair.name}",
+                geometry_settings.pair_shield_radius,
+            )
 
         overall = self.configuration.bundle.overall_shield
         if overall and overall.kind != "none":
@@ -312,15 +343,21 @@ class RoutedCableBundle(PyAedtBase):
             transfer_impedance = model.transfer_impedance(self.frequencies)
             self._assign_transfer_impedance(
                 f"{self.name_prefix}_overall_braid",
-                "ZT_overall_braid",
+                f"{self.name_prefix}_ZT_overall_braid",
                 transfer_impedance,
-                "Zt_overall_braid",
+                f"{self.name_prefix}_Zt_overall_braid",
+                geometry_settings.overall_shield_radius,
             )
         return True
 
     @pyaedt_function_handler()
     def create_ports(self) -> bool:
         """Create a circuit port between each conductor end face and the port reference.
+
+        Only circuit ports are currently implemented. Lumped and wave ports on faceted 3-D
+        conductors require an explicit rectangular cap sheet between the conductor end and the
+        reference plane, which this builder does not create. If the configuration requests a
+        different port type, a warning is emitted once and circuit ports are created instead.
 
         Returns
         -------
@@ -335,6 +372,14 @@ class RoutedCableBundle(PyAedtBase):
         """
         if not self.conductor_paths:
             raise AEDTRuntimeError("Ports cannot be created before the geometry is built.")
+
+        port_kind = self.configuration.simulation.ports.kind
+        if port_kind != "circuit":
+            self.logger.warning(
+                f"Port type '{port_kind}' was requested but only 'circuit' ports are currently "
+                "implemented. Faceted conductor ends require an explicit cap sheet for lumped or "
+                "wave ports, which this builder does not create. Creating circuit ports instead."
+            )
 
         impedance = self.configuration.simulation.ports.impedance
         reference_object = self._reference_object()
@@ -354,7 +399,7 @@ class RoutedCableBundle(PyAedtBase):
                 conductor_edge = conductor_face.edges[0]
                 reference_edge = self._nearest_edge(reference_object.edges, target)
 
-                port_name = f"P_{conductor_name}_{label}"
+                port_name = f"{self.name_prefix}_P_{conductor_name}_{label}"
                 self.hfss.circuit_port(
                     assignment=conductor_edge,
                     reference=reference_edge,
@@ -364,7 +409,10 @@ class RoutedCableBundle(PyAedtBase):
                     renorm_impedance=str(impedance),
                 )
                 self.created.ports.append(port_name)
-            self.port_pairs[conductor_name] = (f"P_{conductor_name}_in", f"P_{conductor_name}_out")
+            self.port_pairs[conductor_name] = (
+                f"{self.name_prefix}_P_{conductor_name}_in",
+                f"{self.name_prefix}_P_{conductor_name}_out",
+            )
         return True
 
     @pyaedt_function_handler()
@@ -394,11 +442,13 @@ class RoutedCableBundle(PyAedtBase):
                 )
                 continue
             for end in ("in", "out"):
+                pos_port = self.port_pairs[positive][0 if end == "in" else 1]
+                neg_port = self.port_pairs[negative][0 if end == "in" else 1]
                 self.hfss.set_differential_pair(
-                    assignment=f"P_{positive}_{end}",
-                    reference=f"P_{negative}_{end}",
-                    common_mode=f"CM{index}",
-                    differential_mode=f"DM{index}",
+                    assignment=pos_port,
+                    reference=neg_port,
+                    common_mode=f"{self.name_prefix}_CM{index}",
+                    differential_mode=f"{self.name_prefix}_DM{index}",
                     common_reference=differential_impedance / 4.0,
                     differential_reference=differential_impedance,
                     active=True,
@@ -435,6 +485,11 @@ class RoutedCableBundle(PyAedtBase):
         -------
         :class:`ansys.aedt.core.modules.solve_setup.SetupHFSS`
             Setup that was created.
+
+        Raises
+        ------
+        AEDTRuntimeError
+            If HFSS fails to create the setup.
         """
         frequency_start = self.configuration.simulation.frequency_start
         frequency_stop = self.configuration.simulation.frequency_stop
@@ -445,6 +500,8 @@ class RoutedCableBundle(PyAedtBase):
             MinimumConvergedPasses=1,
             DeltaS=delta_s,
         )
+        if not setup:
+            raise AEDTRuntimeError(f"Failed to create the HFSS setup '{name}'.")
         setup.create_frequency_sweep(
             unit="Hz",
             name=sweep_name,
@@ -576,22 +633,83 @@ class RoutedCableBundle(PyAedtBase):
         dataset_name: str,
         transfer_impedance: np.ndarray,
         boundary_name: str,
+        radius_mm: float,
     ) -> None:
-        """Create a transfer-impedance dataset and assign it as an impedance boundary."""
-        self.hfss.create_dataset(
-            dataset_name,
+        """Create transfer-impedance datasets and assign them as an impedance boundary.
+
+        Parameters
+        ----------
+        sheet_name : str
+            Name of the shield sheet object in the modeler.
+        dataset_name : str
+            Base name for the two frequency-domain datasets. Two datasets are created:
+            ``<dataset_name>_re`` for the real (resistive) part and ``<dataset_name>_im`` for the
+            imaginary (reactive) part of the surface impedance.
+        transfer_impedance : numpy.ndarray
+            Complex transfer impedance in **ohm per metre** of cable, evaluated at
+            ``self.frequencies``. This is the quantity returned by
+            ``ShieldModel.transfer_impedance()``.
+        boundary_name : str
+            Name for the HFSS impedance boundary.
+        radius_mm : float
+            Shield mid-surface radius in **millimetres**. Used to convert from ohm/m to
+            ohm/square before writing to HFSS.
+
+        Notes
+        -----
+        HFSS ``assign_impedance_to_sheet`` expects a **surface impedance** in ohm/square, whereas
+        ``ShieldModel.transfer_impedance()`` returns a **transfer impedance** in ohm/m (it has
+        already divided the per-square resistance by the shield circumference so that it represents
+        the coupling per unit cable length).
+
+        The conversion back to ohm/square is:
+
+        .. math::
+
+            Z_{\\text{surface}}\\,[\\Omega/\\square] =
+                Z_{\\text{transfer}}\\,[\\Omega/\\mathrm{m}] \\times 2\\pi r
+
+        where ``r`` is the shield radius in metres.  The real and imaginary parts are converted
+        independently and stored in separate design datasets (``_re`` / ``_im``) so that the
+        reactive aperture/seam term is correctly represented as reactance in the boundary condition
+        rather than folded into the resistance.
+        """
+        radius_m = radius_mm * 1e-3
+        circumference_m = 2.0 * math.pi * radius_m
+        zt_sq = transfer_impedance * circumference_m
+
+        name_re = f"{dataset_name}_re"
+        name_im = f"{dataset_name}_im"
+
+        result_re = self.hfss.create_dataset(
+            name_re,
             self.frequencies.tolist(),
-            np.abs(transfer_impedance).tolist(),
+            zt_sq.real.tolist(),
             is_project_dataset=False,
             x_unit="Hz",
             y_unit="ohm",
         )
-        self.created.datasets.append(dataset_name)
+        if result_re is False:
+            raise AEDTRuntimeError(f"Failed to create transfer-impedance dataset '{name_re}'.")
+        self.created.datasets.append(name_re)
+
+        result_im = self.hfss.create_dataset(
+            name_im,
+            self.frequencies.tolist(),
+            zt_sq.imag.tolist(),
+            is_project_dataset=False,
+            x_unit="Hz",
+            y_unit="ohm",
+        )
+        if result_im is False:
+            raise AEDTRuntimeError(f"Failed to create transfer-impedance dataset '{name_im}'.")
+        self.created.datasets.append(name_im)
+
         boundary = self.hfss.assign_impedance_to_sheet(
             sheet_name,
             name=boundary_name,
-            resistance=f"pwl({dataset_name}, Freq)",
-            reactance=0,
+            resistance=f"pwl({name_re}, Freq)",
+            reactance=f"pwl({name_im}, Freq)",
         )
         if not boundary:
             raise AEDTRuntimeError(f"The impedance boundary could not be assigned to sheet '{sheet_name}'.")

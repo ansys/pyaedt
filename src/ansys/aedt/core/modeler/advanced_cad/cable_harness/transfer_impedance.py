@@ -183,10 +183,16 @@ class BraidShield:
     def fill_factor(self) -> float:
         """Return the fraction of one half-shell covered by carriers in one direction.
 
+        This is the **raw** (unclipped) fill factor. Values above 1 indicate
+        geometrically inconsistent braid parameters; the value is preserved as
+        a diagnostic. The :attr:`optical_coverage` property clips this to
+        ``[0, 1]`` before forming the coverage parabola.
+
         Returns
         -------
         float
             Dimensionless fill factor ``f = N*n*d / (2*pi*r*cos(alpha))``.
+            May exceed 1 for dense braids.
         """
         alpha = math.radians(self.weave_angle_deg)
         n_c = self.carriers
@@ -197,15 +203,38 @@ class BraidShield:
 
     @property
     def optical_coverage(self) -> float:
-        """Return the optical coverage ``K = 2f - f**2``, clipped to ``[0, 1]``.
+        """Return the optical coverage ``K = 2f_c - f_c**2``, clipped to ``[0, 1]``.
+
+        The raw :attr:`fill_factor` *f* is first clipped to ``[0, 1]`` (as
+        ``f_c``) so that coverage is monotone and saturates at 1 for a fully
+        dense braid. When *f* exceeds 1 a warning is emitted because the braid
+        construction parameters are geometrically inconsistent with the cable
+        radius.
 
         Returns
         -------
         float
             Dimensionless optical coverage in the range ``[0, 1]``.
+
+        Warns
+        -----
+        pyaedt_logger
+            When the raw fill factor exceeds 1, indicating over-dense braid
+            geometry.
         """
+        from ansys.aedt.core.aedt_logger import pyaedt_logger
+
         f = self.fill_factor
-        return max(0.0, min(1.0, 2.0 * f - f * f))
+        if f > 1.0:
+            pyaedt_logger.warning(
+                "BraidShield: raw fill factor %.4g > 1 — braid construction parameters are "
+                "geometrically inconsistent with cable_radius_m=%.4g m. "
+                "Clamping fill factor to 1 for optical coverage calculation.",
+                f,
+                self.cable_radius_m,
+            )
+        f_c = max(0.0, min(1.0, f))
+        return 2.0 * f_c - f_c * f_c
 
     @property
     def dc_resistance_per_m(self) -> float:
@@ -229,23 +258,36 @@ class BraidShield:
         """Compute the diffusion contribution to braid transfer impedance.
 
         Uses the Schelkunoff form with an effective wall thickness equal to the
-        wire diameter, normalised to per-metre cable length using the braid DC
-        resistance. At ``f -> 0`` this returns exactly ``R_dc``.
+        wire diameter.  The per-square diffusion impedance is normalised by its
+        analytic DC value ``1 / (sigma * wire_diameter_m)`` so that the result
+        equals ``dc_resistance_per_m`` as ``f -> 0`` and rolls off with skin
+        effect.  The normalisation is a **constant** independent of the
+        frequency grid supplied by the caller.
 
         Parameters
         ----------
         freqs_hz : numpy.ndarray
-            Frequency array, in Hz.
+            Frequency array, in Hz. May be empty, single-element, or in any
+            order.
 
         Returns
         -------
         numpy.ndarray
             Complex diffusion term of the transfer impedance, in ohm/m.
+
+        Notes
+        -----
+        The DC (``f -> 0``) limit of ``_diffusion_impedance`` is
+        ``1 / (sigma * thickness_m)`` (ohm/square). Dividing by this constant
+        normalises the Schelkunoff factor to 1 at DC, giving the correct
+        ``R_dc`` magnitude at all frequencies without depending on whether the
+        first element of *freqs_hz* is near DC.
         """
         z_d_per_sq = _diffusion_impedance(self.sigma, self.wire_diameter_m, freqs_hz)
-        # Normalise to per-metre using the braid DC resistance: at f -> 0
-        # this returns exactly R_dc, then rolls off with skin effect.
-        return self.dc_resistance_per_m * (z_d_per_sq / z_d_per_sq[0].real)
+        # Analytic DC value of z_d_per_sq: the f -> 0 limit of
+        # _diffusion_impedance is 1 / (sigma * thickness).
+        z_d_dc = 1.0 / (self.sigma * self.wire_diameter_m)
+        return self.dc_resistance_per_m * (z_d_per_sq / z_d_dc)
 
     def _aperture_inductance(self) -> float:
         """Compute the Vance aperture mutual inductance per metre.
