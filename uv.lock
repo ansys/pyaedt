@@ -3942,7 +3942,7 @@ wheels = [
 
 [[package]]
 name = "pyedb"
-version = "0.81.0"
+version = "0.83.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "ansys-edb-core" },
@@ -3952,12 +3952,10 @@ dependencies = [
     { name = "psutil" },
     { name = "pydantic" },
     { name = "toml" },
-    { name = "typer" },
-    { name = "xmltodict" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/33/48/13b38388d324a039f15eb67bb1be7100dfac77e466d5a68b294bc73e7479/pyedb-0.81.0.tar.gz", hash = "sha256:5e5c7672b2cce7e7e4eb60129aaad9bb426beb8972546578ac4c358e2bd649c0", size = 867143, upload-time = "2026-07-26T13:47:38.282Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/86/7e/dd8b221412ff83d015c6fba4d08378fb9a74f5f63ba227e9e41ccc40868d/pyedb-0.83.0.tar.gz", hash = "sha256:2a3cc27fe36d05d14c6148a78047930946c8a7b274e0ec0e460164596b7eb5f8", size = 870039, upload-time = "2026-08-27T10:55:13.418Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/27/a3/9dc387b2873c3e67142f7934853ab5b325881dfe567a0b09b82b418f2c0c/pyedb-0.81.0-py3-none-any.whl", hash = "sha256:e28f5e138f5c359ac2fa3574ee114026aab19ea3841957afd33b9f51203a1381", size = 1179948, upload-time = "2026-07-26T13:47:36.545Z" },
+    { url = "https://files.pythonhosted.org/packages/f3/1e/3d118b6bb09418dd66b579cccdf1a2233345a72e9252c5b4193be8dc1dd4/pyedb-0.83.0-py3-none-any.whl", hash = "sha256:b7d1ccea8130993a78078a41bafbde71b90c4f7f6691fa7272dc6bcbad571d57", size = 1182944, upload-time = "2026-08-27T10:55:11.83Z" },
 ]
 
 [[package]]
@@ -4771,7 +4769,7 @@ wheels = [
 
 [[package]]
 name = "scikit-rf"
-version = "2.0.1"
+version = "2.1.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
@@ -4781,9 +4779,9 @@ dependencies = [
     { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/5c/bc/febd32a1c01d73abee0535a276181a67b2e2dba155386ef3501cc4cf49e3/scikit_rf-2.0.1.tar.gz", hash = "sha256:c0dead33a315c9b70a07200d26bda2779e7eb543bf790cf7963aeb4e9d97a870", size = 585098, upload-time = "2026-07-03T07:21:55.459Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/9c/b2/13c0ea0f4a015e7e9b1cbee3cede611c76561400aa988acb0692643068df/scikit_rf-2.1.0.tar.gz", hash = "sha256:f9aa5b25777d26d8b8f06a3f7d9f95795786ce496bbaf9121047dc412b974d3f", size = 617558, upload-time = "2026-08-13T16:39:14.821Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/be/77/09c70ceb86a3406d274bcb8373414fe5f7d0544cd0e3919627ee68cda3fb/scikit_rf-2.0.1-py3-none-any.whl", hash = "sha256:aa483acc54a4ba2b9dd59bcb1b49ccd1b7011b1ad625237a38ef35bb2eab1c90", size = 634199, upload-time = "2026-07-03T07:21:54.026Z" },
+    { url = "https://files.pythonhosted.org/packages/9a/4c/f9f754511c46ab1057618c3ec5508bbc95bf1b7d1d1194f4c3f4ed1739ee/scikit_rf-2.1.0-py3-none-any.whl", hash = "sha256:d963709b101d90e66172ba889e7377cb68f1ad78fe494a1b5b32b242b54a32c0", size = 667132, upload-time = "2026-08-13T16:39:13.518Z" },
 ]
 
 [[package]]
@@ -5926,15 +5924,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/06/28/7c7cf32d544f464b58f14b8b9da2acfd382729c8c2074abe0dfe671361fc/wslink-2.5.0.tar.gz", hash = "sha256:61f79460affeeeb05284821f5ec5bc927153d587b661d6cfe33cbe260f9cfae3", size = 31996, upload-time = "2025-10-20T15:38:53.161Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a2/33/44baf508511b036e455693cd874088f622b8f68e61415e92581a3ffdbbee/wslink-2.5.0-py3-none-any.whl", hash = "sha256:e5738958cc6cbe95581108df066be31a9ead0c485d2b27ca3f3f4865fc08b761", size = 36916, upload-time = "2025-10-20T15:38:52.148Z" },
-]
-
-[[package]]
-name = "xmltodict"
-version = "1.0.4"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/19/70/80f3b7c10d2630aa66414bf23d210386700aa390547278c789afa994fd7e/xmltodict-1.0.4.tar.gz", hash = "sha256:6d94c9f834dd9e44514162799d344d815a3a4faec913717a9ecbfa5be1bb8e61", size = 26124, upload-time = "2026-02-22T02:21:22.074Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/38/34/98a2f52245f4d47be93b580dae5f9861ef58977d73a79eb47c58f1ad1f3a/xmltodict-1.0.4-py3-none-any.whl", hash = "sha256:a4a00d300b0e1c59fc2bfccb53d7b2e88c32f200df138a0dd2229f842497026a", size = 13580, upload-time = "2026-02-22T02:21:21.039Z" },
 ]
 
 [[package]]
