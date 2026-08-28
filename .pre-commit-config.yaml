@@ -17,7 +17,7 @@ exclude: |
 repos:
 
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: 7c55798a78262d14b2074abf623d8a992ebb70d4  # frozen: v0.16.2
+  rev: 65dbdb59d2f2d9c3bdc343c566821ad3319ddaa3  # frozen: v0.16.3
   hooks:
     - id: ruff-check
     - id: ruff-format
@@ -38,7 +38,7 @@ repos:
 
 # Validate GitHub workflow files
 - repo: https://github.com/python-jsonschema/check-jsonschema
-  rev: 6b63472e72e1a91ed8a2f6d483790dfb644fa1d3  # frozen: 0.37.4
+  rev: 12e63946db2c5cfcc9030fac21c3883ba88c6ed8  # frozen: 0.38.0
   hooks:
     - id: check-github-workflows
 
@@ -63,7 +63,7 @@ repos:
       - --start_year=2021
 
 - repo: https://github.com/astral-sh/ty-pre-commit
-  rev: a4405bd34b6505ed51226ba2a5b5428625177d6a  # frozen: v0.0.69
+  rev: e0bc482078af7eee1555b1f01d27e618d2212720  # frozen: v0.0.73
   hooks:
     - id: ty
 
