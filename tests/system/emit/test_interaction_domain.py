@@ -22,8 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import sys
 from pathlib import Path
+import sys
 
 # Import required modules
 import pytest
@@ -40,6 +40,7 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1") o
 ):
     from ansys.aedt.core import Emit
 
+
 def _resolve_emit_examples_path(desktop) -> Path:
     """Prefer EMIT examples from the running Desktop install, otherwise use local test data."""
     install_dir = getattr(desktop, "aedt_install_dir", None)
@@ -48,6 +49,7 @@ def _resolve_emit_examples_path(desktop) -> Path:
         if candidate.is_dir():
             return candidate
     return TESTS_EMIT_PATH / "example_models/TEMIT"
+
 
 TEST_SUBFOLDER = TESTS_EMIT_PATH / "example_models/TEMIT"
 
@@ -153,7 +155,7 @@ def test_interaction_domain(cell_phone):
     bands = rev.get_all_band_nodes(radio=gps, enabled_only=True)
     L1 = next((b for b in bands if b.name == "L1"), None)
     L1.enabled = False
-    
+
     domain.set_interferers(radios=["GPS Receiver"], bands=["L1"])
     assert sim.is_domain_valid(domain) == "Interferer band 'L1' disabled."
 

@@ -101,6 +101,7 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1") o
 
 TEST_SUBFOLDER = TESTS_EMIT_PATH / "example_models/TEMIT"
 
+
 def _resolve_emit_examples_path(desktop) -> Path:
     """Prefer EMIT examples from the running Desktop install, otherwise use local test data."""
     install_dir = getattr(desktop, "aedt_install_dir", None)
@@ -109,6 +110,7 @@ def _resolve_emit_examples_path(desktop) -> Path:
         if candidate.is_dir():
             return candidate
     return TESTS_EMIT_PATH / "example_models/TEMIT"
+
 
 @pytest.fixture
 def interference(add_app_example):

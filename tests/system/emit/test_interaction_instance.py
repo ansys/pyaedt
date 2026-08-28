@@ -22,8 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import pytest
 from pathlib import Path
+
+import pytest
 
 from ansys.aedt.core import Emit
 from ansys.aedt.core.emit_core.emit_constants import ResultType
@@ -34,6 +35,7 @@ from tests.conftest import DESKTOP_VERSION
 
 TEST_SUBFOLDER = TESTS_EMIT_PATH / "example_models/TEMIT"
 
+
 def _resolve_emit_examples_path(desktop) -> Path:
     """Prefer EMIT examples from the running Desktop install, otherwise use local test data."""
     install_dir = getattr(desktop, "aedt_install_dir", None)
@@ -43,6 +45,7 @@ def _resolve_emit_examples_path(desktop) -> Path:
             return candidate
 
     return TESTS_EMIT_PATH / "example_models/TEMIT"
+
 
 @pytest.fixture
 def cell_phone(add_app_example, desktop):

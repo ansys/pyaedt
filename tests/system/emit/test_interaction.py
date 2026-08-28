@@ -23,8 +23,8 @@
 # SOFTWARE.
 
 import os
-import tempfile
 from pathlib import Path
+import tempfile
 
 import pytest
 
@@ -39,6 +39,7 @@ from ansys.aedt.core.emit_core.results.simulation import Simulation
 from tests import TESTS_EMIT_PATH
 from tests.conftest import DESKTOP_VERSION
 
+
 def _resolve_emit_examples_path(desktop) -> Path:
     """Prefer EMIT examples from the running Desktop install, otherwise use local test data."""
     install_dir = getattr(desktop, "aedt_install_dir", None)
@@ -47,6 +48,7 @@ def _resolve_emit_examples_path(desktop) -> Path:
         if candidate.is_dir():
             return candidate
     return TESTS_EMIT_PATH / "example_models/TEMIT"
+
 
 TEST_SUBFOLDER = TESTS_EMIT_PATH / "example_models/TEMIT"
 
@@ -841,7 +843,6 @@ def test_instance_count(cell_phone):
     assert domain3.interferer_names == domain4.interferer_names
     assert domain3.interferer_band_names == domain4.interferer_band_names
     assert domain3.interferer_channel_frequencies == domain4.interferer_channel_frequencies
-
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
