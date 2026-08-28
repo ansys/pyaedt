@@ -579,6 +579,42 @@ def read_toml(input_file: StrPath) -> dict:
 
 
 @pyaedt_function_handler()
+def read_yaml(input_file: StrPath, encoding: str = "utf-8") -> dict | list:
+    """Read a YAML file and return its content.
+
+    Parameters
+    ----------
+    input_file : str or :class:`pathlib.Path`
+        Full path to the YAML file.
+    encoding : str, optional
+        File encoding. The default is ``"utf-8"``.
+
+    Returns
+    -------
+    dict or list
+        Parsed YAML file. A mapping is returned as a dictionary and a sequence as a list.
+
+    Raises
+    ------
+    AEDTRuntimeError
+        If the file cannot be parsed as YAML.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.file_utils import read_yaml
+    >>> read_yaml(r"C:\\Temp\\settings.yaml")
+
+    """
+    import yaml
+
+    with open_file(input_file, "r", encoding=encoding) as f:
+        try:
+            return yaml.safe_load(f)
+        except yaml.YAMLError as e:  # pragma: no cover - depends on file content
+            raise AEDTRuntimeError(f"Failed to parse YAML file {input_file}.") from e
+
+
+@pyaedt_function_handler()
 def read_csv(input_file: StrPath, encoding: str = "utf-8") -> list:
     """Read information from a CSV file and return a list.
 
@@ -1006,12 +1042,14 @@ def read_configuration_file(input_file: StrPath) -> dict | list:
     Parameters
     ----------
     input_file : str or :class:`pathlib.Path`
-        Full path to the file. Supported formats are ``"csv"``, ``"json"``, ``"tab"``, ``"toml"``, and ``"xlsx"``.
+        Full path to the file. Supported formats are ``"csv"``, ``"json"``, ``"tab"``, ``"toml"``,
+        ``"xlsx"``, ``"yaml"``, and ``"yml"``.
 
     Returns
     -------
     Union[Dict, List]
-        Dictionary if configuration file is ``"toml"`` or ``"json"``, List is ``"csv"``, ``"tab"`` or ``"xlsx"``.
+        Dictionary if configuration file is ``"toml"``, ``"json"``, ``"yaml"``, or ``"yml"``.
+        List if it is ``"csv"``, ``"tab"``, or ``"xlsx"``.
 
     Examples
     --------
@@ -1023,6 +1061,8 @@ def read_configuration_file(input_file: StrPath) -> dict | list:
     ext = Path(file_path).suffix
     if ext == ".toml":
         return read_toml(file_path)
+    elif ext in (".yaml", ".yml"):
+        return read_yaml(file_path)
     elif ext == ".tab":
         return read_tab(file_path)
     elif ext == ".csv":

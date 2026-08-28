@@ -267,6 +267,20 @@ def test_read_toml(tmp_path) -> None:
     assert TOML_DATA == res
 
 
+@pytest.mark.parametrize("extension", ["yaml", "yml"])
+def test_read_configuration_file_yaml(tmp_path, extension) -> None:
+    """Test loading a YAML file through the generic configuration file reader."""
+    from ansys.aedt.core.generic.file_utils import read_configuration_file
+    from ansys.aedt.core.generic.file_utils import read_yaml
+
+    file_path = tmp_path / f"dummy.{extension}"
+    content = "key_0: dummy\nkey_1: 12\nkey_2:\n  - 1\n  - 2\nkey_3:\n  key_4: 42\n"
+    file_path.write_text(content, encoding="utf-8")
+
+    assert TOML_DATA == read_yaml(file_path)
+    assert TOML_DATA == read_configuration_file(file_path)
+
+
 def test_write_toml(tmp_path) -> None:
     """Test writing a TOML file."""
     from ansys.aedt.core.generic.file_utils import _create_toml_file

@@ -1,0 +1,369 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aedt.docs.pyansys.com/schemas/cable_harness.schema.json",
+  "title": "CableBundleConfig",
+  "description": "Schema for a routed explicit cable-bundle configuration (YAML or JSON). Numeric fields accept both JSON numbers and YAML-parsed strings (YAML may render un-signed scientific notation such as '10e9' as a string).",
+  "type": "object",
+  "required": ["materials", "conductors", "insulation", "pairs", "bundle", "cross_section", "routes", "simulation"],
+  "properties": {
+    "units": {
+      "type": "string",
+      "description": "Dimensional unit for all lengths in this file.",
+      "enum": ["mm", "cm", "m", "in", "mil", "um"]
+    },
+    "materials": {
+      "type": "object",
+      "description": "Named material definitions.",
+      "additionalProperties": {
+        "$ref": "#/$defs/material"
+      }
+    },
+    "conductors": {
+      "type": "object",
+      "description": "Named conductor (wire) definitions.",
+      "additionalProperties": {
+        "$ref": "#/$defs/conductor"
+      }
+    },
+    "insulation": {
+      "type": "object",
+      "description": "Insulation definitions keyed by insulation type.",
+      "properties": {
+        "wire_insulation": {
+          "$ref": "#/$defs/wire_insulation"
+        }
+      },
+      "additionalProperties": true
+    },
+    "pairs": {
+      "type": "object",
+      "description": "Named twisted-pair definitions.",
+      "additionalProperties": {
+        "$ref": "#/$defs/pair"
+      }
+    },
+    "bundle": {
+      "type": "object",
+      "description": "Named cable-bundle definitions (typically one entry).",
+      "additionalProperties": {
+        "$ref": "#/$defs/bundle_def"
+      }
+    },
+    "cross_section": {
+      "$ref": "#/$defs/cross_section"
+    },
+    "routes": {
+      "type": "object",
+      "description": "Named piecewise-linear routes through 3-D space.",
+      "additionalProperties": {
+        "$ref": "#/$defs/route"
+      }
+    },
+    "harnesses": {
+      "type": "object",
+      "description": "Named harness instances mapping bundles to routes.",
+      "additionalProperties": {
+        "$ref": "#/$defs/harness"
+      }
+    },
+    "simulation": {
+      "$ref": "#/$defs/simulation"
+    }
+  },
+  "$defs": {
+    "num_or_str": {
+      "description": "A numeric value that may arrive as a JSON number or a YAML-parsed string (e.g. '10e9').",
+      "type": ["number", "string"]
+    },
+    "material": {
+      "type": "object",
+      "description": "A single named material.",
+      "properties": {
+        "conductivity": {"$ref": "#/$defs/num_or_str", "description": "Electrical conductivity in S/m."},
+        "relative_permittivity": {"$ref": "#/$defs/num_or_str", "description": "Relative permittivity."},
+        "loss_tangent": {"$ref": "#/$defs/num_or_str", "description": "Dielectric loss tangent."}
+      },
+      "additionalProperties": true
+    },
+    "conductor": {
+      "type": "object",
+      "description": "A single wire conductor.",
+      "properties": {
+        "conductor_equivalent_radius": {"$ref": "#/$defs/num_or_str"},
+        "conductor_radius": {"$ref": "#/$defs/num_or_str"},
+        "awg": {"type": "integer"},
+        "strand_count": {"type": "integer", "exclusiveMinimum": 0}
+      },
+      "additionalProperties": true
+    },
+    "wire_insulation": {
+      "type": "object",
+      "description": "Dielectric jacket applied to every wire.",
+      "required": ["material", "outer_radius"],
+      "properties": {
+        "material": {"type": "string"},
+        "outer_radius": {"$ref": "#/$defs/num_or_str"}
+      },
+      "additionalProperties": true
+    },
+    "shield": {
+      "type": "object",
+      "description": "A foil or braid shield around a pair or the whole bundle.",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["foil", "braid", "none"]
+        },
+        "material": {"type": "string"},
+        "thickness": {"$ref": "#/$defs/num_or_str"},
+        "construction": {
+          "type": "object",
+          "properties": {
+            "seam": {"type": "string", "enum": ["longitudinal_overlap", "spiral_wrap", "seamless"]},
+            "overlap_width": {"$ref": "#/$defs/num_or_str"},
+            "wire_diameter": {"$ref": "#/$defs/num_or_str"},
+            "carriers": {"type": "integer", "exclusiveMinimum": 0},
+            "wires_per_carrier": {"type": "integer", "exclusiveMinimum": 0},
+            "weave_angle": {"$ref": "#/$defs/num_or_str"},
+            "optical_coverage": {"$ref": "#/$defs/num_or_str"},
+            "drain_wire": {"type": "object", "additionalProperties": true}
+          },
+          "additionalProperties": true
+        },
+        "drain_wire": {"type": "object", "additionalProperties": true},
+        "overlap_width": {"$ref": "#/$defs/num_or_str"}
+      },
+      "additionalProperties": true
+    },
+    "pair": {
+      "type": "object",
+      "description": "A twisted differential pair.",
+      "required": ["members", "twist_pitch"],
+      "properties": {
+        "members": {
+          "type": "array",
+          "items": {"type": "string"},
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "twist_pitch": {"$ref": "#/$defs/num_or_str"},
+        "shield": {"$ref": "#/$defs/shield"}
+      },
+      "additionalProperties": true
+    },
+    "bundle_def": {
+      "type": "object",
+      "description": "A cable bundle: list of pairs plus overall shield and jacket.",
+      "required": ["members", "jacket"],
+      "properties": {
+        "members": {
+          "type": "array",
+          "items": {"type": "string"},
+          "minItems": 1
+        },
+        "overall_shield": {"$ref": "#/$defs/shield"},
+        "separator": {
+          "type": "object",
+          "properties": {
+            "type": {"type": "string"}
+          },
+          "additionalProperties": true
+        },
+        "jacket": {
+          "type": "object",
+          "required": ["material", "outer_radius"],
+          "properties": {
+            "material": {"type": "string"},
+            "outer_radius": {"$ref": "#/$defs/num_or_str"}
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "cross_section": {
+      "type": "object",
+      "description": "2-D placement of pair centres in the bundle cross-section.",
+      "required": ["layout", "pair_locations"],
+      "properties": {
+        "layout": {"type": "string"},
+        "pair_locations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["center"],
+            "properties": {
+              "center": {
+                "type": "array",
+                "items": {"$ref": "#/$defs/num_or_str"},
+                "minItems": 2,
+                "maxItems": 2
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "route": {
+      "type": "object",
+      "description": "A named piecewise-linear route.",
+      "required": ["points"],
+      "properties": {
+        "points": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {"$ref": "#/$defs/num_or_str"},
+            "minItems": 3,
+            "maxItems": 3
+          },
+          "minItems": 2
+        }
+      },
+      "additionalProperties": true
+    },
+    "harness": {
+      "type": "object",
+      "description": "An instance of a bundle placed along a route.",
+      "properties": {
+        "bundle": {"type": "string"},
+        "route": {"type": "string"}
+      },
+      "additionalProperties": true
+    },
+    "ground_plane": {
+      "type": "object",
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "distance_below_route": {"$ref": "#/$defs/num_or_str"},
+        "size_margin": {"$ref": "#/$defs/num_or_str"}
+      },
+      "additionalProperties": true
+    },
+    "geometry_settings": {
+      "type": "object",
+      "properties": {
+        "facets": {"type": "integer", "exclusiveMinimum": 2},
+        "samples_per_pitch": {"type": "integer", "exclusiveMinimum": 0},
+        "pair_wire_center_offset": {"$ref": "#/$defs/num_or_str"},
+        "pair_shield_radius": {"$ref": "#/$defs/num_or_str"},
+        "overall_shield_radius": {"$ref": "#/$defs/num_or_str"},
+        "tube_end_extension": {"$ref": "#/$defs/num_or_str"},
+        "ground_plane": {"$ref": "#/$defs/ground_plane"}
+      },
+      "additionalProperties": true
+    },
+    "port_settings": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["lumped", "circuit", "wave"]
+        },
+        "reference": {
+          "type": "string",
+          "enum": ["overall_shield", "ground_plane"]
+        },
+        "impedance": {"$ref": "#/$defs/num_or_str"}
+      },
+      "additionalProperties": true
+    },
+    "transient_source": {
+      "type": "object",
+      "required": ["type", "time", "amplitude", "source_impedance"],
+      "properties": {
+        "type": {"type": "string"},
+        "time": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/num_or_str"},
+          "minItems": 2
+        },
+        "amplitude": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/num_or_str"},
+          "minItems": 2
+        },
+        "source_impedance": {"$ref": "#/$defs/num_or_str"}
+      },
+      "additionalProperties": true
+    },
+    "transient": {
+      "type": "object",
+      "required": ["stop_time", "time_step", "initial_step", "source"],
+      "properties": {
+        "stop_time": {"$ref": "#/$defs/num_or_str"},
+        "time_step": {"$ref": "#/$defs/num_or_str"},
+        "initial_step": {"$ref": "#/$defs/num_or_str"},
+        "source": {"$ref": "#/$defs/transient_source"}
+      },
+      "additionalProperties": true
+    },
+    "terminations": {
+      "type": "object",
+      "properties": {
+        "driven_conductor": {"type": "string"},
+        "load_end": {
+          "type": "object",
+          "additionalProperties": {"$ref": "#/$defs/num_or_str"}
+        },
+        "other_conductors_default": {"$ref": "#/$defs/num_or_str"},
+        "shield_grounding": {
+          "type": "object",
+          "properties": {
+            "source_end": {"type": "boolean"},
+            "load_end": {"type": "boolean"}
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "simulation": {
+      "type": "object",
+      "required": ["differential_pairs", "frequency_range"],
+      "properties": {
+        "differential_pairs": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {"type": "string"},
+            "minItems": 2,
+            "maxItems": 2
+          }
+        },
+        "characteristic_impedance": {
+          "type": "object",
+          "properties": {
+            "differential": {"$ref": "#/$defs/num_or_str"}
+          },
+          "additionalProperties": true
+        },
+        "frequency_range": {
+          "type": "object",
+          "required": ["start", "stop"],
+          "properties": {
+            "start": {"$ref": "#/$defs/num_or_str"},
+            "stop": {"$ref": "#/$defs/num_or_str"}
+          },
+          "additionalProperties": true
+        },
+        "shield_grounding": {
+          "type": "object",
+          "properties": {
+            "source_end": {"type": "boolean"},
+            "load_end": {"type": "boolean"}
+          },
+          "additionalProperties": true
+        },
+        "geometry": {"$ref": "#/$defs/geometry_settings"},
+        "ports": {"$ref": "#/$defs/port_settings"},
+        "terminations": {"$ref": "#/$defs/terminations"},
+        "transient": {"$ref": "#/$defs/transient"}
+      },
+      "additionalProperties": true
+    }
+  }
+}
