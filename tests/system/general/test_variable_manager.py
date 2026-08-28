@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import math
+from pathlib import Path
 
 import pytest
 
@@ -31,6 +32,9 @@ from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.numbers_utils import is_close
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
+from tests.conftest import SYSTEM_GENERAL_TEST_PREFIX
+from tests.conftest import SYSTEM_SOLVERS_TEST_PREFIX
+from tests.conftest import VISUALIZATION_GENERAL_TEST_PREFIX
 
 
 @pytest.fixture(
@@ -60,6 +64,27 @@ def app(request, add_app):
     app = add_app(application=request.param)
     yield app
     app.close_project(app.project_name)
+
+
+@pytest.fixture(
+    params=[
+        (pyaedt.Hfss, Path(VISUALIZATION_GENERAL_TEST_PREFIX) / "example_models" / "T12", "Potter_Horn_242"),
+        (pyaedt.Q2d, Path(SYSTEM_GENERAL_TEST_PREFIX) / "example_models" / "T30", "q2d_solved_sweep"),
+        (pyaedt.Icepak, Path(SYSTEM_SOLVERS_TEST_PREFIX) / "example_models" / "T00", "icepak_summary_solved"),
+        (pyaedt.Maxwell3d, Path(SYSTEM_SOLVERS_TEST_PREFIX) / "example_models" / "T00", "maxwell_variations"),
+    ],
+    ids=[
+        "hfss",
+        "q2d",
+        "icepak",
+        "maxwell3d",
+    ],
+)
+def app_variations(request, add_app_example):
+    app_cls, folder, project = request.param
+    app = add_app_example(project=project, subfolder=folder, application=app_cls)
+    yield app
+    app.close_project(save=False)
 
 
 @pytest.fixture
@@ -453,3 +478,27 @@ def test_delete_unused_variables(hfss_app) -> None:
     assert hfss_app.variable_manager.delete_unused_variables()
     new_number_of_variables = len(hfss_app.variable_manager.variable_names)
     assert number_of_variables != new_number_of_variables
+
+
+@pytest.mark.parametrize("output_as_dict", [True, False])
+def test_variations(app_variations, output_as_dict):
+    variations = app_variations.available_variations.variations(
+        setup_sweep=app_variations.nominal_sweep,
+        output_as_dict=output_as_dict,
+    )
+    assert isinstance(variations, list)
+
+    # Expected shape: list[variation]
+    # if output_as_dict=True expected type is list of dicts otherwise a list of lists
+    if output_as_dict:
+        assert all(isinstance(variation, dict) for variation in variations)
+    else:
+        for variation in variations:
+            assert isinstance(variation, list)
+            assert len(variation) % 2 == 0  # key/value alternating entries
+            for i in range(0, len(variation), 2):
+                key = variation[i]
+                value = variation[i + 1]
+                assert isinstance(key, str)
+                assert key.endswith(":=")
+                assert isinstance(value, list)
