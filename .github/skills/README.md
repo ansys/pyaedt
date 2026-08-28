@@ -12,11 +12,17 @@ Add the marketplace:
 copilot plugin marketplace add ansys/pyaedt
 ```
 
-Install the current plugin:
+Install the available plugins:
 
 ```bash
 copilot plugin install pyaedt-cli@pyaedt-skills
+copilot plugin install pyaedt-dev@pyaedt-skills
 ```
+
+| Plugin | Purpose |
+|---|---|
+| `pyaedt-cli` | Drive Ansys Electronics Desktop through the `pyaedt` command-line interface. |
+| `pyaedt-dev` | Develop and maintain the PyAEDT Python code base. |
 
 **Claude Code**
 
@@ -24,4 +30,8 @@ Claude uses `.claude-plugin/marketplace.json`, whose content points to `../.gith
 
 ## Maintenance
 
-When you add or update a skill, place it under `.github/plugin/<plugin-name>/skills/`. Update `.github/plugin/marketplace.json` accordingly. The referenced `.claude-plugin/marketplace.json` picks up changes automatically.
+When you add or update a skill, place it under `.github/plugin/<plugin-name>/skills/`. A plugin with a
+single skill may keep it at `skills/SKILL.md`; a plugin with several skills uses one subdirectory per
+skill, `skills/<skill-name>/SKILL.md`, and lists each path in the manifest. Update
+`.github/plugin/marketplace.json` accordingly. The referenced `.claude-plugin/marketplace.json` picks
+up changes automatically.

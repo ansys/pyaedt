@@ -1,0 +1,37 @@
+{
+  "id": 2680634,
+  "name": "Branch naming",
+  "target": "branch",
+  "source_type": "Repository",
+  "enforcement": "active",
+  "conditions": {
+    "ref_name": {
+      "exclude": [
+        "refs/heads/pre-commit-ci-update-config",
+        "refs/heads/main",
+        "refs/heads/gh-pages"
+      ],
+      "include": [
+        "~ALL"
+      ]
+    }
+  },
+  "rules": [
+    {
+      "type": "deletion"
+    },
+    {
+      "type": "non_fast_forward"
+    },
+    {
+      "type": "branch_name_pattern",
+      "parameters": {
+        "operator": "regex",
+        "pattern": "^(feat|fix|chore|docs|style|refactor|test|testing|perf|ci|no-ci|build|dependabot|release|maint|junk|)\\/.*",
+        "negate": false,
+        "name": ""
+      }
+    }
+  ],
+  "bypass_actors": []
+}
