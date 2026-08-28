@@ -1477,7 +1477,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
     def _init_from_design(self, *args, **kwargs) -> None:
         self.__init__(*args, **kwargs)
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     # NOTE: Extend Mixin behaviour to handle em field setups
     def _create_boundary(self, name: str, props, boundary_type):
         # Non em field cases
