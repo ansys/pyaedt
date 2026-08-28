@@ -251,7 +251,7 @@ class Settings(PyAedtBase):
         self.__disable_bounding_box_sat = False
         self.__force_error_on_missing_project = False
         self.__enable_pandas_output = False
-        self.__edb_dll_path: str | None = None
+        self.__edb_dll_path: Path | None = None
         self.__desktop_launch_timeout: int = 120
         self.__number_of_grpc_api_retries: int = 6
         self.__retry_n_times_time_interval: float = 0.1
@@ -271,7 +271,7 @@ class Settings(PyAedtBase):
         self.__local_example_folder = None
         self.__use_local_example_data = False
         self.__pyd_libraries_path: Path = Path(pyaedt_path) / "syslib"
-        self.__pyd_libraries_user_path: str | None = None
+        self.__pyd_libraries_user_path: Path | None = None
         self.__grpc_secure_mode = DEFAULT_GRPC_SECURE_MODE
         self.__grpc_local = DEFAULT_GRPC_LOCAL
         self.__grpc_listen_all = DEFAULT_GRPC_LISTEN_ALL
@@ -695,7 +695,7 @@ class Settings(PyAedtBase):
         self.__enable_debug_logger = val
 
     @property
-    def aedt_log_file(self) -> str:
+    def aedt_log_file(self) -> str | None:
         """Path to the AEDT log file.
 
         Used to specify that Electronics Desktop has to be launched with ``-Logfile`` option.
@@ -715,7 +715,7 @@ class Settings(PyAedtBase):
     # ############################# LSF properties ############################
 
     @property
-    def lsf_queue(self) -> str:
+    def lsf_queue(self) -> str | None:
         """LSF queue name.
 
         This attribute is valid only on Linux systems running LSF Scheduler.
@@ -811,7 +811,7 @@ class Settings(PyAedtBase):
         self.__lsf_ram = int(value)
 
     @property
-    def lsf_ui(self) -> int:
+    def lsf_ui(self) -> int | None:
         """Value passed in the LSF 'select' string to the ui resource.
 
         Examples
@@ -844,7 +844,7 @@ class Settings(PyAedtBase):
         self.__lsf_timeout = int(value)
 
     @property
-    def lsf_osrel(self) -> str:
+    def lsf_osrel(self) -> str | None:
         """Operating system string.
         This attribute is valid only on Linux systems running LSF Scheduler.
 
@@ -948,7 +948,7 @@ class Settings(PyAedtBase):
         self.__remote_rpc_session = value
 
     @property
-    def remote_rpc_session_temp_folder(self) -> str | None:
+    def remote_rpc_session_temp_folder(self) -> str:
         """Get the remote RPyC session temp folder.
 
         Examples
@@ -960,7 +960,7 @@ class Settings(PyAedtBase):
         return self.__remote_rpc_session_temp_folder
 
     @remote_rpc_session_temp_folder.setter
-    def remote_rpc_session_temp_folder(self, value: str | None) -> None:
+    def remote_rpc_session_temp_folder(self, value: str) -> None:
         self.__remote_rpc_session_temp_folder = value
 
     @property
@@ -1127,7 +1127,7 @@ class Settings(PyAedtBase):
     @aedt_version.setter
     def aedt_version(self, value: str | None) -> None:
         self.__aedt_version = value
-        if value is not None and self.__aedt_version >= "2023.1":
+        if value is not None and value >= "2023.1":
             self.disable_bounding_box_sat = True
 
     @property

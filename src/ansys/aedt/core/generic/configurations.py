@@ -2052,7 +2052,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
             pass
         return dict_in
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def _get_duplicate_names(self):
         # Copy project to get dictionary
         from ansys.aedt.core.icepak import Icepak
@@ -2134,7 +2134,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
             duplicate_dict[prop[1]][prop[0]] = operation_dict["Duplicate"][operation_id]
         return duplicate_dict
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def _export_native_components(self, dict_out):
         dict_out["native components"] = {}
         duplicate_dict = self._get_duplicate_names()
@@ -2178,7 +2178,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
         if not self.options.export_coordinate_systems:  # pragma: no cover
             self._export_coordinate_systems(dict_out)
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def _update_native_components(self, native_name, native_dict) -> bool:
 
         def apply_operations_to_native_components(obj, operation_dict, native_dict) -> bool:  # pragma: no cover
