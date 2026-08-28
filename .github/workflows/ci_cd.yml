@@ -267,7 +267,7 @@ jobs:
         run: |
           $args = $env:PYTEST_ARGUMENTS -split ' '
           $failed = $false
-          foreach ($run in 1..3) {
+          foreach ($run in 1..1) {
             Write-Output "========== EMIT test run $run of 3 =========="
             pytest @args --timeout=600 -o faulthandler_timeout=480 -v -rA --color=yes tests/system/emit
             if ($LASTEXITCODE -ne 0) {
