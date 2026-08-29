@@ -1123,11 +1123,11 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
                 )
             arg2 = [
                 "Gravity Vector X:=",
-                self.design_settings["XComponent"],
+                self.design_settings["GravityVectorX"],
                 "Gravity Vector Y:=",
-                self.design_settings["YComponent"],
+                self.design_settings["GravityVectorY"],
                 "Gravity Vector Z:=",
-                self.design_settings["ZComponent"],
+                self.design_settings["GravityVectorZ"],
             ]
 
         arg1 = [
