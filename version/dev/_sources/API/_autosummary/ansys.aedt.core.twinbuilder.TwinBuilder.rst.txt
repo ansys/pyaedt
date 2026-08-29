@@ -254,9 +254,6 @@
       TwinBuilder.insert_design
       
       
-      TwinBuilder.list_of_variations
-      
-      
       TwinBuilder.load_project
       
       

@@ -377,9 +377,6 @@
       Hfss3dLayout.insert_design
       
       
-      Hfss3dLayout.list_of_variations
-      
-      
       Hfss3dLayout.load_diff_pairs_from_file
       
       

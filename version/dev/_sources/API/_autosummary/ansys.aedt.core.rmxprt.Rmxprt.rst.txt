@@ -257,9 +257,6 @@
       Rmxprt.insert_design
       
       
-      Rmxprt.list_of_variations
-      
-      
       Rmxprt.load_project
       
       

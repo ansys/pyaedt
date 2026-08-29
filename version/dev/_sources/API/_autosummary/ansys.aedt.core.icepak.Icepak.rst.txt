@@ -491,9 +491,6 @@
       Icepak.insert_design
       
       
-      Icepak.list_of_variations
-      
-      
       Icepak.load_project
       
       

@@ -222,7 +222,7 @@ Finally, in the Python console, run the following commands:
 
   .. code::
 
-      add_pyaedt_to_aedt(r“path_to_aedtlib", skip_version_manager=True)
+      add_pyaedt_to_aedt(r"path_to_aedtlib", skip_version_manager=True)
 
 .. note::
   If you created your own virtual environment and you are managing a centralized installation of pyAEDT,
@@ -292,8 +292,8 @@ Finally, in the Python console, run the following commands:
 
 .. code::
 
-     from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
-     add_pyaedt_to_aedt(r“path_to_aedtlib")
+    from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
+    add_pyaedt_to_aedt(r"path_to_aedtlib")
 
 - Replace "your_aedt_version" with the version of AEDT you are using (for example "2026.1").
 - Replace "path_to_aedtlib" with the full path of your PersonalLib or syslib as specified in AEDT, depending if you want to install the PyAEDT icons at user level or application level.
@@ -301,7 +301,7 @@ Finally, in the Python console, run the following commands:
 
   .. code::
 
-      add_pyaedt_to_aedt(r“path_to_aedtlib", skip_version_manager=True)
+      add_pyaedt_to_aedt(r"path_to_aedtlib", skip_version_manager=True)
 
 
 Using uv to manage virtual environments

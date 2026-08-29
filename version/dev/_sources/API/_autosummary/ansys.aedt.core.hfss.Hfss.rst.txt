@@ -512,9 +512,6 @@
       Hfss.insert_near_field_sphere
       
       
-      Hfss.list_of_variations
-      
-      
       Hfss.load_project
       
       

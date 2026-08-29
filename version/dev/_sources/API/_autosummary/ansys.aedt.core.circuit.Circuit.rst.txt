@@ -332,9 +332,6 @@
       Circuit.insert_design
       
       
-      Circuit.list_of_variations
-      
-      
       Circuit.load_diff_pairs_from_file
       
       
