@@ -69,7 +69,7 @@ class EmitSchematic:
         except Exception as e:
             raise RuntimeError(f"Failed to retrieve EmitCom module: {e}")
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def create_component(self, component_type: str, name: str = None, library: str = None) -> EmitNode:
         """Create a component.
 
@@ -156,7 +156,7 @@ class EmitSchematic:
             self.emit_instance.logger.error(f"Failed to create component '{name}' of type '{component_type}': {e}")
             raise RuntimeError(f"Failed to create component of type '{component_type}': {e}")
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def create_radio_antenna(
         self, radio_type: str, radio_name: str = None, antenna_name: str = None, library: str = None
     ) -> tuple[EmitNode, EmitNode]:
@@ -209,7 +209,7 @@ class EmitSchematic:
             self.emit_instance.logger.error(f"Failed to create radio of type '{radio_type}' or antenna: {e}")
             raise RuntimeError(f"Failed to create radio of type '{radio_type}' or antenna: {e}")
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def connect_components(self, component_name_1: str, component_name_2: str):
         """Connect two components in the schematic.
 
@@ -245,7 +245,7 @@ class EmitSchematic:
             )
             raise RuntimeError(f"Failed to connect components '{component_name_1}' and '{component_name_2}': {e}")
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def delete_component(self, name: str):
         """Delete a component from the schematic.
 

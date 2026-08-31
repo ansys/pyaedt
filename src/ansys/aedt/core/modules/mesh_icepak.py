@@ -968,7 +968,7 @@ class GlobalMeshRegion(MeshRegionCommon):
         """
         return "Global"
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def update(self) -> bool:
         """Update mesh region settings with the settings in the object variable.
 
@@ -1129,7 +1129,7 @@ class MeshRegion(MeshRegionCommon):
         if isinstance(self.assignment, SubRegion) and result:
             self._assignment = self.assignment
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def update(self) -> bool:
         """Update mesh region settings with the settings in the object variable.
 

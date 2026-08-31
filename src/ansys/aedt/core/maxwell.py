@@ -193,7 +193,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
             {"ComputeTransientInductance": compute_transient_inductance, "ComputeIncrementalMatrix": incremental_matrix}
         )
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def apply_skew(
         self,
         skew_type: str | None = "Continuous",
@@ -2761,7 +2761,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
 
         return True
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     # NOTE: Extend Mixin behaviour to handle Maxwell parameters
     def _create_boundary(self, name, props, boundary_type, schema=None):
         # Non Maxwell parameters cases

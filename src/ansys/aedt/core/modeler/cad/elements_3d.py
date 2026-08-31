@@ -2074,14 +2074,14 @@ class BinaryTreeNode:
             # Property read-only
             raise KeyError
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def _jsonalize_tree(self, binary_tree_node):
         childrend_dict = {}
         for _, node in binary_tree_node.children.items():
             childrend_dict.update(self._jsonalize_tree(node))
         return {binary_tree_node._node: {"Props": binary_tree_node.properties, "Children": childrend_dict}}
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def jsonalize_tree(self) -> dict:
         """Create dictionary from the Binary Tree.
 
@@ -2099,7 +2099,7 @@ class BinaryTreeNode:
         """
         return self._jsonalize_tree(binary_tree_node=self)
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def _suppress(self, node, app, suppress) -> bool:
         if not node.command.startswith("Duplicate") and "Suppress Command" in node.properties:
             app.oeditor.ChangeProperty(
@@ -2117,7 +2117,7 @@ class BinaryTreeNode:
             self._suppress(node, app, suppress)
         return True
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def suppress_all(self, app: object) -> bool:
         """Activate suppress option for all the operations contained in the binary tree node.
 
@@ -2140,7 +2140,7 @@ class BinaryTreeNode:
         """
         return self._suppress(self, app, True)
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def unsuppress_all(self, app: object) -> bool:
         """Disable suppress option for all the operations contained in the binary tree node.
 
