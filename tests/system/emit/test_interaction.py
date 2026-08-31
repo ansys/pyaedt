@@ -609,7 +609,6 @@ def test_n_to_1_worst_case(n_to_1):
     # Get specific 1-to-1 instance
     domain.set_interferers(radios=["Tx1 - TxRadio1"], bands=["Band"], freqs=[100], units="MHz")
     domain.set_receiver(radio="Rx - RxRadio", band="Band", freq=100, units="MHz")
-    interaction = sim.run(domain)
     instance = interaction.get_instance(domain)
     value = instance.get_value(ResultType.EMI)
     assert value == 170.0
