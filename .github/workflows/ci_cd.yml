@@ -116,3 +116,4 @@ jobs:
           token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
           upload-reports: true
           checkout: false
+          use-uv-audit: true
