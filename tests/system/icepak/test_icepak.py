@@ -1513,7 +1513,7 @@ def test_assign_adiabatic_plate(ipk_app) -> None:
 
 
 def test_assign_resistance(ipk_app) -> None:
-    box = ipk_app.modeler.create_box([5, 5, 5], [1, 2, 3], "ResistanceBox", "copper")
+    box = ipk_app.modeler.create_box([5, 5, 5], [1, 2, 3], "ResistanceBox", "air")
     assert ipk_app.assign_device_resistance(
         box.name,
         boundary_name=None,
@@ -1677,15 +1677,15 @@ def test_design_settings(ipk_app) -> None:
         assert d["GravityVec"] == "Global"
         d["GravityVec"] = cs.name
         assert d["GravityVec"] == cs.name
-        assert isinstance(d["XComponent"], str)
-        assert isinstance(d["YComponent"], str)
-        assert isinstance(d["ZComponent"], str)
-        d["XComponent"] = "1m_per_s2"
-        d["YComponent"] = "2m_per_s2"
-        d["ZComponent"] = "3m_per_s2"
-        assert d["XComponent"] == "1m_per_s2"
-        assert d["YComponent"] == "2m_per_s2"
-        assert d["ZComponent"] == "3m_per_s2"
+        assert isinstance(d["GravityVectorX"], str)
+        assert isinstance(d["GravityVectorY"], str)
+        assert isinstance(d["GravityVectorZ"], str)
+        d["GravityVectorX"] = "1m_per_s2"
+        d["GravityVectorY"] = "2m_per_s2"
+        d["GravityVectorZ"] = "3m_per_s2"
+        assert d["GravityVectorX"] == "1m_per_s2"
+        assert d["GravityVectorY"] == "2m_per_s2"
+        assert d["GravityVectorZ"] == "3m_per_s2"
 
 
 def test_restart_solution(ipk_app) -> None:
