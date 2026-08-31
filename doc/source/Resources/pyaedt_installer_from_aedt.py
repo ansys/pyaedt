@@ -80,7 +80,13 @@ def run_pyinstaller_from_c_python(oDesktop):
     # Get AEDT information
     version = oDesktop.GetVersion()[2:6].replace(".", "")
     # From AEDT 2023.2 the installed CPython version is 3.10
-    python_version = "3.10" if version > "231" else "3.7"
+    # From AEDT 2027.1 the installed CPython version is 3.13
+    if version <= "231":
+        python_version = "3.7"
+    if "271" > version > "231":
+        python_version = "3.10"
+    else:
+        python_version = "3.13"
     python_version_new = python_version.replace(".", "_")
     # AEDT installation root
     edt_root = os.path.normpath(oDesktop.GetExeDir())
@@ -313,9 +319,11 @@ def install_pyaedt():
     # This is called when run from CPython
     args = parse_arguments_for_pyaedt_installer()
 
-    python_version = "3_10"
+    python_version = "3_13"
     if args.version <= "231":
         python_version = "3_7"
+    elif args.version <= "261":
+        python_version = "3_10"
 
     if is_windows:
         venv_dir = Path(VENV_DIR, python_version)
