@@ -61,11 +61,6 @@ Error installing PyAEDT panels in AEDT
 Sometimes, the PyAEDT installer may fail when adding panels to AEDT.
 
 This is typically caused by insufficient write permissions to your PersonalLib directory.
-
-.. image:: ../Resources/toolkit_manager_3.png
-  :width: 800
-  :alt: PyAEDT toolkit manager 3
-
 If the virtual environment was successfully created, you can manually register the toolkit panels using the CLI command after activating it:
 
 .. code:: bash
@@ -76,9 +71,9 @@ Alternatively, you can use the Python API directly:
 
 .. code:: python
 
-     from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
+    from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
 
-     add_pyaedt_to_aedt("path_to_personalib")
+    add_pyaedt_to_aedt("path_to_personalib")
 
 If the issue persists, try installing all required dependencies, including the optional components, by running the following command:
 
@@ -87,6 +82,7 @@ If the issue persists, try installing all required dependencies, including the o
     uv pip install pyaedt[all]
 
 Or if you prefer to use pip:
+
 .. code:: bash
 
     pip install pyaedt[all]
@@ -284,7 +280,7 @@ If you encounter such issue, you can try patching it by importing PyAEDT or PyED
 
 Extensions and panels
 ---------------------
-If you update PyAEDT from version **≤ 0.18.0 to a newer version**, you may need to recreate the virtual environment.
+If you update PyAEDT from a version below or equal to **0.18.0 to a newer version**, you may need to recreate the virtual environment.
 
 The management of extensions in AEDT has changed. Previously, extensions were copied to the _PersonalLib_ folder, which led to inconsistencies when updating PyAEDT extensions. This was because old extensions were not replaced until panels were reset, at which point the extension were copied from the virtual environment back into the _PersonalLib_ folder. Now, Extensions are loaded directly from the virtual environment, ensuring they remain up to date when PyAEDT is updated.
 
