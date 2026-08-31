@@ -33,8 +33,9 @@ In order to do that you can:
     PyAEDT wheelhouse can be found at `Releases <https://github.com/ansys/pyaedt/releases>`_.
     After downloading the wheelhouse zip specific for your distribution and Python release,
     run the script from Electronics Desktop using the zip full path as argument.
-    Please note that AEDT 2023 R1 and lower requires Python 3.7 wheelhouse while AEDT 2023 R2
-    and higher requires the Python 3.10 wheelhouse.
+    Please note that AEDT 2023 R1 and lower require the Python 3.7 wheelhouse,
+    AEDT 2023 R2 through 2026 R2 require the Python 3.10 wheelhouse,
+    and AEDT 2027 R1 and higher require the Python 3.13 wheelhouse.
 
 .. image:: ../Resources/wheelhouse_installation.png
   :width: 800
