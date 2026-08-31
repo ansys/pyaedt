@@ -16,6 +16,7 @@ requires Ansys Electronics Desktop (AEDT) 2022 R1 or later. The AEDT Student Ver
 
 Install from PyAEDT installer
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 The following Python script automatically installs PyAEDT from AEDT,
 using the CPython interpreter included in the AEDT installation.
 
@@ -38,6 +39,20 @@ In order to do that you can:
 .. image:: ../Resources/wheelhouse_installation.png
   :width: 800
   :alt: PyAEDT run script
+
+.. warning::
+    AEDT 2027 R1 uses Python 3.13 as its base interpreter. For a clean
+    installation, complete the following steps:
+
+   * Delete the virtual environment folder:
+
+     * On Windows, it is located in your ``APPDATA`` directory.
+     * On Linux, it is located in your ``HOME`` directory.
+
+   * Delete the ``Toolkits`` directory from your ``PersonalLib`` folder.
+
+   These steps remove existing configurations. Rerun this script afterward to
+   recreate the virtual environment with the updated Python version.
 
 Starting from 2023R2, panels are available in the Automation Tab. For detailed information about
 PyAEDT panels, see :doc:`panels`.
