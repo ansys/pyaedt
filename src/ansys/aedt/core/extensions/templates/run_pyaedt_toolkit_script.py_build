@@ -75,7 +75,11 @@ def aedt_script():
                                                "Ansys", "PyAEDT")
                     site_packages_path = os.path.join(install_path, "commonfiles", "CPython", "3_13", folder, "Release",
                                            "python", "Lib", "site-packages")
-        if pyaedt_path:
+            if pyaedt_path and not os.path.isdir(pyaedt_path):
+                msg = "{} path does not exist.".format(pyaedt_path)
+                oDesktop.AddMessage("", "", 2, str(msg))
+
+        if pyaedt_path and os.path.isdir(pyaedt_path):
             sys.path.append(pyaedt_path)
 
         sys.path.append(r"##EXTENSION_TEMPLATES##")
