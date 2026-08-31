@@ -687,7 +687,7 @@ class Simulation:
         else:
             self.n_to_1_limit = 0  # disable N to 1
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     @min_aedt_version("2024.2")
     def get_license_session(self):
         """Get a license session.

@@ -255,7 +255,7 @@ class EmitSchematic:
             self.emit_project.logger.error(f"Failed to delete component '{name}': {e}")
             raise AEDTRuntimeError(f"Failed to delete component '{name}': {e}")
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def compare_nodes(self, node_1: EmitNode, node_2: EmitNode, exclude_props: list[str] = None) -> tuple[bool, dict]:
         """Compare two EMIT nodes.
 
@@ -304,7 +304,7 @@ class EmitSchematic:
                 }
         return True, non_matching_properties
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def compare_components(
         self, component_1: EmitNode, component_2: EmitNode, exclude_props: list[str] = None
     ) -> tuple[bool, dict]:

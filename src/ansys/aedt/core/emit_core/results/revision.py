@@ -1037,7 +1037,7 @@ class Revision:
                     return radio
         return None
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     @min_aedt_version("2025.2")
     def get_all_emitter_radios(self) -> list[RadioNode]:
         """Gets all Emitter Radio nodes from this revision.
