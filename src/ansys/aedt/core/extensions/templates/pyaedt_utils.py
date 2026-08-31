@@ -62,11 +62,21 @@ def sanitize_interpreter_path(interpreter_path, version):
     ... )
 
     """
-    python_version = "3_10" if version > "231" else "3_7"
-    if version > "231" and python_version not in interpreter_path:
+    python_version = "3_13"
+    if version <= "231":
+        python_version = "3_7"
+    elif version <= "261":
+        python_version = "3_10"
+
+    if version > "231" and version <= "261" and python_version not in interpreter_path:
         interpreter_path = interpreter_path.replace("3_7", "3_10")
+        interpreter_path = interpreter_path.replace("3_13", "3_10")
     elif version <= "231" and python_version not in interpreter_path:
         interpreter_path = interpreter_path.replace("3_10", "3_7")
+        interpreter_path = interpreter_path.replace("3_13", "3_7")
+    elif version >= "271" and python_version not in interpreter_path:
+        interpreter_path = interpreter_path.replace("3_10", "3_13")
+        interpreter_path = interpreter_path.replace("3_7", "3_13")
     return interpreter_path
 
 
@@ -195,7 +205,17 @@ def environment_variables(oDesktop):
         reduced_version = version[2:].replace(".", "")
         os.environ["ANSYSEM_ROOT{}".format(reduced_version)] = edt_root
 
-        if version > "2023.1":
+        if version >= "2027.1":
+            os.environ["TCL_LIBRARY"] = os.path.join(
+                "{}/commonfiles/CPython/3_13/linx64/Release/python/lib".format(edt_root), "tcl8.5"
+            )
+            os.environ["TK_LIBRARY"] = os.path.join(
+                "{}/commonfiles/CPython/3_13/linx64/Release/python/lib".format(edt_root), "tk8.5"
+            )
+            os.environ["TKPATH"] = os.path.join(
+                "{}/commonfiles/CPython/3_13/linx64/Release/python/lib".format(edt_root), "tk8.5"
+            )
+        elif version > "2023.1":
             os.environ["TCL_LIBRARY"] = os.path.join(
                 "{}/commonfiles/CPython/3_10/linx64/Release/python/lib".format(edt_root), "tcl8.5"
             )
