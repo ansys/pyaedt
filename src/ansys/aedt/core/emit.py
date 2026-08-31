@@ -22,6 +22,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import ctypes
+import ctypes.wintypes
+import logging
+import threading
 import time
 import warnings
 
@@ -151,6 +155,9 @@ class Emit(Design, PyAedtBase):
         self._units = {}
         """Default EMIT units."""
 
+        logger = logging.getLogger("Global")
+        logger.info(f"[EMIT] __init__: project={project}, design={design}, aedt_process_id={aedt_process_id}")
+
         Design.__init__(
             self,
             "EMIT",
@@ -166,6 +173,11 @@ class Emit(Design, PyAedtBase):
             port=port,
             aedt_process_id=aedt_process_id,
             remove_lock=remove_lock,
+        )
+        logger.info(
+            f"[EMIT] __init__: Design.__init__ completed. "
+            f"project_name={getattr(self, 'project_name', None)}, "
+            f"design_name={getattr(self, 'design_name', None)}"
         )
         self._modeler = ModelerEmit(self)
         self._couplings = CouplingsEmit(self)
@@ -186,6 +198,10 @@ class Emit(Design, PyAedtBase):
         # Throttle delay (ms) between consecutive engine.run() calls.
         # Non-zero for AEDT <= 26.1 to avoid overwhelming the iemit gRPC server.
         self._engine_throttle_ms = 50 if self._aedt_version <= "2026.1" else 0
+
+        # Timeout (seconds) for each engine.run() gRPC call. Prevents indefinite
+        # hangs if iemit becomes unresponsive.
+        self._engine_run_timeout_s = 300
 
     def _init_from_design(self, *args, **kwargs) -> None:
         self.__init__(*args, **kwargs)
@@ -394,8 +410,17 @@ class Emit(Design, PyAedtBase):
         >>> app.save_project(file_name="emit_demo.aedt")
 
         """
+        logger = logging.getLogger("Global")
         if self.__emit_api_enabled:
-            self._emit_api.save_project()
+            try:
+                logger.info("[EMIT] save_project: calling _emit_api.save_project() with 60s timeout")
+                self._call_with_timeout(self._emit_api.save_project, timeout_seconds=60)
+                logger.info("[EMIT] save_project: _emit_api.save_project() completed successfully")
+            except TimeoutError:
+                logger.error("[EMIT] save_project: _emit_api.save_project() TIMED OUT after 60s")
+                warnings.warn("EMIT save_project timed out - iemit may be unresponsive")
+            except Exception as ex:
+                logger.error(f"[EMIT] save_project: _emit_api.save_project() raised {type(ex).__name__}: {ex}")
 
         result = Design.save_project(self, file_name, overwrite, refresh_ids)
 
@@ -404,9 +429,9 @@ class Emit(Design, PyAedtBase):
     def close_project(self, name: str = None, save: bool = True) -> bool:
         """Close an AEDT project with a quiesce barrier for EMIT.
 
-        On AEDT <= 26.1, adds a brief delay after closing to allow the iemit
-        subprocess event pipeline to fully drain before a subsequent InsertDesign.
-        This prevents the DesignInstanceBase assertion crash that causes hangs.
+        On AEDT <= 26.1, waits for any child iemit.exe processes to terminate
+        after closing, preventing the DesignInstanceBase assertion crash.
+        The close itself is timeout-protected to avoid hanging if AEDT is stuck.
 
         Parameters
         ----------
@@ -420,7 +445,144 @@ class Emit(Design, PyAedtBase):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        result = Design.close_project(self, name, save)
+        logger = logging.getLogger("Global")
+        logger.info(f"[EMIT] close_project: name={name}, save={save}")
+        try:
+            result = self._call_with_timeout(Design.close_project, args=(self, name, save), timeout_seconds=90)
+            logger.info(f"[EMIT] close_project: Design.close_project returned {result}")
+        except TimeoutError:
+            logger.error("[EMIT] close_project: TIMED OUT after 90s - AEDT may be unresponsive")
+            warnings.warn(
+                "Emit.close_project() timed out after 90s - AEDT may be unresponsive. "
+                "Continuing without confirmation of close."
+            )
+            result = False
+        except Exception as ex:
+            logger.error(f"[EMIT] close_project: exception {type(ex).__name__}: {ex}")
+            result = False
+
+        try:
+            projects_after = [p.GetName() for p in self.odesktop.GetProjects()]
+            logger.info(f"[EMIT] close_project: projects still open after close: {projects_after}")
+        except Exception:
+            pass
+
         if self._aedt_version <= "2026.1":
-            time.sleep(1.0)
+            self._wait_for_iemit_exit(timeout_seconds=30)
+            logger.info("[EMIT] close_project: post-close settle delay (3s) for AEDT internal cleanup")
+            time.sleep(3.0)
         return result
+
+    def _wait_for_iemit_exit(self, timeout_seconds: float = 30) -> None:
+        """Wait for child iemit.exe processes of the AEDT session to terminate.
+
+        Falls back to a fixed sleep if process introspection is unavailable.
+        """
+        logger = logging.getLogger("Global")
+        aedt_pid = getattr(self.desktop_class, "aedt_process_id", None)
+        if not aedt_pid:
+            logger.info("[EMIT] _wait_for_iemit_exit: no aedt_pid available, sleeping 2s")
+            time.sleep(3.0)
+            return
+
+        start = time.monotonic()
+        deadline = start + timeout_seconds
+        has_children = self._has_iemit_children(aedt_pid)
+        if not has_children:
+            logger.info(f"[EMIT] _wait_for_iemit_exit: no iemit children of PID {aedt_pid}, continuing immediately")
+            return
+
+        logger.info(
+            f"[EMIT] _wait_for_iemit_exit: iemit children found for PID {aedt_pid}, waiting up to {timeout_seconds}s"
+        )
+        while time.monotonic() < deadline:
+            time.sleep(0.5)
+            if not self._has_iemit_children(aedt_pid):
+                elapsed = time.monotonic() - start
+                logger.info(f"[EMIT] _wait_for_iemit_exit: iemit processes exited after {elapsed:.1f}s")
+                return
+
+        elapsed = time.monotonic() - start
+        logger.warning(f"[EMIT] _wait_for_iemit_exit: TIMED OUT after {elapsed:.1f}s, iemit still running")
+
+    @staticmethod
+    def _has_iemit_children(parent_pid: int) -> bool:
+        """Check if the given process has any iemit.exe child processes (Windows).
+
+        Uses the Windows Toolhelp32 API via ctypes to enumerate processes
+        without spawning a subprocess.
+        """
+        TH32CS_SNAPPROCESS = 0x00000002
+
+        class PROCESSENTRY32(ctypes.Structure):
+            _fields_ = [
+                ("dwSize", ctypes.wintypes.DWORD),
+                ("cntUsage", ctypes.wintypes.DWORD),
+                ("th32ProcessID", ctypes.wintypes.DWORD),
+                ("th32DefaultHeapID", ctypes.POINTER(ctypes.c_ulong)),
+                ("th32ModuleID", ctypes.wintypes.DWORD),
+                ("cntThreads", ctypes.wintypes.DWORD),
+                ("th32ParentProcessID", ctypes.wintypes.DWORD),
+                ("pcPriClassBase", ctypes.c_long),
+                ("dwFlags", ctypes.wintypes.DWORD),
+                ("szExeFile", ctypes.c_char * 260),
+            ]
+
+        try:
+            kernel32 = ctypes.windll.kernel32
+            snapshot = kernel32.CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0)
+            if snapshot == -1:
+                return False
+
+            entry = PROCESSENTRY32()
+            entry.dwSize = ctypes.sizeof(PROCESSENTRY32)
+
+            if not kernel32.Process32First(snapshot, ctypes.byref(entry)):
+                kernel32.CloseHandle(snapshot)
+                return False
+
+            while True:
+                if (
+                    entry.th32ParentProcessID == parent_pid
+                    and entry.szExeFile.decode("utf-8", errors="ignore").lower() == "iemit.exe"
+                ):
+                    kernel32.CloseHandle(snapshot)
+                    return True
+                if not kernel32.Process32Next(snapshot, ctypes.byref(entry)):
+                    break
+
+            kernel32.CloseHandle(snapshot)
+        except Exception:
+            warnings.warn("Emit._has_iemit_children() failed to enumerate processes.")
+        return False
+
+    @staticmethod
+    def _call_with_timeout(func, args=(), kwargs=None, timeout_seconds=120):
+        """Call a function with a timeout. Raises TimeoutError if it exceeds the limit.
+
+        A raw daemon thread is used rather than ``concurrent.futures``: executor
+        workers are non-daemon and are joined by CPython's atexit hook, so a
+        native call that never returns would hang interpreter shutdown even
+        after the timeout was reported.
+        """
+        if kwargs is None:
+            kwargs = {}
+        outcome = {}
+
+        def _target():
+            try:
+                outcome["value"] = func(*args, **kwargs)
+            except BaseException as exc:
+                outcome["error"] = exc
+
+        thread = threading.Thread(target=_target, daemon=True)
+        thread.start()
+        thread.join(timeout_seconds)
+
+        if thread.is_alive():
+            raise TimeoutError(
+                f"EMIT operation timed out after {timeout_seconds}s. The iemit.exe subprocess may be unresponsive."
+            )
+        if "error" in outcome:
+            raise outcome["error"]
+        return outcome.get("value")

@@ -24,6 +24,8 @@
 
 from __future__ import annotations
 
+import logging
+import threading
 import time
 import warnings
 
@@ -43,6 +45,35 @@ from ansys.aedt.core.emit_core.nodes.generated import ResultPlotNode
 from ansys.aedt.core.emit_core.nodes.generated import Waveform
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.checks import min_aedt_version
+
+
+def _run_engine_with_timeout(engine, domain, timeout_seconds):
+    """Call ``engine.run(domain)`` on a daemon thread, bounded by a timeout.
+
+    A raw daemon thread is used rather than ``concurrent.futures``: executor
+    workers are non-daemon and are joined by CPython's atexit hook, so a native
+    call that never returns would hang interpreter shutdown even after the
+    timeout was reported.
+    """
+    outcome = {}
+
+    def _target():
+        try:
+            outcome["value"] = engine.run(domain)
+        except BaseException as exc:
+            outcome["error"] = exc
+
+    thread = threading.Thread(target=_target, daemon=True)
+    thread.start()
+    thread.join(timeout_seconds)
+
+    if thread.is_alive():
+        raise TimeoutError(
+            f"engine.run() timed out after {timeout_seconds}s. The iemit.exe subprocess may be unresponsive."
+        )
+    if "error" in outcome:
+        raise outcome["error"]
+    return outcome.get("value")
 
 
 class Revision:
@@ -250,19 +281,28 @@ class Revision:
                 )
                 warnings.warn(err_msg)
 
+        run_timeout = getattr(self.emit_project, "_engine_run_timeout_s", 300)
         max_retries = 3
         backoff_ms = 200
+        logger = logging.getLogger("Global")
         for attempt in range(max_retries):
             try:
-                interaction = engine.run(domain)
+                interaction = _run_engine_with_timeout(engine, domain, run_timeout)
                 break
+            except TimeoutError:
+                logger.error(f"[EMIT] run: engine.run() TIMED OUT after {run_timeout}s (attempt {attempt + 1})")
+                raise
             except Exception as e:
                 err_str = str(e).lower()
                 is_transient = "unavailable" in err_str or "deadline" in err_str or "timeout" in err_str
                 if is_transient and attempt < max_retries - 1:
+                    logger.warning(
+                        f"[EMIT] run: transient error on attempt {attempt + 1}: {e}. Retrying in {backoff_ms}ms..."
+                    )
                     time.sleep(backoff_ms / 1000.0)
                     backoff_ms *= 2
                 else:
+                    logger.error(f"[EMIT] run: engine.run() FAILED (attempt {attempt + 1}): {e}")
                     raise
         # save the project and revision
         self.emit_project.save_project()
@@ -301,19 +341,30 @@ class Revision:
         if throttle_ms > 0:
             time.sleep(throttle_ms / 1000.0)
 
+        run_timeout = getattr(self.emit_project, "_engine_run_timeout_s", 300)
         max_retries = 3
         backoff_ms = 200
+        logger = logging.getLogger("Global")
         for attempt in range(max_retries):
             try:
-                interaction = engine.run(domain)
-                return interaction
+                return _run_engine_with_timeout(engine, domain, run_timeout)
+            except TimeoutError:
+                logger.error(
+                    f"[EMIT] _run_no_save: engine.run() TIMED OUT after {run_timeout}s (attempt {attempt + 1})"
+                )
+                raise
             except Exception as e:
                 err_str = str(e).lower()
                 is_transient = "unavailable" in err_str or "deadline" in err_str or "timeout" in err_str
                 if is_transient and attempt < max_retries - 1:
+                    logger.warning(
+                        f"[EMIT] _run_no_save: transient error on attempt {attempt + 1}: {e}. "
+                        f"Retrying in {backoff_ms}ms..."
+                    )
                     time.sleep(backoff_ms / 1000.0)
                     backoff_ms *= 2
                 else:
+                    logger.error(f"[EMIT] _run_no_save: engine.run() FAILED (attempt {attempt + 1}): {e}")
                     raise
 
     @pyaedt_function_handler()
@@ -839,6 +890,8 @@ class Revision:
             all_colors.append(rx_colors)
             power_matrix.append(rx_powers)
 
+        logger = logging.getLogger("Global")
+        logger.info("[EMIT] interference_type_classification: batch complete, saving project")
         self.emit_project.save_project()
         return all_colors, power_matrix
 
@@ -1008,6 +1061,8 @@ class Revision:
             all_colors.append(rx_colors)
             power_matrix.append(rx_powers)
 
+        logger = logging.getLogger("Global")
+        logger.info("[EMIT] protection_level_classification: batch complete, saving project")
         self.emit_project.save_project()
         return all_colors, power_matrix
 

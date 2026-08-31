@@ -102,7 +102,10 @@ TEST_SUBFOLDER = TESTS_EMIT_PATH / "example_models/TEMIT"
 def interference(add_app_example):
     app = add_app_example(project="interference", application=Emit, subfolder=TEST_SUBFOLDER)
     yield app
-    app.close_project(app.project_name, save=False)
+    try:
+        app.close_project(app.project_name, save=False)
+    except Exception:
+        print("Error closing interference project")
 
 
 @pytest.fixture
@@ -113,7 +116,10 @@ def cell_phone(add_app_example):
         subfolder=TEST_SUBFOLDER,
     )
     yield app
-    app.close_project(app.project_name, save=False)
+    try:
+        app.close_project(app.project_name, save=False)
+    except Exception:
+        print("Error closing Cell Phone RFI Desense project")
 
 
 @pytest.fixture
@@ -124,14 +130,20 @@ def tutorial(add_app_example):
         subfolder=TEST_SUBFOLDER,
     )
     yield app
-    app.close_project(app.project_name, save=False)
+    try:
+        app.close_project(app.project_name, save=False)
+    except Exception:
+        print("Error closing tutorial project")
 
 
 @pytest.fixture
 def emit_app(add_app):
     app = add_app(application=Emit)
     yield app
-    app.close_project(app.project_name, save=False)
+    try:
+        app.close_project(app.project_name, save=False)
+    except Exception:
+        print("Error closing defaultemit app project")
 
 
 @pytest.mark.skipif(is_linux, reason="Emit API is not supported on linux.")
