@@ -51,6 +51,8 @@ def aedt_script():
         # AEDT installation path
         install_path = os.path.abspath(os.path.join(oDesktop.GetExeDir(), ".."))
 
+        sys.path.append(r"##EXTENSION_TEMPLATES##")
+
         # Check if the script is running using CPython interpreter from AEDT installation
         pyaedt_path = None
         site_packages_path = None
@@ -81,8 +83,6 @@ def aedt_script():
 
         if pyaedt_path and os.path.isdir(pyaedt_path):
             sys.path.append(pyaedt_path)
-
-        sys.path.append(r"##EXTENSION_TEMPLATES##")
 
         import pyaedt_utils
 
