@@ -1500,7 +1500,10 @@ jobs:
     name: Gate keeper
     runs-on: ubuntu-latest
     if: always()
-    needs: [smoke-tests,
+    needs: [vulnerabilities,
+            actions-security,
+            type-check,
+            smoke-tests,
             smoke-tests-rocky,
             unit-tests,
             integration-tests,
