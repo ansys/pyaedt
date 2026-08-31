@@ -1491,3 +1491,40 @@ jobs:
           library-name: ${{ env.PACKAGE_NAME }}
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           use-python-cache: false
+
+  # Gate keeper aggregates critical CI jobs and fails only on failure/cancelled,
+  # so intentionally skipped jobs do not block merge while real regressions do.
+  # Whenever an important job needs to be ensured to run, it should be added to
+  # the needs list of this job.
+  gate-keeper:
+    name: Gate keeper
+    runs-on: ubuntu-latest
+    if: always()
+    needs: [vulnerabilities,
+            actions-security,
+            type-check,
+            smoke-tests,
+            smoke-tests-rocky,
+            unit-tests,
+            integration-tests,
+            system-tests-solvers-windows,
+            system-tests-solvers-linux,
+            system-tests-general-windows,
+            system-tests-general-linux,
+            system-tests-visualization-windows,
+            system-tests-visualization-linux,
+            system-tests-icepak-windows,
+            system-tests-icepak-linux,
+            system-tests-layout-windows,
+            system-tests-layout-linux,
+            system-tests-extensions-windows,
+            system-tests-extensions-linux,
+            system-tests-filter-windows,
+            doc-build,
+            package]
+    steps:
+      - name: Check for failed or cancelled jobs
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: |
+          echo "A job in the CI failed or was cancelled."
+          exit 1
