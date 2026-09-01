@@ -294,6 +294,12 @@ def test_set_variable(app) -> None:
     assert app.variable_manager.set_variable("$p1", expression="10mm")
     assert app.variable_manager.set_variable("$p1", expression="12mm")
 
+    assert app.variable_manager.set_variable(["p3", "$p4", "$p1", "p1"], expression=["10mm", "20mm", "300mm", "200mm"])
+    assert app["p3"] == "10mm"
+    assert app["$p4"] == "20mm"
+    assert app["$p1"] == "300mm"
+    assert app["p1"] == "200mm"
+
 
 def test_delete_variable(app) -> None:
     app["Var1"] = 1
