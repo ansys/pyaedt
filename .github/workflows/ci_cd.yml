@@ -1445,9 +1445,9 @@ jobs:
 #      - name: Run tests marked with 'emit'
 #        env:
 #          PYTHONMALLOC: malloc
-#          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+#          PYTEST_ARGUMENTS_NON_TESTMON: ${{ env.PYTEST_ARGUMENTS_NON_TESTMON }}
 #        run: |
-#          $args = $env:PYTEST_ARGUMENTS -split ' '
+#          $args = $env:PYTEST_ARGUMENTS_NON_TESTMON -split ' '
 #          pytest @args --timeout=600 -v -rA --color=yes tests/system/emit
 #
 #      - name: Upload pytest test results
