@@ -105,7 +105,7 @@ jobs:
     permissions:
       contents: read   # Required to read repository content for vulnerability scanning
     steps:
-      - uses: ansys/actions/check-vulnerabilities@244028c6311885d559e18453642a5fa820d6360d # zizmor: ignore[stale-action-refs]
+      - uses: ansys/actions/check-vulnerabilities@0b23d99e6800f16337ff173fcfbfcc1251130e99 # v11.0.2
         with:
           dev-mode: ${{ github.ref != 'refs/heads/main' }}
           extra-targets: 'all'
