@@ -37,6 +37,7 @@ expansion_factor
 fanout
 FEBI
 FE-BI
+FilterSolutions
 file_path
 fix_disjoints
 Floquet
