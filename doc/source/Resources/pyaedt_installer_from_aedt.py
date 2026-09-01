@@ -380,15 +380,17 @@ def install_pyaedt():
                 subprocess.run([str(uv_exe), "pip", "install", "--upgrade", "pip"], check=True, env=env)  # nosec
                 subprocess.run([str(uv_exe), "pip", "install", "wheel"], check=True, env=env)  # nosec
                 if args.version <= "231":
-                    # Uncomment for testing from a branch
-                    # subprocess.run([str(uv_exe), "pip", "install", "pyaedt[all] @ git+https://github.com/ansys/pyaedt.git@<branch>"], check=True, env=env)
+                    # Uncomment for testing from a branch:
+                    # subprocess.run([str(uv_exe), "pip", "install",
+                    #     "pyaedt[all] @ git+https://github.com/ansys/pyaedt.git@<branch>"], check=True, env=env)
                     subprocess.run([str(uv_exe), "pip", "install", "pyaedt[all]=='0.9.0'"], check=True, env=env)  # nosec
                     subprocess.run([str(uv_exe), "pip", "install", "jupyterlab"], check=True, env=env)  # nosec
                     subprocess.run([str(uv_exe), "pip", "install", "ipython", "-U"], check=True, env=env)  # nosec
                     subprocess.run([str(uv_exe), "pip", "install", "ipyvtklink"], check=True, env=env)  # nosec
                 else:
-                    # Uncomment for testing from a branch
-                    # subprocess.run([str(uv_exe), "pip", "install", "pyaedt[all] @ git+https://github.com/ansys/pyaedt.git@<branch>"], check=True, env=env)
+                    # Uncomment for testing from a branch:
+                    # subprocess.run([str(uv_exe), "pip", "install",
+                    #     "pyaedt[all] @ git+https://github.com/ansys/pyaedt.git@<branch>"], check=True, env=env)
                     subprocess.run([str(uv_exe), "pip", "install", "pyaedt[all]"], check=True, env=env)  # nosec
             except subprocess.CalledProcessError as e:
                 print("uv installation failed with error: {}".format(e))
@@ -457,15 +459,17 @@ def install_pyaedt():
 
                 print("Installing PyAEDT using online sources with uv...")
                 if args.version <= "231":
-                    # Uncomment for testing from a branch
-                    # subprocess.run([str(uv_exe), "pip", "install", "pyaedt[all] @ git+https://github.com/ansys/pyaedt.git@<branch>"], check=True, env=env)
+                    # Uncomment for testing from a branch:
+                    # subprocess.run([str(uv_exe), "pip", "install",
+                    #     "pyaedt[all] @ git+https://github.com/ansys/pyaedt.git@<branch>"], check=True, env=env)
                     subprocess.run([str(uv_exe), "pip", "install", "pyaedt[all]=='0.9.0'"], check=True, env=env)  # nosec
                     subprocess.run([str(uv_exe), "pip", "install", "jupyterlab"], check=True, env=env)  # nosec
                     subprocess.run([str(uv_exe), "pip", "install", "ipython", "-U"], check=True, env=env)  # nosec
                     subprocess.run([str(uv_exe), "pip", "install", "ipyvtklink"], check=True, env=env)  # nosec
                 else:
-                    # Uncomment for testing from a branch
-                    # subprocess.run([str(uv_exe), "pip", "install", "pyaedt[all] @ git+https://github.com/ansys/pyaedt.git@<branch>"], check=True, env=env)
+                    # Uncomment for testing from a branch:
+                    # subprocess.run([str(uv_exe), "pip", "install",
+                    #     "pyaedt[all] @ git+https://github.com/ansys/pyaedt.git@<branch>"], check=True, env=env)
                     subprocess.run([str(uv_exe), "pip", "install", "pyaedt[all]"], check=True, env=env)  # nosec
             except subprocess.CalledProcessError as e:
                 print("uv installation failed with error: {}".format(e))
