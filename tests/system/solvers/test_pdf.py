@@ -75,6 +75,7 @@ def test_create_pdf(test_tmp_dir) -> None:
     report.add_section()
     report.add_chapter("Chapter 1")
     report.add_sub_chapter("C1")
+    report.add_caption("Figure 1: Coaxial cable")
     report.add_text("ciao")
     report.add_text("hola", True, True)
     report.add_empty_line(2)
@@ -89,6 +90,52 @@ def test_create_pdf(test_tmp_dir) -> None:
     report.add_toc()
     report.save_pdf(test_tmp_dir, "my_firstpdf.pdf")
     output = test_tmp_dir / "my_firstpdf.pdf"
+    assert output.exists()
+
+
+def test_create_pdf_with_long_table_cell_text(test_tmp_dir) -> None:
+    report = AnsysReport(design_name="Design1", project_name="Coaxial")
+    report.aedt_version = DESKTOP_VERSION
+    assert "AnsysTemplate" in report.template_name
+    report.template_name = "AnsysTemplate"
+    assert report.project_name == "Coaxial"
+    report.project_name = "Coaxial1"
+    assert report.project_name == "Coaxial1"
+    assert report.design_name == "Design1"
+    report.design_name = "Design2"
+    assert report.design_name == "Design2"
+    report.create()
+    report.add_section()
+    report.add_chapter("Chapter 1")
+    report.add_sub_chapter("C1")
+    report.add_text("ciao")
+    report.add_text("hola", True, True)
+    report.add_empty_line(2)
+    report.add_page_break()
+    report.add_image(
+        str(Path(TESTS_SOLVERS_PATH) / "example_models" / TEST_SUBFOLDER / "Coax_HFSS.jpg"), "Coaxial Cable"
+    )
+    report.add_section(portrait=False, page_format="a3")
+    long_text = (
+        "Some super long text that should be wrapped into multiple lines. It contains several sentences and should be "
+        "split into lines that do not exceed a certain length. The purpose of this test is to ensure that the wrapping "
+        "function works correctly and produces lines of appropriate length."
+    )
+    long_text_2 = (
+        "Some super long text that should be wrapped into multiple lines. It contains several sentences and should be "
+        "split into lines that do not exceed a certain length. The purpose of this test is to ensure that the wrapping "
+        "function works correctly and produces lines of appropriate length. This text is even longer than the previous "
+        "one and should be wrapped into multiple lines. It contains several sentences and should be "
+    )
+    report.add_table(
+        "MyTable", [["x", "y"], ["0", "1"], ["2", "3"], ["10", "20"], [long_text, long_text_2]], full_width=True
+    )
+    report.add_table("MyTable2", [["x", "y"], ["0", "1"], ["2", "3"], ["10", "20"]])
+    report.add_section()
+    report.add_chart([0, 1, 2, 3, 4, 5], [10, 20, 4, 30, 40, 12], "Freq", "Val", "MyTable")
+    report.add_toc()
+    report.save_pdf(test_tmp_dir, "my_firstpdf_oxide.pdf")
+    output = test_tmp_dir / "my_firstpdf_oxide.pdf"
     assert output.exists()
 
 
