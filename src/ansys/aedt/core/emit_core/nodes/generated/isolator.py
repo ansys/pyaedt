@@ -44,11 +44,46 @@ class Isolator(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> isolator = app.schematic.create_component("Isolator", name="Isolator1")
-        >>> isolator.node_type
+        >>> iso = app.schematic.create_component("Isolator")
+        >>> iso.node_type
 
         """
         return self._node_type
+
+    @min_aedt_version("2027.1")
+    def export_to_csv(self, file_name: str = "", ports: str = "1|2") -> str:
+        """Export's the data for this node
+
+        Parameters
+        ----------
+        file_name: str[optional]
+            full path to the file to export to.
+        ports: str
+            the ports to export the data for.
+            Default orientation port names: 1|2
+
+        Returns
+        -------
+        csv_data: str
+            stringified data for the node returned if file_name not specified
+        """
+        keys = "SelectedInputPort|SelectedOutputPort"
+        vals = f"{ports}"
+        return self._export_to_csv(file_name, keys, vals)
+
+    @min_aedt_version("2027.1")
+    def plot(self, ports: str = "1|2"):
+        """Bring up a Cartesian plot for this node
+
+        Parameters
+        ----------
+        ports: str
+            the ports to export the data for.
+            Default orientation port names: 1|2
+        """
+        keys = "SelectedInputPort|SelectedOutputPort"
+        vals = f"{ports}"
+        return self._plot(keys, vals)
 
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
@@ -58,8 +93,8 @@ class Isolator(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> isolator = app.schematic.create_component("Isolator", name="Isolator1")
-        >>> isolator_copy = isolator.duplicate("IsolatorCopy")
+        >>> iso = app.schematic.create_component("Isolator")
+        >>> iso_copy = iso.duplicate("iso_copy")
 
         """
         return self._duplicate(new_name)
@@ -72,8 +107,8 @@ class Isolator(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> isolator = app.schematic.create_component("Isolator", name="Isolator1")
-        >>> isolator.delete()
+        >>> iso = app.schematic.create_component("Isolator")
+        >>> iso.delete()
 
         """
         self._delete()
@@ -85,13 +120,13 @@ class Isolator(EmitNode):
 
         Value should be a full file path.
 
-
         Examples
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> isolator = app.schematic.create_component("Isolator", name="Isolator1")
-        >>> isolator.filename = "C:\\Temp\\isolator.s2p"
+        >>> iso = app.schematic.create_component("Isolator")
+        >>> iso.isolator_type = Isolator.IsolatorTypeOption.BY_FILE
+        >>> iso.filename = "example_value"
 
         """
         val = self._get_property("Filename")
@@ -109,13 +144,12 @@ class Isolator(EmitNode):
 
         Value should be between 0 and 1000.
 
-
         Examples
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> isolator = app.schematic.create_component("Isolator", name="Isolator1")
-        >>> isolator.noise_temperature = 290.0
+        >>> iso = app.schematic.create_component("Isolator")
+        >>> iso.noise_temperature = 290.0
 
         """
         val = self._get_property("Noise Temperature")
@@ -135,8 +169,8 @@ class Isolator(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> isolator = app.schematic.create_component("Isolator", name="Isolator1")
-        >>> isolator.notes = "Updated for the link budget study"
+        >>> iso = app.schematic.create_component("Isolator")
+        >>> iso.notes = "example_value"
 
         """
         val = self._get_property("Notes")
@@ -159,17 +193,19 @@ class Isolator(EmitNode):
         Type of isolator model to use. Options include: By File (measured or
         simulated) or Parametric.
 
-
         Examples
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> isolator = app.schematic.create_component("Isolator", name="Isolator1")
-        >>> isolator.isolator_type = isolator.IsolatorTypeOption.PARAMETRIC
+        >>> iso = app.schematic.create_component("Isolator")
+        >>> iso.isolator_type = Isolator.IsolatorTypeOption.BY_FILE
 
         """
         val = self._get_property("Isolator Type")
-        val = self.IsolatorTypeOption[val.upper()]
+        try:
+            val = self.IsolatorTypeOption(val)
+        except ValueError:
+            val = self.IsolatorTypeOption[val.upper()]
         return val
 
     @isolator_type.setter
@@ -184,13 +220,13 @@ class Isolator(EmitNode):
 
         Value should be between 0 and 100.
 
-
         Examples
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> isolator = app.schematic.create_component("Isolator", name="Isolator1")
-        >>> isolator.insertion_loss = 1.2
+        >>> iso = app.schematic.create_component("Isolator")
+        >>> iso.isolator_type = Isolator.IsolatorTypeOption.PARAMETRIC
+        >>> iso.insertion_loss = 0
 
         """
         val = self._get_property("Insertion Loss")
@@ -211,13 +247,13 @@ class Isolator(EmitNode):
 
         Value should be 'true' or 'false'.
 
-
         Examples
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> isolator = app.schematic.create_component("Isolator", name="Isolator1")
-        >>> isolator.finite_reverse_isolation = True
+        >>> iso = app.schematic.create_component("Isolator")
+        >>> iso.isolator_type = Isolator.IsolatorTypeOption.PARAMETRIC
+        >>> iso.finite_reverse_isolation = False
 
         """
         val = self._get_property("Finite Reverse Isolation")
@@ -235,13 +271,14 @@ class Isolator(EmitNode):
 
         Value should be between 0 and 100.
 
-
         Examples
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> isolator = app.schematic.create_component("Isolator", name="Isolator1")
-        >>> isolator.reverse_isolation = 35.0
+        >>> iso = app.schematic.create_component("Isolator")
+        >>> iso.isolator_type = Isolator.IsolatorTypeOption.PARAMETRIC
+        >>> iso.finite_reverse_isolation = True
+        >>> iso.reverse_isolation = 20
 
         """
         val = self._get_property("Reverse Isolation")
@@ -262,13 +299,13 @@ class Isolator(EmitNode):
 
         Value should be 'true' or 'false'.
 
-
         Examples
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> isolator = app.schematic.create_component("Isolator", name="Isolator1")
-        >>> isolator.finite_bandwidth = True
+        >>> iso = app.schematic.create_component("Isolator")
+        >>> iso.isolator_type = Isolator.IsolatorTypeOption.PARAMETRIC
+        >>> iso.finite_bandwidth = False
 
         """
         val = self._get_property("Finite Bandwidth")
@@ -286,13 +323,14 @@ class Isolator(EmitNode):
 
         Value should be between 0 and 200.
 
-
         Examples
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> isolator = app.schematic.create_component("Isolator", name="Isolator1")
-        >>> isolator.out_of_band_attenuation = 60.0
+        >>> iso = app.schematic.create_component("Isolator")
+        >>> iso.isolator_type = Isolator.IsolatorTypeOption.PARAMETRIC
+        >>> iso.finite_bandwidth = True
+        >>> iso.out_of_band_attenuation = 40
 
         """
         val = self._get_property("Out-of-band Attenuation")
@@ -310,13 +348,14 @@ class Isolator(EmitNode):
 
         Value should be between 1 and 100e9.
 
-
         Examples
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> isolator = app.schematic.create_component("Isolator", name="Isolator1")
-        >>> isolator.lower_stop_band = "1.8GHz"
+        >>> iso = app.schematic.create_component("Isolator")
+        >>> iso.isolator_type = Isolator.IsolatorTypeOption.PARAMETRIC
+        >>> iso.finite_bandwidth = True
+        >>> iso.lower_stop_band = 80e6
 
         """
         val = self._get_property("Lower Stop Band")
@@ -336,13 +375,14 @@ class Isolator(EmitNode):
 
         Value should be between 1 and 100e9.
 
-
         Examples
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> isolator = app.schematic.create_component("Isolator", name="Isolator1")
-        >>> isolator.lower_cutoff = "2.0GHz"
+        >>> iso = app.schematic.create_component("Isolator")
+        >>> iso.isolator_type = Isolator.IsolatorTypeOption.PARAMETRIC
+        >>> iso.finite_bandwidth = True
+        >>> iso.lower_cutoff = 90e6
 
         """
         val = self._get_property("Lower Cutoff")
@@ -362,13 +402,14 @@ class Isolator(EmitNode):
 
         Value should be between 1 and 100e9.
 
-
         Examples
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> isolator = app.schematic.create_component("Isolator", name="Isolator1")
-        >>> isolator.higher_cutoff = "2.2GHz"
+        >>> iso = app.schematic.create_component("Isolator")
+        >>> iso.isolator_type = Isolator.IsolatorTypeOption.PARAMETRIC
+        >>> iso.finite_bandwidth = True
+        >>> iso.higher_cutoff = 110e6
 
         """
         val = self._get_property("Higher Cutoff")
@@ -388,13 +429,14 @@ class Isolator(EmitNode):
 
         Value should be between 1 and 100e9.
 
-
         Examples
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> isolator = app.schematic.create_component("Isolator", name="Isolator1")
-        >>> isolator.higher_stop_band = "2.4GHz"
+        >>> iso = app.schematic.create_component("Isolator")
+        >>> iso.isolator_type = Isolator.IsolatorTypeOption.PARAMETRIC
+        >>> iso.finite_bandwidth = True
+        >>> iso.higher_stop_band = 120e6
 
         """
         val = self._get_property("Higher Stop Band")
@@ -416,8 +458,8 @@ class Isolator(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> isolator = app.schematic.create_component("Isolator", name="Isolator1")
-        >>> isolator.warnings
+        >>> iso = app.schematic.create_component("Isolator")
+        >>> iso.warnings
 
         """
         val = self._get_property("Warnings")

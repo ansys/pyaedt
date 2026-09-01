@@ -44,11 +44,21 @@ class Cable(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> cable = app.schematic.create_component("Cable", name="Cable1")
+        >>> cable = app.schematic.create_component("Cable")
         >>> cable.node_type
 
         """
         return self._node_type
+
+    @min_aedt_version("2027.1")
+    def export_to_csv(self, file_name: str) -> str:
+        """Export's the data for this node"""
+        return self._export_to_csv(file_name, "SelectedInputPort|SelectedOutputPort", "1|2")
+
+    @min_aedt_version("2027.1")
+    def plot(self):
+        """Bring up a Cartesian plot for this node"""
+        return self._plot("SelectedInputPort|SelectedOutputPort", "1|2")
 
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
@@ -58,8 +68,8 @@ class Cable(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> cable = app.schematic.create_component("Cable", name="Cable1")
-        >>> cable_copy = cable.duplicate("CableCopy")
+        >>> cable = app.schematic.create_component("Cable")
+        >>> cable_copy = cable.duplicate("cable_copy")
 
         """
         return self._duplicate(new_name)
@@ -72,7 +82,7 @@ class Cable(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> cable = app.schematic.create_component("Cable", name="Cable1")
+        >>> cable = app.schematic.create_component("Cable")
         >>> cable.delete()
 
         """
@@ -89,9 +99,9 @@ class Cable(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> cable = app.schematic.create_component("Cable", name="Cable1")
-        >>> cable.filename = "C:\\Temp\\cable.s2p"
-        >>> cable.filename
+        >>> cable = app.schematic.create_component("Cable")
+        >>> cable.cable_type = Cable.CableTypeOption.BY_FILE
+        >>> cable.filename = "example_value"
 
         """
         val = self._get_property("Filename")
@@ -113,7 +123,7 @@ class Cable(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> cable = app.schematic.create_component("Cable", name="Cable1")
+        >>> cable = app.schematic.create_component("Cable")
         >>> cable.noise_temperature = 290.0
 
         """
@@ -134,8 +144,8 @@ class Cable(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> cable = app.schematic.create_component("Cable", name="Cable1")
-        >>> cable.notes = "Route between modules"
+        >>> cable = app.schematic.create_component("Cable")
+        >>> cable.notes = "example_value"
 
         """
         val = self._get_property("Notes")
@@ -163,12 +173,15 @@ class Cable(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> cable = app.schematic.create_component("Cable", name="Cable1")
-        >>> cable.cable_type = cable.CableTypeOption.CONSTANT_LOSS
+        >>> cable = app.schematic.create_component("Cable")
+        >>> cable.cable_type = Cable.CableTypeOption.BY_FILE
 
         """
         val = self._get_property("Cable Type")
-        val = self.CableTypeOption[val.upper()]
+        try:
+            val = self.CableTypeOption(val)
+        except ValueError:
+            val = self.CableTypeOption[val.upper()]
         return val
 
     @cable_type.setter
@@ -187,8 +200,8 @@ class Cable(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> cable = app.schematic.create_component("Cable", name="Cable1")
-        >>> cable.length = "5 m"
+        >>> cable = app.schematic.create_component("Cable")
+        >>> cable.length = 1.0
 
         """
         val = self._get_property("Length")
@@ -212,8 +225,9 @@ class Cable(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> cable = app.schematic.create_component("Cable", name="Cable1")
-        >>> cable.loss_per_length = 0.25
+        >>> cable = app.schematic.create_component("Cable")
+        >>> cable.cable_type = Cable.CableTypeOption.CONSTANT_LOSS
+        >>> cable.loss_per_length = 0
 
         """
         val = self._get_property("Loss Per Length")
@@ -235,8 +249,9 @@ class Cable(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> cable = app.schematic.create_component("Cable", name="Cable1")
-        >>> cable.measurement_length = "2 m"
+        >>> cable = app.schematic.create_component("Cable")
+        >>> cable.cable_type = Cable.CableTypeOption.BY_FILE
+        >>> cable.measurement_length = 1.0
 
         """
         val = self._get_property("Measurement Length")
@@ -260,8 +275,9 @@ class Cable(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> cable = app.schematic.create_component("Cable", name="Cable1")
-        >>> cable.resistive_loss_constant = 0.1
+        >>> cable = app.schematic.create_component("Cable")
+        >>> cable.cable_type = Cable.CableTypeOption.COAXIAL_CABLE
+        >>> cable.resistive_loss_constant = 0
 
         """
         val = self._get_property("Resistive Loss Constant")
@@ -283,8 +299,9 @@ class Cable(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> cable = app.schematic.create_component("Cable", name="Cable1")
-        >>> cable.dielectric_loss_constant = 0.01
+        >>> cable = app.schematic.create_component("Cable")
+        >>> cable.cable_type = Cable.CableTypeOption.COAXIAL_CABLE
+        >>> cable.dielectric_loss_constant = 0
 
         """
         val = self._get_property("Dielectric Loss Constant")
@@ -304,7 +321,7 @@ class Cable(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> cable = app.schematic.create_component("Cable", name="Cable1")
+        >>> cable = app.schematic.create_component("Cable")
         >>> cable.warnings
 
         """
