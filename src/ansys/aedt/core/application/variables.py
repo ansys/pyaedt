@@ -1112,7 +1112,7 @@ class VariableManager(PyAedtBase):
         sweep: bool | list[bool] = True,
         overwrite: bool = True,
         is_post_processing: bool | list[bool] = False,
-        circuit_parameter: bool = True,
+        circuit_parameter: bool | list[bool] = True,
     ) -> bool:
         """Set the value of one or more design properties or project variables.
 
@@ -1139,7 +1139,7 @@ class VariableManager(PyAedtBase):
             Whether to overwrite existing values. The default is ``True``.
         is_post_processing : bool or list[bool], optional
             Whether to define postprocessing variable(s). The default is ``False``.
-        circuit_parameter : bool, optional
+        circuit_parameter : bool or list[bool], optional
             Whether to define a parameter in a circuit design or a local parameter.
             The default is ``True``.
 
@@ -1211,6 +1211,8 @@ class VariableManager(PyAedtBase):
             sweep = [sweep] * n
         if not isinstance(is_post_processing, list):
             is_post_processing = [is_post_processing] * n
+        if not isinstance(circuit_parameter, list):
+            circuit_parameter = [circuit_parameter] * n
 
         # Separate project variables from design variables
         project_indices = [i for i, nm in enumerate(names) if nm.startswith("$")]
@@ -1220,6 +1222,10 @@ class VariableManager(PyAedtBase):
 
         # Process design variables
         if design_indices:
+            for i in design_indices:
+                if names[i] in self.variables:
+                    circuit_parameter[i] = self.variables[names[i]].is_circuit_parameter
+
             result = self._set_variables_single_call(
                 names=[names[i] for i in design_indices],
                 expressions=[expressions[i] for i in design_indices],
@@ -1229,7 +1235,7 @@ class VariableManager(PyAedtBase):
                 sweep=[sweep[i] for i in design_indices],
                 is_post_processing=[is_post_processing[i] for i in design_indices],
                 overwrite=overwrite,
-                circuit_parameter=circuit_parameter,
+                circuit_parameter=[circuit_parameter[i] for i in design_indices],
                 is_project=False,
             )
             success = success and result
@@ -1245,7 +1251,7 @@ class VariableManager(PyAedtBase):
                 sweep=[sweep[i] for i in project_indices],
                 is_post_processing=[is_post_processing[i] for i in project_indices],
                 overwrite=overwrite,
-                circuit_parameter=circuit_parameter,
+                circuit_parameter=[circuit_parameter[i] for i in project_indices],
                 is_project=True,
             )
             success = success and result
@@ -1263,10 +1269,13 @@ class VariableManager(PyAedtBase):
         sweep: list[bool],
         is_post_processing: list[bool],
         overwrite: bool,
-        circuit_parameter: bool,
+        circuit_parameter: list[bool],
         is_project: bool,
     ) -> bool:
         """Create or update multiple variables in a single ChangeProperty call."""
+        if not names:
+            return True
+
         desktop_object = self._oproject if is_project else self._odesign
 
         if is_project:
@@ -1275,7 +1284,8 @@ class VariableManager(PyAedtBase):
         else:
             tab_name = "LocalVariableTab"
             prop_server = "LocalVariables"
-            if circuit_parameter and self._app.design_type in [
+            # For circuit designs, check if any variable needs DefinitionParameterTab
+            if any(circuit_parameter) and self._app.design_type in [
                 "HFSS 3D Layout Design",
                 "Circuit Design",
                 "Maxwell Circuit",
@@ -1335,7 +1345,7 @@ class VariableManager(PyAedtBase):
                         sweep[i],
                         overwrite,
                         is_post_processing[i],
-                        circuit_parameter,
+                        circuit_parameter[i],
                     )
 
         # Build and execute ChangedProps call for existing variables
