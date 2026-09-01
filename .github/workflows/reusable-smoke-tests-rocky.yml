@@ -18,6 +18,11 @@ on:
         required: false
         default: '["all", "all-dotnet"]'
         type: string
+      attest-provenance:
+        description: Whether to attest build provenance
+        required: false
+        default: false
+        type: boolean
 
 # Disable all default permissions at workflow level for security (least privilege principle)
 # Individual jobs will explicitly request only the permissions they need
@@ -76,7 +81,7 @@ jobs:
         id: build-wheelhouse-rocky
         uses: ansys/actions/build-wheelhouse@0b23d99e6800f16337ff173fcfbfcc1251130e99 # v11.0.2
         with:
-          attest-provenance: true
+          attest-provenance: ${{ inputs.attest-provenance }}
           checkout: false
           library-name: PyAEDT
           operating-system: rocky-linux-8
