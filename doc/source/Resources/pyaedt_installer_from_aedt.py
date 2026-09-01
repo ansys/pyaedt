@@ -387,8 +387,8 @@ def install_pyaedt():
                     subprocess.run([str(uv_exe), "pip", "install", "ipython", "-U"], check=True, env=env)  # nosec
                     subprocess.run([str(uv_exe), "pip", "install", "ipyvtklink"], check=True, env=env)  # nosec
                 else:
-                   # Uncomment for testing from a branch
-                   # subprocess.run([str(uv_exe), "pip", "install", "pyaedt[all] @ git+https://github.com/ansys/pyaedt.git@<branch>"], check=True, env=env)
+                    # Uncomment for testing from a branch
+                    # subprocess.run([str(uv_exe), "pip", "install", "pyaedt[all] @ git+https://github.com/ansys/pyaedt.git@<branch>"], check=True, env=env)
                     subprocess.run([str(uv_exe), "pip", "install", "pyaedt[all]"], check=True, env=env)  # nosec
             except subprocess.CalledProcessError as e:
                 print("uv installation failed with error: {}".format(e))
@@ -413,8 +413,8 @@ def install_pyaedt():
                         [str(pip_exe), "--default-timeout=1000", "install", "ipyvtklink"], check=True, env=env
                     )  # nosec
                 else:
-                   # Replace for testing
-                   # pyaedt[all] @ git+https://github.com/ansys/pyaedt.git@<branch>
+                    # Replace for testing
+                    # pyaedt[all] @ git+https://github.com/ansys/pyaedt.git@<branch>
                     subprocess.run(
                         [str(pip_exe), "--default-timeout=1000", "install", "pyaedt[all]"], check=True, env=env
                     )  # nosec
