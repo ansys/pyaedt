@@ -1214,28 +1214,49 @@ class VariableManager(PyAedtBase):
         if not isinstance(circuit_parameter, list):
             circuit_parameter = [circuit_parameter] * n
 
+        # Update circuit_parameter based on existing variables
+        for i, nm in enumerate(names):
+            if nm in self.variables:
+                circuit_parameter[i] = self.variables[nm].is_circuit_parameter
+
         # Separate project variables from design variables
         project_indices = [i for i, nm in enumerate(names) if nm.startswith("$")]
         design_indices = [i for i, nm in enumerate(names) if not nm.startswith("$")]
 
+        # Further separate design variables by circuit_parameter (only matters for circuit designs)
+        design_circuit_indices = [i for i in design_indices if circuit_parameter[i]]
+        design_local_indices = [i for i in design_indices if not circuit_parameter[i]]
+
         success = True
 
-        # Process design variables
-        if design_indices:
-            for i in design_indices:
-                if names[i] in self.variables:
-                    circuit_parameter[i] = self.variables[names[i]].is_circuit_parameter
-
+        # Process design variables with circuit_parameter=True
+        if design_circuit_indices:
             result = self._set_variables_single_call(
-                names=[names[i] for i in design_indices],
-                expressions=[expressions[i] for i in design_indices],
-                read_only=[read_only[i] for i in design_indices],
-                hidden=[hidden[i] for i in design_indices],
-                description=[description[i] for i in design_indices],
-                sweep=[sweep[i] for i in design_indices],
-                is_post_processing=[is_post_processing[i] for i in design_indices],
+                names=[names[i] for i in design_circuit_indices],
+                expressions=[expressions[i] for i in design_circuit_indices],
+                read_only=[read_only[i] for i in design_circuit_indices],
+                hidden=[hidden[i] for i in design_circuit_indices],
+                description=[description[i] for i in design_circuit_indices],
+                sweep=[sweep[i] for i in design_circuit_indices],
+                is_post_processing=[is_post_processing[i] for i in design_circuit_indices],
                 overwrite=overwrite,
-                circuit_parameter=[circuit_parameter[i] for i in design_indices],
+                circuit_parameter=True,
+                is_project=False,
+            )
+            success = success and result
+
+        # Process design variables with circuit_parameter=False
+        if design_local_indices:
+            result = self._set_variables_single_call(
+                names=[names[i] for i in design_local_indices],
+                expressions=[expressions[i] for i in design_local_indices],
+                read_only=[read_only[i] for i in design_local_indices],
+                hidden=[hidden[i] for i in design_local_indices],
+                description=[description[i] for i in design_local_indices],
+                sweep=[sweep[i] for i in design_local_indices],
+                is_post_processing=[is_post_processing[i] for i in design_local_indices],
+                overwrite=overwrite,
+                circuit_parameter=False,
                 is_project=False,
             )
             success = success and result
@@ -1251,7 +1272,7 @@ class VariableManager(PyAedtBase):
                 sweep=[sweep[i] for i in project_indices],
                 is_post_processing=[is_post_processing[i] for i in project_indices],
                 overwrite=overwrite,
-                circuit_parameter=[circuit_parameter[i] for i in project_indices],
+                circuit_parameter=False,  # Not used for project variables
                 is_project=True,
             )
             success = success and result
@@ -1269,7 +1290,7 @@ class VariableManager(PyAedtBase):
         sweep: list[bool],
         is_post_processing: list[bool],
         overwrite: bool,
-        circuit_parameter: list[bool],
+        circuit_parameter: bool,
         is_project: bool,
     ) -> bool:
         """Create or update multiple variables in a single ChangeProperty call."""
@@ -1284,8 +1305,7 @@ class VariableManager(PyAedtBase):
         else:
             tab_name = "LocalVariableTab"
             prop_server = "LocalVariables"
-            # For circuit designs, check if any variable needs DefinitionParameterTab
-            if any(circuit_parameter) and self._app.design_type in [
+            if circuit_parameter and self._app.design_type in [
                 "HFSS 3D Layout Design",
                 "Circuit Design",
                 "Maxwell Circuit",
@@ -1345,7 +1365,7 @@ class VariableManager(PyAedtBase):
                         sweep[i],
                         overwrite,
                         is_post_processing[i],
-                        circuit_parameter[i],
+                        circuit_parameter,
                     )
 
         # Build and execute ChangedProps call for existing variables
