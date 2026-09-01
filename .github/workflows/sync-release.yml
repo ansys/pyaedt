@@ -1228,7 +1228,7 @@ jobs:
 
       - name: Install pyaedt and tests dependencies
         run: |
-          uv sync --frozen --group tests --extra all
+          uv sync --frozen --group tests --extra all-dotnet
 
       - name: Remove Ansys processes (if any)
         shell: powershell
