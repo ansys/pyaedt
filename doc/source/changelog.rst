@@ -9,6 +9,22 @@ This document contains the release notes for the project.
 
 .. towncrier release notes start
 
+`1.5.0 <https://github.com/ansys/pyaedt/releases/tag/v1.5.0>`_ - September 02, 2026
+===================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Fix release workflow and update PR one
+          - `#8053 <https://github.com/ansys/pyaedt/pull/8053>`_
+
+
 `1.5.0 <https://github.com/ansys/pyaedt/releases/tag/v1.5.0>`_ - September 01, 2026
 ===================================================================================
 
