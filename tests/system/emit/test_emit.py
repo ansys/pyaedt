@@ -266,7 +266,6 @@ def test_create_components(emit_app) -> None:
     assert isinstance(terminator, EmitComponent)
 
 
-@pytest.mark.skipif(True, reason="B1480584: EDT crashing during test_duplicate_components")
 @pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Duplicate method requires 2026 R1 or later")
 def test_duplicate_components(emit_app):
     """Test duplicating various component types using schematic.create_component which returns EmitNodes."""
@@ -3884,7 +3883,7 @@ def test_purge_specific_1to1_and_n_to_1(interference):
     # An unspecified receiver combined with a single empty interferer runs every
     # 1-to-1 band pair and every N-to-1 combination in the project.
     run_all = InteractionDomain(interference)
-    run_all.set_interferer("")
+    run_all.set_interferers([])
     all_results = sim.run(run_all)
     assert all_results.is_valid()
 
@@ -3898,11 +3897,11 @@ def test_purge_specific_1to1_and_n_to_1(interference):
 
     bt_n_to_1 = InteractionDomain(interference)
     bt_n_to_1.set_receiver("Bluetooth")
-    bt_n_to_1.set_interferer("")
+    bt_n_to_1.set_interferers([])
 
     gps_n_to_1 = InteractionDomain(interference)
     gps_n_to_1.set_receiver("GPS")
-    gps_n_to_1.set_interferer("")
+    gps_n_to_1.set_interferers([])
 
     # The full run covers all of these
     assert has_results(bt_wifi)
