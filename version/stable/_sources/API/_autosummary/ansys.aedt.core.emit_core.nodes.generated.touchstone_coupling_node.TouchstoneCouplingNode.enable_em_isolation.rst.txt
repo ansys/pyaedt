@@ -1,0 +1,6 @@
+enable\_em\_isolation
+=====================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.touchstone_coupling_node
+
+.. autoproperty:: TouchstoneCouplingNode.enable_em_isolation

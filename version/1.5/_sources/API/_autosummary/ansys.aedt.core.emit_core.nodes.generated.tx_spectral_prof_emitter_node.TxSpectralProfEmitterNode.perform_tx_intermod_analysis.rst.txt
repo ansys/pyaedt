@@ -1,0 +1,6 @@
+perform\_tx\_intermod\_analysis
+===============================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.tx_spectral_prof_emitter_node
+
+.. autoproperty:: TxSpectralProfEmitterNode.perform_tx_intermod_analysis

@@ -1,0 +1,6 @@
+pulse\_rise\_time
+=================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.band
+
+.. autoproperty:: Band.pulse_rise_time

@@ -1,0 +1,6 @@
+results\_index
+==============
+
+.. currentmodule:: ansys.aedt.core.emit_core.results.revision
+
+.. autoattribute:: Revision.results_index

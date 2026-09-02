@@ -1,0 +1,6 @@
+props\_to\_dict
+===============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.emit_node
+
+.. automethod:: EmitNode.props_to_dict

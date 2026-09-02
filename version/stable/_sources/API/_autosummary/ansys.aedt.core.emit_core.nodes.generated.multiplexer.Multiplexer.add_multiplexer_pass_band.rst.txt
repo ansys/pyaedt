@@ -1,0 +1,6 @@
+add\_multiplexer\_pass\_band
+============================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.multiplexer
+
+.. automethod:: Multiplexer.add_multiplexer_pass_band

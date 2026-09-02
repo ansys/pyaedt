@@ -1,0 +1,92 @@
+﻿Waveform
+========
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.waveform
+
+.. autoclass:: Waveform
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      Waveform.delete
+      
+      
+      Waveform.duplicate
+      
+      
+      Waveform.export_to_csv
+      
+      
+      Waveform.get_frequencies
+      
+      
+      Waveform.get_is_component
+      
+      
+      Waveform.get_properties
+      
+      
+      Waveform.import_tx_measurement
+      
+      
+      Waveform.plot
+      
+      
+      Waveform.props_to_dict
+      
+      
+      Waveform.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      Waveform.adjust_coherent_gain
+      Waveform.advanced_extraction_params
+      Waveform.algorithm
+      Waveform.allowed_child_types
+      Waveform.bb_smoothing_factor
+      Waveform.children
+      Waveform.clock_duty_cycle
+      Waveform.clock_risefall_time
+      Waveform.data_rate
+      Waveform.enabled
+      Waveform.imported_spectrum
+      Waveform.kaiser_parameter
+      Waveform.max_frequency
+      Waveform.min_ptsnull
+      Waveform.name
+      Waveform.nb_detector_threshold
+      Waveform.nb_window_size
+      Waveform.node_type
+      Waveform.num_of_bits
+      Waveform.odesktop
+      Waveform.parent
+      Waveform.parent_name
+      Waveform.properties
+      Waveform.raw_data_format
+      Waveform.spread_percentage
+      Waveform.spreading_type
+      Waveform.start_frequency
+      Waveform.start_time
+      Waveform.stop_time
+      Waveform.system_impedance
+      Waveform.use_envelope
+      Waveform.valid
+      Waveform.warnings
+      Waveform.waveform
+      Waveform.window_type
+   
+   

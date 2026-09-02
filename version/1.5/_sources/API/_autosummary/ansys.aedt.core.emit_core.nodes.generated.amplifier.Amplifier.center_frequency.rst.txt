@@ -1,0 +1,6 @@
+center\_frequency
+=================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.amplifier
+
+.. autoproperty:: Amplifier.center_frequency

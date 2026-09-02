@@ -1,0 +1,6 @@
+new\_desktop
+============
+
+.. currentmodule:: ansys.aedt.core.desktop
+
+.. autoproperty:: Desktop.new_desktop

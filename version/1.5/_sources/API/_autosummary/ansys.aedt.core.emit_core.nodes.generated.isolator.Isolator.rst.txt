@@ -1,0 +1,73 @@
+﻿Isolator
+========
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.isolator
+
+.. autoclass:: Isolator
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      Isolator.delete
+      
+      
+      Isolator.duplicate
+      
+      
+      Isolator.export_to_csv
+      
+      
+      Isolator.get_is_component
+      
+      
+      Isolator.get_properties
+      
+      
+      Isolator.plot
+      
+      
+      Isolator.props_to_dict
+      
+      
+      Isolator.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      Isolator.allowed_child_types
+      Isolator.children
+      Isolator.filename
+      Isolator.finite_bandwidth
+      Isolator.finite_reverse_isolation
+      Isolator.higher_cutoff
+      Isolator.higher_stop_band
+      Isolator.insertion_loss
+      Isolator.isolator_type
+      Isolator.lower_cutoff
+      Isolator.lower_stop_band
+      Isolator.name
+      Isolator.node_type
+      Isolator.noise_temperature
+      Isolator.notes
+      Isolator.odesktop
+      Isolator.out_of_band_attenuation
+      Isolator.parent_name
+      Isolator.properties
+      Isolator.reverse_isolation
+      Isolator.valid
+      Isolator.warnings
+   
+   

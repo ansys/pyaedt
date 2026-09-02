@@ -1,0 +1,6 @@
+emit\_modulation\_type
+======================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.band
+
+.. autoproperty:: Band.emit_modulation_type

@@ -1,0 +1,6 @@
+path\_loss\_exponent
+====================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.log_distance_coupling_node
+
+.. autoproperty:: LogDistanceCouplingNode.path_loss_exponent

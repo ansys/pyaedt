@@ -1,0 +1,6 @@
+lower\_stop\_band
+=================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.isolator
+
+.. autoproperty:: Isolator.lower_stop_band

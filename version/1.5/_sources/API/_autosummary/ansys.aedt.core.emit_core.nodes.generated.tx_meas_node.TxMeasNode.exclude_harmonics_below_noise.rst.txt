@@ -1,0 +1,6 @@
+exclude\_harmonics\_below\_noise
+================================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.tx_meas_node
+
+.. autoproperty:: TxMeasNode.exclude_harmonics_below_noise

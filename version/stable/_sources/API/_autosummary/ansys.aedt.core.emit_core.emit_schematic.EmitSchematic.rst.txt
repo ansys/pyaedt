@@ -1,0 +1,46 @@
+﻿EmitSchematic
+=============
+
+.. currentmodule:: ansys.aedt.core.emit_core.emit_schematic
+
+.. autoclass:: EmitSchematic
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      EmitSchematic.compare_components
+      
+      
+      EmitSchematic.compare_nodes
+      
+      
+      EmitSchematic.connect_components
+      
+      
+      EmitSchematic.create_component
+      
+      
+      EmitSchematic.create_radio_antenna
+      
+      
+      EmitSchematic.delete_component
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      EmitSchematic.always_excluded
+   
+   

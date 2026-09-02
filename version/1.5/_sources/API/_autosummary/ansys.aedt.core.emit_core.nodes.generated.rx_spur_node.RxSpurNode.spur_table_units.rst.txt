@@ -1,0 +1,6 @@
+spur\_table\_units
+==================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.rx_spur_node
+
+.. autoproperty:: RxSpurNode.spur_table_units

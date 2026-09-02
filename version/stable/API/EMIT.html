@@ -1,0 +1,1193 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>EMIT &#8212; PyAEDT</title>
+  
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/ansys-sphinx-theme.css?v=5ffe81b6" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/ansys-sphinx-theme.css?v=5ffe81b6" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://www.nerdfonts.com/assets/css/webfont.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=de68c915" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+
+  <!-- Include desired assets -->
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  
+
+  
+    <link href="../_static/css/breadcrumbs.css" rel="stylesheet" />
+  
+    <script src="../_static/documentation_options.js?v=623e1633"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=49e1bf35"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'API/EMIT';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://aedt.docs.pyansys.com/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.5';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="EmitSceneNode" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.emit_scene_node.EmitSceneNode.html" />
+    <link rel="prev" title="working_directory" href="_autosummary/ansys.aedt.core.twinbuilder.TwinBuilder.working_directory.html" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.5.0" />
+  <meta property="og:site_name" content="PyAnsys" />
+  <meta name="physics" content="Electronics" />
+  <link rel="canonical" href="https://aedt.docs.pyansys.com/version/stable/API/EMIT.html" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="https://docs.pyansys.com/">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/pyansys_logo_transparent_black.png" class="logo__image only-light" alt="PyAEDT - Home"/>
+    <img src="../_static/pyansys_logo_transparent_white.png" class="logo__image only-dark pst-js-only" alt="PyAEDT - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html" title="PyAEDT home">Home</a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../Getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../User_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://examples.aedt.docs.pyansys.com/">
+    Examples
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../changelog.html">
+    Release notes
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav>
+</div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+      
+        <div class="navbar-item">
+<div class="search-bar pst-js-only" id="search-bar">
+  <form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" class="form-control" name="q" placeholder="Search the docs ..."
+      aria-label="Search the docs ..." autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false" />
+    <span class="search-button__kbd-shortcut">
+      <kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd>
+    </span>
+  </form>
+  
+  <div id="static-search-results" class="static-search-results" style="display:none;" tabindex="0"></div>
+  
+</div></div>
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+  
+    
+<!--
+  Announcement Version Loader
+  Dynamically loads the announcement.html content into the announcement_msg div.
+-->
+<div id="announcement_msg" aria-live="polite"></div>
+<script>
+  // Fetch and inject the announcement HTML content
+  fetch("announcement.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status} Announcement.html file not found, Please ignore this, if you are in dev/stable documentation`);
+      }
+      return response.text();
+    })
+    .then((text) => {
+      var msgDiv = document.getElementById("announcement_msg");
+      if (msgDiv) {
+        msgDiv.innerHTML = text;
+      }
+    })
+    .catch((error) => {
+      // Log only unexpected fetch errors
+      if (!(error.message && error.message.startsWith("HTTP error: 404"))) {
+        console.error(`Fetch problem: ${error.message} Announcement.html could not be loaded.`);
+      }
+    });
+</script>
+  
+
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html" title="PyAEDT home">Home</a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../Getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../User_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://examples.aedt.docs.pyansys.com/">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changelog.html">
+    Release notes
+  </a>
+</li>
+
+  </ul>
+</nav>
+</div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="search-bar pst-js-only" id="search-bar">
+  <form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" class="form-control" name="q" placeholder="Search the docs ..."
+      aria-label="Search the docs ..." autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false" />
+    <span class="search-button__kbd-shortcut">
+      <kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd>
+    </span>
+  </form>
+  
+  <div id="static-search-results" class="static-search-results" style="display:none;" tabindex="0"></div>
+  
+</div></div>
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="Application.html">Application and solvers</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/ansys.aedt.core.desktop.Desktop.html">Desktop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/ansys.aedt.core.hfss.Hfss.html">Hfss</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/ansys.aedt.core.q3d.Q3d.html">Q3d</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/ansys.aedt.core.q3d.Q2d.html">Q2d</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/ansys.aedt.core.maxwell.Maxwell2d.html">Maxwell2d</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/ansys.aedt.core.maxwell.Maxwell3d.html">Maxwell3d</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/ansys.aedt.core.icepak.Icepak.html">Icepak</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/ansys.aedt.core.hfss3dlayout.Hfss3dLayout.html">Hfss3dLayout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/ansys.aedt.core.mechanical.Mechanical.html">Mechanical</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/ansys.aedt.core.rmxprt.Rmxprt.html">Rmxprt</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/ansys.aedt.core.circuit.Circuit.html">Circuit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/ansys.aedt.core.maxwellcircuit.MaxwellCircuit.html">MaxwellCircuit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/ansys.aedt.core.twinbuilder.TwinBuilder.html">TwinBuilder</a></li>
+<li class="toctree-l2 current active has-children"><a class="current reference internal" href="#">EMIT</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.emit_scene_node.EmitSceneNode.html">EmitSceneNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.antenna_node.AntennaNode.html">AntennaNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.antenna_passband.AntennaPassband.html">AntennaPassband</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.scene_group_node.SceneGroupNode.html">SceneGroupNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.cad_node.CADNode.html">CADNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.couplings_node.CouplingsNode.html">CouplingsNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.touchstone_coupling_node.TouchstoneCouplingNode.html">TouchstoneCouplingNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.custom_coupling_node.CustomCouplingNode.html">CustomCouplingNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.erceg_coupling_node.ErcegCouplingNode.html">ErcegCouplingNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.five_g_channel_model.FiveGChannelModel.html">FiveGChannelModel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.hata_coupling_node.HataCouplingNode.html">HataCouplingNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.indoor_propagation_coupling_node.IndoorPropagationCouplingNode.html">IndoorPropagationCouplingNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.log_distance_coupling_node.LogDistanceCouplingNode.html">LogDistanceCouplingNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.propagation_loss_coupling_node.PropagationLossCouplingNode.html">PropagationLossCouplingNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.walfisch_coupling_node.WalfischCouplingNode.html">WalfischCouplingNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.two_ray_path_loss_coupling_node.TwoRayPathLossCouplingNode.html">TwoRayPathLossCouplingNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.coupling_link_node.CouplingLinkNode.html">CouplingLinkNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.solution_coupling_node.SolutionCouplingNode.html">SolutionCouplingNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.solutions_node.SolutionsNode.html">SolutionsNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.amplifier.Amplifier.html">Amplifier</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.cable.Cable.html">Cable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.circulator.Circulator.html">Circulator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.filter.Filter.html">Filter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.isolator.Isolator.html">Isolator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.multiplexer.Multiplexer.html">Multiplexer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.multiplexer_band.MultiplexerBand.html">MultiplexerBand</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.power_divider.PowerDivider.html">PowerDivider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.radio_node.RadioNode.html">RadioNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.terminator.Terminator.html">Terminator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.tr_switch.TR_Switch.html">TR_Switch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.band.Band.html">Band</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.band_folder.BandFolder.html">BandFolder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.waveform.Waveform.html">Waveform</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.sampling_node.SamplingNode.html">SamplingNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.tx_spectral_prof_node.TxSpectralProfNode.html">TxSpectralProfNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.tx_spectral_prof_emitter_node.TxSpectralProfEmitterNode.html">TxSpectralProfEmitterNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.tx_spur_node.TxSpurNode.html">TxSpurNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.tx_nb_emission_node.TxNbEmissionNode.html">TxNbEmissionNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.tx_bb_emission_node.TxBbEmissionNode.html">TxBbEmissionNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.tx_harmonic_node.TxHarmonicNode.html">TxHarmonicNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.rx_susceptibility_prof_node.RxSusceptibilityProfNode.html">RxSusceptibilityProfNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.rx_mixer_product_node.RxMixerProductNode.html">RxMixerProductNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.rx_saturation_node.RxSaturationNode.html">RxSaturationNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.rx_selectivity_node.RxSelectivityNode.html">RxSelectivityNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.rx_spur_node.RxSpurNode.html">RxSpurNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.tx_meas_node.TxMeasNode.html">TxMeasNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.rx_meas_node.RxMeasNode.html">RxMeasNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.results.revision.Revision.html">Revision</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.results.interaction.Interaction.html">Interaction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.results.interaction_domain.InteractionDomain.html">InteractionDomain</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.result_plot_node.ResultPlotNode.html">ResultPlotNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.emi_plot_marker_node.EmiPlotMarkerNode.html">EmiPlotMarkerNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.emit_schematic.EmitSchematic.html">EmitSchematic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.emit_node.EmitNode.html">EmitNode</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="FilterSolutions.html">FilterSolutions</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="MaterialManagement.html">Material and stackup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Primitives3D.html">3D modeler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Primitives2D.html">2D modeler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Primitive_Objects.html">Primitives</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Primitives3DLayout.html">Modeler in  HFSS 3D Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="PrimitivesCircuit.html">Modeler and components Circuit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Boundaries.html">Boundary objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Mesh.html">Mesh operations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Setup.html">Setup</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="Visualization.html">Visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="DesktopMessenger.html">Logger</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Optimetrics.html">Optimetrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Variables.html">Variable</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="Constants.html">Constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Configuration.html">Configuration files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SetupTemplates.html">Setup templates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CableModeling.html">Cable modeling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Profiles.html">Profiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Substrate.html">Substrate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="generic.html">Generic</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+         
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="https://docs.pyansys.com/" class="nav-link">PyAnsys</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a
+        href="../index.html"
+        class="nav-link"
+        aria-label="Home"
+      >
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="index.html" class="nav-link">API reference</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="Application.html" class="nav-link">Application and solvers</a>
+    </li>
+      
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">EMIT</span></li>
+    
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="emit">
+<h1>EMIT<a class="headerlink" href="#emit" title="Link to this heading">#</a></h1>
+<p>This section describes the classes used for building and querying EMIT designs through the <code class="docutils literal notranslate"><span class="pre">emit_core</span></code> module.
+The module provides tools for constructing RF system schematics, defining coupling between antennas, and
+analyzing electromagnetic interference.</p>
+<section id="node-tree-overview">
+<h2>Node tree overview<a class="headerlink" href="#node-tree-overview" title="Link to this heading">#</a></h2>
+<p>An EMIT design organizes its data into three main trees. Each tree is rooted at a
+well-known node class and contains typed child nodes that the user can create,
+inspect, and modify through the PyAEDT API.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>EMIT Design
+│
+├── Scene (EmitSceneNode)
+│   ├── Antenna / Emitter (AntennaNode)
+│   │   └── AntennaPassband  [0..*]
+│   ├── SceneGroupNode  [0..*]
+│   │   └── (any Scene child: Antenna, CAD, nested Group)
+│   └── CADNode  [0..*]
+│
+├── Coupling Data (CouplingsNode)
+│   ├── TouchstoneCouplingNode       [0..*]
+│   ├── CustomCouplingNode           [0..*]
+│   ├── ErcegCouplingNode            [0..*]
+│   ├── FiveGChannelModel            [0..*]
+│   ├── HataCouplingNode             [0..*]
+│   ├── IndoorPropagationCouplingNode[0..*]
+│   ├── LogDistanceCouplingNode      [0..*]
+│   ├── PropagationLossCouplingNode  [0..*]
+│   ├── WalfischCouplingNode         [0..*]
+│   ├── TwoRayPathLossCouplingNode   [0..*]
+│   └── CouplingLinkNode             [0..*]
+│       └── SolutionCouplingNode
+│           └── SolutionsNode
+│
+└── Components (via EmitSchematic)
+    ├── Amplifier
+    ├── Cable
+    ├── Circulator
+    ├── Filter
+    ├── Isolator
+    ├── Multiplexer
+    │   └── MultiplexerBand  [2..*]  (one per port minus one)
+    ├── PowerDivider
+    ├── RadioNode
+    │   ├── SamplingNode  [1]
+    │   ├── BandFolder  [0..*]
+    │   │   └── Band  [0..*]
+    │   └── Band  [0..*]
+    │       ├── TxSpectralProfNode  [1]
+    │       │   ├── TxSpurNode          [0..1]
+    │       │   ├── TxNbEmissionNode    [0..1]
+    │       │   ├── TxBbEmissionNode    [0..1]
+    │       │   └── TxHarmonicNode      [0..1]
+    │       ├── RxSusceptibilityProfNode  [1]
+    │       │   ├── RxMixerProductNode  [0..1]
+    │       │   ├── RxSaturationNode    [0..1]
+    │       │   ├── RxSelectivityNode   [0..1]
+    │       │   └── RxSpurNode          [0..1]
+    │       ├── TxMeasNode  [0..*]
+    │       └── RxMeasNode  [0..*]
+    ├── Terminator
+    └── TR_Switch
+</pre></div>
+</div>
+</section>
+<section id="scene">
+<h2>Scene<a class="headerlink" href="#scene" title="Link to this heading">#</a></h2>
+<p>The scene tree organizes the physical layout of an EMIT design: antennas, emitters,
+3-D geometry (CAD), and grouping nodes.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">EmitSceneNode</span></code> is the root of the scene tree. It is obtained from a
+<code class="docutils literal notranslate"><span class="pre">Revision</span></code> after analysis.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">AntennaNode</span></code> defines the position, orientation, and 3-D radiation pattern of
+an antenna or emitter. Antennas may contain <code class="docutils literal notranslate"><span class="pre">AntennaPassband</span></code> children that add
+frequency-dependent behavior to parametric antenna models.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SceneGroupNode</span></code> groups antennas, CAD nodes, or other groups so they can be
+repositioned and reoriented together. Any node type that can be a child of the
+scene can also be a child of a group.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CADNode</span></code> represents imported 3-D platform geometry.</p></li>
+</ul>
+<p>They are accessible through:</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.emit_scene_node.EmitSceneNode.html#ansys.aedt.core.emit_core.nodes.generated.emit_scene_node.EmitSceneNode" title="ansys.aedt.core.emit_core.nodes.generated.emit_scene_node.EmitSceneNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">emit_scene_node.EmitSceneNode</span></code></a></p></td>
+<td><p>Provide EMIT scene node.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.antenna_node.AntennaNode.html#ansys.aedt.core.emit_core.nodes.generated.antenna_node.AntennaNode" title="ansys.aedt.core.emit_core.nodes.generated.antenna_node.AntennaNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">antenna_node.AntennaNode</span></code></a></p></td>
+<td><p>Provide antenna node.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.antenna_passband.AntennaPassband.html#ansys.aedt.core.emit_core.nodes.generated.antenna_passband.AntennaPassband" title="ansys.aedt.core.emit_core.nodes.generated.antenna_passband.AntennaPassband"><code class="xref py py-obj docutils literal notranslate"><span class="pre">antenna_passband.AntennaPassband</span></code></a></p></td>
+<td><p>Provide antenna passband.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.scene_group_node.SceneGroupNode.html#ansys.aedt.core.emit_core.nodes.generated.scene_group_node.SceneGroupNode" title="ansys.aedt.core.emit_core.nodes.generated.scene_group_node.SceneGroupNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scene_group_node.SceneGroupNode</span></code></a></p></td>
+<td><p>Provide scene group node.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.cad_node.CADNode.html#ansys.aedt.core.emit_core.nodes.generated.cad_node.CADNode" title="ansys.aedt.core.emit_core.nodes.generated.cad_node.CADNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cad_node.CADNode</span></code></a></p></td>
+<td><p>Provide cad node.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="coupling-data">
+<h2>Coupling data<a class="headerlink" href="#coupling-data" title="Link to this heading">#</a></h2>
+<p>The coupling data tree organizes the coupling models that connect pairs of antennas
+in the design. The <code class="docutils literal notranslate"><span class="pre">CouplingsNode</span></code> can have any number of children, and their
+<strong>order matters</strong>: children lower in the tree have higher priority. When an
+antenna pair is covered by overlapping coupling definitions, the highest-priority
+(lowest in tree) coupling is used.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">CouplingLinkNode</span></code> provides a link to an HFSS design. It has a
+<code class="docutils literal notranslate"><span class="pre">SolutionCouplingNode</span></code> child and a <code class="docutils literal notranslate"><span class="pre">SolutionsNode</span></code> grandchild.</p></li>
+</ul>
+<p>All other coupling children are standalone propagation or data-driven models.</p>
+<p>They are accessible through:</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.couplings_node.CouplingsNode.html#ansys.aedt.core.emit_core.nodes.generated.couplings_node.CouplingsNode" title="ansys.aedt.core.emit_core.nodes.generated.couplings_node.CouplingsNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">couplings_node.CouplingsNode</span></code></a></p></td>
+<td><p>Provide couplings node.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.touchstone_coupling_node.TouchstoneCouplingNode.html#ansys.aedt.core.emit_core.nodes.generated.touchstone_coupling_node.TouchstoneCouplingNode" title="ansys.aedt.core.emit_core.nodes.generated.touchstone_coupling_node.TouchstoneCouplingNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">touchstone_coupling_node.TouchstoneCouplingNode</span></code></a></p></td>
+<td><p>Provide touchstone coupling node.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.custom_coupling_node.CustomCouplingNode.html#ansys.aedt.core.emit_core.nodes.generated.custom_coupling_node.CustomCouplingNode" title="ansys.aedt.core.emit_core.nodes.generated.custom_coupling_node.CustomCouplingNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">custom_coupling_node.CustomCouplingNode</span></code></a></p></td>
+<td><p>Provide custom coupling node.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.erceg_coupling_node.ErcegCouplingNode.html#ansys.aedt.core.emit_core.nodes.generated.erceg_coupling_node.ErcegCouplingNode" title="ansys.aedt.core.emit_core.nodes.generated.erceg_coupling_node.ErcegCouplingNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">erceg_coupling_node.ErcegCouplingNode</span></code></a></p></td>
+<td><p>Provide erceg coupling node.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.five_g_channel_model.FiveGChannelModel.html#ansys.aedt.core.emit_core.nodes.generated.five_g_channel_model.FiveGChannelModel" title="ansys.aedt.core.emit_core.nodes.generated.five_g_channel_model.FiveGChannelModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">five_g_channel_model.FiveGChannelModel</span></code></a></p></td>
+<td><p>Provide five g channel model.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.hata_coupling_node.HataCouplingNode.html#ansys.aedt.core.emit_core.nodes.generated.hata_coupling_node.HataCouplingNode" title="ansys.aedt.core.emit_core.nodes.generated.hata_coupling_node.HataCouplingNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hata_coupling_node.HataCouplingNode</span></code></a></p></td>
+<td><p>Provide hata coupling node.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.indoor_propagation_coupling_node.IndoorPropagationCouplingNode.html#ansys.aedt.core.emit_core.nodes.generated.indoor_propagation_coupling_node.IndoorPropagationCouplingNode" title="ansys.aedt.core.emit_core.nodes.generated.indoor_propagation_coupling_node.IndoorPropagationCouplingNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">indoor_propagation_coupling_node.IndoorPropagationCouplingNode</span></code></a></p></td>
+<td><p>Provide indoor propagation coupling node.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.log_distance_coupling_node.LogDistanceCouplingNode.html#ansys.aedt.core.emit_core.nodes.generated.log_distance_coupling_node.LogDistanceCouplingNode" title="ansys.aedt.core.emit_core.nodes.generated.log_distance_coupling_node.LogDistanceCouplingNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_distance_coupling_node.LogDistanceCouplingNode</span></code></a></p></td>
+<td><p>Provide log distance coupling node.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.propagation_loss_coupling_node.PropagationLossCouplingNode.html#ansys.aedt.core.emit_core.nodes.generated.propagation_loss_coupling_node.PropagationLossCouplingNode" title="ansys.aedt.core.emit_core.nodes.generated.propagation_loss_coupling_node.PropagationLossCouplingNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">propagation_loss_coupling_node.PropagationLossCouplingNode</span></code></a></p></td>
+<td><p>Provide propagation loss coupling node.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.walfisch_coupling_node.WalfischCouplingNode.html#ansys.aedt.core.emit_core.nodes.generated.walfisch_coupling_node.WalfischCouplingNode" title="ansys.aedt.core.emit_core.nodes.generated.walfisch_coupling_node.WalfischCouplingNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">walfisch_coupling_node.WalfischCouplingNode</span></code></a></p></td>
+<td><p>Provide walfisch coupling node.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.two_ray_path_loss_coupling_node.TwoRayPathLossCouplingNode.html#ansys.aedt.core.emit_core.nodes.generated.two_ray_path_loss_coupling_node.TwoRayPathLossCouplingNode" title="ansys.aedt.core.emit_core.nodes.generated.two_ray_path_loss_coupling_node.TwoRayPathLossCouplingNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">two_ray_path_loss_coupling_node.TwoRayPathLossCouplingNode</span></code></a></p></td>
+<td><p>Provide two ray path loss coupling node.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.coupling_link_node.CouplingLinkNode.html#ansys.aedt.core.emit_core.nodes.generated.coupling_link_node.CouplingLinkNode" title="ansys.aedt.core.emit_core.nodes.generated.coupling_link_node.CouplingLinkNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">coupling_link_node.CouplingLinkNode</span></code></a></p></td>
+<td><p>Provide coupling link node.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.solution_coupling_node.SolutionCouplingNode.html#ansys.aedt.core.emit_core.nodes.generated.solution_coupling_node.SolutionCouplingNode" title="ansys.aedt.core.emit_core.nodes.generated.solution_coupling_node.SolutionCouplingNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">solution_coupling_node.SolutionCouplingNode</span></code></a></p></td>
+<td><p>Provide solution coupling node.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.solutions_node.SolutionsNode.html#ansys.aedt.core.emit_core.nodes.generated.solutions_node.SolutionsNode" title="ansys.aedt.core.emit_core.nodes.generated.solutions_node.SolutionsNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">solutions_node.SolutionsNode</span></code></a></p></td>
+<td><p>Provide solutions node.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="components">
+<h2>Components<a class="headerlink" href="#components" title="Link to this heading">#</a></h2>
+<p>Components form the RF signal chain in an EMIT schematic. Although they are stored
+internally under an RF System Group node, that node is hidden from users.
+Components appear at the top level of the <code class="docutils literal notranslate"><span class="pre">EmitSchematic</span></code> and are created
+through its <code class="docutils literal notranslate"><span class="pre">create_component</span></code> method.</p>
+<p>Most components are leaf nodes, but two can have children:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Multiplexer</span></code> has 2 or more <code class="docutils literal notranslate"><span class="pre">MultiplexerBand</span></code> children
+(<code class="docutils literal notranslate"><span class="pre">num_ports</span> <span class="pre">-</span> <span class="pre">1</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RadioNode</span></code> contains a rich subtree:</p>
+<ul>
+<li><p>Exactly one <code class="docutils literal notranslate"><span class="pre">SamplingNode</span></code>.</p></li>
+<li><p>Zero or more <code class="docutils literal notranslate"><span class="pre">Band</span></code> nodes (directly or inside <code class="docutils literal notranslate"><span class="pre">BandFolder</span></code> nodes).</p></li>
+<li><p>Each <code class="docutils literal notranslate"><span class="pre">Band</span></code> has exactly one <code class="docutils literal notranslate"><span class="pre">TxSpectralProfNode</span></code> and one
+<code class="docutils literal notranslate"><span class="pre">RxSusceptibilityProfNode</span></code>, plus optional measurement nodes.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">TxSpectralProfNode</span></code> may have up to one each of <code class="docutils literal notranslate"><span class="pre">TxSpurNode</span></code>,
+<code class="docutils literal notranslate"><span class="pre">TxNbEmissionNode</span></code>, <code class="docutils literal notranslate"><span class="pre">TxBbEmissionNode</span></code>, and <code class="docutils literal notranslate"><span class="pre">TxHarmonicNode</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RxSusceptibilityProfNode</span></code> may have up to one each of
+<code class="docutils literal notranslate"><span class="pre">RxMixerProductNode</span></code>, <code class="docutils literal notranslate"><span class="pre">RxSaturationNode</span></code>, <code class="docutils literal notranslate"><span class="pre">RxSelectivityNode</span></code>,
+and <code class="docutils literal notranslate"><span class="pre">RxSpurNode</span></code>.</p></li>
+</ul>
+</li>
+</ul>
+<p>They are accessible through:</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.amplifier.Amplifier.html#ansys.aedt.core.emit_core.nodes.generated.amplifier.Amplifier" title="ansys.aedt.core.emit_core.nodes.generated.amplifier.Amplifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">amplifier.Amplifier</span></code></a></p></td>
+<td><p>Provide amplifier.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.cable.Cable.html#ansys.aedt.core.emit_core.nodes.generated.cable.Cable" title="ansys.aedt.core.emit_core.nodes.generated.cable.Cable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cable.Cable</span></code></a></p></td>
+<td><p>Provide cable.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.circulator.Circulator.html#ansys.aedt.core.emit_core.nodes.generated.circulator.Circulator" title="ansys.aedt.core.emit_core.nodes.generated.circulator.Circulator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">circulator.Circulator</span></code></a></p></td>
+<td><p>Provide circulator.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.filter.Filter.html#ansys.aedt.core.emit_core.nodes.generated.filter.Filter" title="ansys.aedt.core.emit_core.nodes.generated.filter.Filter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter.Filter</span></code></a></p></td>
+<td><p>Provide filter.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.isolator.Isolator.html#ansys.aedt.core.emit_core.nodes.generated.isolator.Isolator" title="ansys.aedt.core.emit_core.nodes.generated.isolator.Isolator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isolator.Isolator</span></code></a></p></td>
+<td><p>Provide isolator.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.multiplexer.Multiplexer.html#ansys.aedt.core.emit_core.nodes.generated.multiplexer.Multiplexer" title="ansys.aedt.core.emit_core.nodes.generated.multiplexer.Multiplexer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">multiplexer.Multiplexer</span></code></a></p></td>
+<td><p>Provide multiplexer.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.multiplexer_band.MultiplexerBand.html#ansys.aedt.core.emit_core.nodes.generated.multiplexer_band.MultiplexerBand" title="ansys.aedt.core.emit_core.nodes.generated.multiplexer_band.MultiplexerBand"><code class="xref py py-obj docutils literal notranslate"><span class="pre">multiplexer_band.MultiplexerBand</span></code></a></p></td>
+<td><p>Provide multiplexer band.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.power_divider.PowerDivider.html#ansys.aedt.core.emit_core.nodes.generated.power_divider.PowerDivider" title="ansys.aedt.core.emit_core.nodes.generated.power_divider.PowerDivider"><code class="xref py py-obj docutils literal notranslate"><span class="pre">power_divider.PowerDivider</span></code></a></p></td>
+<td><p>Provide power divider.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.radio_node.RadioNode.html#ansys.aedt.core.emit_core.nodes.generated.radio_node.RadioNode" title="ansys.aedt.core.emit_core.nodes.generated.radio_node.RadioNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">radio_node.RadioNode</span></code></a></p></td>
+<td><p>Provide radio node.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.terminator.Terminator.html#ansys.aedt.core.emit_core.nodes.generated.terminator.Terminator" title="ansys.aedt.core.emit_core.nodes.generated.terminator.Terminator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">terminator.Terminator</span></code></a></p></td>
+<td><p>Provide terminator.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.tr_switch.TR_Switch.html#ansys.aedt.core.emit_core.nodes.generated.tr_switch.TR_Switch" title="ansys.aedt.core.emit_core.nodes.generated.tr_switch.TR_Switch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tr_switch.TR_Switch</span></code></a></p></td>
+<td><p>Provide tr switch.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.band.Band.html#ansys.aedt.core.emit_core.nodes.generated.band.Band" title="ansys.aedt.core.emit_core.nodes.generated.band.Band"><code class="xref py py-obj docutils literal notranslate"><span class="pre">band.Band</span></code></a></p></td>
+<td><p>Provide band.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.band_folder.BandFolder.html#ansys.aedt.core.emit_core.nodes.generated.band_folder.BandFolder" title="ansys.aedt.core.emit_core.nodes.generated.band_folder.BandFolder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">band_folder.BandFolder</span></code></a></p></td>
+<td><p>Provide band folder.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.waveform.Waveform.html#ansys.aedt.core.emit_core.nodes.generated.waveform.Waveform" title="ansys.aedt.core.emit_core.nodes.generated.waveform.Waveform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">waveform.Waveform</span></code></a></p></td>
+<td><p>Provide waveform.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.sampling_node.SamplingNode.html#ansys.aedt.core.emit_core.nodes.generated.sampling_node.SamplingNode" title="ansys.aedt.core.emit_core.nodes.generated.sampling_node.SamplingNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sampling_node.SamplingNode</span></code></a></p></td>
+<td><p>Provide sampling node.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.tx_spectral_prof_node.TxSpectralProfNode.html#ansys.aedt.core.emit_core.nodes.generated.tx_spectral_prof_node.TxSpectralProfNode" title="ansys.aedt.core.emit_core.nodes.generated.tx_spectral_prof_node.TxSpectralProfNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tx_spectral_prof_node.TxSpectralProfNode</span></code></a></p></td>
+<td><p>Provide tx spectral prof node.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.tx_spectral_prof_emitter_node.TxSpectralProfEmitterNode.html#ansys.aedt.core.emit_core.nodes.generated.tx_spectral_prof_emitter_node.TxSpectralProfEmitterNode" title="ansys.aedt.core.emit_core.nodes.generated.tx_spectral_prof_emitter_node.TxSpectralProfEmitterNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tx_spectral_prof_emitter_node.TxSpectralProfEmitterNode</span></code></a></p></td>
+<td><p>Provide tx spectral prof emitter node.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.tx_spur_node.TxSpurNode.html#ansys.aedt.core.emit_core.nodes.generated.tx_spur_node.TxSpurNode" title="ansys.aedt.core.emit_core.nodes.generated.tx_spur_node.TxSpurNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tx_spur_node.TxSpurNode</span></code></a></p></td>
+<td><p>Provide tx spur node.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.tx_nb_emission_node.TxNbEmissionNode.html#ansys.aedt.core.emit_core.nodes.generated.tx_nb_emission_node.TxNbEmissionNode" title="ansys.aedt.core.emit_core.nodes.generated.tx_nb_emission_node.TxNbEmissionNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tx_nb_emission_node.TxNbEmissionNode</span></code></a></p></td>
+<td><p>Provide tx nb emission node.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.tx_bb_emission_node.TxBbEmissionNode.html#ansys.aedt.core.emit_core.nodes.generated.tx_bb_emission_node.TxBbEmissionNode" title="ansys.aedt.core.emit_core.nodes.generated.tx_bb_emission_node.TxBbEmissionNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tx_bb_emission_node.TxBbEmissionNode</span></code></a></p></td>
+<td><p>Provide tx bb emission node.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.tx_harmonic_node.TxHarmonicNode.html#ansys.aedt.core.emit_core.nodes.generated.tx_harmonic_node.TxHarmonicNode" title="ansys.aedt.core.emit_core.nodes.generated.tx_harmonic_node.TxHarmonicNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tx_harmonic_node.TxHarmonicNode</span></code></a></p></td>
+<td><p>Provide tx harmonic node.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.rx_susceptibility_prof_node.RxSusceptibilityProfNode.html#ansys.aedt.core.emit_core.nodes.generated.rx_susceptibility_prof_node.RxSusceptibilityProfNode" title="ansys.aedt.core.emit_core.nodes.generated.rx_susceptibility_prof_node.RxSusceptibilityProfNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rx_susceptibility_prof_node.RxSusceptibilityProfNode</span></code></a></p></td>
+<td><p>Provide rx susceptibility prof node.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.rx_mixer_product_node.RxMixerProductNode.html#ansys.aedt.core.emit_core.nodes.generated.rx_mixer_product_node.RxMixerProductNode" title="ansys.aedt.core.emit_core.nodes.generated.rx_mixer_product_node.RxMixerProductNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rx_mixer_product_node.RxMixerProductNode</span></code></a></p></td>
+<td><p>Provide rx mixer product node.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.rx_saturation_node.RxSaturationNode.html#ansys.aedt.core.emit_core.nodes.generated.rx_saturation_node.RxSaturationNode" title="ansys.aedt.core.emit_core.nodes.generated.rx_saturation_node.RxSaturationNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rx_saturation_node.RxSaturationNode</span></code></a></p></td>
+<td><p>Provide rx saturation node.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.rx_selectivity_node.RxSelectivityNode.html#ansys.aedt.core.emit_core.nodes.generated.rx_selectivity_node.RxSelectivityNode" title="ansys.aedt.core.emit_core.nodes.generated.rx_selectivity_node.RxSelectivityNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rx_selectivity_node.RxSelectivityNode</span></code></a></p></td>
+<td><p>Provide rx selectivity node.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.rx_spur_node.RxSpurNode.html#ansys.aedt.core.emit_core.nodes.generated.rx_spur_node.RxSpurNode" title="ansys.aedt.core.emit_core.nodes.generated.rx_spur_node.RxSpurNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rx_spur_node.RxSpurNode</span></code></a></p></td>
+<td><p>Provide rx spur node.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.tx_meas_node.TxMeasNode.html#ansys.aedt.core.emit_core.nodes.generated.tx_meas_node.TxMeasNode" title="ansys.aedt.core.emit_core.nodes.generated.tx_meas_node.TxMeasNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tx_meas_node.TxMeasNode</span></code></a></p></td>
+<td><p>Provide tx meas node.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.rx_meas_node.RxMeasNode.html#ansys.aedt.core.emit_core.nodes.generated.rx_meas_node.RxMeasNode" title="ansys.aedt.core.emit_core.nodes.generated.rx_meas_node.RxMeasNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rx_meas_node.RxMeasNode</span></code></a></p></td>
+<td><p>Provide rx meas node.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="results-and-analysis">
+<h2>Results and analysis<a class="headerlink" href="#results-and-analysis" title="Link to this heading">#</a></h2>
+<p>After building the schematic and coupling definitions, results are obtained by
+analyzing a <code class="docutils literal notranslate"><span class="pre">Revision</span></code>. The results module provides classes for querying
+interference metrics, interaction details, and result plots.</p>
+<p>They are accessible through:</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.results.revision.Revision.html#ansys.aedt.core.emit_core.results.revision.Revision" title="ansys.aedt.core.emit_core.results.revision.Revision"><code class="xref py py-obj docutils literal notranslate"><span class="pre">revision.Revision</span></code></a></p></td>
+<td><p>Provides the <code class="docutils literal notranslate"><span class="pre">Revision</span></code> object.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.results.interaction.Interaction.html#ansys.aedt.core.emit_core.results.interaction.Interaction" title="ansys.aedt.core.emit_core.results.interaction.Interaction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interaction.Interaction</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.results.interaction_domain.InteractionDomain.html#ansys.aedt.core.emit_core.results.interaction_domain.InteractionDomain" title="ansys.aedt.core.emit_core.results.interaction_domain.InteractionDomain"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interaction_domain.InteractionDomain</span></code></a></p></td>
+<td><p>Represents an interaction domain for EMIT analysis.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.result_plot_node.ResultPlotNode.html#ansys.aedt.core.emit_core.nodes.generated.result_plot_node.ResultPlotNode" title="ansys.aedt.core.emit_core.nodes.generated.result_plot_node.ResultPlotNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">result_plot_node.ResultPlotNode</span></code></a></p></td>
+<td><p>Provide result plot node.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.generated.emi_plot_marker_node.EmiPlotMarkerNode.html#ansys.aedt.core.emit_core.nodes.generated.emi_plot_marker_node.EmiPlotMarkerNode" title="ansys.aedt.core.emit_core.nodes.generated.emi_plot_marker_node.EmiPlotMarkerNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">emi_plot_marker_node.EmiPlotMarkerNode</span></code></a></p></td>
+<td><p>Provide emi plot marker node.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="schematic">
+<h2>Schematic<a class="headerlink" href="#schematic" title="Link to this heading">#</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">EmitSchematic</span></code> class provides methods for creating and connecting RF
+components in the EMIT design.</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.emit_schematic.EmitSchematic.html#ansys.aedt.core.emit_core.emit_schematic.EmitSchematic" title="ansys.aedt.core.emit_core.emit_schematic.EmitSchematic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">emit_schematic.EmitSchematic</span></code></a></p></td>
+<td><p>Represents the EMIT schematic and provides methods to interact with it.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="base-node">
+<h2>Base node<a class="headerlink" href="#base-node" title="Link to this heading">#</a></h2>
+<p>All generated node classes inherit from <code class="docutils literal notranslate"><span class="pre">EmitNode</span></code>, which provides common
+tree-navigation methods (<code class="docutils literal notranslate"><span class="pre">parent</span></code>, <code class="docutils literal notranslate"><span class="pre">children</span></code>), property access, and
+serialization utilities.</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/ansys.aedt.core.emit_core.nodes.emit_node.EmitNode.html#ansys.aedt.core.emit_core.nodes.emit_node.EmitNode" title="ansys.aedt.core.emit_core.nodes.emit_node.EmitNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">emit_node.EmitNode</span></code></a></p></td>
+<td><p>Emit node class for managing and interacting with EMIT nodes.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">EMIT</span> <span class="pre">Design</span></code> example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">ansys.aedt.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">Emit</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Emit</span><span class="p">()</span>
+
+<span class="c1"># Create an emitter (radio + antenna pair)</span>
+<span class="n">emitter</span><span class="p">,</span> <span class="n">antenna</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">schematic</span><span class="o">.</span><span class="n">create_radio_antenna</span><span class="p">(</span><span class="s2">&quot;Bluetooth&quot;</span><span class="p">)</span>
+
+<span class="c1"># Access the radio and add a band</span>
+<span class="n">radio</span> <span class="o">=</span> <span class="n">emitter</span><span class="o">.</span><span class="n">get_radio</span><span class="p">()</span>
+<span class="n">band</span> <span class="o">=</span> <span class="n">radio</span><span class="o">.</span><span class="n">add_band</span><span class="p">()</span>
+
+<span class="c1"># Add an amplifier to the signal chain</span>
+<span class="n">amp</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">schematic</span><span class="o">.</span><span class="n">create_component</span><span class="p">(</span><span class="s2">&quot;Amplifier&quot;</span><span class="p">)</span>
+<span class="n">amp</span><span class="o">.</span><span class="n">gain</span> <span class="o">=</span> <span class="mf">30.0</span>
+
+<span class="c1"># Analyze and inspect results</span>
+<span class="n">rev</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">results</span><span class="o">.</span><span class="n">analyze</span><span class="p">()</span>
+<span class="n">scene</span> <span class="o">=</span> <span class="n">rev</span><span class="o">.</span><span class="n">get_scene_node</span><span class="p">()</span>
+<span class="n">couplings</span> <span class="o">=</span> <span class="n">rev</span><span class="o">.</span><span class="n">get_coupling_data_node</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#node-tree-overview">Node tree overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#scene">Scene</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#coupling-data">Coupling data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#components">Components</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#results-and-analysis">Results and analysis</a><ul class="nav section-nav flex-column">
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#schematic">Schematic</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#base-node">Base node</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+
+  
+  <nav class="tocsection editthispage" aria-label="Edit this page">
+    <a href="https://github.com/ansys/pyaedt/edit/main/doc/source/API/EMIT.rst" rel="noopener noreferrer">
+      <i class="fa-solid fa-pencil" aria-hidden="true"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </nav>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <ul class="this-page-menu">
+      <li><a href="../_sources/API/EMIT.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+
+  <!-- Include desired assets -->
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.7/require.min.js"></script>
+
+<script>
+// Passing the search options to the search.js file
+const SEARCH_OPTIONS = JSON.parse('{"ignoreLocation": true, "keys": ["title", "text", "objectID"], "limit": 10, "minMatchCharLength": 2, "threshold": 0.5}');
+const SEARCH_FILE = "../_static/search.json";
+const ADVANCE_SEARCH_PATH = "../search.html";
+const EXTRA_SOURCES = JSON.parse('""');
+</script>
+
+
+<script src="../_static/js/search.js"></script>
+
+  
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<!--
+  Theme Version Footer
+  Displays the Sphinx theme version and the last updated date.
+  Accessibility and semantic improvements included.
+-->
+<footer class="theme-version" aria-label="Theme version and last update">
+  <span>
+    
+      Built with the
+      <a href="https://sphinxdocs.ansys.com/version/stable/index.html" target="_blank" rel="noopener noreferrer">
+        Ansys Sphinx Theme
+      </a>
+      1.9.0.
+    
+  </span>
+  <br />
+  <span>Last updated on <time id="ast_build_date"></time></span>
+</footer>
+<script>
+  // Set the last updated date in a readable format
+  (function() {
+    var options = { day: "numeric", month: "long", year: "numeric" };
+    var ast_lastModifiedDate = new Date(document.lastModified);
+    var ast_build_date = ast_lastModifiedDate.toLocaleDateString("en-US", options);
+    var dateElem = document.getElementById("ast_build_date");
+    if (dateElem) {
+      dateElem.textContent = ast_build_date;
+    }
+  })();
+</script></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

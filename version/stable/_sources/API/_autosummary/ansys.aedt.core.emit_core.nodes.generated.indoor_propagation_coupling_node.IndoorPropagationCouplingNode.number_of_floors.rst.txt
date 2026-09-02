@@ -1,0 +1,6 @@
+number\_of\_floors
+==================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.indoor_propagation_coupling_node
+
+.. autoproperty:: IndoorPropagationCouplingNode.number_of_floors

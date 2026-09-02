@@ -1,0 +1,6 @@
+sampling\_type
+==============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.sampling_node
+
+.. autoproperty:: SamplingNode.sampling_type

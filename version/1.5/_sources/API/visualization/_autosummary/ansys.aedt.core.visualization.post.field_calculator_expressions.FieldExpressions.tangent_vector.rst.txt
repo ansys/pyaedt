@@ -1,0 +1,6 @@
+tangent\_vector
+===============
+
+.. currentmodule:: ansys.aedt.core.visualization.post.field_calculator_expressions
+
+.. automethod:: FieldExpressions.tangent_vector

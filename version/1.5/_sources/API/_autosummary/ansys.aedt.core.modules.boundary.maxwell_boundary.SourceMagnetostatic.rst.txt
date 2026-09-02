@@ -1,0 +1,24 @@
+﻿SourceMagnetostatic
+===================
+
+.. currentmodule:: ansys.aedt.core.modules.boundary.maxwell_boundary
+
+.. autoclass:: SourceMagnetostatic
+
+   
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      SourceMagnetostatic.return_path
+      SourceMagnetostatic.turns_number
+      SourceMagnetostatic.name
+   
+   

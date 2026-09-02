@@ -1,0 +1,71 @@
+﻿TR\_Switch
+==========
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.tr_switch
+
+.. autoclass:: TR_Switch
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      TR_Switch.delete
+      
+      
+      TR_Switch.duplicate
+      
+      
+      TR_Switch.export_to_csv
+      
+      
+      TR_Switch.get_is_component
+      
+      
+      TR_Switch.get_properties
+      
+      
+      TR_Switch.plot
+      
+      
+      TR_Switch.props_to_dict
+      
+      
+      TR_Switch.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      TR_Switch.allowed_child_types
+      TR_Switch.children
+      TR_Switch.finite_bandwidth
+      TR_Switch.finite_isolation
+      TR_Switch.higher_cutoff
+      TR_Switch.higher_stop_band
+      TR_Switch.insertion_loss
+      TR_Switch.isolation
+      TR_Switch.lower_cutoff
+      TR_Switch.lower_stop_band
+      TR_Switch.name
+      TR_Switch.node_type
+      TR_Switch.noise_temperature
+      TR_Switch.notes
+      TR_Switch.odesktop
+      TR_Switch.out_of_band_attenuation
+      TR_Switch.parent_name
+      TR_Switch.properties
+      TR_Switch.valid
+      TR_Switch.warnings
+   
+   
