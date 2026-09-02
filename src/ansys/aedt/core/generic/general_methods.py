@@ -1061,22 +1061,23 @@ def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str]]]
 
     if platform_system == "Linux":
         # Use pgrep to find PIDs and read command lines from /proc
-        try:
-            pids = []
-            for process_name in target_name:
+        pids = []
+        for process_name in target_name:
+            try:
                 pids += subprocess.check_output(["pgrep", "-x", process_name]).decode().split()  # nosec
+            except subprocess.CalledProcessError:
+                # pgrep exits with 1 when no process matches this name; other names may still match.
+                pyaedt_logger.debug(f"No matching processes found for '{process_name}'.")
 
-            for pid in pids:
-                try:
-                    with open(f"/proc/{pid}/cmdline", "rb") as f:
-                        # Command line arguments in /proc are null-byte separated
-                        cmdline = f.read().decode().split("\0")
-                        found_data.append((int(pid), [arg for arg in cmdline if arg]))
-                except (FileNotFoundError, ProcessLookupError, PermissionError):  # pragma: no cover
-                    # Process may have exited between pgrep and open/read.
-                    pyaedt_logger.debug(f"Process {pid} exited before its cmdline could be read.")
-        except subprocess.CalledProcessError:
-            pyaedt_logger.debug("No matching processes found.")
+        for pid in pids:
+            try:
+                with open(f"/proc/{pid}/cmdline", "rb") as f:
+                    # Command line arguments in /proc are null-byte separated
+                    cmdline = f.read().decode().split("\0")
+                    found_data.append((int(pid), [arg for arg in cmdline if arg]))
+            except (FileNotFoundError, ProcessLookupError, PermissionError):  # pragma: no cover
+                # Process may have exited between pgrep and open/read.
+                pyaedt_logger.debug(f"Process {pid} exited before its cmdline could be read.")
 
     elif platform_system == "Windows":
         # Windows implementation uses 'tasklist' command-line tool instead of PowerShell
