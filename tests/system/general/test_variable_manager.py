@@ -27,7 +27,16 @@ from pathlib import Path
 
 import pytest
 
-import ansys.aedt.core as pyaedt
+from ansys.aedt.core import Circuit
+from ansys.aedt.core import Hfss
+from ansys.aedt.core import Hfss3dLayout
+from ansys.aedt.core import Icepak
+from ansys.aedt.core import Maxwell2d
+from ansys.aedt.core import Maxwell3d
+from ansys.aedt.core import MaxwellCircuit
+from ansys.aedt.core import Q2d
+from ansys.aedt.core import Rmxprt
+from ansys.aedt.core import TwinBuilder
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.numbers_utils import is_close
 from ansys.aedt.core.generic.settings import settings
@@ -39,12 +48,12 @@ from tests.conftest import VISUALIZATION_GENERAL_TEST_PREFIX
 
 @pytest.fixture(
     params=[
-        pyaedt.Circuit,
-        pyaedt.Hfss,
-        pyaedt.Maxwell2d,
-        pyaedt.Hfss3dLayout,
-        pyaedt.Rmxprt,
-        pyaedt.TwinBuilder,
+        Circuit,
+        Hfss,
+        Maxwell2d,
+        Hfss3dLayout,
+        Rmxprt,
+        TwinBuilder,
     ],
     ids=[
         "circuit",
@@ -58,7 +67,7 @@ from tests.conftest import VISUALIZATION_GENERAL_TEST_PREFIX
 def app(request, add_app):
     design_class = request.param
 
-    if is_linux and design_class is pyaedt.TwinBuilder:
+    if is_linux and design_class is TwinBuilder:
         pytest.skip("Twin Builder is not supported on Linux")
 
     app = add_app(application=request.param)
@@ -68,10 +77,10 @@ def app(request, add_app):
 
 @pytest.fixture(
     params=[
-        (pyaedt.Hfss, Path(VISUALIZATION_GENERAL_TEST_PREFIX) / "example_models" / "T12", "Potter_Horn_242"),
-        (pyaedt.Q2d, Path(SYSTEM_GENERAL_TEST_PREFIX) / "example_models" / "T30", "q2d_solved_sweep"),
-        (pyaedt.Icepak, Path(SYSTEM_SOLVERS_TEST_PREFIX) / "example_models" / "T00", "icepak_summary_solved"),
-        (pyaedt.Maxwell3d, Path(SYSTEM_SOLVERS_TEST_PREFIX) / "example_models" / "T00", "maxwell_variations"),
+        (Hfss, Path(VISUALIZATION_GENERAL_TEST_PREFIX) / "example_models" / "T12", "Potter_Horn_242"),
+        (Q2d, Path(SYSTEM_GENERAL_TEST_PREFIX) / "example_models" / "T30", "q2d_solved_sweep"),
+        (Icepak, Path(SYSTEM_SOLVERS_TEST_PREFIX) / "example_models" / "T00", "icepak_summary_solved"),
+        (Maxwell3d, Path(SYSTEM_SOLVERS_TEST_PREFIX) / "example_models" / "T00", "maxwell_variations"),
     ],
     ids=[
         "hfss",
@@ -89,14 +98,14 @@ def app_variations(request, add_app_example):
 
 @pytest.fixture
 def hfss_app(add_app):
-    aedtapp = add_app(application=pyaedt.Hfss)
+    aedtapp = add_app(application=Hfss)
     yield aedtapp
     aedtapp.close_project(aedtapp.project_name)
 
 
 @pytest.fixture
 def maxwell_circuit_app(add_app):
-    aedtapp = add_app(application=pyaedt.MaxwellCircuit)
+    aedtapp = add_app(application=MaxwellCircuit)
     yield aedtapp
     aedtapp.close_project(aedtapp.project_name)
 

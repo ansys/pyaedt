@@ -42,10 +42,12 @@ from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.file_utils import available_file_name
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.hfss import Hfss
+from tests import TESTS_PATH
 
 # ================================
 # Category prefixes
 # ================================
+REPO_ROOT = TESTS_PATH.parent
 UNIT_TEST_PREFIX = "tests/unit"
 INTEGRATION_TEST_PREFIX = "tests/integration"
 SYSTEM_TEST_PREFIX = "tests/system"
@@ -330,20 +332,22 @@ def add_app(test_tmp_dir, desktop, tmp_path_factory):
         application=None,
         close_projects: bool = True,
     ):
+        if project is None:
+            project = "pyaedt_test"
+
+        resolved_project = REPO_ROOT / Path(project)
+        project_file = resolved_project if resolved_project.is_file() else None
+
         if close_projects and desktop and desktop.project_list:
             projects = desktop.project_list.copy()
             for project_name in projects:
                 desktop.odesktop.CloseProject(project_name)
 
-        if project is None:
-            project = "pyaedt_test"
-
-        if project and Path(project).is_file():
-            project_file = Path(project)
-        elif close_projects:
-            project_file = available_file_name(test_tmp_dir / f"{project}.aedt")
-        else:
-            project_file = test_tmp_dir / f"{project}.aedt"
+        if project_file is None:
+            if close_projects:
+                project_file = available_file_name(test_tmp_dir / f"{project}.aedt")
+            else:
+                project_file = test_tmp_dir / f"{project}.aedt"
 
         # Application selection
         application_cls = application or Hfss
@@ -373,16 +377,17 @@ def add_app_example(test_tmp_dir, desktop, tmp_path_factory):
         is_edb: bool = False,
         close_projects: bool = True,
     ):
+        resolved_subfolder = REPO_ROOT / Path(subfolder)
+        if resolved_subfolder.exists():
+            base = resolved_subfolder
+        else:
+            test_path = _get_test_path_from_caller()
+            base = test_path / "example_models" / subfolder
+
         if close_projects and desktop and desktop.project_list:
             projects = desktop.project_list.copy()
             for project_name in projects:
                 desktop.odesktop.CloseProject(project_name)
-
-        if Path(subfolder).exists():
-            base = Path(subfolder)
-        else:
-            test_path = _get_test_path_from_caller()
-            base = test_path / "example_models" / subfolder
 
         if not is_edb:
             aedt_project = base / f"{project}.aedt"
