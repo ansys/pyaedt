@@ -110,6 +110,10 @@
   description: Affects or requires AEDT 2026 R1
   color: 6d28d9
 
+- name: AEDT 27.1
+  description: Affects or requires AEDT 2027 R1
+  color: 6d28d9
+
 # Platform / OS
 
 - name: windows
