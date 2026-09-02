@@ -1,0 +1,6 @@
+path\_loss\_type
+================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.walfisch_coupling_node
+
+.. autoproperty:: WalfischCouplingNode.path_loss_type

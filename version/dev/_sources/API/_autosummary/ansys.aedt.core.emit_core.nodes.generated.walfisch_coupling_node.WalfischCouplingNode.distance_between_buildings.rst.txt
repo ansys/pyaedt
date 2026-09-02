@@ -1,0 +1,6 @@
+distance\_between\_buildings
+============================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.walfisch_coupling_node
+
+.. autoproperty:: WalfischCouplingNode.distance_between_buildings

@@ -1,0 +1,47 @@
+﻿EmitNode
+========
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.emit_node
+
+.. autoclass:: EmitNode
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      EmitNode.get_is_component
+      
+      
+      EmitNode.get_properties
+      
+      
+      EmitNode.props_to_dict
+      
+      
+      EmitNode.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      EmitNode.allowed_child_types
+      EmitNode.children
+      EmitNode.name
+      EmitNode.odesktop
+      EmitNode.parent_name
+      EmitNode.properties
+      EmitNode.valid
+      EmitNode.warnings
+   
+   

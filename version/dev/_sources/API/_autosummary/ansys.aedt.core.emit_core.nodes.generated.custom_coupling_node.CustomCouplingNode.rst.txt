@@ -1,0 +1,68 @@
+﻿CustomCouplingNode
+==================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.custom_coupling_node
+
+.. autoclass:: CustomCouplingNode
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      CustomCouplingNode.delete
+      
+      
+      CustomCouplingNode.duplicate
+      
+      
+      CustomCouplingNode.export_to_csv
+      
+      
+      CustomCouplingNode.get_is_component
+      
+      
+      CustomCouplingNode.get_properties
+      
+      
+      CustomCouplingNode.import_csv_file
+      
+      
+      CustomCouplingNode.plot
+      
+      
+      CustomCouplingNode.props_to_dict
+      
+      
+      CustomCouplingNode.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      CustomCouplingNode.allowed_child_types
+      CustomCouplingNode.antenna_a
+      CustomCouplingNode.antenna_b
+      CustomCouplingNode.children
+      CustomCouplingNode.enabled
+      CustomCouplingNode.name
+      CustomCouplingNode.node_type
+      CustomCouplingNode.odesktop
+      CustomCouplingNode.parent
+      CustomCouplingNode.parent_name
+      CustomCouplingNode.properties
+      CustomCouplingNode.table_data
+      CustomCouplingNode.valid
+      CustomCouplingNode.warnings
+   
+   

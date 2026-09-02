@@ -605,11 +605,30 @@ using the CPython interpreter included in the AEDT installation.</p>
 PyAEDT wheelhouse can be found at <a class="reference external" href="https://github.com/ansys/pyaedt/releases">Releases</a>.
 After downloading the wheelhouse zip specific for your distribution and Python release,
 run the script from Electronics Desktop using the zip full path as argument.
-Please note that AEDT 2023 R1 and lower requires Python 3.7 wheelhouse while AEDT 2023 R2
-and higher requires the Python 3.10 wheelhouse.</p>
+Please note that AEDT 2023 R1 and lower require the Python 3.7 wheelhouse,
+AEDT 2023 R2 through 2026 R2 require the Python 3.10 wheelhouse,
+and AEDT 2027 R1 and higher require the Python 3.13 wheelhouse.</p>
 </div>
 <a class="reference internal image-reference" href="../_images/wheelhouse_installation.png"><img alt="PyAEDT run script" src="../_images/wheelhouse_installation.png" style="width: 800px;" />
 </a>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<blockquote>
+<div><p>AEDT 2027 R1 uses Python 3.13 as its base interpreter. For a clean
+installation, complete the following steps:</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>Delete the virtual environment folder:</p>
+<ul>
+<li><p>On Windows, it is located in your <code class="docutils literal notranslate"><span class="pre">APPDATA</span></code> directory.</p></li>
+<li><p>On Linux, it is located in your <code class="docutils literal notranslate"><span class="pre">HOME</span></code> directory.</p></li>
+</ul>
+</li>
+<li><p>Delete the <code class="docutils literal notranslate"><span class="pre">Toolkits</span></code> directory from your <code class="docutils literal notranslate"><span class="pre">PersonalLib</span></code> folder.</p></li>
+</ul>
+<p>These steps remove existing configurations. Rerun this script afterward to
+recreate the virtual environment with the updated Python version.</p>
+</div>
 <p>Starting from 2023R2, panels are available in the Automation Tab. For detailed information about
 PyAEDT panels, see <a class="reference internal" href="panels.html"><span class="doc">AEDT panels</span></a>.</p>
 <a class="reference internal image-reference" href="../_images/toolkits_ribbon.png"><img alt="PyAEDT toolkit panels available in AEDT" src="../_images/toolkits_ribbon.png" style="width: 800px;" />

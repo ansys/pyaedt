@@ -1,0 +1,72 @@
+﻿ResultPlotNode
+==============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.result_plot_node
+
+.. autoclass:: ResultPlotNode
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      ResultPlotNode.get_is_component
+      
+      
+      ResultPlotNode.get_properties
+      
+      
+      ResultPlotNode.props_to_dict
+      
+      
+      ResultPlotNode.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      ResultPlotNode.allowed_child_types
+      ResultPlotNode.axis_label_font
+      ResultPlotNode.axis_tick_label_font
+      ResultPlotNode.background_color
+      ResultPlotNode.bb_power_bandwidth
+      ResultPlotNode.bb_power_for_plots_unit
+      ResultPlotNode.children
+      ResultPlotNode.legend_font
+      ResultPlotNode.lock_axes
+      ResultPlotNode.log_scale
+      ResultPlotNode.major_grid_color
+      ResultPlotNode.major_grid_line_style
+      ResultPlotNode.max_major_ticks_x
+      ResultPlotNode.max_major_ticks_y
+      ResultPlotNode.max_minor_ticks_x
+      ResultPlotNode.max_minor_ticks_y
+      ResultPlotNode.minor_grid_color
+      ResultPlotNode.minor_grid_line_style
+      ResultPlotNode.name
+      ResultPlotNode.node_type
+      ResultPlotNode.odesktop
+      ResultPlotNode.parent_name
+      ResultPlotNode.properties
+      ResultPlotNode.show_emi_thresholds
+      ResultPlotNode.show_legend
+      ResultPlotNode.title
+      ResultPlotNode.title_font
+      ResultPlotNode.valid
+      ResultPlotNode.warnings
+      ResultPlotNode.x_axis_max
+      ResultPlotNode.x_axis_min
+      ResultPlotNode.y_axis_max
+      ResultPlotNode.y_axis_min
+   
+   

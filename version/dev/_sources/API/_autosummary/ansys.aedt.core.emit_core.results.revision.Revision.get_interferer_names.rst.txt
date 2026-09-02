@@ -1,0 +1,6 @@
+get\_interferer\_names
+======================
+
+.. currentmodule:: ansys.aedt.core.emit_core.results.revision
+
+.. automethod:: Revision.get_interferer_names

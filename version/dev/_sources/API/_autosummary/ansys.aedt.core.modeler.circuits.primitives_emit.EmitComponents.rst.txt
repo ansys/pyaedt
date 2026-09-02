@@ -14,12 +14,6 @@
       :toctree:
    
       
-      EmitComponents.create_component
-      
-      
-      EmitComponents.create_radio_antenna
-      
-      
       EmitComponents.get_antennas
       
       

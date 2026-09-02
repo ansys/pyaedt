@@ -1,0 +1,6 @@
+delete
+======
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.two_ray_path_loss_coupling_node
+
+.. automethod:: TwoRayPathLossCouplingNode.delete

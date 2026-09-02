@@ -1,0 +1,6 @@
+node\_type
+==========
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.band_folder
+
+.. autoproperty:: BandFolder.node_type

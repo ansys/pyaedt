@@ -1,0 +1,80 @@
+﻿TxSpectralProfEmitterNode
+=========================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.tx_spectral_prof_emitter_node
+
+.. autoclass:: TxSpectralProfEmitterNode
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      TxSpectralProfEmitterNode.add_custom_tx_harmonics
+      
+      
+      TxSpectralProfEmitterNode.add_narrowband_emissions_mask
+      
+      
+      TxSpectralProfEmitterNode.add_spurious_emissions
+      
+      
+      TxSpectralProfEmitterNode.add_tx_broadband_noise_profile
+      
+      
+      TxSpectralProfEmitterNode.export_to_csv
+      
+      
+      TxSpectralProfEmitterNode.get_is_component
+      
+      
+      TxSpectralProfEmitterNode.get_properties
+      
+      
+      TxSpectralProfEmitterNode.plot
+      
+      
+      TxSpectralProfEmitterNode.props_to_dict
+      
+      
+      TxSpectralProfEmitterNode.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      TxSpectralProfEmitterNode.allowed_child_types
+      TxSpectralProfEmitterNode.amplifier_saturation_level
+      TxSpectralProfEmitterNode.children
+      TxSpectralProfEmitterNode.enabled
+      TxSpectralProfEmitterNode.include_phase_noise
+      TxSpectralProfEmitterNode.internal_amp_gain
+      TxSpectralProfEmitterNode.ip3_ref_input
+      TxSpectralProfEmitterNode.max_intermod_order
+      TxSpectralProfEmitterNode.name
+      TxSpectralProfEmitterNode.node_type
+      TxSpectralProfEmitterNode.noise_figure
+      TxSpectralProfEmitterNode.number_of_harmonics
+      TxSpectralProfEmitterNode.odesktop
+      TxSpectralProfEmitterNode.output_voltage_peak
+      TxSpectralProfEmitterNode.p1_db_point_ref_input
+      TxSpectralProfEmitterNode.parent
+      TxSpectralProfEmitterNode.parent_name
+      TxSpectralProfEmitterNode.perform_tx_intermod_analysis
+      TxSpectralProfEmitterNode.properties
+      TxSpectralProfEmitterNode.reverse_isolation
+      TxSpectralProfEmitterNode.tx_broadband_noise
+      TxSpectralProfEmitterNode.valid
+      TxSpectralProfEmitterNode.warnings
+   
+   

@@ -1,5 +1,5 @@
-Filter design
-=============
+FilterSolutions
+===============
 This section describes the classes used for creating and modifying parameters in the ``filtersolutions`` module.
 The module provides tools for designing and customizing filter configurations.
 

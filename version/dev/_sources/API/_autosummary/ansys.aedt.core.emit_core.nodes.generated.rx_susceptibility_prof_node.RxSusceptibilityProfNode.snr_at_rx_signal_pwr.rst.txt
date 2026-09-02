@@ -1,0 +1,6 @@
+snr\_at\_rx\_signal\_pwr
+========================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.rx_susceptibility_prof_node
+
+.. autoproperty:: RxSusceptibilityProfNode.snr_at_rx_signal_pwr

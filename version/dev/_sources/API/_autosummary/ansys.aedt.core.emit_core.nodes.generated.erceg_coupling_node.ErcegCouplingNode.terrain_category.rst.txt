@@ -1,0 +1,6 @@
+terrain\_category
+=================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.erceg_coupling_node
+
+.. autoproperty:: ErcegCouplingNode.terrain_category
