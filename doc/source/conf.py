@@ -323,6 +323,10 @@ html_theme_options = {
         "limit": 10,
         "ignoreLocation": True,
     },
+    "mcp_server": {
+        "url": "https://github.com/ansys/pyaedt-mcp",
+        "project_name": "PyAEDT-MCP",
+    },
 }
 
 
