@@ -303,6 +303,7 @@ html_theme_options = {
     "use_edit_page_button": True,
     "search_extra_sources": {
         "Examples": "https://examples.aedt.docs.pyansys.com/",
+        "Workflows": "https://workflows.docs.pyansys.com/",
     },
     "search_filters": {
         "API": ["API/"],
