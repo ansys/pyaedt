@@ -86,14 +86,14 @@ class DesignSolution(PyAedtBase):
                 DesignType.EMIT,
                 DesignType.Q3D,
             ]:
-                self._solution_type = self._design_type.default_solution
+                self._solution_type = self._design_type.solution_default
             elif self._odesign:
                 try:
                     self._solution_type = self._odesign.GetSolutionType()
                 except Exception:
-                    self._solution_type = self._design_type.default_solution
+                    self._solution_type = self._design_type.solution_default
             else:
-                self._solution_type = self._design_type.default_solution
+                self._solution_type = self._design_type.solution_default
         elif value and value in self._solution_options:
             self._solution_type = value
             if self._solution_options[value]["name"]:
@@ -215,9 +215,9 @@ class HFSSDesignSolution(DesignSolution, PyAedtBase):
                 elif "Terminal" in self._solution_type:
                     self._solution_type = "Terminal"
             except Exception:
-                self._solution_type = self._design_type.default_solution
+                self._solution_type = self._design_type.solution_default
         elif self._solution_type is None:
-            self._solution_type = self._design_type.default_solution
+            self._solution_type = self._design_type.solution_default
         return self._solution_type
 
     @solution_type.setter
@@ -246,9 +246,9 @@ class HFSSDesignSolution(DesignSolution, PyAedtBase):
                     elif "Terminal" in self._solution_type:
                         self._solution_type = "Terminal"
                 except Exception:
-                    self._solution_type = self._design_type.default_solution
+                    self._solution_type = self._design_type.solution_default
             else:
-                self._solution_type = self._design_type.default_solution
+                self._solution_type = self._design_type.solution_default
         elif value and value in self._solution_options and self._solution_options[value]["name"]:
             if value == "Transient" or value == "Transient Network":
                 value = "Transient Network"
@@ -415,7 +415,7 @@ class Maxwell2DDesignSolution(DesignSolution, PyAedtBase):
             try:
                 self._solution_type = self._odesign.GetSolutionType()
             except Exception:
-                self._solution_type = self._design_type.default_solution
+                self._solution_type = self._design_type.solution_default
         return self._solution_type
 
     @solution_type.setter
@@ -515,7 +515,7 @@ class IcepakDesignSolution(DesignSolution, PyAedtBase):
             try:
                 self._solution_type = self._odesign.GetSolutionType()
             except Exception:
-                self._solution_type = self._design_type.default_solution
+                self._solution_type = self._design_type.solution_default
         return self._solution_type
 
     @solution_type.setter
