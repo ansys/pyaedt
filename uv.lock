@@ -248,16 +248,40 @@ wheels = [
 
 [[package]]
 name = "ansys-sphinx-theme"
+version = "1.0.0"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version == '3.11.*'",
+    "python_full_version < '3.11'",
+]
+dependencies = [
+    { name = "importlib-metadata", marker = "python_full_version < '3.12'" },
+    { name = "jinja2", marker = "python_full_version < '3.12'" },
+    { name = "pdf2image", marker = "python_full_version < '3.12'" },
+    { name = "pydata-sphinx-theme", version = "0.15.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "sphinx", version = "8.1.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "sphinx", version = "8.2.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.11.*'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/5d/86/e9fd15045b19556421c4d62e76835bf3003d4692c9fc9e158db86e801f70/ansys_sphinx_theme-1.0.0.tar.gz", hash = "sha256:71db701de3d2d26f5a436c53cfd699ba4a82df296fa4bfbb9826fb375ef68270", size = 888819, upload-time = "2024-08-08T10:03:24.523Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a4/64/ea10744d256c352a216eb0f6705fe5f95e9160b42a29d68e9df4e0c19d22/ansys_sphinx_theme-1.0.0-py3-none-any.whl", hash = "sha256:c8c5c4bbd62dcca1938793d2ba7a4edebc7deded56570eca357afe6386943507", size = 909562, upload-time = "2024-08-08T10:03:21.539Z" },
+]
+
+[[package]]
+name = "ansys-sphinx-theme"
 version = "1.9.0"
 source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version >= '3.14'",
+    "python_full_version >= '3.12' and python_full_version < '3.14'",
+]
 dependencies = [
-    { name = "importlib-metadata" },
-    { name = "jinja2" },
-    { name = "pdf2image" },
-    { name = "pydata-sphinx-theme" },
-    { name = "pyyaml" },
-    { name = "sphinx", version = "8.1.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
-    { name = "sphinx", version = "8.2.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "importlib-metadata", marker = "python_full_version >= '3.12'" },
+    { name = "jinja2", marker = "python_full_version >= '3.12'" },
+    { name = "pdf2image", marker = "python_full_version >= '3.12'" },
+    { name = "pydata-sphinx-theme", version = "0.16.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
+    { name = "pyyaml", marker = "python_full_version >= '3.12'" },
+    { name = "sphinx", version = "8.2.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/89/46/061d8821971d1e7ef118b69e1febe64704d84536d2c9dedee1408a6baefe/ansys_sphinx_theme-1.9.0.tar.gz", hash = "sha256:23a6d2f22f318a0ecc4954e8c017a5a6fccfcfa32d4e4446a9355f7516086cf9", size = 1025203, upload-time = "2026-06-18T09:05:03.339Z" }
 wheels = [
@@ -3616,7 +3640,8 @@ jupyter = [
 
 [package.dev-dependencies]
 dev = [
-    { name = "ansys-sphinx-theme" },
+    { name = "ansys-sphinx-theme", version = "1.0.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "ansys-sphinx-theme", version = "1.9.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "cryptography" },
     { name = "mock" },
     { name = "numpydoc" },
@@ -3638,7 +3663,8 @@ dev = [
     { name = "ty" },
 ]
 doc = [
-    { name = "ansys-sphinx-theme" },
+    { name = "ansys-sphinx-theme", version = "1.0.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "ansys-sphinx-theme", version = "1.9.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "numpydoc" },
     { name = "recommonmark" },
     { name = "sphinx", version = "8.1.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
@@ -3737,7 +3763,8 @@ provides-extras = ["dotnet", "graphics", "jupyter", "all", "all-dotnet", "exampl
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "ansys-sphinx-theme", specifier = ">=1.0.0" },
+    { name = "ansys-sphinx-theme", marker = "python_full_version < '3.12'", specifier = "==1.0.0" },
+    { name = "ansys-sphinx-theme", marker = "python_full_version >= '3.12'", specifier = ">=1.0.0" },
     { name = "cryptography" },
     { name = "mock", specifier = ">=5.1.0" },
     { name = "numpydoc", specifier = ">=1.10.0" },
@@ -3757,7 +3784,8 @@ dev = [
     { name = "ty", specifier = "==0.0.49" },
 ]
 doc = [
-    { name = "ansys-sphinx-theme", specifier = ">=1.0.0" },
+    { name = "ansys-sphinx-theme", marker = "python_full_version < '3.12'", specifier = "==1.0.0" },
+    { name = "ansys-sphinx-theme", marker = "python_full_version >= '3.12'", specifier = ">=1.0.0" },
     { name = "numpydoc", specifier = ">=1.10.0" },
     { name = "recommonmark" },
     { name = "sphinx", specifier = ">=7.1.0" },
@@ -3923,17 +3951,44 @@ wheels = [
 
 [[package]]
 name = "pydata-sphinx-theme"
+version = "0.15.4"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version == '3.11.*'",
+    "python_full_version < '3.11'",
+]
+dependencies = [
+    { name = "accessible-pygments", marker = "python_full_version < '3.12'" },
+    { name = "babel", marker = "python_full_version < '3.12'" },
+    { name = "beautifulsoup4", marker = "python_full_version < '3.12'" },
+    { name = "docutils", marker = "python_full_version < '3.12'" },
+    { name = "packaging", marker = "python_full_version < '3.12'" },
+    { name = "pygments", marker = "python_full_version < '3.12'" },
+    { name = "sphinx", version = "8.1.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "sphinx", version = "8.2.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.11.*'" },
+    { name = "typing-extensions", marker = "python_full_version < '3.12'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/67/ea/3ab478cccacc2e8ef69892c42c44ae547bae089f356c4b47caf61730958d/pydata_sphinx_theme-0.15.4.tar.gz", hash = "sha256:7762ec0ac59df3acecf49fd2f889e1b4565dbce8b88b2e29ee06fdd90645a06d", size = 2400673, upload-time = "2024-06-25T19:28:45.041Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e7/d3/c622950d87a2ffd1654208733b5bd1c5645930014abed8f4c0d74863988b/pydata_sphinx_theme-0.15.4-py3-none-any.whl", hash = "sha256:2136ad0e9500d0949f96167e63f3e298620040aea8f9c74621959eda5d4cf8e6", size = 4640157, upload-time = "2024-06-25T19:28:42.383Z" },
+]
+
+[[package]]
+name = "pydata-sphinx-theme"
 version = "0.16.1"
 source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version >= '3.14'",
+    "python_full_version >= '3.12' and python_full_version < '3.14'",
+]
 dependencies = [
-    { name = "accessible-pygments" },
-    { name = "babel" },
-    { name = "beautifulsoup4" },
-    { name = "docutils" },
-    { name = "pygments" },
-    { name = "sphinx", version = "8.1.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
-    { name = "sphinx", version = "8.2.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
-    { name = "typing-extensions" },
+    { name = "accessible-pygments", marker = "python_full_version >= '3.12'" },
+    { name = "babel", marker = "python_full_version >= '3.12'" },
+    { name = "beautifulsoup4", marker = "python_full_version >= '3.12'" },
+    { name = "docutils", marker = "python_full_version >= '3.12'" },
+    { name = "pygments", marker = "python_full_version >= '3.12'" },
+    { name = "sphinx", version = "8.2.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
+    { name = "typing-extensions", marker = "python_full_version >= '3.12'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/00/20/bb50f9de3a6de69e6abd6b087b52fa2418a0418b19597601605f855ad044/pydata_sphinx_theme-0.16.1.tar.gz", hash = "sha256:a08b7f0b7f70387219dc659bff0893a7554d5eb39b59d3b8ef37b8401b7642d7", size = 2412693, upload-time = "2024-12-17T10:53:39.537Z" }
 wheels = [
