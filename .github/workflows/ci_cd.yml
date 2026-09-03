@@ -287,7 +287,6 @@ jobs:
         id: build-wheelhouse
         uses: ansys/actions/build-wheelhouse@7e7af221736bc4d9fb84a2ab28f99518e9bca84c # v11.0.5
         with:
-          attest-provenance: true
           library-name: ${{ env.PACKAGE_NAME }}
           operating-system: ${{ matrix.os }}
           python-version: ${{ matrix.python-version }}
@@ -1487,7 +1486,6 @@ jobs:
       - name: Build library source and wheel artifacts
         uses: ansys/actions/build-library@7e7af221736bc4d9fb84a2ab28f99518e9bca84c # v11.0.5
         with:
-          attest-provenance: true
           library-name: ${{ env.PACKAGE_NAME }}
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           use-python-cache: false
