@@ -245,9 +245,6 @@
       MaxwellCircuit.insert_design
       
       
-      MaxwellCircuit.list_of_variations
-      
-      
       MaxwellCircuit.load_project
       
       

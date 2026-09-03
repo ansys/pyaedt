@@ -389,9 +389,6 @@
       Maxwell2d.insert_design
       
       
-      Maxwell2d.list_of_variations
-      
-      
       Maxwell2d.load_project
       
       

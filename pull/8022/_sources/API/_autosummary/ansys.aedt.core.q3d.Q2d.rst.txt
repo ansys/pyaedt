@@ -215,9 +215,6 @@
       Q2d.export_variables_to_csv
       
       
-      Q2d.export_w_elements
-      
-      
       Q2d.flatten_3d_components
       
       
@@ -321,9 +318,6 @@
       
       
       Q2d.insert_reduced_matrix
-      
-      
-      Q2d.list_of_variations
       
       
       Q2d.load_project

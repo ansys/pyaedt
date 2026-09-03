@@ -1,0 +1,6 @@
+harmonic\_taper
+===============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.tx_spectral_prof_node
+
+.. autoproperty:: TxSpectralProfNode.harmonic_taper

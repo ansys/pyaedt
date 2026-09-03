@@ -1,0 +1,6 @@
+props\_to\_dict
+===============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.propagation_loss_coupling_node
+
+.. automethod:: PropagationLossCouplingNode.props_to_dict

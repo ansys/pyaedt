@@ -326,9 +326,6 @@
       Mechanical.insert_design
       
       
-      Mechanical.list_of_variations
-      
-      
       Mechanical.load_project
       
       

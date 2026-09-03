@@ -1,0 +1,6 @@
+include\_atmospheric\_absorption
+================================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.hata_coupling_node
+
+.. autoproperty:: HataCouplingNode.include_atmospheric_absorption

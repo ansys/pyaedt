@@ -1,0 +1,6 @@
+highest\_tuned\_frequency
+=========================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.filter
+
+.. autoproperty:: Filter.highest_tuned_frequency

@@ -1,0 +1,111 @@
+﻿AntennaNode
+===========
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.antenna_node
+
+.. autoclass:: AntennaNode
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      AntennaNode.add_antenna_passband
+      
+      
+      AntennaNode.delete
+      
+      
+      AntennaNode.duplicate
+      
+      
+      AntennaNode.get_is_component
+      
+      
+      AntennaNode.get_properties
+      
+      
+      AntennaNode.props_to_dict
+      
+      
+      AntennaNode.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      AntennaNode.allowed_child_types
+      AntennaNode.antenna_file
+      AntennaNode.antenna_metadata_file
+      AntennaNode.antenna_polarization
+      AntennaNode.antenna_temperature
+      AntennaNode.antenna_type
+      AntennaNode.articulation_point
+      AntennaNode.attach_point
+      AntennaNode.az_sample_interval
+      AntennaNode.azimuth_angle
+      AntennaNode.children
+      AntennaNode.color
+      AntennaNode.coordinate_systems
+      AntennaNode.cosine_power
+      AntennaNode.edge_taper
+      AntennaNode.el_sample_interval
+      AntennaNode.elevation_angle
+      AntennaNode.extra_sidelobe
+      AntennaNode.first_sidelobe_hor_bw
+      AntennaNode.first_sidelobe_level
+      AntennaNode.first_sidelobe_vert_bw
+      AntennaNode.frequency_domain
+      AntennaNode.has_frequency_domain
+      AntennaNode.height_flare_half_angle
+      AntennaNode.horizontal_beamwidth
+      AntennaNode.max_taper_distance_x
+      AntennaNode.max_taper_distance_y
+      AntennaNode.mouth_height
+      AntennaNode.mouth_width
+      AntennaNode.name
+      AntennaNode.node_type
+      AntennaNode.notes
+      AntennaNode.odesktop
+      AntennaNode.orientation
+      AntennaNode.orientation_mode
+      AntennaNode.outerbacklobe_level
+      AntennaNode.parent
+      AntennaNode.parent_name
+      AntennaNode.peak_gain
+      AntennaNode.phasecenterorientation
+      AntennaNode.phasecenterposition
+      AntennaNode.position
+      AntennaNode.position_defined
+      AntennaNode.properties
+      AntennaNode.relative_orientation
+      AntennaNode.relative_position
+      AntennaNode.resonant_frequency
+      AntennaNode.show_axes
+      AntennaNode.show_composite_passband
+      AntennaNode.show_icon
+      AntennaNode.show_relative_coordinates
+      AntennaNode.size
+      AntennaNode.tags
+      AntennaNode.tapering_function
+      AntennaNode.use_phase_center
+      AntennaNode.valid
+      AntennaNode.vertical_beamwidth
+      AntennaNode.vswr
+      AntennaNode.warnings
+      AntennaNode.waveguide_cutoff_frequency
+      AntennaNode.waveguide_height
+      AntennaNode.waveguide_width
+      AntennaNode.width_flare_half_angle
+   
+   

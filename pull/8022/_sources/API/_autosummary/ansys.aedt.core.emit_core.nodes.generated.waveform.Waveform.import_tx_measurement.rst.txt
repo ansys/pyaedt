@@ -1,0 +1,6 @@
+import\_tx\_measurement
+=======================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.waveform
+
+.. automethod:: Waveform.import_tx_measurement

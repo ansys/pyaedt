@@ -1,0 +1,61 @@
+﻿RadioNode
+=========
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.radio_node
+
+.. autoclass:: RadioNode
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      RadioNode.add_band
+      
+      
+      RadioNode.add_folder
+      
+      
+      RadioNode.delete
+      
+      
+      RadioNode.duplicate
+      
+      
+      RadioNode.get_is_component
+      
+      
+      RadioNode.get_properties
+      
+      
+      RadioNode.props_to_dict
+      
+      
+      RadioNode.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      RadioNode.allowed_child_types
+      RadioNode.children
+      RadioNode.name
+      RadioNode.node_type
+      RadioNode.notes
+      RadioNode.odesktop
+      RadioNode.parent_name
+      RadioNode.properties
+      RadioNode.valid
+      RadioNode.warnings
+   
+   
