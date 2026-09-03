@@ -1021,7 +1021,7 @@ class Materials(PyAedtBase):
 
         return materials_added
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def get_used_project_material_names(self) -> list[str]:
         """Get list of material names in current project.
 
@@ -1043,7 +1043,7 @@ class Materials(PyAedtBase):
         """
         return self.odefinition_manager.GetInUseProjectMaterialNames()
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def import_materials_from_workbench(self, input_file: str, name_suffix: str = None) -> list[Material] | bool:
         """Import and create materials from Workbench Engineering Data XML file.
 

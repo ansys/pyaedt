@@ -42,7 +42,7 @@ class RadioNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> radio = app.modeler.components.create_component("New Radio", "Radio1")
+        >>> radio = app.schematic.create_component("New Radio")
         >>> radio.node_type
 
         """
@@ -50,13 +50,13 @@ class RadioNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def add_band(self) -> EmitNode:
-        """Create a New Band
+        """Create a New Band.
 
         Examples
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> radio = app.modeler.components.create_component("New Radio", "Radio1")
+        >>> radio = app.schematic.create_component("New Radio")
         >>> band = radio.add_band()
 
         """
@@ -64,13 +64,13 @@ class RadioNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def add_folder(self) -> EmitNode:
-        """Create a New Folder to Organize Bands
+        """Create a New Folder to Organize Bands.
 
         Examples
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> radio = app.modeler.components.create_component("New Radio", "Radio1")
+        >>> radio = app.schematic.create_component("New Radio")
         >>> folder = radio.add_folder()
 
         """
@@ -84,8 +84,8 @@ class RadioNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> radio = app.modeler.components.create_component("New Radio", "Radio1")
-        >>> radio_copy = radio.duplicate("Radio1_Copy")
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> radio_copy = radio.duplicate("radio_copy")
 
         """
         return self._duplicate(new_name)
@@ -98,7 +98,7 @@ class RadioNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> radio = app.modeler.components.create_component("New Radio", "Radio1")
+        >>> radio = app.schematic.create_component("New Radio")
         >>> radio.delete()
 
         """
@@ -113,8 +113,8 @@ class RadioNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> radio = app.modeler.components.create_component("New Radio", "Radio1")
-        >>> radio.notes = "Primary receiver chain"
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> radio.notes = "example_value"
 
         """
         val = self._get_property("Notes")

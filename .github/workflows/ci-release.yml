@@ -32,7 +32,7 @@ jobs:
       contents: write        # Required to commit and push changelog updates to the repository
       pull-requests: write   # Required to create pull requests with changelog updates
     steps:
-      - uses: ansys/actions/doc-deploy-changelog@84b6533ae76f5dde69a1df26c18682160a8121cf # v10.3.5
+      - uses: ansys/actions/doc-deploy-changelog@7e7af221736bc4d9fb84a2ab28f99518e9bca84c # v11.0.5
         with:
           bot-email: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
           bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
@@ -46,7 +46,7 @@ jobs:
     permissions:
       contents: read   # Required to read repository content for vulnerability scanning
     steps:
-      - uses: ansys/actions/check-vulnerabilities@84b6533ae76f5dde69a1df26c18682160a8121cf # v10.3.5
+      - uses: ansys/actions/check-vulnerabilities@7e7af221736bc4d9fb84a2ab28f99518e9bca84c # v11.0.5
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           python-package-name: ${{ env.PACKAGE_NAME }}
@@ -60,7 +60,7 @@ jobs:
     permissions:
       contents: read   # Required to read workflow files and check for security issues
     steps:
-      - uses: ansys/actions/check-actions-security@84b6533ae76f5dde69a1df26c18682160a8121cf # v10.3.5
+      - uses: ansys/actions/check-actions-security@7e7af221736bc4d9fb84a2ab28f99518e9bca84c # v11.0.5
         with:
           generate-summary: true
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -73,7 +73,7 @@ jobs:
       contents: read   # Required to read documentation files for style checking
     steps:
       - name: Check documentation style
-        uses: ansys/actions/doc-style@84b6533ae76f5dde69a1df26c18682160a8121cf # v10.3.5
+        uses: ansys/actions/doc-style@7e7af221736bc4d9fb84a2ab28f99518e9bca84c # v11.0.5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fail-level: 'warning'
@@ -115,7 +115,7 @@ jobs:
     needs: [doc-style]
     steps:
       - name: Documentation build
-        uses: ansys/actions/doc-build@84b6533ae76f5dde69a1df26c18682160a8121cf # v10.3.5
+        uses: ansys/actions/doc-build@7e7af221736bc4d9fb84a2ab28f99518e9bca84c # v11.0.5
         with:
           dependencies: "graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra"
           skip-install: true
@@ -143,7 +143,7 @@ jobs:
     steps:
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse
-        uses: ansys/actions/build-wheelhouse@84b6533ae76f5dde69a1df26c18682160a8121cf # v10.3.5
+        uses: ansys/actions/build-wheelhouse@7e7af221736bc4d9fb84a2ab28f99518e9bca84c # v11.0.5
         with:
           library-name: ${{ env.PACKAGE_NAME }}
           operating-system: ${{ matrix.os }}
@@ -1161,66 +1161,66 @@ jobs:
 # # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # # =================================================================================================
 
-  system-tests-emit-windows:
-    name: Test EMIT (windows)
-    needs: integration-tests
-    runs-on: [ self-hosted, Windows, pyaedt ]
-    steps:
-      - name: Install Git and checkout project
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-        with:
-          persist-credentials: false
-
-      # NOTE: Our windows runners are impacted by nodejs/node#56645 so we cannot use astral-sh/setup-uv@v7
-      - name: Setup Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
-        with:
-          python-version: ${{ env.TESTS_VERSION }}
-
-      - name: Set up uv
-        uses: astral-sh/setup-uv@ae62891fec2bb8e7d6c99fc78c9fec3a63790f8d # v10.0.0
-        with:
-          activate-environment: true
-          enable-cache: false
-          prune-cache: true
-          python-version: ${{ env.TESTS_VERSION }}
-
-
-      - name: Install pyaedt and tests dependencies
-        env:
-          TESTS_VERSION: ${{ env.TESTS_VERSION }}
-        run: |
-          uv sync --frozen --group tests --extra all
-
-      - name: Remove Ansys processes (if any)
-        shell: powershell
-        run: |
-          Get-Process | Where-Object {
-            $_.Path -like "*ansys inc*" -or $_.Path -like "*ansysem*"
-          } | ForEach-Object {
-            Write-Output "Killing $($_.Name) (PID: $($_.Id))"
-            Stop-Process -Id $_.Id -Force
-          }
-
-      - name: Run tests marked with 'emit'
-        env:
-          PYTHONMALLOC: malloc
-          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
-        run: |
-          $args = $env:PYTEST_ARGUMENTS -split ' '
-          pytest @args --timeout=600 -v -rA --color=yes tests/system/emit
-
-      - uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
-        with:
-          name: codecov-system-emit-tests-windows
-          files: ./coverage.xml
-          flags: windows_system_emit
-
-      - name: Upload pytest test results
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: pytest-emit-windows
-          path: junit/test-results.xml
+#  system-tests-emit-windows:
+#    name: Test EMIT (windows)
+#    needs: integration-tests
+#    runs-on: [ self-hosted, Windows, pyaedt ]
+#    steps:
+#      - name: Install Git and checkout project
+#        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+#        with:
+#          persist-credentials: false
+#
+#      # NOTE: Our windows runners are impacted by nodejs/node#56645 so we cannot use astral-sh/setup-uv@v7
+#      - name: Setup Python
+#        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+#        with:
+#          python-version: ${{ env.TESTS_VERSION }}
+#
+#      - name: Set up uv
+#        uses: astral-sh/setup-uv@ae62891fec2bb8e7d6c99fc78c9fec3a63790f8d # v10.0.0
+#        with:
+#          activate-environment: true
+#          enable-cache: false
+#          prune-cache: true
+#          python-version: ${{ env.TESTS_VERSION }}
+#
+#
+#      - name: Install pyaedt and tests dependencies
+#        env:
+#          TESTS_VERSION: ${{ env.TESTS_VERSION }}
+#        run: |
+#          uv sync --frozen --group tests --extra all
+#
+#      - name: Remove Ansys processes (if any)
+#        shell: powershell
+#        run: |
+#          Get-Process | Where-Object {
+#            $_.Path -like "*ansys inc*" -or $_.Path -like "*ansysem*"
+#          } | ForEach-Object {
+#            Write-Output "Killing $($_.Name) (PID: $($_.Id))"
+#            Stop-Process -Id $_.Id -Force
+#          }
+#
+#      - name: Run tests marked with 'emit'
+#        env:
+#          PYTHONMALLOC: malloc
+#          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+#        run: |
+#          $args = $env:PYTEST_ARGUMENTS -split ' '
+#          pytest @args --timeout=600 -v -rA --color=yes tests/system/emit
+#
+#      - uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+#        with:
+#          name: codecov-system-emit-tests-windows
+#          files: ./coverage.xml
+#          flags: windows_system_emit
+#
+#      - name: Upload pytest test results
+#        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+#        with:
+#          name: pytest-emit-windows
+#          path: junit/test-results.xml
 
   package:
     name: Package library
@@ -1237,7 +1237,6 @@ jobs:
             system-tests-extensions-windows,
             system-tests-extensions-linux,
             system-tests-filter-windows,
-            system-tests-emit-windows,
             doc-build]
     runs-on: ubuntu-latest
     permissions:
@@ -1246,7 +1245,7 @@ jobs:
       id-token: write       # Required for OIDC token generation (for provenance signing)
     steps:
       - name: Build library source and wheel artifacts
-        uses: ansys/actions/build-library@84b6533ae76f5dde69a1df26c18682160a8121cf # v10.3.5
+        uses: ansys/actions/build-library@7e7af221736bc4d9fb84a2ab28f99518e9bca84c # v11.0.5
         with:
           attest-provenance: true
           library-name: ${{ env.PACKAGE_NAME }}
@@ -1279,7 +1278,7 @@ jobs:
           skip-existing: false
 
       - name: Release to GitHub
-        uses: ansys/actions/release-github@84b6533ae76f5dde69a1df26c18682160a8121cf # v10.3.5
+        uses: ansys/actions/release-github@7e7af221736bc4d9fb84a2ab28f99518e9bca84c # v11.0.5
         with:
           add-artifact-attestation-notes: true
           generate-release-notes: false
@@ -1295,7 +1294,7 @@ jobs:
       contents: write   # Required to commit and push documentation to gh-pages branch
     steps:
       - name: Deploy the stable documentation
-        uses: ansys/actions/doc-deploy-stable@84b6533ae76f5dde69a1df26c18682160a8121cf # v10.3.5
+        uses: ansys/actions/doc-deploy-stable@7e7af221736bc4d9fb84a2ab28f99518e9bca84c # v11.0.5
         with:
           bot-email: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
           bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}

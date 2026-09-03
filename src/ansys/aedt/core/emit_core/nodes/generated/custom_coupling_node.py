@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+from ansys.aedt.core.emit_core.nodes.generated import AntennaNode
 from ansys.aedt.core.internal.checks import min_aedt_version
 
 
@@ -42,10 +43,10 @@ class CustomCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> custom_coupling = couplings.add_custom_coupling()
-        >>> custom_coupling.parent
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> cust = cpl.add_custom_coupling()
+        >>> cust.parent
 
         """
         return self._parent
@@ -59,29 +60,78 @@ class CustomCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> custom_coupling = couplings.add_custom_coupling()
-        >>> custom_coupling.node_type
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> cust = cpl.add_custom_coupling()
+        >>> cust.node_type
 
         """
         return self._node_type
 
     @min_aedt_version("2025.2")
     def import_csv_file(self, file_name: str) -> EmitNode:
-        """Import a CSV File.
+        """Import a CSV File....
+
+        Note: The CSV file should not have any header lines and must contain only numeric values.
 
         Examples
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> custom_coupling = couplings.add_custom_coupling()
-        >>> custom_coupling.import_csv_file("C:\\EMIT\\custom_coupling.csv")
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> cust = cpl.add_custom_coupling()
+        >>> cust.import_csv_file("C:\\EMIT\\data.csv")
 
         """
-        return self._import(file_name, "Csv")
+        return self._import(file_name, "CsvFile")
+
+    @min_aedt_version("2027.1")
+    def export_to_csv(
+        self, file_name: str, antennas: tuple[AntennaNode, AntennaNode] | None = None, ports: str = ""
+    ) -> str:
+        """Export's the data for this node
+
+        Parameters
+        ----------
+        file_name: str[optional]
+            full path to the file to export to.
+        antennas: tuple(AntennaNode, AntennaNode), optional
+            tuple of antenna nodes to pull the selected Tx and Rx antenna names from for the export.
+            If not specified, will use the names specified by the ports parameter.
+        ports: str, optional
+            the ports to export the data for.
+
+        Returns
+        -------
+        csv_data: str
+            stringified data for the node returned if file_name not specified
+        """
+        if antennas is not None and all(isinstance(x, AntennaNode) for x in antennas):
+            a1, a2 = antennas
+            vals = f"{a1.name}|{a2.name}"
+        else:
+            vals = f"{ports}"
+        return self._export_to_csv(file_name, "SelectedRxAntenna|SelectedTxAntenna", vals)
+
+    @min_aedt_version("2027.1")
+    def plot(self, antennas: tuple[AntennaNode, AntennaNode] | None = None, ports: str = ""):
+        """Bring up a Cartesian plot for this node
+
+        Parameters
+        ----------
+        antennas: tuple(AntennaNode, AntennaNode), optional
+            tuple of antenna nodes to pull the selected Tx and Rx antenna names from for the export.
+            If not specified, will use the names specified by the ports parameter.
+        ports: str, optional
+            the ports to export the data for.
+        """
+        if antennas is not None and all(isinstance(x, AntennaNode) for x in antennas):
+            a1, a2 = antennas
+            vals = f"{a1.name}|{a2.name}"
+        else:
+            vals = f"{ports}"
+        return self._plot("SelectedRxAntenna|SelectedTxAntenna", vals)
 
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
@@ -91,10 +141,10 @@ class CustomCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> custom_coupling = couplings.add_custom_coupling()
-        >>> custom_coupling_copy = custom_coupling.duplicate("Custom_Coupling_Copy")
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> cust = cpl.add_custom_coupling()
+        >>> cust_copy = cust.duplicate("cust_copy")
 
         """
         return self._duplicate(new_name)
@@ -107,10 +157,10 @@ class CustomCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> custom_coupling = couplings.add_custom_coupling()
-        >>> custom_coupling.delete()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> cust = cpl.add_custom_coupling()
+        >>> cust.delete()
 
         """
         self._delete()
@@ -129,10 +179,10 @@ class CustomCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> custom_coupling = couplings.add_custom_coupling()
-        >>> custom_coupling.table_data = [(1e9, -60.0), (2e9, -55.0)]
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> cust = cpl.add_custom_coupling()
+        >>> cust.table_data = [(2, 25.0)]
 
         """
         return self._get_table_data()
@@ -153,10 +203,10 @@ class CustomCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> custom_coupling = couplings.add_custom_coupling()
-        >>> custom_coupling.enabled = True
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> cust = cpl.add_custom_coupling()
+        >>> cust.enabled = True
 
         """
         val = self._get_property("Enabled")
@@ -176,10 +226,10 @@ class CustomCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> custom_coupling = couplings.add_custom_coupling()
-        >>> custom_coupling.antenna_a
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> cust = cpl.add_custom_coupling()
+        >>> cust.antenna_a
 
         """
         val = self._get_property("Antenna A")
@@ -199,10 +249,10 @@ class CustomCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> custom_coupling = couplings.add_custom_coupling()
-        >>> custom_coupling.antenna_b
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> cust = cpl.add_custom_coupling()
+        >>> cust.antenna_b
 
         """
         val = self._get_property("Antenna B")

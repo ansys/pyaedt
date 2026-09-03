@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 #
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
@@ -48,6 +49,7 @@ import numpy as np
 from ansys.aedt.core.emit_core.emit_constants import InterfererType
 from ansys.aedt.core.emit_core.emit_constants import ResultType
 from ansys.aedt.core.emit_core.emit_constants import TxRxMode
+from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import ExtensionEMITCommon
 
@@ -107,12 +109,12 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
         self._rx_power: ValueMatrix | None = None
         self._sensitivity: ValueMatrix | None = None
         self._desense: ValueMatrix | None = None
-        self._victims: list[str] | None = None
-        self._aggressors: list[str] | None = None
-        self._victim_band: str | None = None
-        self._aggressor_band: str | None = None
-        self._victim: str | None = None
-        self._aggressor: str | None = None
+        self._victims = None
+        self._aggressors = None
+        self._victim_band = None
+        self._aggressor_band = None
+        self._victim = None
+        self._aggressor = None
         self._victim_frequencies: FrequencyList | None = None
         self._aggressor_frequencies: FrequencyList | None = None
 
@@ -151,6 +153,34 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
     def _aggressor_frequency_list(self) -> FrequencyList:
         return cast(FrequencyList, self._aggressor_frequencies)
 
+    def _get_active_frequencies(self, radio: str, band: str, mode: int) -> FrequencyList:
+        """Get active frequencies through the API supported by the AEDT version.
+
+        Parameters
+        ----------
+        radio : str
+            Name of the radio component.
+        band : str
+            Name of the band.
+        mode : int
+            TxRxMode value (0=TX, 1=RX, 2=BOTH).
+
+        Returns
+        -------
+        FrequencyList
+            List of active frequencies.
+        """
+        app = self._app()
+        revision = self._revision_obj()
+        if app.desktop_class.aedt_version_id >= "2027.1":
+            radio_node = revision.get_component_node(radio)
+            band_nodes = revision.get_all_band_nodes(radio_node, tx_rx_mode=mode, enabled_only=True)
+            band_node = next((node for node in band_nodes if node.name == band), None)
+            if band_node is None:
+                raise ValueError(f"Band {band!r} was not found for radio {radio!r}.")
+            return band_node.get_active_frequencies(is_rx=mode == TxRxMode.RX)
+        return revision.get_active_frequencies(radio, band, mode)
+
     def add_extension_content(self) -> None:
         """Build the UI for the EMI heat map extension.
 
@@ -158,7 +188,6 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
         --------
         >>> from ansys.aedt.core.extensions.emit.emi_heat_map import EMIHeatmapExtension
         >>> extension = EMIHeatmapExtension(withdraw=True)
-        >>> extension.add_extension_content()
 
         """
         root = self.root
@@ -270,7 +299,10 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
             # Grab domain and revision from EMIT results
             app = self._app()
             self._revision = app.results.analyze()
-            self._domain = app.results.interaction_domain()
+            if app.desktop_class.aedt_version_id < "2027.1":
+                self._domain = app.results.interaction_domain()
+            else:
+                self._domain = InteractionDomain(app)
 
             # Extract and return the Transmit / Receive radio lists
             if app.desktop_class.aedt_version_id > "2025.1":
@@ -335,11 +367,8 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
         """Handle victim band selection change."""
         self._emi = []
         self._victim_band = self._victim_band_combo.get()
-        self._victim_frequencies = self._revision_obj().get_active_frequencies(
-            self._victim,
-            self._victim_band,
-            TxRxMode.RX,
-        )
+        if self._victim and self._victim_band:
+            self._victim_frequencies = self._get_active_frequencies(self._victim, self._victim_band, TxRxMode.RX)
 
     def _on_aggressor_changed(self, event=None):
         """Handle aggressor radio selection change."""
@@ -375,9 +404,10 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
         """Handle aggressor band selection change."""
         self._emi = []
         self._aggressor_band = self._aggressor_band_combo.get()
-        self._aggressor_frequencies = self._revision_obj().get_active_frequencies(
-            self._aggressor, self._aggressor_band, TxRxMode.TX
-        )
+        if self._aggressor and self._aggressor_band:
+            self._aggressor_frequencies = self._get_active_frequencies(
+                self._aggressor, self._aggressor_band, TxRxMode.TX
+            )
 
     def _extract_data(self):
         """Extract EMI data for all channel combinations between selected bands."""
@@ -390,7 +420,11 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
             domain.set_receiver(self._victim, self._victim_band)
             domain.set_interferer(self._aggressor, self._aggressor_band)
             # Checkout the license once for EMIT for all of the data extraction iterations
-            interaction = revision.run(domain)
+            if self._app().desktop_class.aedt_version_id < "2027.1":
+                interaction = revision.run(domain)
+            else:
+                sim = revision.get_simulation()
+                interaction = sim.run(domain)
             with revision.get_license_session():
                 self._emi = []
                 self._rx_power = []

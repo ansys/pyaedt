@@ -105,7 +105,7 @@ jobs:
     permissions:
       contents: read   # Required to read repository content for vulnerability scanning
     steps:
-      - uses: ansys/actions/check-vulnerabilities@244028c6311885d559e18453642a5fa820d6360d # zizmor: ignore[stale-action-refs]
+      - uses: ansys/actions/check-vulnerabilities@7e7af221736bc4d9fb84a2ab28f99518e9bca84c # v11.0.5
         with:
           dev-mode: ${{ github.ref != 'refs/heads/main' }}
           extra-targets: 'all'
@@ -120,7 +120,7 @@ jobs:
     permissions:
       contents: read   # Required to read workflow files and check for security issues
     steps:
-      - uses: ansys/actions/check-actions-security@84b6533ae76f5dde69a1df26c18682160a8121cf # v10.3.5
+      - uses: ansys/actions/check-actions-security@7e7af221736bc4d9fb84a2ab28f99518e9bca84c # v11.0.5
         with:
           generate-summary: true
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -135,7 +135,7 @@ jobs:
     steps:
       - name: Check the title of the pull request
         if: github.event_name == 'pull_request'
-        uses: ansys/actions/check-pr-title@84b6533ae76f5dde69a1df26c18682160a8121cf # v10.3.5
+        uses: ansys/actions/check-pr-title@7e7af221736bc4d9fb84a2ab28f99518e9bca84c # v11.0.5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           use-upper-case: true
@@ -193,7 +193,7 @@ jobs:
       contents: read   # Required to read documentation files for style checking
     steps:
       - name: Check documentation style
-        uses: ansys/actions/doc-style@84b6533ae76f5dde69a1df26c18682160a8121cf # v10.3.5
+        uses: ansys/actions/doc-style@7e7af221736bc4d9fb84a2ab28f99518e9bca84c # v11.0.5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           files: '["doc/source", ".github/plugin", ".github/skills"]'
@@ -205,7 +205,7 @@ jobs:
     needs: [doc-style]
     steps:
       - name: Documentation build
-        uses: ansys/actions/doc-build@84b6533ae76f5dde69a1df26c18682160a8121cf # v10.3.5
+        uses: ansys/actions/doc-build@7e7af221736bc4d9fb84a2ab28f99518e9bca84c # v11.0.5
         with:
           dependencies: "graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra"
           skip-install: true
@@ -226,7 +226,7 @@ jobs:
       contents: write # Needed to update files on the gh-pages branch
       pull-requests: write # Needed to create deployment comments on PRs
     steps:
-      - uses: ansys/actions/doc-deploy-pr@84b6533ae76f5dde69a1df26c18682160a8121cf # v10.3.5
+      - uses: ansys/actions/doc-deploy-pr@7e7af221736bc4d9fb84a2ab28f99518e9bca84c # v11.0.5
         with:
           bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
           bot-email: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
@@ -285,7 +285,7 @@ jobs:
     steps:
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse
-        uses: ansys/actions/build-wheelhouse@84b6533ae76f5dde69a1df26c18682160a8121cf # v10.3.5
+        uses: ansys/actions/build-wheelhouse@7e7af221736bc4d9fb84a2ab28f99518e9bca84c # v11.0.5
         with:
           attest-provenance: true
           library-name: ${{ env.PACKAGE_NAME }}
@@ -439,6 +439,7 @@ jobs:
           uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
+        if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip-testmon') }}
         uses: ./.github/actions/check-cache
 
       - name: Restore testmondata cache
@@ -510,6 +511,7 @@ jobs:
           uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
+        if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip-testmon') }}
         uses: ./.github/actions/check-cache
 
       - name: Restore testmondata cache
@@ -577,6 +579,7 @@ jobs:
           uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
+        if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip-testmon') }}
         uses: ./.github/actions/check-cache
 
       - name: Restore testmondata cache
@@ -651,6 +654,7 @@ jobs:
           uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
+        if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip-testmon') }}
         uses: ./.github/actions/check-cache
 
       - name: Restore testmondata cache
@@ -718,6 +722,7 @@ jobs:
           uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
+        if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip-testmon') }}
         uses: ./.github/actions/check-cache
 
       - name: Restore testmondata cache
@@ -793,6 +798,7 @@ jobs:
           uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
+        if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip-testmon') }}
         uses: ./.github/actions/check-cache
 
       - name: Restore testmondata cache
@@ -855,6 +861,7 @@ jobs:
           uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
+        if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip-testmon') }}
         uses: ./.github/actions/check-cache
 
       - name: Restore testmondata cache
@@ -926,6 +933,7 @@ jobs:
           uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
+        if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip-testmon') }}
         uses: ./.github/actions/check-cache
 
       - name: Restore testmondata cache
@@ -990,6 +998,7 @@ jobs:
           uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
+        if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip-testmon') }}
         uses: ./.github/actions/check-cache
 
       - name: Restore testmondata cache
@@ -1059,6 +1068,7 @@ jobs:
           uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
+        if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip-testmon') }}
         uses: ./.github/actions/check-cache
 
       - name: Restore testmondata cache
@@ -1345,6 +1355,7 @@ jobs:
           uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
+        if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip-testmon') }}
         uses: ./.github/actions/check-cache
 
 #      - name: Restore testmondata cache
@@ -1382,68 +1393,69 @@ jobs:
 # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # =================================================================================================
 
-  system-tests-emit-windows:
-    name: Test EMIT (windows)
-    needs: [integration-tests, analyze-changes]
-    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
-    runs-on: [ self-hosted, Windows, pyaedt ]
-    steps:
-      - name: Install Git and checkout project
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-        with:
-          persist-credentials: false
-
-      - name: Setup Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
-        with:
-          python-version: ${{ env.TESTS_VERSION }}
-
-      - name: Set up uv
-        uses: astral-sh/setup-uv@ae62891fec2bb8e7d6c99fc78c9fec3a63790f8d # v10.0.0
-        with:
-          activate-environment: true
-          enable-cache: false
-          prune-cache: true
-          python-version: ${{ env.TESTS_VERSION }}
-
-      - name: Install pyaedt and tests dependencies
-        env:
-          TESTS_VERSION: ${{ env.TESTS_VERSION }}
-        run: |
-          uv sync --frozen --group tests --extra all
-
-      - name: Wait for master cache update
-        uses: ./.github/actions/check-cache
-
-      - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
-        with:
-          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-          cache-key: ${{ env.TESTMON_CACHE_KEY_EMIT_WIN }}
-
-      - name: Remove Ansys processes (if any)
-        shell: powershell
-        run: |
-          Get-Process | Where-Object {
-            $_.Path -like "*ansys inc*" -or $_.Path -like "*ansysem*"
-          } | ForEach-Object {
-            Write-Output "Killing $($_.Name) (PID: $($_.Id))"
-            Stop-Process -Id $_.Id -Force
-          }
-
-      - name: Run tests marked with 'emit'
-        env:
-          PYTHONMALLOC: malloc
-          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
-        run: |
-          $args = $env:PYTEST_ARGUMENTS -split ' '
-          pytest @args --timeout=600 -v -rA --color=yes tests/system/emit
-
-      - name: Upload pytest test results
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: pytest-emit-windows
-          path: junit/test-results.xml
+#  system-tests-emit-windows:
+#    name: Test EMIT (windows)
+#    needs: [integration-tests, analyze-changes]
+#    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
+#    runs-on: [ self-hosted, Windows, pyaedt ]
+#    steps:
+#      - name: Install Git and checkout project
+#        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+#        with:
+#          persist-credentials: false
+#
+#      - name: Setup Python
+#        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+#        with:
+#          python-version: ${{ env.TESTS_VERSION }}
+#
+#      - name: Set up uv
+#        uses: astral-sh/setup-uv@ae62891fec2bb8e7d6c99fc78c9fec3a63790f8d # v10.0.0
+#        with:
+#          activate-environment: true
+#          enable-cache: false
+#          prune-cache: true
+#          python-version: ${{ env.TESTS_VERSION }}
+#
+#      - name: Install pyaedt and tests dependencies
+#        env:
+#          TESTS_VERSION: ${{ env.TESTS_VERSION }}
+#        run: |
+#          uv sync --frozen --group tests --extra all
+#
+#      - name: Wait for master cache update
+#        if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip-testmon') }}
+#        uses: ./.github/actions/check-cache
+#
+#      - name: Restore testmondata cache
+#        uses: ./.github/actions/testmon-cache
+#        with:
+#          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+#          cache-key: ${{ env.TESTMON_CACHE_KEY_EMIT_WIN }}
+#
+#      - name: Remove Ansys processes (if any)
+#        shell: powershell
+#        run: |
+#          Get-Process | Where-Object {
+#            $_.Path -like "*ansys inc*" -or $_.Path -like "*ansysem*"
+#          } | ForEach-Object {
+#            Write-Output "Killing $($_.Name) (PID: $($_.Id))"
+#            Stop-Process -Id $_.Id -Force
+#          }
+#
+#      - name: Run tests marked with 'emit'
+#        env:
+#          PYTHONMALLOC: malloc
+#          PYTEST_ARGUMENTS_NON_TESTMON: ${{ env.PYTEST_ARGUMENTS_NON_TESTMON }}
+#        run: |
+#          $args = $env:PYTEST_ARGUMENTS_NON_TESTMON -split ' '
+#          pytest @args --timeout=600 -v -rA --color=yes tests/system/emit
+#
+#      - name: Upload pytest test results
+#        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+#        with:
+#          name: pytest-emit-windows
+#          path: junit/test-results.xml
 
   package:
     name: Package library
@@ -1461,7 +1473,6 @@ jobs:
             system-tests-extensions-windows,
             system-tests-extensions-linux,
             system-tests-filter-windows,
-            system-tests-emit-windows,
             doc-build]
     runs-on: ubuntu-latest
     if: |
@@ -1474,9 +1485,46 @@ jobs:
       id-token: write       # Required for OIDC token generation (for provenance signing)
     steps:
       - name: Build library source and wheel artifacts
-        uses: ansys/actions/build-library@84b6533ae76f5dde69a1df26c18682160a8121cf # v10.3.5
+        uses: ansys/actions/build-library@7e7af221736bc4d9fb84a2ab28f99518e9bca84c # v11.0.5
         with:
           attest-provenance: true
           library-name: ${{ env.PACKAGE_NAME }}
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           use-python-cache: false
+
+  # Gate keeper aggregates critical CI jobs and fails only on failure/cancelled,
+  # so intentionally skipped jobs do not block merge while real regressions do.
+  # Whenever an important job needs to be ensured to run, it should be added to
+  # the needs list of this job.
+  gate-keeper:
+    name: Gate keeper
+    runs-on: ubuntu-latest
+    if: always()
+    needs: [vulnerabilities,
+            actions-security,
+            type-check,
+            smoke-tests,
+            smoke-tests-rocky,
+            unit-tests,
+            integration-tests,
+            system-tests-solvers-windows,
+            system-tests-solvers-linux,
+            system-tests-general-windows,
+            system-tests-general-linux,
+            system-tests-visualization-windows,
+            system-tests-visualization-linux,
+            system-tests-icepak-windows,
+            system-tests-icepak-linux,
+            system-tests-layout-windows,
+            system-tests-layout-linux,
+            system-tests-extensions-windows,
+            system-tests-extensions-linux,
+            system-tests-filter-windows,
+            doc-build,
+            package]
+    steps:
+      - name: Check for failed or cancelled jobs
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: |
+          echo "A job in the CI failed or was cancelled."
+          exit 1

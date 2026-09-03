@@ -24,6 +24,7 @@
 
 import math
 from sys import float_info
+from typing import TypeGuard
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -164,7 +165,7 @@ class MathUtils(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def is_scalar_number(x: object) -> bool:
+    def is_scalar_number(x: object) -> TypeGuard[int | float]:
         """Check if a value is a scalar number (int or float).
 
         Parameters
