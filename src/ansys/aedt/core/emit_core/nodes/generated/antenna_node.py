@@ -952,7 +952,7 @@ class AntennaNode(EmitNode):
         >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
         >>> ant.antenna_type = AntennaNode.AntennaTypeOption.HFSS_PHASED_ARRAY
         >>> ant.tapering_function = AntennaNode.TaperingFunctionOption.COSINE
-        >>> ant.edge_taper = -200
+        >>> ant.edge_taper = -10
 
         """
         val = self._get_property("Edge Taper")
