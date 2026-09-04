@@ -304,6 +304,7 @@ html_theme_options = {
     "search_extra_sources": {
         "Examples": "https://examples.aedt.docs.pyansys.com/",
         "Workflows": "https://workflows.docs.pyansys.com/",
+        "PyEDB": "https://edb.docs.pyansys.com/",
     },
     "search_filters": {
         "API": ["API/"],
