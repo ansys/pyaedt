@@ -1,16 +1,12 @@
 /**
- * search-main.js
- *
- * Main search logic for the documentation site. Handles search index loading, filtering, and UI updates.
- * Uses Fuse.js for fuzzy searching and IndexedDB for caching search data.
- *
+ * @file search-main.js
+ * @description Main search logic for the documentation site. Handles search index
+ * loading, filtering, and UI updates. Uses Fuse.js for fuzzy searching and
+ * IndexedDB for caching search data.
  */
 
-// DOM Elements
 const SEARCH_BAR = document.getElementById("search-bar");
-const SEARCH_INPUT = SEARCH_BAR.querySelector(".bd-search input.form-control");
 
-// Configure RequireJS for Fuse.js
 require.config({
   paths: {
     fuse: "https://cdn.jsdelivr.net/npm/fuse.js@6.6.2/dist/fuse.min",
@@ -19,9 +15,9 @@ require.config({
 
 /**
  * Open or create an IndexedDB database for caching search indexes.
- * @param {string} name - Name of the database.
- * @param {number} version - Version of the database.
- * @returns {Promise<IDBDatabase>} Promise resolving to the database instance.
+ * @param {string} name - Database name.
+ * @param {number} version - Database version.
+ * @returns {Promise<IDBDatabase>}
  */
 function openDB(name = "search-cache", version = 1) {
   return new Promise((resolve, reject) => {
@@ -43,9 +39,9 @@ function openDB(name = "search-cache", version = 1) {
 }
 
 /**
- * Retrieve a value from IndexedDB by key.
- * @param {string} key - The key to look up in the object store.
- * @returns {Promise<any>} Promise resolving to the retrieved value.
+ * Retrieve a cached value from IndexedDB by key.
+ * @param {string} key
+ * @returns {Promise<any>}
  */
 async function getFromIDB(key) {
   const db = await openDB();
@@ -60,9 +56,9 @@ async function getFromIDB(key) {
 
 /**
  * Save a key-value pair to IndexedDB.
- * @param {string} key - The key to store the value under.
- * @param {any} value - The value to store.
- * @returns {Promise<boolean>} Promise resolving when saving is complete.
+ * @param {string} key
+ * @param {any} value
+ * @returns {Promise<boolean>}
  */
 async function saveToIDB(key, value) {
   const db = await openDB();
@@ -78,9 +74,6 @@ async function saveToIDB(key, value) {
   });
 }
 
-/**
- * Main search logic, loaded after Fuse.js is available.
- */
 require(["fuse"], function (Fuse) {
   let fuse;
   let searchData = [];
@@ -88,9 +81,9 @@ require(["fuse"], function (Fuse) {
   let selectedLibraries = [];
   const libSearchData = {};
   let selectedFilter = new Set();
+  const searchPageContainer = document.querySelector(".bd-search-container");
 
   /**
-   * Debounce utility to limit function execution rate.
    * @param {Function} func
    * @param {number} delay
    * @returns {Function}
@@ -104,10 +97,16 @@ require(["fuse"], function (Fuse) {
   };
 
   /**
-   * Initialize the search system by loading the document search index and library indexes.
-   * Sets up filter dropdowns and triggers initial search if needed.
+   * Load the main search index and all library indexes, then set up the filter UI.
    */
   async function initializeSearch() {
+    // Build sidebar scaffolding early so filter UI is visible even if
+    // search index/network loading fails.
+    setupFilterDropdown();
+    if (Object.keys(EXTRA_SOURCES).length > 0) {
+      showLibraryDropdown();
+    }
+
     try {
       const cacheKey = "main-search-index";
       let data = await getFromIDB(cacheKey);
@@ -119,33 +118,45 @@ require(["fuse"], function (Fuse) {
       searchData = data;
       fuse = new Fuse(searchData, SEARCH_OPTIONS);
 
+      // Render filter UI immediately after the main index is ready.
+      // External library fetch failures should not block sidebar rendering.
+      showObjectIdDropdown();
+
       // Load library search data
       const allLibs = Object.keys(EXTRA_SOURCES);
       for (const lib of allLibs) {
-        const cacheKey = `lib-search-${lib}`;
-        let libData = await getFromIDB(cacheKey);
-        if (!libData) {
-          const libPath = EXTRA_SOURCES[lib];
-          const url = `${libPath}/_static/search.json`;
-          const res = await fetch(url);
-          libData = await res.json();
-          await saveToIDB(cacheKey, libData);
+        try {
+          const cacheKey = `lib-search-${lib}`;
+          let libData = await getFromIDB(cacheKey);
+          if (!libData) {
+            const libPath = EXTRA_SOURCES[lib];
+            const url = `${libPath}/_static/search.json`;
+            const res = await fetch(url);
+            libData = await res.json();
+            await saveToIDB(cacheKey, libData);
+          }
+          libSearchData[lib] = libData;
+        } catch (libErr) {
+          console.warn(`Failed to preload library index for ${lib}:`, libErr);
         }
-        libSearchData[lib] = libData;
       }
-      setupFilterDropdown();
-      showObjectIdDropdown();
-      showLibraryDropdown();
     } catch (err) {
       console.error("Search init failed", err);
     }
   }
 
   /**
-   * Sets up the filter dropdown and its toggle interactions in the sidebar.
+   * Build the filter sidebar: toggle sections for Documents and Library filters.
    */
   function setupFilterDropdown() {
-    const dropdownContainer = document.getElementById("search-sidebar");
+    const dropdownContainer =
+      searchPageContainer?.querySelector("#search-sidebar") ||
+      document.getElementById("search-sidebar");
+    if (!dropdownContainer) {
+      console.warn("Search sidebar container not found; filters are disabled.");
+      return;
+    }
+    dropdownContainer.innerHTML = "";
     const filters = [
       {
         name: "Documents",
@@ -199,10 +210,11 @@ require(["fuse"], function (Fuse) {
   }
 
   /**
-   * Show the object ID dropdown for document filtering.
+   * Populate the Documents filter dropdown with objectID checkboxes.
    */
   function showObjectIdDropdown() {
     const dropdown = document.getElementById("objectid-dropdown");
+    if (!dropdown) return;
     dropdown.innerHTML = "";
     const objectIDs = [
       ...new Set(searchData.map((item) => item.objectID)),
@@ -219,10 +231,11 @@ require(["fuse"], function (Fuse) {
   }
 
   /**
-   * Show the library dropdown for library filtering.
+   * Populate the Library filter dropdown with one checkbox per extra source.
    */
   function showLibraryDropdown() {
     const dropdown = document.getElementById("library-dropdown");
+    if (!dropdown) return;
     dropdown.innerHTML = "";
     for (const lib in EXTRA_SOURCES) {
       const checkbox = createCheckboxItem(lib, selectedLibraries, () => {
@@ -236,11 +249,11 @@ require(["fuse"], function (Fuse) {
   }
 
   /**
-   * Create a checkbox item for a filter dropdown.
-   * @param {string} value - Value for the checkbox.
-   * @param {Array} selectedArray - Array of selected values.
-   * @param {Function} onChange - Callback on change.
-   * @returns {HTMLDivElement} Checkbox item div.
+   * Create a labelled checkbox element for a filter dropdown.
+   * @param {string} value
+   * @param {Array} selectedArray - Mutated in-place on toggle.
+   * @param {Function} onChange
+   * @returns {HTMLDivElement}
    */
   function createCheckboxItem(value, selectedArray, onChange) {
     const div = document.createElement("div");
@@ -267,7 +280,7 @@ require(["fuse"], function (Fuse) {
   }
 
   /**
-   * Render chips for selected filters and bind remove logic.
+   * Re-render the row of chips that represent active filter selections.
    */
   function renderSelectedChips() {
     const container = document.getElementById("selected-chips");
@@ -299,33 +312,69 @@ require(["fuse"], function (Fuse) {
   }
 
   /**
-   * Perform the search and update the results UI.
+   * Compute a relevance score for a Fuse.js result.
+   * Fuse score: 0 = perfect match, 1 = complete mismatch; boosted by matched field weight.
+   * @param {Object} result - Fuse.js result with .score and .matches.
+   * @returns {number}
+   */
+  function computeRelevance(result) {
+    // Build weight map from SEARCH_OPTIONS.keys
+    const configKeys = Array.isArray(SEARCH_OPTIONS.keys)
+      ? SEARCH_OPTIONS.keys
+      : [];
+    const fieldWeights = configKeys.length
+      ? Object.fromEntries(configKeys.map((k) => [k.name, k.weight ?? 1]))
+      : { section: 3, title: 3, text: 1, objectID: 0.5 };
+    const matches = result.matches || [];
+    const fieldWeight = matches.length
+      ? Math.max(...matches.map((m) => fieldWeights[m.key] || 1))
+      : 1;
+    return (1 - (result.score || 0)) * fieldWeight;
+  }
+
+  /**
+   * Run the current query against all indexes and update the results UI.
    */
   async function performSearch() {
     const query = document.getElementById("search-input").value.trim();
     if (!fuse) return;
+    const url = new URL(window.location);
+    url.searchParams.set("q", query);
+    history.replaceState({}, "", url);
     const resultsContainer = document.getElementById("search-results");
     resultsContainer.innerHTML = "Searching...";
     let docResults = [];
     let libResults = [];
     const resultLimit = getSelectedResultLimit();
-    // Search in internal documents
     if (selectedFilter.size === 0 || selectedFilter.has("Documents")) {
+      // Filter first, then apply the result limit so selected document filters
+      // are not accidentally dropped by early truncation.
       docResults = fuse
-        .search(query, { limit: resultLimit })
+        .search(query)
+        .sort((a, b) => computeRelevance(b) - computeRelevance(a))
         .map((r) => r.item);
       if (selectedObjectIDs.length > 0) {
         docResults = docResults.filter((item) =>
           selectedObjectIDs.includes(item.objectID),
         );
       }
+      docResults = docResults.slice(0, resultLimit);
     }
-    // Search in selected libraries
+    // Search in selected libraries — apply the same re-ranking as doc results.
+    // Reference: https://www.fusejs.io/api/options.html#keys
     for (const lib of selectedLibraries) {
       const libBaseUrl = EXTRA_SOURCES[lib];
       const cacheKey = `lib-search-${lib}`;
       try {
-        const data = await getFromIDB(cacheKey);
+        let data = await getFromIDB(cacheKey);
+        if (!data) {
+          const url = `${libBaseUrl}/_static/search.json`;
+          const res = await fetch(url);
+          if (res.ok) {
+            data = await res.json();
+            await saveToIDB(cacheKey, data);
+          }
+        }
         if (data) {
           const enrichedEntries = data.map((entry) => ({
             title: entry.title,
@@ -337,6 +386,8 @@ require(["fuse"], function (Fuse) {
           const libFuse = new Fuse(enrichedEntries, SEARCH_OPTIONS);
           const results = libFuse
             .search(query, { limit: resultLimit })
+            .sort((a, b) => computeRelevance(b) - computeRelevance(a))
+            .slice(0, resultLimit)
             .map((r) => r.item);
           libResults.push(...results);
         }
@@ -355,43 +406,45 @@ require(["fuse"], function (Fuse) {
   }
 
   /**
-   * Highlight search query in the results.
-   * @param {Array} results - Array of result objects.
-   * @param {string} query - Search query.
-   * @returns {Array} Highlighted results.
+   * Wrap matched terms in <span class="search-highlight"> and trim body text to a context snippet.
+   * @param {Array} results
+   * @param {string} query
+   * @returns {Array}
    */
   function highlightResults(results, query) {
     const regex = new RegExp(`(${query})`, "gi");
-    return results
-      .map((result) => {
-        const matchIndex = result.text
-          .toLowerCase()
-          .indexOf(query.toLowerCase());
-        if (matchIndex === -1) return null;
+    return results.map((result) => {
+      // Find the query in the body text first for a context snippet.
+      // If the match is only in title/section, still include the result
+      const text = result.text || "";
+      const matchIndex = text.toLowerCase().indexOf(query.toLowerCase());
+      let highlightedText = "";
+      if (matchIndex !== -1) {
         const contextLength = 100;
         const start = Math.max(0, matchIndex - contextLength);
-        const end = Math.min(result.text.length, matchIndex + contextLength);
-        let snippet = result.text.slice(start, end);
+        const end = Math.min(text.length, matchIndex + contextLength);
+        let snippet = text.slice(start, end);
         if (start > 0) snippet = "…" + snippet;
-        if (end < result.text.length) snippet += "…";
-        return {
-          ...result,
-          title: result.title.replace(
-            regex,
-            `<span class="search-highlight">$1</span>`,
-          ),
-          text: snippet.replace(
-            regex,
-            `<span class="search-highlight">$1</span>`,
-          ),
-        };
-      })
-      .filter(Boolean);
+        if (end < text.length) snippet += "…";
+        highlightedText = snippet.replace(
+          regex,
+          `<span class="search-highlight">$1</span>`,
+        );
+      }
+      return {
+        ...result,
+        title: result.title.replace(
+          regex,
+          `<span class="search-highlight">$1</span>`,
+        ),
+        text: highlightedText,
+      };
+    });
   }
 
   /**
-   * Display the final search results on the UI.
-   * @param {Array} results - Array of result objects.
+   * Render result cards into the results container.
+   * @param {Array} results
    */
   function displayResults(results) {
     const container = document.getElementById("search-results");
@@ -422,19 +475,14 @@ require(["fuse"], function (Fuse) {
   }
 
   /**
-   * Get the selected result limit from the dropdown.
-   * @returns {number} Result limit.
+   * Read the selected page-size value from the result-limit dropdown.
+   * @returns {number}
    */
   function getSelectedResultLimit() {
     const select = document.getElementById("result-limit");
     return parseInt(select.value, 10) || 10;
   }
 
-  // --- Event Handlers and Initialization ---
-
-  /**
-   * Debounced handler for search input changes.
-   */
   const handleSearchInput = debounce(
     () => {
       const query = document.getElementById("search-input").value.trim();
@@ -445,11 +493,6 @@ require(["fuse"], function (Fuse) {
     parseInt(SEARCH_OPTIONS.delay) || 300,
   );
 
-  /**
-   * Utility to get element by ID.
-   * @param {string} id - Element ID.
-   * @returns {HTMLElement} DOM element.
-   */
   const $ = (id) => document.getElementById(id);
 
   // Elements
@@ -459,26 +502,35 @@ require(["fuse"], function (Fuse) {
   // Initialize search input if query param is present
   const urlParams = new URLSearchParams(window.location.search);
   const initialQuery = urlParams.get("q");
-  if (initialQuery) {
+  if (initialQuery && searchInput) {
     searchInput.value = initialQuery;
   }
 
-  /**
-   * Unified search trigger for input events.
-   */
   const triggerSearch = () => {
+    if (!searchInput) return;
     const query = searchInput.value.trim();
     if (query) {
       handleSearchInput();
+    } else {
+      document.getElementById("search-results").innerHTML = "";
+      const url = new URL(window.location);
+      url.searchParams.delete("q");
+      history.replaceState({}, "", url);
     }
   };
 
   // Set up event listeners
-  searchInput.addEventListener("input", triggerSearch);
+  searchInput?.addEventListener("input", triggerSearch);
   resultLimit?.addEventListener("change", performSearch);
-  SEARCH_BAR.addEventListener("input", (e) => {
-    searchInput.value = e.target.value;
-    triggerSearch();
+  SEARCH_BAR?.addEventListener("input", (e) => {
+    if (!searchInput || e.target === searchInput) {
+      triggerSearch();
+      return;
+    }
+    if (typeof e.target?.value === "string") {
+      searchInput.value = e.target.value;
+      triggerSearch();
+    }
   });
 
   // Initialize search engine/data

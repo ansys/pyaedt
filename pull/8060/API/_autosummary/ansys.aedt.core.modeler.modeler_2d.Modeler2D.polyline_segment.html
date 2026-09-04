@@ -32,10 +32,10 @@
 <link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/ansys-sphinx-theme.css?v=5ffe81b6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/ansys-sphinx-theme.css?v=f424389c" />
     <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/ansys-sphinx-theme.css?v=5ffe81b6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/ansys-sphinx-theme.css?v=f424389c" />
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
     <link rel="stylesheet" type="text/css" href="https://www.nerdfonts.com/assets/css/webfont.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
@@ -310,35 +310,51 @@
     </header>
   
   
-    
-<!--
-  Announcement Version Loader
-  Dynamically loads the announcement.html content into the announcement_msg div.
--->
-<div id="announcement_msg" aria-live="polite"></div>
-<script>
-  // Fetch and inject the announcement HTML content
-  fetch("announcement.html")
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`HTTP error: ${response.status} Announcement.html file not found, Please ignore this, if you are in dev/stable documentation`);
-      }
-      return response.text();
-    })
-    .then((text) => {
-      var msgDiv = document.getElementById("announcement_msg");
-      if (msgDiv) {
-        msgDiv.innerHTML = text;
-      }
-    })
-    .catch((error) => {
-      // Log only unexpected fetch errors
-      if (!(error.message && error.message.startsWith("HTTP error: 404"))) {
-        console.error(`Fetch problem: ${error.message} Announcement.html could not be loaded.`);
-      }
-    });
-</script>
+
   
+
+
+
+
+
+
+
+
+
+<div class="ast-announcement-wrap" role="region" aria-label="Announcement" hidden>
+    <div class="ast-announcement info">
+        <span class="ast-announcement-icon" aria-hidden="true"></span>
+        <span class="ast-announcement-text" id="ast-announcement-text"></span>
+        <!-- djlint:off H021-->
+        <!-- for inline styles -->
+        <a class="ast-announcement-details-btn" id="ast-announcement-details-btn"
+           href=""
+           data-ast-url=""
+           aria-label="View notifications"
+           style="display:none">View</a>
+        <!-- djlint:on -->
+        <!-- djlint:off H023-->
+        <!-- use entity reference for &times; -->
+        <button class="ast-announcement-close" id="ast-announcement-close" aria-label="Close announcement">&times;</button>
+        <!-- djlint:on -->
+    </div>
+</div>
+
+<!-- Modal overlay -->
+<!-- djlint:off H023-->
+<!-- use entity reference for &times; -->
+<div class="ast-announcement-overlay" id="ast-announcement-overlay" role="dialog" aria-modal="true" aria-label="Announcement details">
+    <div class="ast-announcement-modal info">
+        <div class="ast-announcement-modal-body"
+             data-ast-items='[]'>
+        </div>
+        <button class="ast-announcement-modal-close" id="ast-announcement-modal-close" aria-label="Close">&times;</button>
+    </div>
+</div>
+<!-- djlint:on -->
+
+<script src="../../_static/js/announcement_banner.js"
+        data-base-url="../../"></script>
 
 
   <div class="bd-container">
@@ -795,6 +811,9 @@
 </div>
               
               
+  
+
+  
               
                 
 <div id="searchbox"></div>
@@ -855,6 +874,7 @@ center point have the same value.</p>
 
                 </article>
               
+
               
               
               
@@ -928,10 +948,10 @@ center point have the same value.</p>
 
 <script>
 // Passing the search options to the search.js file
-const SEARCH_OPTIONS = JSON.parse('{"keys": ["title", "text", "objectID"], "limit": 10, "threshold": 0.2}');
+const SEARCH_OPTIONS = JSON.parse('{"includeMatches": true, "includeScore": true, "keys": [{"name": "section", "weight": 5}, {"name": "title", "weight": 3}, {"name": "text", "weight": 1}, {"name": "objectID", "weight": 0.5}], "limit": 10, "threshold": 0.2}');
 const SEARCH_FILE = "../../_static/search.json";
 const ADVANCE_SEARCH_PATH = "../../search.html";
-const EXTRA_SOURCES = JSON.parse('{"Examples": "https://examples.aedt.docs.pyansys.com/", "Workflows": "https://workflows.docs.pyansys.com/"}');
+const EXTRA_SOURCES = JSON.parse('{"Examples": "https://examples.aedt.docs.pyansys.com/", "PyEDB": "https://edb.docs.pyansys.com/", "Workflows": "https://workflows.docs.pyansys.com/"}');
 </script>
 
 
@@ -980,7 +1000,7 @@ const EXTRA_SOURCES = JSON.parse('{"Examples": "https://examples.aedt.docs.pyans
       <a href="https://sphinxdocs.ansys.com/version/stable/index.html" target="_blank" rel="noopener noreferrer">
         Ansys Sphinx Theme
       </a>
-      1.9.0.
+      1.11.0.
     
   </span>
   <br />
