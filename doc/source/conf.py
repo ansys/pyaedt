@@ -307,7 +307,6 @@ html_theme_options = {
         "PyEDB": "https://edb.docs.pyansys.com/",
     },
     "search_filters": {
-        "API": ["API/"],
         "User guide": [
             "User_guide/",
             "Getting_Started/",
