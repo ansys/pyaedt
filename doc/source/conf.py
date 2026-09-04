@@ -302,17 +302,13 @@ html_theme_options = {
     "show_breadcrumbs": True,
     "use_edit_page_button": True,
     "search_extra_sources": {
-        "Examples": "https://examples.aedt.docs.pyansys.com/",
+        "Examples": "https://examples.aedt.docs.pyansys.com/version/dev",
         "Workflows": "https://workflows.docs.pyansys.com/",
-        "PyEDB": "https://edb.docs.pyansys.com/",
+        "PyEDB": "https://edb.docs.pyansys.com/version/stable",
     },
     "search_filters": {
-        "API": ["API/"],
-        "User guide": [
-            "User_guide/",
-            "Getting_Started/",
-            "index/",
-        ],
+        "User guide": ["User_guide/"],
+        "Getting started": ["Getting_started/"],
         "Release notes": ["changelog"],
     },
     "additional_breadcrumbs": [
