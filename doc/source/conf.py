@@ -339,6 +339,10 @@ html_theme_options = {
             {"name": "objectID", "weight": 0.5},
         ],
     },
+    "mcp_server": {
+        "url": "https://github.com/ansys/pyaedt-mcp",
+        "project_name": "PyAEDT-MCP",
+    },
 }
 
 
