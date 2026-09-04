@@ -1,0 +1,6 @@
+get\_properties
+===============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.terminator
+
+.. automethod:: Terminator.get_properties

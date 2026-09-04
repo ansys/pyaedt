@@ -1,0 +1,6 @@
+far\_field\_wave
+================
+
+.. currentmodule:: ansys.aedt.core.hfss
+
+.. automethod:: Hfss.far_field_wave

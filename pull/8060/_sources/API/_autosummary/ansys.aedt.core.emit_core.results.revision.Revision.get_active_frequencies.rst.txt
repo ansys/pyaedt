@@ -1,0 +1,6 @@
+get\_active\_frequencies
+========================
+
+.. currentmodule:: ansys.aedt.core.emit_core.results.revision
+
+.. automethod:: Revision.get_active_frequencies

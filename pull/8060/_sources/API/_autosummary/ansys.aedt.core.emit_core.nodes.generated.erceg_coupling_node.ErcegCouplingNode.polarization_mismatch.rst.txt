@@ -1,0 +1,6 @@
+polarization\_mismatch
+======================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.erceg_coupling_node
+
+.. autoproperty:: ErcegCouplingNode.polarization_mismatch

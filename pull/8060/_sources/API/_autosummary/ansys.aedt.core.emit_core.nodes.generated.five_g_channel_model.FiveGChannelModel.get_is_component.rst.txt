@@ -1,0 +1,6 @@
+get\_is\_component
+==================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.five_g_channel_model
+
+.. automethod:: FiveGChannelModel.get_is_component

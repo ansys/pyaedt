@@ -1,0 +1,48 @@
+﻿Interaction
+===========
+
+.. currentmodule:: ansys.aedt.core.emit_core.results.interaction
+
+.. autoclass:: Interaction
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      Interaction.export_results
+      
+      
+      Interaction.get_availability
+      
+      
+      Interaction.get_availability_warning
+      
+      
+      Interaction.get_domain
+      
+      
+      Interaction.get_instance
+      
+      
+      Interaction.get_worst_instance
+      
+      
+      Interaction.has_valid_availability
+      
+      
+      Interaction.is_valid
+      
+      
+      Interaction.validate
+      
+   
+   
+
+   
+   
+   

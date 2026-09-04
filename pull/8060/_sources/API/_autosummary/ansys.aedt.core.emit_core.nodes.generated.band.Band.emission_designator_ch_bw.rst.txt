@@ -1,0 +1,6 @@
+emission\_designator\_ch\_bw
+============================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.band
+
+.. autoproperty:: Band.emission_designator_ch_bw

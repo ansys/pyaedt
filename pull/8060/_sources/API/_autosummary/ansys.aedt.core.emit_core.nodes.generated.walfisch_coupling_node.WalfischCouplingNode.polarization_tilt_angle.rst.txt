@@ -1,0 +1,6 @@
+polarization\_tilt\_angle
+=========================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.walfisch_coupling_node
+
+.. autoproperty:: WalfischCouplingNode.polarization_tilt_angle

@@ -1,0 +1,6 @@
+min\_ptsnull
+============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.waveform
+
+.. autoproperty:: Waveform.min_ptsnull

@@ -1,0 +1,6 @@
+add\_group
+==========
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.emit_scene_node
+
+.. automethod:: EmitSceneNode.add_group

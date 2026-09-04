@@ -1,0 +1,82 @@
+﻿Filter
+======
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.filter
+
+.. autoclass:: Filter
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      Filter.delete
+      
+      
+      Filter.duplicate
+      
+      
+      Filter.export_to_csv
+      
+      
+      Filter.get_is_component
+      
+      
+      Filter.get_properties
+      
+      
+      Filter.plot
+      
+      
+      Filter.props_to_dict
+      
+      
+      Filter.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      Filter.allowed_child_types
+      Filter.bp_higher_cutoff
+      Filter.bp_higher_stop_band
+      Filter.bp_lower_cutoff
+      Filter.bp_lower_stop_band
+      Filter.bs_higher_cutoff
+      Filter.bs_higher_stop_band
+      Filter.bs_lower_cutoff
+      Filter.bs_lower_stop_band
+      Filter.children
+      Filter.filename
+      Filter.filter_type
+      Filter.highest_tuned_frequency
+      Filter.insertion_loss
+      Filter.lowest_tuned_frequency
+      Filter.max_pass_band
+      Filter.max_stop_band
+      Filter.min_pass_band
+      Filter.min_stop_band
+      Filter.name
+      Filter.node_type
+      Filter.noise_temperature
+      Filter.notes
+      Filter.odesktop
+      Filter.parent_name
+      Filter.percent_bandwidth
+      Filter.properties
+      Filter.shape_factor
+      Filter.stop_band_attenuation
+      Filter.valid
+      Filter.warnings
+   
+   

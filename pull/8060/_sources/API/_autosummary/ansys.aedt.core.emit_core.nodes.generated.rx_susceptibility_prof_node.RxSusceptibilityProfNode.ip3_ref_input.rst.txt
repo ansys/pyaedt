@@ -1,0 +1,6 @@
+ip3\_ref\_input
+===============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.rx_susceptibility_prof_node
+
+.. autoproperty:: RxSusceptibilityProfNode.ip3_ref_input

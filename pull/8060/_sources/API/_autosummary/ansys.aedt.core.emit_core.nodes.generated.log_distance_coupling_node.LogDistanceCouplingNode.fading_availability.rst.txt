@@ -1,0 +1,6 @@
+fading\_availability
+====================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.log_distance_coupling_node
+
+.. autoproperty:: LogDistanceCouplingNode.fading_availability

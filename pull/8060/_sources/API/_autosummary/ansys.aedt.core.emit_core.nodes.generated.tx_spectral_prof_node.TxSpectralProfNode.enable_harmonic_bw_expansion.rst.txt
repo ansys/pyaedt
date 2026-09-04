@@ -1,0 +1,6 @@
+enable\_harmonic\_bw\_expansion
+===============================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.tx_spectral_prof_node
+
+.. autoproperty:: TxSpectralProfNode.enable_harmonic_bw_expansion

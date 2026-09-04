@@ -1,0 +1,6 @@
+start\_frequency
+================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.waveform
+
+.. autoproperty:: Waveform.start_frequency

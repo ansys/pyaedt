@@ -1,0 +1,57 @@
+﻿SamplingNode
+============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.sampling_node
+
+.. autoclass:: SamplingNode
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      SamplingNode.get_is_component
+      
+      
+      SamplingNode.get_properties
+      
+      
+      SamplingNode.props_to_dict
+      
+      
+      SamplingNode.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      SamplingNode.allowed_child_types
+      SamplingNode.children
+      SamplingNode.max_channels_range_band
+      SamplingNode.name
+      SamplingNode.node_type
+      SamplingNode.odesktop
+      SamplingNode.parent
+      SamplingNode.parent_name
+      SamplingNode.percentage_of_channels
+      SamplingNode.properties
+      SamplingNode.sampling_type
+      SamplingNode.seed
+      SamplingNode.specify_percentage
+      SamplingNode.table_data
+      SamplingNode.total_rx_channels
+      SamplingNode.total_tx_channels
+      SamplingNode.valid
+      SamplingNode.warnings
+   
+   

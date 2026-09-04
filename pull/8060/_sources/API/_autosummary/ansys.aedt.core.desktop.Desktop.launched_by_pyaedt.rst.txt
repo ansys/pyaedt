@@ -1,0 +1,6 @@
+launched\_by\_pyaedt
+====================
+
+.. currentmodule:: ansys.aedt.core.desktop
+
+.. autoproperty:: Desktop.launched_by_pyaedt
