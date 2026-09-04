@@ -122,7 +122,8 @@ dev = [
   { include-group = "quality" },
 ]
 doc = [
-    "ansys-sphinx-theme>=1.0.0",
+    "ansys-sphinx-theme>=1.0.0; python_version >= '3.12'",
+    "ansys-sphinx-theme==1.0.0; python_version < '3.12'",
     "numpydoc>=1.10.0",
     "recommonmark",
     "Sphinx>=7.1.0",
