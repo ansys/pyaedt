@@ -1243,7 +1243,7 @@ class VariableManager(PyAedtBase):
         design_circuit_indices = [i for i in design_indices if circuit_parameter[i]]
         design_local_indices = [i for i in design_indices if not circuit_parameter[i]]
 
-        success = True
+        result = True
 
         # Process design variables with circuit_parameter=True
         if design_circuit_indices:
@@ -1259,7 +1259,8 @@ class VariableManager(PyAedtBase):
                 circuit_parameter=True,
                 is_project=False,
             )
-            success = success and result
+            if not result:
+                return False
 
         # Process design variables with circuit_parameter=False
         if design_local_indices:
@@ -1275,7 +1276,8 @@ class VariableManager(PyAedtBase):
                 circuit_parameter=False,
                 is_project=False,
             )
-            success = success and result
+            if not result:
+                return False
 
         # Process project variables
         if project_indices:
@@ -1291,9 +1293,10 @@ class VariableManager(PyAedtBase):
                 circuit_parameter=False,  # Not used for project variables
                 is_project=True,
             )
-            success = success and result
+            if not result:
+                return False
 
-        return success
+        return result
 
     @pyaedt_function_handler()
     def _set_variables_single_call(
