@@ -1354,19 +1354,8 @@ class VariableManager(PyAedtBase):
                     ]
                 )
             except Exception:
-                self._logger.debug("Failed to create variables in batch, trying one by one.")
-                for i in new_indices:
-                    self.set_variable(
-                        names[i],
-                        expressions[i],
-                        read_only[i],
-                        hidden[i],
-                        description[i],
-                        sweep[i],
-                        overwrite,
-                        is_post_processing[i],
-                        circuit_parameter,
-                    )
+                self._logger.debug("Failed to create variables in batch.")
+                return False
 
         # Build and execute ChangedProps call for existing variables
         if existing_indices:
