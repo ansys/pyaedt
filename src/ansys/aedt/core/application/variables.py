@@ -39,7 +39,7 @@ Examples
 from __future__ import annotations
 
 import ast
-import os
+from pathlib import Path
 import re
 import types
 from typing import Any
@@ -151,11 +151,11 @@ class CSVDataset(PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core.application.variables import CSVDataset
-        >>> dataset = CSVDataset("C:\\Users\\user\\Documents\\results.csv")
+        >>> dataset = CSVDataset(r"C:\\Users\\user\\Documents\\results.csv")
         >>> dataset.path
 
         """
-        return os.path.dirname(os.path.realpath(self._csv_file))
+        return str(Path(self._csv_file).resolve().parent) if self._csv_file else ""
 
     def __init__(
         self,
@@ -3147,7 +3147,7 @@ class DataSet(PyAedtBase):
 
         """
         if not output_dir:
-            output_dir = os.path.join(self._app.working_directory, self.name + ".tab")
+            output_dir = str(Path(self._app.working_directory) / (self.name + ".tab"))
         if self.name[0] == "$":
             self._app._oproject.ExportDataset(self.name, output_dir)
         else:
