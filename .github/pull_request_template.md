@@ -7,7 +7,7 @@ rest of the text by a blank line. Available trailers for automatic labeling:
 
   Application: hfss, circuit, maxwell, icepak, q3d, q2d, emit, mechanical, twin-builder, hfss3dlayout
                (comma-separated values allowed)
-  AEDT-Version: 24.1, 24.2, 25.1, 25.2, 26.1
+  AEDT-Version: 24.1, 24.2, 25.1, 25.2, 26.1, 27.1
                 (comma-separated values allowed)
   Platform: windows, linux, rocky
             (comma-separated values allowed)
@@ -16,7 +16,7 @@ rest of the text by a blank line. Available trailers for automatic labeling:
 
 Examples:
   Application: hfss, maxwell
-  AEDT-Version: 25.2, 26.1
+  AEDT-Version: 25.2, 26.1, 27.1
   Platform: windows, linux
   Breaking-Change: removed MyClass
 -->

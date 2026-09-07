@@ -301,6 +301,16 @@ html_theme_options = {
     "show_prev_next": False,
     "show_breadcrumbs": True,
     "use_edit_page_button": True,
+    "search_extra_sources": {
+        "Examples": "https://examples.aedt.docs.pyansys.com/version/dev",
+        "Workflows": "https://workflows.docs.pyansys.com/",
+        "PyEDB": "https://edb.docs.pyansys.com/version/stable",
+    },
+    "search_filters": {
+        "User guide": ["User_guide/"],
+        "Getting started": ["Getting_started/"],
+        "Release notes": ["changelog"],
+    },
     "additional_breadcrumbs": [
         ("PyAnsys", "https://docs.pyansys.com/"),
     ],
@@ -318,10 +328,16 @@ html_theme_options = {
     "collapse_navigation": True,
     "navigation_with_keys": True,
     "static_search": {
-        "threshold": 0.5,
-        "minMatchCharLength": 2,
-        "limit": 10,
-        "ignoreLocation": True,
+        "keys": [
+            {"name": "section", "weight": 5},
+            {"name": "title", "weight": 3},
+            {"name": "text", "weight": 1},
+            {"name": "objectID", "weight": 0.5},
+        ],
+    },
+    "mcp_server": {
+        "url": "https://github.com/ansys/pyaedt-mcp",
+        "project_name": "PyAEDT-MCP",
     },
 }
 
