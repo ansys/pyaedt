@@ -159,10 +159,10 @@ class CSVDataset(PyAedtBase):
 
     def __init__(
         self,
-        csv_file: str = None,
-        separator: str = None,
-        units_dict: dict = None,
-        append_dict: dict = None,
+        csv_file: str | None = None,
+        separator: str | None = None,
+        units_dict: dict | None = None,
+        append_dict: dict | None = None,
     ):
         self._header = []
         self._data = {}
@@ -284,7 +284,8 @@ class CSVDataset(PyAedtBase):
 
     # Create an iterator to yield the row data as a string as we loop through the object
     def __next__(self):
-        if self._index < (self.number_of_rows - 1):
+        num_rows = self.number_of_rows or 0
+        if self._index < (num_rows - 1):
             output = []
             for column in self._header:
                 evaluated_value = str(self._data[column][self._index])
@@ -1051,7 +1052,7 @@ class VariableManager(PyAedtBase):
         return vars_to_output
 
     @pyaedt_function_handler()
-    def get_expression(self, name: str) -> str:  # TODO: Should be renamed to "evaluate"
+    def get_expression(self, name: str) -> str | bool:  # TODO: Should be renamed to "evaluate"
         """Retrieve the variable value of a project or design variable as a string.
 
         Parameters
@@ -1102,13 +1103,25 @@ class VariableManager(PyAedtBase):
             return self._odesign
 
     @pyaedt_function_handler()
+    def _clear_variable_from_cache(self, name: str) -> None:
+        """Clear a variable from internal caches."""
+        if name in self.__independent_design_variables:
+            del self.__independent_design_variables[name]
+        elif name in self.__independent_project_variables:
+            del self.__independent_project_variables[name]
+        elif name in self.__dependent_design_variables:
+            del self.__dependent_design_variables[name]
+        elif name in self.__dependent_project_variables:
+            del self.__dependent_project_variables[name]
+
+    @pyaedt_function_handler()
     def set_variable(
         self,
         name: str | list[str],
-        expression: str | list = None,
+        expression: str | list | None = None,
         read_only: bool | list[bool] = False,
         hidden: bool | list[bool] = False,
-        description: str | list[str] = None,
+        description: str | list[str] | None = None,
         sweep: bool | list[bool] = True,
         overwrite: bool = True,
         is_post_processing: bool | list[bool] = False,
@@ -1195,10 +1208,10 @@ class VariableManager(PyAedtBase):
         # If name is a list, expression must be a list of values for each variable
         if isinstance(name, str):
             names = [name]
-            expressions = [expression]
+            expressions: list = [expression]
         else:
             names = name
-            expressions = expression
+            expressions = expression if expression is not None else [None] * len(names)
         n = len(names)
 
         # Normalize other parameters to lists
@@ -1320,14 +1333,7 @@ class VariableManager(PyAedtBase):
 
         # Clear variables from cache and get existing variables
         for nm in names:
-            if nm in self._VariableManager__independent_design_variables:
-                del self._VariableManager__independent_design_variables[nm]
-            elif nm in self._VariableManager__independent_project_variables:
-                del self._VariableManager__independent_project_variables[nm]
-            elif nm in self._VariableManager__dependent_design_variables:
-                del self._VariableManager__dependent_design_variables[nm]
-            elif nm in self._VariableManager__dependent_project_variables:
-                del self._VariableManager__dependent_project_variables[nm]
+            self._clear_variable_from_cache(nm)
 
         var_list = self._get_var_list_from_aedt(desktop_object)
         lower_case_vars = [v.lower() for v in var_list]
@@ -1737,24 +1743,24 @@ class Variable(PyAedtBase):
 
     def __repr__(self) -> str:
         """Variable representation."""
-        return self.expression
+        return str(self.expression)
 
     def __str__(self) -> str:
         """Variable string representation."""
-        return self.expression
+        return str(self.expression)
 
     def __init__(
         self,
         expression: float | str,
-        units: str = None,
-        si_value: float = None,
-        full_variables: dict = None,
-        name: str = None,
+        units: str | None = None,
+        si_value: float | None = None,
+        full_variables: dict | None = None,
+        name: str | None = None,
         app=None,
         readonly: bool = False,
         hidden: bool = False,
         sweep: bool = True,
-        description: str = None,
+        description: str | None = None,
         postprocessing: bool = False,
         circuit_parameter: bool = True,
     ):
@@ -2433,7 +2439,7 @@ class Variable(PyAedtBase):
             self._value_fallback()
 
     @property
-    def unit_system(self) -> str:
+    def unit_system(self) -> str | bool:
         """Unit system name.
 
         Examples
@@ -2517,7 +2523,7 @@ class Variable(PyAedtBase):
         return self._value
 
     @property
-    def evaluated_value(self) -> str:
+    def evaluated_value(self) -> str | None:
         """Concatenated numeric value and unit string.
 
         Examples
@@ -2727,12 +2733,12 @@ class Variable(PyAedtBase):
     def _units_fallback(self):
         units = self._units
         if not is_number(self._value):
-            _, units = decompose_variable_value(self._value)
+            _, units = decompose_variable_value(str(self._value))
         self._units = units
         return self._units
 
     @pyaedt_function_handler()
-    def __to_si(self, numeric: float, units: str = None) -> float:
+    def __to_si(self, numeric: float, units: str | None = None) -> float:
         """Convert a numeric value from the given units to SI units.
 
         Parameters
@@ -2767,7 +2773,7 @@ class Variable(PyAedtBase):
             return numeric * scale
 
     @pyaedt_function_handler()
-    def __from_si(self, si_numeric: float, units: str = None) -> float:
+    def __from_si(self, si_numeric: float, units: str | None = None) -> float:
         """Convert a numeric value from SI units to the given units.
 
         Parameters
