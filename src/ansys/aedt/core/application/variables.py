@@ -1191,14 +1191,17 @@ class VariableManager(PyAedtBase):
 
         """
         # Normalize to list
-        names = [name] if isinstance(name, str) else name
+        # If name is a string, expression is the value for that single variable (could be an array)
+        # If name is a list, expression must be a list of values for each variable
+        if isinstance(name, str):
+            names = [name]
+            expressions = [expression]
+        else:
+            names = name
+            expressions = expression
         n = len(names)
 
-        # Normalize all parameters to lists
-        if not isinstance(expression, list):
-            expressions = [expression] * n
-        else:
-            expressions = expression
+        # Normalize other parameters to lists
         if not isinstance(read_only, list):
             read_only = [read_only] * n
         if not isinstance(hidden, list):

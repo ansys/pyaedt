@@ -339,12 +339,16 @@ def test_arrays(app) -> None:
     app.variable_manager.set_variable("arr_index", expression=0, circuit_parameter=False)
     app.variable_manager.set_variable("arr1", expression="[1, 2, 3]", circuit_parameter=False)
     app.variable_manager.set_variable("arr2", expression=[1, 2, 3], circuit_parameter=False)
-    app.variable_manager.set_variable("arr_index", expression=0, circuit_parameter=False)
+    app.variable_manager.set_variable(["arr3", "arr4"], expression=[[1, 2, 3], [4, 5, 6]], circuit_parameter=False)
 
     app["getvalue1"] = "arr1[arr_index]"
     app["getvalue2"] = "arr2[arr_index]"
+    app["getvalue3"] = "arr3[arr_index]"
+    app["getvalue4"] = "arr4[arr_index]"
     assert app.variable_manager["getvalue1"].numeric_value == 1.0
     assert app.variable_manager["getvalue2"].numeric_value == 1.0
+    assert app.variable_manager["getvalue3"].numeric_value == 1.0
+    assert app.variable_manager["getvalue4"].numeric_value == 4.0
 
 
 def test_maxwell_circuit_variables(maxwell_circuit_app) -> None:
@@ -517,3 +521,9 @@ def test_variations(app_variations, output_as_dict):
                 assert isinstance(key, str)
                 assert key.endswith(":=")
                 assert isinstance(value, list)
+
+
+def test_separator(hfss_app) -> None:
+    hfss_app["v1"] = "10mm"
+    assert hfss_app.variable_manager.set_variable("sep", None)
+    hfss_app["v2"] = "20mm"
