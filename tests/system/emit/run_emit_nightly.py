@@ -1,4 +1,29 @@
 #!/usr/bin/env python3
+
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 """Run the Emit system tests with per-test watchdogs and repeat loops.
 
 This helper is intentionally scoped to the Emit suite so the nightly job stays
@@ -11,10 +36,10 @@ from __future__ import annotations
 
 import argparse
 import os
+from pathlib import Path
 import subprocess
 import sys
 import time
-from pathlib import Path
 
 import psutil
 
@@ -40,8 +65,7 @@ def _collect_emit_tests(repo_root: Path, extra_args: list[str]) -> list[str]:
             discovered.append(candidate)
     if not discovered:
         raise RuntimeError(
-            "No Emit tests were discovered. Collect output:\n"
-            f"STDOUT:\n{completed.stdout}\nSTDERR:\n{completed.stderr}"
+            f"No Emit tests were discovered. Collect output:\nSTDOUT:\n{completed.stdout}\nSTDERR:\n{completed.stderr}"
         )
     return discovered
 
@@ -179,7 +203,9 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Run the EMIT system tests with per-test timeout cleanup.")
     parser.add_argument("--repeat", type=int, default=1, help="Number of times to iterate the Emit suite.")
     parser.add_argument("--timeout", type=int, default=600, help="Per-test timeout in seconds.")
-    parser.add_argument("--list-tests", action="store_true", help="Collect and print the Emit node IDs without running.")
+    parser.add_argument(
+        "--list-tests", action="store_true", help="Collect and print the Emit node IDs without running."
+    )
     parser.add_argument(
         "--pytest-arg",
         action="append",
