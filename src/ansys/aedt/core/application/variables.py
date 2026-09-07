@@ -1386,11 +1386,11 @@ class VariableManager(PyAedtBase):
 
             self._cleanup_variables()
 
-        # Verify all variables were created
+        # Verify all variables were created (skip separators, they don't appear in var_list)
         var_list = self._get_var_list_from_aedt(desktop_object)
         lower_case_vars = [v.lower() for v in var_list]
-        for nm in names:
-            if nm.lower() not in lower_case_vars:
+        for i, nm in enumerate(names):
+            if expressions[i] and nm.lower() not in lower_case_vars:
                 return False
 
         return True
