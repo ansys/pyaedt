@@ -1344,7 +1344,7 @@ class VariableManager(PyAedtBase):
 
         # Build and execute NewProps call for new variables
         if new_indices:
-            new_props = ["NAME:NewProps"]
+            new_props: list[Any] = ["NAME:NewProps"]
             for i in new_indices:
                 prop = self._build_single_prop(
                     names[i], expressions[i], read_only[i], hidden[i], description[i], sweep[i], is_post_processing[i]
@@ -1368,7 +1368,7 @@ class VariableManager(PyAedtBase):
 
         # Build and execute ChangedProps call for existing variables
         if existing_indices:
-            changed_props = ["NAME:ChangedProps"]
+            changed_props: list[Any] = ["NAME:ChangedProps"]
             for i in existing_indices:
                 prop = self._build_single_prop(
                     names[i], expressions[i], read_only[i], hidden[i], description[i], sweep[i], is_post_processing[i]
@@ -2871,10 +2871,10 @@ class DataSet(PyAedtBase):
         self.sort = sort
 
     @pyaedt_function_handler()
-    def _args(self):
+    def _args(self) -> list[Any] | bool:
         """Retrieve arguments."""
-        arg = ["Name:" + self.name]
-        arg2 = ["Name:Coordinates"]
+        arg: list[Any] = ["Name:" + self.name]
+        arg2: list[Any] = ["Name:Coordinates"]
         if self.z is None:
             arg2.append(["NAME:DimUnits", self.xunit, self.yunit])
         elif self.v is not None:
@@ -2899,7 +2899,7 @@ class DataSet(PyAedtBase):
         ver = self._app._aedt_version
         for i in range(len(x)):
             if ver >= "2022.1":
-                arg3 = ["NAME:Point", float(x[i]), float(y[i])]
+                arg3: list[Any] = ["NAME:Point", float(x[i]), float(y[i])]
                 if self.z:
                     arg3.append(float(z[i]))
                     arg3.append(float(v[i]))
@@ -2907,7 +2907,7 @@ class DataSet(PyAedtBase):
             else:
                 arg3 = []
                 arg3.append("NAME:Coordinate")
-                arg4 = ["NAME:CoordPoint"]
+                arg4: list[Any] = ["NAME:CoordPoint"]
                 arg4.append(float(x[i]))
                 arg4.append(float(y[i]))
                 if self.z:
