@@ -48,7 +48,7 @@ class DesignSolution(PyAedtBase):
         self._solution_type = None
 
     @property
-    def solution_type(self) -> str:
+    def solution_type(self) -> str | None:
         """Get/Set the Solution Type of the active Design.
 
         Examples
@@ -307,7 +307,7 @@ class HFSSDesignSolution(DesignSolution, PyAedtBase):
         self.solution_type = self.solution_type
 
     @property
-    def composite(self) -> bool:
+    def composite(self) -> bool | None:
         """HFSS composite mode for the active solution.
 
         Examples
