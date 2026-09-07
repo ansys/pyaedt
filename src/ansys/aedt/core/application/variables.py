@@ -1423,9 +1423,7 @@ class VariableManager(PyAedtBase):
             variable = expression
         elif isinstance(expression, Variable):
             variable = expression.evaluated_value
-        elif isinstance(expression, Quantity):
-            variable = str(expression)
-        elif is_number(expression):
+        elif isinstance(expression, Quantity) or is_number(expression):
             variable = str(expression)
         elif isinstance(expression, list):
             variable = str(expression).replace("'", '"')
