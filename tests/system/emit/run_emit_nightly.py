@@ -37,6 +37,7 @@ from __future__ import annotations
 import argparse
 import os
 from pathlib import Path
+import re
 import subprocess
 import sys
 import time
@@ -162,7 +163,15 @@ def _test_env() -> dict[str, str]:
     return env
 
 
-def _run_single_test(repo_root: Path, nodeid: str, timeout: int, extra_args: list[str]) -> int:
+def _junit_name(nodeid: str) -> str:
+    return re.sub(r"[^A-Za-z0-9_.-]", "_", nodeid)
+
+
+def _run_single_test(repo_root: Path, nodeid: str, timeout: int, grace: int, extra_args: list[str]) -> int:
+    junit_dir = repo_root / "junit"
+    junit_dir.mkdir(parents=True, exist_ok=True)
+    junit_file = junit_dir / f"{_junit_name(nodeid)}.xml"
+
     args = [
         sys.executable,
         "-m",
@@ -175,26 +184,38 @@ def _run_single_test(repo_root: Path, nodeid: str, timeout: int, extra_args: lis
         "--color=yes",
         "--timeout",
         str(timeout),
+        f"--junitxml={junit_file}",
         *extra_args,
         nodeid,
     ]
-    _log(f"Starting test: {nodeid} with timeout={timeout}s")
+
+    # NOTE: pytest-timeout uses the thread method on Windows, which cannot interrupt a
+    # blocked native AEDT/gRPC call. The hard timeout below is the only reliable way to
+    # recover from an EMIT hang, so it must be strictly greater than the inner timeout.
+    hard_timeout = timeout + grace
+    _log(f"Starting test: {nodeid} (pytest timeout={timeout}s, hard kill after {hard_timeout}s)")
     _emit_process_snapshot(f"Before {nodeid}")
 
     start = time.time()
+    process = subprocess.Popen(args, cwd=repo_root, env=_test_env())
     try:
-        completed = subprocess.run(args, cwd=repo_root, env=_test_env(), timeout=timeout, check=False)
+        returncode = process.wait(timeout=hard_timeout)
         elapsed = time.time() - start
-        _log(f"Completed test: {nodeid} in {elapsed:.1f}s with exit code {completed.returncode}")
+        _log(f"Completed test: {nodeid} in {elapsed:.1f}s with exit code {returncode}")
         _emit_process_snapshot(f"After {nodeid}")
-        return completed.returncode
+        return returncode
     except subprocess.TimeoutExpired:
         elapsed = time.time() - start
-        _log(f"Test timed out after {timeout}s: {nodeid} (elapsed={elapsed:.1f}s)")
+        _log(f"HANG DETECTED: {nodeid} exceeded {hard_timeout}s (elapsed={elapsed:.1f}s); killing process tree")
         try:
+            _kill_process_tree(process.pid)
             _kill_emit_processes(nodeid)
         except Exception as exc:  # pragma: no cover - defensive logging
             _log(f"Forced cleanup for {nodeid} raised an unexpected exception: {exc}")
+        try:
+            process.wait(timeout=60)
+        except subprocess.TimeoutExpired:
+            _log(f"pytest process {process.pid} for {nodeid} did not exit after being killed")
         _emit_process_snapshot(f"After timeout cleanup for {nodeid}")
         return 124
 
@@ -203,6 +224,12 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Run the EMIT system tests with per-test timeout cleanup.")
     parser.add_argument("--repeat", type=int, default=1, help="Number of times to iterate the Emit suite.")
     parser.add_argument("--timeout", type=int, default=600, help="Per-test timeout in seconds.")
+    parser.add_argument(
+        "--grace",
+        type=int,
+        default=120,
+        help="Extra seconds beyond --timeout before the pytest process tree is force killed.",
+    )
     parser.add_argument(
         "--list-tests", action="store_true", help="Collect and print the Emit node IDs without running."
     )
@@ -222,16 +249,22 @@ def main() -> int:
         return 0
 
     failed = 0
+    hung: list[str] = []
     for iteration in range(1, args.repeat + 1):
         _log("========================================")
         _log(f"Starting Emit iteration {iteration}/{args.repeat}")
         _log("========================================")
         for nodeid in all_tests:
-            exit_code = _run_single_test(repo_root, nodeid, args.timeout, args.pytest_arg)
+            exit_code = _run_single_test(repo_root, nodeid, args.timeout, args.grace, args.pytest_arg)
+            if exit_code == 124:
+                hung.append(nodeid)
             if exit_code not in (0, 5):
                 failed += 1
                 _log(f"Test failed or timed out: {nodeid} (exit code {exit_code})")
                 _log("Continuing with the next Emit test to keep the suite moving.")
+
+    if hung:
+        _log(f"Tests that hung and were force killed: {hung}")
 
     if failed:
         _log(f"Emit nightly run finished with {failed} failed or timed-out tests.")

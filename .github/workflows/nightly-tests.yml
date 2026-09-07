@@ -1028,6 +1028,7 @@ jobs:
   system-tests-emit-windows:
     name: Test EMIT (windows)
     runs-on: [ self-hosted, Windows, pyaedt ]
+    timeout-minutes: 720
     steps:
       - name: Install Git and checkout project
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -1075,7 +1076,7 @@ jobs:
           $env:PYTHONUNBUFFERED = '1'
           $env:PYAEDT_LOG_LEVEL = 'DEBUG'
           $env:ANSYS_EMIT_DEBUG = '1'
-          python tests/system/emit/run_emit_nightly.py --repeat 5 --timeout 600
+          python tests/system/emit/run_emit_nightly.py --repeat 5 --timeout 600 --grace 120
 
       - uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
