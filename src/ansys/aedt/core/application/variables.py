@@ -2942,7 +2942,7 @@ class DataSet(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def add_point(self, x: float, y: float, z: float = None, v: float = None) -> bool:
+    def add_point(self, x: float, y: float, z: float | None = None, v: float | None = None) -> bool:
         """Add a point to the dataset.
 
         Parameters
@@ -3113,7 +3113,7 @@ class DataSet(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def export(self, output_dir: str = None) -> bool:
+    def export(self, output_dir: str | None = None) -> bool:
         """Export the dataset.
 
         Parameters
