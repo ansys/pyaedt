@@ -56,7 +56,7 @@ AEDT_PROCESS_ID = get_process_id()
 """AEDT process identifier."""
 IS_STUDENT = is_student()
 """Flag indicating whether the student version is used."""
-CUTOUT_TYPES = ("ConvexHull", "Bounding", "Conforming")
+CUTOUT_TYPES = ("ConvexHull", "Bounding", "Conforming", "CustomExtent")
 """Available cutout types."""
 EXTENSION_DEFAULT_ARGUMENTS = {
     "cutout_type": "ConvexHull",
@@ -91,6 +91,7 @@ class CutoutData(ExtensionCommonData):
 
     cutout_type: str = "ConvexHull"
     """Value for cutout type."""
+    custom_extent: str = None
     signals: list[str] = field(default_factory=list)
     """Value for signals."""
     references: list[str] = field(default_factory=list)
@@ -338,7 +339,7 @@ class CutoutExtension(ExtensionHFSS3DLayoutCommon):
         self.root.destroy()
 
 
-def main(data: CutoutData) -> Path:
+def main(data: CutoutData) -> Path | None:
     """Main function to execute the cutout operation.
 
     Examples
@@ -348,6 +349,7 @@ def main(data: CutoutData) -> Path:
     >>> main(data)
 
     """
+
     app = ansys.aedt.core.Desktop(
         new_desktop=False,
         version=VERSION,
@@ -364,6 +366,18 @@ def main(data: CutoutData) -> Path:
 
     edb = Edb(edbpath=str(aedb_path), cellname=active_design.GetName().split(";")[1], version=VERSION)
     edb.save_as(str(new_path))
+    points = None
+    if data.cutout_type == "CustomExtent":
+        result = edb.layout.find_primitive(name=data.custom_extent)
+        if len(result) > 1:
+            app.logger.info(f"Find more than one custom extent named {data.custom_extent} in the layout.")
+            return None
+        elif len(result) == 0:
+            app.logger.info(f"No custom extent named {data.custom_extent} in the layout.")
+            return None
+        else:
+            prim = result[0]
+            points = prim.polygon_data.points
     edb.cutout(
         signal_list=data.signals,
         reference_list=data.references,
@@ -377,7 +391,7 @@ def main(data: CutoutData) -> Path:
         use_pyaedt_extent_computing=True,
         extent_defeature=0,
         remove_single_pin_components=data.fix_disjoints,
-        custom_extent=None,
+        custom_extent=points,
         custom_extent_units="mm",
         include_partial_instances=False,
         keep_voids=True,
