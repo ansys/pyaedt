@@ -181,8 +181,8 @@ def test_hfss_getter_normalizes(aedt_solution, expected_solution):
         ("Transient Composite", "Transient Composite", ("Transient Composite",)),
     ],
 )
-def test_hfss_setter_modern(value, expected_solution, expected_call):
-    """HFSSDesignSolution.solution_type setter should set each modern solution variant."""
+def test_hfss_setter_types(value, expected_solution, expected_call):
+    """HFSSDesignSolution.solution_type setter should set each solution variant."""
     odesign = MagicMock()
     hds = HFSSDesignSolution(odesign, HfssConstants, AEDT_VERSION)
 
