@@ -44,6 +44,7 @@ MOCK_PADSTACK_0 = "pad_DDR4_DM0"
 MOCK_PADSTACK_1 = "pad_DDR4_DM1"
 MOCK_NET_NAME_0 = "DDR4_DM0"
 MOCK_NET_NAME_1 = "DDR4_DM1"
+MOCK_CUSTOM_EXTENT = "poly_cutout_extent"
 
 
 @pytest.fixture
@@ -104,6 +105,7 @@ def test_cutout_extension_default(mock_hfss_3d_layout_with_primitives) -> None:
     )
     assert EXTENSION_DEFAULT_ARGUMENTS["fix_disjoints"] == bool(extension.widgets["fix_disjoints"].get())
     assert EXPECTED_OBJS_NET == extension.objects_net
+    assert WAITING_FOR_SELECTION == extension.widgets["custom_extent_variable"].get()
     assert "light" == extension.root.theme
 
     extension.root.destroy()
@@ -164,3 +166,42 @@ def test_cutout_extension_create_cutout(mock_hfss_3d_layout_with_primitives) -> 
     extension.widgets["create_cutout"].invoke()
 
     assert EXPECTED_RESULT == extension.data
+
+
+@pytest.mark.parametrize("mock_hfss_3d_layout_with_primitives", [[[MOCK_CUSTOM_EXTENT]]], indirect=True)
+def test_cutout_extension_custom_extent_ui_messages(mock_hfss_3d_layout_with_primitives) -> None:
+    """Test that CutoutExtension allows selecting a custom extent object."""
+    extension = CutoutExtension(withdraw=True)
+
+    assert WAITING_FOR_SELECTION == extension.widgets["custom_extent_variable"].get()
+
+    extension.widgets["custom_extent"].invoke()
+
+    assert SELECTION_PERFORMED == extension.widgets["custom_extent_variable"].get()
+
+    extension.widgets["reset"].invoke()
+
+    assert WAITING_FOR_SELECTION == extension.widgets["custom_extent_variable"].get()
+
+
+@pytest.mark.parametrize("mock_hfss_3d_layout_with_primitives", [[[MOCK_CUSTOM_EXTENT]]], indirect=True)
+def test_cutout_extension_create_cutout_with_custom_extent(mock_hfss_3d_layout_with_primitives) -> None:
+    """Test that CutoutExtension creates a cutout from a custom extent without net selections."""
+    expected_result = CutoutData(
+        cutout_type=CUTOUT_TYPES[3],
+        custom_extent=MOCK_CUSTOM_EXTENT,
+        signals=[],
+        references=[],
+        expansion_factor=4.0,
+        fix_disjoints=False,
+    )
+
+    extension = CutoutExtension(withdraw=True)
+    extension.widgets["cutout_type"].current(3)
+    extension.widgets["expansion_factor"].delete("1.0", "end")
+    extension.widgets["expansion_factor"].insert("1.0", 4.0)
+    extension.widgets["custom_extent"].invoke()
+    extension.widgets["create_cutout"].invoke()
+
+    assert expected_result == extension.data
+
