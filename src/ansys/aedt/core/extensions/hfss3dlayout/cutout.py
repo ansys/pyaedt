@@ -329,7 +329,7 @@ class CutoutExtension(ExtensionHFSS3DLayoutCommon):
                 raise AEDTRuntimeError("Please select exactly one extent object from the layout.")
             self.cutout_data.custom_extent = selections[0]
             variable = self.__widgets["custom_extent_variable"]
-            variable.set(SELECTION_PERFORMED)
+            variable.set(self.cutout_data.custom_extent)
             return
 
         selection = self.__get_selection()
