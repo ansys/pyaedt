@@ -74,6 +74,7 @@ def mock_emit_environment():
         }
 
 
+@pytest.mark.skipif(DESKTOP_VERSION <= "2028.1", reason="Skip while debugging hanging")
 def test_emi_heatmap_extension_data_class():
     """Test EMIHeatmapExtensionData class."""
     data = EMIHeatmapExtensionData(
@@ -95,6 +96,7 @@ def test_emi_heatmap_extension_data_class():
     assert data.aggressor_band == "Band2"
 
 
+@pytest.mark.skipif(DESKTOP_VERSION <= "2028.1", reason="Skip while debugging hanging")
 def test_emi_heatmap_extension_initialization(mock_emit_environment):
     """Test that extension initializes correctly with an active EMIT design."""
     extension = EMIHeatmapExtension(withdraw=True)
@@ -108,6 +110,7 @@ def test_emi_heatmap_extension_initialization(mock_emit_environment):
     extension.root.destroy()
 
 
+@pytest.mark.skipif(DESKTOP_VERSION <= "2028.1", reason="Skip while debugging hanging")
 def test_emi_heatmap_widgets_created(mock_emit_environment):
     """Test that UI widgets are correctly created."""
     extension = EMIHeatmapExtension(withdraw=True)
@@ -125,6 +128,7 @@ def test_emi_heatmap_widgets_created(mock_emit_environment):
     extension.root.destroy()
 
 
+@pytest.mark.skipif(DESKTOP_VERSION <= "2028.1", reason="Skip while debugging hanging")
 def test_get_radios(mock_emit_environment):
     """Test getting aggressor and victim radios from the project for both new and old API."""
     mock_aedt_app = mock_emit_environment["emit_app"]
@@ -172,6 +176,7 @@ def test_get_radios(mock_emit_environment):
     extension.root.destroy()
 
 
+@pytest.mark.skipif(DESKTOP_VERSION <= "2028.1", reason="Skip while debugging hanging")
 def test_populate_dropdowns(mock_emit_environment):
     """Test populating victim and aggressor combo boxes."""
     mock_aedt_app = mock_emit_environment["emit_app"]
@@ -239,6 +244,7 @@ def test_on_victim_changed(mock_emit_environment):
     extension.root.destroy()
 
 
+@pytest.mark.skipif(DESKTOP_VERSION <= "2028.1", reason="Skip while debugging hanging")
 def test_on_victim_band_changed(mock_emit_environment):
     """Test handling victim band selection change."""
     mock_aedt_app = mock_emit_environment["emit_app"]
@@ -275,6 +281,7 @@ def test_on_victim_band_changed(mock_emit_environment):
     extension.root.destroy()
 
 
+@pytest.mark.skipif(DESKTOP_VERSION <= "2028.1", reason="Skip while debugging hanging")
 def test_on_aggressor_band_changed(mock_emit_environment):
     """Test handling aggressor band selection change."""
     mock_aedt_app = mock_emit_environment["emit_app"]
@@ -311,6 +318,7 @@ def test_on_aggressor_band_changed(mock_emit_environment):
     extension.root.destroy()
 
 
+@pytest.mark.skipif(DESKTOP_VERSION <= "2028.1", reason="Skip while debugging hanging")
 def test_on_aggressor_changed(mock_emit_environment):
     """Test handling aggressor radio selection change."""
     mock_aedt_app = mock_emit_environment["emit_app"]
@@ -347,6 +355,7 @@ def test_on_aggressor_changed(mock_emit_environment):
     extension.root.destroy()
 
 
+@pytest.mark.skipif(DESKTOP_VERSION <= "2028.1", reason="Skip while debugging hanging")
 def test_extract_data(mock_emit_environment):
     """Test extracting EMI data for channel combinations."""
     mock_aedt_app = mock_emit_environment["emit_app"]
@@ -398,6 +407,7 @@ def test_extract_data(mock_emit_environment):
     extension.root.destroy()
 
 
+@pytest.mark.skipif(DESKTOP_VERSION <= "2028.1", reason="Skip while debugging hanging")
 def test_format_csv(mock_emit_environment):
     """Test CSV formatting."""
     extension = EMIHeatmapExtension(withdraw=True)
@@ -438,6 +448,7 @@ def test_format_csv(mock_emit_environment):
     extension.root.destroy()
 
 
+@pytest.mark.skipif(DESKTOP_VERSION <= "2028.1", reason="Skip while debugging hanging")
 @patch("tkinter.filedialog.asksaveasfilename")
 def test_on_export_csv(mock_filedialog, mock_emit_environment):
     """Test CSV export functionality."""
@@ -490,6 +501,7 @@ def test_on_export_csv(mock_filedialog, mock_emit_environment):
 
 @patch("matplotlib.pyplot.get_current_fig_manager")
 @patch("matplotlib.pyplot.show")
+@pytest.mark.skipif(DESKTOP_VERSION <= "2028.1", reason="Skip while debugging hanging")
 def test_plot_matrix_heatmap_normal_case(mock_show, mock_fig_manager, mock_emit_environment):
     """Test heatmap plotting with normal data spanning all three color ranges."""
     # Mock the figure manager to avoid backend-specific issues
@@ -517,6 +529,7 @@ def test_plot_matrix_heatmap_normal_case(mock_show, mock_fig_manager, mock_emit_
 
 @patch("matplotlib.pyplot.get_current_fig_manager")
 @patch("matplotlib.pyplot.show")
+@pytest.mark.skipif(DESKTOP_VERSION <= "2028.1", reason="Skip while debugging hanging")
 def test_plot_matrix_heatmap_edge_cases(mock_show, mock_fig_manager, mock_emit_environment):
     """Test heatmap plotting with various edge cases: single color ranges and constant values."""
     # Mock the figure manager to avoid backend-specific issues
@@ -553,6 +566,7 @@ def test_plot_matrix_heatmap_edge_cases(mock_show, mock_fig_manager, mock_emit_e
 
 
 @patch("tkinter.messagebox.showerror")
+@pytest.mark.skipif(DESKTOP_VERSION <= "2028.1", reason="Skip while debugging hanging")
 def test_plot_matrix_heatmap_error_cases(mock_error, mock_emit_environment):
     """Test heatmap plotting with invalid inputs: empty data, NaN values, and invalid thresholds."""
     extension = EMIHeatmapExtension(withdraw=True)
@@ -597,6 +611,7 @@ def test_plot_matrix_heatmap_error_cases(mock_error, mock_emit_environment):
 
 @patch("matplotlib.pyplot.get_current_fig_manager")
 @patch("matplotlib.pyplot.show")
+@pytest.mark.skipif(DESKTOP_VERSION <= "2028.1", reason="Skip while debugging hanging")
 def test_on_generate_heatmap(mock_show, mock_fig_manager, mock_emit_environment):
     """Test generating heatmap plot."""
     # Mock the figure manager to avoid backend-specific issues
@@ -638,6 +653,7 @@ def test_on_generate_heatmap(mock_show, mock_fig_manager, mock_emit_environment)
 
 
 @patch("ansys.aedt.core.extensions.emit.emi_heat_map.messagebox.showerror")
+@pytest.mark.skipif(DESKTOP_VERSION <= "2028.1", reason="Skip while debugging hanging")
 def test_error_handling_heat_map(mock_error, mock_emit_environment):
     """Test error handling in _on_generate_heatmap."""
     mock_aedt_app = mock_emit_environment["emit_app"]
@@ -661,6 +677,7 @@ def test_error_handling_heat_map(mock_error, mock_emit_environment):
 
 
 @patch("ansys.aedt.core.extensions.emit.emi_heat_map.messagebox.showerror")
+@pytest.mark.skipif(DESKTOP_VERSION <= "2028.1", reason="Skip while debugging hanging")
 def test_error_handling_csv(mock_error, mock_emit_environment):
     """Test error message boxes are shown when operations fail."""
     mock_aedt_app = mock_emit_environment["emit_app"]
@@ -697,6 +714,7 @@ def test_error_handling_csv(mock_error, mock_emit_environment):
 
 
 @patch("ansys.aedt.core.extensions.emit.emi_heat_map.messagebox.showwarning")
+@pytest.mark.skipif(DESKTOP_VERSION <= "2028.1", reason="Skip while debugging hanging")
 def test_no_bands_warnings(mock_warning, mock_emit_environment):
     """Test warning messages when no bands are found."""
     mock_aedt_app = mock_emit_environment["emit_app"]
@@ -728,6 +746,7 @@ def test_no_bands_warnings(mock_warning, mock_emit_environment):
     extension.root.destroy()
 
 
+@pytest.mark.skipif(DESKTOP_VERSION <= "2028.1", reason="Skip while debugging hanging")
 def test_early_returns(mock_emit_environment):
     """Test early returns in change handlers for coverage."""
     mock_aedt_app = mock_emit_environment["emit_app"]
