@@ -160,6 +160,7 @@ def test_generate_heatmap(mock_show, mock_fig_manager, emit_app_with_radios):
 
     extension.root.destroy()
 
+
 @pytest.mark.skipif(DESKTOP_VERSION <= "2028.1", reason="Skip while debugging hanging")
 def test_full_workflow_integration(emit_app_with_radios, test_tmp_dir):
     """Test complete workflow: initialize -> select radios -> extract -> export."""
