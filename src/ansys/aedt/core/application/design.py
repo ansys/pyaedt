@@ -5071,29 +5071,11 @@ class Design(AedtObjects, PyAedtBase):
         >>> app.check_if_project_is_loaded("MyProject")
 
         """
-        input_resolved = Path(input_file).resolve()
         for p in self.odesktop.GetProjects():
-            proj_path = Path(p.GetPath())
-            # If GetPath returns a file path, use its parent as directory
-            proj_dir = proj_path.parent if proj_path.is_file() else proj_path
-            # Try matching any file in the project directory with the given suffix
-            try:
-                for candidate in proj_dir.glob(f"*{suffix}"):
-                    try:
-                        if candidate.resolve() == input_resolved:
-                            return p.GetName()
-                    except Exception:
-                        continue
-            except Exception:
-                # If glob or path access fails for any reason, fall back to the original construction
-                pass
-            # Fallback: explicit construction using project name + suffix (keeps previous behavior)
-            try:
-                candidate = (proj_dir / (p.GetName() + suffix)).resolve()
-                if candidate == input_resolved:
-                    return p.GetName()
-            except Exception:
-                continue
+            if (Path(p.GetPath()) / (p.GetName() + suffix)).resolve() == Path(input_file).resolve():
+                return p.GetName()
+            elif Path(input_file).stem == p.GetName():
+                return p.GetName()
         return False
 
     @pyaedt_function_handler()
