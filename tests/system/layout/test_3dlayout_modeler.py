@@ -1299,6 +1299,8 @@ def test_clip_plane(aedt_app) -> None:
 
 
 def test_edit_3dlayout_extents(aedt_app) -> None:
+    rect = aedt_app.modeler.create_rectangle("Outline", [0, 0], [6, 8], 3, 2, "myrectangle")
+
     assert aedt_app.edit_hfss_extents(
         diel_extent_type="ConformalExtent",
         diel_extent_horizontal_padding="1mm",
@@ -1306,6 +1308,13 @@ def test_edit_3dlayout_extents(aedt_app) -> None:
         air_vertical_positive_padding="10mm",
         air_vertical_negative_padding="10mm",
         air_horizontal_padding="1mm",
+    )
+
+    assert aedt_app.edit_hfss_extents(
+        diel_extent_type="PolygonExtent",
+        air_extent_type="PolygonExtent",
+        diel_extent_polygon=rect.name,
+        air_extent_polygon=rect.name,
     )
 
 
