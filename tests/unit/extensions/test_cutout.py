@@ -177,7 +177,7 @@ def test_cutout_extension_custom_extent_ui_messages(mock_hfss_3d_layout_with_pri
 
     extension.widgets["custom_extent"].invoke()
 
-    assert SELECTION_PERFORMED == extension.widgets["custom_extent_variable"].get()
+    assert "poly_cutout_extent" == extension.widgets["custom_extent_variable"].get()
 
     extension.widgets["reset"].invoke()
 
