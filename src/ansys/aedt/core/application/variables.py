@@ -1230,7 +1230,6 @@ class VariableManager(PyAedtBase):
         if not isinstance(circuit_parameter, list):
             circuit_parameter = [circuit_parameter] * n
 
-        # Update circuit_parameter based on existing variables
         # Separate project variables from design variables
         # Further separate design variables by circuit_parameter (only matters for circuit designs)
         project_indices: list[int] = []
@@ -1243,6 +1242,10 @@ class VariableManager(PyAedtBase):
                 continue
 
             design_indices.append(i)
+            if nm in self.variables:
+                # Update circuit_parameter based on existing variables
+                is_circuit = self.variables[nm].is_circuit_parameter
+
             if is_circuit:
                 design_circuit_indices.append(i)
             else:
