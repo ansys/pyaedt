@@ -384,7 +384,6 @@ def main(data: CutoutData) -> Path | None:
     >>> main(data)
 
     """
-
     app = ansys.aedt.core.Desktop(
         new_desktop=False,
         version=VERSION,

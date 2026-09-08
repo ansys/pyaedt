@@ -23,10 +23,8 @@
 # SOFTWARE.
 
 import shutil
-from os import mkdir
 
 import pytest
-from pyedb.grpc.database.layers.layer import layer_type_mapping
 
 from ansys.aedt.core.edb import Edb
 from ansys.aedt.core.extensions.hfss3dlayout.cutout import CUTOUT_TYPES
@@ -211,7 +209,7 @@ def test_cutout_success(add_app_example, test_tmp_dir) -> None:
 
 def test_cutout_custom_extent(add_app_example, test_tmp_dir) -> None:
     """Test the successful execution of the cutout operation in Hfss3dLayout."""
-    test_project = test_tmp_dir / "temp" /(AEDB_FILE_NAME + ".aedb")
+    test_project = test_tmp_dir / "temp" / (AEDB_FILE_NAME + ".aedb")
     shutil.copytree(SI_VERSE_PATH, test_project)
 
     DATA = CutoutData(
@@ -223,10 +221,7 @@ def test_cutout_custom_extent(add_app_example, test_tmp_dir) -> None:
     edb_app = Edb(edbpath=str(test_project), version=DESKTOP_VERSION)
     poly = edb_app.modeler.create_polygon(
         layer_name="Postprocessing",
-        points=[("86mm" ,"48mm"),
-                ("86mm" ,"72mm"),
-                ("106mm" ,"72mm"),
-                ("106mm" ,"48mm")],
+        points=[("86mm", "48mm"), ("86mm", "72mm"), ("106mm", "72mm"), ("106mm", "48mm")],
     )
     poly.aedt_name = "cutout_extent"
     edb_app.save()

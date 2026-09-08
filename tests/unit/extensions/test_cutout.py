@@ -204,4 +204,3 @@ def test_cutout_extension_create_cutout_with_custom_extent(mock_hfss_3d_layout_w
     extension.widgets["create_cutout"].invoke()
 
     assert expected_result == extension.data
-
