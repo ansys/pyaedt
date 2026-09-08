@@ -1235,17 +1235,18 @@ class VariableManager(PyAedtBase):
         # Further separate design variables by circuit_parameter (only matters for circuit designs)
         project_indices: list[int] = []
         design_indices: list[int] = []
-        for i, nm in enumerate(names):
-            if nm in self.variables:
-                circuit_parameter[i] = self.variables[nm].is_circuit_parameter
+        design_circuit_indices: list[int] = []
+        design_local_indices: list[int] = []
+        for i, (nm, is_circuit) in enumerate(zip(names, circuit_parameter)):
             if nm.startswith("$"):
                 project_indices.append(i)
-            else:
-                design_indices.append(i)
+                continue
 
-        # Further separate design variables by circuit_parameter (only matters for circuit designs)
-        design_circuit_indices = [i for i in design_indices if circuit_parameter[i]]
-        design_local_indices = [i for i in design_indices if not circuit_parameter[i]]
+            design_indices.append(i)
+            if is_circuit:
+                design_circuit_indices.append(i)
+            else:
+                design_local_indices.append(i)
 
         result = True
 
