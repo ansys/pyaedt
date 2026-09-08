@@ -24,9 +24,12 @@
 
 from __future__ import annotations
 
+import json
 import os
+from pathlib import Path
 import re
 import secrets
+from typing import Any
 from typing import TYPE_CHECKING
 
 from ansys.aedt.core.base import PyAedtBase
@@ -35,6 +38,7 @@ from ansys.aedt.core.generic.constants import Axis
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import _uname
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.numbers_utils import is_number
 from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.internal.desktop_sessions import _edb_sessions
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
@@ -1413,3 +1417,283 @@ class LayoutComponent(PyAedtBase):
         self._primitives.oeditor.ChangeProperty(vOut)
 
         return True
+
+    @pyaedt_function_handler()
+    def ecad_mcad_assembly(self, components_json_path: str | Path) -> Path:
+        """Mount 3-D components from a specific ``components.json`` file.
+
+        Parameters
+        ----------
+        components_json_path : str or pathlib.Path
+            Path to the ``components.json`` configuration to apply.
+        Returns
+        -------
+        pathlib.Path
+            Active project path, or a default adjacent ``.aedt`` path when unavailable.
+
+        Error Handling:
+          - If an EDB pin name doesn't exist: component is SKIPPED (not mounted)
+          - If a 3D component pin name doesn't exist: component is inserted but not aligned (warning printed)
+          - Check console output for [SKIP] and [WARN] messages to diagnose pin mapping issues
+        """
+        from math import acos, degrees, sqrt
+
+        json_path = Path(components_json_path).expanduser().resolve()
+        if not json_path.exists() or not json_path.is_file():
+            raise FileNotFoundError(f"components.json not found: {json_path}")
+
+        with open(json_path, "r", encoding="utf-8") as f:
+            assembly_dict = json.load(f)
+
+        component_library: dict[str, Any] = {}
+        assembly_section: dict[str, Any] = {}
+        mount_entries: dict[str, Any] | list[Any] = {}
+        library_paths: dict[str, Path] = {}
+
+        raw_component_library = assembly_dict.get("partname_map")
+        if isinstance(raw_component_library, dict):
+            component_library = raw_component_library
+
+        raw_library_section = assembly_dict.get("library_3dcomp")
+        if isinstance(raw_library_section, dict):
+            for lib_name in ("syslib", "userlib", "personallib", "project"):
+                raw_lib_path = raw_library_section.get(lib_name)
+                if isinstance(raw_lib_path, str) and raw_lib_path.strip():
+                    lib_path = Path(raw_lib_path.strip()).expanduser()
+                    if not lib_path.is_absolute():
+                        lib_path = (json_path.parent / lib_path).resolve()
+                    else:
+                        lib_path = lib_path.resolve()
+                    library_paths[lib_name] = lib_path
+
+        raw_assembly_section = assembly_dict.get("assembly")
+        if isinstance(raw_assembly_section, list):
+            mount_entries = raw_assembly_section
+        elif isinstance(raw_assembly_section, dict):
+            assembly_section = raw_assembly_section
+
+        project_path = json_path.with_suffix(".aedt").resolve()
+        resolved_models: dict[str, Path] = {}
+        for part_key, raw_entry in component_library.items():
+            model_path: Path | None = None
+            if isinstance(raw_entry, str) and raw_entry.strip():
+                model_path = Path(raw_entry.strip()).expanduser()
+            elif isinstance(raw_entry, dict):
+                raw_model_path = raw_entry.get("path")
+                if isinstance(raw_model_path, str) and raw_model_path.strip():
+                    model_path = Path(raw_model_path.strip()).expanduser()
+                else:
+                    raw_comp_name = raw_entry.get("comp")
+                    if isinstance(raw_comp_name, str) and raw_comp_name.strip():
+                        lib_name = str(raw_entry.get("lib", "")).strip().lower()
+                        lib_root = library_paths.get(lib_name) if lib_name else None
+                        if lib_root is not None:
+                            model_path = lib_root / raw_comp_name.strip()
+                        else:
+                            model_path = Path(raw_comp_name.strip()).expanduser()
+            if model_path is not None:
+                if not model_path.is_absolute():
+                    model_path = (json_path.parent / model_path).resolve()
+                else:
+                    model_path = model_path.resolve()
+                resolved_models[str(part_key)] = model_path
+
+        self._primitives._app.units.length = "meter"
+
+        selected_section: dict[str, Any] | None = None
+
+        if assembly_section:
+            selected_section = assembly_section
+
+        if not mount_entries:
+            if selected_section is not None:
+                nested_mounts = selected_section.get("assembly")
+                if isinstance(nested_mounts, (dict, list)):
+                    mount_entries = nested_mounts
+                elif any(key in selected_section for key in ("pin_mapping", "partname", "path", "refdes")):
+                    mount_entries = {"assembly": selected_section}
+                else:
+                    mount_entries = {
+                        key: value
+                        for key, value in selected_section.items()
+                        if key not in {"partname_map", "assembly", "placement", "path", "partname"}
+                        and isinstance(key, str)
+                        and key not in {"library_3dcomp", "partname_map", "assembly", "placement", "path", "partname", "system"}
+                    }
+            else:
+                direct_source = assembly_dict.get("assembly", {})
+                mount_entries = {
+                    key: value
+                    for key, value in direct_source.items()
+                    if isinstance(key, str)
+                    and key not in {"library_3dcomp", "partname_map", "assembly", "placement", "path", "partname", "system"}
+                    and isinstance(value, dict)
+                }
+
+        if isinstance(mount_entries, list):
+            iterable_mount_entries = enumerate(mount_entries)
+        else:
+            iterable_mount_entries = mount_entries.items()
+
+        for comp, props in iterable_mount_entries:
+            if not isinstance(props, dict):
+                print(f"[SKIP] Component '{comp}': invalid entry, expected object.")
+                continue
+
+            fallback_refdes = str(comp) if not isinstance(comp, int) else ""
+            refdes = str(props.get("refdes", fallback_refdes)).strip() or fallback_refdes
+            if not refdes:
+                print(f"[SKIP] Component entry '{comp}': missing refdes.")
+                continue
+
+            # Skip entries that have not been filled in by the user
+            resolved_model_path: Path | None = None
+            direct_path = str(props.get("path", "")).strip()
+            if direct_path:
+                resolved_model_path = Path(direct_path).expanduser()
+                if not resolved_model_path.is_absolute():
+                    resolved_model_path = (json_path.parent / resolved_model_path).resolve()
+                else:
+                    resolved_model_path = resolved_model_path.resolve()
+            else:
+                partname = str(props.get("partname", "")).strip()
+                if partname:
+                    resolved_model_path = resolved_models.get(partname)
+            if resolved_model_path is None:
+                continue
+            if not resolved_model_path.is_file():
+                print(f"[SKIP] Component '{comp}': model file not found: {resolved_model_path}")
+                continue
+            pin_mapping = props.get("pin_mapping", {})
+            if not isinstance(pin_mapping, dict):
+                print(f"[SKIP] Component '{comp}': pin_mapping must be an object.")
+                continue
+            pin_keys = list(pin_mapping.keys())
+            pin_vals = list(pin_mapping.values())
+            if len(pin_keys) < 2 or not pin_vals[0] or not pin_vals[1]:
+                continue
+
+            edbapp = self.edb_object
+            stackup_limits = edbapp.stackup.limits()
+            top_layer_name = (
+                str(stackup_limits[0]).strip()
+                if len(stackup_limits) > 0 and stackup_limits[0]
+                else ""
+            )
+            bottom_layer_name = (
+                str(stackup_limits[2]).strip()
+                if len(stackup_limits) > 2 and stackup_limits[2]
+                else ""
+            )
+
+            try:
+                edb_comp = edbapp.components.instances[refdes]
+            except KeyError:
+                print(f"[SKIP] Component '{refdes}' not found in EDB")
+                continue
+
+            try:
+                edb_val = edb_comp.pins[pin_keys[0]].position
+                edb_val2 = edb_comp.pins[pin_keys[1]].position
+            except KeyError as e:
+                print(f"[SKIP] Component '{comp}': EDB pin {e} not found (available: {list(edb_comp.pins.keys())})")
+                continue
+
+            component_layer = getattr(edb_comp, "layer", None) or getattr(edb_comp, "placement_layer", None)
+            if callable(component_layer):
+                try:
+                    component_layer = component_layer()
+                except TypeError:
+                    component_layer = None
+            component_layer_name = getattr(component_layer, "name", None)
+            if callable(component_layer_name):
+                try:
+                    component_layer_name = component_layer_name()
+                except TypeError:
+                    component_layer_name = None
+            component_layer_name = str(component_layer_name or "").strip().lower()
+            placement_is_bottom = bool(bottom_layer_name) and component_layer_name == bottom_layer_name.lower()
+            placement_is_top = bool(top_layer_name) and component_layer_name == top_layer_name.lower()
+            if not placement_is_bottom and not placement_is_top:
+                placement_is_bottom = False
+            height = 0.0
+            if component_layer is not None:
+                elevation = getattr(component_layer, "lower_elevation" if placement_is_bottom else "upper_elevation", None)
+                if callable(elevation):
+                    try:
+                        elevation = elevation()
+                    except TypeError:
+                        elevation = None
+                if is_number(elevation):
+                    height = float(elevation)
+
+            mounted_name = refdes
+            cs_name = f"{mounted_name}_CS"
+            self._primitives._app.modeler.create_coordinate_system(
+                origin=[edb_val[0], edb_val[1], height],
+                name=cs_name,
+            )
+
+            try:
+                d = self._primitives._app.modeler.insert_3d_component(
+                    str(resolved_model_path),
+                    coordinate_system=cs_name,
+                    name=mounted_name,
+                )
+            except Exception as e:
+                print(f"[SKIP] Component '{comp}': Failed to insert 3D component: {e}")
+                continue
+
+            if placement_is_bottom:
+                d.rotate(angle=180.0, axis="Y")
+
+            pin_found_1 = False
+            pin_found_2 = False
+            for pin1 in list(d.parts.values()):
+                if pin_vals[0] in pin1.name:
+                    pin_found_1 = True
+                    comp_val = pin1.faces[0].center
+                    vector = [edb_val[0] - comp_val[0], edb_val[1] - comp_val[1], 0]
+                    d.move(vector)
+                    comp_val = pin1.faces[0].center
+
+                    for pin2 in list(d.parts.values()):
+                        if pin_vals[1] in pin2.name:
+                            pin_found_2 = True
+                            comp_val2 = pin2.faces[0].center
+                            edb_delta_x = float(edb_val2[0] - edb_val[0])
+                            edb_delta_y = float(edb_val2[1] - edb_val[1])
+                            side1 = sqrt(
+                                edb_delta_x ** 2
+                                + edb_delta_y ** 2
+                            )
+                            side2 = sqrt(
+                                float(comp_val2[0] - comp_val[0]) ** 2
+                                + float(comp_val2[1] - comp_val[1]) ** 2
+                            )
+                            delta_x = float(comp_val2[0] - edb_val2[0])
+                            delta_y = float(comp_val2[1] - edb_val2[1])
+                            side3 = sqrt(
+                                delta_x ** 2
+                                + delta_y ** 2
+                            )
+                            denom = 2 * side1 * side2
+                            if denom > 0:
+                                theta = acos(
+                                    max(-1.0, min(1.0, (side1 ** 2 + side2 ** 2 - side3 ** 2) / denom))
+                                )
+                                if abs(edb_delta_x) < abs(edb_delta_y):
+                                    if delta_x * delta_y > 0:
+                                        theta = -theta
+                                else:
+                                    if delta_x * delta_y < 0:
+                                        theta = -theta
+                                d.rotate(angle=degrees(theta), axis="Z")
+                            print(f"Mounted: {refdes}")
+
+            if not pin_found_1:
+                print(f"[WARN] Component '{refdes}': 3D pin '{pin_vals[0]}' not found (mounted without alignment)")
+            elif not pin_found_2:
+                print(f"[WARN] Component '{refdes}': 3D pin '{pin_vals[1]}' not found (partial alignment)")
+
+        return project_path
