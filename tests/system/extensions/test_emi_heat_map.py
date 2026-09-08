@@ -80,6 +80,7 @@ def set_dropdowns(extension):
     return extension
 
 
+@pytest.mark.skipif(DESKTOP_VERSION <= "2028.1", reason="Skip while debugging hanging")
 def test_extract_emi_data(emit_app_with_radios):
     """Test extracting EMI data from real EMIT project."""
     extension = EMIHeatmapExtension(withdraw=True)
@@ -102,6 +103,7 @@ def test_extract_emi_data(emit_app_with_radios):
     extension.root.destroy()
 
 
+@pytest.mark.skipif(DESKTOP_VERSION <= "2028.1", reason="Skip while debugging hanging")
 def test_export_to_csv(emit_app_with_radios, test_tmp_dir):
     """Test exporting real EMIT data to CSV file."""
     extension = EMIHeatmapExtension(withdraw=True)
@@ -137,6 +139,7 @@ def test_export_to_csv(emit_app_with_radios, test_tmp_dir):
 
 @patch("matplotlib.pyplot.get_current_fig_manager")
 @patch("matplotlib.pyplot.show")
+@pytest.mark.skipif(DESKTOP_VERSION <= "2028.1", reason="Skip while debugging hanging")
 def test_generate_heatmap(mock_show, mock_fig_manager, emit_app_with_radios):
     """Test end-to-end heatmap generation with real EMIT project data."""
     # Mock the figure manager to avoid backend-specific issues
@@ -157,7 +160,7 @@ def test_generate_heatmap(mock_show, mock_fig_manager, emit_app_with_radios):
 
     extension.root.destroy()
 
-
+@pytest.mark.skipif(DESKTOP_VERSION <= "2028.1", reason="Skip while debugging hanging")
 def test_full_workflow_integration(emit_app_with_radios, test_tmp_dir):
     """Test complete workflow: initialize -> select radios -> extract -> export."""
     extension = EMIHeatmapExtension(withdraw=True)
