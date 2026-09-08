@@ -24,21 +24,12 @@
 
 from __future__ import annotations
 
-import importlib
 import os
-import time
 
 import psutil
 import pytest
 
-from ansys.aedt.core import Desktop
 from ansys.aedt.core.aedt_logger import pyaedt_logger
-
-_root_conftest = importlib.import_module("tests.conftest")
-DESKTOP_VERSION = getattr(_root_conftest, "DESKTOP_VERSION", os.environ.get("PYAEDT_DESKTOP_VERSION", "2026.1"))
-NON_GRAPHICAL = getattr(_root_conftest, "NON_GRAPHICAL", True)
-NEW_THREAD = getattr(_root_conftest, "NEW_THREAD", True)
-CLOSE_DESKTOP = getattr(_root_conftest, "CLOSE_DESKTOP", True)
 
 
 def _process_matches(proc: psutil.Process) -> bool:
@@ -118,48 +109,22 @@ def _cleanup_stale_emit_processes(label: str) -> None:
     _process_snapshot(f"{label}: after cleanup")
 
 
-@pytest.fixture
-def desktop(tmp_path_factory, request):
-    """Emit tests get a fresh Desktop instance per test to avoid stale AEDT + iemit state."""
-    session = request.session
-    if not hasattr(session, "_emit_force_cleanup_pending"):
-        session._emit_force_cleanup_pending = False
+@pytest.fixture(scope="session", autouse=True)
+def purge_stale_emit_processes():
+    """Remove AEDT/iemit processes orphaned by an earlier run.
 
-    if session._emit_force_cleanup_pending:
-        pyaedt_logger.warning(
-            "[%s] previous Emit test forced cleanup; resetting before the next test starts", request.node.nodeid
-        )
-        _cleanup_stale_emit_processes(f"pre-test recovery {request.node.nodeid}")
-        session._emit_force_cleanup_pending = False
+    Per-test isolation is provided by ``run_emit_nightly.py``, which runs each Emit
+    test in its own subprocess. Purging between tests here would kill the
+    module-scoped Desktop that the tests share when pytest is invoked directly, and
+    relaunching Desktop per test costs roughly 50 seconds each.
 
-    base = tmp_path_factory.getbasetemp()
-    if "popen-gw" in str(base):
-        base = base.parent
+    The purge is limited to CI so that a developer's interactive AEDT session is
+    never terminated by running the suite locally.
+    """
+    if not os.environ.get("ON_CI"):
+        yield
+        return
 
-    _cleanup_stale_emit_processes(f"before test {request.node.nodeid}")
-
-    pyaedt_logger.info(
-        "[%s] launching fresh Desktop (version=%s, non_graphical=%s, new_thread=%s)",
-        request.node.nodeid,
-        DESKTOP_VERSION,
-        NON_GRAPHICAL,
-        NEW_THREAD,
-    )
-    app = Desktop(DESKTOP_VERSION, NON_GRAPHICAL, NEW_THREAD)
-    app.temp_directory = base
-    app.global_project_directory = base
-    app.disable_autosave()
-
-    yield app
-
-    try:
-        pyaedt_logger.info("[%s] releasing Desktop", request.node.nodeid)
-        app.release_desktop(close_projects=False, close_on_exit=CLOSE_DESKTOP)
-    except Exception as exc:  # pragma: no cover - diagnostics only
-        session._emit_force_cleanup_pending = True
-        pyaedt_logger.warning("[%s] release_desktop failed: %s", request.node.nodeid, exc)
-        _cleanup_stale_emit_processes(f"after failure {request.node.nodeid}")
-        raise
-    finally:
-        _cleanup_stale_emit_processes(f"after test {request.node.nodeid}")
-        time.sleep(0.25)
+    _cleanup_stale_emit_processes("session start")
+    yield
+    _cleanup_stale_emit_processes("session end")
