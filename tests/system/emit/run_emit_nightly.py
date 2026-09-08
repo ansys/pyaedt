@@ -231,6 +231,15 @@ def main() -> int:
         help="Extra seconds beyond --timeout before the pytest process tree is force killed.",
     )
     parser.add_argument(
+        "--max-consecutive-hangs",
+        type=int,
+        default=3,
+        help=(
+            "Abort the run after this many consecutive hangs. A systemic failure makes every test hang, "
+            "and each hang costs --timeout plus --grace seconds, so continuing wastes hours. Use 0 to disable."
+        ),
+    )
+    parser.add_argument(
         "--list-tests", action="store_true", help="Collect and print the Emit node IDs without running."
     )
     parser.add_argument(
@@ -250,7 +259,11 @@ def main() -> int:
 
     failed = 0
     hung: list[str] = []
+    consecutive_hangs = 0
+    aborted = False
     for iteration in range(1, args.repeat + 1):
+        if aborted:
+            break
         _log("========================================")
         _log(f"Starting Emit iteration {iteration}/{args.repeat}")
         _log("========================================")
@@ -258,13 +271,23 @@ def main() -> int:
             exit_code = _run_single_test(repo_root, nodeid, args.timeout, args.grace, args.pytest_arg)
             if exit_code == 124:
                 hung.append(nodeid)
+                consecutive_hangs += 1
+            else:
+                consecutive_hangs = 0
             if exit_code not in (0, 5):
                 failed += 1
                 _log(f"Test failed or timed out: {nodeid} (exit code {exit_code})")
                 _log("Continuing with the next Emit test to keep the suite moving.")
+            if args.max_consecutive_hangs and consecutive_hangs >= args.max_consecutive_hangs:
+                _log(
+                    f"ABORTING: {consecutive_hangs} consecutive tests hung. This indicates a systemic "
+                    "failure rather than a flaky test, so the remaining tests are skipped."
+                )
+                aborted = True
+                break
 
     if hung:
-        _log(f"Tests that hung and were force killed: {hung}")
+        _log(f"Tests that hung and were force killed ({len(hung)}): {hung}")
 
     if failed:
         _log(f"Emit nightly run finished with {failed} failed or timed-out tests.")
