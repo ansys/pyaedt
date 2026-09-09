@@ -65,7 +65,7 @@ EMIT_TEST_PREFIX = "tests/system/emit"
 # ================================
 
 DEFAULT_CONFIG = {
-    "desktopVersion": "2027.1",
+    "desktopVersion": "2026.1",
     "NonGraphical": True,
     "NewThread": True,
     "use_grpc": True,
