@@ -122,7 +122,7 @@ def _emit_process_snapshot(label: str) -> list[dict[str, object]]:
     return snapshot
 
 
-def _license_process_snapshot(label: str) -> None:
+def _license_process_snapshot(label: str) -> list[dict[str, object]]:
     """Log Ansys licensing processes. Observation only; these are never terminated."""
     found: list[dict[str, object]] = []
     try:
@@ -133,8 +133,32 @@ def _license_process_snapshot(label: str) -> None:
             except (psutil.NoSuchProcess, psutil.AccessDenied):
                 continue
     except Exception:
-        return
+        return found
     _log(f"{label}: licensing processes: {found if found else 'none found'}")
+    return found
+
+
+def _dump_license_logs(procs: list[dict[str, object]], label: str, tail_lines: int = 60) -> None:
+    """Print the tail of every ansyscl log referenced by a running licensing process.
+
+    The licensing client writes its checkout attempts and denials to the file given by its
+    ``-log`` argument. That file lives only on the runner, so without dumping it here the
+    reason a checkout never completes is invisible in the CI output.
+    """
+    for proc in procs:
+        cmdline = proc.get("cmdline") or []
+        if not isinstance(cmdline, list) or "-log" not in cmdline:
+            continue
+        log_path = cmdline[cmdline.index("-log") + 1]
+        try:
+            with open(log_path, encoding="utf-8", errors="replace") as handle:
+                lines = handle.readlines()[-tail_lines:]
+        except OSError as exc:
+            _log(f"{label}: could not read {log_path}: {exc}")
+            continue
+        _log(f"{label}: tail of {log_path}:")
+        for line in lines:
+            _log(f"    {line.rstrip()}")
 
 
 def _kill_process_tree(pid: int) -> None:
@@ -237,7 +261,7 @@ def _run_single_test(repo_root: Path, nodeid: str, timeout: int, grace: int, ext
         _log(f"HANG DETECTED: {nodeid} exceeded {hard_timeout}s (elapsed={elapsed:.1f}s); killing process tree")
         # Capture live state before anything is killed, otherwise the evidence is destroyed.
         _emit_process_snapshot(f"{nodeid}: live processes at hang")
-        _license_process_snapshot(f"{nodeid}: at hang")
+        _dump_license_logs(_license_process_snapshot(f"{nodeid}: at hang"), f"{nodeid}: at hang")
         try:
             _kill_process_tree(process.pid)
             _kill_emit_processes(nodeid)
