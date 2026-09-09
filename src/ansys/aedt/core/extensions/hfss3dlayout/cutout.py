@@ -92,7 +92,7 @@ class CutoutData(ExtensionCommonData):
 
     cutout_type: str = "ConvexHull"
     """Value for cutout type."""
-    custom_extent: str = None
+    custom_extent: str | None = None
     signals: list[str] = field(default_factory=list)
     """Value for signals."""
     references: list[str] = field(default_factory=list)
@@ -405,7 +405,7 @@ def main(data: CutoutData) -> Path | None:
     if data.cutout_type == "CustomExtent":
         result = edb.layout.find_primitive(name=data.custom_extent)
         if len(result) > 1:
-            app.logger.info(f"Find more than one custom extent named {data.custom_extent} in the layout.")
+            app.logger.info(f"Found more than one custom extent named {data.custom_extent} in the layout.")
             return None
         elif len(result) == 0:
             app.logger.info(f"No custom extent named {data.custom_extent} in the layout.")
