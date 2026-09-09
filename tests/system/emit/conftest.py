@@ -30,6 +30,7 @@ import psutil
 import pytest
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger
+from ansys.aedt.core.generic.settings import settings
 
 
 def _process_matches(proc: psutil.Process) -> bool:
@@ -128,3 +129,30 @@ def purge_stale_emit_processes():
     _cleanup_stale_emit_processes("session start")
     yield
     _cleanup_stale_emit_processes("session end")
+
+
+@pytest.fixture(scope="session", autouse=True)
+def fail_fast_when_emit_license_unavailable():
+    """Stop AEDT from blocking forever when the Emit license cannot be checked out.
+
+    ``tests/pyaedt_settings.yaml`` sets ``wait_for_license: true``, which launches
+    ansysedt.exe with ``-waitforlicense``. Creating the project succeeds, but
+    inserting an Emit design needs an Emit feature: if that feature is unavailable,
+    AEDT waits for it indefinitely and the gRPC call never returns, so the test hangs
+    instead of failing. Disabling the wait turns that into an immediate license error
+    naming the missing feature.
+
+    This is limited to Emit on CI; other suites keep waiting so that ordinary license
+    contention does not turn into spurious failures.
+    """
+    if not os.environ.get("ON_CI"):
+        yield
+        return
+
+    previous = settings.wait_for_license
+    settings.wait_for_license = False
+    pyaedt_logger.info("Emit tests on CI: wait_for_license disabled so license failures surface immediately.")
+    try:
+        yield
+    finally:
+        settings.wait_for_license = previous
