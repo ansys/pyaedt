@@ -405,11 +405,9 @@ def main(data: CutoutData) -> Path | None:
     if data.cutout_type == "CustomExtent":
         result = edb.layout.find_primitive(name=data.custom_extent)
         if len(result) > 1:
-            app.logger.info(f"Found more than one custom extent named {data.custom_extent} in the layout.")
-            return None
+            raise AEDTRuntimeError(f"Found more than one custom extent named {data.custom_extent} in the layout.")
         elif len(result) == 0:
-            app.logger.info(f"No custom extent named {data.custom_extent} in the layout.")
-            return None
+            raise AEDTRuntimeError(f"No custom extent named {data.custom_extent} in the layout.")
         else:
             prim = result[0]
             points = prim.polygon_data.points
