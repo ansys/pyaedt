@@ -1557,7 +1557,7 @@ class Design(AedtObjects, PyAedtBase):
                     self._add_handler()
                     self.logger.info(f"Archive {proj_name} has been restored to project {self._oproject.GetName()}")
 
-                elif project_suffix == ".def" or project_suffix == ".aedb":
+                elif project_suffix in {".def", ".aedb"}:
                     if project_suffix == ".def":
                         project = str(Path(proj_name).parent)[:-5] + ".aedt"
                     else:
