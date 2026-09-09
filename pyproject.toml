@@ -149,15 +149,6 @@ tests = [
     "cryptography",
 ]
 
-[tool.setuptools]
-include-package-data = true
-
-[tool.setuptools.package-data]
-"ansys.aedt.core.syslib" = ["**/*.so", "**/*.pyd", "**/*.license"]
-
-[tool.setuptools.dynamic]
-version = {attr = "ansys.aedt.core.__version__"}
-
 [project.urls]
 Bugs = "https://github.com/ansys/pyaedt/issues"
 Documentation = "https://aedt.docs.pyansys.com"
@@ -168,6 +159,25 @@ Changelog = "https://github.com/ansys/pyaedt/blob/main/doc/source/changelog.rst"
 
 [project.scripts]
 pyaedt = "ansys.aedt.core.cli:app"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.package-data]
+"ansys.aedt.core.syslib" = ["**/*.so", "**/*.pyd", "**/*.license"]
+
+[tool.setuptools.dynamic]
+version = {attr = "ansys.aedt.core.__version__"}
+
+[tool.uv]
+exclude-newer = "1 week"
+
+[tool.uv.exclude-newer-package]
+ansys-pythonnet = false
+ansys-sphinx-theme = false
+ansys-tools-common = false
+ansys-tools-visualization-interface = false
+pyedb = false
 
 [tool.ruff]
 line-length = 120
