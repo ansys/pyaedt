@@ -138,6 +138,21 @@ def _license_process_snapshot(label: str) -> list[dict[str, object]]:
     return found
 
 
+def _dump_log_tail(log_path: str, label: str, tail_lines: int) -> None:
+    try:
+        with open(log_path, encoding="utf-8", errors="replace") as handle:
+            lines = handle.readlines()[-tail_lines:]
+    except OSError as exc:
+        _log(f"{label}: could not read {log_path}: {exc}")
+        return
+    if not lines:
+        _log(f"{label}: {log_path} is empty")
+        return
+    _log(f"{label}: tail of {log_path}:")
+    for line in lines:
+        _log(f"    {line.rstrip()}")
+
+
 def _dump_license_logs(procs: list[dict[str, object]], label: str, tail_lines: int = 60) -> None:
     """Print the tail of every ansyscl log referenced by a running licensing process.
 
@@ -149,16 +164,7 @@ def _dump_license_logs(procs: list[dict[str, object]], label: str, tail_lines: i
         cmdline = proc.get("cmdline") or []
         if not isinstance(cmdline, list) or "-log" not in cmdline:
             continue
-        log_path = cmdline[cmdline.index("-log") + 1]
-        try:
-            with open(log_path, encoding="utf-8", errors="replace") as handle:
-                lines = handle.readlines()[-tail_lines:]
-        except OSError as exc:
-            _log(f"{label}: could not read {log_path}: {exc}")
-            continue
-        _log(f"{label}: tail of {log_path}:")
-        for line in lines:
-            _log(f"    {line.rstrip()}")
+        _dump_log_tail(cmdline[cmdline.index("-log") + 1], label, tail_lines)
 
 
 def _kill_process_tree(pid: int) -> None:
@@ -200,12 +206,16 @@ def _kill_emit_processes(label: str) -> None:
     _emit_process_snapshot(f"{label}: after cleanup")
 
 
-def _test_env() -> dict[str, str]:
+def _test_env(aedt_log_file: Path) -> dict[str, str]:
     env = os.environ.copy()
     env.setdefault("PYTHONFAULTHANDLER", "1")
     env.setdefault("PYTHONUNBUFFERED", "1")
     env.setdefault("PYAEDT_LOG_LEVEL", "DEBUG")
     env.setdefault("ANSYS_EMIT_DEBUG", "1")
+    # Consumed by tests/system/emit/conftest.py, which turns it into settings.aedt_log_file
+    # so ansysedt.exe is launched with -Logfile. AEDT writes this file itself, so it keeps
+    # reporting after the gRPC call the Python side is blocked on stops responding.
+    env["PYAEDT_EMIT_AEDT_LOG"] = str(aedt_log_file)
     return env
 
 
@@ -217,6 +227,7 @@ def _run_single_test(repo_root: Path, nodeid: str, timeout: int, grace: int, ext
     junit_dir = repo_root / "junit"
     junit_dir.mkdir(parents=True, exist_ok=True)
     junit_file = junit_dir / f"{_junit_name(nodeid)}.xml"
+    aedt_log_file = junit_dir / f"{_junit_name(nodeid)}.aedt.log"
 
     # Dump the Python stacks of every thread before the hard kill. pytest-timeout cannot
     # interrupt a blocked native call, so this is the only way to see where a hang sits.
@@ -249,7 +260,7 @@ def _run_single_test(repo_root: Path, nodeid: str, timeout: int, grace: int, ext
     _emit_process_snapshot(f"Before {nodeid}")
 
     start = time.time()
-    process = subprocess.Popen(args, cwd=repo_root, env=_test_env())
+    process = subprocess.Popen(args, cwd=repo_root, env=_test_env(aedt_log_file))
     try:
         returncode = process.wait(timeout=hard_timeout)
         elapsed = time.time() - start
@@ -262,6 +273,7 @@ def _run_single_test(repo_root: Path, nodeid: str, timeout: int, grace: int, ext
         # Capture live state before anything is killed, otherwise the evidence is destroyed.
         _emit_process_snapshot(f"{nodeid}: live processes at hang")
         _dump_license_logs(_license_process_snapshot(f"{nodeid}: at hang"), f"{nodeid}: at hang")
+        _dump_log_tail(str(aedt_log_file), f"{nodeid}: AEDT log at hang", 120)
         try:
             _kill_process_tree(process.pid)
             _kill_emit_processes(nodeid)

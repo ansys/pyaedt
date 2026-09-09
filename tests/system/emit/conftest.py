@@ -33,6 +33,30 @@ from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.settings import settings
 
 
+def pytest_configure(config):
+    """Launch ansysedt.exe with ``-Logfile`` so AEDT records its own progress.
+
+    Emit tests hang inside a native gRPC call while inserting the design, where no
+    Python-side stack can see any further. ``settings.aedt_log_file`` adds ``-Logfile``
+    to the launch command, so AEDT keeps writing to a file we control while the caller
+    is blocked. ``run_emit_nightly.py`` supplies the path and dumps the file when it
+    force kills a hung test.
+
+    Note that ``settings.enable_desktop_logs`` is deliberately left off: it pushes PyAEDT
+    messages *into* AEDT through ``AddMessage`` over gRPC, which adds traffic on the very
+    channel that is stuck and produces no diagnostic output.
+
+    This must run before Desktop starts, because the flag is read only when the launch
+    command is built. A hook is used rather than a fixture so ordering cannot depend on
+    which fixture pytest happens to set up first.
+    """
+    aedt_log_file = os.environ.get("PYAEDT_EMIT_AEDT_LOG")
+    if not aedt_log_file:
+        return
+    settings.aedt_log_file = aedt_log_file
+    pyaedt_logger.info("Emit tests: AEDT will write its own log to %s", aedt_log_file)
+
+
 def _process_matches(proc: psutil.Process) -> bool:
     try:
         name = (proc.name() or "").lower()
@@ -133,14 +157,15 @@ def purge_stale_emit_processes():
 
 @pytest.fixture(scope="session", autouse=True)
 def fail_fast_when_emit_license_unavailable():
-    """Stop AEDT from blocking forever when the Emit license cannot be checked out.
+    """Surface license failures instead of waiting for them indefinitely.
 
     ``tests/pyaedt_settings.yaml`` sets ``wait_for_license: true``, which launches
-    ansysedt.exe with ``-waitforlicense``. Creating the project succeeds, but
-    inserting an Emit design needs an Emit feature: if that feature is unavailable,
-    AEDT waits for it indefinitely and the gRPC call never returns, so the test hangs
-    instead of failing. Disabling the wait turns that into an immediate license error
-    naming the missing feature.
+    ansysedt.exe with ``-waitforlicense``. A missing feature then blocks forever instead
+    of raising, so disabling the wait keeps a license problem from looking like a hang.
+
+    This does NOT explain the current Emit hang: with the flag removed the tests still
+    block for the full timeout at the same point while inserting the design, so the cause
+    lies elsewhere. The fixture is kept only to rule licensing back out cheaply.
 
     This is limited to Emit on CI; other suites keep waiting so that ordinary license
     contention does not turn into spurious failures.
