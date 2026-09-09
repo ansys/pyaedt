@@ -71,14 +71,21 @@ def _collect_emit_tests(repo_root: Path, extra_args: list[str]) -> list[str]:
     return discovered
 
 
-def _process_matches(proc: psutil.Process) -> bool:
+# Processes that belong to the test itself and are safe to force kill.
+KILL_TOKENS = ("ansysedt", "iemit")
+
+# Licensing processes are shared machine services. They are only ever observed, never
+# killed, because terminating them would break licensing for other jobs on the runner.
+LICENSE_TOKENS = ("ansyscl", "ansysli", "apip", "lmgrd", "flexlm")
+
+
+def _process_matches(proc: psutil.Process, tokens: tuple[str, ...] = KILL_TOKENS) -> bool:
     try:
         name = (proc.name() or "").lower()
         exe = (proc.exe() or "").lower()
         cmdline = " ".join(proc.cmdline() or []).lower()
     except (psutil.NoSuchProcess, psutil.AccessDenied):
         return False
-    tokens = ("ansysedt", "iemit")
     return any(token in name or token in exe or token in cmdline for token in tokens)
 
 
@@ -113,6 +120,21 @@ def _emit_process_snapshot(label: str) -> list[dict[str, object]]:
     else:
         _log(f"{label}: no AEDT/iemit processes found")
     return snapshot
+
+
+def _license_process_snapshot(label: str) -> None:
+    """Log Ansys licensing processes. Observation only; these are never terminated."""
+    found: list[dict[str, object]] = []
+    try:
+        for proc in psutil.process_iter(["pid", "name", "exe", "cmdline", "ppid", "status"]):
+            try:
+                if _process_matches(proc, LICENSE_TOKENS):
+                    found.append(_describe_process(proc))
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                continue
+    except Exception:
+        return
+    _log(f"{label}: licensing processes: {found if found else 'none found'}")
 
 
 def _kill_process_tree(pid: int) -> None:
@@ -172,6 +194,10 @@ def _run_single_test(repo_root: Path, nodeid: str, timeout: int, grace: int, ext
     junit_dir.mkdir(parents=True, exist_ok=True)
     junit_file = junit_dir / f"{_junit_name(nodeid)}.xml"
 
+    # Dump the Python stacks of every thread before the hard kill. pytest-timeout cannot
+    # interrupt a blocked native call, so this is the only way to see where a hang sits.
+    faulthandler_timeout = max(30, timeout - 60)
+
     args = [
         sys.executable,
         "-m",
@@ -179,6 +205,8 @@ def _run_single_test(repo_root: Path, nodeid: str, timeout: int, grace: int, ext
         "--log-cli-level=DEBUG",
         "-o",
         "log_cli=true",
+        "-o",
+        f"faulthandler_timeout={faulthandler_timeout}",
         "-vv",
         "-rA",
         "--color=yes",
@@ -207,6 +235,9 @@ def _run_single_test(repo_root: Path, nodeid: str, timeout: int, grace: int, ext
     except subprocess.TimeoutExpired:
         elapsed = time.time() - start
         _log(f"HANG DETECTED: {nodeid} exceeded {hard_timeout}s (elapsed={elapsed:.1f}s); killing process tree")
+        # Capture live state before anything is killed, otherwise the evidence is destroyed.
+        _emit_process_snapshot(f"{nodeid}: live processes at hang")
+        _license_process_snapshot(f"{nodeid}: at hang")
         try:
             _kill_process_tree(process.pid)
             _kill_emit_processes(nodeid)
