@@ -32,6 +32,8 @@ import secrets
 from typing import Any
 from typing import TYPE_CHECKING
 
+from openpyxl.pivot.fields import Boolean
+
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.edb import Edb
 from ansys.aedt.core.generic.constants import Axis
@@ -1419,7 +1421,7 @@ class LayoutComponent(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def ecad_mcad_assembly(self, components_json_path: str | Path) -> Path:
+    def ecad_mcad_assembly(self, components_json_path: str | Path) -> bool:
         """Mount 3-D components from a specific ``components.json`` file.
 
         Parameters
@@ -1428,12 +1430,12 @@ class LayoutComponent(PyAedtBase):
             Path to the ``components.json`` configuration to apply.
         Returns
         -------
-        pathlib.Path
-            Active project path, or a default adjacent ``.aedt`` path when unavailable.
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         Error Handling:
           - If an EDB pin name doesn't exist: component is SKIPPED (not mounted)
-          - If a 3D component pin name doesn't exist: component is inserted but not aligned (warning printed)
+          - If a 3D component pin name doesn't exist: component is SKIPPED (not mounted)
           - Check console output for [SKIP] and [WARN] messages to diagnose pin mapping issues
         """
         from math import acos, degrees, sqrt
@@ -1445,95 +1447,42 @@ class LayoutComponent(PyAedtBase):
         with open(json_path, "r", encoding="utf-8") as f:
             assembly_dict = json.load(f)
 
-        component_library: dict[str, Any] = {}
-        assembly_section: dict[str, Any] = {}
-        mount_entries: dict[str, Any] | list[Any] = {}
-        library_paths: dict[str, Path] = {}
+        component_library = assembly_dict.get("partname_map")
+        assembly_section = assembly_dict.get("assembly", [])
+        library_3dcomp = assembly_dict.get("library_3dcomp", {})
 
-        raw_component_library = assembly_dict.get("partname_map")
-        if isinstance(raw_component_library, dict):
-            component_library = raw_component_library
+        if not isinstance(component_library, dict):
+            print(f"[SKIP] 'partname_map' is not a valid dictionary.")
+            return False
 
-        raw_library_section = assembly_dict.get("library_3dcomp")
-        if isinstance(raw_library_section, dict):
-            for lib_name in ("syslib", "userlib", "personallib", "project"):
-                raw_lib_path = raw_library_section.get(lib_name)
-                if isinstance(raw_lib_path, str) and raw_lib_path.strip():
-                    lib_path = Path(raw_lib_path.strip()).expanduser()
-                    if not lib_path.is_absolute():
-                        lib_path = (json_path.parent / lib_path).resolve()
-                    else:
-                        lib_path = lib_path.resolve()
-                    library_paths[lib_name] = lib_path
+        abs_libraries: dict[str, Path] = {}
+        for lib_name, lib_dir in library_3dcomp.items():
+            lib_path = Path(lib_dir).expanduser()
+            if not lib_path.is_absolute():
+                lib_path = (json_path.parent / lib_path).resolve()
+            else:
+                lib_path = lib_path.resolve()
+            abs_libraries[lib_name] = lib_path
 
-        raw_assembly_section = assembly_dict.get("assembly")
-        if isinstance(raw_assembly_section, list):
-            mount_entries = raw_assembly_section
-        elif isinstance(raw_assembly_section, dict):
-            assembly_section = raw_assembly_section
-
-        project_path = json_path.with_suffix(".aedt").resolve()
-        resolved_models: dict[str, Path] = {}
+        updated_partname: dict[str, Path] = {}
         for part_key, raw_entry in component_library.items():
-            model_path: Path | None = None
             if isinstance(raw_entry, str) and raw_entry.strip():
                 model_path = Path(raw_entry.strip()).expanduser()
-            elif isinstance(raw_entry, dict):
-                raw_model_path = raw_entry.get("path")
-                if isinstance(raw_model_path, str) and raw_model_path.strip():
-                    model_path = Path(raw_model_path.strip()).expanduser()
-                else:
-                    raw_comp_name = raw_entry.get("comp")
-                    if isinstance(raw_comp_name, str) and raw_comp_name.strip():
-                        lib_name = str(raw_entry.get("lib", "")).strip().lower()
-                        lib_root = library_paths.get(lib_name) if lib_name else None
-                        if lib_root is not None:
-                            model_path = lib_root / raw_comp_name.strip()
-                        else:
-                            model_path = Path(raw_comp_name.strip()).expanduser()
-            if model_path is not None:
                 if not model_path.is_absolute():
                     model_path = (json_path.parent / model_path).resolve()
                 else:
                     model_path = model_path.resolve()
-                resolved_models[str(part_key)] = model_path
+                updated_partname[str(part_key)] = model_path
+            elif isinstance(raw_entry, dict):
+                lib_name = raw_entry.get("lib", "")
+                comp_file = raw_entry.get("comp", "")
+                if lib_name and comp_file and lib_name in abs_libraries:
+                    model_path = abs_libraries[lib_name] / comp_file
+                    updated_partname[str(part_key)] = model_path
 
         self._primitives._app.units.length = "meter"
 
-        selected_section: dict[str, Any] | None = None
-
-        if assembly_section:
-            selected_section = assembly_section
-
-        if not mount_entries:
-            if selected_section is not None:
-                nested_mounts = selected_section.get("assembly")
-                if isinstance(nested_mounts, (dict, list)):
-                    mount_entries = nested_mounts
-                elif any(key in selected_section for key in ("pin_mapping", "partname", "path", "refdes")):
-                    mount_entries = {"assembly": selected_section}
-                else:
-                    mount_entries = {
-                        key: value
-                        for key, value in selected_section.items()
-                        if key not in {"partname_map", "assembly", "placement", "path", "partname"}
-                        and isinstance(key, str)
-                        and key not in {"library_3dcomp", "partname_map", "assembly", "placement", "path", "partname", "system"}
-                    }
-            else:
-                direct_source = assembly_dict.get("assembly", {})
-                mount_entries = {
-                    key: value
-                    for key, value in direct_source.items()
-                    if isinstance(key, str)
-                    and key not in {"library_3dcomp", "partname_map", "assembly", "placement", "path", "partname", "system"}
-                    and isinstance(value, dict)
-                }
-
-        if isinstance(mount_entries, list):
-            iterable_mount_entries = enumerate(mount_entries)
-        else:
-            iterable_mount_entries = mount_entries.items()
+        iterable_mount_entries = enumerate(assembly_section)
 
         for comp, props in iterable_mount_entries:
             if not isinstance(props, dict):
@@ -1546,20 +1495,13 @@ class LayoutComponent(PyAedtBase):
                 print(f"[SKIP] Component entry '{comp}': missing refdes.")
                 continue
 
-            # Skip entries that have not been filled in by the user
-            resolved_model_path: Path | None = None
-            direct_path = str(props.get("path", "")).strip()
-            if direct_path:
-                resolved_model_path = Path(direct_path).expanduser()
-                if not resolved_model_path.is_absolute():
-                    resolved_model_path = (json_path.parent / resolved_model_path).resolve()
-                else:
-                    resolved_model_path = resolved_model_path.resolve()
-            else:
-                partname = str(props.get("partname", "")).strip()
-                if partname:
-                    resolved_model_path = resolved_models.get(partname)
+            partname = str(props.get("partname", "")).strip()
+            if not partname:
+                print(f"[SKIP] Component '{refdes}': missing partname.")
+                continue
+            resolved_model_path = updated_partname.get(partname)
             if resolved_model_path is None:
+                print(f"[SKIP] Component '{refdes}': partname '{partname}' not found in partname_map. Available: {list(component_library.keys())}")
                 continue
             if not resolved_model_path.is_file():
                 print(f"[SKIP] Component '{comp}': model file not found: {resolved_model_path}")
@@ -1570,7 +1512,11 @@ class LayoutComponent(PyAedtBase):
                 continue
             pin_keys = list(pin_mapping.keys())
             pin_vals = list(pin_mapping.values())
-            if len(pin_keys) < 2 or not pin_vals[0] or not pin_vals[1]:
+            if len(pin_keys) < 2:
+                print(f"[SKIP] Component '{refdes}': pin_mapping must have at least 2 pins, found {len(pin_keys)}.")
+                continue
+            if not pin_vals[0] or not pin_vals[1]:
+                print(f"[SKIP] Component '{refdes}': pin_mapping has empty pin names. pin_keys={pin_keys}, pin_vals={pin_vals}.")
                 continue
 
             edbapp = self.edb_object
@@ -1629,7 +1575,7 @@ class LayoutComponent(PyAedtBase):
 
             mounted_name = refdes
             cs_name = f"{mounted_name}_CS"
-            self._primitives._app.modeler.create_coordinate_system(
+            cs = self._primitives._app.modeler.create_coordinate_system(
                 origin=[edb_val[0], edb_val[1], height],
                 name=cs_name,
             )
@@ -1689,11 +1635,29 @@ class LayoutComponent(PyAedtBase):
                                     if delta_x * delta_y < 0:
                                         theta = -theta
                                 d.rotate(angle=degrees(theta), axis="Z")
+                            
+                            # Calculate distance between second EDB pin and second component pin
+                            comp_val2_after_rotation = pin2.faces[0].center
+                            dist_x = float(edb_val2[0] - comp_val2_after_rotation[0])
+                            dist_y = float(edb_val2[1] - comp_val2_after_rotation[1])
+                            
+                            # Move component by half the distance
+                            adjust_vector = [dist_x / 2, dist_y / 2, 0]
+                            d.move(adjust_vector)
+                            
                             print(f"Mounted: {refdes}")
 
-            if not pin_found_1:
-                print(f"[WARN] Component '{refdes}': 3D pin '{pin_vals[0]}' not found (mounted without alignment)")
-            elif not pin_found_2:
-                print(f"[WARN] Component '{refdes}': 3D pin '{pin_vals[1]}' not found (partial alignment)")
+            if not pin_found_1 or not pin_found_2:
+                missing_pins = []
+                if not pin_found_1:
+                    missing_pins.append(f"'{pin_vals[0]}'")
+                if not pin_found_2:
+                    missing_pins.append(f"'{pin_vals[1]}'")
+                print(
+                    f"[SKIP] Component '{refdes}': insufficient placement data; missing 3D pin(s) {', '.join(missing_pins)}"
+                )
+                d.delete()
+                cs.delete()
+                continue
 
-        return project_path
+        return True

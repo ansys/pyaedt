@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import json
 import os
 import shutil
 
@@ -59,6 +60,7 @@ COMPONENT_3D_FILE = "new.a3dcomp"
 ENCRYPTED_CYL = "encrypted_cylinder.a3dcomp"
 LAYOUT_COMP = "Layoutcomponent_231.aedbcomp"
 LAYOUT_COMP_SI_VERSE_SFP = "ANSYS_SVP_V1_1_SFP_main.aedbcomp"
+LAYOUT_COMP_SI_VERSE_COMPLETE = "ANSYS-HSD_V1_main.aedbcomp"
 PRIMITIVES_FILE = "primitives_file.json"
 CYLINDER_PRIMITIVE_FILE = "cylinder_geometry_creation.csv"
 CYLINDER_PRIMITIVE_FILE_MISSING_VALUES = "cylinder_geometry_creation_missing_values.csv"
@@ -2266,6 +2268,27 @@ def test_insert_layout_component(aedt_app, test_tmp_dir) -> None:
     comp3.layout_component.layers["Trace"] = [True, True, 90]
     assert comp3.layout_component.update_visibility()
     assert comp.layout_component.close_edb_object()
+
+
+@pytest.mark.skipif(DESKTOP_VERSION < "2023.1", reason="Method available in beta from 2023.1")
+@pytest.mark.skipif(is_linux, reason="EDB object is not loaded")
+def test_layout_component_ecad_mcad_assembly_list_format(aedt_app, test_tmp_dir) -> None:
+    file_original = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / LAYOUT_COMP_SI_VERSE_COMPLETE
+    input_file = shutil.copy2(file_original, test_tmp_dir / LAYOUT_COMP_SI_VERSE_COMPLETE)
+
+    aedt_app.solution_type = "Terminal"
+    comp = aedt_app.modeler.insert_layout_component(str(input_file), name=None, parameter_mapping=False)
+    assert comp.layout_component.edb_object
+
+    components_json_original = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "components.json"
+    components_json = shutil.copy2(components_json_original, test_tmp_dir / "components.json")
+
+    model_original = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "assemblycomp.a3dcomp"
+    shutil.copy2(model_original, test_tmp_dir / "assemblycomp.a3dcomp")
+
+    assert comp.layout_component.ecad_mcad_assembly(components_json)
+
+    print("test")
 
 
 def test_insert_layout_component_2(aedt_app, test_tmp_dir) -> None:
