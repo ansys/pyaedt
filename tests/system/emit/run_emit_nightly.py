@@ -35,6 +35,7 @@ all remaining Emit tests.
 from __future__ import annotations
 
 import argparse
+from functools import lru_cache
 import os
 from pathlib import Path
 import re
@@ -42,6 +43,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 
 import psutil
@@ -207,6 +209,223 @@ def _dump_license_logs(procs: list[dict[str, object]], label: str, tail_lines: i
         _dump_log_tail(cmdline[cmdline.index("-log") + 1], label, tail_lines)
 
 
+# cdb.exe ships with the Windows SDK "Debugging Tools for Windows" feature; procdump is a
+# common standalone alternative on build machines.
+_STACK_TOOL_PATHS = (
+    r"C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\cdb.exe",
+    r"C:\Program Files\Windows Kits\10\Debuggers\x64\cdb.exe",
+)
+
+
+@lru_cache(maxsize=1)
+def _find_stack_tool() -> tuple[str, str] | None:
+    """Locate a debugger that can dump native stacks, or return None if the runner has none.
+
+    Cached so the result is reported once per run rather than once per test.
+    """
+    if os.name != "nt":
+        return None
+
+    found: tuple[str, str] | None = None
+    for candidate in _STACK_TOOL_PATHS:
+        if os.path.isfile(candidate):
+            found = ("cdb", candidate)
+            break
+    if found is None:
+        for name in ("cdb.exe", "procdump64.exe", "procdump.exe"):
+            located = shutil.which(name)
+            if located:
+                found = ("cdb" if name.startswith("cdb") else "procdump", located)
+                break
+
+    if found:
+        _log(f"Native stack capture enabled using {found[0]} at {found[1]}")
+    else:
+        _log(
+            "No native debugger found (cdb.exe from the Windows SDK Debugging Tools, or procdump on PATH). "
+            "Only per-thread CPU times will be recorded for a stuck Emit engine."
+        )
+    return found
+
+
+def _port_file_from_cmdline(cmdline: list[str]) -> str | None:
+    """Return the ``--portFile`` path AEDT passed to the engine.
+
+    AEDT polls this file for up to 60 seconds and the engine creates it once it is
+    listening, so whether it appears is a cheap and exact way to tell a healthy engine
+    from the stuck kind without attaching anything to a working process.
+    """
+    if "--portFile" not in cmdline:
+        return None
+    index = cmdline.index("--portFile")
+    return cmdline[index + 1] if index + 1 < len(cmdline) else None
+
+
+def _log_thread_cpu(proc: psutil.Process, label: str) -> None:
+    """Log per-thread CPU time so a blocked engine can be told apart from a spinning one.
+
+    psutil cannot report thread wait states on Windows, but two of these samples answer
+    the same question: totals that do not move mean every thread is blocked rather than
+    looping. This works even when no debugger is installed.
+    """
+    try:
+        threads = proc.threads()
+        totals = proc.cpu_times()
+    except (psutil.NoSuchProcess, psutil.AccessDenied) as exc:
+        _log(f"{label}: could not read thread times: {exc}")
+        return
+    _log(f"{label}: {len(threads)} threads, process cpu user={totals.user:.2f}s system={totals.system:.2f}s")
+    for thread in sorted(threads, key=lambda item: item.user_time + item.system_time, reverse=True)[:5]:
+        _log(f"    thread {thread.id}: user={thread.user_time:.2f}s system={thread.system_time:.2f}s")
+
+
+def _capture_native_stack(
+    tool: tuple[str, str], pid: int, out_path: Path, label: str, echo_lines: int = 120
+) -> Path | None:
+    """Dump the native stacks of every thread in ``pid``.
+
+    The AEDT install ships no PDBs, so engine frames appear as ``iemit+0x...``. That is
+    still enough, because the frames that identify the block are in ntdll/KERNELBASE and
+    resolve from the public symbol server.
+    """
+    kind, exe = tool
+    if kind == "cdb":
+        # -pv attaches noninvasively and qd detaches without terminating, so taking a
+        # sample cannot change the outcome of the test being diagnosed.
+        commands = "~*kvn; .echo === MODULES ===; lmf; .echo === CPU ===; !runaway 7; qd"
+        cmd = [exe, "-pv", "-p", str(pid), "-c", commands]
+    else:
+        # -mm is a thread-stack minidump, a few megabytes rather than the hundreds a full
+        # dump of a Python-hosting process would add to the artifact.
+        out_path = out_path.with_suffix(".dmp")
+        cmd = [exe, "-accepteula", "-mm", str(pid), str(out_path)]
+
+    env = os.environ.copy()
+    symbol_cache = Path(tempfile.gettempdir()) / "emit_symbols"
+    env.setdefault("_NT_SYMBOL_PATH", f"srv*{symbol_cache}*https://msdl.microsoft.com/download/symbols")
+
+    try:
+        completed = subprocess.run(cmd, capture_output=True, text=True, timeout=240, env=env, check=False)
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        _log(f"{label}: {kind} capture for pid {pid} failed: {exc}")
+        return None
+
+    if kind == "procdump":
+        _log(f"{label}: procdump exited {completed.returncode} writing {out_path}")
+        return out_path if out_path.exists() else None
+
+    text = (completed.stdout or "") + (completed.stderr or "")
+    try:
+        out_path.write_text(text, encoding="utf-8", errors="replace")
+    except OSError as exc:
+        _log(f"{label}: could not write {out_path}: {exc}")
+        return None
+
+    # cdb prints roughly 55 lines of extension-gallery and symbol-path banner before the
+    # stacks. Echo from the marker it writes when it starts executing -c so the inline
+    # excerpt is all stack; the full text is in the artifact either way.
+    lines = text.splitlines()
+    for offset, line in enumerate(lines):
+        if "Reading initial command" in line:
+            lines = lines[offset + 1 :]
+            break
+    _log(f"{label}: wrote {out_path.name} ({len(text)} bytes); first {echo_lines} stack lines:")
+    for line in lines[:echo_lines]:
+        _log(f"    {line}")
+    return out_path
+
+
+class _EngineStackSampler(threading.Thread):
+    """Capture native stacks from an Emit engine that never opens its gRPC port.
+
+    The engine exists for only about 60 seconds per attempt before AEDT terminates it,
+    and AEDT makes three attempts, so a capture has to be armed before the test starts
+    rather than attempted by hand. Engines that write their port file are left alone:
+    they are healthy, and even a noninvasive attach briefly suspends the target.
+    """
+
+    def __init__(
+        self,
+        out_prefix: Path,
+        label: str,
+        tool: tuple[str, str] | None,
+        port_file_wait: int = 20,
+        samples: int = 2,
+        sample_gap: int = 15,
+        max_engines: int = 2,
+    ) -> None:
+        super().__init__(daemon=True)
+        self._out_prefix = out_prefix
+        self._label = label
+        self._tool = tool
+        self._port_file_wait = port_file_wait
+        self._samples = samples
+        self._sample_gap = sample_gap
+        self._max_engines = max_engines
+        # Not named _stop: threading.Thread uses that attribute internally from join().
+        self._stop_event = threading.Event()
+        self.captures: list[Path] = []
+
+    def stop(self) -> None:
+        self._stop_event.set()
+
+    def run(self) -> None:
+        seen: set[int] = set()
+        captured_engines = 0
+        while not self._stop_event.is_set() and captured_engines < self._max_engines:
+            for proc in psutil.process_iter(["pid", "name", "cmdline"]):
+                if self._stop_event.is_set():
+                    return
+                try:
+                    if "iemit" not in (proc.info.get("name") or "").lower():
+                        continue
+                except (psutil.NoSuchProcess, psutil.AccessDenied):
+                    continue
+                if proc.pid in seen:
+                    continue
+                seen.add(proc.pid)
+                if self._inspect(proc):
+                    captured_engines += 1
+                break
+            self._stop_event.wait(0.25)
+
+    def _inspect(self, proc: psutil.Process) -> bool:
+        """Wait out the port-file window and capture stacks only if the engine is stuck."""
+        pid = proc.pid
+        try:
+            port_file = _port_file_from_cmdline(proc.info.get("cmdline") or [])
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            port_file = None
+        _log(f"{self._label}: engine pid {pid} started (port file: {port_file or 'unknown'})")
+
+        deadline = time.time() + self._port_file_wait
+        while time.time() < deadline:
+            if self._stop_event.wait(0.5):
+                return False
+            if not proc.is_running():
+                _log(f"{self._label}: engine pid {pid} exited before the port file window closed")
+                return False
+            if port_file and os.path.exists(port_file):
+                _log(f"{self._label}: engine pid {pid} opened its port file; healthy, not capturing")
+                return False
+
+        _log(f"{self._label}: engine pid {pid} wrote no port file in {self._port_file_wait}s; capturing stacks")
+        for index in range(1, self._samples + 1):
+            if not proc.is_running():
+                _log(f"{self._label}: engine pid {pid} exited before sample {index}")
+                break
+            sample_label = f"{self._label}: engine pid {pid} sample {index}"
+            _log_thread_cpu(proc, sample_label)
+            if self._tool:
+                out_path = Path(f"{self._out_prefix}.engine_{pid}_{index}.txt")
+                captured = _capture_native_stack(self._tool, pid, out_path, sample_label)
+                if captured:
+                    self.captures.append(captured)
+            if index < self._samples and self._stop_event.wait(self._sample_gap):
+                break
+        return True
+
+
 def _kill_process_tree(pid: int) -> None:
     try:
         proc = psutil.Process(pid)
@@ -313,6 +532,11 @@ def _run_single_test(repo_root: Path, nodeid: str, timeout: int, grace: int, ext
     _log(f"Starting test: {nodeid} (pytest timeout={timeout}s, hard kill after {hard_timeout}s)")
     _emit_process_snapshot(f"Before {nodeid}")
 
+    # The engine is killed by AEDT about 60s after it starts, long before the hard timeout
+    # below, so its stacks have to be sampled while the test is still running.
+    sampler = _EngineStackSampler(junit_dir / _junit_name(nodeid), nodeid, _find_stack_tool())
+    sampler.start()
+
     start = time.time()
     process = subprocess.Popen(args, cwd=repo_root, env=_test_env(aedt_log_file, ansdebug_log))
     try:
@@ -329,6 +553,8 @@ def _run_single_test(repo_root: Path, nodeid: str, timeout: int, grace: int, ext
         _dump_license_logs(_license_process_snapshot(f"{nodeid}: at hang"), f"{nodeid}: at hang")
         _dump_log_tail(str(aedt_log_file), f"{nodeid}: AEDT log at hang", 120)
         _dump_emit_debug_log(ansdebug_log, f"{nodeid}: AnsDebug at hang")
+        if sampler.captures:
+            _log(f"{nodeid}: native stack captures: {[str(path) for path in sampler.captures]}")
         try:
             _kill_process_tree(process.pid)
             _kill_emit_processes(nodeid)
@@ -341,6 +567,8 @@ def _run_single_test(repo_root: Path, nodeid: str, timeout: int, grace: int, ext
         _emit_process_snapshot(f"After timeout cleanup for {nodeid}")
         return 124
     finally:
+        sampler.stop()
+        sampler.join(timeout=5)
         shutil.rmtree(ansdebug_dir, ignore_errors=True)
 
 
