@@ -170,6 +170,7 @@ include-package-data = true
 version = {attr = "ansys.aedt.core.__version__"}
 
 [tool.uv]
+default-groups = []
 exclude-newer = "1 week"
 
 [tool.uv.exclude-newer-package]
