@@ -544,7 +544,7 @@ def test_desktop_default_mtls_failure_due_to_bad_certificate(monkeypatch, tmp_pa
         Desktop(version=AEDT_VERSION, non_graphical=NON_GRAPHICAL, new_desktop=True, port=port)
     from ansys.aedt.core.generic.general_methods import active_sessions
 
-    sessions = active_sessions() or {}
+    sessions = active_sessions()
     for pid in list(sessions.keys()):
         try:
             pid_int = int(pid)
