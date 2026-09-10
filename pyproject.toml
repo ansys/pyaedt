@@ -146,6 +146,7 @@ tests = [
     "pytest-timeout>=2.3.0",
     "pytest-xdist>=3.5.0",
     "pytest-testmon>=2.0.0",
+    "pytest-rerunfailures>=12.0",
     "cryptography",
 ]
 
@@ -374,6 +375,7 @@ markers = [
     "filter_solutions: mark a test as related to filter solutions.",
     "emit: mark a test as related to EMIT features.",
     "avoid_ansys_load: mark a test that should avoid LD_LIBRARY_PATH modifications.",
+    "flaky: rerun flaky tests",
 ]
 filterwarnings = [
     "ignore::UserWarning:src.ansys.aedt.core.*",
