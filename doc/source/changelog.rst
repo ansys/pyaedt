@@ -9,6 +9,119 @@ This document contains the release notes for the project.
 
 .. towncrier release notes start
 
+`1.5.1 <https://github.com/ansys/pyaedt/releases/tag/v1.5.1>`_ - September 10, 2026
+===================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Set variables in one call
+          - `#8070 <https://github.com/ansys/pyaedt/pull/8070>`_
+
+        * - Add polygon to HFSS extents
+          - `#8073 <https://github.com/ansys/pyaedt/pull/8073>`_
+
+        * - Open .cir netlist with PyAEDT
+          - `#8078 <https://github.com/ansys/pyaedt/pull/8078>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Test path in pytest fixture
+          - `#8058 <https://github.com/ansys/pyaedt/pull/8058>`_
+
+        * - AttributeError masking dropped AEDT connection in solution_type
+          - `#8072 <https://github.com/ansys/pyaedt/pull/8072>`_
+
+        * - Improve error message in extension error handler and add unit test for stderr handling
+          - `#8074 <https://github.com/ansys/pyaedt/pull/8074>`_
+
+        * - Add missing IBIS keyword [C Comp Model] to ibis_v7 template
+          - `#8083 <https://github.com/ansys/pyaedt/pull/8083>`_
+
+
+  .. tab-item:: Documentation
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Improve research and update doc dependency
+          - `#8060 <https://github.com/ansys/pyaedt/pull/8060>`_
+
+        * - Add MCP server banner to the documentation to promote PyAEDT MCP
+          - `#8061 <https://github.com/ansys/pyaedt/pull/8061>`_
+
+        * - Fix filters showing in search page
+          - `#8062 <https://github.com/ansys/pyaedt/pull/8062>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Bump vtk from 9.6.2 to 9.7.0
+          - `#8045 <https://github.com/ansys/pyaedt/pull/8045>`_
+
+        * - Bump tornado from 6.5.7 to 6.5.8
+          - `#8055 <https://github.com/ansys/pyaedt/pull/8055>`_
+
+        * - Bump mistune from 3.3.0 to 3.3.3
+          - `#8059 <https://github.com/ansys/pyaedt/pull/8059>`_
+
+        * - Bump https://github.com/astral-sh/ty-pre-commit from v0.0.73 to 0.0.75
+          - `#8064 <https://github.com/ansys/pyaedt/pull/8064>`_
+
+        * - Bump https://github.com/astral-sh/ruff-pre-commit from v0.16.4 to 0.16.5
+          - `#8065 <https://github.com/ansys/pyaedt/pull/8065>`_
+
+        * - Bump prek from 0.4.5 to 0.5.0
+          - `#8067 <https://github.com/ansys/pyaedt/pull/8067>`_
+
+        * - Bump pyvista/setup-headless-display-action from 4.3 to 5.0
+          - `#8068 <https://github.com/ansys/pyaedt/pull/8068>`_
+
+        * - Bump plotly from 6.9.0 to 7.0.0
+          - `#8069 <https://github.com/ansys/pyaedt/pull/8069>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Limit attestations upload to releases only
+          - `#8048 <https://github.com/ansys/pyaedt/pull/8048>`_
+
+        * - Bump v1.6.dev0
+          - `#8050 <https://github.com/ansys/pyaedt/pull/8050>`_
+
+        * - Prepare 27R1 by extending labels management
+          - `#8051 <https://github.com/ansys/pyaedt/pull/8051>`_
+
+        * - Update CHANGELOG for v1.5.0
+          - `#8056 <https://github.com/ansys/pyaedt/pull/8056>`_
+
+        * - Bump ansys actions into v11.0.5
+          - `#8057 <https://github.com/ansys/pyaedt/pull/8057>`_
+
+        * - Revert changes from 8003
+          - `#8063 <https://github.com/ansys/pyaedt/pull/8063>`_
+
+
 `1.5.0 <https://github.com/ansys/pyaedt/releases/tag/v1.5.0>`_ - September 02, 2026
 ===================================================================================
 
