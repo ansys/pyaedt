@@ -38,8 +38,10 @@ import argparse
 import os
 from pathlib import Path
 import re
+import shutil
 import subprocess
 import sys
+import tempfile
 import time
 
 import psutil
@@ -153,6 +155,44 @@ def _dump_log_tail(log_path: str, label: str, tail_lines: int) -> None:
         _log(f"    {line.rstrip()}")
 
 
+def _dump_emit_debug_log(ansdebug_log: Path, label: str, max_lines: int = 60) -> None:
+    """Print the Emit engine activity from AEDT's AnsDebug log.
+
+    AEDT splits this log into one file per component, named ``<base>_<component>_<host>_<pid>.log``.
+    Two of them matter here: the ``ansysedt`` file records each attempt to launch and connect to
+    the engine, and the ``iemit`` file is written by the engine itself. Together they show which
+    stage failed -- process spawn, port handshake, or gRPC connect -- which the AEDT project log
+    cannot distinguish because it only reports the final "Could not initialize EMIT sub-process".
+    """
+    matches = sorted(ansdebug_log.parent.glob(f"{ansdebug_log.stem}*"))
+    if not matches:
+        _log(f"{label}: no AnsDebug log matching {ansdebug_log.stem}*")
+        return
+
+    found_any = False
+    for path in matches:
+        try:
+            with open(path, encoding="utf-8", errors="replace") as handle:
+                lines = [line.rstrip() for line in handle if "EDT_EMIT" in line]
+        except OSError as exc:
+            _log(f"{label}: could not read {path.name}: {exc}")
+            continue
+        if not lines:
+            continue
+        found_any = True
+        _log(f"{label}: EDT_EMIT entries from {path.name}:")
+        for line in lines[-max_lines:]:
+            _log(f"    {line}")
+
+    if not found_any:
+        _log(f"{label}: no EDT_EMIT entries in any of {len(matches)} AnsDebug files (engine never started?)")
+
+    # The engine's own log explains a startup crash, which the parent process cannot observe.
+    for path in matches:
+        if "_iemit_" in path.name:
+            _dump_log_tail(str(path), f"{label}: iemit engine log", 40)
+
+
 def _dump_license_logs(procs: list[dict[str, object]], label: str, tail_lines: int = 60) -> None:
     """Print the tail of every ansyscl log referenced by a running licensing process.
 
@@ -206,7 +246,7 @@ def _kill_emit_processes(label: str) -> None:
     _emit_process_snapshot(f"{label}: after cleanup")
 
 
-def _test_env(aedt_log_file: Path) -> dict[str, str]:
+def _test_env(aedt_log_file: Path, ansdebug_log: Path) -> dict[str, str]:
     env = os.environ.copy()
     env.setdefault("PYTHONFAULTHANDLER", "1")
     env.setdefault("PYTHONUNBUFFERED", "1")
@@ -216,6 +256,14 @@ def _test_env(aedt_log_file: Path) -> dict[str, str]:
     # so ansysedt.exe is launched with -Logfile. AEDT writes this file itself, so it keeps
     # reporting after the gRPC call the Python side is blocked on stops responding.
     env["PYAEDT_EMIT_AEDT_LOG"] = str(aedt_log_file)
+    # AEDT's internal debug log. Level 4 is the lowest verbosity that still records each
+    # attempt to launch the Emit engine ("[EDT_EMIT] Started iemit.exe" / "Failed to start
+    # iemit.exe"), which is what distinguishes "iemit never launched" from "iemit launched
+    # but never answered". AEDT appends the host and pid to the file name, hence the glob
+    # used when the log is read back.
+    env["ANSOFT_DEBUG_LOG"] = str(ansdebug_log)
+    env["ANSOFT_DEBUG_MODE"] = "4"
+    env["ANSOFT_DEBUG_LOG_SEPARATE"] = "1"
     return env
 
 
@@ -228,6 +276,12 @@ def _run_single_test(repo_root: Path, nodeid: str, timeout: int, grace: int, ext
     junit_dir.mkdir(parents=True, exist_ok=True)
     junit_file = junit_dir / f"{_junit_name(nodeid)}.xml"
     aedt_log_file = junit_dir / f"{_junit_name(nodeid)}.aedt.log"
+    # AEDT's debug log runs about half a megabyte per test and is split across a dozen
+    # component files, so it is written to a scratch directory rather than the uploaded
+    # artifact directory. Only the handful of interesting lines are echoed to the job log
+    # on a hang, and the directory is removed once the test finishes either way.
+    ansdebug_dir = Path(tempfile.mkdtemp(prefix="emit_ansdebug_"))
+    ansdebug_log = ansdebug_dir / "ansdebug.log"
 
     # Dump the Python stacks of every thread before the hard kill. pytest-timeout cannot
     # interrupt a blocked native call, so this is the only way to see where a hang sits.
@@ -260,7 +314,7 @@ def _run_single_test(repo_root: Path, nodeid: str, timeout: int, grace: int, ext
     _emit_process_snapshot(f"Before {nodeid}")
 
     start = time.time()
-    process = subprocess.Popen(args, cwd=repo_root, env=_test_env(aedt_log_file))
+    process = subprocess.Popen(args, cwd=repo_root, env=_test_env(aedt_log_file, ansdebug_log))
     try:
         returncode = process.wait(timeout=hard_timeout)
         elapsed = time.time() - start
@@ -274,6 +328,7 @@ def _run_single_test(repo_root: Path, nodeid: str, timeout: int, grace: int, ext
         _emit_process_snapshot(f"{nodeid}: live processes at hang")
         _dump_license_logs(_license_process_snapshot(f"{nodeid}: at hang"), f"{nodeid}: at hang")
         _dump_log_tail(str(aedt_log_file), f"{nodeid}: AEDT log at hang", 120)
+        _dump_emit_debug_log(ansdebug_log, f"{nodeid}: AnsDebug at hang")
         try:
             _kill_process_tree(process.pid)
             _kill_emit_processes(nodeid)
@@ -285,6 +340,8 @@ def _run_single_test(repo_root: Path, nodeid: str, timeout: int, grace: int, ext
             _log(f"pytest process {process.pid} for {nodeid} did not exit after being killed")
         _emit_process_snapshot(f"After timeout cleanup for {nodeid}")
         return 124
+    finally:
+        shutil.rmtree(ansdebug_dir, ignore_errors=True)
 
 
 def main() -> int:

@@ -1447,7 +1447,11 @@ jobs:
         env:
           PYTHONMALLOC: malloc
         run: |
-          python tests/system/emit/run_emit_nightly.py --repeat 1 --timeout 300 --grace 60 --max-consecutive-hangs 3
+          # AEDT retries the Emit engine launch three times before giving up, which takes
+          # about 5.5 minutes. A 360s budget killed the test ~20s after AEDT logged its own
+          # error, so the failure surfaced as an opaque timeout. The larger budget lets AEDT
+          # finish its retries and report a real error instead.
+          python tests/system/emit/run_emit_nightly.py --repeat 1 --timeout 600 --grace 120 --max-consecutive-hangs 3
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
