@@ -261,6 +261,35 @@ def _port_file_from_cmdline(cmdline: list[str]) -> str | None:
     return cmdline[index + 1] if index + 1 < len(cmdline) else None
 
 
+# Windows reports an unhandled exception as the NTSTATUS code the process died with, so
+# the exit code alone identifies the class of failure when no debugger is available.
+_EXIT_CODE_MEANINGS = {
+    0xC0000005: "STATUS_ACCESS_VIOLATION",
+    0xC000007B: "STATUS_INVALID_IMAGE_FORMAT (wrong bitness or corrupt DLL)",
+    0xC0000135: "STATUS_DLL_NOT_FOUND",
+    0xC0000138: "STATUS_ORDINAL_NOT_FOUND",
+    0xC0000139: "STATUS_ENTRYPOINT_NOT_FOUND",
+    0xC0000142: "STATUS_DLL_INIT_FAILED",
+    0xC0000374: "STATUS_HEAP_CORRUPTION",
+    0xC0000409: "STATUS_STACK_BUFFER_OVERRUN",
+    0xC000041D: "STATUS_FATAL_USER_CALLBACK_EXCEPTION",
+    0x40010004: "DBG_TERMINATE_PROCESS",
+}
+
+
+def _describe_exit_code(code: int | None) -> str:
+    if code is None:
+        return "unknown"
+    unsigned = code & 0xFFFFFFFF
+    name = _EXIT_CODE_MEANINGS.get(unsigned)
+    if name:
+        return f"{code} ({unsigned:#010x} {name})"
+    if unsigned >= 0xC0000000:
+        return f"{code} ({unsigned:#010x} NTSTATUS error, process crashed)"
+    return f"{code} ({unsigned:#010x})"
+
+
+
 def _log_thread_cpu(proc: psutil.Process, label: str) -> None:
     """Log per-thread CPU time so a blocked engine can be told apart from a spinning one.
 
@@ -335,13 +364,15 @@ def _capture_native_stack(
     return out_path
 
 
-class _EngineStackSampler(threading.Thread):
-    """Capture native stacks from an Emit engine that never opens its gRPC port.
+class _EngineWatcher(threading.Thread):
+    """Record why each Emit engine failed to come up.
 
-    The engine exists for only about 60 seconds per attempt before AEDT terminates it,
-    and AEDT makes three attempts, so a capture has to be armed before the test starts
-    rather than attempted by hand. Engines that write their port file are left alone:
-    they are healthy, and even a noninvasive attach briefly suspends the target.
+    The engine exists for only a short time per attempt and AEDT makes three attempts, so
+    this has to be armed before the test starts rather than attempted by hand. Two outcomes
+    are distinguished: an engine that dies on its own, where the exit code names the
+    failure, and one that stays alive without ever opening its port, where native stacks
+    show where it is stuck. Engines that write their port file are healthy and are left
+    completely alone, because even a noninvasive attach briefly suspends the target.
     """
 
     def __init__(
@@ -365,6 +396,7 @@ class _EngineStackSampler(threading.Thread):
         # Not named _stop: threading.Thread uses that attribute internally from join().
         self._stop_event = threading.Event()
         self.captures: list[Path] = []
+        self.engine_exits: list[tuple[int, int | None]] = []
 
     def stop(self) -> None:
         self._stop_event.set()
@@ -373,7 +405,10 @@ class _EngineStackSampler(threading.Thread):
         seen: set[int] = set()
         captured_engines = 0
         while not self._stop_event.is_set() and captured_engines < self._max_engines:
-            for proc in psutil.process_iter(["pid", "name", "cmdline"]):
+            # Only the name is requested here: collecting cmdline for every process on the
+            # machine takes long enough that a short-lived engine can come and go between
+            # scans. The cmdline of the one process that matches is read in _inspect.
+            for proc in psutil.process_iter(["pid", "name"]):
                 if self._stop_event.is_set():
                     return
                 try:
@@ -387,29 +422,41 @@ class _EngineStackSampler(threading.Thread):
                 if self._inspect(proc):
                     captured_engines += 1
                 break
-            self._stop_event.wait(0.25)
+            self._stop_event.wait(0.1)
 
     def _inspect(self, proc: psutil.Process) -> bool:
-        """Wait out the port-file window and capture stacks only if the engine is stuck."""
+        """Wait out the port-file window and record how the engine failed."""
         pid = proc.pid
         try:
-            port_file = _port_file_from_cmdline(proc.info.get("cmdline") or [])
+            port_file = _port_file_from_cmdline(proc.cmdline() or [])
         except (psutil.NoSuchProcess, psutil.AccessDenied):
             port_file = None
         _log(f"{self._label}: engine pid {pid} started (port file: {port_file or 'unknown'})")
 
-        deadline = time.time() + self._port_file_wait
+        started = time.time()
+        deadline = started + self._port_file_wait
         while time.time() < deadline:
-            if self._stop_event.wait(0.5):
+            if self._stop_event.wait(0.2):
                 return False
             if not proc.is_running():
-                _log(f"{self._label}: engine pid {pid} exited before the port file window closed")
+                # The engine died on its own, long before AEDT's 60s port-file deadline, so
+                # the exit code is the failure. psutil reads it with GetExitCodeProcess,
+                # which works even though the engine is not a child of this process.
+                try:
+                    code = proc.wait(timeout=5)
+                except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.TimeoutExpired):
+                    code = None
+                self.engine_exits.append((pid, code))
+                _log(
+                    f"{self._label}: engine pid {pid} exited after {time.time() - started:.1f}s "
+                    f"without writing a port file; exit code {_describe_exit_code(code)}"
+                )
                 return False
             if port_file and os.path.exists(port_file):
                 _log(f"{self._label}: engine pid {pid} opened its port file; healthy, not capturing")
                 return False
 
-        _log(f"{self._label}: engine pid {pid} wrote no port file in {self._port_file_wait}s; capturing stacks")
+        _log(f"{self._label}: engine pid {pid} alive with no port file after {self._port_file_wait}s; capturing stacks")
         for index in range(1, self._samples + 1):
             if not proc.is_running():
                 _log(f"{self._label}: engine pid {pid} exited before sample {index}")
@@ -532,10 +579,10 @@ def _run_single_test(repo_root: Path, nodeid: str, timeout: int, grace: int, ext
     _log(f"Starting test: {nodeid} (pytest timeout={timeout}s, hard kill after {hard_timeout}s)")
     _emit_process_snapshot(f"Before {nodeid}")
 
-    # The engine is killed by AEDT about 60s after it starts, long before the hard timeout
-    # below, so its stacks have to be sampled while the test is still running.
-    sampler = _EngineStackSampler(junit_dir / _junit_name(nodeid), nodeid, _find_stack_tool())
-    sampler.start()
+    # The engine dies within seconds of starting, long before the hard timeout below, so
+    # its exit code has to be collected while the test is still running.
+    watcher = _EngineWatcher(junit_dir / _junit_name(nodeid), nodeid, _find_stack_tool())
+    watcher.start()
 
     start = time.time()
     process = subprocess.Popen(args, cwd=repo_root, env=_test_env(aedt_log_file, ansdebug_log))
@@ -553,8 +600,12 @@ def _run_single_test(repo_root: Path, nodeid: str, timeout: int, grace: int, ext
         _dump_license_logs(_license_process_snapshot(f"{nodeid}: at hang"), f"{nodeid}: at hang")
         _dump_log_tail(str(aedt_log_file), f"{nodeid}: AEDT log at hang", 120)
         _dump_emit_debug_log(ansdebug_log, f"{nodeid}: AnsDebug at hang")
-        if sampler.captures:
-            _log(f"{nodeid}: native stack captures: {[str(path) for path in sampler.captures]}")
+        if watcher.engine_exits:
+            _log(f"{nodeid}: Emit engine exit codes ({len(watcher.engine_exits)} engines):")
+            for pid, code in watcher.engine_exits:
+                _log(f"    pid {pid}: {_describe_exit_code(code)}")
+        if watcher.captures:
+            _log(f"{nodeid}: native stack captures: {[str(path) for path in watcher.captures]}")
         try:
             _kill_process_tree(process.pid)
             _kill_emit_processes(nodeid)
@@ -567,8 +618,8 @@ def _run_single_test(repo_root: Path, nodeid: str, timeout: int, grace: int, ext
         _emit_process_snapshot(f"After timeout cleanup for {nodeid}")
         return 124
     finally:
-        sampler.stop()
-        sampler.join(timeout=5)
+        watcher.stop()
+        watcher.join(timeout=5)
         shutil.rmtree(ansdebug_dir, ignore_errors=True)
 
 
