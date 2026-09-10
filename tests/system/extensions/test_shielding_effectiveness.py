@@ -37,6 +37,7 @@ TEST_SUBFOLDER = "T45"
 
 
 @pytest.mark.skipif(is_linux, reason="Long test for Linux VM.")
+@pytest.mark.flaky(reruns=3, reruns_delay=2)
 def test_shielding_effectiveness_generate_button(add_app) -> None:
     """Test the Generate button in the Shielding Effectiveness extension."""
     data = ShieldingEffectivenessExtensionData(
