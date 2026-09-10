@@ -146,7 +146,6 @@ tests = [
     "pytest-timeout>=2.3.0",
     "pytest-xdist>=3.5.0",
     "pytest-testmon>=2.0.0",
-    "pytest-rerunfailures>=12.0",
     "cryptography",
 ]
 
