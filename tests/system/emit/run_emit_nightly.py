@@ -289,7 +289,6 @@ def _describe_exit_code(code: int | None) -> str:
     return f"{code} ({unsigned:#010x})"
 
 
-
 def _log_thread_cpu(proc: psutil.Process, label: str) -> None:
     """Log per-thread CPU time so a blocked engine can be told apart from a spinning one.
 
