@@ -169,6 +169,7 @@ jobs:
       id-token: write       # Required for OIDC token generation (for provenance signing)
     uses: ./.github/workflows/reusable-smoke-tests-rocky.yml
     with:
+      attest-provenance: true
       python-versions: '["3.10", "3.11", "3.12", "3.13", "3.14"]'
       extras: '["all", "all-dotnet"]'
 
@@ -432,7 +433,7 @@ jobs:
 
 
       - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
+        uses: pyvista/setup-headless-display-action@b0bf9f57d62d2b3fee9f1c0e0c7e390f05e97a4e # v5.0.0
 
       - name: Install pyaedt and tests dependencies
         env:
@@ -503,7 +504,7 @@ jobs:
 
 
       - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
+        uses: pyvista/setup-headless-display-action@b0bf9f57d62d2b3fee9f1c0e0c7e390f05e97a4e # v5.0.0
 
       - name: Install pyaedt and tests dependencies
         env:
@@ -567,7 +568,7 @@ jobs:
 
 
       - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
+        uses: pyvista/setup-headless-display-action@b0bf9f57d62d2b3fee9f1c0e0c7e390f05e97a4e # v5.0.0
 
       - name: Install pyaedt and tests dependencies
         env:
@@ -639,7 +640,7 @@ jobs:
 
 
       - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
+        uses: pyvista/setup-headless-display-action@b0bf9f57d62d2b3fee9f1c0e0c7e390f05e97a4e # v5.0.0
 
       - name: Install pyaedt and tests dependencies
         env:
@@ -960,7 +961,7 @@ jobs:
 
 
       - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
+        uses: pyvista/setup-headless-display-action@b0bf9f57d62d2b3fee9f1c0e0c7e390f05e97a4e # v5.0.0
 
       - name: Install pyaedt and tests dependencies
         env:
@@ -1058,7 +1059,7 @@ jobs:
 
 
       - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
+        uses: pyvista/setup-headless-display-action@b0bf9f57d62d2b3fee9f1c0e0c7e390f05e97a4e # v5.0.0
 
       - name: Install pyaedt and tests dependencies
         env:
@@ -1300,5 +1301,4 @@ jobs:
           bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          force-orphan: false
           use-python-cache: false

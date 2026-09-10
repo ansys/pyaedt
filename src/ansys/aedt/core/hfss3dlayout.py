@@ -2316,6 +2316,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         air_vertical_negative_padding: str | None = None,
         airbox_values_as_dim: bool = True,
         air_horizontal_padding: str | None = None,
+        diel_extent_polygon: str | None = None,
+        air_extent_polygon: str | None = None,
     ) -> bool:
         """Edit HFSS 3D Layout extents.
 
@@ -2323,14 +2325,14 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         ----------
         diel_extent_type : str, optional
             Dielectric extent type. The default is ``None``. Options are ``"BboxExtent"``,
-            ``"ConformalExtent"``, and ``"ConvexHullExtent"``.
+            ``"ConformalExtent"``, ``"ConvexHullExtent"``, and ``"PolygonExtent``".
         diel_extent_horizontal_padding : str, optional
             Dielectric extent horizontal padding. The default is ``None``.
         diel_honor_primitives_on_diel_layers : str, optional
             Whether to set dielectric honor primitives on dielectric layers. The default is ``None``.
         air_extent_type : str, optional
             Airbox extent type. The default is ``None``. Options are ``"BboxExtent"``,
-            ``"ConformalExtent"``, and ``"ConvexHullExtent"``.
+            ``"ConformalExtent"``, ``"ConvexHullExtent"``, and ``"PolygonExtent"``.
         air_truncate_model_at_ground_layer : str, optional
             Whether to set airbox truncate model at ground layer. The default is ``None``.
         air_vertical_positive_padding : str, optional
@@ -2341,6 +2343,12 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
             Either if inputs are dims or not. Default is `True`.
         air_horizontal_padding : float, optional
             Airbox horizontal padding. The default is ``None``.
+        diel_extent_polygon : str, optional
+            Dielectric extent polygon, only when ``diel_extent_type`` is set to ``"PolygonExtent"``.
+            The default is ``None``.
+        air_extent_polygon : str, optional
+            Airbox extent polygon, only when ``air_extent_type`` is set to ``"PolygonExtent"``.
+            The default is ``None``.
 
 
         Returns
@@ -2359,9 +2367,23 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         if diel_extent_type:
             arg.append("DielExtentType:=")
             arg.append(diel_extent_type)
+
         if diel_extent_horizontal_padding:
             arg.append("DielExt:=")
             arg.append(["Ext:=", diel_extent_horizontal_padding, "Dim:=", False])
+
+        if diel_extent_polygon and diel_extent_type == "PolygonExtent":
+            arg.append("DielBasePolygon:=")
+            arg.append(diel_extent_polygon)
+            arg.append("DielBasePolygonEDBUId:=")
+            arg.append(-1)
+
+        if air_extent_polygon and air_extent_type == "PolygonExtent":
+            arg.append("AirBasePolygon:=")
+            arg.append(air_extent_polygon)
+            arg.append("AirBasePolygonEDBUId:=")
+            arg.append(-1)
+
         if not diel_honor_primitives_on_diel_layers == "keep":
             arg.append("HonorUserDiel:=")
             arg.append(diel_honor_primitives_on_diel_layers)
