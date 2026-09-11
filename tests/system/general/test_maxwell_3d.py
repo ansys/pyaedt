@@ -1109,7 +1109,7 @@ def test_assign_resistive_sheet(m3d_app, maxwell_versioned) -> None:
         m3d_app.assign_resistive_sheet(assignment=my_rectangle, resistance="3ohm")
 
 
-def test_assign_layout_force(layout_comp) -> None:
+def test_layout_force(layout_comp) -> None:
     nets_layers = {
         "<no-net>": ["<no-layer>", "TOP", "UNNAMED_000", "UNNAMED_002"],
         "GND": ["BOTTOM", "Region", "UNNAMED_010", "UNNAMED_012"],
@@ -1125,7 +1125,7 @@ def test_assign_layout_force(layout_comp) -> None:
 
 
 @pytest.mark.skipif(is_linux, reason="EDB object is not loaded.")
-def test_enable_harmonic_force_layout(layout_comp) -> None:
+def test_layout_harmonic(layout_comp) -> None:
     comp = layout_comp.modeler.user_defined_components["LC1_1"]
     layers = list(comp.layout_component.layers.keys())
     nets = list(comp.layout_component.nets.keys())

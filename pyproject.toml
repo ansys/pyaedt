@@ -385,6 +385,7 @@ markers = [
     "filter_solutions: mark a test as related to filter solutions.",
     "emit: mark a test as related to EMIT features.",
     "avoid_ansys_load: mark a test that should avoid LD_LIBRARY_PATH modifications.",
+    "flaky: rerun flaky tests",
 ]
 filterwarnings = [
     "ignore::UserWarning:src.ansys.aedt.core.*",

@@ -115,6 +115,12 @@ edb_xfail = pytest.mark.xfail(
     reason="PyEDB tests are unstable",
 )
 
+# Mark tests as xfail when PYAEDT_SOLVER_XFAIL=1
+solver_xfail = pytest.mark.xfail(
+    condition=os.environ.get("PYAEDT_SOLVER_XFAIL") == "1",
+    reason="Solver tests are unstable",
+)
+
 # ================================
 # PyAEDT settings
 # ================================
