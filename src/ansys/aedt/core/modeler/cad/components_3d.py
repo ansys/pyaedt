@@ -29,10 +29,8 @@ import os
 from pathlib import Path
 import re
 import secrets
-from typing import Any
 from typing import TYPE_CHECKING
-
-from openpyxl.pivot.fields import Boolean
+from typing import Any
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.edb import Edb
@@ -40,8 +38,8 @@ from ansys.aedt.core.generic.constants import Axis
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import _uname
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.numbers_utils import is_number
 from ansys.aedt.core.generic.numbers_utils import _units_assignment
+from ansys.aedt.core.generic.numbers_utils import is_number
 from ansys.aedt.core.internal.desktop_sessions import _edb_sessions
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 
@@ -1428,6 +1426,7 @@ class LayoutComponent(PyAedtBase):
         ----------
         components_json_path : str or pathlib.Path
             Path to the ``components.json`` configuration to apply.
+
         Returns
         -------
         bool
@@ -1438,7 +1437,9 @@ class LayoutComponent(PyAedtBase):
           - If a 3D component pin name doesn't exist: component is SKIPPED (not mounted)
           - Check console output for [SKIP] and [WARN] messages to diagnose pin mapping issues
         """
-        from math import acos, degrees, sqrt
+        from math import acos
+        from math import degrees
+        from math import sqrt
 
         json_path = Path(components_json_path).expanduser().resolve()
         if not json_path.exists() or not json_path.is_file():
@@ -1452,7 +1453,7 @@ class LayoutComponent(PyAedtBase):
         library_3dcomp = assembly_dict.get("library_3dcomp", {})
 
         if not isinstance(component_library, dict):
-            print(f"[SKIP] 'partname_map' is not a valid dictionary.")
+            print("[SKIP] 'partname_map' is not a valid dictionary.")
             return False
 
         abs_libraries: dict[str, Path] = {}
@@ -1501,7 +1502,9 @@ class LayoutComponent(PyAedtBase):
                 continue
             resolved_model_path = updated_partname.get(partname)
             if resolved_model_path is None:
-                print(f"[SKIP] Component '{refdes}': partname '{partname}' not found in partname_map. Available: {list(component_library.keys())}")
+                print(
+                    f"[SKIP] Component '{refdes}': partname '{partname}' not found in partname_map. Available: {list(component_library.keys())}"
+                )
                 continue
             if not resolved_model_path.is_file():
                 print(f"[SKIP] Component '{comp}': model file not found: {resolved_model_path}")
@@ -1516,21 +1519,15 @@ class LayoutComponent(PyAedtBase):
                 print(f"[SKIP] Component '{refdes}': pin_mapping must have at least 2 pins, found {len(pin_keys)}.")
                 continue
             if not pin_vals[0] or not pin_vals[1]:
-                print(f"[SKIP] Component '{refdes}': pin_mapping has empty pin names. pin_keys={pin_keys}, pin_vals={pin_vals}.")
+                print(
+                    f"[SKIP] Component '{refdes}': pin_mapping has empty pin names. pin_keys={pin_keys}, pin_vals={pin_vals}."
+                )
                 continue
 
             edbapp = self.edb_object
             stackup_limits = edbapp.stackup.limits()
-            top_layer_name = (
-                str(stackup_limits[0]).strip()
-                if len(stackup_limits) > 0 and stackup_limits[0]
-                else ""
-            )
-            bottom_layer_name = (
-                str(stackup_limits[2]).strip()
-                if len(stackup_limits) > 2 and stackup_limits[2]
-                else ""
-            )
+            top_layer_name = str(stackup_limits[0]).strip() if len(stackup_limits) > 0 and stackup_limits[0] else ""
+            bottom_layer_name = str(stackup_limits[2]).strip() if len(stackup_limits) > 2 and stackup_limits[2] else ""
 
             try:
                 edb_comp = edbapp.components.instances[refdes]
@@ -1564,7 +1561,9 @@ class LayoutComponent(PyAedtBase):
                 placement_is_bottom = False
             height = 0.0
             if component_layer is not None:
-                elevation = getattr(component_layer, "lower_elevation" if placement_is_bottom else "upper_elevation", None)
+                elevation = getattr(
+                    component_layer, "lower_elevation" if placement_is_bottom else "upper_elevation", None
+                )
                 if callable(elevation):
                     try:
                         elevation = elevation()
@@ -1609,25 +1608,16 @@ class LayoutComponent(PyAedtBase):
                             comp_val2 = pin2.faces[0].center
                             edb_delta_x = float(edb_val2[0] - edb_val[0])
                             edb_delta_y = float(edb_val2[1] - edb_val[1])
-                            side1 = sqrt(
-                                edb_delta_x ** 2
-                                + edb_delta_y ** 2
-                            )
+                            side1 = sqrt(edb_delta_x**2 + edb_delta_y**2)
                             side2 = sqrt(
-                                float(comp_val2[0] - comp_val[0]) ** 2
-                                + float(comp_val2[1] - comp_val[1]) ** 2
+                                float(comp_val2[0] - comp_val[0]) ** 2 + float(comp_val2[1] - comp_val[1]) ** 2
                             )
                             delta_x = float(comp_val2[0] - edb_val2[0])
                             delta_y = float(comp_val2[1] - edb_val2[1])
-                            side3 = sqrt(
-                                delta_x ** 2
-                                + delta_y ** 2
-                            )
+                            side3 = sqrt(delta_x**2 + delta_y**2)
                             denom = 2 * side1 * side2
                             if denom > 0:
-                                theta = acos(
-                                    max(-1.0, min(1.0, (side1 ** 2 + side2 ** 2 - side3 ** 2) / denom))
-                                )
+                                theta = acos(max(-1.0, min(1.0, (side1**2 + side2**2 - side3**2) / denom)))
                                 if abs(edb_delta_x) < abs(edb_delta_y):
                                     if delta_x * delta_y > 0:
                                         theta = -theta
@@ -1635,16 +1625,16 @@ class LayoutComponent(PyAedtBase):
                                     if delta_x * delta_y < 0:
                                         theta = -theta
                                 d.rotate(angle=degrees(theta), axis="Z")
-                            
+
                             # Calculate distance between second EDB pin and second component pin
                             comp_val2_after_rotation = pin2.faces[0].center
                             dist_x = float(edb_val2[0] - comp_val2_after_rotation[0])
                             dist_y = float(edb_val2[1] - comp_val2_after_rotation[1])
-                            
+
                             # Move component by half the distance
                             adjust_vector = [dist_x / 2, dist_y / 2, 0]
                             d.move(adjust_vector)
-                            
+
                             print(f"Mounted: {refdes}")
 
             if not pin_found_1 or not pin_found_2:
@@ -1719,7 +1709,14 @@ class LayoutComponent(PyAedtBase):
         assembly: list[dict[str, Any]] = []
         for refdes, component in edbapp.components.instances.items():
             partname = ""
-            for attr_name in ("partname", "part_name", "component_part_name", "component_name", "definition_name", "name"):
+            for attr_name in (
+                "partname",
+                "part_name",
+                "component_part_name",
+                "component_name",
+                "definition_name",
+                "name",
+            ):
                 value = getattr(component, attr_name, None)
                 if callable(value):
                     try:
