@@ -1661,3 +1661,92 @@ class LayoutComponent(PyAedtBase):
                 continue
 
         return True
+
+    def _create_pin_mapping(self, edb_pins: Any, mcad_comp_pins: list[str] | None) -> dict[str, str]:
+        """Create pin mapping for assembly entry.
+
+        Parameters
+        ----------
+        edb_pins : Any
+            EDB component pins.
+        mcad_comp_pins : list[str] | None
+            List of MCAD component pin names for auto-filling. If empty or None,
+            all mappings are left empty.
+
+        Returns
+        -------
+        dict[str, str]
+            Pin mapping dictionary.
+        """
+        pin_mapping = {pin_name: "" for pin_name in edb_pins}
+        if mcad_comp_pins:
+            for i, pin_name in enumerate(pin_mapping.keys()):
+                if i < len(mcad_comp_pins):
+                    pin_mapping[pin_name] = mcad_comp_pins[i]
+        return pin_mapping
+
+    def populate_json_assembly(
+        self,
+        json_path: str | Path,
+        mcad_comp_pins: list[str] | None = None,
+    ) -> Path:
+        """Create a ``components.json`` file for :func:`ecad_mcad_assembly`.
+
+        The JSON is built from this object's EDB. Each component instance becomes
+        one assembly entry with an empty pin mapping for every EDB pin.
+
+        Parameters
+        ----------
+        json_path : str | Path
+            Path where the JSON file will be saved.
+        mcad_comp_pins : list[str], optional
+            List of MCAD component pin names (e.g., ["Pin01", "Pin02"]) to auto-fill
+            pin mappings. If empty or None, pin mappings remain empty.
+        """
+        edbapp = self.edb_object
+        if not edbapp:
+            raise ValueError("The layout component does not expose a valid EDB object.")
+
+        app = self._primitives._app
+        library_3dcomp = {
+            "syslib": str(getattr(app, "syslib", "") or ""),
+            "userlib": str(getattr(app, "userlib", "") or ""),
+            "personallib": str(getattr(app, "personallib", "") or ""),
+            "project": "",
+        }
+
+        partname_map: dict[str, dict[str, str]] = {}
+        assembly: list[dict[str, Any]] = []
+        for refdes, component in edbapp.components.instances.items():
+            partname = ""
+            for attr_name in ("partname", "part_name", "component_part_name", "component_name", "definition_name", "name"):
+                value = getattr(component, attr_name, None)
+                if callable(value):
+                    try:
+                        value = value()
+                    except TypeError:
+                        continue
+                if isinstance(value, str) and value.strip():
+                    partname = value.strip()
+                    break
+            if partname:
+                partname_map.setdefault(partname, {"lib": "", "comp": ""})
+            assembly.append(
+                {
+                    "refdes": refdes,
+                    "partname": partname,
+                    "pin_mapping": self._create_pin_mapping(component.pins, mcad_comp_pins),
+                }
+            )
+
+        target = Path(json_path).expanduser().resolve()
+        target.parent.mkdir(parents=True, exist_ok=True)
+
+        payload: dict[str, Any] = {
+            "library_3dcomp": library_3dcomp,
+            "partname_map": partname_map,
+            "assembly": assembly,
+        }
+        with open(target, "w", encoding="utf-8") as f:
+            json.dump(payload, f, indent=4, sort_keys=False)
+        return target

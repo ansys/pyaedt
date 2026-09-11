@@ -2280,6 +2280,8 @@ def test_layout_component_ecad_mcad_assembly_list_format(aedt_app, test_tmp_dir)
     comp = aedt_app.modeler.insert_layout_component(str(input_file), name=None, parameter_mapping=False)
     assert comp.layout_component.edb_object
 
+    assert comp.layout_component.populate_json_assembly((test_tmp_dir / "test.json"),["Pin01","Pin02"])
+
     components_json_original = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "components.json"
     components_json = shutil.copy2(components_json_original, test_tmp_dir / "components.json")
 
