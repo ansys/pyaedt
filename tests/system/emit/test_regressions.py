@@ -898,7 +898,6 @@ def test_defect_1477851_nto1_export(emit_app) -> None:
 
     domain = InteractionDomain(emit_app)
     domain.set_receiver(radio=radios[0])
-    domain.set_interferer(radio="")
     sim.run(domain)
 
     interaction = Interaction(emit_app, domain, rev)
