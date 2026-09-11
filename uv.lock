@@ -8,6 +8,17 @@ resolution-markers = [
     "python_full_version < '3.11'",
 ]
 
+[options]
+exclude-newer = "0001-01-01T00:00:00Z" # This has no effect and is included for backwards compatibility when using relative exclude-newer values.
+exclude-newer-span = "P1W"
+
+[options.exclude-newer-package]
+ansys-tools-visualization-interface = false
+ansys-sphinx-theme = false
+pyedb = false
+ansys-pythonnet = false
+ansys-tools-common = false
+
 [[package]]
 name = "accessible-pygments"
 version = "0.0.5"
