@@ -2177,10 +2177,10 @@ class Desktop(PyAedtBase):
             close_val = getattr(self, "close_on_exit", getattr(self, "_Desktop__close_on_exit", True))
             try:
                 self.__release_and_close_desktop(close_val, close_val)
-            except Exception:
+            except Exception:  # nosec B110
                 # Suppress exceptions raised during cleanup in destructor
                 pass
-        except Exception:
+        except Exception:  # nosec B110
             # Defensive: ensure destructor never raises
             return
 
