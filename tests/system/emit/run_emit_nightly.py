@@ -1,0 +1,703 @@
+#!/usr/bin/env python3
+
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+"""Run the Emit system tests with per-test watchdogs and repeat loops.
+
+This helper is intentionally scoped to the Emit suite so the nightly job stays
+isolated from the rest of PyAEDT. Each individual test is launched in its own
+subprocess, so a hung AEDT/iemit process can be terminated without taking down
+all remaining Emit tests.
+"""
+
+from __future__ import annotations
+
+import argparse
+from functools import lru_cache
+import os
+from pathlib import Path
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
+import threading
+import time
+
+import psutil
+
+
+def _repo_root() -> Path:
+    return Path(__file__).resolve().parents[3]
+
+
+def _log(message: str) -> None:
+    print(f"[EMIT-HARNESS] {message}", flush=True)
+
+
+def _collect_emit_tests(repo_root: Path, extra_args: list[str]) -> list[str]:
+    cmd = [sys.executable, "-m", "pytest", "--collect-only", "-q", "tests/system/emit", *extra_args]
+    _log(f"Collecting tests with: {' '.join(cmd)}")
+    completed = subprocess.run(cmd, cwd=repo_root, capture_output=True, text=True, check=False)
+    discovered: list[str] = []
+    for line in (completed.stdout or "").splitlines() + (completed.stderr or "").splitlines():
+        candidate = line.strip()
+        if not candidate:
+            continue
+        if candidate.startswith("tests/system/emit/"):
+            discovered.append(candidate)
+    if not discovered:
+        raise RuntimeError(
+            f"No Emit tests were discovered. Collect output:\nSTDOUT:\n{completed.stdout}\nSTDERR:\n{completed.stderr}"
+        )
+    return discovered
+
+
+# Processes that belong to the test itself and are safe to force kill.
+KILL_TOKENS = ("ansysedt", "iemit")
+
+# Licensing processes are shared machine services. They are only ever observed, never
+# killed, because terminating them would break licensing for other jobs on the runner.
+LICENSE_TOKENS = ("ansyscl", "ansysli", "apip", "lmgrd", "flexlm")
+
+
+def _process_matches(proc: psutil.Process, tokens: tuple[str, ...] = KILL_TOKENS) -> bool:
+    try:
+        name = (proc.name() or "").lower()
+        exe = (proc.exe() or "").lower()
+        cmdline = " ".join(proc.cmdline() or []).lower()
+    except (psutil.NoSuchProcess, psutil.AccessDenied):
+        return False
+    return any(token in name or token in exe or token in cmdline for token in tokens)
+
+
+def _describe_process(proc: psutil.Process) -> dict[str, object]:
+    try:
+        info = proc.as_dict(attrs=["pid", "ppid", "name", "exe", "cmdline", "status"])
+    except (psutil.NoSuchProcess, psutil.AccessDenied):
+        return {}
+    children = []
+    try:
+        for child in proc.children(recursive=True):
+            children.append(child.pid)
+    except (psutil.NoSuchProcess, psutil.AccessDenied):
+        pass
+    info["children"] = children
+    return info
+
+
+def _emit_process_snapshot(label: str) -> list[dict[str, object]]:
+    snapshot: list[dict[str, object]] = []
+    try:
+        for proc in psutil.process_iter(["pid", "name", "exe", "cmdline", "ppid", "status"]):
+            try:
+                if _process_matches(proc):
+                    snapshot.append(_describe_process(proc))
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                continue
+    except Exception:
+        return snapshot
+    if snapshot:
+        _log(f"{label}: {snapshot}")
+    else:
+        _log(f"{label}: no AEDT/iemit processes found")
+    return snapshot
+
+
+def _license_process_snapshot(label: str) -> list[dict[str, object]]:
+    """Log Ansys licensing processes. Observation only; these are never terminated."""
+    found: list[dict[str, object]] = []
+    try:
+        for proc in psutil.process_iter(["pid", "name", "exe", "cmdline", "ppid", "status"]):
+            try:
+                if _process_matches(proc, LICENSE_TOKENS):
+                    found.append(_describe_process(proc))
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                continue
+    except Exception:
+        return found
+    _log(f"{label}: licensing processes: {found if found else 'none found'}")
+    return found
+
+
+def _dump_log_tail(log_path: str, label: str, tail_lines: int) -> None:
+    try:
+        with open(log_path, encoding="utf-8", errors="replace") as handle:
+            lines = handle.readlines()[-tail_lines:]
+    except OSError as exc:
+        _log(f"{label}: could not read {log_path}: {exc}")
+        return
+    if not lines:
+        _log(f"{label}: {log_path} is empty")
+        return
+    _log(f"{label}: tail of {log_path}:")
+    for line in lines:
+        _log(f"    {line.rstrip()}")
+
+
+def _dump_emit_debug_log(ansdebug_log: Path, label: str, max_lines: int = 60) -> None:
+    """Print the Emit engine activity from AEDT's AnsDebug log.
+
+    AEDT splits this log into one file per component, named ``<base>_<component>_<host>_<pid>.log``.
+    Two of them matter here: the ``ansysedt`` file records each attempt to launch and connect to
+    the engine, and the ``iemit`` file is written by the engine itself. Together they show which
+    stage failed -- process spawn, port handshake, or gRPC connect -- which the AEDT project log
+    cannot distinguish because it only reports the final "Could not initialize EMIT sub-process".
+    """
+    matches = sorted(ansdebug_log.parent.glob(f"{ansdebug_log.stem}*"))
+    if not matches:
+        _log(f"{label}: no AnsDebug log matching {ansdebug_log.stem}*")
+        return
+
+    found_any = False
+    for path in matches:
+        try:
+            with open(path, encoding="utf-8", errors="replace") as handle:
+                lines = [line.rstrip() for line in handle if "EDT_EMIT" in line]
+        except OSError as exc:
+            _log(f"{label}: could not read {path.name}: {exc}")
+            continue
+        if not lines:
+            continue
+        found_any = True
+        _log(f"{label}: EDT_EMIT entries from {path.name}:")
+        for line in lines[-max_lines:]:
+            _log(f"    {line}")
+
+    if not found_any:
+        _log(f"{label}: no EDT_EMIT entries in any of {len(matches)} AnsDebug files (engine never started?)")
+
+    # The engine's own log explains a startup crash, which the parent process cannot observe.
+    for path in matches:
+        if "_iemit_" in path.name:
+            _dump_log_tail(str(path), f"{label}: iemit engine log", 40)
+
+
+def _dump_license_logs(procs: list[dict[str, object]], label: str, tail_lines: int = 60) -> None:
+    """Print the tail of every ansyscl log referenced by a running licensing process.
+
+    The licensing client writes its checkout attempts and denials to the file given by its
+    ``-log`` argument. That file lives only on the runner, so without dumping it here the
+    reason a checkout never completes is invisible in the CI output.
+    """
+    for proc in procs:
+        cmdline = proc.get("cmdline") or []
+        if not isinstance(cmdline, list) or "-log" not in cmdline:
+            continue
+        _dump_log_tail(cmdline[cmdline.index("-log") + 1], label, tail_lines)
+
+
+# cdb.exe ships with the Windows SDK "Debugging Tools for Windows" feature; procdump is a
+# common standalone alternative on build machines.
+_STACK_TOOL_PATHS = (
+    r"C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\cdb.exe",
+    r"C:\Program Files\Windows Kits\10\Debuggers\x64\cdb.exe",
+)
+
+
+@lru_cache(maxsize=1)
+def _find_stack_tool() -> tuple[str, str] | None:
+    """Locate a debugger that can dump native stacks, or return None if the runner has none.
+
+    Cached so the result is reported once per run rather than once per test.
+    """
+    if os.name != "nt":
+        return None
+
+    found: tuple[str, str] | None = None
+    for candidate in _STACK_TOOL_PATHS:
+        if os.path.isfile(candidate):
+            found = ("cdb", candidate)
+            break
+    if found is None:
+        for name in ("cdb.exe", "procdump64.exe", "procdump.exe"):
+            located = shutil.which(name)
+            if located:
+                found = ("cdb" if name.startswith("cdb") else "procdump", located)
+                break
+
+    if found:
+        _log(f"Native stack capture enabled using {found[0]} at {found[1]}")
+    else:
+        _log(
+            "No native debugger found (cdb.exe from the Windows SDK Debugging Tools, or procdump on PATH). "
+            "Only per-thread CPU times will be recorded for a stuck Emit engine."
+        )
+    return found
+
+
+def _port_file_from_cmdline(cmdline: list[str]) -> str | None:
+    """Return the ``--portFile`` path AEDT passed to the engine.
+
+    AEDT polls this file for up to 60 seconds and the engine creates it once it is
+    listening, so whether it appears is a cheap and exact way to tell a healthy engine
+    from the stuck kind without attaching anything to a working process.
+    """
+    if "--portFile" not in cmdline:
+        return None
+    index = cmdline.index("--portFile")
+    return cmdline[index + 1] if index + 1 < len(cmdline) else None
+
+
+# Windows reports an unhandled exception as the NTSTATUS code the process died with, so
+# the exit code alone identifies the class of failure when no debugger is available.
+_EXIT_CODE_MEANINGS = {
+    0xC0000005: "STATUS_ACCESS_VIOLATION",
+    0xC000007B: "STATUS_INVALID_IMAGE_FORMAT (wrong bitness or corrupt DLL)",
+    0xC0000135: "STATUS_DLL_NOT_FOUND",
+    0xC0000138: "STATUS_ORDINAL_NOT_FOUND",
+    0xC0000139: "STATUS_ENTRYPOINT_NOT_FOUND",
+    0xC0000142: "STATUS_DLL_INIT_FAILED",
+    0xC0000374: "STATUS_HEAP_CORRUPTION",
+    0xC0000409: "STATUS_STACK_BUFFER_OVERRUN",
+    0xC000041D: "STATUS_FATAL_USER_CALLBACK_EXCEPTION",
+    0x40010004: "DBG_TERMINATE_PROCESS",
+}
+
+
+def _describe_exit_code(code: int | None) -> str:
+    if code is None:
+        return "unknown"
+    unsigned = code & 0xFFFFFFFF
+    name = _EXIT_CODE_MEANINGS.get(unsigned)
+    if name:
+        return f"{code} ({unsigned:#010x} {name})"
+    if unsigned >= 0xC0000000:
+        return f"{code} ({unsigned:#010x} NTSTATUS error, process crashed)"
+    return f"{code} ({unsigned:#010x})"
+
+
+def _log_thread_cpu(proc: psutil.Process, label: str) -> None:
+    """Log per-thread CPU time so a blocked engine can be told apart from a spinning one.
+
+    psutil cannot report thread wait states on Windows, but two of these samples answer
+    the same question: totals that do not move mean every thread is blocked rather than
+    looping. This works even when no debugger is installed.
+    """
+    try:
+        threads = proc.threads()
+        totals = proc.cpu_times()
+    except (psutil.NoSuchProcess, psutil.AccessDenied) as exc:
+        _log(f"{label}: could not read thread times: {exc}")
+        return
+    _log(f"{label}: {len(threads)} threads, process cpu user={totals.user:.2f}s system={totals.system:.2f}s")
+    for thread in sorted(threads, key=lambda item: item.user_time + item.system_time, reverse=True)[:5]:
+        _log(f"    thread {thread.id}: user={thread.user_time:.2f}s system={thread.system_time:.2f}s")
+
+
+def _capture_native_stack(
+    tool: tuple[str, str], pid: int, out_path: Path, label: str, echo_lines: int = 120
+) -> Path | None:
+    """Dump the native stacks of every thread in ``pid``.
+
+    The AEDT install ships no PDBs, so engine frames appear as ``iemit+0x...``. That is
+    still enough, because the frames that identify the block are in ntdll/KERNELBASE and
+    resolve from the public symbol server.
+    """
+    kind, exe = tool
+    if kind == "cdb":
+        # -pv attaches noninvasively and qd detaches without terminating, so taking a
+        # sample cannot change the outcome of the test being diagnosed.
+        commands = "~*kvn; .echo === MODULES ===; lmf; .echo === CPU ===; !runaway 7; qd"
+        cmd = [exe, "-pv", "-p", str(pid), "-c", commands]
+    else:
+        # -mm is a thread-stack minidump, a few megabytes rather than the hundreds a full
+        # dump of a Python-hosting process would add to the artifact.
+        out_path = out_path.with_suffix(".dmp")
+        cmd = [exe, "-accepteula", "-mm", str(pid), str(out_path)]
+
+    env = os.environ.copy()
+    symbol_cache = Path(tempfile.gettempdir()) / "emit_symbols"
+    env.setdefault("_NT_SYMBOL_PATH", f"srv*{symbol_cache}*https://msdl.microsoft.com/download/symbols")
+
+    try:
+        completed = subprocess.run(cmd, capture_output=True, text=True, timeout=240, env=env, check=False)
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        _log(f"{label}: {kind} capture for pid {pid} failed: {exc}")
+        return None
+
+    if kind == "procdump":
+        _log(f"{label}: procdump exited {completed.returncode} writing {out_path}")
+        return out_path if out_path.exists() else None
+
+    text = (completed.stdout or "") + (completed.stderr or "")
+    try:
+        out_path.write_text(text, encoding="utf-8", errors="replace")
+    except OSError as exc:
+        _log(f"{label}: could not write {out_path}: {exc}")
+        return None
+
+    # cdb prints roughly 55 lines of extension-gallery and symbol-path banner before the
+    # stacks. Echo from the marker it writes when it starts executing -c so the inline
+    # excerpt is all stack; the full text is in the artifact either way.
+    lines = text.splitlines()
+    for offset, line in enumerate(lines):
+        if "Reading initial command" in line:
+            lines = lines[offset + 1 :]
+            break
+    _log(f"{label}: wrote {out_path.name} ({len(text)} bytes); first {echo_lines} stack lines:")
+    for line in lines[:echo_lines]:
+        _log(f"    {line}")
+    return out_path
+
+
+class _EngineWatcher(threading.Thread):
+    """Record why each Emit engine failed to come up.
+
+    The engine exists for only a short time per attempt and AEDT makes three attempts, so
+    this has to be armed before the test starts rather than attempted by hand. Two outcomes
+    are distinguished: an engine that dies on its own, where the exit code names the
+    failure, and one that stays alive without ever opening its port, where native stacks
+    show where it is stuck. Engines that write their port file are healthy and are left
+    completely alone, because even a noninvasive attach briefly suspends the target.
+    """
+
+    def __init__(
+        self,
+        out_prefix: Path,
+        label: str,
+        tool: tuple[str, str] | None,
+        port_file_wait: int = 20,
+        samples: int = 2,
+        sample_gap: int = 15,
+        max_engines: int = 2,
+    ) -> None:
+        super().__init__(daemon=True)
+        self._out_prefix = out_prefix
+        self._label = label
+        self._tool = tool
+        self._port_file_wait = port_file_wait
+        self._samples = samples
+        self._sample_gap = sample_gap
+        self._max_engines = max_engines
+        # Not named _stop: threading.Thread uses that attribute internally from join().
+        self._stop_event = threading.Event()
+        self.captures: list[Path] = []
+        self.engine_exits: list[tuple[int, int | None]] = []
+
+    def stop(self) -> None:
+        self._stop_event.set()
+
+    def run(self) -> None:
+        seen: set[int] = set()
+        captured_engines = 0
+        while not self._stop_event.is_set() and captured_engines < self._max_engines:
+            # Only the name is requested here: collecting cmdline for every process on the
+            # machine takes long enough that a short-lived engine can come and go between
+            # scans. The cmdline of the one process that matches is read in _inspect.
+            for proc in psutil.process_iter(["pid", "name"]):
+                if self._stop_event.is_set():
+                    return
+                try:
+                    if "iemit" not in (proc.info.get("name") or "").lower():
+                        continue
+                except (psutil.NoSuchProcess, psutil.AccessDenied):
+                    continue
+                if proc.pid in seen:
+                    continue
+                seen.add(proc.pid)
+                if self._inspect(proc):
+                    captured_engines += 1
+                break
+            self._stop_event.wait(0.1)
+
+    def _inspect(self, proc: psutil.Process) -> bool:
+        """Wait out the port-file window and record how the engine failed."""
+        pid = proc.pid
+        try:
+            port_file = _port_file_from_cmdline(proc.cmdline() or [])
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            port_file = None
+        _log(f"{self._label}: engine pid {pid} started (port file: {port_file or 'unknown'})")
+
+        started = time.time()
+        deadline = started + self._port_file_wait
+        while time.time() < deadline:
+            if self._stop_event.wait(0.2):
+                return False
+            if not proc.is_running():
+                # The engine died on its own, long before AEDT's 60s port-file deadline, so
+                # the exit code is the failure. psutil reads it with GetExitCodeProcess,
+                # which works even though the engine is not a child of this process.
+                try:
+                    code = proc.wait(timeout=5)
+                except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.TimeoutExpired):
+                    code = None
+                self.engine_exits.append((pid, code))
+                _log(
+                    f"{self._label}: engine pid {pid} exited after {time.time() - started:.1f}s "
+                    f"without writing a port file; exit code {_describe_exit_code(code)}"
+                )
+                return False
+            if port_file and os.path.exists(port_file):
+                _log(f"{self._label}: engine pid {pid} opened its port file; healthy, not capturing")
+                return False
+
+        _log(f"{self._label}: engine pid {pid} alive with no port file after {self._port_file_wait}s; capturing stacks")
+        for index in range(1, self._samples + 1):
+            if not proc.is_running():
+                _log(f"{self._label}: engine pid {pid} exited before sample {index}")
+                break
+            sample_label = f"{self._label}: engine pid {pid} sample {index}"
+            _log_thread_cpu(proc, sample_label)
+            if self._tool:
+                out_path = Path(f"{self._out_prefix}.engine_{pid}_{index}.txt")
+                captured = _capture_native_stack(self._tool, pid, out_path, sample_label)
+                if captured:
+                    self.captures.append(captured)
+            if index < self._samples and self._stop_event.wait(self._sample_gap):
+                break
+        return True
+
+
+def _kill_process_tree(pid: int) -> None:
+    try:
+        proc = psutil.Process(pid)
+    except (psutil.NoSuchProcess, psutil.AccessDenied):
+        return
+
+    try:
+        for child in proc.children(recursive=True):
+            _kill_process_tree(child.pid)
+    except (psutil.NoSuchProcess, psutil.AccessDenied):
+        pass
+
+    try:
+        proc.terminate()
+    except (psutil.NoSuchProcess, psutil.AccessDenied):
+        return
+
+    try:
+        proc.wait(timeout=10)
+    except psutil.TimeoutExpired:
+        try:
+            proc.kill()
+            proc.wait(timeout=10)
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            pass
+
+
+def _kill_emit_processes(label: str) -> None:
+    _log(f"Force cleanup triggered for {label}")
+    _emit_process_snapshot(f"{label}: before cleanup")
+    for proc in psutil.process_iter(["pid", "name", "exe", "cmdline"]):
+        try:
+            if _process_matches(proc):
+                _kill_process_tree(proc.info["pid"])
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            continue
+    _emit_process_snapshot(f"{label}: after cleanup")
+
+
+def _test_env(aedt_log_file: Path, ansdebug_log: Path) -> dict[str, str]:
+    env = os.environ.copy()
+    env.setdefault("PYTHONFAULTHANDLER", "1")
+    env.setdefault("PYTHONUNBUFFERED", "1")
+    env.setdefault("PYAEDT_LOG_LEVEL", "DEBUG")
+    env.setdefault("ANSYS_EMIT_DEBUG", "1")
+    # Consumed by tests/system/emit/conftest.py, which turns it into settings.aedt_log_file
+    # so ansysedt.exe is launched with -Logfile. AEDT writes this file itself, so it keeps
+    # reporting after the gRPC call the Python side is blocked on stops responding.
+    env["PYAEDT_EMIT_AEDT_LOG"] = str(aedt_log_file)
+    # AEDT's internal debug log. Level 4 is the lowest verbosity that still records each
+    # attempt to launch the Emit engine ("[EDT_EMIT] Started iemit.exe" / "Failed to start
+    # iemit.exe"), which is what distinguishes "iemit never launched" from "iemit launched
+    # but never answered". AEDT appends the host and pid to the file name, hence the glob
+    # used when the log is read back.
+    env["ANSOFT_DEBUG_LOG"] = str(ansdebug_log)
+    env["ANSOFT_DEBUG_MODE"] = "4"
+    env["ANSOFT_DEBUG_LOG_SEPARATE"] = "1"
+    return env
+
+
+def _junit_name(nodeid: str) -> str:
+    return re.sub(r"[^A-Za-z0-9_.-]", "_", nodeid)
+
+
+def _run_single_test(repo_root: Path, nodeid: str, timeout: int, grace: int, extra_args: list[str]) -> int:
+    junit_dir = repo_root / "junit"
+    junit_dir.mkdir(parents=True, exist_ok=True)
+    junit_file = junit_dir / f"{_junit_name(nodeid)}.xml"
+    aedt_log_file = junit_dir / f"{_junit_name(nodeid)}.aedt.log"
+    # AEDT's debug log runs about half a megabyte per test and is split across a dozen
+    # component files, so it is written to a scratch directory rather than the uploaded
+    # artifact directory. Only the handful of interesting lines are echoed to the job log
+    # on a hang, and the directory is removed once the test finishes either way.
+    ansdebug_dir = Path(tempfile.mkdtemp(prefix="emit_ansdebug_"))
+    ansdebug_log = ansdebug_dir / "ansdebug.log"
+
+    # Dump the Python stacks of every thread before the hard kill. pytest-timeout cannot
+    # interrupt a blocked native call, so this is the only way to see where a hang sits.
+    faulthandler_timeout = max(30, timeout - 60)
+
+    args = [
+        sys.executable,
+        "-m",
+        "pytest",
+        "--log-cli-level=DEBUG",
+        "-o",
+        "log_cli=true",
+        "-o",
+        f"faulthandler_timeout={faulthandler_timeout}",
+        "-vv",
+        "-rA",
+        "--color=yes",
+        "--timeout",
+        str(timeout),
+        f"--junitxml={junit_file}",
+        *extra_args,
+        nodeid,
+    ]
+
+    # NOTE: pytest-timeout uses the thread method on Windows, which cannot interrupt a
+    # blocked native AEDT/gRPC call. The hard timeout below is the only reliable way to
+    # recover from an EMIT hang, so it must be strictly greater than the inner timeout.
+    hard_timeout = timeout + grace
+    _log(f"Starting test: {nodeid} (pytest timeout={timeout}s, hard kill after {hard_timeout}s)")
+    _emit_process_snapshot(f"Before {nodeid}")
+
+    # The engine dies within seconds of starting, long before the hard timeout below, so
+    # its exit code has to be collected while the test is still running.
+    watcher = _EngineWatcher(junit_dir / _junit_name(nodeid), nodeid, _find_stack_tool())
+    watcher.start()
+
+    start = time.time()
+    process = subprocess.Popen(args, cwd=repo_root, env=_test_env(aedt_log_file, ansdebug_log))
+    try:
+        returncode = process.wait(timeout=hard_timeout)
+        elapsed = time.time() - start
+        _log(f"Completed test: {nodeid} in {elapsed:.1f}s with exit code {returncode}")
+        _emit_process_snapshot(f"After {nodeid}")
+        return returncode
+    except subprocess.TimeoutExpired:
+        elapsed = time.time() - start
+        _log(f"HANG DETECTED: {nodeid} exceeded {hard_timeout}s (elapsed={elapsed:.1f}s); killing process tree")
+        # Capture live state before anything is killed, otherwise the evidence is destroyed.
+        _emit_process_snapshot(f"{nodeid}: live processes at hang")
+        _dump_license_logs(_license_process_snapshot(f"{nodeid}: at hang"), f"{nodeid}: at hang")
+        _dump_log_tail(str(aedt_log_file), f"{nodeid}: AEDT log at hang", 120)
+        _dump_emit_debug_log(ansdebug_log, f"{nodeid}: AnsDebug at hang")
+        if watcher.engine_exits:
+            _log(f"{nodeid}: Emit engine exit codes ({len(watcher.engine_exits)} engines):")
+            for pid, code in watcher.engine_exits:
+                _log(f"    pid {pid}: {_describe_exit_code(code)}")
+        if watcher.captures:
+            _log(f"{nodeid}: native stack captures: {[str(path) for path in watcher.captures]}")
+        try:
+            _kill_process_tree(process.pid)
+            _kill_emit_processes(nodeid)
+        except Exception as exc:  # pragma: no cover - defensive logging
+            _log(f"Forced cleanup for {nodeid} raised an unexpected exception: {exc}")
+        try:
+            process.wait(timeout=60)
+        except subprocess.TimeoutExpired:
+            _log(f"pytest process {process.pid} for {nodeid} did not exit after being killed")
+        _emit_process_snapshot(f"After timeout cleanup for {nodeid}")
+        return 124
+    finally:
+        watcher.stop()
+        watcher.join(timeout=5)
+        shutil.rmtree(ansdebug_dir, ignore_errors=True)
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Run the EMIT system tests with per-test timeout cleanup.")
+    parser.add_argument("--repeat", type=int, default=1, help="Number of times to iterate the Emit suite.")
+    parser.add_argument("--timeout", type=int, default=600, help="Per-test timeout in seconds.")
+    parser.add_argument(
+        "--grace",
+        type=int,
+        default=120,
+        help="Extra seconds beyond --timeout before the pytest process tree is force killed.",
+    )
+    parser.add_argument(
+        "--max-consecutive-hangs",
+        type=int,
+        default=3,
+        help=(
+            "Abort the run after this many consecutive hangs. A systemic failure makes every test hang, "
+            "and each hang costs --timeout plus --grace seconds, so continuing wastes hours. Use 0 to disable."
+        ),
+    )
+    parser.add_argument(
+        "--list-tests", action="store_true", help="Collect and print the Emit node IDs without running."
+    )
+    parser.add_argument(
+        "--pytest-arg",
+        action="append",
+        default=[],
+        help="Additional pytest argument to pass to each individual Emit test (repeatable).",
+    )
+    args = parser.parse_args()
+
+    repo_root = _repo_root()
+    all_tests = _collect_emit_tests(repo_root, ["--disable-warnings"])
+    if args.list_tests:
+        for test in all_tests:
+            print(test)
+        return 0
+
+    failed = 0
+    hung: list[str] = []
+    consecutive_hangs = 0
+    aborted = False
+    for iteration in range(1, args.repeat + 1):
+        if aborted:
+            break
+        _log("========================================")
+        _log(f"Starting Emit iteration {iteration}/{args.repeat}")
+        _log("========================================")
+        for nodeid in all_tests:
+            exit_code = _run_single_test(repo_root, nodeid, args.timeout, args.grace, args.pytest_arg)
+            if exit_code == 124:
+                hung.append(nodeid)
+                consecutive_hangs += 1
+            else:
+                consecutive_hangs = 0
+            if exit_code not in (0, 5):
+                failed += 1
+                _log(f"Test failed or timed out: {nodeid} (exit code {exit_code})")
+                _log("Continuing with the next Emit test to keep the suite moving.")
+            if args.max_consecutive_hangs and consecutive_hangs >= args.max_consecutive_hangs:
+                _log(
+                    f"ABORTING: {consecutive_hangs} consecutive tests hung. This indicates a systemic "
+                    "failure rather than a flaky test, so the remaining tests are skipped."
+                )
+                aborted = True
+                break
+
+    if hung:
+        _log(f"Tests that hung and were force killed ({len(hung)}): {hung}")
+
+    if failed:
+        _log(f"Emit nightly run finished with {failed} failed or timed-out tests.")
+        return 1
+
+    _log("Emit nightly run completed successfully.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

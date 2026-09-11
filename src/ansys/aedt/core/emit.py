@@ -387,6 +387,7 @@ class Emit(Design, PyAedtBase):
             warnings.warn(
                 f"[{unit_type}] units are not supported by EMIT. The options are: {EMIT_VALID_UNITS.keys()}: "
             )
+            print("t")
             return None
         return self._units[unit_type]
 
