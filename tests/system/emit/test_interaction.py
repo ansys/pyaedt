@@ -678,6 +678,16 @@ def test_export(export):
     # Should have 9 data lines: 1 header + 4 rows for each Rx (3 Tx + 1 Nto1)
     validate_csv(csv_path, 9)
 
+    # Test all 1 to 1
+    domain = InteractionDomain(export)
+    domain.set_receiver(radio="")
+    domain.set_interferers(radios=[""])
+    sim.run(domain)
+    interaction: Interaction = Interaction(export, domain, rev)
+    interaction.export_results(os.path.join(temp_dir, "all_1_to_1.csv"), True)
+    assert os.path.isfile(os.path.join(temp_dir, "all_1_to_1.csv"))
+    validate_csv(os.path.join(temp_dir, "all_1_to_1.csv"), 7)  # 1 header + 3 Tx for each Rx
+
     # 1 Tx Channel to 1 Rx Channel
     csv_path = os.path.join(temp_dir, "tx1_rx1.csv")
     domain.set_receiver(
@@ -757,15 +767,28 @@ def test_export(export):
     # N to 1
     csv_path = os.path.join(temp_dir, "n_to_1.csv")
     domain.set_receiver(radio="Rx_MultiBands", band="Band 2")
-    domain.set_interferer(radio="")
+    domain.set_interferer([])
     sim.run(domain)
     interaction: Interaction = Interaction(export, domain, rev)
     interaction.export_results(csv_path, True)
     assert os.path.isfile(csv_path)
 
     # Selection export
-    # Should have 8 data lines: 1 header + 6 1-to-1 results + 1 Nto1 result
-    validate_csv(csv_path, 8)
+    # Should have 5 data lines: 1 header + 3 1-to-1 results + 1 Nto1 result
+    validate_csv(csv_path, 5)
+
+    # 1 to 1 for specific Rx
+    csv_path = os.path.join(temp_dir, "1_to_1_rx.csv")
+    domain.set_receiver(radio="Rx_MultiBands", band="Band 2")
+    domain.set_interferer("")
+    sim.run(domain)
+    interaction: Interaction = Interaction(export, domain, rev)
+    interaction.export_results(csv_path, True)
+    assert os.path.isfile(csv_path)
+
+    # Selection export
+    # Should have 4 data lines: 1 header + 3 1-to-1 results
+    validate_csv(csv_path, 4)
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
