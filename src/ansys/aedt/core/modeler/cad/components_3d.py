@@ -24,10 +24,13 @@
 
 from __future__ import annotations
 
+import json
 import os
+from pathlib import Path
 import re
 import secrets
 from typing import TYPE_CHECKING
+from typing import Any
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.edb import Edb
@@ -36,6 +39,7 @@ from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import _uname
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import _units_assignment
+from ansys.aedt.core.generic.numbers_utils import is_number
 from ansys.aedt.core.internal.desktop_sessions import _edb_sessions
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 
@@ -1413,3 +1417,333 @@ class LayoutComponent(PyAedtBase):
         self._primitives.oeditor.ChangeProperty(vOut)
 
         return True
+
+    @pyaedt_function_handler()
+    def ecad_mcad_assembly(self, components_json_path: str | Path) -> bool:
+        """Mount 3-D components from a specific ``components.json`` file.
+
+        Parameters
+        ----------
+        components_json_path : str or pathlib.Path
+            Path to the ``components.json`` configuration to apply.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Error Handling:
+          - If an EDB pin name doesn't exist: component is SKIPPED (not mounted)
+          - If a 3D component pin name doesn't exist: component is SKIPPED (not mounted)
+          - Check console output for [SKIP] and [WARN] messages to diagnose pin mapping issues
+        """
+        from math import acos
+        from math import degrees
+        from math import sqrt
+
+        json_path = Path(components_json_path).expanduser().resolve()
+        if not json_path.exists() or not json_path.is_file():
+            raise FileNotFoundError(f"components.json not found: {json_path}")
+
+        with open(json_path, "r", encoding="utf-8") as f:
+            assembly_dict = json.load(f)
+
+        component_library = assembly_dict.get("partname_map")
+        assembly_section = assembly_dict.get("assembly", [])
+        library_3dcomp = assembly_dict.get("library_3dcomp", {})
+
+        if not isinstance(component_library, dict):
+            print("[SKIP] 'partname_map' is not a valid dictionary.")
+            return False
+
+        abs_libraries: dict[str, Path] = {}
+        for lib_name, lib_dir in library_3dcomp.items():
+            lib_path = Path(lib_dir).expanduser()
+            if not lib_path.is_absolute():
+                lib_path = (json_path.parent / lib_path).resolve()
+            else:
+                lib_path = lib_path.resolve()
+            abs_libraries[lib_name] = lib_path
+
+        updated_partname: dict[str, Path] = {}
+        for part_key, raw_entry in component_library.items():
+            if isinstance(raw_entry, str) and raw_entry.strip():
+                model_path = Path(raw_entry.strip()).expanduser()
+                if not model_path.is_absolute():
+                    model_path = (json_path.parent / model_path).resolve()
+                else:
+                    model_path = model_path.resolve()
+                updated_partname[str(part_key)] = model_path
+            elif isinstance(raw_entry, dict):
+                lib_name = raw_entry.get("lib", "")
+                comp_file = raw_entry.get("comp", "")
+                if lib_name and comp_file and lib_name in abs_libraries:
+                    model_path = abs_libraries[lib_name] / comp_file
+                    updated_partname[str(part_key)] = model_path
+
+        self._primitives._app.units.length = "meter"
+
+        iterable_mount_entries = enumerate(assembly_section)
+
+        for comp, props in iterable_mount_entries:
+            if not isinstance(props, dict):
+                print(f"[SKIP] Component '{comp}': invalid entry, expected object.")
+                continue
+
+            fallback_refdes = str(comp) if not isinstance(comp, int) else ""
+            refdes = str(props.get("refdes", fallback_refdes)).strip() or fallback_refdes
+            if not refdes:
+                print(f"[SKIP] Component entry '{comp}': missing refdes.")
+                continue
+
+            partname = str(props.get("partname", "")).strip()
+            if not partname:
+                print(f"[SKIP] Component '{refdes}': missing partname.")
+                continue
+            resolved_model_path = updated_partname.get(partname)
+            if resolved_model_path is None:
+                print(
+                    f"[SKIP] Component '{refdes}': partname '{partname}' not found in partname_map. Available: {list(component_library.keys())}"
+                )
+                continue
+            if not resolved_model_path.is_file():
+                print(f"[SKIP] Component '{comp}': model file not found: {resolved_model_path}")
+                continue
+            pin_mapping = props.get("pin_mapping", {})
+            if not isinstance(pin_mapping, dict):
+                print(f"[SKIP] Component '{comp}': pin_mapping must be an object.")
+                continue
+            pin_keys = list(pin_mapping.keys())
+            pin_vals = list(pin_mapping.values())
+            if len(pin_keys) < 2:
+                print(f"[SKIP] Component '{refdes}': pin_mapping must have at least 2 pins, found {len(pin_keys)}.")
+                continue
+            if not pin_vals[0] or not pin_vals[1]:
+                print(
+                    f"[SKIP] Component '{refdes}': pin_mapping has empty pin names. pin_keys={pin_keys}, pin_vals={pin_vals}."
+                )
+                continue
+
+            edbapp = self.edb_object
+            stackup_limits = edbapp.stackup.limits()
+            top_layer_name = str(stackup_limits[0]).strip() if len(stackup_limits) > 0 and stackup_limits[0] else ""
+            bottom_layer_name = str(stackup_limits[2]).strip() if len(stackup_limits) > 2 and stackup_limits[2] else ""
+
+            try:
+                edb_comp = edbapp.components.instances[refdes]
+            except KeyError:
+                print(f"[SKIP] Component '{refdes}' not found in EDB")
+                continue
+
+            try:
+                edb_val = edb_comp.pins[pin_keys[0]].position
+                edb_val2 = edb_comp.pins[pin_keys[1]].position
+            except KeyError as e:
+                print(f"[SKIP] Component '{comp}': EDB pin {e} not found (available: {list(edb_comp.pins.keys())})")
+                continue
+
+            component_layer = getattr(edb_comp, "layer", None) or getattr(edb_comp, "placement_layer", None)
+            if callable(component_layer):
+                try:
+                    component_layer = component_layer()
+                except TypeError:
+                    component_layer = None
+            component_layer_name = getattr(component_layer, "name", None)
+            if callable(component_layer_name):
+                try:
+                    component_layer_name = component_layer_name()
+                except TypeError:
+                    component_layer_name = None
+            component_layer_name = str(component_layer_name or "").strip().lower()
+            placement_is_bottom = bool(bottom_layer_name) and component_layer_name == bottom_layer_name.lower()
+            placement_is_top = bool(top_layer_name) and component_layer_name == top_layer_name.lower()
+            if not placement_is_bottom and not placement_is_top:
+                placement_is_bottom = False
+            height = 0.0
+            if component_layer is not None:
+                elevation = getattr(
+                    component_layer, "lower_elevation" if placement_is_bottom else "upper_elevation", None
+                )
+                if callable(elevation):
+                    try:
+                        elevation = elevation()
+                    except TypeError:
+                        elevation = None
+                if is_number(elevation):
+                    height = float(elevation)
+
+            mounted_name = refdes
+            cs_name = f"{mounted_name}_CS"
+            cs = self._primitives._app.modeler.create_coordinate_system(
+                origin=[edb_val[0], edb_val[1], height],
+                name=cs_name,
+            )
+
+            try:
+                d = self._primitives._app.modeler.insert_3d_component(
+                    str(resolved_model_path),
+                    coordinate_system=cs_name,
+                    name=mounted_name,
+                )
+            except Exception as e:
+                print(f"[SKIP] Component '{comp}': Failed to insert 3D component: {e}")
+                continue
+
+            if placement_is_bottom:
+                d.rotate(angle=180.0, axis="Y")
+
+            pin_found_1 = False
+            pin_found_2 = False
+            for pin1 in list(d.parts.values()):
+                if pin_vals[0] in pin1.name:
+                    pin_found_1 = True
+                    comp_val = pin1.faces[0].center
+                    vector = [edb_val[0] - comp_val[0], edb_val[1] - comp_val[1], 0]
+                    d.move(vector)
+                    comp_val = pin1.faces[0].center
+
+                    for pin2 in list(d.parts.values()):
+                        if pin_vals[1] in pin2.name:
+                            pin_found_2 = True
+                            comp_val2 = pin2.faces[0].center
+                            edb_delta_x = float(edb_val2[0] - edb_val[0])
+                            edb_delta_y = float(edb_val2[1] - edb_val[1])
+                            side1 = sqrt(edb_delta_x**2 + edb_delta_y**2)
+                            side2 = sqrt(
+                                float(comp_val2[0] - comp_val[0]) ** 2 + float(comp_val2[1] - comp_val[1]) ** 2
+                            )
+                            delta_x = float(comp_val2[0] - edb_val2[0])
+                            delta_y = float(comp_val2[1] - edb_val2[1])
+                            side3 = sqrt(delta_x**2 + delta_y**2)
+                            denom = 2 * side1 * side2
+                            if denom > 0:
+                                theta = acos(max(-1.0, min(1.0, (side1**2 + side2**2 - side3**2) / denom)))
+                                if abs(edb_delta_x) < abs(edb_delta_y):
+                                    if delta_x * delta_y > 0:
+                                        theta = -theta
+                                else:
+                                    if delta_x * delta_y < 0:
+                                        theta = -theta
+                                d.rotate(angle=degrees(theta), axis="Z")
+
+                            # Calculate distance between second EDB pin and second component pin
+                            comp_val2_after_rotation = pin2.faces[0].center
+                            dist_x = float(edb_val2[0] - comp_val2_after_rotation[0])
+                            dist_y = float(edb_val2[1] - comp_val2_after_rotation[1])
+
+                            # Move component by half the distance
+                            adjust_vector = [dist_x / 2, dist_y / 2, 0]
+                            d.move(adjust_vector)
+
+                            print(f"Mounted: {refdes}")
+
+            if not pin_found_1 or not pin_found_2:
+                missing_pins = []
+                if not pin_found_1:
+                    missing_pins.append(f"'{pin_vals[0]}'")
+                if not pin_found_2:
+                    missing_pins.append(f"'{pin_vals[1]}'")
+                print(
+                    f"[SKIP] Component '{refdes}': insufficient placement data; missing 3D pin(s) {', '.join(missing_pins)}"
+                )
+                d.delete()
+                cs.delete()
+                continue
+
+        return True
+
+    def _create_pin_mapping(self, edb_pins: Any, mcad_comp_pins: list[str] | None) -> dict[str, str]:
+        """Create pin mapping for assembly entry.
+
+        Parameters
+        ----------
+        edb_pins : Any
+            EDB component pins.
+        mcad_comp_pins : list[str] | None
+            List of MCAD component pin names for auto-filling. If empty or None,
+            all mappings are left empty.
+
+        Returns
+        -------
+        dict[str, str]
+            Pin mapping dictionary.
+        """
+        pin_mapping = {pin_name: "" for pin_name in edb_pins}
+        if mcad_comp_pins:
+            for i, pin_name in enumerate(pin_mapping.keys()):
+                if i < len(mcad_comp_pins):
+                    pin_mapping[pin_name] = mcad_comp_pins[i]
+        return pin_mapping
+
+    def populate_json_assembly(
+        self,
+        json_path: str | Path,
+        mcad_comp_pins: list[str] | None = None,
+    ) -> Path:
+        """Create a ``components.json`` file for :func:`ecad_mcad_assembly`.
+
+        The JSON is built from this object's EDB. Each component instance becomes
+        one assembly entry with an empty pin mapping for every EDB pin.
+
+        Parameters
+        ----------
+        json_path : str | Path
+            Path where the JSON file will be saved.
+        mcad_comp_pins : list[str], optional
+            List of MCAD component pin names (e.g., ["Pin01", "Pin02"]) to auto-fill
+            pin mappings. If empty or None, pin mappings remain empty.
+        """
+        edbapp = self.edb_object
+        if not edbapp:
+            raise ValueError("The layout component does not expose a valid EDB object.")
+
+        app = self._primitives._app
+        library_3dcomp = {
+            "syslib": str(getattr(app, "syslib", "") or ""),
+            "userlib": str(getattr(app, "userlib", "") or ""),
+            "personallib": str(getattr(app, "personallib", "") or ""),
+            "project": "",
+        }
+
+        partname_map: dict[str, dict[str, str]] = {}
+        assembly: list[dict[str, Any]] = []
+        for refdes, component in edbapp.components.instances.items():
+            partname = ""
+            for attr_name in (
+                "partname",
+                "part_name",
+                "component_part_name",
+                "component_name",
+                "definition_name",
+                "name",
+            ):
+                value = getattr(component, attr_name, None)
+                if callable(value):
+                    try:
+                        value = value()
+                    except TypeError:
+                        continue
+                if isinstance(value, str) and value.strip():
+                    partname = value.strip()
+                    break
+            if partname:
+                partname_map.setdefault(partname, {"lib": "", "comp": ""})
+            assembly.append(
+                {
+                    "refdes": refdes,
+                    "partname": partname,
+                    "pin_mapping": self._create_pin_mapping(component.pins, mcad_comp_pins),
+                }
+            )
+
+        target = Path(json_path).expanduser().resolve()
+        target.parent.mkdir(parents=True, exist_ok=True)
+
+        payload: dict[str, Any] = {
+            "library_3dcomp": library_3dcomp,
+            "partname_map": partname_map,
+            "assembly": assembly,
+        }
+        with open(target, "w", encoding="utf-8") as f:
+            json.dump(payload, f, indent=4, sort_keys=False)
+        return target
