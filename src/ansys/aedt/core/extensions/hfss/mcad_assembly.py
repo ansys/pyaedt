@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 from pathlib import Path
 import tempfile
 import tkinter
@@ -178,7 +179,7 @@ class MCADAssemblyFrontend(ExtensionHFSSCommon):
             button_frame,
             width=10,
             text="Run",
-            command=lambda: self._run(self.config_data),
+            command=lambda: run(self.config_data, self.aedt_info.model_dump()),
             style="PyAEDT.TButton",
             name="run",
         ).pack(anchor="w", side="left", padx=15, pady=10)
@@ -220,18 +221,6 @@ class MCADAssemblyFrontend(ExtensionHFSSCommon):
         nb.pack(fill="both", expand=True)
 
         create_tab_main(self.tab_frame_main, self)
-
-    def _run(self, config_data: dict):
-        hfss = ansys.aedt.core.Hfss(**self.aedt_info.model_dump())
-        app = MCADAssemblyBackend._load(data=config_data, cur_dir=self.local_path)
-        app._run(hfss)
-        del app
-
-        if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
-            hfss.desktop_class.release_desktop(False, False)
-        else:
-            hfss.close_project(save=False)
-        return
 
 
 # create main tab
@@ -453,7 +442,7 @@ COMPONENT_MODELS = {}
 """Component models."""
 
 
-class MCADAssemblyBackend(BaseModel):
+class MCADAssembly(BaseModel):
     """Provide MCAD assembly backend."""
 
     coordinate_system: dict[str, dict[str, str | list[str]]] = Field(default_factory=dict)
@@ -469,16 +458,7 @@ class MCADAssemblyBackend(BaseModel):
         extra = "forbid"
 
     @classmethod
-    def _load(cls, data: dict, cur_dir: str | Path) -> "MCADAssemblyBackend":
-        cur_dir = Path(cur_dir)
-
-        for name, file_path in data.get("component_models", {}).items():
-            if not Path(file_path).drive:
-                data["component_models"][name] = str(cur_dir / file_path)
-        for name, file_path in data.get("layout_component_models", {}).items():
-            if not Path(file_path).drive:
-                data["layout_component_models"][name] = str(cur_dir / file_path)
-
+    def _load(cls, data: dict) -> "MCADAssembly":
         return cls(
             coordinate_system=data.get("coordinate_system", {}),
             component_models=data.get("component_models", {}),
@@ -486,16 +466,55 @@ class MCADAssemblyBackend(BaseModel):
             sub_components={name: Component._load(name, comp) for name, comp in data.get("assembly", {}).items()},
         )
 
-    def _run(self, hfss: "Hfss"):
-        for name, value in self.coordinate_system.items():
-            hfss.modeler.create_coordinate_system(name=name, **value)
 
-        COMPONENT_MODELS.update(self.layout_component_models)
-        COMPONENT_MODELS.update(self.component_models)
+def run(
+        config_data: dict,
+        project_dir: str=None,
+        model_dir: str = None,
+        version: str=None,
+        port:int=None,
+        aedt_process_id:int=None,
+        student_version:bool=False,
+        hfss=None
+        ):
+    if not project_dir:
+        project_dir = Path(tempfile.mkdtemp(prefix="mcad_assembly_"))
+    else:
+        project_dir = Path(project_dir)
+    temp_model_dir = project_dir/"models"
+    temp_model_dir.mkdir(parents=True, exist_ok=True)
 
-        for name, comp in self.sub_components.items():
-            comp.assemble(hfss)
+    app = MCADAssembly._load(data=config_data)
 
+    if hfss is None:
+        hfss = ansys.aedt.core.Hfss(
+            project=str(project_dir/"assembly.aedt"),
+            version=version if version else get_aedt_version(),
+            port=port if port else get_port(),
+            aedt_process_id=aedt_process_id if aedt_process_id else get_process_id(),
+            student_version=student_version if student_version else is_student(),
+        )
+
+    model_dir = Path(model_dir) if model_dir else None
+
+    for name, path in app.layout_component_models.items():
+        path = Path(path) if Path(path).drive else model_dir / Path(path)
+        temp_path = shutil.copy(path, temp_model_dir)
+        COMPONENT_MODELS[name] = str(temp_path)
+
+    for name, path in app.component_models.items():
+        path = Path(path) if Path(path).drive else model_dir / Path(path)
+        shutil.copy(path, temp_model_dir)
+        COMPONENT_MODELS[name] = str(temp_model_dir / path.name)
+
+    for name, value in app.coordinate_system.items():
+        hfss.modeler.create_coordinate_system(name=name, **value)
+
+    for name, comp in app.sub_components.items():
+        comp.assemble(hfss)
+
+    if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
+        hfss.desktop_class.release_desktop(False, False)
 
 # End of MCADAssemblyBackend
 
