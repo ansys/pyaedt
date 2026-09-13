@@ -30,7 +30,6 @@ import pytest
 
 from ansys.aedt.core import Hfss
 from ansys.aedt.core.extensions.hfss.mcad_assembly import DATA
-from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssembly, Component
 from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssemblyFrontend
 from ansys.aedt.core.extensions.hfss.mcad_assembly import run
 from ansys.aedt.core.generic.general_methods import is_linux
@@ -59,7 +58,7 @@ def test_backend(mock_askopenfilename, hfss_app, test_tmp_dir) -> None:
     mock_askopenfilename.return_value = str(config_file)
     extension.root.nametowidget(".notebook.main.load").invoke()
 
-    Component()
+
 
     run(config_data=extension.config_data, hfss=hfss_app, project_dir=test_tmp_dir, model_dir=test_tmp_dir)
     assert hfss_app.modeler.layout_component_names == ["pcb1"]
