@@ -423,6 +423,35 @@ def test_change_options(aedt_app) -> None:
     assert not aedt_app.change_options(color_by_net=None)
 
 
+def test_edb_import_oproject_is_valid(add_app_example) -> None:
+    """Verify that the ``oproject`` setter correctly waits for an asynchronous EDB import.
+
+    Regression test for issue #7560 where ``active_project()`` was called
+    immediately after ``ImportEDB``, returning ``None`` and causing
+    ``AttributeError: 'NoneType' object has no attribute 'Save'``.
+
+    This test opens a real ``.aedb`` layout through the normal
+    ``Hfss3dLayout(project=<aedb_path>)`` constructor path (which exercises the
+    ``oproject`` setter) and asserts that:
+
+    - ``_oproject`` is not ``None`` after construction.
+    - ``_oproject.Save()`` does not raise an exception.
+    - The project name is a non-empty string.
+    """
+    app = add_app_example(project=ORIGINAL_PROJECT, application=Hfss3dLayout, subfolder=TEST_SUBFOLDER, is_edb=True)
+    try:
+        # _oproject must be set — not None — after a successful import
+        assert app._oproject is not None, "_oproject is None after EDB import (issue #7560)"
+
+        # Save() must be callable on the resolved project object
+        app._oproject.Save()
+
+        # The project name must be a valid non-empty string
+        assert app.project_name, "project_name is empty after EDB import"
+    finally:
+        app.close_project(app.project_name, save=False)
+
+
 def test_show_extent(aedt_app) -> None:
     assert aedt_app.show_extent()
     assert aedt_app.show_extent(show=False)
