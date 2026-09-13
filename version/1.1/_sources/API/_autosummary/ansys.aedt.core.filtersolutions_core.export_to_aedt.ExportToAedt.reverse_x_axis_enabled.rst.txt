@@ -1,0 +1,6 @@
+reverse\_x\_axis\_enabled
+=========================
+
+.. currentmodule:: ansys.aedt.core.filtersolutions_core.export_to_aedt
+
+.. autoproperty:: ExportToAedt.reverse_x_axis_enabled

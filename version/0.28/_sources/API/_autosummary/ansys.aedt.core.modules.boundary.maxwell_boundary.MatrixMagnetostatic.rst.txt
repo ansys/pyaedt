@@ -1,0 +1,24 @@
+﻿MatrixMagnetostatic
+===================
+
+.. currentmodule:: ansys.aedt.core.modules.boundary.maxwell_boundary
+
+.. autoclass:: MatrixMagnetostatic
+
+   
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      MatrixMagnetostatic.matrix_name
+      MatrixMagnetostatic.signal_sources
+      MatrixMagnetostatic.group_sources
+   
+   

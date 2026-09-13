@@ -1,0 +1,6 @@
+dielectric\_temp\_materials
+===========================
+
+.. currentmodule:: ansys.aedt.core.modules.substrate_circuit
+
+.. autoproperty:: SubstrateDataBlock.dielectric_temp_materials

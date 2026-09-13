@@ -1,0 +1,12 @@
+User-agent: *
+
+Disallow: /version/1.4
+Disallow: /version/1.3
+Disallow: /version/1.2
+Disallow: /version/1.1
+Disallow: /version/1.0
+Disallow: /version/0.28
+Disallow: /version/0.27
+Disallow: /pull/
+
+Sitemap: https://aedt.docs.pyansys.com/sitemap.xml

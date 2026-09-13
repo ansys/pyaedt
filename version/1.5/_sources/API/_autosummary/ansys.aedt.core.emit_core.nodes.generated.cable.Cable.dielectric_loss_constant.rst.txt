@@ -1,0 +1,6 @@
+dielectric\_loss\_constant
+==========================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.cable
+
+.. autoproperty:: Cable.dielectric_loss_constant

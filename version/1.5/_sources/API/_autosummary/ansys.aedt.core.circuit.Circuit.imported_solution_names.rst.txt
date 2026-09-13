@@ -1,0 +1,6 @@
+imported\_solution\_names
+=========================
+
+.. currentmodule:: ansys.aedt.core.circuit
+
+.. autoproperty:: Circuit.imported_solution_names

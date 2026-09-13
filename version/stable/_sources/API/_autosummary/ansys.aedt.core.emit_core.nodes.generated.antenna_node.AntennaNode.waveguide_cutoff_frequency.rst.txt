@@ -1,0 +1,6 @@
+waveguide\_cutoff\_frequency
+============================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.antenna_node
+
+.. autoproperty:: AntennaNode.waveguide_cutoff_frequency

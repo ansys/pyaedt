@@ -1,0 +1,6 @@
+vector\_constant
+================
+
+.. currentmodule:: ansys.aedt.core.visualization.post.field_calculator_expressions
+
+.. automethod:: FieldExpressions.vector_constant

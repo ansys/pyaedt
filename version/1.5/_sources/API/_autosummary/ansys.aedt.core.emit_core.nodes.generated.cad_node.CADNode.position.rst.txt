@@ -1,0 +1,6 @@
+position
+========
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.cad_node
+
+.. autoproperty:: CADNode.position

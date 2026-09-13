@@ -1,0 +1,23 @@
+﻿MatrixACMagnetic
+================
+
+.. currentmodule:: ansys.aedt.core.modules.boundary.maxwell_boundary
+
+.. autoclass:: MatrixACMagnetic
+
+   
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      MatrixACMagnetic.matrix_name
+      MatrixACMagnetic.signal_sources
+   
+   

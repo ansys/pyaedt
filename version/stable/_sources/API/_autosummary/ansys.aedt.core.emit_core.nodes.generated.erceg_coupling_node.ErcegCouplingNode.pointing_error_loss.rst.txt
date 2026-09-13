@@ -1,0 +1,6 @@
+pointing\_error\_loss
+=====================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.erceg_coupling_node
+
+.. autoproperty:: ErcegCouplingNode.pointing_error_loss

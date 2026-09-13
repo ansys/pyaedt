@@ -1,0 +1,6 @@
+adjust\_coherent\_gain
+======================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.waveform
+
+.. autoproperty:: Waveform.adjust_coherent_gain

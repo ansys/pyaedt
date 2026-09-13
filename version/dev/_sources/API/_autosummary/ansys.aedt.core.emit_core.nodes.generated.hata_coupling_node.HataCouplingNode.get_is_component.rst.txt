@@ -1,0 +1,6 @@
+get\_is\_component
+==================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.hata_coupling_node
+
+.. automethod:: HataCouplingNode.get_is_component

@@ -1,0 +1,6 @@
+get\_result\_categorization\_node
+=================================
+
+.. currentmodule:: ansys.aedt.core.emit_core.results.revision
+
+.. automethod:: Revision.get_result_categorization_node

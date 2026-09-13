@@ -1,0 +1,6 @@
+enabled
+=======
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.solutions_node
+
+.. autoproperty:: SolutionsNode.enabled

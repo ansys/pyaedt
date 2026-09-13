@@ -1,0 +1,6 @@
+bb\_smoothing\_factor
+=====================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.waveform
+
+.. autoproperty:: Waveform.bb_smoothing_factor

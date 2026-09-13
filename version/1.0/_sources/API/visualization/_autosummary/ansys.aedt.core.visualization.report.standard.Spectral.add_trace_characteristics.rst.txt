@@ -1,0 +1,6 @@
+add\_trace\_characteristics
+===========================
+
+.. currentmodule:: ansys.aedt.core.visualization.report.standard
+
+.. automethod:: Spectral.add_trace_characteristics

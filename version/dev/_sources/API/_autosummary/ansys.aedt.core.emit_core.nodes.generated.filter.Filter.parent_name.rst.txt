@@ -1,0 +1,6 @@
+parent\_name
+============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.filter
+
+.. autoproperty:: Filter.parent_name

@@ -1,0 +1,6 @@
+max\_channels\_range\_band
+==========================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.sampling_node
+
+.. autoproperty:: SamplingNode.max_channels_range_band

@@ -1,0 +1,6 @@
+p1\_db\_point\_ref\_input
+=========================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.tx_spectral_prof_node
+
+.. autoproperty:: TxSpectralProfNode.p1_db_point_ref_input

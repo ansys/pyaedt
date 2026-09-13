@@ -1,0 +1,69 @@
+﻿Cable
+=====
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.cable
+
+.. autoclass:: Cable
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      Cable.delete
+      
+      
+      Cable.duplicate
+      
+      
+      Cable.export_to_csv
+      
+      
+      Cable.get_is_component
+      
+      
+      Cable.get_properties
+      
+      
+      Cable.plot
+      
+      
+      Cable.props_to_dict
+      
+      
+      Cable.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      Cable.allowed_child_types
+      Cable.cable_type
+      Cable.children
+      Cable.dielectric_loss_constant
+      Cable.filename
+      Cable.length
+      Cable.loss_per_length
+      Cable.measurement_length
+      Cable.name
+      Cable.node_type
+      Cable.noise_temperature
+      Cable.notes
+      Cable.odesktop
+      Cable.parent_name
+      Cable.properties
+      Cable.resistive_loss_constant
+      Cable.valid
+      Cable.warnings
+   
+   

@@ -1,0 +1,6 @@
+sectors\_per\_pitch
+===================
+
+.. currentmodule:: ansys.aedt.core.modeler.advanced_cad.weave
+
+.. autoproperty:: Weave.sectors_per_pitch

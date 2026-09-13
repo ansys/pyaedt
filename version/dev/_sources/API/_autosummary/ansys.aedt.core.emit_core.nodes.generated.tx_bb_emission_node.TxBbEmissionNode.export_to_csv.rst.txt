@@ -1,0 +1,6 @@
+export\_to\_csv
+===============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.tx_bb_emission_node
+
+.. automethod:: TxBbEmissionNode.export_to_csv

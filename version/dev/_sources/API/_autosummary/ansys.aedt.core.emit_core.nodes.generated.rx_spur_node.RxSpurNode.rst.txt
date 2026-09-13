@@ -1,0 +1,64 @@
+﻿RxSpurNode
+==========
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.rx_spur_node
+
+.. autoclass:: RxSpurNode
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      RxSpurNode.delete
+      
+      
+      RxSpurNode.export_to_csv
+      
+      
+      RxSpurNode.get_is_component
+      
+      
+      RxSpurNode.get_properties
+      
+      
+      RxSpurNode.import_csv_file
+      
+      
+      RxSpurNode.plot
+      
+      
+      RxSpurNode.props_to_dict
+      
+      
+      RxSpurNode.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      RxSpurNode.allowed_child_types
+      RxSpurNode.children
+      RxSpurNode.enabled
+      RxSpurNode.name
+      RxSpurNode.node_type
+      RxSpurNode.odesktop
+      RxSpurNode.parent
+      RxSpurNode.parent_name
+      RxSpurNode.properties
+      RxSpurNode.spur_table_units
+      RxSpurNode.table_data
+      RxSpurNode.valid
+      RxSpurNode.warnings
+   
+   

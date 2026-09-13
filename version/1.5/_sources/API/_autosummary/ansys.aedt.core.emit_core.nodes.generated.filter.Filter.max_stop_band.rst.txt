@@ -1,0 +1,6 @@
+max\_stop\_band
+===============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.filter
+
+.. autoproperty:: Filter.max_stop_band

@@ -1,0 +1,80 @@
+﻿TwoRayPathLossCouplingNode
+==========================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.two_ray_path_loss_coupling_node
+
+.. autoclass:: TwoRayPathLossCouplingNode
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      TwoRayPathLossCouplingNode.delete
+      
+      
+      TwoRayPathLossCouplingNode.duplicate
+      
+      
+      TwoRayPathLossCouplingNode.export_to_csv
+      
+      
+      TwoRayPathLossCouplingNode.get_is_component
+      
+      
+      TwoRayPathLossCouplingNode.get_properties
+      
+      
+      TwoRayPathLossCouplingNode.plot
+      
+      
+      TwoRayPathLossCouplingNode.props_to_dict
+      
+      
+      TwoRayPathLossCouplingNode.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      TwoRayPathLossCouplingNode.allowed_child_types
+      TwoRayPathLossCouplingNode.antenna_a
+      TwoRayPathLossCouplingNode.antenna_b
+      TwoRayPathLossCouplingNode.children
+      TwoRayPathLossCouplingNode.custom_fading_margin
+      TwoRayPathLossCouplingNode.enabled
+      TwoRayPathLossCouplingNode.fading_availability
+      TwoRayPathLossCouplingNode.fading_type
+      TwoRayPathLossCouplingNode.ground_reflection_coeff
+      TwoRayPathLossCouplingNode.include_atmospheric_absorption
+      TwoRayPathLossCouplingNode.include_rain_attenuation
+      TwoRayPathLossCouplingNode.name
+      TwoRayPathLossCouplingNode.node_type
+      TwoRayPathLossCouplingNode.odesktop
+      TwoRayPathLossCouplingNode.parent
+      TwoRayPathLossCouplingNode.parent_name
+      TwoRayPathLossCouplingNode.pointing_error_loss
+      TwoRayPathLossCouplingNode.pointspeak
+      TwoRayPathLossCouplingNode.polarization_mismatch
+      TwoRayPathLossCouplingNode.polarization_tilt_angle
+      TwoRayPathLossCouplingNode.properties
+      TwoRayPathLossCouplingNode.rain_availability
+      TwoRayPathLossCouplingNode.rain_rate
+      TwoRayPathLossCouplingNode.std_deviation
+      TwoRayPathLossCouplingNode.temperature
+      TwoRayPathLossCouplingNode.total_air_pressure
+      TwoRayPathLossCouplingNode.valid
+      TwoRayPathLossCouplingNode.warnings
+      TwoRayPathLossCouplingNode.water_vapor_concentration
+   
+   

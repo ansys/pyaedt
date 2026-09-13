@@ -1,0 +1,6 @@
+﻿convert\_latlon\_to\_utm
+========================
+
+.. currentmodule:: ansys.aedt.core.modeler.advanced_cad.osm
+
+.. autofunction:: convert_latlon_to_utm

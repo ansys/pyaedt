@@ -1,0 +1,6 @@
+props\_to\_dict
+===============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.rx_selectivity_node
+
+.. automethod:: RxSelectivityNode.props_to_dict

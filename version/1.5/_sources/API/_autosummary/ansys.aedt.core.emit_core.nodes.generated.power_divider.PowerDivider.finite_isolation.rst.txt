@@ -1,0 +1,6 @@
+finite\_isolation
+=================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.power_divider
+
+.. autoproperty:: PowerDivider.finite_isolation

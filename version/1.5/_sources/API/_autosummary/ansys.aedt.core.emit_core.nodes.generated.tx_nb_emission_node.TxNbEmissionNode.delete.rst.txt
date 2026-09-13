@@ -1,0 +1,6 @@
+delete
+======
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.tx_nb_emission_node
+
+.. automethod:: TxNbEmissionNode.delete

@@ -1,0 +1,6 @@
+spread\_percentage
+==================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.waveform
+
+.. autoproperty:: Waveform.spread_percentage

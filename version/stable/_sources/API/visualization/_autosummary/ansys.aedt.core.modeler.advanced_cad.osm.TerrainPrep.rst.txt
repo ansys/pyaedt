@@ -1,0 +1,34 @@
+﻿TerrainPrep
+===========
+
+.. currentmodule:: ansys.aedt.core.modeler.advanced_cad.osm
+
+.. autoclass:: TerrainPrep
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      TerrainPrep.get_elevation
+      
+      
+      TerrainPrep.get_terrain
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      TerrainPrep.public_dir
+   
+   

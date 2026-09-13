@@ -1,0 +1,6 @@
+arrow\_direction
+================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.emi_plot_marker_node
+
+.. autoproperty:: EmiPlotMarkerNode.arrow_direction

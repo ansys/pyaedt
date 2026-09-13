@@ -1,0 +1,6 @@
+notes
+=====
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.emit_scene_node
+
+.. autoproperty:: EmitSceneNode.notes

@@ -1,0 +1,6 @@
+get\_fresnel\_coefficients
+==========================
+
+.. currentmodule:: ansys.aedt.core.hfss
+
+.. automethod:: Hfss.get_fresnel_coefficients

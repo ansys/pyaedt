@@ -1,0 +1,6 @@
+target\_amplitude
+=================
+
+.. currentmodule:: ansys.aedt.core.modeler.advanced_cad.weave
+
+.. autoproperty:: Weave.target_amplitude

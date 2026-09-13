@@ -1,0 +1,6 @@
+EPSILON
+=======
+
+.. currentmodule:: ansys.aedt.core.generic.math_utils
+
+.. autoattribute:: MathUtils.EPSILON

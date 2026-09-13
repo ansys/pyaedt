@@ -1,0 +1,55 @@
+﻿MaxwellLayoutForce
+==================
+
+.. currentmodule:: ansys.aedt.core.modules.boundary.maxwell_boundary
+
+.. autoclass:: MaxwellLayoutForce
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      MaxwellLayoutForce.create
+      
+      
+      MaxwellLayoutForce.delete
+      
+      
+      MaxwellLayoutForce.jsonalize_tree
+      
+      
+      MaxwellLayoutForce.suppress_all
+      
+      
+      MaxwellLayoutForce.unsuppress_all
+      
+      
+      MaxwellLayoutForce.update
+      
+      
+      MaxwellLayoutForce.update_property
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      MaxwellLayoutForce.available_properties
+      MaxwellLayoutForce.children
+      MaxwellLayoutForce.command
+      MaxwellLayoutForce.name
+      MaxwellLayoutForce.properties
+      MaxwellLayoutForce.props
+      MaxwellLayoutForce.public_dir
+   
+   

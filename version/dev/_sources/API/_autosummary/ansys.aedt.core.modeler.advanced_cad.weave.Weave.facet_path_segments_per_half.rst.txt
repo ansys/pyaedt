@@ -1,0 +1,6 @@
+facet\_path\_segments\_per\_half
+================================
+
+.. currentmodule:: ansys.aedt.core.modeler.advanced_cad.weave
+
+.. autoproperty:: Weave.facet_path_segments_per_half

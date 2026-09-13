@@ -1,0 +1,6 @@
+active\_design\_name
+====================
+
+.. currentmodule:: ansys.aedt.core.desktop
+
+.. autoproperty:: Desktop.active_design_name

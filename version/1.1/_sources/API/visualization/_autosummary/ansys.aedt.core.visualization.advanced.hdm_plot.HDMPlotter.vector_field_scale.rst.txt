@@ -1,0 +1,6 @@
+vector\_field\_scale
+====================
+
+.. currentmodule:: ansys.aedt.core.visualization.advanced.hdm_plot
+
+.. autoproperty:: HDMPlotter.vector_field_scale

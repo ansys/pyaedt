@@ -1,0 +1,6 @@
+get\_is\_component
+==================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.tx_nb_emission_node
+
+.. automethod:: TxNbEmissionNode.get_is_component

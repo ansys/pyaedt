@@ -1,0 +1,6 @@
+cable\_type
+===========
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.cable
+
+.. autoproperty:: Cable.cable_type

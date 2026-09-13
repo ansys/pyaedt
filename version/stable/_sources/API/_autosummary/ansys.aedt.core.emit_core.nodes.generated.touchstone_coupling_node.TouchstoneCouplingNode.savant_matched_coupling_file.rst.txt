@@ -1,0 +1,6 @@
+savant\_matched\_coupling\_file
+===============================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.touchstone_coupling_node
+
+.. autoproperty:: TouchstoneCouplingNode.savant_matched_coupling_file

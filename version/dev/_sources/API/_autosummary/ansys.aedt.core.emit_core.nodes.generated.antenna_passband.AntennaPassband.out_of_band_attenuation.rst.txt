@@ -1,0 +1,6 @@
+out\_of\_band\_attenuation
+==========================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.antenna_passband
+
+.. autoproperty:: AntennaPassband.out_of_band_attenuation

@@ -1,0 +1,6 @@
+lowest\_tuned\_frequency
+========================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.filter
+
+.. autoproperty:: Filter.lowest_tuned_frequency

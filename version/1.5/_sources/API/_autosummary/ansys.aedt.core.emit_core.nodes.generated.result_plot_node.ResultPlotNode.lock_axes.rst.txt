@@ -1,0 +1,6 @@
+lock\_axes
+==========
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.result_plot_node
+
+.. autoproperty:: ResultPlotNode.lock_axes

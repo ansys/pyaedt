@@ -1,0 +1,6 @@
+name
+====
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.band_folder
+
+.. autoproperty:: BandFolder.name

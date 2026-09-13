@@ -1,0 +1,6 @@
+create\_3d\_component\_array
+============================
+
+.. currentmodule:: ansys.aedt.core.hfss
+
+.. automethod:: Hfss.create_3d_component_array

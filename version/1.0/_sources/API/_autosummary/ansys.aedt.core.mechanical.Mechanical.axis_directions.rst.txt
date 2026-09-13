@@ -1,0 +1,6 @@
+axis\_directions
+================
+
+.. currentmodule:: ansys.aedt.core.mechanical
+
+.. autoproperty:: Mechanical.axis_directions

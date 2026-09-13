@@ -1,0 +1,6 @@
+amplifier\_saturation\_level
+============================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.tx_spectral_prof_node
+
+.. autoproperty:: TxSpectralProfNode.amplifier_saturation_level

@@ -1,0 +1,79 @@
+﻿HataCouplingNode
+================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.hata_coupling_node
+
+.. autoclass:: HataCouplingNode
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      HataCouplingNode.delete
+      
+      
+      HataCouplingNode.duplicate
+      
+      
+      HataCouplingNode.export_to_csv
+      
+      
+      HataCouplingNode.get_is_component
+      
+      
+      HataCouplingNode.get_properties
+      
+      
+      HataCouplingNode.plot
+      
+      
+      HataCouplingNode.props_to_dict
+      
+      
+      HataCouplingNode.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      HataCouplingNode.allowed_child_types
+      HataCouplingNode.base_antenna
+      HataCouplingNode.children
+      HataCouplingNode.custom_fading_margin
+      HataCouplingNode.enabled
+      HataCouplingNode.environment
+      HataCouplingNode.fading_availability
+      HataCouplingNode.fading_type
+      HataCouplingNode.include_atmospheric_absorption
+      HataCouplingNode.include_rain_attenuation
+      HataCouplingNode.mobile_antenna
+      HataCouplingNode.name
+      HataCouplingNode.node_type
+      HataCouplingNode.odesktop
+      HataCouplingNode.parent
+      HataCouplingNode.parent_name
+      HataCouplingNode.pointing_error_loss
+      HataCouplingNode.polarization_mismatch
+      HataCouplingNode.polarization_tilt_angle
+      HataCouplingNode.properties
+      HataCouplingNode.rain_availability
+      HataCouplingNode.rain_rate
+      HataCouplingNode.std_deviation
+      HataCouplingNode.temperature
+      HataCouplingNode.total_air_pressure
+      HataCouplingNode.valid
+      HataCouplingNode.warnings
+      HataCouplingNode.water_vapor_concentration
+   
+   

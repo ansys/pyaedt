@@ -1,0 +1,6 @@
+street\_width
+=============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.walfisch_coupling_node
+
+.. autoproperty:: WalfischCouplingNode.street_width

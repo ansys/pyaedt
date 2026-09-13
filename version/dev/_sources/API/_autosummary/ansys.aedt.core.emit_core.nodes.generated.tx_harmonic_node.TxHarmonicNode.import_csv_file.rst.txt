@@ -1,0 +1,6 @@
+import\_csv\_file
+=================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.tx_harmonic_node
+
+.. automethod:: TxHarmonicNode.import_csv_file

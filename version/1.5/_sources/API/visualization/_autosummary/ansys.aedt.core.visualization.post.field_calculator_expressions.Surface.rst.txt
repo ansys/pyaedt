@@ -1,0 +1,25 @@
+﻿Surface
+=======
+
+.. currentmodule:: ansys.aedt.core.visualization.post.field_calculator_expressions
+
+.. autoclass:: Surface
+
+   
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      Surface.assignment_type
+      Surface.calculator_entry
+      Surface.public_dir
+      Surface.value_op
+   
+   

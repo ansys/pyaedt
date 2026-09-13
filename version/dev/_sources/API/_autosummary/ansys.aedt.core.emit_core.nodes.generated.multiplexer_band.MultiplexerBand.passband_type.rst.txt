@@ -1,0 +1,6 @@
+passband\_type
+==============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.multiplexer_band
+
+.. autoproperty:: MultiplexerBand.passband_type

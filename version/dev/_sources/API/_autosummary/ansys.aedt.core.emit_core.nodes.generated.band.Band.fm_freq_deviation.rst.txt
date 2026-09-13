@@ -1,0 +1,6 @@
+fm\_freq\_deviation
+===================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.band
+
+.. autoproperty:: Band.fm_freq_deviation

@@ -1,0 +1,64 @@
+﻿TxHarmonicNode
+==============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.tx_harmonic_node
+
+.. autoclass:: TxHarmonicNode
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      TxHarmonicNode.delete
+      
+      
+      TxHarmonicNode.export_to_csv
+      
+      
+      TxHarmonicNode.get_is_component
+      
+      
+      TxHarmonicNode.get_properties
+      
+      
+      TxHarmonicNode.import_csv_file
+      
+      
+      TxHarmonicNode.plot
+      
+      
+      TxHarmonicNode.props_to_dict
+      
+      
+      TxHarmonicNode.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      TxHarmonicNode.allowed_child_types
+      TxHarmonicNode.children
+      TxHarmonicNode.enabled
+      TxHarmonicNode.harmonic_table_units
+      TxHarmonicNode.name
+      TxHarmonicNode.node_type
+      TxHarmonicNode.odesktop
+      TxHarmonicNode.parent
+      TxHarmonicNode.parent_name
+      TxHarmonicNode.properties
+      TxHarmonicNode.table_data
+      TxHarmonicNode.valid
+      TxHarmonicNode.warnings
+   
+   

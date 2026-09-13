@@ -1,0 +1,993 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Command line interface &#8212; PyAEDT</title>
+  
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=0790524f97105ba85085" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=0790524f97105ba85085" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/ansys-sphinx-theme.css?v=5ffe81b6" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/ansys-sphinx-theme.css?v=5ffe81b6" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://www.nerdfonts.com/assets/css/webfont.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=de68c915" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=0790524f97105ba85085"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=0790524f97105ba85085" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085" />
+
+
+  <!-- Include desired assets -->
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  
+
+  
+    <link href="../_static/css/breadcrumbs.css" rel="stylesheet" />
+  
+    <script src="../_static/documentation_options.js?v=872021ae"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=49e1bf35"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'Getting_started/cli';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.18.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://aedt.docs.pyansys.com/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="AEDT panels" href="panels.html" />
+    <link rel="prev" title="Client-server" href="ClientServer.html" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.2.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  <meta property="og:site_name" content="PyAnsys" />
+  <meta name="physics" content="Electronics" />
+  <link rel="canonical" href="https://aedt.docs.pyansys.com/version/stable/Getting_started/cli.html" />
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="https://docs.pyansys.com/">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/pyansys_logo_transparent_black.png" class="logo__image only-light" alt="PyAEDT - Home"/>
+    <img src="../_static/pyansys_logo_transparent_white.png" class="logo__image only-dark pst-js-only" alt="PyAEDT - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html" title="PyAEDT home">Home</a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../User_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../API/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://examples.aedt.docs.pyansys.com/">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changelog.html">
+    Release notes
+  </a>
+</li>
+
+  </ul>
+</nav>
+</div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+      
+        <div class="navbar-item">
+<div class="search-bar pst-js-only" id="search-bar">
+  <form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" class="form-control" name="q" placeholder="Search the docs ..."
+      aria-label="Search the docs ..." autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false" />
+    <span class="search-button__kbd-shortcut">
+      <kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd>
+    </span>
+  </form>
+  
+  <div id="static-search-results" class="static-search-results" style="display:none;" tabindex="0"></div>
+  
+</div></div>
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i><span class="visually-hidden">Support</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+  
+    
+<!--
+  Announcement Version Loader
+  Dynamically loads the announcement.html content into the announcement_msg div.
+-->
+<div id="announcement_msg" aria-live="polite"></div>
+<script>
+  // Fetch and inject the announcement HTML content
+  fetch("announcement.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status} Announcement.html file not found, Please ignore this, if you are in dev/stable documentation`);
+      }
+      return response.text();
+    })
+    .then((text) => {
+      var msgDiv = document.getElementById("announcement_msg");
+      if (msgDiv) {
+        msgDiv.innerHTML = text;
+      }
+    })
+    .catch((error) => {
+      // Log only unexpected fetch errors
+      if (!(error.message && error.message.startsWith("HTTP error: 404"))) {
+        console.error(`Fetch problem: ${error.message} Announcement.html could not be loaded.`);
+      }
+    });
+</script>
+  
+
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html" title="PyAEDT home">Home</a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../User_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../API/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://examples.aedt.docs.pyansys.com/">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changelog.html">
+    Release notes
+  </a>
+</li>
+
+  </ul>
+</nav>
+</div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="search-bar pst-js-only" id="search-bar">
+  <form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" class="form-control" name="q" placeholder="Search the docs ..."
+      aria-label="Search the docs ..." autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false" />
+    <span class="search-button__kbd-shortcut">
+      <kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd>
+    </span>
+  </form>
+  
+  <div id="static-search-results" class="static-search-results" style="display:none;" tabindex="0"></div>
+  
+</div></div>
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i><span class="visually-hidden">Support</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar"><svg class="pst-icon svg-inline--fa" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="Installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../User_guide/index.html">User guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ClientServer.html">Client-server</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Command line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="panels.html">AEDT panels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="versioning.html">Versions and interfaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Contributing.html">Contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Developer_notes.html">Developer notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="About.html">About PyAnsys and AEDT</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+         
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="https://docs.pyansys.com/" class="nav-link">PyAnsys</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a
+        href="../index.html"
+        class="nav-link"
+        aria-label="Home"
+      >
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="index.html" class="nav-link">Getting started</a>
+    </li>
+      
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Command line interface</span></li>
+    
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="command-line-interface">
+<h1>Command line interface<a class="headerlink" href="#command-line-interface" title="Link to this heading">#</a></h1>
+<p>PyAEDT provides a command line interface (CLI) for starting AEDT sessions, working with open
+projects, running scripts, exporting data, and opening documentation directly from a terminal.</p>
+<section id="get-started">
+<h2>Get started<a class="headerlink" href="#get-started" title="Link to this heading">#</a></h2>
+<p>To see the available commands, run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pyaedt<span class="w"> </span>--help
+</pre></div>
+</div>
+<p>All commands can be run with <code class="docutils literal notranslate"><span class="pre">--json</span></code> to output results in JSON format for easy parsing in scripts.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pyaedt<span class="w"> </span>--json<span class="w"> </span>version
+<span class="go">{&quot;status&quot;: &quot;ok&quot;, &quot;data&quot;: {&quot;version&quot;: &quot;1.0.dev0&quot;}}</span>
+
+<span class="gp">$ </span>pyaedt<span class="w"> </span>version
+<span class="go">PyAEDT version: 1.0.dev0</span>
+</pre></div>
+</div>
+</section>
+<section id="main-commands">
+<h2>Main commands<a class="headerlink" href="#main-commands" title="Link to this heading">#</a></h2>
+<p>The CLI is organized into these top-level commands:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">version</span></code> - Display the installed PyAEDT version</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">aedt-versions</span></code> - List AEDT versions installed on the machine</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">session</span></code> - Start, list, stop, or attach to AEDT sessions</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">project</span></code> - List, open, create, save, and close AEDT projects</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">script</span></code> - Run a Python script inside AEDT</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">export</span></code> - Export screenshots or design configuration data</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">panels</span></code> - Install PyAEDT panels into AEDT</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">doc</span></code> - Open PyAEDT documentation and related resources</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test-config</span></code> - Create, inspect, or update <code class="docutils literal notranslate"><span class="pre">tests/local_config.json</span></code></p></li>
+</ul>
+</section>
+<section id="version-commands">
+<h2>Version commands<a class="headerlink" href="#version-commands" title="Link to this heading">#</a></h2>
+<p>Use the <code class="docutils literal notranslate"><span class="pre">version</span></code> commands to check the installed PyAEDT version or AEDT versions on the machine.</p>
+<p><strong>PyAEDT version</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pyaedt<span class="w"> </span>version
+</pre></div>
+</div>
+<p><strong>AEDT installed version</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pyaedt<span class="w"> </span>aedt-versions
+</pre></div>
+</div>
+</section>
+<section id="session-commands">
+<h2>Session commands<a class="headerlink" href="#session-commands" title="Link to this heading">#</a></h2>
+<p>Use the <code class="docutils literal notranslate"><span class="pre">session</span></code> group to manage running AEDT instances.</p>
+<p><strong>Start a session</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pyaedt<span class="w"> </span>session<span class="w"> </span>start
+pyaedt<span class="w"> </span>session<span class="w"> </span>start<span class="w"> </span>--version<span class="w"> </span><span class="m">2026</span>.1
+pyaedt<span class="w"> </span>session<span class="w"> </span>start<span class="w"> </span>--non-graphical
+pyaedt<span class="w"> </span>session<span class="w"> </span>start<span class="w"> </span>--port<span class="w"> </span><span class="m">50051</span>
+pyaedt<span class="w"> </span>session<span class="w"> </span>start<span class="w"> </span>-v<span class="w"> </span><span class="m">2026</span>.1<span class="w"> </span>-ng<span class="w"> </span>--port<span class="w"> </span><span class="m">50051</span>
+</pre></div>
+</div>
+<p>By default, <code class="docutils literal notranslate"><span class="pre">session</span> <span class="pre">start</span></code> uses the most recent stable AEDT version installed and port <code class="docutils literal notranslate"><span class="pre">50051</span></code>.
+Use <code class="docutils literal notranslate"><span class="pre">--port</span> <span class="pre">0</span></code> to let AEDT choose an available port automatically.</p>
+<p><strong>List running sessions</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pyaedt<span class="w"> </span>session<span class="w"> </span>list
+</pre></div>
+</div>
+<p>This shows the PID, detected AEDT version, and port for each running session.</p>
+<p><strong>Attach to a running session</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pyaedt<span class="w"> </span>session<span class="w"> </span>attach
+pyaedt<span class="w"> </span>session<span class="w"> </span>attach<span class="w"> </span>--port<span class="w"> </span><span class="m">50051</span>
+pyaedt<span class="w"> </span>session<span class="w"> </span>attach<span class="w"> </span>--port<span class="w"> </span><span class="m">50051</span><span class="w"> </span>--project<span class="w"> </span>MyProject<span class="w"> </span>--design<span class="w"> </span>MyDesign
+</pre></div>
+</div>
+<p>If <code class="docutils literal notranslate"><span class="pre">--port</span></code> is omitted, PyAEDT shows an interactive list of running sessions.
+When available, IPython is used for the interactive console.</p>
+<p><strong>Stop sessions</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pyaedt<span class="w"> </span>session<span class="w"> </span>stop<span class="w"> </span>--port<span class="w"> </span><span class="m">50051</span>
+pyaedt<span class="w"> </span>session<span class="w"> </span>stop<span class="w"> </span>--all
+</pre></div>
+</div>
+</section>
+<section id="project-commands">
+<h2>Project commands<a class="headerlink" href="#project-commands" title="Link to this heading">#</a></h2>
+<p>Use the <code class="docutils literal notranslate"><span class="pre">project</span></code> group to work with projects in an already running AEDT gRPC session.
+These commands require <code class="docutils literal notranslate"><span class="pre">--port</span></code>.</p>
+<p><strong>List open projects and designs</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pyaedt<span class="w"> </span>project<span class="w"> </span>list<span class="w"> </span>--port<span class="w"> </span><span class="m">50051</span>
+</pre></div>
+</div>
+<p><strong>Open a project</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pyaedt<span class="w"> </span>project<span class="w"> </span>open<span class="w"> </span>my_project.aedt<span class="w"> </span>--port<span class="w"> </span><span class="m">50051</span>
+</pre></div>
+</div>
+<p><strong>Create a project</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pyaedt<span class="w"> </span>project<span class="w"> </span>create<span class="w"> </span>--port<span class="w"> </span><span class="m">50051</span><span class="w"> </span>--project<span class="w"> </span>DemoProject
+</pre></div>
+</div>
+<p><strong>Create a design in a project</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pyaedt<span class="w"> </span>project<span class="w"> </span>create<span class="w"> </span>--port<span class="w"> </span><span class="m">50051</span><span class="w"> </span>--project<span class="w"> </span>DemoProject<span class="w"> </span>--design<span class="w"> </span>Filter1<span class="w"> </span>--type<span class="w"> </span>Hfss
+</pre></div>
+</div>
+<p>Supported design types include <code class="docutils literal notranslate"><span class="pre">Hfss</span></code>, <code class="docutils literal notranslate"><span class="pre">Maxwell2d</span></code>, <code class="docutils literal notranslate"><span class="pre">Maxwell3d</span></code>, <code class="docutils literal notranslate"><span class="pre">Q3d</span></code>, <code class="docutils literal notranslate"><span class="pre">Q2d</span></code>,
+<code class="docutils literal notranslate"><span class="pre">Icepak</span></code>, <code class="docutils literal notranslate"><span class="pre">Circuit</span></code>, <code class="docutils literal notranslate"><span class="pre">TwinBuilder</span></code>, <code class="docutils literal notranslate"><span class="pre">Mechanical</span></code>, <code class="docutils literal notranslate"><span class="pre">Emit</span></code>, <code class="docutils literal notranslate"><span class="pre">Rmxprt</span></code>,
+<code class="docutils literal notranslate"><span class="pre">Hfss3dLayout</span></code>, and <code class="docutils literal notranslate"><span class="pre">MaxwellCircuit</span></code>.</p>
+<p><strong>Save the active project</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pyaedt<span class="w"> </span>project<span class="w"> </span>save<span class="w"> </span>--port<span class="w"> </span><span class="m">50051</span>
+pyaedt<span class="w"> </span>project<span class="w"> </span>save<span class="w"> </span>--port<span class="w"> </span><span class="m">50051</span><span class="w"> </span>--path<span class="w"> </span>saved_copy.aedt
+</pre></div>
+</div>
+<p><strong>Close a project</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pyaedt<span class="w"> </span>project<span class="w"> </span>close<span class="w"> </span>--port<span class="w"> </span><span class="m">50051</span>
+pyaedt<span class="w"> </span>project<span class="w"> </span>close<span class="w"> </span>--port<span class="w"> </span><span class="m">50051</span><span class="w"> </span>--project<span class="w"> </span>DemoProject
+</pre></div>
+</div>
+</section>
+<section id="script-commands">
+<h2>Script commands<a class="headerlink" href="#script-commands" title="Link to this heading">#</a></h2>
+<p>Use <code class="docutils literal notranslate"><span class="pre">run</span></code> to execute a Python script.</p>
+<p><strong>Run a script</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pyaedt<span class="w"> </span>run<span class="w"> </span>my_script.py<span class="w"> </span>--port<span class="w"> </span><span class="m">50051</span>
+</pre></div>
+</div>
+<p>The script runs with an attached Desktop object available as <code class="docutils literal notranslate"><span class="pre">desktop</span></code>.</p>
+<p><strong>Run an Ironpython script</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pyaedt<span class="w"> </span>run<span class="w"> </span>my_script.py<span class="w"> </span>--ironpython<span class="w"> </span>--port<span class="w"> </span><span class="m">50051</span>
+</pre></div>
+</div>
+<p>Ironpython scripts only support native AEDT API.</p>
+</section>
+<section id="export-commands">
+<h2>Export commands<a class="headerlink" href="#export-commands" title="Link to this heading">#</a></h2>
+<p>Use <code class="docutils literal notranslate"><span class="pre">export</span></code> to extract files from the active design.</p>
+<p><strong>Export a screenshot</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pyaedt<span class="w"> </span><span class="nb">export</span><span class="w"> </span>screenshot<span class="w"> </span>--port<span class="w"> </span><span class="m">50051</span><span class="w"> </span>--path<span class="w"> </span>screenshot.jpg
+pyaedt<span class="w"> </span><span class="nb">export</span><span class="w"> </span>screenshot<span class="w"> </span>--port<span class="w"> </span><span class="m">50051</span><span class="w"> </span>--project<span class="w"> </span>DemoProject<span class="w"> </span>--design<span class="w"> </span>Filter1
+</pre></div>
+</div>
+<p><strong>Export design configuration</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pyaedt<span class="w"> </span><span class="nb">export</span><span class="w"> </span>config<span class="w"> </span>--port<span class="w"> </span><span class="m">50051</span>
+pyaedt<span class="w"> </span><span class="nb">export</span><span class="w"> </span>config<span class="w"> </span>--port<span class="w"> </span><span class="m">50051</span><span class="w"> </span>--output<span class="w"> </span>config.json
+pyaedt<span class="w"> </span><span class="nb">export</span><span class="w"> </span>config<span class="w"> </span>--port<span class="w"> </span><span class="m">50051</span><span class="w"> </span>--project<span class="w"> </span>DemoProject<span class="w"> </span>--design<span class="w"> </span>Filter1
+</pre></div>
+</div>
+<p>If <code class="docutils literal notranslate"><span class="pre">--output</span></code> is omitted, the exported JSON is printed to the terminal.</p>
+</section>
+<section id="panels-management">
+<h2>Panels management<a class="headerlink" href="#panels-management" title="Link to this heading">#</a></h2>
+<p>Use <code class="docutils literal notranslate"><span class="pre">panels</span> <span class="pre">add</span></code> to install PyAEDT panels into AEDT.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pyaedt<span class="w"> </span>panels<span class="w"> </span>add<span class="w"> </span>--personal-lib<span class="w"> </span><span class="s2">&quot;C:\\Users\\username\\AppData\\Roaming\\Ansoft\\PersonalLib&quot;</span>
+pyaedt<span class="w"> </span>panels<span class="w"> </span>add<span class="w"> </span>--personal-lib<span class="w"> </span><span class="s2">&quot;C:\\Users\\username\\AppData\\Roaming\\Ansoft\\PersonalLib&quot;</span><span class="w"> </span>--reset
+pyaedt<span class="w"> </span>panels<span class="w"> </span>add<span class="w"> </span>--personal-lib<span class="w"> </span><span class="s2">&quot;C:\\Users\\username\\AppData\\Roaming\\Ansoft\\PersonalLib&quot;</span><span class="w"> </span>--minimal
+</pre></div>
+</div>
+<p>Useful options:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--reset</span></code> - Remove the existing <code class="docutils literal notranslate"><span class="pre">Toolkits</span></code> directory before installing</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--minimal</span></code> - Install only the light panel set (PyAEDT Console and Run Script)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--skip-version-manager</span></code> - Skip the Version Manager panel</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--skip-extension-manager</span></code> - Skip the Extension Manager panel</p></li>
+</ul>
+</section>
+<section id="documentation-shortcuts">
+<h2>Documentation shortcuts<a class="headerlink" href="#documentation-shortcuts" title="Link to this heading">#</a></h2>
+<p>Use the <code class="docutils literal notranslate"><span class="pre">doc</span></code> group to open online documentation and project resources:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pyaedt<span class="w"> </span>doc
+pyaedt<span class="w"> </span>doc<span class="w"> </span>getting-started
+pyaedt<span class="w"> </span>doc<span class="w"> </span>installation
+pyaedt<span class="w"> </span>doc<span class="w"> </span>user-guide
+pyaedt<span class="w"> </span>doc<span class="w"> </span>api
+pyaedt<span class="w"> </span>doc<span class="w"> </span>examples
+pyaedt<span class="w"> </span>doc<span class="w"> </span>github
+pyaedt<span class="w"> </span>doc<span class="w"> </span>issues
+pyaedt<span class="w"> </span>doc<span class="w"> </span>changelog
+pyaedt<span class="w"> </span>doc<span class="w"> </span>search<span class="w"> </span>hfss<span class="w"> </span>mesh
+</pre></div>
+</div>
+<p><strong>Open the changelog for a specific version</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pyaedt<span class="w"> </span>doc<span class="w"> </span>changelog<span class="w"> </span><span class="m">0</span>.26.1
+</pre></div>
+</div>
+<p>If no subcommand is provided, <code class="docutils literal notranslate"><span class="pre">pyaedt</span> <span class="pre">doc</span></code> opens the documentation home page.</p>
+</section>
+<section id="test-configuration">
+<h2>Test configuration<a class="headerlink" href="#test-configuration" title="Link to this heading">#</a></h2>
+<p>Use <code class="docutils literal notranslate"><span class="pre">test-config</span></code> to manage the local test configuration stored in
+<code class="docutils literal notranslate"><span class="pre">tests/local_config.json</span></code>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pyaedt<span class="w"> </span>test-config
+pyaedt<span class="w"> </span>test-config<span class="w"> </span>--show
+</pre></div>
+</div>
+<p>Running <code class="docutils literal notranslate"><span class="pre">pyaedt</span> <span class="pre">test-config</span></code> starts an interactive configuration flow.</p>
+</section>
+<section id="common-workflows">
+<h2>Common workflows<a class="headerlink" href="#common-workflows" title="Link to this heading">#</a></h2>
+<p><strong>Start AEDT, inspect projects, and stop it</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pyaedt<span class="w"> </span>session<span class="w"> </span>start<span class="w"> </span>--version<span class="w"> </span><span class="m">2026</span>.1<span class="w"> </span>--port<span class="w"> </span><span class="m">50051</span>
+pyaedt<span class="w"> </span>session<span class="w"> </span>list
+pyaedt<span class="w"> </span>project<span class="w"> </span>list<span class="w"> </span>--port<span class="w"> </span><span class="m">50051</span>
+pyaedt<span class="w"> </span>session<span class="w"> </span>stop<span class="w"> </span>--port<span class="w"> </span><span class="m">50051</span>
+</pre></div>
+</div>
+<p><strong>Run a script against a running session</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pyaedt<span class="w"> </span>session<span class="w"> </span>start<span class="w"> </span>--non-graphical<span class="w"> </span>--port<span class="w"> </span><span class="m">50051</span>
+pyaedt<span class="w"> </span>run<span class="w"> </span>my_script.py<span class="w"> </span>--port<span class="w"> </span><span class="m">50051</span>
+pyaedt<span class="w"> </span>session<span class="w"> </span>stop<span class="w"> </span>--port<span class="w"> </span><span class="m">50051</span>
+</pre></div>
+</div>
+<p><strong>Export design data</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pyaedt<span class="w"> </span><span class="nb">export</span><span class="w"> </span>screenshot<span class="w"> </span>--port<span class="w"> </span><span class="m">50051</span><span class="w"> </span>--project<span class="w"> </span>DemoProject<span class="w"> </span>--design<span class="w"> </span>Filter1
+pyaedt<span class="w"> </span><span class="nb">export</span><span class="w"> </span>config<span class="w"> </span>--port<span class="w"> </span><span class="m">50051</span><span class="w"> </span>--project<span class="w"> </span>DemoProject<span class="w"> </span>--design<span class="w"> </span>Filter1<span class="w"> </span>--output<span class="w"> </span>filter1.json
+</pre></div>
+</div>
+</section>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading">#</a></h2>
+<p>If the <code class="docutils literal notranslate"><span class="pre">pyaedt</span></code> command is not available, install PyAEDT with CLI dependencies:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>pyaedt<span class="o">[</span>all<span class="o">]</span>
+</pre></div>
+</div>
+<p>The interactive attach console uses IPython when it is installed.</p>
+</section>
+<section id="get-help">
+<h2>Get help<a class="headerlink" href="#get-help" title="Link to this heading">#</a></h2>
+<p>Use <code class="docutils literal notranslate"><span class="pre">--help</span></code> on any command group or command to see the available options:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pyaedt<span class="w"> </span>--help
+pyaedt<span class="w"> </span>session<span class="w"> </span>--help
+pyaedt<span class="w"> </span>project<span class="w"> </span>--help
+pyaedt<span class="w"> </span>run<span class="w"> </span>--help
+pyaedt<span class="w"> </span><span class="nb">export</span><span class="w"> </span>--help
+pyaedt<span class="w"> </span>panels<span class="w"> </span>add<span class="w"> </span>--help
+pyaedt<span class="w"> </span>doc<span class="w"> </span>--help
+pyaedt<span class="w"> </span>test-config<span class="w"> </span>--help
+</pre></div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#get-started">Get started</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#main-commands">Main commands</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#version-commands">Version commands</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#session-commands">Session commands</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#project-commands">Project commands</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#script-commands">Script commands</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#export-commands">Export commands</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#panels-management">Panels management</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation-shortcuts">Documentation shortcuts</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#test-configuration">Test configuration</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#common-workflows">Common workflows</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#requirements">Requirements</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#get-help">Get help</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+
+  
+  <nav class="tocsection editthispage" aria-label="Edit this page">
+    <a href="https://github.com/ansys/pyaedt/edit/main/doc/source/Getting_started/cli.rst" rel="noopener noreferrer">
+      <i class="fa-solid fa-pencil" aria-hidden="true"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </nav>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <ul class="this-page-menu">
+      <li><a href="../_sources/Getting_started/cli.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=0790524f97105ba85085"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085"></script>
+
+
+  <!-- Include desired assets -->
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.7/require.min.js"></script>
+
+<script>
+// Passing the search options to the search.js file
+const SEARCH_OPTIONS = JSON.parse('{"ignoreLocation": true, "keys": ["title", "text", "objectID"], "limit": 10, "minMatchCharLength": 2, "threshold": 0.5}');
+const SEARCH_FILE = "../_static/search.json";
+const ADVANCE_SEARCH_PATH = "../search.html";
+const EXTRA_SOURCES = JSON.parse('""');
+</script>
+
+
+<script src="../_static/js/search.js"></script>
+
+  
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<!--
+  Theme Version Footer
+  Displays the Sphinx theme version and the last updated date.
+  Accessibility and semantic improvements included.
+-->
+<footer class="theme-version" aria-label="Theme version and last update">
+  <span>
+    
+      Built with the
+      <a href="https://sphinxdocs.ansys.com/version/stable/index.html" target="_blank" rel="noopener noreferrer">
+        Ansys Sphinx Theme
+      </a>
+      1.9.0.
+    
+  </span>
+  <br />
+  <span>Last updated on <time id="ast_build_date"></time></span>
+</footer>
+<script>
+  // Set the last updated date in a readable format
+  (function() {
+    var options = { day: "numeric", month: "long", year: "numeric" };
+    var ast_lastModifiedDate = new Date(document.lastModified);
+    var ast_build_date = ast_lastModifiedDate.toLocaleDateString("en-US", options);
+    var dateElem = document.getElementById("ast_build_date");
+    if (dateElem) {
+      dateElem.textContent = ast_build_date;
+    }
+  })();
+</script></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

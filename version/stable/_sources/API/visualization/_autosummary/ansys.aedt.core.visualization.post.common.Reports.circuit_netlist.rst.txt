@@ -1,0 +1,6 @@
+circuit\_netlist
+================
+
+.. currentmodule:: ansys.aedt.core.visualization.post.common
+
+.. automethod:: Reports.circuit_netlist

@@ -1,0 +1,6 @@
+fix\_negative\_zero
+===================
+
+.. currentmodule:: ansys.aedt.core.generic.math_utils
+
+.. automethod:: MathUtils.fix_negative_zero

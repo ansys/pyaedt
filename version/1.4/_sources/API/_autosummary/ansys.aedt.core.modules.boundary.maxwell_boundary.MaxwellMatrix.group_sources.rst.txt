@@ -1,0 +1,6 @@
+group\_sources
+==============
+
+.. currentmodule:: ansys.aedt.core.modules.boundary.maxwell_boundary
+
+.. autoproperty:: MaxwellMatrix.group_sources

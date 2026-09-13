@@ -1,0 +1,6 @@
+public\_dir
+===========
+
+.. currentmodule:: ansys.aedt.core.visualization.advanced.farfield_visualization
+
+.. autoproperty:: FfdSolutionData.public_dir

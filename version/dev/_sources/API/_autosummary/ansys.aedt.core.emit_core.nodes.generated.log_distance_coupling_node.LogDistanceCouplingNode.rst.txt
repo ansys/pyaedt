@@ -1,0 +1,80 @@
+﻿LogDistanceCouplingNode
+=======================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.log_distance_coupling_node
+
+.. autoclass:: LogDistanceCouplingNode
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      LogDistanceCouplingNode.delete
+      
+      
+      LogDistanceCouplingNode.duplicate
+      
+      
+      LogDistanceCouplingNode.export_to_csv
+      
+      
+      LogDistanceCouplingNode.get_is_component
+      
+      
+      LogDistanceCouplingNode.get_properties
+      
+      
+      LogDistanceCouplingNode.plot
+      
+      
+      LogDistanceCouplingNode.props_to_dict
+      
+      
+      LogDistanceCouplingNode.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      LogDistanceCouplingNode.allowed_child_types
+      LogDistanceCouplingNode.antenna_a
+      LogDistanceCouplingNode.antenna_b
+      LogDistanceCouplingNode.children
+      LogDistanceCouplingNode.custom_fading_margin
+      LogDistanceCouplingNode.enabled
+      LogDistanceCouplingNode.environment
+      LogDistanceCouplingNode.fading_availability
+      LogDistanceCouplingNode.fading_type
+      LogDistanceCouplingNode.include_atmospheric_absorption
+      LogDistanceCouplingNode.include_rain_attenuation
+      LogDistanceCouplingNode.name
+      LogDistanceCouplingNode.node_type
+      LogDistanceCouplingNode.odesktop
+      LogDistanceCouplingNode.parent
+      LogDistanceCouplingNode.parent_name
+      LogDistanceCouplingNode.path_loss_exponent
+      LogDistanceCouplingNode.pointing_error_loss
+      LogDistanceCouplingNode.polarization_mismatch
+      LogDistanceCouplingNode.polarization_tilt_angle
+      LogDistanceCouplingNode.properties
+      LogDistanceCouplingNode.rain_availability
+      LogDistanceCouplingNode.rain_rate
+      LogDistanceCouplingNode.std_deviation
+      LogDistanceCouplingNode.temperature
+      LogDistanceCouplingNode.total_air_pressure
+      LogDistanceCouplingNode.valid
+      LogDistanceCouplingNode.warnings
+      LogDistanceCouplingNode.water_vapor_concentration
+   
+   

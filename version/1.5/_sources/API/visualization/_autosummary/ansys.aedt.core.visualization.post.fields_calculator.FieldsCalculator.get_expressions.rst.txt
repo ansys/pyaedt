@@ -1,0 +1,6 @@
+get\_expressions
+================
+
+.. currentmodule:: ansys.aedt.core.visualization.post.fields_calculator
+
+.. automethod:: FieldsCalculator.get_expressions

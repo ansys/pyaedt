@@ -1,0 +1,6 @@
+﻿get\_filename\_without\_extension
+=================================
+
+.. currentmodule:: ansys.aedt.core.generic.file_utils
+
+.. autofunction:: get_filename_without_extension

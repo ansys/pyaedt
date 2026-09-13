@@ -1,0 +1,6 @@
+fixed\_angle\_enabled
+=====================
+
+.. currentmodule:: ansys.aedt.core.filtersolutions_core.distributed_radial
+
+.. autoproperty:: DistributedRadial.fixed_angle_enabled

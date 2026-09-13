@@ -1,0 +1,6 @@
+get\_frequencies
+================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.waveform
+
+.. automethod:: Waveform.get_frequencies

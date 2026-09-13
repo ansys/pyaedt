@@ -1,0 +1,6 @@
+import\_csv\_file
+=================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.tx_bb_emission_node
+
+.. automethod:: TxBbEmissionNode.import_csv_file

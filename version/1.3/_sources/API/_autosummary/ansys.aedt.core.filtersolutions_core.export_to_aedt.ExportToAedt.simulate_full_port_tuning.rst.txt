@@ -1,0 +1,6 @@
+simulate\_full\_port\_tuning
+============================
+
+.. currentmodule:: ansys.aedt.core.filtersolutions_core.export_to_aedt
+
+.. automethod:: ExportToAedt.simulate_full_port_tuning

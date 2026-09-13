@@ -1,0 +1,81 @@
+﻿IndoorPropagationCouplingNode
+=============================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.indoor_propagation_coupling_node
+
+.. autoclass:: IndoorPropagationCouplingNode
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      IndoorPropagationCouplingNode.delete
+      
+      
+      IndoorPropagationCouplingNode.duplicate
+      
+      
+      IndoorPropagationCouplingNode.export_to_csv
+      
+      
+      IndoorPropagationCouplingNode.get_is_component
+      
+      
+      IndoorPropagationCouplingNode.get_properties
+      
+      
+      IndoorPropagationCouplingNode.plot
+      
+      
+      IndoorPropagationCouplingNode.props_to_dict
+      
+      
+      IndoorPropagationCouplingNode.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      IndoorPropagationCouplingNode.allowed_child_types
+      IndoorPropagationCouplingNode.antenna_a
+      IndoorPropagationCouplingNode.antenna_b
+      IndoorPropagationCouplingNode.building_type
+      IndoorPropagationCouplingNode.children
+      IndoorPropagationCouplingNode.custom_fading_margin
+      IndoorPropagationCouplingNode.enabled
+      IndoorPropagationCouplingNode.fading_availability
+      IndoorPropagationCouplingNode.fading_type
+      IndoorPropagationCouplingNode.include_atmospheric_absorption
+      IndoorPropagationCouplingNode.include_rain_attenuation
+      IndoorPropagationCouplingNode.name
+      IndoorPropagationCouplingNode.node_type
+      IndoorPropagationCouplingNode.number_of_floors
+      IndoorPropagationCouplingNode.odesktop
+      IndoorPropagationCouplingNode.parent
+      IndoorPropagationCouplingNode.parent_name
+      IndoorPropagationCouplingNode.pointing_error_loss
+      IndoorPropagationCouplingNode.polarization_mismatch
+      IndoorPropagationCouplingNode.polarization_tilt_angle
+      IndoorPropagationCouplingNode.properties
+      IndoorPropagationCouplingNode.rain_availability
+      IndoorPropagationCouplingNode.rain_rate
+      IndoorPropagationCouplingNode.std_deviation
+      IndoorPropagationCouplingNode.table_data
+      IndoorPropagationCouplingNode.temperature
+      IndoorPropagationCouplingNode.total_air_pressure
+      IndoorPropagationCouplingNode.valid
+      IndoorPropagationCouplingNode.warnings
+      IndoorPropagationCouplingNode.water_vapor_concentration
+   
+   

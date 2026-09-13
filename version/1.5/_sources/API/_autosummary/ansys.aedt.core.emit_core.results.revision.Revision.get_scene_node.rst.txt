@@ -1,0 +1,6 @@
+get\_scene\_node
+================
+
+.. currentmodule:: ansys.aedt.core.emit_core.results.revision
+
+.. automethod:: Revision.get_scene_node

@@ -1,0 +1,6 @@
+render\_mode
+============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.cad_node
+
+.. autoproperty:: CADNode.render_mode

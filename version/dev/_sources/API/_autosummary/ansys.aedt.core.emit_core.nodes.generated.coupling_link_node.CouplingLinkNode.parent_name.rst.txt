@@ -1,0 +1,6 @@
+parent\_name
+============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.coupling_link_node
+
+.. autoproperty:: CouplingLinkNode.parent_name
