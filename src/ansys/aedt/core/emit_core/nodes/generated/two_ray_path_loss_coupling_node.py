@@ -25,6 +25,7 @@
 from enum import Enum
 
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+from ansys.aedt.core.emit_core.nodes.generated import AntennaNode
 from ansys.aedt.core.internal.checks import min_aedt_version
 
 
@@ -44,10 +45,10 @@ class TwoRayPathLossCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> two_ray = couplings.add_two_ray_path_loss_coupling()
-        >>> two_ray.parent
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> tray = cpl.add_two_ray_coupling()
+        >>> tray.parent
 
         """
         return self._parent
@@ -61,13 +62,60 @@ class TwoRayPathLossCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> two_ray = couplings.add_two_ray_path_loss_coupling()
-        >>> two_ray.node_type
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> tray = cpl.add_two_ray_coupling()
+        >>> tray.node_type
 
         """
         return self._node_type
+
+    @min_aedt_version("2027.1")
+    def export_to_csv(
+        self, file_name: str, antennas: tuple[AntennaNode, AntennaNode] | None = None, ports: str = ""
+    ) -> str:
+        """Export's the data for this node
+
+        Parameters
+        ----------
+        file_name: str[optional]
+            full path to the file to export to.
+        antennas: tuple(AntennaNode, AntennaNode), optional
+            tuple of antenna nodes to pull the selected Tx and Rx antenna names from for the export.
+            If not specified, will use the names specified by the ports parameter.
+        ports: str, optional
+            the ports to export the data for.
+
+        Returns
+        -------
+        csv_data: str
+            stringified data for the node returned if file_name not specified
+        """
+        if antennas is not None and all(isinstance(x, AntennaNode) for x in antennas):
+            a1, a2 = antennas
+            vals = f"{a1.name}|{a2.name}"
+        else:
+            vals = f"{ports}"
+        return self._export_to_csv(file_name, "SelectedRxAntenna|SelectedTxAntenna", vals)
+
+    @min_aedt_version("2027.1")
+    def plot(self, antennas: tuple[AntennaNode, AntennaNode] | None = None, ports: str = ""):
+        """Bring up a Cartesian plot for this node
+
+        Parameters
+        ----------
+        antennas: tuple(AntennaNode, AntennaNode), optional
+            tuple of antenna nodes to pull the selected Tx and Rx antenna names from for the export.
+            If not specified, will use the names specified by the ports parameter.
+        ports: str, optional
+            the ports to export the data for.
+        """
+        if antennas is not None and all(isinstance(x, AntennaNode) for x in antennas):
+            a1, a2 = antennas
+            vals = f"{a1.name}|{a2.name}"
+        else:
+            vals = f"{ports}"
+        return self._plot("SelectedRxAntenna|SelectedTxAntenna", vals)
 
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
@@ -77,10 +125,10 @@ class TwoRayPathLossCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> two_ray = couplings.add_two_ray_path_loss_coupling()
-        >>> two_ray.duplicate("TwoRay2")
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> tray = cpl.add_two_ray_coupling()
+        >>> tray_copy = tray.duplicate("tray_copy")
 
         """
         return self._duplicate(new_name)
@@ -93,10 +141,10 @@ class TwoRayPathLossCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> two_ray = couplings.add_two_ray_path_loss_coupling()
-        >>> two_ray.delete()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> tray = cpl.add_two_ray_coupling()
+        >>> tray.delete()
 
         """
         self._delete()
@@ -112,11 +160,10 @@ class TwoRayPathLossCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> two_ray = couplings.add_two_ray_path_loss_coupling()
-        >>> two_ray.enabled = False
-        >>> two_ray.enabled
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> tray = cpl.add_two_ray_coupling()
+        >>> tray.enabled = True
 
         """
         val = self._get_property("Enabled")
@@ -136,13 +183,10 @@ class TwoRayPathLossCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> ant1 = app.schematic.create_component("Antenna", name="Antenna1")
-        >>> app.schematic.create_component("Antenna", name="Antenna2")
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> two_ray = couplings.add_two_ray_path_loss_coupling()
-        >>> two_ray.antenna_a = ant1
-        >>> two_ray.antenna_a
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> tray = cpl.add_two_ray_coupling()
+        >>> tray.antenna_a
 
         """
         val = self._get_property("Antenna A")
@@ -162,13 +206,10 @@ class TwoRayPathLossCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> app.schematic.create_component("Antenna", name="Antenna1")
-        >>> ant2 = app.schematic.create_component("Antenna", name="Antenna2")
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> two_ray = couplings.add_two_ray_path_loss_coupling()
-        >>> two_ray.antenna_b = ant2
-        >>> two_ray.antenna_b
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> tray = cpl.add_two_ray_coupling()
+        >>> tray.antenna_b
 
         """
         val = self._get_property("Antenna B")
@@ -190,11 +231,10 @@ class TwoRayPathLossCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> two_ray = couplings.add_two_ray_path_loss_coupling()
-        >>> two_ray.ground_reflection_coeff = -0.7
-        >>> two_ray.ground_reflection_coeff
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> tray = cpl.add_two_ray_coupling()
+        >>> tray.ground_reflection_coeff = -1.0
 
         """
         val = self._get_property("Ground Reflection Coeff.")
@@ -218,11 +258,10 @@ class TwoRayPathLossCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> two_ray = couplings.add_two_ray_path_loss_coupling()
-        >>> two_ray.pointspeak = 9
-        >>> two_ray.pointspeak
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> tray = cpl.add_two_ray_coupling()
+        >>> tray.pointspeak = 3
 
         """
         val = self._get_property("Points/Peak")
@@ -247,11 +286,10 @@ class TwoRayPathLossCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> two_ray = couplings.add_two_ray_path_loss_coupling()
-        >>> two_ray.custom_fading_margin = 3.0
-        >>> two_ray.custom_fading_margin
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> tray = cpl.add_two_ray_coupling()
+        >>> tray.custom_fading_margin = 0.0
 
         """
         val = self._get_property("Custom Fading Margin")
@@ -276,11 +314,10 @@ class TwoRayPathLossCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> two_ray = couplings.add_two_ray_path_loss_coupling()
-        >>> two_ray.polarization_mismatch = 1.5
-        >>> two_ray.polarization_mismatch
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> tray = cpl.add_two_ray_coupling()
+        >>> tray.polarization_mismatch = 0.0
 
         """
         val = self._get_property("Polarization Mismatch")
@@ -305,11 +342,10 @@ class TwoRayPathLossCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> two_ray = couplings.add_two_ray_path_loss_coupling()
-        >>> two_ray.pointing_error_loss = 0.8
-        >>> two_ray.pointing_error_loss
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> tray = cpl.add_two_ray_coupling()
+        >>> tray.pointing_error_loss = 0.0
 
         """
         val = self._get_property("Pointing Error Loss")
@@ -335,15 +371,17 @@ class TwoRayPathLossCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> two_ray = couplings.add_two_ray_path_loss_coupling()
-        >>> two_ray.fading_type = two_ray.FadingTypeOption.FAST_FADING_ONLY
-        >>> two_ray.fading_type
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> tray = cpl.add_two_ray_coupling()
+        >>> tray.fading_type = TwoRayPathLossCouplingNode.FadingTypeOption.NONE
 
         """
         val = self._get_property("Fading Type")
-        val = self.FadingTypeOption[val.upper()]
+        try:
+            val = self.FadingTypeOption(val)
+        except ValueError:
+            val = self.FadingTypeOption[val.upper()]
         return val
 
     @fading_type.setter
@@ -365,11 +403,11 @@ class TwoRayPathLossCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> two_ray = couplings.add_two_ray_path_loss_coupling()
-        >>> two_ray.fading_availability = 99.9
-        >>> two_ray.fading_availability
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> tray = cpl.add_two_ray_coupling()
+        >>> tray.fading_type = TwoRayPathLossCouplingNode.FadingTypeOption.FAST_FADING_ONLY
+        >>> tray.fading_availability = 90.0
 
         """
         val = self._get_property("Fading Availability")
@@ -391,11 +429,11 @@ class TwoRayPathLossCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> two_ray = couplings.add_two_ray_path_loss_coupling()
-        >>> two_ray.std_deviation = 2.5
-        >>> two_ray.std_deviation
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> tray = cpl.add_two_ray_coupling()
+        >>> tray.fading_type = TwoRayPathLossCouplingNode.FadingTypeOption.SHADOWING_ONLY
+        >>> tray.std_deviation = 8.0
 
         """
         val = self._get_property("Std Deviation")
@@ -417,11 +455,10 @@ class TwoRayPathLossCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> two_ray = couplings.add_two_ray_path_loss_coupling()
-        >>> two_ray.include_rain_attenuation = True
-        >>> two_ray.include_rain_attenuation
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> tray = cpl.add_two_ray_coupling()
+        >>> tray.include_rain_attenuation = False
 
         """
         val = self._get_property("Include Rain Attenuation")
@@ -446,11 +483,11 @@ class TwoRayPathLossCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> two_ray = couplings.add_two_ray_path_loss_coupling()
-        >>> two_ray.rain_availability = 99.95
-        >>> two_ray.rain_availability
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> tray = cpl.add_two_ray_coupling()
+        >>> tray.include_rain_attenuation = True
+        >>> tray.rain_availability = 99.99
 
         """
         val = self._get_property("Rain Availability")
@@ -472,11 +509,11 @@ class TwoRayPathLossCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> two_ray = couplings.add_two_ray_path_loss_coupling()
-        >>> two_ray.rain_rate = 25.0
-        >>> two_ray.rain_rate
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> tray = cpl.add_two_ray_coupling()
+        >>> tray.include_rain_attenuation = True
+        >>> tray.rain_rate = 8.0
 
         """
         val = self._get_property("Rain Rate")
@@ -501,11 +538,11 @@ class TwoRayPathLossCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> two_ray = couplings.add_two_ray_path_loss_coupling()
-        >>> two_ray.polarization_tilt_angle = 45.0
-        >>> two_ray.polarization_tilt_angle
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> tray = cpl.add_two_ray_coupling()
+        >>> tray.include_rain_attenuation = True
+        >>> tray.polarization_tilt_angle = 0.0
 
         """
         val = self._get_property("Polarization Tilt Angle")
@@ -530,11 +567,10 @@ class TwoRayPathLossCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> two_ray = couplings.add_two_ray_path_loss_coupling()
-        >>> two_ray.include_atmospheric_absorption = True
-        >>> two_ray.include_atmospheric_absorption
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> tray = cpl.add_two_ray_coupling()
+        >>> tray.include_atmospheric_absorption = False
 
         """
         val = self._get_property("Include Atmospheric Absorption")
@@ -556,11 +592,11 @@ class TwoRayPathLossCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> two_ray = couplings.add_two_ray_path_loss_coupling()
-        >>> two_ray.temperature = 20.0
-        >>> two_ray.temperature
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> tray = cpl.add_two_ray_coupling()
+        >>> tray.include_atmospheric_absorption = True
+        >>> tray.temperature = 15.0
 
         """
         val = self._get_property("Temperature")
@@ -582,11 +618,11 @@ class TwoRayPathLossCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> two_ray = couplings.add_two_ray_path_loss_coupling()
-        >>> two_ray.total_air_pressure = 1013.0
-        >>> two_ray.total_air_pressure
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> tray = cpl.add_two_ray_coupling()
+        >>> tray.include_atmospheric_absorption = True
+        >>> tray.total_air_pressure = 1013
 
         """
         val = self._get_property("Total Air Pressure")
@@ -608,11 +644,11 @@ class TwoRayPathLossCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.get_revision()
-        >>> couplings = revision.get_coupling_data_node()
-        >>> two_ray = couplings.add_two_ray_path_loss_coupling()
-        >>> two_ray.water_vapor_concentration = 7.5
-        >>> two_ray.water_vapor_concentration
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> tray = cpl.add_two_ray_coupling()
+        >>> tray.include_atmospheric_absorption = True
+        >>> tray.water_vapor_concentration = 7.5
 
         """
         val = self._get_property("Water Vapor Concentration")

@@ -44,11 +44,11 @@ class TxSpurNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> tx_profile = band.children[0]
-        >>> spurs = tx_profile.add_spurious_emissions()
-        >>> spurs.parent
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_spur = spec.add_spurious_emissions()
+        >>> tx_spur.parent
 
         """
         return self._parent
@@ -62,31 +62,43 @@ class TxSpurNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> tx_profile = band.children[0]
-        >>> spurs = tx_profile.add_spurious_emissions()
-        >>> spurs.node_type
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_spur = spec.add_spurious_emissions()
+        >>> tx_spur.node_type
 
         """
         return self._node_type
 
     @min_aedt_version("2025.2")
     def import_csv_file(self, file_name: str) -> EmitNode:
-        """Import a CSV File.
+        """Import a CSV File....
+
+        Note: The CSV file should not have any header lines and must contain only numeric values.
 
         Examples
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> tx_profile = band.children[0]
-        >>> spurs = tx_profile.add_spurious_emissions()
-        >>> spurs.import_csv_file(r"C:\\Measurements\\tx_spurs.csv")
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_spur = spec.add_spurious_emissions()
+        >>> tx_spur.import_csv_file("C:\\EMIT\\data.csv")
 
         """
-        return self._import(file_name, "Csv")
+        return self._import(file_name, "CsvFile")
+
+    @min_aedt_version("2027.1")
+    def export_to_csv(self, file_name: str) -> str:
+        """Export's the data for this node"""
+        return self._export_to_csv(file_name, "", "")
+
+    @min_aedt_version("2027.1")
+    def plot(self):
+        """Bring up a Cartesian plot for this node"""
+        return self._plot("", "")
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
@@ -96,11 +108,11 @@ class TxSpurNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> tx_profile = band.children[0]
-        >>> spurs = tx_profile.add_spurious_emissions()
-        >>> spurs.delete()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_spur = spec.add_spurious_emissions()
+        >>> tx_spur.delete()
 
         """
         self._delete()
@@ -109,8 +121,7 @@ class TxSpurNode(EmitNode):
     @min_aedt_version("2025.2")
     def table_data(self) -> list[tuple]:
         """Spurs Table.
-
-        Table consists of 3 columns:
+        Table consists of 3 columns.
         Frequency (MHz):
             Value should be a mathematical expression.
         Bandwidth:
@@ -122,11 +133,11 @@ class TxSpurNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> tx_profile = band.children[0]
-        >>> spurs = tx_profile.add_spurious_emissions()
-        >>> spurs.table_data = [("RF+10.0", "50 MHz", -60.0)]
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_spur = spec.add_spurious_emissions()
+        >>> tx_spur.table_data = [(2, 25.0)]
 
         """
         return self._get_table_data()
@@ -145,11 +156,11 @@ class TxSpurNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> tx_profile = band.children[0]
-        >>> spurs = tx_profile.add_spurious_emissions()
-        >>> spurs.enabled = True
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_spur = spec.add_spurious_emissions()
+        >>> tx_spur.enabled = True
 
         """
         return self._get_property("Enabled") == "true"
@@ -172,15 +183,18 @@ class TxSpurNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> tx_profile = band.children[0]
-        >>> spurs = tx_profile.add_spurious_emissions()
-        >>> spurs.spur_table_units = spurs.SpurTableUnitsOption.RELATIVE
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_spur = spec.add_spurious_emissions()
+        >>> tx_spur.spur_table_units = TxSpurNode.SpurTableUnitsOption.ABSOLUTE
 
         """
         val = self._get_property("Spur Table Units")
-        val = self.SpurTableUnitsOption[val.upper()]
+        try:
+            val = self.SpurTableUnitsOption(val)
+        except ValueError:
+            val = self.SpurTableUnitsOption[val.upper()]
         return val
 
     @spur_table_units.setter

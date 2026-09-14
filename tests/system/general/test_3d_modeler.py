@@ -355,10 +355,12 @@ def test_create_object_list(coaxial) -> None:
     assert coaxial.modeler.create_object_list(["Core", "outer"])
     coaxial.modeler.user_lists[-1].props["List"] = ["outer", "Core", "inner"]
     coaxial.modeler.user_lists[-1].auto_update = False
+
     fl = coaxial.modeler.get_object_faces("Core")
     coaxial.modeler.user_lists[-1].props["Type"] = "Face"
     coaxial.modeler.user_lists[-1].props["List"] = fl
     coaxial.modeler.user_lists[-1].update()
+
     assert coaxial.modeler.user_lists[-1].rename("new_list")
     assert coaxial.modeler.user_lists[-1].delete()
     assert coaxial.modeler.create_object_list(["Core", "outer"])

@@ -35,6 +35,8 @@ Examples
 
 """
 
+from __future__ import annotations
+
 import atexit
 import datetime
 from difflib import get_close_matches
@@ -65,6 +67,7 @@ from ansys.aedt.core.generic.general_methods import _is_port_occupied
 from ansys.aedt.core.generic.general_methods import _is_version_format_valid
 from ansys.aedt.core.generic.general_methods import _normalize_version_to_string
 from ansys.aedt.core.generic.general_methods import active_sessions
+from ansys.aedt.core.generic.general_methods import all_active_sessions
 from ansys.aedt.core.generic.general_methods import com_active_sessions
 from ansys.aedt.core.generic.general_methods import grpc_active_sessions
 from ansys.aedt.core.generic.general_methods import inside_desktop_ironpython_console
@@ -437,10 +440,7 @@ def launch_aedt(
     timeout = settings.desktop_launch_timeout
     start = time.time()
     while timeout > 0:
-        if is_grpc_session_active(
-            port,
-            host,
-        ):
+        if is_grpc_session_active(port, host, student_version):
             break
         timeout -= 1
         time.sleep(1)
@@ -799,7 +799,7 @@ class Desktop(PyAedtBase):
         )
         self.__close_on_exit_arg = close_on_exit
         self.__machine = machine if machine else None
-        self.__port = port
+        self.__port = port if port is not None else 0
         self.__is_grpc_api = True
         self.__student_version = False
         self.__aedt_version_string = ""
@@ -1030,8 +1030,6 @@ class Desktop(PyAedtBase):
         >>> d.port
 
         """
-        if not self.__port:
-            self._assign_port()
         return self.__port
 
     @port.setter
@@ -1137,7 +1135,7 @@ class Desktop(PyAedtBase):
             self.logger.debug(f"Available sessions: {sessions}")
             if self.aedt_process_id in sessions:
                 if sessions[self.aedt_process_id] != -1:
-                    self.port = sessions[self.aedt_process_id]
+                    self.__port = sessions[self.aedt_process_id]
                     self.__starting_mode = "grpc"
                 else:
                     self.__starting_mode = "com"
@@ -2016,12 +2014,12 @@ class Desktop(PyAedtBase):
         return str(ex_value)
 
     @pyaedt_function_handler()
-    def load_project(self, project_file: str, design_name: str | None = None) -> bool | object:
+    def load_project(self, project_file: str | Path, design_name: str | None = None) -> bool | object:
         """Open an AEDT project based on a project and optional design.
 
         Parameters
         ----------
-        project_file : str
+        project_file : str or :class:`pathlib.Path`
             Full path and name for the project.
         design_name : str, optional
             Design name. The default is ``None``.
@@ -2042,19 +2040,26 @@ class Desktop(PyAedtBase):
         >>> desktop.load_project(project_file=r"C:\\Projects\\MyProject.aedt")
 
         """
-        if Path(project_file).stem in self.project_list:
-            proj = self.active_project(Path(project_file).stem)
+        project_file = Path(project_file)
+        project_file_stem = project_file.stem
+
+        if project_file_stem in self.project_list:
+            proj = self.active_project(project_file_stem)
         else:
-            lock_file = project_file + ".lock"
-            if os.path.exists(lock_file):
+            lock_file = str(project_file) + ".lock"
+            if Path(lock_file).exists():
                 raise RuntimeError("Project is locked. Close or remove the lock before proceeding.")
-            proj = self.odesktop.OpenProject(project_file)
+            proj = self.odesktop.OpenProject(str(project_file))
         if proj:
             active_design = self.active_design(proj)
             if design_name and design_name in proj.GetChildNames():  # pragma: no cover
                 return self[[proj.GetName(), design_name]]
             elif active_design:
-                return self[[proj.GetName(), active_design.GetName()]]
+                aedt_design_name = active_design.GetName()
+                if ";" in aedt_design_name:
+                    # This is for circuit and layout designs
+                    aedt_design_name = aedt_design_name.split(";")[1]
+                return self[[proj.GetName(), aedt_design_name]]
             return True
         else:  # pragma: no cover
             return False
@@ -2162,8 +2167,22 @@ class Desktop(PyAedtBase):
         return True
 
     def __del__(self):
-        """Release AEDT and delete PyAEDT object."""
-        self.__release_and_close_desktop(self.close_on_exit, self.close_on_exit)
+        """Release AEDT and delete PyAEDT object.
+
+        Destructors must never raise. Use getattr with defaults and suppress
+        all exceptions to avoid unraisable exceptions during interpreter
+        shutdown or when objects are only partially initialized.
+        """
+        try:
+            close_val = getattr(self, "close_on_exit", getattr(self, "_Desktop__close_on_exit", True))
+            try:
+                self.__release_and_close_desktop(close_val, close_val)
+            except Exception:  # nosec B110
+                # Suppress exceptions raised during cleanup in destructor
+                pass
+        except Exception:  # nosec B110
+            # Defensive: ensure destructor never raises
+            return
 
     @pyaedt_function_handler()
     def __release_and_close_desktop(self, close_projects, close_aedt_app):
@@ -3063,7 +3082,7 @@ class Desktop(PyAedtBase):
             oapp = self.grpc_plugin.CreateAedtApplication(
                 server_args.client_machine, self.port, self.non_graphical, new_desktop_required
             )
-            self.port = self.grpc_plugin.port
+            self.__port = self.grpc_plugin.port
             self.aedt_process_id = self.odesktop.GetProcessID()
 
             return oapp
@@ -3085,23 +3104,57 @@ class Desktop(PyAedtBase):
         self.machine = "127.0.0.1"
 
     @pyaedt_function_handler()
-    def _validate_port(self, port, machine=None):
+    def _validate_port(
+        self,
+    ):
         """Validate the specified gRPC port.
 
         On top of checking the port, this method also determines if a new AEDT session
         needs to be launched.
         """
-        self.logger.debug(f"Validating specified gRPC port: {port}")
-        if port == 0:
-            return port
-        active_ports = is_grpc_session_active(port, machine)
-        if self.new_desktop and active_ports:
-            self.logger.warning(f"Port {port} is already in use. Finding a new free port.")
-            return _find_free_port()
-        elif not settings.remote_rpc_session and not self.new_desktop and not active_ports:
-            self.logger.warning(f"No active AEDT gRPC session found on port {port}. Opening a new AEDT session.")
+        self.logger.debug(f"Validating specified gRPC port: {self.port}")
+
+        if self.port == 0:  # Checking if available session is there or eventually assign new port
+            self._assign_port()
+            return self.port
+        all_sessions = all_active_sessions()
+        base = self.aedt_version_id[2:4] + self.aedt_version_id[5]
+        student = "_student" if self.student_version else ""
+        mode, mode_neg = ("_nongraphical", "_graphical") if self.non_graphical else ("_graphical", "_nongraphical")
+        version = f"{base}{mode}{student}"
+        version_neg = f"{base}{mode_neg}{student}"
+
+        if self.new_desktop:
+            for el in all_sessions.values():
+                if self.port in el.values():
+                    self.logger.warning(f"Port {self.port} is already in use. Finding a new free port.")
+                    self.__port = _find_free_port()
+                    break
+            return self.port
+        elif settings.remote_rpc_session:  # remote session -> no port check
+            self.logger.warning("Remote session activated, no port checking.")
+            self.new_desktop = False
+            return self.port
+        elif version in all_sessions and self.port in all_sessions[version].values():
+            self.logger.info(f"Port {self.port} session has been found.")
+            return self.port
+        elif version_neg in all_sessions and self.port in all_sessions[version_neg].values():
+            mode = "graphical" if self.non_graphical else "non_graphical"
+            self.logger.warning(f"Port {self.port} is already in use in {mode} mode. Using it.")
+            self.non_graphical = not self.non_graphical
+            return self.port
+        else:
+            for el in all_sessions.values():
+                if self.port in el.values():
+                    self.logger.warning(
+                        f"Port {self.port} is already in use by another AEDT version. Finding a new free port."
+                    )
+                    self.new_desktop = True
+                    self.__port = _find_free_port()
+                    return self.port
+            # No active sessions found, open a new AEDT session
             self.new_desktop = True
-        return port
+            return self.port
 
     @pyaedt_function_handler()
     def _assign_port(self):
@@ -3112,11 +3165,11 @@ class Desktop(PyAedtBase):
             )
             try:
                 self.__port = settings.remote_rpc_session.port
-            except Exception:
+            except Exception:  # pragma: no cover
                 self.logger.debug("Failed to retrieve port from RPyC connection")
                 raise Exception("Failed to retrieve port from RPyC connection")
 
-        if settings.use_multi_desktop or self.new_desktop:
+        elif settings.use_multi_desktop or self.new_desktop:
             self.__port = _find_free_port()
             self.logger.info(f"New AEDT session is starting on gRPC port {self.port}.")
 
@@ -3285,23 +3338,14 @@ class Desktop(PyAedtBase):
                 lock_file = self._on_ci_generate_lock_file()
 
             # Validate port availability/compatibility
-            try:
-                self.__port = self._validate_port(self.port)
-            except Exception:
-                # NOTE: When we can't validate the port and are not in a
-                # remote RPC session, we try to launch a new instance by default.
-                self.logger.warning(f"Could not validate port {self.port}")
-                if not settings.remote_rpc_session:
-                    self.logger.info("Opening a new AEDT session.")
-                    self.new_desktop = True
+            self._validate_port()
 
-            self.__port = self._validate_port(self.port, self.machine)
             is_launched = True
             # Launch new AEDT instance if needed
             if self.new_desktop:
                 self.logger.info(f"Starting new AEDT gRPC session on port {self.port}.")
                 # Spawn AEDT process with gRPC server arguments
-                is_launched, self.port = launch_aedt(
+                is_launched, self.__port = launch_aedt(
                     installer, self.non_graphical, self.port, self.student_version, host=self.machine
                 )
                 if not is_launched:

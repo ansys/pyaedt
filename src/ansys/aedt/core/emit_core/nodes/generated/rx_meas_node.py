@@ -40,6 +40,11 @@ class RxMeasNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_meas = band.import_rx_measurement("C:\\Measurements\\rx.csv")
         >>> rx_meas.parent
 
         """
@@ -52,6 +57,11 @@ class RxMeasNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_meas = band.import_rx_measurement("C:\\Measurements\\rx.csv")
         >>> rx_meas.node_type
 
         """
@@ -63,6 +73,11 @@ class RxMeasNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_meas = band.import_rx_measurement("C:\\Measurements\\rx.csv")
         >>> rx_meas.delete()
 
         """
@@ -77,6 +92,11 @@ class RxMeasNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_meas = band.import_rx_measurement("C:\\Measurements\\rx.csv")
         >>> rx_meas.file
 
         """
@@ -90,6 +110,11 @@ class RxMeasNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_meas = band.import_rx_measurement("C:\\Measurements\\rx.csv")
         >>> rx_meas.receive_frequency
 
         """
@@ -106,7 +131,12 @@ class RxMeasNode(EmitNode):
 
         Examples
         --------
-        >>> rx_meas.exclude_mixer_products_below_noise = True
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_meas = band.import_rx_measurement("C:\\Measurements\\rx.csv")
+        >>> rx_meas.exclude_mixer_products_below_noise = False
 
         """
         val = self._get_property("Exclude Mixer Products Below Noise")
@@ -124,7 +154,12 @@ class RxMeasNode(EmitNode):
 
         Examples
         --------
-        >>> rx_meas.enabled = False
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_meas = band.import_rx_measurement("C:\\Measurements\\rx.csv")
+        >>> rx_meas.enabled = True
 
         """
         return self._get_property("Enabled") == "true"

@@ -27,7 +27,7 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class BandFolder(EmitNode):
-    """Provide band folder."""  # noqa: D203
+    """Provide band folder."""
 
     def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
@@ -42,9 +42,9 @@ class BandFolder(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> radio = app.schematic.create_component("New Radio", name="Radio1")
-        >>> folder = radio.add_folder()
-        >>> folder.parent
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band_folder = radio.add_folder()
+        >>> band_folder.parent
 
         """
         return self._parent
@@ -58,24 +58,24 @@ class BandFolder(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> radio = app.schematic.create_component("New Radio", name="Radio1")
-        >>> folder = radio.add_folder()
-        >>> folder.node_type
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band_folder = radio.add_folder()
+        >>> band_folder.node_type
 
         """
         return self._node_type
 
     @min_aedt_version("2025.2")
     def add_band(self) -> EmitNode:
-        """Create a New Band
+        """Create a New Band.
 
         Examples
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> radio = app.schematic.create_component("New Radio", name="Radio1")
-        >>> folder = radio.add_folder()
-        >>> band = folder.add_band()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band_folder = radio.add_folder()
+        >>> band = band_folder.add_band()
 
         """
         return self._add_child_node("Band")
@@ -88,9 +88,9 @@ class BandFolder(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> radio = app.schematic.create_component("New Radio", name="Radio1")
-        >>> folder = radio.add_folder()
-        >>> folder_copy = folder.duplicate("BandFolder1")
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band_folder = radio.add_folder()
+        >>> band_folder_copy = band_folder.duplicate("band_folder_copy")
 
         """
         return self._duplicate(new_name)
@@ -103,9 +103,9 @@ class BandFolder(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> radio = app.schematic.create_component("New Radio", name="Radio1")
-        >>> folder = radio.add_folder()
-        >>> folder.delete()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band_folder = radio.add_folder()
+        >>> band_folder.delete()
 
         """
         self._delete()

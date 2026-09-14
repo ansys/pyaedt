@@ -50,6 +50,23 @@ is_linux = os.name == "posix"
 """Flag indicating whether linux is enabled."""
 
 
+def aedt_python_version(version):
+    """Return the AEDT Python version.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.templates.pyaedt_utils import aedt_python_version
+    >>> python_version = aedt_python_version("261")
+
+    """
+    python_version = "3_13"
+    if version <= "231":
+        python_version = "3_7"
+    elif version <= "261":
+        python_version = "3_10"
+    return python_version
+
+
 def sanitize_interpreter_path(interpreter_path, version):
     """Sanitize the interpreter path.
 
@@ -62,11 +79,16 @@ def sanitize_interpreter_path(interpreter_path, version):
     ... )
 
     """
-    python_version = "3_10" if version > "231" else "3_7"
-    if version > "231" and python_version not in interpreter_path:
+    python_version = aedt_python_version(version)
+    if version > "231" and version <= "261" and python_version not in interpreter_path:
         interpreter_path = interpreter_path.replace("3_7", "3_10")
+        interpreter_path = interpreter_path.replace("3_13", "3_10")
     elif version <= "231" and python_version not in interpreter_path:
         interpreter_path = interpreter_path.replace("3_10", "3_7")
+        interpreter_path = interpreter_path.replace("3_13", "3_7")
+    elif version >= "271" and python_version not in interpreter_path:
+        interpreter_path = interpreter_path.replace("3_10", "3_13")
+        interpreter_path = interpreter_path.replace("3_7", "3_13")
     return interpreter_path
 
 
@@ -194,27 +216,17 @@ def environment_variables(oDesktop):
 
         reduced_version = version[2:].replace(".", "")
         os.environ["ANSYSEM_ROOT{}".format(reduced_version)] = edt_root
+        python_version = aedt_python_version(reduced_version)
 
-        if version > "2023.1":
-            os.environ["TCL_LIBRARY"] = os.path.join(
-                "{}/commonfiles/CPython/3_10/linx64/Release/python/lib".format(edt_root), "tcl8.5"
-            )
-            os.environ["TK_LIBRARY"] = os.path.join(
-                "{}/commonfiles/CPython/3_10/linx64/Release/python/lib".format(edt_root), "tk8.5"
-            )
-            os.environ["TKPATH"] = os.path.join(
-                "{}/commonfiles/CPython/3_10/linx64/Release/python/lib".format(edt_root), "tk8.5"
-            )
-        else:
-            os.environ["TCL_LIBRARY"] = os.path.join(
-                "{}/commonfiles/CPython/3_7/linx64/Release/python/lib".format(edt_root), "tcl8.5"
-            )
-            os.environ["TK_LIBRARY"] = os.path.join(
-                "{}/commonfiles/CPython/3_7/linx64/Release/python/lib".format(edt_root), "tk8.5"
-            )
-            os.environ["TKPATH"] = os.path.join(
-                "{}/commonfiles/CPython/3_7/linx64/Release/python/lib".format(edt_root), "tk8.5"
-            )
+        os.environ["TCL_LIBRARY"] = os.path.join(
+            "{}/commonfiles/CPython/{}/linx64/Release/python/lib".format(edt_root, python_version), "tcl8.5"
+        )
+        os.environ["TK_LIBRARY"] = os.path.join(
+            "{}/commonfiles/CPython/{}/linx64/Release/python/lib".format(edt_root, python_version), "tk8.5"
+        )
+        os.environ["TKPATH"] = os.path.join(
+            "{}/commonfiles/CPython/{}/linx64/Release/python/lib".format(edt_root, python_version), "tk8.5"
+        )
 
 
 def generate_unique_name(root_name, suffix="", n=6):

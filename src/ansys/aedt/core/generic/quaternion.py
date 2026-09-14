@@ -24,7 +24,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 import math
+from typing import SupportsFloat
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -68,14 +70,14 @@ class Quaternion(PyAedtBase):
 
     """
 
-    def __init__(self, a: int = 0, b: int = 0, c: int = 0, d: int = 0) -> None:
+    def __init__(self, a: SupportsFloat = 0, b: SupportsFloat = 0, c: SupportsFloat = 0, d: SupportsFloat = 0) -> None:
         """Initialize the quaternion.
 
         Quaternions are created using ``Quaternion(a, b, c, d)``, representing the form q = a + bi + cj + dk.
 
         Parameters
         ----------
-        a, b, c, d : float
+        a, b, c, d : SupportsFloat
             The quaternion coefficients.
         """
         try:
@@ -189,9 +191,9 @@ class Quaternion(PyAedtBase):
         i, j, k = sequence.lower()
 
         # converting the sequence into indexes
-        ei = [1 if n == i else 0 for n in "xyz"]
-        ej = [1 if n == j else 0 for n in "xyz"]
-        ek = [1 if n == k else 0 for n in "xyz"]
+        ei = [1.0 if n == i else 0.0 for n in "xyz"]
+        ej = [1.0 if n == j else 0.0 for n in "xyz"]
+        ek = [1.0 if n == k else 0.0 for n in "xyz"]
 
         # evaluate the quaternions
         qi = cls.from_axis_angle(ei, angles[0])
@@ -222,7 +224,7 @@ class Quaternion(PyAedtBase):
 
         Note
         ----
-        Tait–Bryan angles (Heading, Pitch, Bank) correspond to an intrinsic "ZYX" sequence.
+        Tait-Bryan angles (Heading, Pitch, Bank) correspond to an intrinsic "ZYX" sequence.
 
         Returns
         -------
@@ -252,7 +254,7 @@ class Quaternion(PyAedtBase):
         if MathUtils.is_zero(self.norm()):
             raise ValueError('A quaternion with norm 0 cannot be converted.')
 
-        angles = [0, 0, 0]
+        angles: list[float] = [0.0, 0.0, 0.0]
 
         i, j, k = sequence.lower()
 
@@ -319,19 +321,19 @@ class Quaternion(PyAedtBase):
             angles[0] *= sign
 
         if extrinsic:
-            return tuple(angles[::-1])
+            return (angles[2], angles[1], angles[0])
         else:
-            return tuple(angles)
+            return (angles[0], angles[1], angles[2])
         # fmt: on
 
     @classmethod
     @pyaedt_function_handler()
-    def from_axis_angle(cls, axis: list[float] | tuple[float, float, float], angle: float) -> "Quaternion":
+    def from_axis_angle(cls, axis: Sequence[float], angle: float) -> "Quaternion":
         """Creates a normalized rotation quaternion from a given axis and rotation angle.
 
         Parameters
         ----------
-        axis : List or tuple of float
+        axis : Sequence[float]
             A 3D vector representing the axis of rotation.
         angle : float
             The rotation angle in radians.
@@ -407,13 +409,13 @@ class Quaternion(PyAedtBase):
 
     @classmethod
     @pyaedt_function_handler()
-    def from_rotation_matrix(cls, rotation_matrix: list | tuple) -> "Quaternion":
+    def from_rotation_matrix(cls, rotation_matrix: Sequence[Sequence[float]]) -> "Quaternion":
         """Converts a 3x3 rotation matrix to a quaternion.
         It uses the method described in [1].
 
         Parameters
         ----------
-        rotation_matrix: List or tuple
+        rotation_matrix: Sequence[Sequence[float]]
             Rotation matrix defined as a list of lists or a tuple of tuples.
             The matrix should be 3x3 and orthogonal.
             The matrix is assumed to be in the form:
@@ -533,13 +535,13 @@ class Quaternion(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def rotation_matrix_to_axis(rotation_matrix: list | tuple) -> tuple:
+    def rotation_matrix_to_axis(rotation_matrix: Sequence[Sequence[float]]) -> tuple:
         """Convert a rotation matrix to the corresponding axis of rotation.
 
         Parameters
         ----------
-        rotation_matrix : tuple of tuples or list of lists
-            A 3x3 rotation matrix defined as a tuple of tuples or a list of lists.
+        rotation_matrix : Sequence[Sequence[float]]
+            A 3x3 rotation matrix defined that can be defined as a tuple of tuples or a list of lists.
             The matrix should be orthogonal.
 
         Returns
@@ -571,9 +573,9 @@ class Quaternion(PyAedtBase):
         m10, m11, m12 = rotation_matrix[1]
         m20, m21, m22 = rotation_matrix[2]
 
-        x = tuple(GeometryOperators.normalize_vector((m00, m10, m20)))
-        y = tuple(GeometryOperators.normalize_vector((m01, m11, m21)))
-        z = tuple(GeometryOperators.normalize_vector((m02, m12, m22)))
+        x = tuple(GeometryOperators.normalize_vector([m00, m10, m20]))
+        y = tuple(GeometryOperators.normalize_vector([m01, m11, m21]))
+        z = tuple(GeometryOperators.normalize_vector([m02, m12, m22]))
 
         return x, y, z
 

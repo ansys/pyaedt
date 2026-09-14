@@ -25,11 +25,12 @@
 from enum import Enum
 
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+from ansys.aedt.core.emit_core.nodes.generated import AntennaNode
 from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class FiveGChannelModel(EmitNode):
-    """Provide five G channel model."""
+    """Provide five g channel model."""
 
     def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
@@ -44,11 +45,10 @@ class FiveGChannelModel(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio1", "Ant1")
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio2", "Ant2")
-        >>> rev = app.results.analyze()
-        >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
-        >>> coupling_node.parent
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> fivg = cpl.add_5g_channel_model_coupling()
+        >>> fivg.parent
 
         """
         return self._parent
@@ -62,14 +62,60 @@ class FiveGChannelModel(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio1", "Ant1")
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio2", "Ant2")
-        >>> rev = app.results.analyze()
-        >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
-        >>> coupling_node.node_type
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> fivg = cpl.add_5g_channel_model_coupling()
+        >>> fivg.node_type
 
         """
         return self._node_type
+
+    @min_aedt_version("2027.1")
+    def export_to_csv(
+        self, file_name: str, antennas: tuple[AntennaNode, AntennaNode] | None = None, ports: str = ""
+    ) -> str:
+        """Export's the data for this node
+
+        Parameters
+        ----------
+        file_name: str[optional]
+            full path to the file to export to.
+        antennas: tuple(AntennaNode, AntennaNode), optional
+            tuple of antenna nodes to pull the selected Tx and Rx antenna names from for the export.
+            If not specified, will use the names specified by the ports parameter.
+        ports: str, optional
+            the ports to export the data for.
+
+        Returns
+        -------
+        csv_data: str
+            stringified data for the node returned if file_name not specified
+        """
+        if antennas is not None and all(isinstance(x, AntennaNode) for x in antennas):
+            a1, a2 = antennas
+            vals = f"{a1.name}|{a2.name}"
+        else:
+            vals = f"{ports}"
+        return self._export_to_csv(file_name, "SelectedRxAntenna|SelectedTxAntenna", vals)
+
+    @min_aedt_version("2027.1")
+    def plot(self, antennas: tuple[AntennaNode, AntennaNode] | None = None, ports: str = ""):
+        """Bring up a Cartesian plot for this node
+
+        Parameters
+        ----------
+        antennas: tuple(AntennaNode, AntennaNode), optional
+            tuple of antenna nodes to pull the selected Tx and Rx antenna names from for the export.
+            If not specified, will use the names specified by the ports parameter.
+        ports: str, optional
+            the ports to export the data for.
+        """
+        if antennas is not None and all(isinstance(x, AntennaNode) for x in antennas):
+            a1, a2 = antennas
+            vals = f"{a1.name}|{a2.name}"
+        else:
+            vals = f"{ports}"
+        return self._plot("SelectedRxAntenna|SelectedTxAntenna", vals)
 
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
@@ -79,11 +125,10 @@ class FiveGChannelModel(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio1", "Ant1")
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio2", "Ant2")
-        >>> rev = app.results.analyze()
-        >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
-        >>> coupling_copy = coupling_node.duplicate("5G Channel Model Coupling 2")
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> fivg = cpl.add_5g_channel_model_coupling()
+        >>> fivg_copy = fivg.duplicate("fivg_copy")
 
         """
         return self._duplicate(new_name)
@@ -96,11 +141,10 @@ class FiveGChannelModel(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio1", "Ant1")
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio2", "Ant2")
-        >>> rev = app.results.analyze()
-        >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
-        >>> coupling_node.delete()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> fivg = cpl.add_5g_channel_model_coupling()
+        >>> fivg.delete()
 
         """
         self._delete()
@@ -116,11 +160,10 @@ class FiveGChannelModel(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio1", "Ant1")
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio2", "Ant2")
-        >>> rev = app.results.analyze()
-        >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
-        >>> coupling_node.enabled = False
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> fivg = cpl.add_5g_channel_model_coupling()
+        >>> fivg.enabled = True
 
         """
         val = self._get_property("Enabled")
@@ -140,11 +183,10 @@ class FiveGChannelModel(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio1", "Ant1")
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio2", "Ant2")
-        >>> rev = app.results.analyze()
-        >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
-        >>> coupling_node.base_antenna = rev.get_component_node("Ant1")
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> fivg = cpl.add_5g_channel_model_coupling()
+        >>> fivg.base_antenna
 
         """
         val = self._get_property("Base Antenna")
@@ -164,11 +206,10 @@ class FiveGChannelModel(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio1", "Ant1")
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio2", "Ant2")
-        >>> rev = app.results.analyze()
-        >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
-        >>> coupling_node.mobile_antenna = rev.get_component_node("Ant2")
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> fivg = cpl.add_5g_channel_model_coupling()
+        >>> fivg.mobile_antenna
 
         """
         val = self._get_property("Mobile Antenna")
@@ -193,15 +234,17 @@ class FiveGChannelModel(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio1", "Ant1")
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio2", "Ant2")
-        >>> rev = app.results.analyze()
-        >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
-        >>> coupling_node.environment = coupling_node.EnvironmentOption.URBAN_MACROCELL
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> fivg = cpl.add_5g_channel_model_coupling()
+        >>> fivg.environment = FiveGChannelModel.EnvironmentOption.URBAN_MICROCELL
 
         """
         val = self._get_property("Environment")
-        val = self.EnvironmentOption[val.upper()]
+        try:
+            val = self.EnvironmentOption(val)
+        except ValueError:
+            val = self.EnvironmentOption[val.upper()]
         return val
 
     @environment.setter
@@ -220,11 +263,10 @@ class FiveGChannelModel(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio1", "Ant1")
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio2", "Ant2")
-        >>> rev = app.results.analyze()
-        >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
-        >>> coupling_node.los = True
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> fivg = cpl.add_5g_channel_model_coupling()
+        >>> fivg.los = False
 
         """
         val = self._get_property("LOS")
@@ -246,11 +288,10 @@ class FiveGChannelModel(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio1", "Ant1")
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio2", "Ant2")
-        >>> rev = app.results.analyze()
-        >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
-        >>> coupling_node.include_bpl = True
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> fivg = cpl.add_5g_channel_model_coupling()
+        >>> fivg.include_bpl = False
 
         """
         val = self._get_property("Include BPL")
@@ -274,15 +315,18 @@ class FiveGChannelModel(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio1", "Ant1")
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio2", "Ant2")
-        >>> rev = app.results.analyze()
-        >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
-        >>> coupling_node.nyu_bpl_model = coupling_node.NYUBPLModelOption.HIGH_LOSS_MODEL
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> fivg = cpl.add_5g_channel_model_coupling()
+        >>> fivg.include_bpl = True
+        >>> fivg.nyu_bpl_model = FiveGChannelModel.NYUBPLModelOption.LOW_LOSS_MODEL
 
         """
         val = self._get_property("NYU BPL Model")
-        val = self.NYUBPLModelOption[val.upper()]
+        try:
+            val = self.NYUBPLModelOption(val)
+        except ValueError:
+            val = self.NYUBPLModelOption[val.upper()]
         return val
 
     @nyu_bpl_model.setter
@@ -304,11 +348,10 @@ class FiveGChannelModel(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio1", "Ant1")
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio2", "Ant2")
-        >>> rev = app.results.analyze()
-        >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
-        >>> coupling_node.custom_fading_margin = 3.0
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> fivg = cpl.add_5g_channel_model_coupling()
+        >>> fivg.custom_fading_margin = 0.0
 
         """
         val = self._get_property("Custom Fading Margin")
@@ -333,11 +376,10 @@ class FiveGChannelModel(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio1", "Ant1")
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio2", "Ant2")
-        >>> rev = app.results.analyze()
-        >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
-        >>> coupling_node.polarization_mismatch = 1.5
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> fivg = cpl.add_5g_channel_model_coupling()
+        >>> fivg.polarization_mismatch = 0.0
 
         """
         val = self._get_property("Polarization Mismatch")
@@ -362,11 +404,10 @@ class FiveGChannelModel(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio1", "Ant1")
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio2", "Ant2")
-        >>> rev = app.results.analyze()
-        >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
-        >>> coupling_node.pointing_error_loss = 2.0
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> fivg = cpl.add_5g_channel_model_coupling()
+        >>> fivg.pointing_error_loss = 0.0
 
         """
         val = self._get_property("Pointing Error Loss")
@@ -392,15 +433,17 @@ class FiveGChannelModel(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio1", "Ant1")
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio2", "Ant2")
-        >>> rev = app.results.analyze()
-        >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
-        >>> coupling_node.fading_type = coupling_node.FadingTypeOption.FAST_FADING_AND_SHADOWING
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> fivg = cpl.add_5g_channel_model_coupling()
+        >>> fivg.fading_type = FiveGChannelModel.FadingTypeOption.NONE
 
         """
         val = self._get_property("Fading Type")
-        val = self.FadingTypeOption[val.upper()]
+        try:
+            val = self.FadingTypeOption(val)
+        except ValueError:
+            val = self.FadingTypeOption[val.upper()]
         return val
 
     @fading_type.setter
@@ -422,11 +465,11 @@ class FiveGChannelModel(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio1", "Ant1")
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio2", "Ant2")
-        >>> rev = app.results.analyze()
-        >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
-        >>> coupling_node.fading_availability = 99.0
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> fivg = cpl.add_5g_channel_model_coupling()
+        >>> fivg.fading_type = FiveGChannelModel.FadingTypeOption.FAST_FADING_ONLY
+        >>> fivg.fading_availability = 90.0
 
         """
         val = self._get_property("Fading Availability")
@@ -448,11 +491,11 @@ class FiveGChannelModel(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio1", "Ant1")
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio2", "Ant2")
-        >>> rev = app.results.analyze()
-        >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
-        >>> coupling_node.std_deviation = 6.0
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> fivg = cpl.add_5g_channel_model_coupling()
+        >>> fivg.fading_type = FiveGChannelModel.FadingTypeOption.SHADOWING_ONLY
+        >>> fivg.std_deviation = 8.0
 
         """
         val = self._get_property("Std Deviation")
@@ -474,11 +517,10 @@ class FiveGChannelModel(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio1", "Ant1")
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio2", "Ant2")
-        >>> rev = app.results.analyze()
-        >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
-        >>> coupling_node.include_rain_attenuation = True
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> fivg = cpl.add_5g_channel_model_coupling()
+        >>> fivg.include_rain_attenuation = True
 
         """
         val = self._get_property("Include Rain Attenuation")
@@ -503,11 +545,11 @@ class FiveGChannelModel(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio1", "Ant1")
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio2", "Ant2")
-        >>> rev = app.results.analyze()
-        >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
-        >>> coupling_node.rain_availability = 99.9
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> fivg = cpl.add_5g_channel_model_coupling()
+        >>> fivg.include_rain_attenuation = True
+        >>> fivg.rain_availability = 99.99
 
         """
         val = self._get_property("Rain Availability")
@@ -529,11 +571,11 @@ class FiveGChannelModel(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio1", "Ant1")
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio2", "Ant2")
-        >>> rev = app.results.analyze()
-        >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
-        >>> coupling_node.rain_rate = 25.0
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> fivg = cpl.add_5g_channel_model_coupling()
+        >>> fivg.include_rain_attenuation = True
+        >>> fivg.rain_rate = 8.0
 
         """
         val = self._get_property("Rain Rate")
@@ -558,11 +600,11 @@ class FiveGChannelModel(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio1", "Ant1")
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio2", "Ant2")
-        >>> rev = app.results.analyze()
-        >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
-        >>> coupling_node.polarization_tilt_angle = 45.0
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> fivg = cpl.add_5g_channel_model_coupling()
+        >>> fivg.include_rain_attenuation = True
+        >>> fivg.polarization_tilt_angle = 0.0
 
         """
         val = self._get_property("Polarization Tilt Angle")
@@ -587,11 +629,10 @@ class FiveGChannelModel(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio1", "Ant1")
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio2", "Ant2")
-        >>> rev = app.results.analyze()
-        >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
-        >>> coupling_node.include_atmospheric_absorption = True
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> fivg = cpl.add_5g_channel_model_coupling()
+        >>> fivg.include_atmospheric_absorption = True
 
         """
         val = self._get_property("Include Atmospheric Absorption")
@@ -613,11 +654,11 @@ class FiveGChannelModel(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio1", "Ant1")
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio2", "Ant2")
-        >>> rev = app.results.analyze()
-        >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
-        >>> coupling_node.temperature = 20.0
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> fivg = cpl.add_5g_channel_model_coupling()
+        >>> fivg.include_atmospheric_absorption = True
+        >>> fivg.temperature = 15.0
 
         """
         val = self._get_property("Temperature")
@@ -639,11 +680,11 @@ class FiveGChannelModel(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio1", "Ant1")
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio2", "Ant2")
-        >>> rev = app.results.analyze()
-        >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
-        >>> coupling_node.total_air_pressure = 1013.0
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> fivg = cpl.add_5g_channel_model_coupling()
+        >>> fivg.include_atmospheric_absorption = True
+        >>> fivg.total_air_pressure = 1013
 
         """
         val = self._get_property("Total Air Pressure")
@@ -665,11 +706,11 @@ class FiveGChannelModel(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio1", "Ant1")
-        >>> app.modeler.components.create_radio_antenna("Bluetooth", "Radio2", "Ant2")
-        >>> rev = app.results.analyze()
-        >>> coupling_node = rev.get_coupling_data_node().add_5g_channel_model_coupling()
-        >>> coupling_node.water_vapor_concentration = 7.5
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> fivg = cpl.add_5g_channel_model_coupling()
+        >>> fivg.include_atmospheric_absorption = True
+        >>> fivg.water_vapor_concentration = 7.5
 
         """
         val = self._get_property("Water Vapor Concentration")

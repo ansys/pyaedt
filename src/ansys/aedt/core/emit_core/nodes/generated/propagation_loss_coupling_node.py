@@ -25,6 +25,7 @@
 from enum import Enum
 
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+from ansys.aedt.core.emit_core.nodes.generated import AntennaNode
 from ansys.aedt.core.internal.checks import min_aedt_version
 
 
@@ -44,9 +45,10 @@ class PropagationLossCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> coupling = revision.get_coupling_data_node().add_path_loss_coupling()
-        >>> coupling.parent
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> prop = cpl.add_prop_loss_coupling()
+        >>> prop.parent
 
         """
         return self._parent
@@ -60,12 +62,60 @@ class PropagationLossCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> coupling = revision.get_coupling_data_node().add_path_loss_coupling()
-        >>> coupling.node_type
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> prop = cpl.add_prop_loss_coupling()
+        >>> prop.node_type
 
         """
         return self._node_type
+
+    @min_aedt_version("2027.1")
+    def export_to_csv(
+        self, file_name: str, antennas: tuple[AntennaNode, AntennaNode] | None = None, ports: str = ""
+    ) -> str:
+        """Export's the data for this node
+
+        Parameters
+        ----------
+        file_name: str[optional]
+            full path to the file to export to.
+        antennas: tuple(AntennaNode, AntennaNode), optional
+            tuple of antenna nodes to pull the selected Tx and Rx antenna names from for the export.
+            If not specified, will use the names specified by the ports parameter.
+        ports: str, optional
+            the ports to export the data for.
+
+        Returns
+        -------
+        csv_data: str
+            stringified data for the node returned if file_name not specified
+        """
+        if antennas is not None and all(isinstance(x, AntennaNode) for x in antennas):
+            a1, a2 = antennas
+            vals = f"{a1.name}|{a2.name}"
+        else:
+            vals = f"{ports}"
+        return self._export_to_csv(file_name, "SelectedRxAntenna|SelectedTxAntenna", vals)
+
+    @min_aedt_version("2027.1")
+    def plot(self, antennas: tuple[AntennaNode, AntennaNode] | None = None, ports: str = ""):
+        """Bring up a Cartesian plot for this node
+
+        Parameters
+        ----------
+        antennas: tuple(AntennaNode, AntennaNode), optional
+            tuple of antenna nodes to pull the selected Tx and Rx antenna names from for the export.
+            If not specified, will use the names specified by the ports parameter.
+        ports: str, optional
+            the ports to export the data for.
+        """
+        if antennas is not None and all(isinstance(x, AntennaNode) for x in antennas):
+            a1, a2 = antennas
+            vals = f"{a1.name}|{a2.name}"
+        else:
+            vals = f"{ports}"
+        return self._plot("SelectedRxAntenna|SelectedTxAntenna", vals)
 
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
@@ -75,9 +125,10 @@ class PropagationLossCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> coupling = revision.get_coupling_data_node().add_path_loss_coupling()
-        >>> coupling_copy = coupling.duplicate("PathLossCopy")
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> prop = cpl.add_prop_loss_coupling()
+        >>> prop_copy = prop.duplicate("prop_copy")
 
         """
         return self._duplicate(new_name)
@@ -90,9 +141,10 @@ class PropagationLossCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> coupling = revision.get_coupling_data_node().add_path_loss_coupling()
-        >>> coupling.delete()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> prop = cpl.add_prop_loss_coupling()
+        >>> prop.delete()
 
         """
         self._delete()
@@ -108,9 +160,10 @@ class PropagationLossCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> coupling = revision.get_coupling_data_node().add_path_loss_coupling()
-        >>> coupling.enabled = True
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> prop = cpl.add_prop_loss_coupling()
+        >>> prop.enabled = True
 
         """
         val = self._get_property("Enabled")
@@ -130,11 +183,10 @@ class PropagationLossCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> scene = revision.get_scene_node()
-        >>> antenna_a = scene.add_antenna()
-        >>> coupling = revision.get_coupling_data_node().add_path_loss_coupling()
-        >>> coupling.antenna_a = antenna_a
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> prop = cpl.add_prop_loss_coupling()
+        >>> prop.antenna_a
 
         """
         val = self._get_property("Antenna A")
@@ -154,11 +206,10 @@ class PropagationLossCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> scene = revision.get_scene_node()
-        >>> antenna_b = scene.add_antenna()
-        >>> coupling = revision.get_coupling_data_node().add_path_loss_coupling()
-        >>> coupling.antenna_b = antenna_b
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> prop = cpl.add_prop_loss_coupling()
+        >>> prop.antenna_b
 
         """
         val = self._get_property("Antenna B")
@@ -183,9 +234,10 @@ class PropagationLossCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> coupling = revision.get_coupling_data_node().add_path_loss_coupling()
-        >>> coupling.custom_fading_margin = 3.0
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> prop = cpl.add_prop_loss_coupling()
+        >>> prop.custom_fading_margin = 0.0
 
         """
         val = self._get_property("Custom Fading Margin")
@@ -210,9 +262,10 @@ class PropagationLossCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> coupling = revision.get_coupling_data_node().add_path_loss_coupling()
-        >>> coupling.polarization_mismatch = 1.5
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> prop = cpl.add_prop_loss_coupling()
+        >>> prop.polarization_mismatch = 0.0
 
         """
         val = self._get_property("Polarization Mismatch")
@@ -237,9 +290,10 @@ class PropagationLossCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> coupling = revision.get_coupling_data_node().add_path_loss_coupling()
-        >>> coupling.pointing_error_loss = 0.8
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> prop = cpl.add_prop_loss_coupling()
+        >>> prop.pointing_error_loss = 0.0
 
         """
         val = self._get_property("Pointing Error Loss")
@@ -264,15 +318,18 @@ class PropagationLossCouplingNode(EmitNode):
         Examples
         --------
         >>> from ansys.aedt.core import Emit
-        >>> from ansys.aedt.core.emit_core.nodes.generated import PropagationLossCouplingNode
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> coupling = revision.get_coupling_data_node().add_path_loss_coupling()
-        >>> coupling.fading_type = PropagationLossCouplingNode.FadingTypeOption.FAST_FADING_ONLY
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> prop = cpl.add_prop_loss_coupling()
+        >>> prop.fading_type = PropagationLossCouplingNode.FadingTypeOption.NONE
 
         """
         val = self._get_property("Fading Type")
-        val = self.FadingTypeOption[val.upper()]
+        try:
+            val = self.FadingTypeOption(val)
+        except ValueError:
+            val = self.FadingTypeOption[val.upper()]
         return val
 
     @fading_type.setter
@@ -294,9 +351,11 @@ class PropagationLossCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> coupling = revision.get_coupling_data_node().add_path_loss_coupling()
-        >>> coupling.fading_availability = 99.0
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> prop = cpl.add_prop_loss_coupling()
+        >>> prop.fading_type = PropagationLossCouplingNode.FadingTypeOption.FAST_FADING_ONLY
+        >>> prop.fading_availability = 90.0
 
         """
         val = self._get_property("Fading Availability")
@@ -318,9 +377,11 @@ class PropagationLossCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> coupling = revision.get_coupling_data_node().add_path_loss_coupling()
-        >>> coupling.std_deviation = 2.0
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> prop = cpl.add_prop_loss_coupling()
+        >>> prop.fading_type = PropagationLossCouplingNode.FadingTypeOption.SHADOWING_ONLY
+        >>> prop.std_deviation = 8.0
 
         """
         val = self._get_property("Std Deviation")
@@ -342,9 +403,10 @@ class PropagationLossCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> coupling = revision.get_coupling_data_node().add_path_loss_coupling()
-        >>> coupling.include_rain_attenuation = True
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> prop = cpl.add_prop_loss_coupling()
+        >>> prop.include_rain_attenuation = False
 
         """
         val = self._get_property("Include Rain Attenuation")
@@ -369,9 +431,11 @@ class PropagationLossCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> coupling = revision.get_coupling_data_node().add_path_loss_coupling()
-        >>> coupling.rain_availability = 99.9
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> prop = cpl.add_prop_loss_coupling()
+        >>> prop.include_rain_attenuation = True
+        >>> prop.rain_availability = 99.99
 
         """
         val = self._get_property("Rain Availability")
@@ -393,9 +457,11 @@ class PropagationLossCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> coupling = revision.get_coupling_data_node().add_path_loss_coupling()
-        >>> coupling.rain_rate = 25.0
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> prop = cpl.add_prop_loss_coupling()
+        >>> prop.include_rain_attenuation = True
+        >>> prop.rain_rate = 8.0
 
         """
         val = self._get_property("Rain Rate")
@@ -420,9 +486,11 @@ class PropagationLossCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> coupling = revision.get_coupling_data_node().add_path_loss_coupling()
-        >>> coupling.polarization_tilt_angle = 45.0
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> prop = cpl.add_prop_loss_coupling()
+        >>> prop.include_rain_attenuation = True
+        >>> prop.polarization_tilt_angle = 0.0
 
         """
         val = self._get_property("Polarization Tilt Angle")
@@ -447,9 +515,10 @@ class PropagationLossCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> coupling = revision.get_coupling_data_node().add_path_loss_coupling()
-        >>> coupling.include_atmospheric_absorption = True
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> prop = cpl.add_prop_loss_coupling()
+        >>> prop.include_atmospheric_absorption = False
 
         """
         val = self._get_property("Include Atmospheric Absorption")
@@ -471,9 +540,11 @@ class PropagationLossCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> coupling = revision.get_coupling_data_node().add_path_loss_coupling()
-        >>> coupling.temperature = 20.0
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> prop = cpl.add_prop_loss_coupling()
+        >>> prop.include_atmospheric_absorption = True
+        >>> prop.temperature = 15.0
 
         """
         val = self._get_property("Temperature")
@@ -495,9 +566,11 @@ class PropagationLossCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> coupling = revision.get_coupling_data_node().add_path_loss_coupling()
-        >>> coupling.total_air_pressure = 1013.25
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> prop = cpl.add_prop_loss_coupling()
+        >>> prop.include_atmospheric_absorption = True
+        >>> prop.total_air_pressure = 1013
 
         """
         val = self._get_property("Total Air Pressure")
@@ -519,9 +592,11 @@ class PropagationLossCouplingNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> coupling = revision.get_coupling_data_node().add_path_loss_coupling()
-        >>> coupling.water_vapor_concentration = 7.5
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> prop = cpl.add_prop_loss_coupling()
+        >>> prop.include_atmospheric_absorption = True
+        >>> prop.water_vapor_concentration = 7.5
 
         """
         val = self._get_property("Water Vapor Concentration")

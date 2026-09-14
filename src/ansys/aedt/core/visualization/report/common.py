@@ -26,7 +26,6 @@ from __future__ import annotations
 
 import copy
 import os
-import re
 from typing import TYPE_CHECKING
 
 from ansys.aedt.core.base import PyAedtBase
@@ -808,7 +807,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         except Exception:
             return _traces
         for el in oo_names:
-            new_trace_name = re.sub(r"(?<!\\)/", r"\\/", el.replace("\\", "\\\\"))
+            new_trace_name = self._post._rename_internal_object(el)
             if {"Families", "Source"}.isdisjoint(set(self._app.get_oo_properties(oo, new_trace_name))):
                 continue
             try:
@@ -1275,20 +1274,23 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @property
     def internal_plot_name(self) -> str:
-        """Internal AEDT plot name with escaped backslashes and forward slashes.
+        """Internal AEDT plot name.
 
-        Some AEDT APIs (such as ``oReportSetup.GetChildObject`` and a few
-        report-related operations) require special characters in the plot
+        Prior to AEDT 2027R1, some AEDT APIs (such as ``oReportSetup.GetChildObject`` and a few
+        report-related operations) required special characters in the plot
         name to be escaped: backslashes are doubled (``\\`` -> ``\\\\``) and
         forward slashes that are not already preceded by a backslash are
-        prefixed with a backslash (``/`` -> ``\\/``). This property returns
-        the plot name in that escaped form, ready to be passed to those
-        APIs, while :attr:`plot_name` keeps the original user-facing name.
+        prefixed with a backslash (``/`` -> ``\\/``). Starting with AEDT 2027R1,
+        this escaping is no longer needed and the plot name is returned as-is.
+
+        This property returns the plot name in the appropriate form for the current
+        AEDT version, ready to be passed to AEDT APIs, while :attr:`plot_name`
+        keeps the original user-facing name.
 
         Returns
         -------
         str
-            Escaped plot name suitable for AEDT internal API calls.
+            Plot name in the format appropriate for AEDT internal API calls.
 
         Examples
         --------
@@ -1297,7 +1299,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         >>> obj.internal_plot_name
 
         """
-        return re.sub(r"(?<!\\)/", r"\\/", self.plot_name.replace("\\", "\\\\"))
+        return self._post._rename_internal_object(self.plot_name)
 
     @property
     def variations(self) -> dict:

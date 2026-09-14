@@ -42,8 +42,10 @@ class SolutionsNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> solutions = next(node for node in revision.get_all_nodes() if node.node_type == "SolutionsNode")
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> link = cpl.children[0]
+        >>> solutions = link.children[0]
         >>> solutions.parent
 
         """
@@ -58,8 +60,10 @@ class SolutionsNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> solutions = next(node for node in revision.get_all_nodes() if node.node_type == "SolutionsNode")
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> link = cpl.children[0]
+        >>> solutions = link.children[0]
         >>> solutions.node_type
 
         """
@@ -79,10 +83,11 @@ class SolutionsNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> solutions = next(node for node in revision.get_all_nodes() if node.node_type == "SolutionsNode")
-        >>> solutions.enabled = False
-        >>> solutions.enabled
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> link = cpl.children[0]
+        >>> solutions = link.children[0]
+        >>> solutions.enabled = True
 
         """
         val = self._get_property("Enabled")

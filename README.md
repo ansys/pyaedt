@@ -71,7 +71,7 @@ PyAEDT remains compatible with IronPython and can be still used in the AEDT Fram
 
 PyAEDT has different compatibility requirements based on its version. Below is an overview of the compatibility matrix between PyAEDT, Python versions, and AEDT releases:
 
-- PyAEDT Version ≤ 0.8.11:
+- PyAEDT Version <= 0.8.11:
   - Python Compatibility:
     - Compatible with IronPython (Python 2.7).
     - Compatible with Python 3.7 and versions up to Python 3.11.

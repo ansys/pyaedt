@@ -122,7 +122,7 @@ class Monitor(PyAedtBase):
     def _omonitor(self):
         return self._app.omonitor
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def _find_point(self, position):  # pragma: no cover
         for point in self._app.oeditor.GetPoints():
             point_pos = self._app.get_oo_property_value(self._app.oeditor, point, "Position")
@@ -137,7 +137,7 @@ class Monitor(PyAedtBase):
                 return point
         return None
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def _check_quantities(self, quantities):
         if all(q in self.quantities_dict.values() for q in quantities):
             return [monitor_type for q in quantities for monitor_type in quantities_type_dict[q]]
@@ -145,7 +145,7 @@ class Monitor(PyAedtBase):
             self._app.logger.error("Invalid quantities selected.")
             return []
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def _generate_monitor_names(self, name: str, n):
         """Create a list of names for monitor objects following Icepak naming rules.
 
@@ -182,7 +182,7 @@ class Monitor(PyAedtBase):
                 n += 1
             return names
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def _load_monitor_objects(self, aedtfile_monitor_dict) -> bool:
         for monitor_name, monitor_prop in aedtfile_monitor_dict.items():
             if "Faces" in monitor_prop.keys():
@@ -232,7 +232,7 @@ class Monitor(PyAedtBase):
                 )
         return True
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def get_icepak_monitor_object(self, monitor_name: str):
         """Get Icepak monitor object.
 
@@ -851,7 +851,7 @@ class ObjectMonitor(PyAedtBase):
             "Geometry Assignment": self.geometry_assignment,
         }
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def delete(self) -> bool:
         """Delete a monitor object.
 

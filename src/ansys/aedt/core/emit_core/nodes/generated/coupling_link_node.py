@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+from ansys.aedt.core.emit_core.nodes.generated import AntennaNode
 from ansys.aedt.core.internal.checks import min_aedt_version
 
 
@@ -42,10 +43,10 @@ class CouplingLinkNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> app.couplings.add_link("HFSS_Design")
-        >>> revision = app.results.get_revision()
-        >>> coupling_link = revision.get_coupling_data_node().children[0]
-        >>> coupling_link.parent
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> link = cpl.children[0]
+        >>> link.parent
 
         """
         return self._parent
@@ -59,13 +60,60 @@ class CouplingLinkNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> app.couplings.add_link("HFSS_Design")
-        >>> revision = app.results.get_revision()
-        >>> coupling_link = revision.get_coupling_data_node().children[0]
-        >>> coupling_link.node_type
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> link = cpl.children[0]
+        >>> link.node_type
 
         """
         return self._node_type
+
+    @min_aedt_version("2027.1")
+    def export_to_csv(
+        self, file_name: str, antennas: tuple[AntennaNode, AntennaNode] | None = None, ports: str = ""
+    ) -> str:
+        """Export's the data for this node
+
+        Parameters
+        ----------
+        file_name: str[optional]
+            full path to the file to export to.
+        antennas: tuple(AntennaNode, AntennaNode), optional
+            tuple of antenna nodes to pull the selected Tx and Rx antenna names from for the export.
+            If not specified, will use the names specified by the ports parameter.
+        ports: str, optional
+            the ports to export the data for.
+
+        Returns
+        -------
+        csv_data: str
+            stringified data for the node returned if file_name not specified
+        """
+        if antennas is not None and all(isinstance(x, AntennaNode) for x in antennas):
+            a1, a2 = antennas
+            vals = f"{a1.name}|{a2.name}"
+        else:
+            vals = f"{ports}"
+        return self._export_to_csv(file_name, "SelectedRxAntenna|SelectedTxAntenna", vals)
+
+    @min_aedt_version("2027.1")
+    def plot(self, antennas: tuple[AntennaNode, AntennaNode] | None = None, ports: str = ""):
+        """Bring up a Cartesian plot for this node
+
+        Parameters
+        ----------
+        antennas: tuple(AntennaNode, AntennaNode), optional
+            tuple of antenna nodes to pull the selected Tx and Rx antenna names from for the export.
+            If not specified, will use the names specified by the ports parameter.
+        ports: str, optional
+            the ports to export the data for.
+        """
+        if antennas is not None and all(isinstance(x, AntennaNode) for x in antennas):
+            a1, a2 = antennas
+            vals = f"{a1.name}|{a2.name}"
+        else:
+            vals = f"{ports}"
+        return self._plot("SelectedRxAntenna|SelectedTxAntenna", vals)
 
     @property
     @min_aedt_version("2025.2")
@@ -78,10 +126,10 @@ class CouplingLinkNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> app.couplings.add_link("HFSS_Design")
-        >>> revision = app.results.get_revision()
-        >>> coupling_link = revision.get_coupling_data_node().children[0]
-        >>> coupling_link.enabled = False
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> link = cpl.children[0]
+        >>> link.enabled = True
 
         """
         val = self._get_property("Enabled")
@@ -101,10 +149,10 @@ class CouplingLinkNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> app.couplings.add_link("HFSS_Design")
-        >>> revision = app.results.get_revision()
-        >>> coupling_link = revision.get_coupling_data_node().children[0]
-        >>> coupling_link.ports = ["Antenna1", "Antenna2"]
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> link = cpl.children[0]
+        >>> link.ports
 
         """
         val = self._get_property("Ports")

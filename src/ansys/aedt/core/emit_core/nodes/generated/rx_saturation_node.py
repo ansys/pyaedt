@@ -40,6 +40,12 @@ class RxSaturationNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> rx_saturation = rx_profile.add_rx_saturation()
         >>> rx_saturation.parent
 
         """
@@ -52,6 +58,12 @@ class RxSaturationNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> rx_saturation = rx_profile.add_rx_saturation()
         >>> rx_saturation.node_type
 
         """
@@ -59,19 +71,52 @@ class RxSaturationNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def import_csv_file(self, file_name: str) -> EmitNode:
-        """Import a CSV File."""
-        return self._import(file_name, "Csv")
+        """Import a CSV File....
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> rx_saturation = rx_profile.add_rx_saturation()
+        >>> rx_saturation.import_csv_file("C:\\EMIT\\data.csv")
+
+        """
+        return self._import(file_name, "CsvFile")
+
+    @min_aedt_version("2027.1")
+    def export_to_csv(self, file_name: str) -> str:
+        """Export's the data for this node"""
+        return self._export_to_csv(file_name, "", "")
+
+    @min_aedt_version("2027.1")
+    def plot(self):
+        """Bring up a Cartesian plot for this node"""
+        return self._plot("", "")
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node."""
+        """Delete this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> rx_saturation = rx_profile.add_rx_saturation()
+        >>> rx_saturation.delete()
+
+        """
         self._delete()
 
     @property
     @min_aedt_version("2025.2")
     def table_data(self) -> list[tuple]:
         """Rx Saturation Profile Table.
-
         Table consists of 2 columns.
         Frequency:
             Value should be between 1 and 100e9.
@@ -80,7 +125,13 @@ class RxSaturationNode(EmitNode):
 
         Examples
         --------
-        >>> rx_saturation.table_data = [(1e9, -15.0)]
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> rx_saturation = rx_profile.add_rx_saturation()
+        >>> rx_saturation.table_data = [(2, 25.0)]
 
         """
         return self._get_table_data()
@@ -93,7 +144,19 @@ class RxSaturationNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def enabled(self) -> bool:
-        """Enabled state for this node."""
+        """Enabled state for this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> rx_saturation = rx_profile.add_rx_saturation()
+        >>> rx_saturation.enabled = True
+
+        """
         return self._get_property("Enabled") == "true"
 
     @enabled.setter

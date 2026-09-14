@@ -110,6 +110,10 @@
   description: Affects or requires AEDT 2026 R1
   color: 6d28d9
 
+- name: AEDT 27.1
+  description: Affects or requires AEDT 2027 R1
+  color: 6d28d9
+
 # Platform / OS
 
 - name: windows
@@ -142,3 +146,10 @@
 - name: release-maintenance
   description: Related to maintenance of the release branch
   color: f78c37
+
+# Used by CI workflows to skip the "Wait for master cache update" step.
+# Add this label to a pull request when you want to avoid waiting for the
+# testmon cache update during CI runs.
+- name: skip-testmon
+  description: Skip the testmon cache wait step in CI
+  color: 9e9e9e

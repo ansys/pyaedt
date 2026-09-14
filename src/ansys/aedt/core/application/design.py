@@ -1506,7 +1506,7 @@ class Design(AedtObjects, PyAedtBase):
 
         Returns
         -------
-            Project object
+        Project object
 
         References
         ----------
@@ -1533,6 +1533,7 @@ class Design(AedtObjects, PyAedtBase):
                 self.logger.info(f"No project is defined. Project {self._oproject.GetName()} exists and has been read.")
         else:
             prj_list = self.desktop_class.project_list
+            project_suffix = Path(proj_name).suffix
             if prj_list and proj_name in list(prj_list):
                 self._oproject = self.desktop_class.active_project(proj_name)
                 self._add_handler()
@@ -1540,7 +1541,7 @@ class Design(AedtObjects, PyAedtBase):
             elif Path(proj_name).exists() or (
                 settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(proj_name)
             ):
-                if ".aedtz" in proj_name:
+                if project_suffix == ".aedtz":
                     p = Path(proj_name)
                     directory_name = p.parent
                     # If file is inside the installation directory
@@ -1556,8 +1557,8 @@ class Design(AedtObjects, PyAedtBase):
                     self._add_handler()
                     self.logger.info(f"Archive {proj_name} has been restored to project {self._oproject.GetName()}")
 
-                elif ".def" in proj_name or proj_name[-5:] == ".aedb":
-                    if ".def" in proj_name:
+                elif project_suffix in {".def", ".aedb"}:
+                    if project_suffix == ".def":
                         project = str(Path(proj_name).parent)[:-5] + ".aedt"
                     else:
                         project = proj_name[:-5] + ".aedt"
@@ -1567,20 +1568,11 @@ class Design(AedtObjects, PyAedtBase):
                         self._add_handler()
                         self.logger.info("Project %s set to active.", pname)
                     elif Path(project).exists():
-                        if is_project_locked(project):
-                            if self._remove_lock:  # pragma: no cover
-                                self.logger.warning("Project is locked. Removing it and opening.")
-                                remove_project_lock(project)
-                            else:  # pragma: no cover
-                                raise RuntimeError("Project is locked. Close or remove the lock before proceeding.")
                         self.logger.info("AEDT project found. Loading it.")
-                        self._oproject = self.odesktop.OpenProject(project)
-                        self._add_handler()
-                        self.logger.info("Project %s has been opened.", self._oproject.GetName())
-                        time.sleep(0.5)
+                        self._oproject = self._open_project(project)
                     else:
                         oTool = self.odesktop.GetTool("ImportExport")
-                        if ".def" in proj_name:
+                        if project_suffix == ".def":
                             oTool.ImportEDB(proj_name)
                         else:
                             oTool.ImportEDB(str(Path(proj_name) / "edb.def"))
@@ -1590,25 +1582,13 @@ class Design(AedtObjects, PyAedtBase):
                         self.logger.info(
                             "EDB folder %s has been imported to project %s", proj_name, self._oproject.GetName()
                         )
-                elif self.check_if_project_is_loaded(proj_name):
-                    pname = self.check_if_project_is_loaded(proj_name)
+                elif self.check_if_project_is_loaded(proj_name, suffix=project_suffix):
+                    pname = self.check_if_project_is_loaded(proj_name, suffix=project_suffix)
                     self._oproject = self.desktop_class.active_project(pname)
                     self._add_handler()
                     self.logger.info("Project %s set to active.", pname)
                 else:
-                    if is_project_locked(proj_name):
-                        if self._remove_lock:  # pragma: no cover
-                            self.logger.warning("Project is locked. Removing it and opening.")
-                            remove_project_lock(proj_name)
-                        else:  # pragma: no cover
-                            raise RuntimeError("Project is locked. Close or remove the lock before proceeding.")
-                    self._oproject = self.odesktop.OpenProject(proj_name)
-                    if not is_windows and settings.aedt_version:
-                        time.sleep(1)
-                        self.desktop_class.close_windows()
-                    self._add_handler()
-                    self.logger.info("Project %s has been opened.", self._oproject.GetName())
-                    time.sleep(0.5)
+                    self._oproject = self._open_project(proj_name)
             elif settings.force_error_on_missing_project and ".aedt" in proj_name:
                 raise Exception("Project doesn't exist. Check it and retry.")
             else:
@@ -1652,6 +1632,50 @@ class Design(AedtObjects, PyAedtBase):
             project_name=self.project_name,
         )
 
+    @pyaedt_function_handler()
+    def _open_project(self, project_path: str) -> _OProject:
+        """Open a project and ensure the active project object is resolved.
+
+        This centralizes logic around calling ``oDesktop.OpenProject`` and
+        handling cases where the method does not return the project object
+        correctly by falling back to ``check_if_project_is_loaded``.
+
+        Returns
+        -------
+        Project object
+
+        References
+        ----------
+        >>> oDesktop.OpenProject
+
+        """
+        project_suffix = Path(project_path).suffix
+        if project_suffix == ".aedt" and is_project_locked(project_path):
+            if self._remove_lock:  # pragma: no cover
+                self.logger.warning("Project is locked. Removing it and opening.")
+                remove_project_lock(project_path)
+            else:  # pragma: no cover
+                raise RuntimeError("Project is locked. Close or remove the lock before proceeding.")
+
+        self.odesktop.OpenProject(project_path)
+        pname = self.check_if_project_is_loaded(project_path, suffix=project_suffix)
+        if not pname:  # pragma: no cover
+            raise Exception("Failed to open project due to unexpected reason. Check it and retry.")
+        proj = self.desktop_class.active_project(str(pname))
+
+        self._oproject = proj
+
+        # In Linux there is a known issue when multiple designs are available (Circuit designs mainly),
+        # that it is needed to close all windows.
+        if not is_windows and settings.aedt_version:
+            time.sleep(0.5)
+            self.desktop_class.close_windows()
+
+        # Ensure handlers and logging are set up for the opened project.
+        self._add_handler()
+        self.logger.info("Project %s has been opened.", self._oproject.GetName())
+        return cast(_OProject, proj)
+
     @property
     def desktop_install_dir(self) -> str:
         """AEDT installation directory.
@@ -1660,7 +1684,6 @@ class Design(AedtObjects, PyAedtBase):
         -------
         str
             AEDT installation directory.
-
 
         Examples
         --------
@@ -5026,13 +5049,15 @@ class Design(AedtObjects, PyAedtBase):
         return app
 
     @pyaedt_function_handler()
-    def check_if_project_is_loaded(self, input_file: str | Path) -> str | bool:
+    def check_if_project_is_loaded(self, input_file: str | Path, suffix: str = ".aedt") -> str | bool:
         """Check if a project path is already loaded in active Desktop.
 
         Parameters
         ----------
         input_file : str
             Project path to check in active desktop.
+        suffix : str, optional
+            Suffix to add to the project name if it is already loaded in active desktop.
 
         Returns
         -------
@@ -5047,7 +5072,9 @@ class Design(AedtObjects, PyAedtBase):
 
         """
         for p in self.odesktop.GetProjects():
-            if (Path(p.GetPath()) / (p.GetName() + ".aedt")).resolve() == Path(input_file).resolve():
+            if (Path(p.GetPath()) / (p.GetName() + suffix)).resolve() == Path(input_file).resolve():
+                return p.GetName()
+            elif Path(input_file).stem == p.GetName():
                 return p.GetName()
         return False
 

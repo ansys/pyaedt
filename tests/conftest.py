@@ -29,6 +29,7 @@ import inspect
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import sys
 import tempfile
@@ -41,10 +42,12 @@ from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.file_utils import available_file_name
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.hfss import Hfss
+from tests import TESTS_PATH
 
 # ================================
 # Category prefixes
 # ================================
+REPO_ROOT = TESTS_PATH.parent
 UNIT_TEST_PREFIX = "tests/unit"
 INTEGRATION_TEST_PREFIX = "tests/integration"
 SYSTEM_TEST_PREFIX = "tests/system"
@@ -112,6 +115,12 @@ edb_xfail = pytest.mark.xfail(
     reason="PyEDB tests are unstable",
 )
 
+# Mark tests as xfail when PYAEDT_SOLVER_XFAIL=1
+solver_xfail = pytest.mark.xfail(
+    condition=os.environ.get("PYAEDT_SOLVER_XFAIL") == "1",
+    reason="Solver tests are unstable",
+)
+
 # ================================
 # PyAEDT settings
 # ================================
@@ -159,6 +168,46 @@ def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item
             item.add_marker(pytest.mark.filter_solutions)
         elif item.nodeid.startswith(EMIT_TEST_PREFIX):
             item.add_marker(pytest.mark.emit)
+
+
+def _env_is_truthy(name: str) -> bool:
+    """Return True when the environment variable contains a truthy value."""
+    return os.environ.get(name, "").lower() in {"1", "true", "yes"}
+
+
+def _is_tcl_init_error(exc: BaseException) -> bool:
+    """Return True only for intermittent Tcl/Tk library discovery or load failures."""
+    if exc.__class__.__name__ != "TclError":
+        return False
+
+    return bool(
+        re.search(
+            r"Can't find a usable (init|tk)\.tcl"
+            r"|invalid command name \"tcl_findLibrary\""
+            r"|couldn't read file .+\.tcl.*no such file or directory",
+            str(exc),
+        )
+    )
+
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    """Mark known intermittent Tcl/Tk discovery errors as xfail on Windows CI or local opt-in."""
+    outcome = yield
+    report = outcome.get_result()
+
+    if report.passed or report.when not in {"setup", "call"}:
+        return
+    if sys.platform != "win32":
+        return
+    if not (_env_is_truthy("ON_CI") or _env_is_truthy("PYAEDT_XFAIL_TCL_INIT")):
+        return
+    if call.excinfo is None:
+        return
+
+    if _is_tcl_init_error(call.excinfo.value):
+        report.outcome = "skipped"
+        report.wasxfail = "Intermittent tkinter Tcl/Tk discovery or load failure (Windows)"
 
 
 # ================================
@@ -289,20 +338,22 @@ def add_app(test_tmp_dir, desktop, tmp_path_factory):
         application=None,
         close_projects: bool = True,
     ):
+        if project is None:
+            project = "pyaedt_test"
+
+        resolved_project = REPO_ROOT / Path(project)
+        project_file = resolved_project if resolved_project.is_file() else None
+
         if close_projects and desktop and desktop.project_list:
             projects = desktop.project_list.copy()
             for project_name in projects:
                 desktop.odesktop.CloseProject(project_name)
 
-        if project is None:
-            project = "pyaedt_test"
-
-        if project and Path(project).is_file():
-            project_file = Path(project)
-        elif close_projects:
-            project_file = available_file_name(test_tmp_dir / f"{project}.aedt")
-        else:
-            project_file = test_tmp_dir / f"{project}.aedt"
+        if project_file is None:
+            if close_projects:
+                project_file = available_file_name(test_tmp_dir / f"{project}.aedt")
+            else:
+                project_file = test_tmp_dir / f"{project}.aedt"
 
         # Application selection
         application_cls = application or Hfss
@@ -332,16 +383,17 @@ def add_app_example(test_tmp_dir, desktop, tmp_path_factory):
         is_edb: bool = False,
         close_projects: bool = True,
     ):
+        resolved_subfolder = REPO_ROOT / Path(subfolder)
+        if resolved_subfolder.exists():
+            base = resolved_subfolder
+        else:
+            test_path = _get_test_path_from_caller()
+            base = test_path / "example_models" / subfolder
+
         if close_projects and desktop and desktop.project_list:
             projects = desktop.project_list.copy()
             for project_name in projects:
                 desktop.odesktop.CloseProject(project_name)
-
-        if Path(subfolder).exists():
-            base = Path(subfolder)
-        else:
-            test_path = _get_test_path_from_caller()
-            base = test_path / "example_models" / subfolder
 
         if not is_edb:
             aedt_project = base / f"{project}.aedt"

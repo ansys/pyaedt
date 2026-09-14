@@ -1827,10 +1827,12 @@ class IbisReader(PyAedtBase):
         current_string = current_string[len(l_value) + 1 :].strip()
 
         c_value = self.get_first_parameter(current_string)
-
+        pin_name = pin_name.replace("/", "")
+        component_name = component_name.replace("/", "")
+        ibis_name = ibis.name.replace("/", "")
         pin = Pin(
-            pin_name + "_" + component_name + "_" + ibis.name,
-            signal + "_" + component_name + "_" + ibis.name,
+            pin_name + "_" + component_name + "_" + ibis_name,
+            signal + "_" + component_name + "_" + ibis_name,
             ibis,
         )
         pin.short_name = pin_name
@@ -1956,12 +1958,15 @@ class AMIReader(IbisReader, PyAedtBase):
         self.read_model(ibis, model)
 
         buffers = {}
+        ami_name = ami_name.replace("/", "")
         for model_selector in ibis.model_selectors:
-            buffer = Buffer(ami_name, model_selector.name, self)
+            model_selector_name = model_selector.name.replace("/", "")
+            buffer = Buffer(ami_name, model_selector_name, self)
             buffers[buffer.short_name] = buffer
 
         for model in ibis.models:
-            buffer = Buffer(ami_name, model.name, self)
+            model_selector_name = model.name.replace("/", "")
+            buffer = Buffer(ami_name, model_selector_name, self)
             buffers[buffer.short_name] = buffer
 
         ibis.buffers = buffers

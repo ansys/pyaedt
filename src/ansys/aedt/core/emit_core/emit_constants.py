@@ -22,88 +22,74 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""Enums from the ``EmitApiPython`` module are defined as ``None`` until the module initializes.
+"""
+Constants for the EMIT module.
 
-This allows IDE auto-complete to find them and ``emit_constants`` to import before the
-``EmitApiPython`` module has loaded (typically when a ``ansys.aedt.core.Emit()`` object is created).
-
-Because the members must be reassigned at runtime, the Enum class cannot be used.
-
-Examples
---------
->>> from ansys.aedt.core.emit_core.emit_constants import EMIT_VALID_UNITS
->>> EMIT_VALID_UNITS["Frequency"]
+Enum values are defined directly here. For AEDT versions < 2027.1, the values may be
+overwritten at runtime by ``_init_enums()`` with values from the ``EmitApiPython`` module.
 
 """
 
 
 class MutableEnum:
-    """Provide mutable enum."""  # noqa: D203
-
     @classmethod
     def members(cls):
-        members = [
+        return [
             getattr(cls, attr) for attr in dir(cls) if not callable(getattr(cls, attr)) and not attr.startswith("__")
         ]
-        if members[0] is None:
-            raise Exception(
-                f"Enum is uninitialized. Create a ansys.aedt.core.Emit() object before using {cls.__name__}."
-            )
-        return members
 
 
 class ResultType(MutableEnum):
-    """Provide result type."""
-
-    EMI = None
-    """EMI option."""
-    DESENSE = None
-    """Desense option."""
-    SENSITIVITY = None
-    """Sensitivity option."""
-    POWER_AT_RX = None
-    """Power at rx option."""
+    EMI = 0
+    DESENSE = 1
+    SENSITIVITY = 2
+    POWER_AT_RX = 3
 
 
 class TxRxMode(MutableEnum):
-    """Provide tx rx mode."""
-
-    TX = None
-    """Tx option."""
-    RX = None
-    """Rx option."""
-    BOTH = None
-    """Both option."""
+    TX = 0
+    RX = 1
+    BOTH = 2
 
 
 class InterfererType(MutableEnum):
-    """Provide interferer type."""
-
-    TRANSMITTERS = None
-    """Transmitters option."""
-    EMITTERS = None
-    """Emitters option."""
-    TRANSMITTERS_AND_EMITTERS = None
-    """Transmitters and emitters option."""
+    TRANSMITTERS = 0
+    EMITTERS = 1
+    TRANSMITTERS_AND_EMITTERS = 2
 
 
 class UnitType(MutableEnum):
-    """Provide unit type."""  # noqa: D203
+    POWER = 0
+    FREQUENCY = 1
+    LENGTH = 2
+    TIME = 3
+    VOLTAGE = 4
+    DATA_RATE = 5
+    RESISTANCE = 6
 
-    POWER = None
-    """Power option."""
-    FREQUENCY = None
-    """Frequency option."""
-    LENGTH = None
-    """Length option."""
-    TIME = None
-    """Time option."""
-    VOLTAGE = None
-    """Voltage option."""
-    DATA_RATE = None
-    """Data rate option."""
-    RESISTANCE = None
-    """Resistance option."""
+
+class EMIInterfererType(MutableEnum):
+    IN_CHANNEL_TX_FUNDAMENTAL = (0, 0)
+    IN_CHANNEL_TX_HARMONIC_SPURIOUS = (0, 1)
+    IN_CHANNEL_TX_INTERMOD = (0, 2)
+    IN_CHANNEL_TX_BROADBAND = (0, 3)
+    OUT_OF_CHANNEL_TX_FUNDAMENTAL = (1, 0)
+    OUT_OF_CHANNEL_TX_HARMONIC_SPURIOUS = (1, 1)
+    OUT_OF_CHANNEL_TX_INTERMOD = (1, 2)
+    OUT_OF_CHANNEL_TX_BROADBAND = (1, 3)
+
+
+# Maps raw interference category integers from gRPC GetLargestEmiProblemType to EMIInterfererType enums
+EMI_CATEGORY_TO_INTERFERER_TYPE = {
+    0: EMIInterfererType.OUT_OF_CHANNEL_TX_FUNDAMENTAL,
+    1: EMIInterfererType.OUT_OF_CHANNEL_TX_HARMONIC_SPURIOUS,
+    3: EMIInterfererType.OUT_OF_CHANNEL_TX_INTERMOD,
+    7: EMIInterfererType.IN_CHANNEL_TX_FUNDAMENTAL,
+    8: EMIInterfererType.IN_CHANNEL_TX_HARMONIC_SPURIOUS,
+    10: EMIInterfererType.IN_CHANNEL_TX_INTERMOD,
+    14: EMIInterfererType.IN_CHANNEL_TX_BROADBAND,
+}
+"""Maps raw EMI interference category integers to EMIInterfererType enums."""
 
 
 EMIT_VALID_UNITS = {
@@ -116,13 +102,7 @@ EMIT_VALID_UNITS = {
     "Data Rate": ["bps", "kbps", "Mbps", "Gbps"],
     "Resistance": ["uOhm", "mOhm", "Ohm", "kOhm", "megOhm", "GOhm"],
 }
-"""Valid units for each unit type.
-
-Examples
---------
->>> from ansys.aedt.core.emit_core.emit_constants import EMIT_VALID_UNITS
->>> EMIT_VALID_UNITS["Power"]
-"""
+"""Valid units for each unit type."""
 
 EMIT_INTERNAL_UNITS = {
     "Power": "dBm",
@@ -134,13 +114,7 @@ EMIT_INTERNAL_UNITS = {
     "Data Rate": "bps",
     "Resistance": "ohm",
 }
-"""Default units for each unit type.
-
-Examples
---------
->>> from ansys.aedt.core.emit_core.emit_constants import EMIT_INTERNAL_UNITS
->>> EMIT_INTERNAL_UNITS["Frequency"]
-"""
+"""Default units for each unit type."""
 
 EMIT_TO_AEDT_UNITS = {
     "picometers": "pm",
@@ -188,16 +162,12 @@ EMIT_TO_AEDT_UNITS = {
     "Mbps": "Mbps",
     "Gbps": "Gbps",
 }
-"""EMIT to AEDT units."""
 
 EMIT_FN_ALLOWED_VARS = {"RF", "IF", "LO"}
-"""EMIT fn allowed vars."""
 
 EMIT_FN_ALLOWED_FUNCS = {"abs", "trunc"}
-"""EMIT fn allowed funcs."""
 
 EMIT_FN_ALLOWED_OPS = {"+", "-", "*", "/"}
-"""EMIT fn allowed ops."""
 
 
 def data_rate_conv(value: float, units: str, to_internal: bool = True) -> float:
@@ -214,12 +184,6 @@ def data_rate_conv(value: float, units: str, to_internal: bool = True) -> float:
     Returns
     -------
         value: data rate converted to/from the internal units
-
-    Examples
-    --------
-    >>> from ansys.aedt.core.emit_core.emit_constants import data_rate_conv
-    >>> rate = data_rate_conv(1.5, "Mbps")
-
     """
     mult = 1.0
 
@@ -247,7 +211,6 @@ def data_rate_conv(value: float, units: str, to_internal: bool = True) -> float:
 
 
 def emit_unit_type_string_to_enum(unit_string: str) -> UnitType:
-    """Return EMIT unit type string to enum."""
     EMIT_UNIT_TYPE_STRING_TO_ENUM = {
         "Power": UnitType.POWER,
         "Frequency": UnitType.FREQUENCY,
@@ -261,7 +224,6 @@ def emit_unit_type_string_to_enum(unit_string: str) -> UnitType:
 
 
 def emi_cat_enum_to_string(emi_cat_enum) -> str:
-    """Return EMI cat enum to string."""
     EMI_CAT_ENUM_TO_STR = {
         EmiCategoryFilter.IN_CHANNEL_TX_FUNDAMENTAL: "In-Channel Tx Fundamental",
         EmiCategoryFilter.IN_CHANNEL_TX_HARMONIC_SPURIOUS: "In-Channel Tx Harmonic/Spurious",
@@ -275,22 +237,15 @@ def emi_cat_enum_to_string(emi_cat_enum) -> str:
 
 
 class EmiCategoryFilter(MutableEnum):
-    """Provide EMI category filter."""
+    """EMI category filter from EmitDataTypes.h"""
 
-    IN_CHANNEL_TX_FUNDAMENTAL = None
-    """In channel tx fundamental option."""
-    IN_CHANNEL_TX_HARMONIC_SPURIOUS = None
-    """In channel tx harmonic spurious option."""
-    IN_CHANNEL_TX_INTERMOD = None
-    """In channel tx intermod option."""
-    IN_CHANNEL_TX_BROADBAND = None
-    """In channel tx broadband option."""
-    OUT_OF_CHANNEL_TX_FUNDAMENTAL = None
-    """Out of channel tx fundamental option."""
-    OUT_OF_CHANNEL_TX_HARMONIC_SPURIOUS = None
-    """Out of channel tx harmonic spurious option."""
-    OUT_OF_CHANNEL_TX_INTERMOD = None
-    """Out of channel tx intermod option."""
+    IN_CHANNEL_TX_FUNDAMENTAL = 0
+    IN_CHANNEL_TX_HARMONIC_SPURIOUS = 1
+    IN_CHANNEL_TX_INTERMOD = 2
+    IN_CHANNEL_TX_BROADBAND = 3
+    OUT_OF_CHANNEL_TX_FUNDAMENTAL = 4
+    OUT_OF_CHANNEL_TX_HARMONIC_SPURIOUS = 5
+    OUT_OF_CHANNEL_TX_INTERMOD = 6
 
 
 if __name__ == "__main__":

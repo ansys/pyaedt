@@ -451,6 +451,62 @@ def test_add_automation_tab_resolves_image_linux(tmp_path) -> None:
     assert button.attrib["script"] == "MyToolkit/run_pyaedt_toolkit_script"
 
 
+@patch("ansys.aedt.core.extensions.customize_automation_tab.is_linux", True)
+def test_add_automation_tab_resolves_image_linux_avoids_collision(tmp_path) -> None:
+    """Two icon sources mapped to the same product must not share the same symlink."""
+    import ansys.aedt.core.extensions
+
+    extensions_root = Path(ansys.aedt.core.extensions.__file__).parent
+    installer_icon = extensions_root / "installer" / "images" / "large" / "console.png"
+    common_icon = extensions_root / "common" / "images" / "large" / "pdf.png"
+
+    add_automation_tab(
+        name="Console",
+        lib_dir=tmp_path,
+        icon_file=str(installer_icon),
+        product="Project",
+        template="run_pyaedt_toolkit_script",
+    )
+    tabconfig_path = add_automation_tab(
+        name="GenerateReport",
+        lib_dir=tmp_path,
+        icon_file=str(common_icon),
+        product="Project",
+        template="run_pyaedt_toolkit_script",
+    )
+
+    parser = TabConfigParser(tabconfig_path)
+    panel = parser.get_panel("Panel_PyAEDT_Extensions")
+    installer_button = next(b for b in panel.findall("./button") if b.attrib.get("label") == "Console")
+    common_button = next(b for b in panel.findall("./button") if b.attrib.get("label") == "GenerateReport")
+
+    # The two sources must resolve to different symlinked image directories.
+    assert installer_button.attrib["image"] == "images_installer_images_large/console.png"
+    assert common_button.attrib["image"] == "images_common_images_large/pdf.png"
+
+
+@patch("ansys.aedt.core.extensions.customize_automation_tab.is_linux", True)
+def test_add_automation_tab_resolves_image_linux_custom(tmp_path) -> None:
+    """Custom extension icons must use a relative symlinked path on Linux too."""
+    icon_file = tmp_path / "custom_icon.png"
+    icon_file.write_text("icon")
+
+    tabconfig_path = add_automation_tab(
+        name="CustomToolkit",
+        lib_dir=tmp_path,
+        icon_file=str(icon_file),
+        product="Project",
+        template="run_pyaedt_toolkit_script",
+        is_custom=True,
+    )
+
+    parser = TabConfigParser(tabconfig_path)
+    panel = parser.get_panel("Panel_PyAEDT_Extensions")
+    button = panel.find("./button")
+    assert button.attrib["image"] == f"images/{icon_file.name}"
+    assert not Path(button.attrib["image"]).is_absolute()
+
+
 @patch("ansys.aedt.core.extensions.customize_automation_tab.is_linux", False)
 def test_add_automation_tab_custom_button_attributes(tmp_path) -> None:
     """Test custom extension attributes for add_automation_tab."""

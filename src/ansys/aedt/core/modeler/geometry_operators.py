@@ -24,6 +24,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 import math
 import re
 import sys
@@ -540,12 +541,12 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def v_norm(a: list) -> float:
+    def v_norm(a: Sequence[float]) -> float:
         """Evaluate the Euclidean norm of a geometry vector.
 
         Parameters
         ----------
-        a : List
+        a : Sequence[float]
         List of ``[x, y, z]`` coordinates for the vector.
 
         Returns
@@ -566,12 +567,12 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def normalize_vector(v: list) -> list:
+    def normalize_vector(v: Sequence[float]) -> list:
         """Normalize a geometry vector.
 
         Parameters
         ----------
-        v : List
+        v : Sequence[float]
             List of ``[x, y, z]`` coordinates for vector.
 
         Returns
@@ -1018,7 +1019,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def is_orthonormal_triplet(x: list, y: list, z: list, tol: float = None) -> bool:
+    def is_orthonormal_triplet(x: list | tuple, y: list | tuple, z: list | tuple, tol: float = None) -> bool:
         """Check if three vectors are orthonormal.
 
         Parameters
@@ -1068,7 +1069,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def is_unit_vector(v: list, tol: float = None) -> bool:
+    def is_unit_vector(v: list | tuple, tol: float = None) -> bool:
         """Check if a vector is a unit vector.
 
         Parameters
@@ -1099,7 +1100,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def is_orthogonal_matrix(matrix: list, tol: float = None) -> bool:
+    def is_orthogonal_matrix(matrix: Sequence[Sequence[float]], tol: float = None) -> bool:
         """Check if a given 3x3 matrix is orthogonal.
 
         An orthogonal matrix is a square matrix whose rows and columns are orthonormal vectors.
@@ -1108,8 +1109,8 @@ class GeometryOperators(PyAedtBase):
 
         Parameters
         ----------
-        matrix : List[List[float]]
-            A 3x3 matrix represented as a list of lists.
+        matrix : Sequence[Sequence[float]]
+            A 3x3 matrix represented as a list of lists or a tuple of tuples.
         tol : float, optional
             Tolerance for numerical comparison.
             The default value is ``None``.
@@ -2128,7 +2129,7 @@ class GeometryOperators(PyAedtBase):
         # fmt: on
 
     @staticmethod
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def mirror_point(start: list, reference: list, vector: list) -> list:
         """Mirror point about a plane defining by a point on the plane and a normal point.
 

@@ -545,8 +545,16 @@ def test_desktop_default_mtls_failure_due_to_bad_certificate(monkeypatch, tmp_pa
     from ansys.aedt.core.generic.general_methods import active_sessions
 
     sessions = active_sessions()
-    for j, k in sessions.items():
-        os.kill(j, signal.SIGTERM)
+    for pid in list(sessions.keys()):
+        try:
+            pid_int = int(pid)
+        except (TypeError, ValueError):
+            continue
+        try:
+            os.kill(pid_int, signal.SIGTERM)
+        except (ProcessLookupError, PermissionError, OSError):
+            # Ignore errors to avoid creating unraisable exceptions during teardown
+            continue
 
 
 @pytest.mark.skipif(

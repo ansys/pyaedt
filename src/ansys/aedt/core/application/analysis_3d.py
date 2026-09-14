@@ -1177,7 +1177,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
             self.odesign.DeleteLinkedDataVariation(variations)
         return True
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def add_stackup_3d(self) -> Stackup3D:
         """Create a stackup 3D object.
 

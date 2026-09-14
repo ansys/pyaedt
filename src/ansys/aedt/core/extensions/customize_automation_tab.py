@@ -106,6 +106,23 @@ def _safe_parse_tabconfig(tabconfig_path: str | Path, logger: LoggerLike | None 
         return None
 
 
+def _linux_icon_symlink_name(images_source: Path) -> str:
+    """Build a unique symlink folder name for a Linux icon source directory.
+
+    Icon directories located inside the extensions package get a name derived from their
+    path relative to the package (e.g. ``images_common_images_large``) so distinct source
+    directories never collide when they are linked under the same automation tab product
+    folder. Sources outside the package fall back to the historical ``images`` name.
+    """
+    extensions_root = Path(ansys.aedt.core.extensions.__file__).parent
+    try:
+        relative = images_source.resolve().relative_to(extensions_root.resolve())
+    except ValueError:
+        return "images"
+    slug = "_".join(relative.parts)
+    return f"images_{slug}" if slug else "images"
+
+
 def add_automation_tab(
     name: str,
     lib_dir: str | Path,
@@ -179,12 +196,17 @@ def add_automation_tab(
 
     default_icon_path = Path(ansys.aedt.core.extensions.__file__).parent / "images" / "large" / "pyansys.png"
 
-    if not is_custom and is_linux:  # pragma: no cover
+    images_dir_name = "images"
+    if is_linux:  # pragma: no cover
+        # Absolute image paths are not supported by AEDT's TabConfig.xml on Linux, so
+        # built-in and custom extension icons alike must be symlinked into a relative path.
         if icon_file:
             images_source = Path(icon_file).parent
         else:
             images_source = Path(ansys.aedt.core.extensions.__file__).parent / "installer" / "images" / "large"
-        images_target = lib_dir / product / "images"
+        # Unique per source dir: avoids "Project"-folder icon collisions
+        images_dir_name = _linux_icon_symlink_name(images_source)
+        images_target = lib_dir / product / images_dir_name
         if not images_target.exists() and images_source.exists():
             try:
                 images_target.symlink_to(images_source)
@@ -198,10 +220,10 @@ def add_automation_tab(
     def _resolve_image_path(path_value: Path | None, is_group_icon: bool = False) -> str | None:
         if not path_value:
             return None
-        if is_linux and not is_custom and is_group_icon:
-            return f"images/gallery/{path_value.name}"
-        elif is_linux and not is_custom:
-            return f"images/{path_value.name}"
+        if is_linux and is_group_icon:
+            return f"{images_dir_name}/gallery/{path_value.name}"
+        elif is_linux:
+            return f"{images_dir_name}/{path_value.name}"
         return path_value.as_posix()
 
     if group_name:
@@ -244,7 +266,7 @@ def add_automation_tab(
             script = Path(name) / "run_pyaedt_toolkit_script"
             button_kwargs = {
                 "isLarge": "1",
-                "image": str(icon_path.as_posix()),
+                "image": _resolve_image_path(icon_path) or str(icon_path.as_posix()),
                 "script": str(script.as_posix()),
                 "custom_extension": "true",
                 "type": "custom",

@@ -44,69 +44,73 @@ class EmitSceneNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> scene_node = revision.get_scene_node()
-        >>> scene_node.node_type
+        >>> rev = app.results.analyze()
+        >>> scene = rev.get_scene_node()
+        >>> scene.node_type
 
         """
         return self._node_type
 
     @min_aedt_version("2025.2")
     def add_emitter(self) -> EmitNode:
-        """Add a new emitter
+        """Add a new emitter.
 
         Examples
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> scene_node = revision.get_scene_node()
-        >>> scene_node.add_emitter()
+        >>> rev = app.results.analyze()
+        >>> scene = rev.get_scene_node()
+        >>> emitter = scene.add_emitter()
 
         """
         return self._add_child_node("Emitter")
 
     @min_aedt_version("2025.2")
     def add_group(self) -> EmitNode:
-        """Add a new scene group
+        """Add a new scene group.
 
         Examples
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> scene_node = revision.get_scene_node()
-        >>> scene_node.add_group()
+        >>> rev = app.results.analyze()
+        >>> scene = rev.get_scene_node()
+        >>> group = scene.add_group()
 
         """
         return self._add_child_node("Group")
 
     @min_aedt_version("2025.2")
-    def import_cad(self, file_name: str) -> EmitNode:
-        """Add an existing CAD file.
+    def import_cad(self, file_name: str, create_antennas: bool = False) -> EmitNode:
+        """Add an existing CAD file
 
-        Examples
-        --------
-        >>> from ansys.aedt.core import Emit
-        >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> scene_node = revision.get_scene_node()
-        >>> scene_node.import_cad(r"C:\\Users\\Public\\Documents\\antenna_scene.glb")
+        Parameters
+        ----------
+        file_name : str
+            Full path to the file to import.
+        create_antennas : bool
+            Whether to automatically create antennas for any mounting points
+            defined in the CAD file (only applicable to gltf/glb files).
 
+        Returns
+        -------
+        node : EmitNode
+            The node.
         """
-        return self._import(file_name, "CAD")
+        return self._import(file_name, "CAD", create_antennas=create_antennas)
 
     @min_aedt_version("2025.2")
     def add_antenna(self) -> EmitNode:
-        """Add a new antenna
+        """Add a new antenna.
 
         Examples
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> scene_node = revision.get_scene_node()
-        >>> scene_node.add_antenna()
+        >>> rev = app.results.analyze()
+        >>> scene = rev.get_scene_node()
+        >>> antenna = scene.add_antenna()
 
         """
         return self._add_child_node("Antenna")
@@ -120,9 +124,9 @@ class EmitSceneNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> scene_node = revision.get_scene_node()
-        >>> scene_node.notes = "Demo scene"
+        >>> rev = app.results.analyze()
+        >>> scene = rev.get_scene_node()
+        >>> scene.notes = "example_value"
 
         """
         val = self._get_property("Notes")
@@ -147,13 +151,16 @@ class EmitSceneNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> scene_node = revision.get_scene_node()
-        >>> scene_node.ground_plane_normal = scene_node.GroundPlaneNormalOption.Z_AXIS
+        >>> rev = app.results.analyze()
+        >>> scene = rev.get_scene_node()
+        >>> scene.ground_plane_normal = EmitSceneNode.GroundPlaneNormalOption.Z_AXIS
 
         """
         val = self._get_property("Ground Plane Normal")
-        val = self.GroundPlaneNormalOption[val.upper()]
+        try:
+            val = self.GroundPlaneNormalOption(val)
+        except ValueError:
+            val = self.GroundPlaneNormalOption[val.upper()]
         return val
 
     @ground_plane_normal.setter
@@ -173,9 +180,9 @@ class EmitSceneNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> revision = app.results.analyze()
-        >>> scene_node = revision.get_scene_node()
-        >>> scene_node.gp_position_along_normal = "2 m"
+        >>> rev = app.results.analyze()
+        >>> scene = rev.get_scene_node()
+        >>> scene.gp_position_along_normal = 0.0
 
         """
         val = self._get_property("GP Position Along Normal")

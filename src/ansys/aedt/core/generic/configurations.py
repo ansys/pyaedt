@@ -2052,7 +2052,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
             pass
         return dict_in
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def _get_duplicate_names(self):
         # Copy project to get dictionary
         from ansys.aedt.core.icepak import Icepak
@@ -2134,7 +2134,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
             duplicate_dict[prop[1]][prop[0]] = operation_dict["Duplicate"][operation_id]
         return duplicate_dict
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def _export_native_components(self, dict_out):
         dict_out["native components"] = {}
         duplicate_dict = self._get_duplicate_names()
@@ -2178,7 +2178,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
         if not self.options.export_coordinate_systems:  # pragma: no cover
             self._export_coordinate_systems(dict_out)
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def _update_native_components(self, native_name, native_dict) -> bool:
 
         def apply_operations_to_native_components(obj, operation_dict, native_dict) -> bool:  # pragma: no cover
@@ -2798,28 +2798,37 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                         if i in new_comp_params and j != new_comp_params and j != f'"{new_comp_params}"'
                     }
                     if params:
-                        try:
-                            values = [
-                                i[1:-1] if isinstance(i, str) and i.startswith('"') and is_number(i[1:-1]) else i
-                                for i in list(params.values())
-                            ]
-                            self._app.change_properties(
-                                self._app.oeditor,
-                                "PassedParameterTab",
-                                new_comp.composed_name,
-                                list(params.keys()),
-                                values,
-                            )
-                        except Exception:  # pragma: no cover
-                            self._app.logger.warning(
-                                f"Failed to set one of the properties for component {new_comp.composed_name}"
-                            )
+                        # applying single settings to ibis because of parameters relationships.
+                        if component_type in ["ibis", "ami"]:
                             for ppn, ppv in params.items():
                                 new_comp.parameters[ppn] = (
                                     ppv[1:-1]
                                     if isinstance(ppv, str) and ppv.startswith('"') and is_number(ppv[1:-1])
                                     else ppv
                                 )
+                        else:
+                            try:
+                                values = [
+                                    i[1:-1] if isinstance(i, str) and i.startswith('"') and is_number(i[1:-1]) else i
+                                    for i in list(params.values())
+                                ]
+                                self._app.change_properties(
+                                    self._app.oeditor,
+                                    "PassedParameterTab",
+                                    new_comp.composed_name,
+                                    list(params.keys()),
+                                    values,
+                                )
+                            except Exception:  # pragma: no cover
+                                self._app.logger.warning(
+                                    f"Failed to set one of the properties for component {new_comp.composed_name}"
+                                )
+                                for ppn, ppv in params.items():
+                                    new_comp.parameters[ppn] = (
+                                        ppv[1:-1]
+                                        if isinstance(ppv, str) and ppv.startswith('"') and is_number(ppv[1:-1])
+                                        else ppv
+                                    )
 
         comp_list = list(self._app.modeler.schematic.components.values())
         for i, j in data["pin_mapping"].items():

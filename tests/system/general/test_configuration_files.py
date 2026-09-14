@@ -33,9 +33,6 @@ from ansys.aedt.core import Q3d
 from ansys.aedt.core.generic.file_utils import available_file_name
 from tests import TESTS_GENERAL_PATH
 
-TEST_FIELD = "Potter_Horn"
-IPK_NAME = "Icepak_test"
-
 Q3D_FILE = "via_gsg_t42_231"
 TEST_PROJECT_NAME = "dm boundary test_231"
 CIRCUIT_PROJECT_NAME = "differential_pairs_231"
