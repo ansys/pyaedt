@@ -22,22 +22,29 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
 
 import pytest
 
 from ansys.aedt.core import Circuit
 from ansys.aedt.core import Hfss
 from ansys.aedt.core import Hfss3dLayout
+from ansys.aedt.core.filtersolutions_core.export_to_aedt import PartLibraries
 from ansys.aedt.core.generic.settings import is_linux
 from tests.conftest import DESKTOP_VERSION
+from tests.system.filter_solutions.conftest import prepare_filtersolutions_for_export
+from tests.system.filter_solutions.conftest import release_exported_design
+from tests.system.filter_solutions.resources import read_resource_file
 
-ON_CI = os.getenv("ON_CI", "false").lower() == "true"
+
+@pytest.fixture(autouse=True)
+def _prepare_filtersolutions_export_tests():
+    prepare_filtersolutions_for_export()
+    yield
+    prepare_filtersolutions_for_export()
 
 
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
 @pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Skipped on versions earlier than 2026.1")
-@pytest.mark.skipif(ON_CI, reason="Lead to access violation issues on CI runners")
 class TestClass:
     def test_lumped_exported_desktop(self, lumped_design):
         schem_name = lumped_design.export_to_aedt.schematic_name
@@ -51,7 +58,17 @@ class TestClass:
         assert variables["C1"].si_value == pytest.approx(1.967e-12)
         assert variables["L2"].si_value == pytest.approx(1.288e-8)
         assert variables["C3"].si_value == pytest.approx(6.366e-12)
-        circuit.desktop_class.close_desktop()
+        release_exported_design(circuit)
+
+    def test_import_tuned_variables(self, lumped_design):
+        lumped_design.export_to_aedt.simulate_after_export_enabled = True
+        lumped_design.export_to_aedt.optimize_after_export_enabled = True
+        lumped_design.export_to_aedt.part_libraries = PartLibraries.LUMPED
+        circuit = lumped_design.export_to_aedt.export_design()
+        assert lumped_design.export_to_aedt.import_tuned_variables().splitlines() == read_resource_file(
+            "imported_netlist.ckt", "Lumped"
+        )
+        release_exported_design(circuit)
 
     def test_distributed_circuit_exported_desktop(self, distributed_design):
         schem_name = distributed_design.export_to_aedt.schematic_name
@@ -69,7 +86,7 @@ class TestClass:
         assert variables["S1"].si_value == pytest.approx(3.362e-3)
         assert variables["S2"].si_value == pytest.approx(2.172e-2)
         assert variables["S3"].si_value == pytest.approx(1.008e-2)
-        circuit.desktop_class.close_desktop()
+        release_exported_design(circuit)
 
     def test_distributed_hfss3dl_exported_desktop(self, distributed_design):
         schem_name = distributed_design.export_to_aedt.schematic_name
@@ -88,7 +105,7 @@ class TestClass:
         assert variables["S1"].si_value == pytest.approx(3.36225452227e-3)
         assert variables["S2"].si_value == pytest.approx(2.17231965814e-2)
         assert variables["S3"].si_value == pytest.approx(1.00773795179e-2)
-        hfss3dl.desktop_class.close_desktop()
+        release_exported_design(hfss3dl)
 
     def test_distributed_hfss_exported_desktop(self, distributed_design):
         schem_name = distributed_design.export_to_aedt.schematic_name
@@ -107,4 +124,4 @@ class TestClass:
         assert variables["S1"].si_value == pytest.approx(3.36225452227e-3)
         assert variables["S2"].si_value == pytest.approx(2.17231965814e-2)
         assert variables["S3"].si_value == pytest.approx(1.00773795179e-2)
-        hfss.desktop_class.close_desktop()
+        release_exported_design(hfss)

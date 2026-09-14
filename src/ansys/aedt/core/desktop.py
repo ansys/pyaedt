@@ -1433,7 +1433,7 @@ class Desktop(PyAedtBase):
         >>> d.odesktop
 
         """
-        if settings.use_grpc_api:
+        if self.is_grpc_api:
             tries = 0
             while tries < 5:
                 try:
