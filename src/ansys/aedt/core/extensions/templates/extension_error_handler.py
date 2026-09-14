@@ -61,12 +61,11 @@ def main():
     result = subprocess.run(
         [sys.executable, script] + script_args,
         env=os.environ.copy(),
-        stderr=subprocess.PIPE,
         text=True,
     )  # nosec
 
     if result.returncode != 0:
-        error_msg = result.stderr or "Process exited with code {}".format(result.returncode)
+        error_msg = "Process exited with code {}. See the console for details.".format(result.returncode)
         _show_error(error_msg)
         sys.exit(result.returncode)
 

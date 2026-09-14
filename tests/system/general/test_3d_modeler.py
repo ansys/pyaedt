@@ -356,12 +356,10 @@ def test_create_object_list(coaxial) -> None:
     coaxial.modeler.user_lists[-1].props["List"] = ["outer", "Core", "inner"]
     coaxial.modeler.user_lists[-1].auto_update = False
 
-    # Change the object type is not allowed from 2027R1
-    if DESKTOP_VERSION <= "2026.1":
-        fl = coaxial.modeler.get_object_faces("Core")
-        coaxial.modeler.user_lists[-1].props["Type"] = "Face"
-        coaxial.modeler.user_lists[-1].props["List"] = fl
-        coaxial.modeler.user_lists[-1].update()
+    fl = coaxial.modeler.get_object_faces("Core")
+    coaxial.modeler.user_lists[-1].props["Type"] = "Face"
+    coaxial.modeler.user_lists[-1].props["List"] = fl
+    coaxial.modeler.user_lists[-1].update()
 
     assert coaxial.modeler.user_lists[-1].rename("new_list")
     assert coaxial.modeler.user_lists[-1].delete()

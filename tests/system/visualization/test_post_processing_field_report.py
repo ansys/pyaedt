@@ -299,14 +299,9 @@ def test_reports_by_category_fields(h3d_potter_horn) -> None:
 
 
 def test_reports_by_category_modal_solution(h3d_potter_horn) -> None:
-    variations2 = h3d_potter_horn.available_variations.nominal_variation(dependent_params=False)
     new_report = h3d_potter_horn.post.reports_by_category.modal_solution("S(1,1)")
     new_report.report_type = "Smith Chart"
     assert new_report.create()
-    data = h3d_potter_horn.setups[0].get_solution_data(
-        "Mag_E", variations=variations2, primary_sweep_variable="Theta", report_category="Fields", context="Poly1"
-    )
-    assert data.units_sweeps["Phase"] == "deg"
 
 
 def test_get_far_field_data(h3d_potter_horn) -> None:

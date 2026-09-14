@@ -49,10 +49,14 @@ from ansys.aedt.core.internal.errors import GrpcApiError
 from tests import TESTS_EMIT_PATH
 from tests.conftest import DESKTOP_VERSION
 
+# AEDT 2027R1 removes the EmitApiPython dependency which needed to be
+# specifically compiled for each supported Python version.
 # Prior to 2025R1, the Emit API supported Python 3.8,3.9,3.10,3.11
 # Starting with 2025R1, the Emit API supports Python 3.10,3.11,3.12
-if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1") or (
-    (3, 10) <= sys.version_info[0:2] <= (3, 12) and DESKTOP_VERSION > "2024.2"
+if (
+    DESKTOP_VERSION >= "2027.1"
+    or ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1")
+    or ((3, 10) <= sys.version_info[0:2] <= (3, 12) and DESKTOP_VERSION > "2024.2")
 ):
     from ansys.aedt.core import Emit
     from ansys.aedt.core.emit_core.emit_constants import EmiCategoryFilter
@@ -3884,7 +3888,7 @@ def test_purge_specific_1to1_and_n_to_1(interference):
     # An unspecified receiver combined with a single empty interferer runs every
     # 1-to-1 band pair and every N-to-1 combination in the project.
     run_all = InteractionDomain(interference)
-    run_all.set_interferer("")
+    run_all.set_interferers([])
     all_results = sim.run(run_all)
     assert all_results.is_valid()
 
@@ -3898,11 +3902,11 @@ def test_purge_specific_1to1_and_n_to_1(interference):
 
     bt_n_to_1 = InteractionDomain(interference)
     bt_n_to_1.set_receiver("Bluetooth")
-    bt_n_to_1.set_interferer("")
+    bt_n_to_1.set_interferers([])
 
     gps_n_to_1 = InteractionDomain(interference)
     gps_n_to_1.set_receiver("GPS")
-    gps_n_to_1.set_interferer("")
+    gps_n_to_1.set_interferers([])
 
     # The full run covers all of these
     assert has_results(bt_wifi)

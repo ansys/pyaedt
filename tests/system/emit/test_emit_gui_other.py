@@ -44,8 +44,14 @@ import pytest
 from tests import TESTS_EMIT_PATH
 from tests.conftest import DESKTOP_VERSION
 
-if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1") or (
-    (3, 10) <= sys.version_info[0:2] <= (3, 12) and DESKTOP_VERSION > "2024.2"
+# AEDT 2027R1 removes the EmitApiPython dependency which needed to be
+# specifically compiled for each supported Python version.
+# Prior to 2025R1, the Emit API supported Python 3.8,3.9,3.10,3.11
+# Starting with 2025R1, the Emit API supports Python 3.10,3.11,3.12
+if (
+    DESKTOP_VERSION >= "2027.1"
+    or ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1")
+    or ((3, 10) <= sys.version_info[0:2] <= (3, 12) and DESKTOP_VERSION > "2024.2")
 ):
     from ansys.aedt.core import Emit
     from ansys.aedt.core.emit_core.nodes.generated import Amplifier
