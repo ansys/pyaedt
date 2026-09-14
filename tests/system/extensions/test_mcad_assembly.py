@@ -29,7 +29,6 @@ from unittest.mock import patch
 import pytest
 
 from ansys.aedt.core import Hfss
-from ansys.aedt.core.extensions.hfss.mcad_assembly import DATA
 from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssemblyFrontend
 from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssembly, Component
 from ansys.aedt.core.extensions.hfss.mcad_assembly import run
