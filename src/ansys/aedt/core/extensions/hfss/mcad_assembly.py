@@ -40,6 +40,7 @@ from pydantic import BaseModel, AliasChoices
 from pydantic import Field
 
 import ansys.aedt.core
+from pyedb import Edb
 from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.extensions.misc import ExtensionHFSSCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
@@ -378,7 +379,7 @@ class Component(BaseModel):
             elif i.operation == "move":
                 hfss.modeler.move(self.name, i.vector or ["0mm", "0mm", "0mm"])
 
-    def assemble(self, hfss: "Hfss", cs_prefix: str | None = None):
+    def assemble(self, hfss: "Hfss", cs_prefix: str | None = None, version: str | None = None):
         """Parameters
         ----------
          cs_prefix : str
@@ -413,6 +414,25 @@ class Component(BaseModel):
             )
             model_name = None
         else:
+            temp = dict()
+            edb = Edb(model_path, version=version)
+            for name, obj in edb.components.instances.items():
+                pins = obj.pins
+                pin_names = list(pins.keys())
+                p1_name = sorted(pin_names)[0]
+                p1_loc = pins[p1_name].position
+                edb.modeler.insert_coordinate_system(name=name + "_", x=p1_loc[0], y=p1_loc[1],
+                                                        layer=obj.placement_layer)
+                temp[p1_name] = p1_loc
+                if len(pin_names) > 1:
+                    p2_name = sorted(pin_names)[1]
+                    p2_loc = pins[p2_name].position
+                    temp[p2_name] = p2_loc
+            PCB_COORDINATES[self.model] = temp
+
+            edb.save()
+            edb.close(terminate_rpc_session=False)
+
             self.model = generate_unique_name(self.model)
             modeler.add_layout_component_definition(file_path=model_path, name=self.model)
             comp = modeler._insert_layout_component_instance(
@@ -444,6 +464,7 @@ Component.model_rebuild()
 
 COMPONENT_MODELS = {}
 """Component models."""
+PCB_COORDINATES = {}
 
 
 class MCADAssembly(BaseModel):
@@ -490,10 +511,11 @@ def run(
 
     app = MCADAssembly._load(data=config_data)
 
+    version = version if version else get_aedt_version()
     if hfss is None:
         hfss = ansys.aedt.core.Hfss(
             project=str(project_dir/"assembly.aedt"),
-            version=version if version else get_aedt_version(),
+            version=version,
             port=port if port else get_port(),
             aedt_process_id=aedt_process_id if aedt_process_id else get_process_id(),
             student_version=student_version if student_version else is_student(),
@@ -515,7 +537,7 @@ def run(
         hfss.modeler.create_coordinate_system(name=name, **value)
 
     for name, comp in app.sub_components.items():
-        comp.assemble(hfss)
+        comp.assemble(hfss, version=version)
 
     if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
         hfss.desktop_class.release_desktop(False, False)
