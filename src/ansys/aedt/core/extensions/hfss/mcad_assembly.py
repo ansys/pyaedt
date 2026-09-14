@@ -415,23 +415,24 @@ class Component(BaseModel):
             model_name = None
         else:
             temp = dict()
-            edb = Edb(model_path, version=version)
-            for name, obj in edb.components.instances.items():
-                pins = obj.pins
-                pin_names = list(pins.keys())
-                p1_name = sorted(pin_names)[0]
-                p1_loc = pins[p1_name].position
-                edb.modeler.insert_coordinate_system(name=name + "_", x=p1_loc[0], y=p1_loc[1],
-                                                        layer=obj.placement_layer)
-                temp[p1_name] = p1_loc
-                if len(pin_names) > 1:
-                    p2_name = sorted(pin_names)[1]
-                    p2_loc = pins[p2_name].position
-                    temp[p2_name] = p2_loc
-            PCB_COORDINATES[self.model] = temp
+            if Path(model_path).suffix == ".aedb":
+                edb = Edb(model_path, version=version)
+                for name, obj in edb.components.instances.items():
+                    pins = obj.pins
+                    pin_names = list(pins.keys())
+                    p1_name = sorted(pin_names)[0]
+                    p1_loc = pins[p1_name].position
+                    edb.modeler.insert_coordinate_system(name=name + "_", x=p1_loc[0], y=p1_loc[1],
+                                                            layer=obj.placement_layer)
+                    temp[p1_name] = p1_loc
+                    if len(pin_names) > 1:
+                        p2_name = sorted(pin_names)[1]
+                        p2_loc = pins[p2_name].position
+                        temp[p2_name] = p2_loc
+                PCB_COORDINATES[self.model] = temp
 
-            edb.save()
-            edb.close(terminate_rpc_session=False)
+                edb.save()
+                edb.close(terminate_rpc_session=False)
 
             self.model = generate_unique_name(self.model)
             modeler.add_layout_component_definition(file_path=model_path, name=self.model)
