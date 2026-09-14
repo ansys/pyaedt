@@ -2167,8 +2167,22 @@ class Desktop(PyAedtBase):
         return True
 
     def __del__(self):
-        """Release AEDT and delete PyAEDT object."""
-        self.__release_and_close_desktop(self.close_on_exit, self.close_on_exit)
+        """Release AEDT and delete PyAEDT object.
+
+        Destructors must never raise. Use getattr with defaults and suppress
+        all exceptions to avoid unraisable exceptions during interpreter
+        shutdown or when objects are only partially initialized.
+        """
+        try:
+            close_val = getattr(self, "close_on_exit", getattr(self, "_Desktop__close_on_exit", True))
+            try:
+                self.__release_and_close_desktop(close_val, close_val)
+            except Exception:  # nosec B110
+                # Suppress exceptions raised during cleanup in destructor
+                pass
+        except Exception:  # nosec B110
+            # Defensive: ensure destructor never raises
+            return
 
     @pyaedt_function_handler()
     def __release_and_close_desktop(self, close_projects, close_aedt_app):
