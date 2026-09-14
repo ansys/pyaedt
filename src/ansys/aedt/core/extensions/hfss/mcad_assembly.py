@@ -32,11 +32,11 @@ import tempfile
 import tkinter
 from tkinter import filedialog
 from tkinter import ttk
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 from typing import Any
 from typing import cast
 
-from pydantic import BaseModel
+from pydantic import BaseModel, AliasChoices
 from pydantic import Field
 
 import ansys.aedt.core
@@ -309,17 +309,19 @@ class Arrange(BaseModel):
         extra = "forbid"
 
 
+COMPONENT_TYPE = Literal["ecad", "mcad"]
+
 class Component(BaseModel):
     """Provide component."""
 
-    component_type: str
+    component_type: COMPONENT_TYPE|None = Field("mcad")
     """Value for component type."""
-    name: str
+    name: str = ""
     """Value for name."""
     model: str
     """Value for model."""
 
-    target_coordinate_system: str
+    target_coordinate_system: str|None = "Global"
     """Value for target coordinate system."""
     layout_coordinate_systems: list[str] | None = Field(default_factory=list)
     """Value for layout coordinate systems."""
@@ -335,11 +337,11 @@ class Component(BaseModel):
     """Value for geometry parameters."""
 
     # Ecad parameters
-    reference_coordinate_system: str = "Global"
+    reference_coordinate_system: str|None = "Global"
     """Value for reference coordinate system."""
 
     # internal properties
-    __rotate_index: int = 0
+    __rotate_index: int|None = 0
 
     class Config:
         extra = "forbid"
@@ -398,17 +400,19 @@ class Component(BaseModel):
         if cs_prefix:
             self.target_coordinate_system = f"{cs_prefix}_{self.target_coordinate_system}"
 
+        model_path = COMPONENT_MODELS[self.model]
+        if not Path(model_path).exists():
+            raise FileNotFoundError(f"{model_path} does not exist")
         if self.component_type == "mcad":
             comp = modeler.insert_3d_component(
                 name=self.name,
-                input_file=COMPONENT_MODELS[self.model],
+                input_file=model_path,
                 coordinate_system=self.target_coordinate_system,
                 password=self.password,
                 geometry_parameters=self.geometry_parameters,
             )
             model_name = None
         else:
-            model_path = COMPONENT_MODELS[self.model]
             self.model = generate_unique_name(self.model)
             modeler.add_layout_component_definition(file_path=model_path, name=self.model)
             comp = modeler._insert_layout_component_instance(
@@ -451,7 +455,7 @@ class MCADAssembly(BaseModel):
     """Value for layout component models."""
     component_models: dict[str, str] = Field(default_factory=dict)
     """Value for component models."""
-    sub_components: dict[str, Component] = Field(default_factory=dict)
+    sub_components: dict[str, Component] = Field(default_factory=dict, validation_alias=AliasChoices("sub_components", "assembly"))
     """Value for sub components."""
 
     class Config:
@@ -463,7 +467,7 @@ class MCADAssembly(BaseModel):
             coordinate_system=data.get("coordinate_system", {}),
             component_models=data.get("component_models", {}),
             layout_component_models=data.get("layout_component_models", {}),
-            sub_components={name: Component._load(name, comp) for name, comp in data.get("assembly", {}).items()},
+            sub_components={name: Component._load(name, comp) for name, comp in data.get("sub_components", {}).items()},
         )
 
 

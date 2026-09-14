@@ -31,6 +31,7 @@ import pytest
 from ansys.aedt.core import Hfss
 from ansys.aedt.core.extensions.hfss.mcad_assembly import DATA
 from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssemblyFrontend
+from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssembly, Component
 from ansys.aedt.core.extensions.hfss.mcad_assembly import run
 from ansys.aedt.core.generic.general_methods import is_linux
 from tests import TESTS_EXTENSIONS_PATH
@@ -45,14 +46,73 @@ def hfss_app(add_app):
     app.close_project(app.project_name, save=False)
 
 
+def get_test_data() -> MCADAssembly:
+
+    comp_cable_1 = Component(
+        name="cable_1",
+        model="cable",
+        target_coordinate_system="CABLE1_via_65"
+    )
+    comp_cable_2 = Component(
+        name="cable_2",
+        model="cable",
+        target_coordinate_system="CABLE2_via_65"
+    )
+    comp_pcb = Component(
+        name="pcb",
+        component_type="ecad",
+        model="pcb",
+        target_coordinate_system="Guiding_Pin",
+        layout_coordinate_systems=["CABLE1_via_65", "CABLE2_via_65", "H0_via_65"],
+        reference_coordinate_system="H0_via_65",
+        sub_components={
+            comp_cable_1.name: comp_cable_1,
+            comp_cable_2.name: comp_cable_2,
+        },
+    )
+    comp_case = Component(
+        name="case",
+        model="case",
+        target_coordinate_system="GLOBAL_2",
+        sub_components={
+            comp_pcb.name: comp_pcb,
+        }
+    )
+    comp_clamp_monitor = Component(
+        name="clamp_monitor",
+        model="clamp_monitor",
+        target_coordinate_system="CS_CLAMP",
+    )
+    top_assembly = MCADAssembly(
+        component_models={
+            comp_case.model: "Chassi.a3dcomp",
+            comp_cable_1.model: "Cable_1.a3dcomp",
+            comp_clamp_monitor.model: "BCI_MONITORING_CLAMP.a3dcomp",
+        },
+        layout_component_models={
+            comp_pcb.name: "DCDC-Converter-App_main.aedbcomp",
+        },
+        coordinate_system={
+            "GLOBAL_2": {"origin": ["100mm", "0mm", "0mm"], "reference_cs": "Global"},
+            "CS_CLAMP": {"origin": ["-130mm", "80mm", "12mm"], "reference_cs": "GLOBAL_2"},
+        },
+        sub_components={
+            comp_case.name: comp_case,
+            comp_clamp_monitor.name: comp_clamp_monitor,
+        }
+    )
+    return top_assembly
+
+
 @pytest.mark.skipif(is_linux, reason="EDB load of Layout component failing in Linux.")
 @patch("tkinter.filedialog.askopenfilename")
 def test_backend(mock_askopenfilename, hfss_app, test_tmp_dir) -> None:
     """Test the examples provided in the via design extension."""
     shutil.copytree(MODEL_FOLDER, test_tmp_dir, dirs_exist_ok=True)
     config_file = test_tmp_dir / "config.json"
+    data = get_test_data()
     with open(config_file, "w") as f:
-        json.dump(DATA, f, indent=4)
+        json.dump(data.model_dump(), f, indent=4)
 
     extension = MCADAssemblyFrontend(withdraw=True)
     mock_askopenfilename.return_value = str(config_file)
