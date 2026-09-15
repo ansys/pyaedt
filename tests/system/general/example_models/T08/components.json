@@ -1,0 +1,45 @@
+{
+  "library_3dcomp": {
+    "syslib": "",
+    "userlib": "",
+    "personallib": "",
+    "project": ""
+  },
+  "partname_map": {
+    "CAP_CUSTOM": "assemblycomp.a3dcomp"
+  },
+  "assembly":[
+        {
+          "refdes": "C375",
+          "partname": "CAP_CUSTOM",
+          "pin_mapping": {
+            "1": "Pin01",
+            "2": "Pin02"
+          }
+        },
+        {
+          "refdes": "C376",
+          "partname": "CAP_CUSTOM",
+          "pin_mapping": {
+            "1": "Pin01",
+            "2": "Pin02"
+          }
+        },
+        {
+          "refdes": "C379",
+          "partname": "CAP_CUSTOM",
+          "pin_mapping": {
+            "1": "Pin01",
+            "2": "Pin02"
+          }
+        },
+        {
+          "refdes": "C380",
+          "partname": "CAP_CUSTOM",
+          "pin_mapping": {
+            "1": "Pin01",
+            "2": "Pin02"
+          }
+        }
+      ]
+}
