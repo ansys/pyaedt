@@ -38,6 +38,7 @@ from typing import cast
 
 from pydantic import BaseModel, AliasChoices
 from pydantic import Field
+import numpy as np
 
 import ansys.aedt.core
 from pyedb import Edb
@@ -291,10 +292,13 @@ def insert_items(tree: ttk.Treeview, parent: str, dictionary: dict | list | str 
 
 
 # Below is the backend for the MCAD assembly extension.
+OPERATIONS = Literal["move", "rotate"]
+
+
 class Arrange(BaseModel):
     """Provide arrange."""
 
-    operation: str
+    operation: OPERATIONS
     """Value for operation."""
     # Rotate parameters
     axis: str | None = "X"
@@ -312,17 +316,37 @@ class Arrange(BaseModel):
 
 COMPONENT_TYPE = Literal["ecad", "mcad"]
 
+
+class PlacementPinMapping(BaseModel):
+    reference_designator: str
+    pin_1_loc: tuple[str | int | float, str | int | float, str | int | float]
+    pin_2_loc: tuple[str | int | float, str | int | float, str | int | float] | None = None
+
+
 class Component(BaseModel):
     """Provide component."""
 
-    component_type: COMPONENT_TYPE|None = Field("mcad")
+    class PinMapping(BaseModel):
+        refdes: str | None = None
+        cs_name: str | None = None
+        """Value for refdes."""
+        pin1_location: tuple[str | int | float, str | int | float] | None = None
+        flip: bool | None = False
+        thickness_offset: float | None = None
+        rotation_rad: int|float | None = 0
+
+    component_type: COMPONENT_TYPE | None = Field("mcad")
     """Value for component type."""
     name: str = ""
     """Value for name."""
     model: str
     """Value for model."""
 
-    target_coordinate_system: str|None = "Global"
+    use_pin_mapping: bool = False
+    placement_pin_mapping: PlacementPinMapping | None = None
+    __pin_mapping_info: dict[str, PinMapping] | None = {}
+
+    target_coordinate_system: str | None = "Global"
     """Value for target coordinate system."""
     layout_coordinate_systems: list[str] | None = Field(default_factory=list)
     """Value for layout coordinate systems."""
@@ -338,11 +362,11 @@ class Component(BaseModel):
     """Value for geometry parameters."""
 
     # Ecad parameters
-    reference_coordinate_system: str|None = "Global"
+    reference_coordinate_system: str | None = "Global"
     """Value for reference coordinate system."""
 
     # internal properties
-    __rotate_index: int|None = 0
+    __rotate_index: int | None = 0
 
     class Config:
         extra = "forbid"
@@ -355,9 +379,13 @@ class Component(BaseModel):
         data_["name"] = name
         return cls(**data_)
 
-    def _assemble_sub_components(self, hfss, cs_prefix: str | None = ""):
+    def _assemble_sub_components(self, hfss, cs_prefix: str | None = "", version: str | None = None):
         for _name, comp in self.sub_components.items():
-            comp.assemble(hfss, cs_prefix)
+            if comp.use_pin_mapping:
+                pin_mapping_info = self.__pin_mapping_info[comp.placement_pin_mapping.reference_designator]
+            else:
+                pin_mapping_info = None
+            comp.assemble(hfss, cs_prefix, version, pin_mapping_info=pin_mapping_info)
 
     def _apply_arrange(self, hfss: "Hfss"):
         for i in self.arranges:
@@ -379,7 +407,8 @@ class Component(BaseModel):
             elif i.operation == "move":
                 hfss.modeler.move(self.name, i.vector or ["0mm", "0mm", "0mm"])
 
-    def assemble(self, hfss: "Hfss", cs_prefix: str | None = None, version: str | None = None):
+    def assemble(self, hfss: "Hfss", cs_prefix: str | None = None, version: str | None = None,
+                 pin_mapping_info: PinMapping | None = None):
         """Parameters
         ----------
          cs_prefix : str
@@ -398,6 +427,25 @@ class Component(BaseModel):
 
         """
         modeler = cast(Any, hfss.modeler)
+
+        if self.use_pin_mapping:
+            self.target_coordinate_system = self.placement_pin_mapping.reference_designator + "_"
+            temp = self.placement_pin_mapping
+            if temp.pin_2_loc is None:
+                dx, dy = np.array(temp.pin_2_loc[:2]) - np.array(temp.pin_1_loc[:2])
+                angle_rad = np.arctan2(dy, dx)
+            else:
+                angle_rad = 0
+            comp_cs = pin_mapping_info
+            self.arranges.append(Arrange(operation="move", vector=list(temp.pin_1_loc)))
+            if comp_cs and comp_cs.flip:
+                self.arranges.append(Arrange(operation="rotate", axis="X", angle="180deg"))
+                self.arranges.append(Arrange(operation="move", vector=[0, 0, f"{-comp_cs.thickness_offset}meter"]))
+                rotation = comp_cs.rotation_rad - angle_rad
+            else:
+                rotation = angle_rad - comp_cs.rotation_rad
+            self.arranges.append(Arrange(operation="rotate", axis="Z", angle=f"{np.degrees(rotation):.0f}deg"))
+
         if cs_prefix:
             self.target_coordinate_system = f"{cs_prefix}_{self.target_coordinate_system}"
 
@@ -405,6 +453,7 @@ class Component(BaseModel):
         if not Path(model_path).exists():
             raise FileNotFoundError(f"{model_path} does not exist")
         if self.component_type == "mcad":
+            # a3dcomp
             comp = modeler.insert_3d_component(
                 name=self.name,
                 input_file=model_path,
@@ -413,23 +462,40 @@ class Component(BaseModel):
                 geometry_parameters=self.geometry_parameters,
             )
             model_name = None
+
         else:
-            temp = dict()
+
             if Path(model_path).suffix == ".aedb":
-                edb = Edb(model_path, version=version)
-                for name, obj in edb.components.instances.items():
-                    pins = obj.pins
-                    pin_names = list(pins.keys())
-                    p1_name = sorted(pin_names)[0]
-                    p1_loc = pins[p1_name].position
-                    edb.modeler.insert_coordinate_system(name=name + "_", x=p1_loc[0], y=p1_loc[1],
-                                                            layer=obj.placement_layer)
-                    temp[p1_name] = p1_loc
-                    if len(pin_names) > 1:
-                        p2_name = sorted(pin_names)[1]
-                        p2_loc = pins[p2_name].position
-                        temp[p2_name] = p2_loc
-                PCB_COORDINATES[self.model] = temp
+                comps = [j.placement_pin_mapping.reference_designator for i, j in self.sub_components.items() if j.use_pin_mapping]
+                if comps:
+                    edb = Edb(model_path, version=version)
+                    for refdes, obj in edb.components.instances.items():
+                        if refdes in comps:
+                            obj.enabled = False
+                            cs_name = refdes + "_"
+                            pin_mapping = Component.PinMapping(refdes=refdes, cs_name=cs_name)
+                            pins = obj.pins
+                            pin_names = list(pins.keys())
+                            p1_name = sorted(pin_names)[0]
+                            p1_loc = pins[p1_name].position
+
+                            edb.modeler.insert_coordinate_system(name=cs_name, x=p1_loc[0], y=p1_loc[1],
+                                                                 layer=obj.placement_layer)
+                            self.layout_coordinate_systems.append(cs_name)
+                            pin_mapping.pin1_location = tuple(p1_loc)
+                            signal_layers = list(edb.stackup.signal_layers)
+                            pin_mapping.flip = True if signal_layers.index(obj.placement_layer) > len(
+                                signal_layers) / 2 else False
+                            pin_mapping.thickness_offset = edb.stackup.signal_layers[obj.placement_layer].thickness
+
+                            if len(pin_names) > 1:
+                                p2_name = sorted(pin_names)[1]
+                                p2_loc = pins[p2_name].position
+
+                                dx, dy = np.array(p2_loc) - np.array(p1_loc)
+                                angle_rad = np.arctan2(dy, dx)
+                                pin_mapping.rotation_rad = angle_rad
+                            self.__pin_mapping_info[refdes] = pin_mapping
 
                 edb.save()
                 edb.close(terminate_rpc_session=False)
@@ -458,7 +524,7 @@ class Component(BaseModel):
 
         self._apply_arrange(hfss)
         if self.sub_components:
-            self._assemble_sub_components(hfss, cs_prefix=model_name)
+            self._assemble_sub_components(hfss, cs_prefix=model_name, version=version)
 
 
 Component.model_rebuild()
@@ -477,7 +543,8 @@ class MCADAssembly(BaseModel):
     """Value for layout component models."""
     component_models: dict[str, str] = Field(default_factory=dict)
     """Value for component models."""
-    sub_components: dict[str, Component] = Field(default_factory=dict, validation_alias=AliasChoices("sub_components", "assembly"))
+    sub_components: dict[str, Component] = Field(default_factory=dict,
+                                                 validation_alias=AliasChoices("sub_components", "assembly"))
     """Value for sub components."""
 
     class Config:
@@ -495,19 +562,19 @@ class MCADAssembly(BaseModel):
 
 def run(
         config_data: dict,
-        project_dir: str=None,
+        project_dir: str = None,
         model_dir: str = None,
-        version: str=None,
-        port:int=None,
-        aedt_process_id:int=None,
-        student_version:bool=False,
+        version: str = None,
+        port: int = None,
+        aedt_process_id: int = None,
+        student_version: bool = False,
         hfss=None
-        ):
+):
     if not project_dir:
         project_dir = Path(tempfile.mkdtemp(prefix="mcad_assembly_"))
     else:
         project_dir = Path(project_dir)
-    temp_model_dir = project_dir/"models"
+    temp_model_dir = project_dir / "models"
     temp_model_dir.mkdir(parents=True, exist_ok=True)
 
     app = MCADAssembly._load(data=config_data)
@@ -515,7 +582,7 @@ def run(
     version = version if version else get_aedt_version()
     if hfss is None:
         hfss = ansys.aedt.core.Hfss(
-            project=str(project_dir/"assembly.aedt"),
+            project=str(project_dir / "assembly.aedt"),
             version=version,
             port=port if port else get_port(),
             aedt_process_id=aedt_process_id if aedt_process_id else get_process_id(),
@@ -526,7 +593,10 @@ def run(
 
     for name, path in app.layout_component_models.items():
         path = Path(path) if Path(path).drive else model_dir / Path(path)
-        temp_path = shutil.copy(path, temp_model_dir)
+        if path.suffix == ".aedb":
+            temp_path = shutil.copytree(path, temp_model_dir / path.name)
+        else:
+            temp_path = shutil.copy(path, temp_model_dir)
         COMPONENT_MODELS[name] = str(temp_path)
 
     for name, path in app.component_models.items():
@@ -542,6 +612,7 @@ def run(
 
     if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
         hfss.desktop_class.release_desktop(False, False)
+
 
 # End of MCADAssemblyBackend
 

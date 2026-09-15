@@ -29,8 +29,8 @@ from unittest.mock import patch
 import pytest
 
 from ansys.aedt.core import Hfss
-from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssemblyFrontend
-from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssembly, Component
+from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssemblyFrontend, Arrange
+from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssembly, Component, PlacementPinMapping
 from ansys.aedt.core.extensions.hfss.mcad_assembly import run
 from ansys.aedt.core.generic.general_methods import is_linux
 from tests import TESTS_EXTENSIONS_PATH
@@ -48,14 +48,34 @@ def hfss_app(add_app):
 def get_test_data() -> MCADAssembly:
 
     comp_cable_1 = Component(
-        name="cable_1",
+        name="cable_a",
         model="cable",
         target_coordinate_system="CABLE1_via_65"
     )
     comp_cable_2 = Component(
-        name="cable_2",
+        name="cable_b",
         model="cable",
         target_coordinate_system="CABLE2_via_65"
+    )
+    comp_cap = Component(
+        name="cap_c4",
+        model="cap0402",
+        use_pin_mapping=True,
+        placement_pin_mapping=PlacementPinMapping(
+            reference_designator="C4",
+            pin_1_loc=(0, 0, 0),
+            pin_2_loc=(0.7375e-3, 0, 0),
+        )
+    )
+    comp_r7 = Component(
+        name="cap_r7",
+        model="cap0402",
+        use_pin_mapping=True,
+        placement_pin_mapping=PlacementPinMapping(
+            reference_designator="R7",
+            pin_1_loc=(0, 0, 0),
+            pin_2_loc=(0.7375e-3, 0, 0),
+        )
     )
     comp_pcb = Component(
         name="pcb",
@@ -67,7 +87,12 @@ def get_test_data() -> MCADAssembly:
         sub_components={
             comp_cable_1.name: comp_cable_1,
             comp_cable_2.name: comp_cable_2,
+            comp_cap.name: comp_cap,
+            comp_r7.name: comp_r7,
         },
+        arranges=[
+            Arrange(operation="rotate", axis="X", angle="0deg")
+        ]
     )
     comp_case = Component(
         name="case",
@@ -85,11 +110,12 @@ def get_test_data() -> MCADAssembly:
     top_assembly = MCADAssembly(
         component_models={
             comp_case.model: "Chassi.a3dcomp",
-            comp_cable_1.model: "Cable_1.a3dcomp",
+            comp_cable_1.model: "Cable.a3dcomp",
             comp_clamp_monitor.model: "BCI_MONITORING_CLAMP.a3dcomp",
+            comp_cap.model: "Capacitor0402_100pF_HFSS.a3dcomp",
         },
         layout_component_models={
-            comp_pcb.name: "DCDC-Converter-App_main.aedbcomp",
+            comp_pcb.name: "DCDC-Converter-App_main.aedb",
         },
         coordinate_system={
             "GLOBAL_2": {"origin": ["100mm", "0mm", "0mm"], "reference_cs": "Global"},
@@ -117,15 +143,14 @@ def test_backend(mock_askopenfilename, hfss_app, test_tmp_dir) -> None:
     mock_askopenfilename.return_value = str(config_file)
     extension.root.nametowidget(".notebook.main.load").invoke()
 
-
-
     run(config_data=extension.config_data, hfss=hfss_app, project_dir=test_tmp_dir, model_dir=test_tmp_dir)
     assert hfss_app.modeler.layout_component_names == ["pcb1"]
     assert set(hfss_app.modeler.user_defined_component_names) == {
-        "cable_1_2",
+        "cable_a",
         "clamp_monitor",
         "case",
-        "cable_2",
+        "cable_b",
         "pcb1",
-        "cable_1",
+        "cap_c4",
+        "cap_r7",
     }
