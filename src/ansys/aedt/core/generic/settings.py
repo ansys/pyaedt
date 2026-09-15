@@ -289,8 +289,6 @@ class Settings(PyAedtBase):
                 pyaedt_settings_path = Path(os.environ["APPDATA"]) / "pyaedt_settings.yaml"
         try:
             self.load_yaml_configuration(pyaedt_settings_path)
-            print(settings.enable_error_handler)
-            print(settings.release_on_exception)
         except Exception:
             pass
 
