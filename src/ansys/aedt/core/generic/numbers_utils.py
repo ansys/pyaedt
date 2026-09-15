@@ -109,7 +109,9 @@ class Quantity(float, PyAedtBase):
     def _parse_units(self, unit):
         if unit:
             resolved_unit_system = unit_system(unit)
-            if isinstance(resolved_unit_system, str):
+            # NOTE: "None" is a real key in AEDT_UNITS, but for Quantity it means "no unit system".
+            # Do not remove the inequality check until/unless a change is made to AEDT_UNITS structure.
+            if isinstance(resolved_unit_system, str) and resolved_unit_system != "None":
                 self._unit_system = resolved_unit_system
             else:
                 self._unit_system = None
