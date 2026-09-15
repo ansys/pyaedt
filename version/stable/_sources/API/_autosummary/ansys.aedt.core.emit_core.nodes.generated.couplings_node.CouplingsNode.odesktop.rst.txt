@@ -1,0 +1,6 @@
+odesktop
+========
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.couplings_node
+
+.. autoproperty:: CouplingsNode.odesktop

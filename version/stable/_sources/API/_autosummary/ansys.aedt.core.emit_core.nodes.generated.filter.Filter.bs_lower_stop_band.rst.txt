@@ -1,0 +1,6 @@
+bs\_lower\_stop\_band
+=====================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.filter
+
+.. autoproperty:: Filter.bs_lower_stop_band

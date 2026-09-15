@@ -1,0 +1,6 @@
+ocomponent\_manager
+===================
+
+.. currentmodule:: ansys.aedt.core.icepak
+
+.. autoproperty:: Icepak.ocomponent_manager

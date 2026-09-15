@@ -1,0 +1,6 @@
+revision\_loaded
+================
+
+.. currentmodule:: ansys.aedt.core.emit_core.results.revision
+
+.. autoattribute:: Revision.revision_loaded

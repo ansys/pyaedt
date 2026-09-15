@@ -1,0 +1,6 @@
+public\_dir
+===========
+
+.. currentmodule:: ansys.aedt.core.modules.material_lib
+
+.. autoproperty:: Materials.public_dir

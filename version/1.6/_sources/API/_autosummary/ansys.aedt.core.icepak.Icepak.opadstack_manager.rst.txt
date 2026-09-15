@@ -1,0 +1,6 @@
+opadstack\_manager
+==================
+
+.. currentmodule:: ansys.aedt.core.icepak
+
+.. autoproperty:: Icepak.opadstack_manager

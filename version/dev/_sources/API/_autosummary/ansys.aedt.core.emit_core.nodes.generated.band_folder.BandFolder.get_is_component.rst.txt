@@ -1,0 +1,6 @@
+get\_is\_component
+==================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.band_folder
+
+.. automethod:: BandFolder.get_is_component

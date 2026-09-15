@@ -1,0 +1,6 @@
+is\_vector\_equal
+=================
+
+.. currentmodule:: ansys.aedt.core.modeler.geometry_operators
+
+.. automethod:: GeometryOperators.is_vector_equal

@@ -1,0 +1,6 @@
+﻿nastran\_to\_stl
+================
+
+.. currentmodule:: ansys.aedt.core.syslib.nastran_import
+
+.. autofunction:: nastran_to_stl

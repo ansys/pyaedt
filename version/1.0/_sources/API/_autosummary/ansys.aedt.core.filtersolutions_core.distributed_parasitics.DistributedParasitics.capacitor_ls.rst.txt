@@ -1,0 +1,6 @@
+capacitor\_ls
+=============
+
+.. currentmodule:: ansys.aedt.core.filtersolutions_core.distributed_parasitics
+
+.. autoproperty:: DistributedParasitics.capacitor_ls

@@ -1,0 +1,6 @@
+get\_active\_frequencies
+========================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.band
+
+.. automethod:: Band.get_active_frequencies

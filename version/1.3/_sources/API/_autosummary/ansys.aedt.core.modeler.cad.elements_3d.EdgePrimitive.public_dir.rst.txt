@@ -1,0 +1,6 @@
+public\_dir
+===========
+
+.. currentmodule:: ansys.aedt.core.modeler.cad.elements_3d
+
+.. autoproperty:: EdgePrimitive.public_dir

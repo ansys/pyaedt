@@ -1,0 +1,6 @@
+use\_emission\_designator
+=========================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.band
+
+.. autoproperty:: Band.use_emission_designator

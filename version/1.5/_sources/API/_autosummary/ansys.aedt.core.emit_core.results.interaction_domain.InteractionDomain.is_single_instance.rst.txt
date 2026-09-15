@@ -1,0 +1,6 @@
+is\_single\_instance
+====================
+
+.. currentmodule:: ansys.aedt.core.emit_core.results.interaction_domain
+
+.. automethod:: InteractionDomain.is_single_instance

@@ -1,0 +1,6 @@
+multiplexer\_type
+=================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.multiplexer
+
+.. autoproperty:: Multiplexer.multiplexer_type

@@ -1,0 +1,57 @@
+﻿CouplingLinkNode
+================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.coupling_link_node
+
+.. autoclass:: CouplingLinkNode
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      CouplingLinkNode.export_to_csv
+      
+      
+      CouplingLinkNode.get_is_component
+      
+      
+      CouplingLinkNode.get_properties
+      
+      
+      CouplingLinkNode.plot
+      
+      
+      CouplingLinkNode.props_to_dict
+      
+      
+      CouplingLinkNode.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      CouplingLinkNode.allowed_child_types
+      CouplingLinkNode.children
+      CouplingLinkNode.enabled
+      CouplingLinkNode.name
+      CouplingLinkNode.node_type
+      CouplingLinkNode.odesktop
+      CouplingLinkNode.parent
+      CouplingLinkNode.parent_name
+      CouplingLinkNode.ports
+      CouplingLinkNode.properties
+      CouplingLinkNode.valid
+      CouplingLinkNode.warnings
+   
+   

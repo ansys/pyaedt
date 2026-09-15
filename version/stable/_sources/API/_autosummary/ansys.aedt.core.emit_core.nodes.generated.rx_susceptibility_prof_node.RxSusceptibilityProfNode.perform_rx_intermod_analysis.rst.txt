@@ -1,0 +1,6 @@
+perform\_rx\_intermod\_analysis
+===============================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.rx_susceptibility_prof_node
+
+.. autoproperty:: RxSusceptibilityProfNode.perform_rx_intermod_analysis

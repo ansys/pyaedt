@@ -1,0 +1,6 @@
+max\_intermod\_order
+====================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.rx_susceptibility_prof_node
+
+.. autoproperty:: RxSusceptibilityProfNode.max_intermod_order

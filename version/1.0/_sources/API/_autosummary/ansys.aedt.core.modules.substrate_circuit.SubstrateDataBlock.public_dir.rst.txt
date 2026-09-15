@@ -1,0 +1,6 @@
+public\_dir
+===========
+
+.. currentmodule:: ansys.aedt.core.modules.substrate_circuit
+
+.. autoproperty:: SubstrateDataBlock.public_dir

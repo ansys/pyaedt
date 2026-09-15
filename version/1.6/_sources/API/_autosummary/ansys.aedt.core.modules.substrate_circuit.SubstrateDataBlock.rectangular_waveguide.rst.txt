@@ -1,0 +1,6 @@
+rectangular\_waveguide
+======================
+
+.. currentmodule:: ansys.aedt.core.modules.substrate_circuit
+
+.. automethod:: SubstrateDataBlock.rectangular_waveguide

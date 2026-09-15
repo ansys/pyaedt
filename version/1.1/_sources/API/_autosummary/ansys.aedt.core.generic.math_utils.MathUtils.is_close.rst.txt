@@ -1,0 +1,6 @@
+is\_close
+=========
+
+.. currentmodule:: ansys.aedt.core.generic.math_utils
+
+.. automethod:: MathUtils.is_close

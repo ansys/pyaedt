@@ -1,0 +1,6 @@
+aedt\_version
+=============
+
+.. currentmodule:: ansys.aedt.core.desktop
+
+.. autoproperty:: Desktop.aedt_version

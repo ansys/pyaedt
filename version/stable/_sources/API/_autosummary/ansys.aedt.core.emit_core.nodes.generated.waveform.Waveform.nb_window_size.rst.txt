@@ -1,0 +1,6 @@
+nb\_window\_size
+================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.waveform
+
+.. autoproperty:: Waveform.nb_window_size

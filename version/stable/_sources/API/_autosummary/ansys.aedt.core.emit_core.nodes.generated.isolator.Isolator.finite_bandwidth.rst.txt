@@ -1,0 +1,6 @@
+finite\_bandwidth
+=================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.isolator
+
+.. autoproperty:: Isolator.finite_bandwidth

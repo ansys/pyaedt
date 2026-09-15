@@ -1,0 +1,6 @@
+override\_emission\_designator\_bw
+==================================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.band
+
+.. autoproperty:: Band.override_emission_designator_bw
