@@ -232,7 +232,7 @@ def _check_types(arg) -> str:
 def raise_exception_or_return_false(e):
     """Return raise exception or return false."""
     if not settings.enable_error_handler:
-        if True:
+        if settings.release_on_exception:
             from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 
             for v in list(_desktop_sessions.values())[:]:
