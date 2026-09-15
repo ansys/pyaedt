@@ -24,10 +24,13 @@
 
 import math
 from sys import float_info
+from typing import TypeAlias
 from typing import TypeGuard
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+
+NestedScalar: TypeAlias = int | float | list["NestedScalar"]
 
 
 class MathUtils(PyAedtBase):
@@ -189,7 +192,7 @@ class MathUtils(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def fix_negative_zero(value: object) -> object:
+    def fix_negative_zero(value: NestedScalar) -> NestedScalar:
         """Fix the negative zero.
         It supports lists (and nested lists).
 

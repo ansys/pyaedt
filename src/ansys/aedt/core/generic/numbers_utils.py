@@ -25,6 +25,7 @@
 from __future__ import annotations
 
 import ast
+from numbers import Real
 import re
 from typing import Any
 
@@ -40,10 +41,10 @@ class Quantity(float, PyAedtBase):
 
     Parameters
     ----------
-    expression : float, str
+    expression : int, float, str
         Numerical value of the variable with or without units.
-    unit : str
-        Units for the value.
+    unit : str, None
+        Units for the value. Default value is ``None``.
 
     Examples
     --------
@@ -55,28 +56,30 @@ class Quantity(float, PyAedtBase):
     """
 
     def __new__(cls, expression, unit=None):
-        _value, _unit = decompose_variable_value(expression)
+        if isinstance(expression, str):
+            _value, _ = decompose_variable_value(expression)
+        else:
+            _value = float(expression)
         return float.__new__(cls, _value)
 
     def __init__(
         self,
-        expression,
-        unit=None,
+        expression: float | str,
+        unit: str | None = None,
     ) -> None:
         self._unit = ""
-        self._unit_system = None
+        self._unit_system: str | None = None
         if unit:
             if unit in AEDT_UNITS:
                 self._unit_system = unit
                 self._unit = list(AEDT_UNITS[unit].keys())[0]
             else:
                 self._parse_units(unit)
-        if is_number(expression):
-            self._value = float(expression)
-        else:
-            self._value, _unit = decompose_variable_value(expression)
+        elif isinstance(expression, str) and expression != "nan":
+            _, _unit = decompose_variable_value(expression)
             if _unit:
                 self._parse_units(_unit)
+        self._value: float = super().__float__()
 
     def to(self, unit: str) -> Quantity:
         """Convert the actual number to new unit.
@@ -92,7 +95,9 @@ class Quantity(float, PyAedtBase):
             new_value = unit_converter(
                 self.value, unit_system=self.unit_system, input_units=self._unit, output_units=unit
             )
-            return Quantity(new_value, unit)
+            if isinstance(new_value, (int, float)):
+                return Quantity(new_value, unit)
+        raise ValueError(f"Cannot convert to unit '{unit}' because it is not compatible with the unit system.")
 
     @property
     def _units_lower(self):
@@ -103,11 +108,14 @@ class Quantity(float, PyAedtBase):
 
     def _parse_units(self, unit):
         if unit:
-            self._unit_system = unit_system(unit)
-            if self._unit_system == "None":
+            resolved_unit_system = unit_system(unit)
+            if isinstance(resolved_unit_system, str):
+                self._unit_system = resolved_unit_system
+            else:
                 self._unit_system = None
-            if unit.lower() in self._units_lower:
-                self._unit = list(AEDT_UNITS[self._unit_system].keys())[self._units_lower.index(unit.lower())]
+            units_lower = self._units_lower
+            if self._unit_system and unit.lower() in units_lower:
+                self._unit = list(AEDT_UNITS[self._unit_system].keys())[units_lower.index(unit.lower())]
             elif not self._unit_system:
                 self._unit = unit
 
@@ -133,12 +141,13 @@ class Quantity(float, PyAedtBase):
         '2cm'
 
         """
-        self._value, _unit = decompose_variable_value(value)
+        parsed_value, _unit = decompose_variable_value(value)
+        self._value = float(parsed_value)
         if _unit:
             self._parse_units(_unit)
 
     @property
-    def unit_system(self) -> str:
+    def unit_system(self) -> str | None:
         """Value unit system.
 
         Returns
@@ -173,7 +182,8 @@ class Quantity(float, PyAedtBase):
 
     @unit.setter
     def unit(self, value: str) -> None:
-        if value in AEDT_UNITS[self.unit_system]:
+        unit_system_name = self.unit_system
+        if unit_system_name and value in AEDT_UNITS[unit_system_name]:
             self._unit = value
 
     @property
@@ -195,9 +205,7 @@ class Quantity(float, PyAedtBase):
 
     @value.setter
     def value(self, value: float) -> None:
-        _value, _unit = decompose_variable_value(value)
-        self._value = _value
-        self._parse_units(_unit)
+        self._value = float(value)
 
     def __repr__(self) -> str:
         return "%.16g" % self.value + self.unit
@@ -340,11 +348,11 @@ class Quantity(float, PyAedtBase):
         result = getattr(ufunc, method)(*args, **kwargs)
 
         # If the result is a scalar, return a Quantity object
-        if np.isscalar(result):
-            return Quantity(result, self.unit)
+        if isinstance(result, Real):
+            return Quantity(float(result), self.unit)
         else:
             # If the result is an array, return an array of Quantity objects
-            return np.array([Quantity(val, self.unit) for val in result])
+            return np.array([Quantity(float(val), self.unit) for val in result])
 
     def __array__(self, dtype=None):  # pragma: no cover
         import numpy as np
@@ -361,7 +369,7 @@ class Quantity(float, PyAedtBase):
         3
 
         """
-        return Quantity(self.value**0.5, self.unit)
+        return Quantity(float(self.value**0.5), self.unit)
 
     def log10(self) -> Quantity:
         """Logarithm base 10 of the value.
@@ -375,7 +383,7 @@ class Quantity(float, PyAedtBase):
         """
         import numpy as np
 
-        return Quantity(np.log10(self.value), self.unit)
+        return Quantity(float(np.log10(self.value)), self.unit)
 
     def sin(self) -> Quantity:
         """Sine of the value.
@@ -389,7 +397,7 @@ class Quantity(float, PyAedtBase):
         """
         import numpy as np
 
-        return Quantity(np.sin(self.value), self.unit)
+        return Quantity(float(np.sin(self.value)), self.unit)
 
     def cos(self) -> Quantity:
         """Cosine of the value.
@@ -403,7 +411,7 @@ class Quantity(float, PyAedtBase):
         """
         import numpy as np
 
-        return Quantity(np.cos(self.value), self.unit)
+        return Quantity(float(np.cos(self.value)), self.unit)
 
     def arcsin(self) -> Quantity:
         """Arcsine of the value.
@@ -417,7 +425,7 @@ class Quantity(float, PyAedtBase):
         """
         import numpy as np
 
-        return Quantity(np.arcsin(self.value), self.unit)
+        return Quantity(float(np.arcsin(self.value)), self.unit)
 
     def arccos(self) -> Quantity:
         """Arccosine of the value.
@@ -431,7 +439,7 @@ class Quantity(float, PyAedtBase):
         """
         import numpy as np
 
-        return Quantity(np.arccos(self.value), self.unit)
+        return Quantity(float(np.arccos(self.value)), self.unit)
 
     def tan(self) -> Quantity:
         """Tangent of the value.
@@ -445,7 +453,7 @@ class Quantity(float, PyAedtBase):
         """
         import numpy as np
 
-        return Quantity(np.tan(self.value), self.unit)
+        return Quantity(float(np.tan(self.value)), self.unit)
 
     def arctan2(self, other: Quantity) -> Quantity:
         """Arctangent of the value and another quantity.
@@ -460,13 +468,15 @@ class Quantity(float, PyAedtBase):
         """
         import numpy as np
 
-        return Quantity(np.arctan2(self.value, other), self.unit)
+        return Quantity(float(np.arctan2(self.value, other)), self.unit)
 
     def __reduce__(self):
         return self.__class__, (self.expression, self.unit)
 
 
-def decompose_variable_value(variable_value: str, full_variables: dict[str, Any] = None) -> tuple:
+def decompose_variable_value(
+    variable_value: str, full_variables: dict[str, Any] | None = None
+) -> tuple[float | str, str]:
     """Decompose a variable value.
 
     Parameters
@@ -630,8 +640,9 @@ def _find_units_in_dependent_variables(variable_value, full_variables=None):
         if len(set(m2)) <= 1:
             return m2[0]
         else:
-            if unit_system(m2[0]):
-                return SI_UNITS[unit_system(m2[0])]
+            system_name = unit_system(m2[0])
+            if isinstance(system_name, str):
+                return SI_UNITS[system_name]
     else:
         m1 = re.findall(r"(?<=[/+-/*//^/(/[])([a-z_A-Z/$]\w*)", variable_value.replace(" ", ""))
         m2 = re.findall(r"^([a-z_A-Z/$]\w*)", variable_value.replace(" ", ""))
