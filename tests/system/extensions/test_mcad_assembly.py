@@ -47,85 +47,50 @@ def hfss_app(add_app):
 
 def get_test_data() -> MCADAssembly:
 
-    comp_cable_1 = Component(
-        name="cable_a",
-        model="cable",
-        target_coordinate_system="CABLE1_via_65"
-    )
-    comp_cable_2 = Component(
-        name="cable_b",
-        model="cable",
-        target_coordinate_system="CABLE2_via_65"
-    )
-    comp_cap = Component(
-        name="cap_c4",
-        model="cap0402",
-        use_pin_mapping=True,
-        placement_pin_mapping=PlacementPinMapping(
-            reference_designator="C4",
-            pin_1_loc=(0, 0, 0),
-            pin_2_loc=(0.7375e-3, 0, 0),
-        )
-    )
-    comp_r7 = Component(
-        name="cap_r7",
-        model="cap0402",
-        use_pin_mapping=True,
-        placement_pin_mapping=PlacementPinMapping(
-            reference_designator="R7",
-            pin_1_loc=(0, 0, 0),
-            pin_2_loc=(0.7375e-3, 0, 0),
-        )
-    )
-    comp_pcb = Component(
-        name="pcb",
-        component_type="ecad",
-        model="pcb",
-        target_coordinate_system="Guiding_Pin",
-        layout_coordinate_systems=["CABLE1_via_65", "CABLE2_via_65", "H0_via_65"],
-        reference_coordinate_system="H0_via_65",
-        sub_components={
-            comp_cable_1.name: comp_cable_1,
-            comp_cable_2.name: comp_cable_2,
-            comp_cap.name: comp_cap,
-            comp_r7.name: comp_r7,
-        },
-        arranges=[
-            Arrange(operation="rotate", axis="X", angle="0deg")
-        ]
-    )
-    comp_case = Component(
-        name="case",
-        model="case",
-        target_coordinate_system="GLOBAL_2",
-        sub_components={
-            comp_pcb.name: comp_pcb,
-        }
-    )
-    comp_clamp_monitor = Component(
-        name="clamp_monitor",
-        model="clamp_monitor",
-        target_coordinate_system="CS_CLAMP",
-    )
-    top_assembly = MCADAssembly(
-        component_models={
-            comp_case.model: "Chassi.a3dcomp",
-            comp_cable_1.model: "Cable.a3dcomp",
-            comp_clamp_monitor.model: "BCI_MONITORING_CLAMP.a3dcomp",
-            comp_cap.model: "Capacitor0402_100pF_HFSS.a3dcomp",
-        },
-        layout_component_models={
-            comp_pcb.name: "DCDC-Converter-App_main.aedb",
-        },
-        coordinate_system={
-            "GLOBAL_2": {"origin": ["100mm", "0mm", "0mm"], "reference_cs": "Global"},
-            "CS_CLAMP": {"origin": ["-130mm", "80mm", "12mm"], "reference_cs": "GLOBAL_2"},
-        },
-        sub_components={
-            comp_case.name: comp_case,
-            comp_clamp_monitor.name: comp_clamp_monitor,
-        }
-    )
+    top_assembly = MCADAssembly()
+    top_assembly.add_mcad_component_model(name="case", path="Chassi.a3dcomp")
+    top_assembly.add_mcad_component_model(name="cable", path="Cable.a3dcomp")
+    top_assembly.add_mcad_component_model(name="clamp_monitor", path="BCI_MONITORING_CLAMP.a3dcomp")
+    top_assembly.add_mcad_component_model(name="cap0402", path="Capacitor0402_100pF_HFSS.a3dcomp")
+    top_assembly.add_ecad_component_model(name="pcb", path="DCDC-Converter-App_main.aedb")
+
+    cs = top_assembly.add_coordinate_system(name="GLOBAL_2")
+    cs.origin = ["100mm", "0mm", "0mm"]
+    cs = top_assembly.add_coordinate_system(name="CS_CLAMP")
+    cs.origin = ["-130mm", "80mm", "12mm"]
+    cs.reference_coordinate_system = "GLOBAL_2"
+
+    sub_comp = top_assembly.add_sub_mcad_component(name="case", model="case")
+    sub_comp.target_coordinate_system = "GLOBAL_2"
+    sub_comp.reference_coordinate_system = "GLOBAL_2"
+
+    sub_comp_ = sub_comp.add_sub_ecad_component(name="pcb", model="pcb")
+    sub_comp_.target_coordinate_system = "Guiding_Pin"
+    sub_comp_.layout_coordinate_systems = ["CABLE1_via_65", "CABLE2_via_65", "H0_via_65"]
+    sub_comp_.reference_coordinate_system = "H0_via_65"
+    sub_comp_.arranges = [Arrange(operation="rotate", axis="X", angle="0deg")]
+
+    sub_comp__ = sub_comp_.add_sub_mcad_component(name="cable_a", model="cable")
+    sub_comp__.target_coordinate_system = "CABLE1_via_65"
+    sub_comp__ = sub_comp_.add_sub_mcad_component(name="cable_b", model="cable")
+    sub_comp__.target_coordinate_system = "CABLE2_via_65"
+
+    sub_comp__ = sub_comp_.add_sub_mcad_component(name="cap_c4", model="cap0402")
+    sub_comp__.use_pin_mapping = True
+    sub_comp__.placement_pin_mapping.reference_designator = "C4"
+    sub_comp__.placement_pin_mapping.pin_1_loc = (0, 0, 0)
+    sub_comp__.placement_pin_mapping.pin_2_loc = (0.7375e-3, 0, 0)
+
+    sub_comp__ = sub_comp_.add_sub_mcad_component(name="cap_r7", model="cap0402")
+    sub_comp__.use_pin_mapping = True
+    sub_comp__.placement_pin_mapping.reference_designator = "R7"
+    sub_comp__.placement_pin_mapping.pin_1_loc = (0, 0, 0)
+    sub_comp__.placement_pin_mapping.pin_2_loc = (0.7375e-3, 0, 0)
+
+    sub_comp = top_assembly.add_sub_mcad_component(name="clamp_monitor", model="clamp_monitor")
+    sub_comp.target_coordinate_system = "CS_CLAMP"
+
+
     return top_assembly
 
 

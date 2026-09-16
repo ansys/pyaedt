@@ -36,7 +36,7 @@ from typing import TYPE_CHECKING, Literal
 from typing import Any
 from typing import cast
 
-from pydantic import BaseModel, AliasChoices
+from pydantic import BaseModel, AliasChoices, ConfigDict
 from pydantic import Field
 import numpy as np
 
@@ -113,6 +113,12 @@ DATA = {
     },
 }
 """Stored data."""
+
+CONFIG_DICT = ConfigDict(
+    extra="forbid",
+    validate_assignment=True,
+    populate_by_name=True
+)
 
 
 # Frontend
@@ -298,6 +304,8 @@ OPERATIONS = Literal["move", "rotate"]
 class Arrange(BaseModel):
     """Provide arrange."""
 
+    model_config = CONFIG_DICT
+
     operation: OPERATIONS
     """Value for operation."""
     # Rotate parameters
@@ -310,30 +318,33 @@ class Arrange(BaseModel):
     vector: list[str | int | float] | None = ["0mm", "0mm", "0mm"]
     """Value for vector."""
 
-    class Config:
-        extra = "forbid"
-
 
 COMPONENT_TYPE = Literal["ecad", "mcad"]
 
 
 class PlacementPinMapping(BaseModel):
-    reference_designator: str
-    pin_1_loc: tuple[str | int | float, str | int | float, str | int | float]
+    model_config = CONFIG_DICT
+
+    reference_designator: str | None = None
+    pin_1_loc: tuple[str | int | float, str | int | float, str | int | float] | None = None
     pin_2_loc: tuple[str | int | float, str | int | float, str | int | float] | None = None
 
 
 class Component(BaseModel):
     """Provide component."""
 
+    model_config = CONFIG_DICT
+
     class PinMapping(BaseModel):
+        model_config = CONFIG_DICT
+
         refdes: str | None = None
         cs_name: str | None = None
         """Value for refdes."""
         pin1_location: tuple[str | int | float, str | int | float] | None = None
         flip: bool | None = False
         thickness_offset: float | None = None
-        rotation_rad: int|float | None = 0
+        rotation_rad: int | float | None = 0
 
     component_type: COMPONENT_TYPE | None = Field("mcad")
     """Value for component type."""
@@ -343,7 +354,7 @@ class Component(BaseModel):
     """Value for model."""
 
     use_pin_mapping: bool = False
-    placement_pin_mapping: PlacementPinMapping | None = None
+    placement_pin_mapping: PlacementPinMapping | None = Field(default_factory=PlacementPinMapping)
     __pin_mapping_info: dict[str, PinMapping] | None = {}
 
     target_coordinate_system: str | None = "Global"
@@ -367,9 +378,6 @@ class Component(BaseModel):
 
     # internal properties
     __rotate_index: int | None = 0
-
-    class Config:
-        extra = "forbid"
 
     @classmethod
     def _load(cls, name: str, data: dict) -> Component:
@@ -406,6 +414,18 @@ class Component(BaseModel):
                 )
             elif i.operation == "move":
                 hfss.modeler.move(self.name, i.vector or ["0mm", "0mm", "0mm"])
+
+    def add_sub_mcad_component(self, name: str, model: str) -> Component:
+        """Add sub component."""
+        comp = Component(name=name, model=model, component_type="mcad")
+        self.sub_components[name] = comp
+        return comp
+
+    def add_sub_ecad_component(self, name: str, model: str) -> Component:
+        """Add sub component."""
+        comp = Component(name=name, model=model, component_type="ecad")
+        self.sub_components[name] = comp
+        return comp
 
     def assemble(self, hfss: "Hfss", cs_prefix: str | None = None, version: str | None = None,
                  pin_mapping_info: PinMapping | None = None):
@@ -466,7 +486,8 @@ class Component(BaseModel):
         else:
 
             if Path(model_path).suffix == ".aedb":
-                comps = [j.placement_pin_mapping.reference_designator for i, j in self.sub_components.items() if j.use_pin_mapping]
+                comps = [j.placement_pin_mapping.reference_designator for i, j in self.sub_components.items() if
+                         j.use_pin_mapping]
                 if comps:
                     edb = Edb(model_path, version=version)
                     for refdes, obj in edb.components.instances.items():
@@ -534,10 +555,22 @@ COMPONENT_MODELS = {}
 PCB_COORDINATES = {}
 
 
+class CoordinateSystem(BaseModel):
+    model_config = CONFIG_DICT
+
+    origin: list[str] | None = ["0mm", "0mm", "0mm"]
+    reference_coordinate_system: str | None = Field("Global",
+                                                    validation_alias=AliasChoices("reference_coordinate_system",
+                                                                                  "reference_cs"))
+    name: str | None = None
+
+
 class MCADAssembly(BaseModel):
     """Provide MCAD assembly backend."""
 
-    coordinate_system: dict[str, dict[str, str | list[str]]] = Field(default_factory=dict)
+    model_config = CONFIG_DICT
+
+    coordinate_system: dict[str, CoordinateSystem] = Field(default_factory=dict)
     """Value for coordinate system."""
     layout_component_models: dict[str, str] = Field(default_factory=dict)
     """Value for layout component models."""
@@ -547,9 +580,6 @@ class MCADAssembly(BaseModel):
                                                  validation_alias=AliasChoices("sub_components", "assembly"))
     """Value for sub components."""
 
-    class Config:
-        extra = "forbid"
-
     @classmethod
     def _load(cls, data: dict) -> "MCADAssembly":
         return cls(
@@ -558,6 +588,32 @@ class MCADAssembly(BaseModel):
             layout_component_models=data.get("layout_component_models", {}),
             sub_components={name: Component._load(name, comp) for name, comp in data.get("sub_components", {}).items()},
         )
+
+    def add_mcad_component_model(self, name: str, path: str):
+        """Add component model."""
+        self.component_models[name] = path
+
+    def add_ecad_component_model(self, name: str, path: str):
+        """Add component model."""
+        self.layout_component_models[name] = path
+
+    def add_coordinate_system(self, name: str):
+        """Add coordinate system."""
+        cs = CoordinateSystem(name=name)
+        self.coordinate_system[name] = cs
+        return cs
+
+    def add_sub_mcad_component(self, name: str, model: str) -> Component:
+        """Add sub component."""
+        comp = Component(name=name, model=model, component_type="mcad")
+        self.sub_components[name] = comp
+        return comp
+
+    def add_sub_ecad_component(self, name: str, model: str) -> Component:
+        """Add sub component."""
+        comp = Component(name=name, model=model, component_type="ecad")
+        self.sub_components[name] = comp
+        return comp
 
 
 def run(
@@ -605,7 +661,10 @@ def run(
         COMPONENT_MODELS[name] = str(temp_model_dir / path.name)
 
     for name, value in app.coordinate_system.items():
-        hfss.modeler.create_coordinate_system(name=name, **value)
+        value.name = name
+        value_ = value.model_dump()
+        value_["reference_cs"] = value_.pop("reference_coordinate_system", None)
+        hfss.modeler.create_coordinate_system(**value_)
 
     for name, comp in app.sub_components.items():
         comp.assemble(hfss, version=version)
