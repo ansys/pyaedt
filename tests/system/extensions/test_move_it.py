@@ -24,13 +24,16 @@
 
 import pytest
 
-from ansys.aedt.core import Hfss
-from ansys.aedt.core import Q3d
-from ansys.aedt.core.extensions.hfss.move_it import MoveItExtension
-from ansys.aedt.core.extensions.hfss.move_it import MoveItExtensionData
-from ansys.aedt.core.extensions.hfss.move_it import main
-from ansys.aedt.core.internal.errors import AEDTRuntimeError
-from ansys.aedt.core.modeler.cad.object_3d import PolylineSegment
+try:
+    from ansys.aedt.core import Hfss
+    from ansys.aedt.core import Q3d
+    from ansys.aedt.core.extensions.hfss.move_it import MoveItExtension
+    from ansys.aedt.core.extensions.hfss.move_it import MoveItExtensionData
+    from ansys.aedt.core.extensions.hfss.move_it import main
+    from ansys.aedt.core.internal.errors import AEDTRuntimeError
+    from ansys.aedt.core.modeler.cad.object_3d import PolylineSegment
+except Exception:
+    pytestmark = pytest.mark.skipif(True, reason="Error loading scipy.")
 
 
 def test_move_it_generate_button(add_app) -> None:
