@@ -120,20 +120,6 @@ DATA = {
 CONFIG_DICT = ConfigDict(extra="forbid", validate_assignment=True, populate_by_name=True)
 
 
-# Frontend
-class AedtInfo(BaseModel):
-    """Provide AEDT info."""
-
-    version: str = ""
-    """Value for version."""
-    port: int
-    """Value for port."""
-    aedt_process_id: int | None
-    """Value for AEDT process id."""
-    student_version: bool | None = False
-    """Value for student version."""
-
-
 class MCADAssemblyFrontend(ExtensionHFSSCommon):
     """Provide MCAD assembly frontend."""
 
@@ -153,9 +139,6 @@ class MCADAssemblyFrontend(ExtensionHFSSCommon):
     """Value for config data."""
 
     def __init__(self, withdraw: bool = False) -> None:
-        self.aedt_info = AedtInfo(
-            port=get_port(), version=get_aedt_version(), aedt_process_id=get_process_id(), student_version=is_student()
-        )
 
         super().__init__(
             self.EXTENSION_TITLE,
@@ -186,7 +169,7 @@ class MCADAssemblyFrontend(ExtensionHFSSCommon):
             button_frame,
             width=10,
             text="Run",
-            command=lambda: run(self.config_data, self.aedt_info.model_dump()),
+            command=lambda: run(self.config_data),
             style="PyAEDT.TButton",
             name="run",
         ).pack(anchor="w", side="left", padx=15, pady=10)

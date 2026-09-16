@@ -2277,7 +2277,7 @@ def test_insert_layout_component_2(aedt_app, test_tmp_dir) -> None:
     input_file2 = shutil.copy2(file_original2, test_tmp_dir / LAYOUT_COMP_SI_VERSE_SFP)
 
     file_original3 = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / LAYOUT_COMP_SI_VERSE_SFP
-    input_file3 = shutil.copy2(file_original2, test_tmp_dir / LAYOUT_COMP_SI_VERSE_SFP)
+    input_file3 = shutil.copy2(file_original3, test_tmp_dir / LAYOUT_COMP_SI_VERSE_SFP)
 
     aedt_app.modeler.add_layout_component_definition(
         file_path=str(input_file),
