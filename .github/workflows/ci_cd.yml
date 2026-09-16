@@ -879,21 +879,11 @@ jobs:
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
-      - name: Wait for master cache update
-        if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip-testmon') }}
-        uses: ./.github/actions/check-cache
-
-      - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
-        with:
-          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-          cache-key: ${{ env.TESTMON_CACHE_KEY_FILTER_WIN }}
-
       - name: Run tests marked with 'filter_solutions'
         env:
           ACTIVATE_VENV: ${{ steps.setup-test-environment.outputs.activate-venv }}
           PYTHONMALLOC: malloc
-          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS_NON_TESTMON }}
         run: |
           ${ACTIVATE_VENV}
           $args = $env:PYTEST_ARGUMENTS -split ' '
