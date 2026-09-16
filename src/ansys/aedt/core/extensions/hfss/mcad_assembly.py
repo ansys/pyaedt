@@ -26,22 +26,25 @@ from __future__ import annotations
 
 import json
 import os
-import shutil
 from pathlib import Path
+import shutil
 import tempfile
 import tkinter
 from tkinter import filedialog
 from tkinter import ttk
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 from typing import Any
+from typing import Literal
 from typing import cast
 
-from pydantic import BaseModel, AliasChoices, ConfigDict
-from pydantic import Field
 import numpy as np
+from pydantic import AliasChoices
+from pydantic import BaseModel
+from pydantic import ConfigDict
+from pydantic import Field
+from pyedb import Edb
 
 import ansys.aedt.core
-from pyedb import Edb
 from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.extensions.misc import ExtensionHFSSCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
@@ -114,11 +117,7 @@ DATA = {
 }
 """Stored data."""
 
-CONFIG_DICT = ConfigDict(
-    extra="forbid",
-    validate_assignment=True,
-    populate_by_name=True
-)
+CONFIG_DICT = ConfigDict(extra="forbid", validate_assignment=True, populate_by_name=True)
 
 
 # Frontend
@@ -427,8 +426,13 @@ class Component(BaseModel):
         self.sub_components[name] = comp
         return comp
 
-    def assemble(self, hfss: "Hfss", cs_prefix: str | None = None, version: str | None = None,
-                 pin_mapping_info: PinMapping | None = None):
+    def assemble(
+        self,
+        hfss: "Hfss",
+        cs_prefix: str | None = None,
+        version: str | None = None,
+        pin_mapping_info: PinMapping | None = None,
+    ):
         """Parameters
         ----------
          cs_prefix : str
@@ -484,10 +488,12 @@ class Component(BaseModel):
             model_name = None
 
         else:
-
             if Path(model_path).suffix == ".aedb":
-                comps = [j.placement_pin_mapping.reference_designator for i, j in self.sub_components.items() if
-                         j.use_pin_mapping]
+                comps = [
+                    j.placement_pin_mapping.reference_designator
+                    for i, j in self.sub_components.items()
+                    if j.use_pin_mapping
+                ]
                 if comps:
                     edb = Edb(model_path, version=version)
                     for refdes, obj in edb.components.instances.items():
@@ -500,13 +506,15 @@ class Component(BaseModel):
                             p1_name = sorted(pin_names)[0]
                             p1_loc = pins[p1_name].position
 
-                            edb.modeler.insert_coordinate_system(name=cs_name, x=p1_loc[0], y=p1_loc[1],
-                                                                 layer=obj.placement_layer)
+                            edb.modeler.insert_coordinate_system(
+                                name=cs_name, x=p1_loc[0], y=p1_loc[1], layer=obj.placement_layer
+                            )
                             self.layout_coordinate_systems.append(cs_name)
                             pin_mapping.pin1_location = tuple(p1_loc)
                             signal_layers = list(edb.stackup.signal_layers)
-                            pin_mapping.flip = True if signal_layers.index(obj.placement_layer) > len(
-                                signal_layers) / 2 else False
+                            pin_mapping.flip = (
+                                True if signal_layers.index(obj.placement_layer) > len(signal_layers) / 2 else False
+                            )
                             pin_mapping.thickness_offset = edb.stackup.signal_layers[obj.placement_layer].thickness
 
                             if len(pin_names) > 1:
@@ -559,9 +567,9 @@ class CoordinateSystem(BaseModel):
     model_config = CONFIG_DICT
 
     origin: list[str] | None = ["0mm", "0mm", "0mm"]
-    reference_coordinate_system: str | None = Field("Global",
-                                                    validation_alias=AliasChoices("reference_coordinate_system",
-                                                                                  "reference_cs"))
+    reference_coordinate_system: str | None = Field(
+        "Global", validation_alias=AliasChoices("reference_coordinate_system", "reference_cs")
+    )
     name: str | None = None
 
 
@@ -576,8 +584,9 @@ class MCADAssembly(BaseModel):
     """Value for layout component models."""
     component_models: dict[str, str] = Field(default_factory=dict)
     """Value for component models."""
-    sub_components: dict[str, Component] = Field(default_factory=dict,
-                                                 validation_alias=AliasChoices("sub_components", "assembly"))
+    sub_components: dict[str, Component] = Field(
+        default_factory=dict, validation_alias=AliasChoices("sub_components", "assembly")
+    )
     """Value for sub components."""
 
     @classmethod
@@ -617,14 +626,14 @@ class MCADAssembly(BaseModel):
 
 
 def run(
-        config_data: dict,
-        project_dir: str = None,
-        model_dir: str = None,
-        version: str = None,
-        port: int = None,
-        aedt_process_id: int = None,
-        student_version: bool = False,
-        hfss=None
+    config_data: dict,
+    project_dir: str = None,
+    model_dir: str = None,
+    version: str = None,
+    port: int = None,
+    aedt_process_id: int = None,
+    student_version: bool = False,
+    hfss=None,
 ):
     if not project_dir:
         project_dir = Path(tempfile.mkdtemp(prefix="mcad_assembly_"))

@@ -29,8 +29,9 @@ from unittest.mock import patch
 import pytest
 
 from ansys.aedt.core import Hfss
-from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssemblyFrontend, Arrange
-from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssembly, Component, PlacementPinMapping
+from ansys.aedt.core.extensions.hfss.mcad_assembly import Arrange
+from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssembly
+from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssemblyFrontend
 from ansys.aedt.core.extensions.hfss.mcad_assembly import run
 from ansys.aedt.core.generic.general_methods import is_linux
 from tests import TESTS_EXTENSIONS_PATH
@@ -89,7 +90,6 @@ def get_test_data() -> MCADAssembly:
 
     sub_comp = top_assembly.add_sub_mcad_component(name="clamp_monitor", model="clamp_monitor")
     sub_comp.target_coordinate_system = "CS_CLAMP"
-
 
     return top_assembly
 
