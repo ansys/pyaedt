@@ -31,16 +31,17 @@ classifiers = [
 
 dependencies = [
     "ansys-tools-common",
+    "defusedxml>=0.7",
     "grpcio>=1.50.0",
     "jsonschema",
+    "numpy>=1.20.0",
     "psutil>=6.0.0",
     "pyedb>=0.75.0",
     "tomli; python_version < '3.11'",
     "tomli-w",
     "pyyaml",
-    "defusedxml>=0.7",
-    "numpy>=1.20.0",
     "pydantic>=2.6.4",
+    "typing_extensions >= 4.4 ; python_version < '3.13'",
 ]
 
 [project.optional-dependencies]
@@ -338,8 +339,6 @@ exclude = [
     "src/ansys/aedt/core/generic/file_utils.py",
     "src/ansys/aedt/core/generic/general_methods.py",
     "src/ansys/aedt/core/generic/ibis_reader.py",
-    "src/ansys/aedt/core/generic/numbers_utils.py",
-    "src/ansys/aedt/core/generic/math_utils.py",
     "src/ansys/aedt/core/generic/python_optimizers.py",
     "src/ansys/aedt/core/internal",
     "src/ansys/aedt/core/misc",
@@ -385,6 +384,7 @@ markers = [
     "filter_solutions: mark a test as related to filter solutions.",
     "emit: mark a test as related to EMIT features.",
     "avoid_ansys_load: mark a test that should avoid LD_LIBRARY_PATH modifications.",
+    "flaky: rerun flaky tests",
 ]
 filterwarnings = [
     "ignore::UserWarning:src.ansys.aedt.core.*",

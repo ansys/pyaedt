@@ -35,10 +35,10 @@ from ansys.aedt.core.modeler.circuits.object_3d_circuit import Wire
 
 if TYPE_CHECKING or (3, 7) < sys.version_info < (3, 13):
     from ansys.aedt.core.edb import Edb
-    from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
-    from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
 
 from ansys.aedt.core.base import PyAedtBase
+from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
+from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
 from ansys.aedt.core.modeler.circuits.primitives_maxwell_circuit import MaxwellCircuitComponents
 from ansys.aedt.core.modeler.circuits.primitives_nexxim import NexximComponents
 from ansys.aedt.core.modeler.circuits.primitives_twin_builder import TwinBuilderComponents
@@ -902,12 +902,6 @@ class ModelerEmit(ModelerCircuit, PyAedtBase):
     def __init__(self, app) -> None:
         self._app = app
         ModelerCircuit.__init__(self, app)
-        if not (3, 7) < sys.version_info < (3, 13):
-            self.logger.warning(
-                f"EMIT API is only supported for Python 3.8-3.12. "
-                f"Current version is {sys.version_info.major}.{sys.version_info.minor}. "
-                f"Some features may not be available."
-            )
         self.components = EmitComponents(app, self)
         self.logger.info("ModelerEmit class has been initialized!")
 
