@@ -62,8 +62,9 @@ repos:
       - --custom_template=mit_license.jinja2
       - --start_year=2021
 
+# NOTE: Whenever this version is updated, please align the version in the lock file.
 - repo: https://github.com/astral-sh/ty-pre-commit
-  rev: 743d21e292f7a36ed70cc2318aa3c8711b1e0437  # frozen: v0.0.78
+  rev: 43e9f3c39824fb2ba2a475aa8cbcc2c8f02eef67  # frozen: v0.0.79
   hooks:
     - id: ty
 
@@ -72,3 +73,30 @@ repos:
   rev: 500543de231a91e6157db630075d70320709b834  # frozen: v1.6.1
   hooks:
     - id: check-pre-commit-ci-config
+
+- repo: https://github.com/gitleaks/gitleaks
+  rev: 83d9cd684c87d95d656c1458ef04895a7f1cbd8e # frozen: v8.30.1
+  hooks:
+    - id: gitleaks
+
+- repo: https://github.com/woodruffw/zizmor-pre-commit
+  rev: fa412071e4f5d44d44f9e365f4676f9df92456a2  # frozen: v1.30.1
+  hooks:
+    - id: zizmor
+      files: ^\.github/workflows/.*\.ya?ml$
+
+# Local hook(s)
+- repo: local
+  hooks:
+    - id: uv-lock-check
+      name: Check uv lock file
+      entry: uv lock --check
+      language: system
+      pass_filenames: false
+      files: ^(pyproject\.toml|uv\.lock)$
+    - id: ty-version-check
+      name: Check ty versions
+      entry: python .ci/scripts/check_ty_version.py
+      language: system
+      pass_filenames: false
+      files: ^(\.pre-commit-config\.yaml|uv\.lock)$
