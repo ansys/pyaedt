@@ -62,12 +62,6 @@ repos:
       - --custom_template=mit_license.jinja2
       - --start_year=2021
 
-# NOTE: Whenever this version is updated, please align the version in the lock file.
-- repo: https://github.com/astral-sh/ty-pre-commit
-  rev: 43e9f3c39824fb2ba2a475aa8cbcc2c8f02eef67  # frozen: v0.0.79
-  hooks:
-    - id: ty
-
 # Keep this hook at the end so all hook ids are known when validating ci.skip.
 - repo: https://github.com/pre-commit-ci/pre-commit-ci-config
   rev: 500543de231a91e6157db630075d70320709b834  # frozen: v1.6.1
@@ -91,7 +85,8 @@ repos:
     - id: uv-lock-check
       name: Check uv lock file
       entry: uv lock --check
-      language: system
+      language: python
+      additional_dependencies: [uv]
       pass_filenames: false
       files: ^(pyproject\.toml|uv\.lock)$
     - id: ty-version-check
@@ -100,3 +95,10 @@ repos:
       language: system
       pass_filenames: false
       files: ^(\.pre-commit-config\.yaml|uv\.lock)$
+
+# NOTE: Whenever this version is updated, please align the version in the lock file.
+- repo: https://github.com/astral-sh/ty-pre-commit
+  rev: 43e9f3c39824fb2ba2a475aa8cbcc2c8f02eef67  # frozen: v0.0.79
+  hooks:
+    - id: ty
+      files: ^(src|tests)/.*\.(py|pyi)$|^pyproject\.toml$
