@@ -347,8 +347,13 @@ jobs:
     if: needs.analyze-changes.outputs.skip_tests != 'true'
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
       - name: Set up test environment
-        uses: ./.github/actions/setup-test-environment
+        uses: $/.github/actions/setup-test-environment
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -378,8 +383,13 @@ jobs:
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
 
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
       - name: Set up test environment
-        uses: ./.github/actions/setup-test-environment
+        uses: $/.github/actions/setup-test-environment
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -423,8 +433,13 @@ jobs:
       ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
       - name: Set up test environment
-        uses: ./.github/actions/setup-test-environment
+        uses: $/.github/actions/setup-test-environment
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -463,8 +478,13 @@ jobs:
     if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
       - name: Set up test environment
-        uses: ./.github/actions/setup-test-environment
+        uses: $/.github/actions/setup-test-environment
         with:
           python-version: ${{ env.TESTS_VERSION }}
           setup-headless-display: true
@@ -509,8 +529,13 @@ jobs:
       ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
       - name: Set up test environment
-        uses: ./.github/actions/setup-test-environment
+        uses: $/.github/actions/setup-test-environment
         with:
           python-version: ${{ env.TESTS_VERSION }}
           setup-headless-display: true
@@ -551,8 +576,13 @@ jobs:
     env:
       MPLBACKEND: 'Agg'
     steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
       - name: Set up test environment
-        uses: ./.github/actions/setup-test-environment
+        uses: $/.github/actions/setup-test-environment
         with:
           python-version: ${{ env.TESTS_VERSION }}
           setup-headless-display: true
@@ -598,8 +628,13 @@ jobs:
       ANS_NODEPCHECK: '1'
       MPLBACKEND: 'Agg'
     steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
       - name: Set up test environment
-        uses: ./.github/actions/setup-test-environment
+        uses: $/.github/actions/setup-test-environment
         with:
           python-version: ${{ env.TESTS_VERSION }}
           setup-headless-display: true
@@ -638,8 +673,13 @@ jobs:
     if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
       - name: Set up test environment
-        uses: ./.github/actions/setup-test-environment
+        uses: $/.github/actions/setup-test-environment
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -683,8 +723,13 @@ jobs:
       ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
       - name: Set up test environment
-        uses: ./.github/actions/setup-test-environment
+        uses: $/.github/actions/setup-test-environment
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -723,8 +768,13 @@ jobs:
     if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
       - name: Set up test environment
-        uses: ./.github/actions/setup-test-environment
+        uses: $/.github/actions/setup-test-environment
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -768,8 +818,13 @@ jobs:
       ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
       - name: Set up test environment
-        uses: ./.github/actions/setup-test-environment
+        uses: $/.github/actions/setup-test-environment
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -808,8 +863,13 @@ jobs:
     if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true' && needs.analyze-changes.outputs.extensions_changed == 'true'
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
       - name: Set up test environment
-        uses: ./.github/actions/setup-test-environment
+        uses: $/.github/actions/setup-test-environment
         with:
           python-version: ${{ env.TESTS_VERSION }}
           setup-headless-display: true
@@ -844,8 +904,13 @@ jobs:
       ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
       - name: Set up test environment
-        uses: ./.github/actions/setup-test-environment
+        uses: $/.github/actions/setup-test-environment
         with:
           python-version: ${{ env.TESTS_VERSION }}
           setup-headless-display: true
@@ -874,8 +939,13 @@ jobs:
     if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
       - name: Set up test environment
-        uses: ./.github/actions/setup-test-environment
+        uses: $/.github/actions/setup-test-environment
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
