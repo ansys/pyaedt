@@ -1,4 +1,4 @@
-Cad assembly
+MCAD assembly
 =============
 
 With this extension, you can assemble 3D components, 3D layout components in HFSS 3D from a predefined configure file.
@@ -30,4 +30,4 @@ Using the extension
 Example configuration file
 --------------------------
 
-See the example of a configure file in json format here: :ref:`assembly-config-file`.
+See an example configuration file in JSON format in :doc:`../../pyaedt_file_data/mcad_assembly`.

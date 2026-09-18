@@ -1,7 +1,5 @@
-.. _assembly-config-file:
-
-Choke file
-==========
+MCAD assembly file
+==================
 
 The configuration file allows you to assemble 3D components, 3D layout components in HFSS 3D.
 
