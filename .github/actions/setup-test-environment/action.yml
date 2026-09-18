@@ -64,7 +64,6 @@ runs:
       shell: bash
       run: |
         ${ACTIVATE_VENV}
-        cd external/pyaedt
         uv sync --frozen --group tests --extra all
 
     - name: Remove Ansys processes (if any)
