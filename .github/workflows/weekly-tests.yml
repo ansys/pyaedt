@@ -50,33 +50,19 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Install Xvfb
-        shell: bash
-        run: sudo apt-get install -y xvfb
-
-      - name: Setup Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up test environment
+        id: setup-test-environment
+        uses: $/.github/actions/setup-test-environment
         with:
           python-version: ${{ env.TESTS_VERSION }}
-
-      - name: Set up uv
-        uses: astral-sh/setup-uv@ae62891fec2bb8e7d6c99fc78c9fec3a63790f8d # v10.0.0
-        with:
-          activate-environment: true
-          enable-cache: false
-          prune-cache: true
-          python-version: ${{ env.TESTS_VERSION }}
-
-      - name: Install pyaedt and tests dependencies
-        env:
-          TESTS_VERSION: ${{ env.TESTS_VERSION }}
-        run: |
-          uv sync --frozen --group tests --extra all
+          setup-headless-display: true
 
       - name: Run unit tests
         env:
+          ACTIVATE_VENV: ${{ steps.setup-test-environment.outputs.activate-venv }}
           PYTEST_ARGUMENTS_NON_TESTMON: ${{ env.PYTEST_ARGUMENTS_NON_TESTMON }}
         run: |
+          ${ACTIVATE_VENV}
           xvfb-run pytest ${PYTEST_ARGUMENTS_NON_TESTMON} tests/unit
 
 
@@ -93,29 +79,18 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Setup Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up test environment
+        id: setup-test-environment
+        uses: $/.github/actions/setup-test-environment
         with:
           python-version: ${{ env.TESTS_VERSION }}
-
-      - name: Set up uv
-        uses: astral-sh/setup-uv@ae62891fec2bb8e7d6c99fc78c9fec3a63790f8d # v10.0.0
-        with:
-          activate-environment: true
-          enable-cache: false
-          prune-cache: true
-          python-version: ${{ env.TESTS_VERSION }}
-
-      - name: Install pyaedt and tests dependencies
-        env:
-          TESTS_VERSION: ${{ env.TESTS_VERSION }}
-        run: |
-          uv sync --frozen --group tests --extra all
 
       - name: Run integration tests
         env:
+          ACTIVATE_VENV: ${{ steps.setup-test-environment.outputs.activate-venv }}
           PYTEST_ARGUMENTS_NON_TESTMON: ${{ env.PYTEST_ARGUMENTS_NON_TESTMON }}
         run: |
+          ${ACTIVATE_VENV}
           pytest ${PYTEST_ARGUMENTS_NON_TESTMON} tests/integration
 
   system-tests-solvers-windows:
@@ -131,42 +106,19 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Setup Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up test environment
+        id: setup-test-environment
+        uses: $/.github/actions/setup-test-environment
         with:
           python-version: ${{ env.TESTS_VERSION }}
-
-      - name: Set up uv
-        uses: astral-sh/setup-uv@ae62891fec2bb8e7d6c99fc78c9fec3a63790f8d # v10.0.0
-        with:
-          activate-environment: true
-          enable-cache: false
-          prune-cache: true
-          python-version: ${{ env.TESTS_VERSION }}
-
-
-      - name: Install pyaedt and tests dependencies
-        env:
-          TESTS_VERSION: ${{ env.TESTS_VERSION }}
-        run: |
-          uv sync --frozen --group tests --extra all
-
-
-      - name: Remove Ansys processes (if any)
-        shell: powershell
-        run: |
-          Get-Process | Where-Object {
-            $_.Path -like "*ansys inc*" -or $_.Path -like "*ansysem*"
-          } | ForEach-Object {
-            Write-Output "Killing $($_.Name) (PID: $($_.Id))"
-            Stop-Process -Id $_.Id -Force
-          }
 
       - name: Run tests marked with 'solvers'
         env:
+          ACTIVATE_VENV: ${{ steps.setup-test-environment.outputs.activate-venv }}
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
+          ${ACTIVATE_VENV}
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 tests/system/solvers
 
@@ -203,39 +155,18 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Setup Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up test environment
+        id: setup-test-environment
+        uses: $/.github/actions/setup-test-environment
         with:
           python-version: ${{ env.TESTS_VERSION }}
-
-      - name: Set up uv
-        uses: astral-sh/setup-uv@ae62891fec2bb8e7d6c99fc78c9fec3a63790f8d # v10.0.0
-        with:
-          activate-environment: true
-          enable-cache: false
-          prune-cache: true
-          python-version: ${{ env.TESTS_VERSION }}
-
-
-      - name: Install pyaedt and tests dependencies
-        env:
-          TESTS_VERSION: ${{ env.TESTS_VERSION }}
-        run: |
-          uv sync --frozen --group tests --extra all
-
-
-      - name: Remove Ansys processes (if any)
-        shell: bash
-        run: |
-          for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
-            echo "Killing PID $pid"
-            kill -9 "$pid"
-          done
 
       - name: Run tests marked with 'solvers'
         env:
+          ACTIVATE_VENV: ${{ steps.setup-test-environment.outputs.activate-venv }}
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
+          ${ACTIVATE_VENV}
           pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/solvers
 
       - name: Prepare testmon data for caching
@@ -269,45 +200,20 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Setup Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up test environment
+        id: setup-test-environment
+        uses: $/.github/actions/setup-test-environment
         with:
           python-version: ${{ env.TESTS_VERSION }}
-
-      - name: Set up uv
-        uses: astral-sh/setup-uv@ae62891fec2bb8e7d6c99fc78c9fec3a63790f8d # v10.0.0
-        with:
-          activate-environment: true
-          enable-cache: false
-          prune-cache: true
-          python-version: ${{ env.TESTS_VERSION }}
-
-
-      - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@b0bf9f57d62d2b3fee9f1c0e0c7e390f05e97a4e # v5.0.0
-
-      - name: Install pyaedt and tests dependencies
-        env:
-          TESTS_VERSION: ${{ env.TESTS_VERSION }}
-        run: |
-          uv sync --frozen --group tests --extra all
-
-
-      - name: Remove Ansys processes (if any)
-        shell: powershell
-        run: |
-          Get-Process | Where-Object {
-            $_.Path -like "*ansys inc*" -or $_.Path -like "*ansysem*"
-          } | ForEach-Object {
-            Write-Output "Killing $($_.Name) (PID: $($_.Id))"
-            Stop-Process -Id $_.Id -Force
-          }
+          setup-headless-display: true
 
       - name: Run tests marked with 'general'
         env:
+          ACTIVATE_VENV: ${{ steps.setup-test-environment.outputs.activate-venv }}
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
+          ${ACTIVATE_VENV}
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args -n 4 --dist loadfile --timeout=600 tests/system/general
 
@@ -344,40 +250,18 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Setup Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up test environment
+        id: setup-test-environment
+        uses: $/.github/actions/setup-test-environment
         with:
           python-version: ${{ env.TESTS_VERSION }}
-
-      - name: Set up uv
-        uses: astral-sh/setup-uv@ae62891fec2bb8e7d6c99fc78c9fec3a63790f8d # v10.0.0
-        with:
-          activate-environment: true
-          enable-cache: false
-          prune-cache: true
-          python-version: ${{ env.TESTS_VERSION }}
-
-
-      - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@b0bf9f57d62d2b3fee9f1c0e0c7e390f05e97a4e # v5.0.0
-
-      - name: Install pyaedt and tests dependencies
-        env:
-          TESTS_VERSION: ${{ env.TESTS_VERSION }}
-        run: |
-          uv sync --frozen --group tests --extra all
-
-
-      - name: Remove Ansys processes (if any)
-        shell: bash
-        run: |
-          for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
-            echo "Killing PID $pid"
-            kill -9 "$pid"
-          done
+          setup-headless-display: true
 
       - name: Run tests marked with 'general'
+        env:
+          ACTIVATE_VENV: ${{ steps.setup-test-environment.outputs.activate-venv }}
         run: |
+          ${ACTIVATE_VENV}
           pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 tests/system/general
 
       - name: Prepare testmon data for caching
@@ -412,45 +296,20 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Setup Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up test environment
+        id: setup-test-environment
+        uses: $/.github/actions/setup-test-environment
         with:
           python-version: ${{ env.TESTS_VERSION }}
-
-      - name: Set up uv
-        uses: astral-sh/setup-uv@ae62891fec2bb8e7d6c99fc78c9fec3a63790f8d # v10.0.0
-        with:
-          activate-environment: true
-          enable-cache: false
-          prune-cache: true
-          python-version: ${{ env.TESTS_VERSION }}
-
-
-      - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@b0bf9f57d62d2b3fee9f1c0e0c7e390f05e97a4e # v5.0.0
-
-      - name: Install pyaedt and tests dependencies
-        env:
-          TESTS_VERSION: ${{ env.TESTS_VERSION }}
-        run: |
-          uv sync --frozen --group tests --extra all
-
-
-      - name: Remove Ansys processes (if any)
-        shell: powershell
-        run: |
-          Get-Process | Where-Object {
-            $_.Path -like "*ansys inc*" -or $_.Path -like "*ansysem*"
-          } | ForEach-Object {
-            Write-Output "Killing $($_.Name) (PID: $($_.Id))"
-            Stop-Process -Id $_.Id -Force
-          }
+          setup-headless-display: true
 
       - name: Run tests marked with 'visualization'
         env:
+          ACTIVATE_VENV: ${{ steps.setup-test-environment.outputs.activate-venv }}
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
+          ${ACTIVATE_VENV}
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args -n 4 --dist loadfile --timeout=600 tests/system/visualization -x
 
@@ -488,40 +347,18 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Setup Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up test environment
+        id: setup-test-environment
+        uses: $/.github/actions/setup-test-environment
         with:
           python-version: ${{ env.TESTS_VERSION }}
-
-      - name: Set up uv
-        uses: astral-sh/setup-uv@ae62891fec2bb8e7d6c99fc78c9fec3a63790f8d # v10.0.0
-        with:
-          activate-environment: true
-          enable-cache: false
-          prune-cache: true
-          python-version: ${{ env.TESTS_VERSION }}
-
-
-      - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@b0bf9f57d62d2b3fee9f1c0e0c7e390f05e97a4e # v5.0.0
-
-      - name: Install pyaedt and tests dependencies
-        env:
-          TESTS_VERSION: ${{ env.TESTS_VERSION }}
-        run: |
-          uv sync --frozen --group tests --extra all
-
-
-      - name: Remove Ansys processes (if any)
-        shell: bash
-        run: |
-          for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
-            echo "Killing PID $pid"
-            kill -9 "$pid"
-          done
+          setup-headless-display: true
 
       - name: Run tests marked with 'visualization'
+        env:
+          ACTIVATE_VENV: ${{ steps.setup-test-environment.outputs.activate-venv }}
         run: |
+          ${ACTIVATE_VENV}
           pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=300 tests/system/visualization -x
 
       - name: Prepare testmon data for caching
@@ -555,42 +392,19 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Setup Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up test environment
+        id: setup-test-environment
+        uses: $/.github/actions/setup-test-environment
         with:
           python-version: ${{ env.TESTS_VERSION }}
-
-      - name: Set up uv
-        uses: astral-sh/setup-uv@ae62891fec2bb8e7d6c99fc78c9fec3a63790f8d # v10.0.0
-        with:
-          activate-environment: true
-          enable-cache: false
-          prune-cache: true
-          python-version: ${{ env.TESTS_VERSION }}
-
-
-      - name: Install pyaedt and tests dependencies
-        env:
-          TESTS_VERSION: ${{ env.TESTS_VERSION }}
-        run: |
-          uv sync --frozen --group tests --extra all
-
-
-      - name: Remove Ansys processes (if any)
-        shell: powershell
-        run: |
-          Get-Process | Where-Object {
-            $_.Path -like "*ansys inc*" -or $_.Path -like "*ansysem*"
-          } | ForEach-Object {
-            Write-Output "Killing $($_.Name) (PID: $($_.Id))"
-            Stop-Process -Id $_.Id -Force
-          }
 
       - name: Run tests marked with 'icepak'
         env:
+          ACTIVATE_VENV: ${{ steps.setup-test-environment.outputs.activate-venv }}
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
+          ${ACTIVATE_VENV}
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 tests/system/icepak
 
@@ -627,39 +441,18 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Setup Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up test environment
+        id: setup-test-environment
+        uses: $/.github/actions/setup-test-environment
         with:
           python-version: ${{ env.TESTS_VERSION }}
-
-      - name: Set up uv
-        uses: astral-sh/setup-uv@ae62891fec2bb8e7d6c99fc78c9fec3a63790f8d # v10.0.0
-        with:
-          activate-environment: true
-          enable-cache: false
-          prune-cache: true
-          python-version: ${{ env.TESTS_VERSION }}
-
-
-      - name: Install pyaedt and tests dependencies
-        env:
-          TESTS_VERSION: ${{ env.TESTS_VERSION }}
-        run: |
-          uv sync --frozen --group tests --extra all
-
-
-      - name: Remove Ansys processes (if any)
-        shell: bash
-        run: |
-          for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
-            echo "Killing PID $pid"
-            kill -9 "$pid"
-          done
 
       - name: Run tests marked with 'icepak'
         env:
+          ACTIVATE_VENV: ${{ steps.setup-test-environment.outputs.activate-venv }}
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
+          ${ACTIVATE_VENV}
           pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/icepak
 
       - name: Prepare testmon data for caching
@@ -693,41 +486,19 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Setup Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up test environment
+        id: setup-test-environment
+        uses: $/.github/actions/setup-test-environment
         with:
           python-version: ${{ env.TESTS_VERSION }}
-
-      - name: Set up uv
-        uses: astral-sh/setup-uv@ae62891fec2bb8e7d6c99fc78c9fec3a63790f8d # v10.0.0
-        with:
-          activate-environment: true
-          enable-cache: false
-          prune-cache: true
-          python-version: ${{ env.TESTS_VERSION }}
-
-
-      - name: Install pyaedt and tests dependencies
-        env:
-          TESTS_VERSION: ${{ env.TESTS_VERSION }}
-        run: |
-          uv sync --frozen --group tests --extra all
-
-      - name: Remove Ansys processes (if any)
-        shell: powershell
-        run: |
-          Get-Process | Where-Object {
-            $_.Path -like "*ansys inc*" -or $_.Path -like "*ansysem*"
-          } | ForEach-Object {
-            Write-Output "Killing $($_.Name) (PID: $($_.Id))"
-            Stop-Process -Id $_.Id -Force
-          }
 
       - name: Run tests marked with 'layout'
         env:
+          ACTIVATE_VENV: ${{ steps.setup-test-environment.outputs.activate-venv }}
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
+          ${ACTIVATE_VENV}
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 tests/system/layout
 
@@ -764,39 +535,18 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Setup Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up test environment
+        id: setup-test-environment
+        uses: $/.github/actions/setup-test-environment
         with:
           python-version: ${{ env.TESTS_VERSION }}
-
-      - name: Set up uv
-        uses: astral-sh/setup-uv@ae62891fec2bb8e7d6c99fc78c9fec3a63790f8d # v10.0.0
-        with:
-          activate-environment: true
-          enable-cache: false
-          prune-cache: true
-          python-version: ${{ env.TESTS_VERSION }}
-
-
-      - name: Install pyaedt and tests dependencies
-        env:
-          TESTS_VERSION: ${{ env.TESTS_VERSION }}
-        run: |
-          uv sync --frozen --group tests --extra all
-
-
-      - name: Remove Ansys processes (if any)
-        shell: bash
-        run: |
-          for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
-            echo "Killing PID $pid"
-            kill -9 "$pid"
-          done
 
       - name: Run tests marked with 'layout'
         env:
+          ACTIVATE_VENV: ${{ steps.setup-test-environment.outputs.activate-venv }}
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
+          ${ACTIVATE_VENV}
           pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/layout
 
       - name: Prepare testmon data for caching
@@ -830,45 +580,20 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Setup Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up test environment
+        id: setup-test-environment
+        uses: $/.github/actions/setup-test-environment
         with:
           python-version: ${{ env.TESTS_VERSION }}
-
-      - name: Set up uv
-        uses: astral-sh/setup-uv@ae62891fec2bb8e7d6c99fc78c9fec3a63790f8d # v10.0.0
-        with:
-          activate-environment: true
-          enable-cache: false
-          prune-cache: true
-          python-version: ${{ env.TESTS_VERSION }}
-
-
-      - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@b0bf9f57d62d2b3fee9f1c0e0c7e390f05e97a4e # v5.0.0
-
-      - name: Install pyaedt and tests dependencies
-        env:
-          TESTS_VERSION: ${{ env.TESTS_VERSION }}
-        run: |
-          uv sync --frozen --group tests --extra all
-
-
-      - name: Remove Ansys processes (if any)
-        shell: powershell
-        run: |
-          Get-Process | Where-Object {
-            $_.Path -like "*ansys inc*" -or $_.Path -like "*ansysem*"
-          } | ForEach-Object {
-            Write-Output "Killing $($_.Name) (PID: $($_.Id))"
-            Stop-Process -Id $_.Id -Force
-          }
+          setup-headless-display: true
 
       - name: Run tests marked with 'extensions'
         env:
+          ACTIVATE_VENV: ${{ steps.setup-test-environment.outputs.activate-venv }}
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS_NON_TESTMON: ${{ env.PYTEST_ARGUMENTS_NON_TESTMON }}
         run: |
+          ${ACTIVATE_VENV}
           $args = $env:PYTEST_ARGUMENTS_NON_TESTMON -split ' '
           pytest @args --timeout=600 tests/system/extensions
 
@@ -887,39 +612,18 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Setup Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up test environment
+        id: setup-test-environment
+        uses: $/.github/actions/setup-test-environment
         with:
           python-version: ${{ env.TESTS_VERSION }}
-
-      - name: Set up uv
-        uses: astral-sh/setup-uv@ae62891fec2bb8e7d6c99fc78c9fec3a63790f8d # v10.0.0
-        with:
-          activate-environment: true
-          enable-cache: false
-          prune-cache: true
-          python-version: ${{ env.TESTS_VERSION }}
-
-
-      - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@b0bf9f57d62d2b3fee9f1c0e0c7e390f05e97a4e # v5.0.0
-
-      - name: Install pyaedt and tests dependencies
-        env:
-          TESTS_VERSION: ${{ env.TESTS_VERSION }}
-        run: |
-          uv sync --frozen --group tests --extra all
-
-      - name: Remove Ansys processes (if any)
-        shell: bash
-        run: |
-          for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
-            echo "Killing PID $pid"
-            kill -9 "$pid"
-          done
+          setup-headless-display: true
 
       - name: Run tests marked with 'extensions'
+        env:
+          ACTIVATE_VENV: ${{ steps.setup-test-environment.outputs.activate-venv }}
         run: |
+          ${ACTIVATE_VENV}
           pytest ${PYTEST_ARGUMENTS_NON_TESTMON} --timeout=600 tests/system/extensions
 
   system-tests-filter-windows:
@@ -935,42 +639,19 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Setup Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Set up test environment
+        id: setup-test-environment
+        uses: $/.github/actions/setup-test-environment
         with:
           python-version: ${{ env.TESTS_VERSION }}
-
-      - name: Set up uv
-        uses: astral-sh/setup-uv@ae62891fec2bb8e7d6c99fc78c9fec3a63790f8d # v10.0.0
-        with:
-          activate-environment: true
-          enable-cache: false
-          prune-cache: true
-          python-version: ${{ env.TESTS_VERSION }}
-
-
-      - name: Install pyaedt and tests dependencies
-        env:
-          TESTS_VERSION: ${{ env.TESTS_VERSION }}
-        run: |
-          uv sync --frozen --group tests --extra all
-
-
-      - name: Remove Ansys processes (if any)
-        shell: powershell
-        run: |
-          Get-Process | Where-Object {
-            $_.Path -like "*ansys inc*" -or $_.Path -like "*ansysem*"
-          } | ForEach-Object {
-            Write-Output "Killing $($_.Name) (PID: $($_.Id))"
-            Stop-Process -Id $_.Id -Force
-          }
 
       - name: Run tests marked with 'filter_solutions'
         env:
+          ACTIVATE_VENV: ${{ steps.setup-test-environment.outputs.activate-venv }}
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
+          ${ACTIVATE_VENV}
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 tests/system/filter_solutions
 
@@ -1005,36 +686,10 @@ jobs:
 #        with:
 #          persist-credentials: false
 #
-#      - name: Setup Python
-#        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+#      - name: Set up test environment
+#        uses: $/.github/actions/setup-test-environment
 #        with:
 #          python-version: ${{ env.TESTS_VERSION }}
-#
-#      - name: Set up uv
-#        uses: astral-sh/setup-uv@ae62891fec2bb8e7d6c99fc78c9fec3a63790f8d # v10.0.0
-#        with:
-#          activate-environment: true
-#          enable-cache: false
-#          prune-cache: true
-#          python-version: ${{ env.TESTS_VERSION }}
-#
-#
-#      - name: Install pyaedt and tests dependencies
-#        env:
-#          TESTS_VERSION: ${{ env.TESTS_VERSION }}
-#        run: |
-#          uv sync --frozen --group tests --extra all
-#
-#
-#      - name: Remove Ansys processes (if any)
-#        shell: powershell
-#        run: |
-#          Get-Process | Where-Object {
-#            $_.Path -like "*ansys inc*" -or $_.Path -like "*ansysem*"
-#          } | ForEach-Object {
-#            Write-Output "Killing $($_.Name) (PID: $($_.Id))"
-#            Stop-Process -Id $_.Id -Force
-#          }
 #
 #      - name: Run tests marked with 'emit'
 #        env:
