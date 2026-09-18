@@ -438,19 +438,23 @@ class Component(BaseModel):
         if self.use_pin_mapping:
             self.target_coordinate_system = self.placement_pin_mapping.reference_designator + "_"
             temp = self.placement_pin_mapping
-            if temp.pin_2_loc is None:
+            self.arranges.append(Arrange(operation="move", vector=list(temp.pin_1_loc)))
+
+            if temp.pin_2_loc is not None:
                 dx, dy = np.array(temp.pin_2_loc[:2]) - np.array(temp.pin_1_loc[:2])
                 angle_rad = np.arctan2(dy, dx)
             else:
                 angle_rad = 0
+            self.arranges.append(Arrange(operation="rotate", axis="X", angle=f"{-np.degrees(angle_rad):.0f}deg"))
+
             comp_cs = pin_mapping_info
-            self.arranges.append(Arrange(operation="move", vector=list(temp.pin_1_loc)))
+
             if comp_cs and comp_cs.flip:
                 self.arranges.append(Arrange(operation="rotate", axis="X", angle="180deg"))
                 self.arranges.append(Arrange(operation="move", vector=[0, 0, f"{-comp_cs.thickness_offset}meter"]))
-                rotation = comp_cs.rotation_rad - angle_rad
+                rotation = -comp_cs.rotation_rad
             else:
-                rotation = angle_rad - comp_cs.rotation_rad
+                rotation = comp_cs.rotation_rad
             self.arranges.append(Arrange(operation="rotate", axis="Z", angle=f"{np.degrees(rotation):.0f}deg"))
 
         if cs_prefix:
