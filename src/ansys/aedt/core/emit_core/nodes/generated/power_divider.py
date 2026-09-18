@@ -29,6 +29,8 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class PowerDivider(EmitNode):
+    """Provide power divider."""
+
     def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = True
@@ -36,17 +38,79 @@ class PowerDivider(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node."""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> pd = app.schematic.create_component("Power Divider")
+        >>> pd.node_type
+
+        """
         return self._node_type
+
+    @min_aedt_version("2027.1")
+    def export_to_csv(self, file_name: str = "", ports: str = "1|2") -> str:
+        """Export's the data for this node
+
+        Parameters
+        ----------
+        file_name: str[optional]
+            full path to the file to export to.
+        ports: str
+            the ports to export the data for.
+            Default orientation port names: 1|2|3
+
+        Returns
+        -------
+        csv_data: str
+            stringified data for the node returned if file_name not specified
+        """
+        keys = "SelectedInputPort|SelectedOutputPort"
+        vals = f"{ports}"
+        return self._export_to_csv(file_name, keys, vals)
+
+    @min_aedt_version("2027.1")
+    def plot(self, ports: str = "1|2"):
+        """Bring up a Cartesian plot for this node
+
+        Parameters
+        ----------
+        ports: str
+            the ports to export the data for.
+            Default orientation port names: 1|2|3
+        """
+        keys = "SelectedInputPort|SelectedOutputPort"
+        vals = f"{ports}"
+        return self._plot(keys, vals)
 
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
-        """Duplicate this node"""
+        """Duplicate this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> pd = app.schematic.create_component("Power Divider")
+        >>> pd_copy = pd.duplicate("pd_copy")
+
+        """
         return self._duplicate(new_name)
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node"""
+        """Delete this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> pd = app.schematic.create_component("Power Divider")
+        >>> pd.delete()
+
+        """
         self._delete()
 
     @property
@@ -55,6 +119,15 @@ class PowerDivider(EmitNode):
         """Name of file defining the Power Divider.
 
         Value should be a full file path.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> pd = app.schematic.create_component("Power Divider")
+        >>> pd.power_divider_type = PowerDivider.PowerDividerTypeOption.BY_FILE
+        >>> pd.filename = "example_value"
+
         """
         val = self._get_property("Filename")
         return val
@@ -70,6 +143,14 @@ class PowerDivider(EmitNode):
         """System Noise temperature (K) of the component.
 
         Value should be between 0 and 1000.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> pd = app.schematic.create_component("Power Divider")
+        >>> pd.noise_temperature = 290.0
+
         """
         val = self._get_property("Noise Temperature")
         return float(val)
@@ -82,7 +163,16 @@ class PowerDivider(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def notes(self) -> str:
-        """Expand to view/edit notes stored with the project."""
+        """Expand to view/edit notes stored with the project.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> pd = app.schematic.create_component("Power Divider")
+        >>> pd.notes = "example_value"
+
+        """
         val = self._get_property("Notes")
         return val
 
@@ -103,9 +193,20 @@ class PowerDivider(EmitNode):
 
         Type of Power Divider model to use. Options include: By File (measured
         or simulated), 3 dB (parametric), and Resistive (parametric).
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> pd = app.schematic.create_component("Power Divider")
+        >>> pd.power_divider_type = PowerDivider.PowerDividerTypeOption.BY_FILE
+
         """
         val = self._get_property("Power Divider Type")
-        val = self.PowerDividerTypeOption[val.upper()]
+        try:
+            val = self.PowerDividerTypeOption(val)
+        except ValueError:
+            val = self.PowerDividerTypeOption[val.upper()]
         return val
 
     @power_divider_type.setter
@@ -122,6 +223,15 @@ class PowerDivider(EmitNode):
         loss is 3 dB for the 3 dB Divider and 6 dB for the Resistive Divider.
 
         Value should be between 0 and 100.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> pd = app.schematic.create_component("Power Divider")
+        >>> pd.power_divider_type = PowerDivider.PowerDividerTypeOption.P3_DB
+        >>> pd.insertion_loss_above_ideal = 0
+
         """
         val = self._get_property("Insertion Loss Above Ideal")
         return float(val)
@@ -140,6 +250,15 @@ class PowerDivider(EmitNode):
         Divider isolation is ideal (infinite isolation between output ports).
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> pd = app.schematic.create_component("Power Divider")
+        >>> pd.power_divider_type = PowerDivider.PowerDividerTypeOption.P3_DB
+        >>> pd.finite_isolation = False
+
         """
         val = self._get_property("Finite Isolation")
         return val == "true"
@@ -155,6 +274,16 @@ class PowerDivider(EmitNode):
         """Power Divider isolation between output ports.
 
         Value should be between 0 and 100.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> pd = app.schematic.create_component("Power Divider")
+        >>> pd.power_divider_type = PowerDivider.PowerDividerTypeOption.P3_DB
+        >>> pd.finite_isolation = True
+        >>> pd.isolation = 20
+
         """
         val = self._get_property("Isolation")
         return float(val)
@@ -173,6 +302,15 @@ class PowerDivider(EmitNode):
         (infinite bandwidth).
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> pd = app.schematic.create_component("Power Divider")
+        >>> pd.power_divider_type = PowerDivider.PowerDividerTypeOption.P3_DB
+        >>> pd.finite_bandwidth = False
+
         """
         val = self._get_property("Finite Bandwidth")
         return val == "true"
@@ -188,6 +326,16 @@ class PowerDivider(EmitNode):
         """Out-of-band loss (attenuation).
 
         Value should be between 0 and 200.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> pd = app.schematic.create_component("Power Divider")
+        >>> pd.power_divider_type = PowerDivider.PowerDividerTypeOption.P3_DB
+        >>> pd.finite_bandwidth = True
+        >>> pd.out_of_band_attenuation = 40
+
         """
         val = self._get_property("Out-of-band Attenuation")
         return float(val)
@@ -203,6 +351,16 @@ class PowerDivider(EmitNode):
         """Lower stop band frequency.
 
         Value should be between 1 and 100e9.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> pd = app.schematic.create_component("Power Divider")
+        >>> pd.power_divider_type = PowerDivider.PowerDividerTypeOption.P3_DB
+        >>> pd.finite_bandwidth = True
+        >>> pd.lower_stop_band = 80e6
+
         """
         val = self._get_property("Lower Stop Band")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -220,6 +378,16 @@ class PowerDivider(EmitNode):
         """Lower cutoff frequency.
 
         Value should be between 1 and 100e9.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> pd = app.schematic.create_component("Power Divider")
+        >>> pd.power_divider_type = PowerDivider.PowerDividerTypeOption.P3_DB
+        >>> pd.finite_bandwidth = True
+        >>> pd.lower_cutoff = 90e6
+
         """
         val = self._get_property("Lower Cutoff")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -237,6 +405,16 @@ class PowerDivider(EmitNode):
         """Higher cutoff frequency.
 
         Value should be between 1 and 100e9.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> pd = app.schematic.create_component("Power Divider")
+        >>> pd.power_divider_type = PowerDivider.PowerDividerTypeOption.P3_DB
+        >>> pd.finite_bandwidth = True
+        >>> pd.higher_cutoff = 110e6
+
         """
         val = self._get_property("Higher Cutoff")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -254,6 +432,16 @@ class PowerDivider(EmitNode):
         """Higher stop band frequency.
 
         Value should be between 1 and 100e9.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> pd = app.schematic.create_component("Power Divider")
+        >>> pd.power_divider_type = PowerDivider.PowerDividerTypeOption.P3_DB
+        >>> pd.finite_bandwidth = True
+        >>> pd.higher_stop_band = 120e6
+
         """
         val = self._get_property("Higher Stop Band")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -268,6 +456,15 @@ class PowerDivider(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def warnings(self) -> str:
-        """Warning(s) for this node."""
+        """Warning(s) for this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> pd = app.schematic.create_component("Power Divider")
+        >>> pd.warnings
+
+        """
         val = self._get_property("Warnings")
         return val

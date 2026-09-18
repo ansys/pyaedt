@@ -22,7 +22,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""PyAEDT CLI based on typer."""
+"""PyAEDT CLI based on typer.
+
+Examples
+--------
+>>> from typer.testing import CliRunner
+>>> from ansys.aedt.core.cli import app
+>>> CliRunner().invoke(app, ["version"])
+
+"""
 
 try:
     import typer
@@ -50,20 +58,37 @@ MAPPING_PLUGIN_PACKAGE = {
 }
 
 app = typer.Typer(no_args_is_help=True)
+"""Value for app."""
 
 
 @app.callback()
 def main_callback(
     json_output: bool = typer.Option(False, "--json", help="Output results as JSON (agent-friendly mode)"),
 ) -> None:
-    """CLI for PyAEDT."""
+    """CLI for PyAEDT.
+
+    Examples
+    --------
+    >>> from typer.testing import CliRunner
+    >>> from ansys.aedt.core.cli import app
+    >>> CliRunner().invoke(app, ["--json", "version"])
+
+    """
     if json_output:
         common.json_mode = True
 
 
 @app.command()
 def version() -> None:
-    """Display PyAEDT version."""
+    """Display PyAEDT version.
+
+    Examples
+    --------
+    >>> from typer.testing import CliRunner
+    >>> from ansys.aedt.core.cli import app
+    >>> CliRunner().invoke(app, ["version"])
+
+    """
     import ansys.aedt.core
 
     ver = ansys.aedt.core.__version__
@@ -76,7 +101,15 @@ def version() -> None:
 
 @app.command(name="aedt-versions")
 def aedt_versions() -> None:
-    """List installed AEDT versions on this machine."""
+    """List installed AEDT versions on this machine.
+
+    Examples
+    --------
+    >>> from typer.testing import CliRunner
+    >>> from ansys.aedt.core.cli import app
+    >>> CliRunner().invoke(app, ["aedt-versions"])
+
+    """
     try:
         from ansys.aedt.core.internal.aedt_versions import aedt_versions
 

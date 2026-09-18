@@ -23,10 +23,13 @@
 # SOFTWARE.
 
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+from ansys.aedt.core.emit_core.nodes.generated import AntennaNode
 from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class CouplingsNode(EmitNode):
+    """Provide couplings node."""
+
     def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
@@ -34,58 +37,215 @@ class CouplingsNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node."""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> cpl.node_type
+
+        """
         return self._node_type
 
     @min_aedt_version("2025.2")
     def import_touchstone(self, file_name: str) -> EmitNode:
-        """Open an Existing S-Matrix Data File"""
+        """Open an Existing S-Matrix Data File.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> link = cpl.import_touchstone("C:\\EMIT\\antenna_link.s2p")
+
+        """
         return self._import(file_name, "TouchstoneCoupling")
 
     @min_aedt_version("2025.2")
     def add_custom_coupling(self) -> EmitNode:
-        """Add a new node to define custom coupling between antennas"""
+        """Add a new node to define custom coupling between antennas.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> custom_coupling = cpl.add_custom_coupling()
+
+        """
         return self._add_child_node("Custom Coupling")
 
     @min_aedt_version("2025.2")
     def add_path_loss_coupling(self) -> EmitNode:
-        """Add a new node to define path loss coupling between antennas"""
+        """Add a new node to define path loss coupling between antennas.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> path_loss_coupling = cpl.add_path_loss_coupling()
+
+        """
         return self._add_child_node("Path Loss Coupling")
 
     @min_aedt_version("2025.2")
     def add_two_ray_path_loss_coupling(self) -> EmitNode:
-        """Add a new node to define two ray ground reflection coupling between antennas"""
+        """Add a new node to define two ray ground reflection coupling between antennas.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> two_ray_path_loss_coupling = cpl.add_two_ray_path_loss_coupling()
+
+        """
         return self._add_child_node("Two Ray Path Loss Coupling")
 
     @min_aedt_version("2025.2")
     def add_log_distance_coupling(self) -> EmitNode:
-        """Add a new node to define coupling between antennas using the Log Distance model"""
+        """Add a new node to define coupling between antennas using the Log Distance model.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> log_distance_coupling = cpl.add_log_distance_coupling()
+
+        """
         return self._add_child_node("Log Distance Coupling")
 
     @min_aedt_version("2025.2")
     def add_hata_coupling(self) -> EmitNode:
-        """Add a new node to define coupling between antennas using the Hata COST 231 model"""
+        """Add a new node to define coupling between antennas using the Hata COST 231 model.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> hata_coupling = cpl.add_hata_coupling()
+
+        """
         return self._add_child_node("Hata Coupling")
 
     @min_aedt_version("2025.2")
     def add_walfisch_ikegami_coupling(self) -> EmitNode:
-        """Add a new node to define coupling between antennas using the Walfisch-Ikegami model"""
+        """Add a new node to define coupling between antennas using the Walfisch-Ikegami model.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> walfisch_ikegami_coupling = cpl.add_walfisch_ikegami_coupling()
+
+        """
         return self._add_child_node("Walfisch-Ikegami Coupling")
 
     @min_aedt_version("2025.2")
     def add_erceg_coupling(self) -> EmitNode:
-        """Add a new node to define coupling between antennas using the Erceg coupling model"""
+        """Add a new node to define coupling between antennas using the Erceg coupling model.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> erceg_coupling = cpl.add_erceg_coupling()
+
+        """
         return self._add_child_node("Erceg Coupling")
 
     @min_aedt_version("2025.2")
     def add_indoor_propagation_coupling(self) -> EmitNode:
-        """Add a new node to define coupling between antennas using the ITU Indoor Propagation model"""
+        """Add a new node to define coupling between antennas using the ITU Indoor Propagation model.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> indoor_propagation_coupling = cpl.add_indoor_propagation_coupling()
+
+        """
         return self._add_child_node("Indoor Propagation Coupling")
 
     @min_aedt_version("2025.2")
     def add_5g_channel_model_coupling(self) -> EmitNode:
-        """Add a new node to define coupling between antennas using the 5G channel coupling model"""
+        """Add a new node to define coupling between antennas using the 5G channel coupling model.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> 5g_channel_model_coupling = cpl.add_5g_channel_model_coupling()
+
+        """
         return self._add_child_node("5G Channel Model Coupling")
+
+    @min_aedt_version("2027.1")
+    def export_to_csv(
+        self, file_name: str, antennas: tuple[AntennaNode, AntennaNode] | None = None, ports: str = ""
+    ) -> str:
+        """Export's the data for this node
+
+        Parameters
+        ----------
+        file_name: str[optional]
+            full path to the file to export to.
+        antennas: tuple(AntennaNode, AntennaNode), optional
+            tuple of antenna nodes to pull the selected Tx and Rx antenna names from for the export.
+            If not specified, will use the names specified by the ports parameter.
+        ports: str, optional
+            the ports to export the data for.
+
+        Returns
+        -------
+        csv_data: str
+            stringified data for the node returned if file_name not specified
+        """
+        if antennas is not None and all(isinstance(x, AntennaNode) for x in antennas):
+            a1, a2 = antennas
+            vals = f"{a1._full_node_name()}|{a2._full_node_name()}"
+        else:
+            vals = f"{ports}"
+        return self._export_to_csv(file_name, "SelectedRxAntenna|SelectedTxAntenna", vals)
+
+    @min_aedt_version("2027.1")
+    def plot(self, antennas: tuple[AntennaNode, AntennaNode] | None = None, ports: str = ""):
+        """Bring up a Cartesian plot for this node
+
+        Parameters
+        ----------
+        antennas: tuple(AntennaNode, AntennaNode), optional
+            tuple of antenna nodes to pull the selected Tx and Rx antenna names from for the export.
+            If not specified, will use the names specified by the ports parameter.
+        ports: str, optional
+            the ports to export the data for.
+        """
+        if antennas is not None and all(isinstance(x, AntennaNode) for x in antennas):
+            a1, a2 = antennas
+            vals = f"{a1._full_node_name}|{a2._full_node_name}"
+        else:
+            vals = f"{ports}"
+        return self._plot("SelectedRxAntenna|SelectedTxAntenna", vals)
 
     @property
     @min_aedt_version("2025.2")
@@ -96,6 +256,15 @@ class CouplingsNode(EmitNode):
         project will be >= this value.
 
         Value should be between -1000 and 1000.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> cpl.minimum_allowed_coupling = -200
+
         """
         val = self._get_property("Minimum Allowed Coupling")
         return float(val)
@@ -111,6 +280,15 @@ class CouplingsNode(EmitNode):
         """Default antenna-to-antenna coupling loss value.
 
         Value should be between -1000 and 0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> cpl.global_default_coupling = 0
+
         """
         val = self._get_property("Global Default Coupling")
         return float(val)
@@ -123,6 +301,16 @@ class CouplingsNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def antenna_tags(self) -> str:
-        """All tags currently used by all antennas in the project."""
+        """All tags currently used by all antennas in the project.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> cpl.antenna_tags
+
+        """
         val = self._get_property("Antenna Tags")
         return val

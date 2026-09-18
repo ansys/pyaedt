@@ -54,6 +54,12 @@ class Part(PyAedtBase):
         The default is ``None``.
     name : str, optional
         Name of the A3DCOMP file without the extension. The default is ``None``.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modeler.advanced_cad.parts import Part
+    >>> obj = Part()
+
     """
 
     # List of known keys for a part and default values:
@@ -75,6 +81,7 @@ class Part(PyAedtBase):
         "beamwidth_azimuth": None,  # Antenna only
         "polarization": None,
     }  # Antenna only
+    """Value for allowed keys."""
 
     def __init__(self, part_folder, part_dict, parent=None, name: str | None = None) -> None:
         # Default values:
@@ -169,6 +176,12 @@ class Part(PyAedtBase):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.parts import Part
+        >>> obj = Part()
+        >>> obj.zero_offset(kw=1)
+
         """
         if kw in ["offset", "rotation_cs"]:
             s = []
@@ -188,6 +201,13 @@ class Part(PyAedtBase):
         -------
         str
             Full name of the A3DCOMP file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.parts import Part
+        >>> obj = Part()
+        >>> obj.file_name
+
         """
         return os.path.join(self._compdef["part_folder"], self["comp_name"])
 
@@ -200,6 +220,13 @@ class Part(PyAedtBase):
         -------
         str
             Name of the coordinate system.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.parts import Part
+        >>> obj = Part()
+        >>> obj.cs_name
+
         """
         if self._motion or not self.zero_offset("offset") or not self.zero_offset("rotation_cs"):
             return self.name + "_cs"
@@ -216,6 +243,12 @@ class Part(PyAedtBase):
         str
             ame of the yaw variable.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.parts import Part
+        >>> obj = Part()
+        >>> obj.yaw_name
+
         """
         return self.name + "_yaw"
 
@@ -227,6 +260,13 @@ class Part(PyAedtBase):
         -------
         str
             Name of the pitch variable.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.parts import Part
+        >>> obj = Part()
+        >>> obj.pitch_name
+
         """
         return self.name + "_pitch"
 
@@ -238,6 +278,13 @@ class Part(PyAedtBase):
         -------
         str
              Name of the roll variable.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.parts import Part
+        >>> obj = Part()
+        >>> obj.roll_name
+
         """
         return self.name + "_roll"
 
@@ -250,6 +297,13 @@ class Part(PyAedtBase):
         -------
         list
             List of offset values for the local part.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.parts import Part
+        >>> obj = Part()
+        >>> obj.local_origin
+
         """
         if self["offset"]:
             if self.zero_offset("offset") or self["offset"] == "Global":
@@ -273,6 +327,13 @@ class Part(PyAedtBase):
         -------
         list
             List of offset values for the rotation.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.parts import Part
+        >>> obj = Part()
+        >>> obj.rotate_origin
+
         """
         if self["rotation_cs"]:
             if self.zero_offset("rotation_cs") or self["rotation_cs"] == "Global":
@@ -300,6 +361,13 @@ class Part(PyAedtBase):
         -------
         str
             Value for the yaw variable.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.parts import Part
+        >>> obj = Part()
+        >>> obj.yaw
+
         """
         return self._yaw
 
@@ -315,6 +383,13 @@ class Part(PyAedtBase):
         -------
         str
             Value of the pitch variable.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.parts import Part
+        >>> obj = Part()
+        >>> obj.pitch
+
         """
         return self._pitch
 
@@ -330,6 +405,13 @@ class Part(PyAedtBase):
         -------
         str
             Value of the roll variable.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.parts import Part
+        >>> obj = Part()
+        >>> obj.roll
+
         """
         return self._roll
 
@@ -345,6 +427,13 @@ class Part(PyAedtBase):
         -------
         str
             Name of the part.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.parts import Part
+        >>> obj = Part()
+        >>> obj.name
+
         """
         return self._multiparts.name + "_" + self._name
 
@@ -360,6 +449,13 @@ class Part(PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.parts import Part
+        >>> obj = Part()
+        >>> obj.set_relative_cs(app=1)
+
         """
         # Set x, y, z offset variables in app. But check first to see if the CS
         # has already been defined.
@@ -384,6 +480,13 @@ class Part(PyAedtBase):
         -------
         str
             Name of the rotation coordinate system.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.parts import Part
+        >>> obj = Part()
+        >>> obj.rot_cs_name
+
         """
         return self.name + "_rot_cs"
 
@@ -400,6 +503,13 @@ class Part(PyAedtBase):
             HFSS application instance.
         aedt_object : str
             Name of the HFSS design.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.parts import Part
+        >>> obj = Part()
+        >>> obj.do_rotate(app=1, aedt_object=1)
+
         """
         x_pointing = [1, 0, 0]
         y_pointing = [0, 1, 0]
@@ -435,6 +545,13 @@ class Part(PyAedtBase):
         -------
         str
             Name of inserted object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.parts import Part
+        >>> obj = Part()
+        >>> obj.insert(app=1)
+
         """
         aedt_objects = []
         # TODO: Why the inconsistent syntax for cs commands?
@@ -477,6 +594,11 @@ class Antenna(Part, PyAedtBase):
     name : str, optional
         The default is ``None``.
 
+    Examples
+    --------
+    >>> from ansys.aedt.core.modeler.advanced_cad.parts import Antenna
+    >>> obj = Antenna()
+
     """
 
     def __init__(self, root_folder, ant_dict, parent=None, name: str | None = None) -> None:
@@ -496,6 +618,13 @@ class Antenna(Part, PyAedtBase):
         -------
         dict
             Dictionary of parameters for a multi-part component.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.parts import Antenna
+        >>> obj = Antenna()
+        >>> obj.params
+
         """
         p = {}
         if self._compdef["antenna_type"] == "parametric":
@@ -536,6 +665,13 @@ class Antenna(Part, PyAedtBase):
         -------
         str
             Name of the inserted object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.parts import Antenna
+        >>> obj = Antenna()
+        >>> obj.insert(app=1)
+
         """
         if self._do_offset:
             self.set_relative_cs(app)

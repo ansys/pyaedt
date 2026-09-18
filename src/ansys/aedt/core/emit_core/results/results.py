@@ -30,13 +30,12 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 
 class Results:
-    """
-    Provides the ``Results`` object.
+    """Provides the ``Results`` object.
 
     Parameters
     ----------
-    emit_obj : emit_obj object
-        EMIT object used to create the result.
+    emit_project : emit_obj object
+        EMIT project object to create the results object for.
 
     Examples
     --------
@@ -45,10 +44,11 @@ class Results:
     >>> aedtapp.results = Results()
     >>> revision = aedtapp.results.analyze()
     >>> receivers = revision.get_receiver_names()
+
     """
 
-    def __init__(self, emit_obj) -> None:
-        self.emit_project = emit_obj
+    def __init__(self, emit_project) -> None:
+        self.emit_project = emit_project
         """EMIT project."""
 
         self.current_revision = None
@@ -57,7 +57,7 @@ class Results:
         self.revisions = []
         """List of all result revisions. Only one loaded at a time"""
 
-        self.design = emit_obj.desktop_class.active_design(emit_obj.odesktop.GetActiveProject())
+        self.design = emit_project.desktop_class.active_design(emit_project.odesktop.GetActiveProject())
         """Active design for the EMIT project."""
 
         self.aedt_version = int(self.emit_project.aedt_version_id[-3:])
@@ -114,12 +114,16 @@ class Results:
         Examples
         --------
         >>> aedtapp.results.delete_revision("Revision 10")
+
         """
         if self.aedt_version > 251:
             if revision_name in self.design.GetKeptResultNames():
                 self.design.DeleteKeptResult(revision_name)
                 if self.current_revision.name == revision_name and self.current_revision.revision_loaded:
-                    self.emit_project._emit_api.close()
+                    if self.aedt_version < 271:
+                        self.emit_project._emit_api.close()
+                    else:
+                        self.emit_project.close()
                     self.current_revision = None
             for rev in self.revisions:
                 if revision_name in rev.name:
@@ -129,7 +133,10 @@ class Results:
             if revision_name in self.design.GetResultList():
                 self.design.DeleteResult(revision_name)
                 if self.current_revision.name == revision_name and self.current_revision.revision_loaded:
-                    self.emit_project._emit_api.close()
+                    if self.aedt_version < 271:
+                        self.emit_project._emit_api.close()
+                    else:
+                        self.emit_project.close()
                     self.current_revision = None
                 for rev in self.revisions:
                     if revision_name in rev.name:
@@ -140,8 +147,7 @@ class Results:
 
     @staticmethod
     def interaction_domain() -> "emit_core.emit_api_python().InteractionDomain":
-        """
-        Get an ``InteractionDomain`` object.
+        """Get an ``InteractionDomain`` object.
 
         Returns
         -------
@@ -159,7 +165,7 @@ class Results:
             raise ValueError("An EMIT object must be initialized before any static member of the Results.")
         return domain
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def _unload_revisions(self) -> None:
         """Convenience function to set all revisions as ``unloaded``
 
@@ -176,8 +182,7 @@ class Results:
 
     @pyaedt_function_handler()
     def revision_names(self) -> list[str]:
-        """
-        Return a list of all the revision names.
+        """Return a list of all the revision names.
 
         Parameters
         ----------
@@ -187,13 +192,19 @@ class Results:
         -------
         revision_names : list str
             List of all revision names.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.results.revision_names()
+
         """
         return [rev.name for rev in self.revisions]
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def get_revision(self, revision_name: str = None) -> Revision:
-        """
-        Load the specified revision.
+        """Load the specified revision.
 
         Parameters
         ----------
@@ -211,6 +222,7 @@ class Results:
         >>> rev = aedtapp.results.get_revision("Revision 15")
         >>> interferers = rev.get_interferer_names()
         >>> receivers = rev.get_receiver_names()
+
         """
         # no revisions to load, create a new one
         if len(self.revisions) == 0:
@@ -257,6 +269,7 @@ class Results:
         >>> rev = aedtapp.results.analyze()
         >>> interferers = rev.get_interferer_names()
         >>> receivers = rev.get_receiver_names()
+
         """
         if self.aedt_version > 251:
             if self.current_revision:

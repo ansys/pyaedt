@@ -74,6 +74,13 @@ For end-to-end examples, see `Examples <https://examples.aedt.docs.pyansys.com>`
 
             How to generate reports, images, and PDF files.
 
+   .. grid-item-card:: Field expression builder
+            :link: field_expression_builder
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            How to build Fields Calculator expressions with a typed API.
+
    .. grid-item-card:: EMIT Modeler
             :link: emit_modeler
             :link-type: doc
@@ -109,5 +116,6 @@ For end-to-end examples, see `Examples <https://examples.aedt.docs.pyansys.com>`
    variables
    files
    postprocessing
+   field_expression_builder
    emit_modeler
    security_consideration

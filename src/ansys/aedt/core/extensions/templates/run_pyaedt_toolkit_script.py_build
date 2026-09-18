@@ -49,15 +49,40 @@ def aedt_script():
             folder = "winx64"
 
         # AEDT installation path
-        install_path = os.path.abspath(oDesktop.GetExeDir() + "/../")
+        install_path = os.path.abspath(os.path.join(oDesktop.GetExeDir(), ".."))
 
         sys.path.append(r"##EXTENSION_TEMPLATES##")
 
         # Check if the script is running using CPython interpreter from AEDT installation
         pyaedt_path = None
+        site_packages_path = None
+        version = oDesktop.GetVersion()
+
         if install_path in os.path.abspath(r"##EXTENSION_TEMPLATES##"):
-            pyaedt_path = os.path.join(install_path,
-                                       r"commonfiles/CPython/3_10/{0}/Release/Ansys/PyAEDT".format(folder))
+            if version < "2027.1":
+                # Before 2027R1, Python interpreter was 3.10 and PyAEDT was placed in AnsysEM commonfiles.
+                pyaedt_path = os.path.join(install_path, "AnsysEM", "commonfiles", "CPython", "3_10", folder, "Release",
+                                           "Ansys", "PyAEDT")
+                site_packages_path = os.path.join(install_path, "AnsysEM", "commonfiles", "CPython", "3_10", folder, "Release",
+                                           "python", "Lib", "site-packages")
+            else:
+                # Check if PyAEDT is placed in AnsysEM directory first
+                pyaedt_path = os.path.join(install_path, "AnsysEM", "commonfiles", "CPython", "3_13", folder, "Release",
+                                           "Ansys", "PyAEDT")
+                site_packages_path = os.path.join(install_path, "AnsysEM", "commonfiles", "CPython", "3_13", folder, "Release",
+                                           "python", "Lib", "site-packages")
+                if not os.path.isdir(pyaedt_path):
+                    # As a fallback check if PyAEDT is placed in install_path
+                    pyaedt_path = os.path.join(install_path, "commonfiles", "CPython", "3_13", folder, "Release",
+                                               "Ansys", "PyAEDT")
+                    site_packages_path = os.path.join(install_path, "commonfiles", "CPython", "3_13", folder, "Release",
+                                           "python", "Lib", "site-packages")
+            if pyaedt_path and not os.path.isdir(pyaedt_path):
+                msg = "{} path does not exist.".format(pyaedt_path)
+                oDesktop.AddMessage("", "", 2, str(msg))
+
+        if pyaedt_path and os.path.isdir(pyaedt_path):
+            sys.path.append(pyaedt_path)
 
         import pyaedt_utils
 
@@ -90,10 +115,7 @@ def aedt_script():
         # Open extension manager
         my_env = os.environ.copy()
 
-        if pyaedt_path:
-            site_packages_path = os.path.join(install_path,
-                                              "commonfiles/CPython/3_10/{0}/Release/python/Lib/site-packages".format(
-                                                  folder))
+        if pyaedt_path and site_packages_path:
             my_env["PYTHONPATH"] = os.pathsep.join([site_packages_path, pyaedt_path])
 
         # Run workflow

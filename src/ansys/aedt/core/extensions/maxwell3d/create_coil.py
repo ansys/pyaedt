@@ -23,12 +23,15 @@
 # SOFTWARE.
 
 from dataclasses import dataclass
-from dataclasses import field
 from dataclasses import fields
 import os
 from pathlib import Path
 import tkinter as tk
 from tkinter import ttk
+from typing import Any
+from typing import Literal
+from typing import Protocol
+from typing import cast
 
 import ansys.aedt.core
 from ansys.aedt.core import get_pyaedt_app
@@ -45,12 +48,19 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.advanced_cad.coil import Coil
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 MIN_WIDTH = 400
+"""Minimum width."""
 MIN_HEIGHT = 500
-DEFAULT_PADDING = {"padx": 5, "pady": 5}
+"""Minimum height."""
+DEFAULT_PADDING: dict[str, Any] = {"padx": 5, "pady": 5}
+"""Default padding."""
 
 # Extension batch arguments
 EXTENSION_DEFAULT_ARGUMENTS = {
@@ -78,30 +88,64 @@ EXTENSION_DEFAULT_ARGUMENTS = {
         "looping_position": 0.5,
     },
 }
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Create coil design"
+"""Title displayed for the extension."""
+
+
+class CheckbuttonWithVar(Protocol):
+    var: tk.IntVar
+
+    def grid(self, *args: Any, **kwargs: Any) -> object: ...
+
+
+class MaxwellAppLike(Protocol):
+    design_type: str
+    working_directory: str
+    variable_manager: Any
+    modeler: Any
+
+    def release_desktop(self, close_projects: bool, close_on_exit: bool) -> object: ...
 
 
 @dataclass
 class CoilExtensionData(ExtensionCommonData):
     """Data class containing user input and computed data."""
 
-    is_vertical: bool = field(default_factory=lambda: EXTENSION_DEFAULT_ARGUMENTS["is_vertical"])
-    create_3d_comp: bool = field(default_factory=lambda: EXTENSION_DEFAULT_ARGUMENTS["create_3d_comp"])
+    is_vertical: bool = True
+    """Flag indicating whether vertical is enabled."""
+    create_3d_comp: bool = True
+    """Value for create 3d comp."""
     name: str = EXTENSION_DEFAULT_ARGUMENTS["Common"]["name"]
+    """Value for name."""
     centre_x: float = EXTENSION_DEFAULT_ARGUMENTS["Common"]["centre_x"]
+    """Value for centre x."""
     centre_y: float = EXTENSION_DEFAULT_ARGUMENTS["Common"]["centre_y"]
+    """Value for centre y."""
     turns: int = EXTENSION_DEFAULT_ARGUMENTS["Common"]["turns"]
+    """Value for turns."""
     inner_distance: float = EXTENSION_DEFAULT_ARGUMENTS["Common"]["inner_distance"]
+    """Value for inner distance."""
     inner_width: float = EXTENSION_DEFAULT_ARGUMENTS["Common"]["inner_width"]
+    """Value for inner width."""
     inner_length: float = EXTENSION_DEFAULT_ARGUMENTS["Common"]["inner_length"]
+    """Value for inner length."""
     wire_radius: float = EXTENSION_DEFAULT_ARGUMENTS["Common"]["wire_radius"]
+    """Value for wire radius."""
     arc_segmentation: int = EXTENSION_DEFAULT_ARGUMENTS["Common"]["arc_segmentation"]
+    """Value for arc segmentation."""
     section_segmentation: int = EXTENSION_DEFAULT_ARGUMENTS["Common"]["section_segmentation"]
+    """Value for section segmentation."""
     direction: int = EXTENSION_DEFAULT_ARGUMENTS["Vertical"]["direction"]
+    """Value for direction."""
     centre_z: float = EXTENSION_DEFAULT_ARGUMENTS["Vertical"]["centre_z"]
+    """Value for centre z."""
     pitch: float = EXTENSION_DEFAULT_ARGUMENTS["Vertical"]["pitch"]
+    """Value for pitch."""
     distance_turns: float = EXTENSION_DEFAULT_ARGUMENTS["Flat"]["distance_turns"]
+    """Value for distance turns."""
     looping_position: float = EXTENSION_DEFAULT_ARGUMENTS["Flat"]["looping_position"]
+    """Value for looping position."""
 
 
 class CoilExtension(ExtensionMaxwell3DCommon):
@@ -122,16 +166,19 @@ class CoilExtension(ExtensionMaxwell3DCommon):
         self.add_extension_content()
         self.root.minsize(MIN_WIDTH, MIN_HEIGHT)
 
-    def show_pictures_popup(self) -> None:
+    def coil_data(self) -> CoilExtensionData:
+        return cast(CoilExtensionData, self.data)
+
+    def _show_pictures_popup(self) -> None:
         popup = tk.Toplevel(self.root)
         popup.title("Coil Parameters")
 
         tk_image = tk.PhotoImage(file=Path(__file__).parent / "images" / "large" / "coil_parameters.png")
         label = tk.Label(popup, image=tk_image)
-        label.image = tk_image
+        setattr(label, "image", tk_image)
         label.pack()
 
-    def _add_vertical_coil_checkbox(self, tab: tk.Widget, row: int) -> int:
+    def _add_vertical_coil_checkbox(self, tab: tk.Misc, row: int) -> int:
         is_vertical_label = ttk.Label(tab, text="Vertical Coil", style="PyAEDT.TLabel", width=20)
         is_vertical_label.grid(row=row, column=0, **DEFAULT_PADDING)
         is_vertical = tk.IntVar(tab, name="is_vertical", value=1)
@@ -141,12 +188,12 @@ class CoilExtension(ExtensionMaxwell3DCommon):
             style="PyAEDT.TCheckbutton",
             name="is_vertical",
         )
-        self.__widget["is_vertical"].var = is_vertical
+        cast(CheckbuttonWithVar, self.__widget["is_vertical"]).var = is_vertical
         self.__widget["is_vertical"].grid(row=row, column=1, sticky="", padx=5)
         row += 1
         return row
 
-    def _add_parameter_row(self, tab: tk.Widget, parameter: str, default_value: float, row: int) -> int:
+    def _add_parameter_row(self, tab: tk.Misc, parameter: str, default_value: int | float, row: int) -> int:
         widget_name = parameter.replace(" ", "_").lower()
         parameter_label = ttk.Label(tab, text=parameter, style="PyAEDT.TLabel", width=20)
         parameter_label.grid(row=row, column=0, **DEFAULT_PADDING)
@@ -159,7 +206,7 @@ class CoilExtension(ExtensionMaxwell3DCommon):
         row += 1
         return row
 
-    def _create_3d_component(self, tab, row):
+    def _create_3d_component(self, tab: tk.Misc, row: int) -> int:
         create_3d_comp_label = ttk.Label(tab, text="Create 3D Component", style="PyAEDT.TLabel", width=20)
         create_3d_comp_label.grid(row=row, column=0, **DEFAULT_PADDING)
         create_3d_comp = tk.IntVar(tab, name="create_3d_comp", value=1)
@@ -169,24 +216,25 @@ class CoilExtension(ExtensionMaxwell3DCommon):
             style="PyAEDT.TCheckbutton",
             name="create_3d_comp",
         )
-        self.__widget["create_3d_comp"].var = create_3d_comp
+        cast(CheckbuttonWithVar, self.__widget["create_3d_comp"]).var = create_3d_comp
         self.__widget["create_3d_comp"].grid(row=row, column=1, sticky="", padx=5)
         row += 1
         return row
 
-    def _add_export_button(self, tab, row):
+    def _add_export_button(self, tab: tk.Misc, row: int) -> None:
         export_points_button = ttk.Button(
-            tab, text="Parameters help", command=self.show_pictures_popup, style="PyAEDT.TButton"
+            tab, text="Parameters help", command=self._show_pictures_popup, style="PyAEDT.TButton"
         )
         export_points_button.grid(row=row, column=0, sticky="e", **DEFAULT_PADDING)
 
-    def create_parameter_inputs(self, tab: tk.Widget, tab_name: str):
+    def create_parameter_inputs(self, tab: tk.Misc, tab_name: Literal["Common", "Vertical", "Flat"]) -> None:
         """Create parameter input widgets for a category."""
         row = 0
         if tab_name == "Common":
             row = self._add_vertical_coil_checkbox(tab, row)
 
-        for parameter, default_value in EXTENSION_DEFAULT_ARGUMENTS[tab_name].items():
+        parameter_defaults = cast(dict[str, int | float], EXTENSION_DEFAULT_ARGUMENTS[tab_name])
+        for parameter, default_value in parameter_defaults.items():
             row = self._add_parameter_row(tab, parameter, default_value, row)
 
         if tab_name == "Common":
@@ -199,7 +247,11 @@ class CoilExtension(ExtensionMaxwell3DCommon):
         def callback(extension: CoilExtension) -> None:
             data = CoilExtensionData()
             for k, widget in self.__widget.items():
-                val = widget.get("1.0", "end-1c") if isinstance(widget, tk.Text) else bool(widget.var.get())
+                val = (
+                    widget.get("1.0", "end-1c")
+                    if isinstance(widget, tk.Text)
+                    else bool(cast(CheckbuttonWithVar, widget).var.get())
+                )
                 if hasattr(data, k):
                     setattr(data, k, val)
             extension.data = data
@@ -216,7 +268,7 @@ class CoilExtension(ExtensionMaxwell3DCommon):
         notebook = ttk.Notebook(master, style="TNotebook", name="notebook")
         main_frame.add(notebook, weight=3)
 
-        for tab_name in ["Common", "Vertical", "Flat"]:
+        for tab_name in cast(tuple[Literal["Common", "Vertical", "Flat"], ...], ("Common", "Vertical", "Flat")):
             tab = ttk.Frame(notebook, style="PyAEDT.TFrame", name=tab_name.lower())
             notebook.add(tab, text=tab_name)
             self.create_parameter_inputs(tab, tab_name)
@@ -233,7 +285,16 @@ class CoilExtension(ExtensionMaxwell3DCommon):
 
 
 def main(data: CoilExtensionData) -> bool:
-    """Main function to create coils in AEDT."""
+    """Main function to create coils in AEDT.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.maxwell3d.create_coil import CoilExtensionData
+    >>> from ansys.aedt.core.extensions.maxwell3d.create_coil import main
+    >>> coil_data = CoilExtensionData(name="Coil1", turns=6)
+    >>> main(coil_data)
+
+    """
     app = ansys.aedt.core.Desktop(
         new_desktop=False,
         version=VERSION,
@@ -248,7 +309,7 @@ def main(data: CoilExtensionData) -> bool:
     project_name = active_project.GetName()
     design_name = active_design.GetName()
 
-    aedtapp = get_pyaedt_app(project_name, design_name)
+    aedtapp = cast(MaxwellAppLike, get_pyaedt_app(project_name, design_name))
     if aedtapp.design_type != "Maxwell 3D":
         raise AEDTRuntimeError("This extension can only be used with Maxwell 3D designs.")
 
@@ -300,7 +361,7 @@ if __name__ == "__main__":  # pragma: no cover
 
         tk.mainloop()
         if extension.data is not None:
-            main(extension.data)
+            main(extension.coil_data())
     else:
         data = CoilExtensionData()
         for key, value in args.items():

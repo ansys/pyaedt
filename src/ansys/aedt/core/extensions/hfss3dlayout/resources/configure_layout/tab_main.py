@@ -31,6 +31,7 @@ from tkinter import ttk
 
 
 def create_tab_main(tab_frame, master) -> None:
+    """Create tab main."""
     frame0 = ttk.Frame(tab_frame, name="frame0", style="PyAEDT.TFrame", borderwidth=1, relief="raised")
     # frame0.grid(row=0, column=0, **master.GRID_PARAMS)
     frame0.pack(fill="both", expand=True, padx=5, pady=5)
@@ -43,7 +44,22 @@ def create_tab_main(tab_frame, master) -> None:
 
 
 def create_sub_frame0(parent, master) -> None:
-    """Import frame."""
+    """Import frame.
+
+    Examples
+    --------
+    >>> from tkinter import ttk
+    >>> from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui import (
+    ...     ConfigureLayoutExtension,
+    ... )
+    >>> from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.tab_main import (
+    ...     create_sub_frame0,
+    ... )
+    >>> extension = ConfigureLayoutExtension(withdraw=True)
+    >>> frame = ttk.Frame(extension.tab_frame_main)
+    >>> create_sub_frame0(frame, extension)
+
+    """
     row = 0
     ttk.Radiobutton(
         parent,
@@ -86,7 +102,22 @@ def create_sub_frame0(parent, master) -> None:
 
 
 def create_sub_frame1(parent, master) -> None:
-    """Export frame"""
+    """Export frame.
+
+    Examples
+    --------
+    >>> from tkinter import ttk
+    >>> from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui import (
+    ...     ConfigureLayoutExtension,
+    ... )
+    >>> from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.tab_main import (
+    ...     create_sub_frame1,
+    ... )
+    >>> extension = ConfigureLayoutExtension(withdraw=True)
+    >>> frame = ttk.Frame(extension.tab_frame_main)
+    >>> create_sub_frame1(frame, extension)
+
+    """
     row = 0
 
     ttk.Button(
@@ -124,7 +155,20 @@ def create_sub_frame1(parent, master) -> None:
 
 
 def callback_select_design(master) -> None:
-    """Select design to apply configuration."""
+    """Select design to apply configuration.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui import (
+    ...     ConfigureLayoutExtension,
+    ... )
+    >>> from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.tab_main import (
+    ...     callback_select_design,
+    ... )
+    >>> extension = ConfigureLayoutExtension(withdraw=True)
+    >>> callback_select_design(extension)
+
+    """
     design_path = filedialog.askopenfilename(
         title="Select Design",
         filetypes=(("All files", "*.*"), ("Brd", "*.brd"), ("ODB++", "*.tgz"), ("Edb", "*.def")),
@@ -145,6 +189,7 @@ def callback_select_design(master) -> None:
 
 
 def callback_apply(master) -> bool:
+    """Return callback apply."""
     file_path = filedialog.askopenfilename(
         title="Select Configuration",
         filetypes=(("json", "*.json"), ("toml", "*.toml"), ("All files", "*.*")),
@@ -154,12 +199,13 @@ def callback_apply(master) -> bool:
     if not file_path:  # pragma: no cover
         return False
 
-    edbpath = master.apply_config_to_edb(file_path)
-    master.load_edb_into_hfss3dlayout(edbpath)
+    edbpath = master._apply_config_to_edb(file_path)
+    master._load_edb_into_hfss3dlayout(edbpath)
     return True
 
 
 def callback_export(master):
+    """Return callback export."""
     file_path = filedialog.asksaveasfilename(
         title="Select Configuration",
         filetypes=(("json", "*.json"), ("toml", "*.toml"), ("All files", "*.*")),
@@ -169,7 +215,7 @@ def callback_export(master):
         return False
 
     update_options(master)
-    config_dict = master.export_config_from_edb()
+    config_dict = master._export_config_from_edb()
     with open(file_path, "w") as f:
         json.dump(config_dict, f, indent=4)
     messagebox.showinfo("Information", f"Saved to {file_path}")
@@ -177,6 +223,17 @@ def callback_export(master):
 
 
 def update_options(master) -> None:
-    """Update export options based on the selected checkboxes."""
+    """Update export options based on the selected checkboxes.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui import (
+    ...     ConfigureLayoutExtension,
+    ... )
+    >>> from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.tab_main import update_options
+    >>> extension = ConfigureLayoutExtension(withdraw=True)
+    >>> update_options(extension)
+
+    """
     for name, var in master.export_option_vars.items():
         setattr(master.export_options, name, var.get())

@@ -37,10 +37,12 @@ expansion_factor
 fanout
 FEBI
 FE-BI
+FilterSolutions
 file_path
 fix_disjoints
 Floquet
 FRTM
+Fresnel
 getters
 Github
 globals
@@ -100,6 +102,7 @@ reusability
 RF
 RMXprt
 RTTBL
+SBR
 scipy
 setters
 SIwave
@@ -151,3 +154,5 @@ Layer
 Security
 RCS
 [Tt]estmon
+[Uu]nary
+[Rr]esult [Cc]alculator

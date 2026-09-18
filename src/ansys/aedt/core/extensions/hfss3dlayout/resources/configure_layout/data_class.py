@@ -26,25 +26,48 @@ from pydantic import BaseModel
 
 
 class AedtInfo(BaseModel):
+    """Provide AEDT info."""
+
     version: str = ""
+    """Value for version."""
     port: int
+    """Value for port."""
     aedt_process_id: int | None
+    """Value for AEDT process id."""
     student_version: bool | None = False
+    """Value for student version."""
 
 
 class ExportOptions(BaseModel):
+    """Provide export options."""
+
     general: bool = False
+    """Value for general."""
     variables: bool = True
+    """Value for variables."""
     stackup: bool = True
+    """Value for stackup."""
     package_definitions: bool = False
+    """Value for package definitions."""
     setups: bool = True
+    """Value for setups."""
     sources: bool = True
+    """Value for sources."""
     ports: bool = True
+    """Value for ports."""
     nets: bool = False
+    """Value for nets."""
     pin_groups: bool = True
+    """Value for pin groups."""
     operations: bool = True
+    """Value for operations."""
     components: bool = False
+    """Value for components."""
     boundaries: bool = False
+    """Value for boundaries."""
     s_parameters: bool = False
+    """Value for s parameters."""
     padstacks: bool = False
+    """Value for padstacks."""
     terminals: bool = False
+    """Value for terminals."""

@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 from dataclasses import dataclass
+from dataclasses import field
 import json
 import os
 from pathlib import Path
@@ -30,6 +31,9 @@ import tkinter
 from tkinter import filedialog
 from tkinter import messagebox
 from tkinter import ttk
+from typing import Any
+from typing import Protocol
+from typing import cast
 
 import numpy as np
 
@@ -47,9 +51,13 @@ from ansys.aedt.core.generic.file_utils import write_csv
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 # Extension batch arguments
 EXTENSION_DEFAULT_ARGUMENTS = {
@@ -59,26 +67,60 @@ EXTENSION_DEFAULT_ARGUMENTS = {
     "objects_list": [],
     "solution_option": "",
 }
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Fields Distribution"
+"""Title displayed for the extension."""
+
+
+class MaxwellFieldsAppLike(Protocol):
+    design_type: str
+    _aedt_version: str
+    modeler: Any
+    post: Any
+    existing_analysis_sweeps: list[str]
+    setups: list[Any]
 
 
 @dataclass
 class FieldsDistributionExtensionData(ExtensionCommonData):
-    """Data class containing user input and computed data."""
+    """Data class containing user input and computed data.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtensionData
+    >>> data = FieldsDistributionExtensionData(
+    ...     export_file="field_output.csv",
+    ...     export_option="Ohmic loss",
+    ...     solution_option="Setup1 : LastAdaptive",
+    ... )
+
+    """
 
     points_file: str = EXTENSION_DEFAULT_ARGUMENTS["points_file"]
+    """File path for points."""
     export_file: str = EXTENSION_DEFAULT_ARGUMENTS["export_file"]
+    """File path for export."""
     export_option: str = EXTENSION_DEFAULT_ARGUMENTS["export_option"]
-    objects_list: list = None
+    """Value for export option."""
+    objects_list: list[str] | None = field(default_factory=list)
+    """Value for objects list."""
     solution_option: str = EXTENSION_DEFAULT_ARGUMENTS["solution_option"]
+    """Value for solution option."""
 
     def __post_init__(self) -> None:
         if self.objects_list is None:
-            self.objects_list = EXTENSION_DEFAULT_ARGUMENTS["objects_list"].copy()
+            self.objects_list = []
 
 
 class FieldsDistributionExtension(ExtensionCommon):
-    """Extension for fields distribution in Maxwell."""
+    """Extension for fields distribution in Maxwell.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtension
+    >>> extension = FieldsDistributionExtension(withdraw=True)
+
+    """
 
     def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with the title and theme color
@@ -101,7 +143,15 @@ class FieldsDistributionExtension(ExtensionCommon):
         # Trigger manually since add_extension_content requires loading expression files first
         self.add_extension_content()
 
-    def __get_design_type(self):
+    @property
+    def fields_data(self) -> FieldsDistributionExtensionData:
+        return cast(FieldsDistributionExtensionData, self.data)
+
+    @property
+    def maxwell_app(self) -> MaxwellFieldsAppLike:
+        return cast(MaxwellFieldsAppLike, self.aedt_application)
+
+    def __get_design_type(self) -> str:
         """Get the design type of the active design."""
         try:
             app = ansys.aedt.core.Desktop(
@@ -119,42 +169,50 @@ class FieldsDistributionExtension(ExtensionCommon):
             return "Maxwell 3D"  # Default fallback
 
     def check_design_type(self) -> None:
-        """Check if the active design is a Maxwell design."""
+        """Check if the active design is a Maxwell design.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtension
+        >>> extension = FieldsDistributionExtension(withdraw=True)
+        >>> extension.check_design_type()
+
+        """
         if self.aedt_application.design_type not in ["Maxwell 2D", "Maxwell 3D"]:
             self.release_desktop()
             raise AEDTRuntimeError("Active design is not Maxwell 2D or 3D.")
 
-    def __load_aedt_info(self):
+    def __load_aedt_info(self) -> None:
         """Load Maxwell design info."""
         # Get named expressions for field quantities
         # make it backward compatible by implementing a check on AEDT version
-        if self.aedt_application._aedt_version < "2026.1":
-            point = self.aedt_application.modeler.create_point([0, 0, 0])
-            self.__named_expressions = self.aedt_application.post.available_report_quantities(
+        if self.maxwell_app._aedt_version < "2026.1":
+            point = self.maxwell_app.modeler.create_point([0, 0, 0])
+            self.__named_expressions = self.maxwell_app.post.available_report_quantities(
                 report_category="Fields", context=point.name, quantities_category="Calculator Expressions"
             )
             # Load vector fields from JSON
             json_path = Path(__file__).resolve().parent / "vector_fields.json"
             with open(json_path, "r") as f:
                 vector_fields = json.load(f)
-            self.__named_expressions.extend(vector_fields[self.aedt_application.design_type])
+            self.__named_expressions.extend(vector_fields[self.maxwell_app.design_type])
             point.delete()
         else:
-            self.__named_expressions = self.aedt_application.post.fields_calculator.get_expressions()
+            self.__named_expressions = self.maxwell_app.post.fields_calculator.get_expressions()
 
         # Get objects list
-        self.__objects_list = list(self.aedt_application.modeler.objects_by_name.keys())
+        self.__objects_list = list(self.maxwell_app.modeler.objects_by_name.keys())
         if not self.__objects_list:
             self.release_desktop()
             raise AEDTRuntimeError("No objects are defined in this design.")
 
         # Get solution options
-        self.__solution_options = self.aedt_application.existing_analysis_sweeps
+        self.__solution_options = self.maxwell_app.existing_analysis_sweeps
         if not self.__solution_options:
             self.release_desktop()
             raise AEDTRuntimeError("No solved analysis sweeps found.")
 
-    def _text_size(self, path, entry):
+    def _text_size(self, path: str, entry: tkinter.Text) -> None:
         """Adjust text widget size based on content."""
         text_length = len(path)
         height = 1
@@ -164,7 +222,9 @@ class FieldsDistributionExtension(ExtensionCommon):
         entry.delete("1.0", tkinter.END)
         entry.insert(tkinter.END, path)
 
-    def _populate_listbox(self, frame, listbox, listbox_height, items_list):
+    def _populate_listbox(
+        self, frame: tkinter.Frame, listbox: tkinter.Listbox, listbox_height: int, items_list: list[str]
+    ) -> None:
         """Populate listbox with items and add scrollbar if needed."""
         listbox.pack(expand=True, fill=tkinter.BOTH, side=tkinter.LEFT)
         if len(items_list) > 6:
@@ -175,7 +235,15 @@ class FieldsDistributionExtension(ExtensionCommon):
             listbox.insert(tkinter.END, item)
 
     def add_extension_content(self) -> None:
-        """Add custom content to the extension UI."""
+        """Add custom content to the extension UI.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtension
+        >>> extension = FieldsDistributionExtension(withdraw=True)
+        >>> extension.add_extension_content()
+
+        """
         # Export options
         export_options_frame = tkinter.Frame(self.root, width=20)
         export_options_frame.grid(row=0, column=0, pady=10, padx=10, sticky="ew")
@@ -290,17 +358,21 @@ class FieldsDistributionExtension(ExtensionCommon):
             )
 
             def submit() -> None:
+                objects_list_lb = cast(tkinter.Listbox | None, self._widgets.get("objects_list_lb"))
+                sample_points_entry = cast(tkinter.Text | None, self._widgets.get("sample_points_entry"))
+                if objects_list_lb is None or sample_points_entry is None:
+                    raise RuntimeError("Fields Distribution widgets are not initialized.")
                 if option_var.get() == "Option 1":
                     from ansys.aedt.core.extensions.common.points_cloud import PointsCloudExtensionData
                     from ansys.aedt.core.extensions.common.points_cloud import main as points_main
 
-                    selected_objects = self._widgets["objects_list_lb"].curselection()
-                    objects_list = [self._widgets["objects_list_lb"].get(i) for i in selected_objects]
+                    selected_objects = objects_list_lb.curselection()
+                    objects_list = [cast(str, objects_list_lb.get(i)) for i in selected_objects]
                     points = points_entry.get("1.0", tkinter.END).strip()
                     try:
                         data = PointsCloudExtensionData(choice=objects_list, points=int(points))
                         pts_path = points_main(data)
-                        self._text_size(pts_path, self._widgets["sample_points_entry"])
+                        self._text_size(pts_path, sample_points_entry)
                     except Exception as e:
                         messagebox.showerror("Error", f"Failed to generate points: {str(e)}")
                 else:
@@ -310,7 +382,7 @@ class FieldsDistributionExtension(ExtensionCommon):
                         filetypes=(("Points file", ".pts"), ("all files", "*.*")),
                     )
                     if filename:
-                        self._text_size(filename, self._widgets["sample_points_entry"])
+                        self._text_size(filename, sample_points_entry)
                 popup.destroy()
 
             tkinter.Button(popup, text="OK", command=submit).pack(pady=10)
@@ -343,6 +415,9 @@ class FieldsDistributionExtension(ExtensionCommon):
 
         # Save as button
         def save_as_files() -> None:
+            export_file_entry = cast(tkinter.Text | None, self._widgets.get("export_file_entry"))
+            if export_file_entry is None:
+                raise RuntimeError("Fields Distribution widgets are not initialized.")
             filename = filedialog.asksaveasfilename(
                 initialdir="/",
                 defaultextension="*.tab",
@@ -353,7 +428,7 @@ class FieldsDistributionExtension(ExtensionCommon):
                 ],
             )
             if filename:
-                self._text_size(filename, self._widgets["export_file_entry"])
+                self._text_size(filename, export_file_entry)
 
         save_as_button = ttk.Button(
             export_file_frame, text="Save as...", command=save_as_files, width=10, style="PyAEDT.TButton"
@@ -367,16 +442,29 @@ class FieldsDistributionExtension(ExtensionCommon):
         self._widgets["buttons_frame"] = buttons_frame
 
         def callback_export() -> None:
-            points_file = self._widgets["sample_points_entry"].get("1.0", tkinter.END).strip()
-            export_file = self._widgets["export_file_entry"].get("1.0", tkinter.END).strip()
-            selected_export = self._widgets["export_options_lb"].curselection()
+            sample_points_entry = cast(tkinter.Text | None, self._widgets.get("sample_points_entry"))
+            export_file_entry = cast(tkinter.Text | None, self._widgets.get("export_file_entry"))
+            export_options_lb = cast(tkinter.Listbox | None, self._widgets.get("export_options_lb"))
+            objects_list_lb = cast(tkinter.Listbox | None, self._widgets.get("objects_list_lb"))
+            solution_dropdown_var = cast(tkinter.StringVar | None, self._widgets.get("solution_dropdown_var"))
+            if (
+                sample_points_entry is None
+                or export_file_entry is None
+                or export_options_lb is None
+                or objects_list_lb is None
+                or solution_dropdown_var is None
+            ):
+                raise RuntimeError("Fields Distribution widgets are not initialized.")
+            points_file = sample_points_entry.get("1.0", tkinter.END).strip()
+            export_file = export_file_entry.get("1.0", tkinter.END).strip()
+            selected_export = export_options_lb.curselection()
             if not selected_export:
                 messagebox.showerror("Error", "Please select an export option.")
                 return
-            export_option = self._widgets["export_options_lb"].get(selected_export[0])
-            selected_objects = self._widgets["objects_list_lb"].curselection()
-            objects_list = [self._widgets["objects_list_lb"].get(i) for i in selected_objects]
-            solution_option = self._widgets["solution_dropdown_var"].get()
+            export_option = cast(str, export_options_lb.get(selected_export[0]))
+            selected_objects = objects_list_lb.curselection()
+            objects_list = [cast(str, objects_list_lb.get(i)) for i in selected_objects]
+            solution_option = solution_dropdown_var.get()
 
             fields_data = FieldsDistributionExtensionData(
                 points_file=points_file,
@@ -389,17 +477,22 @@ class FieldsDistributionExtension(ExtensionCommon):
             self.root.destroy()
 
         def callback_preview() -> None:
-            selected_export = self._widgets["export_options_lb"].curselection()
+            export_options_lb = cast(tkinter.Listbox | None, self._widgets.get("export_options_lb"))
+            objects_list_lb = cast(tkinter.Listbox | None, self._widgets.get("objects_list_lb"))
+            solution_dropdown_var = cast(tkinter.StringVar | None, self._widgets.get("solution_dropdown_var"))
+            if export_options_lb is None or objects_list_lb is None or solution_dropdown_var is None:
+                raise RuntimeError("Fields Distribution widgets are not initialized.")
+            selected_export = export_options_lb.curselection()
             if not selected_export:
                 messagebox.showerror("Error", "Please select an export option.")
                 return
-            export_option = self._widgets["export_options_lb"].get(selected_export[0])
-            selected_objects = self._widgets["objects_list_lb"].curselection()
-            objects_list = [self._widgets["objects_list_lb"].get(i) for i in selected_objects]
-            solution_option = self._widgets["solution_dropdown_var"].get()
+            export_option = cast(str, export_options_lb.get(selected_export[0]))
+            selected_objects = objects_list_lb.curselection()
+            objects_list = [cast(str, objects_list_lb.get(i)) for i in selected_objects]
+            solution_option = solution_dropdown_var.get()
 
             try:
-                plot = self.aedt_application.post.plot_field(
+                plot = self.maxwell_app.post.plot_field(
                     quantity=export_option,
                     assignment=objects_list,
                     plot_type="Surface",
@@ -427,7 +520,20 @@ class FieldsDistributionExtension(ExtensionCommon):
 
 
 def main(data: FieldsDistributionExtensionData) -> bool:
-    """Main function to run the fields distribution extension."""
+    """Main function to run the fields distribution extension.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtensionData
+    >>> from ansys.aedt.core.extensions.maxwell3d.fields_distribution import main
+    >>> data = FieldsDistributionExtensionData(
+    ...     export_file="field_output.csv",
+    ...     export_option="Ohmic loss",
+    ...     solution_option="Setup1 : LastAdaptive",
+    ... )
+    >>> main(data)
+
+    """
     if not data.export_file:
         raise AEDTRuntimeError("No export file specified.")
 
@@ -445,7 +551,7 @@ def main(data: FieldsDistributionExtensionData) -> bool:
     project_name = active_project.GetName()
     design_name = active_design.GetName()
 
-    aedtapp = get_pyaedt_app(project_name, design_name)
+    aedtapp = cast(MaxwellFieldsAppLike, get_pyaedt_app(project_name, design_name))
 
     if aedtapp.design_type not in ["Maxwell 2D", "Maxwell 3D"]:
         if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
@@ -538,7 +644,7 @@ if __name__ == "__main__":  # pragma: no cover
         tkinter.mainloop()
 
         if extension.data is not None:
-            main(extension.data)
+            main(extension.fields_data)
 
     else:
         data = FieldsDistributionExtensionData()

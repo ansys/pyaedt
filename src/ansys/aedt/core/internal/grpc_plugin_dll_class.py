@@ -41,6 +41,8 @@ from ansys.aedt.core.internal.errors import GrpcApiError
 
 
 class AedtBlockObj(list):
+    """Provide AEDT block obj."""
+
     def GetName(self):
         if len(self) > 0:
             f = self[0]
@@ -93,9 +95,12 @@ class AedtBlockObj(list):
 
 
 exclude_list = ["GetAppDesktop", "GetProcessID", "GetGrpcServerPort"]
+"""Value for exclude list."""
 
 
 class AedtObjWrapper:
+    """Provide AEDT obj wrapper."""
+
     def __init__(self, objID, listFuncs, AedtAPI=None) -> None:
         self.__dict__["objectID"] = objID  # avoid derive class overwrite __setattr__
         self.__dict__["__methodNames__"] = listFuncs
@@ -178,6 +183,8 @@ class AedtObjWrapper:
 
 
 class AedtPropServer(AedtObjWrapper):
+    """Provide AEDT prop server."""
+
     def __init__(self, objID, listFuncs, aedtapi) -> None:
         AedtObjWrapper.__init__(self, objID, listFuncs, aedtapi)
         self.__dict__["__propMap__"] = None
@@ -261,6 +268,8 @@ class AedtPropServer(AedtObjWrapper):
 
 
 class AEDT:
+    """Provide AEDT."""
+
     def __init__(self, pathDir) -> None:
         is_linux = os.name == "posix"
         is_windows = not is_linux
@@ -362,6 +371,7 @@ class AEDT:
 
     @property
     def odesktop(self):
+        """Retrieve odesktop."""
         return self.recreate_application()
 
     def recreate_application(self, force: bool = False):

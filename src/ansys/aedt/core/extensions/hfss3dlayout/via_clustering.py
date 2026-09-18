@@ -23,17 +23,19 @@
 # SOFTWARE.
 
 from dataclasses import dataclass
+from dataclasses import field
 import os
 from pathlib import Path
 import shutil
 import tkinter
 from tkinter import messagebox
 from tkinter import ttk
+from typing import Any
+from typing import cast
 
 from ansys.aedt.core import Edb
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core import generate_unique_name
-from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import ExtensionHFSS3DLayoutCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
@@ -44,9 +46,13 @@ from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 # Extension batch arguments
 EXTENSION_DEFAULT_ARGUMENTS = {
@@ -58,30 +64,49 @@ EXTENSION_DEFAULT_ARGUMENTS = {
     "stop_layer": "",
     "contour_list": [],
 }
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Via Clustering Extension"
+"""Title displayed for the extension."""
 
 
 @dataclass
 class ViaClusteringExtensionData(ExtensionCommonData):
-    """Data class containing user input and computed data."""
+    """Data class containing user input and computed data.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss3dlayout.via_clustering import ViaClusteringExtensionData
+    >>> data = ViaClusteringExtensionData(aedb_path="C:\\\\PCB\\\\board.aedb", design_name="Main")
+    >>> data.design_name
+    'Main'
+
+    """
 
     aedb_path: str = EXTENSION_DEFAULT_ARGUMENTS["aedb_path"]
+    """Path to aedb."""
     design_name: str = EXTENSION_DEFAULT_ARGUMENTS["design_name"]
+    """Value for design name."""
     new_aedb_path: str = EXTENSION_DEFAULT_ARGUMENTS["new_aedb_path"]
-    nets_filter: list = None
+    """Path to new aedb."""
+    nets_filter: list[str] = field(default_factory=list)
+    """Value for nets filter."""
     start_layer: str = EXTENSION_DEFAULT_ARGUMENTS["start_layer"]
+    """Value for start layer."""
     stop_layer: str = EXTENSION_DEFAULT_ARGUMENTS["stop_layer"]
-    contour_list: list = None
-
-    def __post_init__(self) -> None:
-        if self.nets_filter is None:
-            self.nets_filter = EXTENSION_DEFAULT_ARGUMENTS["nets_filter"].copy()
-        if self.contour_list is None:
-            self.contour_list = EXTENSION_DEFAULT_ARGUMENTS["contour_list"].copy()
+    """Value for stop layer."""
+    contour_list: list[Any] = field(default_factory=list)
+    """Value for contour list."""
 
 
 class ViaClusteringExtension(ExtensionHFSS3DLayoutCommon):
-    """Extension for via clustering in AEDT."""
+    """Extension for via clustering in AEDT.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss3dlayout.via_clustering import ViaClusteringExtension
+    >>> extension = ViaClusteringExtension(withdraw=True)
+
+    """
 
     def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with the title and theme color
@@ -94,11 +119,17 @@ class ViaClusteringExtension(ExtensionHFSS3DLayoutCommon):
             use_edb=True,
         )
         # Add private attributes and initialize them through __load_aedt_info
-        self.__layers = None
-        self.__active_project_path = None
-        self.__active_project_name = None
-        self.__aedb_path = None
+        self.__layers: list[str] = []
+        self.__active_project_path: str | None = None
+        self.__active_project_name: str | None = None
+        self.__aedb_path: str | None = None
         self.__load_aedt_info()
+
+        self.project_name_entry: tkinter.Text | None = None
+        self.start_layer_combo: ttk.Combobox | None = None
+        self.stop_layer_combo: ttk.Combobox | None = None
+        self.start_layer_var: tkinter.StringVar | None = None
+        self.stop_layer_var: tkinter.StringVar | None = None
 
         # Tkinter widgets
         self._widgets["project_name_entry"] = None
@@ -110,7 +141,11 @@ class ViaClusteringExtension(ExtensionHFSS3DLayoutCommon):
         # Trigger manually since add_extension_content requires loading info first
         self.add_extension_content()
 
-    def __load_aedt_info(self):
+    @property
+    def via_data(self) -> ViaClusteringExtensionData:
+        return cast(ViaClusteringExtensionData, self.data)
+
+    def __load_aedt_info(self) -> None:
         """Load HFSS 3D Layout info."""
         active_project = self.desktop.active_project()
         self.__active_project_path = active_project.GetPath()
@@ -131,7 +166,15 @@ class ViaClusteringExtension(ExtensionHFSS3DLayoutCommon):
             raise AEDTRuntimeError("No signal layers are defined in this design.")
 
     def add_extension_content(self) -> None:
-        """Add custom content to the extension UI."""
+        """Add custom content to the extension UI.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.hfss3dlayout.via_clustering import ViaClusteringExtension
+        >>> extension = ViaClusteringExtension(withdraw=True)
+        >>> extension.add_extension_content()
+
+        """
         # Project name label and entry
         project_label = ttk.Label(
             self.root,
@@ -215,7 +258,7 @@ class ViaClusteringExtension(ExtensionHFSS3DLayoutCommon):
             layer.usp = True
             hfss.desktop_class.release_desktop(False, False)
 
-        def callback_merge_vias(extension: ViaClusteringExtension):
+        def callback_merge_vias(extension: ViaClusteringExtension) -> None:
             """Callback for merging via instances."""
             hfss = Hfss3dLayout(
                 new_desktop=False,
@@ -234,7 +277,7 @@ class ViaClusteringExtension(ExtensionHFSS3DLayoutCommon):
 
             contour_list = []
             for primitive in primitives:
-                prim = hfss.modeler.geometries[primitive]
+                prim = cast(Any, hfss.modeler.geometries[primitive])
                 if prim.prim_type == "poly" or prim.prim_type == "rect":
                     pts = [pt for pt in [_pt.position for _pt in prim.points]]
                     contour_list.append(pts)
@@ -243,17 +286,34 @@ class ViaClusteringExtension(ExtensionHFSS3DLayoutCommon):
                         f"Unsupported primitive {prim.name}, only polygon and rectangles are supported."
                     )
 
-            project_name = extension._widgets["project_name_entry"].get("1.0", tkinter.END).strip()
-            start_layer = extension._widgets["start_layer_combo"].get()
-            stop_layer = extension._widgets["stop_layer_combo"].get()
+            project_name_entry = extension.project_name_entry
+            start_layer_combo = extension.start_layer_combo
+            stop_layer_combo = extension.stop_layer_combo
+            active_project_path = extension.__active_project_path
+            aedb_path = extension.__aedb_path
+            active_project_name = extension.__active_project_name
+            if (
+                project_name_entry is None
+                or start_layer_combo is None
+                or stop_layer_combo is None
+                or active_project_path is None
+                or aedb_path is None
+                or active_project_name is None
+            ):
+                hfss.desktop_class.release_desktop(False, False)
+                extension.release_desktop()
+                raise AEDTRuntimeError("Via clustering widgets are not initialized.")
+            project_name = project_name_entry.get("1.0", tkinter.END).strip()
+            start_layer = start_layer_combo.get()
+            stop_layer = stop_layer_combo.get()
             new_aedb_path = os.path.join(
-                extension._ViaClusteringExtension__active_project_path,
+                active_project_path,
                 project_name + ".aedb",
             )
 
             via_clustering_data = ViaClusteringExtensionData(
-                aedb_path=extension._ViaClusteringExtension__aedb_path,
-                design_name=extension._ViaClusteringExtension__active_project_name,
+                aedb_path=aedb_path,
+                design_name=active_project_name,
                 new_aedb_path=new_aedb_path,
                 start_layer=start_layer,
                 stop_layer=stop_layer,
@@ -287,7 +347,22 @@ class ViaClusteringExtension(ExtensionHFSS3DLayoutCommon):
 
 
 def main(data: ViaClusteringExtensionData) -> bool:
-    """Main function to run the via clustering extension."""
+    """Main function to run the via clustering extension.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss3dlayout.via_clustering import ViaClusteringExtensionData, main
+    >>> data = ViaClusteringExtensionData(
+    ...     aedb_path="C:\\\\PCB\\\\board.aedb",
+    ...     design_name="Main",
+    ...     new_aedb_path="C:\\\\PCB\\\\board_clustered.aedb",
+    ...     start_layer="TOP",
+    ...     stop_layer="BOTTOM",
+    ...     contour_list=[],
+    ... )
+    >>> main(data)
+
+    """
     if not data.aedb_path:
         raise AEDTRuntimeError("No AEDB path provided to the extension.")
 
@@ -341,12 +416,12 @@ if __name__ == "__main__":  # pragma: no cover
 
     # Open UI
     if not args["is_batch"]:
-        extension: ExtensionCommon = ViaClusteringExtension(withdraw=False)
+        extension: ViaClusteringExtension = ViaClusteringExtension(withdraw=False)
 
         tkinter.mainloop()
 
         if extension.data is not None:
-            main(extension.data)
+            main(extension.via_data)
 
     else:
         data = ViaClusteringExtensionData()

@@ -54,6 +54,7 @@ import pyvista as pv
 
 @pyaedt_function_handler()
 def get_structured_mesh(theta: list, phi: list, ff_data: np.ndarray) -> pv.StructuredGrid:
+    """Retrieve structured mesh."""
     if ff_data.min() < 0:
         ff_data_renorm = ff_data + np.abs(ff_data.min())
     else:
@@ -84,6 +85,12 @@ def is_float(istring: str) -> float:
     -------
     float
         Converted float when successful, ``0`` when when failed.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.plot.pyvista import is_float
+    >>> is_float("3.14")
+
     """
     try:
         return float(istring.strip())
@@ -288,6 +295,11 @@ class ObjClass(PyAedtBase):
     units : str
         Model units.
 
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.plot.pyvista import ObjClass
+    >>> obj = ObjClass()
+
     """
 
     def __init__(self, path, color, opacity, units) -> None:
@@ -302,7 +314,15 @@ class ObjClass(PyAedtBase):
 
     @property
     def color(self):
-        """Color."""
+        """Color.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pyvista import ObjClass
+        >>> obj = ObjClass()
+        >>> obj.color
+
+        """
         return self._color
 
     @color.setter
@@ -336,6 +356,12 @@ class FieldClass(PyAedtBase):
     headers : int, optional
         Number of lines to of the file containing header info that has to be removed.
         The default value is ``2``.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.plot.pyvista import FieldClass
+    >>> obj = FieldClass()
+
     """
 
     def __init__(
@@ -370,6 +396,8 @@ class FieldClass(PyAedtBase):
 
 
 class CommonPlotter(PyAedtBase):
+    """Provide common plotter."""
+
     def __init__(self) -> None:
         self._objects = []
         self._fields = []
@@ -425,6 +453,13 @@ class CommonPlotter(PyAedtBase):
         Returns
         -------
         float
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pyvista import CommonPlotter
+        >>> obj = CommonPlotter()
+        >>> obj.vector_field_scale
+
         """
         return self._field_scale
 
@@ -439,6 +474,13 @@ class CommonPlotter(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pyvista import CommonPlotter
+        >>> obj = CommonPlotter()
+        >>> obj.convert_fields_in_db
+
         """
         return self._convert_fields_in_db
 
@@ -457,6 +499,13 @@ class CommonPlotter(PyAedtBase):
         Returns
         -------
         float
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pyvista import CommonPlotter
+        >>> obj = CommonPlotter()
+        >>> obj.log_multiplier
+
         """
         return self._log_multiplier
 
@@ -471,6 +520,13 @@ class CommonPlotter(PyAedtBase):
         Returns
         -------
         float
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pyvista import CommonPlotter
+        >>> obj = CommonPlotter()
+        >>> obj.x_scale
+
         """
         return self._x_scale
 
@@ -485,6 +541,13 @@ class CommonPlotter(PyAedtBase):
         Returns
         -------
         float
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pyvista import CommonPlotter
+        >>> obj = CommonPlotter()
+        >>> obj.y_scale
+
         """
         return self._y_scale
 
@@ -499,6 +562,13 @@ class CommonPlotter(PyAedtBase):
         Returns
         -------
         float
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pyvista import CommonPlotter
+        >>> obj = CommonPlotter()
+        >>> obj.z_scale
+
         """
         return self._z_scale
 
@@ -518,6 +588,13 @@ class CommonPlotter(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pyvista import CommonPlotter
+        >>> obj = CommonPlotter()
+        >>> obj.isometric_view
+
         """
         return self._isometric_view
 
@@ -537,6 +614,13 @@ class CommonPlotter(PyAedtBase):
         Returns
         -------
         tuple
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pyvista import CommonPlotter
+        >>> obj = CommonPlotter()
+        >>> obj.view_up
+
         """
         return self._view_up
 
@@ -560,6 +644,13 @@ class CommonPlotter(PyAedtBase):
         Returns
         -------
         tuple
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pyvista import CommonPlotter
+        >>> obj = CommonPlotter()
+        >>> obj.focal_point
+
         """
         return self._focal_point
 
@@ -580,6 +671,13 @@ class CommonPlotter(PyAedtBase):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pyvista import CommonPlotter
+        >>> obj = CommonPlotter()
+        >>> obj.camera_position
+
         """
         return self._camera_position
 
@@ -603,6 +701,13 @@ class CommonPlotter(PyAedtBase):
         Returns
         -------
         float
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pyvista import CommonPlotter
+        >>> obj = CommonPlotter()
+        >>> obj.roll_angle
+
         """
         return self._roll_angle
 
@@ -623,6 +728,13 @@ class CommonPlotter(PyAedtBase):
         Returns
         -------
         float
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pyvista import CommonPlotter
+        >>> obj = CommonPlotter()
+        >>> obj.azimuth_angle
+
         """
         return self._azimuth_angle
 
@@ -643,6 +755,13 @@ class CommonPlotter(PyAedtBase):
         Returns
         -------
         float
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pyvista import CommonPlotter
+        >>> obj = CommonPlotter()
+        >>> obj.elevation_angle
+
         """
         return self._elevation_angle
 
@@ -663,6 +782,13 @@ class CommonPlotter(PyAedtBase):
         Returns
         -------
         float
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pyvista import CommonPlotter
+        >>> obj = CommonPlotter()
+        >>> obj.zoom
+
         """
         return self._zoom
 
@@ -690,6 +816,13 @@ class CommonPlotter(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pyvista import CommonPlotter
+        >>> obj = CommonPlotter()
+        >>> obj.set_orientation(camera_position=1, roll_angle=45.0)
+
         """
         if camera_position in ["xy", "yz", "xz"]:
             self.camera_position = camera_position
@@ -706,6 +839,13 @@ class CommonPlotter(PyAedtBase):
         """Background color.
 
         It can be a tuple of (r,g,b)  or color name.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pyvista import CommonPlotter
+        >>> obj = CommonPlotter()
+        >>> obj.background_color
+
         """
         return self._background_color
 
@@ -724,6 +864,13 @@ class CommonPlotter(PyAedtBase):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pyvista import CommonPlotter
+        >>> obj = CommonPlotter()
+        >>> obj.background_image
+
         """
         return self._background_image
 
@@ -763,6 +910,7 @@ class ModelPlotter(CommonPlotter):
     ... ]
     >>> model.gif_file = r"D:\\Simulation\\animation.gif"
     >>> model.animate()
+
     """
 
     def __init__(self) -> None:
@@ -775,6 +923,13 @@ class ModelPlotter(CommonPlotter):
         Returns
         -------
         list[:class:`ansys.aedt.core.visualization.plot.FieldClass`]
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
+        >>> obj = ModelPlotter()
+        >>> obj.fields
+
         """
         return self._fields
 
@@ -785,6 +940,13 @@ class ModelPlotter(CommonPlotter):
         Returns
         -------
         list[:class:`ansys.aedt.core.visualization.plot.FieldClass`]
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
+        >>> obj = ModelPlotter()
+        >>> obj.frames
+
         """
         return self._frames
 
@@ -795,6 +957,13 @@ class ModelPlotter(CommonPlotter):
         Returns
         -------
         list[:class:`ansys.aedt.core.visualization.plot.pyvista.ObjClass`]
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
+        >>> obj = ModelPlotter()
+        >>> obj.objects
+
         """
         return self._objects
 
@@ -819,6 +988,13 @@ class ModelPlotter(CommonPlotter):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
+        >>> obj = ModelPlotter()
+        >>> obj.add_object(cad_path="example.stl")
+
         """
         self._objects.append(ObjClass(cad_path, cad_color, opacity, units))
         self.units = units
@@ -851,19 +1027,28 @@ class ModelPlotter(CommonPlotter):
         coordinate_units : str
             Fields coordinates units.
         opacity : float
-            Value between 0 to 1 of opacity.
+            Value between 0 and 1 of opacity.
         color_map : str
             Color map of field plot. Default rainbow.
         label_name : str, optional
             Name of the field.
         surface_mapping_tolerance : float, optional
             Delauny tolerance value used for interpolating points.
-        header_lines : int
+        header_lines : int, optional
             Number of lines to of the file containing header info that has to be removed.
+        show_edges : bool, optional
+            Show edges.
 
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
+        >>> obj = ModelPlotter()
+        >>> obj.add_field_from_file(field_path="example.txt")
+
         """
         self._fields.append(
             FieldClass(
@@ -915,6 +1100,13 @@ class ModelPlotter(CommonPlotter):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
+        >>> obj = ModelPlotter()
+        >>> obj.add_frames_from_file(field_files=["example.aedtplt"])
+
         """
         for field in field_files:
             self._frames.append(
@@ -969,6 +1161,13 @@ class ModelPlotter(CommonPlotter):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
+        >>> obj = ModelPlotter()
+        >>> obj.add_field_from_data(coordinates=[1, 2, 3], fields_data=["Box1"])
+
         """
         self._fields.append(
             FieldClass(
@@ -1228,7 +1427,15 @@ class ModelPlotter(CommonPlotter):
 
     @pyaedt_function_handler()
     def populate_pyvista_object(self) -> None:
-        """Populate pyvista object with geometry and fields added to the model plotter."""
+        """Populate pyvista object with geometry and fields added to the model plotter.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
+        >>> obj = ModelPlotter()
+        >>> obj.populate_pyvista_object()
+
+        """
         self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=self.off_screen, window_size=self.windows_size)
         self.pv.enable_ssao()
         self.pv.enable_parallel_projection()
@@ -1350,6 +1557,13 @@ class ModelPlotter(CommonPlotter):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
+        >>> obj = ModelPlotter()
+        >>> obj.plot(export_image_path="example.png", show=True)
+
         """
         self.populate_pyvista_object()
         if export_image_path:
@@ -1402,6 +1616,13 @@ class ModelPlotter(CommonPlotter):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
+        >>> obj = ModelPlotter()
+        >>> obj.clean_cache_and_files(remove_objs=True, remove_fields=True)
+
         """
         if remove_objs:
             for el in self.objects:
@@ -1436,6 +1657,13 @@ class ModelPlotter(CommonPlotter):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
+        >>> obj = ModelPlotter()
+        >>> obj.animate(show=True)
+
         """
         if len(self.frames) <= 0:
             raise RuntimeError("Number of Fields have to be greater than 1 to do an animation.")
@@ -1648,6 +1876,13 @@ class ModelPlotter(CommonPlotter):
         Returns
         -------
         Mesh
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
+        >>> obj = ModelPlotter()
+        >>> obj.generate_geometry_mesh()
+
         """
         self.pv = pv.Plotter(notebook=self.is_notebook, window_size=self.windows_size)
         self.pv.off_screen = self.off_screen
@@ -1679,6 +1914,13 @@ class ModelPlotter(CommonPlotter):
         dict
             Dictionary containing the point cloud for each object. Each entry has the object name as the key and a list
             with two elements: the path to the output ``.pts`` file and the ``pyvista.PolyData`` object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
+        >>> obj = ModelPlotter()
+        >>> obj.point_cloud(points=[0, 0, 0])
+
         """
         point_cloud = {}
 
@@ -1714,7 +1956,15 @@ class ModelPlotter(CommonPlotter):
         return point_cloud
 
     def close(self) -> None:
-        """Close the render window."""
+        """Close the render window.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
+        >>> obj = ModelPlotter()
+        >>> obj.close()
+
+        """
         from pyvista.plotting.plotter import _ALL_PLOTTERS
 
         if not self.pv:

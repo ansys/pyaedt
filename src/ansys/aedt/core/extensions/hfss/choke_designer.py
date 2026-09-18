@@ -28,6 +28,8 @@ import tkinter
 from tkinter import filedialog
 from tkinter import messagebox
 from tkinter import ttk
+from typing import Any
+from typing import cast
 
 import ansys.aedt.core
 from ansys.aedt.core import Hfss
@@ -44,24 +46,46 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.advanced_cad.choke import Choke
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 # Extension batch arguments
 EXTENSION_DEFAULT_ARGUMENTS = {"choke_config": {}}
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Choke Designer"
+"""Title displayed for the extension."""
 
 
 @dataclass
 class ChokeDesignerExtensionData(ExtensionCommonData):
-    """Data class containing user input and computed data for Choke Designer."""
+    """Data class containing user input and computed data for Choke Designer.
 
-    choke: Choke = None
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss.choke_designer import ChokeDesignerExtensionData
+    >>> from ansys.aedt.core.modeler.advanced_cad.choke import Choke
+    >>> data = ChokeDesignerExtensionData(choke=Choke())
+
+    """
+
+    choke: Choke | None = None
+    """Value for choke."""
 
 
 class ChokeDesignerExtension(ExtensionHFSSCommon):
-    """Extension for Choke Designer in AEDT."""
+    """Extension for Choke Designer in AEDT.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss.choke_designer import ChokeDesignerExtension
+    >>> extension = ChokeDesignerExtension(withdraw=True)
+
+    """
 
     def __init__(self, withdraw: bool = False) -> None:
         super().__init__(
@@ -98,7 +122,15 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
         self.add_extension_content()
 
     def validate_configuration(self, choke: Choke) -> bool:
-        """Validate choke configuration parameters."""
+        """Validate choke configuration parameters.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.hfss.choke_designer import ChokeDesignerExtension
+        >>> extension = ChokeDesignerExtension(withdraw=True)
+        >>> extension.validate_configuration(extension.choke)
+
+        """
         try:
             if choke.core["Outer Radius"] <= choke.core["Inner Radius"]:
                 messagebox.showerror(
@@ -127,7 +159,15 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
             return False
 
     def save_configuration(self) -> None:
-        """Save choke configuration to JSON file."""
+        """Save choke configuration to JSON file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.hfss.choke_designer import ChokeDesignerExtension
+        >>> extension = ChokeDesignerExtension(withdraw=True)
+        >>> extension.save_configuration()
+
+        """
         if not self.validate_configuration(self.choke):
             messagebox.showerror(
                 "Validation Error",
@@ -149,7 +189,15 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
                 )
 
     def load_configuration(self) -> None:
-        """Load choke configuration from JSON file."""
+        """Load choke configuration from JSON file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.hfss.choke_designer import ChokeDesignerExtension
+        >>> extension = ChokeDesignerExtension(withdraw=True)
+        >>> extension.load_configuration()
+
+        """
         file_path = filedialog.askopenfilename(filetypes=[("JSON files", "*.json")])
         if file_path:
             try:
@@ -176,13 +224,34 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
                 )
 
     def update_config(self, category: str, selected_option: tkinter.StringVar):
-        """Update boolean configuration options."""
+        """Update boolean configuration options.
+
+        Examples
+        --------
+        >>> import tkinter
+        >>> from ansys.aedt.core.extensions.hfss.choke_designer import ChokeDesignerExtension
+        >>> extension = ChokeDesignerExtension(withdraw=True)
+        >>> choice = tkinter.StringVar(value=next(iter(extension.choke.number_of_windings)))
+        >>> extension.update_config("number_of_windings", choice)
+
+        """
         choke_options = getattr(self.choke, category)
         for key in choke_options:
             choke_options[key] = key == selected_option.get()
 
     def update_parameter_config(self, attr_name: str, field: str, entry_widget: tkinter.Entry):
-        """Update parameter configuration from entry widget."""
+        """Update parameter configuration from entry widget.
+
+        Examples
+        --------
+        >>> import tkinter
+        >>> from ansys.aedt.core.extensions.hfss.choke_designer import ChokeDesignerExtension
+        >>> extension = ChokeDesignerExtension(withdraw=True)
+        >>> entry = tkinter.Entry(extension.root)
+        >>> entry.insert(0, "30")
+        >>> extension.update_parameter_config("core", "Outer Radius", entry)
+
+        """
         try:
             entry_value = entry_widget.get()
             new_value = float(entry_value) if entry_value.replace(".", "", 1).isdigit() else entry_value
@@ -191,7 +260,15 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
             pass
 
     def update_radio_buttons(self) -> None:
-        """Update radio button selections based on current choke configuration."""
+        """Update radio button selections based on current choke configuration.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.hfss.choke_designer import ChokeDesignerExtension
+        >>> extension = ChokeDesignerExtension(withdraw=True)
+        >>> extension.update_radio_buttons()
+
+        """
         for category in self.boolean_categories:
             if hasattr(self.choke, category):
                 options = getattr(self.choke, category)
@@ -204,7 +281,15 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
                         self.selected_options[category].set(selected_option)
 
     def update_entries(self) -> None:
-        """Update entry widgets based on current choke configuration."""
+        """Update entry widgets based on current choke configuration.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.hfss.choke_designer import ChokeDesignerExtension
+        >>> extension = ChokeDesignerExtension(withdraw=True)
+        >>> extension.update_entries()
+
+        """
         for category_name, attr_name in self.category_map.items():
             if hasattr(self.choke, attr_name):
                 options = getattr(self.choke, attr_name)
@@ -215,14 +300,32 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
                         entry_widget.insert(0, str(value))
 
     def callback(self) -> None:
-        """Callback function for Export to HFSS button."""
+        """Callback function for Export to HFSS button.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.hfss.choke_designer import ChokeDesignerExtension
+        >>> extension = ChokeDesignerExtension(withdraw=True)
+        >>> extension.callback()
+
+        """
         self.flag = True
         if self.validate_configuration(self.choke):
             self.data = ChokeDesignerExtensionData(choke=self.choke)
             self.root.destroy()
 
     def create_boolean_options(self, parent: tkinter.Widget):
-        """Create boolean option radio buttons."""
+        """Create boolean option radio buttons.
+
+        Examples
+        --------
+        >>> import tkinter
+        >>> from ansys.aedt.core.extensions.hfss.choke_designer import ChokeDesignerExtension
+        >>> extension = ChokeDesignerExtension(withdraw=True)
+        >>> frame = tkinter.Frame(extension.root)
+        >>> extension.create_boolean_options(frame)
+
+        """
         for category in self.boolean_categories:
             if hasattr(self.choke, category):
                 options = getattr(self.choke, category)
@@ -252,7 +355,17 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
                         btn.pack(anchor=tkinter.W, padx=5)
 
     def create_parameter_inputs(self, parent: tkinter.Widget, category_name: str):
-        """Create parameter input widgets for a category."""
+        """Create parameter input widgets for a category.
+
+        Examples
+        --------
+        >>> import tkinter
+        >>> from ansys.aedt.core.extensions.hfss.choke_designer import ChokeDesignerExtension
+        >>> extension = ChokeDesignerExtension(withdraw=True)
+        >>> frame = tkinter.Frame(extension.root)
+        >>> extension.create_parameter_inputs(frame, "Core")
+
+        """
         # Get the attribute name from the category name
         attr_name = self.category_map.get(category_name)
         if not attr_name or not hasattr(self.choke, attr_name):
@@ -274,7 +387,15 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
             )
 
     def add_extension_content(self) -> None:
-        """Add custom content to the extension UI."""
+        """Add custom content to the extension UI.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.hfss.choke_designer import ChokeDesignerExtension
+        >>> extension = ChokeDesignerExtension(withdraw=True)
+        >>> extension.add_extension_content()
+
+        """
         master = self.root
         # Main panel
         main_frame = ttk.PanedWindow(master, orient=tkinter.HORIZONTAL, style="TPanedwindow")
@@ -335,9 +456,17 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
         export_hfss.pack(side=tkinter.LEFT, padx=5)
 
 
-def main(data) -> bool:
-    """Main function to run the choke designer extension."""
-    choke = data.choke
+def main(data: ChokeDesignerExtensionData) -> bool:
+    """Main function to run the choke designer extension.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss.choke_designer import ChokeDesignerExtensionData, main
+    >>> from ansys.aedt.core.modeler.advanced_cad.choke import Choke
+    >>> main(ChokeDesignerExtensionData(choke=Choke()))
+
+    """
+    choke = data.choke or Choke()
     app = ansys.aedt.core.Desktop(
         new_desktop=False,
         version=VERSION,
@@ -377,7 +506,7 @@ def main(data) -> bool:
     choke.create_ports(ground, app=hfss)
 
     if choke.create_component["True"]:  # pragma: no cover
-        hfss.modeler.replace_3dcomponent()
+        cast(Any, hfss.modeler).replace_3dcomponent()
     hfss.modeler.create_region(pad_percent=1000)
     setup = hfss.create_setup("Setup1", setup_type="HFSSDriven")
     setup.props["Frequency"] = "50MHz"
@@ -405,7 +534,7 @@ if __name__ == "__main__":  # pragma: no cover
     if not args["is_batch"]:  # pragma: no cover
         extension = ChokeDesignerExtension(withdraw=False)
         tkinter.mainloop()
-        if extension.data is not None:
+        if isinstance(extension.data, ChokeDesignerExtensionData):
             main(extension.data)
     else:
         data = ChokeDesignerExtensionData()

@@ -106,6 +106,11 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         The default is ``False``, which means to not unlock
         the existing project if needed and raise an exception.
 
+    Examples
+    --------
+    >>> from ansys.aedt.core import Hfss3dLayout
+    >>> h3d = Hfss3dLayout()
+
     """
 
     def __init__(
@@ -160,6 +165,13 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         Returns
         -------
         :class:`ansys.aedt.core.generic.configurations.Configurations`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> h3d = Hfss3dLayout()
+        >>> h3d.configurations
+
         """
         return self._configurations
 
@@ -173,6 +185,13 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         -------
         :class:`ansys.aedt.core.visualization.post.post_3dlayout.PostProcessor3DLayout`
             PostProcessor object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> h3d = Hfss3dLayout()
+        >>> h3d.post
+
         """
         if self._post is None and self._odesign:
             from ansys.aedt.core.visualization.post import post_processor
@@ -187,6 +206,13 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         Returns
         -------
         :class:`ansys.aedt.core.modules.mesh_3d_layout.Mesh3d`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> h3d = Hfss3dLayout()
+        >>> h3d.mesh
+
         """
         if self._mesh is None and self._odesign:
             from ansys.aedt.core.modules.mesh_3d_layout import Mesh3d
@@ -207,6 +233,13 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         References
         ----------
         >>> oModule.GetAllPortsList
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> h3d = Hfss3dLayout()
+        >>> h3d.excitation_names
+
         """
         return list(self.oboundary.GetAllPortsList())
 
@@ -222,6 +255,13 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> h3d = Hfss3dLayout()
+        >>> h3d.change_design_settings({"AurtoComputeAveragePower": True})
+
         """
         arg = ["NAME:options"]
         for key, value in settings.items():
@@ -251,6 +291,13 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         References
         ----------
         >>> oModule.ExportMeshStats
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> h3d = Hfss3dLayout()
+        >>> h3d.export_mesh_stats(setup="Setup1")
+
         """
         if not output_file:
             output_file = str(Path(self.working_directory) / "meshstats.ms")
@@ -264,6 +311,13 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         Returns
         -------
         :class:`ansys.aedt.core.modeler.modeler_pcb.Modeler3DLayout`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> h3d = Hfss3dLayout()
+        >>> h3d.modeler
+
         """
         if self._modeler is None and self._odesign:
             self.logger.reset_timer()
@@ -281,6 +335,13 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         References
         ----------
         >>> oModule.GetAllPorts
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> h3d = Hfss3dLayout()
+        >>> h3d.port_list
+
         """
         return self.oexcitation.GetAllPortsList()
 
@@ -313,6 +374,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         >>> from ansys.aedt.core import Hfss3dLayout
         >>> app = Hfss3dLayout()
         >>> app.create_setup(name="Setup1", MeshSizeFactor=2, SingleFrequencyDataList__AdaptiveFrequency="5GHZ")
+
         """
         if setup_type is None:
             setup_type = self.design_solutions.default_setup
@@ -366,6 +428,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         >>> setup1 = hfss3dlayout.create_setup(name="Setup1")
         >>> hfss3dlayout.delete_setup()
         PyAEDT INFO: Sweep was deleted correctly.
+
         """
         if name in self.setup_names:
             self.osolution.Delete(name)

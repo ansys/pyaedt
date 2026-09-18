@@ -87,6 +87,7 @@ PowerSinusoidal = [
         ],
     ],
 ]
+"""Value for power sinusoidal."""
 
 PSinProps = [
     "ACMAG",
@@ -104,6 +105,7 @@ PSinProps = [
     "CoSimulator/Choices",
     "Netlist",
 ]
+"""Value for P sin props."""
 
 # Voltage Sinusoidal
 VoltageSinusoidal = [
@@ -171,6 +173,7 @@ VoltageSinusoidal = [
         ],
     ],
 ]
+"""Value for voltage sinusoidal."""
 
 VSinProps = [
     "ACMAG",
@@ -188,6 +191,7 @@ VSinProps = [
     "CoSimulator/Choices",
     "Netlist",
 ]
+"""Value for V sin props."""
 
 # Current Sinusoidal
 CurrentSinusoidal = [
@@ -257,6 +261,7 @@ CurrentSinusoidal = [
         ],
     ],
 ]
+"""Value for current sinusoidal."""
 
 ASinProps = [
     "ACMAG",
@@ -275,6 +280,7 @@ ASinProps = [
     "CoSimulator/Choices",
     "Netlist",
 ]
+"""Value for A sin props."""
 
 
 # Power IQ
@@ -309,6 +315,7 @@ iq_properties = [
     "ValueProp:=",
     ["TONE", "D", "Source tone for HB analysis", "nan ", 0],
 ]
+"""Value for iq properties."""
 
 for i in range(1, 21):
     iq_properties.append("ValueProp:=")
@@ -353,6 +360,7 @@ power_iq_properties = iq_properties + [
         "*qval18(@qval18) *qval19(@qval19) *qval20(@qval20)] COMPONENT=@COMPONENT",
     ],
 ]
+"""Value for power iq properties."""
 
 PowerIQ = [
     "NAME:Name",
@@ -374,6 +382,7 @@ PowerIQ = [
     "",
     power_iq_properties,
 ]
+"""Value for power iq."""
 
 PowerIQProps = [
     "FC",
@@ -456,6 +465,7 @@ PowerIQProps = [
     "IQData",
     "Netlist",
 ]
+"""Value for power iq props."""
 
 # Voltage Frequency dependent
 VoltageFrequency = [
@@ -491,6 +501,7 @@ VoltageFrequency = [
         ["Netlist", 0, 0, "V@ID %0 %1 *FreqDependentSourceData(@FreqDependentSourceData)"],
     ],
 ]
+"""Value for voltage frequency."""
 
 VoltageFrequencyProps = [
     "frequencies",
@@ -506,6 +517,7 @@ VoltageFrequencyProps = [
     "CoSimulator/Choices",
     "Netlist",
 ]
+"""Value for voltage frequency props."""
 
 # Voltage DC
 VoltageDC = [
@@ -558,6 +570,7 @@ VoltageDC = [
         ],
     ],
 ]
+"""Value for voltage dc."""
 
 DCProps = [
     "ACMAG",
@@ -570,10 +583,18 @@ DCProps = [
     "Noise",
     "Netlist",
 ]
+"""Value for dc props."""
 
 
 class SourceKeys:
-    """Provides source keys."""
+    """Provides source keys.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.circuit_templates import SourceKeys
+    >>> obj = SourceKeys()
+
+    """
 
     SourceTemplates = {
         "PowerSin": PowerSinusoidal,
@@ -583,6 +604,7 @@ class SourceKeys:
         "VoltageSin": VoltageSinusoidal,
         "CurrentSin": CurrentSinusoidal,
     }
+    """Value for source templates."""
 
     SourceProps = {
         "PowerSin": PSinProps,
@@ -592,6 +614,7 @@ class SourceKeys:
         "VoltageSin": VSinProps,
         "CurrentSin": ASinProps,
     }
+    """Value for source props."""
 
     SourceNames = [
         "PowerSin",
@@ -601,3 +624,4 @@ class SourceKeys:
         "VoltageSin",
         "CurrentSin",
     ]
+    """Value for source names."""

@@ -28,6 +28,7 @@ from pathlib import Path
 import tkinter
 from tkinter import filedialog
 from tkinter import ttk
+from typing import Any
 import webbrowser
 
 import ansys.aedt.core
@@ -44,9 +45,13 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 # Extension batch arguments
 EXTENSION_DEFAULT_ARGUMENTS = {
@@ -54,20 +59,39 @@ EXTENSION_DEFAULT_ARGUMENTS = {
     "open_report": True,
     "save_path": "",
 }
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Create Report"
+"""Title displayed for the extension."""
 
 
 @dataclass
 class CreateReportExtensionData(ExtensionCommonData):
-    """Data class containing user input and computed data."""
+    """Data class containing user input and computed data.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.common.create_report import CreateReportExtensionData
+    >>> data = CreateReportExtensionData(report_name="MyReport", save_path=r"D:\\Reports")
+
+    """
 
     report_name: str = EXTENSION_DEFAULT_ARGUMENTS["report_name"]
+    """Value for report name."""
     open_report: bool = EXTENSION_DEFAULT_ARGUMENTS["open_report"]
+    """Value for open report."""
     save_path: str = EXTENSION_DEFAULT_ARGUMENTS["save_path"]
+    """Path to save."""
 
 
 class CreateReportExtension(ExtensionProjectCommon):
-    """Extension for creating PDF reports in AEDT."""
+    """Extension for creating PDF reports in AEDT.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.common.create_report import CreateReportExtension
+    >>> extension = CreateReportExtension(withdraw=True)
+
+    """
 
     def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with title and
@@ -80,16 +104,25 @@ class CreateReportExtension(ExtensionProjectCommon):
             toggle_column=1,
         )
 
-        # Initialize widget storage
+        # Initialize widget storage with proper type hints
         self._widgets["report_name_entry"] = None
         self._widgets["open_report_var"] = None
         self._widgets["save_path_entry"] = None
-        self.data: CreateReportExtensionData = CreateReportExtensionData()
+        data = CreateReportExtensionData()
+        self.data = data
         self.generate_clicked = False  # Track if generate button was clicked
         self.add_extension_content()
 
     def add_extension_content(self) -> None:
-        """Add custom content to the extension UI."""
+        """Add custom content to the extension UI.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.common.create_report import CreateReportExtension
+        >>> extension = CreateReportExtension(withdraw=True)
+        >>> extension.add_extension_content()
+
+        """
         # Report name entry
         report_name_label = ttk.Label(
             self.root,
@@ -98,9 +131,10 @@ class CreateReportExtension(ExtensionProjectCommon):
             style="PyAEDT.TLabel",
         )
         report_name_label.grid(row=0, column=0)
-        self._widgets["report_name_entry"] = tkinter.Text(self.root, width=30, height=1)
-        self._widgets["report_name_entry"].insert(tkinter.END, "CustomReport")
-        self._widgets["report_name_entry"].grid(row=0, column=1, **DEFAULT_PADDING)
+        report_name_entry: tkinter.Text = tkinter.Text(self.root, width=30, height=1)
+        report_name_entry.insert(tkinter.END, "CustomReport")
+        report_name_entry.grid(row=0, column=1, padx=DEFAULT_PADDING["padx"], pady=DEFAULT_PADDING["pady"])
+        self._widgets["report_name_entry"] = report_name_entry
 
         # Save path selection
         save_path_label = ttk.Label(
@@ -109,7 +143,7 @@ class CreateReportExtension(ExtensionProjectCommon):
             width=30,
             style="PyAEDT.TLabel",
         )
-        save_path_label.grid(row=1, column=0, **DEFAULT_PADDING)
+        save_path_label.grid(row=1, column=0, padx=DEFAULT_PADDING["padx"], pady=DEFAULT_PADDING["pady"])
 
         save_path_frame = ttk.Frame(self.root, style="PyAEDT.TFrame")
         save_path_frame.grid(
@@ -120,15 +154,19 @@ class CreateReportExtension(ExtensionProjectCommon):
             sticky="ew",
         )
 
-        self._widgets["save_path_entry"] = tkinter.Text(save_path_frame, width=24, height=1)
-        self._widgets["save_path_entry"].insert(tkinter.END, "")
-        self._widgets["save_path_entry"].grid(row=0, column=0, padx=(0, 5))
+        save_path_entry: tkinter.Text = tkinter.Text(save_path_frame, width=24, height=1)
+        save_path_entry.insert(tkinter.END, "")
+        save_path_entry.grid(row=0, column=0, padx=(0, 5))
+        self._widgets["save_path_entry"] = save_path_entry
 
         def browse_folder() -> None:
+            save_path_widget = self._widgets["save_path_entry"]
+            if save_path_widget is None:
+                raise RuntimeError("Save path widget is not initialized.")
             folder_path = filedialog.askdirectory(title="Select folder to save report")
             if folder_path:
-                self._widgets["save_path_entry"].delete("1.0", tkinter.END)
-                self._widgets["save_path_entry"].insert(tkinter.END, folder_path)
+                save_path_widget.delete("1.0", tkinter.END)
+                save_path_widget.insert(tkinter.END, folder_path)
 
         browse_button = ttk.Button(
             save_path_frame,
@@ -140,20 +178,28 @@ class CreateReportExtension(ExtensionProjectCommon):
         browse_button.grid(row=0, column=1)
 
         # Open report checkbox
-        self._widgets["open_report_var"] = tkinter.BooleanVar(value=True)
+        open_report_var: tkinter.BooleanVar = tkinter.BooleanVar(value=True)
+        self._widgets["open_report_var"] = open_report_var
         open_report_checkbox = ttk.Checkbutton(
             self.root,
             text="Open report after generation",
-            variable=self._widgets["open_report_var"],
+            variable=open_report_var,
             style="PyAEDT.TCheckbutton",
         )
-        open_report_checkbox.grid(row=2, column=0, columnspan=2, **DEFAULT_PADDING)
+        open_report_checkbox.grid(
+            row=2, column=0, columnspan=2, padx=DEFAULT_PADDING["padx"], pady=DEFAULT_PADDING["pady"]
+        )
 
         def callback(extension: CreateReportExtension) -> None:
+            report_name_w = extension._widgets["report_name_entry"]
+            open_report_w = extension._widgets["open_report_var"]
+            save_path_w = extension._widgets["save_path_entry"]
+            if report_name_w is None or open_report_w is None or save_path_w is None:
+                raise RuntimeError("Create report widgets are not initialized.")
             extension.data = CreateReportExtensionData(
-                report_name=self._widgets["report_name_entry"].get("1.0", tkinter.END).strip(),
-                open_report=self._widgets["open_report_var"].get(),
-                save_path=self._widgets["save_path_entry"].get("1.0", tkinter.END).strip(),
+                report_name=report_name_w.get("1.0", tkinter.END).strip(),
+                open_report=open_report_w.get(),
+                save_path=save_path_w.get("1.0", tkinter.END).strip(),
             )
             extension.generate_clicked = True
             extension.root.destroy()
@@ -166,11 +212,19 @@ class CreateReportExtension(ExtensionProjectCommon):
             style="PyAEDT.TButton",
             name="generate",
         )
-        ok_button.grid(row=3, column=0, **DEFAULT_PADDING)
+        ok_button.grid(row=3, column=0, padx=DEFAULT_PADDING["padx"], pady=DEFAULT_PADDING["pady"])
 
 
 def main(data: CreateReportExtensionData) -> bool:
-    """Main function to run the create report extension."""
+    """Main function to run the create report extension.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.common.create_report import CreateReportExtensionData, main
+    >>> data = CreateReportExtensionData(report_name="MyReport", save_path=r"D:\\Reports")
+    >>> main(data)
+
+    """
     if not data.report_name:
         raise AEDTRuntimeError("Report name cannot be empty.")
 
@@ -185,20 +239,21 @@ def main(data: CreateReportExtensionData) -> bool:
     active_project = app.active_project()
     active_design = app.active_design()
 
-    project_name = active_project.GetName()
-    design_name = active_design.GetName()
+    project_name = str(active_project.GetName())
+    design_name = str(active_design.GetName())
 
     if active_design.GetDesignType() in [
         "HFSS 3D Layout Design",
         "Circuit Design",
     ]:
-        design_name = None
-    aedtapp = get_pyaedt_app(project_name, design_name)
+        design_name = ""
+    aedtapp: Any = get_pyaedt_app(project_name, design_name, desktop=app)
+    report_design_name = str(aedtapp.design_name or "")
 
     report = AnsysReport(
-        version=app.aedt_version_id,
-        design_name=aedtapp.design_name,
-        project_name=aedtapp.project_name,
+        version=str(app.aedt_version_id),
+        design_name=report_design_name,
+        project_name=str(aedtapp.project_name),
     )
     report.create()
     report.add_section()
@@ -209,7 +264,7 @@ def main(data: CreateReportExtensionData) -> bool:
     for plot in aedtapp.post.plots:
         aedtapp.post.export_report_to_jpg(aedtapp.working_directory, plot.plot_name)
         image_path = Path(aedtapp.working_directory) / f"{plot.plot_name}.jpg"
-        report.add_image(image_path, plot.plot_name)
+        report.add_image(str(image_path), plot.plot_name)
         report.add_page_break()
 
     report.add_toc()
@@ -239,5 +294,6 @@ if __name__ == "__main__":  # pragma: no cover
     # Open UI
     extension = CreateReportExtension()
     tkinter.mainloop()
-    if extension.data and extension.generate_clicked:
-        main(extension.data)
+    data = extension.data
+    if extension.generate_clicked and isinstance(data, CreateReportExtensionData):
+        main(data)

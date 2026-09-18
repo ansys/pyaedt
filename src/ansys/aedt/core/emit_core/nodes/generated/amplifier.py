@@ -22,11 +22,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from dataclasses import dataclass
+
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class Amplifier(EmitNode):
+    """Provide amplifier."""  # noqa: D203
+
     def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = True
@@ -34,17 +38,103 @@ class Amplifier(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node."""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> amp = app.schematic.create_component("Amplifier")
+        >>> amp.node_type
+
+        """
         return self._node_type
+
+    @dataclass
+    class AmplifierPlotProps:
+        tone1_freq: float = 245e6
+        tone1_amp: float = -10.0
+        tone1_bandwidth: float = 50e3
+        tone2_freq: float = 255e6
+        tone2_amp: float = -10.0
+        tone2_bandwidth: float = 50e3
+        noise_level: float = -174
+
+    @min_aedt_version("2027.1")
+    def export_to_csv(self, file_name: str = "", amp_props: AmplifierPlotProps | None = None) -> str:
+        """Export's the data for this node
+
+        Parameters
+        ----------
+        file_name: str[optional]
+            full path to the file to export to.
+        amp_props: AmplifierPlotProps
+            two tone and test noise parameters to use for visualizing the amplifier's profile
+
+        Returns
+        -------
+        csv_data: str
+            stringified data for the node returned if file_name not specified
+        """
+        keys = (
+            "SelectedInputPort|SelectedOutputPort|TestTone1Freq|TestTone2Freq"
+            "|TestTone1Amp|TestTone2Amp|TestTone1Bw|TestTone2Bw|TestNoiseLevel"
+        )
+        if amp_props is None:
+            amp_props = self.AmplifierPlotProps()
+        vals = (
+            f"1|2|{amp_props.tone1_freq}|{amp_props.tone2_freq}|{amp_props.tone1_amp}"
+            f"|{amp_props.tone2_amp}|{amp_props.tone1_bandwidth}|{amp_props.tone2_bandwidth}|{amp_props.noise_level}"
+        )
+        return self._export_to_csv(file_name, keys, vals)
+
+    @min_aedt_version("2027.1")
+    def plot(self, amp_props: AmplifierPlotProps | None = None):
+        """Bring up a Cartesian plot for this node
+
+        Parameters
+        ----------
+        amp_props: AmplifierPlotProps
+            two tone and test noise parameters to use for visualizing the amplifier's profile
+        """
+        keys = (
+            "SelectedInputPort|SelectedOutputPort|TestTone1Freq|TestTone2Freq"
+            "|TestTone1Amp|TestTone2Amp|TestTone1Bw|TestTone2Bw|TestNoiseLevel"
+        )
+        if amp_props is None:
+            amp_props = self.AmplifierPlotProps()
+        vals = (
+            f"1|2|{amp_props.tone1_freq}|{amp_props.tone2_freq}|{amp_props.tone1_amp}"
+            f"|{amp_props.tone2_amp}|{amp_props.tone1_bandwidth}|{amp_props.tone2_bandwidth}|{amp_props.noise_level}"
+        )
+        return self._plot(keys, vals)
 
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
-        """Duplicate this node"""
+        """Duplicate this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> amp = app.schematic.create_component("Amplifier")
+        >>> amp_copy = amp.duplicate("amp_copy")
+
+        """
         return self._duplicate(new_name)
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node"""
+        """Delete this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> amp = app.schematic.create_component("Amplifier")
+        >>> amp.delete()
+
+        """
         self._delete()
 
     @property
@@ -56,6 +146,14 @@ class Amplifier(EmitNode):
             Value should be between 2 and 20.
         Intercept Point:
             Value should be between -1000 and 1000.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> amp = app.schematic.create_component("Amplifier")
+        >>> amp.table_data = [(2, 25.0)]
+
         """
         return self._get_table_data()
 
@@ -70,6 +168,14 @@ class Amplifier(EmitNode):
         """System Noise temperature (K) of the component.
 
         Value should be between 0 and 1000.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> amp = app.schematic.create_component("Amplifier")
+        >>> amp.noise_temperature = 290.0
+
         """
         val = self._get_property("Noise Temperature")
         return float(val)
@@ -82,7 +188,16 @@ class Amplifier(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def notes(self) -> str:
-        """Expand to view/edit notes stored with the project."""
+        """Expand to view/edit notes stored with the project.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> amp = app.schematic.create_component("Amplifier")
+        >>> amp.notes = "example_value"
+
+        """
         val = self._get_property("Notes")
         return val
 
@@ -97,6 +212,14 @@ class Amplifier(EmitNode):
         """Amplifier in-band gain.
 
         Value should be between 0 and 100.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> amp = app.schematic.create_component("Amplifier")
+        >>> amp.gain = 30.0
+
         """
         val = self._get_property("Gain")
         return float(val)
@@ -112,6 +235,14 @@ class Amplifier(EmitNode):
         """Center frequency of amplifiers operational bandwidth.
 
         Value should be between 1 and 100e9.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> amp = app.schematic.create_component("Amplifier")
+        >>> amp.center_frequency = 250.0e6
+
         """
         val = self._get_property("Center Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -129,6 +260,14 @@ class Amplifier(EmitNode):
         """Frequency region where the gain applies.
 
         Value should be between 1 and 100e9.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> amp = app.schematic.create_component("Amplifier")
+        >>> amp.bandwidth = 500.0e6
+
         """
         val = self._get_property("Bandwidth")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -146,6 +285,14 @@ class Amplifier(EmitNode):
         """Amplifier noise figure.
 
         Value should be between 0 and 100.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> amp = app.schematic.create_component("Amplifier")
+        >>> amp.noise_figure = 5.0
+
         """
         val = self._get_property("Noise Figure")
         return float(val)
@@ -161,6 +308,14 @@ class Amplifier(EmitNode):
         """Saturation level.
 
         Value should be between -200 and 200.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> amp = app.schematic.create_component("Amplifier")
+        >>> amp.saturation_level = 0
+
         """
         val = self._get_property("Saturation Level")
         val = self._convert_from_internal_units(float(val), "Power")
@@ -178,6 +333,14 @@ class Amplifier(EmitNode):
         """Incoming signals > this value saturate the amplifier.
 
         Value should be between -200 and 200.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> amp = app.schematic.create_component("Amplifier")
+        >>> amp.p1_db_point_ref_input = 0
+
         """
         val = self._get_property("P1-dB Point, Ref. Input")
         val = self._convert_from_internal_units(float(val), "Power")
@@ -195,6 +358,14 @@ class Amplifier(EmitNode):
         """3rd order intercept point.
 
         Value should be between -200 and 200.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> amp = app.schematic.create_component("Amplifier")
+        >>> amp.ip3_ref_input = 16
+
         """
         val = self._get_property("IP3, Ref. Input")
         val = self._convert_from_internal_units(float(val), "Power")
@@ -212,6 +383,14 @@ class Amplifier(EmitNode):
         """Ratio defining the selectivity of the amplifier.
 
         Value should be between 1 and 100.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> amp = app.schematic.create_component("Amplifier")
+        >>> amp.shape_factor = 2
+
         """
         val = self._get_property("Shape Factor")
         return float(val)
@@ -227,6 +406,14 @@ class Amplifier(EmitNode):
         """Amplifier reverse isolation.
 
         Value should be between 0 and 200.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> amp = app.schematic.create_component("Amplifier")
+        >>> amp.reverse_isolation = 20
+
         """
         val = self._get_property("Reverse Isolation")
         return float(val)
@@ -242,6 +429,14 @@ class Amplifier(EmitNode):
         """Maximum order of intermods to compute.
 
         Value should be between 3 and 20.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> amp = app.schematic.create_component("Amplifier")
+        >>> amp.max_intermod_order = 5
+
         """
         val = self._get_property("Max Intermod Order")
         return int(val)

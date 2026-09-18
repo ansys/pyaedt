@@ -47,4 +47,5 @@ def _dll_interface(version: str | None = None) -> DllInterface:
 
 
 def api_version() -> str:
+    """Return api version."""
     return _dll_interface().api_version()

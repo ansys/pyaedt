@@ -24,6 +24,8 @@
 
 
 class Variation(dict):
+    """Provide variation."""
+
     def __init__(self, variation_string) -> None:
         super().__init__()
         if variation_string:

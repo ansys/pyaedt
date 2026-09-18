@@ -29,6 +29,9 @@ from pathlib import Path
 import tkinter
 from tkinter import filedialog
 from tkinter import ttk
+from typing import Any
+from typing import Protocol
+from typing import cast
 
 import ansys.aedt.core
 from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
@@ -41,29 +44,61 @@ from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 EXTENSION_DEFAULT_ARGUMENTS = {"origin_x": 0, "origin_y": 0, "origin_z": 0, "radius": 1, "file_path": ""}
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Extension template"
+"""Title displayed for the extension."""
 
 result = None
+"""Value for result."""
+
+
+class TemplateAppLike(Protocol):
+    modeler: Any
+
+    def load_project(self, file_name: str, set_active: bool = ...) -> object: ...
 
 
 @dataclass
 class ExtensionData:
-    """Data class containing user input."""
+    """Data class containing user input.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.templates.template_get_started import ExtensionData
+    >>> data = ExtensionData(origin_x=1.0, origin_y=2.0, origin_z=0.0, radius=5.0)
+
+    """
 
     origin_x: float = 0.0
+    """Value for origin x."""
     origin_y: float = 0.0
+    """Value for origin y."""
     origin_z: float = 0.0
+    """Value for origin z."""
     radius: float = 1
+    """Value for radius."""
     file_path: str = ""
+    """Path to file."""
 
 
 class TemplateExtension(ExtensionProjectCommon):
-    """Extension template to help get started."""
+    """Extension template to help get started.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.templates.template_get_started import TemplateExtension
+    >>> extension = TemplateExtension(withdraw=True)
+
+    """
 
     def __init__(self, withdraw: bool = False) -> None:
         super().__init__(
@@ -75,7 +110,15 @@ class TemplateExtension(ExtensionProjectCommon):
         )
 
     def add_extension_content(self) -> None:
-        """Add custom content to the extension UI."""
+        """Add custom content to the extension UI.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.templates.template_get_started import TemplateExtension
+        >>> extension = TemplateExtension(withdraw=True)
+        >>> extension.add_extension_content()
+
+        """
         # Origin x entry
         origin_x_label = ttk.Label(self.root, text="Origin X:", width=20, style="PyAEDT.TLabel")
         origin_x_label.grid(row=0, column=0, padx=15, pady=10)
@@ -168,6 +211,7 @@ class TemplateExtension(ExtensionProjectCommon):
 
 
 def main(extension_args) -> bool:
+    """Return main."""
     origin_x = extension_args.get("origin_x", EXTENSION_DEFAULT_ARGUMENTS["origin_x"])
     origin_y = extension_args.get("origin_y", EXTENSION_DEFAULT_ARGUMENTS["origin_y"])
     origin_z = extension_args.get("origin_z", EXTENSION_DEFAULT_ARGUMENTS["origin_z"])
@@ -194,7 +238,7 @@ def main(extension_args) -> bool:
         design_name = active_design.GetDesignName()
     else:
         design_name = active_design.GetName()
-    aedtapp = get_pyaedt_app(project_name, design_name)
+    aedtapp = cast(TemplateAppLike, get_pyaedt_app(project_name, design_name))
 
     if file_path.is_file():
         app.logger.info("Loading project...")

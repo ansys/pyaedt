@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""This module contains the ``TwinBuilder`` class."""
+"""The module contains the ``TwinBuilder`` class."""
 
 import math
 from pathlib import Path
@@ -119,6 +119,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
     project, which is named ``"myfile.aedt"``.
 
     >>> app = TwinBuilder("myfile.aedt")
+
     """
 
     def __init__(
@@ -181,6 +182,12 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.twinbuilder import TwinBuilder
+        >>> obj = TwinBuilder()
+        >>> obj.create_schematic_from_netlist(input_file="circuit.sp")
 
         """
         xpos = 0
@@ -254,6 +261,13 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         References
         ----------
         >>> oDesign.ChangeProperty
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.twinbuilder import TwinBuilder
+        >>> obj = TwinBuilder()
+        >>> obj.set_end_time(expression="dB(S(1,1))")
+
         """
         self.set_sim_setup_parameter("Tend", expression)
         return True
@@ -275,6 +289,13 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         References
         ----------
         >>> oDesign.ChangeProperty
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.twinbuilder import TwinBuilder
+        >>> obj = TwinBuilder()
+        >>> obj.set_hmin(expression="dB(S(1,1))")
+
         """
         self.set_sim_setup_parameter("Hmin", expression)
         return True
@@ -296,6 +317,13 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         References
         ----------
         >>> oDesign.ChangeProperty
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.twinbuilder import TwinBuilder
+        >>> obj = TwinBuilder()
+        >>> obj.set_hmax(expression="dB(S(1,1))")
+
         """
         self.set_sim_setup_parameter("Hmax", expression)
         return True
@@ -323,6 +351,13 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         References
         ----------
         >>> oDesign.ChangeProperty
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.twinbuilder import TwinBuilder
+        >>> obj = TwinBuilder()
+        >>> obj.set_sim_setup_parameter(variable=1, expression="dB(S(1,1))")
+
         """
         if isinstance(expression, Variable):
             value_str = expression.evaluated_value
@@ -368,6 +403,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         >>> from ansys.aedt.core import TwinBuilder
         >>> tb = TwinBuilder(version="2026.1")
         >>> tb.create_subsheet("subsheet", "parentdesign")
+
         """
         try:
             if design_name not in self.design_list:
@@ -425,10 +461,13 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
             The default value is ``50``.
         state_space_dynamic_link_type : str, optional
             Q3D state space dynamic link type.
+
             Possible options are:
-                - ``S`` for S parameters link type.
-                - ``RLGC`` for RLGC Parameters link type.
-                - ``EQ`` for Equivalent Circuit.
+
+            - ``S`` for S parameters link type.
+            - ``RLGC`` for RLGC Parameters link type.
+            - ``EQ`` for Equivalent Circuit.
+
             The default value is ``RLGC``.
         component_name : str, optional
             Component name.
@@ -459,6 +498,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         ...     "Q2D_ArmouredCableExample", "2D_Extractor_Cable", "MySetupAuto", "sweep1", "Original", "100mm"
         ... )
         >>> tb.desktop_class.close_desktop()
+
         """
         dkp = self.desktop_class
         is_loaded = False
@@ -544,10 +584,16 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
             port_info_list = ["NAME:PortInfo"]
             port_info_list.extend(port_info_list_A)
             port_info_list.extend(port_info_list_B)
-        if not state_space_dynamic_link_type or state_space_dynamic_link_type == "RLGC":
-            if dkp.aedt_version_id >= "2024.1":
+        # None is treated as "RLGC" for backward compatibility
+        if state_space_dynamic_link_type is None:
+            state_space_dynamic_link_type = "RLGC"
+
+        if state_space_dynamic_link_type == "RLGC":
+            # For versions before 2024.1 use the TB link form. For 2024.1 and
+            # later use Q3DRLGCLink for 3D designs and the TB link for 2D.
+            if dkp.aedt_version_id >= "2024.1" and app.design_type != "2D Extractor":
                 state_space_dynamic_link_type = "Q3DRLGCLink"
-            else:  # pragma: no cover
+            else:
                 state_space_dynamic_link_type = f"{design_type}RLGCTBLink"
             q3d_model_type = 1
             ref_pin_style = 5
@@ -720,6 +766,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         ...     excitations[e.name] = ["20", True, e.props["Type"], False]
         >>> comp = tb.add_excitation_model(project=project_name, design="my_maxwell_design", excitations=excitations)
         >>> tb.desktop_class.release_desktop(False, False)
+
         """
         dkp = self.desktop_class
         project_selection = 0

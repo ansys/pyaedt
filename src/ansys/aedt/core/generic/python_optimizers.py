@@ -31,7 +31,16 @@ from ansys.aedt.core.base import PyAedtBase
 
 
 class ThreadTrace(threading.Thread):
-    """Control a thread with python"""
+    """Control a thread with python.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.python_optimizers import ThreadTrace
+    >>> worker = ThreadTrace(target=lambda: None)
+    >>> worker.start()
+    >>> worker.join()
+
+    """
 
     def __init__(self, *args, **keywords) -> None:
         threading.Thread.__init__(self, *args, **keywords)
@@ -117,13 +126,13 @@ class GeneticAlgorithm(PyAedtBase):
     --------
     Optimize a defined function using a genetic algorithm.
 
-    >>>import numpy as np
-    >>>from ansys.aedt.core.generic.python_optimizers import GeneticAlgorithm as ga
+    >>> import numpy as np
+    >>> from ansys.aedt.core.generic.python_optimizers import GeneticAlgorithm as ga
     >>> def f(X):
     >>>     return np.sum(X)
-    >>>varbound = np.array([[0, 10]] * 3)
-    >>>model = ga(function=f, dimension=3, var_type='real', variable_boundaries=varbound)
-    >>>model.run()
+    >>> varbound = np.array([[0, 10]] * 3)
+    >>> model = ga(function=f, dimension=3, var_type="real", variable_boundaries=varbound)
+    >>> model.run()
 
     """
 
@@ -268,7 +277,19 @@ class GeneticAlgorithm(PyAedtBase):
         self.evaluate_val = 1e10
 
     def run(self) -> bool:
-        """Implement the genetic algorithm"""
+        """Implement the genetic algorithm.
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from ansys.aedt.core.generic.python_optimizers import GeneticAlgorithm
+        >>> def objective(values):
+        ...     return np.sum(values)
+        >>> bounds = np.array([[0, 1], [0, 1]])
+        >>> ga = GeneticAlgorithm(objective, dim=2, boundaries=bounds, var_type="real", progress_bar=False)
+        >>> ga.run()
+
+        """
         # Init Population
         pop = np.array([np.zeros(self.dim + 1)] * self.population_size)
         solo = np.zeros(self.dim + 1)
@@ -438,6 +459,32 @@ class GeneticAlgorithm(PyAedtBase):
         return True
 
     def cross(self, x: np.ndarray, y: np.ndarray, c_type: str) -> np.ndarray:
+        """Crossover two parents to create two children.
+
+        Parameters
+        ----------
+        x : np.ndarray
+            The first parent.
+        y : np.ndarray
+            The second parent.
+        c_type : str
+            The type of crossover to perform. Options are "one_point", "two_point", or "uniform".
+
+        Returns
+        -------
+        np.ndarray
+            An array containing the two children.
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from ansys.aedt.core.generic.python_optimizers import GeneticAlgorithm
+        >>> ga = GeneticAlgorithm(function=lambda x: np.sum(x), dim=5)
+        >>> parent1 = np.array([1, 2, 3, 4, 5])
+        >>> parent2 = np.array([5, 4, 3, 2, 1])
+        >>> children = ga.cross(parent1, parent2, c_type="one_point")
+
+        """
         ofs1 = x.copy()
         ofs2 = y.copy()
 
@@ -465,6 +512,25 @@ class GeneticAlgorithm(PyAedtBase):
         return np.array([ofs1, ofs2])
 
     def mut(self, x: np.ndarray) -> np.ndarray:
+        """Mutate a child by randomly changing its genes.
+
+        Parameters
+        ----------
+        x : np.ndarray
+            The child to mutate.
+
+        Returns
+        -------
+        np.ndarray
+            The mutated child.
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from ansys.aedt.core.generic.python_optimizers import GeneticAlgorithm
+        >>> ga = GeneticAlgorithm(function=lambda x: np.sum(x), dim=5)
+
+        """
         for i in self.integers[0]:
             ran = np.random.random()
             if ran < self.prob_mut:
@@ -478,6 +544,33 @@ class GeneticAlgorithm(PyAedtBase):
         return x
 
     def mutmiddle(self, x: np.ndarray, p1: np.ndarray, p2: np.ndarray) -> np.ndarray:
+        """Mutate a child by randomly changing its genes based on the middle point of two parents.
+
+        Parameters
+        ----------
+        x : np.ndarray
+            The child to mutate.
+        p1 : np.ndarray
+            The first parent.
+        p2 : np.ndarray
+            The second parent.
+
+        Returns
+        -------
+        np.ndarray
+            The mutated child.
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from ansys.aedt.core.generic.python_optimizers import GeneticAlgorithm
+        >>> ga = GeneticAlgorithm(function=lambda x: np.sum(x), dim=5)
+        >>> parent1 = np.array([1, 2, 3, 4, 5])
+        >>> parent2 = np.array([5, 4, 3, 2, 1])
+        >>> child = np.array([3, 3, 3, 3, 3])
+        >>> mutated_child = ga.mutmiddle(child, parent1, parent2)
+
+        """
         for i in self.integers[0]:
             ran = np.random.random()
             if ran < self.prob_mut:
@@ -500,6 +593,13 @@ class GeneticAlgorithm(PyAedtBase):
         return x
 
     def evaluate(self) -> bool:
+        """Evaluate the current solution.
+
+        Returns
+        -------
+        bool
+            True if the evaluation was successful, False otherwise.
+        """
         if not self.reference_file:
             self.evaluate_val = self.function(self.temp)
             return True
@@ -508,6 +608,30 @@ class GeneticAlgorithm(PyAedtBase):
             return True
 
     def sim(self, X: np.ndarray) -> np.ndarray:
+        """Simulate the current solution.
+
+        Parameters
+        ----------
+        X : np.ndarray
+            The input array for the simulation.
+
+        Returns
+        -------
+        np.ndarray
+            The result of the simulation.
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from ansys.aedt.core.generic.python_optimizers import GeneticAlgorithm
+        >>> def objective_function(X):
+        ...     return np.sum(X)
+        >>> ga = GeneticAlgorithm(function=objective_function, dim=5)
+        >>> X = np.array([1, 2, 3, 4, 5])
+        >>> result = ga.sim(X)
+        >>> print(result)
+
+        """
         self.temp = X.copy()
         if self.timeout > 0:
             thread = ThreadTrace(target=self.evaluate, daemon=None)
@@ -523,6 +647,18 @@ class GeneticAlgorithm(PyAedtBase):
         return self.evaluate_val
 
     def progress(self, count: int, total: int, status: str = ""):
+        """Display the progress of the optimization.
+
+        Parameters
+        ----------
+        count : int
+            The current progress count.
+        total : int
+            The total count for completion.
+        status : str, optional
+            Additional status message to display.
+
+        """
         bar_len = 50
         filled_len = int(round(bar_len * count / float(total)))
 

@@ -25,6 +25,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
+import warnings
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.emit_core import emit_constants as emit_consts
@@ -37,36 +38,90 @@ class EmitComponents(PyAedtBase):
     """EmitComponents class.
 
     This is the class for managing all EMIT components.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
+    >>> obj = EmitComponents()
+
     """
 
     @property
     def oeditor(self):
-        """Oeditor Module."""
+        """Oeditor Module.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
+        >>> obj = EmitComponents()
+        >>> obj.oeditor
+
+        """
         return self.modeler.oeditor
 
     @property
     def odesign(self):
-        """Odesign module."""
+        """Odesign module.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
+        >>> obj = EmitComponents()
+        >>> obj.odesign
+
+        """
         return self._parent.odesign
 
     @property
     def messenger(self):
-        """Messenger."""
+        """Messenger.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
+        >>> obj = EmitComponents()
+        >>> obj.messenger
+
+        """
         return self._parent._messenger
 
     @property
     def version(self) -> str:
-        """Version."""
+        """Version.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
+        >>> obj = EmitComponents()
+        >>> obj.version
+
+        """
         return self._parent._aedt_version
 
     @property
     def model_units(self) -> str:
-        """Model units."""
+        """Model units.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
+        >>> obj = EmitComponents()
+        >>> obj.model_units
+
+        """
         return self.modeler.model_units
 
     @property
     def omodel_manager(self):
-        """AEDT model manager."""
+        """AEDT model manager.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
+        >>> obj = EmitComponents()
+        >>> obj.omodel_manager
+
+        """
         return self.modeler.omodel_manager
 
     @property
@@ -76,6 +131,13 @@ class EmitComponents(PyAedtBase):
         References
         ----------
         >>> oDefinitionManager = oProject.GetDefinitionManager()
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
+        >>> obj = EmitComponents()
+        >>> obj.o_definition_manager
+
         """
         return self._parent._oproject.GetDefinitionManager()
 
@@ -86,6 +148,13 @@ class EmitComponents(PyAedtBase):
         References
         ----------
         >>> oSymbolManager = oDefinitionManager.GetManager("Symbol")
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
+        >>> obj = EmitComponents()
+        >>> obj.osymbol_manager
+
         """
         return self._parent.osymbol_manager
 
@@ -96,12 +165,27 @@ class EmitComponents(PyAedtBase):
         References
         ----------
         >>> oComponentManager = oDefinitionManager.GetManager("Component")
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
+        >>> obj = EmitComponents()
+        >>> obj.ocomponent_manager
+
         """
         return self._parent.ocomponent_manager
 
     @property
     def design_type(self) -> str:
-        """Design type."""
+        """Design type.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
+        >>> obj = EmitComponents()
+        >>> obj.design_type
+
+        """
         return self._parent.design_type
 
     @pyaedt_function_handler()
@@ -146,7 +230,15 @@ class EmitComponents(PyAedtBase):
 
     @property
     def include_personal_library(self, value: str = None) -> str:
-        """Include personal library."""
+        """Include personal library.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
+        >>> obj = EmitComponents()
+        >>> obj.include_personal_library
+
+        """
         if value is not None:
             self.include_personal_lib = value
         return self.include_personal_lib
@@ -157,7 +249,15 @@ class EmitComponents(PyAedtBase):
 
     @property
     def design_libray(self) -> str:
-        """Design library."""
+        """Design library.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
+        >>> obj = EmitComponents()
+        >>> obj.design_libray
+
+        """
         if self.include_personal_lib:
             return "PersonalLib"
         return "EMIT Elements"
@@ -169,6 +269,13 @@ class EmitComponents(PyAedtBase):
         Returns
         -------
         :class:`ansys.aedt.core.modeler.cad.primitivesCircuit.ComponentCatalog`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
+        >>> obj = EmitComponents()
+        >>> obj.components_catalog
+
         """
         if not self._components_catalog:
             self._components_catalog = ComponentCatalog(self)
@@ -177,6 +284,9 @@ class EmitComponents(PyAedtBase):
     @pyaedt_function_handler()
     def create_component(self, component_type: str, name: str = None, library: str = None) -> EmitComponent:
         """Create a new component from a library.
+
+        .. deprecated:: 0.25.2
+            Use create_component method from emit_schematic.py instead.
 
         Parameters
         ----------
@@ -197,7 +307,21 @@ class EmitComponents(PyAedtBase):
         References
         ----------
         >>> oEditor.CreateComponent
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
+        >>> obj = EmitComponents()
+        >>> obj.create_component(component_type=1)
+
         """
+        warnings.warn(
+            "This method is deprecated as of version 0.25.2. "
+            "Use the create_component method from emit_schematic.py instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
         # Pass an empty string to allow name to be automatically assigned.
         if name is None:
             name = ""
@@ -216,6 +340,9 @@ class EmitComponents(PyAedtBase):
         self, radio_type: str, radio_name: str = None, antenna_name: str = None, library: str = None
     ) -> tuple[EmitComponent, EmitComponent]:
         """Create a new radio and antenna and connect them.
+
+        .. deprecated:: 0.25.2
+            Use the create_radio_antenna method from emit_schematic.py instead.
 
         Parameters
         ----------
@@ -242,7 +369,21 @@ class EmitComponents(PyAedtBase):
         References
         ----------
         >>> oEditor.CreateComponent
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
+        >>> obj = EmitComponents()
+        >>> obj.create_radio_antenna(radio_type=1)
+
         """
+        warnings.warn(
+            "This method is deprecated as of version 0.25.2. "
+            "Use the create_radio_antenna method from emit_schematic.py instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
         # Pass an empty string to allow name to be automatically assigned.
         if radio_name is None:
             radio_name = ""
@@ -277,6 +418,13 @@ class EmitComponents(PyAedtBase):
         Dict : radio_name : EmitRadioComponents
             Dict of all the radio_name and EmitRadioComponents in the
             design.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
+        >>> obj = EmitComponents()
+        >>> obj.get_radios()
+
         """
         return {k: v for k, v in self.components.items() if v.get_type() == "RadioNode"}
 
@@ -289,12 +437,27 @@ class EmitComponents(PyAedtBase):
         Dict : antenna_name : EmitAntennaComponents
             Dict of all the antenna_name and EmitAntennaComponents in the
             design.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
+        >>> obj = EmitComponents()
+        >>> obj.get_antennas()
+
         """
         return {k: v for k, v in self.components.items() if v.get_type() == "AntennaNode"}
 
     @pyaedt_function_handler()
     def refresh_all_ids(self) -> int:
-        """Refresh all IDs and return the number of components."""
+        """Refresh all IDs and return the number of components.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
+        >>> obj = EmitComponents()
+        >>> obj.refresh_all_ids()
+
+        """
         all_comps = self.oeditor.GetAllComponents()
         for comp_name in all_comps:
             if not self.get_obj_id(comp_name):
@@ -317,6 +480,12 @@ class EmitComponents(PyAedtBase):
         EmitComponent
             The component when successful, None when failed.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
+        >>> obj = EmitComponents()
+        >>> obj.get_obj_id(object_name=1)
+
         """
         for el in self.components:
             if self.components[el].name == object_name:
@@ -336,6 +505,13 @@ class EmitComponents(PyAedtBase):
         -------
         type
             Object with properties.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
+        >>> obj = EmitComponents()
+        >>> obj.update_object_properties(o=1)
+
         """
         o.update_property_tree()
         comp_type = o.root_prop_node.props["Type"]
@@ -344,12 +520,20 @@ class EmitComponents(PyAedtBase):
 
 
 class EmitComponent(PyAedtBase):
-    """A component in the EMIT schematic."""
+    """A component in the EMIT schematic.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
+    >>> obj = EmitComponent()
+
+    """
 
     # Dictionary of subclass types. Register each subclass types with
     # class decorator and use EmitComponent.create to create the correct
     # object type.
     subclasses = {}
+    """Value for subclasses."""
 
     @classmethod
     def register_subclass(cls, root_node_type):
@@ -363,6 +547,9 @@ class EmitComponent(PyAedtBase):
     def create(cls, components: EmitComponents, component_name: str) -> EmitComponent:
         """Create an EMIT component.
 
+        .. deprecated:: 0.25.2
+            Use the create_component method from emit_schematic.py instead.
+
         Parameters
         ----------
         components : list
@@ -374,7 +561,19 @@ class EmitComponent(PyAedtBase):
         -------
         EmitComponent
             An instance of the new component.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
+        >>> obj = EmitComponent()
+        >>> obj.create(components=["U1"], component_name=1)
+
         """
+        warnings.warn(
+            "This method is deprecated in 0.25.2. Use the create_component method from emit_schematic.py instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         nodes = components.odesign.GetComponentNodeNames(component_name)
         root_node = nodes[0]
         prop_list = components.odesign.GetComponentNodeProperties(component_name, root_node)
@@ -404,12 +603,23 @@ class EmitComponent(PyAedtBase):
 
     @property
     def composed_name(self):
-        """Component name. Needed for compatibility."""
+        """Component name. Needed for compatibility.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
+        >>> obj = EmitComponent()
+        >>> obj.composed_name
+
+        """
         return self.name
 
     @pyaedt_function_handler()
     def move_and_connect_to(self, component: EmitComponent | str) -> None:
         """Move and connect this component to another component.
+
+        .. deprecated:: 0.25.2
+            Use the connect_components method from emit_schematic.py instead.
 
         Parameters
         ----------
@@ -417,7 +627,18 @@ class EmitComponent(PyAedtBase):
             The component or name of component to move this component to
             and connect. For example, "Radio1"
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
+        >>> obj = EmitComponent()
+        >>> obj.move_and_connect_to(component="U1")
+
         """
+        warnings.warn(
+            "This method is deprecated in 0.25.2. Use the connect_components method from emit_schematic.py instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         if isinstance(component, EmitComponent):
             self.oeditor.PlaceComponent(self.name, component.name)
         else:
@@ -435,6 +656,13 @@ class EmitComponent(PyAedtBase):
         References
         ----------
         >>> oEditor.GetComponentPorts
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
+        >>> obj = EmitComponent()
+        >>> obj.port_names()
+
         """
         return self.oeditor.GetComponentPorts(self.name)
 
@@ -460,6 +688,13 @@ class EmitComponent(PyAedtBase):
         ----------
         >>> oEditor.GetWireAtPort
         >>> oEditor.GetWireConnections
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
+        >>> obj = EmitComponent()
+        >>> obj.port_connection(port_name=1)
+
         """
         wire_name = self.oeditor.GetWireAtPort(self.name, port_name)
         wire_connections = self.oeditor.GetWireConnections(wire_name)
@@ -483,6 +718,13 @@ class EmitComponent(PyAedtBase):
         References
         ----------
         >>> oDesign.GetComponentNodeNames
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
+        >>> obj = EmitComponent()
+        >>> obj.update_property_tree()
+
         """
         node_names = sorted(self.odesign.GetComponentNodeNames(self.name))
         root_node_name = node_names[0]
@@ -502,6 +744,9 @@ class EmitComponent(PyAedtBase):
     def get_node_properties(self, node: str | None = None) -> dict:
         """Return the properties of the given node (property group).
 
+        .. deprecated:: 0.25.2
+            Use properties method from emit_node.py instead.
+
         Parameters
         ----------
         node : str
@@ -518,7 +763,19 @@ class EmitComponent(PyAedtBase):
         ----------
         >>> oDesign.GetComponentNodeNames
         >>> oDesign.GetComponentNodeProperties
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
+        >>> obj = EmitComponent()
+        >>> obj.get_node_properties(node=1)
+
         """
+        warnings.warn(
+            "This method is deprecated in 0.25.2. Use the properties method from emit_node.py instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         nodes = sorted(self.odesign.GetComponentNodeNames(self.name))
         root_node = nodes[0]
         node_name = root_node
@@ -560,6 +817,13 @@ class EmitComponent(PyAedtBase):
         -------
         List
             List of all matching nodes (EmitComponentPropNode).
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
+        >>> obj = EmitComponent()
+        >>> obj.get_prop_nodes(property_filter={"Name": "Value"})
+
         """
         if property_filter is None:
             property_filter = {}
@@ -586,6 +850,13 @@ class EmitComponent(PyAedtBase):
         -------
         List
             List containing all EMIT components that are connected to this component.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
+        >>> obj = EmitComponent()
+        >>> obj.get_connected_components()
+
         """
         component_names = []
         to_search = [self.name]
@@ -607,6 +878,10 @@ class EmitComponent(PyAedtBase):
     def get_type(self) -> str:
         """Get the property ``Type`` of a component.
 
+        .. deprecated:: 0.25.2
+            This method is deprecated in 0.25.2.
+            Use node_type property from emit_node.py instead.
+
         Parameters
         ----------
         None
@@ -615,7 +890,19 @@ class EmitComponent(PyAedtBase):
         -------
         str
             Type property of self.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
+        >>> obj = EmitComponent()
+        >>> obj.get_type()
+
         """
+        warnings.warn(
+            "This method is deprecated in 0.25.2. Use node_type property from emit_node.py instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         properties = self.get_node_properties()
 
         return properties["Type"]
@@ -623,7 +910,14 @@ class EmitComponent(PyAedtBase):
 
 @EmitComponent.register_subclass("Antenna")
 class EmitAntennaComponent(EmitComponent):
-    """An Antenna component in the EMIT schematic."""
+    """An Antenna component in the EMIT schematic.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
+    >>> obj = EmitAntennaComponent()
+
+    """
 
     def __init__(self, components, component_name) -> None:
         super(EmitAntennaComponent, self).__init__(components, component_name)
@@ -639,6 +933,13 @@ class EmitAntennaComponent(EmitComponent):
         -------
         Str
             Filename of the antenna pattern.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
+        >>> obj = EmitAntennaComponent()
+        >>> obj.get_pattern_filename()
+
         """
         properties = self.get_node_properties()
         return properties["Filename"]
@@ -653,6 +954,13 @@ class EmitAntennaComponent(EmitComponent):
         Returns
         -------
             Tuple containing the roll, pitch, and yaw values in degrees defining this orientation.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
+        >>> obj = EmitAntennaComponent()
+        >>> obj.get_orientation_rpy()
+
         """
         properties = self.get_node_properties()
 
@@ -685,6 +993,12 @@ class EmitAntennaComponent(EmitComponent):
         -------
         Tuple containing the X, Y, and Z offset values in specified units.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
+        >>> obj = EmitAntennaComponent()
+        >>> obj.get_position(units="mm")
+
         """
         properties = self.get_node_properties()
         position_string = properties["Position"]
@@ -709,13 +1023,23 @@ class EmitAntennaComponent(EmitComponent):
 
 @EmitComponent.register_subclass("Radio")
 class EmitRadioComponent(EmitComponent):
-    """A Radio component in the EMIT schematic."""
+    """A Radio component in the EMIT schematic.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitRadioComponent
+    >>> obj = EmitRadioComponent()
+
+    """
 
     def __init__(self, components, component_name) -> None:
         super(EmitRadioComponent, self).__init__(components, component_name)
 
     def is_emitter(self) -> bool:
         """Check if the radio component is an emitter
+
+        .. deprecated:: 0.25.2
+            Use the node_type property from emit_node.py instead.
 
         Parameters
         ----------
@@ -725,7 +1049,19 @@ class EmitRadioComponent(EmitComponent):
         ------
         Bool
             ``True`` if it is an emitter, ``False`` otherwise.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitRadioComponent
+        >>> obj = EmitRadioComponent()
+        >>> obj.is_emitter()
+
         """
+        warnings.warn(
+            "This method is deprecated in 0.25.2. Use the node_type property from emit_node.py instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         properties = self.get_node_properties()
 
         if "IsEmitter" in properties:
@@ -735,6 +1071,9 @@ class EmitRadioComponent(EmitComponent):
     def bands(self) -> list[EmitComponentPropNode]:
         """Get the bands of this radio.
 
+        .. deprecated:: 0.25.2
+            Use the get_all_band_nodes method from revision.py or call radio_node.children instead.
+
         Parameters
         ----------
         None
@@ -743,12 +1082,28 @@ class EmitRadioComponent(EmitComponent):
         -------
         List
             List of the band nodes in the radio.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitRadioComponent
+        >>> obj = EmitRadioComponent()
+        >>> obj.bands()
+
         """
+        warnings.warn(
+            "This method is deprecated in 0.25.2. Use the get_all_band_nodes method from revision.py or \
+            use radio_node.children instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         band_nodes = self.get_prop_nodes({"Type": "Band"})
         return band_nodes
 
     def band_node(self, band_name: str) -> EmitComponentPropNode | None:
         """Get the specified band node from this radio.
+
+        .. deprecated:: 0.25.2
+            Use the get_band_node method from revision.py instead.
 
         Parameters
         ----------
@@ -757,7 +1112,19 @@ class EmitRadioComponent(EmitComponent):
         Returns
         -------
         band_node : Instance of the band node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitRadioComponent
+        >>> obj = EmitRadioComponent()
+        >>> obj.band_node(band_name=1)
+
         """
+        warnings.warn(
+            "This method is deprecated in 0.25.2. Use the get_band_node method from revision.py instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         band_nodes = self.bands()
         for node in band_nodes:
             if band_name == node.props["Name"]:
@@ -766,6 +1133,9 @@ class EmitRadioComponent(EmitComponent):
 
     def band_start_frequency(self, band_node: EmitComponentPropNode, units: str = "") -> float:
         """Get the start frequency of the band node.
+
+        .. deprecated:: 0.25.2
+            This method is deprecated. Use the band_node.start_frequency property instead.
 
         Parameters
         ----------
@@ -777,13 +1147,28 @@ class EmitRadioComponent(EmitComponent):
         -------
         Float
             Start frequency of the band node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitRadioComponent
+        >>> obj = EmitRadioComponent()
+        >>> obj.band_start_frequency(band_node=1)
+
         """
+        warnings.warn(
+            "This method is deprecated in 0.25.2. Use the band_node.start_frequency property instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Frequency"]:
             units = "Hz"
         return consts.unit_converter(float(band_node.props["StartFrequency"]), "Freq", "Hz", units)
 
     def band_stop_frequency(self, band_node: EmitComponentPropNode, units: str = "") -> float:
         """Get the stop frequency of the band node.
+
+        .. deprecated:: 0.25.2
+            This method is deprecated. Use the band_node.stop_frequency property instead.
 
         Parameters
         ----------
@@ -795,7 +1180,19 @@ class EmitRadioComponent(EmitComponent):
         -------
         Float
             Stop frequency of the band node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitRadioComponent
+        >>> obj = EmitRadioComponent()
+        >>> obj.band_stop_frequency(band_node=1)
+
         """
+        warnings.warn(
+            "This method is deprecated in 0.25.2. Use the band_node.stop_frequency property instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Frequency"]:
             units = "Hz"
         return consts.unit_converter(float(band_node.props["StopFrequency"]), "Freq", "Hz", units)
@@ -804,6 +1201,9 @@ class EmitRadioComponent(EmitComponent):
         self, band_node: EmitComponentPropNode, band_start_freq: float, units: str = ""
     ) -> None:
         """Set start frequency of the band.
+
+        .. deprecated:: 0.25.2
+            This method is deprecated. Use the band_node.start_frequency property instead.
 
         Parameters
         ----------
@@ -828,10 +1228,16 @@ class EmitRadioComponent(EmitComponent):
         >>> start_freq = 10
         >>> units = "MHz"
         >>> radio.set_band_start_frequency(band, start_freq, units=units)
+
         """
         # if "Band" not in band_node.props["Type"]:
         #     raise TypeError("{} must be a band.".format(band_node.node_name))
 
+        warnings.warn(
+            "This method is deprecated in 0.25.2. Use the band_node.start_frequency property instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Frequency"]:
             units = "Hz"
 
@@ -849,6 +1255,9 @@ class EmitRadioComponent(EmitComponent):
 
     def set_band_stop_frequency(self, band_node: EmitComponentPropNode, band_stop_freq: float, units: str = "") -> None:
         """Set stop frequency of the band.
+
+        .. deprecated:: 0.25.2
+            This method is deprecated. Use the band_node.stop_frequency property instead.
 
         Parameters
         ----------
@@ -873,9 +1282,15 @@ class EmitRadioComponent(EmitComponent):
         >>> stop_freq = 10
         >>> units = "MHz"
         >>> radio.set_band_stop_frequency(band, stop_freq, units=units)
+
         """
         # if "Band" not in band_node.props["Type"]:
         #     raise TypeError("{} must be a band.".format(band_node.node_name))
+        warnings.warn(
+            "This method is deprecated in 0.25.2. Use the band_node.stop_frequency property instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Frequency"]:
             units = "Hz"
         # convert to Hz
@@ -904,6 +1319,13 @@ class EmitRadioComponent(EmitComponent):
         -------
         Float
             Channel bandwidth of the band node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitRadioComponent
+        >>> obj = EmitRadioComponent()
+        >>> obj.band_channel_bandwidth(band_node=1)
+
         """
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Frequency"]:
             units = "Hz"
@@ -924,6 +1346,13 @@ class EmitRadioComponent(EmitComponent):
         -------
         Float
             Transmit power of the band node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitRadioComponent
+        >>> obj = EmitRadioComponent()
+        >>> obj.band_tx_power(band_node=1)
+
         """
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Power"]:
             units = "W"
@@ -943,6 +1372,13 @@ class EmitRadioComponent(EmitComponent):
         Bool
             ``True`` if the radio has enabled transmit channels and
             ``False`` if there are no enabled transmit channels.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitRadioComponent
+        >>> obj = EmitRadioComponent()
+        >>> obj.has_tx_channels()
+
         """
         nodes = self.get_prop_nodes({"Type": "TxSpectralProfNode", "Enabled": "true"})
         return len(nodes) > 0
@@ -959,6 +1395,13 @@ class EmitRadioComponent(EmitComponent):
         Bool
             ''True'' if the radio has enabled receive channels and
             ''False'' if there are no enabled receive channels.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitRadioComponent
+        >>> obj = EmitRadioComponent()
+        >>> obj.has_rx_channels()
+
         """
         nodes = self.get_prop_nodes({"Type": "RxSusceptibilityProfNode", "Enabled": "true"})
         return len(nodes) > 0
@@ -974,6 +1417,13 @@ class EmitRadioComponent(EmitComponent):
         -------
         List
             List of antennas connected to this radio.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitRadioComponent
+        >>> obj = EmitRadioComponent()
+        >>> obj.get_connected_antennas()
+
         """
         components = super().get_connected_components()
         antennas = filter(lambda component: component.get_node_properties()["Type"] == "AntennaNode", components)
@@ -990,12 +1440,21 @@ class EmitRadioComponent(EmitComponent):
         ------
         EmitComponentPropNode
             Sampling node for the radio.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitRadioComponent
+        >>> obj = EmitRadioComponent()
+        >>> obj.get_sampling()
+
         """
         samp_node = self.get_prop_nodes({"Type": "SamplingNode"})
         return samp_node[0]
 
 
 class EmitComponentPropNode(PyAedtBase):
+    """Provide EMIT component prop node."""
+
     def __init__(self, editor, design, parent_component, node_name) -> None:
         self.oeditor = editor
         """Oeditor module"""
@@ -1022,6 +1481,9 @@ class EmitComponentPropNode(PyAedtBase):
     def props(self) -> dict:
         """Returns a dictionary of all the properties for this node.
 
+        .. deprecated:: 0.25.2
+            Use the props_to_dict method from emit_node.py instead.
+
         Parameters
         ----------
         None
@@ -1030,7 +1492,19 @@ class EmitComponentPropNode(PyAedtBase):
         -------
         Dict
             Dictionary of all the properties for this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponentPropNode
+        >>> obj = EmitComponentPropNode()
+        >>> obj.props
+
         """
+        warnings.warn(
+            "This property is deprecated in 0.25.2. Use the props_to_dict method from emit_node.py instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         prop_list = self.odesign.GetComponentNodeProperties(self.parent_component.name, self.node_name)
         props = dict(p.split("=", 1) for p in prop_list)
         return props
@@ -1038,6 +1512,9 @@ class EmitComponentPropNode(PyAedtBase):
     @property
     def enabled(self) -> bool:
         """Returns ''True'' if the node is enabled and ''False'' if the node is disabled.
+
+        .. deprecated:: 0.25.2
+            Use the properties method from emit_node.py instead to check if the "Enabled" property is "true".
 
         Parameters
         ----------
@@ -1048,7 +1525,20 @@ class EmitComponentPropNode(PyAedtBase):
         Bool
             Returns ``True`` if the node is enabled and
             ``False`` if the node is disabled.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponentPropNode
+        >>> obj = EmitComponentPropNode()
+        >>> obj.enabled
+
         """
+        warnings.warn(
+            "This property is deprecated in 0.25.2. "
+            "Use the properties method from emit_node.py instead to check if the 'Enabled' property is 'true'.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         return self.props["Enabled"] == "true"
 
     @pyaedt_function_handler()
@@ -1065,6 +1555,13 @@ class EmitComponentPropNode(PyAedtBase):
         Return
         ------
         None
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponentPropNode
+        >>> obj = EmitComponentPropNode()
+        >>> obj.set_band_power_level(power=1.0)
+
         """
         if "Band" not in self.props["Type"]:
             raise TypeError(f"{self.node_name} must be a band.")
@@ -1094,6 +1591,13 @@ class EmitComponentPropNode(PyAedtBase):
         ------
         Float
             Peak amplitude of the fundamental [units].
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponentPropNode
+        >>> obj = EmitComponentPropNode()
+        >>> obj.get_band_power_level(units="mm")
+
         """
         if "Band" not in self.props["Type"]:
             raise TypeError(f"{self.node_name} must be a band.")
@@ -1130,6 +1634,13 @@ class EmitComponentPropNode(PyAedtBase):
         Returns
         -------
         None
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponentPropNode
+        >>> obj = EmitComponentPropNode()
+        >>> obj.set_channel_sampling(sampling_type=1, percentage=1.0)
+
         """
         if "SamplingNode" not in self.props["Type"]:
             raise TypeError(f"{self.node_name} must be a sampling node.")

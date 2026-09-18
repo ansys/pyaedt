@@ -30,8 +30,8 @@ from ansys.aedt.core.generic.general_methods import is_windows
 
 
 def load_native_module(module_name: str, base_dir: Path | str) -> object:
-    """
-    Dynamically load a compiled native Python module (.pyd or .so) from a base directory.
+    """Dynamically load a compiled native Python module (.pyd or .so) from a base directory.
+
     Automatically choose the correct file extension based on the platform and Python version.
 
     The module name must end with '_lib' or '_dynload'.
@@ -41,11 +41,11 @@ def load_native_module(module_name: str, base_dir: Path | str) -> object:
 
     Parameters
     ----------
-        module_name: str
-            The name of the module to load (e.g. 'nastran_import').
+    module_name: str
+        The name of the module to load (e.g. 'nastran_import').
 
-        base_dir: Path, str
-            Path to the directory containing the compiled module.
+    base_dir: Path, str
+        Path to the directory containing the compiled module.
 
     Returns
     -------
@@ -55,6 +55,13 @@ def load_native_module(module_name: str, base_dir: Path | str) -> object:
     ------
         FileNotFoundError: If the compiled module file is not found.
         ImportError: If the module cannot be imported.
+
+    Examples
+    --------
+    >>> from pathlib import Path
+    >>> from ansys.aedt.core.syslib import load_native_module
+    >>> load_native_module("nastran_import_lib", Path(r"C:/temp/nastran_import"))
+
     """
     base_path = Path(base_dir)
 

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 #
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
@@ -26,30 +27,50 @@ from dataclasses import dataclass
 import tkinter
 from tkinter import messagebox
 from tkinter import ttk
+from typing import Any
+from typing import cast
 
 from ansys.aedt.core.emit_core.emit_constants import InterfererType
+from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
 from ansys.aedt.core.extensions.misc import ExtensionEMITCommon
 from ansys.aedt.core.extensions.misc import get_arguments
 
 EXTENSION_TITLE = "EMIT Interference Classification"
+"""Title displayed for the extension."""
 EXTENSION_DEFAULT_ARGUMENTS = {}
+"""Default arguments for the extension."""
+
+LegendEntryMap = dict[str, ttk.Entry]
+ColorMatrix = list[list[Any]]
+ValueMatrix = list[list[Any]]
 
 
 @dataclass
 class _MatrixData:
-    tx_radios: list
-    rx_radios: list
-    colors: list  # colors[col][row]
-    values: list  # values[col][row]
+    tx_radios: list[str]
+    """Value for tx radios."""
+    rx_radios: list[str]
+    """Value for rx radios."""
+    colors: ColorMatrix  # colors[col][row]
+    """Value for colors."""
+    values: ValueMatrix  # values[col][row]
+    """Value for values."""
 
 
 class InterferenceClassificationExtension(ExtensionEMITCommon):
-    """Interactive EMIT extension for Protection Level and Interference Type classification."""
+    """Interactive EMIT extension for Protection Level and Interference Type classification.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.emit.interference_classification import InterferenceClassificationExtension
+    >>> extension = InterferenceClassificationExtension(withdraw=True)
+
+    """
 
     def __init__(self, withdraw: bool = False) -> None:
-        self._matrix = {"protection": None, "interference": None}
-        self._filters_interf = {}
-        self._filters_prot = {}
+        self._matrix: dict[str, _MatrixData | None] = {"protection": None, "interference": None}
+        self._filters_interf: dict[str, tkinter.BooleanVar] = {}
+        self._filters_prot: dict[str, tkinter.BooleanVar] = {}
         # Color mapping canvas/excel rendering
         self._color_map = {
             "green": "#90D890",
@@ -65,6 +86,16 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
             withdraw=withdraw,
             add_custom_content=True,
         )
+
+    def _app(self) -> Any:
+        return cast(Any, self.aedt_application)
+
+    def _legend_entries(self) -> LegendEntryMap:
+        return cast(LegendEntryMap, self._widgets.get("prot_legend_entries") or {})
+
+    def _matrix_canvas(self, tab: str) -> tkinter.Canvas:
+        widget_key = "canvas_int" if tab == "interference" else "canvas_prot"
+        return cast(tkinter.Canvas, self._widgets[widget_key])
 
     def add_extension_content(self) -> None:
         root = self.root
@@ -154,7 +185,7 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
 
             # Editable value entry
             entry = ttk.Entry(row_frame, width=12, style="PyAEDT.TEntry")
-            entry.insert(0, value)
+            entry.insert(0, str(value))
             entry.pack(side=tkinter.LEFT, padx=6)
             prot_legend_entries[label] = entry
 
@@ -302,7 +333,7 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
     def _get_legend_values(self):
         """Retrieve protection level values from the legend entry widgets."""
         vals = []
-        entries = self._widgets.get("prot_legend_entries", {})
+        entries = self._legend_entries()
         for label in self._default_protection_labels:
             entry = entries.get(label)
             if entry:
@@ -319,7 +350,7 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
         enabled = bool(self._radio_specific_var.get())
         if enabled:
             # Build per-radio levels from current legend values
-            app = self.aedt_application
+            app = self._app()
             values = self._get_legend_values()
             try:
                 rx_names = app.results.analyze().get_receiver_names()
@@ -358,7 +389,7 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
         self._current_radio = cur
 
         values = self._protection_levels[cur]
-        entries = self._widgets.get("prot_legend_entries", {})
+        entries = self._legend_entries()
 
         for i, label in enumerate(self._default_protection_labels):
             entry = entries.get(label)
@@ -431,7 +462,7 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
 
     def _compute_interference(self, filter_list):
         """Compute interference type classification matrix."""
-        app = self.aedt_application
+        app = self._app()
         # Radios
         try:
             radios = app.modeler.components.get_radios()
@@ -440,19 +471,33 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
         if len(radios) < 2:
             raise RuntimeError("At least two radios are required.")
 
-        domain = app.results.interaction_domain()
-        # Prefer API on results viewer if available; otherwise fallback to results
         rev = app.results.analyze()
-        colors, matrix = rev.interference_type_classification(
-            domain, interferer_type=InterfererType().TRANSMITTERS, use_filter=True, filter_list=filter_list
-        )
+        sim = rev.get_simulation()
+
+        if app.desktop_class.aedt_version_id < "2027.1":
+            domain = app.results.interaction_domain()
+            colors, matrix = sim.interference_type_classification(
+                domain=domain,
+                interferer_type=InterfererType().TRANSMITTERS_AND_EMITTERS,
+                use_filter=True,
+                filter_list=filter_list,
+            )
+        else:
+            domain = InteractionDomain(app)
+            colors, matrix = sim.interference_type_classification(
+                domain=domain,
+                interferer_type=InterfererType().TRANSMITTERS_AND_EMITTERS,
+                use_filter=True,
+                filter_list=filter_list,
+            )
+
         tx = rev.get_interferer_names(InterfererType().TRANSMITTERS_AND_EMITTERS)
         rx = rev.get_receiver_names()
         return tx, rx, colors, matrix
 
     def _compute_protection(self, filter_list):
         """Compute protection level classification matrix."""
-        app = self.aedt_application
+        app = self._app()
         try:
             radios = app.modeler.components.get_radios()
         except Exception:
@@ -475,17 +520,29 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
             global_levels = self._protection_levels.get("Global", current_values)
 
         rev = app.results.analyze()
-        domain = app.results.interaction_domain()
-
-        colors, matrix = rev.protection_level_classification(
-            domain=domain,
-            interferer_type=InterfererType().TRANSMITTERS,
-            global_protection_level=self._global_protection_level,
-            global_levels=global_levels,
-            protection_levels=self._protection_levels,
-            use_filter=True,
-            filter_list=filter_list,
-        )
+        sim = rev.get_simulation()
+        if app.desktop_class.aedt_version_id < "2027.1":
+            domain = app.results.interaction_domain()
+            colors, matrix = sim.protection_level_classification(
+                domain=domain,
+                interferer_type=InterfererType().TRANSMITTERS,
+                global_protection_level=self._global_protection_level,
+                global_levels=global_levels,
+                protection_levels=self._protection_levels,
+                use_filter=True,
+                filter_list=filter_list,
+            )
+        else:
+            domain = InteractionDomain(app)
+            colors, matrix = sim.protection_level_classification(
+                domain=domain,
+                interferer_type=InterfererType().TRANSMITTERS,
+                global_protection_level=self._global_protection_level,
+                global_levels=global_levels,
+                protection_levels=self._protection_levels,
+                use_filter=True,
+                filter_list=filter_list,
+            )
 
         tx = rev.get_interferer_names(InterfererType().TRANSMITTERS)
         rx = rev.get_receiver_names()
@@ -498,7 +555,7 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
         if not matrix:
             return
         # Choose the correct canvas for the tab
-        cnv = self._widgets["canvas_int"] if tab == "interference" else self._widgets["canvas_prot"]
+        cnv = self._matrix_canvas(tab)
 
         # Draw a resizable grid with per-cell backgrounds and values
         def draw_table(_event=None) -> None:

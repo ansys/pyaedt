@@ -45,6 +45,12 @@ def change_objects_visibility(input_file: str | Path, assignment: list) -> bool:
     -------
     bool
         ``True`` when successful, ``False`` when failed.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.application.aedt_file_management import change_objects_visibility
+    >>> change_objects_visibility(input_file="project.aedt", assignment=["Box1", "Cylinder1"])
+
     """
     path = Path(input_file).parent
     newfile = path / "aedttmp.tmp"
@@ -92,6 +98,12 @@ def change_model_orientation(input_file: str | Path, bottom_dir: str) -> bool:
     -------
     bool
         ``True`` when successful, ``False`` when failed.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.application.aedt_file_management import change_model_orientation
+    >>> change_model_orientation(input_file="project.aedt", bottom_dir="+Z")
+
     """
     input_path = Path(input_file)
     newfile = input_path.parent / "aedttmp.tmp"

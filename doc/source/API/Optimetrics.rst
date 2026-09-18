@@ -1,6 +1,6 @@
 Optimetrics
 ===========
-This module contains all properties and methods needed to create
+The module contains all properties and methods needed to create
 optimetrics setups.
 
 .. code:: python

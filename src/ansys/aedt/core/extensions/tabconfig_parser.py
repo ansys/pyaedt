@@ -48,10 +48,18 @@ class ButtonSpec:
         Button label.
     attributes : dict
         Optional extra attributes (script, image, tooltip, isLarge, ...).
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.tabconfig_parser import ButtonSpec
+    >>> button = ButtonSpec("Launch", {"script": "Project/Open"})
+
     """
 
     label: str
+    """Value for label."""
     attributes: dict[str, str] = field(default_factory=dict)
+    """Value for attributes."""
 
     def to_element(self) -> ET.Element:
         attrs = {"label": self.label}
@@ -67,11 +75,21 @@ class ButtonSpec:
 
 @dataclass
 class GroupSpec:
-    """Group definition inside a gallery."""
+    """Group definition inside a gallery.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.tabconfig_parser import ButtonSpec, GroupSpec
+    >>> group = GroupSpec("Thermal", buttons=[ButtonSpec("Export", {"script": "Thermal/Export"})])
+
+    """
 
     label: str
+    """Value for label."""
     image: str | None = None
+    """Value for image."""
     buttons: list[ButtonSpec] = field(default_factory=list)
+    """Value for buttons."""
 
     def to_element(self) -> ET.Element:
         attrs = {"label": self.label}
@@ -92,12 +110,23 @@ class GroupSpec:
 
 @dataclass
 class GallerySpec:
-    """Gallery definition containing a header button and grouped buttons."""
+    """Gallery definition containing a header button and grouped buttons.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.tabconfig_parser import ButtonSpec, GallerySpec, GroupSpec
+    >>> gallery = GallerySpec(header_button=ButtonSpec("Examples"), groups=[GroupSpec("Thermal")])
+
+    """
 
     imagewidth: int = 120
+    """Value for imagewidth."""
     imageheight: int = 72
+    """Value for imageheight."""
     header_button: ButtonSpec | None = None
+    """Value for header button."""
     groups: list[GroupSpec] = field(default_factory=list)
+    """Value for groups."""
 
     def to_element(self) -> ET.Element:
         attrs = {"imagewidth": str(self.imagewidth), "imageheight": str(self.imageheight)}
@@ -127,11 +156,21 @@ class GallerySpec:
 
 @dataclass
 class PanelSpec:
-    """Panel definition with direct buttons and galleries."""
+    """Panel definition with direct buttons and galleries.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.tabconfig_parser import ButtonSpec, PanelSpec
+    >>> panel = PanelSpec("PyAEDT", buttons=[ButtonSpec("Launch")])
+
+    """
 
     label: str
+    """Value for label."""
     buttons: list[ButtonSpec] = field(default_factory=list)
+    """Value for buttons."""
     galleries: list[GallerySpec] = field(default_factory=list)
+    """Value for galleries."""
 
     def to_element(self) -> ET.Element:
         panel_el = ET.Element("panel", {"label": self.label})
@@ -166,6 +205,7 @@ class TabConfigParser:
     ...     button=ButtonSpec("Heatsink Creation", {"script": "Geometry/Heatsinks/Heatsink_Creation"}),
     ... )
     >>> parser.save()
+
     """
 
     def __init__(self, xml_path: str | Path | None = None) -> None:
@@ -176,10 +216,12 @@ class TabConfigParser:
 
     @property
     def root(self) -> ET.Element:
+        """Retrieve root."""
         return self._root
 
     @property
     def path(self) -> Path | None:
+        """Retrieve path."""
         return self._path
 
     def load(self, xml_path: str | Path):
@@ -278,7 +320,16 @@ class TabConfigParser:
         return removed
 
     def has_button(self, panel_label: str, label: str) -> bool:
-        """Return True if a button label exists anywhere in a panel."""
+        """Return ``True`` if a button label exists anywhere in a panel.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.tabconfig_parser import ButtonSpec, TabConfigParser
+        >>> parser = TabConfigParser()
+        >>> parser.add_button("PyAEDT", ButtonSpec("Launch"))
+        >>> parser.has_button("PyAEDT", "Launch")
+
+        """
         panel = self.get_panel(panel_label)
         if panel is None:
             return False
@@ -317,7 +368,7 @@ class TabConfigParser:
             attrs = {"label": group_label}
             if group_image:
                 attrs["image"] = group_image
-            group_el = ET.SubElement(gallery_el, "group", **attrs)
+            group_el = ET.SubElement(gallery_el, "group", attrs)
         elif group_image:
             group_el.set("image", group_image)
         return group_el, gallery_el

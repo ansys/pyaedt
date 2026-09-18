@@ -22,10 +22,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-Defines the `PostProcessor3D` class.
+"""Defines the `PostProcessor3D` class.
 
 It contains all advanced postprocessing functionalities for creating and editing plots in the 3D tools.
+
+Examples
+--------
+>>> from ansys.aedt.core.visualization.post.post_maxwell import PostProcessorMaxwell
+>>> obj = PostProcessorMaxwell()
+
 """
 
 import secrets
@@ -52,6 +57,11 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
     app : :class:`ansys.aedt.core.application.analysis_3d.FieldAnalysis3D`
         Inherited parent object. The parent object must provide the members
         `_modeler`, `_desktop`, `_odesign`, and `logger`.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post.post_maxwell import PostProcessorMaxwell
+    >>> obj = PostProcessorMaxwell()
 
     """
 
@@ -120,8 +130,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         plot_name: str = None,
         field_type: str = "DC R/L Fields",
     ) -> FieldPlot | bool:
-        """
-        Create a field plot of the line.
+        """Create a field plot of the line.
 
         Parameters
         ----------
@@ -175,6 +184,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         >>>                                                   in_volume_tracing_objs="Region",
         >>>                                                   plot_name="LineTracesTest",
         >>>                                                   intrinsics="200Hz")
+
         """
         intrinsics = self._check_intrinsics(intrinsics, setup=setup)
         if self._app.solution_type != SolutionsMaxwell3D.ElectroStatic:
@@ -288,6 +298,13 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         References
         ----------
         >>> oModule.CreateFieldPlot
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_maxwell import PostProcessorMaxwell
+        >>> obj = PostProcessorMaxwell()
+        >>> obj.create_fieldplot_layers(layers=["TOP"], quantity=1)
+
         """
         return self.post_3dlayout.create_fieldplot_layers(
             layers, quantity, setup, nets, plot_on_surface, intrinsics, name
@@ -349,6 +366,13 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         References
         ----------
         >>> oModule.CreateFieldPlot
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_maxwell import PostProcessorMaxwell
+        >>> obj = PostProcessorMaxwell()
+        >>> obj.create_fieldplot_layers_nets(layers_nets=["TOP"], quantity=1)
+
         """
         return self.post_3dlayout.create_fieldplot_layers_nets(
             layers_nets, quantity, setup, intrinsics, plot_on_surface, plot_name
@@ -393,15 +417,16 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
 
         Create a field line traces plot in the Region from seeding faces (insulator faces).
         >>> plot = m2d.post.create_fieldplot_line_traces(
-        ...     seeding_faces = (["Region"],)
-        ...     in_volume_tracing_objs = (["Region"],)
-        ...     plot_name="LineTracesTest"
+        ...     seeding_faces=["Region"],
+        ...     in_volume_tracing_objs=["Region"],
+        ...     plot_name="LineTracesTest",
         ... )
 
         Now the inception voltage evaluation can be performed on all (or a subset) of the
         created field line traces.
         >>> m2d.post.evaluate_inception_voltage(plot_name=plot.name, field_line_number=[1, 2, 4])
         >>> m2d.desktop_class.release_desktop()
+
         """
         if self._app.solution_type != SolutionsMaxwell3D.ElectroStatic:
             raise AEDTRuntimeError("Field line traces is valid only for electrostatic solution")
@@ -452,9 +477,9 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
 
         Create a field line traces plot in the Region from seeding faces (insulator faces).
         >>> plot = m2d.post.create_fieldplot_line_traces(
-        ...     seeding_faces = (["Region"],)
-        ...     in_volume_tracing_objs = (["Region"],)
-        ...     plot_name="LineTracesTest"
+        ...     seeding_faces=["Region"],
+        ...     in_volume_tracing_objs=["Region"],
+        ...     plot_name="LineTracesTest",
         ... )
 
         The inception voltage evaluation can be performed on all (or a subset) of the
@@ -467,6 +492,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         ...     field_line_number=[1, 2, 4],
         ... )
         >>> m2d.desktop_class.release_desktop()
+
         """
         if self._app.solution_type != "Electrostatic":
             raise AEDTRuntimeError("Field line traces is valid only for Electrostatic solution.")
@@ -505,44 +531,44 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         plot_name : str
             Name of the field fine trace plot as it appears in the AEDT GUI project manager tree.
         gas_type : int, optional
-            ´´0´´ for Dry Air, ´´1´´ for SF6, ´´2´´ for User Defined.
-            The default value is ´´0´´.
+            ``0`` for Dry Air, ``1`` for SF6, ``2`` for User Defined.
+            The default value is ``0``.
         gas_pressure: int, optional
             Gas pressure in Bar.
-            The default value is ´´1´´.
+            The default value is ``1``.
         use_inception: bool, optional
-            ´´True´´ to use the inception parameters U0, K, A.
-            The default value is ´´True´´.
+            ``True`` to use the inception parameters U0, K, A.
+            The default value is ``True``.
         potential_u0: float, optional
             U0 parameter (constant voltage offset value).
-            Enabled if ´´use_inception´´ is ´´True´´.
-            The default value is ´´0´´.
+            Enabled if ``use_inception`` is ``True``.
+            The default value is ``0``.
         potential_k: int, optional
             Streamer constant (empirical value).
-            Enabled if ´´use_inception´´ is ´´True´´.
-            The default value is ´´0´´.
+            Enabled if ``use_inception`` is ``True``.
+            The default value is ``0``.
         potential_a: int, optional
             A parameter.
-            Enabled if ´´use_inception´´ is ´´True´´.
-            The default value is ´´1´´.
+            Enabled if ``use_inception`` is ``True``.
+            The default value is ``1``.
         critical_value: float, optional
             Critical electric field value at which the gas starts to ionize.
-            Enabled if ´´gas_type´´ is ´´2´´.
-            The default value is ´´2.588´´.
+            Enabled if ``gas_type`` is ``2``.
+            The default value is ``2.588``.
         streamer_constant: float, optional
             Number related to the critical electron numbers of electrons in the streamer.
-            Enabled if ´´gas_type´´ is ´´2´´.
-            The default value is ´´9.15´´.
+            Enabled if ``gas_type`` is ``2``.
+            The default value is ``9.15``.
         ionization_check: bool, optional
-            If ´´True´´ enables customized ionization equation of the form f(x),
-            i.e. , 16.8*x –81.0; if ´´False´´, a dataset must be entered.
-            Enabled if ´´gas_type´´ is ´´2´´ .
+            If ``True`` enables customized ionization equation of the form f(x),
+            i.e. , 16.8*x -81.0; if ``False``, a dataset must be entered.
+            Enabled if ``gas_type`` is ``2`` .
         ionization_equation: str, optional
-            Contains the polynomial customized ionization equation of the form f(x), i.e. , 16.8*x –81.0.
-            Enabled if ´´gas_type´´ is ´´2´´ and ´´ionization_check´´ is ´´True´´.
+            Contains the polynomial customized ionization equation of the form f(x), i.e. , 16.8*x -81.0.
+            Enabled if ``gas_type`` is ``2`` and ``ionization_check`` is ``True``.
         ionization_dataset: list, optional
             Dataset: E/p [kV/mm-bar], ap [1/mm-bar]; i.e., [2,0,0.15,0.2,0.4].
-            Enabled if ´´gas_type´´ is ´´2´´ and ´´ionization_check´´ is ´´False´´.
+            Enabled if ``gas_type`` is ``2`` and ``ionization_check`` is ``False``.
 
         Returns
         -------
@@ -560,15 +586,16 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
 
         Create a field line traces plot in the Region from seeding faces (insulator faces).
         >>> plot = m2d.post.create_fieldplot_line_traces(
-        ...     plot_name="LineTracesTest"
-        ...     seeding_faces = (["Region"],)
-        ...     in_volume_tracing_objs = (["Region"],)
+        ...     plot_name="LineTracesTest",
+        ...     seeding_faces=["Region"],
+        ...     in_volume_tracing_objs=["Region"],
         ... )
 
         The inception voltage evaluation can be performed on all (or a subset) of the
         created field line traces and inception voltage parameters can be edited
-        >>> m2d.modify_inception_parameters()
+        >>> m2d.post.modify_inception_parameters(plot_name=plot.name)
         >>> m2d.desktop_class.release_desktop()
+
         """
         if not ionization_dataset:
             ionization_dataset = [0]

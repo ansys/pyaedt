@@ -29,6 +29,8 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class Multiplexer(EmitNode):
+    """Provide multiplexer."""
+
     def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = True
@@ -36,22 +38,93 @@ class Multiplexer(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node."""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.schematic.create_component("Multiplexer")
+        >>> mux.node_type
+
+        """
         return self._node_type
 
     @min_aedt_version("2025.2")
     def add_multiplexer_pass_band(self) -> EmitNode:
-        """Add a New Multiplexer Band to this Multiplexer"""
+        """Add a New Multiplexer Band to this Multiplexer.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.schematic.create_component("Multiplexer")
+        >>> multiplexer_pass_band = mux.add_multiplexer_pass_band()
+
+        """
         return self._add_child_node("Multiplexer Pass Band")
+
+    @min_aedt_version("2027.1")
+    def export_to_csv(self, file_name: str = "", ports: str = "1|2") -> str:
+        """Export's the data for this node
+
+        Parameters
+        ----------
+        file_name: str[optional]
+            full path to the file to export to.
+        ports: str
+            the ports to export the data for.
+            Default orientation port names: 1|2|3
+
+        Returns
+        -------
+        csv_data: str
+            stringified data for the node returned if file_name not specified
+        """
+        keys = "SelectedInputPort|SelectedOutputPort"
+        vals = f"{ports}"
+        return self._export_to_csv(file_name, keys, vals)
+
+    @min_aedt_version("2027.1")
+    def plot(self, ports: str = "1|2"):
+        """Bring up a Cartesian plot for this node
+
+        Parameters
+        ----------
+        ports: str
+            the ports to export the data for.
+            Default orientation port names: 1|2|3
+        """
+        keys = "SelectedInputPort|SelectedOutputPort"
+        vals = f"{ports}"
+        return self._plot(keys, vals)
 
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
-        """Duplicate this node"""
+        """Duplicate this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.schematic.create_component("Multiplexer")
+        >>> mux_copy = mux.duplicate("mux_copy")
+
+        """
         return self._duplicate(new_name)
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node"""
+        """Delete this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.schematic.create_component("Multiplexer")
+        >>> mux.delete()
+
+        """
         self._delete()
 
     @property
@@ -60,6 +133,15 @@ class Multiplexer(EmitNode):
         """Name of file defining the multiplexer.
 
         Value should be a full file path.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.schematic.create_component("Multiplexer")
+        >>> mux.multiplexer_type = Multiplexer.MultiplexerTypeOption.BY_FILE
+        >>> mux.filename = "example_value"
+
         """
         val = self._get_property("Filename")
         return val
@@ -75,6 +157,14 @@ class Multiplexer(EmitNode):
         """System Noise temperature (K) of the component.
 
         Value should be between 0 and 1000.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.schematic.create_component("Multiplexer")
+        >>> mux.noise_temperature = 290.0
+
         """
         val = self._get_property("Noise Temperature")
         return float(val)
@@ -87,7 +177,16 @@ class Multiplexer(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def notes(self) -> str:
-        """Expand to view/edit notes stored with the project."""
+        """Expand to view/edit notes stored with the project.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.schematic.create_component("Multiplexer")
+        >>> mux.notes = "example_value"
+
+        """
         val = self._get_property("Notes")
         return val
 
@@ -108,9 +207,20 @@ class Multiplexer(EmitNode):
         Type of multiplexer model. Options include: By File (one measured or
         simulated file for the device) or By Pass Band (parametric or file-based
         definition for each pass band).
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.schematic.create_component("Multiplexer")
+        >>> mux.multiplexer_type = Multiplexer.MultiplexerTypeOption.BY_PASS_BAND
+
         """
         val = self._get_property("Multiplexer Type")
-        val = self.MultiplexerTypeOption[val.upper()]
+        try:
+            val = self.MultiplexerTypeOption(val)
+        except ValueError:
+            val = self.MultiplexerTypeOption[val.upper()]
         return val
 
     @multiplexer_type.setter
@@ -121,7 +231,16 @@ class Multiplexer(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def ports(self) -> list[str]:
-        """Assigns the child port nodes to the multiplexers ports."""
+        """Assigns the child port nodes to the multiplexers ports.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.schematic.create_component("Multiplexer")
+        >>> mux.ports
+
+        """
         val = self._get_property("Ports")
         return val
 
@@ -135,6 +254,15 @@ class Multiplexer(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def warnings(self) -> str:
-        """Warning(s) for this node."""
+        """Warning(s) for this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> mux = app.schematic.create_component("Multiplexer")
+        >>> mux.warnings
+
+        """
         val = self._get_property("Warnings")
         return val

@@ -24,7 +24,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 import math
+from typing import SupportsFloat
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -33,8 +35,7 @@ from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 
 class Quaternion(PyAedtBase):
-    """
-    Implements fundamental quaternion operations.
+    """Implements fundamental quaternion operations.
 
     Quaternions are created using ``Quaternion(a, b, c, d)``.
 
@@ -43,8 +44,11 @@ class Quaternion(PyAedtBase):
     Only methods related to rotations are implemented.
 
     The quaternion is defined as:
+
     .. math::
+
         q = a + bi + cj + dk
+
     where ``a`` is the scalar part and ``b``, ``c``, and ``d`` are the vector parts.
 
     This updated class offers enhanced functionality compared to the previous implementation,
@@ -57,15 +61,23 @@ class Quaternion(PyAedtBase):
     [2] https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
     [3] https://www.euclideanspace.com/maths/geometry/rotations/conversions/
 
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.quaternion import Quaternion
+    >>> rotation = Quaternion(0.9238795325112867, 0.0, -0.3826834323650898, 0.0)
+    >>> rotation.coefficients()
+    (0.9238795325112867, 0.0, -0.3826834323650898, 0.0)
+
     """
 
-    def __init__(self, a: int = 0, b: int = 0, c: int = 0, d: int = 0) -> None:
+    def __init__(self, a: SupportsFloat = 0, b: SupportsFloat = 0, c: SupportsFloat = 0, d: SupportsFloat = 0) -> None:
         """Initialize the quaternion.
+
         Quaternions are created using ``Quaternion(a, b, c, d)``, representing the form q = a + bi + cj + dk.
 
         Parameters
         ----------
-        a, b, c, d : float
+        a, b, c, d : SupportsFloat
             The quaternion coefficients.
         """
         try:
@@ -78,18 +90,22 @@ class Quaternion(PyAedtBase):
 
     @property
     def a(self) -> float:
+        """Retrieve a."""
         return self._args[0]
 
     @property
     def b(self) -> float:
+        """Retrieve b."""
         return self._args[1]
 
     @property
     def c(self) -> float:
+        """Retrieve c."""
         return self._args[2]
 
     @property
     def d(self) -> float:
+        """Retrieve d."""
         return self._args[3]
 
     @classmethod
@@ -105,8 +121,7 @@ class Quaternion(PyAedtBase):
     @staticmethod
     @pyaedt_function_handler()
     def _is_valid_rotation_sequence(sequence):
-        """
-        Validates that the input string is a valid 3-character rotation sequence
+        """Validates that the input string is a valid 3-character rotation sequence
         using only the axes 'x', 'y', or 'z', case-insensitively.
 
         Parameters
@@ -165,6 +180,7 @@ class Quaternion(PyAedtBase):
         >>> q = Quaternion.from_euler([0, pi / 2, pi], "zyz")
         >>> q
         Quaternion(0, 0.7071067811865476, 0, 0.7071067811865476)
+
         """
         if len(angles) != 3:
             raise ValueError("Three rotation angles are required.")
@@ -175,9 +191,9 @@ class Quaternion(PyAedtBase):
         i, j, k = sequence.lower()
 
         # converting the sequence into indexes
-        ei = [1 if n == i else 0 for n in "xyz"]
-        ej = [1 if n == j else 0 for n in "xyz"]
-        ek = [1 if n == k else 0 for n in "xyz"]
+        ei = [1.0 if n == i else 0.0 for n in "xyz"]
+        ej = [1.0 if n == j else 0.0 for n in "xyz"]
+        ek = [1.0 if n == k else 0.0 for n in "xyz"]
 
         # evaluate the quaternions
         qi = cls.from_axis_angle(ei, angles[0])
@@ -191,8 +207,7 @@ class Quaternion(PyAedtBase):
 
     @pyaedt_function_handler()
     def to_euler(self, sequence: str, extrinsic: bool = False) -> tuple[float, float, float]:
-        """
-        Converts the quaternion to Euler angles using the specified rotation sequence.
+        """Converts the quaternion to Euler angles using the specified rotation sequence.
 
         The conversion follows the method described in [1]. In degenerate (gimbal lock) cases,
         the third angle is set to zero for stability.
@@ -209,7 +224,7 @@ class Quaternion(PyAedtBase):
 
         Note
         ----
-        Tait–Bryan angles (Heading, Pitch, Bank) correspond to an intrinsic "ZYX" sequence.
+        Tait-Bryan angles (Heading, Pitch, Bank) correspond to an intrinsic "ZYX" sequence.
 
         Returns
         -------
@@ -230,6 +245,7 @@ class Quaternion(PyAedtBase):
         ----------
         [1] https://doi.org/10.1371/journal.pone.0276302
         [2] https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
+
         """
         # fmt: off
         if not Quaternion._is_valid_rotation_sequence(sequence):
@@ -238,7 +254,7 @@ class Quaternion(PyAedtBase):
         if MathUtils.is_zero(self.norm()):
             raise ValueError('A quaternion with norm 0 cannot be converted.')
 
-        angles = [0, 0, 0]
+        angles: list[float] = [0.0, 0.0, 0.0]
 
         i, j, k = sequence.lower()
 
@@ -305,19 +321,19 @@ class Quaternion(PyAedtBase):
             angles[0] *= sign
 
         if extrinsic:
-            return tuple(angles[::-1])
+            return (angles[2], angles[1], angles[0])
         else:
-            return tuple(angles)
+            return (angles[0], angles[1], angles[2])
         # fmt: on
 
     @classmethod
     @pyaedt_function_handler()
-    def from_axis_angle(cls, axis: list[float] | tuple[float, float, float], angle: float) -> "Quaternion":
+    def from_axis_angle(cls, axis: Sequence[float], angle: float) -> "Quaternion":
         """Creates a normalized rotation quaternion from a given axis and rotation angle.
 
         Parameters
         ----------
-        axis : List or tuple of float
+        axis : Sequence[float]
             A 3D vector representing the axis of rotation.
         angle : float
             The rotation angle in radians.
@@ -333,6 +349,7 @@ class Quaternion(PyAedtBase):
         >>> from math import pi, sqrt
         >>> Quaternion.from_axis_angle((sqrt(3) / 3, sqrt(3) / 3, sqrt(3) / 3), 2 * pi / 3)
         Quaternion(0.5, 0.5, 0.5, 0.5)
+
         """
         if len(axis) != 3:
             raise ValueError("axis must be a list or tuple containing 3 floats.")
@@ -392,13 +409,13 @@ class Quaternion(PyAedtBase):
 
     @classmethod
     @pyaedt_function_handler()
-    def from_rotation_matrix(cls, rotation_matrix: list | tuple) -> "Quaternion":
+    def from_rotation_matrix(cls, rotation_matrix: Sequence[Sequence[float]]) -> "Quaternion":
         """Converts a 3x3 rotation matrix to a quaternion.
         It uses the method described in [1].
 
         Parameters
         ----------
-        rotation_matrix: List or tuple
+        rotation_matrix: Sequence[Sequence[float]]
             Rotation matrix defined as a list of lists or a tuple of tuples.
             The matrix should be 3x3 and orthogonal.
             The matrix is assumed to be in the form:
@@ -518,13 +535,13 @@ class Quaternion(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def rotation_matrix_to_axis(rotation_matrix: list | tuple) -> tuple:
+    def rotation_matrix_to_axis(rotation_matrix: Sequence[Sequence[float]]) -> tuple:
         """Convert a rotation matrix to the corresponding axis of rotation.
 
         Parameters
         ----------
-        rotation_matrix : tuple of tuples or list of lists
-            A 3x3 rotation matrix defined as a tuple of tuples or a list of lists.
+        rotation_matrix : Sequence[Sequence[float]]
+            A 3x3 rotation matrix defined that can be defined as a tuple of tuples or a list of lists.
             The matrix should be orthogonal.
 
         Returns
@@ -547,6 +564,7 @@ class Quaternion(PyAedtBase):
         (0.0, 1.0, 0.0)
         >>> z
         (-0.7071067811865476, 0.0, 0.7071067811865476)
+
         """
         if not GeometryOperators.is_orthogonal_matrix(rotation_matrix):
             raise ValueError("The rotation matrix must be orthogonal.")
@@ -555,9 +573,9 @@ class Quaternion(PyAedtBase):
         m10, m11, m12 = rotation_matrix[1]
         m20, m21, m22 = rotation_matrix[2]
 
-        x = tuple(GeometryOperators.normalize_vector((m00, m10, m20)))
-        y = tuple(GeometryOperators.normalize_vector((m01, m11, m21)))
-        z = tuple(GeometryOperators.normalize_vector((m02, m12, m22)))
+        x = tuple(GeometryOperators.normalize_vector([m00, m10, m20]))
+        y = tuple(GeometryOperators.normalize_vector([m01, m11, m21]))
+        z = tuple(GeometryOperators.normalize_vector([m02, m12, m22]))
 
         return x, y, z
 
@@ -584,6 +602,13 @@ class Quaternion(PyAedtBase):
         ------
         ValueError
             If the axes do not form an orthonormal basis.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.quaternion import Quaternion
+        >>> Quaternion.axis_to_rotation_matrix((1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0))
+        ((1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0))
+
         """
         if not GeometryOperators.is_orthonormal_triplet(x_axis, y_axis, z_axis):
             raise ValueError("The provided axes must form an orthonormal basis.")
@@ -759,6 +784,7 @@ class Quaternion(PyAedtBase):
         Quaternion(-60, 12, 30, 24)
         >>> q1.mul(2)
         Quaternion(2, 4, 6, 8)
+
         """
         return self._q_prod(self, other)
 
@@ -816,6 +842,7 @@ class Quaternion(PyAedtBase):
         >>> q2 = Quaternion(5, 6, 7, 8)
         >>> Quaternion.hamilton_prod(q1, q2)
         Quaternion(-60, 12, 30, 24)
+
         """
         # fmt: off
         q1 = Quaternion._to_quaternion(q1)
@@ -830,13 +857,29 @@ class Quaternion(PyAedtBase):
 
     @pyaedt_function_handler()
     def conjugate(self) -> "Quaternion":
-        """Returns the conjugate of the quaternion."""
+        """Returns the conjugate of the quaternion.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.quaternion import Quaternion
+        >>> Quaternion(1, 2, 3, 4).conjugate()
+        Quaternion(1.0, -2.0, -3.0, -4.0)
+
+        """
         q = self
         return Quaternion(q.a, -q.b, -q.c, -q.d)
 
     @pyaedt_function_handler()
     def norm(self) -> float:
-        """Returns the norm of the quaternion."""
+        """Returns the norm of the quaternion.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.quaternion import Quaternion
+        >>> Quaternion(1, 2, 3, 4).norm()
+        5.477225575051661
+
+        """
         # fmt: off
         q = self
         return math.sqrt(q.a**2 + q.b**2 + q.c**2 + q.d**2)
@@ -844,7 +887,15 @@ class Quaternion(PyAedtBase):
 
     @pyaedt_function_handler()
     def normalize(self) -> "Quaternion":
-        """Returns the normalized form of the quaternion."""
+        """Returns the normalized form of the quaternion.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.quaternion import Quaternion
+        >>> Quaternion(0, 2, 0, 0).normalize()
+        Quaternion(0.0, 1.0, 0.0, 0.0)
+
+        """
         # fmt: off
         q = self
         if MathUtils.is_zero(q.norm()):
@@ -854,7 +905,15 @@ class Quaternion(PyAedtBase):
 
     @pyaedt_function_handler()
     def inverse(self) -> "Quaternion":
-        """Returns the inverse of the quaternion."""
+        """Returns the inverse of the quaternion.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.quaternion import Quaternion
+        >>> Quaternion(0, 2, 0, 0).inverse()
+        Quaternion(0.0, -0.5, 0.0, 0.0)
+
+        """
         # fmt: off
         q = self
         if MathUtils.is_zero(q.norm()):
@@ -887,6 +946,7 @@ class Quaternion(PyAedtBase):
         Quaternion(10/7, 1/7, 10/7, -3/7)
         >>> q1.div(2)
         Quaternion(0.5, 1, 1.5, 2)
+
         """
         return self._q_div(self, other)
 
@@ -914,5 +974,13 @@ class Quaternion(PyAedtBase):
 
     @pyaedt_function_handler()
     def coefficients(self) -> tuple[float, float, float, float]:
-        """Returns the coefficients of the quaternion as a tuple."""
+        """Returns the coefficients of the quaternion as a tuple.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.quaternion import Quaternion
+        >>> Quaternion(1, 2, 3, 4).coefficients()
+        (1.0, 2.0, 3.0, 4.0)
+
+        """
         return self.a, self.b, self.c, self.d

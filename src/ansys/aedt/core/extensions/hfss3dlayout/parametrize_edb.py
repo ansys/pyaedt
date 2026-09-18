@@ -23,10 +23,12 @@
 # SOFTWARE.
 
 from dataclasses import dataclass
+from dataclasses import field
 import os
 from pathlib import Path
 import tkinter
 from tkinter import ttk
+from typing import cast
 
 import ansys.aedt.core
 from ansys.aedt.core import Edb
@@ -42,9 +44,13 @@ from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 # Extension batch arguments
 EXTENSION_DEFAULT_ARGUMENTS = {
@@ -60,32 +66,59 @@ EXTENSION_DEFAULT_ARGUMENTS = {
     "relative_parametric": True,
     "project_name": "",
 }
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Layout Parametrization"
+"""Title displayed for the extension."""
 
 
 @dataclass
 class ParametrizeEdbExtensionData(ExtensionCommonData):
-    """Data class containing user input and computed data."""
+    """Data class containing user input and computed data.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss3dlayout.parametrize_edb import ParametrizeEdbExtensionData
+    >>> data = ParametrizeEdbExtensionData(
+    ...     aedb_path="C:\\Projects\\Demo\\Demo.aedb",
+    ...     design_name="Layout1",
+    ...     project_name="DemoParametric",
+    ... )
+
+    """
 
     aedb_path: str = EXTENSION_DEFAULT_ARGUMENTS["aedb_path"]
+    """Path to aedb."""
     design_name: str = EXTENSION_DEFAULT_ARGUMENTS["design_name"]
+    """Value for design name."""
     parametrize_layers: bool = EXTENSION_DEFAULT_ARGUMENTS["parametrize_layers"]
+    """Value for parametrize layers."""
     parametrize_materials: bool = EXTENSION_DEFAULT_ARGUMENTS["parametrize_materials"]
+    """Value for parametrize materials."""
     parametrize_padstacks: bool = EXTENSION_DEFAULT_ARGUMENTS["parametrize_padstacks"]
+    """Value for parametrize padstacks."""
     parametrize_traces: bool = EXTENSION_DEFAULT_ARGUMENTS["parametrize_traces"]
-    nets_filter: list = None
+    """Value for parametrize traces."""
+    nets_filter: list[str] = field(default_factory=list)
+    """Value for nets filter."""
     expansion_polygon_mm: float = EXTENSION_DEFAULT_ARGUMENTS["expansion_polygon_mm"]
+    """Value for expansion polygon mm."""
     expansion_void_mm: float = EXTENSION_DEFAULT_ARGUMENTS["expansion_void_mm"]
+    """Value for expansion void mm."""
     relative_parametric: bool = EXTENSION_DEFAULT_ARGUMENTS["relative_parametric"]
+    """Value for relative parametric."""
     project_name: str = EXTENSION_DEFAULT_ARGUMENTS["project_name"]
-
-    def __post_init__(self) -> None:
-        if self.nets_filter is None:
-            self.nets_filter = EXTENSION_DEFAULT_ARGUMENTS["nets_filter"].copy()
+    """Value for project name."""
 
 
 class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
-    """Extension for parametrizing EDB layouts in AEDT."""
+    """Extension for parametrizing EDB layouts in AEDT.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss3dlayout.parametrize_edb import ParametrizeEdbExtension
+    >>> extension = ParametrizeEdbExtension(withdraw=True)
+
+    """
 
     def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with the title and theme color
@@ -94,36 +127,40 @@ class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
         self.data = ParametrizeEdbExtensionData()
 
         # Private attributes
-        self.__active_project_path = None
-        self.__active_project_name = None
-        self.__aedb_path = None
-        self.__active_design_name = None
-        self.__available_nets = []
+        self.__active_project_path: str | None = None
+        self.__active_project_name: str | None = None
+        self.__aedb_path: Path | None = None
+        self.__active_design_name: str | None = None
+        self.__available_nets: list[str] = []
 
         # Load AEDT info
         self.__load_aedt_info()
 
         # Tkinter widgets
-        self.project_name_entry = None
-        self.relative_var = None
-        self.relative_checkbox = None
-        self.layers_var = None
-        self.layers_checkbox = None
-        self.materials_var = None
-        self.materials_checkbox = None
-        self.padstacks_var = None
-        self.padstacks_checkbox = None
-        self.traces_var = None
-        self.traces_checkbox = None
-        self.polygons_entry = None
-        self.voids_entry = None
-        self.nets_listbox = None
-        self.generate_button = None
+        self.project_name_entry: tkinter.Entry | None = None
+        self.relative_var: tkinter.IntVar | None = None
+        self.relative_checkbox: ttk.Checkbutton | None = None
+        self.layers_var: tkinter.IntVar | None = None
+        self.layers_checkbox: ttk.Checkbutton | None = None
+        self.materials_var: tkinter.IntVar | None = None
+        self.materials_checkbox: ttk.Checkbutton | None = None
+        self.padstacks_var: tkinter.IntVar | None = None
+        self.padstacks_checkbox: ttk.Checkbutton | None = None
+        self.traces_var: tkinter.IntVar | None = None
+        self.traces_checkbox: ttk.Checkbutton | None = None
+        self.polygons_entry: tkinter.Text | None = None
+        self.voids_entry: tkinter.Text | None = None
+        self.nets_listbox: tkinter.Listbox | None = None
+        self.generate_button: ttk.Button | None = None
 
         # Trigger manually since add_extension_content requires loading info first
         self.add_extension_content()
 
-    def __load_aedt_info(self):
+    @property
+    def parametrize_data(self) -> ParametrizeEdbExtensionData:
+        return cast(ParametrizeEdbExtensionData, self.data)
+
+    def __load_aedt_info(self) -> None:
         """Load AEDT information for the extension."""
         try:
             app = ansys.aedt.core.Desktop(
@@ -157,7 +194,15 @@ class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
             raise AEDTRuntimeError(f"Failed to load AEDT information: {str(e)}")
 
     def add_extension_content(self) -> None:
-        """Add extension content to the UI."""
+        """Add extension content to the UI.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.hfss3dlayout.parametrize_edb import ParametrizeEdbExtension
+        >>> extension = ParametrizeEdbExtension(withdraw=True)
+        >>> extension.add_extension_content()
+
+        """
         # Project name
         ttk.Label(self.root, text="New project name:", style="PyAEDT.TLabel").grid(row=0, column=0, pady=10, sticky="w")
         self.project_name_entry = tkinter.Entry(self.root, width=30)
@@ -267,46 +312,87 @@ class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
         )
         self.generate_button.grid(row=5, column=1, columnspan=2, pady=20)
 
-    def show_error_message(self, message: str):
-        """Show error message."""
+    def show_error_message(self, message: str) -> None:
+        """Show error message.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.hfss3dlayout.parametrize_edb import ParametrizeEdbExtension
+        >>> extension = ParametrizeEdbExtension(withdraw=True)
+        >>> extension.show_error_message("Invalid input.")
+
+        """
         import tkinter.messagebox
 
         tkinter.messagebox.showerror("Error", message)
 
     def generate_callback(self) -> None:
-        """Generate callback function."""
+        """Generate callback function.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.hfss3dlayout.parametrize_edb import ParametrizeEdbExtension
+        >>> extension = ParametrizeEdbExtension(withdraw=True)
+        >>> extension.generate_callback()
+
+        """
         try:
+            polygons_entry = self.polygons_entry
+            voids_entry = self.voids_entry
+            project_name_entry = self.project_name_entry
+            nets_listbox = self.nets_listbox
+            layers_var = self.layers_var
+            materials_var = self.materials_var
+            padstacks_var = self.padstacks_var
+            traces_var = self.traces_var
+            relative_var = self.relative_var
+            aedb_path = self.__aedb_path
+            design_name = self.__active_design_name
+            if (
+                polygons_entry is None
+                or voids_entry is None
+                or project_name_entry is None
+                or nets_listbox is None
+                or layers_var is None
+                or materials_var is None
+                or padstacks_var is None
+                or traces_var is None
+                or relative_var is None
+                or aedb_path is None
+                or design_name is None
+            ):
+                raise RuntimeError("Parametrize EDB widgets are not initialized.")
             # Validate expansion values
-            polygon_expansion = float(self.polygons_entry.get("1.0", tkinter.END).strip())
+            polygon_expansion = float(polygons_entry.get("1.0", tkinter.END).strip())
             if polygon_expansion < 0:
                 raise ValueError("Polygon expansion cannot be negative")
 
-            void_expansion = float(self.voids_entry.get("1.0", tkinter.END).strip())
+            void_expansion = float(voids_entry.get("1.0", tkinter.END).strip())
             if void_expansion < 0:
                 raise ValueError("Void expansion cannot be negative")
 
             # Get project name
-            project_name = self.project_name_entry.get().strip()
+            project_name = project_name_entry.get().strip()
             if not project_name:
                 raise ValueError("Project name cannot be empty")
 
             # Get selected nets
-            selected_nets = []
-            for i in self.nets_listbox.curselection():
-                selected_nets.append(self.nets_listbox.get(i))
+            selected_nets: list[str] = []
+            for i in nets_listbox.curselection():
+                selected_nets.append(cast(str, nets_listbox.get(i)))
 
             # Create data object
             self.data = ParametrizeEdbExtensionData(
-                aedb_path=str(self.__aedb_path),
-                design_name=self.__active_design_name,
-                parametrize_layers=bool(self.layers_var.get()),
-                parametrize_materials=bool(self.materials_var.get()),
-                parametrize_padstacks=bool(self.padstacks_var.get()),
-                parametrize_traces=bool(self.traces_var.get()),
+                aedb_path=str(aedb_path),
+                design_name=design_name,
+                parametrize_layers=bool(layers_var.get()),
+                parametrize_materials=bool(materials_var.get()),
+                parametrize_padstacks=bool(padstacks_var.get()),
+                parametrize_traces=bool(traces_var.get()),
                 nets_filter=selected_nets,
                 expansion_polygon_mm=polygon_expansion,
                 expansion_void_mm=void_expansion,
-                relative_parametric=bool(self.relative_var.get()),
+                relative_parametric=bool(relative_var.get()),
                 project_name=project_name,
             )
 
@@ -319,7 +405,22 @@ class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
 
 
 def main(data: ParametrizeEdbExtensionData) -> bool:
-    """Main function to run the parametrize EDB extension."""
+    """Main function to run the parametrize EDB extension.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss3dlayout.parametrize_edb import (
+    ...     ParametrizeEdbExtensionData,
+    ...     main,
+    ... )
+    >>> data = ParametrizeEdbExtensionData(
+    ...     aedb_path="C:\\Projects\\Demo\\Demo.aedb",
+    ...     design_name="Layout1",
+    ...     project_name="DemoParametric",
+    ... )
+    >>> main(data)
+
+    """
     if data.expansion_polygon_mm < 0:
         raise AEDTRuntimeError("Polygon expansion cannot be negative.")
 
@@ -414,8 +515,8 @@ if __name__ == "__main__":  # pragma: no cover
         tkinter.mainloop()
 
         # Check if user completed the form and data is available
-        if hasattr(extension, "data") and extension.data.project_name.strip():
-            main(extension.data)
+        if hasattr(extension, "data") and extension.parametrize_data.project_name.strip():
+            main(extension.parametrize_data)
     else:
         # Create data object from arguments
         data = ParametrizeEdbExtensionData(

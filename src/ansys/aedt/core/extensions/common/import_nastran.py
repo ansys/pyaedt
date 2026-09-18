@@ -28,6 +28,7 @@ from pathlib import Path
 import tkinter
 from tkinter import filedialog
 from tkinter import ttk
+from typing import Any
 
 import ansys.aedt.core
 from ansys.aedt.core import get_pyaedt_app
@@ -42,9 +43,13 @@ from ansys.aedt.core.generic.aedt_constants import DesignType
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 # Extension batch arguments
 EXTENSION_DEFAULT_ARGUMENTS = {
@@ -54,22 +59,43 @@ EXTENSION_DEFAULT_ARGUMENTS = {
     "planar": True,
     "remove_multiple_connections": False,
 }
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Import Nastran"
+"""Title displayed for the extension."""
 
 
 @dataclass
 class ImportNastranExtensionData(ExtensionCommonData):
-    """Data class containing user input and computed data."""
+    """Data class containing user input and computed data.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.common.import_nastran import ImportNastranExtensionData
+    >>> data = ImportNastranExtensionData(file_path=r"D:\\Geometry\\model.nas", decimate=0.2)
+
+    """
 
     file_path: str = EXTENSION_DEFAULT_ARGUMENTS["file_path"]
+    """Path to file."""
     lightweight: bool = EXTENSION_DEFAULT_ARGUMENTS["lightweight"]
+    """Value for lightweight."""
     decimate: float = EXTENSION_DEFAULT_ARGUMENTS["decimate"]
+    """Value for decimate."""
     planar: bool = EXTENSION_DEFAULT_ARGUMENTS["planar"]
+    """Value for planar."""
     remove_multiple_connections: bool = EXTENSION_DEFAULT_ARGUMENTS["remove_multiple_connections"]
+    """Value for remove multiple connections."""
 
 
 class ImportNastranExtension(ExtensionProjectCommon):
-    """Extension for importing Nastran or STL files in AEDT."""
+    """Extension for importing Nastran or STL files in AEDT.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.common.import_nastran import ImportNastranExtension
+    >>> extension = ImportNastranExtension(withdraw=True)
+
+    """
 
     def __init__(self, withdraw: bool = False) -> None:
         super().__init__(
@@ -81,18 +107,27 @@ class ImportNastranExtension(ExtensionProjectCommon):
         )
 
         # Initialize UI variables
-        self.__file_path_text = None
-        self.__decimation_text = None
-        self.__lightweight_var = None
-        self.__planar_var = None
-        self.__remove_multiple_connections_var = None
+        self.__file_path_text: tkinter.Text | None = None
+        self.__decimation_text: tkinter.Text | None = None
+        self.__lightweight_var: tkinter.IntVar | None = None
+        self.__planar_var: tkinter.IntVar | None = None
+        self.__remove_multiple_connections_var: tkinter.IntVar | None = None
 
         # Add extension content
         self.add_extension_content()
 
     def check_design_type(self) -> None:
-        """Check if the design type is HFSS, Icepak, HFSS 3D, Maxwell 3D, Q3D, Mechanical"""
-        if self.aedt_application.design_type not in [
+        """Check if the design type is HFSS, Icepak, HFSS 3D, Maxwell 3D, Q3D, Mechanical
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.common.import_nastran import ImportNastranExtension
+        >>> extension = ImportNastranExtension(withdraw=True)
+        >>> extension.check_design_type()
+
+        """
+        aedt_application: Any = self.aedt_application
+        if aedt_application.design_type not in [
             "HFSS",
             "Icepak",
             "HFSS 3D",
@@ -106,7 +141,15 @@ class ImportNastranExtension(ExtensionProjectCommon):
             )
 
     def add_extension_content(self) -> None:
-        """Add custom content to the extension UI."""
+        """Add custom content to the extension UI.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.common.import_nastran import ImportNastranExtension
+        >>> extension = ImportNastranExtension(withdraw=True)
+        >>> extension.add_extension_content()
+
+        """
         # File path selection
         ttk.Label(self.root, text="Browse file:", style="PyAEDT.TLabel").grid(row=0, column=0, padx=15, pady=10)
 
@@ -210,12 +253,19 @@ class ImportNastranExtension(ExtensionProjectCommon):
             ),
         )
         if filename:
-            self.__file_path_text.delete("1.0", tkinter.END)
-            self.__file_path_text.insert(tkinter.END, filename)
+            file_path_text = self.__file_path_text
+            if file_path_text is None:
+                raise RuntimeError("File path widget is not initialized.")
+            file_path_text.delete("1.0", tkinter.END)
+            file_path_text.insert(tkinter.END, filename)
 
     def __preview(self):
         """Preview the geometry file."""
-        file_path_ui = self.__file_path_text.get("1.0", tkinter.END).strip()
+        file_path_text = self.__file_path_text
+        decimation_text = self.__decimation_text
+        if file_path_text is None or decimation_text is None:
+            raise RuntimeError("Import Nastran preview widgets are not initialized.")
+        file_path_ui = file_path_text.get("1.0", tkinter.END).strip()
 
         if not file_path_ui:
             raise ValueError("Please select a valid file.")
@@ -223,7 +273,7 @@ class ImportNastranExtension(ExtensionProjectCommon):
         if not Path(file_path_ui).is_file():
             raise FileNotFoundError(f"File ({file_path_ui}) not found")
 
-        decimate_ui = float(self.__decimation_text.get("1.0", tkinter.END).strip())
+        decimate_ui = float(decimation_text.get("1.0", tkinter.END).strip())
 
         if file_path_ui.endswith(".nas"):
             from ansys.aedt.core.syslib.nastran_import import nastran_to_stl
@@ -236,10 +286,23 @@ class ImportNastranExtension(ExtensionProjectCommon):
 
     def __import_callback(self):
         """Callback for import button."""
-        file_path = self.__file_path_text.get("1.0", tkinter.END).strip()
-        lightweight_val = self.__lightweight_var.get() == 1
-        planar_val = self.__planar_var.get() == 1
-        remove_multiple_connections_val = self.__remove_multiple_connections_var.get() == 1
+        file_path_text = self.__file_path_text
+        lightweight_var = self.__lightweight_var
+        planar_var = self.__planar_var
+        remove_multiple_connections_var = self.__remove_multiple_connections_var
+        decimation_text = self.__decimation_text
+        if (
+            file_path_text is None
+            or lightweight_var is None
+            or planar_var is None
+            or remove_multiple_connections_var is None
+            or decimation_text is None
+        ):
+            raise RuntimeError("Import Nastran widgets are not initialized.")
+        file_path = file_path_text.get("1.0", tkinter.END).strip()
+        lightweight_val = lightweight_var.get() == 1
+        planar_val = planar_var.get() == 1
+        remove_multiple_connections_val = remove_multiple_connections_var.get() == 1
 
         # Validation
         if not file_path:
@@ -248,7 +311,7 @@ class ImportNastranExtension(ExtensionProjectCommon):
         if not Path(file_path).is_file():
             raise FileNotFoundError(f"File ({file_path}) not found")
 
-        decimate_val = float(self.__decimation_text.get("1.0", tkinter.END).strip())
+        decimate_val = float(decimation_text.get("1.0", tkinter.END).strip())
 
         if decimate_val < 0 or decimate_val >= 1:
             raise ValueError("Decimation factor must be between 0 and 0.9")
@@ -265,7 +328,15 @@ class ImportNastranExtension(ExtensionProjectCommon):
 
 
 def main(data: ImportNastranExtensionData) -> bool:
-    """Main function to run the import nastran extension."""
+    """Main function to run the import nastran extension.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.common.import_nastran import ImportNastranExtensionData, main
+    >>> data = ImportNastranExtensionData(file_path=r"D:\\Geometry\\model.nas", decimate=0.2)
+    >>> main(data)
+
+    """
     # Input validation
     if not data.file_path:
         raise AEDTRuntimeError("No file path provided.")
@@ -297,7 +368,7 @@ def main(data: ImportNastranExtensionData) -> bool:
     project_name = active_project.GetName()
     design_name = active_design.GetName()
 
-    aedtapp = get_pyaedt_app(project_name, design_name)
+    aedtapp: Any = get_pyaedt_app(str(project_name), str(design_name))
 
     # Import geometry based on file type
     if file_path.suffix == ".nas":
@@ -333,8 +404,9 @@ if __name__ == "__main__":  # pragma: no cover
 
         tkinter.mainloop()
 
-        if extension.data is not None:
-            main(extension.data)
+        data = extension.data
+        if isinstance(data, ImportNastranExtensionData):
+            main(data)
 
     else:
         data = ImportNastranExtensionData()

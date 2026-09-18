@@ -22,7 +22,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""Download example datasets from https://github.com/ansys/example-data"""
+"""Download example datasets from https://github.com/ansys/example-data.
+
+Examples
+--------
+>>> from ansys.aedt.core.examples import downloads
+>>> downloads.list_examples_files("pyaedt/sbr")
+
+"""
 
 from pathlib import Path
 import shutil
@@ -38,18 +45,29 @@ from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 EXAMPLES_PATH = Path(tempfile.gettempdir()) / "PyAEDTExamples"
+"""Path to the examples directory."""
+
+StrPath = str | Path
+"""Type alias for parameters that accept either a string or a :class:`pathlib.Path`."""
 
 
-def delete_downloads() -> None:
-    """Delete all downloaded examples to free space or update the files."""
+def delete_downloads() -> bool:
+    """Delete all downloaded examples to free space or update the files.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.examples.downloads import delete_downloads
+    >>> delete_downloads()
+
+    """
     shutil.rmtree(EXAMPLES_PATH, ignore_errors=True)
     return True
 
 
 def _download_file(
     github_relative_path: str,
-    local_path: str | Path = None,
-    strip_prefix: str | Path = None,
+    local_path: StrPath | None = None,
+    strip_prefix: StrPath | None = None,
     force: bool = False,
 ) -> Path:
     """Download a file from a URL.
@@ -101,12 +119,15 @@ def _download_file(
 
 def _copy_local_example(
     source_relative_path: str,
-    target_path: str | Path = None,
+    target_path: StrPath | None = None,
 ) -> Path:  # pragma: no cover
     """Copy a file or folder from a local copy of the examples repo."""
+    if settings.local_example_folder is None:
+        raise AEDTRuntimeError("Local example folder is not set in settings.local_example_folder.")
+
     pyaedt_logger.debug(f"Retrieving local example from '{settings.local_example_folder}'")
     source = Path(settings.local_example_folder) / source_relative_path
-    target_path = Path(target_path)
+    target_path = Path(target_path) if target_path else EXAMPLES_PATH
 
     if source.is_file():
         target_path.mkdir(parents=True, exist_ok=True)
@@ -143,6 +164,12 @@ def list_examples_files(folder) -> list:
     -------
     list
         A list of file paths in the specified folder.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.examples.downloads import list_examples_files
+    >>> files = list_examples_files("pyaedt/sbr")
+
     """
     import requests
 
@@ -164,9 +191,9 @@ def list_examples_files(folder) -> list:
 
 def _download_folder(
     github_relative_path: str,
-    local_path: str | Path = None,
+    local_path: StrPath | None = None,
     filter_func: Callable[[str], bool] | None = None,
-    strip_prefix: str | Path = None,
+    strip_prefix: StrPath | None = None,
     force: bool = False,
 ) -> Path:
     """Download a folder from the example data repository.
@@ -212,7 +239,7 @@ def _download_folder(
 
 
 @pyaedt_function_handler()
-def download_aedb(local_path: str | Path = None) -> str:
+def download_aedb(local_path: StrPath | None = None) -> str:
     """Download an example of AEDB file and return the def path.
 
     If example files have already been downloaded, the download is
@@ -235,6 +262,7 @@ def download_aedb(local_path: str | Path = None) -> str:
     >>> path = ansys.aedt.core.examples.downloads.download_aedb()
     >>> path
     r'C:/Users/user/AppData/Local/Temp/PyAEDTExamples/ANSYS-HSD_V1.aedbb'
+
     """
     from ansys.aedt.core.examples.downloads import _download_file
 
@@ -244,7 +272,9 @@ def download_aedb(local_path: str | Path = None) -> str:
 
 
 @pyaedt_function_handler()
-def download_edb_merge_utility(force_download: bool = False, local_path: str | Path = None) -> str:  # pragma: no cover
+def download_edb_merge_utility(
+    force_download: bool = False, local_path: StrPath | None = None
+) -> str:  # pragma: no cover
     """Download an example of WPF Project which allows to merge 2aedb files.
 
     If example files have already been downloaded, the download is
@@ -269,10 +299,9 @@ def download_edb_merge_utility(force_download: bool = False, local_path: str | P
     >>> path = ansys.aedt.core.examples.downloads.download_edb_merge_utility(force_download=True)
     >>> path
     'C:/Users/user/AppData/Local/Temp/PyAEDTExamples/wpf_edb_merge/merge_wizard.py'
+
     """
-    if not local_path:  # pragma: no cover
-        local_path = EXAMPLES_PATH
-    local_path = Path(local_path)
+    local_path = Path(local_path) if local_path else EXAMPLES_PATH
 
     if force_download:
         path_to_remove = local_path / "wpf_edb_merge"
@@ -288,7 +317,7 @@ def download_edb_merge_utility(force_download: bool = False, local_path: str | P
 
 
 @pyaedt_function_handler()
-def download_netlist(local_path: str | Path = None) -> str:
+def download_netlist(local_path: StrPath | None = None) -> str:
     """Download an example of netlist File and return the def path.
 
     If example files have already been downloaded, the download is
@@ -312,6 +341,7 @@ def download_netlist(local_path: str | Path = None) -> str:
     >>> path = ansys.aedt.core.examples.downloads.download_netlist()
     >>> path
     'C:/Users/user/AppData/Local/Temp/PyAEDTExamples/netlist_small.cir'
+
     """
     cir_file_path = _download_file(
         "pyaedt/netlist/netlist_small.cir", local_path=local_path, strip_prefix="pyaedt/netlist"
@@ -320,7 +350,7 @@ def download_netlist(local_path: str | Path = None) -> str:
 
 
 @pyaedt_function_handler()
-def download_antenna_array(local_path: str | Path = None) -> str:
+def download_antenna_array(local_path: StrPath | None = None) -> str:
     """Download an example of Antenna Array and return the def path.
 
     If example files have already been downloaded, the download is
@@ -344,6 +374,7 @@ def download_antenna_array(local_path: str | Path = None) -> str:
     >>> path = ansys.aedt.core.examples.downloads.download_antenna_array()
     >>> path
     'C:/Users/user/AppData/Local/Temp/PyAEDTExamples/FiniteArray_Radome_77GHz_3D_CADDM.aedt'
+
     """
     aedt_file_path = _download_file(
         "pyaedt/array_antenna/FiniteArray_Radome_77GHz_3D_CADDM.aedt", local_path, strip_prefix="pyaedt/array_antenna"
@@ -352,7 +383,7 @@ def download_antenna_array(local_path: str | Path = None) -> str:
 
 
 @pyaedt_function_handler()
-def download_sbr(local_path: str | Path = None) -> str:
+def download_sbr(local_path: StrPath | None = None) -> str:
     """Download an example of SBR+ Array and return the def path.
 
     If example files have already been downloaded, the download is
@@ -376,13 +407,14 @@ def download_sbr(local_path: str | Path = None) -> str:
     >>> path = ansys.aedt.core.examples.downloads.download_antenna_array()
     >>> path
     'C:/Users/user/AppData/Local/Temp/PyAEDTExamples/sbr/Cassegrain.aedt'
+
     """
     aedt_file_path = _download_file("pyaedt/sbr/Cassegrain.aedt", local_path, strip_prefix="pyaedt")
     return str(aedt_file_path)
 
 
 @pyaedt_function_handler()
-def download_sbr_time(local_path: str | Path = None) -> str:
+def download_sbr_time(local_path: StrPath | None = None) -> str:
     """Download an example of SBR+ Time domain animation and return the def path.
 
     If example files have already been downloaded, the download is
@@ -406,13 +438,14 @@ def download_sbr_time(local_path: str | Path = None) -> str:
     >>> path = ansys.aedt.core.examples.downloads.download_sbr_time()
     >>> path
     'C:/Users/user/AppData/Local/Temp/PyAEDTExamples/sbr/poc_scat_small.aedt'
+
     """
     aedt_file_path = _download_file("pyaedt/sbr/poc_scat_small.aedt", local_path=local_path, strip_prefix="pyaedt")
     return str(aedt_file_path)
 
 
 @pyaedt_function_handler()
-def download_icepak(local_path: str | Path = None) -> str:
+def download_icepak(local_path: StrPath | None = None) -> str:
     """Download an example of Icepak Array and return the def path.
 
     If example files have already been downloaded, the download is
@@ -436,6 +469,7 @@ def download_icepak(local_path: str | Path = None) -> str:
     >>> path = ansys.aedt.core.examples.downloads.download_icepak()
     >>> pathavoid
     'C:/Users/user/AppData/Local/Temp/PyAEDTExamples/Graphic_Card.aedt'
+
     """
     aedt_file_path = _download_file(
         "pyaedt/icepak/Graphics_card.aedt", local_path=local_path, strip_prefix="pyaedt/icepak"
@@ -444,7 +478,7 @@ def download_icepak(local_path: str | Path = None) -> str:
 
 
 @pyaedt_function_handler()
-def download_icepak_3d_component(local_path: str | Path = None) -> str:  # pragma: no cover
+def download_icepak_3d_component(local_path: StrPath | None = None) -> tuple[str, str]:  # pragma: no cover
     """Download an example of Icepak Array and return the def pathsw.
 
     If example files have already been downloaded, the download is
@@ -457,10 +491,9 @@ def download_icepak_3d_component(local_path: str | Path = None) -> str:  # pragm
 
     Returns
     -------
-    str
-        Path to PCBAssembly the example file.
-    str
-        Path to QFP2 the example file.
+    tuple[str, str]
+        Paths to the example files.
+        The first element is the path to PCBAssembly, and the second element is the path to QFP2.
 
     Examples
     --------
@@ -472,13 +505,14 @@ def download_icepak_3d_component(local_path: str | Path = None) -> str:  # pragm
     'C:/Users/user/AppData/Local/Temp/PyAEDTExamples/PCBAssembly.aedt'
     >>> path2
     'C:/Users/user/AppData/Local/Temp/PyAEDTExamples/QFP2.aedt'
+
     """
     folder_path = _download_folder("pyaedt/icepak_3dcomp", local_path=local_path, strip_prefix="pyaedt/icepak_3dcomp")
     return str(folder_path / "PCBAssembly.aedt"), str(folder_path / "QFP2.aedt")
 
 
 @pyaedt_function_handler()
-def download_via_wizard(local_path: str | Path = None) -> str:
+def download_via_wizard(local_path: StrPath | None = None) -> str:
     """Download an example of Hfss Via Wizard and return the def path.
 
     If example files have already been downloaded, the download is
@@ -502,6 +536,7 @@ def download_via_wizard(local_path: str | Path = None) -> str:
     >>> path = ansys.aedt.core.examples.downloads.download_via_wizard()
     >>> path
     'C:/Users/user/AppData/Local/Temp/PyAEDTExamples/viawizard_vacuum_FR4.aedt'
+
     """
     aedt_file = _download_file(
         "pyaedt/via_wizard/viawizard_vacuum_FR4.aedt", local_path=local_path, strip_prefix="pyaedt/via_wizard"
@@ -510,7 +545,7 @@ def download_via_wizard(local_path: str | Path = None) -> str:
 
 
 @pyaedt_function_handler()
-def download_touchstone(local_path: str | Path = None) -> str:
+def download_touchstone(local_path: StrPath | None = None) -> str:
     """Download an example of touchstone File and return the def path.
 
     If example files have already been downloaded, the download is
@@ -533,13 +568,14 @@ def download_touchstone(local_path: str | Path = None) -> str:
     >>> path = ansys.aedt.core.examples.downloads.download_touchstone()
     >>> path
     'C:/Users/user/AppData/Local/Temp/PyAEDTExamples/SSN_ssn.s6p'
+
     """
     s6p_file = _download_file("pyaedt/touchstone/SSN_ssn.s6p", local_path=local_path, strip_prefix="pyaedt/touchstone")
     return str(s6p_file)
 
 
 @pyaedt_function_handler()
-def download_sherlock(local_path: str | Path = None) -> str:
+def download_sherlock(local_path: StrPath | None = None) -> str:
     """Download an example of sherlock needed files and return the def path.
 
     If example files have already been downloaded, the download is
@@ -563,6 +599,7 @@ def download_sherlock(local_path: str | Path = None) -> str:
     >>> path = ansys.aedt.core.examples.downloads.download_sherlock()
     >>> path
     'C:/Users/user/AppData/Local/Temp/PyAEDTExamples/sherlock'
+
     """
     folder_path = _download_folder(
         "pyaedt/sherlock", local_path=local_path, filter_func=lambda f: "SherkockTutorial" in f, strip_prefix="pyaedt"
@@ -571,7 +608,7 @@ def download_sherlock(local_path: str | Path = None) -> str:
 
 
 @pyaedt_function_handler()
-def download_leaf(local_path: str | Path = None) -> tuple[str, str]:
+def download_leaf(local_path: StrPath | None = None) -> tuple[str, str]:
     """Download an example of Nissan leaf files and return the def path.
 
     If example files have already been downloaded, the download is
@@ -595,6 +632,7 @@ def download_leaf(local_path: str | Path = None) -> tuple[str, str]:
     >>> path = ansys.aedt.core.examples.downloads.download_leaf(r"c:\temp")
     >>> path
     ('C:/temp/30DH_20C_smooth.tab', 'C:/temp/BH_Arnold_Magnetics_N30UH_80C.tab')
+
     """
     smooth_tab_path = _download_file("pyaedt/nissan/30DH_20C_smooth.tab", local_path, strip_prefix="pyaedt/nissan")
     magnetics_tab_path = _download_file(
@@ -604,7 +642,7 @@ def download_leaf(local_path: str | Path = None) -> tuple[str, str]:
 
 
 @pyaedt_function_handler()
-def download_custom_reports(force_download: bool = False, local_path: str | Path = None) -> str:
+def download_custom_reports(force_download: bool = False, local_path: StrPath | None = None) -> str:
     """Download an example of CISPR25 with customer reports json template files.
 
     If example files have already been downloaded, the download is
@@ -630,10 +668,9 @@ def download_custom_reports(force_download: bool = False, local_path: str | Path
     >>> path = ansys.aedt.core.examples.downloads.download_custom_reports(force_download=True)
     >>> path
     'C:/Users/user/AppData/Local/Temp/PyAEDTExamples/custom_reports'
+
     """
-    if not local_path:  # pragma: no cover
-        local_path = EXAMPLES_PATH
-    local_path = Path(local_path)
+    local_path = Path(local_path) if local_path else EXAMPLES_PATH
 
     if force_download:
         path_to_remove = local_path / "custom_reports"
@@ -646,7 +683,7 @@ def download_custom_reports(force_download: bool = False, local_path: str | Path
 
 
 @pyaedt_function_handler()
-def download_3dcomponent(force_download: bool = False, local_path: str | Path = None) -> str:
+def download_3dcomponent(force_download: bool = False, local_path: StrPath | None = None) -> str:
     """Download an example of 3d component array with json template files.
 
     If example files have already been downloaded, the download is
@@ -671,10 +708,9 @@ def download_3dcomponent(force_download: bool = False, local_path: str | Path = 
     >>> path = ansys.aedt.core.examples.downloads.download_3dcomponent(force_download=True)
     >>> path
     'C:/Users/user/AppData/Local/Temp/PyAEDTExamples/array_3d_component'
+
     """
-    if not local_path:  # pragma: no cover
-        local_path = EXAMPLES_PATH
-    local_path = Path(local_path)
+    local_path = Path(local_path) if local_path else EXAMPLES_PATH
 
     if force_download:
         path_to_remove = local_path / "array_3d_component"
@@ -687,7 +723,7 @@ def download_3dcomponent(force_download: bool = False, local_path: str | Path = 
 
 
 @pyaedt_function_handler()
-def download_fss_3dcomponent(force_download: bool = False, local_path: str | Path = None) -> str:
+def download_fss_3dcomponent(force_download: bool = False, local_path: StrPath | None = None) -> str:
     """Download an example of 3d component array with json template files.
 
     If example files have already been downloaded, the download is
@@ -712,10 +748,9 @@ def download_fss_3dcomponent(force_download: bool = False, local_path: str | Pat
     >>> path = ansys.aedt.core.examples.downloads.download_FSS_3dcomponent(force_download=True)
     >>> path
     'C:/Users/user/AppData/Local/Temp/PyAEDTExamples/fss_3d_component'
+
     """
-    if not local_path:  # pragma: no cover
-        local_path = EXAMPLES_PATH
-    local_path = Path(local_path)
+    local_path = Path(local_path) if local_path else EXAMPLES_PATH
 
     if force_download:
         path_to_remove = local_path / "fss_3d_component"
@@ -728,7 +763,7 @@ def download_fss_3dcomponent(force_download: bool = False, local_path: str | Pat
 
 
 @pyaedt_function_handler()
-def download_multiparts(local_path: str | Path = None) -> str:
+def download_multiparts(local_path: StrPath | None = None) -> str:
     """Download an example of 3DComponents Multiparts.
 
     If example files have already been downloaded, the download is
@@ -752,10 +787,9 @@ def download_multiparts(local_path: str | Path = None) -> str:
     >>> path = ansys.aedt.core.examples.downloads.download_multiparts()
     >>> path
     'C:/Users/user/AppData/Local/Temp/PyAEDTExamples/multiparts/library'
+
     """
-    if not local_path:  # pragma: no cover
-        local_path = EXAMPLES_PATH
-    local_path = Path(local_path)
+    local_path = Path(local_path) if local_path else EXAMPLES_PATH
 
     if (local_path / "multiparts" / "library").exists():
         pyaedt_logger.debug(f"Deleting {local_path / 'multiparts' / 'library'} to force download.")
@@ -768,7 +802,7 @@ def download_multiparts(local_path: str | Path = None) -> str:
 
 @pyaedt_function_handler()
 def download_twin_builder_data(
-    file_name: str = None, force_download: bool = False, local_path: str | Path = None
+    file_name: str | None = None, force_download: bool = False, local_path: StrPath | None = None
 ) -> str:
     """Download a Twin Builder example data file.
 
@@ -796,10 +830,9 @@ def download_twin_builder_data(
     >>> path = ansys.aedt.core.examples.downloads.download_twin_builder_data(force_download=True)
     >>> path
     'C:/Users/user/AppData/Local/Temp/PyAEDTExamples/twin_builder'
+
     """
-    if not local_path:  # pragma: no cover
-        local_path = EXAMPLES_PATH
-    local_path = Path(local_path)
+    local_path = Path(local_path) if local_path else EXAMPLES_PATH if local_path else EXAMPLES_PATH
 
     if file_name:
 
@@ -822,7 +855,7 @@ def download_twin_builder_data(
 
 
 @pyaedt_function_handler()
-def download_file(source: str, name: str = None, local_path: str | Path = None, force: bool = False) -> str:
+def download_file(source: str, name: str | None = None, local_path: StrPath | None = None, force: bool = False) -> str:
     """Download a file or files from the online examples repository.
 
     Files are downloaded from the
@@ -857,6 +890,7 @@ def download_file(source: str, name: str = None, local_path: str | Path = None, 
     >>> path = ansys.aedt.core.examples.downloads.download_file("motorcad", "IPM_Vweb_Hairpin.mot")
     >>> path
     'C:/Users/user/AppData/local/temp/PyAEDTExamples/motorcad/IPM_Vweb_Hairpin.mot'
+
     """
     if not source.startswith("pyaedt/"):
         source = "pyaedt/" + source
@@ -873,6 +907,8 @@ def download_file(source: str, name: str = None, local_path: str | Path = None, 
             path = _download_file(source, local_path, force=force)
 
     if settings.remote_rpc_session:  # pragma: no cover
+        if settings.remote_rpc_session_temp_folder is None:
+            raise AEDTRuntimeError("Remote RPC session temp folder is not set.")
         path = Path(settings.remote_rpc_session_temp_folder) / path.name
         if not settings.remote_rpc_session.filemanager.pathexists(settings.remote_rpc_session_temp_folder):
             settings.remote_rpc_session.filemanager.makedirs(settings.remote_rpc_session_temp_folder)
@@ -881,7 +917,8 @@ def download_file(source: str, name: str = None, local_path: str | Path = None, 
     return str(path)
 
 
-def unzip(source_filename: str, dest_dir: str) -> None:
+def unzip(source_filename: StrPath, dest_dir: StrPath) -> None:
+    """Return unzip."""
     with zipfile.ZipFile(source_filename) as zf:
         zf.extractall(dest_dir)
     print(dest_dir)

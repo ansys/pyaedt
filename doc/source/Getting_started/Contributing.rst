@@ -25,14 +25,14 @@ development mode, run:
     pip install -e .
 
 Development environment setup
-------------------------------
+-----------------------------
 
 PyAEDT uses **dependency groups** (PEP 735) for managing development dependencies.
 This is a modern approach that replaces the older ``[project.optional-dependencies]``
 mechanism for development-only dependencies.
 
 Dependency groups vs optional dependencies
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 PyAEDT uses two mechanisms for managing dependencies:
 

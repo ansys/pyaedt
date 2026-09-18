@@ -27,6 +27,8 @@ from pathlib import Path
 import tkinter
 from tkinter import filedialog
 from tkinter import ttk
+from typing import Any
+from typing import cast
 
 import ansys.aedt.core
 from ansys.aedt.core import get_pyaedt_app
@@ -40,25 +42,47 @@ from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 # Extension batch arguments
 EXTENSION_DEFAULT_ARGUMENTS = {"choice": "", "file_path": ""}
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Push Excitation From File"
+"""Title displayed for the extension."""
 
 
 @dataclass
 class PushExcitationExtensionData(ExtensionCommonData):
-    """Data class for Push Excitation extension."""
+    """Data class for Push Excitation extension.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss.push_excitation_from_file import PushExcitationExtensionData
+    >>> data = PushExcitationExtensionData(choice="Port1", file_path="C:\\Temp\\excitation.csv")
+
+    """
 
     choice: str = ""
+    """Value for choice."""
     file_path: str = ""
+    """Path to file."""
 
 
 class PushExcitationExtension(ExtensionHFSSCommon):
-    """Extension for push excitation from file in AEDT."""
+    """Extension for push excitation from file in AEDT.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss.push_excitation_from_file import PushExcitationExtension
+    >>> extension = PushExcitationExtension(withdraw=True)
+
+    """
 
     def __init__(self, withdraw: bool = False) -> None:
         """Initialize the extension."""
@@ -73,6 +97,9 @@ class PushExcitationExtension(ExtensionHFSSCommon):
 
         # Initialize data
         self.data = PushExcitationExtensionData()
+        self.excitation_names: list[str] = []
+        self.port_combo: ttk.Combobox | None = None
+        self.file_entry: tkinter.Text | None = None
 
         self.__load_aedt_info()
         self.add_extension_content()
@@ -80,23 +107,35 @@ class PushExcitationExtension(ExtensionHFSSCommon):
         if not withdraw:
             self.root.mainloop()
 
+    def _app(self) -> Any:
+        return cast(Any, self.aedt_application)
+
     def __load_aedt_info(self):
         """Load AEDT information and validate the design."""
-        if not self.aedt_application:
+        app = self._app()
+        if not app:
             raise AEDTRuntimeError("No active AEDT design found.")
 
-        if self.aedt_application.design_type != "HFSS":
+        if app.design_type != "HFSS":
             raise AEDTRuntimeError("This extension only works with HFSS designs.")
 
         # Get excitation names
-        excitation_names = self.aedt_application.excitation_names
+        excitation_names = app.excitation_names
         if not excitation_names:
             raise AEDTRuntimeError("No excitations found in the design.")
 
         self.excitation_names = excitation_names
 
     def add_extension_content(self) -> None:
-        """Add content to the extension UI."""
+        """Add content to the extension UI.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.hfss.push_excitation_from_file import PushExcitationExtension
+        >>> extension = PushExcitationExtension(withdraw=True)
+        >>> extension.add_extension_content()
+
+        """
         # Port selection
         self.port_label = ttk.Label(self.root, text="Choose a port:", style="PyAEDT.TLabel")
         self.port_label.grid(row=0, column=0, pady=10, padx=10, sticky="w")
@@ -120,9 +159,11 @@ class PushExcitationExtension(ExtensionHFSSCommon):
         self.file_browse_button.grid(row=1, column=2, pady=10, padx=10)
 
         # Generate button
-        def callback(extension: PushExcitationExtension):
-            choice = extension.port_combo.get()
-            file_path_text = extension.file_entry.get("1.0", tkinter.END).strip()
+        def callback(extension: PushExcitationExtension) -> None:
+            port_combo = cast(ttk.Combobox, extension.port_combo)
+            file_entry = cast(tkinter.Text, extension.file_entry)
+            choice = port_combo.get()
+            file_path_text = file_entry.get("1.0", tkinter.END).strip()
 
             if not choice:
                 extension.release_desktop()
@@ -150,19 +191,39 @@ class PushExcitationExtension(ExtensionHFSSCommon):
         self.root.grid_columnconfigure(1, weight=1)
 
     def browse_files(self) -> None:
-        """Open file dialog to browse for excitation files."""
+        """Open file dialog to browse for excitation files.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.hfss.push_excitation_from_file import PushExcitationExtension
+        >>> extension = PushExcitationExtension(withdraw=True)
+        >>> extension.browse_files()
+
+        """
         filename = filedialog.askopenfilename(
             initialdir="/",
             title="Select a Transient File",
             filetypes=(("Transient curve", "*.csv*"), ("all files", "*.*")),
         )
         if filename:
-            self.file_entry.delete("1.0", tkinter.END)
-            self.file_entry.insert(tkinter.END, filename)
+            file_entry = cast(tkinter.Text, self.file_entry)
+            file_entry.delete("1.0", tkinter.END)
+            file_entry.insert(tkinter.END, filename)
 
 
 def main(data: PushExcitationExtensionData) -> bool:
-    """Main function to run the push excitation extension."""
+    """Main function to run the push excitation extension.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss.push_excitation_from_file import (
+    ...     PushExcitationExtensionData,
+    ...     main,
+    ... )
+    >>> data = PushExcitationExtensionData(choice="Port1", file_path="C:\\Temp\\excitation.csv")
+    >>> main(data)
+
+    """
     if not data.choice:
         raise AEDTRuntimeError("No excitation selected.")
 
@@ -187,7 +248,7 @@ def main(data: PushExcitationExtensionData) -> bool:
     project_name = active_project.GetName()
     design_name = active_design.GetName()
 
-    hfss = get_pyaedt_app(project_name, design_name)
+    hfss: Any = get_pyaedt_app(project_name, design_name)
 
     if hfss.design_type != "HFSS":
         raise AEDTRuntimeError("This extension only works with HFSS designs.")
@@ -205,7 +266,11 @@ if __name__ == "__main__":  # pragma: no cover
     # Open UI
     if not args["is_batch"]:
         extension = PushExcitationExtension(withdraw=False)
-        if extension.data.choice and extension.data.file_path:
+        if (
+            isinstance(extension.data, PushExcitationExtensionData)
+            and extension.data.choice
+            and extension.data.file_path
+        ):
             main(extension.data)
     else:
         data = PushExcitationExtensionData(**args)

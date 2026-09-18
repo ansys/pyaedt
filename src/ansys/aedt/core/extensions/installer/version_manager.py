@@ -41,6 +41,7 @@ import PIL.Image
 import PIL.ImageTk
 
 import ansys.aedt.core
+import ansys.aedt.core.extensions
 from ansys.aedt.core.extensions.misc import ToolTip
 from ansys.aedt.core.extensions.misc import check_for_pyaedt_update_on_startup
 from ansys.aedt.core.extensions.misc import get_aedt_theme
@@ -61,27 +62,41 @@ DISCLAIMER = (
     "Third-Party Software.\n"
     "Do you want to proceed?\n"
 )
+"""Displayed disclaimer message."""
 UNKNOWN_VERSION = "Unknown"
+"""Fallback label for an unknown version."""
 
 
 class VersionManager:
+    """Manage version manager."""
+
     TITLE = "Version Manager"
+    """Displayed title."""
     USER_GUIDE = (
         "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/project/version_manager.html"
     )
+    """Link to the user guide."""
     UI_WIDTH = 650
+    """UI width."""
     UI_HEIGHT = 320
+    """UI height."""
     UI_MAX_WIDTH = 650
+    """UI max width."""
     UI_MAX_HEIGHT = 320
+    """UI max height."""
     UI_MIN_WIDTH = 450
+    """UI min width."""
     UI_MIN_HEIGHT = 250
+    """UI min height."""
 
     @property
     def venv_path(self) -> str:
+        """Path to venv."""
         return sys.prefix
 
     @property
     def python_exe(self) -> str:
+        """Retrieve python exe."""
         # Use the venv "Scripts" on Windows and "bin" on POSIX; choose platform-appropriate executable name.
         bin_dir = "Scripts" if self.is_windows else "bin"
         exe_name = "python.exe" if self.is_windows else "python"
@@ -89,19 +104,23 @@ class VersionManager:
 
     @property
     def python_version(self) -> str:
+        """Retrieve python version."""
         temp = platform.python_version().split(".")[0:2]
         return ".".join(temp)
 
     @property
     def pyaedt_version(self) -> str:
+        """Retrieve pyaedt version."""
         return self.get_installed_version("pyaedt")
 
     @property
     def pyedb_version(self) -> str:
+        """Retrieve pyedb version."""
         return self.get_installed_version("pyedb")
 
     @property
     def aedt_version(self) -> str:
+        """Retrieve AEDT version."""
         from ansys.aedt.core.extensions.misc import get_aedt_version
 
         return get_aedt_version()
@@ -113,6 +132,7 @@ class VersionManager:
 
     @property
     def personal_lib(self) -> str:
+        """Retrieve personal lib."""
         personal_lib = os.getenv("PYAEDT_PERSONAL_LIB", "").strip()
         if personal_lib:
             return personal_lib
@@ -152,6 +172,7 @@ class VersionManager:
 
         # Loading indicators for update operations
         self.loading_labels = {}
+        self.change_theme_button: ttk.Button | None = None
 
         # Prepare subprocess environment so the venv is effectively activated for all runs
         self.activated_env = None
@@ -187,11 +208,11 @@ class VersionManager:
         top_frame.add(tab_basic, text="Basic")
         top_frame.add(tab_advanced, text="Advanced")
 
-        self.create_button_menu()
-        self.create_ui_basic(tab_basic)
-        self.create_ui_advanced(tab_advanced)
+        self._create_button_menu()
+        self._create_ui_basic(tab_basic)
+        self._create_ui_advanced(tab_advanced)
 
-        self.clicked_refresh()
+        self._clicked_refresh()
         self.root.protocol("WM_DELETE_WINDOW", self._on_close)
 
         # Check for PyAEDT updates on startup
@@ -213,10 +234,10 @@ class VersionManager:
 
     def toggle_theme(self) -> None:
         if self.theme_color == "light":
-            self.set_dark_theme()
+            self._set_dark_theme()
             self.theme_color = "dark"
         else:
-            self.set_light_theme()
+            self._set_light_theme()
             self.theme_color = "light"
 
     def _apply_root_theme(self, colors: dict) -> None:
@@ -238,25 +259,27 @@ class VersionManager:
                 )
 
     @staticmethod
-    def _find_all_widgets(parent: tkinter.Widget):
+    def _find_all_widgets(parent: tkinter.Misc):
         """Yield all descendant widgets of *parent*."""
         for child in parent.winfo_children():
             yield child
             yield from VersionManager._find_all_widgets(child)
 
-    def set_light_theme(self) -> None:
+    def _set_light_theme(self) -> None:
         self.root.theme = "light"
         self._apply_root_theme(self.theme.light)
         self.theme.apply_light_theme(self.style)
-        self.change_theme_button.config(text="\u263d")
+        if self.change_theme_button is not None:
+            self.change_theme_button.config(text="\u263d")
 
-    def set_dark_theme(self) -> None:
+    def _set_dark_theme(self) -> None:
         self.root.theme = "dark"
         self._apply_root_theme(self.theme.dark)
         self.theme.apply_dark_theme(self.style)
-        self.change_theme_button.config(text="\u2600")
+        if self.change_theme_button is not None:
+            self.change_theme_button.config(text="\u2600")
 
-    def create_button_menu(self) -> None:
+    def _create_button_menu(self) -> None:
         menu_bar = ttk.Frame(self.root, height=26, style="PyAEDT.TFrame")
         help_button = ttk.Button(
             menu_bar, text="Help", command=lambda: webbrowser.open(self.USER_GUIDE), style="PyAEDT.TButton"
@@ -271,7 +294,7 @@ class VersionManager:
 
         menu_bar.pack(fill="x")
 
-    def create_ui_basic(self, parent: tkinter.Widget):
+    def _create_ui_basic(self, parent: tkinter.Widget):
         # Use a single grid inside the parent for a clean, aligned layout.
         parent.grid_columnconfigure(1, weight=1)
 
@@ -368,7 +391,7 @@ class VersionManager:
         )
         info_label.pack(anchor="nw", padx=6, pady=4, fill="x")
 
-    def create_ui_advanced(self, parent: tkinter.Widget):
+    def _create_ui_advanced(self, parent: tkinter.Widget):
         parent.grid_columnconfigure(2, weight=1)
 
         # --- Row 0: PyAEDT branch ---
@@ -427,13 +450,36 @@ class VersionManager:
 
     @staticmethod
     def is_git_available() -> bool:
+        """Check if git is available in the system PATH.
+
+        Examples
+        --------
+        >>> import tkinter as tk
+        >>> from ansys.aedt.core.extensions.installer.version_manager import VersionManager
+        >>> root = tk.Tk()
+        >>> root.withdraw()
+        >>> manager = VersionManager(root)
+        >>> manager.is_git_available()
+
+        """
         res = shutil.which("git") is not None
         if not res:
             messagebox.showerror("Error: Git Not Found", "Git does not seem to be installed or is not accessible.")
         return res
 
     def activate_venv(self) -> None:
-        """Prepare a subprocess environment that has the virtual environment activated."""
+        """Prepare a subprocess environment that has the virtual environment activated.
+
+        Examples
+        --------
+        >>> import tkinter as tk
+        >>> from ansys.aedt.core.extensions.installer.version_manager import VersionManager
+        >>> root = tk.Tk()
+        >>> root.withdraw()
+        >>> manager = VersionManager(root)
+        >>> manager.activate_venv()
+
+        """
         try:
             scripts_dir = (
                 os.path.join(self.venv_path, "Scripts") if self.is_windows else os.path.join(self.venv_path, "bin")
@@ -457,6 +503,16 @@ class VersionManager:
             pip_args: list of arguments to pip after the pip keyword, e.g. ['install', '-U', 'pyaedt']
             capture_output: when True returns the stdout string (uses check_output)
             check: passed to subprocess.run when not capturing output
+
+        Examples
+        --------
+        >>> import tkinter as tk
+        >>> from ansys.aedt.core.extensions.installer.version_manager import VersionManager
+        >>> root = tk.Tk()
+        >>> root.withdraw()
+        >>> manager = VersionManager(root)
+        >>> manager.run_pip(["--version"], capture_output=True)
+
         """
         cmd = [self.python_exe, "-m", "pip"] + pip_args
         if capture_output:
@@ -465,19 +521,52 @@ class VersionManager:
             subprocess.run(cmd, check=check, env=self.activated_env)  # nosec
 
     def show_loading(self, key: str):
-        """Show loading indicator for a specific operation."""
+        """Show loading indicator for a specific operation.
+
+        Examples
+        --------
+        >>> import tkinter as tk
+        >>> from ansys.aedt.core.extensions.installer.version_manager import VersionManager
+        >>> root = tk.Tk()
+        >>> root.withdraw()
+        >>> manager = VersionManager(root)
+        >>> manager.show_loading("pyaedt")
+
+        """
         if key in self.loading_labels:
             self.loading_labels[key].config(text="⏳")
             self.root.update_idletasks()
 
     def hide_loading(self, key: str):
-        """Hide loading indicator for a specific operation."""
+        """Hide loading indicator for a specific operation.
+
+        Examples
+        --------
+        >>> import tkinter as tk
+        >>> from ansys.aedt.core.extensions.installer.version_manager import VersionManager
+        >>> root = tk.Tk()
+        >>> root.withdraw()
+        >>> manager = VersionManager(root)
+        >>> manager.hide_loading("pyaedt")
+
+        """
         if key in self.loading_labels:
             self.loading_labels[key].config(text="")
             self.root.update_idletasks()
 
     def update_and_reload(self, pip_args: list, loading_key: str | None = None):  # pragma: no cover
-        """Run pip install/upgrade and refresh the UI."""
+        """Run pip install/upgrade and refresh the UI.
+
+        Examples
+        --------
+        >>> import tkinter as tk
+        >>> from ansys.aedt.core.extensions.installer.version_manager import VersionManager
+        >>> root = tk.Tk()
+        >>> root.withdraw()
+        >>> manager = VersionManager(root)
+        >>> manager.update_and_reload(["install", "-U", "pyaedt[all]"], loading_key="pyaedt")
+
+        """
         # Confirm action
         response = messagebox.askyesno("Confirm Action", "This will perform the installation. Continue?")
         if not response:
@@ -496,7 +585,7 @@ class VersionManager:
             return
 
         # Refresh the UI to show updated version information
-        self.clicked_refresh(need_restart=True)
+        self._clicked_refresh(need_restart=True)
 
         if loading_key:
             self.hide_loading(loading_key)
@@ -505,6 +594,18 @@ class VersionManager:
         messagebox.showinfo("Message", "Update completed successfully. Module versions have been refreshed.")
 
     def update_pyaedt(self) -> None:
+        """Update pyaedt package to the latest version.
+
+        Examples
+        --------
+        >>> import tkinter as tk
+        >>> from ansys.aedt.core.extensions.installer.version_manager import VersionManager
+        >>> root = tk.Tk()
+        >>> root.withdraw()
+        >>> manager = VersionManager(root)
+        >>> manager.update_pyaedt()
+
+        """
         response = messagebox.askyesno("Disclaimer", DISCLAIMER)
 
         if response:
@@ -534,6 +635,18 @@ class VersionManager:
             self.update_and_reload(pip_args, loading_key="pyaedt[all]")
 
     def update_pyedb(self) -> None:
+        """Update pyedb package to the latest version.
+
+        Examples
+        --------
+        >>> import tkinter as tk
+        >>> from ansys.aedt.core.extensions.installer.version_manager import VersionManager
+        >>> root = tk.Tk()
+        >>> root.withdraw()
+        >>> manager = VersionManager(root)
+        >>> manager.update_pyedb()
+
+        """
         response = messagebox.askyesno("Disclaimer", DISCLAIMER)
 
         if response:
@@ -564,7 +677,18 @@ class VersionManager:
             self.update_and_reload(pip_args, loading_key="pyedb")
 
     def update_all(self) -> None:  # pragma: no cover
-        """Update both pyaedt and pyedb together."""
+        """Update both pyaedt and pyedb together.
+
+        Examples
+        --------
+        >>> import tkinter as tk
+        >>> from ansys.aedt.core.extensions.installer.version_manager import VersionManager
+        >>> root = tk.Tk()
+        >>> root.withdraw()
+        >>> manager = VersionManager(root)
+        >>> manager.update_all()
+
+        """
         response = messagebox.askyesno("Disclaimer", DISCLAIMER)
 
         if not response:
@@ -606,6 +730,18 @@ class VersionManager:
         self.update_and_reload(pip_args, loading_key="update_all")
 
     def get_pyaedt_branch(self) -> None:
+        """Get a specific branch of pyaedt from GitHub.
+
+        Examples
+        --------
+        >>> import tkinter as tk
+        >>> from ansys.aedt.core.extensions.installer.version_manager import VersionManager
+        >>> root = tk.Tk()
+        >>> root.withdraw()
+        >>> manager = VersionManager(root)
+        >>> manager.get_pyaedt_branch()
+
+        """
         if not self.is_git_available():
             return
 
@@ -617,6 +753,18 @@ class VersionManager:
             self.update_and_reload(pip_args, loading_key="pyaedt_branch")
 
     def get_pyedb_branch(self) -> None:
+        """Get a specific branch of pyedb from GitHub.
+
+        Examples
+        --------
+        >>> import tkinter as tk
+        >>> from ansys.aedt.core.extensions.installer.version_manager import VersionManager
+        >>> root = tk.Tk()
+        >>> root.withdraw()
+        >>> manager = VersionManager(root)
+        >>> manager.get_pyedb_branch()
+
+        """
         if not self.is_git_available():
             return
 
@@ -628,7 +776,20 @@ class VersionManager:
             self.update_and_reload(pip_args, loading_key="pyedb_branch")
 
     def update_from_wheelhouse(self) -> None:
-        def version_is_leq(version, other_version) -> bool:
+        """Update pyaedt and pyedb from a wheelhouse zip file.
+
+        Examples
+        --------
+        >>> import tkinter as tk
+        >>> from ansys.aedt.core.extensions.installer.version_manager import VersionManager
+        >>> root = tk.Tk()
+        >>> root.withdraw()
+        >>> manager = VersionManager(root)
+        >>> manager.update_from_wheelhouse()
+
+        """
+
+        def version_is_leq(version: str, other_version: str) -> bool:
             version_parts = [int(part) for part in version.split(".")]
             target_parts = [int(part) for part in other_version.split(".")]
             if version_parts == target_parts:
@@ -638,6 +799,7 @@ class VersionManager:
                     return True
                 elif v > t:
                     return False
+            return len(version_parts) <= len(target_parts)
 
         file_selected = filedialog.askopenfilename(title="Select Wheelhouse")
 
@@ -705,13 +867,23 @@ class VersionManager:
                 ]
             )
 
-            self.clicked_refresh(need_restart=True)
+            self._clicked_refresh(need_restart=True)
 
     def get_installed_version(self, package_name: str) -> str:
         """Return the installed version of package_name inside the virtualenv.
 
         This runs the venv Python to query the package metadata so we can show
         the updated version without restarting the current process.
+
+        Examples
+        --------
+        >>> import tkinter as tk
+        >>> from ansys.aedt.core.extensions.installer.version_manager import VersionManager
+        >>> root = tk.Tk()
+        >>> root.withdraw()
+        >>> manager = VersionManager(root)
+        >>> manager.get_installed_version("pyaedt")
+
         """
         try:
             # Prefer importlib.metadata (Python 3.8+). Use venv python to inspect
@@ -722,13 +894,16 @@ class VersionManager:
             try:
                 # Fallback to 'pip show' and parse Version
                 out = self.run_pip(["show", package_name], capture_output=True)
+                if out is None:
+                    return "Please restart"
                 for line in out.splitlines():
                     if line.startswith("Version:"):
                         return line.split(":", 1)[1].strip()
             except Exception:  # pragma: no cover
                 return "Please restart"
+        return "Please restart"
 
-    def clicked_refresh(self, need_restart: bool = False):
+    def _clicked_refresh(self, need_restart: bool = False):
         msg = [f"Venv path: {self.venv_path}", f"Python version: {self.python_version}"]
         msg = "\n".join(msg)
         self.venv_information.set(msg)
@@ -780,7 +955,19 @@ class VersionManager:
                 logging.getLogger("Global").debug("Failed to destroy root window", exc_info=True)
 
     def show_pyaedt_update_notification(self, latest_version: str, declined_file_path: Path):  # pragma: no cover
-        """Display a notification dialog informing the user about a new PyAEDT version."""
+        """Display a notification dialog informing the user about a new PyAEDT version.
+
+        Examples
+        --------
+        >>> from pathlib import Path
+        >>> import tkinter as tk
+        >>> from ansys.aedt.core.extensions.installer.version_manager import VersionManager
+        >>> root = tk.Tk()
+        >>> root.withdraw()
+        >>> manager = VersionManager(root)
+        >>> manager.show_pyaedt_update_notification("0.17.0", Path("C:\\\\Temp\\\\declined_version.txt"))
+
+        """
         try:
             dlg = tkinter.Toplevel(self.root)
             dlg.title("PyAEDT Update Available")
@@ -850,6 +1037,7 @@ class VersionManager:
 
 
 def get_desktop():
+    """Retrieve desktop."""
     port = get_port()
     aedt_version = get_aedt_version()
     aedt_process_id = get_process_id()

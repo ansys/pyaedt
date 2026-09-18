@@ -50,6 +50,7 @@ from ansys.aedt.core.rpc.rpyc_services import check_port
 
 # Maximum Stream message size. Set to 256MB
 consts.STREAM_CHUNK = 256000000
+"""Maximum chunk size used for streamed RPC transfers."""
 
 
 safe_attrs = {
@@ -131,6 +132,7 @@ safe_attrs = {
     "__next__",
     "__format__",
 }
+"""Value for safe attrs."""
 
 
 def pyaedt_service_manager(
@@ -343,6 +345,13 @@ def create_session(
     Returns
     -------
     RPyC client object.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.common_rpc import create_session
+    >>> client = create_session("localhost", client_port=18000)
+    >>> client.host
+
     """
     try:
         client = rpyc.connect(
@@ -407,6 +416,13 @@ def connect(host: str, aedt_client_port: int) -> Connection:  # pragma: no cover
     Returns
     -------
     RPyC client object.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.common_rpc import connect
+    >>> client = connect("localhost", 18000)
+    >>> client.host
+
     """
     try:
         client = rpyc.connect(host, aedt_client_port, config={"allow_public_attrs": True, "sync_request_timeout": None})

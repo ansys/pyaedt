@@ -22,8 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-* * * This script is meant to run in CPython. * * *
+"""* * * This script is meant to run in CPython. * * *
 
 Wrapper that executes an extension script and displays a dialog with the
 error traceback when the script exits with a non-zero return code.
@@ -31,6 +30,13 @@ error traceback when the script exits with a non-zero return code.
 Usage::
 
     python extension_error_handler.py --script <script_path> [script_args ...]
+
+Examples
+--------
+>>> import sys
+>>> import ansys.aedt.core.extensions.templates.extension_error_handler as error_handler
+>>> sys.argv = ["extension_error_handler.py", "--script", r"C:\\Users\\user\\run_extension.py"]
+>>> error_handler.main()
 
 """
 
@@ -40,6 +46,7 @@ import sys
 
 
 def main():
+    """Return main."""
     if len(sys.argv) < 2:
         sys.exit(1)
 
@@ -54,12 +61,11 @@ def main():
     result = subprocess.run(
         [sys.executable, script] + script_args,
         env=os.environ.copy(),
-        stderr=subprocess.PIPE,
         text=True,
     )  # nosec
 
     if result.returncode != 0:
-        error_msg = result.stderr or "Process exited with code {}".format(result.returncode)
+        error_msg = "Process exited with code {}. See the console for details.".format(result.returncode)
         _show_error(error_msg)
         sys.exit(result.returncode)
 

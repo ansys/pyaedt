@@ -1,6 +1,6 @@
 Configuration files
 ~~~~~~~~~~~~~~~~~~~
-This module contains all methods to export project settings to a JSON file
+The module contains all methods to export project settings to a JSON file
 and import and apply settings to a new design. Currently the configuration
 cover the following apps:
 * HFSS

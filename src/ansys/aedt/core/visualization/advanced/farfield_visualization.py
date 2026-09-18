@@ -94,6 +94,7 @@ class FfdSolutionData(PyAedtBase):
     >>> app.desktop_class.close_desktop()
     >>> farfield_data = FfdSolutionData(input_file=metadata_file)
     >>> farfield_data.plot_3d(quantity_format="dB10")
+
     """
 
     def __init__(
@@ -290,7 +291,15 @@ class FfdSolutionData(PyAedtBase):
 
     @property
     def phi_scan(self) -> float:
-        """Phi scan angle in degrees. It applies only for arrays."""
+        """Phi scan angle in degrees. It applies only for arrays.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
+        >>> obj = FfdSolutionData()
+        >>> obj.phi_scan
+
+        """
         return self.__phi_scan
 
     @phi_scan.setter
@@ -300,7 +309,15 @@ class FfdSolutionData(PyAedtBase):
 
     @property
     def theta_scan(self) -> float:
-        """Theta scan angle in degrees. It applies only for arrays."""
+        """Theta scan angle in degrees. It applies only for arrays.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
+        >>> obj = FfdSolutionData()
+        >>> obj.theta_scan
+
+        """
         return self.__theta_scan
 
     @theta_scan.setter
@@ -310,17 +327,41 @@ class FfdSolutionData(PyAedtBase):
 
     @property
     def metadata(self) -> dict:
-        """Antenna metadata."""
+        """Antenna metadata.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
+        >>> obj = FfdSolutionData()
+        >>> obj.metadata
+
+        """
         return self.__metadata
 
     @property
     def touchstone_data(self) -> dict:
-        """Touchstone data."""
+        """Touchstone data.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
+        >>> obj = FfdSolutionData()
+        >>> obj.touchstone_data
+
+        """
         return self.__touchstone_data
 
     @property
     def s_parameters(self) -> np.ndarray:
-        """Passive s-parameters."""
+        """Passive s-parameters.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
+        >>> obj = FfdSolutionData()
+        >>> obj.s_parameters
+
+        """
         if self.touchstone_data:
             touchstone_frequencies = self.touchstone_data.f
             index = np.abs(touchstone_frequencies - self.frequency).argmin()
@@ -328,7 +369,15 @@ class FfdSolutionData(PyAedtBase):
 
     @property
     def incident_power_element(self) -> dict:
-        """Incident power per element in watts."""
+        """Incident power per element in watts.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
+        >>> obj = FfdSolutionData()
+        >>> obj.incident_power_element
+
+        """
         incident_power = {}
         for element_name, element_props in self.element_info.items():
             element_power = element_props.get("incident_power", None)
@@ -341,14 +390,30 @@ class FfdSolutionData(PyAedtBase):
 
     @property
     def incident_power(self) -> float:
-        """Total incident power in watts."""
+        """Total incident power in watts.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
+        >>> obj = FfdSolutionData()
+        >>> obj.incident_power
+
+        """
         incident_power_element = self.incident_power_element
         if incident_power_element:
             return sum(incident_power_element.values())
 
     @property
     def accepted_power_element(self) -> dict:
-        """Accepted power per element in watts."""
+        """Accepted power per element in watts.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
+        >>> obj = FfdSolutionData()
+        >>> obj.accepted_power_element
+
+        """
         power = {}
         for element_name, element_props in self.element_info.items():
             element_power = element_props.get("accepted_power", None)
@@ -360,14 +425,30 @@ class FfdSolutionData(PyAedtBase):
 
     @property
     def accepted_power(self) -> float:
-        """Total accepted power in watts."""
+        """Total accepted power in watts.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
+        >>> obj = FfdSolutionData()
+        >>> obj.accepted_power
+
+        """
         power_element = self.accepted_power_element
         if power_element:
             return sum(power_element.values())
 
     @property
     def radiated_power_element(self) -> dict:
-        """Radiated power per element in watts."""
+        """Radiated power per element in watts.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
+        >>> obj = FfdSolutionData()
+        >>> obj.radiated_power_element
+
+        """
         power = {}
         for element_name, element_props in self.element_info.items():
             element_power = element_props.get("radiated_power", None)
@@ -379,14 +460,30 @@ class FfdSolutionData(PyAedtBase):
 
     @property
     def radiated_power(self) -> float:
-        """Total radiated power in watts."""
+        """Total radiated power in watts.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
+        >>> obj = FfdSolutionData()
+        >>> obj.radiated_power
+
+        """
         power_element = self.radiated_power_element
         if power_element:
             return sum(power_element.values())
 
     @property
     def active_s_parameters(self) -> dict:
-        """Active s-parameters."""
+        """Active s-parameters.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
+        >>> obj = FfdSolutionData()
+        >>> obj.active_s_parameters
+
+        """
         if self.s_parameters is not None:
             active_s_parameter = {}
             incident_power_list = list(self.incident_power_element.values())
@@ -417,37 +514,93 @@ class FfdSolutionData(PyAedtBase):
 
     @property
     def input_file(self) -> str:
-        """Input file."""
+        """Input file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
+        >>> obj = FfdSolutionData()
+        >>> obj.input_file
+
+        """
         return self.__input_file
 
     @property
     def farfield_data(self) -> dict:
-        """Farfield data."""
+        """Farfield data.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
+        >>> obj = FfdSolutionData()
+        >>> obj.farfield_data
+
+        """
         return self.combine_farfield(self.theta_scan, self.phi_scan)
 
     @property
     def element_info(self) -> dict:
-        """File information."""
+        """File information.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
+        >>> obj = FfdSolutionData()
+        >>> obj.element_info
+
+        """
         return self.__element_info
 
     @property
     def frequencies(self) -> list:
-        """Available frequencies."""
+        """Available frequencies.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
+        >>> obj = FfdSolutionData()
+        >>> obj.frequencies
+
+        """
         return self.__frequencies
 
     @property
     def all_element_names(self) -> list:
-        """Available port names."""
+        """Available port names.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
+        >>> obj = FfdSolutionData()
+        >>> obj.all_element_names
+
+        """
         return self.__all_element_names
 
     @property
     def weight(self) -> dict:
-        """Weight."""
+        """Weight.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
+        >>> obj = FfdSolutionData()
+        >>> obj.weight
+
+        """
         return self.__weight
 
     @property
     def frequency(self) -> float:
-        """Active frequency."""
+        """Active frequency.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
+        >>> obj = FfdSolutionData()
+        >>> obj.frequency
+
+        """
         return self._frequency
 
     @frequency.setter
@@ -464,7 +617,15 @@ class FfdSolutionData(PyAedtBase):
 
     @property
     def phase(self) -> list:
-        """Phase offset in degrees on each port."""
+        """Phase offset in degrees on each port.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
+        >>> obj = FfdSolutionData()
+        >>> obj.phase
+
+        """
         return self.__phase
 
     @phase.setter
@@ -476,7 +637,15 @@ class FfdSolutionData(PyAedtBase):
 
     @property
     def magnitude(self) -> list:
-        """Magnitude weight applied on each port."""
+        """Magnitude weight applied on each port.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
+        >>> obj = FfdSolutionData()
+        >>> obj.magnitude
+
+        """
         return self.__magnitude
 
     @magnitude.setter
@@ -497,6 +666,13 @@ class FfdSolutionData(PyAedtBase):
         - ``"hamming"``
         - ``"triangular"``
         - ``"uniform"``
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
+        >>> obj = FfdSolutionData()
+        >>> obj.taper
+
         """
         return self.__taper
 
@@ -510,7 +686,15 @@ class FfdSolutionData(PyAedtBase):
 
     @property
     def origin(self) -> list:
-        """Far field origin in meters."""
+        """Far field origin in meters.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
+        >>> obj = FfdSolutionData()
+        >>> obj.origin
+
+        """
         return self.__origin
 
     @origin.setter
@@ -535,6 +719,13 @@ class FfdSolutionData(PyAedtBase):
         -------
         dict
             Far field data dictionary.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
+        >>> obj = FfdSolutionData()
+        >>> obj.combine_farfield(phi_scan=1.0, theta_scan=1.0)
+
         """
         # Modify theta and phi and compute weight
 
@@ -644,6 +835,13 @@ class FfdSolutionData(PyAedtBase):
         -------
         float
             Total accepted power.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
+        >>> obj = FfdSolutionData()
+        >>> obj.get_accepted_power()
+
         """
         if self.active_s_parameters is not None:
             accepted_power = {}
@@ -961,6 +1159,7 @@ class FfdSolutionData(PyAedtBase):
         >>> sphere = "3D"
         >>> data = app.get_antenna_data(frequencies, setup_name, sphere)
         >>> data.plot_cut(theta=20)
+
         """
         from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 
@@ -1070,6 +1269,7 @@ class FfdSolutionData(PyAedtBase):
         >>> sphere = "3D"
         >>> data = app.get_antenna_data(frequencies, setup_name, sphere)
         >>> data.polar_plot_3d(theta=10)
+
         """
         from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 
@@ -1118,7 +1318,7 @@ class FfdSolutionData(PyAedtBase):
         scale_farfield: list = None,
         show_beam_slider: bool = True,
         show_geometry: bool = True,
-    ) -> bool | "Plotter":
+    ) -> bool | Plotter:
         """Create a 3D polar plot of the geometry with a radiation pattern in PyVista.
 
         Parameters
@@ -1168,6 +1368,7 @@ class FfdSolutionData(PyAedtBase):
         >>> sphere = "3D"
         >>> data = app.get_antenna_data(setup=setup_name, sphere=sphere)
         >>> data.plot_3d(quantity_format="dB10")
+
         """
         import pyvista as pv
 
@@ -1409,6 +1610,13 @@ class FfdSolutionData(PyAedtBase):
         -------
         :class:`Pyvista.Plotter`
             ``UnstructuredGrid`` object representing the far field mesh.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
+        >>> obj = FfdSolutionData()
+        >>> obj.get_far_field_mesh(quantity=1, quantity_format=1)
+
         """
         farfield_data = self.farfield_data
         if quantity not in farfield_data:  # pragma: no cover
@@ -1539,6 +1747,13 @@ class FfdSolutionData(PyAedtBase):
         -------
         list
             Element index.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
+        >>> obj = FfdSolutionData()
+        >>> obj.get_port_index()
+
         """
         port_index = {}
 
@@ -1609,6 +1824,12 @@ class UpdateBeamForm(PyAedtBase):
         Conversion data function.
         Available functions are: ``"abs"``, ``"ang"``, ``"dB10"``, ``"dB20"``, ``"deg"``, ``"imag"``, ``"norm"``,
             and ``"real"``.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import UpdateBeamForm
+    >>> obj = UpdateBeamForm()
+
     """
 
     @pyaedt_function_handler()
@@ -1629,13 +1850,29 @@ class UpdateBeamForm(PyAedtBase):
 
     @pyaedt_function_handler()
     def update_phi(self, phi: float) -> None:
-        """Update the Phi value."""
+        """Update the Phi value.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import UpdateBeamForm
+        >>> obj = UpdateBeamForm()
+        >>> obj.update_phi(phi=1.0)
+
+        """
         self.__phi = phi * np.pi / 180
         self.__update_both()
 
     @pyaedt_function_handler()
     def update_theta(self, theta: float) -> None:
-        """Update the Theta value."""
+        """Update the Theta value.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import UpdateBeamForm
+        >>> obj = UpdateBeamForm()
+        >>> obj.update_theta(theta=1.0)
+
+        """
         self.__theta = theta * np.pi / 180
         self.__update_both()
 
@@ -1674,6 +1911,12 @@ def export_pyaedt_antenna_metadata(
     -------
     str
         Metadata JSON file.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import export_pyaedt_antenna_metadata
+    >>> export_pyaedt_antenna_metadata(input_file="project.aedt", output_dir="project.aedt")
+
     """
     from ansys.aedt.core.visualization.advanced.touchstone_parser import find_touchstone_files
 
@@ -1831,6 +2074,11 @@ def antenna_metadata_from_xml(input_file: str) -> dict:
     -------
     dict
         Metadata information.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import antenna_metadata_from_xml
+    >>> antenna_metadata_from_xml(input_file="example.xml")
 
     """
     # Load the XML file

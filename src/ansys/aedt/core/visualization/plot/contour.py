@@ -65,6 +65,13 @@ def bin_to_grid(
     Z : numpy.ndarray
         Averaged *zc* values on the ``(Yc, Xc)`` grid.  Grid cells
         that contain no sample are left as ``0``.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.plot.contour import bin_to_grid
+    >>> import numpy as np
+    >>> bin_to_grid(np.array([1, 2, 3]), np.array([4, 5, 6]), np.array([7, 8, 9]))
+
     """
     xc = np.asarray(xc).ravel()
     yc = np.asarray(yc).ravel()
@@ -128,8 +135,7 @@ def _nearest_index(sorted_1d, value):
 # --- 3) Robust contour extraction (version-agnostic using .allsegs) ---
 @requires_graphical_dependency("matplotlib")
 def _extract_contours_xy(Xc, Yc, mask_float, level=0.5):
-    """
-    Returns list of polygons (each Nx2) via marching squares on a binary mask.
+    """Returns list of polygons (each Nx2) via marching squares on a binary mask.
     Works across Matplotlib versions using QuadContourSet.allsegs.
     """
     import matplotlib.pyplot as plt
@@ -201,6 +207,15 @@ def extract_eye_opening_contour_by_center(
         Array of shape ``(N, 2)`` with the ``(x, y)`` vertices of the
         eye-opening contour polygon.  Returns an empty array when no
         zero region or contour is found.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.plot.contour import extract_eye_opening_contour_by_center
+    >>> import numpy as np
+    >>> extract_eye_opening_contour_by_center(
+    ...     np.array([1, 2, 3]), np.array([4, 5, 6]), np.array([[0, 1, 0], [1, 0, 1], [0, 1, 0]]), center=(2.5, 5.5)
+    ... )
+
     """
     Xc = np.asarray(Xc).ravel()
     Yc = np.asarray(Yc).ravel()
@@ -290,6 +305,13 @@ def prepare_and_extract(
         Array of shape ``(N, 2)`` containing the ``(x, y)`` vertices of
         the eye-opening contour polygon.  Returns an empty array when no
         opening is found.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.plot.contour import prepare_and_extract
+    >>> import numpy as np
+    >>> prepare_and_extract(np.array([1, 2, 3]), np.array([4, 5, 6]), np.array([7, 8, 9]), center=(2.5, 5.5))
+
     """
     Xc, Yc, Z = bin_to_grid(
         xc,

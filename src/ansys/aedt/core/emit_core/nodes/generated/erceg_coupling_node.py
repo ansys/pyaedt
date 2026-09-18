@@ -25,10 +25,13 @@
 from enum import Enum
 
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+from ansys.aedt.core.emit_core.nodes.generated import AntennaNode
 from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class ErcegCouplingNode(EmitNode):
+    """Provide erceg coupling node."""
+
     def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
@@ -36,23 +39,114 @@ class ErcegCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
-        """The parent of this emit node."""
+        """The parent of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> ereg = cpl.add_erceg_coupling()
+        >>> ereg.parent
+
+        """
         return self._parent
 
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node."""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> ereg = cpl.add_erceg_coupling()
+        >>> ereg.node_type
+
+        """
         return self._node_type
+
+    @min_aedt_version("2027.1")
+    def export_to_csv(
+        self, file_name: str, antennas: tuple[AntennaNode, AntennaNode] | None = None, ports: str = ""
+    ) -> str:
+        """Export's the data for this node
+
+        Parameters
+        ----------
+        file_name: str[optional]
+            full path to the file to export to.
+        antennas: tuple(AntennaNode, AntennaNode), optional
+            tuple of antenna nodes to pull the selected Tx and Rx antenna names from for the export.
+            If not specified, will use the names specified by the ports parameter.
+        ports: str, optional
+            the ports to export the data for.
+
+        Returns
+        -------
+        csv_data: str
+            stringified data for the node returned if file_name not specified
+        """
+        if antennas is not None and all(isinstance(x, AntennaNode) for x in antennas):
+            a1, a2 = antennas
+            vals = f"{a1.name}|{a2.name}"
+        else:
+            vals = f"{ports}"
+        return self._export_to_csv(file_name, "SelectedRxAntenna|SelectedTxAntenna", vals)
+
+    @min_aedt_version("2027.1")
+    def plot(self, antennas: tuple[AntennaNode, AntennaNode] | None = None, ports: str = ""):
+        """Bring up a Cartesian plot for this node
+
+        Parameters
+        ----------
+        antennas: tuple(AntennaNode, AntennaNode), optional
+            tuple of antenna nodes to pull the selected Tx and Rx antenna names from for the export.
+            If not specified, will use the names specified by the ports parameter.
+        ports: str, optional
+            the ports to export the data for.
+        """
+        if antennas is not None and all(isinstance(x, AntennaNode) for x in antennas):
+            a1, a2 = antennas
+            vals = f"{a1.name}|{a2.name}"
+        else:
+            vals = f"{ports}"
+        return self._plot("SelectedRxAntenna|SelectedTxAntenna", vals)
 
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
-        """Duplicate this node"""
+        """Duplicate this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> ereg = cpl.add_erceg_coupling()
+        >>> ereg_copy = ereg.duplicate("ereg_copy")
+
+        """
         return self._duplicate(new_name)
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node"""
+        """Delete this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> ereg = cpl.add_erceg_coupling()
+        >>> ereg.delete()
+
+        """
         self._delete()
 
     @property
@@ -61,6 +155,16 @@ class ErcegCouplingNode(EmitNode):
         """Enable/Disable coupling.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> ereg = cpl.add_erceg_coupling()
+        >>> ereg.enabled = True
+
         """
         val = self._get_property("Enabled")
         return val == "true"
@@ -73,7 +177,18 @@ class ErcegCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def base_antenna(self) -> EmitNode:
-        """First antenna of the pair to apply the coupling values to."""
+        """First antenna of the pair to apply the coupling values to.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> ereg = cpl.add_erceg_coupling()
+        >>> ereg.base_antenna
+
+        """
         val = self._get_property("Base Antenna")
         return val
 
@@ -85,7 +200,18 @@ class ErcegCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def mobile_antenna(self) -> EmitNode:
-        """Second antenna of the pair to apply the coupling values to."""
+        """Second antenna of the pair to apply the coupling values to.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> ereg = cpl.add_erceg_coupling()
+        >>> ereg.mobile_antenna
+
+        """
         val = self._get_property("Mobile Antenna")
         return val
 
@@ -102,9 +228,23 @@ class ErcegCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def terrain_category(self) -> TerrainCategoryOption:
-        """Specify the terrain category type for the Erceg model."""
+        """Specify the terrain category type for the Erceg model.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> ereg = cpl.add_erceg_coupling()
+        >>> ereg.terrain_category = ErcegCouplingNode.TerrainCategoryOption.TYPE_A
+
+        """
         val = self._get_property("Terrain Category")
-        val = self.TerrainCategoryOption[val.upper()]
+        try:
+            val = self.TerrainCategoryOption(val)
+        except ValueError:
+            val = self.TerrainCategoryOption[val.upper()]
         return val
 
     @terrain_category.setter
@@ -121,6 +261,16 @@ class ErcegCouplingNode(EmitNode):
         this node.
 
         Value should be between 0 and 100.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> ereg = cpl.add_erceg_coupling()
+        >>> ereg.custom_fading_margin = 0.0
+
         """
         val = self._get_property("Custom Fading Margin")
         return float(val)
@@ -139,6 +289,16 @@ class ErcegCouplingNode(EmitNode):
         defined by this node.
 
         Value should be between 0 and 100.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> ereg = cpl.add_erceg_coupling()
+        >>> ereg.polarization_mismatch = 0.0
+
         """
         val = self._get_property("Polarization Mismatch")
         return float(val)
@@ -157,6 +317,16 @@ class ErcegCouplingNode(EmitNode):
         defined by this node.
 
         Value should be between 0 and 100.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> ereg = cpl.add_erceg_coupling()
+        >>> ereg.pointing_error_loss = 0.0
+
         """
         val = self._get_property("Pointing Error Loss")
         return float(val)
@@ -175,9 +345,23 @@ class ErcegCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def fading_type(self) -> FadingTypeOption:
-        """Specify the type of fading to include."""
+        """Specify the type of fading to include.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> ereg = cpl.add_erceg_coupling()
+        >>> ereg.fading_type = ErcegCouplingNode.FadingTypeOption.NONE
+
+        """
         val = self._get_property("Fading Type")
-        val = self.FadingTypeOption[val.upper()]
+        try:
+            val = self.FadingTypeOption(val)
+        except ValueError:
+            val = self.FadingTypeOption[val.upper()]
         return val
 
     @fading_type.setter
@@ -194,6 +378,17 @@ class ErcegCouplingNode(EmitNode):
         value plus the margin.
 
         Value should be between 0.0 and 100.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> ereg = cpl.add_erceg_coupling()
+        >>> ereg.fading_type = ErcegCouplingNode.FadingTypeOption.FAST_FADING_ONLY
+        >>> ereg.fading_availability = 90.0
+
         """
         val = self._get_property("Fading Availability")
         return float(val)
@@ -209,6 +404,17 @@ class ErcegCouplingNode(EmitNode):
         """Standard deviation modeling the random amount of shadowing loss.
 
         Value should be between 0.0 and 100.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> ereg = cpl.add_erceg_coupling()
+        >>> ereg.fading_type = ErcegCouplingNode.FadingTypeOption.SHADOWING_ONLY
+        >>> ereg.std_deviation = 8.0
+
         """
         val = self._get_property("Std Deviation")
         return float(val)
@@ -224,6 +430,16 @@ class ErcegCouplingNode(EmitNode):
         """Adds a margin for rain attenuation to the computed coupling.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> ereg = cpl.add_erceg_coupling()
+        >>> ereg.include_rain_attenuation = False
+
         """
         val = self._get_property("Include Rain Attenuation")
         return val == "true"
@@ -242,6 +458,17 @@ class ErcegCouplingNode(EmitNode):
         from 99-99.999%).
 
         Value should be between 99 and 99.999.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> ereg = cpl.add_erceg_coupling()
+        >>> ereg.include_rain_attenuation = True
+        >>> ereg.rain_availability = 99.99
+
         """
         val = self._get_property("Rain Availability")
         return float(val)
@@ -257,6 +484,17 @@ class ErcegCouplingNode(EmitNode):
         """Rain rate (mm/hr) exceeded for 0.01% of the time.
 
         Value should be between 0.0 and 1000.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> ereg = cpl.add_erceg_coupling()
+        >>> ereg.include_rain_attenuation = True
+        >>> ereg.rain_rate = 8.0
+
         """
         val = self._get_property("Rain Rate")
         return float(val)
@@ -275,6 +513,17 @@ class ErcegCouplingNode(EmitNode):
         horizontal.
 
         Value should be between 0.0 and 180.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> ereg = cpl.add_erceg_coupling()
+        >>> ereg.include_rain_attenuation = True
+        >>> ereg.polarization_tilt_angle = 0.0
+
         """
         val = self._get_property("Polarization Tilt Angle")
         return float(val)
@@ -293,6 +542,16 @@ class ErcegCouplingNode(EmitNode):
         the computed coupling.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> ereg = cpl.add_erceg_coupling()
+        >>> ereg.include_atmospheric_absorption = False
+
         """
         val = self._get_property("Include Atmospheric Absorption")
         return val == "true"
@@ -308,6 +567,17 @@ class ErcegCouplingNode(EmitNode):
         """Air temperature in degrees Celsius.
 
         Value should be between -273.0 and 100.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> ereg = cpl.add_erceg_coupling()
+        >>> ereg.include_atmospheric_absorption = True
+        >>> ereg.temperature = 15.0
+
         """
         val = self._get_property("Temperature")
         return float(val)
@@ -323,6 +593,17 @@ class ErcegCouplingNode(EmitNode):
         """Total air pressure.
 
         Value should be between 0.0 and 2000.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> ereg = cpl.add_erceg_coupling()
+        >>> ereg.include_atmospheric_absorption = True
+        >>> ereg.total_air_pressure = 1013
+
         """
         val = self._get_property("Total Air Pressure")
         return float(val)
@@ -338,6 +619,17 @@ class ErcegCouplingNode(EmitNode):
         """Water vapor concentration.
 
         Value should be between 0.0 and 2000.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> ereg = cpl.add_erceg_coupling()
+        >>> ereg.include_atmospheric_absorption = True
+        >>> ereg.water_vapor_concentration = 7.5
+
         """
         val = self._get_property("Water Vapor Concentration")
         return float(val)

@@ -1,0 +1,7 @@
+# Codacy configuration file
+# See https://docs.codacy.com/repositories-configure/codacy-configuration-file/ for more details
+---
+exclude_paths:
+  - "tests/**"
+  - "doc/**"
+  - "uv.lock"

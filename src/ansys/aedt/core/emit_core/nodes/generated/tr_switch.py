@@ -27,6 +27,8 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class TR_Switch(EmitNode):  # noqa: N801
+    """Provide tr switch."""
+
     def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = True
@@ -34,17 +36,79 @@ class TR_Switch(EmitNode):  # noqa: N801
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node."""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> trs = app.schematic.create_component("TR Switch")
+        >>> trs.node_type
+
+        """
         return self._node_type
+
+    @min_aedt_version("2027.1")
+    def export_to_csv(self, file_name: str = "", ports: str = "1|2") -> str:
+        """Export's the data for this node
+
+        Parameters
+        ----------
+        file_name: str[optional]
+            full path to the file to export to.
+        ports: str
+            the ports to export the data for.
+            Default orientation port names: 2|1|3
+
+        Returns
+        -------
+        csv_data: str
+            stringified data for the node returned if file_name not specified
+        """
+        keys = "SelectedInputPort|SelectedOutputPort"
+        vals = f"{ports}"
+        return self._export_to_csv(file_name, keys, vals)
+
+    @min_aedt_version("2027.1")
+    def plot(self, ports: str = "1|2"):
+        """Bring up a Cartesian plot for this node
+
+        Parameters
+        ----------
+        ports: str
+            the ports to export the data for.
+            Default orientation port names: 2|1|3
+        """
+        keys = "SelectedInputPort|SelectedOutputPort"
+        vals = f"{ports}"
+        return self._plot(keys, vals)
 
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
-        """Duplicate this node"""
+        """Duplicate this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> trs = app.schematic.create_component("TR Switch")
+        >>> trs_copy = trs.duplicate("trs_copy")
+
+        """
         return self._duplicate(new_name)
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node"""
+        """Delete this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> trs = app.schematic.create_component("TR Switch")
+        >>> trs.delete()
+
+        """
         self._delete()
 
     @property
@@ -53,6 +117,14 @@ class TR_Switch(EmitNode):  # noqa: N801
         """System Noise temperature (K) of the component.
 
         Value should be between 0 and 1000.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> trs = app.schematic.create_component("TR Switch")
+        >>> trs.noise_temperature = 290.0
+
         """
         val = self._get_property("Noise Temperature")
         return float(val)
@@ -65,7 +137,16 @@ class TR_Switch(EmitNode):  # noqa: N801
     @property
     @min_aedt_version("2025.2")
     def notes(self) -> str:
-        """Expand to view/edit notes stored with the project."""
+        """Expand to view/edit notes stored with the project.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> trs = app.schematic.create_component("TR Switch")
+        >>> trs.notes = "example_value"
+
+        """
         val = self._get_property("Notes")
         return val
 
@@ -80,6 +161,14 @@ class TR_Switch(EmitNode):  # noqa: N801
         """TR Switch in-band loss in forward direction.
 
         Value should be between 0 and 100.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> trs = app.schematic.create_component("TR Switch")
+        >>> trs.insertion_loss = 0
+
         """
         val = self._get_property("Insertion Loss")
         return float(val)
@@ -98,6 +187,14 @@ class TR_Switch(EmitNode):  # noqa: N801
         (infinite isolation).
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> trs = app.schematic.create_component("TR Switch")
+        >>> trs.finite_isolation = False
+
         """
         val = self._get_property("Finite Isolation")
         return val == "true"
@@ -113,6 +210,15 @@ class TR_Switch(EmitNode):  # noqa: N801
         """TR Switch reverse isolation (i.e., loss between the Tx/Rx ports).
 
         Value should be between 0 and 100.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> trs = app.schematic.create_component("TR Switch")
+        >>> trs.finite_isolation = True
+        >>> trs.isolation = 60
+
         """
         val = self._get_property("Isolation")
         return float(val)
@@ -131,6 +237,14 @@ class TR_Switch(EmitNode):  # noqa: N801
         (infinite bandwidth).
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> trs = app.schematic.create_component("TR Switch")
+        >>> trs.finite_bandwidth = False
+
         """
         val = self._get_property("Finite Bandwidth")
         return val == "true"
@@ -146,6 +260,15 @@ class TR_Switch(EmitNode):  # noqa: N801
         """Out-of-band loss (attenuation).
 
         Value should be between 0 and 200.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> trs = app.schematic.create_component("TR Switch")
+        >>> trs.finite_bandwidth = True
+        >>> trs.out_of_band_attenuation = 40
+
         """
         val = self._get_property("Out-of-band Attenuation")
         return float(val)
@@ -161,6 +284,15 @@ class TR_Switch(EmitNode):  # noqa: N801
         """Lower stop band frequency.
 
         Value should be between 1 and 100e9.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> trs = app.schematic.create_component("TR Switch")
+        >>> trs.finite_bandwidth = True
+        >>> trs.lower_stop_band = 80e6
+
         """
         val = self._get_property("Lower Stop Band")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -178,6 +310,15 @@ class TR_Switch(EmitNode):  # noqa: N801
         """Lower cutoff frequency.
 
         Value should be between 1 and 100e9.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> trs = app.schematic.create_component("TR Switch")
+        >>> trs.finite_bandwidth = True
+        >>> trs.lower_cutoff = 90e6
+
         """
         val = self._get_property("Lower Cutoff")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -195,6 +336,15 @@ class TR_Switch(EmitNode):  # noqa: N801
         """Higher cutoff frequency.
 
         Value should be between 1 and 100e9.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> trs = app.schematic.create_component("TR Switch")
+        >>> trs.finite_bandwidth = True
+        >>> trs.higher_cutoff = 110e6
+
         """
         val = self._get_property("Higher Cutoff")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -212,6 +362,15 @@ class TR_Switch(EmitNode):  # noqa: N801
         """Higher stop band frequency.
 
         Value should be between 1 and 100e9.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> trs = app.schematic.create_component("TR Switch")
+        >>> trs.finite_bandwidth = True
+        >>> trs.higher_stop_band = 120e6
+
         """
         val = self._get_property("Higher Stop Band")
         val = self._convert_from_internal_units(float(val), "Freq")

@@ -41,24 +41,45 @@ from ansys.aedt.core.extensions.misc import is_student
 
 # Retrieve environment info
 PORT = get_port()
+"""Port used by the extension."""
 VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
 AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
 IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
 
 # Extension batch arguments and title
 EXTENSION_DEFAULT_ARGUMENTS = {"file_extension": ""}
+"""Default arguments for the extension."""
 EXTENSION_TITLE = "Import schematic to Circuit"
+"""Title displayed for the extension."""
 
 
 @dataclass
 class ImportSchematicData(ExtensionCommonData):
-    """Data class for import schematic extension."""
+    """Data class for import schematic extension.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.circuit.import_schematic import ImportSchematicData
+    >>> data = ImportSchematicData(file_extension=r"D:\\Circuits\\filter.asc")
+
+    """
 
     file_extension: str = EXTENSION_DEFAULT_ARGUMENTS["file_extension"]
+    """Value for file extension."""
 
 
 class ImportSchematicExtension(ExtensionCircuitCommon):
-    """Extension for importing schematic into Circuit."""
+    """Extension for importing schematic into Circuit.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.circuit.import_schematic import ImportSchematicExtension
+    >>> extension = ImportSchematicExtension(withdraw=True)
+
+    """
 
     def __init__(self, withdraw: bool = False) -> None:
         super().__init__(
@@ -68,11 +89,19 @@ class ImportSchematicExtension(ExtensionCircuitCommon):
             toggle_row=1,
             toggle_column=2,
         )
-        self._text_widget = None
+        self._text_widget: tkinter.Text | None = None
         self.add_extension_content()
 
     def add_extension_content(self) -> None:
-        """Add UI elements for file selection and import action."""
+        """Add UI elements for file selection and import action.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.circuit.import_schematic import ImportSchematicExtension
+        >>> extension = ImportSchematicExtension(withdraw=True)
+        >>> extension.add_extension_content()
+
+        """
         label = ttk.Label(
             self.root,
             text="Browse file:",
@@ -88,7 +117,10 @@ class ImportSchematicExtension(ExtensionCircuitCommon):
         self._text_widget.grid(row=0, column=1, padx=5, pady=10)
 
         def browse_file() -> None:
-            current = self._text_widget.get(
+            text_widget = self._text_widget
+            if text_widget is None:
+                raise RuntimeError("Import schematic text widget is not initialized.")
+            current = text_widget.get(
                 "1.0",
                 tkinter.END,
             ).strip()
@@ -103,8 +135,8 @@ class ImportSchematicExtension(ExtensionCircuitCommon):
                 ),
             )
             if filename:
-                self._text_widget.delete("1.0", tkinter.END)
-                self._text_widget.insert(tkinter.END, filename)
+                text_widget.delete("1.0", tkinter.END)
+                text_widget.insert(tkinter.END, filename)
 
         browse_button = ttk.Button(
             self.root,
@@ -116,13 +148,17 @@ class ImportSchematicExtension(ExtensionCircuitCommon):
         browse_button.grid(row=0, column=2, padx=10, pady=10)
 
         def callback() -> None:
-            file_extension = self._text_widget.get(
+            text_widget = self._text_widget
+            if text_widget is None:
+                raise RuntimeError("Import schematic text widget is not initialized.")
+            file_extension = text_widget.get(
                 "1.0",
                 tkinter.END,
             ).strip()
             if not Path(file_extension).exists():
                 raise ValueError("File does not exist.")
-            self.data = ImportSchematicData(file_extension=file_extension)
+            data = ImportSchematicData(file_extension=file_extension)
+            self.data = data
             self.root.destroy()
 
         import_button = ttk.Button(
@@ -136,7 +172,15 @@ class ImportSchematicExtension(ExtensionCircuitCommon):
 
 
 def main(data: ImportSchematicData) -> bool:
-    """Execute schematic import based on provided data."""
+    """Execute schematic import based on provided data.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.circuit.import_schematic import ImportSchematicData, main
+    >>> data = ImportSchematicData(file_extension=r"D:\\Circuits\\filter.asc")
+    >>> main(data)
+
+    """
     file_extension = Path(data.file_extension)
     app = Desktop(
         new_desktop=False,
@@ -164,8 +208,9 @@ if __name__ == "__main__":  # pragma: no cover
     if not args.get("is_batch", False):
         extension = ImportSchematicExtension(withdraw=False)
         tkinter.mainloop()
-        if extension.data:
-            main(extension.data)
+        data = extension.data
+        if data and isinstance(data, ImportSchematicData):
+            main(data)
     else:
         data = ImportSchematicData()
         for key, value in args.items():

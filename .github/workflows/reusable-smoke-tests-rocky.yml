@@ -18,6 +18,11 @@ on:
         required: false
         default: '["all", "all-dotnet"]'
         type: string
+      attest-provenance:
+        description: Whether to attest build provenance
+        required: false
+        default: false
+        type: boolean
 
 # Disable all default permissions at workflow level for security (least privilege principle)
 # Individual jobs will explicitly request only the permissions they need
@@ -61,7 +66,7 @@ jobs:
           update-ca-trust
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        uses: astral-sh/setup-uv@ae62891fec2bb8e7d6c99fc78c9fec3a63790f8d # v10.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -74,9 +79,9 @@ jobs:
 
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse-rocky
-        uses: ansys/actions/build-wheelhouse@d946b24b9a765f4169bcc94afdb27bd1a0533741 # v10.3.2
+        uses: ansys/actions/build-wheelhouse@7410037bfb276c79ae91eb3617b9f5d2876f0c94 # v11.0.8
         with:
-          attest-provenance: true
+          attest-provenance: ${{ inputs.attest-provenance }}
           checkout: false
           library-name: PyAEDT
           operating-system: rocky-linux-8
