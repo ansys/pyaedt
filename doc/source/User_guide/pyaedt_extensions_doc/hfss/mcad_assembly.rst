@@ -1,4 +1,4 @@
-MCAD assembly
+Mcad assembly
 =============
 
 With this extension, you can assemble 3D components, 3D layout components in HFSS 3D from a predefined configure file.
