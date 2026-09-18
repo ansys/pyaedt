@@ -29,14 +29,25 @@ This code creates a configure file and create an assembled design in HFSS 3D:
 
     CUR_DIR = Path(__file__).parent
 
+
     def create_config() -> MCADAssemblyBackend:
 
         top_assembly = MCADAssemblyBackend()
-        top_assembly.add_mcad_component_model(name="case", path="mcad_assembly/Chassi.a3dcomp")
-        top_assembly.add_mcad_component_model(name="cable", path="mcad_assembly/Cable.a3dcomp")
-        top_assembly.add_mcad_component_model(name="clamp_monitor", path="mcad_assembly/BCI_MONITORING_CLAMP.a3dcomp")
-        top_assembly.add_mcad_component_model(name="cap0402", path="mcad_assembly/Capacitor_HFSS.a3dcomp")
-        top_assembly.add_ecad_component_model(name="pcb", path="mcad_assembly/DCDC-Converter-App_main.aedb")
+        top_assembly.add_mcad_component_model(
+            name="case", path="mcad_assembly/Chassi.a3dcomp"
+        )
+        top_assembly.add_mcad_component_model(
+            name="cable", path="mcad_assembly/Cable.a3dcomp"
+        )
+        top_assembly.add_mcad_component_model(
+            name="clamp_monitor", path="mcad_assembly/BCI_MONITORING_CLAMP.a3dcomp"
+        )
+        top_assembly.add_mcad_component_model(
+            name="cap0402", path="mcad_assembly/Capacitor_HFSS.a3dcomp"
+        )
+        top_assembly.add_ecad_component_model(
+            name="pcb", path="mcad_assembly/DCDC-Converter-App_main.aedb"
+        )
 
         cs = top_assembly.add_coordinate_system(name="GLOBAL_2")
         cs.origin = ["100mm", "0mm", "0mm"]
@@ -50,7 +61,11 @@ This code creates a configure file and create an assembled design in HFSS 3D:
 
         sub_comp_ = sub_comp.add_sub_ecad_component(name="pcb", model="pcb")
         sub_comp_.target_coordinate_system = "Guiding_Pin"
-        sub_comp_.layout_coordinate_systems = ["CABLE1_via_65", "CABLE2_via_65", "H0_via_65"]
+        sub_comp_.layout_coordinate_systems = [
+            "CABLE1_via_65",
+            "CABLE2_via_65",
+            "H0_via_65",
+        ]
         sub_comp_.reference_coordinate_system = "H0_via_65"
         sub_comp_.arranges = [Arrange(operation="rotate", axis="X", angle="0deg")]
 
@@ -88,13 +103,15 @@ This code creates a configure file and create an assembled design in HFSS 3D:
         sub_comp__.placement_pin_mapping.pin_1_loc = (0, 0, 0)
         sub_comp__.placement_pin_mapping.pin_2_loc = (0.7375e-3, 0, 0)
 
-        sub_comp = top_assembly.add_sub_mcad_component(name="clamp_monitor", model="clamp_monitor")
+        sub_comp = top_assembly.add_sub_mcad_component(
+            name="clamp_monitor", model="clamp_monitor"
+        )
         sub_comp.target_coordinate_system = "CS_CLAMP"
 
         return top_assembly
 
 
-    if __name__ == '__main__':
+    if __name__ == "__main__":
         config = create_config()
 
         output_path = CUR_DIR / "assembly_config.json"
