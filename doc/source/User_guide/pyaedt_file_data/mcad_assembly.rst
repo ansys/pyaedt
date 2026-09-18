@@ -1,4 +1,4 @@
-Configuration file for Mcad assembly
+Configuration file for MCAD assembly
 ====================================
 
 The configuration file allows you to assemble 3D components, 3D layout components in HFSS 3D.
