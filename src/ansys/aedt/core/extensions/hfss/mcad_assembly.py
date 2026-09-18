@@ -169,7 +169,7 @@ class MCADAssemblyFrontend(ExtensionHFSSCommon):
             button_frame,
             width=10,
             text="Run",
-            command=lambda: run(self.config_data),
+            command=lambda: run(self.config_data, model_dir=self.local_path),
             style="PyAEDT.TButton",
             name="run",
         ).pack(anchor="w", side="left", padx=15, pady=10)
@@ -257,7 +257,11 @@ def load_dict(tree: ttk.Treeview, master: MCADAssemblyFrontend) -> None:
             tree.insert(temp, "end", text=text, open=False)
 
     node3 = tree.insert("", "end", text=str("assembly"), open=False)
-    insert_items(tree, node3, master.config_data.get("assembly", {}))
+
+    temp = master.config_data.get("assembly", {})
+    if not temp:
+        temp = master.config_data.get("sub_components", {})
+    insert_items(tree, node3, temp)
 
 
 def insert_items(tree: ttk.Treeview, parent: str, dictionary: dict | list | str | int | float | None) -> None:
