@@ -121,6 +121,12 @@ solver_xfail = pytest.mark.xfail(
     reason="Solver tests are unstable",
 )
 
+# Mark tests as xfail when PYAEDT_OSM_XFAIL=1
+osm_xfail = pytest.mark.xfail(
+    condition=os.environ.get("PYAEDT_OSM_XFAIL") == "1",
+    reason="Open streep map tests are unstable",
+)
+
 # ================================
 # PyAEDT settings
 # ================================
