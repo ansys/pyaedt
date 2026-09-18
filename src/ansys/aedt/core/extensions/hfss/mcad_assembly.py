@@ -617,7 +617,7 @@ class MCADAssemblyBackend(BaseModel):
 
 
 def run(
-    config_data: dict,
+    config_data: dict|str|Path,
     project_dir: str = None,
     model_dir: str = None,
     version: str = None,
@@ -626,6 +626,10 @@ def run(
     student_version: bool = False,
     hfss=None,
 ):
+    if isinstance(config_data, str| Path):
+        with open(config_data, "r") as f:
+            config_data = json.load(f)
+
     if not project_dir:
         project_dir = Path(tempfile.mkdtemp(prefix="mcad_assembly_"))
     else:
