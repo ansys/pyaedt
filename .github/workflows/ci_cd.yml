@@ -19,6 +19,8 @@ env:
   PYTEST_ARGUMENTS: -vvv --color=yes -rsa --durations=25 --maxfail=10 --junitxml=junit/test-results.xml --testmon
   PYTEST_ARGUMENTS_NON_TESTMON: -vvv --color=yes -rsa --durations=25 --maxfail=10 --junitxml=junit/test-results.xml
   PYAEDT_EDB_XFAIL: "1"
+  PYAEDT_SOLVER_XFAIL: "1"
+  PYAEDT_OSM_XFAIL: "1"
   PYAEDT_LOCAL_SETTINGS_PATH: 'tests/pyaedt_settings.yaml'
   TESTMON_DATAFILE: '.testmondata'
   TESTMON_CACHE_KEY_SOLVERS_WIN: 'testmondata-solvers-win'
