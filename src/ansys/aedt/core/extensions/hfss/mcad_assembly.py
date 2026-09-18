@@ -560,7 +560,7 @@ class CoordinateSystem(BaseModel):
     name: str | None = None
 
 
-class MCADAssembly(BaseModel):
+class MCADAssemblyBackend(BaseModel):
     """Provide MCAD assembly backend."""
 
     model_config = CONFIG_DICT
@@ -577,7 +577,7 @@ class MCADAssembly(BaseModel):
     """Value for sub components."""
 
     @classmethod
-    def _load(cls, data: dict) -> "MCADAssembly":
+    def _load(cls, data: dict) -> "MCADAssemblyBackend":
         return cls(
             coordinate_system=data.get("coordinate_system", {}),
             component_models=data.get("component_models", {}),
@@ -629,7 +629,7 @@ def run(
     temp_model_dir = project_dir / "models"
     temp_model_dir.mkdir(parents=True, exist_ok=True)
 
-    app = MCADAssembly._load(data=config_data)
+    app = MCADAssemblyBackend._load(data=config_data)
 
     version = version if version else get_aedt_version()
     if hfss is None:

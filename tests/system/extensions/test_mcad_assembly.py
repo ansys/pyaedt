@@ -30,7 +30,7 @@ import pytest
 
 from ansys.aedt.core import Hfss
 from ansys.aedt.core.extensions.hfss.mcad_assembly import Arrange
-from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssembly
+from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssemblyBackend
 from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssemblyFrontend
 from ansys.aedt.core.extensions.hfss.mcad_assembly import run
 from ansys.aedt.core.generic.general_methods import is_linux
@@ -46,9 +46,9 @@ def hfss_app(add_app):
     app.close_project(app.project_name, save=False)
 
 
-def get_test_data() -> MCADAssembly:
+def get_test_data() -> MCADAssemblyBackend:
 
-    top_assembly = MCADAssembly()
+    top_assembly = MCADAssemblyBackend()
     top_assembly.add_mcad_component_model(name="case", path="Chassi.a3dcomp")
     top_assembly.add_mcad_component_model(name="cable", path="Cable.a3dcomp")
     top_assembly.add_mcad_component_model(name="clamp_monitor", path="BCI_MONITORING_CLAMP.a3dcomp")
