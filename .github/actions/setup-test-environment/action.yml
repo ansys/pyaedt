@@ -1,0 +1,91 @@
+name: Setup test environment
+description: |
+  This action sets up the test environment by creating a Python virtual environment,
+  installing PyAEDT with test dependencies and removing Ansys processes. Optionally,
+  it can also set up a headless display by setting the ``setup-headless-display``
+  input to ``true``.
+inputs:
+  python-version:
+    description: |
+      Python version to use.
+    required: false
+    type: string
+    default: '3.14'
+  setup-headless-display:
+    description: |
+      Whether to set up a headless display.
+    required: false
+    type: boolean
+    default: false
+
+outputs:
+  activate-venv:
+    description: |
+      Command used to activate the virtual environment set up by this action.
+      It can be reused in later steps of the same job to execute tasks within
+      the virtual environment.
+    value: ${{ steps.virtual-environment-activation-command.outputs.ACTIVATE_VENV }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Python
+      uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Set up uv
+      uses: astral-sh/setup-uv@ae62891fec2bb8e7d6c99fc78c9fec3a63790f8d # v10.0.0
+      with:
+        activate-environment: true
+        enable-cache: false
+        prune-cache: true
+        python-version: ${{ inputs.python-version }}
+
+    - name: Create virtual environment
+      shell: bash
+      env:
+        PYTHON_VERSION: ${{ inputs.python-version }}
+      run: uv venv --python ${PYTHON_VERSION} --clear
+
+    - name: Set up virtual environment activation command
+      id: virtual-environment-activation-command
+      shell: bash
+      run: |
+        if [[ ${RUNNER_OS} == 'Windows' ]]; then
+          echo "ACTIVATE_VENV=$(echo 'source .venv/scripts/activate')" >> $GITHUB_OUTPUT
+        else
+          echo "ACTIVATE_VENV=$(echo 'source .venv/bin/activate')" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Install pyaedt and tests dependencies
+      env:
+        ACTIVATE_VENV: ${{ steps.virtual-environment-activation-command.outputs.ACTIVATE_VENV }}
+      shell: bash
+      run: |
+        ${ACTIVATE_VENV}
+        uv sync --frozen --group tests --extra all
+
+    - name: Remove Ansys processes (if any)
+      if: runner.os == 'Linux'
+      shell: bash
+      run: |
+        for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
+          echo "Killing PID $pid"
+          kill -9 "$pid"
+        done
+
+    - name: Remove Ansys processes (if any)
+      if: runner.os == 'Windows'
+      shell: powershell
+      run: |
+        Get-Process | Where-Object {
+          $_.Path -like "*ansys inc*" -or $_.Path -like "*ansysem*"
+        } | ForEach-Object {
+          Write-Output "Killing $($_.Name) (PID: $($_.Id))"
+          Stop-Process -Id $_.Id -Force
+        }
+
+    - name: Set up headless display
+      if: ${{ inputs.setup-headless-display == 'true' }}
+      uses: pyvista/setup-headless-display-action@b0bf9f57d62d2b3fee9f1c0e0c7e390f05e97a4e # v5.0.0
