@@ -1,0 +1,6 @@
+normalize
+=========
+
+.. currentmodule:: ansys.aedt.core.generic.quaternion
+
+.. automethod:: Quaternion.normalize

@@ -1,0 +1,6 @@
+global\_project\_directory
+==========================
+
+.. currentmodule:: ansys.aedt.core.desktop
+
+.. autoproperty:: Desktop.global_project_directory

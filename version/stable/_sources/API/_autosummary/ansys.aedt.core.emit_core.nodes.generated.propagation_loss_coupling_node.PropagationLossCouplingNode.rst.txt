@@ -1,0 +1,78 @@
+﻿PropagationLossCouplingNode
+===========================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.propagation_loss_coupling_node
+
+.. autoclass:: PropagationLossCouplingNode
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      PropagationLossCouplingNode.delete
+      
+      
+      PropagationLossCouplingNode.duplicate
+      
+      
+      PropagationLossCouplingNode.export_to_csv
+      
+      
+      PropagationLossCouplingNode.get_is_component
+      
+      
+      PropagationLossCouplingNode.get_properties
+      
+      
+      PropagationLossCouplingNode.plot
+      
+      
+      PropagationLossCouplingNode.props_to_dict
+      
+      
+      PropagationLossCouplingNode.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      PropagationLossCouplingNode.allowed_child_types
+      PropagationLossCouplingNode.antenna_a
+      PropagationLossCouplingNode.antenna_b
+      PropagationLossCouplingNode.children
+      PropagationLossCouplingNode.custom_fading_margin
+      PropagationLossCouplingNode.enabled
+      PropagationLossCouplingNode.fading_availability
+      PropagationLossCouplingNode.fading_type
+      PropagationLossCouplingNode.include_atmospheric_absorption
+      PropagationLossCouplingNode.include_rain_attenuation
+      PropagationLossCouplingNode.name
+      PropagationLossCouplingNode.node_type
+      PropagationLossCouplingNode.odesktop
+      PropagationLossCouplingNode.parent
+      PropagationLossCouplingNode.parent_name
+      PropagationLossCouplingNode.pointing_error_loss
+      PropagationLossCouplingNode.polarization_mismatch
+      PropagationLossCouplingNode.polarization_tilt_angle
+      PropagationLossCouplingNode.properties
+      PropagationLossCouplingNode.rain_availability
+      PropagationLossCouplingNode.rain_rate
+      PropagationLossCouplingNode.std_deviation
+      PropagationLossCouplingNode.temperature
+      PropagationLossCouplingNode.total_air_pressure
+      PropagationLossCouplingNode.valid
+      PropagationLossCouplingNode.warnings
+      PropagationLossCouplingNode.water_vapor_concentration
+   
+   

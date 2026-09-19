@@ -1,0 +1,6 @@
+power\_divider\_type
+====================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.power_divider
+
+.. autoproperty:: PowerDivider.power_divider_type

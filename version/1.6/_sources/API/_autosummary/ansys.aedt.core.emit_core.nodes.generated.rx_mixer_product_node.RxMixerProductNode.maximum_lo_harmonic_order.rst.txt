@@ -1,0 +1,6 @@
+maximum\_lo\_harmonic\_order
+============================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.rx_mixer_product_node
+
+.. autoproperty:: RxMixerProductNode.maximum_lo_harmonic_order

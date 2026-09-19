@@ -1,0 +1,6 @@
+specify\_percentage
+===================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.sampling_node
+
+.. autoproperty:: SamplingNode.specify_percentage

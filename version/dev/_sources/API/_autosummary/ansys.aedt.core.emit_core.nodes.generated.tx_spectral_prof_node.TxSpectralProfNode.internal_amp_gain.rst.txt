@@ -1,0 +1,6 @@
+internal\_amp\_gain
+===================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.tx_spectral_prof_node
+
+.. autoproperty:: TxSpectralProfNode.internal_amp_gain

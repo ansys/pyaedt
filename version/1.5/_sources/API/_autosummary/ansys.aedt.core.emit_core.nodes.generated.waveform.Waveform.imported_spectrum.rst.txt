@@ -1,0 +1,6 @@
+imported\_spectrum
+==================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.waveform
+
+.. autoproperty:: Waveform.imported_spectrum

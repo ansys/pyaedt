@@ -1,0 +1,6 @@
+assign\_thermal\_condition\_uniform
+===================================
+
+.. currentmodule:: ansys.aedt.core.mechanical
+
+.. automethod:: Mechanical.assign_thermal_condition_uniform

@@ -1,0 +1,6 @@
+animate\_2d
+===========
+
+.. currentmodule:: ansys.aedt.core.visualization.plot.matplotlib
+
+.. automethod:: ReportPlotter.animate_2d

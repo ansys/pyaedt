@@ -1,0 +1,6 @@
+opadstack\_manager
+==================
+
+.. currentmodule:: ansys.aedt.core.twinbuilder
+
+.. autoproperty:: TwinBuilder.opadstack_manager

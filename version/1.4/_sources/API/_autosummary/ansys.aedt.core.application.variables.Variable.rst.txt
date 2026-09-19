@@ -1,0 +1,66 @@
+﻿Variable
+========
+
+.. currentmodule:: ansys.aedt.core.application.variables
+
+.. autoclass:: Variable
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      Variable.decompose
+      
+      
+      Variable.format
+      
+      
+      Variable.rescale_to
+      
+      
+      Variable.update_var
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      Variable.description
+      Variable.evaluated_value
+      Variable.expression
+      Variable.has_definition_parameters
+      Variable.hidden
+      Variable.is_circuit_parameter
+      Variable.is_optimization_enabled
+      Variable.is_sensitivity_enabled
+      Variable.is_statistical_enabled
+      Variable.is_tuning_enabled
+      Variable.name
+      Variable.numeric_value
+      Variable.optimization_max_value
+      Variable.optimization_min_value
+      Variable.post_processing
+      Variable.public_dir
+      Variable.read_only
+      Variable.sensitivity_initial_disp
+      Variable.sensitivity_max_value
+      Variable.sensitivity_min_value
+      Variable.si_value
+      Variable.sweep
+      Variable.tuning_max_value
+      Variable.tuning_min_value
+      Variable.tuning_step_value
+      Variable.unit_system
+      Variable.units
+   
+   

@@ -1,0 +1,6 @@
+operations
+==========
+
+.. currentmodule:: ansys.aedt.core.visualization.post.field_calculator_expressions
+
+.. autoproperty:: VectorComplex.operations

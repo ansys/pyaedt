@@ -1,0 +1,6 @@
+ocomponent\_manager
+===================
+
+.. currentmodule:: ansys.aedt.core.maxwell
+
+.. autoproperty:: Maxwell2d.ocomponent_manager

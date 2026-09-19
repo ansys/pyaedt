@@ -1,0 +1,25 @@
+﻿Line
+====
+
+.. currentmodule:: ansys.aedt.core.visualization.post.field_calculator_expressions
+
+.. autoclass:: Line
+
+   
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      Line.assignment_type
+      Line.calculator_entry
+      Line.public_dir
+      Line.value_op
+   
+   

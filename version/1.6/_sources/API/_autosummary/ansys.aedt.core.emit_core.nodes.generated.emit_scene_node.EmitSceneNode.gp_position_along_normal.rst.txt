@@ -1,0 +1,6 @@
+gp\_position\_along\_normal
+===========================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.emit_scene_node
+
+.. autoproperty:: EmitSceneNode.gp_position_along_normal

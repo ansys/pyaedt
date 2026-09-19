@@ -1,0 +1,6 @@
+total\_tx\_channels
+===================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.sampling_node
+
+.. autoproperty:: SamplingNode.total_tx_channels

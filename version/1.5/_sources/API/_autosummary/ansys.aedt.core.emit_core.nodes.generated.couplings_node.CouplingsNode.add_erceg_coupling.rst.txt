@@ -1,0 +1,6 @@
+add\_erceg\_coupling
+====================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.couplings_node
+
+.. automethod:: CouplingsNode.add_erceg_coupling

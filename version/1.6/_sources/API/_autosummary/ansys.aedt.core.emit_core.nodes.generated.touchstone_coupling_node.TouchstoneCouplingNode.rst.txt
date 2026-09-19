@@ -1,0 +1,67 @@
+﻿TouchstoneCouplingNode
+======================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.touchstone_coupling_node
+
+.. autoclass:: TouchstoneCouplingNode
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      TouchstoneCouplingNode.delete
+      
+      
+      TouchstoneCouplingNode.duplicate
+      
+      
+      TouchstoneCouplingNode.export_to_csv
+      
+      
+      TouchstoneCouplingNode.get_is_component
+      
+      
+      TouchstoneCouplingNode.get_properties
+      
+      
+      TouchstoneCouplingNode.plot
+      
+      
+      TouchstoneCouplingNode.props_to_dict
+      
+      
+      TouchstoneCouplingNode.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      TouchstoneCouplingNode.allowed_child_types
+      TouchstoneCouplingNode.children
+      TouchstoneCouplingNode.enable_em_isolation
+      TouchstoneCouplingNode.enabled
+      TouchstoneCouplingNode.filename
+      TouchstoneCouplingNode.name
+      TouchstoneCouplingNode.node_type
+      TouchstoneCouplingNode.notes
+      TouchstoneCouplingNode.odesktop
+      TouchstoneCouplingNode.parent
+      TouchstoneCouplingNode.parent_name
+      TouchstoneCouplingNode.port_antenna_assignment
+      TouchstoneCouplingNode.properties
+      TouchstoneCouplingNode.savant_matched_coupling_file
+      TouchstoneCouplingNode.valid
+      TouchstoneCouplingNode.warnings
+   
+   

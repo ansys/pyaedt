@@ -1,0 +1,6 @@
+set\_properties
+===============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.emit_node
+
+.. automethod:: EmitNode.set_properties

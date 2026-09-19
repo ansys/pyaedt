@@ -1,0 +1,6 @@
+stop\_band\_attenuation
+=======================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.filter
+
+.. autoproperty:: Filter.stop_band_attenuation

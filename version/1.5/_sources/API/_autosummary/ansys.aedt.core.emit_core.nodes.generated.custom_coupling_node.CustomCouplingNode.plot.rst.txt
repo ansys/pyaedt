@@ -1,0 +1,6 @@
+plot
+====
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.custom_coupling_node
+
+.. automethod:: CustomCouplingNode.plot

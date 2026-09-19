@@ -1,0 +1,6 @@
+insertion\_loss\_above\_ideal
+=============================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.power_divider
+
+.. autoproperty:: PowerDivider.insertion_loss_above_ideal

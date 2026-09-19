@@ -1,0 +1,79 @@
+﻿RxMixerProductNode
+==================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.rx_mixer_product_node
+
+.. autoclass:: RxMixerProductNode
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      RxMixerProductNode.delete
+      
+      
+      RxMixerProductNode.export_to_csv
+      
+      
+      RxMixerProductNode.get_is_component
+      
+      
+      RxMixerProductNode.get_properties
+      
+      
+      RxMixerProductNode.import_csv_file
+      
+      
+      RxMixerProductNode.plot
+      
+      
+      RxMixerProductNode.props_to_dict
+      
+      
+      RxMixerProductNode.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      RxMixerProductNode.allowed_child_types
+      RxMixerProductNode.bandwidth_80_db
+      RxMixerProductNode.children
+      RxMixerProductNode.enabled
+      RxMixerProductNode.first_if_frequency
+      RxMixerProductNode.image_rejection
+      RxMixerProductNode.maximum_lo_harmonic_order
+      RxMixerProductNode.maximum_rf_harmonic_order
+      RxMixerProductNode.maximum_tuning_frequency
+      RxMixerProductNode.minimum_tuning_frequency
+      RxMixerProductNode.mixer_product_intercept
+      RxMixerProductNode.mixer_product_slope
+      RxMixerProductNode.mixer_product_susceptibility
+      RxMixerProductNode.mixer_product_table_units
+      RxMixerProductNode.mixer_product_taper
+      RxMixerProductNode.mixing_mode
+      RxMixerProductNode.name
+      RxMixerProductNode.node_type
+      RxMixerProductNode.odesktop
+      RxMixerProductNode.parent
+      RxMixerProductNode.parent_name
+      RxMixerProductNode.properties
+      RxMixerProductNode.rf_transition_frequency
+      RxMixerProductNode.spurious_rejection
+      RxMixerProductNode.table_data
+      RxMixerProductNode.use_high_lo
+      RxMixerProductNode.valid
+      RxMixerProductNode.warnings
+   
+   

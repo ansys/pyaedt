@@ -1,0 +1,6 @@
+set\_receiver
+=============
+
+.. currentmodule:: ansys.aedt.core.emit_core.results.interaction_domain
+
+.. automethod:: InteractionDomain.set_receiver

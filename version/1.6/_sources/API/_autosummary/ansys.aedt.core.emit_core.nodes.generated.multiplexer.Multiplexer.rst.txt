@@ -1,0 +1,68 @@
+﻿Multiplexer
+===========
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.multiplexer
+
+.. autoclass:: Multiplexer
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      Multiplexer.add_multiplexer_pass_band
+      
+      
+      Multiplexer.delete
+      
+      
+      Multiplexer.duplicate
+      
+      
+      Multiplexer.export_to_csv
+      
+      
+      Multiplexer.get_is_component
+      
+      
+      Multiplexer.get_properties
+      
+      
+      Multiplexer.plot
+      
+      
+      Multiplexer.props_to_dict
+      
+      
+      Multiplexer.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      Multiplexer.allowed_child_types
+      Multiplexer.children
+      Multiplexer.filename
+      Multiplexer.multiplexer_type
+      Multiplexer.name
+      Multiplexer.node_type
+      Multiplexer.noise_temperature
+      Multiplexer.notes
+      Multiplexer.odesktop
+      Multiplexer.parent_name
+      Multiplexer.ports
+      Multiplexer.properties
+      Multiplexer.valid
+      Multiplexer.warnings
+   
+   
