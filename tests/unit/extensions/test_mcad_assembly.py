@@ -30,7 +30,7 @@ from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssemblyFrontend
 
 
 @patch("ansys.aedt.core.extensions.hfss.mcad_assembly.MCADAssemblyFrontend.check_design_type")
-@patch("ansys.aedt.core.extensions.hfss.mcad_assembly.MCADAssemblyFrontend._run")
+@patch("ansys.aedt.core.extensions.hfss.mcad_assembly.run")
 @patch("tkinter.filedialog.askopenfilename")
 def test_main_selected_edb(mock_askopenfilename, mock_run, mock_check_design_type, test_tmp_dir) -> None:
     mock_check_design_type.return_value = True
@@ -43,6 +43,6 @@ def test_main_selected_edb(mock_askopenfilename, mock_run, mock_check_design_typ
     extension.root.nametowidget(".notebook.main.load").invoke()
     assert extension.root.nametowidget(".notebook.main.tree").get_children()
     extension.root.nametowidget(".theme_button_frame.run").invoke()
-    mock_run.assert_called_once_with(extension.config_data)
+    mock_run.assert_called_once_with(extension.config_data, model_dir=extension.local_path)
 
     extension.root.destroy()
