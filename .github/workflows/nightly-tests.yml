@@ -39,6 +39,10 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
           setup-headless-display: true
 
+      - name: Install Xvfb
+        shell: bash
+        run: sudo apt-get install -y xvfb
+
       - name: Run unit tests
         env:
           ACTIVATE_VENV: ${{ steps.setup-test-environment.outputs.activate-venv }}
