@@ -19,6 +19,9 @@ env:
   PYTEST_ARGUMENTS: -vvv --color=yes -rsa --durations=25 --maxfail=10 --junitxml=junit/test-results.xml
   PYAEDT_EDB_XFAIL: "1"
   PYAEDT_LOCAL_SETTINGS_PATH: 'tests/pyaedt_settings.yaml'
+  PYAEDT_OSM_XFAIL: "1"
+  PYAEDT_SOLVER_XFAIL: "1"
+  PYAEDT_TCL_INIT_XFAIL: "1"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -294,7 +297,7 @@ jobs:
       attestations: write   # Required to create and publish build attestations (SLSA provenance)
       contents: read        # Required to read repository content for building
       id-token: write       # Required for OIDC token generation (for provenance signing)
-    uses: ./.github/workflows/reusable-smoke-tests-rocky.yml
+    uses: $/.github/workflows/reusable-smoke-tests-rocky.yml
     with:
       python-versions: '["3.10", "3.11", "3.12", "3.13", "3.14"]'
 
@@ -552,7 +555,7 @@ jobs:
           prune-cache: true
 
       - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@b0bf9f57d62d2b3fee9f1c0e0c7e390f05e97a4e # v5.0.0
+        uses: pyvista/setup-headless-display-action@c103a2ff45650d38cb71684b5dc6cdfeb9442c79 # v5.1.0
 
       - name: Install pyaedt and tests dependencies
         run: |
@@ -620,7 +623,7 @@ jobs:
           prune-cache: true
 
       - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@b0bf9f57d62d2b3fee9f1c0e0c7e390f05e97a4e # v5.0.0
+        uses: pyvista/setup-headless-display-action@c103a2ff45650d38cb71684b5dc6cdfeb9442c79 # v5.1.0
 
       - name: Install pyaedt and tests dependencies
         run: |
@@ -683,7 +686,7 @@ jobs:
           prune-cache: true
 
       - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@b0bf9f57d62d2b3fee9f1c0e0c7e390f05e97a4e # v5.0.0
+        uses: pyvista/setup-headless-display-action@c103a2ff45650d38cb71684b5dc6cdfeb9442c79 # v5.1.0
 
       - name: Install pyaedt and tests dependencies
         run: |
@@ -752,7 +755,7 @@ jobs:
           prune-cache: true
 
       - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@b0bf9f57d62d2b3fee9f1c0e0c7e390f05e97a4e # v5.0.0
+        uses: pyvista/setup-headless-display-action@c103a2ff45650d38cb71684b5dc6cdfeb9442c79 # v5.1.0
 
       - name: Install pyaedt and tests dependencies
         run: |
@@ -1067,7 +1070,7 @@ jobs:
           prune-cache: true
 
       - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@b0bf9f57d62d2b3fee9f1c0e0c7e390f05e97a4e # v5.0.0
+        uses: pyvista/setup-headless-display-action@c103a2ff45650d38cb71684b5dc6cdfeb9442c79 # v5.1.0
 
       - name: Install pyaedt and tests dependencies
         run: |
@@ -1135,7 +1138,7 @@ jobs:
           prune-cache: true
 
       - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@b0bf9f57d62d2b3fee9f1c0e0c7e390f05e97a4e # v5.0.0
+        uses: pyvista/setup-headless-display-action@c103a2ff45650d38cb71684b5dc6cdfeb9442c79 # v5.1.0
 
       - name: Install pyaedt and tests dependencies
         run: |

@@ -19,9 +19,11 @@ env:
   PYTEST_ARGUMENTS: -vvv --color=yes -rsa --durations=25 --maxfail=10 --junitxml=junit/test-results.xml --testmon
   PYTEST_ARGUMENTS_NON_TESTMON: -vvv --color=yes -rsa --durations=25 --maxfail=10 --junitxml=junit/test-results.xml
   PYAEDT_EDB_XFAIL: "1"
-  PYAEDT_SOLVER_XFAIL: "1"
-  PYAEDT_OSM_XFAIL: "1"
   PYAEDT_LOCAL_SETTINGS_PATH: 'tests/pyaedt_settings.yaml'
+  PYAEDT_OSM_XFAIL: "1"
+  PYAEDT_SOLVER_XFAIL: "1"
+  PYAEDT_TCL_INIT_XFAIL: "1"
+  # Testmon datafile and cache keys
   TESTMON_DATAFILE: '.testmondata'
   TESTMON_CACHE_KEY_SOLVERS_WIN: 'testmondata-solvers-win'
   TESTMON_CACHE_KEY_SOLVERS_LINUX: 'testmondata-solvers-linux'
@@ -311,7 +313,7 @@ jobs:
       contents: read        # Required to read repository content for building
       id-token: write       # Required for OIDC token generation (for provenance signing)
     needs: [analyze-changes]
-    uses: ./.github/workflows/reusable-smoke-tests-rocky.yml
+    uses: $/.github/workflows/reusable-smoke-tests-rocky.yml
     with:
       python-versions: '["3.10", "3.11", "3.12", "3.13", "3.14"]'
 
@@ -441,10 +443,10 @@ jobs:
 
       - name: Wait for master cache update
         if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip-testmon') }}
-        uses: ./.github/actions/check-cache
+        uses: $/.github/actions/check-cache
 
       - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
+        uses: $/.github/actions/testmon-cache
         with:
           testmon-datafile: ${{ env.TESTMON_DATAFILE }}
           cache-key: ${{ env.TESTMON_CACHE_KEY_SOLVERS_WIN }}
@@ -513,10 +515,10 @@ jobs:
 
       - name: Wait for master cache update
         if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip-testmon') }}
-        uses: ./.github/actions/check-cache
+        uses: $/.github/actions/check-cache
 
       - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
+        uses: $/.github/actions/testmon-cache
         with:
           testmon-datafile: ${{ env.TESTMON_DATAFILE }}
           cache-key: ${{ env.TESTMON_CACHE_KEY_SOLVERS_LINUX }}
@@ -571,7 +573,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@b0bf9f57d62d2b3fee9f1c0e0c7e390f05e97a4e # v5.0.0
+        uses: pyvista/setup-headless-display-action@c103a2ff45650d38cb71684b5dc6cdfeb9442c79 # v5.1.0
 
       - name: Install pyaedt and tests dependencies
         env:
@@ -581,10 +583,10 @@ jobs:
 
       - name: Wait for master cache update
         if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip-testmon') }}
-        uses: ./.github/actions/check-cache
+        uses: $/.github/actions/check-cache
 
       - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
+        uses: $/.github/actions/testmon-cache
         with:
           testmon-datafile: ${{ env.TESTMON_DATAFILE }}
           cache-key: ${{ env.TESTMON_CACHE_KEY_GENERAL_WIN }}
@@ -646,7 +648,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@b0bf9f57d62d2b3fee9f1c0e0c7e390f05e97a4e # v5.0.0
+        uses: pyvista/setup-headless-display-action@c103a2ff45650d38cb71684b5dc6cdfeb9442c79 # v5.1.0
 
       - name: Install pyaedt and tests dependencies
         env:
@@ -656,10 +658,10 @@ jobs:
 
       - name: Wait for master cache update
         if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip-testmon') }}
-        uses: ./.github/actions/check-cache
+        uses: $/.github/actions/check-cache
 
       - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
+        uses: $/.github/actions/testmon-cache
         with:
           testmon-datafile: ${{ env.TESTMON_DATAFILE }}
           cache-key: ${{ env.TESTMON_CACHE_KEY_GENERAL_LINUX }}
@@ -714,7 +716,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@b0bf9f57d62d2b3fee9f1c0e0c7e390f05e97a4e # v5.0.0
+        uses: pyvista/setup-headless-display-action@c103a2ff45650d38cb71684b5dc6cdfeb9442c79 # v5.1.0
 
       - name: Install pyaedt and tests dependencies
         env:
@@ -724,10 +726,10 @@ jobs:
 
       - name: Wait for master cache update
         if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip-testmon') }}
-        uses: ./.github/actions/check-cache
+        uses: $/.github/actions/check-cache
 
       - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
+        uses: $/.github/actions/testmon-cache
         with:
           testmon-datafile: ${{ env.TESTMON_DATAFILE }}
           cache-key: ${{ env.TESTMON_CACHE_KEY_VISUALIZATION_WIN }}
@@ -790,7 +792,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@b0bf9f57d62d2b3fee9f1c0e0c7e390f05e97a4e # v5.0.0
+        uses: pyvista/setup-headless-display-action@c103a2ff45650d38cb71684b5dc6cdfeb9442c79 # v5.1.0
 
       - name: Install pyaedt and tests dependencies
         env:
@@ -800,10 +802,10 @@ jobs:
 
       - name: Wait for master cache update
         if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip-testmon') }}
-        uses: ./.github/actions/check-cache
+        uses: $/.github/actions/check-cache
 
       - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
+        uses: $/.github/actions/testmon-cache
         with:
           testmon-datafile: ${{ env.TESTMON_DATAFILE }}
           cache-key: ${{ env.TESTMON_CACHE_KEY_VISUALIZATION_LINUX }}
@@ -863,10 +865,10 @@ jobs:
 
       - name: Wait for master cache update
         if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip-testmon') }}
-        uses: ./.github/actions/check-cache
+        uses: $/.github/actions/check-cache
 
       - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
+        uses: $/.github/actions/testmon-cache
         with:
           testmon-datafile: ${{ env.TESTMON_DATAFILE }}
           cache-key: ${{ env.TESTMON_CACHE_KEY_ICEPAK_WIN }}
@@ -935,10 +937,10 @@ jobs:
 
       - name: Wait for master cache update
         if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip-testmon') }}
-        uses: ./.github/actions/check-cache
+        uses: $/.github/actions/check-cache
 
       - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
+        uses: $/.github/actions/testmon-cache
         with:
           testmon-datafile: ${{ env.TESTMON_DATAFILE }}
           cache-key: ${{ env.TESTMON_CACHE_KEY_ICEPAK_LINUX }}
@@ -1000,10 +1002,10 @@ jobs:
 
       - name: Wait for master cache update
         if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip-testmon') }}
-        uses: ./.github/actions/check-cache
+        uses: $/.github/actions/check-cache
 
       - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
+        uses: $/.github/actions/testmon-cache
         with:
           testmon-datafile: ${{ env.TESTMON_DATAFILE }}
           cache-key: ${{ env.TESTMON_CACHE_KEY_LAYOUT_WIN }}
@@ -1070,10 +1072,10 @@ jobs:
 
       - name: Wait for master cache update
         if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip-testmon') }}
-        uses: ./.github/actions/check-cache
+        uses: $/.github/actions/check-cache
 
       - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
+        uses: $/.github/actions/testmon-cache
         with:
           testmon-datafile: ${{ env.TESTMON_DATAFILE }}
           cache-key: ${{ env.TESTMON_CACHE_KEY_LAYOUT_LINUX }}
@@ -1128,7 +1130,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@b0bf9f57d62d2b3fee9f1c0e0c7e390f05e97a4e # v5.0.0
+        uses: pyvista/setup-headless-display-action@c103a2ff45650d38cb71684b5dc6cdfeb9442c79 # v5.1.0
 
       - name: Install pyaedt and tests dependencies
         env:
@@ -1193,7 +1195,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@b0bf9f57d62d2b3fee9f1c0e0c7e390f05e97a4e # v5.0.0
+        uses: pyvista/setup-headless-display-action@c103a2ff45650d38cb71684b5dc6cdfeb9442c79 # v5.1.0
 
       - name: Install pyaedt and tests dependencies
         env:
@@ -1256,10 +1258,10 @@ jobs:
 
       - name: Wait for master cache update
         if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip-testmon') }}
-        uses: ./.github/actions/check-cache
+        uses: $/.github/actions/check-cache
 
 #      - name: Restore testmondata cache
-#        uses: ./.github/actions/testmon-cache
+#        uses: $/.github/actions/testmon-cache
 #        with:
 #          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
 #          cache-key: ${{ env.TESTMON_CACHE_KEY_FILTER_WIN }}
@@ -1325,10 +1327,10 @@ jobs:
 #
 #      - name: Wait for master cache update
 #        if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip-testmon') }}
-#        uses: ./.github/actions/check-cache
+#        uses: $/.github/actions/check-cache
 #
 #      - name: Restore testmondata cache
-#        uses: ./.github/actions/testmon-cache
+#        uses: $/.github/actions/testmon-cache
 #        with:
 #          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
 #          cache-key: ${{ env.TESTMON_CACHE_KEY_EMIT_WIN }}

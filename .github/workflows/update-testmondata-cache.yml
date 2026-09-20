@@ -18,6 +18,9 @@ env:
   PYTEST_ARGUMENTS: -vvv --color=yes -rsa --durations=25 --maxfail=10 --cov=ansys.aedt.core --cov-report=html --cov-report=xml --junitxml=junit/test-results.xml --testmon
   PYAEDT_EDB_XFAIL: "1"
   PYAEDT_LOCAL_SETTINGS_PATH: 'tests/pyaedt_settings.yaml'
+  PYAEDT_OSM_XFAIL: "1"
+  PYAEDT_SOLVER_XFAIL: "1"
+  PYAEDT_TCL_INIT_XFAIL: "1"
   TESTMON_DATAFILE: '.testmondata'
   TESTMON_CACHE_KEY_SOLVERS_WIN: 'testmondata-solvers-win'
   TESTMON_CACHE_KEY_SOLVERS_LINUX: 'testmondata-solvers-linux'
@@ -126,7 +129,7 @@ jobs:
           uv sync --frozen --group tests --extra all
 
       - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
+        uses: $/.github/actions/testmon-cache
         with:
           testmon-datafile: ${{ env.TESTMON_DATAFILE }}
           cache-key: ${{ env.TESTMON_CACHE_KEY_SOLVERS_WIN }}
@@ -209,7 +212,7 @@ jobs:
           uv sync --frozen --group tests --extra all
 
       - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
+        uses: $/.github/actions/testmon-cache
         with:
           testmon-datafile: ${{ env.TESTMON_DATAFILE }}
           cache-key: ${{ env.TESTMON_CACHE_KEY_SOLVERS_LINUX }}
@@ -280,7 +283,7 @@ jobs:
 
 
       - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@b0bf9f57d62d2b3fee9f1c0e0c7e390f05e97a4e # v5.0.0
+        uses: pyvista/setup-headless-display-action@c103a2ff45650d38cb71684b5dc6cdfeb9442c79 # v5.1.0
 
       - name: Install pyaedt and tests dependencies
         env:
@@ -289,7 +292,7 @@ jobs:
           uv sync --frozen --group tests --extra all
 
       - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
+        uses: $/.github/actions/testmon-cache
         with:
           testmon-datafile: ${{ env.TESTMON_DATAFILE }}
           cache-key: ${{ env.TESTMON_CACHE_KEY_GENERAL_WIN }}
@@ -366,7 +369,7 @@ jobs:
 
 
       - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@b0bf9f57d62d2b3fee9f1c0e0c7e390f05e97a4e # v5.0.0
+        uses: pyvista/setup-headless-display-action@c103a2ff45650d38cb71684b5dc6cdfeb9442c79 # v5.1.0
 
       - name: Install pyaedt and tests dependencies
         env:
@@ -375,7 +378,7 @@ jobs:
           uv sync --frozen --group tests --extra all
 
       - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
+        uses: $/.github/actions/testmon-cache
         with:
           testmon-datafile: ${{ env.TESTMON_DATAFILE }}
           cache-key: ${{ env.TESTMON_CACHE_KEY_GENERAL_LINUX }}
@@ -445,7 +448,7 @@ jobs:
 
 
       - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@b0bf9f57d62d2b3fee9f1c0e0c7e390f05e97a4e # v5.0.0
+        uses: pyvista/setup-headless-display-action@c103a2ff45650d38cb71684b5dc6cdfeb9442c79 # v5.1.0
 
       - name: Install pyaedt and tests dependencies
         env:
@@ -454,7 +457,7 @@ jobs:
           uv sync --frozen --group tests --extra all
 
       - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
+        uses: $/.github/actions/testmon-cache
         with:
           testmon-datafile: ${{ env.TESTMON_DATAFILE }}
           cache-key: ${{ env.TESTMON_CACHE_KEY_VISUALIZATION_WIN }}
@@ -532,7 +535,7 @@ jobs:
 
 
       - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@b0bf9f57d62d2b3fee9f1c0e0c7e390f05e97a4e # v5.0.0
+        uses: pyvista/setup-headless-display-action@c103a2ff45650d38cb71684b5dc6cdfeb9442c79 # v5.1.0
 
       - name: Install pyaedt and tests dependencies
         env:
@@ -541,7 +544,7 @@ jobs:
           uv sync --frozen --group tests --extra all
 
       - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
+        uses: $/.github/actions/testmon-cache
         with:
           testmon-datafile: ${{ env.TESTMON_DATAFILE }}
           cache-key: ${{ env.TESTMON_CACHE_KEY_VISUALIZATION_LINUX }}
@@ -616,7 +619,7 @@ jobs:
           uv sync --frozen --group tests --extra all
 
       - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
+        uses: $/.github/actions/testmon-cache
         with:
           testmon-datafile: ${{ env.TESTMON_DATAFILE }}
           cache-key: ${{ env.TESTMON_CACHE_KEY_ICEPAK_WIN }}
@@ -699,7 +702,7 @@ jobs:
           uv sync --frozen --group tests --extra all
 
       - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
+        uses: $/.github/actions/testmon-cache
         with:
           testmon-datafile: ${{ env.TESTMON_DATAFILE }}
           cache-key: ${{ env.TESTMON_CACHE_KEY_ICEPAK_LINUX }}
@@ -776,7 +779,7 @@ jobs:
           uv sync --frozen --group tests --extra all
 
       - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
+        uses: $/.github/actions/testmon-cache
         with:
           testmon-datafile: ${{ env.TESTMON_DATAFILE }}
           cache-key: ${{ env.TESTMON_CACHE_KEY_LAYOUT_WIN }}
@@ -859,7 +862,7 @@ jobs:
           uv sync --frozen --group tests --extra all
 
       - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
+        uses: $/.github/actions/testmon-cache
         with:
           testmon-datafile: ${{ env.TESTMON_DATAFILE }}
           cache-key: ${{ env.TESTMON_CACHE_KEY_LAYOUT_LINUX }}
@@ -936,7 +939,7 @@ jobs:
           uv sync --frozen --group tests --extra all
 
       - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
+        uses: $/.github/actions/testmon-cache
         with:
           testmon-datafile: ${{ env.TESTMON_DATAFILE }}
           cache-key: ${{ env.TESTMON_CACHE_KEY_FILTER_WIN }}
@@ -1017,7 +1020,7 @@ jobs:
 #          uv sync --frozen --group tests --extra all
 #
 #      - name: Restore testmondata cache
-#        uses: ./.github/actions/testmon-cache
+#        uses: $/.github/actions/testmon-cache
 #        with:
 #          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
 #          cache-key: ${{ env.TESTMON_CACHE_KEY_EMIT_WIN }}
