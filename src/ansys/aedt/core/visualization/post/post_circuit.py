@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -26,7 +26,6 @@ from __future__ import annotations
 
 import os
 from typing import TYPE_CHECKING
-import warnings
 
 import numpy as np
 
@@ -38,14 +37,6 @@ from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.visualization.post.common import PostProcessorCommon
-
-try:
-    import pandas as pd
-except ImportError:
-    pd = None
-    warnings.warn(
-        "The Pandas module is required to run some functionalities of PostProcess.\nInstall with \n\npip install pandas"
-    )
 
 
 class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
@@ -59,6 +50,11 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
     app : :class:`ansys.aedt.core.application.analysis_nexxim.FieldAnalysisCircuit`
         Inherited parent object. The parent object must provide the members
         `_modeler`, `_desktop`, `_odesign`, and `logger`.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post.post_circuit import PostProcessorCircuit
+    >>> obj = PostProcessorCircuit()
 
     """
 
@@ -100,6 +96,7 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
         >>> from ansys.aedt.core import Circuit
         >>> app = Circuit(non_graphical=False)
         >>> output_file = app.post.export_model_picture(full_name=os.path.join(app.working_directory, "images1.jpg"))
+
         """
         if not output_file:
             output_file = os.path.join(
@@ -151,6 +148,13 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
         -------
         str
             Name of the plot.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_circuit import PostProcessorCircuit
+        >>> obj = PostProcessorCircuit()
+        >>> obj.create_ami_initial_response_plot(setup="Setup1", ami_name=1, variation_list_w_value={"Name": "Value"})
+
         """
         if not plot_name:
             plot_name = generate_unique_name("AMIAnalysis")
@@ -260,6 +264,13 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
         References
         ----------
         >>> oModule.CreateReport
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_circuit import PostProcessorCircuit
+        >>> obj = PostProcessorCircuit()
+        >>> obj.create_ami_statistical_eye_plot(setup="Setup1", ami_name=1, variation_list_w_value={"Name": "Value"})
+
         """
         if not plot_name:
             plot_name = generate_unique_name("AMYAanalysis")
@@ -368,6 +379,15 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
         References
         ----------
         >>> oModule.CreateReport
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.post_circuit import PostProcessorCircuit
+        >>> obj = PostProcessorCircuit()
+        >>> obj.create_statistical_eye_plot(
+        ...     setup="Setup1", probe_names=["Box1"], variation_list_w_value={"Name": "Value"}
+        ... )
+
         """
         if not plot_name:
             plot_name = generate_unique_name("AMIAanalysis")
@@ -445,14 +465,14 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
     @pyaedt_function_handler()
     def sample_waveform(
         self,
-        waveform_data: list | "Series",
-        waveform_sweep: list | "Series",
+        waveform_data: "list | Series",
+        waveform_sweep: "list | Series",
         waveform_unit: str = "V",
         waveform_sweep_unit: str = "s",
         unit_interval: float = 1e-9,
         clock_tics: list = None,
         pandas_enabled: bool = False,
-    ) -> list | "Series":
+    ) -> "list | Series":
         """Sampling a waveform at clock times plus half unit interval.
 
         Parameters
@@ -483,6 +503,7 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
         >>> from ansys.aedt.core import Circuit
         >>> circuit = Circuit()
         >>> circuit.post.sample_ami_waveform(name, probe_name, source_name, circuit.available_variations.nominal)
+
         """
         new_tic = []
         for tic in clock_tics:
@@ -492,11 +513,18 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
         zipped_lists = zip(new_tic, [new_ui / 2] * len(new_tic))
         extraction_tic = [x + y for (x, y) in zipped_lists]
 
-        if isinstance(waveform_sweep, pd.Series):
-            waveform_sweep = list(waveform_sweep)
+        # Check if pandas is available and if inputs are pandas Series
+        try:
+            import pandas as pd_module
 
-        if isinstance(waveform_data, pd.Series):
-            waveform_data = list(waveform_data)
+            if isinstance(waveform_sweep, pd_module.Series):
+                waveform_sweep = list(waveform_sweep)
+
+            if isinstance(waveform_data, pd_module.Series):
+                waveform_data = list(waveform_data)
+        except ImportError:  # pragma: no cover
+            # If pandas not available, inputs must be lists already
+            pass
 
         sweep_filtered = np.copy(waveform_sweep)
         filtered_tic = list(filter(lambda num: num >= waveform_sweep[0], extraction_tic))
@@ -523,7 +551,13 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
                 else:
                     break
         if pandas_enabled:
-            return pd.Series(new_voltage, index=tic_in_s)
+            try:
+                import pandas as pd_module
+
+                return pd_module.Series(new_voltage, index=tic_in_s)
+            except ImportError:  # pragma: no cover
+                self.logger.warning("Pandas is not installed. Returning list instead of Series.")
+                return outputdata
         return outputdata
 
     @pyaedt_function_handler()
@@ -537,7 +571,7 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
         ignore_bits: int = 0,
         plot_type: str = None,
         clock_tics: list = None,
-    ) -> list:
+    ) -> list | None:
         """Sampling a waveform at clock times plus half unit interval.
 
         Parameters

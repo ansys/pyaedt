@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -27,45 +27,30 @@ from __future__ import annotations
 import ast
 import math
 import os
-import warnings
 
 import numpy as np
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.internal.checks import ERROR_GRAPHICS_REQUIRED
-from ansys.aedt.core.internal.checks import check_graphics_available
+from ansys.aedt.core.internal.checks import install_message
+from ansys.aedt.core.internal.checks import is_notebook
+from ansys.aedt.core.internal.checks import requires_graphical_dependency
+from ansys.aedt.core.visualization.plot.contour import bin_to_grid
+from ansys.aedt.core.visualization.plot.contour import extract_eye_opening_contour_by_center
 
 # Check that graphics are available
 try:
-    check_graphics_available()
-
     from matplotlib.animation import FuncAnimation
+    from matplotlib.colors import LogNorm
     from matplotlib.colors import Normalize
     from matplotlib.patches import PathPatch
     from matplotlib.path import Path
     import matplotlib.pyplot as plt
     import matplotlib.ticker as ticker
-except ImportError:
-    warnings.warn(ERROR_GRAPHICS_REQUIRED)
-
-
-def is_notebook() -> bool:
-    """Check if pyaedt is running in Jupyter or not.
-
-    Returns
-    -------
-    bool
-    """
-    try:
-        shell = get_ipython().__class__.__name__
-        if shell in ["ZMQInteractiveShell"]:  # pragma: no cover
-            return True  # Jupyter notebook or qtconsole
-        else:
-            return False
-    except NameError:
-        return False  # Probably standard Python interpreter
+except ImportError as e:
+    msg = install_message("matplotlib", "graphics", level="module")
+    raise ImportError(msg) from e
 
 
 def is_ipython() -> bool:
@@ -74,6 +59,12 @@ def is_ipython() -> bool:
     Returns
     -------
     bool
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.plot.matplotlib import is_ipython
+    >>> is_ipython()
+
     """
     try:
         shell = get_ipython().__class__.__name__
@@ -86,6 +77,8 @@ def is_ipython() -> bool:
 
 
 class Note(PyAedtBase):
+    """Provide note."""
+
     def __init__(self) -> None:
         self._position = (0, 0)
         self._text = ""
@@ -106,6 +99,13 @@ class Note(PyAedtBase):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import Note
+        >>> obj = Note()
+        >>> obj.text
+
         """
         return self._text
 
@@ -120,6 +120,13 @@ class Note(PyAedtBase):
         Returns
         -------
         tuple or list
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import Note
+        >>> obj = Note()
+        >>> obj.background_color
+
         """
         return self._back_color
 
@@ -134,6 +141,13 @@ class Note(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import Note
+        >>> obj = Note()
+        >>> obj.background_visibility
+
         """
         return self._background_visibility
 
@@ -148,6 +162,13 @@ class Note(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import Note
+        >>> obj = Note()
+        >>> obj.border_visibility
+
         """
         return self._border_visibility
 
@@ -162,6 +183,13 @@ class Note(PyAedtBase):
         Returns
         -------
         float
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import Note
+        >>> obj = Note()
+        >>> obj.border_width
+
         """
         return self._border_width
 
@@ -176,6 +204,13 @@ class Note(PyAedtBase):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import Note
+        >>> obj = Note()
+        >>> obj.font
+
         """
         return self._font
 
@@ -184,12 +219,19 @@ class Note(PyAedtBase):
         self._font = value
 
     @property
-    def font_size(self) -> str:
+    def font_size(self) -> int:
         """Note font size.
 
         Returns
         -------
-        str
+        int
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import Note
+        >>> obj = Note()
+        >>> obj.font_size
+
         """
         return self._font_size
 
@@ -204,6 +246,13 @@ class Note(PyAedtBase):
         Returns
         -------
         list
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import Note
+        >>> obj = Note()
+        >>> obj.color
+
         """
         return self._color
 
@@ -218,6 +267,13 @@ class Note(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import Note
+        >>> obj = Note()
+        >>> obj.bold
+
         """
         return self._bold
 
@@ -232,6 +288,13 @@ class Note(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import Note
+        >>> obj = Note()
+        >>> obj.italic
+
         """
         return self._italic
 
@@ -241,7 +304,14 @@ class Note(PyAedtBase):
 
 
 class Trace(PyAedtBase):
-    """Trace class."""
+    """Trace class.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.plot.matplotlib import Trace
+    >>> obj = Trace()
+
+    """
 
     def __init__(self) -> None:
         self.name = ""
@@ -256,6 +326,41 @@ class Trace(PyAedtBase):
         self.__symbol_style = ""
         self.__fill_symbol = False
         self.__symbol_color = None
+        self.__show_symbol = False
+
+    @property
+    def show_symbol(self) -> bool:
+        """Whether to show symbol.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import Trace
+        >>> obj = Trace()
+        >>> obj.show_symbol
+
+        """
+        return self.__show_symbol
+
+    @show_symbol.setter
+    def show_symbol(self, value: bool) -> None:
+        self.__show_symbol = value
+
+    @property
+    def symbol_color(self) -> list | tuple:
+        """Symbol color.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import Trace
+        >>> obj = Trace()
+        >>> obj.symbol_color
+
+        """
+        return self.__symbol_color
+
+    @symbol_color.setter
+    def symbol_color(self, value: list | tuple) -> None:
+        self.__symbol_color = value
 
     @property
     def trace_style(self) -> str:
@@ -264,6 +369,13 @@ class Trace(PyAedtBase):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import Trace
+        >>> obj = Trace()
+        >>> obj.trace_style
+
         """
         return self.__trace_style
 
@@ -274,6 +386,13 @@ class Trace(PyAedtBase):
         Returns
         -------
         float
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import Trace
+        >>> obj = Trace()
+        >>> obj.trace_width
+
         """
         return self.__trace_width
 
@@ -284,6 +403,13 @@ class Trace(PyAedtBase):
         Returns
         -------
         str, list
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import Trace
+        >>> obj = Trace()
+        >>> obj.trace_color
+
         """
         return self.__trace_color
 
@@ -294,6 +420,13 @@ class Trace(PyAedtBase):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import Trace
+        >>> obj = Trace()
+        >>> obj.symbol_style
+
         """
         return self.__symbol_style
 
@@ -304,6 +437,13 @@ class Trace(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import Trace
+        >>> obj = Trace()
+        >>> obj.fill_symbol
+
         """
         return self.__fill_symbol
 
@@ -335,6 +475,13 @@ class Trace(PyAedtBase):
         -------
         list[:class:`numpy.array`]
             List of data.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import Trace
+        >>> obj = Trace()
+        >>> obj.cartesian_data
+
         """
         return self._cartesian_data
 
@@ -358,6 +505,13 @@ class Trace(PyAedtBase):
         -------
         list[:class:`numpy.array`]
             List of data.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import Trace
+        >>> obj = Trace()
+        >>> obj.spherical_data
+
         """
         return self._spherical_data
 
@@ -388,6 +542,13 @@ class Trace(PyAedtBase):
         -------
         list, list
             R and theta.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import Trace
+        >>> obj = Trace()
+        >>> obj.car2polar([1, 0], [0, 1], is_degree=True)
+
         """
         x = np.array(x, dtype=float)
         y = np.array(y, dtype=float)
@@ -400,21 +561,40 @@ class Trace(PyAedtBase):
 
     @pyaedt_function_handler()
     def car2spherical(self) -> None:
-        """Convert cartesian data to spherical and assigns to property spherical data."""
-        x = np.array(self.cartesian_data[0], dtype=float)
-        y = np.array(self.cartesian_data[1], dtype=float)
-        z = np.array(self.cartesian_data[2], dtype=float)
-        r = np.sqrt(x * x + y * y + z * z)
-        with np.errstate(invalid="ignore", divide="ignore"):
-            ratio = np.where(r != 0, z / r, 0)  # or np.nan if you prefer
-            ratio = np.clip(ratio, -1.0, 1.0)  # ensure valid domain for arccos
-            theta = np.arccos(ratio) * 180 / math.pi
-        phi = np.arctan2(y, x) * 180 / math.pi
-        self._spherical_data = [r, theta, phi]
+        """Convert cartesian data to spherical and assigns to property spherical data.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import Trace
+        >>> obj = Trace()
+        >>> obj.car2spherical()
+
+        """
+        try:
+            x = np.array(self.cartesian_data[0], dtype=float)
+            y = np.array(self.cartesian_data[1], dtype=float)
+            z = np.array(self.cartesian_data[2], dtype=float)
+            r = np.sqrt(x * x + y * y + z * z)
+            with np.errstate(invalid="ignore", divide="ignore"):
+                ratio = np.where(r != 0, z / r, 0)  # or np.nan if you prefer
+                ratio = np.clip(ratio, -1.0, 1.0)  # ensure valid domain for arccos
+                theta = np.arccos(ratio) * 180 / math.pi
+            phi = np.arctan2(y, x) * 180 / math.pi
+            self._spherical_data = [r, theta, phi]
+        except ValueError:
+            self._spherical_data = []
 
     @pyaedt_function_handler()
     def spherical2car(self) -> None:
-        """Convert spherical data to cartesian data and assign to cartesian data property."""
+        """Convert spherical data to cartesian data and assign to cartesian data property.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import Trace
+        >>> obj = Trace()
+        >>> obj.spherical2car()
+
+        """
         r = np.array(self._spherical_data[0], dtype=float)
         theta = np.array(self._spherical_data[1] * math.pi / 180, dtype=float)  # to radian
         phi = np.array(self._spherical_data[2] * math.pi / 180, dtype=float)
@@ -436,6 +616,13 @@ class Trace(PyAedtBase):
         -------
         list
             List of [x,y].
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import Trace
+        >>> obj = Trace()
+        >>> obj.polar2car([1, 0], [0, 90])
+
         """
         r = np.array(r, dtype=float)
         theta = np.array(theta, dtype=float)
@@ -445,26 +632,57 @@ class Trace(PyAedtBase):
 
 
 class LimitLine(Trace):
-    """Limit Line class."""
+    """Limit Line class.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.plot.matplotlib import LimitLine
+    >>> obj = LimitLine()
+
+    """
 
     def __init__(self) -> None:
         Trace.__init__(self)
         self.hatch_above = True
 
 
-class ReportPlotter(PyAedtBase):
-    """Matplotlib Report manager."""
+class EyeMask:
+    """Provide eye mask."""
 
-    def __init__(self) -> None:
+    def __init__(self):
+        self.eye_xunits = "ns"
+        self.eye_yunits = "mV"
+        self.eye_points = []
+        self.eye_enable = False
+        self.eye_upper = 500
+        self.eye_lower = 0.3
+        self.eye_transparency = 0.3
+        self.eye_color = (0, 128, 0)
+        self.eye_xoffset = "0ns"
+        self.eye_yoffset = "0V"
+
+
+class ReportPlotter(PyAedtBase):
+    """Matplotlib Report manager.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+    >>> obj = ReportPlotter()
+
+    """
+
+    def __init__(self, solution_data=None) -> None:
         rc_params = {
             "axes.titlesize": 26,  # Use these default settings for Matplotlb axes.
-            "axes.labelsize": 20,  # Apply the settings only in this module.
+            "axes.labelsize": 20,  # Apply the settings only in The module.
             "xtick.labelsize": 18,
             "ytick.labelsize": 18,
         }
         self.block = settings.block_figure_plot
         self._traces = {}
         self._limit_lines = {}
+        self._eye_mask = None
         self._notes = []
         self.plt_params = plt.rcParams
         self.plt_params.update(rc_params)
@@ -488,6 +706,112 @@ class ReportPlotter(PyAedtBase):
         self.animation = None
         self.y_margin_factor = 0.2
         self.x_margin_factor = 0.2
+        self.__text_size = 12
+        self.__title_size = 16
+        self.__solution_data = solution_data
+        self.__dpi = 100
+        self.__width = 1200
+        self.__height = 800
+        self.unit_interval = 0
+        self.offset = 0
+        self.legend = None
+
+    @property
+    def dpi(self) -> int:
+        """Figure dpi.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+        >>> obj = ReportPlotter()
+        >>> obj.dpi
+
+        """
+        return self.__dpi
+
+    @dpi.setter
+    def dpi(self, value: int) -> None:
+        self.__dpi = value
+
+    @property
+    def width(self) -> int:
+        """Figure width.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+        >>> obj = ReportPlotter()
+        >>> obj.width
+
+        """
+        return self.__width
+
+    @width.setter
+    def width(self, value: int) -> None:
+        self.__width = value
+
+    @property
+    def height(self) -> int:
+        """Figure height.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+        >>> obj = ReportPlotter()
+        >>> obj.height
+
+        """
+        return self.__height
+
+    @height.setter
+    def height(self, value: int) -> None:
+        self.__height = value
+
+    @property
+    def text_size(self) -> int:
+        """Text font size.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+        >>> obj = ReportPlotter()
+        >>> obj.text_size
+
+        """
+        return self.__text_size
+
+    @text_size.setter
+    def text_size(self, size: int) -> None:
+        self.__text_size = size
+
+    @property
+    def title_size(self) -> int:
+        """Title font size.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+        >>> obj = ReportPlotter()
+        >>> obj.title_size
+
+        """
+        return self.__title_size
+
+    @title_size.setter
+    def title_size(self, size: int) -> None:
+        self.__title_size = size
+
+    def get_solution_data(self):
+        """Mimic the report method to retrieve solution data if available.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+        >>> obj = ReportPlotter()
+        >>> obj.get_solution_data()
+
+        """
+        return self.__solution_data
 
     @property
     def traces(self) -> dict[str, Trace]:
@@ -495,7 +819,14 @@ class ReportPlotter(PyAedtBase):
 
         Returns
         -------
-         dict[str, :class:`ansys.aedt.core.visualization.plot.matplotlib.Trace`]
+        dict[str, :class:`ansys.aedt.core.visualization.plot.matplotlib.Trace`]
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+        >>> obj = ReportPlotter()
+        >>> obj.traces
+
         """
         return self._traces
 
@@ -505,7 +836,14 @@ class ReportPlotter(PyAedtBase):
 
         Returns
         -------
-         list[:class:`ansys.aedt.core.visualization.plot.matplotlib.Trace`]
+        list[:class:`ansys.aedt.core.visualization.plot.matplotlib.Trace`]
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+        >>> obj = ReportPlotter()
+        >>> obj.traces_by_index
+
         """
         return list(self._traces.values())
 
@@ -516,6 +854,13 @@ class ReportPlotter(PyAedtBase):
         Returns
         -------
         list
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+        >>> obj = ReportPlotter()
+        >>> obj.trace_names
+
         """
         return list(self._traces.keys())
 
@@ -526,12 +871,19 @@ class ReportPlotter(PyAedtBase):
         Returns
         -------
          dict[str, :class:`ansys.aedt.core.visualization.plot.matplotlib.LimitLine`]
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+        >>> obj = ReportPlotter()
+        >>> obj.limit_lines
+
         """
         return self._limit_lines
 
     @pyaedt_function_handler()
     def apply_style(self, style_name: str) -> bool:
-        """Apply a custom matplotlib style (eg. background_dark).
+        """Apply a custom matplotlib style (e.g. background_dark).
 
         Parameters
         ----------
@@ -541,6 +893,13 @@ class ReportPlotter(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+        >>> obj = ReportPlotter()
+        >>> obj.apply_style("background_dark")
+
         """
         if style_name in plt.style.available:
             plt.style.use(style_name)
@@ -554,6 +913,13 @@ class ReportPlotter(PyAedtBase):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+        >>> obj = ReportPlotter()
+        >>> obj.grid_style
+
         """
         return self.__grid_style
 
@@ -568,6 +934,13 @@ class ReportPlotter(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+        >>> obj = ReportPlotter()
+        >>> obj.grid_enable_major_x
+
         """
         return self.__grid_enable_major_x
 
@@ -582,6 +955,13 @@ class ReportPlotter(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+        >>> obj = ReportPlotter()
+        >>> obj.grid_enable_major_y
+
         """
         return self.__grid_enable_major_y
 
@@ -596,6 +976,13 @@ class ReportPlotter(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+        >>> obj = ReportPlotter()
+        >>> obj.grid_enable_minor_x
+
         """
         return self.__grid_enable_minor_x
 
@@ -610,6 +997,13 @@ class ReportPlotter(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+        >>> obj = ReportPlotter()
+        >>> obj.grid_enable_minor_y
+
         """
         return self.__grid_enable_minor_y
 
@@ -625,6 +1019,13 @@ class ReportPlotter(PyAedtBase):
         -------
         str, list
             Grid color tuple.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+        >>> obj = ReportPlotter()
+        >>> obj.grid_color
+
         """
         return self.__grid_color
 
@@ -642,6 +1043,13 @@ class ReportPlotter(PyAedtBase):
         Returns
         -------
         str, list
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+        >>> obj = ReportPlotter()
+        >>> obj.general_back_color
+
         """
         return self.__general_back_color
 
@@ -658,7 +1066,14 @@ class ReportPlotter(PyAedtBase):
 
         Returns
         -------
-        str, list
+        str or list
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+        >>> obj = ReportPlotter()
+        >>> obj.general_plot_color
+
         """
         return self.__general_plot_color
 
@@ -691,11 +1106,12 @@ class ReportPlotter(PyAedtBase):
 
     # Open an image from a computer
     @pyaedt_function_handler()
+    @requires_graphical_dependency("pillow")
     def _open_image_local(self):
         from PIL import Image
 
         if not self.logo:
-            self.logo = os.path.join(os.path.dirname(__file__), "../../misc/Ansys.png")
+            self.logo = os.path.join(os.path.dirname(__file__), "../../misc/pyansys-logo-purple-cropped.png")
         image = Image.open(self.logo)  # Open the image
         image_array = np.array(image)  # Convert to a numpy array
         return image_array  # Output
@@ -728,20 +1144,43 @@ class ReportPlotter(PyAedtBase):
             props["figure.facecolor"] = self.__general_back_color
             props["axes.facecolor"] = self.__general_plot_color
             props["grid.color"] = self.__grid_color
+            if self.ax:
+                self.ax.set_facecolor(self.__general_plot_color)
+                self.fig.set_facecolor(self.__general_back_color)
+            else:
+                self.plt_params.update(props)
 
-        self.plt_params.update(props)
         if self.ax:
-            self.ax.grid(which=which)
-            if self._has_major_axis:
-                self.ax.grid(which="major", color=self.__grid_color)
-            if self._has_major_axis:
-                self.ax.grid(which="minor", color=self.__grid_color)
-            if self._has_minor_axis:
-                if self.__grid_enable_minor_x:
-                    self.ax.xaxis.set_minor_locator(ticker.AutoMinorLocator())
-                if self.__grid_enable_minor_y:
-                    self.ax.yaxis.set_minor_locator(ticker.AutoMinorLocator())
-            self.ax.tick_params(which="minor", grid_linestyle="--")
+            self.ax.minorticks_on()
+            if self.__grid_enable_minor_x:
+                self.ax.xaxis.set_minor_locator(ticker.AutoMinorLocator())
+            if self.__grid_enable_minor_y:
+                self.ax.yaxis.set_minor_locator(ticker.AutoMinorLocator())
+
+            self.ax.grid(
+                which="minor",
+                visible=self._has_minor_axis,
+                color=self.__grid_color,
+                linestyle=":",
+                linewidth=0.25,
+                alpha=0.45,
+            )
+            self.ax.grid(
+                which="major",
+                visible=self._has_major_axis,
+                color=self.__grid_color,
+                linestyle=":",
+                linewidth=0.5,
+                alpha=0.7,
+            )
+
+            self.ax.tick_params(which="minor", colors=self.__grid_color)
+            self.ax.tick_params(axis="x", colors=self.__grid_color, labelsize=self.text_size)
+            self.ax.tick_params(axis="y", colors=self.__grid_color, labelsize=self.text_size)
+            if not self._has_major_axis:
+                self.ax.grid(False, which="major")
+            if not self._has_minor_axis:
+                self.ax.grid(False, which="minor")
 
     @property
     def y_scale(self) -> str:
@@ -750,6 +1189,13 @@ class ReportPlotter(PyAedtBase):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+        >>> obj = ReportPlotter()
+        >>> obj.y_scale
+
         """
         return self.__y_scale
 
@@ -764,6 +1210,13 @@ class ReportPlotter(PyAedtBase):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+        >>> obj = ReportPlotter()
+        >>> obj.x_scale
+
         """
         return self.__x_scale
 
@@ -778,6 +1231,13 @@ class ReportPlotter(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+        >>> obj = ReportPlotter()
+        >>> obj.interactive
+
         """
         return plt.isinteractive()
 
@@ -819,6 +1279,13 @@ class ReportPlotter(PyAedtBase):
         Returns
         -------
         None
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+        >>> obj = ReportPlotter()
+        >>> obj.add_note("Note")
+
         """
         note = Note()
         note.text = text
@@ -860,6 +1327,13 @@ class ReportPlotter(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+        >>> obj = ReportPlotter()
+        >>> obj.add_limit_line([[0, 1], [0, 1]])
+
         """
         nt = LimitLine()
         nt.hatch_above = hatch_above
@@ -875,6 +1349,33 @@ class ReportPlotter(PyAedtBase):
         nt.cartesian_data = plot_data
         self._limit_lines[nt.name] = nt
         return True
+
+    def add_eye_mask(self, properties):
+        """Add a new eye mask to the chart.
+
+        Parameters
+        ----------
+        properties : dict, optional
+            Properties of the trace.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+        >>> obj = ReportPlotter()
+        >>> obj.add_eye_mask({"points": [[0, 0], [1, 1]], "xunits": "ns", "yunits": "mV", "enable_limits": True})
+
+        """
+        self._eye_mask = EyeMask()
+        self._eye_mask.eye_points = properties.get("points", [])
+        self._eye_mask.eye_xunits = properties.get("xunits", "")
+        self._eye_mask.eye_yunits = properties.get("yunits", "")
+        self._eye_mask.eye_enable = properties.get("enable_limits", False)
+        self._eye_mask.eye_upper = properties.get("upper_limit", 500)
+        self._eye_mask.eye_lower = properties.get("lower_limit", -500)
+        self._eye_mask.eye_color = properties.get("color", (0, 128, 0))
+        self._eye_mask.eye_xoffset = properties.get("X Offset", 0)
+        self._eye_mask.eye_yoffset = properties.get("Y Offset", 0)
+        self._eye_mask.eye_transparency = properties.get("transparency", 0.3)
 
     @pyaedt_function_handler()
     def add_trace(self, plot_data: list, data_type: int = 0, properties: dict = None, name: str = "") -> bool:
@@ -894,6 +1395,7 @@ class ReportPlotter(PyAedtBase):
             trace_style : "-",
             trace_width : 1.5,
             trace_color : None,
+            show_symbol : False,
             symbol_style : 'v',
             fill_symbol : None,
             symbol_color : "C0"
@@ -904,6 +1406,13 @@ class ReportPlotter(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+        >>> obj = ReportPlotter()
+        >>> obj.add_trace([[0, 1], [0, 1]], data_type=0)
+
         """
         nt = Trace()
         nt.name = name if name else f"Trace_{len(self.traces)}"
@@ -916,6 +1425,7 @@ class ReportPlotter(PyAedtBase):
         nt.symbol_style = properties.get("symbol_style", "")
         nt.fill_symbol = properties.get("fill_symbol", False)
         nt.symbol_color = properties.get("symbol_color", None)
+        nt.show_symbol = properties.get("show_symbol", False)
         if data_type == 0:
             nt.cartesian_data = plot_data
         else:
@@ -930,6 +1440,13 @@ class ReportPlotter(PyAedtBase):
         Returns
         -------
         list
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+        >>> obj = ReportPlotter()
+        >>> obj.size
+
         """
         px = self.plt_params["figure.dpi"]  # pixel in inches
         return [i * px for i in self.plt_params["figure.figsize"]]
@@ -944,9 +1461,8 @@ class ReportPlotter(PyAedtBase):
 
     @pyaedt_function_handler()
     def _plot(self, snapshot_path, show):
-        self.fig.set_size_inches(
-            self.size[0] / self.plt_params["figure.dpi"], self.size[1] / self.plt_params["figure.dpi"]
-        )
+        self.fig.set_size_inches(self.width / self.dpi, self.height / self.dpi)
+        self.fig.set_constrained_layout(True)
 
         self._update_grid()
         if self.show_logo:
@@ -955,22 +1471,28 @@ class ReportPlotter(PyAedtBase):
             image_width = 0.1
             image_height = 0.05
             ax_image = self.fig.add_axes([image_xaxis, image_yaxis, image_width, image_height])
-            # Display the image
             ax_image.imshow(self._open_image_local())
             ax_image.axis("off")  # Remove axis of the image
 
-        if snapshot_path:
-            if hasattr(self, "animation") and snapshot_path.endswith(".gif"):
-                self.animation.save(snapshot_path, writer="pillow", fps=2)
-            else:
-                self.fig.savefig(snapshot_path)
-        if show:  # pragma: no cover
-            if is_notebook():
-                pass
-            elif is_ipython() or "PYTEST_CURRENT_TEST" in os.environ:
-                self.fig.show()
-            else:
-                plt.show(block=self.block)
+        def _plot_contraints(constraints=True):
+            self.fig.set_constrained_layout(constraints)
+            if snapshot_path:
+                if hasattr(self, "animation") and snapshot_path.endswith(".gif"):
+                    self.animation.save(snapshot_path, writer="pillow", fps=2)
+                else:
+                    self.fig.savefig(snapshot_path, dpi=self.dpi)
+            if show:  # pragma: no cover
+                if is_notebook():
+                    pass
+                elif is_ipython() or "PYTEST_CURRENT_TEST" in os.environ:
+                    self.fig.show()
+                else:
+                    plt.show(block=self.block)
+
+        try:
+            _plot_contraints(True)
+        except ZeroDivisionError:
+            _plot_contraints(False)
         return self.fig
 
     def _set_scale(self, x, y):
@@ -1048,6 +1570,13 @@ class ReportPlotter(PyAedtBase):
         -------
         :class:`matplotlib.pyplot.Figure`
             Matplotlib figure object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+        >>> obj = ReportPlotter()
+        >>> obj.plot_polar()
+
         """
         traces_to_plot = self._retrieve_traces(traces)
         if not traces_to_plot:
@@ -1055,6 +1584,8 @@ class ReportPlotter(PyAedtBase):
 
         if not figure:
             self.fig, self.ax = plt.subplots(subplot_kw={"projection": "polar"})
+            self.fig.set_size_inches(self.width / self.dpi, self.height / self.dpi)
+
         else:
             self.fig = figure
             self.ax = figure.add_subplot(111, projection="polar")
@@ -1080,7 +1611,16 @@ class ReportPlotter(PyAedtBase):
             i += 1
 
         if self.show_legend:
-            self.ax.legend(legend, loc="upper right")
+            self.legend = self.ax.legend(
+                loc="upper center",
+                bbox_to_anchor=(0.5, -0.12),
+                fontsize=10,
+                frameon=True,
+                edgecolor="black",
+                ncol=2,
+                facecolor=self.__general_back_color,
+                labelcolor=self.__grid_color,
+            )
         self._plot(snapshot_path, show)
         return self.fig
 
@@ -1112,6 +1652,13 @@ class ReportPlotter(PyAedtBase):
         -------
         :class:`matplotlib.pyplot.Figure`
             Matplotlib figure object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+        >>> obj = ReportPlotter()
+        >>> obj.plot_3d()
+
         """
         if color_map_limits is None:
             color_map_limits = [0, 1]
@@ -1119,11 +1666,12 @@ class ReportPlotter(PyAedtBase):
         if not trace_number:
             return False
         self.fig, self.ax = plt.subplots(subplot_kw={"projection": "3d"})
+        self.fig.set_size_inches(self.width / self.dpi, self.height / self.dpi)
         tr = trace_number[0]
         if not is_polar:
             self.ax.set_xlabel(tr.x_label, labelpad=20)
             self.ax.set_ylabel(tr.y_label, labelpad=20)
-        self.ax.set_title(self.title)
+        self.ax.set_title(self.title, color=self.__grid_color, fontsize=self.title_size)
         cmap = plt.get_cmap("jet")
         self.ax.plot_surface(
             tr._cartesian_data[0],
@@ -1224,6 +1772,13 @@ class ReportPlotter(PyAedtBase):
         -------
         :class:`matplotlib.pyplot.Figure` | bool
             Matplotlib figure object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+        >>> obj = ReportPlotter()
+        >>> obj.plot_2d()
+
         """
         traces_to_plot = self._retrieve_traces(traces)
         if not traces_to_plot:
@@ -1231,6 +1786,7 @@ class ReportPlotter(PyAedtBase):
 
         if not figure:
             self.fig, self.ax = plt.subplots()
+            self.fig.set_size_inches(self.width / self.dpi, self.height / self.dpi)
         else:
             self.fig = figure
             self.ax = figure.add_subplot(111)
@@ -1246,9 +1802,9 @@ class ReportPlotter(PyAedtBase):
             self.ax.plot(
                 trace._cartesian_data[0],
                 trace._cartesian_data[1],
-                f"{trace.symbol_style}{trace.trace_style}",
-                fillstyle="full" if trace.fill_symbol else "none",
-                markeredgecolor=trace.symbol_color,
+                f"{trace.symbol_style}{trace.trace_style}" if trace.show_symbol else f"{trace.trace_style}",
+                fillstyle="full" if trace.fill_symbol and trace.show_symbol else "none",
+                markeredgecolor=trace.symbol_color if trace.show_symbol else "none",
                 label=trace.name,
                 color=trace.trace_color,
             )
@@ -1274,8 +1830,24 @@ class ReportPlotter(PyAedtBase):
         self._plot_limit_lines()
         self._plot_notes()
         if self.show_legend:
-            self.ax.legend(legend_names, loc="upper right")
-
+            self.legend = self.ax.legend(
+                legend_names,
+                loc="upper center",
+                bbox_to_anchor=(0.5, -0.12),
+                fontsize=10 if len(legend_names) < 12 else 7,
+                frameon=True,
+                edgecolor="black",
+                ncol=2 if len(legend_names) > 6 else 1,
+                facecolor=self.__general_back_color,
+                labelcolor=self.__grid_color,
+            )
+        self.ax.set_xlabel(trace.x_label, color=self.__grid_color, fontsize=self.text_size)
+        self.ax.set_ylabel("Y1", color=self.__grid_color, fontsize=self.text_size)
+        self.ax.set_title(
+            self.title,
+            color=self.__grid_color,
+            fontsize=self.title_size,
+        )
         self._plot(snapshot_path, show)
         return self.fig
 
@@ -1302,6 +1874,13 @@ class ReportPlotter(PyAedtBase):
         -------
         :class:`matplotlib.pyplot.Figure`
             Matplotlib figure object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+        >>> obj = ReportPlotter()
+        >>> obj.animate_2d()
+
         """
         self.animation = None
 
@@ -1311,6 +1890,7 @@ class ReportPlotter(PyAedtBase):
 
         if not figure:
             self.fig, self.ax = plt.subplots()
+            self.fig.set_size_inches(self.width / self.dpi, self.height / self.dpi)
         else:
             self.fig = figure
             self.ax = figure.add_subplot(111)
@@ -1321,21 +1901,261 @@ class ReportPlotter(PyAedtBase):
             line = self.ax.plot(
                 trace._cartesian_data[0],
                 trace._cartesian_data[1],
-                f"{trace.symbol_style}{trace.trace_style}",
-                fillstyle="full" if trace.fill_symbol else "none",
-                markeredgecolor=trace.symbol_color,
+                f"{trace.symbol_style}{trace.trace_style}" if trace.show_symbol else f"{trace.trace_style}",
+                fillstyle="full" if trace.fill_symbol and trace.show_symbol else "none",
+                markeredgecolor=trace.symbol_color if trace.show_symbol else "none",
                 label=trace.name,
                 color=trace.trace_color,
             )
             self.ax.set(xlabel=trace.x_label, ylabel=trace.y_label, title=self.title)
             if self.show_legend:
-                self.ax.legend(loc="upper right")
+                self.legend = self.ax.legend(
+                    loc="upper center",
+                    bbox_to_anchor=(0.5, -0.12),
+                    fontsize=10,
+                    frameon=True,
+                    edgecolor="black",
+                    ncol=2,
+                    facecolor=self.__general_back_color,
+                    labelcolor=self.__grid_color,
+                )
             return line
 
         self.animation = FuncAnimation(self.fig, update, frames=len(traces_to_plot), blit=True, repeat=True)
 
         self._plot(snapshot_path, show)
         return self.animation
+
+    @pyaedt_function_handler()
+    def plot_eye_diagram(
+        self,
+        snapshot_path: str = None,
+        show: bool = True,
+        is_contour=False,
+        filter_colormap=1e-6,
+        plot_max_height=True,
+        plot_eye_mask=True,
+    ):
+        """Plot Eye diagram and contour plot.
+
+        Parameters
+        ----------
+        snapshot_path : str, optional
+            Path to output image file. If not provided, the plot will not be saved.
+        show : bool, optional
+            Whether to display the plot. Default is `True`.
+        is_contour : bool, optional
+            Whether to plot is a BET contour plot.
+        filter_colormap : float, optional
+            Whether to filter the contour data and start from a specific BER.
+        plot_max_height : bool, optional
+            Whether to plot the maximum height lines on the eye diagram. Doesn't apply to contour plot.
+        plot_eye_mask : bool, optional
+            Whether to plot the eye mask on the eye diagram.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+        >>> obj = ReportPlotter()
+        >>> obj.plot_eye_diagram()
+
+        """
+        self.fig, self.ax = plt.subplots()
+        self.fig.set_size_inches(self.width / self.dpi, self.height / self.dpi)
+        self.__grid_enable_minor_y = False
+        self.__grid_enable_minor_x = False
+
+        traces_to_plot = self._retrieve_traces(None)[0]
+        if not traces_to_plot:
+            return False
+        if traces_to_plot.x_label == "Time" and self.unit_interval:
+            period = 2 * self.unit_interval
+
+            time = traces_to_plot.cartesian_data[0]
+            value = traces_to_plot.cartesian_data[1]
+
+            # Ensure time is sorted for interpolation
+            t_fold = np.mod(time - self.offset, period)
+            # Number of bins
+            nx = 300  # time resolution
+            ny = 300  # value resolution
+
+            Xc = np.linspace(0, period, nx + 1)  # shape (301,)
+            Yc = np.linspace(value.min(), value.max(), ny + 1)  # shape (301,)
+
+            # Create 2D histogram
+            Z, _, _ = np.histogram2d(t_fold, value, bins=[Xc, Yc])
+            # Z has shape (nx, ny) from np.histogram2d
+            # pcolormesh expects Z with shape (ny, nx) when given Xc and Yc
+            cmap = plt.cm.nipy_spectral
+
+            # Transpose for pcolormesh
+            Z_plot = Z.T
+            cmap.set_under(self.__general_plot_color)
+            minz = min(Z[np.where(Z > 0)])
+
+            Z_plot = np.ma.masked_less(Z_plot, minz)
+            self.ax.pcolormesh(
+                Xc,
+                Yc,
+                Z_plot,
+                cmap=cmap,
+                vmax=Z_plot.max() if Z_plot.max() / Z_plot.min() < 256 else Z_plot.max() / 50,
+                shading="auto",
+            )
+
+            # For contour extraction, create grid centers and prepare Z accordingly
+            # Bin edges are Xc, Yc; compute bin centers for the function
+            Xc = 0.5 * (Xc[:-1] + Xc[1:])
+            Yc = 0.5 * (Yc[:-1] + Yc[1:])
+            Z = Z_plot  # Use transposed Z with shape (ny, nx)
+
+        elif traces_to_plot.x_label == "UnitInterval":
+            xc, yc, zc = (
+                traces_to_plot.cartesian_data[0],
+                traces_to_plot.cartesian_data[1],
+                traces_to_plot.cartesian_data[2],
+            )
+            if not xc.any():
+                return False
+            minz = min(zc[np.where(zc > 0)])
+            minx = min(xc)
+            maxx = max(xc)
+            miny = min(yc)
+            maxy = max(yc)
+            if is_contour and filter_colormap:
+                mask = zc < filter_colormap
+                zc = zc[mask]
+                yc = yc[mask]
+                xc = xc[mask]
+            Xc, Yc, Z = bin_to_grid(xc, yc, zc)
+            if is_contour:
+                mesh = self.ax.pcolormesh(Xc, Yc, Z, norm=LogNorm(), shading="auto", cmap="jet")
+                cbar = self.fig.colorbar(mesh, ax=self.ax)
+                cbar.ax.tick_params(labelsize=self.text_size, colors=self.__grid_color)
+            else:
+                Z = np.ma.masked_less(Z, minz, np.nan)
+                self.ax.pcolormesh(
+                    Xc,
+                    Yc,
+                    Z,
+                    cmap="jet",
+                    shading="auto",
+                )
+            self.ax.set_xlim(minx, maxx)  # set X axis min and max
+            self.ax.set_ylim(miny, maxy)  # set Y axis min and max
+        else:
+            return False
+
+        if self._eye_mask and plot_eye_mask:
+            px = [i[0] for i in self._eye_mask.eye_points]
+            py = [i[1] for i in self._eye_mask.eye_points]
+            eye_center = [np.mean(px), np.mean(py)]
+            if not is_contour:
+                contour = extract_eye_opening_contour_by_center(
+                    Xc,
+                    Yc,
+                    Z,
+                    center=eye_center,
+                )
+                # contour = prepare_and_extract(xc, yc, zc, center=eye_center, nx=500, ny=500)
+                if contour.any():
+                    eye_center = [float(np.mean(contour[:, 0])), float(np.mean(contour[:, 1]))]
+                    ymaxidx = np.argmax(contour[:, 1])
+                    yminidx = np.argmin(contour[:, 1])
+                    xmaxidx = np.argmax(contour[:, 0])
+                    xminidx = np.argmin(contour[:, 0])
+                    eye_height = contour[:, 1][ymaxidx] - contour[:, 1][yminidx]
+                    eye_width = contour[:, 0][xmaxidx] - contour[:, 0][xminidx]
+                    settings.logger.info(f"Computed Eye Center {eye_center}")
+                    settings.logger.info(f"Computed Eye Height {eye_height}")
+                    settings.logger.info(f"Computed Eye Width {eye_width}")
+                    self.ax.plot(
+                        contour[:, 0],
+                        contour[:, 1],
+                        "r-",
+                        lw=2,
+                    )
+                    if plot_max_height:
+                        idx_max = np.argmax(contour[:, 1])
+                        max_height = contour[:, 1][idx_max]
+                        x_at_max = contour[:, 0][idx_max]
+
+                        self.ax.axvline(x=x_at_max, color="yellow", linestyle="dashdot", label=f"{x_at_max}")
+                        self.ax.axhline(y=max_height, color="yellow", linestyle="dashdot", label=f"{max_height}")
+
+            if px and py:
+                vertices = list(zip(px, py))
+
+                # Close polygon by repeating the first point at the end
+                vertices.append(vertices[0])
+
+                # Define path codes: MOVETO, LINETO ... CLOSEPOLY
+                codes = [Path.MOVETO] + [Path.LINETO] * (len(vertices) - 2) + [Path.CLOSEPOLY]
+
+                # Create the Path and PathPatch
+                path = Path(vertices, codes)
+                patch = PathPatch(
+                    path, color=[i / 255 for i in self._eye_mask.eye_color], alpha=self._eye_mask.eye_transparency
+                )
+                self.ax.add_patch(patch)
+            if self._eye_mask.eye_enable:
+                if self._eye_mask.eye_upper < max(Yc):
+                    px = [min(Xc), max(Xc), max(Xc), min(Xc)]
+                    py = [self._eye_mask.eye_upper, self._eye_mask.eye_upper, max(Yc), max(Yc)]
+                    vertices = list(zip(px, py))
+
+                    # Close polygon by repeating the first point at the end
+                    vertices.append(vertices[0])
+
+                    # Define path codes: MOVETO, LINETO ... CLOSEPOLY
+                    codes = [Path.MOVETO] + [Path.LINETO] * (len(vertices) - 2) + [Path.CLOSEPOLY]
+
+                    # Create the Path and PathPatch
+                    path = Path(vertices, codes)
+                    patch = PathPatch(
+                        path,
+                        color=[i / 255 for i in self._eye_mask.eye_color],
+                        alpha=self._eye_mask.eye_transparency,
+                    )
+                    self.ax.add_patch(patch)
+                if self._eye_mask.eye_lower > min(Yc):
+                    px = [min(Xc), max(Xc), max(Xc), min(Xc)]
+                    py = [self._eye_mask.eye_lower, self._eye_mask.eye_lower, min(Yc), min(Yc)]
+                    vertices = list(zip(px, py))
+
+                    # Close polygon by repeating the first point at the end
+                    vertices.append(vertices[0])
+
+                    # Define path codes: MOVETO, LINETO ... CLOSEPOLY
+                    codes = [Path.MOVETO] + [Path.LINETO] * (len(vertices) - 2) + [Path.CLOSEPOLY]
+
+                    # Create the Path and PathPatch
+                    path = Path(vertices, codes)
+                    patch = PathPatch(
+                        path,
+                        color=[i / 255 for i in self._eye_mask.eye_color],
+                        alpha=self._eye_mask.eye_transparency,
+                    )
+                    self.ax.add_patch(patch)
+
+        self.ax.set_xlabel(
+            f"Unit Interval ({self._eye_mask.eye_xunits if self._eye_mask else ''})'",
+            color=self.__grid_color,
+            fontsize=self.text_size,
+        )
+        self.ax.set_ylabel(
+            f"Amplitude ({self._eye_mask.eye_yunits if self._eye_mask else ''})",
+            color=self.__grid_color,
+            fontsize=self.text_size,
+        )
+        self.ax.set_title(
+            "Statistical Eye Diagram" if not is_contour else "Contour Eye Diagram",
+            color=self.__grid_color,
+            fontsize=self.title_size,
+        )
+
+        self._plot(snapshot_path, show)
 
     @pyaedt_function_handler()
     def _plot_notes(self) -> None:
@@ -1370,13 +2190,13 @@ class ReportPlotter(PyAedtBase):
             self.ax.plot(
                 trace._cartesian_data[0] * rate,
                 trace._cartesian_data[1],
-                f"{trace.symbol_style}{trace.trace_style}",
-                fillstyle="full" if trace.fill_symbol else "none",
-                markeredgecolor=trace.symbol_color,
+                f"{trace.symbol_style}{trace.trace_style}" if trace.show_symbol else f"{trace.symbol_style}",
+                fillstyle="full" if trace.fill_symbol and trace.show_symbol else "none",
+                markeredgecolor=trace.symbol_color if trace.show_symbol else "none",
                 label=trace.name,
                 color=trace.trace_color,
             )
-            if trace.hatch_above:
+            if not trace.hatch_above:
                 y_data = [i + delta for i in trace._cartesian_data[1]]
                 self.ax.fill_between(
                     trace._cartesian_data[0] * rate,
@@ -1448,23 +2268,32 @@ class ReportPlotter(PyAedtBase):
         -------
         :class:`matplotlib.pyplot.Figure`
             Matplotlib figure object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+        >>> obj = ReportPlotter()
+        >>> obj.plot_contour()
+
         """
         tr = self._retrieve_traces(trace)
         if not tr:
             return False
         else:
             tr = tr[0]
-
+        if "Bit Error Rate" in tr.name:
+            return self.plot_eye_diagram(snapshot_path=snapshot_path, show=show, is_contour=True)
         projection = "polar" if polar else "rectilinear"
 
         if not figure:
             self.fig, self.ax = plt.subplots(subplot_kw={"projection": projection})
+            self.fig.set_size_inches(self.width / self.dpi, self.height / self.dpi)
             self.ax = plt.gca()
         else:
             self.fig = figure
             self.ax = figure.add_subplot(111, polar=polar)
 
-        self.ax.set_xlabel(tr.x_label)
+        self.ax.set_xlabel(tr.x_label, color=self.__grid_color, fontsize=self.text_size)
         if polar:
             self.ax.set_rticks(np.linspace(min_theta, max_theta, 3))
             self.ax.set_theta_zero_location("N")
@@ -1472,7 +2301,7 @@ class ReportPlotter(PyAedtBase):
             self.ax.set_thetamin(min_theta)
             self.ax.set_thetamax(max_theta)
         else:
-            self.ax.set_ylabel(tr.y_label)
+            self.ax.set_ylabel(tr.y_label, color=self.__grid_color, fontsize=self.text_size)
 
         self.ax.set(title=self.title)
 
@@ -1528,6 +2357,13 @@ class ReportPlotter(PyAedtBase):
         -------
         :class:`matplotlib.pyplot.Figure`
             Matplotlib figure object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+        >>> obj = ReportPlotter()
+        >>> obj.plot_pcolor()
+
         """
         tr = self._retrieve_traces(trace)
         if not tr:
@@ -1538,13 +2374,14 @@ class ReportPlotter(PyAedtBase):
 
         if not figure:
             self.fig, self.ax = plt.subplots(subplot_kw={"projection": projection})
+            self.fig.set_size_inches(self.width / self.dpi, self.height / self.dpi)
             self.ax = plt.gca()
         else:
             self.fig = figure
             self.ax = figure.add_subplot(111, polar=False)
 
-        self.ax.set_xlabel(tr.x_label)
-        self.ax.set_ylabel(tr.y_label)
+        self.ax.set_xlabel(tr.x_label, color=self.__grid_color, fontsize=self.text_size)
+        self.ax.set_ylabel(tr.y_label, color=self.__grid_color, fontsize=self.text_size)
 
         self.ax.set(title=self.title)
         X = np.array(list(zip(*tr._cartesian_data[2]))[0])
@@ -1617,6 +2454,13 @@ class ReportPlotter(PyAedtBase):
         -------
         :class:`matplotlib.pyplot.Figure`
             Matplotlib figure object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+        >>> obj = ReportPlotter()
+        >>> obj.animate_contour()
+
         """
         self.animation = None
 
@@ -1628,6 +2472,7 @@ class ReportPlotter(PyAedtBase):
 
         if not figure:
             self.fig, self.ax = plt.subplots(subplot_kw={"projection": projection})
+            self.fig.set_size_inches(self.width / self.dpi, self.height / self.dpi)
             self.ax = plt.gca()
         else:
             self.fig = figure
@@ -1636,7 +2481,7 @@ class ReportPlotter(PyAedtBase):
         def update(i):
             self.ax.clear()
             trace = traces_to_plot[i]
-            self.ax.set_xlabel(trace.x_label)
+            self.ax.set_xlabel(trace.x_label, color=self.__grid_color, fontsize=self.text_size)
             if polar:
                 self.ax.set_rticks(np.linspace(min_theta, max_theta, 3))
                 self.ax.set_theta_zero_location("N")
@@ -1644,7 +2489,7 @@ class ReportPlotter(PyAedtBase):
                 self.ax.set_thetamin(min_theta)
                 self.ax.set_thetamax(max_theta)
             else:
-                self.ax.set_ylabel(trace.y_label)
+                self.ax.set_ylabel(trace.y_label, color=self.__grid_color, fontsize=self.text_size)
 
             self.ax.set(title=self.title)
 
@@ -1736,6 +2581,12 @@ def plot_matplotlib(
     -------
     :class:`matplotlib.pyplot.Figure`
         Matplotlib figure object.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.plot.matplotlib import plot_matplotlib
+    >>> plot_matplotlib()
+
     """
     dpi = 100.0
     fig, ax = plt.subplots()
@@ -1791,7 +2642,7 @@ def plot_matplotlib(
             plt.text(annotation[0], annotation[1], annotation[2], **annotation[3])
 
     if snapshot_path:
-        plt.savefig(snapshot_path)
+        plt.savefig(snapshot_path, dpi=dpi)
     if show:  # pragma: no cover
         plt.show()
     return fig

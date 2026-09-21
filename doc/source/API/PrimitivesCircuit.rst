@@ -15,7 +15,7 @@ They are accessible through the ``modeler`` module and ``modeler.objects`` prope
     from ansys.aedt.core import TwinBuilder
 
     app = TwinBuilder(
-        version="2025.2",
+        version="2026.1",
         non_graphical=False,
         new_desktop=True,
         close_on_exit=True,
@@ -69,7 +69,7 @@ They contain all getters and setters to simplify object manipulation.
     from ansys.aedt.core import Circuit
 
     app = Circuit(
-        version="2025.2",
+        version="2026.1",
         non_graphical=False,
         new_desktop=True,
         close_on_exit=True,
@@ -103,7 +103,7 @@ They contain all getters and setters to simplify object manipulation.
     from ansys.aedt.core import Circuit
 
     app = Circuit(
-        version="2025.2",
+        version="2026.1",
         non_graphical=False,
         new_desktop=True,
         close_on_exit=True,
@@ -157,7 +157,7 @@ They contain all getters and setters to simplify object manipulation.
     from ansys.aedt.core import TwinBuilder
 
     app = TwinBuilder(
-        version="2025.2",
+        version="2026.1",
         non_graphical=False,
         new_desktop=True,
         close_on_exit=True,

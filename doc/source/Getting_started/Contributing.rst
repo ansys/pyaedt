@@ -25,14 +25,14 @@ development mode, run:
     pip install -e .
 
 Development environment setup
-------------------------------
+-----------------------------
 
 PyAEDT uses **dependency groups** (PEP 735) for managing development dependencies.
 This is a modern approach that replaces the older ``[project.optional-dependencies]``
 mechanism for development-only dependencies.
 
 Dependency groups vs optional dependencies
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 PyAEDT uses two mechanisms for managing dependencies:
 
@@ -58,7 +58,7 @@ Post issues
 Use the `PyAEDT Issues <https://github.com/ansys/pyaedt/issues>`_
 page to submit questions, report bugs, and request new features.
 
-To reach the product support team, email `pyansys.core@ansys.com <pyansys.core@ansys.com>`_.
+To reach the product support team, email `pyansys-core@synopsys.com <pyansys-core@synopsys.com>`_.
 
 View PyAEDT documentation
 -------------------------
@@ -519,7 +519,7 @@ at the top level of the repository. Below is an example configuration with descr
 .. code-block:: json
 
   {
-      "desktopVersion": "2025.2",
+      "desktopVersion": "2026.1",
       "NonGraphical": true,
       "NewThread": true,
       "skip_circuits": false,
@@ -533,7 +533,7 @@ at the top level of the repository. Below is an example configuration with descr
 
 Parameter descriptions:
 
-- ``desktopVersion``: AEDT version to use for testing (for example, "2025.2," "2024.1").
+- ``desktopVersion``: AEDT version to use for testing (for example "2025.2" or "2026.1").
 - ``NonGraphical``: When ``true``, runs AEDT in non-graphical mode (headless).
 - ``NewThread``: Opens AEDT in a new thread.
 - ``skip_circuits``: When ``true``, skips Circuit-related tests.

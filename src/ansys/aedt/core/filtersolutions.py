@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -51,7 +51,14 @@ from ansys.aedt.core.filtersolutions_core.transmission_zeros import Transmission
 
 
 class FilterDesignBase(PyAedtBase):
-    """Provides the `FilterSolutions` main parameters applicable for all design types."""
+    """Provides the `FilterSolutions` main parameters applicable for all design types.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.filtersolutions import FilterDesignBase
+    >>> design = FilterDesignBase(version="2026.1")
+
+    """
 
     _active_design = None
 
@@ -80,7 +87,15 @@ class FilterDesignBase(PyAedtBase):
         self.export_to_aedt = ExportToAedt()
 
     def close(self) -> None:
-        """Closes the current design and clears the active design."""
+        """Closes the current design and clears the active design.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import FilterDesignBase
+        >>> design = FilterDesignBase(version="2026.1")
+        >>> design.close()
+
+        """
         if FilterDesignBase._active_design == self:
             print(f"Closing design: {self}")
             self._cleanup_resources()
@@ -143,7 +158,7 @@ class LumpedDesign(FilterDesignBase):
     version : str, optional
         Version of AEDT in ``xxxx.x`` format. The default is ``None``.
 
-    Example
+    Examples
     --------
     Create a ``FilterSolutions.LumpedDesign`` instance with a band-pass elliptic filter.
 
@@ -152,6 +167,7 @@ class LumpedDesign(FilterDesignBase):
     >>> LumpedDesign = ansys.aedt.core.FilterSolutions.LumpedDesign(version="2026.1")
     >>> LumpedDesign.attributes.filter_class = FilterClass.BAND_PASS
     >>> LumpedDesign.attributes.filter_type = FilterType.ELLIPTIC
+
     """
 
     def __init__(self, version: str | None = None) -> None:
@@ -178,7 +194,7 @@ class DistributedDesign(FilterDesignBase):
     version : str, optional
         Version of AEDT in ``xxxx.x`` format. The default is ``None``.
 
-    Example
+    Examples
     --------
     Create a ``FilterSolutions.DistributedDesign`` instance with a band-pass interdigital filter.
 
@@ -187,6 +203,7 @@ class DistributedDesign(FilterDesignBase):
     >>> DistributedDesign = ansys.aedt.core.FilterSolutions.DistributedDesign(version="2026.1")
     >>> DistributedDesign.attributes.filter_class = FilterClass.BAND_PASS
     >>> DistributedDesign.topology.topology_type = TopologyType.INTERDIGITAL
+
     """
 
     def __init__(self, version: str | None = None) -> None:

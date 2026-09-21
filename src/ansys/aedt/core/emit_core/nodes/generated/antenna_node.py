@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -21,6 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
 from enum import Enum
 
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
@@ -28,6 +29,8 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class AntennaNode(EmitNode):
+    """Provide antenna node."""
+
     def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = True
@@ -35,34 +38,88 @@ class AntennaNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
-        """The parent of this emit node."""
+        """The parent of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.parent
+
+        """
         return self._parent
 
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node."""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.node_type
+
+        """
         return self._node_type
 
     @min_aedt_version("2025.2")
     def add_antenna_passband(self) -> EmitNode:
-        """Add a New Passband to this Antenna"""
+        """Add a New Passband to this Antenna.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> antenna_passband = ant.add_antenna_passband()
+
+        """
         return self._add_child_node("Antenna Passband")
 
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
-        """Duplicate this node"""
+        """Duplicate this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant_copy = ant.duplicate("ant_copy")
+
+        """
         return self._duplicate(new_name)
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node"""
+        """Delete this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.delete()
+
+        """
         self._delete()
 
     @property
     @min_aedt_version("2025.2")
     def tags(self) -> str:
-        """Space delimited list of tags for coupling selections."""
+        """Space delimited list of tags for coupling selections.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.tags = "example_value"
+
+        """
         val = self._get_property("Tags")
         return val
 
@@ -80,6 +137,15 @@ class AntennaNode(EmitNode):
         relative to placement coords (True).
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.position_defined = True
+        >>> ant.show_relative_coordinates = False
+
         """
         val = self._get_property("Show Relative Coordinates")
         return val == "true"
@@ -91,32 +157,50 @@ class AntennaNode(EmitNode):
 
     @property
     @min_aedt_version("2025.2")
-    def position(self) -> str:
+    def position(self) -> list[float]:
         """Set position of the antenna in parent-node coordinates.
 
-        Value should be x/y/z, delimited by spaces.
+        Value should be a list of 3 floats.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.position_defined = True
+        >>> ant.position
+
         """
         val = self._get_property("Position")
         return val
 
     @position.setter
     @min_aedt_version("2025.2")
-    def position(self, value) -> None:
+    def position(self, value: list[float] | str) -> None:
         self._set_property("Position", f"{value}")
 
     @property
     @min_aedt_version("2025.2")
-    def relative_position(self) -> str:
+    def relative_position(self) -> list[float]:
         """Set position of the antenna relative to placement coordinates.
 
-        Value should be x/y/z, delimited by spaces.
+        Value should be a list of 3 floats.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.position_defined = True
+        >>> ant.relative_position
+
         """
         val = self._get_property("Relative Position")
         return val
 
     @relative_position.setter
     @min_aedt_version("2025.2")
-    def relative_position(self, value) -> None:
+    def relative_position(self, value: list[float] | str) -> None:
         self._set_property("Relative Position", f"{value}")
 
     class OrientationModeOption(Enum):
@@ -129,9 +213,21 @@ class AntennaNode(EmitNode):
         """Orientation Mode.
 
         Select the convention (order of rotations) for configuring orientation.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.position_defined = True
+        >>> ant.orientation_mode = AntennaNode.OrientationModeOption.ROLL_PITCH_YAW
+
         """
         val = self._get_property("Orientation Mode")
-        val = self.OrientationModeOption[val.upper()]
+        try:
+            val = self.OrientationModeOption(val)
+        except ValueError:
+            val = self.OrientationModeOption[val.upper()]
         return val
 
     @orientation_mode.setter
@@ -141,32 +237,50 @@ class AntennaNode(EmitNode):
 
     @property
     @min_aedt_version("2025.2")
-    def orientation(self) -> str | list:
+    def orientation(self) -> list[float]:
         """Set orientation of the antenna relative to parent-node coordinates.
 
         Value format is determined by 'Orientation Mode', in degrees and delimited by spaces.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.position_defined = True
+        >>> ant.orientation
+
         """
         val = self._get_property("Orientation")
         return val
 
     @orientation.setter
     @min_aedt_version("2025.2")
-    def orientation(self, value) -> None:
+    def orientation(self, value: list[float] | str) -> None:
         self._set_property("Orientation", f"{value}")
 
     @property
     @min_aedt_version("2025.2")
-    def relative_orientation(self) -> str | list:
+    def relative_orientation(self) -> list[float]:
         """Set orientation of the antenna relative to placement coordinates.
 
         Value format is determined by 'Orientation Mode', in degrees and delimited by spaces.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.position_defined = True
+        >>> ant.relative_orientation
+
         """
         val = self._get_property("Relative Orientation")
         return val
 
     @relative_orientation.setter
     @min_aedt_version("2025.2")
-    def relative_orientation(self, value) -> None:
+    def relative_orientation(self, value: list[float] | str) -> None:
         self._set_property("Relative Orientation", f"{value}")
 
     @property
@@ -175,6 +289,14 @@ class AntennaNode(EmitNode):
         """Toggles on/off the ability to define a position for the antenna.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.position_defined = False
+
         """
         val = self._get_property("Position Defined")
         return val == "true"
@@ -190,6 +312,14 @@ class AntennaNode(EmitNode):
         """Antenna noise temperature.
 
         Value should be between 0 and 100000.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.antenna_temperature = 290.0
+
         """
         val = self._get_property("Antenna Temperature")
         return float(val)
@@ -202,6 +332,7 @@ class AntennaNode(EmitNode):
     class AntennaTypeOption(Enum):
         ISOTROPIC = "Isotropic"
         BY_FILE = "ByFile"
+        HFSS_PHASED_ARRAY = "HfssPhasedArray"
         HEMITROPIC = "Hemitropic"
         SHORT_DIPOLE = "ShortDipole"
         HALF_WAVE_DIPOLE = "HalfWaveDipole"
@@ -215,9 +346,21 @@ class AntennaNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def antenna_type(self) -> AntennaTypeOption:
-        """Defines the type of antenna."""
+        """Defines the type of antenna.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.antenna_type = AntennaNode.AntennaTypeOption.ISOTROPIC
+
+        """
         val = self._get_property("Antenna Type")
-        val = self.AntennaTypeOption[val.upper()]
+        try:
+            val = self.AntennaTypeOption(val)
+        except ValueError:
+            val = self.AntennaTypeOption[val.upper()]
         return val
 
     @antenna_type.setter
@@ -228,7 +371,17 @@ class AntennaNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def antenna_file(self) -> str:
-        """Antenna File."""
+        """Antenna File.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.antenna_type = AntennaNode.AntennaTypeOption.BY_FILE
+        >>> ant.antenna_file = "example_value"
+
+        """
         val = self._get_property("Antenna File")
         return val
 
@@ -239,18 +392,27 @@ class AntennaNode(EmitNode):
 
     @property
     @min_aedt_version("2025.2")
-    def project_name(self) -> str:
-        """Name of imported HFSS Antenna project.
+    def antenna_metadata_file(self) -> str:
+        """Name of HFSS exported file with antenna metadata.
 
         Value should be a full file path.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.antenna_type = AntennaNode.AntennaTypeOption.HFSS_PHASED_ARRAY
+        >>> ant.antenna_metadata_file = "example_value"
+
         """
-        val = self._get_property("Project Name")
+        val = self._get_property("Antenna Metadata File")
         return val
 
-    @project_name.setter
+    @antenna_metadata_file.setter
     @min_aedt_version("2025.2")
-    def project_name(self, value: str) -> None:
-        self._set_property("Project Name", f"{value}")
+    def antenna_metadata_file(self, value: str) -> None:
+        self._set_property("Antenna Metadata File", f"{value}")
 
     @property
     @min_aedt_version("2025.2")
@@ -258,6 +420,15 @@ class AntennaNode(EmitNode):
         """Set peak gain of antenna (dBi).
 
         Value should be between -200 and 200.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.antenna_type = AntennaNode.AntennaTypeOption.DIRECTIVE_BEAM
+        >>> ant.peak_gain = 0
+
         """
         val = self._get_property("Peak Gain")
         return float(val)
@@ -273,6 +444,15 @@ class AntennaNode(EmitNode):
         """Set half-power beamwidth in local-coordinates elevation plane.
 
         Value should be between 0.1 and 360.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.antenna_type = AntennaNode.AntennaTypeOption.DIRECTIVE_BEAM
+        >>> ant.vertical_beamwidth = 30
+
         """
         val = self._get_property("Vertical Beamwidth")
         return float(val)
@@ -288,6 +468,15 @@ class AntennaNode(EmitNode):
         """Set half-power beamwidth in local-coordinates azimuth plane.
 
         Value should be between 0.1 and 360.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.antenna_type = AntennaNode.AntennaTypeOption.DIRECTIVE_BEAM
+        >>> ant.horizontal_beamwidth = 60
+
         """
         val = self._get_property("Horizontal Beamwidth")
         return float(val)
@@ -303,6 +492,15 @@ class AntennaNode(EmitNode):
         """Toggle (on/off) option to define two sidelobe levels.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.antenna_type = AntennaNode.AntennaTypeOption.DIRECTIVE_BEAM
+        >>> ant.extra_sidelobe = False
+
         """
         val = self._get_property("Extra Sidelobe")
         return val == "true"
@@ -321,6 +519,16 @@ class AntennaNode(EmitNode):
         level.
 
         Value should be between 0 and 200.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.antenna_type = AntennaNode.AntennaTypeOption.DIRECTIVE_BEAM
+        >>> ant.extra_sidelobe = True
+        >>> ant.first_sidelobe_level = 10
+
         """
         val = self._get_property("First Sidelobe Level")
         return float(val)
@@ -336,6 +544,16 @@ class AntennaNode(EmitNode):
         """Set beamwidth of first sidelobe beam in theta direction.
 
         Value should be between 0.1 and 360.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.antenna_type = AntennaNode.AntennaTypeOption.DIRECTIVE_BEAM
+        >>> ant.extra_sidelobe = True
+        >>> ant.first_sidelobe_vert_bw = 30
+
         """
         val = self._get_property("First Sidelobe Vert. BW")
         return float(val)
@@ -351,6 +569,16 @@ class AntennaNode(EmitNode):
         """Set beamwidth of first sidelobe beam in phi direction.
 
         Value should be between 0.1 and 360.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.antenna_type = AntennaNode.AntennaTypeOption.DIRECTIVE_BEAM
+        >>> ant.extra_sidelobe = True
+        >>> ant.first_sidelobe_hor_bw = 10
+
         """
         val = self._get_property("First Sidelobe Hor. BW")
         return float(val)
@@ -369,6 +597,15 @@ class AntennaNode(EmitNode):
         level.
 
         Value should be between 0 and 200.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.antenna_type = AntennaNode.AntennaTypeOption.DIRECTIVE_BEAM
+        >>> ant.outerbacklobe_level = 15
+
         """
         val = self._get_property("Outer/Backlobe Level")
         return float(val)
@@ -387,6 +624,15 @@ class AntennaNode(EmitNode):
         antenna.
 
         Value should be between 1.0 and 1e13.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.antenna_type = AntennaNode.AntennaTypeOption.WIRE_DIPOLE
+        >>> ant.resonant_frequency = 300e6
+
         """
         val = self._get_property("Resonant Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -404,6 +650,15 @@ class AntennaNode(EmitNode):
         """Set mouth width (along local y-axis) of the horn antenna.
 
         Value should be between 1e-6 and 100.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.antenna_type = AntennaNode.AntennaTypeOption.PYRAMIDAL_HORN
+        >>> ant.mouth_width = 0.3
+
         """
         val = self._get_property("Mouth Width")
         val = self._convert_from_internal_units(float(val), "Length")
@@ -421,6 +676,15 @@ class AntennaNode(EmitNode):
         """Set mouth height (along local x-axis) of the horn antenna.
 
         Value should be between 1e-6 and 100.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.antenna_type = AntennaNode.AntennaTypeOption.PYRAMIDAL_HORN
+        >>> ant.mouth_height = 0.5
+
         """
         val = self._get_property("Mouth Height")
         val = self._convert_from_internal_units(float(val), "Length")
@@ -441,6 +705,15 @@ class AntennaNode(EmitNode):
         the feed, determines cut-off frequency.
 
         Value should be between 1e-6 and 100.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.antenna_type = AntennaNode.AntennaTypeOption.PYRAMIDAL_HORN
+        >>> ant.waveguide_width = 0.15
+
         """
         val = self._get_property("Waveguide Width")
         val = self._convert_from_internal_units(float(val), "Length")
@@ -461,6 +734,15 @@ class AntennaNode(EmitNode):
         from boresight (z) axis to either wall.
 
         Value should be between 1 and 89.9.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.antenna_type = AntennaNode.AntennaTypeOption.PYRAMIDAL_HORN
+        >>> ant.width_flare_half_angle = 20
+
         """
         val = self._get_property("Width Flare Half-angle")
         return float(val)
@@ -479,6 +761,15 @@ class AntennaNode(EmitNode):
         from boresight (z) axis to either wall.
 
         Value should be between 1 and 89.9.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.antenna_type = AntennaNode.AntennaTypeOption.PYRAMIDAL_HORN
+        >>> ant.height_flare_half_angle = 35
+
         """
         val = self._get_property("Height Flare Half-angle")
         return float(val)
@@ -490,6 +781,190 @@ class AntennaNode(EmitNode):
 
     @property
     @min_aedt_version("2025.2")
+    def elevation_angle(self) -> float:
+        """Beam steering angle in elevation.
+
+        Value should be between 0 and 360.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.antenna_type = AntennaNode.AntennaTypeOption.HFSS_PHASED_ARRAY
+        >>> ant.elevation_angle = 0.0
+
+        """
+        val = self._get_property("Elevation Angle")
+        return float(val)
+
+    @elevation_angle.setter
+    @min_aedt_version("2025.2")
+    def elevation_angle(self, value: float) -> None:
+        self._set_property("Elevation Angle", f"{value}")
+
+    @property
+    @min_aedt_version("2025.2")
+    def azimuth_angle(self) -> float:
+        """Beam steering angle in azimuth.
+
+        Value should be between 0 and 360.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.antenna_type = AntennaNode.AntennaTypeOption.HFSS_PHASED_ARRAY
+        >>> ant.azimuth_angle = 0.0
+
+        """
+        val = self._get_property("Azimuth Angle")
+        return float(val)
+
+    @azimuth_angle.setter
+    @min_aedt_version("2025.2")
+    def azimuth_angle(self, value: float) -> None:
+        self._set_property("Azimuth Angle", f"{value}")
+
+    class TaperingFunctionOption(Enum):
+        FLAT = "Flat"
+        COSINE = "Cosine"
+        HAMMING = "Hamming"
+        TRIANGULAR = "Triangular"
+
+    @property
+    @min_aedt_version("2025.2")
+    def tapering_function(self) -> TaperingFunctionOption:
+        """Tapering function.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.antenna_type = AntennaNode.AntennaTypeOption.HFSS_PHASED_ARRAY
+        >>> ant.tapering_function = AntennaNode.TaperingFunctionOption.FLAT
+
+        """
+        val = self._get_property("Tapering Function")
+        try:
+            val = self.TaperingFunctionOption(val)
+        except ValueError:
+            val = self.TaperingFunctionOption[val.upper()]
+        return val
+
+    @tapering_function.setter
+    @min_aedt_version("2025.2")
+    def tapering_function(self, value: TaperingFunctionOption) -> None:
+        self._set_property("Tapering Function", f"{value.value}")
+
+    @property
+    @min_aedt_version("2025.2")
+    def max_taper_distance_x(self) -> float:
+        """Maximum distance for tapering calculation in x-direction.
+
+        Value should be between 0 and 100.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.antenna_type = AntennaNode.AntennaTypeOption.HFSS_PHASED_ARRAY
+        >>> ant.max_taper_distance_x = 0.0
+
+        """
+        val = self._get_property("Max Taper Distance X")
+        val = self._convert_from_internal_units(float(val), "Length")
+        return float(val)
+
+    @max_taper_distance_x.setter
+    @min_aedt_version("2025.2")
+    def max_taper_distance_x(self, value: float | str) -> None:
+        value = self._convert_to_internal_units(value, "Length")
+        self._set_property("Max Taper Distance X", f"{value}")
+
+    @property
+    @min_aedt_version("2025.2")
+    def max_taper_distance_y(self) -> float:
+        """Maximum distance for tapering calculation in y-direction.
+
+        Value should be between 0 and 100.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.antenna_type = AntennaNode.AntennaTypeOption.HFSS_PHASED_ARRAY
+        >>> ant.max_taper_distance_y = 0.0
+
+        """
+        val = self._get_property("Max Taper Distance Y")
+        val = self._convert_from_internal_units(float(val), "Length")
+        return float(val)
+
+    @max_taper_distance_y.setter
+    @min_aedt_version("2025.2")
+    def max_taper_distance_y(self, value: float | str) -> None:
+        value = self._convert_to_internal_units(value, "Length")
+        self._set_property("Max Taper Distance Y", f"{value}")
+
+    @property
+    @min_aedt_version("2025.2")
+    def cosine_power(self) -> float:
+        """Power for cosine tapering.
+
+        Value should be between 0 and 10000.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.antenna_type = AntennaNode.AntennaTypeOption.HFSS_PHASED_ARRAY
+        >>> ant.tapering_function = AntennaNode.TaperingFunctionOption.COSINE
+        >>> ant.cosine_power = 1.0
+
+        """
+        val = self._get_property("Cosine Power")
+        val = self._convert_from_internal_units(float(val), "Power")
+        return float(val)
+
+    @cosine_power.setter
+    @min_aedt_version("2025.2")
+    def cosine_power(self, value: float | str) -> None:
+        value = self._convert_to_internal_units(value, "Power")
+        self._set_property("Cosine Power", f"{value}")
+
+    @property
+    @min_aedt_version("2025.2")
+    def edge_taper(self) -> float:
+        """Edge taper level in dB.
+
+        Value should be between -200 and 200.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.antenna_type = AntennaNode.AntennaTypeOption.HFSS_PHASED_ARRAY
+        >>> ant.tapering_function = AntennaNode.TaperingFunctionOption.COSINE
+        >>> ant.edge_taper = -10
+
+        """
+        val = self._get_property("Edge Taper")
+        return float(val)
+
+    @edge_taper.setter
+    @min_aedt_version("2025.2")
+    def edge_taper(self, value: float) -> None:
+        self._set_property("Edge Taper", f"{value}")
+
+    @property
+    @min_aedt_version("2025.2")
     def vswr(self) -> float:
         """VSWR.
 
@@ -497,6 +972,14 @@ class AntennaNode(EmitNode):
         between the antenna and the RF System (or outboard component).
 
         Value should be between 1 and 100.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.vswr = 1.0
+
         """
         val = self._get_property("VSWR")
         return float(val)
@@ -515,9 +998,22 @@ class AntennaNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def antenna_polarization(self) -> AntennaPolarizationOption:
-        """Choose local-coordinates polarization along boresight."""
+        """Choose local-coordinates polarization along boresight.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.antenna_type = AntennaNode.AntennaTypeOption.DIRECTIVE_BEAM
+        >>> ant.antenna_polarization = AntennaNode.AntennaPolarizationOption.VERTICAL
+
+        """
         val = self._get_property("Antenna Polarization")
-        val = self.AntennaPolarizationOption[val.upper()]
+        try:
+            val = self.AntennaPolarizationOption(val)
+        except ValueError:
+            val = self.AntennaPolarizationOption[val.upper()]
         return val
 
     @antenna_polarization.setter
@@ -531,6 +1027,14 @@ class AntennaNode(EmitNode):
         """Toggle (on/off) display of antenna coordinate axes in 3-D window.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.show_axes = True
+
         """
         val = self._get_property("Show Axes")
         return val == "true"
@@ -546,6 +1050,14 @@ class AntennaNode(EmitNode):
         """Toggle (on/off) display of antenna marker (cone) in 3-D window.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.show_icon = True
+
         """
         val = self._get_property("Show Icon")
         return val == "true"
@@ -561,6 +1073,15 @@ class AntennaNode(EmitNode):
         """Adjust relative size of antenna marker (cone) in 3-D window.
 
         Value should be between 0.001 and 1.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.show_icon = True
+        >>> ant.size = 0.1
+
         """
         val = self._get_property("Size")
         return float(val)
@@ -576,26 +1097,53 @@ class AntennaNode(EmitNode):
         """Set color of antenna marker (cone) in 3-D window.
 
         Color should be in RGB form: #RRGGBB.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.show_icon = True
+        >>> ant.color = "#8064A2"
+
         """
         val = self._get_property("Color")
         return val
 
     @color.setter
     @min_aedt_version("2025.2")
-    def color(self, value) -> None:
+    def color(self, value: str) -> None:
         self._set_property("Color", f"{value}")
 
     @property
     @min_aedt_version("2025.2")
     def el_sample_interval(self) -> float:
-        """Space between elevation-angle samples of pattern."""
+        """Space between elevation-angle samples of pattern.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.el_sample_interval
+
+        """
         val = self._get_property("El Sample Interval")
         return float(val)
 
     @property
     @min_aedt_version("2025.2")
     def az_sample_interval(self) -> float:
-        """Space between azimuth-angle samples of pattern."""
+        """Space between azimuth-angle samples of pattern.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.az_sample_interval
+
+        """
         val = self._get_property("Az Sample Interval")
         return float(val)
 
@@ -605,14 +1153,32 @@ class AntennaNode(EmitNode):
         """False if antenna can be used at any frequency.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.has_frequency_domain
+
         """
         val = self._get_property("Has Frequency Domain")
         return val == "true"
 
     @property
     @min_aedt_version("2025.2")
-    def frequency_domain(self):
-        """Frequency sample(s) defining antenna."""
+    def frequency_domain(self) -> list[float]:
+        """Frequency sample(s) defining antenna.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.antenna_type = AntennaNode.AntennaTypeOption.BY_FILE
+        >>> ant.frequency_domain
+
+        """
         val = self._get_property("Frequency Domain")
         return val
 
@@ -623,6 +1189,14 @@ class AntennaNode(EmitNode):
 
         Implied waveguide height (along local x-axis) where the flared horn
         walls meet the feed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.waveguide_height
+
         """
         val = self._get_property("Waveguide Height")
         val = self._convert_from_internal_units(float(val), "Length")
@@ -631,7 +1205,16 @@ class AntennaNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def waveguide_cutoff_frequency(self) -> float:
-        """Implied lowest operating frequency of pyramidal horn antenna."""
+        """Implied lowest operating frequency of pyramidal horn antenna.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.waveguide_cutoff_frequency
+
+        """
         val = self._get_property("Waveguide Cutoff Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
         return float(val)
@@ -639,7 +1222,16 @@ class AntennaNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def notes(self) -> str:
-        """Expand to view/edit notes stored with the project."""
+        """Expand to view/edit notes stored with the project.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.notes = "example_value"
+
+        """
         val = self._get_property("Notes")
         return val
 
@@ -654,6 +1246,15 @@ class AntennaNode(EmitNode):
         """Show plot instead of 3D window.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant._ = True
+        >>> ant.show_composite_passband = False
+
         """
         val = self._get_property("Show Composite Passband")
         return val == "true"
@@ -669,6 +1270,14 @@ class AntennaNode(EmitNode):
         """Use the phase center defined in the HFSS design.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.use_phase_center = False
+
         """
         val = self._get_property("Use Phase Center")
         return val == "true"
@@ -684,26 +1293,85 @@ class AntennaNode(EmitNode):
         """Coordinate Systems.
 
         Specifies the coordinate system for the phase center of this antenna.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.use_phase_center = True
+        >>> ant.coordinate_systems
+
         """
         val = self._get_property("Coordinate Systems")
         return val
 
     @property
     @min_aedt_version("2025.2")
-    def phasecenterposition(self) -> str:
+    def phasecenterposition(self) -> list[float]:
         """Set position of the antennas linked coordinate system.
 
-        Value should be x/y/z, delimited by spaces.
+        Value should be a list of 3 floats.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.use_phase_center = True
+        >>> ant.phasecenterposition
+
         """
         val = self._get_property("PhaseCenterPosition")
         return val
 
     @property
     @min_aedt_version("2025.2")
-    def phasecenterorientation(self) -> str | list:
+    def phasecenterorientation(self) -> list[float]:
         """Set orientation of the antennas linked coordinate system.
 
         Value format is determined by 'Orientation Mode', in degrees and delimited by spaces.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.use_phase_center = True
+        >>> ant.phasecenterorientation
+
         """
         val = self._get_property("PhaseCenterOrientation")
+        return val
+
+    @property
+    @min_aedt_version("2025.2")
+    def attach_point(self) -> str:
+        """Attach Point.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.attach_point
+
+        """
+        val = self._get_property("Attach Point")
+        return val
+
+    @property
+    @min_aedt_version("2025.2")
+    def articulation_point(self) -> str:
+        """Articulation Point.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> _, ant = app.schematic.create_radio_antenna("Bluetooth")
+        >>> ant.articulation_point
+
+        """
+        val = self._get_property("Articulation Point")
         return val

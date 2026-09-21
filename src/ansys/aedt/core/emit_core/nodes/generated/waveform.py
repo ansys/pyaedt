@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -25,10 +25,13 @@
 from enum import Enum
 
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+from ansys.aedt.core.generic import constants as consts
 from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class Waveform(EmitNode):
+    """Provide waveform."""
+
     def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
@@ -36,34 +39,132 @@ class Waveform(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
-        """The parent of this emit node."""
+        """The parent of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.parent
+
+        """
         return self._parent
 
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node."""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.node_type
+
+        """
         return self._node_type
+
+    class ChannelType(Enum):
+        TX = "Tx"
+        RX = "Rx"
+
+    @min_aedt_version("2027.1")
+    def export_to_csv(self, file_name: str = "", channel_freq: float = 100e6) -> str:
+        """Export's the data for this node
+
+        Parameters
+        ----------
+        file_name: str[optional]
+            full path to the file to export to.
+        channel_freq: float[optional]
+            tuned channel to export the Band for.
+
+        Returns
+        -------
+        csv_data: str
+            stringified data for the node returned if file_name not specified
+        """
+        keys = "TraceChannelFreq|TraceChannelType|NarrowOrBroad"
+        vals = f"{channel_freq}|Tx|Narrowband"
+        return self._export_to_csv(file_name, keys, vals)
+
+    @min_aedt_version("2027.1")
+    def plot(self, channel_freq: float):
+        """Bring up a Cartesian plot for this node"""
+        keys = "TraceChannelFreq|TraceChannelType|NarrowOrBroad"
+        vals = f"{channel_freq}|Tx|Narrowband"
+        return self._plot(keys, vals)
 
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
-        """Duplicate this node"""
+        """Duplicate this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf_copy = wf.duplicate("wf_copy")
+
+        """
         return self._duplicate(new_name)
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node"""
+        """Delete this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.delete()
+
+        """
         self._delete()
 
     @min_aedt_version("2025.2")
     def import_tx_measurement(self, file_name: str) -> EmitNode:
-        """Import a Measurement from a File..."""
+        """Import a Measurement from a File....
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.import_tx_measurement("C:\\Measurements\\tx_measurement.csv")
+
+        """
         return self._import(file_name, "TxMeasurement")
+
+    @min_aedt_version("2027.1")
+    def get_frequencies(self, units: str = "Hz") -> list[float]:
+        """Return list of frequencies for the given waveform (empty if disabled)"""
+        freqs = self._oRevisionData.GetActiveBandFrequencies(self._result_id, self._node_id, False)
+        freqs_converted = [consts.unit_converter(float(freq), "Frequency", "Hz", units) for freq in freqs]
+        return freqs_converted
 
     @property
     @min_aedt_version("2025.2")
     def enabled(self) -> bool:
-        """Enabled state for this node."""
+        """Enabled state for this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.enabled = True
+
+        """
         return self._get_property("Enabled") == "true"
 
     @enabled.setter
@@ -81,9 +182,22 @@ class Waveform(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def waveform(self) -> WaveformOption:
-        """Modulation used for the transmitted/received signal."""
+        """Modulation used for the transmitted/received signal.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.waveform = Waveform.WaveformOption.PERIODIC_CLOCK
+
+        """
         val = self._get_property("Waveform")
-        val = self.WaveformOption[val.upper()]
+        try:
+            val = self.WaveformOption(val)
+        except ValueError:
+            val = self.WaveformOption[val.upper()]
         return val
 
     @waveform.setter
@@ -97,6 +211,16 @@ class Waveform(EmitNode):
         """First frequency for this band.
 
         Value should be between 1 and 100e9.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.modulation = Waveform.ModulationOption.GENERIC
+        >>> wf.start_frequency = 1e8
+
         """
         val = self._get_property("Start Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -114,6 +238,15 @@ class Waveform(EmitNode):
         """Clock signals duty cycle.
 
         Value should be between 0.001 and 1.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.clock_duty_cycle = 0.5
+
         """
         val = self._get_property("Clock Duty Cycle")
         return float(val)
@@ -129,6 +262,15 @@ class Waveform(EmitNode):
         """Clock signals rise/fall time.
 
         Value should be greater than 0.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.clock_risefall_time = 0.0
+
         """
         val = self._get_property("Clock Rise/Fall Time")
         val = self._convert_from_internal_units(float(val), "Time")
@@ -148,9 +290,22 @@ class Waveform(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def spreading_type(self) -> SpreadingTypeOption:
-        """Type of spreading employed by the Spread Spectrum Clock."""
+        """Type of spreading employed by the Spread Spectrum Clock.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.spreading_type = Waveform.SpreadingTypeOption.CENTER_SPREAD
+
+        """
         val = self._get_property("Spreading Type")
-        val = self.SpreadingTypeOption[val.upper()]
+        try:
+            val = self.SpreadingTypeOption(val)
+        except ValueError:
+            val = self.SpreadingTypeOption[val.upper()]
         return val
 
     @spreading_type.setter
@@ -164,6 +319,15 @@ class Waveform(EmitNode):
         """Peak-to-peak spread percentage.
 
         Value should be between 0 and 100.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.spread_percentage = 2
+
         """
         val = self._get_property("Spread Percentage")
         return float(val)
@@ -176,7 +340,17 @@ class Waveform(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def imported_spectrum(self) -> str:
-        """Imported Spectrum."""
+        """Imported Spectrum.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.imported_spectrum = "example_value"
+
+        """
         val = self._get_property("Imported Spectrum")
         return val
 
@@ -188,7 +362,17 @@ class Waveform(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def raw_data_format(self) -> str:
-        """Format of the imported raw data."""
+        """Format of the imported raw data.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.raw_data_format
+
+        """
         val = self._get_property("Raw Data Format")
         return val
 
@@ -198,6 +382,15 @@ class Waveform(EmitNode):
         """System impedance for the imported data.
 
         Value should be between 0.0 and 1.0e6.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.system_impedance = 50.0
+
         """
         val = self._get_property("System Impedance")
         val = self._convert_from_internal_units(float(val), "Resistance")
@@ -215,6 +408,15 @@ class Waveform(EmitNode):
         """Show/hide advanced extraction params.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.advanced_extraction_params = False
+
         """
         val = self._get_property("Advanced Extraction Params")
         return val == "true"
@@ -233,6 +435,16 @@ class Waveform(EmitNode):
         detection.
 
         Value should be greater than 3.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.advanced_extraction_params = True
+        >>> wf.nb_window_size = 20.0
+
         """
         val = self._get_property("NB Window Size")
         return float(val)
@@ -250,6 +462,16 @@ class Waveform(EmitNode):
         Reduces the number of frequency points used for the broadband noise.
 
         Value should be greater than 1.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.advanced_extraction_params = True
+        >>> wf.bb_smoothing_factor = 3.0
+
         """
         val = self._get_property("BB Smoothing Factor")
         return float(val)
@@ -265,6 +487,16 @@ class Waveform(EmitNode):
         """Narrowband Detector threshold standard deviation.
 
         Value should be between 2 and 10.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.advanced_extraction_params = True
+        >>> wf.nb_detector_threshold = 3.0
+
         """
         val = self._get_property("NB Detector Threshold")
         return float(val)
@@ -281,9 +513,22 @@ class Waveform(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def algorithm(self) -> AlgorithmOption:
-        """Algorithm used to transform the imported time domain spectrum."""
+        """Algorithm used to transform the imported time domain spectrum.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.algorithm = Waveform.AlgorithmOption.FFT
+
+        """
         val = self._get_property("Algorithm")
-        val = self.AlgorithmOption[val.upper()]
+        try:
+            val = self.AlgorithmOption(val)
+        except ValueError:
+            val = self.AlgorithmOption[val.upper()]
         return val
 
     @algorithm.setter
@@ -297,6 +542,15 @@ class Waveform(EmitNode):
         """Initial time of the imported spectrum.
 
         Value should be greater than 0.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.start_time = 0.0
+
         """
         val = self._get_property("Start Time")
         val = self._convert_from_internal_units(float(val), "Time")
@@ -311,7 +565,17 @@ class Waveform(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def stop_time(self) -> float:
-        """Final time of the imported time domain spectrum."""
+        """Final time of the imported time domain spectrum.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.stop_time = 10.0e-9
+
+        """
         val = self._get_property("Stop Time")
         val = self._convert_from_internal_units(float(val), "Time")
         return float(val)
@@ -328,6 +592,15 @@ class Waveform(EmitNode):
         """Frequency cutoff of the imported time domain spectrum.
 
         Value should be between 1.0 and 100.0e9.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.max_frequency = 10.0e9
+
         """
         val = self._get_property("Max Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -353,9 +626,22 @@ class Waveform(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def window_type(self) -> WindowTypeOption:
-        """Windowing scheme used for importing time domain spectrum."""
+        """Windowing scheme used for importing time domain spectrum.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.window_type = Waveform.WindowTypeOption.RECTANGULAR
+
+        """
         val = self._get_property("Window Type")
-        val = self.WindowTypeOption[val.upper()]
+        try:
+            val = self.WindowTypeOption(val)
+        except ValueError:
+            val = self.WindowTypeOption[val.upper()]
         return val
 
     @window_type.setter
@@ -369,6 +655,16 @@ class Waveform(EmitNode):
         """Shape factor applied to the transform.
 
         Value should be greater than 0.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.window_type = Waveform.WindowTypeOption.KAISER
+        >>> wf.kaiser_parameter = 0.5
+
         """
         val = self._get_property("Kaiser Parameter")
         return float(val)
@@ -384,6 +680,15 @@ class Waveform(EmitNode):
         """Shape factor applied to the transform.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.adjust_coherent_gain = True
+
         """
         val = self._get_property("Adjust Coherent Gain")
         return val == "true"
@@ -399,6 +704,15 @@ class Waveform(EmitNode):
         """Maximum data rate: helps determine shape of spectral profile.
 
         Value should be greater than 1.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.data_rate = 800e6
+
         """
         val = self._get_property("Data Rate")
         val = self._convert_from_internal_units(float(val), "Data Rate")
@@ -416,6 +730,15 @@ class Waveform(EmitNode):
         """Length of the Pseudo Random Binary Sequence.
 
         Value should be between 1 and 1000.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.num_of_bits = 8
+
         """
         val = self._get_property("Num of Bits")
         return int(val)
@@ -431,6 +754,15 @@ class Waveform(EmitNode):
         """Model the waveform as a worst case envelope.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.use_envelope = False
+
         """
         val = self._get_property("Use Envelope")
         return val == "true"
@@ -446,6 +778,15 @@ class Waveform(EmitNode):
         """Minimum number of points to use between each null frequency.
 
         Value should be between 2 and 50.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emit, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> wf = emit.get_waveforms()[0]
+        >>> wf.min_ptsnull = 10
+
         """
         val = self._get_property("Min Pts/Null")
         return int(val)

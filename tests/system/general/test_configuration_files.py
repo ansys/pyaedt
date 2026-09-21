@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -21,6 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
 from pathlib import Path
 
 import pytest
@@ -31,9 +32,6 @@ from ansys.aedt.core import Q2d
 from ansys.aedt.core import Q3d
 from ansys.aedt.core.generic.file_utils import available_file_name
 from tests import TESTS_GENERAL_PATH
-
-TEST_FIELD = "Potter_Horn"
-IPK_NAME = "Icepak_test"
 
 Q3D_FILE = "via_gsg_t42_231"
 TEST_PROJECT_NAME = "dm boundary test_231"

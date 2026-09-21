@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,19 +22,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import warnings
-
 import numpy as np
 import pytest
 
-from ansys.aedt.core.internal.checks import ERROR_GRAPHICS_REQUIRED
-from ansys.aedt.core.internal.checks import check_graphics_available
 from ansys.aedt.core.visualization.advanced.doa import DirectionOfArrival
-
-try:
-    check_graphics_available()
-except ImportError:
-    warnings.warn(ERROR_GRAPHICS_REQUIRED)
 
 
 @pytest.fixture(scope="module", autouse=True)

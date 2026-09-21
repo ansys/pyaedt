@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,10 +22,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-This module contains these classes: `AMIConturEyeDiagram`, `AMIEyeDiagram`, and `EyeDiagram`.
+"""The module contains these classes: `AMIConturEyeDiagram`, `AMIEyeDiagram`, and `EyeDiagram`.
 
-This module provides all functionalities for creating and editing reports.
+The module provides all functionalities for creating and editing reports.
+
+Examples
+--------
+>>> from ansys.aedt.core.visualization.report.eye import AMIConturEyeDiagram
+>>> obj = AMIConturEyeDiagram()
 
 """
 
@@ -38,7 +42,14 @@ from ansys.aedt.core.visualization.report.common import CommonReport
 
 
 class AMIConturEyeDiagram(CommonReport):
-    """Provides for managing eye contour diagram reports in AMI analysis."""
+    """Provides for managing eye contour diagram reports in AMI analysis.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.report.eye import AMIConturEyeDiagram
+    >>> obj = AMIConturEyeDiagram.__new__(AMIConturEyeDiagram)
+
+    """
 
     def __init__(self, app, report_category, setup_name, expressions=None) -> None:
         CommonReport.__init__(self, app, report_category, setup_name, expressions)
@@ -65,12 +76,22 @@ class AMIConturEyeDiagram(CommonReport):
 
     @property
     def expressions(self) -> list:
-        """Expressions.
+        """Get the expressions for the eye diagram.
 
         Returns
         -------
         list
             Expressions.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import AMIConturEyeDiagram
+        >>> obj = AMIConturEyeDiagram.__new__(AMIConturEyeDiagram)
+        >>> obj._is_created = False
+        >>> obj._legacy_props = {"expressions": [{"name": "Vout"}]}
+        >>> obj.expressions
+        ['Vout']
+
         """
         if self._is_created:
             return [i.split(" ,")[-1] for i in list(self.properties.values())[4:]]
@@ -79,8 +100,21 @@ class AMIConturEyeDiagram(CommonReport):
         expr_head = "Eye"
         new_exprs = []
         for expr_dict in self._legacy_props["expressions"]:
-            expr = expr_dict["name"]
-            if ".int_ami" not in expr:
+            expr = expr_dict["name"] if isinstance(expr_dict, dict) else expr_dict
+            if "amiprobe" in expr.lower() or "amisource" in expr.lower():
+                if "Bit Error Rate" not in expr:
+                    qtype = int(self.quantity_type)
+                    if qtype == 0:
+                        new_exprs.append(f"Initial{expr_head}(" + expr.lower() + ")<Bit Error Rate>")
+                    elif qtype == 1:
+                        new_exprs.append(f"{expr_head}AfterSource(" + expr.lower() + ")<Bit Error Rate>")
+                    elif qtype == 2:
+                        new_exprs.append(f"{expr_head}AfterChannel(" + expr.lower() + ")<Bit Error Rate>")
+                    elif qtype == 3:
+                        new_exprs.append(f"{expr_head}AfterProbe(" + expr.lower() + ")<Bit Error Rate>")
+            elif "aeyeprobe" in expr.lower():
+                new_exprs.append(f"{expr}<Bit Error Rate>")
+            elif ".int_ami" not in expr:
                 qtype = int(self.quantity_type)
                 if qtype == 0:
                     new_exprs.append(f"Initial{expr_head}(" + expr + ".int_ami_tx)<Bit Error Rate>")
@@ -97,7 +131,7 @@ class AMIConturEyeDiagram(CommonReport):
     @expressions.setter
     def expressions(self, value: list | dict | str) -> None:
         if isinstance(value, dict):
-            self._legacy_props["expressions"].append = value
+            self._legacy_props["expressions"] = [value]
         elif isinstance(value, list):
             self._legacy_props["expressions"] = []
             for el in value:
@@ -119,6 +153,15 @@ class AMIConturEyeDiagram(CommonReport):
         -------
         int
             Quantity type.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import AMIConturEyeDiagram
+        >>> obj = AMIConturEyeDiagram.__new__(AMIConturEyeDiagram)
+        >>> obj._legacy_props = {}
+        >>> obj.quantity_type
+        0
+
         """
         if self.properties and any([i for i in self.properties.keys() if "AfterProbe" in i]):
             self._legacy_props["quantity_type"] = 3
@@ -279,9 +322,11 @@ class AMIConturEyeDiagram(CommonReport):
                     break
         return arg
 
-    @property
-    def _trace_info(self):
-        new_exprs = self.expressions if isinstance(self.expressions, list) else [self.expressions]
+    @pyaedt_function_handler()
+    def _trace_info(self, expressions=None):
+        if not expressions:
+            expressions = self.expressions[::]
+        new_exprs = expressions if isinstance(expressions, list) else [expressions]
         if self.secondary_sweep:
             return ["X Component:=", self.primary_sweep, "Y Component:=", "__Amplitude", "Z Component:=", new_exprs]
         else:
@@ -301,6 +346,13 @@ class AMIConturEyeDiagram(CommonReport):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import AMIConturEyeDiagram
+        >>> obj = AMIConturEyeDiagram.__new__(AMIConturEyeDiagram)
+        >>> obj.create("EyePlot")
+
         """
         if not name:
             self.plot_name = generate_unique_name("Plot")
@@ -313,11 +365,11 @@ class AMIConturEyeDiagram(CommonReport):
             self.setup,
             self._context,
             self._convert_dict_to_report_sel(self.variations),
-            self._trace_info,
+            self._trace_info(),
         )
         self._post.plots.append(self)
         self._is_created = True
-        oo = self._post.oreportsetup.GetChildObject(self._legacy_props["plot_name"])
+        oo = self._post._app.get_oo_object(self._post.oreportsetup, self._legacy_props["plot_name"])
         if oo:
             BinaryTreeNode.__init__(self, self.plot_name, oo, False, app=self._app)
         return True
@@ -366,6 +418,13 @@ class AMIConturEyeDiagram(CommonReport):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import AMIConturEyeDiagram
+        >>> obj = AMIConturEyeDiagram.__new__(AMIConturEyeDiagram)
+        >>> obj.eye_mask([[0, 0], [1, 1]])
+
         """
         if "quantity_type" in dir(self) and self.report_type == "Rectangular Contour Plot":
             props = [
@@ -422,6 +481,13 @@ class AMIConturEyeDiagram(CommonReport):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import AMIConturEyeDiagram
+        >>> obj = AMIConturEyeDiagram.__new__(AMIConturEyeDiagram)
+        >>> obj.rectangular_plot(True)
+
         """
         props = [
             "NAME:AllTabs",
@@ -441,6 +507,13 @@ class AMIConturEyeDiagram(CommonReport):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import AMIConturEyeDiagram
+        >>> obj = AMIConturEyeDiagram.__new__(AMIConturEyeDiagram)
+        >>> obj.add_all_eye_measurements()
+
         """
         self._post.oreportsetup.AddAllEyeMeasurements(self.plot_name)
         return True
@@ -453,6 +526,13 @@ class AMIConturEyeDiagram(CommonReport):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import AMIConturEyeDiagram
+        >>> obj = AMIConturEyeDiagram.__new__(AMIConturEyeDiagram)
+        >>> obj.clear_all_eye_measurements()
+
         """
         self._post.oreportsetup.ClearAllTraceCharacteristics(self.plot_name)
         return True
@@ -471,6 +551,13 @@ class AMIConturEyeDiagram(CommonReport):
         -------
         str
             Output file path if a TAB file is created.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import AMIConturEyeDiagram
+        >>> obj = AMIConturEyeDiagram.__new__(AMIConturEyeDiagram)
+        >>> obj.export_mask_violation("violations.tab")
+
         """
         if not output_file:
             output_file = os.path.join(self._post._app.working_directory, f"{self.plot_name}_violations.tab")
@@ -479,7 +566,14 @@ class AMIConturEyeDiagram(CommonReport):
 
 
 class AMIEyeDiagram(CommonReport):
-    """Provides for managing eye diagram reports."""
+    """Provides for managing eye diagram reports.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.report.eye import AMIEyeDiagram
+    >>> obj = AMIEyeDiagram.__new__(AMIEyeDiagram)
+
+    """
 
     def __init__(self, app, report_category, setup_name, expressions=None) -> None:
         CommonReport.__init__(self, app, report_category, setup_name, expressions)
@@ -509,6 +603,15 @@ class AMIEyeDiagram(CommonReport):
         -------
         list
             Expressions.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import AMIEyeDiagram
+        >>> obj = AMIEyeDiagram.__new__(AMIEyeDiagram)
+        >>> obj._legacy_props = {"expressions": ["Vout"]}
+        >>> obj.expressions
+        ['Vout']
+
         """
         if self._is_created:
             return [i.split(" ,")[-1] for i in list(self.properties.values())[4:]]
@@ -519,8 +622,25 @@ class AMIEyeDiagram(CommonReport):
             expr_head = "Eye"
         new_exprs = []
         for expr_dict in self._legacy_props["expressions"]:
-            expr = expr_dict["name"]
-            if ".int_ami" not in expr:
+            expr = expr_dict["name"] if isinstance(expr_dict, dict) else expr_dict
+            if "amiprobe" in expr.lower() or "amisource" in expr.lower():
+                if "Initial" not in expr and "After" not in expr:
+                    qtype = int(self.quantity_type)
+                    if qtype == 0:
+                        new_exprs.append(f"Initial{expr_head}<" + expr + ">")
+                    elif qtype == 1:
+                        new_exprs.append(f"{expr_head}AfterSource<" + expr + ">")
+                    elif qtype == 2:
+                        new_exprs.append(f"{expr_head}AfterChannel<" + expr + ">")
+                    elif qtype == 3:
+                        new_exprs.append(f"{expr_head}AfterProbe<" + expr + ">")
+                    else:
+                        new_exprs.append(expr)
+                else:
+                    new_exprs.append(expr)
+            elif "eyeprobe" in expr.lower() or "eyesource" in expr.lower():
+                new_exprs.append(expr)
+            elif ".int_ami" not in expr:
                 qtype = int(self.quantity_type)
                 if qtype == 0:
                     new_exprs.append(f"Initial{expr_head}<" + expr + ".int_ami_tx>")
@@ -536,6 +656,23 @@ class AMIEyeDiagram(CommonReport):
                 new_exprs.append(expr)
         return new_exprs
 
+    @expressions.setter
+    def expressions(self, value: list | dict | str) -> None:
+        if isinstance(value, dict):
+            self._legacy_props["expressions"] = [value]
+        elif isinstance(value, list):
+            self._legacy_props["expressions"] = []
+            for el in value:
+                if isinstance(el, dict):
+                    self._legacy_props["expressions"].append(el)
+                else:
+                    self._legacy_props["expressions"].append({"name": el})
+        elif isinstance(value, str):
+            if isinstance(self._legacy_props["expressions"], list):
+                self._legacy_props["expressions"].append({"name": value})
+            else:
+                self._legacy_props["expressions"] = [{"name": value}]
+
     @property
     def quantity_type(self):
         """Quantity type used in the AMI analysis plot.
@@ -544,6 +681,15 @@ class AMIEyeDiagram(CommonReport):
         -------
         int
             Quantity type.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import AMIEyeDiagram
+        >>> obj = AMIEyeDiagram.__new__(AMIEyeDiagram)
+        >>> obj._legacy_props = {"quantity_type": 0}
+        >>> obj.quantity_type
+        0
+
         """
         if self.properties and any([i for i in self.properties.keys() if "AfterProbe" in i]):
             self._legacy_props["quantity_type"] = 3
@@ -565,6 +711,15 @@ class AMIEyeDiagram(CommonReport):
         -------
         str
             Report category.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import AMIEyeDiagram
+        >>> obj = AMIEyeDiagram.__new__(AMIEyeDiagram)
+        >>> obj._legacy_props = {"report_category": "Eye Diagram", "report_type": "Rectangular Plot"}
+        >>> obj.report_category
+        'Eye Diagram'
+
         """
         if self._is_created:
             try:
@@ -595,6 +750,15 @@ class AMIEyeDiagram(CommonReport):
         -------
         str
             Unit interval.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import AMIEyeDiagram
+        >>> obj = AMIEyeDiagram.__new__(AMIEyeDiagram)
+        >>> obj._legacy_props = {"context": {"unit_interval": "1e-12"}}
+        >>> obj.unit_interval
+        '1e-12'
+
         """
         return self._legacy_props["context"].get("unit_interval", None)
 
@@ -610,6 +774,15 @@ class AMIEyeDiagram(CommonReport):
         -------
         str
             Offset value.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import AMIEyeDiagram
+        >>> obj = AMIEyeDiagram.__new__(AMIEyeDiagram)
+        >>> obj._legacy_props = {"context": {"offset": "0.0"}}
+        >>> obj.offset
+        '0.0'
+
         """
         return self._legacy_props["context"].get("offset", None)
 
@@ -625,6 +798,15 @@ class AMIEyeDiagram(CommonReport):
         -------
         bool
             ``True`` if auto-delay is enabled, ``False`` otherwise.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import AMIEyeDiagram
+        >>> obj = AMIEyeDiagram.__new__(AMIEyeDiagram)
+        >>> obj._legacy_props = {"context": {"auto_delay": True}}
+        >>> obj.auto_delay
+        True
+
         """
         return self._legacy_props["context"].get("auto_delay", None)
 
@@ -640,6 +822,15 @@ class AMIEyeDiagram(CommonReport):
         -------
         str
             ``True`` if manual-delay is enabled, ``False`` otherwise.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import AMIEyeDiagram
+        >>> obj = AMIEyeDiagram.__new__(AMIEyeDiagram)
+        >>> obj._legacy_props = {"context": {"manual_delay": "0.25"}}
+        >>> obj.manual_delay
+        '0.25'
+
         """
         return self._legacy_props["context"].get("manual_delay", None)
 
@@ -655,6 +846,15 @@ class AMIEyeDiagram(CommonReport):
         -------
         bool
             ``True`` if auto-cross amplitude is enabled, ``False`` otherwise.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import AMIEyeDiagram
+        >>> obj = AMIEyeDiagram.__new__(AMIEyeDiagram)
+        >>> obj._legacy_props = {"context": {"auto_cross_amplitude": True}}
+        >>> obj.auto_cross_amplitude
+        True
+
         """
         return self._legacy_props["context"].get("auto_cross_amplitude", None)
 
@@ -670,6 +870,15 @@ class AMIEyeDiagram(CommonReport):
         -------
         str
             Cross-amplitude.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import AMIEyeDiagram
+        >>> obj = AMIEyeDiagram.__new__(AMIEyeDiagram)
+        >>> obj._legacy_props = {"context": {"cross_amplitude": "0.7"}}
+        >>> obj.cross_amplitude
+        '0.7'
+
         """
         return self._legacy_props["context"].get("cross_amplitude", None)
 
@@ -685,6 +894,15 @@ class AMIEyeDiagram(CommonReport):
         -------
         bool
             ``True`` to compute eye measurements, ``False`` otherwise.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import AMIEyeDiagram
+        >>> obj = AMIEyeDiagram.__new__(AMIEyeDiagram)
+        >>> obj._legacy_props = {"context": {"auto_compute_eye_meas": True}}
+        >>> obj.auto_compute_eye_meas
+        True
+
         """
         return self._legacy_props["context"].get("auto_compute_eye_meas", None)
 
@@ -700,6 +918,15 @@ class AMIEyeDiagram(CommonReport):
         -------
         str
             Eye measurement point.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import AMIEyeDiagram
+        >>> obj = AMIEyeDiagram.__new__(AMIEyeDiagram)
+        >>> obj._legacy_props = {"context": {"eye_measurement_point": "Tx"}}
+        >>> obj.eye_measurement_point
+        'Tx'
+
         """
         return self._legacy_props["context"].get("eye_measurement_point", None)
 
@@ -820,9 +1047,11 @@ class AMIEyeDiagram(CommonReport):
                     break
         return arg
 
-    @property
-    def _trace_info(self):
-        new_exprs = self.expressions if isinstance(self.expressions, list) else [self.expressions]
+    @pyaedt_function_handler()
+    def _trace_info(self, expressions=None):
+        if not expressions:
+            expressions = self.expressions[::]
+        new_exprs = expressions if isinstance(expressions, list) else [expressions]
         if self.report_category == "Statistical Eye":
             return [
                 "X Component:=",
@@ -848,6 +1077,17 @@ class AMIEyeDiagram(CommonReport):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit()
+        >>> rep = circuit.post.reports_by_category.eye_diagram("AEYEPROBE(OutputEye)", "QuickEyeAnalysis")
+        >>> rep.time_start = "0ps"
+        >>> rep.time_stop = "50us"
+        >>> rep.unit_interval = "1e-9"
+        >>> rep.create()
+
         """
         if not name:
             self.plot_name = generate_unique_name("Plot")
@@ -879,7 +1119,7 @@ class AMIEyeDiagram(CommonReport):
                 self.setup,
                 self._context,
                 self._convert_dict_to_report_sel(self.variations),
-                self._trace_info,
+                self._trace_info(),
             )
         else:
             self._post.oreportsetup.CreateReport(
@@ -889,12 +1129,12 @@ class AMIEyeDiagram(CommonReport):
                 self.setup,
                 self._context,
                 self._convert_dict_to_report_sel(self.variations),
-                self._trace_info,
+                self._trace_info(),
                 options,
             )
         self._post.plots.append(self)
         self._is_created = True
-        oo = self._post.oreportsetup.GetChildObject(self._legacy_props["plot_name"])
+        oo = self._post._app.get_oo_object(self._post.oreportsetup, self._legacy_props["plot_name"])
         if oo:
             BinaryTreeNode.__init__(self, self.plot_name, oo, False, app=self._app)
         return True
@@ -943,6 +1183,15 @@ class AMIEyeDiagram(CommonReport):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit()
+        >>> rep = circuit.post.reports_by_category.eye_diagram("AEYEPROBE(OutputEye)", "QuickEyeAnalysis")
+        >>> rep.create()
+        >>> rep.eye_mask([[0.5, 0], [0.62, 450], [1.2, 450], [1.42, 0], [1.2, -450], [0.62, -450], [0.5, 0]])
+
         """
         props = [
             "NAME:AllTabs",
@@ -992,6 +1241,15 @@ class AMIEyeDiagram(CommonReport):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit()
+        >>> rep = circuit.post.reports_by_category.eye_diagram("AEYEPROBE(OutputEye)", "QuickEyeAnalysis")
+        >>> rep.create()
+        >>> rep.rectangular_plot(False)
+
         """
         props = [
             "NAME:AllTabs",
@@ -1011,6 +1269,15 @@ class AMIEyeDiagram(CommonReport):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit()
+        >>> rep = circuit.post.reports_by_category.eye_diagram("AEYEPROBE(OutputEye)", "QuickEyeAnalysis")
+        >>> rep.create()
+        >>> rep.add_all_eye_measurements()
+
         """
         self._post.oreportsetup.AddAllEyeMeasurements(self.plot_name)
         return True
@@ -1023,6 +1290,15 @@ class AMIEyeDiagram(CommonReport):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit()
+        >>> rep = circuit.post.reports_by_category.eye_diagram("AEYEPROBE(OutputEye)", "QuickEyeAnalysis")
+        >>> rep.create()
+        >>> rep.clear_all_eye_measurements()
+
         """
         self._post.oreportsetup.ClearAllTraceCharacteristics(self.plot_name)
         return True
@@ -1041,6 +1317,15 @@ class AMIEyeDiagram(CommonReport):
         -------
         str
             Output file path if a TAB file is created.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit()
+        >>> rep = circuit.post.reports_by_category.eye_diagram("AEYEPROBE(OutputEye)", "QuickEyeAnalysis")
+        >>> rep.create()
+        >>> rep.export_mask_violation()
+
         """
         if not output_file:
             output_file = os.path.join(self._post._app.working_directory, f"{self.plot_name}_violations.tab")
@@ -1049,7 +1334,14 @@ class AMIEyeDiagram(CommonReport):
 
 
 class EyeDiagram(AMIEyeDiagram):
-    """Provides for managing eye diagram reports."""
+    """Provides for managing eye diagram reports.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.report.eye import EyeDiagram
+    >>> obj = EyeDiagram()
+
+    """
 
     def __init__(self, app, report_category, setup_name, expressions=None) -> None:
         AMIEyeDiagram.__init__(self, app, report_category, setup_name, expressions)
@@ -1067,17 +1359,24 @@ class EyeDiagram(AMIEyeDiagram):
         -------
         list
             Expressions.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import EyeDiagram
+        >>> obj = EyeDiagram()
+        >>> obj.expressions
+
         """
         if self._is_created:
             return [i.split(" ,")[-1] for i in list(self.properties.values())[4:]]
         if self._legacy_props.get("expressions", None) is None:
             return []
-        return [k.get("name", None) for k in self._legacy_props["expressions"] if k.get("name", None) is not None]
+        return [k.get("name", None) if isinstance(k, dict) else k for k in self._legacy_props["expressions"]]
 
     @expressions.setter
     def expressions(self, value: list | dict | str) -> None:
         if isinstance(value, dict):
-            self._legacy_props["expressions"].append = value
+            self._legacy_props["expressions"] = [value]
         elif isinstance(value, list):
             self._legacy_props["expressions"] = []
             for el in value:
@@ -1099,6 +1398,13 @@ class EyeDiagram(AMIEyeDiagram):
         -------
         str
             Time start.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import EyeDiagram
+        >>> obj = EyeDiagram()
+        >>> obj.time_start
+
         """
         return self._legacy_props["context"].get("time_start", None)
 
@@ -1114,6 +1420,13 @@ class EyeDiagram(AMIEyeDiagram):
         -------
         str
             Time stop.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import EyeDiagram
+        >>> obj = EyeDiagram()
+        >>> obj.time_stop
+
         """
         return self._legacy_props["context"].get("time_stop", None)
 
@@ -1129,6 +1442,13 @@ class EyeDiagram(AMIEyeDiagram):
         -------
         bool
             ``True`` if thinning is enabled, ``False`` otherwise.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import EyeDiagram
+        >>> obj = EyeDiagram()
+        >>> obj.thinning
+
         """
         return self._legacy_props["context"].get("thinning", None)
 
@@ -1144,6 +1464,13 @@ class EyeDiagram(AMIEyeDiagram):
         -------
         float
             DY DX tolerance.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import EyeDiagram
+        >>> obj = EyeDiagram()
+        >>> obj.dy_dx_tolerance
+
         """
         return self._legacy_props["context"].get("dy_dx_tolerance", None)
 
@@ -1159,6 +1486,13 @@ class EyeDiagram(AMIEyeDiagram):
         -------
         int
             Number of thinning points.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.eye import EyeDiagram
+        >>> obj = EyeDiagram()
+        >>> obj.thinning_points
+
         """
         return self._legacy_props["context"].get("thinning_points", None)
 
@@ -1218,9 +1552,11 @@ class EyeDiagram(AMIEyeDiagram):
         ]
         return arg
 
-    @property
-    def _trace_info(self):
-        if isinstance(self.expressions, list):
-            return ["Component:=", self.expressions]
+    @pyaedt_function_handler()
+    def _trace_info(self, expressions=None):
+        if not expressions:
+            expressions = self.expressions[::]
+        if isinstance(expressions, list):
+            return ["Component:=", expressions]
         else:
-            return ["Component:=", [self.expressions]]
+            return ["Component:=", [expressions]]

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -25,10 +25,13 @@
 from enum import Enum
 
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+from ansys.aedt.core.emit_core.nodes.generated import AntennaNode
 from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class WalfischCouplingNode(EmitNode):
+    """Provide walfisch coupling node."""
+
     def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
@@ -36,23 +39,114 @@ class WalfischCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
-        """The parent of this emit node."""
+        """The parent of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> walf = cpl.add_walfisch_coupling()
+        >>> walf.parent
+
+        """
         return self._parent
 
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node."""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> walf = cpl.add_walfisch_coupling()
+        >>> walf.node_type
+
+        """
         return self._node_type
 
+    @min_aedt_version("2027.1")
+    def export_to_csv(
+        self, file_name: str, antennas: tuple[AntennaNode, AntennaNode] | None = None, ports: str = ""
+    ) -> str:
+        """Export's the data for this node
+
+        Parameters
+        ----------
+        file_name: str[optional]
+            full path to the file to export to.
+        antennas: tuple(AntennaNode, AntennaNode), optional
+            tuple of antenna nodes to pull the selected Tx and Rx antenna names from for the export.
+            If not specified, will use the names specified by the ports parameter.
+        ports: str, optional
+            the ports to export the data for.
+
+        Returns
+        -------
+        csv_data: str
+            stringified data for the node returned if file_name not specified
+        """
+        if antennas is not None and all(isinstance(x, AntennaNode) for x in antennas):
+            a1, a2 = antennas
+            vals = f"{a1.name}|{a2.name}"
+        else:
+            vals = f"{ports}"
+        return self._export_to_csv(file_name, "SelectedRxAntenna|SelectedTxAntenna", vals)
+
+    @min_aedt_version("2027.1")
+    def plot(self, antennas: tuple[AntennaNode, AntennaNode] | None = None, ports: str = ""):
+        """Bring up a Cartesian plot for this node
+
+        Parameters
+        ----------
+        antennas: tuple(AntennaNode, AntennaNode), optional
+            tuple of antenna nodes to pull the selected Tx and Rx antenna names from for the export.
+            If not specified, will use the names specified by the ports parameter.
+        ports: str, optional
+            the ports to export the data for.
+        """
+        if antennas is not None and all(isinstance(x, AntennaNode) for x in antennas):
+            a1, a2 = antennas
+            vals = f"{a1.name}|{a2.name}"
+        else:
+            vals = f"{ports}"
+        return self._plot("SelectedRxAntenna|SelectedTxAntenna", vals)
+
     @min_aedt_version("2025.2")
-    def duplicate(self, new_name: str = ""):
-        """Duplicate this node"""
+    def duplicate(self, new_name: str = "") -> EmitNode:
+        """Duplicate this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> walf = cpl.add_walfisch_coupling()
+        >>> walf_copy = walf.duplicate("walf_copy")
+
+        """
         return self._duplicate(new_name)
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node"""
+        """Delete this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> walf = cpl.add_walfisch_coupling()
+        >>> walf.delete()
+
+        """
         self._delete()
 
     @property
@@ -61,6 +155,16 @@ class WalfischCouplingNode(EmitNode):
         """Enable/Disable coupling.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> walf = cpl.add_walfisch_coupling()
+        >>> walf.enabled = True
+
         """
         val = self._get_property("Enabled")
         return val == "true"
@@ -73,7 +177,18 @@ class WalfischCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def base_antenna(self) -> EmitNode:
-        """First antenna of the pair to apply the coupling values to."""
+        """First antenna of the pair to apply the coupling values to.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> walf = cpl.add_walfisch_coupling()
+        >>> walf.base_antenna
+
+        """
         val = self._get_property("Base Antenna")
         return val
 
@@ -85,7 +200,18 @@ class WalfischCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def mobile_antenna(self) -> EmitNode:
-        """Second antenna of the pair to apply the coupling values to."""
+        """Second antenna of the pair to apply the coupling values to.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> walf = cpl.add_walfisch_coupling()
+        >>> walf.mobile_antenna
+
+        """
         val = self._get_property("Mobile Antenna")
         return val
 
@@ -101,9 +227,23 @@ class WalfischCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def path_loss_type(self) -> PathLossTypeOption:
-        """Specify LOS vs NLOS for the Walfisch-Ikegami model."""
+        """Specify LOS vs NLOS for the Walfisch-Ikegami model.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> walf = cpl.add_walfisch_coupling()
+        >>> walf.path_loss_type = WalfischCouplingNode.PathLossTypeOption.LOS_URBAN_CANYON
+
+        """
         val = self._get_property("Path Loss Type")
-        val = self.PathLossTypeOption[val.upper()]
+        try:
+            val = self.PathLossTypeOption(val)
+        except ValueError:
+            val = self.PathLossTypeOption[val.upper()]
         return val
 
     @path_loss_type.setter
@@ -118,12 +258,28 @@ class WalfischCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def environment(self) -> EnvironmentOption:
-        """Specify the environment type for the Walfisch model."""
+        """Specify the environment type for the Walfisch model.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> walf = cpl.add_walfisch_coupling()
+        >>> walf.path_loss_type = WalfischCouplingNode.PathLossTypeOption.NLOS
+        >>> walf.environment = WalfischCouplingNode.EnvironmentOption.DENSE_METRO
+
+        """
         val = self._get_property("Environment")
-        val = self.EnvironmentOption[val.upper()]
+        try:
+            val = self.EnvironmentOption(val)
+        except ValueError:
+            val = self.EnvironmentOption[val.upper()]
         return val
 
     @environment.setter
+    @min_aedt_version("2025.2")
     def environment(self, value: EnvironmentOption) -> None:
         self._set_property("Environment", f"{value.value}")
 
@@ -133,6 +289,17 @@ class WalfischCouplingNode(EmitNode):
         """The height of the building where the antenna is located.
 
         Value should be between 0 and 100.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> walf = cpl.add_walfisch_coupling()
+        >>> walf.path_loss_type = WalfischCouplingNode.PathLossTypeOption.NLOS
+        >>> walf.roof_height = 30.0
+
         """
         val = self._get_property("Roof Height")
         val = self._convert_from_internal_units(float(val), "Length")
@@ -150,6 +317,17 @@ class WalfischCouplingNode(EmitNode):
         """The distance between two buildings.
 
         Value should be between 0 and 100.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> walf = cpl.add_walfisch_coupling()
+        >>> walf.path_loss_type = WalfischCouplingNode.PathLossTypeOption.NLOS
+        >>> walf.distance_between_buildings = 30.0
+
         """
         val = self._get_property("Distance Between Buildings")
         val = self._convert_from_internal_units(float(val), "Length")
@@ -167,6 +345,17 @@ class WalfischCouplingNode(EmitNode):
         """Width of the street.
 
         Value should be between 0 and 100.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> walf = cpl.add_walfisch_coupling()
+        >>> walf.path_loss_type = WalfischCouplingNode.PathLossTypeOption.NLOS
+        >>> walf.street_width = 15.0
+
         """
         val = self._get_property("Street Width")
         val = self._convert_from_internal_units(float(val), "Length")
@@ -184,6 +373,17 @@ class WalfischCouplingNode(EmitNode):
         """Angle between the street orientation and direction of incidence.
 
         Value should be between 0 and 90.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> walf = cpl.add_walfisch_coupling()
+        >>> walf.path_loss_type = WalfischCouplingNode.PathLossTypeOption.NLOS
+        >>> walf.incidence_angle = 90.0
+
         """
         val = self._get_property("Incidence Angle")
         return float(val)
@@ -202,6 +402,16 @@ class WalfischCouplingNode(EmitNode):
         this node.
 
         Value should be between 0 and 100.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> walf = cpl.add_walfisch_coupling()
+        >>> walf.custom_fading_margin = 0.0
+
         """
         val = self._get_property("Custom Fading Margin")
         return float(val)
@@ -220,6 +430,16 @@ class WalfischCouplingNode(EmitNode):
         defined by this node.
 
         Value should be between 0 and 100.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> walf = cpl.add_walfisch_coupling()
+        >>> walf.polarization_mismatch = 0.0
+
         """
         val = self._get_property("Polarization Mismatch")
         return float(val)
@@ -238,6 +458,16 @@ class WalfischCouplingNode(EmitNode):
         defined by this node.
 
         Value should be between 0 and 100.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> walf = cpl.add_walfisch_coupling()
+        >>> walf.pointing_error_loss = 0.0
+
         """
         val = self._get_property("Pointing Error Loss")
         return float(val)
@@ -256,9 +486,23 @@ class WalfischCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def fading_type(self) -> FadingTypeOption:
-        """Specify the type of fading to include."""
+        """Specify the type of fading to include.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> walf = cpl.add_walfisch_coupling()
+        >>> walf.fading_type = WalfischCouplingNode.FadingTypeOption.NONE
+
+        """
         val = self._get_property("Fading Type")
-        val = self.FadingTypeOption[val.upper()]
+        try:
+            val = self.FadingTypeOption(val)
+        except ValueError:
+            val = self.FadingTypeOption[val.upper()]
         return val
 
     @fading_type.setter
@@ -275,6 +519,17 @@ class WalfischCouplingNode(EmitNode):
         value plus the margin.
 
         Value should be between 0.0 and 100.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> walf = cpl.add_walfisch_coupling()
+        >>> walf.fading_type = WalfischCouplingNode.FadingTypeOption.FAST_FADING_ONLY
+        >>> walf.fading_availability = 90.0
+
         """
         val = self._get_property("Fading Availability")
         return float(val)
@@ -290,6 +545,17 @@ class WalfischCouplingNode(EmitNode):
         """Standard deviation modeling the random amount of shadowing loss.
 
         Value should be between 0.0 and 100.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> walf = cpl.add_walfisch_coupling()
+        >>> walf.fading_type = WalfischCouplingNode.FadingTypeOption.SHADOWING_ONLY
+        >>> walf.std_deviation = 8.0
+
         """
         val = self._get_property("Std Deviation")
         return float(val)
@@ -305,6 +571,16 @@ class WalfischCouplingNode(EmitNode):
         """Adds a margin for rain attenuation to the computed coupling.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> walf = cpl.add_walfisch_coupling()
+        >>> walf.include_rain_attenuation = False
+
         """
         val = self._get_property("Include Rain Attenuation")
         return val == "true"
@@ -323,6 +599,17 @@ class WalfischCouplingNode(EmitNode):
         from 99-99.999%).
 
         Value should be between 99 and 99.999.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> walf = cpl.add_walfisch_coupling()
+        >>> walf.include_rain_attenuation = True
+        >>> walf.rain_availability = 99.99
+
         """
         val = self._get_property("Rain Availability")
         return float(val)
@@ -338,6 +625,17 @@ class WalfischCouplingNode(EmitNode):
         """Rain rate (mm/hr) exceeded for 0.01% of the time.
 
         Value should be between 0.0 and 1000.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> walf = cpl.add_walfisch_coupling()
+        >>> walf.include_rain_attenuation = True
+        >>> walf.rain_rate = 8.0
+
         """
         val = self._get_property("Rain Rate")
         return float(val)
@@ -356,6 +654,17 @@ class WalfischCouplingNode(EmitNode):
         horizontal.
 
         Value should be between 0.0 and 180.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> walf = cpl.add_walfisch_coupling()
+        >>> walf.include_rain_attenuation = True
+        >>> walf.polarization_tilt_angle = 0.0
+
         """
         val = self._get_property("Polarization Tilt Angle")
         return float(val)
@@ -374,6 +683,16 @@ class WalfischCouplingNode(EmitNode):
         the computed coupling.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> walf = cpl.add_walfisch_coupling()
+        >>> walf.include_atmospheric_absorption = False
+
         """
         val = self._get_property("Include Atmospheric Absorption")
         return val == "true"
@@ -389,6 +708,17 @@ class WalfischCouplingNode(EmitNode):
         """Air temperature in degrees Celsius.
 
         Value should be between -273.0 and 100.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> walf = cpl.add_walfisch_coupling()
+        >>> walf.include_atmospheric_absorption = True
+        >>> walf.temperature = 15.0
+
         """
         val = self._get_property("Temperature")
         return float(val)
@@ -404,6 +734,17 @@ class WalfischCouplingNode(EmitNode):
         """Total air pressure.
 
         Value should be between 0.0 and 2000.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> walf = cpl.add_walfisch_coupling()
+        >>> walf.include_atmospheric_absorption = True
+        >>> walf.total_air_pressure = 1013
+
         """
         val = self._get_property("Total Air Pressure")
         return float(val)
@@ -419,6 +760,17 @@ class WalfischCouplingNode(EmitNode):
         """Water vapor concentration.
 
         Value should be between 0.0 and 2000.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> walf = cpl.add_walfisch_coupling()
+        >>> walf.include_atmospheric_absorption = True
+        >>> walf.water_vapor_concentration = 7.5
+
         """
         val = self._get_property("Water Vapor Concentration")
         return float(val)

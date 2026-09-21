@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
+#
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,18 +22,107 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""Methods to add PyAEDT in AEDT."""
+"""Methods to add PyAEDT in AEDT.
+
+Examples
+--------
+>>> from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
+>>> add_pyaedt_to_aedt("C:\\\\Ansys\\\\PersonalLib")
+
+"""
 
 import logging
 import os
+from typing import cast
 
 from ansys.aedt.core.extensions import customize_automation_tab
 from ansys.aedt.core.generic.file_utils import read_toml
+from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
+
+
+def _resolve_personal_lib(personal_lib):
+    logger = logging.getLogger("Global")
+    if personal_lib:
+        return personal_lib
+
+    if not _desktop_sessions:
+        logger.error("Personallib is not provided. There is no available desktop session.")
+        return None
+    d = list(_desktop_sessions.values())[0]
+    return d.personallib
+
+
+def _install_catalog_extension(extension_key, personal_lib, odesktop=None):
+    personal_lib = _resolve_personal_lib(personal_lib)
+    if not personal_lib:
+        return False
+
+    project_workflows_dir = os.path.dirname(__file__)
+    extensions_catalog = read_toml(os.path.join(project_workflows_dir, "extensions_catalog.toml"))
+    extension_info = cast(dict[str, str] | None, extensions_catalog.get(extension_key))
+    if not extension_info:
+        return False
+
+    script_name = extension_info.get("script", "")
+    script_path = os.path.join(project_workflows_dir, script_name) if script_name else None
+    icon_file = os.path.join(project_workflows_dir, "images", "large", extension_info["icon"])
+    customize_automation_tab.add_script_to_menu(
+        extension_info["name"],
+        script_path,
+        extension_info["template"],
+        icon_file=icon_file,
+        product="Project",
+        copy_to_personal_lib=False,
+        panel="Panel_PyAEDT_Installer",
+        personal_lib=personal_lib,
+        odesktop=odesktop,
+    )
+    return True
+
+
+def add_extension_manager(personal_lib, odesktop=None) -> bool:
+    """Install only the Extension Manager panel in AEDT.
+
+    Parameters
+    ----------
+    personal_lib : str
+        AEDT personal library folder.
+    odesktop : oDesktop, optional
+        Desktop session. The default is ``None``.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.installer.pyaedt_installer import add_extension_manager
+    >>> add_extension_manager("C:\\\\Ansys\\\\PersonalLib")
+
+    """
+    return _install_catalog_extension("ExtensionManager", personal_lib, odesktop)
+
+
+def add_version_manager(personal_lib, odesktop=None) -> bool:
+    """Install only the Version Manager panel in AEDT.
+
+    Parameters
+    ----------
+    personal_lib : str
+        AEDT personal library folder.
+    odesktop : oDesktop, optional
+        Desktop session. The default is ``None``.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.installer.pyaedt_installer import add_version_manager
+    >>> add_version_manager("C:\\\\Ansys\\\\PersonalLib")
+
+    """
+    return _install_catalog_extension("VersionManager", personal_lib, odesktop)
 
 
 def add_pyaedt_to_aedt(
     personal_lib,
-    skip_version_manager: bool=False,
+    skip_version_manager: bool = False,
+    skip_extension_manager: bool = False,
+    light: bool = False,
     odesktop=None,
 ) -> bool:
     """Add PyAEDT tabs in AEDT.
@@ -43,53 +133,66 @@ def add_pyaedt_to_aedt(
         AEDT personal library folder.
     skip_version_manager : bool, optional
         Skip the version manager tab. The default is ``False``.
+    skip_extension_manager : bool, optional
+        Skip the extension manager tab. The default is ``False``.
+    light : bool, optional
+        Install only Console, optional Extension Manager, and optional Version Manager.
+        The default is ``False``.
     odesktop : oDesktop, optional
         Desktop session. The default is ``None``.
-    """
-    logger = logging.getLogger("Global")
-    if not personal_lib:
-        from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 
-        if not _desktop_sessions:
-            logger.error("Personallib is not provided. There is no available desktop session.")
-            return False
-        d = list(_desktop_sessions.values())[0]
-        personal_lib = d.personallib
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
+    >>> add_pyaedt_to_aedt("C:\\\\Ansys\\\\PersonalLib", skip_extension_manager=True)
+
+    """
+    personal_lib = _resolve_personal_lib(personal_lib)
+    if not personal_lib:
+        return False
 
     extensions_dir = os.path.join(personal_lib, "Toolkits")
     os.makedirs(extensions_dir, exist_ok=True)
 
-    if skip_version_manager:
-        pyaedt_tabs = ["Utilities", "Run_Script", "ExtensionManager"]
-    else:
-        pyaedt_tabs = ["Utilities", "Run_Script", "ExtensionManager", "VersionManager"]
+    pyaedt_tabs = ["Utilities", "Run_Script"]
+    if not skip_extension_manager:
+        pyaedt_tabs.append("ExtensionManager")
+    if not skip_version_manager:
+        pyaedt_tabs.append("VersionManager")
     # Name of the console utilities group in the Automation tab.
     utilities_title = "PyAEDT Utilities"
     extensions_catalog = read_toml(os.path.join(os.path.dirname(__file__), "extensions_catalog.toml"))
 
     project_workflows_dir = os.path.dirname(__file__)
 
+    def _install_extension(extension_key, *, group_name=None, group_icon=None):
+        extension_info = extensions_catalog.get(extension_key)
+        if not extension_info:
+            return
+        script_path = (
+            os.path.join(project_workflows_dir, extension_info["script"]) if extension_info["script"] else None
+        )
+        icon_file = os.path.join(project_workflows_dir, "images", "large", extension_info["icon"])
+        customize_automation_tab.add_script_to_menu(
+            extension_info["name"],
+            script_path,
+            extension_info["template"],
+            icon_file=icon_file,
+            product="Project",
+            copy_to_personal_lib=False,
+            panel="Panel_PyAEDT_Installer",
+            personal_lib=personal_lib,
+            odesktop=odesktop,
+            group_name=group_name,
+            group_icon=group_icon,
+        )
+
     def _install_utilities_group(group_icon_path):
         console_info = extensions_catalog.get("Console")
         console_icon_file = None
         if console_info:
-            console_script = None
-            if console_info["script"]:
-                console_script = os.path.join(project_workflows_dir, console_info["script"])
             console_icon_file = os.path.join(project_workflows_dir, "images", "large", console_info["icon"])
-            customize_automation_tab.add_script_to_menu(
-                console_info["name"],
-                console_script,
-                console_info["template"],
-                icon_file=console_icon_file,
-                product="Project",
-                copy_to_personal_lib=False,
-                panel="Panel_PyAEDT_Installer",
-                personal_lib=personal_lib,
-                odesktop=odesktop,
-                group_name=utilities_title,
-                group_icon=group_icon_path,
-            )
+            _install_extension("Console", group_name=utilities_title, group_icon=group_icon_path)
 
         console_cli_info = extensions_catalog.get("ConsoleCLI")
         if console_cli_info:
@@ -130,30 +233,19 @@ def add_pyaedt_to_aedt(
             group_icon=group_icon_path,
         )
 
+    if light:
+        _install_extension("Console")
+        _install_extension("Run Script")
+        if not skip_extension_manager:
+            _install_extension("ExtensionManager")
+        if not skip_version_manager:
+            _install_extension("VersionManager")
+        return True
+
     for extension in pyaedt_tabs:
         if extension == "Utilities":
             group_icon_file = os.path.join(project_workflows_dir, "images", "large", "gallery", "console.png")
             _install_utilities_group(group_icon_file)
             continue
-        if extension not in extensions_catalog:
-            continue
-        extension_info = extensions_catalog[extension]
-        script_path = None
-        if extension_info["script"]:
-            script_path = os.path.join(project_workflows_dir, extension_info["script"])
-
-        icon_file = os.path.join(project_workflows_dir, "images", "large", extension_info["icon"])
-        template_name = extension_info["template"]
-
-        customize_automation_tab.add_script_to_menu(
-            extension_info["name"],
-            script_path,
-            template_name,
-            icon_file=icon_file,
-            product="Project",
-            copy_to_personal_lib=False,
-            panel="Panel_PyAEDT_Installer",
-            personal_lib=personal_lib,
-            odesktop=odesktop,
-        )
+        _install_extension(extension)
     return True

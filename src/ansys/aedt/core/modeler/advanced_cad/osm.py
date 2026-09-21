@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -21,43 +21,57 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
 from __future__ import annotations
 
 import math as mathlib
 from pathlib import Path
-from typing import TYPE_CHECKING
-import warnings
 
 import numpy as np
 from numpy.typing import NDArray
 
-if TYPE_CHECKING:
-    from pyvista import PolyData
-
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
-from ansys.aedt.core.internal.checks import graphics_required
+from ansys.aedt.core.internal.checks import install_message
+
+try:
+    import pyvista as pv
+    from pyvista import PolyData
+    import vtk
+except ImportError as e:  # pragma: no cover
+    msg = install_message(["pyvista", "vtk"], "graphics", level="module")
+    raise ImportError(msg) from e
 
 logger = settings.logger
+"""Value for logger."""
 
 try:
     import osmnx as ox
-except ImportError:  # pragma: no cover
-    warnings.warn("OpenStreetMap Reader requires osmnx extra package.\nInstall with \n\npip install osmnx")
+except ImportError as e:  # pragma: no cover
+    msg = install_message("osmnx", "all", level="module")
+    raise ImportError(msg) from e
+
 
 ZONE_LETTERS = "CDEFGHJKLMNPQRSTUVWXX"
+"""Zone letters."""
 
 
 class BuildingsPrep(PyAedtBase):
-    """Contains all basic functions needed to generate buildings stl files."""
+    """Contains all basic functions needed to generate buildings stl files.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modeler.advanced_cad.osm import BuildingsPrep
+    >>> obj = BuildingsPrep()
+
+    """
 
     def __init__(self, cad_path: str) -> None:
         self.cad_path = cad_path
 
     @staticmethod
     @pyaedt_function_handler()
-    @graphics_required
     def create_building_roof(all_pos: NDArray[np.float64]) -> "PolyData":
         """Generate a filled in polygon from outline.
 
@@ -70,10 +84,14 @@ class BuildingsPrep(PyAedtBase):
         Returns
         -------
         :class:`pyvista.PolyData`
-        """
-        import pyvista as pv
-        import vtk
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.osm import BuildingsPrep
+        >>> obj = BuildingsPrep()
+        >>> obj.create_building_roof(all_pos=[1, 2, 3])
+
+        """
         points = vtk.vtkPoints()
         for each in all_pos:
             points.InsertNextPoint(each[0], each[1], each[2])
@@ -104,11 +122,10 @@ class BuildingsPrep(PyAedtBase):
         triFilter.Update()
 
         polygonPolyDataFiltered = triFilter.GetOutput()
-        roof = pv.PolyData(polygonPolyDataFiltered)
+        roof = PolyData(polygonPolyDataFiltered)
         return roof
 
     @pyaedt_function_handler()
-    @graphics_required
     def generate_buildings(self, center_lat_lon: list[float], terrain_mesh, max_radius: float | int = 500) -> dict:
         """Generate the buildings stl file.
 
@@ -125,9 +142,14 @@ class BuildingsPrep(PyAedtBase):
         -------
         dict
             Info of generated stl file.
-        """
-        import pyvista as pv
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.osm import BuildingsPrep
+        >>> obj = BuildingsPrep()
+        >>> obj.generate_buildings(center_lat_lon=[1, 2, 3], terrain_mesh=1)
+
+        """
         gdf = ox.features.features_from_point(center_lat_lon, tags={"building": True}, dist=max_radius)
 
         utm_center = convert_latlon_to_utm(center_lat_lon[0], center_lat_lon[1])
@@ -154,7 +176,7 @@ class BuildingsPrep(PyAedtBase):
             temp = [levels, height]
             geo = geo.array
 
-            building_meshes = pv.PolyData()  # empty location where all building meshses are stored
+            building_meshes = PolyData()  # empty location where all building meshses are stored
 
             logger.info("\nGenerating Buildings")
             last_displayed = -1
@@ -248,13 +270,19 @@ class BuildingsPrep(PyAedtBase):
 
 
 class RoadPrep(PyAedtBase):
-    """Contains all basic functions needed to generate road stl files."""
+    """Contains all basic functions needed to generate road stl files.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modeler.advanced_cad.osm import RoadPrep
+    >>> obj = RoadPrep()
+
+    """
 
     def __init__(self, cad_path: str) -> None:
         self.cad_path = cad_path
 
     @pyaedt_function_handler()
-    @graphics_required
     def create_roads(
         self,
         center_lat_lon: list[float],
@@ -285,9 +313,14 @@ class RoadPrep(PyAedtBase):
         -------
         dict
             Info of generated stl file.
-        """
-        import pyvista as pv
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.osm import RoadPrep
+        >>> obj = RoadPrep()
+        >>> obj.create_roads(center_lat_lon=[1, 2, 3], terrain_mesh=1)
+
+        """
         graph = ox.graph_from_point(center_lat_lon, dist=max_radius, simplify=False, network_type="all")
 
         g_projected = ox.project_graph(graph)
@@ -304,8 +337,8 @@ class RoadPrep(PyAedtBase):
         start_z = bb_terrain[4] - buffer
         stop_z = bb_terrain[5] + buffer
 
-        line = pv.PolyData()
-        road_ends = pv.PolyData()
+        line = PolyData()
+        road_ends = PolyData()
         # convert each edge into a line
         count = 0
         last_displayed = -1
@@ -371,13 +404,19 @@ class RoadPrep(PyAedtBase):
 
 
 class TerrainPrep(PyAedtBase):
-    """Contains all basic functions needed for creating a terrain stl mesh."""
+    """Contains all basic functions needed for creating a terrain stl mesh.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modeler.advanced_cad.osm import TerrainPrep
+    >>> obj = TerrainPrep()
+
+    """
 
     def __init__(self, cad_path: str = "./") -> None:
         self.cad_path = cad_path
 
     @pyaedt_function_handler()
-    @graphics_required
     def get_terrain(
         self,
         center_lat_lon: list[float],
@@ -403,9 +442,14 @@ class TerrainPrep(PyAedtBase):
         -------
         dict
             Info of generated stl file.
-        """
-        import pyvista as pv
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.osm import TerrainPrep
+        >>> obj = TerrainPrep()
+        >>> obj.get_terrain(center_lat_lon=[1, 2, 3])
+
+        """
         utm_center = convert_latlon_to_utm(center_lat_lon[0], center_lat_lon[1])
         logger.info("Generating Terrain")
         max_radius = max_radius * (buffer_percent + 1)
@@ -429,7 +473,7 @@ class TerrainPrep(PyAedtBase):
 
         file_out = str(Path(self.cad_path) / "terrain.stl")
         logger.info("saving STL as " + file_out)
-        terrain_mesh = pv.PolyData(xyz)
+        terrain_mesh = PolyData(xyz)
         terrain_mesh = terrain_mesh.delaunay_2d(tol=10 / (2 * max_radius) / 2)
         terrain_mesh = terrain_mesh.smooth(n_iter=100, relaxation_factor=0.04)
 
@@ -461,6 +505,13 @@ class TerrainPrep(PyAedtBase):
         Returns
         -------
         tuple
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.osm import TerrainPrep
+        >>> obj = TerrainPrep()
+        >>> obj.get_elevation(center_lat_lon=[1, 2, 3])
+
         """
         latitude = center_lat_lon[0]
         longitude = center_lat_lon[1]
@@ -545,6 +596,12 @@ def convert_latlon_to_utm(
     -------
     tuple
         Tuple containing UTM East coordinate, North coordinate, zone letter, and zone number.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modeler.advanced_cad.osm import convert_latlon_to_utm
+    >>> convert_latlon_to_utm(latitude=1.0, longitude=1.0)
+
     """
     if latitude < -80.0 or latitude > 84.0:
         raise ValueError("Latitude out of range: must be between -80 degrees and 84 degrees.")
@@ -673,6 +730,12 @@ def convert_utm_to_latlon(
     -------
     tuple
         Tuple containing latitude and longitude.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modeler.advanced_cad.osm import convert_utm_to_latlon
+    >>> convert_utm_to_latlon(east=1.0, north=1.0, zone_number=1)
+
     """
     if not zone_letter and northern is None:
         raise ValueError("Set either zone_letter or northern.")

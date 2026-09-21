@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -93,6 +93,11 @@ class Polyline(Object3d, PyAedtBase):
         is set to ``"Corner"``. For the type ``"Circle"``, the bend type
         should be set to ``"Curved"``.
 
+    Examples
+    --------
+    >>> from ansys.aedt.core.modeler.cad.polylines import Polyline
+    >>> obj = Polyline()
+
     """
 
     def __init__(
@@ -100,7 +105,7 @@ class Polyline(Object3d, PyAedtBase):
         primitives: "Primitives3D",
         src_object: "Polyline" = None,
         position_list: list | None = None,
-        segment_type: str | "PolylineSegment" | list = None,
+        segment_type: "str | PolylineSegment | list" = None,
         cover_surface: bool = False,
         close_surface: bool = False,
         name: str | None = None,
@@ -249,7 +254,9 @@ class Polyline(Object3d, PyAedtBase):
                             raise ValueError(
                                 "The position_list argument must contain all points required by the segment Spline."
                             )
-                        self._positions.extend([list(i) for i in position_list[: self._segment_types[-1].num_points]])
+                        # consume this spline's points relative to the current offset (the
+                        # segment start point is already in self._positions), like Line/Arc
+                        self._positions.extend([list(i) for i in position_list[i_pos + 1 : i_pos + nsp]])
                         i_pos += nsp - 1
                     else:  # AngularArc
                         start = position_list[i_pos]

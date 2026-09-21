@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""This module contains the ``MaxwellCircuit`` class."""
+"""The module contains the ``MaxwellCircuit`` class."""
 
 import math
 from pathlib import Path
@@ -105,6 +105,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
     project, which is named ``"myfile.aedt"``.
 
     >>> app = MaxwellCircuit("myfile.aedt")
+
     """
 
     def __init__(
@@ -162,6 +163,12 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.maxwellcircuit import MaxwellCircuit
+        >>> obj = MaxwellCircuit()
+        >>> obj.create_schematic_from_netlist(r"C:\\Temp\\rectifier.sp")
 
         """
         xpos = 0
@@ -248,6 +255,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
         Export circuit netlist.
         >>> circ.export_netlist_from_schematic(output_file="C:\\Users\\netlist.sph")
         >>> circ.desktop_class.close_desktop()
+
         """
         if Path(output_file).suffix != ".sph":
             self.logger.error("Invalid file extension. It must be ``.sph``.")

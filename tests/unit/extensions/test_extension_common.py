@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -27,12 +27,14 @@ import tkinter
 from tkinter import ttk
 from unittest.mock import MagicMock
 from unittest.mock import PropertyMock
+from unittest.mock import call
 from unittest.mock import patch
 
 import pytest
 import requests
 
 from ansys.aedt.core.extensions.misc import MOON
+from ansys.aedt.core.extensions.misc import NO_ACTIVE_DESIGN
 from ansys.aedt.core.extensions.misc import NO_ACTIVE_PROJECT
 from ansys.aedt.core.extensions.misc import SUN
 from ansys.aedt.core.extensions.misc import ExtensionHFSS3DLayoutCommon
@@ -44,6 +46,8 @@ from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
 from ansys.aedt.core.extensions.misc import ExtensionTheme
 from ansys.aedt.core.extensions.misc import ToolTip
 from ansys.aedt.core.extensions.misc import check_for_pyaedt_update
+from ansys.aedt.core.extensions.misc import check_for_pyaedt_update_on_startup
+from ansys.aedt.core.extensions.misc import create_default_ui
 from ansys.aedt.core.extensions.misc import decline_pyaedt_update
 from ansys.aedt.core.extensions.misc import get_latest_version
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
@@ -137,7 +141,7 @@ def test_common_extension_with_toggle() -> None:
 def test_common_extension_without_active_project(mock_desktop, mock_active_sessions) -> None:
     """Test accessing the active_project_name property of the default extension."""
     mock_desktop_instance = MagicMock()
-    mock_desktop_instance.active_project.return_value = None
+    mock_desktop_instance.active_project_name = None
     mock_desktop.return_value = mock_desktop_instance
     mock_active_sessions.return_value = {0: 0}
 
@@ -148,12 +152,14 @@ def test_common_extension_without_active_project(mock_desktop, mock_active_sessi
     extension.root.destroy()
 
 
+@patch("ansys.aedt.core.extensions.misc.active_sessions")
 @patch("ansys.aedt.core.extensions.misc.Desktop", new_callable=PropertyMock)
-def test_common_extension_without_aedt_session(mock_desktop) -> None:
+def test_common_extension_without_aedt_session(mock_desktop, mock_active_sessions) -> None:
     """Test accessing desktop without AEDT session.."""
     mock_desktop_instance = MagicMock()
-    mock_desktop_instance.active_project.return_value = None
+    mock_desktop_instance.active_project_name = None
     mock_desktop.return_value = mock_desktop_instance
+    mock_active_sessions.return_value = {}
     extension = DummyExtension(EXTENSION_TITLE, withdraw=True, toggle_row=1, toggle_column=1)
 
     with pytest.raises(AEDTRuntimeError):
@@ -228,7 +234,7 @@ def test_get_latest_version_success(mock_get) -> None:
     result = get_latest_version("pyaedt")
 
     assert result == "0.12.34"
-    mock_get.assert_called_once_with("https://pypi.org/pypi/pyaedt/json", timeout=3)
+    mock_get.assert_called_once_with("https://pypi.org/pypi/pyaedt/json", timeout=(2, 2))
 
 
 @patch("requests.get")
@@ -258,14 +264,22 @@ def test_get_latest_version_network_error(mock_get) -> None:
 @patch("logging.getLogger")
 def test_check_for_pyaedt_update_no_latest_version(mock_logger, mock_get_latest_version) -> None:
     """Test when latest version is unavailable."""
+    from ansys.aedt.core import __version__ as current_version
+
     mock_get_latest_version.return_value = "Unknown"
     mock_log = MagicMock()
     mock_logger.return_value = mock_log
+    expected_calls = [
+        call(f"Checking for PyAEDT updates. Current version: {current_version}"),
+        call("PyAEDT update check: latest version unavailable."),
+    ]
 
     result = check_for_pyaedt_update("/fake/personallib")
 
     assert result == (None, None)
-    mock_log.debug.assert_called_once_with("PyAEDT update check: latest version unavailable.")
+
+    mock_log.debug.assert_has_calls(expected_calls)
+    assert mock_log.debug.call_count == 2
 
 
 @patch("ansys.aedt.core.extensions.misc.get_latest_version")
@@ -448,3 +462,125 @@ def test_show_tooltip_early_return_when_tip_exists_or_no_text(mock_label, mock_t
     tooltip2 = ToolTip(widget, text="")
     tooltip2.show_tooltip()
     mock_toplevel.assert_not_called()
+
+
+@patch("ansys.aedt.core.extensions.misc.tkinter.Tk")
+@patch("ansys.aedt.core.extensions.misc.ttk.Style")
+@patch("ansys.aedt.core.extensions.misc.ExtensionTheme")
+def test_create_default_ui_withdraw_true(mock_theme_cls, mock_style_cls, mock_tk_cls) -> None:
+    """Verify create_default_ui configures hidden root and light theme."""
+    root = MagicMock()
+    mock_tk_cls.return_value = root
+
+    theme = MagicMock()
+    theme.light = {"widget_bg": "#ffffff"}
+    mock_theme_cls.return_value = theme
+
+    style = MagicMock()
+    mock_style_cls.return_value = style
+
+    out_root, out_theme, out_style = create_default_ui("My Title", withdraw=True)
+
+    assert out_root is root
+    assert out_theme is theme
+    assert out_style is style
+    root.withdraw.assert_called_once()
+    root.title.assert_called_once_with("My Title")
+    root.iconphoto.assert_not_called()
+    theme.apply_light_theme.assert_called_once_with(style)
+    assert root.theme == "light"
+    root.configure.assert_called_once_with(bg="#ffffff")
+
+
+def test_active_design_name_returns_no_active_design_when_empty_design_list() -> None:
+    extension = DummyExtension(EXTENSION_TITLE, withdraw=True)
+    desktop = MagicMock()
+    desktop.active_design_name = None
+    extension._ExtensionCommon__desktop = desktop
+
+    assert extension.active_design_name == NO_ACTIVE_DESIGN
+
+    extension.root.destroy()
+
+
+@patch("ansys.aedt.core.extensions.misc.threading.Thread")
+@patch("ansys.aedt.core.extensions.misc.check_for_pyaedt_update")
+def test_check_for_pyaedt_update_on_startup_success(mock_check_update, mock_thread) -> None:
+    """When an update exists, schedule the UI callback through root.after."""
+    root = MagicMock()
+    callback = MagicMock()
+
+    mock_check_update.return_value = ("1.5.0", Path("/path/to/declined.txt"))
+
+    check_for_pyaedt_update_on_startup(root, "/fake/personallib", callback)
+
+    assert mock_thread.called
+    thread_kwargs = mock_thread.call_args[1]
+    assert thread_kwargs["daemon"] is True
+
+    worker = thread_kwargs["target"]
+    worker()
+
+    mock_check_update.assert_called_once_with("/fake/personallib")
+    root.after.assert_called_once()
+    assert root.after.call_args[0][0] == 0
+
+
+@patch("ansys.aedt.core.extensions.misc.threading.Thread")
+@patch("ansys.aedt.core.extensions.misc.check_for_pyaedt_update")
+def test_check_for_pyaedt_update_on_startup_no_update(mock_check_update, mock_thread) -> None:
+    """When no update is available, no callback should be scheduled."""
+    root = MagicMock()
+    callback = MagicMock()
+
+    mock_check_update.return_value = (None, Path("/path/to/declined.txt"))
+
+    check_for_pyaedt_update_on_startup(root, "/fake/personallib", callback)
+
+    worker = mock_thread.call_args[1]["target"]
+    worker()
+
+    mock_check_update.assert_called_once_with("/fake/personallib")
+    root.after.assert_not_called()
+
+
+@patch("ansys.aedt.core.extensions.misc.threading.Thread")
+@patch("ansys.aedt.core.extensions.misc.check_for_pyaedt_update")
+@patch("ansys.aedt.core.extensions.misc.logging.getLogger")
+def test_check_for_pyaedt_update_on_startup_exception_in_worker(
+    mock_get_logger, mock_check_update, mock_thread
+) -> None:
+    """Exceptions in the worker should be caught and logged."""
+    root = MagicMock()
+    callback = MagicMock()
+    logger = MagicMock()
+    mock_get_logger.return_value = logger
+    mock_check_update.side_effect = Exception("Check update failed")
+
+    check_for_pyaedt_update_on_startup(root, "/fake/personallib", callback)
+
+    worker = mock_thread.call_args[1]["target"]
+    worker()
+
+    logger.debug.assert_called_with("PyAEDT update check: worker failed.", exc_info=True)
+
+
+@patch("ansys.aedt.core.extensions.misc.threading.Thread")
+@patch("ansys.aedt.core.extensions.misc.check_for_pyaedt_update")
+@patch("ansys.aedt.core.extensions.misc.logging.getLogger")
+def test_check_for_pyaedt_update_on_startup_exception_in_after(mock_get_logger, mock_check_update, mock_thread) -> None:
+    """Exceptions while scheduling callback should be caught and logged."""
+    root = MagicMock()
+    callback = MagicMock()
+    logger = MagicMock()
+    mock_get_logger.return_value = logger
+    mock_check_update.return_value = ("1.5.0", Path("/path/to/declined.txt"))
+    root.after.side_effect = Exception("After failed")
+
+    check_for_pyaedt_update_on_startup(root, "/fake/personallib", callback)
+
+    worker = mock_thread.call_args[1]["target"]
+    worker()
+
+    mock_check_update.assert_called_once_with("/fake/personallib")
+    logger.debug.assert_called_with("PyAEDT update check: failed to schedule UI callback.", exc_info=True)

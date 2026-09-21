@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -41,6 +41,8 @@ from ansys.aedt.core.internal.errors import GrpcApiError
 
 
 class AedtBlockObj(list):
+    """Provide AEDT block obj."""
+
     def GetName(self):
         if len(self) > 0:
             f = self[0]
@@ -93,9 +95,12 @@ class AedtBlockObj(list):
 
 
 exclude_list = ["GetAppDesktop", "GetProcessID", "GetGrpcServerPort"]
+"""Value for exclude list."""
 
 
 class AedtObjWrapper:
+    """Provide AEDT obj wrapper."""
+
     def __init__(self, objID, listFuncs, AedtAPI=None) -> None:
         self.__dict__["objectID"] = objID  # avoid derive class overwrite __setattr__
         self.__dict__["__methodNames__"] = listFuncs
@@ -157,10 +162,6 @@ class AedtObjWrapper:
         else:
             super().__setattr__(attrName, val)
 
-    def __del__(self) -> None:
-        if "ReleaseAedtObject" in dir(self.dllapi):
-            self.dllapi.ReleaseAedtObject(self.objectID)
-
     def match(
         self, patternStr: str
     ) -> list[str]:  # IronPython wrapper implemented this function return IEnumerable<string>.
@@ -182,6 +183,8 @@ class AedtObjWrapper:
 
 
 class AedtPropServer(AedtObjWrapper):
+    """Provide AEDT prop server."""
+
     def __init__(self, objID, listFuncs, aedtapi) -> None:
         AedtObjWrapper.__init__(self, objID, listFuncs, aedtapi)
         self.__dict__["__propMap__"] = None
@@ -265,6 +268,8 @@ class AedtPropServer(AedtObjWrapper):
 
 
 class AEDT:
+    """Provide AEDT."""
+
     def __init__(self, pathDir) -> None:
         is_linux = os.name == "posix"
         is_windows = not is_linux
@@ -337,7 +342,11 @@ class AEDT:
 
     def CreateAedtApplication(self, machine, port: int | None = 0, NGmode: bool = False, alwaysNew: bool = True):
         try:
-            pyaedt_logger.debug(f"Starting client with machine {machine} and port {port}")
+            if machine == "":
+                pyaedt_logger.debug(f"Starting client with port {port}")
+            else:
+                pyaedt_logger.debug(f"Starting client with machine {machine} and port {port}")
+
             if machine.endswith("InsecureMode"):
                 target = machine.split(":")[0]
                 pyaedt_logger.warning(
@@ -362,6 +371,7 @@ class AEDT:
 
     @property
     def odesktop(self):
+        """Retrieve odesktop."""
         return self.recreate_application()
 
     def recreate_application(self, force: bool = False):

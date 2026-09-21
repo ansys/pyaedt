@@ -1,6 +1,6 @@
 Configuration files
 ~~~~~~~~~~~~~~~~~~~
-This module contains all methods to export project settings to a JSON file
+The module contains all methods to export project settings to a JSON file
 and import and apply settings to a new design. Currently the configuration
 cover the following apps:
 * HFSS
@@ -41,7 +41,7 @@ the boundary fails to apply.
 
     app = Hfss(
         project="original_project",
-        version="2025.2",
+        version="2026.1",
         non_graphical=False,
         new_desktop=True,
         close_on_exit=True,

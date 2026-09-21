@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -35,8 +35,7 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class EmitterNode(EmitNode):
-    """
-    Provides the EmitterNode object.
+    """Provides the EmitterNode object.
 
     Parameters
     ----------
@@ -48,41 +47,106 @@ class EmitterNode(EmitNode):
     node_id : int
         Unique ID associated with the node.
 
-    >>> aedtapp.results = Results()
-    >>> revision = aedtapp.results.analyze()
-    >>> receivers = revision.get_receiver_names()
+    Examples
+    --------
+    >>> from ansys.aedt.core import Emit
+    >>> app = Emit()
+    >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+
     """
 
-    def __init__(self, emit_obj, result_id, node_id) -> None:
-        EmitNode.__init__(self, emit_obj, result_id, node_id)
-        self._is_component = True
-        self._radio_node = RadioNode(emit_obj, result_id, node_id)
+    @staticmethod
+    def _is_emitter_antenna(props: dict) -> bool:
+        antenna_type = props.get("Antenna Type") or props.get("SubType", "")
+        return antenna_type == "Emitter"
 
-        # create_component code provides the radio_id, but we also
-        # need to get the antenna ID. We can get this by traversing
-        # the SceneNode children and finding the antenna with the
-        # same name as the Radio
-        scene_node_id = self._oRevisionData.GetTopLevelNodeID(result_id, "Scene")
-        antennas = self._oRevisionData.GetChildNodeNames(result_id, scene_node_id, "AntennaNode", True)
-        for ant in antennas:
-            if ant == self._radio_node.name:
-                ant_id = self._oRevisionData.GetChildNodeID(result_id, scene_node_id, ant)
-                self._antenna_node = AntennaNode(emit_obj, result_id, ant_id)
+    @staticmethod
+    def _find_emitter_radio_id(o_revision_data, result_id: int, emitter_name: str) -> int:
+        try:
+            return o_revision_data.GetComponentNodeID(result_id, emitter_name)
+        except Exception:
+            rf_systems_id = o_revision_data.GetTopLevelNodeID(result_id, "RF Systems")
+            radio_names = o_revision_data.GetChildNodeNames(result_id, rf_systems_id, "RadioNode", True)
+            for radio_name in radio_names:
+                if radio_name == emitter_name:
+                    return o_revision_data.GetChildNodeID(result_id, rf_systems_id, radio_name, True)
+            raise ValueError(f"No emitter radio found with name '{emitter_name}'.")
+
+    def __init__(self, emit_obj, result_id, node_id) -> None:
+        o_revision_data = emit_obj.odesign.GetModule("EmitCom")
+        props = EmitNode.props_to_dict(o_revision_data.GetEmitNodeProperties(result_id, node_id, True))
+        node_type = props.get("Type", "")
+
+        radio_node_id = node_id
+        antenna_node_id = None
+
+        if node_type == "AntennaNode" and self._is_emitter_antenna(props):
+            antenna_node_id = node_id
+            emitter_name = props.get("Name", "")
+            if emitter_name:
+                radio_node_id = self._find_emitter_radio_id(o_revision_data, result_id, emitter_name)
+        elif node_type == "RadioNode" and props.get("IsEmitter") == "true":
+            radio_node_id = node_id
+
+        EmitNode.__init__(self, emit_obj, result_id, radio_node_id)
+        self._is_component = True
+        self._radio_node = RadioNode(emit_obj, result_id, radio_node_id)
+
+        if antenna_node_id is not None:
+            self._antenna_node = AntennaNode(emit_obj, result_id, antenna_node_id)
+        else:
+            scene_node_id = o_revision_data.GetTopLevelNodeID(result_id, "Scene")
+            antennas = o_revision_data.GetChildNodeNames(result_id, scene_node_id, "AntennaNode", True)
+            for ant in antennas:
+                if ant == self._radio_node.name:
+                    if emit_obj.desktop_class.current_version < "2027.1":
+                        ant_id = o_revision_data.GetChildNodeID(result_id, scene_node_id, ant)
+                    else:
+                        ant_id = o_revision_data.GetChildNodeID(result_id, scene_node_id, ant, True)
+                    self._antenna_node = AntennaNode(emit_obj, result_id, ant_id)
+                    break
 
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node"""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> emitter.node_type
+
+        """
         return "EmitterNode"
 
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str) -> EmitNode:
-        """Duplicate this node"""
+        """Duplicate this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> emitter_copy = emitter.duplicate("Bluetooth_Copy")
+
+        """
         return self._duplicate(new_name)
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node"""
+        """Delete this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> emitter.delete()
+
+        """
         self._delete()
 
     @min_aedt_version("2025.2")
@@ -96,7 +160,11 @@ class EmitterNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
         >>> node = emitter.get_radio()
+
         """
         return self._radio_node
 
@@ -111,14 +179,18 @@ class EmitterNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
         >>> node = emitter.get_antenna()
+
         """
         return self._antenna_node
 
     @property
     @min_aedt_version("2025.2")
     def children(self) -> list[EmitNode]:
-        """Overridden to return the Waveforms
+        """Overridden to return the Waveforms.
 
         Returns
         -------
@@ -127,7 +199,11 @@ class EmitterNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
         >>> waveforms = emitter.get_waveforms()
+
         """
         return self.get_waveforms()
 
@@ -142,7 +218,11 @@ class EmitterNode(EmitNode):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
         >>> waveforms = emitter.get_waveforms()
+
         """
         radio = self.get_radio()
         radio_children = radio.children

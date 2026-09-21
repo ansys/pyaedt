@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -21,6 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
 import os
 from pathlib import Path
 import re
@@ -256,17 +257,6 @@ def test_add_sbr_boundaries_in_hfss_solution(aedt_terminal) -> None:
         match=re.escape("This native component only applies to a SBR+ solution."),
     ):
         aedt_terminal.create_sbr_file_based_antenna(far_field_data=str(ffd_test_path))
-
-
-@pytest.mark.skipif(on_ci, reason="Map download takes too long for unit test.")
-@pytest.mark.skipif(is_linux, reason="Not supported.")
-def test_import_map(aedt_sbr) -> None:
-    ansys_home = [40.273726, -80.168269]
-    parts_dict = aedt_sbr.modeler.import_from_openstreet_map(
-        ansys_home, terrain_radius=200, road_step=3, plot_before_importing=False, import_in_aedt=True
-    )
-    for part in parts_dict["parts"]:
-        assert Path(parts_dict["parts"][part]["file_name"]).exists()
 
 
 def test_create_custom_array(aedt_sbr) -> None:

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -41,10 +41,12 @@ from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.file_utils import available_file_name
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.hfss import Hfss
+from tests import TESTS_PATH
 
 # ================================
 # Category prefixes
 # ================================
+REPO_ROOT = TESTS_PATH.parent
 UNIT_TEST_PREFIX = "tests/unit"
 INTEGRATION_TEST_PREFIX = "tests/integration"
 SYSTEM_TEST_PREFIX = "tests/system"
@@ -62,7 +64,7 @@ EMIT_TEST_PREFIX = "tests/system/emit"
 # ================================
 
 DEFAULT_CONFIG = {
-    "desktopVersion": "2025.2",
+    "desktopVersion": "2026.1",
     "NonGraphical": True,
     "NewThread": True,
     "use_grpc": True,
@@ -71,7 +73,7 @@ DEFAULT_CONFIG = {
     "local_example_folder": None,
     "skip_circuits": False,
     "skip_modelithics": True,
-    "use_pyedb_grpc": False,
+    "use_pyedb_grpc": True,
 }
 
 local_path = Path(__file__).parent
@@ -100,6 +102,23 @@ SKIP_MODELITHICS = config.get("skip_modelithics", DEFAULT_CONFIG.get("skip_model
 USE_PYEDB_GRPC = config.get("use_pyedb_grpc", DEFAULT_CONFIG.get("use_pyedb_grpc"))
 
 os.environ["PYAEDT_DESKTOP_VERSION"] = DESKTOP_VERSION
+
+# ================================
+# Shared markers
+# ================================
+
+# Mark tests as xfail when PYAEDT_EDB_XFAIL=1
+# NOTE: Remove marker below if 26R1 SP2 is installed or later version of AEDT is used.
+edb_xfail = pytest.mark.xfail(
+    condition=os.environ.get("PYAEDT_EDB_XFAIL") == "1",
+    reason="PyEDB tests are unstable",
+)
+
+# Mark tests as xfail when PYAEDT_SOLVER_XFAIL=1
+solver_xfail = pytest.mark.xfail(
+    condition=os.environ.get("PYAEDT_SOLVER_XFAIL") == "1",
+    reason="Solver tests are unstable",
+)
 
 # ================================
 # PyAEDT settings
@@ -242,8 +261,8 @@ def desktop(tmp_path_factory, request):
 
     desktop_app = Desktop(DESKTOP_VERSION, NON_GRAPHICAL, NEW_THREAD)
 
-    desktop_app.odesktop.SetTempDirectory(str(base))
-    desktop_app.odesktop.SetProjectDirectory(str(base))
+    desktop_app.temp_directory = base
+    desktop_app.global_project_directory = base
 
     desktop_app.disable_autosave()
     yield desktop_app
@@ -278,20 +297,22 @@ def add_app(test_tmp_dir, desktop, tmp_path_factory):
         application=None,
         close_projects: bool = True,
     ):
+        if project is None:
+            project = "pyaedt_test"
+
+        resolved_project = REPO_ROOT / Path(project)
+        project_file = resolved_project if resolved_project.is_file() else None
+
         if close_projects and desktop and desktop.project_list:
             projects = desktop.project_list.copy()
             for project_name in projects:
                 desktop.odesktop.CloseProject(project_name)
 
-        if project is None:
-            project = "pyaedt_test"
-
-        if project and Path(project).is_file():
-            project_file = Path(project)
-        elif close_projects:
-            project_file = available_file_name(test_tmp_dir / f"{project}.aedt")
-        else:
-            project_file = test_tmp_dir / f"{project}.aedt"
+        if project_file is None:
+            if close_projects:
+                project_file = available_file_name(test_tmp_dir / f"{project}.aedt")
+            else:
+                project_file = test_tmp_dir / f"{project}.aedt"
 
         # Application selection
         application_cls = application or Hfss
@@ -321,16 +342,17 @@ def add_app_example(test_tmp_dir, desktop, tmp_path_factory):
         is_edb: bool = False,
         close_projects: bool = True,
     ):
+        resolved_subfolder = REPO_ROOT / Path(subfolder)
+        if resolved_subfolder.exists():
+            base = resolved_subfolder
+        else:
+            test_path = _get_test_path_from_caller()
+            base = test_path / "example_models" / subfolder
+
         if close_projects and desktop and desktop.project_list:
             projects = desktop.project_list.copy()
             for project_name in projects:
                 desktop.odesktop.CloseProject(project_name)
-
-        if Path(subfolder).exists():
-            base = Path(subfolder)
-        else:
-            test_path = _get_test_path_from_caller()
-            base = test_path / "example_models" / subfolder
 
         if not is_edb:
             aedt_project = base / f"{project}.aedt"

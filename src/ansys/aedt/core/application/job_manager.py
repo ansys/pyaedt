@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -38,6 +38,11 @@ def get_hpc_info(filename: str) -> tuple[str, str]:
     design_type : str
         Design name.
 
+    Examples
+    --------
+    >>> from ansys.aedt.core.application.job_manager import get_hpc_info
+    >>> get_hpc_info("C:\\Users\\user\\Documents\\hpc_config.acf")
+
     """
     config_name = ""
     design_type = ""
@@ -71,6 +76,11 @@ def update_hpc_option(
     Returns
     -------
     type
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.application.job_manager import update_hpc_option
+    >>> update_hpc_option("hpc_config.acf", "ConfigName", "Local")
 
     """
     line_number = None
@@ -107,6 +117,11 @@ def update_simulation_cores(name: str, nc: int | str) -> None:
     nc : int or string
         Number of simulation cores.
 
+    Examples
+    --------
+    >>> from ansys.aedt.core.application.job_manager import update_simulation_cores
+    >>> update_simulation_cores("C:\\Users\\user\\Documents\\hpc_config.acf", 8)
+
     """
     with open(name) as fid:
         for line in fid:
@@ -128,6 +143,11 @@ def update_simulation_engines(name: str, nc: int | str) -> None:
         Name of the configuration file.
     nc : int or str
         Number of simulaton engines.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.application.job_manager import update_simulation_engines
+    >>> update_simulation_engines("C:\\Users\\user\\Documents\\hpc_config.acf", 2)
 
     """
     with open(name) as fid:
@@ -151,6 +171,11 @@ def update_machine_name(name: str, machinename: str) -> None:
     machinename : str
         New name of the machine.
 
+    Examples
+    --------
+    >>> from ansys.aedt.core.application.job_manager import update_machine_name
+    >>> update_machine_name("C:\\Users\\user\\Documents\\hpc_config.acf", "localhost")
+
     """
     with open(name) as fid:
         for line in fid:
@@ -172,6 +197,11 @@ def update_config_name(name: str, machinename: str) -> None:
         Path of the configuration file.
     machinename : str
         New name of the machine.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.application.job_manager import update_config_name
+    >>> update_config_name("C:\\Users\\user\\Documents\\hpc_config.acf", "Local")
 
     """
     with open(name) as fid:
@@ -199,6 +229,11 @@ def update_cluster_cores(file_name: str, param_name, param_val) -> None:
     param_val : int
          New number of cluster cores.
 
+    Examples
+    --------
+    >>> from ansys.aedt.core.application.job_manager import update_cluster_cores
+    >>> update_cluster_cores("C:\\Users\\user\\Documents\\hpc_config.acf", "NumCores", 16)
+
     """
     with open(file_name) as f:
         for line in f:
@@ -222,6 +257,11 @@ def update_hpc_template(file_name: str, param_name: str, param_val: int) -> None
         Name of the parameter to update.
     param_val : int
         Value of the parameter.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.application.job_manager import update_hpc_template
+    >>> update_hpc_template("C:\\Users\\user\\Documents\\hpc_template.acf", "NumCores", 16)
 
     """
     with open(file_name) as f:

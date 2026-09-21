@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -90,6 +90,7 @@ CHOKE_DEFAULT_PARAMETERS = {
     "Settings": {"Units": "mm"},
     "Create Component": {"True": True, "False": False},
 }
+"""Choke default parameters."""
 
 
 @dataclass
@@ -194,21 +195,35 @@ class Choke(PyAedtBase):
     >>> choke.inner_winding["Turns"] = 10
     >>> choke.mid_winding["Turns"] = 15
     >>> choke.outer_winding["Turns"] = 20
+
     """
 
     name: str = "choke"
+    """Value for name."""
     number_of_windings: dict[str, bool] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Number of Windings"])
+    """Value for number of windings."""
     layer: dict[str, bool] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Layer"])
+    """Value for layer."""
     layer_type: dict[str, bool] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Layer Type"])
+    """Value for layer type."""
     similar_layer: dict[str, bool] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Similar Layer"])
+    """Value for similar layer."""
     mode: dict[str, bool] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Mode"])
+    """Value for mode."""
     wire_section: dict[str, bool] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Wire Section"])
+    """Value for wire section."""
     core: dict[str, Any] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Core"])
+    """Value for core."""
     outer_winding: dict[str, Any] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Outer Winding"])
+    """Value for outer winding."""
     mid_winding: dict[str, Any] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Mid Winding"])
+    """Value for mid winding."""
     inner_winding: dict[str, Any] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Inner Winding"])
+    """Value for inner winding."""
     settings: dict[str, Any] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Settings"])
+    """Value for settings."""
     create_component: dict[str, bool] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Create Component"])
+    """Value for create component."""
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "Choke":
@@ -223,6 +238,13 @@ class Choke(PyAedtBase):
         -------
         Choke
             Choke instance created from the dictionary.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.choke import CHOKE_DEFAULT_PARAMETERS, Choke
+        >>> data = CHOKE_DEFAULT_PARAMETERS.copy()
+        >>> obj = Choke.from_dict(data)
+
         """
         return cls(
             number_of_windings=data["Number of Windings"],
@@ -247,6 +269,14 @@ class Choke(PyAedtBase):
         -------
         dict
             Dictionary of choke parameters.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.choke import Choke
+        >>> choke = Choke()
+        >>> choke.choke_parameters["Core"]["Material"]
+        'ferrite'
+
         """
         return {
             "Number of Windings": self.number_of_windings,
@@ -280,6 +310,14 @@ class Choke(PyAedtBase):
         ------
         Exception
             If there's an error during file writing.
+
+        Examples
+        --------
+        >>> from pathlib import Path
+        >>> from ansys.aedt.core.modeler.advanced_cad.choke import Choke
+        >>> choke = Choke()
+        >>> choke.export_to_json(str(Path("choke_config.json")))
+
         """
         try:
             write_configuration_file(self.choke_parameters, file_path)
@@ -295,6 +333,15 @@ class Choke(PyAedtBase):
         -------
         list
             List of objects created.
+
+        Examples
+        --------
+        >>> import ansys.aedt.core as pyaedt
+        >>> from ansys.aedt.core.modeler.advanced_cad.choke import Choke
+        >>> hfss = pyaedt.Hfss()
+        >>> choke = Choke()
+        >>> choke.create_choke(app=hfss)
+
         """
         # Create temporary directory for JSON file
         temp_dir = Path(tempfile.mkdtemp())
@@ -316,6 +363,16 @@ class Choke(PyAedtBase):
         -------
         :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             Ground object.
+
+        Examples
+        --------
+        >>> import ansys.aedt.core as pyaedt
+        >>> from ansys.aedt.core.modeler.advanced_cad.choke import Choke
+        >>> hfss = pyaedt.Hfss()
+        >>> choke = Choke()
+        >>> choke.create_choke(app=hfss)
+        >>> ground = choke.create_ground(app=hfss)
+
         """
         first_winding_list = self.list_object[2]
         ground_radius = 1.2 * self.outer_winding["Outer Radius"]
@@ -339,6 +396,16 @@ class Choke(PyAedtBase):
         -------
         :class:`ansys.aedt.core.modules.mesh_helpers.MeshOperation`
             Mesh operation object.
+
+        Examples
+        --------
+        >>> import ansys.aedt.core as pyaedt
+        >>> from ansys.aedt.core.modeler.advanced_cad.choke import Choke
+        >>> hfss = pyaedt.Hfss()
+        >>> choke = Choke()
+        >>> choke.create_choke(app=hfss)
+        >>> mesh = choke.create_mesh(app=hfss)
+
         """
         first_winding_list = self.list_object[2]
         ground_radius = 1.2 * self.outer_winding["Outer Radius"]
@@ -373,6 +440,17 @@ class Choke(PyAedtBase):
         -------
         list
             List of ports.
+
+        Examples
+        --------
+        >>> import ansys.aedt.core as pyaedt
+        >>> from ansys.aedt.core.modeler.advanced_cad.choke import Choke
+        >>> hfss = pyaedt.Hfss()
+        >>> choke = Choke()
+        >>> choke.create_choke(app=hfss)
+        >>> ground = choke.create_ground(app=hfss)
+        >>> ports = choke.create_ports(ground, app=hfss)
+
         """
         first_winding_list = self.list_object[2]
         second_winding_list = self.list_object[3] if len(self.list_object) > 3 else None

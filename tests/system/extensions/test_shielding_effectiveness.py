@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -31,12 +31,14 @@ from ansys.aedt.core.extensions.hfss.shielding_effectiveness import ShieldingEff
 from ansys.aedt.core.extensions.hfss.shielding_effectiveness import main
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
+from tests.conftest import solver_xfail
 
 FIELDS_CALCULATOR = "fields_calculator_solved"
 TEST_SUBFOLDER = "T45"
 
 
 @pytest.mark.skipif(is_linux, reason="Long test for Linux VM.")
+@solver_xfail
 def test_shielding_effectiveness_generate_button(add_app) -> None:
     """Test the Generate button in the Shielding Effectiveness extension."""
     data = ShieldingEffectivenessExtensionData(

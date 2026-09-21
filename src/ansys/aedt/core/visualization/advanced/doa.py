@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -23,8 +23,8 @@
 # SOFTWARE.
 
 import sys
+from typing import TYPE_CHECKING
 
-from matplotlib.figure import Figure
 import numpy as np
 
 from ansys.aedt.core.base import PyAedtBase
@@ -33,20 +33,28 @@ from ansys.aedt.core.generic.general_methods import conversion_function
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 
+if TYPE_CHECKING:
+    from matplotlib.figure import Figure
+
 current_python_version = sys.version_info[:2]
+"""Value for current python version."""
 if current_python_version < (3, 10):  # pragma: no cover
     raise Exception("Python 3.10 or higher is required for direction of arrival (DoA) post-processing.")
 
 
 class DirectionOfArrival(PyAedtBase):
-    """
-    Class for direction of arrival (DoA) estimation using 2D planar antenna arrays
+    """Class for direction of arrival (DoA) estimation using 2D planar antenna arrays
     with coordinates in meters and user-defined frequency.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.advanced.doa import DirectionOfArrival
+    >>> obj = DirectionOfArrival()
+
     """
 
     def __init__(self, x_position: np.array, y_position: np.array, frequency: float) -> None:
-        """
-        Initialize with antenna element positions in meters and signal frequency in Hertz.
+        """Initialize with antenna element positions in meters and signal frequency in Hertz.
 
         Parameters
         ----------
@@ -69,8 +77,7 @@ class DirectionOfArrival(PyAedtBase):
 
     @pyaedt_function_handler()
     def get_scanning_vectors(self, azimuth_angles: np.ndarray) -> np.ndarray:
-        """
-        Generate scanning vectors for the given azimuth angles in degrees.
+        """Generate scanning vectors for the given azimuth angles in degrees.
 
         Parameters
         ----------
@@ -81,6 +88,13 @@ class DirectionOfArrival(PyAedtBase):
         -------
         scanning_vectors : np.ndarray
             Scanning vectors.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.doa import DirectionOfArrival
+        >>> obj = DirectionOfArrival()
+        >>> obj.get_scanning_vectors(azimuth_angles=["Box1"])
+
         """
         thetas_rad = np.deg2rad(azimuth_angles)
         P = len(thetas_rad)
@@ -97,8 +111,7 @@ class DirectionOfArrival(PyAedtBase):
     def bartlett(
         self, data: np.ndarray, scanning_vectors: np.ndarray, range_bins: int = None, cross_range_bins: int = None
     ) -> np.ndarray:
-        """
-        Estimate the direction of arrival (DoA) using the Bartlett (classical beamforming) method.
+        """Estimate the direction of arrival (DoA) using the Bartlett (classical beamforming) method.
 
         Parameters
         ----------
@@ -118,6 +131,13 @@ class DirectionOfArrival(PyAedtBase):
         np.ndarray
             2D complex-valued array of shape (range_bins, cross_range_bins), representing the
             power angular density (PAD) for each range bin and angle.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.doa import DirectionOfArrival
+        >>> obj = DirectionOfArrival()
+        >>> obj.bartlett(data=1, scanning_vectors=[1, 0, 0])
+
         """
         if range_bins is None:
             range_bins = data.shape[0]
@@ -148,8 +168,7 @@ class DirectionOfArrival(PyAedtBase):
     def capon(
         self, data: np.ndarray, scanning_vectors: np.ndarray, range_bins: int = None, cross_range_bins: int = None
     ) -> np.ndarray:
-        """
-        Estimate the direction of arrival using the Capon (Minimum variance distortion less response)
+        """Estimate the direction of arrival using the Capon (Minimum variance distortion less response)
         beamforming method.
 
         Parameters
@@ -170,6 +189,13 @@ class DirectionOfArrival(PyAedtBase):
         np.ndarray
             2D real-valued array of shape (range_bins, cross_range_bins), representing the
             Capon spatial spectrum (inverse of interference power) for each range bin and angle.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.doa import DirectionOfArrival
+        >>> obj = DirectionOfArrival()
+        >>> obj.capon(data=1, scanning_vectors=[1, 0, 0])
+
         """
         if range_bins is None:
             range_bins = data.shape[0]
@@ -209,8 +235,7 @@ class DirectionOfArrival(PyAedtBase):
         range_bins: int = None,
         cross_range_bins: int = None,
     ) -> np.ndarray:
-        """
-        Estimate the direction of arrival (DoA) using the MUSIC method.
+        """Estimate the direction of arrival (DoA) using the MUSIC method.
 
         Parameters
         ----------
@@ -231,6 +256,13 @@ class DirectionOfArrival(PyAedtBase):
         np.ndarray
             2D real-valued array of shape (range_bins, cross_range_bins),
             representing the MUSIC spectrum for each range bin and angle.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.doa import DirectionOfArrival
+        >>> obj = DirectionOfArrival()
+        >>> obj.music(data=1, scanning_vectors=[1, 0, 0], signal_dimension=1)
+
         """
         if range_bins is None:
             range_bins = data.shape[0]
@@ -280,7 +312,7 @@ class DirectionOfArrival(PyAedtBase):
         show: bool = True,
         show_legend: bool = True,
         plot_size: tuple = (1920, 1440),
-        figure: Figure = None,
+        figure: "Figure" = None,
     ) -> ReportPlotter:
         """Create angle of arrival plot.
 
@@ -340,6 +372,7 @@ class DirectionOfArrival(PyAedtBase):
         >>> doa = DirectionOfArrival(x, y, freq)
         >>> doa.plot_angle_of_arrival(signal_snapshot)
         >>> doa.plot_angle_of_arrival(signal_snapshot, doa_method="MUSIC")
+
         """
         data = np.array([signal])
 

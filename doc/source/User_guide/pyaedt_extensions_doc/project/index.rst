@@ -3,6 +3,13 @@ Project extensions
 
 .. grid:: 2
 
+   .. grid-item-card:: Generate Report
+            :link: generate_report
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Create a PDF report from the plots in the active AEDT design.
+
    .. grid-item-card:: Import Nastran
             :link: import_nastran
             :link-type: doc
@@ -43,3 +50,10 @@ Project extensions
             :margin: 2 2 0 0
 
             Generate a parameterized via design.
+
+   .. grid-item-card:: Result Calculator
+            :link: result_calculator
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Collect, plot and manage result traces.

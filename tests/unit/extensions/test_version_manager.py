@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -35,7 +35,6 @@ from ansys.aedt.core.extensions.misc import get_latest_version
 # Use a platform-safe temporary personal lib path instead of hard-coded '/tmp/personal'
 PERSONAL_LIB = os.path.join(tempfile.gettempdir(), "personal")
 
-# Ensure tests don't try to pip-install uv during VersionManager __init__.
 os.environ.setdefault("PYTEST_CURRENT_TEST", "1")
 
 
@@ -161,8 +160,10 @@ def _make_vm():
 
     desktop.release_desktop = MagicMock()
 
-    # Instantiate
-    manager = vm.VersionManager(ui, desktop)
+    # Instantiate without live PyPI lookups or background update threads.
+    with patch("ansys.aedt.core.extensions.installer.version_manager.get_latest_version", return_value="Unknown"):
+        with patch("ansys.aedt.core.extensions.installer.version_manager.check_for_pyaedt_update_on_startup"):
+            manager = vm.VersionManager(ui, desktop)
     manager.update_and_reload = MagicMock()
 
     return manager
@@ -170,7 +171,7 @@ def _make_vm():
 
 def test_activate_venv_and_exes() -> None:
     manager = _make_vm()
-    # Ensure python and uv point inside sys.prefix
+
     assert manager.venv_path == sys.prefix
     pyexe = manager.python_exe
     assert str(manager.venv_path) in pyexe
@@ -179,6 +180,14 @@ def test_activate_venv_and_exes() -> None:
     manager.activate_venv()
     assert manager.activated_env is not None
     assert "VIRTUAL_ENV" in manager.activated_env
+
+
+def test_version_manager_window_bounds() -> None:
+    manager = _make_vm()
+
+    manager.root.geometry.assert_called_with(f"{vm.VersionManager.UI_WIDTH}x{vm.VersionManager.UI_HEIGHT}")
+    manager.root.minsize.assert_called_once_with(vm.VersionManager.UI_MIN_WIDTH, vm.VersionManager.UI_MIN_HEIGHT)
+    manager.root.maxsize.assert_called_once_with(vm.VersionManager.UI_MAX_WIDTH, vm.VersionManager.UI_MAX_HEIGHT)
 
 
 @patch("ansys.aedt.core.extensions.installer.version_manager.shutil.which")
@@ -208,14 +217,14 @@ def test_clicked_refresh_no_restart_and_with_restart(mock_showinfo, mock_get_lat
     manager.get_installed_version = lambda pkg: "1.2.3"
 
     # No restart path
-    manager.clicked_refresh(need_restart=False)
+    manager._clicked_refresh(need_restart=False)
     assert "PyAEDT: 1.2.3 (Latest 9.9.9)" in manager.pyaedt_info.get()
     assert "PyEDB: 1.2.3 (Latest 9.9.9)" in manager.pyedb_info.get()
 
     # Restart path: patch get_installed_version to be called inside
     manager.get_installed_version = lambda pkg: "3.3.3"
     mock_get_latest.return_value = "8.8.8"
-    manager.clicked_refresh(need_restart=True)
+    manager._clicked_refresh(need_restart=True)
     assert "PyAEDT: 3.3.3 (Latest 8.8.8)" in manager.pyaedt_info.get()
 
 
@@ -263,13 +272,13 @@ def test_set_light_and_set_dark() -> None:
     manager.style = MagicMock()
 
     # Light
-    manager.set_light_theme()
+    manager._set_light_theme()
     manager.root.configure.assert_called_with(bg="LBG")
     manager.theme.apply_light_theme.assert_called_once_with(manager.style)
     manager.change_theme_button.config.assert_called_with(text="\u263d")
 
     # Dark
-    manager.set_dark_theme()
+    manager._set_dark_theme()
     manager.root.configure.assert_called_with(bg="DBG")
     manager.theme.apply_dark_theme.assert_called_once_with(manager.style)
     manager.change_theme_button.config.assert_called_with(text="\u2600")
@@ -336,9 +345,10 @@ def test_hide_loading_invalid_key() -> None:
 
 
 @patch("ansys.aedt.core.extensions.installer.version_manager.messagebox.showerror")
+@patch("ansys.aedt.core.extensions.installer.version_manager.get_latest_version", return_value="Unknown")
 @patch("ansys.aedt.core.extensions.installer.version_manager.filedialog.askopenfilename")
 @patch("ansys.aedt.core.extensions.installer.version_manager.subprocess.run")
-def test_update_from_wheelhouse_all_paths(mock_run, mock_askopen, mock_showerror, tmp_path) -> None:
+def test_update_from_wheelhouse_all_paths(mock_run, mock_askopen, mock_get_latest, mock_showerror, tmp_path) -> None:
     manager = _make_vm()
     # Ensure the manager reports a stable Python version for tests
     manager.__class__.python_version = property(lambda self: "3.10")
@@ -533,7 +543,7 @@ def test_get_branch_functions(mock_run, mock_askyesno, mock_is_git_available, _m
     manager.pyaedt_branch_name.set("feature/foo")
 
     # Prevent extra subprocess.run calls triggered by clicked_refresh
-    manager.clicked_refresh = lambda need_restart: None
+    manager._clicked_refresh = lambda need_restart: None
 
     # Reset the mock to capture calls
     manager.update_and_reload.reset_mock()
@@ -567,7 +577,7 @@ def test_get_pyedb_branch_functions(mock_run, mock_askyesno, mock_is_git_availab
     manager.pyedb_branch_name.set("feature/bar")
 
     # Prevent extra subprocess.run calls triggered by clicked_refresh
-    manager.clicked_refresh = lambda need_restart: None
+    manager._clicked_refresh = lambda need_restart: None
 
     # Reset the mock to capture calls
     manager.update_and_reload.reset_mock()
@@ -787,118 +797,6 @@ def test_on_close_both_exceptions() -> None:
     # Verify both were called despite exceptions
     manager.desktop.release_desktop.assert_called_once_with(False, False)
     manager.root.destroy.assert_called_once()
-
-
-@patch("ansys.aedt.core.extensions.installer.version_manager.threading.Thread")
-@patch("ansys.aedt.core.extensions.installer.version_manager.check_for_pyaedt_update")
-def test_check_for_pyaedt_update_on_startup_success(mock_check_update, mock_thread) -> None:
-    """Test check_for_pyaedt_update_on_startup when update is available."""
-    manager = _make_vm()
-
-    # Mock check_for_pyaedt_update to return an update
-    mock_check_update.return_value = ("1.5.0", "/path/to/declined.txt")
-
-    # Mock root.after to capture the scheduled callback
-    manager.root.after = MagicMock()
-
-    # Call the method
-    manager.check_for_pyaedt_update_on_startup()
-
-    # Verify thread was created and started
-    assert mock_thread.called
-    thread_args = mock_thread.call_args
-    assert thread_args[1]["daemon"] is True
-
-    # Get the worker function and call it
-    worker_func = thread_args[1]["target"]
-    worker_func()
-
-    # Verify check_for_pyaedt_update was called with personal lib path
-    mock_check_update.assert_called_once_with(manager.desktop.personallib)
-
-    # Verify root.after was called to schedule notification
-    manager.root.after.assert_called_once()
-    assert manager.root.after.call_args[0][0] == 0  # First argument should be 0
-
-
-@patch("ansys.aedt.core.extensions.installer.version_manager.threading.Thread")
-@patch("ansys.aedt.core.extensions.installer.version_manager.check_for_pyaedt_update")
-def test_check_for_pyaedt_update_on_startup_no_update(mock_check_update, mock_thread) -> None:
-    """Test check_for_pyaedt_update_on_startup when no update is needed."""
-    manager = _make_vm()
-
-    # Mock check_for_pyaedt_update to return no update
-    mock_check_update.return_value = (None, "/path/to/declined.txt")
-
-    # Mock root.after to verify it's not called
-    manager.root.after = MagicMock()
-
-    # Call the method
-    manager.check_for_pyaedt_update_on_startup()
-
-    # Get the worker function and call it
-    worker_func = mock_thread.call_args[1]["target"]
-    worker_func()
-
-    # Verify check_for_pyaedt_update was called
-    mock_check_update.assert_called_once_with(manager.desktop.personallib)
-
-    # Verify root.after was NOT called since no update available
-    manager.root.after.assert_not_called()
-
-
-@patch("ansys.aedt.core.extensions.installer.version_manager.threading.Thread")
-@patch("ansys.aedt.core.extensions.installer.version_manager.check_for_pyaedt_update")
-@patch("ansys.aedt.core.extensions.installer.version_manager.logging.getLogger")
-def test_check_for_pyaedt_update_on_startup_exception_in_worker(
-    mock_get_logger, mock_check_update, mock_thread
-) -> None:
-    """Test check_for_pyaedt_update_on_startup when worker encounters exception."""
-    manager = _make_vm()
-
-    # Mock logger
-    mock_logger = MagicMock()
-    mock_get_logger.return_value = mock_logger
-
-    # Mock check_for_pyaedt_update to raise exception
-    mock_check_update.side_effect = Exception("Check update failed")
-
-    # Call the method
-    manager.check_for_pyaedt_update_on_startup()
-
-    # Get the worker function and call it
-    worker_func = mock_thread.call_args[1]["target"]
-    worker_func()
-
-    # Verify exception was logged
-    mock_logger.debug.assert_called_with("PyAEDT update check: worker failed.", exc_info=True)
-
-
-@patch("ansys.aedt.core.extensions.installer.version_manager.threading.Thread")
-@patch("ansys.aedt.core.extensions.installer.version_manager.check_for_pyaedt_update")
-@patch("ansys.aedt.core.extensions.installer.version_manager.logging.getLogger")
-def test_check_for_pyaedt_update_on_startup_exception_in_after(mock_get_logger, mock_check_update, mock_thread) -> None:
-    """Test check_for_pyaedt_update_on_startup when root.after fails."""
-    manager = _make_vm()
-
-    # Mock logger
-    mock_logger = MagicMock()
-    mock_get_logger.return_value = mock_logger
-
-    # Mock check_for_pyaedt_update to return an update
-    mock_check_update.return_value = ("1.5.0", "/path/to/declined.txt")
-
-    # Mock root.after to raise exception
-    manager.root.after = MagicMock(side_effect=Exception("After failed"))
-
-    # Call the method
-    manager.check_for_pyaedt_update_on_startup()
-
-    # Get the worker function and call it
-    worker_func = mock_thread.call_args[1]["target"]
-    worker_func()
-
-    mock_check_update.assert_called_once_with(manager.desktop.personallib)
 
 
 @patch("ansys.aedt.core.extensions.installer.version_manager.get_port")

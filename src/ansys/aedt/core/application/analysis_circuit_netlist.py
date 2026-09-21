@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,10 +22,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.visualization.post.post_circuit import PostProcessorCircuit
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.visualization.post.post_circuit import PostProcessorCircuit
 
 
 class AnalysisCircuitNetlist(Analysis, PyAedtBase):
@@ -68,6 +74,13 @@ class AnalysisCircuitNetlist(Analysis, PyAedtBase):
         Whether to remove lock to project before opening it or not.
         The default is ``False``, which means to not unlock
         the existing project if needed and raise an exception.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import CircuitNetlist
+    >>> netlist = CircuitNetlist()
+    >>> netlist.post
+
     """
 
     def __init__(
@@ -114,6 +127,13 @@ class AnalysisCircuitNetlist(Analysis, PyAedtBase):
         -------
         :class:`ansys.aedt.core.visualization.post.post_circuit.PostProcessorCircuit`
             PostProcessor object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import CircuitNetlist
+        >>> netlist = CircuitNetlist()
+        >>> netlist.post
+
         """
         if self._post is None and self._odesign:
             from ansys.aedt.core.visualization.post import post_processor
@@ -123,5 +143,13 @@ class AnalysisCircuitNetlist(Analysis, PyAedtBase):
 
     @property
     def modeler(self) -> object:
-        """Modeler object."""
+        """Modeler object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import CircuitNetlist
+        >>> netlist = CircuitNetlist()
+        >>> netlist.modeler
+
+        """
         return self._modeler

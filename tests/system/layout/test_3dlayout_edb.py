@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -324,6 +324,27 @@ def test_objects_by_layer(aedt_app) -> None:
     lines_on_top = aedt_app.modeler.objects_by_layer("1_Top", "line")
     assert len(lines_on_top) > 0
     assert aedt_app.modeler.geometries[lines_on_top[0]].placement_layer == "1_Top"
+
+
+def test_object_by_polygon(aedt_app) -> None:
+    objs = aedt_app.modeler.objects_by_polygon([[0, 0], [0, 10], [10, 10], [10, 0]], "1_Top")
+    assert len(objs) > 0
+    objs = aedt_app.modeler.objects_by_polygon([[0, 0], [0, 10], [10, 10], [10, 0], [0, 0]], "1_Top")
+    assert len(objs) > 0
+    polygon = [[0, 0], [0, 10], [10, 10], [10, 0], [0, 0]]
+    p = aedt_app.modeler.oeditor.Polygon()
+    for pp in polygon:
+        point = aedt_app.modeler.oeditor.Point()
+        point.SetX(pp[0])
+        point.SetY(pp[1])
+        p.AddPoint(point)
+    if polygon[-1] != polygon[0]:
+        point = aedt_app.modeler.oeditor.Point()
+        point.SetX(polygon[0][0])
+        point.SetY(polygon[0][1])
+        p.AddPoint(point)
+    objs = aedt_app.modeler.objects_by_polygon(p, "1_Top")
+    assert len(objs) > 0
 
 
 def test_set_solderball(aedt_app) -> None:

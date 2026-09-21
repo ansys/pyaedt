@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -38,6 +38,14 @@ class MultipleBandsTable:
     The table includes the lower and upper frequencies of the bands.
     To access the multiple bands table, use the ``multiple_bands_table`` attribute of the ``FilterSolutions`` class.
     A valid multiple bands table must include both lower and upper frequencies for each band.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+    >>> design = LumpedDesign("2026.1")
+    >>> design.attributes.filter_multiple_bands_enabled = True
+    >>> design.multiple_bands_table
+
     """
 
     def __init__(self) -> None:
@@ -80,6 +88,14 @@ class MultipleBandsTable:
         -------
         int
             Current number of rows in the multiple bands table.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign("2026.1")
+        >>> design.attributes.filter_multiple_bands_enabled = True
+        >>> design.multiple_bands_table.row_count
+
         """
         table_row_count = c_int()
         status = self._dll.getMultipleBandsTableRowCount(byref(table_row_count))
@@ -100,6 +116,14 @@ class MultipleBandsTable:
             tuple
                 The tuple contains three strings.The first is the lower frequency value,
                 and the second is the upper frequency value.
+
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign("2026.1")
+        >>> design.attributes.filter_multiple_bands_enabled = True
+        >>> design.multiple_bands_table.row(0)
 
         """
         lower_value_buffer = create_string_buffer(100)
@@ -123,6 +147,14 @@ class MultipleBandsTable:
         upper_frequency: str, optional
             New upper frequency value to set for the row.
             If this value is not provided, the row's upper frequency remains unchanged.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign("2026.1")
+        >>> design.attributes.filter_multiple_bands_enabled = True
+        >>> design.multiple_bands_table.update_row(0, lower_frequency="200M", upper_frequency="5G")
+
         """
         status = self._dll.updateMultipleBandsTableRow(
             row_index,
@@ -140,6 +172,14 @@ class MultipleBandsTable:
             Lower frequency value for the new row.
         upper_frequency: str
             Upper frequency value for the new row.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign("2026.1")
+        >>> design.attributes.filter_multiple_bands_enabled = True
+        >>> design.multiple_bands_table.append_row("100M", "500M")
+
         """
         status = self._dll.appendMultipleBandsTableRow(
             self._bytes_or_none(lower_frequency),
@@ -158,6 +198,14 @@ class MultipleBandsTable:
             Lower frequency value to insert.
         upper_frequency: str
             Upper frequency value to insert.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign("2026.1")
+        >>> design.attributes.filter_multiple_bands_enabled = True
+        >>> design.multiple_bands_table.insert_row(0, "200M", "5G")
+
         """
         status = self._dll.insertMultipleBandsTableRow(
             row_index,
@@ -174,11 +222,28 @@ class MultipleBandsTable:
         row_index: int
             The index of the row to be removed from the multiple bands table.
             Valid values range from ``0``to ``6``, inclusive.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign("2026.1")
+        >>> design.attributes.filter_multiple_bands_enabled = True
+        >>> design.multiple_bands_table.remove_row(0)
+
         """
         status = self._dll.removeMultipleBandsTableRow(row_index)
         self._dll_interface.raise_error(status)
 
     def clear_table(self) -> None:
-        """Remove all rows from the multiple bands table."""
+        """Remove all rows from the multiple bands table.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign("2026.1")
+        >>> design.attributes.filter_multiple_bands_enabled = True
+        >>> design.multiple_bands_table.clear_table()
+
+        """
         for i in range(self.row_count - 1, -1, -1):
             self.remove_row(i)

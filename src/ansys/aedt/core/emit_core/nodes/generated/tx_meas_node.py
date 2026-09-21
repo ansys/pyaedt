@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -27,6 +27,8 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class TxMeasNode(EmitNode):
+    """Provide tx meas node."""
+
     def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
@@ -34,18 +36,51 @@ class TxMeasNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
-        """The parent of this emit node."""
+        """The parent of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> tx_meas = band.import_tx_measurement("C:\\Measurements\\tx.csv")
+        >>> tx_meas.parent
+
+        """
         return self._parent
 
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node."""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> tx_meas = band.import_tx_measurement("C:\\Measurements\\tx.csv")
+        >>> tx_meas.node_type
+
+        """
         return self._node_type
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node"""
+        """Delete this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> tx_meas = band.import_tx_measurement("C:\\Measurements\\tx.csv")
+        >>> tx_meas.delete()
+
+        """
         self._delete()
 
     @property
@@ -54,6 +89,16 @@ class TxMeasNode(EmitNode):
         """Name of the measurement source.
 
         Value should be a full file path.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> tx_meas = band.import_tx_measurement("C:\\Measurements\\tx.csv")
+        >>> tx_meas.file
+
         """
         val = self._get_property("File")
         return val
@@ -61,7 +106,18 @@ class TxMeasNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def transmit_frequency(self) -> float:
-        """Channel associated with the measurement file."""
+        """Channel associated with the measurement file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> tx_meas = band.import_tx_measurement("C:\\Measurements\\tx.csv")
+        >>> tx_meas.transmit_frequency
+
+        """
         val = self._get_property("Transmit Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
         return float(val)
@@ -72,6 +128,16 @@ class TxMeasNode(EmitNode):
         """Include/Exclude Harmonics below the noise.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> tx_meas = band.import_tx_measurement("C:\\Measurements\\tx.csv")
+        >>> tx_meas.exclude_harmonics_below_noise = False
+
         """
         val = self._get_property("Exclude Harmonics Below Noise")
         return val == "true"
@@ -84,7 +150,18 @@ class TxMeasNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def enabled(self) -> bool:
-        """Enabled state for this node."""
+        """Enabled state for this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> tx_meas = band.import_tx_measurement("C:\\Measurements\\tx.csv")
+        >>> tx_meas.enabled = True
+
+        """
         return self._get_property("Enabled") == "true"
 
     @enabled.setter

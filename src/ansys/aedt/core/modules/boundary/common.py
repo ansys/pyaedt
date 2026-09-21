@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""This module contains these classes: ``BoundaryCommon`` and ``BoundaryObject``."""
+"""The module contains these classes: ``BoundaryCommon`` and ``BoundaryObject``."""
 
 from ansys.aedt.core.application import _get_obj_data
 from ansys.aedt.core.base import PyAedtBase
@@ -37,7 +37,14 @@ from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
 
 
 class BoundaryProps(dict):
-    """AEDT Boundary Component Internal Parameters."""
+    """AEDT Boundary Component Internal Parameters.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.boundary.common import BoundaryProps
+    >>> obj = BoundaryProps()
+
+    """
 
     def __setitem__(self, key, value):
         value = _units_assignment(value)
@@ -73,7 +80,7 @@ class BoundaryProps(dict):
 
 
 class BoundaryCommon(PropsManager, PyAedtBase):
-    """ """
+    """Provide boundary common."""
 
     def __repr__(self) -> str:
         return self.name
@@ -117,6 +124,12 @@ class BoundaryCommon(PropsManager, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.common import BoundaryCommon
+        >>> obj = BoundaryCommon()
+        >>> obj.delete()
 
         """
         if self.type == "Matrix" or self.type == "Force" or self.type == "Torque":
@@ -180,7 +193,14 @@ class BoundaryCommon(PropsManager, PyAedtBase):
 
 
 def disable_auto_update(func: callable) -> callable:
-    """Decorator used to disable automatic update."""
+    """Decorator used to disable automatic update.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.boundary.common import disable_auto_update
+    >>> disable_auto_update(func=1)
+
+    """
 
     def wrapper(self, *args, **kwargs):
         """Inner wrapper function."""
@@ -226,6 +246,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
     ...     "inner",
     ... )
     >>> coat = hfss.assign_finite_conductivity([inner_id], "copper", use_thickness=True, thickness="0.2mm")
+
     """
 
     def __init__(self, app, name: str, props=None, boundarytype=None, auto_update: bool = True) -> None:
@@ -253,27 +274,27 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
             cc = self._app.get_oo_object(self._app.odesign, "Nets")
             cc_names = self._app.get_oo_name(cc)
             if self._name in cc_names:
-                return cc.GetChildObject(self._name)
+                return self._app.get_oo_object(cc, self._name)
             for name in cc_names:
                 cc = self._app.get_oo_object(self._app.odesign, f"Nets\\{name}")
                 cc_names = self._app.get_oo_name(cc)
                 if self._name in cc_names:
-                    return cc.GetChildObject(self._name)
+                    return self._app.get_oo_object(cc, self._name)
 
         if "Thermal" in design_childs:
             cc = self._app.get_oo_object(self._app.odesign, "Thermal")
             cc_names = self._app.get_oo_name(cc)
             if self._name in cc_names:
-                return cc.GetChildObject(self._name)
+                return self._app.get_oo_object(cc, self._name)
 
         if "Boundaries" in design_childs:
             cc = self._app.get_oo_object(self._app.odesign, "Boundaries")
-            if self._name in cc.GetChildNames():
-                return cc.GetChildObject(self._name)
+            if self._name in self._app.get_oo_name(cc):
+                return self._app.get_oo_object(cc, self._name)
 
         if "Excitations" in design_childs:
             if self._name in self._app.get_oo_name(self._app.odesign, "Excitations"):
-                return self._app.get_oo_object(self._app.odesign, "Excitations").GetChildObject(self._name)
+                return self._app.get_oo_object(self._app.get_oo_object(self._app.odesign, "Excitations"), self._name)
             elif self._app.get_oo_name(self._app.odesign, "Excitations"):
                 for port in self._app.get_oo_name(self._app.odesign, "Excitations"):
                     terminals = self._app.get_oo_name(self._app.odesign, f"Excitations\\{port}")
@@ -282,8 +303,8 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
         if self._app.design_type in ["Maxwell 3D", "Maxwell 2D"] and "Model" in design_childs:
             model = self._app.get_oo_object(self._app.odesign, "Model")
-            if self._name in model.GetChildNames():
-                return model.GetChildObject(self._name)
+            if self._name in self._app.get_oo_name(model):
+                return self._app.get_oo_object(model, self._name)
 
         if "Conductors" in design_childs and self._app.get_oo_name(self._app.odesign, "Conductors"):
             for port in self._app.get_oo_name(self._app.odesign, "Conductors"):
@@ -299,6 +320,13 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         Returns
         -------
         :class:BoundaryProps
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.common import BoundaryObject
+        >>> obj = BoundaryObject()
+        >>> obj.props
+
         """
         if self.__props:
             return self.__props
@@ -329,6 +357,13 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         -------
         str
             Returns the type of the boundary.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.common import BoundaryObject
+        >>> obj = BoundaryObject()
+        >>> obj.type
+
         """
         if not self._type:
             if self.available_properties:
@@ -350,7 +385,15 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
     @property
     def name(self) -> str:
-        """Boundary Name."""
+        """Boundary Name.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.common import BoundaryObject
+        >>> obj = BoundaryObject()
+        >>> obj.name
+
+        """
         if getattr(self, "child_object", None):
             self._name = str(self.properties["Name"])
         return self._name
@@ -393,6 +436,12 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.common import BoundaryObject
+        >>> obj = BoundaryObject()
+        >>> obj.create()
 
         """
         bound_type = self.type
@@ -587,6 +636,12 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.common import BoundaryObject
+        >>> obj = BoundaryObject()
+        >>> obj.update()
+
         """
         bound_type = self.type
         if bound_type == "Perfect E":
@@ -732,6 +787,12 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.boundary.common import BoundaryObject
+        >>> obj = BoundaryObject()
+        >>> obj.update_assignment()
 
         """
         out = ["Name:" + self.name]

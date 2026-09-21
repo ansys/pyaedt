@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -48,7 +48,7 @@ def test_via_design_blocked_on_2026_1() -> None:
 
 
 @pytest.mark.skipif(
-    (is_linux and DESKTOP_VERSION > "2025.1") or DESKTOP_VERSION == "2026.1",
+    (is_linux and DESKTOP_VERSION > "2025.1") or DESKTOP_VERSION >= "2026.1",
     reason="Temporary skip, see https://github.com/ansys/pyedb/issues/1399 and via design bug in 2026.1",
 )
 @patch.object(ViaDesignExtension, "check_design_type", return_value=None)

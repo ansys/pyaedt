@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -355,10 +355,12 @@ def test_create_object_list(coaxial) -> None:
     assert coaxial.modeler.create_object_list(["Core", "outer"])
     coaxial.modeler.user_lists[-1].props["List"] = ["outer", "Core", "inner"]
     coaxial.modeler.user_lists[-1].auto_update = False
+
     fl = coaxial.modeler.get_object_faces("Core")
     coaxial.modeler.user_lists[-1].props["Type"] = "Face"
     coaxial.modeler.user_lists[-1].props["List"] = fl
     coaxial.modeler.user_lists[-1].update()
+
     assert coaxial.modeler.user_lists[-1].rename("new_list")
     assert coaxial.modeler.user_lists[-1].delete()
     assert coaxial.modeler.create_object_list(["Core", "outer"])
@@ -1298,6 +1300,18 @@ def test_project_sheet_success_with_single_object(aedt_app) -> None:
     assert sorted(EXPECTED_POSITIONS) == sorted(positions), "Object has not the expected vertices positions"
     aedt_app.modeler.delete(aedt_app.modeler.object_names)
 
+    box = aedt_app.modeler.create_box([-10, -10, -10], [20, 20, 20], "box_project_operation")
+    name = box.name
+    assert aedt_app.modeler.get_objects_by_name(name.upper(), case_sensitive=False)
+    assert not aedt_app.modeler.get_objects_by_name(name.upper(), case_sensitive=True)
+
+    assert aedt_app.modeler.get_objects_by_name("box_*", case_sensitive=True)
+    assert aedt_app.modeler.get_objects_by_name("box_*", case_sensitive=False)
+    assert aedt_app.modeler.get_objects_by_name("*_project_*", case_sensitive=False)
+    assert aedt_app.modeler.get_objects_by_name("*_operation", case_sensitive=False)
+    assert not aedt_app.modeler.get_objects_by_name("Box_*", case_sensitive=True)
+    assert not aedt_app.modeler.get_objects_by_name("plane_*", case_sensitive=False)
+
 
 def test_project_sheet_success_with_multiple_objects(aedt_app) -> None:
     """Test project sheet method with multiple objects."""
@@ -1383,3 +1397,56 @@ def test_edge_primitives_contains(aedt_app) -> None:
     assert vertex_0.id in edge
     assert vertex_1 in edge
     assert vertex_1.id in edge
+
+
+def test_compound_spline_segments_consume_offset_windows(aedt_app) -> None:
+    """A compound list with multiple Spline segments must consume each
+    spline's points from the current offset, not from the start of the list.
+    """
+    points = [
+        [0, 20, 0],
+        [1, 19, 0],
+        [2, 18, 0],
+        [3, 17, 0],
+        [4, 1, 0],
+        [26, 1, 0],
+        [27, 17, 0],
+        [28, 18, 0],
+        [29, 19, 0],
+        [30, 20, 0],
+        [0, 20, 0],
+    ]
+    segment_type = [
+        PolylineSegment(segment_type="Spline", num_points=5),
+        PolylineSegment(segment_type="Line"),
+        PolylineSegment(segment_type="Spline", num_points=5),
+        PolylineSegment(segment_type="Line"),
+    ]
+
+    pl = aedt_app.modeler.create_polyline(
+        points=points,
+        segment_type=segment_type,
+        close_surface=False,
+        name="profile",
+    )
+    assert pl._positions == points
+
+
+def test_compound_spline_then_line(aedt_app) -> None:
+    """A single Spline followed by a Line consumes the spline window then one point."""
+    points = [[0, 0, 0], [1, 1, 0], [2, 0, 0], [3, 1, 0], [4, 0, 0]]
+    segment_type = [
+        PolylineSegment(segment_type="Spline", num_points=4),
+        PolylineSegment(segment_type="Line"),
+    ]
+
+    pl = aedt_app.modeler.create_polyline(
+        points=points,
+        segment_type=segment_type,
+        close_surface=False,
+        name="profile",
+    )
+
+    assert pl._positions == points
+    assert pl.segment_types[0].type == "Spline"
+    assert pl.segment_types[1].type == "Line"

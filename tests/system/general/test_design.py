@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -30,6 +30,8 @@ import pytest
 
 from ansys.aedt.core import Hfss
 from ansys.aedt.core import Icepak
+from ansys.aedt.core import Maxwell3d
+from ansys.aedt.core import MaxwellCircuit
 from ansys.aedt.core import get_pyaedt_app
 from ansys.aedt.core.application.aedt_objects import AedtObjects
 from ansys.aedt.core.application.design import DesignSettings
@@ -81,6 +83,13 @@ def aedt_app(add_app):
     app = add_app(application=Hfss)
     yield app
     app.close_project(save=False)
+
+
+@pytest.fixture
+def maxwell_app(add_app):
+    app = add_app(application=Maxwell3d)
+    yield app
+    app.close_project(app.project_name, save=False)
 
 
 def test_design_name(aedt_app) -> None:
@@ -160,7 +169,7 @@ def test_libs(aedt_app) -> None:
 def test_set_objects_temperature_deformation(coaxial) -> None:
     assert coaxial.modeler.set_objects_deformation(["inner"])
     ambient_temp = 22
-    objects = [o for o in coaxial.modeler.solid_names if coaxial.modeler[o].model]
+    objects = [o for o in coaxial.modeler.solid_names if coaxial.modeler[o].is_model]
     assert coaxial.modeler.set_objects_temperature(objects, ambient_temperature=ambient_temp, create_project_var=True)
 
 
@@ -316,6 +325,8 @@ def test_import_dataset1d(aedt_app) -> None:
     assert ds4.delete()
     assert aedt_app.import_dataset1d(filename)
     assert ds5.delete()
+    with pytest.raises(FileNotFoundError):
+        aedt_app.import_dataset1d(TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "dummy.tab")
 
 
 def test_import_dataset3d(aedt_app) -> None:
@@ -331,6 +342,32 @@ def test_import_dataset3d(aedt_app) -> None:
     filename = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "Dataset_3D.csv"
     ds8 = aedt_app.import_dataset3d(filename, name="dataset_csv", encoding="utf-8-sig")
     assert ds8.name == "$dataset_csv"
+
+
+def test_import_dataset3d_maxwell(maxwell_app) -> None:
+    """Test project-level and design-level datasets with Maxwell 3D."""
+    # Project level tests
+    filename_tab = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "Dataset_3D.tab"
+    filename_csv = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "Dataset_3D.csv"
+
+    ds8 = maxwell_app.import_dataset3d(filename_tab)
+    assert ds8.name == "$Dataset_3D"
+    ds8 = maxwell_app.import_dataset3d(filename_csv, name="dataset_csv")
+    assert ds8.name == "$dataset_csv"
+    assert ds8.delete()
+    ds10 = maxwell_app.import_dataset3d(filename_csv, name="$dataset_test")
+    assert ds10.zunit == "mm"
+    ds8 = maxwell_app.import_dataset3d(filename_csv, name="dataset_csv", encoding="utf-8-sig")
+    assert ds8.name == "$dataset_csv"
+    # Design level tests (only Maxwell 3D and Icepak support these)
+    ds = maxwell_app.import_dataset3d(filename_csv, name="$csv_design_dataset", is_project_dataset=False)
+    assert ds.name == "csv_design_dataset"
+    ds = maxwell_app.import_dataset3d(filename_csv, name="csv_design_dataset_2", is_project_dataset=False)
+    assert ds.name == "csv_design_dataset_2"
+    ds = maxwell_app.import_dataset3d(filename_tab, name="$tab_design_dataset", is_project_dataset=False)
+    assert ds.name == "tab_design_dataset"
+    ds = maxwell_app.import_dataset3d(filename_tab, name="tab_design_dataset_2", is_project_dataset=False)
+    assert ds.name == "tab_design_dataset_2"
 
 
 def test_import_dataset3d_xlsx(aedt_app) -> None:
@@ -440,27 +477,6 @@ def test_force_project_path_disable(aedt_app) -> None:
     settings.force_error_on_missing_project = False
 
 
-# @pytest.mark.skipif(is_linux, reason="Crashing in Linux.")
-# def test_get_app(desktop, add_app):
-#     app = add_app(application=Icepak)
-#     project_name = app.project_name
-#     d = desktop
-#     assert d[[0, 0]]
-#     assert not d[[project_name, "invalid_name"]]
-#     assert d[[0, app.design_name]]
-#     assert d[[project_name, 0]]
-#     assert not d[[project_name, 5]]
-#     assert not d[[1, 0]]
-#     assert not d[[1, 0, 3]]
-#
-#     app.create_new_project("Test")
-#     assert d[[1, 0]]
-#     assert "Test" in d[[1, 0]].project_name
-#     project_name2 = app.project_name
-#     app.close_project(project_name2)
-#     app.close_project(project_name)
-
-
 def test_toolkit(aedt_app, test_tmp_dir) -> None:
     assert customize_automation_tab.available_toolkits()
     file = test_tmp_dir / "test.py"
@@ -476,12 +492,22 @@ def test_toolkit(aedt_app, test_tmp_dir) -> None:
     assert customize_automation_tab.remove_script_from_menu(desktop_object=aedt_app.desktop_class, name="test_toolkit")
 
 
-def test_load_project(aedt_app, desktop, test_tmp_dir) -> None:
-    new_project = test_tmp_dir / "new.aedt"
-    aedt_app.save_project(file_name=str(new_project))
-    aedt_app.close_project(name="new")
-    aedt_app = desktop.load_project(str(new_project))
-    assert aedt_app
+def test_load_project(add_app, desktop, test_tmp_dir) -> None:
+    _ = add_app(application=Icepak, close_projects=False)
+    cir = add_app(application=MaxwellCircuit, close_projects=False)
+
+    project_name = cir.project_name
+    project_file = cir.project_file
+    cir.save_project()
+    cir.close_project(name=project_name)
+
+    aedt_app = desktop.load_project(project_file)
+    apps = []
+    for design in aedt_app.desktop_class.design_list():
+        apps.append(get_pyaedt_app(design_name=design, project_name=project_name))
+
+    assert len(apps) == 2
+    aedt_app.close_project(name=aedt_app.project_name)
 
 
 def test_get_design_settings(add_app) -> None:
@@ -492,7 +518,12 @@ def test_get_design_settings(add_app) -> None:
     assert "AmbTemp" in design_settings_dict
     assert "AmbRadTemp" in design_settings_dict
     assert "GravityVec" in design_settings_dict
-    assert "GravityDir" in design_settings_dict
+    if DESKTOP_VERSION < "2027.1":
+        assert "GravityDir" in design_settings_dict
+    else:
+        assert "GravityVectorX" in design_settings_dict
+        assert "GravityVectorY" in design_settings_dict
+        assert "GravityVectorZ" in design_settings_dict
     ipk.close_project()
 
 

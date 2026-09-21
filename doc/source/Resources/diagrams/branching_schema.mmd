@@ -1,0 +1,19 @@
+flowchart TB
+    main["main<br/>Primary integration branch<br/>for non-breaking development"]
+    rel10["release/1.0<br/>Stable maintenance branch<br/>for 1.0.x patch releases"]
+    rel20["release/2.0<br/>Integration branch<br/>for breaking changes planned for 2.0"]
+
+    nb["feature/* or fix/*<br/>Non-breaking work branches from main"]
+    br["breaking/*<br/>Breaking work branches from release/2.0"]
+
+    nb -->|PR to main| main
+    br -->|PR to release/2.0| rel20
+
+    main -. maintenance line .-> rel10
+
+    main --> sync["Sync workflow:<br/>runs weekly and can also be triggered manually<br/>to check whether main can be merged into release/2.0"]
+    sync --> conflicts{"Merge conflict detected?"}
+    conflicts -->|No| auto_pr["Workflow automatically creates a PR<br/>from main to release/2.0"]
+    conflicts -->|Yes| manual_pr["Resolve conflicts manually<br/>and create the PR manually"]
+    auto_pr -->|Merge PR| rel20
+    manual_pr -->|Merge PR after resolution| rel20

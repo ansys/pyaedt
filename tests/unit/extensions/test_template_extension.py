@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,12 +22,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from types import SimpleNamespace
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
 from ansys.aedt.core.extensions.misc import MOON
 from ansys.aedt.core.extensions.misc import NO_ACTIVE_PROJECT
 from ansys.aedt.core.extensions.misc import SUN
+from ansys.aedt.core.extensions.templates import extension_error_handler
 from ansys.aedt.core.extensions.templates.template_get_started import EXTENSION_TITLE
 from ansys.aedt.core.extensions.templates.template_get_started import ExtensionData
 from ansys.aedt.core.extensions.templates.template_get_started import TemplateExtension
@@ -35,11 +37,33 @@ from ansys.aedt.core.extensions.templates.template_get_started import TemplateEx
 MOCK_PATH = "/mock/path/file.aedt"
 
 
+def test_main_inherits_stderr(monkeypatch):
+    """The script stderr must remain connected to the interactive console."""
+    run_calls = []
+
+    def mock_run(*args, **kwargs):
+        run_calls.append((args, kwargs))
+        return SimpleNamespace(returncode=0)
+
+    monkeypatch.setattr(extension_error_handler.subprocess, "run", mock_run)
+    monkeypatch.setattr(extension_error_handler.sys, "argv", ["handler", "--script", "extension.py"])
+
+    extension_error_handler.main()
+
+    assert run_calls == [
+        (
+            ([extension_error_handler.sys.executable, "extension.py"],),
+            {"env": extension_error_handler.os.environ.copy(), "text": True},
+        )
+    ]
+
+
 @patch("ansys.aedt.core.extensions.misc.active_sessions")
 @patch("ansys.aedt.core.extensions.misc.Desktop")
 def test_template_extension_default(mock_desktop, mock_active_sessions) -> None:
     """Test instantiation of the default extension."""
     mock_desktop_instance = MagicMock()
+    mock_desktop_instance.active_project_name = None
     mock_desktop_instance.active_project.return_value = None
     mock_desktop.return_value = mock_desktop_instance
     mock_active_sessions.return_value = {0: 0}
@@ -57,6 +81,7 @@ def test_template_extension_default(mock_desktop, mock_active_sessions) -> None:
 @patch("ansys.aedt.core.extensions.misc.Desktop")
 def test_template_extension_toggle_theme(mock_desktop, mock_active_sessions) -> None:
     """Test toggling the theme of the extension."""
+    mock_desktop.return_value = MagicMock(active_project_name=None)
     mock_active_sessions.return_value = {0: 0}
 
     extension = TemplateExtension()
@@ -79,6 +104,7 @@ def test_template_extension_with_modified_values(mock_desktop, mock_active_sessi
     """Test that the modified values of the UI are returned correctly."""
     EXPECTED_RESULT = ExtensionData(0.0, 0.0, 0.0, 1.0, MOCK_PATH)
     mock_askopenfilename.return_value = MOCK_PATH
+    mock_desktop.return_value = MagicMock(active_project_name=None)
     mock_active_sessions.return_value = {0: 0}
 
     extension = TemplateExtension()

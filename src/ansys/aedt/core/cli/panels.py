@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -28,14 +28,55 @@ import shutil
 
 try:
     import typer
-except ImportError:  # pragma: no cover
-    raise ImportError(
-        "typer is required for the CLI. Please install with 'pip install pyaedt[all]' or 'pip install typer'"
-    )
+except ImportError as e:  # pragma: no cover
+    from ansys.aedt.core.internal.checks import install_message
+
+    msg = install_message("typer", "all", level="module")
+    raise ImportError(msg) from e
 
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 
 panels_app = typer.Typer(help="Manage PyAEDT panels in AEDT", no_args_is_help=True)
+"""Value for panels app."""
+
+
+def _get_personal_lib_from_open_session() -> Path | None:
+    """Return the PersonalLib path from the first running gRPC AEDT session."""
+    from ansys.aedt.core.cli import common
+    from ansys.aedt.core.cli.aedt import _discover_aedt_sessions
+
+    for session in _discover_aedt_sessions():
+        port = session.port
+        if port is None:
+            continue
+
+        desktop = common.get_desktop(port=port)
+        return Path(desktop.personallib)
+
+    return None
+
+
+def _resolve_personal_lib_path(personal_lib: str | None) -> Path | None:
+    """Resolve PersonalLib from CLI input, a running AEDT session, or a manual prompt."""
+    if personal_lib:
+        return Path(personal_lib.strip()).expanduser()
+
+    personal_lib_path = _get_personal_lib_from_open_session()
+    if personal_lib_path is not None:
+        typer.secho(
+            f"Using PersonalLib from running AEDT session: {personal_lib_path}",
+            fg=typer.colors.CYAN,
+        )
+        return personal_lib_path.expanduser()
+
+    typer.secho(
+        "No opened AEDT session was found. Enter the PersonalLib folder manually.",
+        fg=typer.colors.YELLOW,
+    )
+    manual_path = typer.prompt("Enter path to PersonalLib folder", default="").strip()
+    if not manual_path:
+        return None
+    return Path(manual_path).expanduser()
 
 
 @panels_app.command("add")
@@ -43,33 +84,42 @@ def add_panels(
     personal_lib: str = typer.Option(
         None,
         "--personal-lib",
-        "-p",
         help="Path to AEDT PersonalLib folder",
-        prompt="Enter path to PersonalLib folder",
     ),
     skip_version_manager: bool = typer.Option(
         False,
         "--skip-version-manager",
         help="Skip installing the Version Manager tab",
     ),
+    skip_extension_manager: bool = typer.Option(
+        False,
+        "--skip-extension-manager",
+        help="Skip installing the Extension Manager tab",
+    ),
+    light: bool = typer.Option(
+        False,
+        "--minimal",
+        help="Install only the light PyAEDT panel set (Console, Run Script, and optional manager panels)",
+    ),
     reset: bool = typer.Option(
         False,
         "--reset",
-        "-r",
         help="Delete existing Toolkits directory before installing",
     ),
 ):
     """Add PyAEDT panels to AEDT installation.
 
-    TThis command installs PyAEDT tabs (Console, Jupyter, Run Script, Extension Manager,
-    and optionally Version Manager) into your AEDT installation.
+    This command installs PyAEDT tabs (Console, Jupyter, Run Script, optional Extension Manager,
+    and optional Version Manager) into your AEDT installation.
 
     Examples
     --------
         pyaedt panels add --personal-lib "C:\\Users\\username\\AppData\\Roaming\\Ansoft\\PersonalLib"
         pyaedt panels add -p "/home/username/Ansoft/PersonalLib"
+        pyaedt panels add --personal-lib "..." --minimal
         pyaedt panels add --personal-lib "..." --reset  # Delete Toolkits before installing
         pyaedt panels add  # Interactive mode: select from installed versions
+
     """
     try:
         installed = aedt_versions.installed_versions
@@ -83,25 +133,16 @@ def add_panels(
             typer.echo("\nPlease install AEDT before running this command.")
             raise typer.Exit(code=1)
 
+        personal_lib_path = _resolve_personal_lib_path(personal_lib)
+
         # Validate personal_lib path
-        if not personal_lib or not isinstance(personal_lib, str):
+        if personal_lib_path is None:
             typer.secho(
                 "✗ the 'personal_lib' path is invalid. Provide a valid path",
                 fg=typer.colors.RED,
                 bold=True,
             )
             raise typer.Exit(code=1)
-
-        personal_lib = personal_lib.strip()
-        if not personal_lib:
-            typer.secho(
-                "✗ The 'personal_lib' path is invalid. Provide a valid path.",
-                fg=typer.colors.RED,
-                bold=True,
-            )
-            raise typer.Exit(code=1)
-
-        personal_lib_path = Path(personal_lib)
 
         if not personal_lib_path.exists():
             typer.secho(
@@ -181,11 +222,16 @@ def add_panels(
         if skip_version_manager:
             typer.secho("Skipping Version Manager tab...", fg=typer.colors.YELLOW)
 
+        if skip_extension_manager:
+            typer.secho("Skipping Extension Manager tab...", fg=typer.colors.YELLOW)
+
         from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
 
         result = add_pyaedt_to_aedt(
             personal_lib=str(personal_lib_path),
             skip_version_manager=skip_version_manager,
+            skip_extension_manager=skip_extension_manager,
+            light=light,
         )
 
         if not result:
@@ -194,11 +240,15 @@ def add_panels(
 
         typer.secho("✓ PyAEDT panels installed successfully.", fg=typer.colors.GREEN, bold=True)
         typer.echo("\nInstalled panels:")
-        typer.secho("  • PyAEDT Utilities (Console, CLI, Jupyter)", fg=typer.colors.GREEN)
-        typer.secho("  • Run Script", fg=typer.colors.GREEN)
-        typer.secho("  • Extension Manager", fg=typer.colors.GREEN)
+        installed_panels = (
+            ["Console", "Run Script"] if light else ["PyAEDT Utilities (Console, CLI, Jupyter)", "Run Script"]
+        )
+        if not skip_extension_manager:
+            installed_panels.append("Extension Manager")
         if not skip_version_manager:
-            typer.secho("  • Version Manager", fg=typer.colors.GREEN)
+            installed_panels.append("Version Manager")
+        for panel_name in installed_panels:
+            typer.secho(f"  • {panel_name}", fg=typer.colors.GREEN)
         typer.secho(
             "\nRestart AEDT to see the new panels on the Automation tab.",
             fg=typer.colors.YELLOW,

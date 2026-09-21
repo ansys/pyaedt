@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -35,8 +35,8 @@ from ansys.aedt.core.extensions.installer.version_manager import VersionManager
 def disable_pyaedt_update_check(monkeypatch):
     """Prevent update check during tests."""
     monkeypatch.setattr(
-        "ansys.aedt.core.extensions.installer.version_manager.VersionManager.check_for_pyaedt_update_on_startup",
-        lambda self: None,
+        "ansys.aedt.core.extensions.installer.version_manager.check_for_pyaedt_update_on_startup",
+        lambda *args, **kwargs: None,
     )
     yield
 
@@ -265,7 +265,7 @@ def test_version_manager_clicked_refresh(add_app):
             vm = VersionManager(root, desktop_aedt)
 
             # Call clicked_refresh without restart
-            vm.clicked_refresh(need_restart=False)
+            vm._clicked_refresh(need_restart=False)
 
             # Verify string variables are set
             venv_info = vm.venv_information.get()

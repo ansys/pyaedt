@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -30,6 +30,7 @@ import shutil
 import pytest
 
 from ansys.aedt.core.generic.constants import Axis
+from ansys.aedt.core.generic.constants import IncidentWaveType
 from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.generic.file_utils import get_dxf_layers
 from ansys.aedt.core.hfss import Hfss
@@ -53,6 +54,7 @@ DIFF_PROJECT = "differential_pairs_231"
 
 COMPONENT_ARRAY = "Array_232"
 TRANSIENT_PROJECT = "Hfss_Transient"
+FRESNEL_PROJECT = "fresnel_test"
 
 
 @pytest.fixture
@@ -72,6 +74,13 @@ def diff_pairs_app(add_app_example):
 @pytest.fixture
 def component_array_app(add_app_example):
     app = add_app_example(project=COMPONENT_ARRAY, subfolder=TEST_SUBFOLDER)
+    yield app
+    app.close_project(app.project_name, save=False)
+
+
+@pytest.fixture
+def fresnel(add_app_example):
+    app = add_app_example(project=FRESNEL_PROJECT, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(app.project_name, save=False)
 
@@ -406,31 +415,38 @@ def test_create_single_point_sweep(aedt_app) -> None:
         renormalize=False,
         deembed=5,
     )
-    assert setup.update()
-    assert aedt_app.create_single_point_sweep(
+
+    s1 = aedt_app.create_single_point_sweep(
         setup="MySetup",
         unit="MHz",
         freq=1.2e3,
     )
+    assert setup.children[s1.name].properties["Start"] == "1200MHz"
+    assert setup.children[s1.name].properties["Stop"] == "1200MHz"
+    setup._children = {}
+
     setup = aedt_app.get_setup("MySetup")
-    assert setup.create_single_point_sweep(
+    s2 = setup.create_single_point_sweep(
         unit="GHz",
         freq=1.2,
         save_single_field=False,
     )
-    assert aedt_app.create_single_point_sweep(
+    assert setup.children[s2.name].properties["Start"] == "1.2GHz"
+    assert setup.children[s2.name].properties["Stop"] == "1.2GHz"
+
+    s3 = aedt_app.create_single_point_sweep(
         setup="MySetup",
         unit="GHz",
         freq=[1.1, 1.2, 1.3],
     )
-    assert aedt_app.create_single_point_sweep(
+    assert setup.children[s3.name].properties["Start"] == "1.1GHz"
+    assert setup.children[s3.name].properties["Stop"] == "1.3GHz"
+
+    s4 = aedt_app.create_single_point_sweep(
         setup="MySetup", unit="GHz", freq=[1.1e1, 1.2e1, 1.3e1], save_single_field=[True, False, True]
     )
-
-    with pytest.raises(AttributeError):
-        aedt_app.create_single_point_sweep(
-            setup="MySetup", unit="GHz", freq=[1, 2e2, 3.4], save_single_field=[True, False]
-        )
+    assert setup.children[s4.name].properties["Start"] == "11GHz"
+    assert setup.children[s4.name].properties["Stop"] == "13GHz"
 
 
 def test_delete_setup(aedt_app) -> None:
@@ -457,6 +473,7 @@ def test_sweep_add_subrange(aedt_app) -> None:
     setup = aedt_app.create_setup(name="MySetupForSweep")
     assert not setup.get_sweep()
     sweep = setup.add_sweep()
+    assert len(setup.sweeps) == 1
     sweep1 = setup.get_sweep(sweep.name)
     assert sweep1 == sweep
     sweep2 = setup.get_sweep()
@@ -549,15 +566,25 @@ def test_edit_sources_terminal(aedt_app) -> None:
     p2 = aedt_app.wave_port(inner2, outer2, create_port_sheet=True)
 
     assert aedt_app.edit_sources(
-        {f"{p1.name}": "10W", f"{p2.name}": ("20W", "0deg", True)},
+        {f"{p1.name}_T1": "10V", f"{p2.name}_T1": ("20V", "0deg")},
         include_port_post_processing=True,
         use_incident_voltage=True,
     )
 
     assert aedt_app.edit_sources(
-        {f"{p1.name}": "10V", f"{p2.name}": ("20V", "20deg", True)},
+        {f"{p1.name}_T1": "10V", f"{p2.name}_T1": ("20V", "20deg")},
         include_port_post_processing=True,
         max_available_power="40W",
+    )
+
+    assert aedt_app.edit_sources(
+        {f"{p1.name}_T1": ("20V", "20deg"), f"{p2.name}_T1": ("20W", "0deg", True)},
+        use_incident_voltage=False,
+    )
+
+    assert aedt_app.edit_sources(
+        {f"{p1.name}_T1": ("20V", "20deg", False), f"{p2.name}_T1": ("20W", "0deg", True, "30ohm", "5ohm")},
+        use_incident_voltage=False,
     )
 
 
@@ -580,6 +607,19 @@ def test_edit_sources_modal(aedt_app) -> None:
         include_port_post_processing=True,
         max_available_power="40W",
     )
+
+
+def test_edit_sources_plane_wave(aedt_app) -> None:
+    aedt_app.solution_type = "Modal"
+    sphere = aedt_app.modeler.create_sphere([0, 0, 0], 10)
+    sphere2 = aedt_app.modeler.create_sphere([10, 100, 0], 10)
+    assignment = [sphere, sphere2.faces[0].id]
+    p = aedt_app.plane_wave(assignment=assignment, wave_type="Evanescent")
+
+    assert aedt_app.edit_sources({f"{p.name}": "2V_per_meter"}, incident_wave=IncidentWaveType.Incident)
+
+    with pytest.raises(AttributeError):
+        aedt_app.edit_sources({f"{p.name}": "2V_per_meter"}, incident_wave="invented")
 
 
 def test_create_circuit_port_from_edges(aedt_app):
@@ -1223,17 +1263,28 @@ def test_create_infinite_sphere(aedt_app) -> None:
         polarization_angle=30,
     )
     assert bound
-    assert bound.azimuth_start == "1deg"
-    assert bound.azimuth_stop == "91deg"
-    assert bound.azimuth_step == "45deg"
-    assert bound.elevation_start == "2deg"
-    assert bound.elevation_stop == "92deg"
-    assert bound.elevation_step == "10deg"
+    assert bound.azimuth_start == "2deg"
+    assert bound.properties["Start Azimuth"] == "2deg"
+    assert bound.azimuth_stop == "92deg"
+    assert bound.properties["Stop Azimuth"] == "92deg"
+    assert bound.azimuth_step == "10deg"
+    assert bound.properties["Azimuth Step"] == "10deg"
+    assert bound.elevation_start == "1deg"
+    assert bound.properties["Start Elevation"] == "1deg"
+    assert bound.elevation_stop == "91deg"
+    assert bound.properties["Stop Elevation"] == "91deg"
+    assert bound.elevation_step == "45deg"
+    assert bound.properties["Elevation Step"] == "45deg"
     assert bound.slant_angle == "30deg"
+    assert bound.properties["Slant Angle"] == "30deg"
     assert bound.polarization == "Slant"
+    assert bound.properties["Polarization"] == "Slant"
+
     bound.azimuth_start = 20
     assert bound.azimuth_start == "20deg"
+    assert bound.properties["Start Azimuth"] == "20deg"
     assert bound.delete()
+
     bound = aedt_app.insert_infinite_sphere(
         definition="Az Over El",
         phi_start=1,
@@ -1245,14 +1296,16 @@ def test_create_infinite_sphere(aedt_app) -> None:
         use_slant_polarization=True,
         polarization_angle=30,
     )
-    assert bound.azimuth_start == "2deg"
+    assert bound.azimuth_start == "1deg"
+    assert bound.properties["Start Azimuth"] == "1deg"
     assert bound.delete()
+
     # Test with default "Theta-Phi" definition
     bound = aedt_app.insert_infinite_sphere(
         definition="Theta-Phi",
         phi_start=0,
         phi_stop=180,
-        phi_step=10,
+        phi_step=7,
         theta_start=-180,
         theta_stop=180,
         theta_step=10,
@@ -1260,13 +1313,20 @@ def test_create_infinite_sphere(aedt_app) -> None:
         polarization_angle=0,
     )
     assert bound
-    assert bound.theta_start == "0deg"
+    assert bound.theta_start == "-180deg"
+    assert bound.properties["Start Theta"] == "-180deg"
     assert bound.theta_stop == "180deg"
+    assert bound.properties["Stop Theta"] == "180deg"
     assert bound.theta_step == "10deg"
-    assert bound.phi_start == "-180deg"
+    assert bound.properties["Theta step"] == "10deg"
+    assert bound.phi_start == "0deg"
+    assert bound.properties["Start Phi"] == "0deg"
     assert bound.phi_stop == "180deg"
-    assert bound.phi_step == "10deg"
+    assert bound.properties["Stop Phi"] == "180deg"
+    assert bound.phi_step == "7deg"
+    assert bound.properties["Phi Step"] == "7deg"
     assert bound.polarization == "Linear"
+    assert bound.properties["Polarization"] == "Linear"
 
     air = aedt_app.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", material="vacuum")
     aedt_app.assign_radiation_boundary_to_objects(air)
@@ -2003,13 +2063,21 @@ def test_import_gds_3d(aedt_app, test_tmp_dir) -> None:
     assert aedt_app.import_gds_3d(str(gds_file), {7: (100, 10), 9: (110, 5)})
     assert len(aedt_app.modeler.solid_names) == 3
     assert len(aedt_app.modeler.sheet_names) == 0
-    assert aedt_app.import_gds_3d(str(gds_file), {7: (0, 0), 9: (0, 0)})
+    assert aedt_app.import_gds_3d(str(gds_file), {7: [(0, 0), "hola"], 9: (0, 0)})
+    assert "hola" in list(aedt_app.modeler.objects.values())[3].name
     assert len(aedt_app.modeler.sheet_names) == 3
     assert aedt_app.import_gds_3d(str(gds_file), {7: (100e-3, 10e-3), 9: (110e-3, 5e-3)}, "mm", 0)
     assert len(aedt_app.modeler.solid_names) == 6
-    assert not aedt_app.import_gds_3d(str(gds_file), {})
-    gds_file = TESTS_GENERAL_PATH / "example_models" / "cad" / "GDS" / "gds1not.gds"
-    assert not aedt_app.import_gds_3d(str(gds_file), {7: (100, 10), 9: (110, 5)})
+
+    with pytest.raises(ValueError):
+        aedt_app.import_gds_3d(str(gds_file), {})
+
+    gds_file2 = TESTS_GENERAL_PATH / "example_models" / "cad" / "GDS" / "gds1not.gds"
+    with pytest.raises(FileNotFoundError):
+        aedt_app.import_gds_3d(str(gds_file2), {7: (100, 10), 9: (110, 5)})
+
+    with pytest.raises(TypeError):
+        aedt_app.import_gds_3d(str(gds_file), {7: [(0, 0)]})
 
 
 def test_plane_wave(aedt_app) -> None:
@@ -2417,3 +2485,102 @@ def test_convert_far_field(test_tmp_dir) -> None:
         convert_farfield_data("non_existing_file.ffs")
     with pytest.raises(FileNotFoundError):
         convert_farfield_data("non_existing_file.ffe")
+
+
+def test_get_fresnel_floquet_ports(fresnel):
+    fresnel.design_name = "two_ports"
+    ports = fresnel.get_fresnel_floquet_ports()
+    assert ports[0] == "Ptop"
+    assert len(ports) == 2
+
+    fresnel.design_name = "one_port"
+    ports = fresnel.get_fresnel_floquet_ports()
+    assert len(ports) == 1
+
+    fresnel.design_name = "three_ports"
+    with pytest.raises(AEDTRuntimeError):
+        fresnel.get_fresnel_floquet_ports()
+
+    fresnel.design_name = "wrong_modes"
+    with pytest.raises(AEDTRuntimeError):
+        fresnel.get_fresnel_floquet_ports()
+
+
+def test_get_fresnel_coefficients(fresnel):
+    fresnel.design_name = "two_ports"
+    name = f"fresnel_coefficients_{fresnel.design_name}.rttbl"
+    file_name = Path(fresnel.toolkit_directory) / name
+
+    # Anisotropic
+    output1_anisotropic = fresnel.get_fresnel_coefficients(
+        setup_sweep="Anisotropic : LastAdaptive", theta_name="scan_T", phi_name="scan_P"
+    )
+    assert output1_anisotropic.is_file()
+
+    # Multi frequency
+    output1 = fresnel.get_fresnel_coefficients(
+        setup_sweep="Setup2 : Sweep", theta_name="scan_T", phi_name="scan_P", is_isotropic=True
+    )
+    assert output1.is_file()
+
+    # Duplicated file
+    output2 = fresnel.get_fresnel_coefficients(
+        setup_sweep="Setup2 : Sweep", theta_name="scan_T", phi_name="scan_P", output_file=file_name, is_isotropic=True
+    )
+    assert output2 != output1
+
+    # Reflection and Single Freq
+    fresnel.design_name = "one_port"
+    output3 = fresnel.get_fresnel_coefficients(
+        setup_sweep="Setup : Sweep", theta_name="scan_T", phi_name="scan_P", is_isotropic=True
+    )
+    assert output3.is_file()
+
+    fresnel.design_name = "one_port"
+    output3_anisotropic = fresnel.get_fresnel_coefficients(
+        setup_sweep="Anisotropic : LastAdaptive", theta_name="scan_T", phi_name="scan_P"
+    )
+    assert output3_anisotropic.is_file()
+
+    # No parametric sweep
+    fresnel.design_name = "one_port"
+    with pytest.raises(AEDTRuntimeError):
+        fresnel.get_fresnel_coefficients(setup_sweep="no_param : LastAdaptive", theta_name="scan_T", phi_name="scan_P")
+
+    # No correct floquet ports
+    fresnel.design_name = "three_ports"
+    with pytest.raises(AEDTRuntimeError):
+        fresnel.get_fresnel_coefficients(setup_sweep="Setup2 : Sweep", theta_name="scan_T", phi_name="scan_P")
+
+    # Isotropic with phi sweep
+    fresnel.design_name = "one_port_theta_phi_sweep"
+    output4_isotropic = fresnel.get_fresnel_coefficients(
+        setup_sweep="Setup : LastAdaptive", theta_name="theta_scan", phi_name="phi_scan", is_isotropic=True
+    )
+    assert output4_isotropic.is_file()
+
+    # Isotropic with phi not parametrized
+    fresnel.design_name = "one_port_phi_noparametrized"
+    output4_isotropic = fresnel.get_fresnel_coefficients(
+        setup_sweep="Setup : LastAdaptive", theta_name="scan_T", phi_name="0deg", is_isotropic=True
+    )
+    assert output4_isotropic.is_file()
+
+
+def test_create_qfactor_report(aedt_app, test_tmp_dir) -> None:
+    aedt_app.solution_type = "Eigenmode"
+
+    aedt_app["x1"] = "10mm"
+    aedt_app["x2"] = "20mm"
+
+    _ = aedt_app.modeler.create_box([0, 0, 0], ["x1", "x2", 20], material="copper")
+
+    setup = aedt_app.create_setup()
+    setup.properties["Modes"] = "3"
+
+    assert aedt_app.create_q_factor_report()
+    assert aedt_app.create_q_factor_report(modes=[1, 3], primary_sweep="x2")
+
+    aedt_app.solution_type = "Modal"
+    with pytest.raises(AEDTRuntimeError):
+        aedt_app.create_q_factor_report(modes=[1, 3])

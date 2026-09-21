@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -57,6 +57,8 @@ TRANSIENT = "Transient_StrandedWindings"
 ERL_PROJECT = "erl_unit_test"
 COM_PROJECT = "com_unit_test_23r2"
 COMPONENT = "Circ_Patch_5GHz_232.a3dcomp"
+SMALL_NUMBER = 1e-10  # Used for checking equivalence.
+MAXWELL_VARIATIONS = "maxwell_variations"
 
 
 @pytest.fixture
@@ -138,8 +140,8 @@ def m3dtransient(add_app_example):
 
 
 @pytest.fixture
-def m3d_app(add_app):
-    app = add_app(application=Maxwell3d)
+def m3d_app(add_app_example):
+    app = add_app_example(application=Maxwell3d, project=MAXWELL_VARIATIONS, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(save=False)
 
@@ -303,7 +305,10 @@ def test_hfss_export_results(hfss_app, test_tmp_dir) -> None:
     assert len(exported_files) > 0
     fld_file1 = test_tmp_dir / "test_fld_hfss1.fld"
     assert hfss_app.post.export_field_file(
-        quantity="Mag_E", output_file=fld_file1, assignment="Box1", intrinsics=solve_freq, phase="5deg"
+        quantity="Mag_E",
+        output_file=fld_file1,
+        assignment="Box1",
+        intrinsics={"frequency": solve_freq, "phase": "5deg"},
     )
     assert fld_file1.exists()
     fld_file2 = test_tmp_dir / "test_fld_hfss2.fld"
@@ -324,8 +329,7 @@ def test_hfss_export_results(hfss_app, test_tmp_dir) -> None:
         quantity="Mag_E",
         output_file=fld_file2,
         assignment="Box1",
-        intrinsics={"frequency": solve_freq},
-        phase="30deg",
+        intrinsics={"frequency": solve_freq, "phase": "30deg"},
     )
     assert fld_file2.exists()
     fld_file2 = test_tmp_dir / "test_fld_hfss5.fld"
@@ -646,12 +650,13 @@ def test_compute_erl(circuit_erl) -> None:
         fixture_delay=400e-12,
         input_amplitude=1.0,
         ber=1e-4,
+        compute_retries=10,
     )
     assert erl_data2
     circuit_erl.set_active_design("4_ports")
     touchstone_file2 = circuit_erl.export_touchstone()
     spisim.touchstone_file = touchstone_file2
-    erl_data_3 = spisim.compute_erl(specify_through_ports=[1, 2, 3, 4])
+    erl_data_3 = spisim.compute_erl(specify_through_ports=[1, 2, 3, 4], compute_retries=10)
     assert erl_data_3
 
 
@@ -666,6 +671,75 @@ def test_compute_com_exported_touchstone(circuit_com) -> None:
         out_folder=report_dir,
     )
     assert com
+
+
+def test_compute_icn(test_tmp_dir) -> None:
+    icn_example_file_folder = Path(TESTS_SOLVERS_PATH) / "example_models" / TEST_SUBFOLDER / "com_unit_test_sparam"
+
+    fext_s4p = Path(
+        shutil.copy2(
+            icn_example_file_folder / "FCI_CC_Long_Link_Pair_2_to_Pair_9_FEXT.s4p", test_tmp_dir / "fext_s4p.s4p"
+        )
+    )
+    next_s4p = Path(
+        shutil.copy2(
+            icn_example_file_folder / "FCI_CC_Long_Link_Pair_11_to_Pair_9_NEXT.s4p", test_tmp_dir / "next_s4p.s4p"
+        )
+    )
+
+    report_dir = Path(test_tmp_dir) / "custom"
+    report_dir.mkdir(parents=True, exist_ok=True)
+
+    spisim = SpiSim()
+    spisim.working_directory = test_tmp_dir
+
+    icn = spisim.compute_icn(
+        port_order="EvenOdd",
+        fext_s4p=str(fext_s4p),
+        next_s4p=str(next_s4p),
+        bandwidth="10GHz",
+        compute_retries=10,
+    )
+    assert abs(icn - 0.000770524135501) < SMALL_NUMBER
+
+    icn = spisim.compute_icn(
+        port_order="EvenOdd",
+        fext_s4p=str(fext_s4p),
+        next_s4p=str(next_s4p),
+        bandwidth="10g",
+        compute_retries=10,
+        use_pcie_icn=1,
+    )
+    assert isinstance(icn, list)
+    icn = spisim.compute_icn(
+        port_order="EvenOdd",
+        fext_s4p=str(fext_s4p),
+        next_s4p=str(next_s4p),
+        bandwidth=10e9,
+        compute_retries=10,
+        use_pcie_icn="PCIE_CCICN",
+    )
+    assert isinstance(icn, list)
+
+    if DESKTOP_VERSION <= "2026.1":
+        with pytest.raises(AEDTRuntimeError):
+            spisim.compute_icn(
+                port_order="EvenOdd",
+                fext_s4p=str(fext_s4p),
+                next_s4p=str(next_s4p),
+                bandwidth=10e9,
+                compute_retries=10,
+                use_pcie_icn=2,
+            )
+        with pytest.raises(AEDTRuntimeError):
+            spisim.compute_icn(
+                port_order="EvenOdd",
+                fext_s4p=str(fext_s4p),
+                next_s4p=str(next_s4p),
+                bandwidth=10e9,
+                compute_retries=10,
+                use_pcie_icn="CUSTOMER_CCICN",
+            )
 
 
 def test_compute_com(test_tmp_dir) -> None:
@@ -768,23 +842,7 @@ def test_custom_hpc_from_file(icepak_solved) -> None:
 
 
 def test_apply_solved_variations(m3d_app) -> None:
-    m3d_app["a"] = "10mm"
-    m3d_app["b"] = "20mm"
-    m3d_app["$c"] = "30mm"
-    box = m3d_app.modeler.create_box([0, 0, 0], ["a", "b", "$c"], name="Box", material="copper")
-    m3d_app.modeler.create_region([100, 100, 0, 0, 100, 100])
-
-    m3d_app.assign_current(box.bottom_face_y, "1A")
-    m3d_app.assign_current(box.top_face_y, "1A", swap_direction=True)
-
-    setup = m3d_app.create_setup()
-    param = m3d_app.parametrics.add("a", 5, 10, 2, "LinearCount")
-    param.add_variation("b", 10, variation_type="SingleValue")
-    param.add_variation("$c", 30, variation_type="SingleValue")
-    param.props["ProdOptiSetupDataV2"]["SaveFields"] = True
-    param.analyze()
-
-    variations = m3d_app.available_variations.variations(f"{setup.name} : LastAdaptive", True)
+    variations = m3d_app.available_variations.variations(m3d_app.nominal_adaptive, True)
 
     assert m3d_app.apply_solved_variation(variations[0])
     assert m3d_app["a"] == "5mm"
@@ -802,6 +860,7 @@ def test_change_property(m3d_app) -> None:
         property_object="LocalVariables",
         property_names=["a", "b"],
         property_values=["15mm", "25mm"],
+        property_types=["Value", "Value"],
     )
 
     assert m3d_app["a"] == "15mm"

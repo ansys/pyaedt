@@ -10,23 +10,33 @@ You must initialize AEDT to get access to all PyAEDT modules and methods.
 
 Available PyAEDT apps are:
 
-.. autosummary::
-   :toctree: _autosummary
 
-   ansys.aedt.core.desktop.Desktop
-   ansys.aedt.core.hfss.Hfss
-   ansys.aedt.core.q3d.Q3d
-   ansys.aedt.core.q3d.Q2d
-   ansys.aedt.core.maxwell.Maxwell2d
-   ansys.aedt.core.maxwell.Maxwell3d
-   ansys.aedt.core.icepak.Icepak
-   ansys.aedt.core.hfss3dlayout.Hfss3dLayout
-   ansys.aedt.core.mechanical.Mechanical
-   ansys.aedt.core.rmxprt.Rmxprt
-   ansys.aedt.core.circuit.Circuit
-   ansys.aedt.core.maxwellcircuit.MaxwellCircuit
-   ansys.aedt.core.emit.Emit
-   ansys.aedt.core.twinbuilder.TwinBuilder
+.. autosummary::
+     :toctree: _autosummary
+
+     ansys.aedt.core.desktop.Desktop
+     ansys.aedt.core.hfss.Hfss
+     ansys.aedt.core.q3d.Q3d
+     ansys.aedt.core.q3d.Q2d
+     ansys.aedt.core.maxwell.Maxwell2d
+     ansys.aedt.core.maxwell.Maxwell3d
+     ansys.aedt.core.icepak.Icepak
+     ansys.aedt.core.hfss3dlayout.Hfss3dLayout
+     ansys.aedt.core.mechanical.Mechanical
+     ansys.aedt.core.rmxprt.Rmxprt
+     ansys.aedt.core.circuit.Circuit
+     ansys.aedt.core.maxwellcircuit.MaxwellCircuit
+     ansys.aedt.core.twinbuilder.TwinBuilder
+
+
+See also:
+
+.. toctree::
+    :maxdepth: 1
+
+    EMIT
+    FilterSolutions
+
 
 All other classes and methods are inherited into the app class.
 AEDT, which is also referred to as the desktop app, is implicitly launched in any PyAEDT app.
@@ -40,7 +50,7 @@ Example with ``Desktop`` class explicit initialization:
     from ansys.aedt.core import launch_desktop, Circuit
 
     d = launch_desktop(
-        version="2025.2",
+        version="2026.1",
         non_graphical=False,
         new_desktop=True,
         close_on_exit=True,
@@ -59,7 +69,7 @@ Example with ``Desktop`` class implicit initialization:
     from ansys.aedt.core import Circuit
 
     circuit = Circuit(
-        version="2025.2",
+        version="2026.1",
         non_graphical=False,
         new_desktop=True,
         close_on_exit=True,
@@ -70,5 +80,3 @@ Example with ``Desktop`` class implicit initialization:
     # Any error here will be caught by Desktop.
     # ...
     circuit.release_desktop()
-
-

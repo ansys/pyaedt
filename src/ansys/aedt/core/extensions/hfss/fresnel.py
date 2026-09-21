@@ -1,0 +1,1213 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+import tkinter
+from tkinter import ttk
+from typing import Any
+from typing import Sequence
+from typing import cast
+
+import numpy as np
+
+from ansys.aedt.core import settings
+from ansys.aedt.core.extensions.misc import ExtensionCommon
+from ansys.aedt.core.extensions.misc import ExtensionHFSSCommon
+from ansys.aedt.core.extensions.misc import get_aedt_version
+from ansys.aedt.core.extensions.misc import get_port
+from ansys.aedt.core.extensions.misc import get_process_id
+from ansys.aedt.core.extensions.misc import is_student
+from ansys.aedt.core.generic.numbers_utils import Quantity
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
+
+# Do not release Desktop to avoid closing the extension and opening it again
+settings.release_on_exception = False
+
+PORT = get_port()
+"""Port used by the extension."""
+VERSION = get_aedt_version()
+"""AEDT version used by the extension."""
+AEDT_PROCESS_ID = get_process_id()
+"""AEDT process identifier."""
+IS_STUDENT = is_student()
+"""Flag indicating whether the student version is used."""
+
+EXTENSION_TITLE = "Fresnel Coefficients"
+"""Title displayed for the extension."""
+
+
+class FresnelExtension(ExtensionHFSSCommon):
+    """Extension to generate Fresnel coefficients in AEDT.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss.fresnel import FresnelExtension
+    >>> extension = FresnelExtension(withdraw=True)
+
+    """
+
+    def __init__(self, withdraw: bool = False):
+        # Initialize the common extension class with the title and theme color
+        super().__init__(
+            EXTENSION_TITLE,
+            withdraw=withdraw,
+            add_custom_content=False,
+            toggle_row=4,
+            toggle_column=0,
+        )
+
+        # Attributes
+        self.setups = self._app().design_setups
+        self.setup_sweep_names = []
+
+        if not self.setups:
+            self.setups = {"No Setup": None}
+            self.setup_sweep_names = ["No Setup : No Sweep"]
+            self.setup_names = ["No Setup"]
+        else:
+            self.setup_names = list(self.setups.keys())
+            for setup_name, setup in self.setups.items():
+                self.setup_sweep_names.append(f"{setup_name} : LastAdaptive")
+                if setup.children:  # pragma: no cover
+                    sweeps = list(setup.children.keys())
+                    for sweep in sweeps:
+                        self.setup_sweep_names.append(f"{setup_name} : {sweep}")
+
+        self.active_setup: Any | None = None
+        self.sweep: Any | None = None
+        self.active_setup_sweep: str | None = None
+        self.floquet_ports: list[Any] | None = None
+        self.active_parametric: Any | None = None
+        self.start_frequency: float | None = None
+        self.stop_frequency: float | None = None
+        self.step_frequency: float | None = None
+        self.frequency_units: str | None = None
+        self.fresnel_type: tkinter.StringVar | None = None
+
+        self.elevation_resolution_slider_values = [15.0, 10.0, 5.0]
+        self.azimuth_resolution_slider_values = [22.5, 15.0, 7.5]
+
+        self.elevation_resolution_values = [
+            1.0,
+            1.25,
+            1.5,
+            2.0,
+            2.5,
+            3.0,
+            3.75,
+            5.0,
+            6.0,
+            7.5,
+            9.0,
+            10.0,
+            11.25,
+            15.0,
+            18.0,
+            22.5,
+        ]
+        self.azimuth_resolution_values = self.elevation_resolution_values
+
+        aedt_ver_sp = self.desktop.aedt_version
+        if aedt_ver_sp < "2027.1.0":
+            self.rttbl_version = "1.0"
+        else:
+            self.rttbl_version = "2.0"
+
+        # Trigger manually since add_extension_content requires loading expression files first
+        self.add_extension_content()
+
+    def _app(self) -> Any:
+        return cast(Any, self.aedt_application)
+
+    def _label(self, key: str) -> ttk.Label:
+        return cast(ttk.Label, self._widgets[key])
+
+    def _button(self, key: str) -> ttk.Button:
+        return cast(ttk.Button, self._widgets[key])
+
+    def _combo(self, key: str) -> ttk.Combobox:
+        return cast(ttk.Combobox, self._widgets[key])
+
+    def _text(self, key: str) -> tkinter.Text:
+        return cast(tkinter.Text, self._widgets[key])
+
+    def _bool_var(self, key: str) -> tkinter.BooleanVar:
+        return cast(tkinter.BooleanVar, self._widgets[key])
+
+    def _double_var(self, key: str) -> tkinter.DoubleVar:
+        return cast(tkinter.DoubleVar, self._widgets[key])
+
+    def _spinbox(self, key: str) -> ttk.Spinbox:
+        return cast(ttk.Spinbox, self._widgets[key])
+
+    def _fresnel_type(self) -> tkinter.StringVar:
+        return cast(tkinter.StringVar, self.fresnel_type)
+
+    def add_extension_content(self) -> None:
+        """Add custom content to the extension UI.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.hfss.fresnel import FresnelExtension
+        >>> extension = FresnelExtension(withdraw=True)
+        >>> extension.add_extension_content()
+
+        """
+        self.fresnel_type = tkinter.StringVar(value="isotropic")
+        # Layout
+        self.root.columnconfigure(0, weight=1)
+
+        fresnel_frame = ttk.LabelFrame(self.root, text="Fresnel Coefficients Mode", style="PyAEDT.TLabelframe")
+        fresnel_frame.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
+
+        state = "normal"
+        if (self.desktop.aedt_version_id or "") < "2027.1":
+            # Anisotropic not available before 2027R1
+            state = "disabled"
+
+        # Anisotropic and isotropic workflows
+        isotropic_button = ttk.Radiobutton(
+            fresnel_frame,
+            text="Isotropic - scan over elevation only",
+            value="isotropic",
+            style="PyAEDT.TRadiobutton",
+            variable=self.fresnel_type,
+            command=self._on_fresnel_type_changed,
+            state=state,
+        )
+        isotropic_button.grid(row=0, column=0, sticky="w")
+        self._widgets["isotropic_button"] = isotropic_button
+
+        anisotropic_button = ttk.Radiobutton(
+            fresnel_frame,
+            text="Anisotropic - scan over elevation and azimuth",
+            value="anisotropic",
+            style="PyAEDT.TRadiobutton",
+            variable=self.fresnel_type,
+            command=self._on_fresnel_type_changed,
+            state=state,
+        )
+        anisotropic_button.grid(row=1, column=0, sticky="w")
+        self._widgets["anisotropic_button"] = anisotropic_button
+
+        # Extraction, advanced and automated workflows
+        tabs = ttk.Notebook(self.root, style="PyAEDT.TNotebook")
+        self._widgets["tabs"] = tabs
+
+        self._widgets["tabs"].grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
+
+        self._widgets["extraction_tab"] = ttk.Frame(self._widgets["tabs"], style="PyAEDT.TFrame")
+        self._widgets["advanced_tab"] = ttk.Frame(self._widgets["tabs"], style="PyAEDT.TFrame")
+        self._widgets["settings_tab"] = ttk.Frame(self._widgets["tabs"], style="PyAEDT.TFrame")
+
+        self._widgets["tabs"].add(self._widgets["extraction_tab"], text="Extraction")
+
+        self._widgets["tabs"].add(self._widgets["advanced_tab"], text="Advanced")
+        self._widgets["tabs"].add(self._widgets["settings_tab"], text="Simulation Settings")
+
+        # Select the "Advanced Workflow" tab by default
+        self._widgets["tabs"].select(self._widgets["extraction_tab"])
+
+        # Angle resolution
+        self._widgets["elevation_resolution"] = tkinter.DoubleVar(value=7.5)
+        self._widgets["azimuth_resolution"] = tkinter.DoubleVar(value=10.0)
+        self._widgets["theta_scan_max"] = tkinter.DoubleVar(value=15.0)
+
+        self._build_advanced_tab()
+        self._build_extraction_tab()
+        self._build_settings_tab()
+
+    def _on_fresnel_type_changed(self):
+        selected = self._fresnel_type().get()
+        if selected == "isotropic":
+            cast(Any, self._widgets["azimuth_slider"]).grid_remove()
+            self._spinbox("azimuth_spin").grid_remove()
+            self._label("azimuth_label").grid_remove()
+        elif selected == "anisotropic":  # pragma: no cover
+            cast(Any, self._widgets["azimuth_slider"]).grid()
+            self._spinbox("azimuth_spin").grid()
+            self._label("azimuth_label").grid()
+
+    def _build_advanced_tab(self):
+        # Setup
+        label = ttk.Label(self._widgets["advanced_tab"], text="Simulation setup", style="PyAEDT.TLabel")
+        label.grid(row=0, column=0, padx=15, pady=10)
+
+        self._widgets["setup_combo"] = ttk.Combobox(
+            self._widgets["advanced_tab"], width=30, style="PyAEDT.TCombobox", name="simulation_setup", state="readonly"
+        )
+        self._widgets["setup_combo"].grid(row=0, column=1, padx=15, pady=10)
+
+        self._widgets["setup_combo"]["values"] = self.setup_names
+        self._widgets["setup_combo"].current(0)
+        self.active_setup = self.setups[self.setup_names[0]]
+
+        # Sweep
+        self._widgets["frequency_sweep_frame"] = ttk.LabelFrame(
+            self._widgets["advanced_tab"], text="Frequency sweep", padding=10, style="PyAEDT.TLabelframe"
+        )
+        self._widgets["frequency_sweep_frame"].grid(row=1, column=0, padx=10, pady=10, columnspan=2)
+
+        ttk.Label(self._widgets["frequency_sweep_frame"], text="Start", style="PyAEDT.TLabel").grid(
+            row=0, column=1, padx=10
+        )
+        ttk.Label(self._widgets["frequency_sweep_frame"], text="Stop", style="PyAEDT.TLabel").grid(
+            row=0, column=2, padx=10
+        )
+        ttk.Label(self._widgets["frequency_sweep_frame"], text="Step", style="PyAEDT.TLabel").grid(
+            row=0, column=3, padx=10
+        )
+        ttk.Label(self._widgets["frequency_sweep_frame"], text="Frequency Units", style="PyAEDT.TLabel").grid(
+            row=0, column=4, padx=10
+        )
+
+        initial_freq = "1.0"
+        if hasattr(self.active_setup, "properties") and "Solution Freq" in self.active_setup.properties:
+            freq_mesh = Quantity(self.active_setup.properties["Solution Freq"])
+            initial_freq = str(freq_mesh.value)
+
+        self._widgets["start_frequency"] = tkinter.Text(self._widgets["frequency_sweep_frame"], width=10, height=1)
+        self._widgets["start_frequency"].insert(tkinter.END, initial_freq)
+        self._widgets["start_frequency"].grid(row=1, column=1, padx=10)
+        self._widgets["start_frequency"].configure(
+            background=self.theme.light["label_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
+        )
+
+        self._widgets["stop_frequency"] = tkinter.Text(self._widgets["frequency_sweep_frame"], width=10, height=1)
+        self._widgets["stop_frequency"].insert(tkinter.END, initial_freq)
+        self._widgets["stop_frequency"].grid(row=1, column=2, padx=10)
+        self._widgets["stop_frequency"].configure(
+            background=self.theme.light["label_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
+        )
+
+        self._widgets["step_frequency"] = tkinter.Text(self._widgets["frequency_sweep_frame"], width=10, height=1)
+        self._widgets["step_frequency"].insert(tkinter.END, "0.1")
+        self._widgets["step_frequency"].grid(row=1, column=3, padx=10)
+        self._widgets["step_frequency"].configure(
+            background=self.theme.light["label_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
+        )
+
+        self._widgets["frequency_units_combo"] = ttk.Combobox(
+            self._widgets["frequency_sweep_frame"], width=15, style="PyAEDT.TCombobox", state="readonly"
+        )
+        self._widgets["frequency_units_combo"].grid(row=1, column=4, padx=10)
+        self._widgets["frequency_units_combo"]["values"] = ["GHz", "MHz", "kHz", "Hz"]
+        self._widgets["frequency_units_combo"].current(0)
+
+        # Angular resolution
+        self._widgets["angular_resolution_frame"] = ttk.LabelFrame(
+            self._widgets["advanced_tab"], text="Angular resolution", padding=10, style="PyAEDT.TLabelframe"
+        )
+        self._widgets["angular_resolution_frame"].grid(row=2, column=0, padx=15, pady=10, columnspan=2)
+
+        # Slider positions
+        for i, val in enumerate(["Coarse", "Regular", "Fine"]):
+            ttk.Label(self._widgets["angular_resolution_frame"], text=val, style="PyAEDT.TLabel").grid(
+                row=0, column=1 + i, padx=15
+            )
+
+        # Elevation slider
+        ttk.Label(self._widgets["angular_resolution_frame"], text="Theta:", style="PyAEDT.TLabel").grid(
+            row=1, column=0, padx=15, pady=10
+        )
+
+        self._widgets["elevation_slider"] = ttk.Scale(
+            self._widgets["angular_resolution_frame"],
+            from_=0,
+            to=2,
+            orient="horizontal",
+            command=self._elevation_slider_changed,
+            length=200,
+        )
+        self._widgets["elevation_slider"].grid(row=1, column=1, columnspan=3)
+
+        self._widgets["elevation_spin"] = ttk.Spinbox(
+            self._widgets["angular_resolution_frame"],
+            values=[str(v) for v in self.elevation_resolution_values],
+            textvariable=self._double_var("elevation_resolution"),
+            width=6,
+            command=self._elevation_spin_changed,
+            state="readonly",
+            font=self.theme.default_font,
+            style="PyAEDT.TSpinbox",
+            name="elevation_spin",
+        )
+        self._widgets["elevation_spin"].grid(row=1, column=4, padx=15)
+        self._widgets["elevation_slider"].set(1)
+
+        # Azimuth slider
+        self._widgets["azimuth_label"] = ttk.Label(
+            self._widgets["angular_resolution_frame"], text="Phi:", style="PyAEDT.TLabel"
+        )
+        self._widgets["azimuth_label"].grid(row=2, column=0, padx=15, pady=10)
+
+        self._widgets["azimuth_slider"] = ttk.Scale(
+            self._widgets["angular_resolution_frame"],
+            from_=0,
+            to=2,
+            orient="horizontal",
+            command=self._azimuth_slider_changed,
+            length=200,
+        )
+        self._widgets["azimuth_slider"].grid(row=2, column=1, columnspan=3)
+
+        self._widgets["azimuth_spin"] = ttk.Spinbox(
+            self._widgets["angular_resolution_frame"],
+            values=[str(v) for v in self.azimuth_resolution_values],
+            textvariable=self._double_var("azimuth_resolution"),
+            width=6,
+            state="readonly",
+            font=self.theme.default_font,
+            style="PyAEDT.TSpinbox",
+        )
+        self._widgets["azimuth_spin"].grid(row=2, column=4, padx=15)
+        self._widgets["azimuth_slider"].set(1)
+
+        # Disabled by default in Isotropic mode
+        self._widgets["azimuth_slider"].grid_remove()
+        self._widgets["azimuth_spin"].grid_remove()
+        self._widgets["azimuth_label"].grid_remove()
+
+        # Separator
+        separator = ttk.Separator(self._widgets["angular_resolution_frame"], orient="horizontal")
+        separator.grid(row=3, column=0, columnspan=5, sticky="ew", padx=15, pady=10)
+
+        # Elevation max
+        ttk.Label(self._widgets["angular_resolution_frame"], text="Theta MAX:", style="PyAEDT.TLabel").grid(
+            row=4, column=0, padx=15, pady=10
+        )
+
+        self._widgets["theta_scan_max_slider"] = ttk.Scale(
+            self._widgets["angular_resolution_frame"],
+            from_=0,
+            to=90,
+            orient="horizontal",
+            variable=self._double_var("theta_scan_max"),
+            command=self._snap_theta_scan_max_slider,
+            length=200,
+        )
+        self._widgets["theta_scan_max_slider"].grid(row=4, column=1, columnspan=3)
+
+        self._widgets["theta_scan_max_spin"] = ttk.Spinbox(
+            self._widgets["angular_resolution_frame"],
+            from_=0,
+            to=90,
+            increment=1,
+            textvariable=self._double_var("theta_scan_max"),
+            width=6,
+            command=self._snap_theta_scan_max_spin,
+            font=self.theme.default_font,
+            style="PyAEDT.TSpinbox",
+        )
+        self._widgets["theta_scan_max_spin"].grid(row=4, column=4)
+
+        # Apply and Validate button
+        self._widgets["apply_validate_button"] = ttk.Button(
+            self._widgets["advanced_tab"],
+            text="Apply and Validate",
+            width=40,
+            command=lambda: self._apply_validate(),  # pylint: disable=consider-lambda-function
+            style="PyAEDT.TButton",
+        )
+        self._widgets["apply_validate_button"].grid(row=4, column=0, padx=15, pady=10, columnspan=2)
+
+        # Validation menu
+        self._widgets["validation_frame"] = ttk.LabelFrame(
+            self._widgets["advanced_tab"], text="Validation", padding=10, style="PyAEDT.TLabelframe"
+        )
+        self._widgets["validation_frame"].grid(row=5, column=0, padx=10, pady=10, columnspan=2)
+
+        ttk.Label(self._widgets["validation_frame"], text="Floquet ports: ", style="PyAEDT.TLabel").grid(
+            row=0, column=1, padx=10
+        )
+        self._widgets["floquet_ports_label"] = ttk.Label(self._widgets["validation_frame"], style="PyAEDT.TLabel")
+        self._widgets["floquet_ports_label"].grid(row=0, column=2, padx=10)
+        self._widgets["floquet_ports_label"]["text"] = "N/A"
+
+        ttk.Label(self._widgets["validation_frame"], text="Frequency points: ", style="PyAEDT.TLabel").grid(
+            row=1, column=1, padx=10
+        )
+        self._widgets["frequency_points_label"] = ttk.Label(self._widgets["validation_frame"], style="PyAEDT.TLabel")
+        self._widgets["frequency_points_label"].grid(row=1, column=2, padx=10)
+        self._widgets["frequency_points_label"]["text"] = "N/A"
+
+        ttk.Label(self._widgets["validation_frame"], text="Spatial directions: ", style="PyAEDT.TLabel").grid(
+            row=2, column=1, padx=10
+        )
+        self._widgets["spatial_points_label"] = ttk.Label(self._widgets["validation_frame"], style="PyAEDT.TLabel")
+        self._widgets["spatial_points_label"].grid(row=2, column=2, padx=10)
+        self._widgets["spatial_points_label"]["text"] = "N/A"
+
+        ttk.Label(self._widgets["validation_frame"], text="Design validation: ", style="PyAEDT.TLabel").grid(
+            row=3, column=1, padx=10
+        )
+        self._widgets["design_validation_label"] = ttk.Label(self._widgets["validation_frame"], style="PyAEDT.TLabel")
+        self._widgets["design_validation_label"].grid(row=3, column=2, padx=10)
+        self._widgets["design_validation_label"]["text"] = "N/A"
+
+        ttk.Label(self._widgets["validation_frame"], text="RTTBL version: ", style="PyAEDT.TLabel").grid(
+            row=4, column=1, padx=10
+        )
+        self._widgets["rttbl_version_label"] = ttk.Label(self._widgets["validation_frame"], style="PyAEDT.TLabel")
+        self._widgets["rttbl_version_label"].grid(row=4, column=2, padx=10)
+        self._widgets["rttbl_version_label"]["text"] = self.rttbl_version
+
+        ttk.Label(self._widgets["validation_frame"], text="Extraction mode: ", style="PyAEDT.TLabel").grid(
+            row=5, column=1, padx=10
+        )
+        self._widgets["advanced_mode"] = ttk.Label(self._widgets["validation_frame"], style="PyAEDT.TLabel")
+        self._widgets["advanced_mode"].grid(row=5, column=2, padx=10)
+        self._widgets["advanced_mode"]["text"] = "N/A"
+
+        # Start button
+        self._widgets["start_button"] = ttk.Button(
+            self._widgets["advanced_tab"],
+            text="Start",
+            width=40,
+            command=lambda: self._start_extraction(),  # pylint: disable=consider-lambda-function
+            style="PyAEDT.TButton",
+        )
+        self._widgets["start_button"].grid(row=6, column=0, padx=15, pady=10, columnspan=2)
+        self._widgets["start_button"].grid_remove()
+
+    def _build_extraction_tab(self):
+        # Setup
+        label = ttk.Label(self._widgets["extraction_tab"], text="Simulation setup", style="PyAEDT.TLabel")
+        label.grid(row=0, column=0, padx=15, pady=10)
+
+        self._widgets["setup_sweep_combo"] = ttk.Combobox(
+            self._widgets["extraction_tab"],
+            width=30,
+            style="PyAEDT.TCombobox",
+            name="simulation_setup",
+            state="readonly",
+        )
+        self._widgets["setup_sweep_combo"].grid(row=0, column=1, padx=15, pady=10)
+
+        self._widgets["setup_sweep_combo"]["values"] = self.setup_sweep_names
+        self._widgets["setup_sweep_combo"].current(0)
+
+        self.active_setup = self.setups[self.setup_sweep_names[0].split(" : ")[0]]
+
+        # RTTBL Table
+        label_rttbl_version = ttk.Label(self._widgets["extraction_tab"], text="RTTBL version", style="PyAEDT.TLabel")
+        label_rttbl_version.grid(row=1, column=0, padx=15, pady=10)
+
+        self._widgets["rttbl_version_combo"] = ttk.Combobox(
+            self._widgets["extraction_tab"],
+            width=30,
+            style="PyAEDT.TCombobox",
+            name="rttbl_version",
+            state="readonly",
+        )
+        self._widgets["rttbl_version_combo"].grid(row=1, column=1, padx=15, pady=10)
+
+        self._widgets["rttbl_version_combo"]["values"] = ["2.0", "1.0"]
+        self._widgets["rttbl_version_combo"].current(
+            self._widgets["rttbl_version_combo"]["values"].index(self.rttbl_version)
+        )
+
+        self.active_setup = self.setups[self.setup_sweep_names[0].split(" : ")[0]]
+
+        # Validate button
+        self._widgets["validate_button"] = ttk.Button(
+            self._widgets["extraction_tab"],
+            text="Validate",
+            width=40,
+            command=lambda: self._validate(),  # pylint: disable=consider-lambda-function
+            style="PyAEDT.TButton",
+        )
+        self._widgets["validate_button"].grid(row=2, column=0, padx=15, pady=10, columnspan=2)
+
+        # Validation menu
+        self._widgets["validation_frame_extraction"] = ttk.LabelFrame(
+            self._widgets["extraction_tab"], text="Validation", padding=10, style="PyAEDT.TLabelframe"
+        )
+        self._widgets["validation_frame_extraction"].grid(row=3, column=0, padx=10, pady=10, columnspan=2)
+
+        ttk.Label(self._widgets["validation_frame_extraction"], text="Floquet ports: ", style="PyAEDT.TLabel").grid(
+            row=0, column=1, padx=10
+        )
+        self._widgets["floquet_ports_label_extraction"] = ttk.Label(
+            self._widgets["validation_frame_extraction"], style="PyAEDT.TLabel"
+        )
+        self._widgets["floquet_ports_label_extraction"].grid(row=0, column=2, padx=10)
+        self._widgets["floquet_ports_label_extraction"]["text"] = "N/A"
+
+        ttk.Label(
+            self._widgets["validation_frame_extraction"], text="Spatial directions: ", style="PyAEDT.TLabel"
+        ).grid(row=2, column=1, padx=10)
+        self._widgets["spatial_points_label_extraction"] = ttk.Label(
+            self._widgets["validation_frame_extraction"], style="PyAEDT.TLabel"
+        )
+        self._widgets["spatial_points_label_extraction"].grid(row=2, column=2, padx=10)
+        self._widgets["spatial_points_label_extraction"]["text"] = "N/A"
+
+        ttk.Label(self._widgets["validation_frame_extraction"], text="Design validation: ", style="PyAEDT.TLabel").grid(
+            row=3, column=1, padx=10
+        )
+        self._widgets["design_validation_label_extraction"] = ttk.Label(
+            self._widgets["validation_frame_extraction"], style="PyAEDT.TLabel"
+        )
+        self._widgets["design_validation_label_extraction"].grid(row=3, column=2, padx=10)
+        self._widgets["design_validation_label_extraction"]["text"] = "N/A"
+
+        ttk.Label(self._widgets["validation_frame_extraction"], text="RTTBL version: ", style="PyAEDT.TLabel").grid(
+            row=4, column=1, padx=10
+        )
+        self._widgets["rttbl_version_label_extraction"] = ttk.Label(
+            self._widgets["validation_frame_extraction"], style="PyAEDT.TLabel"
+        )
+        self._widgets["rttbl_version_label_extraction"].grid(row=4, column=2, padx=10)
+        self._widgets["rttbl_version_label_extraction"]["text"] = "N/A"
+
+        ttk.Label(self._widgets["validation_frame_extraction"], text="Extraction mode: ", style="PyAEDT.TLabel").grid(
+            row=5, column=1, padx=10
+        )
+        self._widgets["extraction_mode"] = ttk.Label(
+            self._widgets["validation_frame_extraction"], style="PyAEDT.TLabel"
+        )
+        self._widgets["extraction_mode"].grid(row=5, column=2, padx=10)
+        self._widgets["extraction_mode"]["text"] = "N/A"
+
+        # Start button
+        self._widgets["start_button_extraction"] = ttk.Button(
+            self._widgets["extraction_tab"],
+            text="Start",
+            width=40,
+            command=lambda: self._get_coefficients(),  # pylint: disable=consider-lambda-function
+            style="PyAEDT.TButton",
+        )
+        self._widgets["start_button_extraction"].grid(row=6, column=0, padx=15, pady=10, columnspan=2)
+        self._widgets["start_button_extraction"].grid_remove()
+
+    def _build_settings_tab(self):
+        # Simulation menu
+        self._widgets["hpc_frame"] = ttk.LabelFrame(
+            self._widgets["settings_tab"], text="HPC options", padding=10, style="PyAEDT.TLabelframe"
+        )
+        self._widgets["hpc_frame"].grid(row=0, column=0, padx=10, pady=10, columnspan=2)
+
+        ttk.Label(self._widgets["hpc_frame"], text="Cores: ", style="PyAEDT.TLabel").grid(row=0, column=1, padx=10)
+        self._widgets["core_number"] = tkinter.Text(self._widgets["hpc_frame"], width=20, height=1)
+        self._widgets["core_number"].insert(tkinter.END, "4")
+        self._widgets["core_number"].grid(row=0, column=2, padx=10)
+        self._widgets["core_number"].configure(
+            background=self.theme.light["label_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
+        )
+
+        ttk.Label(self._widgets["hpc_frame"], text="Tasks: ", style="PyAEDT.TLabel").grid(row=1, column=1, padx=10)
+        self._widgets["tasks_number"] = tkinter.Text(self._widgets["hpc_frame"], width=20, height=1)
+        self._widgets["tasks_number"].insert(tkinter.END, "1")
+        self._widgets["tasks_number"].grid(row=1, column=2, padx=10)
+        self._widgets["tasks_number"].configure(
+            background=self.theme.light["label_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
+        )
+
+        # Simulation menu
+        self._widgets["optimetrics_frame"] = ttk.LabelFrame(
+            self._widgets["settings_tab"], text="Optimetrics options", padding=10, style="PyAEDT.TLabelframe"
+        )
+        self._widgets["optimetrics_frame"].grid(row=1, column=0, padx=10, pady=10, columnspan=2, sticky="ew")
+
+        self._widgets["keep_mesh"] = tkinter.BooleanVar()
+        self._widgets["keep_mesh_checkbox"] = ttk.Checkbutton(
+            self._widgets["optimetrics_frame"],
+            text="Same mesh for all variations",
+            variable=self._widgets["keep_mesh"],
+            style="PyAEDT.TCheckbutton",
+        )
+        self._widgets["keep_mesh_checkbox"].grid(row=0, column=1, columnspan=2, padx=10, sticky="w")
+        self._widgets["keep_mesh"].set(True)
+
+    def _elevation_slider_changed(self, pos):
+        index = int(float(pos))
+        new_val = self.elevation_resolution_slider_values[index]
+        self._double_var("elevation_resolution").set(new_val)
+        self._spinbox("elevation_spin").set(new_val)
+        self._update_theta_scan_max_constraints()
+
+    def _elevation_spin_changed(self):
+        self._update_theta_scan_max_constraints()
+
+    def _azimuth_slider_changed(self, pos):
+        index = int(float(pos))
+        new_val = self.azimuth_resolution_slider_values[index]
+        self._double_var("azimuth_resolution").set(new_val)
+        self._spinbox("azimuth_spin").set(new_val)
+
+    def _update_theta_scan_max_constraints(self):
+        theta_val = self._double_var("elevation_resolution").get()
+        if theta_val <= 0 or theta_val > 90:  # pragma: no cover
+            return
+
+        max_step = int(90 / theta_val)
+        last_value = round(max_step * theta_val, 2)
+
+        if last_value > 90:  # pragma: no cover
+            last_value = 90 - theta_val
+        elif last_value < 90 and abs(90 - last_value) < 1e-6:  # pragma: no cover
+            last_value = 90.0
+
+        if "theta_scan_max_slider" in self._widgets:
+            cast(Any, self._widgets["theta_scan_max_slider"]).config(
+                from_=theta_val,
+                to=last_value,
+            )
+        if "theta_scan_max_spin" in self._widgets:
+            self._spinbox("theta_scan_max_spin").config(from_=theta_val, to=last_value, increment=theta_val)
+
+        current_val = self._double_var("theta_scan_max").get()
+        snapped = round(current_val / theta_val) * theta_val
+        if snapped > last_value:  # pragma: no cover
+            snapped = last_value
+        self._double_var("theta_scan_max").set(round(snapped, 2))
+
+    def _snap_theta_scan_max_slider(self, val):
+        theta_step = float(self._double_var("elevation_resolution").get())
+        val = float(val)
+        snapped = round(val / theta_step) * theta_step
+        if snapped > 90:  # pragma: no cover
+            snapped = 90 - theta_step
+        self._spinbox("theta_scan_max_spin").set(round(snapped, 2))
+
+    def _snap_theta_scan_max_spin(self):
+        self._snap_theta_scan_max_slider(cast(Any, self._widgets["theta_scan_max_slider"]).get())
+
+    def _apply_validate(self):
+        app = self._app()
+        # Init
+        self._label("frequency_points_label").config(text="N/A")
+        self._label("floquet_ports_label").config(text="N/A")
+        self._label("design_validation_label").config(text="N/A")
+        self._label("spatial_points_label").config(text="N/A")
+
+        self._label("rttbl_version_label").config(text=self.rttbl_version)
+
+        self._label("start_button").grid_remove()
+
+        simulation_setup = self._combo("setup_combo").get()
+
+        if simulation_setup == "No Setup":
+            app.logger.add_error_message("No setup selected.")
+            return False
+
+        # Create sweep
+        self.active_setup = app.design_setups[simulation_setup]
+
+        self.start_frequency = float(self._text("start_frequency").get("1.0", tkinter.END).strip())
+        self.stop_frequency = float(self._text("stop_frequency").get("1.0", tkinter.END).strip())
+        self.step_frequency = float(self._text("step_frequency").get("1.0", tkinter.END).strip())
+        self.frequency_units = self._combo("frequency_units_combo").get()
+
+        if self.start_frequency > self.stop_frequency:
+            app.logger.add_error_message("Start frequency must be less than stop frequency.")
+            self._label("frequency_points_label").config(text="FAIL")
+            return False
+
+        for _, available_sweep in self.active_setup.children.items():
+            available_sweep.properties["Enabled"] = False
+
+        self.sweep = self.active_setup.add_sweep(type="Interpolating")
+
+        self.sweep.props["Type"] = "Interpolating"
+        self.sweep.props["SaveFields"] = False
+
+        if self.start_frequency == self.stop_frequency:  # pragma: no cover
+            self.sweep.props["Type"] = "Discrete"
+            self.sweep.props["RangeType"] = "SinglePoints"
+        else:
+            self.sweep.props["RangeType"] = "LinearStep"
+
+        self.sweep.props["RangeStart"] = f"{self.start_frequency}{self.frequency_units}"
+        self.sweep.props["RangeEnd"] = f"{self.stop_frequency}{self.frequency_units}"
+        self.sweep.props["RangeStep"] = f"{self.step_frequency}{self.frequency_units}"
+        self.sweep.update()
+
+        # Check number of ports and each port should have 2 modes
+        try:
+            self.floquet_ports = app.get_fresnel_floquet_ports()
+        except AEDTRuntimeError:
+            self.floquet_ports = None
+
+        if self.floquet_ports is None:
+            self._label("floquet_ports_label").config(text="FAIL")
+            return False
+        self._label("floquet_ports_label").config(text=f"{len(self.floquet_ports)} Floquet port defined")
+
+        # Show frequency points
+
+        frequency_points = int((self.stop_frequency - self.start_frequency) / self.step_frequency) + 1
+        self._label("frequency_points_label").config(text=str(frequency_points))
+
+        # Show spatial directions
+
+        theta_resolution = float(self._double_var("elevation_resolution").get())
+        phi_resolution = float(self._double_var("azimuth_resolution").get())
+        phi_max = 360.0 - phi_resolution
+        is_isotropic = self._fresnel_type().get() == "isotropic"
+        if is_isotropic:
+            phi_resolution = 1.0
+            phi_max = 0
+        theta_max = float(self._double_var("theta_scan_max").get())
+
+        theta_steps = int(theta_max / theta_resolution) + 1
+        phi_steps = int(phi_max / phi_resolution) + 1
+
+        total_combinations = theta_steps * phi_steps
+        self._label("spatial_points_label").config(text=str(total_combinations))
+
+        # Check validations
+
+        validation = app.validate_simple()
+        if validation == 1:
+            self._label("design_validation_label").config(text="Passed")
+        else:
+            self._label("design_validation_label").config(text="Failed")
+            return False
+
+        # Check if lattice pair
+        bounds = app.boundaries_by_type
+        # If not Lattice Pair, both Secondary and Primary must be available
+        if "Lattice Pair" not in bounds and ("Secondary" not in bounds or "Primary" not in bounds):
+            app.logger.add_error_message("No lattice pair or primary and secondary boundaries found.")
+            self._label("design_validation_label_extraction").config(text="Failed")
+            return False
+
+        bound = "Lattice Pair" if "Lattice Pair" in bounds else "Secondary"
+
+        # Assign variable to lattice pair
+        app["scan_P"] = "0deg"
+        app["scan_T"] = "0deg"
+
+        for lattice_pair in bounds[bound]:
+            lattice_pair.properties["Theta"] = "scan_T"
+            lattice_pair.properties["Phi"] = "scan_P"
+
+        # Create optimetrics
+        for available_sweep in app.parametrics.setups:
+            available_sweep.props["IsEnabled"] = False
+            available_sweep.update()
+
+        self.active_parametric = app.parametrics.add(
+            "scan_T", 0.0, theta_max, theta_resolution, variation_type="LinearStep", solution=self.active_setup.name
+        )
+
+        if not is_isotropic:
+            self.active_parametric.add_variation("scan_P", 0.0, phi_max, phi_resolution, variation_type="LinearStep")
+
+        # Save mesh and equivalent meshes
+        self.active_parametric.props["ProdOptiSetupDataV2"]["CopyMesh"] = self._bool_var("keep_mesh").get()
+        self.active_parametric.props["ProdOptiSetupDataV2"]["SaveFields"] = False
+
+        # Display the resulting extraction mode
+        self._label("advanced_mode").config(text=self._fresnel_type().get())
+
+        # Create output variables
+        self.active_setup_sweep = self.active_setup.name + " : " + self.sweep.name
+        app.create_fresnel_variables(self.active_setup_sweep)
+
+        self._button("start_button").grid()
+
+        cast(Any, self._widgets["tabs"]).hide(self._widgets["extraction_tab"])
+
+        return True
+
+    def _validate(self, active_setup=None):
+        app = self._app()
+        # Init
+        self._label("floquet_ports_label_extraction").config(text="N/A")
+        self._label("spatial_points_label_extraction").config(text="N/A")
+        self._label("design_validation_label_extraction").config(text="N/A")
+        self._label("extraction_mode").config(text="N/A")
+
+        self._button("start_button_extraction").grid_remove()
+
+        self.rttbl_version = self._combo("rttbl_version_combo").get()
+        self._label("rttbl_version_label_extraction").config(text=self.rttbl_version)
+
+        # Revert Fresnel Type to isotropic for RTTBL ver 1.0
+        if self.rttbl_version == "1.0":
+            self._fresnel_type().set("isotropic")
+
+        is_isotropic = self._fresnel_type().get() == "isotropic"
+        # Display the resulting extraction mode
+        self._label("extraction_mode").config(text=self._fresnel_type().get())
+
+        if active_setup is None:
+            simulation_setup = self._combo("setup_sweep_combo").get()
+            if simulation_setup is None:  # pragma: no cover
+                simulation_setup = self.active_setup_sweep
+        else:  # pragma: no cover
+            simulation_setup = active_setup
+
+        setup_name = simulation_setup.split(" : ")[0]
+        sweep_name = simulation_setup.split(" : ")[1]
+
+        if setup_name.lower() == "no setup":
+            app.logger.add_error_message("No setup selected.")
+            self._label("design_validation_label_extraction").config(text="Failed")
+            return False
+
+        self.active_setup = self.setups[setup_name]
+
+        self.active_setup_sweep = simulation_setup
+
+        active_sweep = None
+        if sweep_name != "LastAdaptive":
+            # Setup has only one frequency sweep
+            sweeps = cast(Any, self.active_setup).sweeps
+            for sweep in set(sweeps):
+                if sweep.name == sweep_name:
+                    active_sweep = sweep
+                    break
+
+            if active_sweep is None:
+                app.logger.add_error_message(f"{sweep_name} not found.")
+                self._label("design_validation_label_extraction").config(text="Failed")
+                return False
+
+            # Frequency sweep has linearly frequency samples
+            sweep_type = active_sweep.props.get("RangeType", None)
+
+            if sweep_type not in ["LinearStep", "LinearCount", "SinglePoints"]:
+                app.logger.add_error_message(f"{active_sweep.name} does not have linearly frequency samples.")
+                self._label("design_validation_label_extraction").config(text="Failed")
+                return False
+
+        # We can not get the frequency points with the AEDT API
+
+        # Floquet and modes
+
+        # Check number of ports and each port should have 2 modes
+        self.floquet_ports = app.get_fresnel_floquet_ports()
+        if self.floquet_ports is None:
+            self._label("floquet_ports_label_extraction").config(text="FAIL")
+            return False
+        self._label("floquet_ports_label_extraction").config(text=f"{len(self.floquet_ports)} Floquet port defined")
+
+        # Parametric setup is driven by the variables defining the scan direction
+
+        bounds = app.boundaries_by_type
+
+        # If not Lattice Pair, both Secondary and Primary must be available
+        if "Lattice Pair" not in bounds and ("Secondary" not in bounds or "Primary" not in bounds):
+            app.logger.add_error_message("No lattice pair or primary and secondary boundaries found.")
+            self._label("design_validation_label_extraction").config(text="Failed")
+            return False
+
+        bound = "Lattice Pair" if "Lattice Pair" in bounds else "Secondary"
+
+        lattice_pair = bounds[bound]
+
+        theta_scan_variable = lattice_pair[0].properties["Theta"]
+        phi_scan_variable = lattice_pair[0].properties["Phi"]
+        variable_names = app.variable_manager.variable_names
+        if theta_scan_variable not in variable_names:
+            app.logger.add_error_message("Lattice pair or primary and secondary boundaries must be parametrized.")
+            self._label("design_validation_label_extraction").config(text="Failed")
+            return False
+
+        try:
+            report_quantities = app.post.available_report_quantities()
+
+            variations = app.available_variations.all
+            variations["Freq"] = "All"
+
+            data = app.post.get_solution_data_per_variation(
+                "Modal Solution Data", self.active_setup_sweep, ["Domain:=", "Sweep"], variations, report_quantities[0]
+            )
+
+            parametric_data = self._extract_parametric_fresnel(
+                data.variations, theta_key=theta_scan_variable, phi_key=phi_scan_variable
+            )
+
+            if is_isotropic:
+                if parametric_data["has_phi"]:
+                    if parametric_data["phi"][0] != 0.0:
+                        app.logger.add_error_message("Phi sweep must contain 0.0deg.")
+                        self._label("design_validation_label_extraction").config(text="Failed")
+                        return False
+                    phi_0 = parametric_data["phi"][0]
+                    theta_resolution = parametric_data["theta_resolution_by_phi"][phi_0]
+                    phi_resolution = 1.0
+                    phi_max = 0
+                    theta_max = max(parametric_data["theta_by_phi"][phi_0])
+                else:
+                    theta_resolution = parametric_data["theta_resolution"]
+                    phi_resolution = 1.0
+                    phi_max = 0
+                    theta_max = max(parametric_data["theta"])
+            else:
+                if not parametric_data["has_phi"]:
+                    app.logger.add_error_message("Scan phi is not defined.")
+                    self._label("design_validation_label_extraction").config(text="Failed")
+                    return False
+                phi_0 = parametric_data["phi"][0]
+                theta_resolution = parametric_data["theta_resolution_by_phi"][phi_0]
+                theta_max = max(parametric_data["theta_by_phi"][phi_0])
+                phi_resolution = parametric_data["phi"][1] - parametric_data["phi"][0]
+                phi_max = 360.0 - phi_resolution
+
+            # Show spatial directions
+            theta_steps = int(theta_max / theta_resolution) + 1
+            phi_steps = int(phi_max / phi_resolution) + 1
+            total_combinations = theta_steps * phi_steps
+            self._label("spatial_points_label_extraction").config(text=str(total_combinations))
+        except Exception as e:
+            app.logger.add_warning_message(f"Could not compute spatial scan points (no solution data available): {e}")
+            self._label("spatial_points_label_extraction").config(text="N/A (no solution data)")
+            return False
+
+        # Check validations
+
+        validation = app.validate_simple()
+        if validation == 1:
+            self._label("design_validation_label_extraction").config(text="Passed")
+        else:
+            self._label("design_validation_label_extraction").config(text="Failed")
+            return False
+
+        self._button("start_button_extraction").grid()
+        cast(Any, self._widgets["tabs"]).hide(self._widgets["advanced_tab"])
+        cast(Any, self._widgets["tabs"]).hide(self._widgets["settings_tab"])
+        return True
+
+    def _start_extraction(self):  # pragma: no cover
+        app = self._app()
+        cores = int(self._text("core_number").get("1.0", tkinter.END).strip())
+        tasks = int(self._text("tasks_number").get("1.0", tkinter.END).strip())
+        active_parametric = cast(Any, self.active_parametric).name
+
+        # Solve
+        app.analyze_setup(cores=cores, num_variations_to_distribute=tasks, name=active_parametric)
+
+        is_valid = self._validate(self.active_setup_sweep)
+
+        if is_valid:
+            self._get_coefficients()
+
+    def _get_coefficients(self):
+        app = self._app()
+        enable_log = settings.enable_desktop_logs
+        if not self.desktop.non_graphical:
+            settings.enable_desktop_logs = True
+
+        # Revert Fresnel Type to isotropic for RTTBL ver 1.0
+        if self.rttbl_version == "1.0":
+            self._fresnel_type().set("isotropic")
+
+        is_isotropic = self._fresnel_type().get() == "isotropic"
+
+        # Obtain variable name
+        bounds = app.boundaries_by_type
+        bound = "Lattice Pair" if "Lattice Pair" in bounds else "Secondary"
+        lattice_pair = bounds[bound]
+        theta_scan_variable = lattice_pair[0].properties["Theta"]
+        phi_scan_variable = lattice_pair[0].properties["Phi"]
+
+        _ = app.get_fresnel_coefficients(
+            setup_sweep=self.active_setup_sweep,
+            theta_name=theta_scan_variable,
+            phi_name=phi_scan_variable,
+            is_isotropic=is_isotropic,
+            rttbl_version=self.rttbl_version,
+        )
+
+        settings.enable_desktop_logs = enable_log
+
+        self.release_desktop()
+
+        self.root.destroy()
+
+    @staticmethod
+    def validate_even_and_divides_90(
+        values: Sequence[float],
+        float_precision: float = 1e-5,
+        min_step_possible: float = 0.01,
+    ) -> tuple[bool, float | None, list[float]]:
+        """Validate and extract an evenly-spaced theta sequence in [0, 90] that divides 90.
+
+        It sorts and filters values to [0, 90]. Requires that 0.0 is present. It searches for a step size `step` such
+        that a sequence starting at 0deg is (approximately) on a uniform grid, and that 90° is a multiple of `step`.
+        Returns validity, the detected `step` (if valid), and the filtered list
+        of input values that fall on the detected grid (up to 90°).
+
+        Parameters
+        ----------
+        values : Sequence[float]
+            Input angles (degrees), possibly unsorted and with out-of-range values.
+        float_precision : float, optional
+            Tolerance used for "close to integer multiple" checks.
+        min_step_possible : float, optional
+            Minimum step allowed during the step search.
+
+        Returns
+        -------
+        is_valid : bool
+            True if an evenly-spaced sequence is detected and 90° is divisible by the step.
+        step : float or None
+            Detected step (degrees) if valid, otherwise None.
+        filtered_list : list of float
+            Values from the input that lie in [0, 90] and align with the detected grid.
+            If not valid, returns just the input values filtered to [0, 90] (sorted).
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.hfss.fresnel import FresnelExtension
+        >>> FresnelExtension.validate_even_and_divides_90([0.0, 15.0, 30.0, 45.0, 60.0, 75.0, 90.0])
+
+        """
+        # Sort & filter to [0, 90]
+        th_input = np.sort(np.asarray(values, dtype=float))
+        th_090 = th_input[(th_input >= 0.0) & (th_input <= 90.0)]
+
+        # Must start at exactly 0.0 (as in your final code)
+        if th_090.size == 0 or th_090[0] != 0.0:
+            return False, None, th_090.tolist()
+
+        # Need at least two points to reason about spacing
+        if th_090.size < 2:
+            return False, None, th_090.tolist()
+
+        # Step search setup
+        # non-zero points relative to 0
+        delta_0 = th_090[1:]
+        # consecutive differences
+        delta_opt = th_090[1:] - th_090[:-1]
+        min_step_check = max(delta_opt.min(), min_step_possible)
+
+        n_max = int(np.ceil(90.0 / min_step_check) + 1)
+        step = 90.0 / n_max
+        number_of_steps = n_max
+
+        search_flag = True
+
+        # Search loop (vectorized point selection per candidate step)
+        while (n_max > 1) and search_flag:
+            n_max -= 1
+            step_check = 90.0 / n_max
+            # Distances normalized by candidate step
+            delta_rel = delta_0 / step_check
+
+            # Points close to integer grid (within tolerance)
+            k = np.rint(delta_rel)
+            close_mask = np.abs(delta_rel - k) < float_precision
+            k_sel = k[close_mask]
+
+            if k_sel.size > 0:
+                # Require first integer index < 2 and successive increments < 2
+                # (equivalent to "exactly one step apart" with tolerance logic)
+                diffs = np.diff(k_sel)
+                if (k_sel[0] < 2) and np.all(diffs < 2):
+                    step = step_check
+                    number_of_steps = int(k_sel.size)
+                    search_flag = False
+
+        # If nothing worked, return not valid
+        if search_flag:
+            return False, None, th_090.tolist()
+
+        # Build theoretical sequence and filter inputs that match it
+        th_syn = np.arange(0, number_of_steps + 1, dtype=float) * step
+
+        # Compute ratios for all values in [0,90], check closeness to nearest int
+        in_range_mask = (th_input >= 0.0) & (th_input <= 90.0)
+        cand = th_input[in_range_mask]
+        ratios = np.divide(cand, step, out=np.zeros_like(cand), where=step != 0)
+        nearest = np.rint(ratios)
+        on_grid_mask = np.abs(ratios - nearest) < float_precision
+
+        # Keep at most number_of_steps + 1 values, in order
+        idx = np.flatnonzero(on_grid_mask)
+        if idx.size > (number_of_steps + 1):
+            idx = idx[: number_of_steps + 1]
+        th_res = cand[idx].tolist()
+
+        # Final validation
+        divides_90 = abs((90.0 / step) - np.rint(90.0 / step)) < float_precision
+        same_len = len(th_res) == th_syn.size
+        close_seq = same_len and np.allclose(np.asarray(th_res, float), th_syn, atol=float_precision)
+
+        is_valid = bool(divides_90 and close_seq)
+        return is_valid, (float(step) if is_valid else None), th_res
+
+    def _extract_parametric_fresnel(self, rows, theta_key="scan_T", phi_key="scan_P"):  # pragma: no cover
+        if not rows:
+            return {"has_phi": False, "theta": [], "phi": [], "theta_by_phi": {}}
+
+        # Check if phi is defined
+        has_phi = any(phi_key in r for r in rows)
+
+        if not has_phi:
+            # Only theta
+            thetas = [r[theta_key] for r in rows if theta_key in r]
+            thetas = sorted(set(thetas))
+            valid, step, thetas = self.validate_even_and_divides_90(thetas)
+            return {
+                "has_phi": False,
+                "theta": thetas,
+                "theta_resolution": step,
+                "theta_valid": valid,
+                "phi": [],
+                "theta_by_phi": {},
+            }
+
+        # phi groups
+        theta_by_phi = {}
+        for r in rows:
+            if theta_key not in r or phi_key not in r:
+                continue
+            phi = r[phi_key]
+            theta = r[theta_key]
+            theta_by_phi.setdefault(phi, []).append(theta)
+
+        # Order list
+        for phi, lst in theta_by_phi.items():
+            theta_by_phi[phi] = sorted(set(lst))
+
+        # Sweep phi
+        phi_values = sorted(theta_by_phi.keys())
+
+        # Phi validations
+        theta_resolution_by_phi = {}
+        theta_valid_by_phi = {}
+        for phi, lst in theta_by_phi.items():
+            valid, step, _ = self.validate_even_and_divides_90(lst)
+            theta_resolution_by_phi[phi] = step
+            theta_valid_by_phi[phi] = valid
+
+        return {
+            "has_phi": True,
+            "phi": phi_values,
+            "theta_by_phi": theta_by_phi,
+            "theta_resolution_by_phi": theta_resolution_by_phi,
+            "theta_valid_by_phi": theta_valid_by_phi,
+        }
+
+
+if __name__ == "__main__":  # pragma: no cover
+    # Open UI
+    extension: ExtensionCommon = FresnelExtension(withdraw=False)
+
+    tkinter.mainloop()

@@ -7,40 +7,93 @@ updates:
       day: "saturday"
       time: "06:00"
       timezone: "Europe/Paris"
+    # Skip patch version bumps
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-patch']
     cooldown:
       default-days: 7
       include:
         - "*"  # Include all dependencies in cooldown
       exclude:
         - "ansys-sphinx-theme"
+        - "ansys-tools-common"
         - "ansys-tools-visualization-interface"
         - "ansys-pythonnet"
         - "pyedb"
     assignees:
-      - "pyansys-ci-bot"
+      - "Samuelopez-ansys"
+      - "SMoraisAnsys"
     labels:
       - "maintenance"
       - "dependencies"
+    # NOTE: if the 'prefix' is changed, the changes must be adapted in label.yml
     commit-message:
       prefix: "BUILD(uv)"
 
   - package-ecosystem: "github-actions"
-    cooldown:
-      default-days: 10 # Fallback cooldown if no specific rule applies
-      include:
-        - "*"  # Include all dependencies in cooldown
-      exclude:
-        - "ansys/actions"
     directory: "/"
     schedule:
       interval: "weekly"
       day: "saturday"
       time: "06:00"
       timezone: "Europe/Paris"
+    # Skip patch version bumps except for ansys/actions/*
+    ignore:
+      - dependency-name: "actions/*"
+        update-types: ['version-update:semver-patch']
+      - dependency-name: "astral-sh/setup-uv"
+        update-types: ['version-update:semver-patch']
+      - dependency-name: "codecov/codecov-action"
+        update-types: ['version-update:semver-patch']
+      - dependency-name: "peter-evans/create-or-update-comment"
+        update-types: ['version-update:semver-patch']
+      - dependency-name: "pypa/gh-action-pypi-publish"
+        update-types: ['version-update:semver-patch']
+      - dependency-name: "pyvista/setup-headless-display-action"
+        update-types: ['version-update:semver-patch']
+    groups:
+      ansys-actions:
+        patterns:
+          - "ansys/actions/*"
+    cooldown:
+      default-days: 10 # Fallback cooldown if no specific rule applies
+      include:
+        - "*"  # Include all dependencies in cooldown
+      exclude:
+        - "ansys/actions"
     assignees:
-      - "pyansys-ci-bot"
+      - "Samuelopez-ansys"
+      - "SMoraisAnsys"
+    labels:
+      - "maintenance"
+      - "dependencies"
+    # NOTE: if the 'prefix' is changed, the changes must be adapted in label.yml
+    commit-message:
+      prefix: "BUILD(actions)"
+
+  - package-ecosystem: "pre-commit"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "saturday"
+      time: "06:00"
+      timezone: "Europe/Paris"
+    # Skip patch version bumps
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-patch']
+    cooldown:
+      default-days: 7 # Fallback cooldown if no specific rule applies
+      include:
+        - "*"  # Include all dependencies in cooldown
+      exclude:
+        - "ansys/pre-commit-hooks"
+    assignees:
+      - "Samuelopez-ansys"
+      - "SMoraisAnsys"
     labels:
       - "maintenance"
       - "dependencies"
     commit-message:
-      prefix: "BUILD(actions)"
+      prefix: "BUILD(pre-commit)"

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -47,6 +47,12 @@ class CreateBoundaryMixin:
     >>> # Custom implementation to create boundary conditions
     >>>         else:
     >>>             pass
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.mixins import CreateBoundaryMixin
+    >>> obj = CreateBoundaryMixin()
+
     """
 
     @pyaedt_function_handler()

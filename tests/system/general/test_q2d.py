@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -33,6 +33,7 @@ from ansys.aedt.core.generic.file_utils import get_dxf_layers
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from tests import TESTS_GENERAL_PATH
+from tests.conftest import DESKTOP_VERSION
 from tests.conftest import NON_GRAPHICAL
 
 TEST_SUBFOLDER = "T30"
@@ -92,6 +93,7 @@ def test_add_sweep(aedt_app) -> None:
     sweep = setup.add_sweep("Q2D_Sweep1")
     assert sweep.add_subrange("LinearCount", 0.0, 100e6, 10)
     assert sweep.add_subrange("LinearStep", 100e6, 2e9, 50e6)
+    assert sweep.add_subrange("LogScale", 100, 100e6, 10)
     assert sweep.add_subrange("LogScale", 100, 100e6, 10, clear=True)
     assert sweep.add_subrange("LinearStep", 100, 100e6, 1e4, clear=True)
     assert sweep.add_subrange("LinearCount", 100, 100e6, 10, clear=True)
@@ -309,7 +311,7 @@ def test_export_equivalent_circuit(q2d_solved, test_tmp_dir) -> None:
 
 
 def test_export_results(q2d_solved) -> None:
-    exported_files = q2d_solved.export_results(analyze=False)
+    exported_files = q2d_solved.export_results()
     assert len(exported_files) > 0
 
 
@@ -321,9 +323,10 @@ def test_import_dxf(aedt_app) -> None:
     assert aedt_app.import_dxf(dxf_file, dxf_layers)
 
 
+@pytest.mark.skipif(DESKTOP_VERSION >= "2027.1", reason="Crashes from AEDT 2027.1 due to native API change.")
 def test_export_w_elements_from_sweep(q2d_solved_sweep_app, test_tmp_dir) -> None:
     export_folder = test_tmp_dir / "export_folder"
-    files = q2d_solved_sweep_app.export_w_elements(False, export_folder)
+    files = q2d_solved_sweep_app.export_w_elements(export_folder)
     assert len(files) == 3
     for file in files:
         ext = Path(file).suffix
@@ -331,16 +334,17 @@ def test_export_w_elements_from_sweep(q2d_solved_sweep_app, test_tmp_dir) -> Non
         assert Path(file).is_file()
 
 
+@pytest.mark.skipif(DESKTOP_VERSION >= "2027.1", reason="Crashes from AEDT 2027.1 due to native API change.")
 def test_export_w_elements_from_nominal(q2d_solved_nominal_app, test_tmp_dir) -> None:
     export_folder = test_tmp_dir / "export_folder"
-    files = q2d_solved_nominal_app.export_w_elements(False, export_folder)
+    files = q2d_solved_nominal_app.export_w_elements(export_folder)
     assert len(files) == 1
     for file in files:
         ext = Path(file).suffix
         assert ext == ".sp"
         assert Path(file).is_file()
 
-    files = q2d_solved_nominal_app.export_w_elements(False)
+    files = q2d_solved_nominal_app.export_w_elements()
     assert len(files) == 1
     for file in files:
         ext = Path(file).suffix

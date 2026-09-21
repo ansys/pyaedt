@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,11 +22,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-This module contains these classes: `Layer` and `Layers`.
+"""The module contains these classes: `Layer` and `Layers`.
 
-This module provides all layer stackup functionalities for the Circuit and HFSS 3D Layout tools.
+The module provides all layer stackup functionalities for the Circuit and HFSS 3D Layout tools.
 """
+
+from copy import deepcopy
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import unit_converter
@@ -94,6 +95,7 @@ class Layer(PyAedtBase):
     >>> from ansys.aedt.core import Hfss3dLayout
     >>> app = Hfss3dLayout()
     >>> layers = app.modeler.layers["Top"]
+
     """
 
     def __init__(self, app, layertype: str = "signal", negative: bool = False) -> None:
@@ -156,6 +158,12 @@ class Layer(PyAedtBase):
         -------
         list
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.color
+
         """
         if isinstance(self._color, list):
             return self._color
@@ -178,6 +186,13 @@ class Layer(PyAedtBase):
         Returns
         -------
         int
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.transparency
+
         """
         return self._transparency
 
@@ -193,6 +208,13 @@ class Layer(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.is_visible
+
         """
         return self._is_visible
 
@@ -208,6 +230,13 @@ class Layer(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.is_visible_shape
+
         """
         return self._is_visible_shape
 
@@ -223,6 +252,13 @@ class Layer(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.is_visible_path
+
         """
         return self._is_visible_path
 
@@ -238,6 +274,13 @@ class Layer(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.is_visible_pad
+
         """
         return self._is_visible_pad
 
@@ -253,6 +296,13 @@ class Layer(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.is_visible_hole
+
         """
         return self._is_visible_hole
 
@@ -268,6 +318,13 @@ class Layer(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.is_visible_component
+
         """
         return self._is_visible_component
 
@@ -283,6 +340,13 @@ class Layer(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.is_mesh_background
+
         """
         return self._is_mesh_background
 
@@ -298,6 +362,13 @@ class Layer(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.is_mesh_overlay
+
         """
         return self._is_mesh_overlay
 
@@ -313,6 +384,13 @@ class Layer(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.locked
+
         """
         return self._locked
 
@@ -328,6 +406,13 @@ class Layer(PyAedtBase):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.top_bottom
+
         """
         return self._topbottom
 
@@ -343,6 +428,13 @@ class Layer(PyAedtBase):
         Returns
         -------
         float
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.pattern
+
         """
         return self._pattern
 
@@ -358,6 +450,13 @@ class Layer(PyAedtBase):
         Returns
         -------
         float
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.draw_override
+
         """
         return self._drawoverride
 
@@ -373,6 +472,13 @@ class Layer(PyAedtBase):
         Returns
         -------
         float
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.thickness
+
         """
         return self._thickness
 
@@ -391,6 +497,13 @@ class Layer(PyAedtBase):
         Returns
         -------
         float
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.upper_elevation
+
         """
         return (
             unit_converter(self.thickness, input_units=self.thickness_units, output_units=self.LengthUnit)
@@ -404,6 +517,13 @@ class Layer(PyAedtBase):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.thickness_units
+
         """
         return self._thickness_units
 
@@ -414,6 +534,13 @@ class Layer(PyAedtBase):
         Returns
         -------
         float
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.lower_elevation
+
         """
         return self._lower_elevation
 
@@ -429,6 +556,13 @@ class Layer(PyAedtBase):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.roughness
+
         """
         return self._roughness
 
@@ -444,6 +578,13 @@ class Layer(PyAedtBase):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.bottom_roughness
+
         """
         return self._botroughness
 
@@ -459,6 +600,13 @@ class Layer(PyAedtBase):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.top_roughness
+
         """
         return self._toprounghenss
 
@@ -474,6 +622,13 @@ class Layer(PyAedtBase):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.side_roughness
+
         """
         return self._sideroughness
 
@@ -489,6 +644,13 @@ class Layer(PyAedtBase):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.material
+
         """
         return self._material
 
@@ -504,6 +666,13 @@ class Layer(PyAedtBase):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.fill_material
+
         """
         return self._fillmaterial
 
@@ -519,6 +688,13 @@ class Layer(PyAedtBase):
         Returns
         -------
         int
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.index
+
         """
         return self._index
 
@@ -534,6 +710,13 @@ class Layer(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.is_negative
+
         """
         return self._is_negative
 
@@ -549,6 +732,13 @@ class Layer(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.use_etch
+
         """
         return self._useetch
 
@@ -564,6 +754,13 @@ class Layer(PyAedtBase):
         Returns
         -------
         float
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.etch
+
         """
         return self._etch
 
@@ -579,6 +776,13 @@ class Layer(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.user
+
         """
         return self._user
 
@@ -594,6 +798,13 @@ class Layer(PyAedtBase):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.top_roughness_model
+
         """
         return self._RMdl
 
@@ -609,6 +820,13 @@ class Layer(PyAedtBase):
         Returns
         -------
         float
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.top_nodule_radius
+
         """
         return self._NR
 
@@ -624,6 +842,13 @@ class Layer(PyAedtBase):
         Returns
         -------
         float
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.top_huray_ratio
+
         """
         return self._HRatio
 
@@ -639,6 +864,13 @@ class Layer(PyAedtBase):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.bottom_roughness_model
+
         """
         return self._BRMdl
 
@@ -654,6 +886,13 @@ class Layer(PyAedtBase):
         Returns
         -------
         float
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.bottom_nodule_radius
+
         """
         return self._BNR
 
@@ -669,6 +908,13 @@ class Layer(PyAedtBase):
         Returns
         -------
         float
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.bottom_huray_ratio
+
         """
         return self._BHRatio
 
@@ -684,6 +930,13 @@ class Layer(PyAedtBase):
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.side_model
+
         """
         return self._SRMdl
 
@@ -699,6 +952,13 @@ class Layer(PyAedtBase):
         Returns
         -------
         float
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.side_nodule_radius
+
         """
         return self._SNR
 
@@ -714,6 +974,13 @@ class Layer(PyAedtBase):
         Returns
         -------
         float
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.side_huray_ratio
+
         """
         return self._SHRatio
 
@@ -729,6 +996,13 @@ class Layer(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.usp
+
         """
         return self._usp
 
@@ -744,6 +1018,13 @@ class Layer(PyAedtBase):
         Returns
         -------
         dict
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.hfss_solver_settings
+
         """
         return self.hfssSp
 
@@ -759,6 +1040,13 @@ class Layer(PyAedtBase):
         Returns
         -------
         dict
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.planar_em_solver_settings
+
         """
         return self.planaremSp
 
@@ -774,6 +1062,13 @@ class Layer(PyAedtBase):
         Returns
         -------
         list
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.zones
+
         """
         if self._zones is None:
             self._zones = [i for i in self._layers.all_layers if self.name in i and ";" in i]
@@ -786,12 +1081,28 @@ class Layer(PyAedtBase):
 
     @property
     def oeditor(self):
-        """Oeditor Module."""
+        """Oeditor Module.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.oeditor
+
+        """
         return self._layers.oeditor
 
     @property
     def visflag(self) -> int:
-        """Visibility flag for objects on the layer."""
+        """Visibility flag for objects on the layer.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.visflag
+
+        """
         visflag = 0
         if not self._is_visible:
             visflag = 0
@@ -833,6 +1144,13 @@ class Layer(PyAedtBase):
         References
         ----------
         >>> oEditor.ChangeLayer
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.set_layer_color(r=1, g=1, b=[0, 1, 0])
+
         """
         rgb = [r, g, b]
         self.color = _getIfromRGB(rgb)
@@ -850,6 +1168,13 @@ class Layer(PyAedtBase):
         References
         ----------
         >>> oEditor.AddStackupLayer
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.create_stackup_layer()
+
         """
         self.remove_stackup_layer()
         self.oeditor.AddStackupLayer(self._get_layer_arg)
@@ -1045,6 +1370,13 @@ class Layer(PyAedtBase):
         References
         ----------
         >>> oEditor.ChangeLayer
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.update_stackup_layer()
+
         """
         self.oeditor.ChangeLayer(self._get_layer_arg)
         return True
@@ -1061,6 +1393,13 @@ class Layer(PyAedtBase):
         References
         ----------
         >>> oEditor.RemoveLayer
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layer
+        >>> obj = Layer()
+        >>> obj.remove_stackup_layer()
+
         """
         if self.name in self.oeditor.GetStackupLayerNames():
             self.oeditor.RemoveLayer(self.name)
@@ -1083,9 +1422,11 @@ class Layers(PyAedtBase):
     >>> from ansys.aedt.core import Hfss3dLayout
     >>> app = Hfss3dLayout()
     >>> layers = app.modeler.layers
+
     """
 
     def __init__(self, modeler, roughnessunits: str = "um") -> None:
+        """Layer stackup."""
         self._modeler = modeler
         self._app = self._modeler._app
         self._currentId = 0
@@ -1099,6 +1440,13 @@ class Layers(PyAedtBase):
         References
         ----------
         >>> oEditor = oDesign.SetActiveEditor("Layout")
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layers
+        >>> obj = Layers()
+        >>> obj.oeditor
+
         """
         return self._modeler.oeditor
 
@@ -1109,6 +1457,13 @@ class Layers(PyAedtBase):
         Returns
         -------
         list
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layers
+        >>> obj = Layers()
+        >>> obj.zones
+
         """
         all_layers = list(self._modeler.oeditor.GetStackupLayerNames())
         zones = []
@@ -1119,7 +1474,15 @@ class Layers(PyAedtBase):
 
     @property
     def LengthUnit(self) -> str:
-        """Length units."""
+        """Length units.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layers
+        >>> obj = Layers()
+        >>> obj.LengthUnit
+
+        """
         return self._modeler.model_units
 
     @property
@@ -1134,6 +1497,13 @@ class Layers(PyAedtBase):
         References
         ----------
         >>> oEditor.GetStackupLayerNames()
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layers
+        >>> obj = Layers()
+        >>> obj.all_layers
+
         """
         return [i for i in self.oeditor.GetAllLayerNames() if ";" not in i]
 
@@ -1149,6 +1519,13 @@ class Layers(PyAedtBase):
         References
         ----------
         >>> oEditor.GetAllLayerNames()
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layers
+        >>> obj = Layers()
+        >>> obj.drawing_layers
+
         """
         return [v for k, v in self.layers.items() if v.type not in ["signal", "via", "dielectric"]]
 
@@ -1164,6 +1541,13 @@ class Layers(PyAedtBase):
         References
         ----------
         >>> oEditor.GetAllLayerNames()
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layers
+        >>> obj = Layers()
+        >>> obj.stackup_layers
+
         """
         return [v for k, v in self.layers.items() if v.type in ["signal", "via", "dielectric"]]
 
@@ -1175,6 +1559,13 @@ class Layers(PyAedtBase):
         -------
         List of :class:`ansys.aedt.core.modules.layer_stackup.Layer`
             List of signal layers.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layers
+        >>> obj = Layers()
+        >>> obj.all_signal_layers
+
         """
         return [v for k, v in self.layers.items() if v.type == "signal"]
 
@@ -1190,6 +1581,13 @@ class Layers(PyAedtBase):
         References
         ----------
         >>> oEditor.GetAllLayerNames()
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layers
+        >>> obj = Layers()
+        >>> obj.signals
+
         """
         return {k: v for k, v in self.layers.items() if v.type == "signal"}
 
@@ -1205,6 +1603,13 @@ class Layers(PyAedtBase):
         References
         ----------
         >>> oEditor.GetAllLayerNames()
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layers
+        >>> obj = Layers()
+        >>> obj.dielectrics
+
         """
         return {k: v for k, v in self.layers.items() if v.type == "dielectric"}
 
@@ -1220,6 +1625,13 @@ class Layers(PyAedtBase):
         References
         ----------
         >>> oEditor.GetAllLayerNames()
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layers
+        >>> obj = Layers()
+        >>> obj.drawings
+
         """
         return {k: v for k, v in self.layers.items() if v.type in ["signal", "via", "dielectric"]}
 
@@ -1231,6 +1643,13 @@ class Layers(PyAedtBase):
         -------
         List of :class:`ansys.aedt.core.modules.layer_stackup.Layer`
             List of dielectric layers.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layers
+        >>> obj = Layers()
+        >>> obj.all_diel_layers
+
         """
         return [v for k, v in self.layers.items() if v.type == "dielectric"]
 
@@ -1247,6 +1666,13 @@ class Layers(PyAedtBase):
         -------
         :class:`ansys.aedt.core.modules.layer_stackup.Layer`
             Layer objecy if the layer name exists.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layers
+        >>> obj = Layers()
+        >>> obj.layer_id(name="MyObject")
+
         """
         for el in self.layers:
             if self.layers[el].name == name:
@@ -1261,6 +1687,13 @@ class Layers(PyAedtBase):
         -------
          dict[int, :class:`ansys.aedt.core.modules.layer_stackup.Layer`]
             Number of layers in the current stackup.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layers
+        >>> obj = Layers()
+        >>> obj.layers
+
         """
         layers = {}
         for el in self.all_layers:
@@ -1349,6 +1782,13 @@ class Layers(PyAedtBase):
         -------
         :class:`ansys.aedt.core.modules.layer_stackup.Layer`
             Layer object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layers
+        >>> obj = Layers()
+        >>> obj.add_layer(layer="TOP")
+
         """
         newlayer = Layer(self, layer_type, isnegative)
         newlayer.name = layer
@@ -1371,6 +1811,255 @@ class Layers(PyAedtBase):
 
         return self.layers[newlayer.id]
 
+    @staticmethod
+    def _get_argument_value(args: list, argument: str):
+        if argument in args:
+            return args[args.index(argument) + 1]
+        return None
+
+    @staticmethod
+    def _set_argument_value(args: list, argument: str, value) -> None:
+        if argument in args:
+            args[args.index(argument) + 1] = value
+
+    @staticmethod
+    def _get_stackup_sublayer(layer_args: list) -> list | None:
+        for layer_arg in layer_args:
+            if isinstance(layer_arg, list) and layer_arg and layer_arg[0] == "NAME:Sublayer":
+                return layer_arg
+        return None
+
+    @classmethod
+    def _is_generated_dielectric_layer(cls, layer_args: list) -> bool:
+        name = cls._get_argument_value(layer_args, "Name:=")
+        return isinstance(name, str) and name.startswith("pyaedt_diel")
+
+    @staticmethod
+    def _get_layer_quantity(value, default_unit=None) -> Quantity:
+        quantity = Quantity(value)
+        if default_unit and not quantity.unit:
+            quantity = Quantity(value, default_unit)
+        return quantity
+
+    @classmethod
+    def _get_layer_value(cls, value, default_unit=None):
+        quantity = cls._get_layer_quantity(value, default_unit)
+        if default_unit and quantity.unit:
+            quantity = quantity.to(default_unit)
+        return float(quantity)
+
+    @staticmethod
+    def _format_layer_quantity(value, default_unit=None) -> str:
+        value = round(value, 12)
+        return str(Quantity(value, default_unit)) if default_unit else str(value)
+
+    @classmethod
+    def _add_layer_thickness(cls, first_thickness, second_thickness, default_unit=None) -> str:
+        try:
+            return str(
+                cls._get_layer_quantity(first_thickness, default_unit)
+                + cls._get_layer_quantity(second_thickness, default_unit)
+            )
+        except (TypeError, ValueError):
+            return f"({first_thickness})+({second_thickness})"
+
+    @classmethod
+    def _are_adjacent_stackup_sublayers(
+        cls, first_sublayer: list, second_sublayer: list, default_unit=None
+    ) -> tuple[bool, str | None]:
+        first_lower_elevation = cls._get_argument_value(first_sublayer, "LowerElevation:=")
+        first_thickness = cls._get_argument_value(first_sublayer, "Thickness:=")
+        second_lower_elevation = cls._get_argument_value(second_sublayer, "LowerElevation:=")
+        second_thickness = cls._get_argument_value(second_sublayer, "Thickness:=")
+        if None in [first_lower_elevation, first_thickness, second_lower_elevation, second_thickness]:
+            return False, None
+
+        try:
+            first_lower_elevation = cls._get_layer_quantity(first_lower_elevation, default_unit)
+            first_upper_elevation = first_lower_elevation + cls._get_layer_quantity(first_thickness, default_unit)
+            second_lower_elevation = cls._get_layer_quantity(second_lower_elevation, default_unit)
+            second_upper_elevation = second_lower_elevation + cls._get_layer_quantity(second_thickness, default_unit)
+        except (TypeError, ValueError):
+            return False, None
+
+        if abs(float(first_upper_elevation - second_lower_elevation)) <= 1e-12:
+            return True, str(first_lower_elevation)
+        if abs(float(second_upper_elevation - first_lower_elevation)) <= 1e-12:
+            return True, str(second_lower_elevation)
+        return False, None
+
+    @classmethod
+    def _ensure_unique_layer_ids(cls, args: list) -> list:
+        used_ids = set()
+        layer_ids = []
+        for layer_args in args:
+            if isinstance(layer_args, list):
+                layer_id = cls._get_argument_value(layer_args, "ID:=")
+                if layer_id is not None:
+                    layer_ids.append(int(layer_id))
+
+        next_id = max(layer_ids, default=0) + 1
+        for layer_args in args:
+            if not isinstance(layer_args, list):
+                continue
+            layer_id = cls._get_argument_value(layer_args, "ID:=")
+            if layer_id is None:
+                continue
+            layer_id = int(layer_id)
+            if layer_id in used_ids:
+                while next_id in used_ids:
+                    next_id += 1
+                cls._set_argument_value(layer_args, "ID:=", next_id)
+                used_ids.add(next_id)
+                next_id += 1
+            else:
+                used_ids.add(layer_id)
+        return args
+
+    @classmethod
+    def _get_stackup_sublayer_interval(cls, sublayer: list, default_unit=None) -> tuple[float, float] | None:
+        lower_elevation = cls._get_argument_value(sublayer, "LowerElevation:=")
+        thickness = cls._get_argument_value(sublayer, "Thickness:=")
+        if None in [lower_elevation, thickness]:
+            return None
+        try:
+            lower_elevation = cls._get_layer_value(lower_elevation, default_unit)
+            thickness = cls._get_layer_value(thickness, default_unit)
+        except (TypeError, ValueError):
+            return None
+        return lower_elevation, lower_elevation + thickness
+
+    @classmethod
+    def _split_dielectric_layers_on_signals(cls, args: list, default_unit=None) -> list:
+        """Split dielectric layer arguments around signal layers and update signal fill materials."""
+        signal_layers = []
+        for layer_args in args:
+            if (
+                isinstance(layer_args, list)
+                and layer_args
+                and layer_args[0] == "NAME:stackup layer"
+                and cls._get_argument_value(layer_args, "Type:=") == "signal"
+            ):
+                sublayer = cls._get_stackup_sublayer(layer_args)
+                interval = cls._get_stackup_sublayer_interval(sublayer, default_unit) if sublayer else None
+                if interval:
+                    signal_layers.append((layer_args, sublayer, interval))
+
+        split_args = []
+        split_index = 1
+        tolerance = 1e-12
+        for layer_args in args:
+            if not (
+                isinstance(layer_args, list)
+                and layer_args
+                and layer_args[0] == "NAME:stackup layer"
+                and cls._get_argument_value(layer_args, "Type:=") == "dielectric"
+            ):
+                split_args.append(layer_args)
+                continue
+
+            sublayer = cls._get_stackup_sublayer(layer_args)
+            interval = cls._get_stackup_sublayer_interval(sublayer, default_unit) if sublayer else None
+            material = cls._get_argument_value(sublayer, "Material:=") if sublayer else None
+            if not interval or not material:
+                split_args.append(layer_args)
+                continue
+
+            segments = [interval]
+            for _, signal_sublayer, signal_interval in signal_layers:
+                signal_lower, signal_upper = signal_interval
+                if signal_upper <= interval[0] + tolerance or signal_lower >= interval[1] - tolerance:
+                    continue
+
+                cls._set_argument_value(signal_sublayer, "FillMaterial:=", material)
+                new_segments = []
+                for segment_lower, segment_upper in segments:
+                    if signal_upper <= segment_lower + tolerance or signal_lower >= segment_upper - tolerance:
+                        new_segments.append((segment_lower, segment_upper))
+                        continue
+                    if segment_lower < signal_lower - tolerance:
+                        new_segments.append((segment_lower, signal_lower))
+                    if signal_upper < segment_upper - tolerance:
+                        new_segments.append((signal_upper, segment_upper))
+                segments = new_segments
+
+            segments.sort(key=lambda segment: segment[0], reverse=True)
+            for segment_index, (segment_lower, segment_upper) in enumerate(segments):
+                split_layer_args = layer_args if segment_index == 0 else deepcopy(layer_args)
+                split_sublayer = cls._get_stackup_sublayer(split_layer_args)
+                cls._set_argument_value(
+                    split_sublayer, "LowerElevation:=", cls._format_layer_quantity(segment_lower, default_unit)
+                )
+                cls._set_argument_value(
+                    split_sublayer,
+                    "Thickness:=",
+                    cls._format_layer_quantity(segment_upper - segment_lower, default_unit),
+                )
+                if segment_index > 0:
+                    name = cls._get_argument_value(split_layer_args, "Name:=")
+                    cls._set_argument_value(split_layer_args, "Name:=", f"{name}_split_{split_index}")
+                    split_index += 1
+                split_args.append(split_layer_args)
+        return cls._ensure_unique_layer_ids(split_args)
+
+    @classmethod
+    def _merge_adjacent_dielectric_layers(cls, args: list, default_unit=None) -> list:
+        """Merge adjacent dielectric layer arguments that use the same material."""
+        merged_args = []
+        previous_dielectric_layer_args = None
+        previous_dielectric_sublayer = None
+        previous_dielectric_material = None
+        previous_dielectric_index = None
+        for layer_args in args:
+            if not (
+                isinstance(layer_args, list)
+                and layer_args
+                and layer_args[0] == "NAME:stackup layer"
+                and cls._get_argument_value(layer_args, "Type:=") == "dielectric"
+            ):
+                merged_args.append(layer_args)
+                continue
+
+            sublayer = cls._get_stackup_sublayer(layer_args)
+            material = cls._get_argument_value(sublayer, "Material:=") if sublayer else None
+
+            if (
+                material
+                and previous_dielectric_material
+                and material.casefold() == previous_dielectric_material.casefold()
+            ):
+                layers_are_adjacent, lower_elevation = cls._are_adjacent_stackup_sublayers(
+                    previous_dielectric_sublayer, sublayer, default_unit
+                )
+                if layers_are_adjacent:
+                    merge_into_current = cls._is_generated_dielectric_layer(
+                        previous_dielectric_layer_args
+                    ) and not cls._is_generated_dielectric_layer(layer_args)
+                    target_sublayer = sublayer if merge_into_current else previous_dielectric_sublayer
+                    thickness = cls._add_layer_thickness(
+                        cls._get_argument_value(previous_dielectric_sublayer, "Thickness:="),
+                        cls._get_argument_value(sublayer, "Thickness:="),
+                        default_unit,
+                    )
+                    cls._set_argument_value(target_sublayer, "Thickness:=", thickness)
+                    if lower_elevation:
+                        cls._set_argument_value(target_sublayer, "LowerElevation:=", lower_elevation)
+                    if merge_into_current:
+                        merged_args.pop(previous_dielectric_index)
+                        merged_args.append(layer_args)
+                        previous_dielectric_layer_args = layer_args
+                        previous_dielectric_sublayer = sublayer
+                        previous_dielectric_material = material
+                        previous_dielectric_index = len(merged_args) - 1
+                    continue
+
+            merged_args.append(layer_args)
+            previous_dielectric_layer_args = layer_args
+            previous_dielectric_sublayer = sublayer
+            previous_dielectric_material = material
+            previous_dielectric_index = len(merged_args) - 1
+        return cls._ensure_unique_layer_ids(merged_args)
+
     @pyaedt_function_handler()
     def change_stackup_type(self, mode: str = "MultiZone", number_zones: int = 3) -> bool:
         """Change the stackup type between Multizone, Overlap and Laminate.
@@ -1386,6 +2075,13 @@ class Layers(PyAedtBase):
         -------
         bool
             `True` if successful.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modules.layer_stackup import Layers
+        >>> obj = Layers()
+        >>> obj.change_stackup_type(mode="axis", number_zones=[1, 2, 3])
+
         """
         if mode.lower() == "multizone":
             zones = ["NAME:Zones", "Primary"]
@@ -1399,12 +2095,28 @@ class Layers(PyAedtBase):
         else:
             self.logger.error("Stackup mode has to be Multizone, Overlap or Laminate.")
             return False
-        for v in list(self.layers.values()):
+        len_layers_list = len(list(self.layers.values())) + 1
+        for idx, v in enumerate(list(self.layers.values())):
             if v.type in ["signal", "dielectric"]:
                 if mode.lower() == "multizone":
                     v._zones = [i for i in range(number_zones)]
                 else:
                     v._zones = []
+            if mode.lower() == "overlap" and v.type == "signal":
+                if v.fill_material != "":
+                    new_v = Layer(self, layertype="dielectric")
+                    new_v.name = f"pyaedt_diel_{idx}"
+                    new_v._thickness = v.thickness
+                    new_v._thickness_units = v.thickness_units
+                    new_v._lower_elevation = v.lower_elevation
+                    new_v._material = self._app.materials[v.fill_material].name
+                    new_v.id = len_layers_list
+                    len_layers_list += 1
+                    args.append(new_v._get_layer_arg)
             args.append(v._get_layer_arg)
+        if mode.lower() == "overlap":
+            args = self._merge_adjacent_dielectric_layers(args, self.LengthUnit)
+        else:
+            args = self._split_dielectric_layers_on_signals(args, self.LengthUnit)
         self.oeditor.ChangeLayers(args)
         return True

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,12 +22,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
 
 import copy
 import os
 from typing import TYPE_CHECKING
 
 from ansys.aedt.core.base import PyAedtBase
+from ansys.aedt.core.generic.constants import DisplayFamiliesType
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import write_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -42,7 +44,14 @@ if TYPE_CHECKING:
 
 
 class LimitLine(BinaryTreeNode, PyAedtBase):
-    """Line Limit Management Class."""
+    """Line Limit Management Class.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.report.common import LimitLine
+    >>> obj = LimitLine()
+
+    """
 
     def __init__(self, post, trace_name, oo=None) -> None:
         self._oo = oo
@@ -96,6 +105,18 @@ class LimitLine(BinaryTreeNode, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.reports_by_category.modal_solution("dB(S(1,1))")
+        >>> report.create()
+        >>> report.add_limit_line_from_points([3, 5, 5, 3], [-50, -50, -60, -60], "GHz")
+        >>> report.limit_lines[0].set_line_properties(
+        ...     style="Dot", width=4, violation_emphasis=True, color=(255, 255, 0)
+        ... )
+
         """
         props = ["NAME:ChangedProps"]
         if style:
@@ -114,7 +135,14 @@ class LimitLine(BinaryTreeNode, PyAedtBase):
 
 
 class Note(BinaryTreeNode, PyAedtBase):
-    """Note Management Class."""
+    """Note Management Class.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.report.common import Note
+    >>> obj = Note()
+
+    """
 
     def __init__(self, post, plot_note_name, oo=None) -> None:
         self._oo = oo
@@ -185,6 +213,13 @@ class Note(BinaryTreeNode, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import Note
+        >>> obj = Note()
+        >>> obj.set_note_properties()
+
         """
         props = ["NAME:ChangedProps"]
         if text:
@@ -242,7 +277,14 @@ class Note(BinaryTreeNode, PyAedtBase):
 
 
 class Trace(BinaryTreeNode, PyAedtBase):
-    """Provides trace management."""
+    """Provides trace management.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.report.common import Trace
+    >>> obj = Trace()
+
+    """
 
     def __repr__(self) -> str:
         return self.name
@@ -287,6 +329,12 @@ class Trace(BinaryTreeNode, PyAedtBase):
             :class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTree` when successful,
             ``False`` when failed.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import Trace
+        >>> obj = Trace()
+        >>> obj.curve_properties
+
         """
         if self.aedt_name.split(":")[-1] in self.children:
             return self.children[self.aedt_name.split(":")[-1]].properties
@@ -300,6 +348,13 @@ class Trace(BinaryTreeNode, PyAedtBase):
         -------
         str
             Trace name.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import Trace
+        >>> obj = Trace()
+        >>> obj.name
+
         """
         return self._name
 
@@ -325,7 +380,6 @@ class Trace(BinaryTreeNode, PyAedtBase):
             ]
         )
         self.aedt_name = self.aedt_name.replace(self.name, value)
-        self.trace_name = value
 
     @pyaedt_function_handler()
     def _change_property(self, props_value) -> bool:
@@ -358,6 +412,15 @@ class Trace(BinaryTreeNode, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> report = hfss.post.reports_by_category.modal_solution("dB(S(1,1))")
+        >>> report.create()
+        >>> report.traces[0].set_trace_properties(style="Dot", width=5, trace_type="Digital", color=(0, 255, 0))
+
         """
         props = ["NAME:ChangedProps"]
         if style:
@@ -395,6 +458,13 @@ class Trace(BinaryTreeNode, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import Trace
+        >>> obj = Trace()
+        >>> obj.set_symbol_properties()
+
         """
         props = ["NAME:ChangedProps", ["NAME:Show Symbol", "Value:=", show]]
         if style:
@@ -409,7 +479,14 @@ class Trace(BinaryTreeNode, PyAedtBase):
 
 
 class CommonReport(BinaryTreeNode, PyAedtBase):
-    """Provides common reports."""
+    """Provides common reports.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.report.common import CommonReport
+    >>> obj = CommonReport()
+
+    """
 
     def __repr__(self) -> str:
         return self.plot_name
@@ -441,15 +518,17 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
             self.expressions = expressions
         self._is_created = False
         self.siwave_dc_category = 0
+        self._display_families_type = None
+        self._display_families_options = {}
         self._traces = []
         self._initialize_tree_node()
 
     @pyaedt_function_handler()
     def _initialize_tree_node(self) -> bool:
         if self._is_created:
-            oo = self._post.oreportsetup.GetChildObject(self._legacy_props["plot_name"])
+            oo = self._app.get_oo_object(self._post.oreportsetup, self.internal_plot_name)
             if oo:
-                BinaryTreeNode.__init__(self, self._legacy_props["plot_name"], oo, False, app=self._app)
+                BinaryTreeNode.__init__(self, self.internal_plot_name, oo, False, app=self._app)
                 return True
         return False
 
@@ -458,8 +537,8 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 
         try:
-            oo = self._post.oreportsetup.GetChildObject(self._legacy_props["plot_name"])
-            _child_object = BinaryTreeNode(self.plot_name, oo, False, app=self._app)
+            oo = self._app.get_oo_object(self._post.oreportsetup, self.internal_plot_name)
+            _child_object = BinaryTreeNode(self.internal_plot_name, oo, False, app=self._app)
             for var in [i.split(" ,")[-1] for i in list(_child_object.properties.values())[4:]]:
                 if var in _child_object.children:
                     del _child_object.children[var]
@@ -472,7 +551,15 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @pyaedt_function_handler()
     def delete(self) -> bool:
-        """Delete current report."""
+        """Delete current report.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import CommonReport
+        >>> obj = CommonReport()
+        >>> obj.delete()
+
+        """
         self._post.oreportsetup.DeleteReports([self.plot_name])
         for i in self._post.plots:
             if i.plot_name == self.plot_name:
@@ -488,6 +575,13 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         -------
         bool
             ``True`` when differential pairs is enabled, ``False`` otherwise.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import CommonReport
+        >>> obj = CommonReport()
+        >>> obj.differential_pairs
+
         """
         return self._legacy_props["context"].get("differential_pairs", False)
 
@@ -503,6 +597,13 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         -------
         str
             Matrix name.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import CommonReport
+        >>> obj = CommonReport()
+        >>> obj.matrix
+
         """
         if self._is_created and (
             self._app.design_type in ["Q3D Extractor", "2D Extractor"]
@@ -532,6 +633,13 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         -------
         str
             Reduced matrix name.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import CommonReport
+        >>> obj = CommonReport()
+        >>> obj.reduced_matrix
+
         """
         return self._legacy_props["context"].get("reduced_matrix", None)
 
@@ -547,6 +655,13 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         -------
         str
             Polyline name.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import CommonReport
+        >>> obj = CommonReport()
+        >>> obj.polyline
+
         """
         if self._is_created and self.report_category != "Far Fields" and self.report_category.endswith("Fields"):
             try:
@@ -567,6 +682,13 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         -------
         list
             Expressions.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import CommonReport
+        >>> obj = CommonReport()
+        >>> obj.expressions
+
         """
         self._initialize_tree_node()
         if self._is_created:
@@ -578,7 +700,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
     @expressions.setter
     def expressions(self, value: list) -> None:
         if isinstance(value, dict):
-            self._legacy_props["expressions"].append(value)
+            self._legacy_props["expressions"] = [value]
         elif isinstance(value, list):
             self._legacy_props["expressions"] = []
             for el in value:
@@ -598,6 +720,13 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         -------
         str
             Report category.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import CommonReport
+        >>> obj = CommonReport()
+        >>> obj.report_category
+
         """
         if self._is_created:
             try:
@@ -621,6 +750,13 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         -------
         str
             Report type.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import CommonReport
+        >>> obj = CommonReport()
+        >>> obj.report_type
+
         """
         if self._is_created:
             try:
@@ -655,20 +791,28 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         Returns
         -------
         List of :class:`ansys.aedt.core.modules.report_templates.Trace`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import CommonReport
+        >>> obj = CommonReport()
+        >>> obj.traces
+
         """
         _ = self.expressions[::]
         _traces = []
         try:
-            oo = self._post.oreportsetup.GetChildObject(self.plot_name)
-            oo_names = self._post.oreportsetup.GetChildObject(self.plot_name).GetChildNames()
+            oo = self._app.get_oo_object(self._post.oreportsetup, self.internal_plot_name)
+            oo_names = self._app.get_oo_name(self._post.oreportsetup, self.internal_plot_name)
         except Exception:
             return _traces
         for el in oo_names:
-            if {"Families", "Source"}.isdisjoint(set(oo.GetChildObject(el).GetPropNames())):
+            new_trace_name = self._post._rename_internal_object(el)
+            if {"Families", "Source"}.isdisjoint(set(self._app.get_oo_properties(oo, new_trace_name))):
                 continue
             try:
-                oo1 = oo.GetChildObject(el)
-                oo1_name = oo1.GetChildNames()
+                oo1 = self._app.get_oo_object(oo, new_trace_name)
+                oo1_name = self._app.get_oo_name(oo, new_trace_name)
                 trace_names = self._app.oreportsetup.GetCurvePropServerName(self.plot_name, el)
                 if trace_names:
                     for aedt_name in trace_names:
@@ -751,7 +895,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         ):
             eye_xunits = self.__props_with_default(self._legacy_props["eye_mask"], "xunits", "ns")
             eye_yunits = self.__props_with_default(self._legacy_props["eye_mask"], "yunits", "mV")
-            eye_points = self.__props_with_default(self._legacy_props["eye_mask"], "points")
+            eye_points = self.__props_with_default(self._legacy_props["eye_mask"], "points", [])
             eye_enable = self.__props_with_default(self._legacy_props["eye_mask"], "enable_limits", False)
             eye_upper = self.__props_with_default(self._legacy_props["eye_mask"], "upper_limit", 500)
             eye_lower = self.__props_with_default(self._legacy_props["eye_mask"], "lower_limit", 0.3)
@@ -778,13 +922,8 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
                             ["NAME:Axis Scale", "Value:=", str(self._legacy_props["general"]["contours_scale"])],
                         ],
                     )
-                if "enable_contours_auto_limit" in self._legacy_props.get("general", {}):
-                    self._change_property(
-                        "Contour",
-                        f" Plot {self.traces[0].name}",
-                        ["NAME:ChangedProps", ["NAME:Scale Type", "Value:=", "Auto Limits"]],
-                    )
-                elif "contours_min_limit" in self._legacy_props.get("general", {}):
+
+                if "contours_min_limit" in self._legacy_props.get("general", {}):
                     self._change_property(
                         "Contour",
                         f" Plot {self.traces[0].name}",
@@ -793,7 +932,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
                             ["NAME:Min", "Value:=", str(self._legacy_props["general"]["contours_min_limit"])],
                         ],
                     )
-                elif "contours_max_limit" in self._legacy_props.get("general", {}):
+                if "contours_max_limit" in self._legacy_props.get("general", {}):
                     self._change_property(
                         "Contour",
                         f" Plot {self.traces[0].name}",
@@ -802,6 +941,26 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
                             ["NAME:Max", "Value:=", str(self._legacy_props["general"]["contours_max_limit"])],
                         ],
                     )
+                    messages = self._app.odesktop.GetMessages("", "", 1)
+                    if messages:
+                        last_message = messages[-1].strip()[:-1]
+                        if "value of specify limits is greater than data maximum" in last_message:
+                            val = last_message.split(" ")[-1]
+                            self._change_property(
+                                "Contour",
+                                f" Plot {self.traces[0].name}",
+                                [
+                                    "NAME:ChangedProps",
+                                    ["NAME:Max", "Value:=", val],
+                                ],
+                            )
+                if "enable_contours_auto_limit" in self._legacy_props.get("general", {}):
+                    if self._legacy_props["general"]["enable_contours_auto_limit"]:
+                        self._change_property(
+                            "Contour",
+                            f" Plot {self.traces[0].name}",
+                            ["NAME:ChangedProps", ["NAME:Scale Type", "Value:=", "Auto Limits"]],
+                        )
             self.eye_mask(
                 points=eye_points,
                 x_units=eye_xunits,
@@ -1026,16 +1185,25 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         Returns
         -------
         List of :class:`ansys.aedt.core.modules.report_templates.LimitLine`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import CommonReport
+        >>> obj = CommonReport()
+        >>> obj.limit_lines
+
         """
         _traces = []
-        oo_names = self._app.get_oo_name(self._post.oreportsetup, self.plot_name)
+        oo_names = self._app.get_oo_name(self._post.oreportsetup, self.internal_plot_name)
         for el in oo_names:
             if "LimitLine" in el:
+                oo = self._app.get_oo_object(self._post.oreportsetup, self.internal_plot_name)
+                oo1 = self._app.get_oo_object(oo, el)
                 _traces.append(
                     LimitLine(
                         self._post,
                         f"{self.plot_name}:{el}",
-                        self._post.oreportsetup.GetChildObject(self.plot_name).GetChildObject(el),
+                        oo1,
                     )
                 )
 
@@ -1052,19 +1220,28 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         Returns
         -------
         List of :class:`ansys.aedt.core.modules.report_templates.Note`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import CommonReport
+        >>> obj = CommonReport()
+        >>> obj.notes
+
         """
         _notes = []
         try:
-            oo_names = self._post.oreportsetup.GetChildObject(self.plot_name).GetChildNames()
+            oo_names = self._app.get_oo_name(self._post.oreportsetup, self.internal_plot_name)
         except Exception:
             return _notes
         for el in oo_names:
             if "Note" in el:
+                oo = self._app.get_oo_object(self._post.oreportsetup, self.internal_plot_name)
+                oo1 = self._app.get_oo_object(oo, el)
                 _notes.append(
                     Note(
                         self._post,
                         f"{self.plot_name}:{el}",
-                        self._post.oreportsetup.GetChildObject(self.plot_name).GetChildObject(el),
+                        oo1,
                     )
                 )
 
@@ -1078,6 +1255,13 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         -------
         str
             Plot name.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import CommonReport
+        >>> obj = CommonReport()
+        >>> obj.plot_name
+
         """
         return self._legacy_props["plot_name"]
 
@@ -1089,6 +1273,35 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         self._legacy_props["plot_name"] = name
 
     @property
+    def internal_plot_name(self) -> str:
+        """Internal AEDT plot name.
+
+        Prior to AEDT 2027R1, some AEDT APIs (such as ``oReportSetup.GetChildObject`` and a few
+        report-related operations) required special characters in the plot
+        name to be escaped: backslashes are doubled (``\\`` -> ``\\\\``) and
+        forward slashes that are not already preceded by a backslash are
+        prefixed with a backslash (``/`` -> ``\\/``). Starting with AEDT 2027R1,
+        this escaping is no longer needed and the plot name is returned as-is.
+
+        This property returns the plot name in the appropriate form for the current
+        AEDT version, ready to be passed to AEDT APIs, while :attr:`plot_name`
+        keeps the original user-facing name.
+
+        Returns
+        -------
+        str
+            Plot name in the format appropriate for AEDT internal API calls.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import CommonReport
+        >>> obj = CommonReport()
+        >>> obj.internal_plot_name
+
+        """
+        return self._post._rename_internal_object(self.plot_name)
+
+    @property
     def variations(self) -> dict:
         """Variations.
 
@@ -1096,6 +1309,13 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         -------
         str
             Variations.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import CommonReport
+        >>> obj = CommonReport()
+        >>> obj.variations
+
         """
         if self._is_created:
             try:
@@ -1142,6 +1362,13 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         -------
         str
             Primary sweep.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import CommonReport
+        >>> obj = CommonReport()
+        >>> obj.primary_sweep
+
         """
         if self._is_created:
             try:
@@ -1170,6 +1397,13 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         -------
         str
             Secondary sweep.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import CommonReport
+        >>> obj = CommonReport()
+        >>> obj.secondary_sweep
+
         """
         if self._is_created:
             els = list(self.properties.values())[4].split(" ,")
@@ -1197,6 +1431,13 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         -------
         str
             Primary sweep range.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import CommonReport
+        >>> obj = CommonReport()
+        >>> obj.primary_sweep_range
+
         """
         return self._legacy_props["context"]["primary_sweep_range"]
 
@@ -1212,6 +1453,13 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         -------
         str
             Secondary sweep range.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import CommonReport
+        >>> obj = CommonReport()
+        >>> obj.secondary_sweep_range
+
         """
         return self._legacy_props["context"]["secondary_sweep_range"]
 
@@ -1237,19 +1485,28 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import CommonReport
+        >>> obj = CommonReport()
+        >>> obj.update_expressions_with_defaults()
+
         """
         self.expressions = self._post.available_report_quantities(
             self.report_category, self.report_type, self.setup, quantities_category
         )
 
-    @property
-    def _trace_info(self):
-        if not self.expressions:
-            self.update_expressions_with_defaults()
-        if isinstance(self.expressions, list):
-            expr = self.expressions
+    @pyaedt_function_handler()
+    def _trace_info(self, expressions=None):
+        if not expressions:
+            if not self.expressions:
+                self.update_expressions_with_defaults()
+            expressions = self.expressions[::]
+        if isinstance(expressions, list):
+            expr = expressions
         else:
-            expr = [self.expressions]
+            expr = [expressions]
         arg = ["X Component:=", self.primary_sweep, "Y Component:=", expr]
         if self.report_type in ["3D Polar Plot", "3D Spherical Plot"]:
             arg = [
@@ -1276,6 +1533,88 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         return arg
 
     @property
+    def display_families_type(self) -> str:
+        """Display families type for reports with X and Y components.
+
+        Options are ``DisplayFamiliesType.Histogram``, ``DisplayFamiliesType.Statistics``,
+        and ``DisplayFamiliesType.Cumulative``.
+
+        Returns
+        -------
+        str
+            Display families type or ``None`` if not set.
+        """
+        return self._display_families_type
+
+    @display_families_type.setter
+    def display_families_type(self, value: str | None) -> None:
+        valid = [
+            DisplayFamiliesType.Histogram,
+            DisplayFamiliesType.Statistics,
+            DisplayFamiliesType.Cumulative,
+        ]
+        if value is not None and value not in valid:
+            raise ValueError(f"Invalid display_families_type '{value}'. Valid options: {valid}")
+        self._display_families_type = value
+        if value == DisplayFamiliesType.Histogram:
+            self._display_families_options.setdefault("val_to_sample_at", "")
+            self._display_families_options.setdefault("num_bins", 10)
+        elif value == DisplayFamiliesType.Statistics:
+            self._display_families_options.setdefault("functions", [])
+        else:
+            self._display_families_options = {}
+
+    @property
+    def display_families_options(self) -> dict:
+        """Options for the display families type.
+
+        Default values are populated automatically when ``display_families_type``
+        is set:
+
+        - ``DisplayFamiliesType.Histogram``: ``{"val_to_sample_at": "", "num_bins": 10}``
+        - ``DisplayFamiliesType.Statistics``: ``{"functions": []}``
+        - ``DisplayFamiliesType.Cumulative``: no options needed (empty dict).
+
+        Returns
+        -------
+        dict
+            Display families options.
+        """
+        return self._display_families_options
+
+    @display_families_options.setter
+    def display_families_options(self, value: dict) -> None:
+        self._display_families_options = value if value else {}
+
+    def _display_families_arg(self):
+        """Build the display families argument for CreateReport.
+
+        Returns
+        -------
+        list
+            Display families argument list, or empty list if not applicable.
+        """
+        if not self._display_families_type:
+            return []
+        # Only applicable when report uses X Component and Y Component
+        if self.report_type not in ["Rectangular Plot", "Radiation Pattern", "Data Table"]:
+            return []
+        arg = ["DisplayFamiliesType:=", self._display_families_type]
+        if self._display_families_type == DisplayFamiliesType.Histogram:
+            val = self._display_families_options["val_to_sample_at"]
+            num_bins = self._display_families_options["num_bins"]
+            arg.append("ValToSampleAt:=")
+            arg.append(val)
+            arg.append("NumBins:=")
+            arg.append(num_bins)
+        elif self._display_families_type == DisplayFamiliesType.Statistics:
+            functions = self._display_families_options["functions"]
+            func_list = ["NAME:functions"] + functions
+            arg.append(func_list)
+        # CumulativeDistribute has no extra options
+        return arg
+
+    @property
     def domain(self) -> str:
         """Plot domain.
 
@@ -1283,6 +1622,13 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         -------
         str
             Plot domain.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import CommonReport
+        >>> obj = CommonReport()
+        >>> obj.domain
+
         """
         if self._is_created:
             try:
@@ -1320,6 +1666,13 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         -------
         bool
             ``True`` when option is enabled, ``False`` otherwise.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import CommonReport
+        >>> obj = CommonReport()
+        >>> obj.use_pulse_in_tdr
+
         """
         return self._legacy_props["context"].get("use_pulse_in_tdr", False)
 
@@ -1374,6 +1727,13 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import CommonReport
+        >>> obj = CommonReport()
+        >>> obj.create()
+
         """
         self._is_created = False
         if not name:
@@ -1394,7 +1754,8 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
             self.setup,
             self._context,
             self._convert_dict_to_report_sel(self.variations),
-            self._trace_info,
+            self._trace_info(),
+            *([self._display_families_arg()] if self._display_families_arg() else []),
         )
         self._post.plots.append(self)
         self._is_created = True
@@ -1684,6 +2045,13 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import CommonReport
+        >>> obj = CommonReport()
+        >>> obj.export_config("c:/temp/report_config.json")
+
         """
         output_dict = {}
         output_dict["Help"] = "Report Generated automatically by PyAEDT"
@@ -1699,13 +2067,20 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         return write_configuration_file(output_dict, output_file)
 
     @pyaedt_function_handler()
-    def get_solution_data(self) -> "SolutionData":
+    def get_solution_data(self) -> SolutionData | bool:
         """Get the report solution data.
 
         Returns
         -------
-        :class:`ansys.aedt.core.visualization.post.solution_data.SolutionData`
+        :class:`ansys.aedt.core.visualization.post.solution_data.SolutionData` or bool
             Solution data object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import CommonReport
+        >>> obj = CommonReport()
+        >>> obj.get_solution_data()
+
         """
         if self._is_created:
             expr = [i.name for i in self.traces]
@@ -1750,6 +2125,13 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import CommonReport
+        >>> obj = CommonReport()
+        >>> obj.add_limit_line_from_points([0, 0], [0, 0], "GHz", "V", "Y1")
+
         """
         x_list = [GeometryOperators.parse_dim_arg(str(i) + x_units) for i in x_list]
         y_list = [GeometryOperators.parse_dim_arg(str(i) + y_units) for i in y_list]
@@ -1800,6 +2182,13 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import CommonReport
+        >>> obj = CommonReport()
+        >>> obj.add_limit_line_from_equation(0, 10, 1, "x", "GHz", 1)
+
         """
         if self.plot_name and self._is_created:
             self._post.oreportsetup.AddCartesianLimitLineFromEquation(
@@ -1838,6 +2227,13 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import CommonReport
+        >>> obj = CommonReport()
+        >>> obj.add_note("Note text", 0.0, 0.0)
+
         """
         note_name = generate_unique_name("Note", n=3)
         if self.plot_name and self._is_created:
@@ -1881,6 +2277,13 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         -------
         str
             Marker name if created.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import CommonReport
+        >>> obj = CommonReport()
+        >>> obj.add_cartesian_x_marker("1GHz")
+
         """
         if not name:
             name = generate_unique_name("MX")
@@ -1908,6 +2311,13 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         -------
         str
             Marker name if created.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import CommonReport
+        >>> obj = CommonReport()
+        >>> obj.add_cartesian_y_marker("1V", y_axis=1)
+
         """
         if not name:
             name = generate_unique_name("MY")
@@ -1968,6 +2378,13 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import CommonReport
+        >>> obj = CommonReport()
+        >>> obj.edit_grid()
+
         """
         props = [
             "NAME:ChangedProps",
@@ -2017,6 +2434,13 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import CommonReport
+        >>> obj = CommonReport()
+        >>> obj.edit_x_axis()
+
         """
         props = [
             "NAME:ChangedProps",
@@ -2097,6 +2521,13 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import CommonReport
+        >>> obj = CommonReport()
+        >>> obj.edit_x_axis_scaling()
+
         """
         if linear_scaling:
             props = ["NAME:ChangedProps", ["NAME:Axis Scaling", "Value:=", "Linear"]]
@@ -2145,6 +2576,13 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import CommonReport
+        >>> obj = CommonReport()
+        >>> obj.edit_legend()
+
         """
         props = [
             "NAME:ChangedProps",
@@ -2177,9 +2615,17 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import CommonReport
+        >>> obj = CommonReport()
+        >>> obj.hide_legend()
+
         """
         try:
-            legend = self._post.oreportsetup.GetChildObject(self.plot_name).GetChildObject("Legend")
+            oo = self._app.get_oo_object(self._post.oreportsetup, self.plot_name)
+            legend = self._app.get_oo_object(oo, "Legend")
             legend.Show_Solution_Name = not solution_name
             legend.Show_Trace_Name = not trace_name
             legend.Show_Variation_Key = not variation_key
@@ -2228,6 +2674,13 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import CommonReport
+        >>> obj = CommonReport()
+        >>> obj.edit_y_axis()
+
         """
         props = [
             "NAME:ChangedProps",
@@ -2310,6 +2763,13 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import CommonReport
+        >>> obj = CommonReport()
+        >>> obj.edit_y_axis_scaling()
+
         """
         if linear_scaling:
             props = ["NAME:ChangedProps", ["NAME:Axis Scaling", "Value:=", "Linear"]]
@@ -2361,6 +2821,13 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import CommonReport
+        >>> obj = CommonReport()
+        >>> obj.edit_general_settings()
+
         """
         if enable_y_stripes is None:
             props = [
@@ -2421,6 +2888,13 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import CommonReport
+        >>> obj = CommonReport()
+        >>> obj.edit_header()
+
         """
         props = [
             "NAME:ChangedProps",
@@ -2519,6 +2993,13 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import CommonReport
+        >>> obj = CommonReport()
+        >>> obj.import_traces("report_data.csv", "MyPlot")
+
         """
         if not os.path.exists(input_file):
             msg = "File does not exist."
@@ -2565,12 +3046,19 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import CommonReport
+        >>> obj = CommonReport()
+        >>> obj.delete_traces("Plot1", ["Trace1", "Trace2"])
+
         """
         if plot_name not in self._post.all_report_names:
             raise ValueError("Plot does not exist in current project.")
 
         for trace in traces_list:
-            if trace not in self._trace_info[3]:
+            if trace not in self._trace_info()[3]:
                 raise ValueError("Trace does not exist in the selected plot.")
 
         props = [f"{plot_name}:=", traces_list]
@@ -2604,24 +3092,26 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        """
-        expr = copy.deepcopy(self.expressions)
-        self.expressions = traces
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import CommonReport
+        >>> obj = CommonReport()
+        >>> obj.add_trace_to_report(["Trace1", "Trace2"], setup_name="Setup1 : LastAdaptive")
+
+        """
         try:
             self._post.oreportsetup.AddTraces(
                 self.plot_name,
                 setup_name if setup_name else self.setup,
                 context if context else self._context,
                 self._convert_dict_to_report_sel(variations if variations else self.variations),
-                self._trace_info,
+                self._trace_info(traces),
             )
             self._initialize_tree_node()
             return True
         except Exception:
             return False
-        finally:
-            self.expressions = expr
 
     @pyaedt_function_handler()
     def update_trace_in_report(
@@ -2644,6 +3134,13 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import CommonReport
+        >>> obj = CommonReport()
+        >>> obj.update_trace_in_report(["Trace1", "Trace2"], setup_name="Setup1 : LastAdaptive")
+
         """
         expr = copy.deepcopy(self.expressions)
         self.expressions = traces
@@ -2655,7 +3152,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
                 setup_name if setup_name else self.setup,
                 context if context else self._context,
                 self._convert_dict_to_report_sel(variations if variations else self.variations),
-                self._trace_info,
+                self._trace_info(),
             )
             return True
         except Exception:
@@ -2685,6 +3182,13 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         References
         ----------
         >>> oModule.ApplyReportTemplate
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import CommonReport
+        >>> obj = CommonReport()
+        >>> obj.apply_report_template("template.rpt", property_type="Graphical")
+
         """
         if not os.path.exists(input_file):  # pragma: no cover
             msg = "File does not exist."
@@ -2725,6 +3229,13 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import CommonReport
+        >>> obj = CommonReport()
+        >>> obj.add_trace_characteristics(name="XAtYVal")
+
         """
         if not arguments:
             arguments = []
@@ -2756,6 +3267,13 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         References
         ----------
         >>> oModule.ExportTableToFile
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.report.common import CommonReport
+        >>> obj = CommonReport()
+        >>> obj.export_table_to_file("MyPlot", "output.csv", table_type="Marker")
+
         """
         plot_names = [plot.plot_name for plot in self._post.plots]
         if plot_name not in plot_names:

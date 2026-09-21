@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -32,6 +32,12 @@ def post_processor(app=None, project: str | None = None, design: str | None = No
     :class:`ansys.aedt.core.visualization.post.post_icepak.PostProcessorIcepak` or
     :class:`ansys.aedt.core.visualization.post.post_circuit.PostProcessorCircuit`
         PostProcessor object.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post import post_processor
+    >>> post_processor()
+
     """
     if not app:
         from ansys.aedt.core.generic.design_types import get_pyaedt_app

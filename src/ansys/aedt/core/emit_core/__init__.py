@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -41,14 +41,22 @@ else:  # pragma: no cover
 
 
 EMIT_API_PYTHON = None
+"""EMIT api python."""
 
 
 def emit_api_python():
-    """
-    Get the EMIT backend API.
+    """Get the EMIT backend API.
 
     The backend API is available once a ansys.aedt.core.Emit() object has been created.
     An exception is raised if this method is called before a ``ansys.aedt.core.Emit()`` object has been created.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Emit
+    >>> from ansys.aedt.core.emit_core import emit_api_python
+    >>> app = Emit()
+    >>> api = emit_api_python()
+
     """
     if not EMIT_API_PYTHON:
         raise Exception("A ansys.aedt.core.Emit() object must be initialized before using the EMIT API.")
@@ -58,7 +66,7 @@ def emit_api_python():
 def _init_enums(aedt_version) -> None:
     numeric_version = int(aedt_version[-3:])
 
-    if numeric_version > 251:
+    if numeric_version > 251 and numeric_version < 271:
         ResultType.EMI = emit_api_python().result_type().emi
         ResultType.DESENSE = emit_api_python().result_type().desense
         ResultType.SENSITIVITY = emit_api_python().result_type().sensitivity
@@ -87,7 +95,7 @@ def _init_enums(aedt_version) -> None:
         EmiCategoryFilter.OUT_OF_CHANNEL_TX_FUNDAMENTAL = 4
         EmiCategoryFilter.OUT_OF_CHANNEL_TX_HARMONIC_SPURIOUS = 5
         EmiCategoryFilter.OUT_OF_CHANNEL_TX_INTERMOD = 6
-    else:
+    elif numeric_version <= 251:
         ResultType.EMI = emit_api_python().result_type().emi
         ResultType.DESENSE = emit_api_python().result_type().desense
         ResultType.SENSITIVITY = emit_api_python().result_type().sensitivity
@@ -145,4 +153,3 @@ def _set_api(aedt_version) -> None:
         global EMIT_API_PYTHON
         EMIT_API_PYTHON = import_module("EmitApiPython")
         logger.info(f"Loaded {EMIT_API_PYTHON.EmitApi().get_version(True)}")
-        _init_enums(aedt_version)

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -27,6 +27,8 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class SolutionCouplingNode(EmitNode):
+    """Provide solution coupling node."""
+
     def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
@@ -34,13 +36,35 @@ class SolutionCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
-        """The parent of this emit node."""
+        """The parent of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> sol = cpl.children[0]
+        >>> sol.parent
+
+        """
         return self._parent
 
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node."""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> sol = cpl.children[0]
+        >>> sol.node_type
+
+        """
         return self._node_type
 
     @property
@@ -52,6 +76,16 @@ class SolutionCouplingNode(EmitNode):
         enabled in EMIT).
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> rev = app.results.get_revision()
+        >>> cpl = rev.get_coupling_data_node()
+        >>> sol = cpl.children[0]
+        >>> sol.enabled = True
+
         """
         val = self._get_property("Enabled")
         return val == "true"

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -24,13 +24,13 @@
 
 from pathlib import Path
 
-import defusedxml.ElementTree as ET
-import defusedxml.minidom
+from defusedxml import ElementTree
+from defusedxml import defuse_stdlib
 import pytest
 
 from ansys.aedt.core.extensions.customize_automation_tab import add_automation_tab
 
-defusedxml.defuse_stdlib()
+defuse_stdlib()
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -134,8 +134,8 @@ def test_write_to_existing_file_but_no_panels(test_tmp_dir) -> None:
 
 def validate_file_exists_and_pyaedt_tabs_added(file_path):
     assert Path(file_path).is_file() is True
-    assert ET.parse(file_path) is not None
-    tree = ET.parse(file_path)
+    assert ElementTree.parse(file_path) is not None
+    tree = ElementTree.parse(file_path)
     root = tree.getroot()
     panels = root.findall("./panel")
     panel_names = [panel.attrib["label"] for panel in panels]

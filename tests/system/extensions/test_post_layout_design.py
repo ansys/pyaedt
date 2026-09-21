@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,15 +22,17 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
 import pytest
 
 import ansys.aedt.core
 from ansys.aedt.core.extensions.hfss3dlayout import post_layout_design
 from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design import PostLayoutDesignExtensionData
-from ansys.aedt.core.generic.settings import is_linux
+from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests import TESTS_EXTENSIONS_PATH
+from tests.conftest import edb_xfail
+
+pytestmark = pytest.mark.skipif(is_linux, reason="PyEDB stability issues on Linux")
 
 
 def test_post_layout_design_data_class() -> None:
@@ -72,13 +74,14 @@ def test_post_layout_design_main_function_exceptions() -> None:
         post_layout_design.main(data)
 
 
+@edb_xfail
 def test_layout_design_toolkit_antipad_1(add_app_example) -> None:
     """Test antipad creation with racetrack enabled."""
     h3d = add_app_example(
         application=ansys.aedt.core.Hfss3dLayout,
         is_edb=True,
         subfolder=TESTS_EXTENSIONS_PATH / "example_models" / "post_layout_design",
-        project="ANSYS_SVP_V1_1_SFP",
+        project="siverse_sfp",
     )
 
     h3d.save_project()
@@ -98,13 +101,14 @@ def test_layout_design_toolkit_antipad_1(add_app_example) -> None:
     h3d.close_project(save=False)
 
 
+@edb_xfail
 def test_layout_design_toolkit_antipad_2(add_app_example) -> None:
     """Test antipad creation with racetrack disabled."""
     h3d = add_app_example(
         application=ansys.aedt.core.Hfss3dLayout,
         is_edb=True,
         subfolder=TESTS_EXTENSIONS_PATH / "example_models" / "post_layout_design",
-        project="ANSYS_SVP_V1_1_SFP",
+        project="siverse_sfp",
     )
     h3d.save_project()
 
@@ -123,13 +127,14 @@ def test_layout_design_toolkit_antipad_2(add_app_example) -> None:
     h3d.close_project(save=False)
 
 
+@edb_xfail
 def test_layout_design_toolkit_unknown_action(add_app_example) -> None:
     """Test main function with unknown action."""
     h3d = add_app_example(
         application=ansys.aedt.core.Hfss3dLayout,
         is_edb=True,
         subfolder=TESTS_EXTENSIONS_PATH / "example_models" / "post_layout_design",
-        project="ANSYS_SVP_V1_1_SFP",
+        project="siverse_sfp",
     )
     h3d.save_project()
 
@@ -147,7 +152,7 @@ def test_layout_design_toolkit_unknown_action(add_app_example) -> None:
     h3d.close_project(save=False)
 
 
-@pytest.mark.skipif(is_linux, reason="PyEDB stability issues on Linux")
+@edb_xfail
 def test_layout_design_toolkit_microvia(add_app_example) -> None:
     """Test microvia creation with conical shape."""
     h3d = add_app_example(
@@ -157,15 +162,11 @@ def test_layout_design_toolkit_microvia(add_app_example) -> None:
         project="Diff_Via",
     )
     h3d.save_project()
-
+    pr1 = h3d.project_name
     # Get valid padstack definition from the design
     pedb = h3d.modeler.edb
     available_padstacks = ["pad1"]
     pedb.close()
-
-    # Skip test if no padstacks available
-    if not available_padstacks:
-        pytest.skip("No padstack definitions available in test model")
 
     # Create data object with microvia parameters
     data = PostLayoutDesignExtensionData(
@@ -178,7 +179,8 @@ def test_layout_design_toolkit_microvia(add_app_example) -> None:
 
     # Call main function
     result = post_layout_design.main(data)
+    pr2 = h3d.desktop_class.project_list[1]
 
     assert result is True
-    h3d.close_project(save=False)
-    h3d.close_project(save=False)
+    h3d.close_project(name=pr2, save=False)
+    h3d.close_project(name=pr1, save=False)

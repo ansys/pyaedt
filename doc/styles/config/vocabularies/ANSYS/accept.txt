@@ -37,9 +37,12 @@ expansion_factor
 fanout
 FEBI
 FE-BI
+FilterSolutions
 file_path
 fix_disjoints
+Floquet
 FRTM
+Fresnel
 getters
 Github
 globals
@@ -57,6 +60,7 @@ Maxwell 2D
 Maxwell 3D
 Maxwell Circuit
 mcm
+microstrip
 [Mm]echanical
 [Mm]onostatic
 multiphysics
@@ -97,6 +101,8 @@ RC
 reusability
 RF
 RMXprt
+RTTBL
+SBR
 scipy
 setters
 SIwave
@@ -148,3 +154,5 @@ Layer
 Security
 RCS
 [Tt]estmon
+[Uu]nary
+[Rr]esult [Cc]alculator

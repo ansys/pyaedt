@@ -30,7 +30,7 @@ import os
 from pathlib import Path
 import re
 import shutil
-import subprocess  # nosec B404 - validated git calls only
+import subprocess  # nosec B404
 import sys
 
 
@@ -134,7 +134,7 @@ def get_changed_files(base_ref: str = "origin/main"):
         # Find merge base if comparing against a branch
         if base_ref not in ["HEAD", "HEAD~1"] and "/" in base_ref:
             try:
-                merge_base_result = subprocess.run(  # nosec B603 - controlled git args
+                merge_base_result = subprocess.run(  # nosec B603
                     [git_executable, "merge-base", base_ref, "HEAD"],
                     capture_output=True,
                     text=True,
@@ -148,7 +148,7 @@ def get_changed_files(base_ref: str = "origin/main"):
                 pass
 
         # Get list of changed files compared to base_ref
-        result = subprocess.run(  # nosec B603 - controlled git args
+        result = subprocess.run(  # nosec B603
             [git_executable, "diff", "--name-only", base_ref, "HEAD"],
             capture_output=True,
             text=True,
@@ -159,20 +159,6 @@ def get_changed_files(base_ref: str = "origin/main"):
     except subprocess.CalledProcessError as e:
         print(f"[ERR] Failed to get changed files from git: {e}", file=sys.stderr)
         raise SystemExit(1)
-
-
-def _set_ci_env(var_name: str, value: str):
-    """Set an environment variable for CI/CD.
-
-    Parameters
-    ----------
-    var_name : str
-        Name of the environment variable.
-    value : str
-        Value to set.
-    """
-    os.environ[var_name] = value
-    print(f"[CI] Set {var_name}={value}")
 
 
 def _write_github_output(name: str, value: str):
@@ -204,12 +190,12 @@ def _get_tests_requirements(lockfile_content=None):
             file_handle.write(lockfile_content)
 
     try:
-        result = subprocess.run(  # nosec B603 - controlled uv args
+        result = subprocess.run(
             ["uv", "export", "--no-dev", "--group", "tests", "--no-hashes", "--no-header", "--frozen"],
             capture_output=True,
             text=True,
             check=True,
-        )
+        )  # nosec B603, B607
         return result.stdout
     finally:
         if lockfile_content is not None and Path("uv.lock.backup").exists():
@@ -229,7 +215,7 @@ def _tests_dependencies_changed(base_ref: str) -> bool:
             raise SystemExit(1)
 
         git_executable = _get_git_executable()
-        git_uv_lock = subprocess.check_output(  # nosec B603 - controlled git args
+        git_uv_lock = subprocess.check_output(  # nosec B603
             [git_executable, "show", f"{base_ref}:uv.lock"]
         )
         old_reqs = _get_tests_requirements(git_uv_lock)
@@ -252,15 +238,8 @@ def analyze_changes(base_ref: str = "origin/main"):
     - 0: Success (analysis complete)
     - 1: Error during analysis
 
-    Always runs in CI mode and sets environment variables:
-    - SKIP_CODE_TESTS=true (if only docstrings/comments changed)
-    - DOC_ONLY=true (if only /doc folder changed)
-    - RUN_ALL=true (if code logic or other files changed)
-
-    Also sets module-specific outputs:
-    - emit_changed=true/false (if EMIT module changed)
-    - extensions_changed=true/false (if extensions module changed)
-    - filter_solutions_changed=true/false (if filter solutions module changed)
+    Always runs in CI mode and sets GitHub Actions output skip_tests=true/false.
+    Also sets module-specific output extensions_changed=true/false (if extensions module changed)
 
     Examples
     --------
@@ -277,7 +256,6 @@ def analyze_changes(base_ref: str = "origin/main"):
 
     if not all_files:
         print("No files changed.")
-        _set_ci_env("RUN_ALL", "true")
         raise SystemExit(0)
 
     # Separate Python files and doc files
@@ -331,17 +309,12 @@ def analyze_changes(base_ref: str = "origin/main"):
         print("-" * 40)
         print("[OK] ONLY DOCUMENTATION CHANGED - Run only doc jobs")
         print("-" * 40)
-        _set_ci_env("DOC_ONLY", "true")
-        _set_ci_env("SKIP_CODE_TESTS", "true")
-        _write_github_output("doc_only", "true")
         _write_github_output("skip_tests", "true")
         raise SystemExit(0)
 
     if not python_files and (other_files or uv_lock_changed):
         print("No Python files changed, but non-doc files were modified.")
         print(f"Changed files: {', '.join(all_files)}")
-        _set_ci_env("RUN_ALL", "true")
-        _write_github_output("run_all", "true")
         raise SystemExit(0)
 
     logic_changed = False
@@ -366,7 +339,7 @@ def analyze_changes(base_ref: str = "origin/main"):
                 raise SystemExit(1)
 
             git_executable = _get_git_executable()
-            old_code = subprocess.run(  # nosec B603 - controlled git args
+            old_code = subprocess.run(  # nosec B603
                 [git_executable, "show", f"{base_ref}:{git_path}"],
                 capture_output=True,
                 text=True,
@@ -430,8 +403,6 @@ def analyze_changes(base_ref: str = "origin/main"):
         if tests_deps_changed:
             print("[!] TESTS DEPENDENCIES CHANGED")
         print("Result: RUN ALL CI/CD JOBS")
-        _set_ci_env("RUN_ALL", "true")
-        _write_github_output("run_all", "true")
         _write_github_output("skip_tests", "false")
     else:
         if uv_lock_changed:
@@ -439,9 +410,7 @@ def analyze_changes(base_ref: str = "origin/main"):
         else:
             print("[OK] ONLY DOCSTRINGS/COMMENTS CHANGED")
         print("Result: SKIP CODE TESTS")
-        _set_ci_env("SKIP_CODE_TESTS", "true")
         _write_github_output("skip_tests", "true")
-        _write_github_output("doc_only", "false")
     print("-" * 40)
 
     raise SystemExit(0)

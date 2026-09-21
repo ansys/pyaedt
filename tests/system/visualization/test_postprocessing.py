@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -47,7 +47,6 @@ from tests import TESTS_VISUALIZATION_PATH
 from tests.conftest import DESKTOP_VERSION
 from tests.conftest import NON_GRAPHICAL
 
-TEST_FIELD_NAME = "Potter_Horn_242"
 Q3D_FILE = "via_gsg_solved"
 TEST_CIRCUIT_NAME = "Switching_Speed_FET_And_Diode_Solved"
 SBR_FILE = "poc_scat_small_solved"
@@ -70,13 +69,6 @@ TEST_SUBFOLDER = "T12"
 @pytest.fixture
 def markers_test(add_app_example):
     app = add_app_example(project=IPK_MARKERS_PROJ, application=Icepak, subfolder=TEST_SUBFOLDER)
-    yield app
-    app.close_project(save=False)
-
-
-@pytest.fixture
-def field_test(add_app_example):
-    app = add_app_example(project=TEST_FIELD_NAME, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(save=False)
 
@@ -199,6 +191,43 @@ def test_m2d_export_results(m2dtest) -> None:
 
 def test_circuit_create_report(circuit_test) -> None:
     assert circuit_test.setups[0].create_report(["dB(S(Port1, Port1))", "dB(S(Port1, Port2))"])
+    report = circuit_test.setups[0].create_report(["mag(S(Port1, Port1)) / mag(S(Port1, Port1))"])
+    report.plot_name = r"foo\/bar"
+    assert report.expressions[0] == "mag(S(Port1, Port1)) / mag(S(Port1, Port1))"
+
+    report.plot_name = r"foo\bar/baz"
+    assert report.expressions[0] == "mag(S(Port1, Port1)) / mag(S(Port1, Port1))"
+
+
+def test_circuit_create_report_display_families_type(circuit_test) -> None:
+    from ansys.aedt.core.generic.constants import DisplayFamiliesType
+
+    # Test DisplayHistogram
+    report = circuit_test.post.reports_by_category.standard(["dB(S(Port1, Port1))"], "LNA")
+    report.display_families_type = DisplayFamiliesType.Histogram
+    report.display_families_options = {"val_to_sample_at": "5GHz", "num_bins": 10}
+    assert report.create()
+
+    # Test DisplayStatistics
+    report2 = circuit_test.post.reports_by_category.standard(["dB(S(Port1, Port1))"], "LNA")
+    report2.display_families_type = DisplayFamiliesType.Statistics
+    report2.display_families_options = {"functions": ["Min", "Max", "Avg", "Mean", "Variance", "StdDev", "Sum"]}
+    assert report2.create()
+
+    # Test CumulativeDistribute
+    report3 = circuit_test.post.reports_by_category.standard(["dB(S(Port1, Port1))"], "LNA")
+    report3.display_families_type = DisplayFamiliesType.Cumulative
+    assert report3.create()
+
+    # Test invalid value raises ValueError
+    report4 = circuit_test.post.reports_by_category.standard(["dB(S(Port1, Port1))"], "LNA")
+    with pytest.raises(ValueError):
+        report4.display_families_type = "InvalidType"
+
+    # Test None (default, no display families arg)
+    report5 = circuit_test.post.reports_by_category.standard(["dB(S(Port1, Port1))"], "LNA")
+    report5.display_families_type = None
+    assert report5.create()
 
 
 def test_circuit_reports_by_category_standard(circuit_test) -> None:
@@ -211,11 +240,19 @@ def test_circuit_reports_by_category_standard_1(diff_test) -> None:
     assert new_report1.expressions
 
 
-def test_circuit_reports_by_category_standard_3(diff_test) -> None:
+def test_circuit_reports_by_category_standard_3(diff_test, test_tmp_dir) -> None:
     new_report = diff_test.post.reports_by_category.standard("dB(S(1,1))")
     new_report.differential_pairs = True
     assert new_report.create()
     assert new_report.get_solution_data()
+    out = os.path.join(test_tmp_dir, "test1.jpg")
+    diff_test.post.create_report("dB(S(1,1))", matplotlib=True, show=False, snapshot_path=out, width=700, height=700)
+    assert os.path.exists(out)
+    out = os.path.join(test_tmp_dir, "test2.jpg")
+    diff_test.post.create_report(
+        "dB(S(1,1))", matplotlib=False, hide_legend=True, snapshot_path=out, width=700, height=700
+    )
+    assert os.path.exists(out)
 
 
 def test_circuit_reports_by_category_standard_4(diff_test) -> None:
@@ -324,7 +361,7 @@ def test_circuit_available_report_solutions(diff_test) -> None:
     assert len(diff_test.post.available_report_solutions()) > 0
 
 
-def test_circuit_create_report_2(diff_test) -> None:
+def test_circuit_create_report_2(diff_test, test_tmp_dir) -> None:
     variations = diff_test.available_variations.nominal_variation(dependent_params=False)
     variations["Freq"] = ["All"]
     variations["l1"] = ["All"]
@@ -335,6 +372,20 @@ def test_circuit_create_report_2(diff_test) -> None:
         primary_sweep_variable="l1",
         context="Differential Pairs",
     )
+    out = os.path.join(test_tmp_dir, "test2.jpg")
+    diff_test.post.create_report(
+        "dB(S(Diff1, Diff1))",
+        variations=variations,
+        primary_sweep_variable="l1",
+        context="Differential Pairs",
+        matplotlib=True,
+        show=False,
+        hide_legend=True,
+        snapshot_path=out,
+        width=700,
+        height=700,
+    )
+    assert os.path.exists(out)
 
 
 def test_sbr_get_solution_data(sbr_test) -> None:
@@ -500,7 +551,9 @@ def test_eye_diagram(eye_test) -> None:
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2022.2", reason="Not working in non graphical in version lower than 2022.2")
 def test_mask(eye_test) -> None:
-    rep = eye_test.post.reports_by_category.eye_diagram("AEYEPROBE(OutputEye)", "QuickEyeAnalysis")
+    rep = eye_test.post.reports_by_category.eye_diagram(
+        "AEYEPROBE(OutputEye)", "QuickEyeAnalysis", statistical_analysis=False
+    )
     rep.time_start = "0ps"
     rep.time_stop = "50us"
     rep.unit_interval = "1e-9"
@@ -712,7 +765,6 @@ def test_ipk_get_scalar_field_value(icepak_post) -> None:
         variations={"power_block": "0.25W", "power_source": "0.075W"},
         is_vector=False,
         intrinsics=None,
-        phase=None,
         object_name="cube2",
         object_type="surface",
         adjacent_side=False,
@@ -727,7 +779,6 @@ def test_ipk_get_scalar_field_value_1(icepak_post) -> None:
         variations={"power_block": "0.6W", "power_source": "0.15W"},
         is_vector=False,
         intrinsics=None,
-        phase=None,
         object_name="cube2",
         object_type="surface",
         adjacent_side=False,
@@ -742,7 +793,6 @@ def test_ipk_get_scalar_field_value_2(icepak_post) -> None:
         variations={"power_block": "0.6W", "power_source": "0.15W"},
         is_vector=False,
         intrinsics=None,
-        phase=None,
         object_name="cube2",
         object_type="surface",
         adjacent_side=True,
@@ -757,7 +807,6 @@ def test_ipk_get_scalar_field_valu_3(icepak_post) -> None:
         variations={"power_block": "0.6W", "power_source": "0.15W"},
         is_vector=False,
         intrinsics=None,
-        phase=None,
         object_name="cube1",
         object_type="volume",
         adjacent_side=False,
@@ -772,7 +821,6 @@ def test_ipk_get_scalar_field_value_4(icepak_post) -> None:
         variations={"power_block": "0.6W", "power_source": "0.15W"},
         is_vector=False,
         intrinsics=None,
-        phase=None,
         object_name="cube2",
         object_type="surface",
         adjacent_side=False,
@@ -787,7 +835,6 @@ def test_ipk_get_scalar_field_value_5(icepak_post) -> None:
         variations=None,
         is_vector=False,
         intrinsics=None,
-        phase=None,
         object_name="Point1",
         object_type="point",
         adjacent_side=False,

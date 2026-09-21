@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
+#
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +25,8 @@
 from pathlib import Path
 import tempfile
 import tkinter
+from typing import Any
+from typing import cast
 
 from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui import ConfigureLayoutExtension
 from ansys.aedt.core.extensions.misc import ExtensionCommon
@@ -36,5 +39,5 @@ if __name__ == "__main__":  # pragma: no cover
         temp = Path(tempfile.TemporaryDirectory(suffix=".ansys").name)
         temp.mkdir()
         extension: ExtensionCommon = ConfigureLayoutExtension(withdraw=False)
-        extension.working_directory = temp
+        cast(Any, extension).working_directory = temp
         tkinter.mainloop()

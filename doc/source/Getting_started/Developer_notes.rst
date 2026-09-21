@@ -87,7 +87,7 @@ When direct or transitive test dependencies change (in the ``uv.lock`` file), th
 This is necessary to ensure that the dependency graph is accurate and that affected tests are correctly identified.
 
 Edge cases and considerations
-------------------------------
+-----------------------------
 
 This section covers common edge cases and considerations when working with PyAEDT's CI/CD pipeline
 and Testmon integration.
@@ -123,6 +123,23 @@ If the ``update-testmondata-cache.yml`` workflow fails:
 - The error message directs users to relaunch the workflow at:
   ``https://github.com/ansys/pyaedt/actions/workflows/update-testmondata-cache.yml``
 - Once the cache update completes successfully, PR workflows can proceed.
+
+Skipped tests transitioning to enabled
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When a test is skipped on ``main`` (for example via ``pytest.mark.skip`` or ``pytest.mark.skipif``) and
+the PR enables it by removing or modifying the skip condition, Testmon may not correctly handle
+the transition. This can lead to the newly enabled test never running in CI, causing unexpected
+failures or missed coverage.
+
+.. warning::
+
+   If your PR enables previously skipped tests, Testmon may silently skip running them.
+   Always verify and force that the newly enabled tests are executed and pass before merging.
+
+A real-world example of this issue causing a CI failure can be found in
+`PR #7465 <https://github.com/ansys/pyaedt/pull/7465>`_.
+
 
 Pruning Testmon caches
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -171,3 +188,86 @@ Use the "Update branch" button if available on your pull request page.
 .. note::
 
    Always verify that your tests still pass and coverage remains adequate after updating your branch.
+
+Branching strategy since PyAEDT 1.0
+-----------------------------------
+
+This section describes the new branching model used starting from the ``1.0``.
+All developers contributing to PyAEDT are expected to be familiar with this branching strategy before creating branches or opening pull requests.
+Using the correct base branch is required to keep release stable.
+
+Overview
+~~~~~~~~
+
+PyAEDT uses three core branches with different purposes:
+
+- **main**:
+
+  - Primary integration branch for ongoing **non-breaking** development.
+  - Feature/fix branches for backward-compatible work should branch from ``main``.
+
+- **release/1.0**:
+
+  - Stable maintenance branch for the ``1.0.x`` patch series.
+  - Patch releases for 1.0 are created from this branch.
+
+- **release/2.0**:
+
+  - Integration branch for **breaking changes** planned for 2.0.
+  - Any branch introducing breaking behavior must branch from ``release/2.0``.
+
+Overview
+~~~~~~~~
+
+1. Determine whether the change is breaking.
+2. Create your feature branch from the correct base branch:
+
+   - Non-breaking: from ``main``
+   - Breaking: from ``release/2.0``
+
+3. Open a pull request targeting the same base branch.
+
+Examples
+~~~~~~~~
+
+- Bug fix that keeps API compatibility:
+
+  - Branch from ``main``, PR to ``main``.
+
+- API rename/removal:
+
+  - Branch from ``release/2.0``, PR to ``release/2.0``.
+
+Notes
+~~~~~
+
+When in doubt, open a draft PR and request maintainers' guidance before implementation is finalized.
+
+Branching schema
+~~~~~~~~~~~~~~~~
+
+The diagram below summarizes how branches are used and how work should flow.
+
+.. only:: html
+
+  .. image:: ../Resources/diagrams/output/branching_schema_dark.png
+     :align: center
+     :class: only-dark
+     :alt: PyAEDT branching schema and release 2.0 sync workflow
+
+  .. image:: ../Resources/diagrams/output/branching_schema_light.png
+     :align: center
+     :class: only-light
+     :alt: PyAEDT branching schema and release 2.0 sync workflow
+
+.. only:: latex
+
+  .. image:: ../Resources/diagrams/output/branching_schema_light.png
+     :align: center
+     :alt: PyAEDT branching schema and release 2.0 sync workflow
+
+CI/CD automation:
+   - A workflow checks whether ``main`` can be merged into ``release/2.0`` on a weekly schedule.
+   - Anyone can also trigger the workflow manually to verify whether the merge can be performed cleanly.
+   - If there is no conflict, the workflow automatically creates a pull request targeting ``release/2.0``.
+   - If there is a conflict, the conflict must be resolved manually and the pull request must also be created manually.

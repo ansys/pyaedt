@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -87,6 +87,13 @@ class FieldAnalysisIcepak(FieldAnalysis3D, PyAedtBase):
         Whether to remove lock to project before opening it or not.
         The default is ``False``, which means to not unlock
         the existing project if needed and raise an exception.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Icepak
+    >>> icepak = Icepak()
+    >>> icepak.monitor
+
     """
 
     def __init__(
@@ -142,6 +149,13 @@ class FieldAnalysisIcepak(FieldAnalysis3D, PyAedtBase):
         -------
         :class:`ansys.aedt.core.visualization.post.post_icepak.PostProcessorIcepak`
             PostProcessor object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Icepak
+        >>> icepak = Icepak()
+        >>> icepak.post
+
         """
         if self._post is None and self._odesign:
             from ansys.aedt.core.visualization.post import post_processor
@@ -157,6 +171,13 @@ class FieldAnalysisIcepak(FieldAnalysis3D, PyAedtBase):
         -------
         :class:`ansys.aedt.core.modules.mesh_icepak.IcepakMesh`
             Mesh object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Icepak
+        >>> icepak = Icepak()
+        >>> icepak.mesh
+
         """
         if self._mesh is None and self._odesign:
             self.logger.reset_timer()
@@ -174,6 +195,13 @@ class FieldAnalysisIcepak(FieldAnalysis3D, PyAedtBase):
         Returns
         -------
         :class:`ansys.aedt.core.modules.monitor_icepak.Monitor`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Icepak
+        >>> icepak = Icepak()
+        >>> icepak.monitor
+
         """
         if self._monitor is None:
             from ansys.aedt.core.visualization.post.monitor_icepak import Monitor
@@ -195,14 +223,20 @@ class IcepakDesignSettingsManipulation(DesignSettingsManipulation, PyAedtBase):
     ----------
     app : FieldAnalysisIcepak
         Icepak application that is to initialize the call.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Icepak
+    >>> icepak = Icepak()
+    >>> icepak.design_settings.manipulate_inputs.execute("AmbTemp", 25)
+
     """
 
     def __init__(self, app) -> None:
         self.app = app
 
     def execute(self, k: str, v: float | int | str) -> str:
-        """
-        Modify the design settings for the given key with the specified value.
+        """Modify the design settings for the given key with the specified value.
 
         Handles specific keys like ``"AmbTemp"``, ``"AmbRadTemp"``, ``"AmbGaugePressure"``, and ``"GravityVec"``,
         applying custom logic to validate and format the values before assignment.
@@ -218,6 +252,13 @@ class IcepakDesignSettingsManipulation(DesignSettingsManipulation, PyAedtBase):
         -------
         str
              Updated value after processing, or an error message if the operation fails.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Icepak
+        >>> icepak = Icepak()
+        >>> icepak.design_settings.manipulate_inputs.execute("AmbTemp", 25)
+
         """
         if k in ["AmbTemp", "AmbRadTemp"]:
             if k == "AmbTemp" and isinstance(v, (dict, BoundaryDictionary)):
@@ -243,17 +284,20 @@ class IcepakDesignSettingsManipulation(DesignSettingsManipulation, PyAedtBase):
         elif k == "AmbGaugePressure":
             return self.app.value_with_units(v, "n_per_meter_sq")
         elif k == "GravityVec":
-            if isinstance(v, (float, int)):
-                self.app.design_settings["GravityDir"] = ["Positive", "Negative"][v // 3]
-                v = f"Global::{['X', 'Y', 'Z'][v - v // 3 * 3]}"
-                return v
-            else:
-                if len(v.split("::")) == 1 and len(v) < 3:
-                    if v.startswith("+") or v.startswith("-"):
-                        self.app.design_settings["GravityDir"] = ["Positive", "Negative"][int(v.startswith("-"))]
-                        v = v[-1]
-                    return f"Global::{v}"
-                else:
+            if self.app.desktop_class.aedt_version_id < "2027.1":
+                if isinstance(v, (float, int)):
+                    self.app.design_settings["GravityDir"] = ["Positive", "Negative"][v // 3]
+                    v = f"Global::{['X', 'Y', 'Z'][v - v // 3 * 3]}"
                     return v
+                else:
+                    if len(v.split("::")) == 1 and len(v) < 3:
+                        if v.startswith("+") or v.startswith("-"):
+                            self.app.design_settings["GravityDir"] = ["Positive", "Negative"][int(v.startswith("-"))]
+                            v = v[-1]
+                        return f"Global::{v}"
+                    else:
+                        return v
+            else:
+                return str(v)
         else:
-            return v
+            return str(v)

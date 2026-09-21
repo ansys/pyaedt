@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,9 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import json
 import os
-from pathlib import Path
 import shutil
 
 import pytest
@@ -37,6 +35,7 @@ from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.hfss import Hfss
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
+from ansys.aedt.core.modeler.cad.modeler import NamedSelections
 from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modeler.cad.polylines import Polyline
 from ansys.aedt.core.modeler.cad.primitives import PolylineSegment
@@ -589,7 +588,7 @@ def test_create_polyline_with_crosssection(aedt_app) -> None:
 
     assert isinstance(polyline, Polyline)
     assert aedt_app.modeler[polyline.id].object_type == "Solid"
-    assert aedt_app.modeler[polyline.id].is3d
+    assert aedt_app.modeler[polyline.id].is_3d
 
 
 def test_sweep_along_path_with_single_assignment(aedt_app) -> None:
@@ -1709,7 +1708,7 @@ def test_create_torus(aedt_app) -> None:
     assert torus.id > 0
     assert torus.name.startswith("MyTorus")
     assert torus.object_type == "Solid"
-    assert torus.is3d is True
+    assert torus.is_3d is True
 
 
 def test_create_torus_exceptions(aedt_app) -> None:
@@ -2077,7 +2076,7 @@ def test_3dcomponent_operations(aedt_app) -> None:
     assert obj_3dcomp.group_name == "test_group1"
     obj_3dcomp.group_name = "test_group"
     assert obj_3dcomp.group_name == "test_group"
-    assert obj_3dcomp.is3dcomponent
+    assert obj_3dcomp.is_3d_component
     assert not obj_3dcomp.mesh_assembly
     obj_3dcomp.mesh_assembly = True
     assert obj_3dcomp.mesh_assembly
@@ -2146,7 +2145,7 @@ def test_udm_operations(aedt_app) -> None:
     assert obj_udm.group_name == "test_group1"
     obj_udm.group_name = "test_group"
     assert obj_udm.group_name == "test_group"
-    assert not obj_udm.is3dcomponent
+    assert not obj_udm.is_3d_component
     assert not obj_udm.mesh_assembly
     obj_udm.mesh_assembly = True
     assert not obj_udm.mesh_assembly
@@ -2245,7 +2244,10 @@ def test_insert_layout_component(aedt_app, test_tmp_dir) -> None:
     assert isinstance(comp, UserDefinedComponent)
     assert len(aedt_app.modeler.user_defined_components[comp.name].parts) == 3
     assert comp.layout_component.edb_object
+
+    # Import again file
     comp3 = aedt_app.modeler.insert_layout_component(str(input_file), name="new_layout", parameter_mapping=True)
+
     assert isinstance(comp3, UserDefinedComponent)
     assert len(comp3.parameters) == 2
     assert comp3.layout_component.show_layout
@@ -2564,41 +2566,171 @@ def test_delete_all_points(aedt_app) -> None:
     assert [] == aedt_app.modeler.oeditor.GetPoints()
 
 
-def test_import_from_open_street_map(add_app, test_tmp_dir):
-    hfss = add_app(application=Hfss, solution_type="SBR+")
+def test_create_named_selections_objects(aedt_app) -> None:
+    box1 = aedt_app.modeler.create_box([0, 0, 0], [1, 2, 3], name="box1")
+    box2 = aedt_app.modeler.create_box([10, 10, 10], [1, 2, 3], name="box2")
+    ns = aedt_app.modeler.create_named_selection(name="test", assignment=aedt_app.modeler.object_names)
+    assert ns.name == "test"
+    assert ns.props["List"] == [box1.name, box2.name]
+    with pytest.raises(AEDTRuntimeError):
+        aedt_app.modeler.create_named_selection(name="test", assignment=["invalid"])
 
-    result = hfss.modeler.import_from_openstreet_map(
-        latitude_longitude=[40.273726, -80.168269],
-        env_name="test_hfss_environment",
-        terrain_radius=50,
-        road_step=3,
-        plot_before_importing=False,
-        import_in_aedt=True,
+
+def test_delete_named_selections_objects(aedt_app) -> None:
+    aedt_app.modeler.create_box([0, 0, 0], [1, 2, 3], name="box1")
+    aedt_app.modeler.create_box([10, 10, 10], [1, 2, 3], name="box2")
+    ns = aedt_app.modeler.create_named_selection(name="test", assignment=aedt_app.modeler.object_names)
+    assert len(aedt_app.modeler.user_lists) == 1
+    assert isinstance(aedt_app.modeler.user_lists[0], NamedSelections)
+    assert ns.delete()
+    assert len(aedt_app.modeler.user_lists) == 0
+
+
+def test_rename_named_selections_objects(aedt_app) -> None:
+    aedt_app.modeler.create_box([0, 0, 0], [1, 2, 3], name="box1")
+    aedt_app.modeler.create_box([10, 10, 10], [1, 2, 3], name="box2")
+    ns = aedt_app.modeler.create_named_selection(name="test", assignment=aedt_app.modeler.object_names)
+    assert ns.name == "test"
+    ns.rename("new_name")
+    assert ns.name == "new_name"
+
+
+def test_update_named_selections_objects(aedt_app) -> None:
+    box1 = aedt_app.modeler.create_box([0, 0, 0], [1, 2, 3], name="box1")
+    box2 = aedt_app.modeler.create_box([10, 10, 10], [1, 2, 3], name="box2")
+    ns = aedt_app.modeler.create_named_selection(name="test", assignment=aedt_app.modeler.object_names)
+    assert aedt_app.modeler[box1.name] in aedt_app.modeler.get_named_selection_objects(ns.name)
+    assert aedt_app.modeler[box2.name] in aedt_app.modeler.get_named_selection_objects(ns.name)
+    with pytest.raises(AEDTRuntimeError):
+        ns.update(assignment=[])
+    with pytest.raises(AEDTRuntimeError):
+        ns.update(assignment=["invalid"])
+    box3 = aedt_app.modeler.create_box([20, 20, 20], [1, 2, 3], name="box3")
+    ns.update(assignment=["invalid", box3.name])
+    aedt_app.save_project()
+    assert aedt_app.modeler[box3.name] in aedt_app.modeler.get_named_selection_objects(ns.name)
+    assert len(aedt_app.modeler.get_named_selection_objects(ns.name)) == 1
+    ns.update(assignment=[box1.name, box3.name])
+    aedt_app.save_project()
+    assert aedt_app.modeler[box1.name] in aedt_app.modeler.get_named_selection_objects(ns.name)
+    assert aedt_app.modeler[box3.name] in aedt_app.modeler.get_named_selection_objects(ns.name)
+    assert len(aedt_app.modeler.get_named_selection_objects(ns.name)) == 2
+    ns.update(assignment=[box2.name], mode="Add")
+    aedt_app.save_project()
+    assert aedt_app.modeler[box1.name] in aedt_app.modeler.get_named_selection_objects(ns.name)
+    assert aedt_app.modeler[box2.name] in aedt_app.modeler.get_named_selection_objects(ns.name)
+    assert aedt_app.modeler[box3.name] in aedt_app.modeler.get_named_selection_objects(ns.name)
+    assert len(aedt_app.modeler.get_named_selection_objects(ns.name)) == 3
+    ns.update(assignment=[box1.name], mode="Remove")
+    aedt_app.save_project()
+    assert aedt_app.modeler[box2.name] in aedt_app.modeler.get_named_selection_objects(ns.name)
+    assert aedt_app.modeler[box3.name] in aedt_app.modeler.get_named_selection_objects(ns.name)
+    assert len(aedt_app.modeler.get_named_selection_objects(ns.name)) == 2
+
+
+def test_create_named_selections_faces(aedt_app) -> None:
+    box1 = aedt_app.modeler.create_box([0, 0, 0], [1, 2, 3], name="box1")
+    box2 = aedt_app.modeler.create_box([10, 10, 10], [1, 2, 3], name="box2")
+    ns = aedt_app.modeler.create_named_selection(
+        name="test",
+        assignment=[
+            box1.faces[0],
+            box2.faces[0],
+        ],
     )
+    assert ns.props["Type"] == "Face"
+    assert len(ns.props["List"]) == 2
+    with pytest.raises(AEDTRuntimeError):
+        aedt_app.modeler.create_named_selection(name="test", assignment=["invalid"])
 
-    # Verify the result structure
-    assert result is not None
-    assert result["name"] == "test_hfss_environment"
-    assert result["type"] == "environment"
-    assert "parts" in result
-    assert "terrain" in result["parts"]
-    assert "buildings" in result["parts"]
-    assert "roads" in result["parts"]
 
-    # Verify objects were imported to HFSS
-    assert len(hfss.modeler.object_names) > 0
+def test_delete_named_selections_faces(aedt_app) -> None:
+    box1 = aedt_app.modeler.create_box([0, 0, 0], [1, 2, 3], name="box1")
+    box2 = aedt_app.modeler.create_box([10, 10, 10], [1, 2, 3], name="box2")
+    ns = aedt_app.modeler.create_named_selection(
+        name="test",
+        assignment=[
+            box1.faces[0],
+            box2.faces[0],
+        ],
+    )
+    assert len(aedt_app.modeler.user_lists) == 1
+    assert isinstance(aedt_app.modeler.user_lists[0], NamedSelections)
+    assert ns.delete()
+    assert len(aedt_app.modeler.user_lists) == 0
 
-    # Verify JSON file was created
-    json_file = Path(hfss.working_directory) / "test_hfss_environment.json"
-    assert json_file.exists()
 
-    # Verify JSON content
-    with open(json_file, "r", encoding="utf-8") as f:
-        json_data = json.load(f)
-        assert json_data["name"] == "test_hfss_environment"
-        assert json_data["radius"] == 50
+def test_rename_named_selections_faces(aedt_app) -> None:
+    box1 = aedt_app.modeler.create_box([0, 0, 0], [1, 2, 3], name="box1")
+    box2 = aedt_app.modeler.create_box([10, 10, 10], [1, 2, 3], name="box2")
+    ns = aedt_app.modeler.create_named_selection(
+        name="test",
+        assignment=[
+            box1.faces[0],
+            box2.faces[0],
+        ],
+    )
+    assert ns.name == "test"
+    ns.rename("new_name")
+    assert ns.name == "new_name"
 
-    # Verify model units are set to meters
-    assert hfss.modeler.model_units == "meter"
 
-    hfss.close_project(save=False)
+def test_update_named_selections_faces(aedt_app) -> None:
+    box1 = aedt_app.modeler.create_box([0, 0, 0], [1, 2, 3], name="box1")
+    box2 = aedt_app.modeler.create_box([10, 10, 10], [1, 2, 3], name="box2")
+    ns = aedt_app.modeler.create_named_selection(
+        name="test",
+        assignment=[
+            box1.faces[0],
+            box2.faces[0],
+        ],
+    )
+    assert box1.faces[0].id in aedt_app.modeler.get_named_selection_objects(ns.name)
+    assert box2.faces[0].id in aedt_app.modeler.get_named_selection_objects(ns.name)
+    with pytest.raises(AEDTRuntimeError):
+        ns.update(assignment=["invalid"], entity_type="Face", mode="Add")
+    ns.update(
+        assignment=[aedt_app.modeler["box2"].faces[1].id, aedt_app.modeler["box2"].faces[3].id],
+        entity_type="Face",
+        mode="Add",
+    )
+    assert box2.faces[1].id in aedt_app.modeler.get_named_selection_objects(ns.name)
+    assert box2.faces[3].id in aedt_app.modeler.get_named_selection_objects(ns.name)
+    ns.update(assignment=[aedt_app.modeler["box1"].faces[1].id, "invalid"], entity_type="Face", mode="Add")
+    assert len(aedt_app.modeler.get_named_selection_objects(ns.name)) == 5
+    assert box2.faces[1].id in aedt_app.modeler.get_named_selection_objects(ns.name)
+    assert box2.faces[3].id in aedt_app.modeler.get_named_selection_objects(ns.name)
+    assert box1.faces[1].id in aedt_app.modeler.get_named_selection_objects(ns.name)
+    ns.update(assignment=[box2.faces[1].id], entity_type="Face", mode="Reassign")
+    assert len(aedt_app.modeler.get_named_selection_objects(ns.name)) == 1
+    assert box2.faces[1].id in aedt_app.modeler.get_named_selection_objects(ns.name)
+
+
+def test_get_named_selection_objects(aedt_app) -> None:
+    box1 = aedt_app.modeler.create_box([0, 0, 0], [1, 2, 3], name="box1")
+    box2 = aedt_app.modeler.create_box([10, 10, 10], [1, 2, 3], name="box2")
+
+    aedt_app.modeler.create_named_selection(name="test", assignment=aedt_app.modeler.object_names)
+    objs = aedt_app.modeler.get_named_selection_objects(name="test")
+
+    assert isinstance(objs, list)
+    assert box1 in objs
+    assert box2 in objs
+
+    with pytest.raises(AEDTRuntimeError):
+        aedt_app.modeler.get_named_selection_objects(name="invalid")
+
+
+def test_get_named_selection_faces(aedt_app) -> None:
+    box1 = aedt_app.modeler.create_box([0, 0, 0], [1, 2, 3], name="box1")
+    box2 = aedt_app.modeler.create_box([10, 10, 10], [1, 2, 3], name="box2")
+
+    ns = aedt_app.modeler.create_named_selection(
+        name="test",
+        assignment=[
+            box1.faces[0],
+            box2.faces[0],
+        ],
+    )
+    assert len(aedt_app.modeler.get_named_selection_objects(ns.name)) == 2
+    assert isinstance(all(aedt_app.modeler.get_named_selection_objects(ns.name)), int)

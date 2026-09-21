@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -32,25 +32,38 @@ from ansys.aedt.core.visualization.advanced.misc import preview_pyvista
 __all__ = ["nastran_to_stl"]
 
 
+_nastran_import_lib = None
+
+
 USE_PY_SOURCE_FOR_DEBUG = False  # Set to True to use nastran_import_lib.py directly
-
-if USE_PY_SOURCE_FOR_DEBUG:
-    import importlib.util
-    import pathlib
-
-    # Path to nastran_import_lib.py source file
-    py_source_path = pathlib.Path(settings.pyd_libraries_path) / "nastran_import" / "nastran_import_lib.py"
-
-    spec = importlib.util.spec_from_file_location("_nastran_import_lib", py_source_path)
-    _nastran_import_lib = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(_nastran_import_lib)
-else:
-    # Dynamically load the compiled nastran_import module from a directory
-    _nastran_import_lib = load_native_module("nastran_import_lib", settings.pyd_libraries_path / "nastran_import")
+"""Flag indicating whether py source for debug is enabled."""
 
 
-# Initialize the helpers for the nastran_import_lib module
-_nastran_import_lib.initialize_helpers(open_file, GeometryOperators, preview_pyvista)
+def _get_nastran_import_lib():
+    """Load and initialize the native Nastran import backend on first use."""
+    global _nastran_import_lib
+
+    if _nastran_import_lib is not None:
+        return _nastran_import_lib
+
+    if USE_PY_SOURCE_FOR_DEBUG:
+        import importlib.util
+        import pathlib
+
+        # Path to nastran_import_lib.py source file
+        py_source_path = pathlib.Path(settings.pyd_libraries_path) / "nastran_import" / "nastran_import_lib.py"
+
+        spec = importlib.util.spec_from_file_location("_nastran_import_lib", py_source_path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+    else:
+        # Dynamically load the compiled nastran_import module from a directory
+        module = load_native_module("nastran_import_lib", settings.pyd_libraries_path / "nastran_import")
+
+    # Initialize the helpers for the nastran_import_lib module
+    module.initialize_helpers(open_file, GeometryOperators, preview_pyvista)
+    _nastran_import_lib = module
+    return _nastran_import_lib
 
 
 @pyaedt_function_handler()
@@ -85,5 +98,10 @@ def nastran_to_stl(*args, **kwargs):
             - A dictionary representing the parsed Nastran data.
             - A boolean indicating whether planar merging was enabled.
 
+    Examples
+    --------
+    >>> from ansys.aedt.core.syslib.nastran_import import nastran_to_stl
+    >>> nastran_to_stl(input_file="my_file.nas", decimation=0, preview=True)
+
     """
-    return _nastran_import_lib.nastran_to_stl(*args, **kwargs)
+    return _get_nastran_import_lib().nastran_to_stl(*args, **kwargs)
