@@ -62,7 +62,6 @@ jobs:
         uses: $/.github/actions/setup-test-environment
         with:
           python-version: ${{ env.TESTS_VERSION }}
-          setup-headless-display: true
 
       - name: Run unit tests
         env:
