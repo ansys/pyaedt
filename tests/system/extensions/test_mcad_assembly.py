@@ -24,6 +24,7 @@
 
 import json
 import shutil
+from pathlib import Path
 from unittest.mock import patch
 
 import pytest
@@ -119,3 +120,28 @@ def test_backend(mock_askopenfilename, hfss_app, test_tmp_dir) -> None:
         "cap_c4",
         "cap_r7",
     }
+
+def test_backend_2(hfss_app, test_tmp_dir) -> None:
+    shutil.copytree(MODEL_FOLDER, test_tmp_dir, dirs_exist_ok=True)
+
+    top_assembly = MCADAssemblyBackend()
+    top_assembly.add_mcad_component_model(name="case", path=str(Path(test_tmp_dir)/"Chassi.a3dcomp"))
+    top_assembly.add_ecad_component_model(name="pcb", path=str(Path(test_tmp_dir)/"DCDC-Converter-App_main.aedb"))
+
+    cs = top_assembly.add_coordinate_system(name="GLOBAL_2")
+    cs.origin = ["100mm", "0mm", "0mm"]
+
+    sub_comp = top_assembly.add_sub_mcad_component(name="case", model="case")
+    sub_comp.target_coordinate_system = "GLOBAL_2"
+    sub_comp.reference_coordinate_system = "GLOBAL_2"
+
+    sub_comp_ = sub_comp.add_sub_ecad_component(name="pcb", model="pcb")
+    sub_comp_.target_coordinate_system = "Guiding_Pin"
+    sub_comp_.reference_coordinate_system = "H0_via_65"
+
+    sub_comp_.add_sub_mcad_component_from_library(
+        library_path=str(Path(test_tmp_dir)/"model_library")
+    )
+
+    run(config_data=top_assembly.model_dump(), hfss=hfss_app, project_dir=test_tmp_dir)
+    assert len(hfss_app.modeler.user_defined_component_names) == 15

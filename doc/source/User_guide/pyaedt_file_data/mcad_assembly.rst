@@ -13,7 +13,7 @@ The code loads the configuration file and creates an assembled design in HFSS 3D
 
 File structure example:
 
-:download:`Choke example <../../Resources/assembly_config.json>`
+:download:`example <../../Resources/assembly_config.json>`
 
 This code creates a configure file and create an assembled design in HFSS 3D:
 
