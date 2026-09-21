@@ -121,6 +121,7 @@ def test_backend(mock_askopenfilename, hfss_app, test_tmp_dir) -> None:
         "cap_r7",
     }
 
+@pytest.mark.skipif(is_linux, reason="EDB load of Layout component failing in Linux.")
 def test_backend_2(hfss_app, test_tmp_dir) -> None:
     shutil.copytree(MODEL_FOLDER, test_tmp_dir, dirs_exist_ok=True)
 
