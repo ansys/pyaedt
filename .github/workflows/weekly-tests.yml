@@ -53,16 +53,16 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Install Xvfb
+        shell: bash
+        run: sudo apt-get install -y xvfb
+
       - name: Set up test environment
         id: setup-test-environment
         uses: $/.github/actions/setup-test-environment
         with:
           python-version: ${{ env.TESTS_VERSION }}
           setup-headless-display: true
-
-      - name: Install Xvfb
-        shell: bash
-        run: sudo apt-get install -y xvfb
 
       - name: Run unit tests
         env:
