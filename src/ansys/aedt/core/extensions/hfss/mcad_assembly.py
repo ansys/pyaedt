@@ -420,7 +420,6 @@ class Component(BaseModel):
 
     def add_sub_mcad_component_from_library(self, library_path):
         """Add sub component."""
-
         models = read_toml(Path(library_path) / "model_library.toml")
 
         for comp_def, item in models.items():
@@ -633,7 +632,7 @@ class MCADAssemblyBackend(BaseModel):
     def add_sub_mcad_component(self, name: str, model: str) -> Component:
         """Add sub component."""
         comp = Component(name=name, model=model, component_type="mcad")
-        comp._top_assembly= self
+        comp._top_assembly = self
         self.sub_components[name] = comp
         return comp
 
