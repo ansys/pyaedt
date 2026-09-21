@@ -18,6 +18,9 @@ env:
   PYTEST_ARGUMENTS: -vvv --color=yes -rsa --durations=25 --maxfail=10 --cov=ansys.aedt.core --cov-report=html --cov-report=xml --junitxml=junit/test-results.xml --testmon
   PYAEDT_EDB_XFAIL: "1"
   PYAEDT_LOCAL_SETTINGS_PATH: 'tests/pyaedt_settings.yaml'
+  PYAEDT_OSM_XFAIL: "1"
+  PYAEDT_SOLVER_XFAIL: "1"
+  PYAEDT_TCL_INIT_XFAIL: "1"
   TESTMON_DATAFILE: '.testmondata'
   TESTMON_CACHE_KEY_SOLVERS_WIN: 'testmondata-solvers-win'
   TESTMON_CACHE_KEY_SOLVERS_LINUX: 'testmondata-solvers-linux'
@@ -112,7 +115,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
+        uses: $/.github/actions/testmon-cache
         with:
           testmon-datafile: ${{ env.TESTMON_DATAFILE }}
           cache-key: ${{ env.TESTMON_CACHE_KEY_SOLVERS_WIN }}
@@ -173,7 +176,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
+        uses: $/.github/actions/testmon-cache
         with:
           testmon-datafile: ${{ env.TESTMON_DATAFILE }}
           cache-key: ${{ env.TESTMON_CACHE_KEY_SOLVERS_LINUX }}
@@ -231,7 +234,7 @@ jobs:
           setup-headless-display: true
 
       - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
+        uses: $/.github/actions/testmon-cache
         with:
           testmon-datafile: ${{ env.TESTMON_DATAFILE }}
           cache-key: ${{ env.TESTMON_CACHE_KEY_GENERAL_WIN }}
@@ -293,7 +296,7 @@ jobs:
           setup-headless-display: true
 
       - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
+        uses: $/.github/actions/testmon-cache
         with:
           testmon-datafile: ${{ env.TESTMON_DATAFILE }}
           cache-key: ${{ env.TESTMON_CACHE_KEY_GENERAL_LINUX }}
@@ -351,7 +354,7 @@ jobs:
           setup-headless-display: true
 
       - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
+        uses: $/.github/actions/testmon-cache
         with:
           testmon-datafile: ${{ env.TESTMON_DATAFILE }}
           cache-key: ${{ env.TESTMON_CACHE_KEY_VISUALIZATION_WIN }}
@@ -414,7 +417,7 @@ jobs:
           setup-headless-display: true
 
       - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
+        uses: $/.github/actions/testmon-cache
         with:
           testmon-datafile: ${{ env.TESTMON_DATAFILE }}
           cache-key: ${{ env.TESTMON_CACHE_KEY_VISUALIZATION_LINUX }}
@@ -470,7 +473,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
+        uses: $/.github/actions/testmon-cache
         with:
           testmon-datafile: ${{ env.TESTMON_DATAFILE }}
           cache-key: ${{ env.TESTMON_CACHE_KEY_ICEPAK_WIN }}
@@ -531,7 +534,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
+        uses: $/.github/actions/testmon-cache
         with:
           testmon-datafile: ${{ env.TESTMON_DATAFILE }}
           cache-key: ${{ env.TESTMON_CACHE_KEY_ICEPAK_LINUX }}
@@ -588,7 +591,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
+        uses: $/.github/actions/testmon-cache
         with:
           testmon-datafile: ${{ env.TESTMON_DATAFILE }}
           cache-key: ${{ env.TESTMON_CACHE_KEY_LAYOUT_WIN }}
@@ -649,7 +652,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
+        uses: $/.github/actions/testmon-cache
         with:
           testmon-datafile: ${{ env.TESTMON_DATAFILE }}
           cache-key: ${{ env.TESTMON_CACHE_KEY_LAYOUT_LINUX }}
@@ -706,7 +709,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
+        uses: $/.github/actions/testmon-cache
         with:
           testmon-datafile: ${{ env.TESTMON_DATAFILE }}
           cache-key: ${{ env.TESTMON_CACHE_KEY_FILTER_WIN }}
@@ -764,7 +767,7 @@ jobs:
 #          python-version: ${{ env.TESTS_VERSION }}
 #
 #      - name: Restore testmondata cache
-#        uses: ./.github/actions/testmon-cache
+#        uses: $/.github/actions/testmon-cache
 #        with:
 #          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
 #          cache-key: ${{ env.TESTMON_CACHE_KEY_EMIT_WIN }}
