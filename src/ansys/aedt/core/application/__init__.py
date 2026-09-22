@@ -159,6 +159,8 @@ def _get_obj_data(child_object):
     elif objects:
         result["Objects"] = objects
 
+    if "Type" in dir(child_object):
+        result["Type"] = child_object.Type
     for item in values:
         result.update(_obj_data_parser(item))
 
