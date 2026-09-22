@@ -138,10 +138,10 @@ class AedtObjWrapper:
 
     def __GetObjMethod__(self, funcName):
         for methodName in self.__methodNames__:
-            if methodName == funcName:
+            if methodName.lower() == funcName.lower():
 
                 def DynamicFunc(self, *args):
-                    return self.__Invoke__(funcName, args)
+                    return self.__Invoke__(methodName, args)
 
                 return types.MethodType(DynamicFunc, self)
         raise AttributeError("This AEDT object has no attribute '" + funcName + "'")
