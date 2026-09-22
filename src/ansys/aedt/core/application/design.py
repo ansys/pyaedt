@@ -46,6 +46,7 @@ from typing import cast
 
 from ansys.aedt.core.aedt_logger import AedtLogger
 from ansys.aedt.core.application import _get_obj_data
+from ansys.aedt.core.application import _has_get_obj_data
 from ansys.aedt.core.application.aedt_objects import AedtObjects
 from ansys.aedt.core.application.design_solutions import DesignSolution
 from ansys.aedt.core.application.design_solutions import HFSSDesignSolution
@@ -280,10 +281,7 @@ class Design(AedtObjects, PyAedtBase):
         if self._design_type not in ["Maxwell Circuit", "Circuit Netlist"]:
             self.design_settings = DesignSettings(self)
 
-        if self._aedt_version >= "2026.1":
-            self.__get_props = _get_obj_data
-        else:
-            self.__get_props = lambda obj: None
+        self.__get_props = lambda obj: _get_obj_data(obj) if _has_get_obj_data(obj) else None
 
     @property
     def _pyaedt_details(self) -> dict[str, str]:

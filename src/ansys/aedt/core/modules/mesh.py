@@ -28,6 +28,7 @@ import os
 import shutil
 
 from ansys.aedt.core.application import _get_obj_data
+from ansys.aedt.core.application import _has_get_obj_data
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -174,7 +175,12 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
 
         """
         if not self._legacy_props:
-            props = _get_obj_data(self._child_object) or {}
+            if _has_get_obj_data(self._child_object):
+                props = _get_obj_data(self._child_object) or {}
+            else:
+                props = {}
+                for key, value in self.properties.items():
+                    props[key] = value
             if "Assignment" in props:
                 assignment = props["Assignment"]
                 if "Face_" in assignment:

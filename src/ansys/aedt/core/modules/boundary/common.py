@@ -25,6 +25,7 @@
 """The module contains these classes: ``BoundaryCommon`` and ``BoundaryObject``."""
 
 from ansys.aedt.core.application import _get_obj_data
+from ansys.aedt.core.application import _has_get_obj_data
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.general_methods import PropsManager
@@ -347,11 +348,20 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         """
         if self.__props:
             return self.__props
-        props = _get_obj_data(self._child_object)
+        child_object = self._child_object
+        has_obj_data = _has_get_obj_data(child_object)
+        if has_obj_data:
+            props = _get_obj_data(child_object)
+        else:
+            boundary_data = self._get_boundary_data(self.name)
+            props = boundary_data[0] if boundary_data else {}
 
         if props:
             self.__props = BoundaryProps(self, props)
-            boundary_type = self._app.get_oo_property_value(self.odesign, f"Boundaries\\{self.name}", "Type")
+            if has_obj_data:
+                boundary_type = self._app.get_oo_property_value(self.odesign, f"Boundaries\\{self.name}", "Type")
+            else:
+                boundary_type = boundary_data[1]
 
             if boundary_type:
                 self._type = boundary_type

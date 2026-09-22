@@ -27,6 +27,16 @@ import re
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 
+def _has_get_obj_data(child_object) -> bool:
+    """Return whether an AEDT child object supports ``GetObjData``."""
+    if child_object is None:
+        return False
+    try:
+        return callable(getattr(child_object, "GetObjData"))
+    except (AttributeError, RuntimeError):
+        return False
+
+
 @pyaedt_function_handler()
 def _get_data_model(child_object, level=-1):
     import json
@@ -69,6 +79,10 @@ def _get_obj_data(child_object):
     import json
 
     def _obj_data_parser(node):
+
+        # Primitive values can occur directly in a named node's "values" list.
+        if not isinstance(node, (dict, list)):
+            return node
 
         # Case 1: If the node is a list, parse each item in the list
         if isinstance(node, list):
@@ -120,6 +134,30 @@ def _get_obj_data(child_object):
         values = data_2[0].get("values", [])
     else:
         values = data_2
+    faces = []
+    objects = []
+    edges = []
+    vertices = []
+    if "Assignment" in dir(child_object):
+        assignments = child_object.Assignment.split(", ")
+
+        for assignment in assignments:
+            if "Face_" in assignment:
+                faces.append(int(re.search(r"Face_(\d+)", assignment).group(1)))
+            elif "Edge_" in assignment:
+                edges.append(int(re.search(r"Edge_(\d+)", assignment).group(1)))
+            elif "Vertex_" in assignment:
+                vertices.append(int(re.search(r"Vertex_(\d+)", assignment).group(1)))
+            else:
+                objects.append(assignment)
+    if faces:
+        result["Faces"] = faces
+    elif edges:
+        result["Edges"] = edges
+    elif vertices:
+        result["Vertices"] = vertices
+    elif objects:
+        result["Objects"] = objects
 
     for item in values:
         result.update(_obj_data_parser(item))
