@@ -101,7 +101,7 @@ def test_backend(mock_askopenfilename, hfss_app, test_tmp_dir) -> None:
 
     run(config_data=extension.config_data, hfss=hfss_app, project_dir=test_tmp_dir, model_dir=test_tmp_dir)
     assert hfss_app.modeler.layout_component_names == ["pcb1"]
-    assert set(hfss_app.modeler.user_defined_component_names) == {'case', 'pcb1', 'cap_r7', 'cap_c4'}
+    assert set(hfss_app.modeler.user_defined_component_names) == {"case", "pcb1", "cap_r7", "cap_c4"}
 
 
 @pytest.mark.skipif(is_linux, reason="EDB load of Layout component failing in Linux.")
