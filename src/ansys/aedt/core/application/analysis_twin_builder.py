@@ -230,7 +230,7 @@ class AnalysisTwinBuilder(Analysis, PyAedtBase):
             setup_type = self.design_solutions.default_setup
         elif setup_type in SetupKeys.SetupNames:
             setup_type = SetupKeys.SetupNames.index(setup_type)
-        name = self.generate_unique_setup(name)
+        name = self.generate_unique_setup_name(name)
         setup = SetupCircuit(self, setup_type, name)
         tmp_setups = self.setups
         setup.create()
