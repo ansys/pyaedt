@@ -24,6 +24,7 @@
 
 from __future__ import annotations
 
+from ansys.aedt.core.application import _get_obj_data
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.data_handlers import random_string
@@ -407,11 +408,15 @@ class BoundaryObject3dLayout(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         """
         if self.__props:
             return self.__props
-        props = self._get_boundary_data(self.name)
+        props = _get_obj_data(self._child_object)
 
         if props:
-            self.__props = BoundaryProps(self, props[0])
-            self._type = props[1]
+            self.__props = BoundaryProps(self, props)
+            boundary_type = props.get("Type") or props.get("BoundType")
+            if not boundary_type:
+                boundary_type = self._app.get_oo_property_value(self._app.odesign, f"Boundaries\\{self.name}", "Type")
+            if boundary_type:
+                self._type = boundary_type
         return self.__props
 
     @pyaedt_function_handler()

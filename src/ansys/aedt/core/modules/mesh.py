@@ -174,9 +174,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
 
         """
         if not self._legacy_props:
-            props = {}
-            for k, v in self.properties.items():
-                props[k] = v
+            props = _get_obj_data(self._child_object) or {}
             if "Assignment" in props:
                 assignment = props["Assignment"]
                 if "Face_" in assignment:
@@ -214,10 +212,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
 
     @property
     def props_test(self):
-        if not self._legacy_props:
-            props = _get_obj_data(self._child_object)
-            self._legacy_props = MeshProps(self, props)
-        return self._legacy_props
+        return self.props
 
     @pyaedt_function_handler()
     def _get_args(self):

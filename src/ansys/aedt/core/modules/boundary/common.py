@@ -330,23 +330,14 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         """
         if self.__props:
             return self.__props
-        props = self._get_boundary_data(self.name)
-
-        if props:
-            self.__props = BoundaryProps(self, props[0])
-            self._type = props[1]
-        return self.__props
-
-    @property
-    def props_test(self):
-        """Boundary data test."""
-        if self.__props:
-            return self.__props
         props = _get_obj_data(self._child_object)
 
         if props:
             self.__props = BoundaryProps(self, props)
-            self._type = self.get_oo_property_value(self.odesign, f"Boundaries\\{self.name}", "Type")
+            boundary_type = self._app.get_oo_property_value(self.odesign, f"Boundaries\\{self.name}", "Type")
+
+            if boundary_type:
+                self._type = boundary_type
         return self.__props
 
     @property

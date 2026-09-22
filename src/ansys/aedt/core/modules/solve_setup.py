@@ -334,43 +334,6 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
 
     @property
     def props(self) -> SetupProps:
-        """Properties of the setup.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> app = Hfss()
-        >>> setup = app.create_setup()
-        >>> setup.props
-
-        """
-        if self._legacy_props:
-            return self._legacy_props
-        if self._is_new_setup:
-            setup_template = SetupKeys.get_setup_templates()[self.setuptype]
-            setup_template["Name"] = self._name
-            self._legacy_props = SetupProps(self, setup_template)
-            self._is_new_setup = False
-        else:
-            try:
-                if "AnalysisSetup" in self._app.design_properties.keys():
-                    setups_data = self._app.design_properties["AnalysisSetup"]["SolveSetups"]
-                    if self.name in setups_data:
-                        setup_data = setups_data[self.name]
-                        self._legacy_props = SetupProps(self, setup_data)
-                elif "SimSetups" in self._app.design_properties.keys():
-                    setup_data = self._app.design_properties["SimSetups"]["SimSetup"]
-                    self._legacy_props = SetupProps(self, setup_data)
-            except Exception:
-                self._legacy_props = SetupProps(self, {})
-        return self._legacy_props
-
-    @props.setter
-    def props(self, value: dict) -> None:
-        self._legacy_props = SetupProps(self, value)
-
-    @property
-    def props_test(self) -> SetupProps:
         """Properties of the setup."""
         if self._legacy_props:
             return self._legacy_props
@@ -382,9 +345,10 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
         else:
             setup_data = _get_obj_data(self._child_object)
             self._legacy_props = SetupProps(self, setup_data)
+        return self._legacy_props
 
-    @props_test.setter
-    def props_test(self, value: dict) -> None:
+    @props.setter
+    def props(self, value: dict) -> None:
         self._legacy_props = SetupProps(self, value)
 
     @property

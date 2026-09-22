@@ -64,6 +64,8 @@ def _get_data_model(child_object, level=-1):
 
 @pyaedt_function_handler()
 def _get_obj_data(child_object):
+    if not child_object:
+        return {}
     import json
 
     def _obj_data_parser(node):
@@ -117,7 +119,7 @@ def _get_obj_data(child_object):
     if data_2 and isinstance(data_2, list):
         values = data_2[0].get("values", [])
     else:
-        values = []
+        values = data_2
 
     for item in values:
         result.update(_obj_data_parser(item))
