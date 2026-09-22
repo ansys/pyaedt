@@ -88,6 +88,23 @@ class BoundaryCommon(PropsManager, PyAedtBase):
     def __str__(self) -> str:
         return self.name
 
+    @property
+    def assignment(self) -> str:
+        """Retrieve the assignment of the boundary.
+        The assignment can be an element or a comma separated list of objects.
+
+        Returns
+        -------
+        str
+            Assignment of the boundary.
+        """
+        if not self.child_object or "Assignment" not in dir(self.child_object):
+            return ""
+        try:
+            return self.child_object.Assignment
+        except Exception:
+            return ""
+
     @pyaedt_function_handler()
     def _get_args(self, props=None):
         """Retrieve boundary properties.
