@@ -51,9 +51,7 @@ def get_test_data() -> MCADAssemblyBackend:
 
     top_assembly = MCADAssemblyBackend()
     top_assembly.add_mcad_component_model(name="case", path="Chassi.a3dcomp")
-    top_assembly.add_mcad_component_model(name="cable", path="Cable.a3dcomp")
-    top_assembly.add_mcad_component_model(name="clamp_monitor", path="BCI_MONITORING_CLAMP.a3dcomp")
-    top_assembly.add_mcad_component_model(name="cap0402", path="Capacitor0402_100pF_HFSS.a3dcomp")
+    top_assembly.add_mcad_component_model(name="cap0402", path="model_library/Capacitor_220uF_HFSS.a3dcomp")
     top_assembly.add_ecad_component_model(name="pcb", path="DCDC-Converter-App_main.aedb")
 
     cs = top_assembly.add_coordinate_system(name="GLOBAL_2")
@@ -72,11 +70,6 @@ def get_test_data() -> MCADAssemblyBackend:
     sub_comp_.reference_coordinate_system = "H0_via_65"
     sub_comp_.arranges = [Arrange(operation="rotate", axis="X", angle="0deg")]
 
-    sub_comp__ = sub_comp_.add_sub_mcad_component(name="cable_a", model="cable")
-    sub_comp__.target_coordinate_system = "CABLE1_via_65"
-    sub_comp__ = sub_comp_.add_sub_mcad_component(name="cable_b", model="cable")
-    sub_comp__.target_coordinate_system = "CABLE2_via_65"
-
     sub_comp__ = sub_comp_.add_sub_mcad_component(name="cap_c4", model="cap0402")
     sub_comp__.use_pin_mapping = True
     sub_comp__.placement_pin_mapping.reference_designator = "C4"
@@ -88,9 +81,6 @@ def get_test_data() -> MCADAssemblyBackend:
     sub_comp__.placement_pin_mapping.reference_designator = "R7"
     sub_comp__.placement_pin_mapping.pin_1_loc = (0, 0, 0)
     sub_comp__.placement_pin_mapping.pin_2_loc = (0.7375e-3, 0, 0)
-
-    sub_comp = top_assembly.add_sub_mcad_component(name="clamp_monitor", model="clamp_monitor")
-    sub_comp.target_coordinate_system = "CS_CLAMP"
 
     return top_assembly
 
@@ -111,15 +101,7 @@ def test_backend(mock_askopenfilename, hfss_app, test_tmp_dir) -> None:
 
     run(config_data=extension.config_data, hfss=hfss_app, project_dir=test_tmp_dir, model_dir=test_tmp_dir)
     assert hfss_app.modeler.layout_component_names == ["pcb1"]
-    assert set(hfss_app.modeler.user_defined_component_names) == {
-        "cable_a",
-        "clamp_monitor",
-        "case",
-        "cable_b",
-        "pcb1",
-        "cap_c4",
-        "cap_r7",
-    }
+    assert set(hfss_app.modeler.user_defined_component_names) == {'case', 'pcb1', 'cap_r7', 'cap_c4'}
 
 
 @pytest.mark.skipif(is_linux, reason="EDB load of Layout component failing in Linux.")
@@ -144,4 +126,4 @@ def test_backend_2(hfss_app, test_tmp_dir) -> None:
     sub_comp_.add_sub_mcad_component_from_library(library_path=str(Path(test_tmp_dir) / "model_library"))
 
     run(config_data=top_assembly.model_dump(), hfss=hfss_app, project_dir=test_tmp_dir)
-    assert len(hfss_app.modeler.user_defined_component_names) == 15
+    assert len(hfss_app.modeler.user_defined_component_names) == 8

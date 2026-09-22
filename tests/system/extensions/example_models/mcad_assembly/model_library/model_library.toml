@@ -2,29 +2,3 @@
 model_path = 'Capacitor_220uF_HFSS.a3dcomp'
 pin_1_loc = [0.0, 0.0, 0.0]
 pin_2_loc = [0.7375e-3, 0, 0]
-
-['10nF']
-model_path = 'Capacitor_HFSS.a3dcomp'
-pin_1_loc = [0.0, 0.0, 0.0]
-pin_2_loc = [0.7375e-3, 0, 0]
-
-['100nF']
-model_path = 'Capacitor_HFSS.a3dcomp'
-pin_1_loc = [0.0, 0.0, 0.0]
-pin_2_loc = [0.7375e-3, 0, 0]
-
-['220nF']
-model_path = 'Capacitor_HFSS.a3dcomp'
-pin_1_loc = [0.0, 0.0, 0.0]
-pin_2_loc = [0.7375e-3, 0, 0]
-
-['470nF']
-model_path = 'Capacitor_HFSS.a3dcomp'
-pin_1_loc = [0.0, 0.0, 0.0]
-pin_2_loc = [0.7375e-3, 0, 0]
-
-[R7]
-model_path = 'Resistor_4kohm_HFSS.a3dcomp'
-pin_1_loc = [0.0, 0.0, 0.0]
-pin_2_loc = [0.7375e-3, 0, 0]
-

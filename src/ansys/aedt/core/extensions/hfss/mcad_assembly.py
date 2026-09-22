@@ -59,64 +59,6 @@ from ansys.aedt.core.generic.file_utils import read_toml
 if TYPE_CHECKING:
     from ansys.aedt.core.hfss import Hfss
 
-DATA = {
-    "component_models": {
-        "case": "Chassi.a3dcomp",
-        "cable": "Cable_1.a3dcomp",
-        "clamp_monitor": "BCI_MONITORING_CLAMP.a3dcomp",
-    },
-    "layout_component_models": {
-        "pcb": "DCDC-Converter-App_main.aedbcomp",
-    },
-    "coordinate_system": {
-        "GLOBAL_2": {"origin": ["100mm", "0mm", "0mm"], "reference_cs": "Global"},
-        "CS_CLAMP": {"origin": ["-130mm", "80mm", "12mm"], "reference_cs": "GLOBAL_2"},
-    },
-    "assembly": {
-        "case": {
-            "component_type": "mcad",
-            "model": "case",
-            "reference_coordinate_system": "Global",
-            "target_coordinate_system": "GLOBAL_2",
-            "arranges": [
-                {"operation": "rotate", "axis": "X", "angle": "0deg"},
-                {"operation": "move", "vector": ["0mm", "0mm", "0mm"]},
-            ],
-            "sub_components": {
-                "pcb": {
-                    "component_type": "ecad",
-                    "model": "pcb",
-                    "target_coordinate_system": "Guiding_Pin",
-                    "layout_coordinate_systems": ["CABLE1_via_65", "CABLE2_via_65", "H0_via_65"],
-                    "reference_coordinate_system": "H0_via_65",
-                    "arranges": [
-                        {"operation": "rotate", "axis": "X", "angle": "0deg"},
-                        {"operation": "move", "vector": ["0mm", "0mm", "0mm"]},
-                    ],
-                    "sub_components": {
-                        "cable_1": {
-                            "component_type": "mcad",
-                            "model": "cable",
-                            "target_coordinate_system": "CABLE1_via_65",
-                        },
-                        "cable_2": {
-                            "component_type": "mcad",
-                            "model": "cable",
-                            "target_coordinate_system": "CABLE2_via_65",
-                        },
-                    },
-                }
-            },
-        },
-        "clamp_monitor": {
-            "component_type": "mcad",
-            "model": "clamp_monitor",
-            "reference_coordinate_system": "Global",
-            "target_coordinate_system": "CS_CLAMP",
-        },
-    },
-}
-"""Stored data."""
 
 CONFIG_DICT = ConfigDict(extra="forbid", validate_assignment=True, populate_by_name=True)
 
