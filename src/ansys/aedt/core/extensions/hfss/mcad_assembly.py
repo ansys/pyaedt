@@ -424,9 +424,9 @@ class Component(BaseModel):
         models = read_toml(Path(library_path) / "model_library.toml")
 
         for comp_def, item in models.items():
-            if comp_def not in COMPONENT_MODELS:
+            if comp_def not in COMPONENT_MODELS_:
                 path = str(Path(library_path) / item["model_path"])
-                COMPONENT_MODELS[comp_def] = path
+                COMPONENT_MODELS_[comp_def] = path
 
         edb = Edb(self._top_assembly.layout_component_models[self.model])
         for name_def, comp_def in edb.definitions.components.items():
@@ -577,6 +577,7 @@ class Component(BaseModel):
 Component.model_rebuild()
 
 COMPONENT_MODELS = {}
+COMPONENT_MODELS_ = {}  #
 """Component models."""
 PCB_COORDINATES = {}
 
@@ -681,7 +682,9 @@ def run(
     model_dir = Path(model_dir) if model_dir else None
 
     # models added in add_mcad_component_from_library
-    for i, j in COMPONENT_MODELS.items():
+    for i, j in COMPONENT_MODELS_.items():
+        if i in COMPONENT_MODELS:
+            continue
         path = Path(j)
         shutil.copy(path, temp_model_dir)
         COMPONENT_MODELS[i] = str(temp_model_dir / path.name)
