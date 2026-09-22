@@ -37,7 +37,7 @@ import warnings
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.settings import settings
 
-CURRENT_STABLE_AEDT_VERSION = 2026.1
+CURRENT_STABLE_AEDT_VERSION = 2027.1
 """Current stable AEDT version."""
 
 module_file_path = __file__
