@@ -39,7 +39,10 @@ try:
     from ansys.aedt.core.modeler.advanced_cad.osm import BuildingsPrep
     from ansys.aedt.core.modeler.advanced_cad.osm import RoadPrep
     from ansys.aedt.core.modeler.advanced_cad.osm import TerrainPrep
+
+    osm_installed = True
 except Exception:
+    osm_installed = False
     pytestmark = pytest.mark.skipif(True, reason="OSM not installed")
 
 osm_network_xfail = pytest.mark.xfail(
@@ -48,8 +51,9 @@ osm_network_xfail = pytest.mark.xfail(
     reason="Intermittent OpenStreetMap Overpass API connection failure",
 )
 
-# Apply the OpenStreetMap network xfail marker to all tests in this module.
-pytestmark = osm_network_xfail
+if osm_installed:
+    # Apply the OpenStreetMap network xfail marker to all tests in this module.
+    pytestmark = osm_network_xfail
 
 
 @pytest.fixture
