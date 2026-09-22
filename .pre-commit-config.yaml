@@ -17,15 +17,18 @@ exclude: |
 repos:
 
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: 321478e58f4938179c6b86e4ddfa923d1547a49b  # frozen: v0.16.6
+  rev: e8f7d69b957a30acb2c875078d5fd012de24b64c  # frozen: v0.16.7
   hooks:
     - id: ruff-check
+      name: Ruff linting check
     - id: ruff-format
+      name: Ruff formatting check
 
 - repo: https://github.com/codespell-project/codespell
   rev: 57b21406f092110c18776e39b0bda50d37c945c8  # frozen: v2.4.3
   hooks:
     - id: codespell
+      name: Codespell check
       args: ["--ignore-words", "doc/styles/config/vocabularies/ANSYS/accept.txt"]
       additional_dependencies:
         - tomli
@@ -34,7 +37,9 @@ repos:
   rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c  # frozen: v6.0.0
   hooks:
     - id: debug-statements
+      name: Debug statements check
     - id: trailing-whitespace
+      name: Trailing whitespace check
 
 # Validate GitHub workflow files
 - repo: https://github.com/python-jsonschema/check-jsonschema
@@ -46,6 +51,7 @@ repos:
   rev: fda77690955e9b63c6687d8806bafd56a526e45f  # frozen: 1.20.0
   hooks:
     - id: blacken-docs
+      name: Blacken documentation
       additional_dependencies: [black==26.5.1]
 
 - repo: https://github.com/ansys/pre-commit-hooks
@@ -62,13 +68,46 @@ repos:
       - --custom_template=mit_license.jinja2
       - --start_year=2021
 
-- repo: https://github.com/astral-sh/ty-pre-commit
-  rev: 743d21e292f7a36ed70cc2318aa3c8711b1e0437  # frozen: v0.0.78
-  hooks:
-    - id: ty
-
 # Keep this hook at the end so all hook ids are known when validating ci.skip.
 - repo: https://github.com/pre-commit-ci/pre-commit-ci-config
   rev: 500543de231a91e6157db630075d70320709b834  # frozen: v1.6.1
   hooks:
     - id: check-pre-commit-ci-config
+      name: Check pre-commit configuration
+
+- repo: https://github.com/gitleaks/gitleaks
+  rev: 83d9cd684c87d95d656c1458ef04895a7f1cbd8e # frozen: v8.30.1
+  hooks:
+    - id: gitleaks
+
+- repo: https://github.com/woodruffw/zizmor-pre-commit
+  rev: fa412071e4f5d44d44f9e365f4676f9df92456a2  # frozen: v1.30.1
+  hooks:
+    - id: zizmor
+      name: Static GitHub workflow check with Zizmor
+      files: ^\.github/workflows/.*\.ya?ml$
+
+# Local hook(s)
+- repo: local
+  hooks:
+    - id: uv-lock-check
+      name: Check uv lock file
+      entry: uv lock --check
+      language: python
+      additional_dependencies: [uv]
+      pass_filenames: false
+      files: ^(pyproject\.toml|uv\.lock)$
+    - id: ty-version-check
+      name: Check ty versions
+      entry: python .ci/scripts/check_ty_version.py
+      language: system
+      pass_filenames: false
+      files: ^(\.pre-commit-config\.yaml|uv\.lock)$
+
+# NOTE: Whenever this version is updated, please align the version in the lock file.
+- repo: https://github.com/astral-sh/ty-pre-commit
+  rev: 43e9f3c39824fb2ba2a475aa8cbcc2c8f02eef67  # frozen: v0.0.79
+  hooks:
+    - id: ty
+      name: Type check with Ty
+      files: ^(src|tests)/.*\.(py|pyi)$|^pyproject\.toml$

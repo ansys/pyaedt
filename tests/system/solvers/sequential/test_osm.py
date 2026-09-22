@@ -25,10 +25,12 @@
 """Test OpenStreetMap (OSM) module functionality with real pyvista and osmnx."""
 
 import json
+import os
 from pathlib import Path
 
 import numpy as np
 import pytest
+import requests
 
 from ansys.aedt.core import Hfss
 from ansys.aedt.core.generic.settings import is_linux
@@ -39,6 +41,15 @@ try:
     from ansys.aedt.core.modeler.advanced_cad.osm import TerrainPrep
 except Exception:
     pytestmark = pytest.mark.skipif(True, reason="OSM not installed")
+
+osm_network_xfail = pytest.mark.xfail(
+    condition=os.environ.get("PYAEDT_OSM_XFAIL") == "1",
+    raises=(requests.exceptions.ConnectionError, requests.exceptions.Timeout),
+    reason="Intermittent OpenStreetMap Overpass API connection failure",
+)
+
+# Apply the OpenStreetMap network xfail marker to all tests in this module.
+pytestmark = osm_network_xfail
 
 
 @pytest.fixture
