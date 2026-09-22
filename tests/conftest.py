@@ -120,6 +120,12 @@ solver_xfail = pytest.mark.xfail(
     reason="Solver tests are unstable",
 )
 
+# Mark tests as xfail when PYAEDT_BUILD_XFAIL=1
+build_xfail = pytest.mark.xfail(
+    condition=os.environ.get("PYAEDT_BUILD_XFAIL") == "1",
+    reason="Build tests are unstable",
+)
+
 # ================================
 # PyAEDT settings
 # ================================
