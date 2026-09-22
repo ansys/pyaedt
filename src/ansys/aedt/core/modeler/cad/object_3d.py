@@ -115,7 +115,10 @@ class Object3d(PyAedtBase):
         self._mass = 0.0
         self._volume = 0.0
         self._faces = []
+        self._edges = []
         self._face_ids = []
+        self._edge_ids = []
+        self._vertex_ids = []
         self._is_polyline = None
         self._object_type = ""
 
@@ -482,7 +485,7 @@ class Object3d(PyAedtBase):
             return self._faces
         self._face_ids = face_ids
         self._faces = []
-        for face in list(self._oeditor.GetFaceIDs(self.name)):
+        for face in face_ids:
             face = int(face)
             self._faces.append(FacePrimitive(self, face))
         return self._faces
@@ -947,10 +950,15 @@ class Object3d(PyAedtBase):
         """
         if self.object_type == "Unclassified":
             return []
+        edge_ids = self._primitives.get_object_edges(self.name)
+        if set(edge_ids) == set(self._edge_ids):
+            return self._edges
+        self._edge_ids = edge_ids
         edges = []
-        for edge in self._primitives.get_object_edges(self.name):
+        for edge in edge_ids:
             edge = int(edge)
             edges.append(EdgePrimitive(self, edge))
+        self._edges = edges
         return edges
 
     @property
