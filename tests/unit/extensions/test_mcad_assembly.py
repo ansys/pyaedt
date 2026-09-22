@@ -25,7 +25,6 @@
 import json
 from unittest.mock import patch
 
-from ansys.aedt.core.extensions.hfss.mcad_assembly import DATA
 from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssemblyFrontend
 
 
@@ -36,7 +35,7 @@ def test_main_selected_edb(mock_askopenfilename, mock_run, mock_check_design_typ
     mock_check_design_type.return_value = True
     config_file = test_tmp_dir / "config.json"
     with open(config_file, "w") as f:
-        json.dump(DATA, f, indent=4)
+        json.dump({}, f, indent=4)
 
     extension = MCADAssemblyFrontend(withdraw=True)
     mock_askopenfilename.return_value = str(config_file)
