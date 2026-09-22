@@ -27,6 +27,7 @@ from __future__ import annotations
 from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
+import ipaddress
 import os
 from pathlib import Path
 import signal
@@ -228,12 +229,21 @@ def create_server_certificate(
     )
 
     # Build SAN list - always include the CN, plus any additional names
-    san_list = [x509.DNSName(server_common_name)]
+    # Use IPAddress for IP addresses, DNSName for hostnames (RFC 5280 compliance)
+    def _make_san(name: str):
+        """Create appropriate SAN type based on whether name is an IP address or hostname."""
+        try:
+            ip = ipaddress.ip_address(name)
+            return x509.IPAddress(ip)
+        except ValueError:
+            return x509.DNSName(name)
+
+    san_list = [_make_san(server_common_name)]
     if san_names:
         for name in san_names:
             # Skip if it's the same as CN to avoid duplicates
             if name != server_common_name:
-                san_list.append(x509.DNSName(name))
+                san_list.append(_make_san(name))
 
     cert = (
         x509.CertificateBuilder()
