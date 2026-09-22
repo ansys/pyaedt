@@ -81,6 +81,8 @@ def hfss3dl_a(add_app):
 
 def test_hfss_export(aedt_app, add_app, test_tmp_dir) -> None:
     aedt_app.mesh.assign_length_mesh("sub")
+    for bound in aedt_app.boundaries:
+        assert bound.assignment
     conf_file = aedt_app.configurations.export_config()
     assert aedt_app.configurations.validate(conf_file)
     filename = aedt_app.design_name
