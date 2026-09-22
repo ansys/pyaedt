@@ -2058,6 +2058,8 @@ class BinaryTreeNode:
         >>> obj.update_property(prop_name=1, prop_value=1)
 
         """
+        if prop_name == "Command":
+            return
         if prop_value is None:
             settings.logger.warning(f"Property {prop_name} set to None ignored.")
             return

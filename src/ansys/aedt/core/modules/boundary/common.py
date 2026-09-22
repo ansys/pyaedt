@@ -24,6 +24,8 @@
 
 """The module contains these classes: ``BoundaryCommon`` and ``BoundaryObject``."""
 
+import re
+
 from ansys.aedt.core.application import _get_obj_data
 from ansys.aedt.core.application import _has_get_obj_data
 from ansys.aedt.core.base import PyAedtBase
@@ -31,6 +33,7 @@ from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.general_methods import PropsManager
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import _units_assignment
+from ansys.aedt.core.generic.numbers_utils import is_number
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
@@ -105,6 +108,42 @@ class BoundaryCommon(PropsManager, PyAedtBase):
             return self.child_object.Assignment
         except Exception:
             return ""
+
+    @assignment.setter
+    def assignment(self, value: str | int | list) -> None:
+        if isinstance(value, str):
+            value = value.split(", ")
+
+        faces = []
+        edges = []
+        vertices = []
+        objects = []
+        for assignment in value:
+            if is_number(assignment):
+                if assignment in self._app.modeler.objects:
+                    objects.append(self._app.modeler.objects[assignment].name)
+                elif self._app.oeditor.GetObjectNameByFaceID(assignment):
+                    faces.append(assignment)
+                elif self._app.oeditor.GetObjectNameByEdgeID(assignment):
+                    edges.append(assignment)
+                elif self._app.oeditor.GetObjectNameByVertexID(assignment):
+                    edges.append(assignment)
+            elif "Face_" in assignment:
+                faces.append(int(re.search(r"Face_(\d+)", assignment).group(1)))
+            elif "Edge_" in assignment:
+                edges.append(int(re.search(r"Edge_(\d+)", assignment).group(1)))
+            elif "Vertex_" in assignment:
+                vertices.append(int(re.search(r"Vertex_(\d+)", assignment).group(1)))
+            else:
+                objects.append(assignment)
+        if objects:
+            self.__props["Objects"] = objects
+        if edges:
+            self.__props["Edges"] = edges
+        if faces:
+            self.__props["Faces"] = faces
+        if vertices:
+            self.__props["Vertices"] = vertices
 
     @pyaedt_function_handler()
     def _get_args(self, props=None):
