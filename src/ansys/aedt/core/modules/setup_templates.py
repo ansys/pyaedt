@@ -2347,8 +2347,6 @@ class SetupKeys:
         "MechModal",
         "GRM",
         "TwinbuilderTR",
-        "TwinbuilderAC",
-        "TwinbuilderDC",
         "IcepakTransient",
         "IcepakTransient",
         "IcepakTransient",
@@ -2376,6 +2374,8 @@ class SetupKeys:
         "DCBiasedEddyCurrent",
         "ElectricDCConduction",
         "RaptorX",
+        "TwinbuilderAC",
+        "TwinbuilderDC",
     ]
     """Value for setup names."""
 
@@ -2440,8 +2440,6 @@ class SetupKeys:
         57: MechTransientThermal,
         58: DCConduction,
         59: ACConduction,
-        60: TwinbuilderAC,
-        61: TwinbuilderDC,
     }
     """Value for setup templates."""
 
@@ -2469,6 +2467,8 @@ class SetupKeys:
 
     SetupTemplates_252 = {
         61: ElectroDCConduction,
+        63: TwinbuilderAC,
+        64: TwinbuilderDC,
     }
     """Value for SetupTemplates 252."""
 

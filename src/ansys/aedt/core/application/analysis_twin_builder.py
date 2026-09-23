@@ -226,6 +226,7 @@ class AnalysisTwinBuilder(Analysis, PyAedtBase):
         >>> tb.create_setup(name="Setup1")
 
         """
+        setup_type_name = setup_type
         if setup_type is None:
             setup_type = self.design_solutions.default_setup
         elif setup_type in SetupKeys.SetupNames:
@@ -246,5 +247,6 @@ class AnalysisTwinBuilder(Analysis, PyAedtBase):
                 setup[arg_name] = arg_value
         setup.auto_update = True
         setup.update()
+        self.design_solutions.solution_type = setup_type_name
         self._setups = tmp_setups + [setup]
         return setup

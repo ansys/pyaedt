@@ -1449,7 +1449,7 @@ class SetupCircuit(CommonSetup):
             if soltype == "NexximLNA":
                 self.omodule.EditLinearNetworkAnalysis(self.name, arg)
             elif soltype == "TwinbuilderAC":
-                self.omodule.EditACAnalysis(arg)
+                self.omodule.EditACAnalysis(self.name, arg)
             elif soltype in ["NexximDC", "TwinbuilderDC"]:
                 self.omodule.EditDCAnalysis(self.name, arg)
             elif soltype in ["NexximTransient", "TwinbuilderTR"]:
