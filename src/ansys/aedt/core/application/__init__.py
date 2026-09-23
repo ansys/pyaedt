@@ -56,7 +56,14 @@ def _get_data_model(child_object, level=-1):
     if input_str:
         input_str = re.sub(r'("value":\s*)(-?inf)(?=[,}])', r"\1null", input_str)
 
-    props_list = json.loads(input_str)
+    def sanitize_aedt_json(s: str) -> str:
+        return re.sub(
+            r"[\x00-\x08\x0b\x0c\x0e-\x1f]",
+            lambda m: f"\\u{ord(m.group(0)):04x}",
+            s,
+        )
+
+    props_list = json.loads(sanitize_aedt_json(input_str))
     props = {}
     _fix_dict(props_list, props)
     return props
