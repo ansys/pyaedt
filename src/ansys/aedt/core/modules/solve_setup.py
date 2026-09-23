@@ -108,7 +108,7 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
         self._is_new_setup = is_new_setup
         # self._init_props(is_new_setup)
         self.auto_update = True
-        self._initialize_tree_node()
+        # self._initialize_tree_node()
 
     def _setup_dict_to_arg(self, name: str = None, props=None):
         if name is None:
@@ -336,7 +336,8 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
     @property
     def props(self) -> SetupProps:
         """Properties of the setup."""
-        if self._legacy_props:
+        _has_getobject = _has_get_obj_data(self._child_object)
+        if self._legacy_props and not _has_getobject:
             return self._legacy_props
         if self._is_new_setup:
             setup_template = SetupKeys.get_setup_templates()[self.setuptype]
@@ -344,7 +345,7 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
             self._legacy_props = SetupProps(self, setup_template)
             self._is_new_setup = False
         else:
-            if _has_get_obj_data(self._child_object):
+            if _has_getobject:
                 setup_data = _get_obj_data(self._child_object)
                 self._legacy_props = SetupProps(self, setup_data)
             else:
@@ -751,7 +752,8 @@ class Setup(CommonSetup):
         soltype = SetupKeys.SetupNames[self.setuptype]
         arg = self._setup_dict_to_arg()
         self.omodule.InsertSetup(soltype, arg)
-        return self._initialize_tree_node()
+        # return self._initialize_tree_node()
+        return True
 
     @pyaedt_function_handler()
     def update(self, properties: dict = None) -> bool:
@@ -1413,7 +1415,8 @@ class SetupCircuit(CommonSetup):
         arg = self._setup_dict_to_arg(name="SimSetup")
 
         self._setup(soltype, arg)
-        return self._initialize_tree_node()
+        # return self._initialize_tree_node()
+        return True
 
     @pyaedt_function_handler()
     def _setup(self, soltype, arg, newsetup: bool = True) -> bool:
@@ -2318,7 +2321,8 @@ class Setup3DLayout(CommonSetup):
         arg = self._setup_dict_to_arg()
 
         self.omodule.Add(arg)
-        return self._initialize_tree_node()
+        # return self._initialize_tree_node()
+        return True
 
     @pyaedt_function_handler()
     def update(self, properties: dict = None) -> bool:

@@ -320,5 +320,5 @@ class CircuitNetlistReport(CommonReport):
         )
         self._post.plots.append(self)
         self._is_created = True
-        self._initialize_tree_node()
+        # self._initialize_tree_node()
         return True

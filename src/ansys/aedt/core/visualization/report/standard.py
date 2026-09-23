@@ -39,7 +39,6 @@ import re
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.visualization.report.common import CommonReport
 
 
@@ -992,7 +991,4 @@ class Spectral(CommonReport, PyAedtBase):
         )
         self._post.plots.append(self)
         self._is_created = True
-        oo = self._app.get_oo_object(self._post.oreportsetup, self._legacy_props["plot_name"])
-        if oo:
-            BinaryTreeNode.__init__(self, self.plot_name, oo, False, app=self._app)
         return True

@@ -135,7 +135,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         self._type = meshoptype
         self._name = name
         self.auto_update = True
-        self._initialize_tree_node()
+        # self._initialize_tree_node()
 
     @property
     def _child_object(self):
@@ -174,8 +174,9 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         >>> obj.props
 
         """
-        if not self._legacy_props:
-            if _has_get_obj_data(self._child_object):
+        _has_getobject = _has_get_obj_data(self._child_object)
+        if not self._legacy_props or _has_getobject:
+            if _has_getobject:
                 props = _get_obj_data(self._child_object) or {}
             else:
                 props = {}
@@ -298,7 +299,8 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
             self._mesh.omeshmodule.AssignCylindricalGapOp(self._get_args())
         else:
             return False
-        return self._initialize_tree_node()
+        # return self._initialize_tree_node()
+        return True
 
     @pyaedt_function_handler()
     def update(self, key_name: str = None, value: int = None) -> bool:

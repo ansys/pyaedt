@@ -112,7 +112,7 @@ class NativeComponentObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         self.native_properties = self.__props["NativeComponentDefinitionProvider"]
         self.auto_update = True
 
-        self._initialize_tree_node()
+        # self._initialize_tree_node()
 
     @property
     def _child_object(self):
@@ -260,7 +260,8 @@ class NativeComponentObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
             self.excitation_name = a[0].split(":")[0]
         except (GrpcApiError, IndexError):
             self.excitation_name = self._name
-        return self._initialize_tree_node()
+        # return self._initialize_tree_node()
+        return True
 
     @pyaedt_function_handler()
     def update(self) -> bool:
@@ -354,7 +355,7 @@ class BoundaryObject3dLayout(BoundaryCommon, BinaryTreeNode, PyAedtBase):
             self.__props = BoundaryProps(self, props)
         self.type = boundarytype
         self.auto_update = True
-        self._initialize_tree_node()
+        # self._initialize_tree_node()
 
     @property
     def _child_object(self):
@@ -407,10 +408,10 @@ class BoundaryObject3dLayout(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         >>> obj.props
 
         """
-        if self.__props:
+        has_obj_data = _has_get_obj_data(self._child_object)
+        if self.__props and not has_obj_data:
             return self.__props
         child_object = self._child_object
-        has_obj_data = _has_get_obj_data(child_object)
         if has_obj_data:
             props = _get_obj_data(child_object)
         else:
@@ -421,10 +422,6 @@ class BoundaryObject3dLayout(BoundaryCommon, BinaryTreeNode, PyAedtBase):
             self.__props = BoundaryProps(self, props)
             if has_obj_data:
                 boundary_type = props.get("Type") or props.get("BoundType")
-                if not boundary_type:
-                    boundary_type = self._app.get_oo_property_value(
-                        self._app.odesign, f"Boundaries\\{self.name}", "Type"
-                    )
             else:
                 boundary_type = boundary_data[1]
             if boundary_type:

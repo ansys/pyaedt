@@ -102,10 +102,10 @@ class BoundaryCommon(PropsManager, PyAedtBase):
         str
             Assignment of the boundary.
         """
-        if not self.child_object or "Assignment" not in dir(self.child_object):
+        if not self._child_object or "Assignment" not in dir(self._child_object):
             return ""
         try:
-            return self.child_object.Assignment
+            return self._child_object.Assignment
         except Exception:
             return ""
 
@@ -314,7 +314,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         self.__props = BoundaryProps(self, props) if props else {}
         self._type = boundarytype
         self.auto_update = auto_update
-        self._initialize_tree_node()
+        # self._initialize_tree_node()
 
     @property
     def _child_object(self):
@@ -385,7 +385,8 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         >>> obj.props
 
         """
-        if self.__props:
+        has_obj_data = _has_get_obj_data(self._child_object)
+        if self.__props and not has_obj_data:
             return self.__props
         child_object = self._child_object
         has_obj_data = _has_get_obj_data(child_object)
@@ -398,7 +399,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         if props:
             self.__props = BoundaryProps(self, props)
             if has_obj_data:
-                boundary_type = self._app.get_oo_property_value(self.odesign, f"Boundaries\\{self.name}", "Type")
+                boundary_type = props.get("Type", "")
             else:
                 boundary_type = boundary_data[1]
 
@@ -451,13 +452,13 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         >>> obj.name
 
         """
-        if getattr(self, "child_object", None):
+        if self._child_object:
             self._name = str(self.properties["Name"])
         return self._name
 
     @name.setter
     def name(self, value: str) -> None:
-        if getattr(self, "child_object", None):
+        if self._child_object:
             try:
                 self.properties["Name"] = value
                 self._app._boundaries[value] = self
@@ -682,7 +683,8 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         else:
             return False
 
-        return self._initialize_tree_node()
+        # return self._initialize_tree_node()
+        return True
 
     @pyaedt_function_handler()
     def update(self) -> bool:

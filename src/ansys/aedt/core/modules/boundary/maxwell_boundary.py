@@ -322,7 +322,7 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         self._name = name
         self.__props = BoundaryProps(self, props) if props else {}
         self.type = boundarytype
-        self._initialize_tree_node()
+        # self._initialize_tree_node()
 
     @property
     def _child_object(self):
@@ -348,10 +348,10 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         >>> obj.props
 
         """
-        if self.__props:
+        has_obj_data = _has_get_obj_data(self._child_object)
+        if self.__props and not has_obj_data:
             return self.__props
         child_object = self._child_object
-        has_obj_data = _has_get_obj_data(child_object)
         if has_obj_data:
             props = _get_obj_data(child_object)
         else:
@@ -361,7 +361,7 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         if props:
             self.__props = BoundaryProps(self, props)
             if has_obj_data:
-                boundary_type = self._app.get_oo_property_value(self._app.odesign, f"Parameters\\{self.name}", "Type")
+                boundary_type = props.get("Type") or props.get("BoundType")
             else:
                 boundary_type = boundary_data[1]
             if boundary_type:
@@ -438,7 +438,8 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
             self._app.omaxwell_parameters.AssignLayoutForce(self._get_args())
         else:
             return False
-        return self._initialize_tree_node()
+        # return self._initialize_tree_node()
+        return True
 
     @pyaedt_function_handler()
     def update(self) -> bool:
