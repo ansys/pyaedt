@@ -319,6 +319,7 @@ def test_transient_setup(aedt_app) -> None:
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
+@pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Feature not working in non-graphical mode before 2027.1")
 def test_ac_setup(aedt_app) -> None:
     setup = aedt_app.create_setup(setup_type="TwinbuilderAC")
     assert setup.name in aedt_app.setup_names
@@ -331,6 +332,7 @@ def test_ac_setup(aedt_app) -> None:
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
+@pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Feature not working in non-graphical mode before 2027.1")
 def test_dc_setup(aedt_app) -> None:
     setup = aedt_app.create_setup(setup_type="TwinbuilderDC")
     assert setup.name in aedt_app.setup_names
