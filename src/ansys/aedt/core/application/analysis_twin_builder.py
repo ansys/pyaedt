@@ -198,7 +198,7 @@ class AnalysisTwinBuilder(Analysis, PyAedtBase):
         return self._post
 
     @pyaedt_function_handler()
-    def create_setup(self, name: str = "MySetupAuto", setup_type: str = None, **kwargs) -> SetupCircuit:
+    def create_setup(self, name: str = "MySetupAuto", setup_type: str | None = None, **kwargs) -> SetupCircuit:
         """Create a setup.
 
         Parameters
