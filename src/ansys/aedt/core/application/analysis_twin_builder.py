@@ -226,11 +226,11 @@ class AnalysisTwinBuilder(Analysis, PyAedtBase):
         >>> tb.create_setup(name="Setup1")
 
         """
-        setup_type_name = setup_type
         if setup_type is None:
             setup_type = self.design_solutions.default_setup
         elif setup_type in SetupKeys.SetupNames:
             setup_type = SetupKeys.SetupNames.index(setup_type)
+        setup_type_name = SetupKeys.SetupNames[setup_type]
         name = self.generate_unique_setup_name(name)
         setup = SetupCircuit(self, setup_type, name)
         tmp_setups = self.setups

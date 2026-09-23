@@ -310,12 +310,13 @@ def test_add_excitation_model(tb_excitation_model, test_tmp_dir) -> None:
 def test_transient_setup(aedt_app) -> None:
     setup = aedt_app.create_setup()
     assert setup.setuptype == aedt_app.design_solutions.default_setup
+    assert aedt_app.design_solutions.solution_type == "TwinbuilderTR"
     setup = aedt_app.create_setup(props={"TransientData": ["50ms", "1us", "2ms"]})
     assert setup.props["TransientData"][0] == "50ms"
     assert setup.props["TransientData"][1] == "1us"
     assert setup.props["TransientData"][2] == "2ms"
     aedt_app.create_setup(setup_type="TwinbuilderTR")
-    aedt_app.design_solutions.solution_type = "TwinbuilderTR"
+    assert aedt_app.design_solutions.solution_type == "TwinbuilderTR"
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
@@ -323,6 +324,7 @@ def test_transient_setup(aedt_app) -> None:
 def test_ac_setup(aedt_app) -> None:
     setup = aedt_app.create_setup(setup_type="TwinbuilderAC")
     assert setup.name in aedt_app.setup_names
+    assert aedt_app.design_solutions.solution_type == "TwinbuilderAC"
     setup = aedt_app.create_setup(setup_type="TwinbuilderAC", props={"LinearFrequencyData": [1, "50Hz", "1kHz", "5Hz"]})
     assert setup.props["LinearFrequencyData"][0] == 1
     assert setup.props["LinearFrequencyData"][1] == "50Hz"

@@ -319,7 +319,7 @@ class Standard(CommonReport, PyAedtBase):
     @property
     def _context(self):
         ctxt = []
-        if self._post.post_solution_type in ["TR", "AC", "DC"]:
+        if self._post.post_solution_type in ["TR", "AC", "DC", "TwinbuilderTR", "TwinbuilderAC", "TwinbuilderDC"]:
             ctxt = [
                 "NAME:Context",
                 "SimValueContext:=",
