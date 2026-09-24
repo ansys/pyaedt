@@ -458,17 +458,32 @@ class ComponentParameters(dict):
                         self._component._parameters = None
                 return
             else:
+                if "_readonly_parameters" in dir(self._component) and key in self._component._readonly_parameters:
+                    return
                 try:
-                    if key in self._component._readonly_parameters:
-                        return
+                    if isinstance(value, str) and f"{key}/ButtonText" in self:
+                        if self._tab.SetPropValue(f"{key}/ButtonText", value):
+                            val = dict.__getitem__(self, key)
+                            val[1] = value
+                            dict.__setitem__(self, f"{key}/ButtonText", value)
+                            dict.__setitem__(self, key, val)
+                            return
+                    else:
+                        if self._tab.SetPropValue(key, value):
+                            dict.__setitem__(self, key, value)
+                            return
+                        elif isinstance(value, str) and value[0] != '"' and self._tab.SetPropValue(key, f'"{value}"'):
+                            dict.__setitem__(self, key, f'"{value}"')
+                            self._component._circuit_components.logger.clear_messages(
+                                proj_name=self._component._circuit_components._app.project_name,
+                                des_name=self._component._circuit_components._app.design_name,
+                                level=2,
+                            )
+                            return
+                    self._component._circuit_components.logger.warning(f"Failed to change property {key}")
+                    return
                 except Exception:
-                    pass
-                try:
-                    self._tab.SetPropValue(key, value)
-                    dict.__setitem__(self, key, value)
-                except Exception:
-                    self._component._circuit_components.logger.warning("Failed to change ", key)
-            return
+                    return
         if isinstance(value, (int, float)):
             if self._component._change_property(key, value, tab_name=self._tab):
                 dict.__setitem__(self, key, value)
@@ -854,7 +869,6 @@ class CircuitComponent(PyAedtBase):
             self._readonly_parameters = [
                 extract_bracket_content(i) for i in prop_names if i not in child_object.GetPropNames(False)
             ]
-
             for p in child_object.GetPropNames():
                 if p not in props:
                     continue
@@ -868,6 +882,11 @@ class CircuitComponent(PyAedtBase):
                         self._parameters[f"{correct_name}/ButtonText"] = child_object.GetPropValue(
                             f"{correct_name}/ButtonText"
                         )
+                    except Exception:
+                        self._parameters[correct_name] = []
+                elif props.get(p, None) == []:
+                    try:
+                        self._parameters[correct_name] = child_object.GetPropValue(f"{correct_name}")
                     except Exception:
                         self._parameters[correct_name] = []
             self._parameters["InstanceName"] = self.instance_name
