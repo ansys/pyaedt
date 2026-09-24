@@ -736,69 +736,70 @@ class FormulaCalculator:
             raise ValueError(f"Formula rejected: {description} is not allowed.")
 
         def walk(node: ast.AST) -> None:
-            if isinstance(node, ast.Expression):
-                walk(node.body)
-            elif isinstance(node, ast.BinOp):
-                if not isinstance(node.op, cls._ALLOWED_BIN_OPS):
-                    reject(f"operator '{type(node.op).__name__}'")
-                walk(node.left)
-                walk(node.right)
-            elif isinstance(node, ast.UnaryOp):
-                if not isinstance(node.op, cls._ALLOWED_UNARY_OPS):
-                    reject(f"operator '{type(node.op).__name__}'")
-                walk(node.operand)
-            elif isinstance(node, ast.BoolOp):
-                for value in node.values:
-                    walk(value)
-            elif isinstance(node, ast.Compare):
-                for op in node.ops:
-                    if not isinstance(op, cls._ALLOWED_CMP_OPS):
-                        reject(f"comparison '{type(op).__name__}'")
-                walk(node.left)
-                for comparator in node.comparators:
-                    walk(comparator)
-            elif isinstance(node, ast.Call):
-                walk(node.func)
-                for arg in node.args:
-                    if isinstance(arg, ast.Starred):
-                        reject("'*' argument unpacking")
-                    walk(arg)
-                for keyword in node.keywords:
-                    if keyword.arg is None:
-                        reject("'**' keyword unpacking")
-                    if keyword.arg in cls._MUTATING_KEYWORDS:
-                        # numpy would write into the stored trace instead of returning a new array
-                        reject(f"the '{keyword.arg}=' argument")
-                    walk(keyword.value)
-            elif isinstance(node, ast.Attribute):
-                # Only np.<name>/numpy.<name> with a whitelisted attribute. Dunder and
-                # chained access never match the whitelist and fall through to reject.
-                if not isinstance(node.value, ast.Name) or node.value.id not in cls._NP_PREFIXES:
+            match node:
+                case ast.Expression(body=body):
+                    walk(body)
+                case ast.BinOp(op=op, left=left, right=right):
+                    if not isinstance(op, cls._ALLOWED_BIN_OPS):
+                        reject(f"operator '{type(op).__name__}'")
+                    walk(left)
+                    walk(right)
+                case ast.UnaryOp(op=op, operand=operand):
+                    if not isinstance(op, cls._ALLOWED_UNARY_OPS):
+                        reject(f"operator '{type(op).__name__}'")
+                    walk(operand)
+                case ast.BoolOp(values=values):
+                    for value in values:
+                        walk(value)
+                case ast.Compare(ops=ops, left=left, comparators=comparators):
+                    for op in ops:
+                        if not isinstance(op, cls._ALLOWED_CMP_OPS):
+                            reject(f"comparison '{type(op).__name__}'")
+                    walk(left)
+                    for comparator in comparators:
+                        walk(comparator)
+                case ast.Call(func=func, args=args, keywords=keywords):
+                    walk(func)
+                    for arg in args:
+                        if isinstance(arg, ast.Starred):
+                            reject("'*' argument unpacking")
+                        walk(arg)
+                    for keyword in keywords:
+                        if keyword.arg is None:
+                            reject("'**' keyword unpacking")
+                        if keyword.arg in cls._MUTATING_KEYWORDS:
+                            # numpy would write into the stored trace instead of returning a new array
+                            reject(f"the '{keyword.arg}=' argument")
+                        walk(keyword.value)
+                # Only np.<name>/numpy.<name> with a whitelisted attribute. Dunder and chained
+                # access match neither case and fall through to the rejection below.
+                case ast.Attribute(value=ast.Name(id=prefix), attr=attr) if prefix in cls._NP_PREFIXES:
+                    if attr not in cls._ALLOWED_NP_NAMES:
+                        reject(f"numpy name '{prefix}.{attr}'")
+                case ast.Attribute():
                     reject("attribute access (only 'np.<name>' or 'numpy.<name>')")
-                if node.attr not in cls._ALLOWED_NP_NAMES:
-                    reject(f"numpy name '{node.value.id}.{node.attr}'")
-            elif isinstance(node, ast.Name):
-                if node.id not in allowed_names:
-                    reject(f"name '{node.id}'")
-            elif isinstance(node, ast.Constant):
-                if not isinstance(node.value, (int, float, complex)):
-                    reject(f"non-numeric constant {node.value!r}")
-            elif isinstance(node, (ast.Tuple, ast.List)):
-                reject("a tuple or list")
-            elif isinstance(node, ast.Lambda):
-                reject("lambda expressions")
-            elif isinstance(node, (ast.ListComp, ast.SetComp, ast.DictComp, ast.GeneratorExp)):
-                reject("a comprehension")
-            elif isinstance(node, ast.NamedExpr):
-                reject("assignment expressions (':=')")
-            elif isinstance(node, ast.Subscript):
-                reject("subscript indexing")
-            elif isinstance(node, (ast.JoinedStr, ast.FormattedValue)):
-                reject("an f-string")
-            elif isinstance(node, ast.IfExp):
-                reject("conditional expressions (if/else)")
-            else:
-                reject(f"'{type(node).__name__}'")
+                case ast.Name(id=name):
+                    if name not in allowed_names:
+                        reject(f"name '{name}'")
+                case ast.Constant(value=value):
+                    if not isinstance(value, (int, float, complex)):
+                        reject(f"non-numeric constant {value!r}")
+                case ast.Tuple() | ast.List():
+                    reject("a tuple or list")
+                case ast.Lambda():
+                    reject("lambda expressions")
+                case ast.ListComp() | ast.SetComp() | ast.DictComp() | ast.GeneratorExp():
+                    reject("a comprehension")
+                case ast.NamedExpr():
+                    reject("assignment expressions (':=')")
+                case ast.Subscript():
+                    reject("subscript indexing")
+                case ast.JoinedStr() | ast.FormattedValue():
+                    reject("an f-string")
+                case ast.IfExp():
+                    reject("conditional expressions (if/else)")
+                case _:
+                    reject(f"'{type(node).__name__}'")
 
         walk(tree)
 
