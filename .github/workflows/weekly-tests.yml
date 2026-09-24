@@ -103,6 +103,7 @@ jobs:
     name: Test solvers (windows)
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
+      actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
@@ -135,7 +136,7 @@ jobs:
       - name: Delete old testmon caches
         shell: bash
         run: |
-          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
+          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {}
         env:
           CACHE_KEY: ${{ env.TESTMON_CACHE_KEY_SOLVERS_WIN }}
           GH_TOKEN: ${{ github.token }}
@@ -150,6 +151,7 @@ jobs:
     name: Test solvers (linux)
     runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
+      actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
@@ -182,7 +184,7 @@ jobs:
       - name: Delete old testmon caches
         shell: bash
         run: |
-          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
+          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {}
         env:
           CACHE_KEY: ${{ env.TESTMON_CACHE_KEY_SOLVERS_LINUX }}
           GH_TOKEN: ${{ github.token }}
@@ -197,6 +199,7 @@ jobs:
     name: Test general (windows)
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
+      actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
@@ -230,7 +233,7 @@ jobs:
       - name: Delete old testmon caches
         shell: bash
         run: |
-          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
+          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {}
         env:
           CACHE_KEY: ${{ env.TESTMON_CACHE_KEY_GENERAL_WIN }}
           GH_TOKEN: ${{ github.token }}
@@ -245,6 +248,7 @@ jobs:
     name: Test general (linux)
     runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
+      actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
@@ -277,7 +281,7 @@ jobs:
       - name: Delete old testmon caches
         shell: bash
         run: |
-          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
+          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {}
         env:
           CACHE_KEY: ${{ env.TESTMON_CACHE_KEY_GENERAL_LINUX }}
           GH_TOKEN: ${{ github.token }}
@@ -292,6 +296,7 @@ jobs:
     name: Test visualization (windows)
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
+      actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
@@ -326,7 +331,7 @@ jobs:
       - name: Delete old testmon caches
         shell: bash
         run: |
-          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
+          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {}
         env:
           CACHE_KEY: ${{ env.TESTMON_CACHE_KEY_VISUALIZATION_WIN }}
           GH_TOKEN: ${{ github.token }}
@@ -341,6 +346,7 @@ jobs:
     name: Test visualization (linux)
     runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
+      actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
@@ -374,7 +380,7 @@ jobs:
       - name: Delete old testmon caches
         shell: bash
         run: |
-          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
+          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {}
         env:
           CACHE_KEY: ${{ env.TESTMON_CACHE_KEY_VISUALIZATION_LINUX }}
           GH_TOKEN: ${{ github.token }}
@@ -389,6 +395,7 @@ jobs:
     name: Test icepak (windows)
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
+      actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
@@ -421,7 +428,7 @@ jobs:
       - name: Delete old testmon caches
         shell: bash
         run: |
-          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
+          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {}
         env:
           CACHE_KEY: ${{ env.TESTMON_CACHE_KEY_ICEPAK_WIN }}
           GH_TOKEN: ${{ github.token }}
@@ -436,6 +443,7 @@ jobs:
     name: Test icepak (linux)
     runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
+      actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
@@ -468,7 +476,7 @@ jobs:
       - name: Delete old testmon caches
         shell: bash
         run: |
-          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
+          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {}
         env:
           CACHE_KEY: ${{ env.TESTMON_CACHE_KEY_ICEPAK_LINUX }}
           GH_TOKEN: ${{ github.token }}
@@ -483,6 +491,7 @@ jobs:
     name: Test layout (windows)
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
+      actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
@@ -515,7 +524,7 @@ jobs:
       - name: Delete old testmon caches
         shell: bash
         run: |
-          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
+          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {}
         env:
           CACHE_KEY: ${{ env.TESTMON_CACHE_KEY_LAYOUT_WIN }}
           GH_TOKEN: ${{ github.token }}
@@ -530,6 +539,7 @@ jobs:
     name: Test layout (linux)
     runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
+      actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
@@ -562,7 +572,7 @@ jobs:
       - name: Delete old testmon caches
         shell: bash
         run: |
-          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
+          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {}
         env:
           CACHE_KEY: ${{ env.TESTMON_CACHE_KEY_LAYOUT_LINUX }}
           GH_TOKEN: ${{ github.token }}
@@ -636,6 +646,7 @@ jobs:
     name: Test filter solutions (windows)
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
+      actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
@@ -668,7 +679,7 @@ jobs:
       - name: Delete old testmon caches
         shell: bash
         run: |
-          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
+          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {}
         env:
           CACHE_KEY: ${{ env.TESTMON_CACHE_KEY_FILTER_WIN }}
           GH_TOKEN: ${{ github.token }}
