@@ -24,6 +24,7 @@
 
 from __future__ import annotations
 
+import ast
 import json
 import logging
 import os
@@ -603,6 +604,93 @@ class FormulaCalculator:
         "power": np.power,
         "sign": np.sign,
     }
+    # Numpy attributes reachable through the ``np.``/``numpy.`` prefixes. File
+    # and IO functions (``load``, ``save``, ``fromfile``, ...) are deliberately
+    # absent so a formula cannot touch the filesystem.
+    _ALLOWED_NP_NAMES = frozenset(
+        {
+            "abs",
+            "absolute",
+            "angle",
+            "arccos",
+            "arcsin",
+            "arctan",
+            "arctan2",
+            "around",
+            "average",
+            "cbrt",
+            "ceil",
+            "clip",
+            "conj",
+            "conjugate",
+            "copysign",
+            "cos",
+            "cosh",
+            "cumprod",
+            "cumsum",
+            "deg2rad",
+            "degrees",
+            "diff",
+            "e",
+            "exp",
+            "expm1",
+            "floor",
+            "hypot",
+            "imag",
+            "inf",
+            "interp",
+            "isfinite",
+            "isinf",
+            "isnan",
+            "log",
+            "log1p",
+            "log2",
+            "log10",
+            "max",
+            "maximum",
+            "mean",
+            "min",
+            "minimum",
+            "nan",
+            "nan_to_num",
+            "nanmax",
+            "nanmean",
+            "nanmin",
+            "nansum",
+            "pi",
+            "power",
+            "rad2deg",
+            "radians",
+            "real",
+            "rint",
+            "sign",
+            "sin",
+            "sinh",
+            "sqrt",
+            "square",
+            "sum",
+            "tan",
+            "tanh",
+            "trunc",
+            "unwrap",
+        }
+    )
+    _MUTATING_KEYWORDS = frozenset({"out", "copy"})
+    _NP_PREFIXES = ("np", "numpy")
+    _ALLOWED_BIN_OPS = (
+        ast.Add,
+        ast.Sub,
+        ast.Mult,
+        ast.Div,
+        ast.FloorDiv,
+        ast.Mod,
+        ast.Pow,
+        ast.BitAnd,
+        ast.BitOr,
+        ast.BitXor,
+    )
+    _ALLOWED_UNARY_OPS = (ast.UAdd, ast.USub, ast.Invert, ast.Not)
+    _ALLOWED_CMP_OPS = (ast.Eq, ast.NotEq, ast.Lt, ast.LtE, ast.Gt, ast.GtE)
 
     def __init__(
         self,
@@ -622,6 +710,98 @@ class FormulaCalculator:
         tokens = set(re.findall(r"[A-Za-z_]\w*", formula or ""))
         return [n for n in tokens if n in available]
 
+    @classmethod
+    def _validate_formula(cls, formula: str, allowed_names: set[str]) -> None:
+        """Reject formulas that use anything outside the whitelisted expression grammar.
+
+        Only arithmetic, boolean and comparison operators, numeric constants, names in
+        ``allowed_names``, calls to those names, and ``np.``/``numpy.``-prefixed
+        whitelisted numpy functions are accepted. Stripping ``__builtins__`` alone does
+        not sandbox ``eval`` because the numpy module object and Python-level callables
+        expose arbitrary attributes, so the formula is parsed with :mod:`ast` and every
+        node is checked against a whitelist before evaluation.
+
+        Raises
+        ------
+        ValueError
+            When the formula cannot be parsed or uses a construct outside the whitelist.
+            The message names the rejected construct so the GUI can surface it.
+        """
+        try:
+            tree = ast.parse(formula, mode="eval")
+        except SyntaxError as exc:
+            raise ValueError(f"Invalid formula syntax: {exc.msg}.") from exc
+
+        def reject(description: str) -> None:
+            raise ValueError(f"Formula rejected: {description} is not allowed.")
+
+        def walk(node: ast.AST) -> None:
+            if isinstance(node, ast.Expression):
+                walk(node.body)
+            elif isinstance(node, ast.BinOp):
+                if not isinstance(node.op, cls._ALLOWED_BIN_OPS):
+                    reject(f"operator '{type(node.op).__name__}'")
+                walk(node.left)
+                walk(node.right)
+            elif isinstance(node, ast.UnaryOp):
+                if not isinstance(node.op, cls._ALLOWED_UNARY_OPS):
+                    reject(f"operator '{type(node.op).__name__}'")
+                walk(node.operand)
+            elif isinstance(node, ast.BoolOp):
+                for value in node.values:
+                    walk(value)
+            elif isinstance(node, ast.Compare):
+                for op in node.ops:
+                    if not isinstance(op, cls._ALLOWED_CMP_OPS):
+                        reject(f"comparison '{type(op).__name__}'")
+                walk(node.left)
+                for comparator in node.comparators:
+                    walk(comparator)
+            elif isinstance(node, ast.Call):
+                walk(node.func)
+                for arg in node.args:
+                    if isinstance(arg, ast.Starred):
+                        reject("'*' argument unpacking")
+                    walk(arg)
+                for keyword in node.keywords:
+                    if keyword.arg is None:
+                        reject("'**' keyword unpacking")
+                    if keyword.arg in cls._MUTATING_KEYWORDS:
+                        # numpy would write into the stored trace instead of returning a new array
+                        reject(f"the '{keyword.arg}=' argument")
+                    walk(keyword.value)
+            elif isinstance(node, ast.Attribute):
+                # Only np.<name>/numpy.<name> with a whitelisted attribute. Dunder and
+                # chained access never match the whitelist and fall through to reject.
+                if not isinstance(node.value, ast.Name) or node.value.id not in cls._NP_PREFIXES:
+                    reject("attribute access (only 'np.<name>' or 'numpy.<name>')")
+                if node.attr not in cls._ALLOWED_NP_NAMES:
+                    reject(f"numpy name '{node.value.id}.{node.attr}'")
+            elif isinstance(node, ast.Name):
+                if node.id not in allowed_names:
+                    reject(f"name '{node.id}'")
+            elif isinstance(node, ast.Constant):
+                if not isinstance(node.value, (int, float, complex)):
+                    reject(f"non-numeric constant {node.value!r}")
+            elif isinstance(node, (ast.Tuple, ast.List)):
+                reject("a tuple or list")
+            elif isinstance(node, ast.Lambda):
+                reject("lambda expressions")
+            elif isinstance(node, (ast.ListComp, ast.SetComp, ast.DictComp, ast.GeneratorExp)):
+                reject("a comprehension")
+            elif isinstance(node, ast.NamedExpr):
+                reject("assignment expressions (':=')")
+            elif isinstance(node, ast.Subscript):
+                reject("subscript indexing")
+            elif isinstance(node, (ast.JoinedStr, ast.FormattedValue)):
+                reject("an f-string")
+            elif isinstance(node, ast.IfExp):
+                reject("conditional expressions (if/else)")
+            else:
+                reject(f"'{type(node).__name__}'")
+
+        walk(tree)
+
     def evaluate(
         self,
         formula: str,
@@ -629,7 +809,7 @@ class FormulaCalculator:
     ) -> tuple[np.ndarray, np.ndarray, list[str]]:
         """Parse ``formula`` and return ``(x, y, used_names)``.
 
-        Raises ``ValueError`` on any parse, alignment or evaluation error.
+        Raises ``ValueError`` on any parse, validation, alignment or evaluation error.
         """
         formula = (formula or "").strip()
         if not formula:
@@ -646,6 +826,10 @@ class FormulaCalculator:
         namespace["x"] = x_axis
         namespace.update(ys_aligned)
 
+        # Validate before evaluating: a restricted globals dict does not stop
+        # attribute walks from the numpy module object or Python callables.
+        self._validate_formula(formula, set(namespace.keys()))
+
         # Numpy emits floating-point warnings for log10(0), 1/0, log10(<0)
         # etc. The warnings machinery internally needs ``__import__``, which
         # would raise ``KeyError('__import__')`` against our hardened
@@ -653,7 +837,7 @@ class FormulaCalculator:
         # evaluation so the formula simply yields -inf/nan where appropriate.
         try:
             with np.errstate(all="ignore"):
-                # namespace is restricted to _ALLOWED_GLOBALS (numpy functions only) with no builtins
+                # formula already passed _validate_formula; empty builtins is defense in depth
                 result = eval(formula, {"__builtins__": {}}, namespace)  # noqa: S307  # nosec B307
         except Exception as exc:  # pragma: no cover - re-raised as ValueError
             raise ValueError(str(exc)) from exc
