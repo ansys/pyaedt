@@ -2807,13 +2807,24 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                         if i in new_comp_params and j != new_comp_params and j != f'"{new_comp_params}"'
                     }
                     if params:
-                        # applying single settings to ibis because of parameters relationships.
-                        for ppn, ppv in params.items():
-                            new_comp.parameters[ppn] = (
-                                ppv[1:-1]
-                                if isinstance(ppv, str) and ppv.startswith('"') and is_number(ppv[1:-1])
-                                else ppv
+                        try:
+                            if new_comp._readonly_parameters:
+                                params = {i: j for i, j in params.items() if i not in new_comp._readonly_parameters}
+                            self._app.change_properties(
+                                self._app.oeditor,
+                                "PassedParameterTab",
+                                new_comp.composed_name,
+                                list(params.keys()),
+                                list(params.values()),
                             )
+                        except Exception:
+                            # applying single settings to ibis because of parameters relationships.
+                            for ppn, ppv in params.items():
+                                new_comp.parameters[ppn] = (
+                                    ppv[1:-1]
+                                    if isinstance(ppv, str) and ppv.startswith('"') and is_number(ppv[1:-1])
+                                    else ppv
+                                )
 
         comp_list = list(self._app.modeler.schematic.components.values())
         for i, j in data["pin_mapping"].items():
