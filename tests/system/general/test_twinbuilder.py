@@ -33,6 +33,9 @@ from tests.conftest import DESKTOP_VERSION
 
 TEST_SUBFOLDER = "T34"
 
+ARMOURED_CABLE = "Q2D_ArmouredCableExample"
+EXCITATION_MODEL = "TB_excitation_model"
+
 
 @pytest.fixture
 def aedt_app(add_app):
@@ -40,6 +43,20 @@ def aedt_app(add_app):
     app.modeler.schematic_units = "mil"
     yield app
     app.close_project(save=False)
+
+
+@pytest.fixture
+def tb_dynamic_link(add_app_example):
+    app = add_app_example(application=TwinBuilder, project=ARMOURED_CABLE, subfolder=TEST_SUBFOLDER)
+    yield app
+    app.close_project(app.project_name, save=False)
+
+
+@pytest.fixture
+def tb_excitation_model(add_app_example):
+    app = add_app_example(application=TwinBuilder, project=EXCITATION_MODEL, subfolder=TEST_SUBFOLDER)
+    yield app
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
@@ -133,26 +150,21 @@ def test_set_variable(aedt_app) -> None:
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
-def test_add_dynamic_link(add_app, test_tmp_dir) -> None:
+def test_add_dynamic_link(tb_dynamic_link, test_tmp_dir) -> None:
     file1_o = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "Q2D_ArmouredCableExample.aedt"
     dynamic_link = shutil.copy2(file1_o, test_tmp_dir / "Q2D_ArmouredCableExample.aedt")
 
     file2_o = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "Q3D_DynamicLink.aedt"
     q3d_dynamic_link = shutil.copy2(file2_o, test_tmp_dir / "Q3D_DynamicLink.aedt")
 
-    tb = add_app(
-        application=TwinBuilder,
-        project=dynamic_link,
-        design="CableSystem",
-    )
-    assert tb.add_q3d_dynamic_component(
+    assert tb_dynamic_link.add_q3d_dynamic_component(
         "Q2D_ArmouredCableExample", "2D_Extractor_Cable", "MySetupAuto", "sweep1", "Original", model_depth="100mm"
     )
-    assert tb.add_q3d_dynamic_component(
+    assert tb_dynamic_link.add_q3d_dynamic_component(
         dynamic_link, "2D_Extractor_Cable", "MySetupAuto", "sweep1", "Original", model_depth="100mm"
     )
     with pytest.raises(TypeError):
-        assert tb.add_q3d_dynamic_component(
+        assert tb_dynamic_link.add_q3d_dynamic_component(
             "Q2D_ArmouredCableExample",
             "2D_Extractor_Cable",
             "MySetupAuto",
@@ -161,7 +173,7 @@ def test_add_dynamic_link(add_app, test_tmp_dir) -> None:
             model_depth="invalid",
         )
     with pytest.raises(ValueError):
-        assert tb.add_q3d_dynamic_component(
+        assert tb_dynamic_link.add_q3d_dynamic_component(
             "Q2D_ArmouredCableExample",
             "2D_Extractor_Cable",
             "MySetupAuto",
@@ -170,7 +182,7 @@ def test_add_dynamic_link(add_app, test_tmp_dir) -> None:
             model_depth="100mm",
         )
     with pytest.raises(TypeError):
-        assert tb.add_q3d_dynamic_component(
+        assert tb_dynamic_link.add_q3d_dynamic_component(
             "Q2D_ArmouredCableExample",
             "2D_Extractor_Cable",
             "MySetupAuto",
@@ -179,14 +191,14 @@ def test_add_dynamic_link(add_app, test_tmp_dir) -> None:
             model_depth="100mm",
             state_space_dynamic_link_type="invalid",
         )
-    assert tb.add_q3d_dynamic_component(dynamic_link, "Q3D_MSbend", "Setup1GHz", "MSbX_021GHz", "Original")
+    assert tb_dynamic_link.add_q3d_dynamic_component(dynamic_link, "Q3D_MSbend", "Setup1GHz", "MSbX_021GHz", "Original")
     with pytest.raises(ValueError):
-        tb.add_q3d_dynamic_component(dynamic_link, "Q3D_MSbend", "Setup1GHz", "sweep1", "Original")
+        tb_dynamic_link.add_q3d_dynamic_component(dynamic_link, "Q3D_MSbend", "Setup1GHz", "sweep1", "Original")
     with pytest.raises(ValueError):
-        tb.add_q3d_dynamic_component(dynamic_link, "Q3D_MSbend", "setup", "sweep1", "Original")
-    example_project_copy = test_tmp_dir / f"{tb.project_name}_copy.aedt"
+        tb_dynamic_link.add_q3d_dynamic_component(dynamic_link, "Q3D_MSbend", "setup", "sweep1", "Original")
+    example_project_copy = test_tmp_dir / f"{tb_dynamic_link.project_name}_copy.aedt"
     shutil.copyfile(dynamic_link, example_project_copy)
-    assert tb.add_q3d_dynamic_component(
+    assert tb_dynamic_link.add_q3d_dynamic_component(
         str(example_project_copy),
         "2D_Extractor_Cable",
         "MySetupAuto",
@@ -194,15 +206,17 @@ def test_add_dynamic_link(add_app, test_tmp_dir) -> None:
         "Original",
         model_depth="100mm",
     )
-    assert tb.add_q3d_dynamic_component(str(q3d_dynamic_link), "Q3D_MSbend", "Setup1GHz", "MSbX_021GHz", "Original")
+    assert tb_dynamic_link.add_q3d_dynamic_component(
+        str(q3d_dynamic_link), "Q3D_MSbend", "Setup1GHz", "MSbX_021GHz", "Original"
+    )
     with pytest.raises(ValueError):
-        tb.add_q3d_dynamic_component("", "2D_Extractor_Cable", "MySetupAuto", "sweep1", "Original", model_depth="100mm")
+        tb_dynamic_link.add_q3d_dynamic_component(
+            "", "2D_Extractor_Cable", "MySetupAuto", "sweep1", "Original", model_depth="100mm"
+        )
     with pytest.raises(ValueError):
-        tb.add_q3d_dynamic_component(
+        tb_dynamic_link.add_q3d_dynamic_component(
             "invalid", "2D_Extractor_Cable", "MySetupAuto", "sweep1", "Original", model_depth="100mm"
         )
-    # shutil.rmtree(example_project_copy)
-    tb.close_project(name=tb.project_name, save=False)
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
@@ -228,40 +242,46 @@ def test_create_subsheet(aedt_app) -> None:
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
 @pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Feature not available before 2025R1")
-def test_add_excitation_model(add_app, test_tmp_dir) -> None:
+def test_add_excitation_model(tb_excitation_model, test_tmp_dir) -> None:
     file1_o = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "TB_excitation_model.aedt"
     excitation_model = shutil.copy2(file1_o, test_tmp_dir / "TB_excitation_model.aedt")
 
-    tb = add_app(
-        application=TwinBuilder,
-        project=excitation_model,
-        design="2 simplorer circuit",
-    )
-    project_name = tb.project_name
-    dkp = tb.desktop_class
+    project_name = tb_excitation_model.project_name
+    dkp = tb_excitation_model.desktop_class
     maxwell_app = dkp[[project_name, "1 maxwell busbar"]]
 
-    assert not tb.add_excitation_model(project="invalid", design="1 maxwell busbar")
-    assert not tb.add_excitation_model(project=tb.project_path, design="1 maxwell busbar")
-    assert not tb.add_excitation_model(project=project_name, design="1 maxwell busbar", excitations={"a": []})
+    assert not tb_excitation_model.add_excitation_model(project="invalid", design="1 maxwell busbar")
+    assert not tb_excitation_model.add_excitation_model(
+        project=tb_excitation_model.project_path, design="1 maxwell busbar"
+    )
+    assert not tb_excitation_model.add_excitation_model(
+        project=project_name, design="1 maxwell busbar", excitations={"a": []}
+    )
 
     excitations = {}
     for e in maxwell_app.excitations_by_type["Winding Group"]:
         excitations[e.name] = [1, True, e.props["Type"], False]
 
-    assert not tb.add_excitation_model(project=project_name, design="1 maxwell busbar", excitations=excitations)
+    assert not tb_excitation_model.add_excitation_model(
+        project=project_name, design="1 maxwell busbar", excitations=excitations
+    )
 
     excitations = {}
     for e in maxwell_app.excitations_by_type["Winding Group"]:
         excitations[e.name] = ["20", True, e.props["Type"], False]
 
-    assert tb.add_excitation_model(project=tb.project_file, design="1 maxwell busbar", excitations=excitations)
-
-    assert tb.add_excitation_model(
-        project=project_name, design="1 maxwell busbar", excitations=excitations, setup=tb.setups[0].name
+    assert tb_excitation_model.add_excitation_model(
+        project=tb_excitation_model.project_file, design="1 maxwell busbar", excitations=excitations
     )
 
-    assert tb.add_excitation_model(
+    assert tb_excitation_model.add_excitation_model(
+        project=project_name,
+        design="1 maxwell busbar",
+        excitations=excitations,
+        setup=tb_excitation_model.setups[0].name,
+    )
+
+    assert tb_excitation_model.add_excitation_model(
         project=project_name,
         design="1 maxwell busbar",
         excitations=excitations,
@@ -270,18 +290,52 @@ def test_add_excitation_model(add_app, test_tmp_dir) -> None:
         stop="5ms",
     )
 
-    assert tb.add_excitation_model(project=project_name, design="1 maxwell busbar")
+    assert tb_excitation_model.add_excitation_model(project=project_name, design="1 maxwell busbar")
 
     for e in maxwell_app.excitations_by_type["Winding Group"]:
         excitations[e.name] = ["20", True, e.props["Type"], True]
 
-    assert tb.add_excitation_model(project=project_name, design="1 maxwell busbar", excitations=excitations)
+    assert tb_excitation_model.add_excitation_model(
+        project=project_name, design="1 maxwell busbar", excitations=excitations
+    )
 
     example_project_copy = test_tmp_dir / f"{project_name}_copy.aedt"
     shutil.copyfile(excitation_model, example_project_copy)
-    assert tb.add_excitation_model(
+    assert tb_excitation_model.add_excitation_model(
         project=str(example_project_copy), design="1 maxwell busbar", excitations=excitations
     )
 
-    # shutil.rmtree(example_project_copy)
-    tb.close_project(name=project_name, save=False)
+
+@pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
+def test_transient_setup(aedt_app) -> None:
+    setup = aedt_app.create_setup()
+    assert setup.setuptype == aedt_app.design_solutions.default_setup
+    assert aedt_app.design_solutions.solution_type == "TwinbuilderTR"
+    setup = aedt_app.create_setup(props={"TransientData": ["50ms", "1us", "2ms"]})
+    assert setup.props["TransientData"][0] == "50ms"
+    assert setup.props["TransientData"][1] == "1us"
+    assert setup.props["TransientData"][2] == "2ms"
+    aedt_app.create_setup(setup_type="TwinbuilderTR")
+    assert aedt_app.design_solutions.solution_type == "TwinbuilderTR"
+
+
+@pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
+@pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Feature not working in non-graphical mode before 2027.1")
+def test_ac_setup(aedt_app) -> None:
+    setup = aedt_app.create_setup(setup_type="TwinbuilderAC")
+    assert setup.name in aedt_app.setup_names
+    assert aedt_app.design_solutions.solution_type == "TwinbuilderAC"
+    setup = aedt_app.create_setup(setup_type="TwinbuilderAC", props={"LinearFrequencyData": [1, "50Hz", "1kHz", "5Hz"]})
+    assert setup.props["LinearFrequencyData"][0] == 1
+    assert setup.props["LinearFrequencyData"][1] == "50Hz"
+    assert setup.props["LinearFrequencyData"][2] == "1kHz"
+    assert setup.props["LinearFrequencyData"][3] == "5Hz"
+    assert aedt_app.design_solutions.solution_type == "TwinbuilderAC"
+
+
+@pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
+@pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Feature not working in non-graphical mode before 2027.1")
+def test_dc_setup(aedt_app) -> None:
+    setup = aedt_app.create_setup(setup_type="TwinbuilderDC")
+    assert setup.name in aedt_app.setup_names
+    assert aedt_app.design_solutions.solution_type == "TwinbuilderDC"

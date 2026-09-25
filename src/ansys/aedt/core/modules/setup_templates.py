@@ -1785,8 +1785,42 @@ CPSM = dict(
 )
 """RMxprt CPSM Claw-pole synchronous machine/generator setup properties."""
 
-TR = {}
-"""Tr."""
+TwinbuilderTR = {
+    "DataBlockID": 8,
+    "SimSetupID": -1,
+    "OptionName": "(Default Options)",
+    "AnalysisEnabled": 1,
+    "Pre Simulation Callback": "",
+    "Post Simulation Callback": "",
+    "Name": "TR",
+    "TransientData": ["40ms", "10us", "1ms", False, ""],
+    "EnableContSolve": False,
+}
+"""Twinbuilder Transient."""
+
+TwinbuilderAC = {
+    "DataBlockID": 10,
+    "SimSetupID": -1,
+    "OptionName": "(Default Options)",
+    "AnalysisEnabled": 1,
+    "Pre Simulation Callback": "",
+    "Post Simulation Callback": "",
+    "Name": "AC",
+    "LinearFrequencyData": [1, "1Hz", "1kHz", "10Hz"],
+    "EnableContSolve": False,
+}
+"""Twinbuilder AC."""
+
+TwinbuilderDC = {
+    "DataBlockID": 9,
+    "SimSetupID": -1,
+    "OptionName": "(Default Options)",
+    "AnalysisEnabled": 1,
+    "Pre Simulation Callback": "",
+    "Post Simulation Callback": "",
+    "Name": "DC",
+}
+"""Twinbuilder DC."""
 
 # Default sweep settings for Q3D
 SweepQ3D = dict(
@@ -2312,7 +2346,7 @@ class SetupKeys:
         "MechThermal",
         "MechModal",
         "GRM",
-        "TR",
+        "TwinbuilderTR",
         "IcepakTransient",
         "IcepakTransient",
         "IcepakTransient",
@@ -2340,6 +2374,8 @@ class SetupKeys:
         "DCBiasedEddyCurrent",
         "ElectricDCConduction",
         "RaptorX",
+        "TwinbuilderAC",
+        "TwinbuilderDC",
     ]
     """Value for setup names."""
 
@@ -2379,7 +2415,7 @@ class SetupKeys:
         32: MechTerm,
         33: MechModal,
         34: GRM,
-        35: TR,
+        35: TwinbuilderTR,
         36: TransientTemperatureAndFlow,
         37: TransientTemperatureOnly,
         38: TransientFlowOnly,
@@ -2431,6 +2467,8 @@ class SetupKeys:
 
     SetupTemplates_252 = {
         61: ElectroDCConduction,
+        63: TwinbuilderAC,
+        64: TwinbuilderDC,
     }
     """Value for SetupTemplates 252."""
 

@@ -330,7 +330,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
 
     @pyaedt_function_handler()
     def set_sim_setup_parameter(
-        self, variable: Variable, expression: Variable, analysis_name: str | None = "TR"
+        self, variable: Variable, expression: Variable, analysis_name: str | None = "TwinbuilderTR"
     ) -> bool:
         """Set simulation setup parameters.
 
@@ -341,7 +341,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         expression : Variable
 
         analysis_name : str, optional
-            Name of the analysis. The default is ``"TR"``.
+            Name of the analysis. The default is ``"TwinbuilderTR"``.
 
         Returns
         -------

@@ -202,9 +202,16 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
         sweep_definition["Solution"] = setup_sweep_name
         ctxt = {}
 
-        if self._app.solution_type in ["TR", "AC", "DC"]:
+        if self._app.solution_type in ["TR", "AC", "DC", "TwinbuilderTR", "TwinbuilderAC", "TwinbuilderDC"]:
             ctxt["SimValueContext"] = [did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]
-            setup_sweep_name = self._app.solution_type
+            if self._app.solution_type == "TwinbuilderTR":
+                setup_sweep_name = "TR"
+            elif self._app.solution_type == "TwinbuilderAC":
+                setup_sweep_name = "AC"
+            elif self._app.solution_type == "TwinbuilderDC":
+                setup_sweep_name = "DC"
+            else:
+                setup_sweep_name = self._app.solution_type
             sweep_definition["Solution"] = setup_sweep_name
 
         elif self._app.solution_type in ["HFSS3DLayout"]:

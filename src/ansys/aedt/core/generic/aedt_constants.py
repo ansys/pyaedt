@@ -356,17 +356,17 @@ class Hfss3dLayoutConstants(metaclass=DynamicMeta):
 
 
 class TwinbuilderConstants(metaclass=DynamicMeta):
-    """Provide TwinBuilder constants."""
+    """Provide Twinbuilder constants."""
 
     NAME = "Twin Builder"
     """Name."""
 
     model_name = "SimplorerCircuit"
     """Value for model name."""
-    solution_default = "TR"
+    solution_default = "TwinbuilderTR"
     """Value for solution default."""
     solution_types = {
-        "TR": {
+        "TwinbuilderTR": {
             "name": None,
             "options": None,
             "report_type": "Standard",
@@ -374,7 +374,7 @@ class TwinbuilderConstants(metaclass=DynamicMeta):
             "default_adaptive": None,
             "intrinsics": ["Time"],
         },
-        "AC": {
+        "TwinbuilderAC": {
             "name": None,
             "options": None,
             "report_type": "Standard",
@@ -382,7 +382,7 @@ class TwinbuilderConstants(metaclass=DynamicMeta):
             "default_adaptive": None,
             "intrinsics": ["Freq"],
         },
-        "DC": {
+        "TwinbuilderDC": {
             "name": None,
             "options": None,
             "report_type": "Standard",

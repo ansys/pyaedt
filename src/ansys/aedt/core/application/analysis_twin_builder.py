@@ -198,7 +198,7 @@ class AnalysisTwinBuilder(Analysis, PyAedtBase):
         return self._post
 
     @pyaedt_function_handler()
-    def create_setup(self, name: str = "MySetupAuto", setup_type: str = None, **kwargs) -> SetupCircuit:
+    def create_setup(self, name: str = "MySetupAuto", setup_type: str | None = None, **kwargs) -> SetupCircuit:
         """Create a setup.
 
         Parameters
@@ -230,7 +230,8 @@ class AnalysisTwinBuilder(Analysis, PyAedtBase):
             setup_type = self.design_solutions.default_setup
         elif setup_type in SetupKeys.SetupNames:
             setup_type = SetupKeys.SetupNames.index(setup_type)
-        name = self.generate_unique_setup(name)
+        setup_type_name = SetupKeys.SetupNames[setup_type]
+        name = self.generate_unique_setup_name(name)
         setup = SetupCircuit(self, setup_type, name)
         tmp_setups = self.setups
         setup.create()
@@ -246,5 +247,6 @@ class AnalysisTwinBuilder(Analysis, PyAedtBase):
                 setup[arg_name] = arg_value
         setup.auto_update = True
         setup.update()
+        self.design_solutions.solution_type = setup_type_name
         self._setups = tmp_setups + [setup]
         return setup
