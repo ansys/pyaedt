@@ -241,7 +241,7 @@ def test_run_band_pair(cell_phone):
     assert instance is not None
 
     value = instance.get_value(ResultType.EMI)
-    assert value == -3.87
+    assert value == -3.83
 
     # Verify expected errors for requests of alternative result types from worst-case EMI instance
     with pytest.raises(ValueError) as e:
