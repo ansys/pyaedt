@@ -46,7 +46,6 @@ from tests import TESTS_GENERAL_PATH
 from tests import TESTS_ICEPAK_PATH
 from tests.conftest import DESKTOP_VERSION
 from tests.conftest import USE_GRPC
-from tests.conftest import build_xfail
 
 TEST_SUBFOLDER = "icepak"
 BOARD_3DL = "FilterBoard_H3DL"
@@ -1204,7 +1203,6 @@ def test_assign_network_from_matrix(ipk_app) -> None:
     assert boundary
 
 
-@build_xfail
 def test_assign_network(ipk_app, add_app_example) -> None:
     box = ipk_app.modeler.create_box([0, 0, 0], [20, 20, 20])
     ids = [f.id for f in box.faces]
