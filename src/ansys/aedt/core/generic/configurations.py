@@ -2488,17 +2488,19 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                 for param, value in parameters.items():
                     if param in skip_list:
                         continue
-                    elif value and value[-1] == "'" and value[1] == "'":
-                        value = value[-1:1]
+                    elif value and isinstance(value, str) and value[-1] == "'" and value[0] == "'":
+                        value = value[1:-1]
                     properties[param] = value
             elif path[-4:] == ".ibs":
                 if "AMI_Version" in parameters:
                     component_type = "ami"
                 else:
                     component_type = "ibis"
-                component = parameters["comp_name"] if parameters.get("comp_name", None) else parameters["model"][1:-1]
+                component = parameters["comp_name"] if parameters.get("comp_name", None) else parameters["model"]
+                if component[0] == '"':
+                    component = component[1:-1]
                 for prop, value in parameters.items():
-                    if value and value[-1] == '"' and value[0] == '"':
+                    if value and isinstance(value, str) and value[-1] == '"' and value[0] == '"':
                         value = value[1:-1]
                     properties[prop] = value
             elif path[-4:] in [".LIB", ".lib"] or path[-3:] == ".sp":
@@ -2791,44 +2793,38 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                         )
                     if j.get("mirror", False):
                         new_comp.mirror = True
-                    new_comp_params = {i: k[1:-1] if k.startswith('"') else k for i, k in new_comp.parameters.items()}
+                    if component_type in ["ibis", "ami"]:
+                        for key in ("model", "Model1", "Model2"):
+                            if key in j["properties"]:
+                                new_comp.parameters[key] = j["properties"].pop(key)
+                    new_comp_params = {
+                        i: k[1:-1] if isinstance(k, str) and k.startswith('"') else k
+                        for i, k in new_comp.parameters.items()
+                    }
                     params = {
                         i: j
                         for i, j in j["properties"].items()
                         if i in new_comp_params and j != new_comp_params and j != f'"{new_comp_params}"'
                     }
                     if params:
-                        # applying single settings to ibis because of parameters relationships.
-                        if component_type in ["ibis", "ami"]:
+                        try:
+                            if new_comp._readonly_parameters:
+                                params = {i: j for i, j in params.items() if i not in new_comp._readonly_parameters}
+                            self._app.change_properties(
+                                self._app.oeditor,
+                                "PassedParameterTab",
+                                new_comp.composed_name,
+                                list(params.keys()),
+                                list(params.values()),
+                            )
+                        except Exception:
+                            # applying single settings to ibis because of parameters relationships.
                             for ppn, ppv in params.items():
                                 new_comp.parameters[ppn] = (
                                     ppv[1:-1]
                                     if isinstance(ppv, str) and ppv.startswith('"') and is_number(ppv[1:-1])
                                     else ppv
                                 )
-                        else:
-                            try:
-                                values = [
-                                    i[1:-1] if isinstance(i, str) and i.startswith('"') and is_number(i[1:-1]) else i
-                                    for i in list(params.values())
-                                ]
-                                self._app.change_properties(
-                                    self._app.oeditor,
-                                    "PassedParameterTab",
-                                    new_comp.composed_name,
-                                    list(params.keys()),
-                                    values,
-                                )
-                            except Exception:  # pragma: no cover
-                                self._app.logger.warning(
-                                    f"Failed to set one of the properties for component {new_comp.composed_name}"
-                                )
-                                for ppn, ppv in params.items():
-                                    new_comp.parameters[ppn] = (
-                                        ppv[1:-1]
-                                        if isinstance(ppv, str) and ppv.startswith('"') and is_number(ppv[1:-1])
-                                        else ppv
-                                    )
 
         comp_list = list(self._app.modeler.schematic.components.values())
         for i, j in data["pin_mapping"].items():
