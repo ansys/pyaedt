@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import math
+import re
 import time
 
 from ansys.aedt.core.base import PyAedtBase
@@ -275,7 +276,7 @@ class CircuitPins(PyAedtBase):
         if not isinstance(assignment, list):
             assignment = [assignment]
         for cpin in assignment:
-            if local_page != cpin._circuit_comp.page:
+            if local_page != cpin._circuit_comp.page and use_wire:
                 self._circuit_comp._circuit_components.logger.warning(
                     "components are on different pages. Using page ports."
                 )
@@ -422,6 +423,18 @@ class CircuitPins(PyAedtBase):
             return False
 
 
+def get_next_argument(script: str, key: str) -> str | None:
+    key = key.strip("'\"")
+    match = re.search(
+        rf"""['\"]{re.escape(key)}['\"]\s*,\s*(?:['\"]([^'\"]*)['\"]|(true|false)|(-?\d+(?:\.\d+)?))""",
+        script,
+        flags=re.IGNORECASE,
+    )
+    if not match:
+        return None
+    return next(group for group in match.groups() if group is not None)
+
+
 class ComponentParameters(dict):
     """Manages component parameters.
 
@@ -433,6 +446,44 @@ class ComponentParameters(dict):
     """
 
     def __setitem__(self, key, value):
+        if not isinstance(self._tab, str):
+            if key == "InstanceName":
+                if self._component._change_property(key, value, tab_name="Component"):
+                    self._component._InstanceName = value
+                    dict.__setitem__(self, key, value)
+                    return
+            elif key in ["model", "Model1", "Model2"]:
+                if value != dict.__getitem__(self, key):
+                    if self._component._change_property(key, value, tab_name="PassedParameterTab"):
+                        self._component._parameters = None
+                return
+            else:
+                if "_readonly_parameters" in dir(self._component) and key in self._component._readonly_parameters:
+                    return
+                try:
+                    if isinstance(value, str) and f"{key}/ButtonText" in self:
+                        if self._tab.SetPropValue(f"{key}/ButtonText", value):
+                            val = dict.__getitem__(self, key)
+                            val[1] = value
+                            dict.__setitem__(self, f"{key}/ButtonText", value)
+                            dict.__setitem__(self, key, val)
+                            return
+                    else:
+                        if self._tab.SetPropValue(key, value):
+                            dict.__setitem__(self, key, value)
+                            return
+                        elif isinstance(value, str) and value[0] != '"' and self._tab.SetPropValue(key, f'"{value}"'):
+                            dict.__setitem__(self, key, f'"{value}"')
+                            self._component._circuit_components.logger.clear_messages(
+                                proj_name=self._component._circuit_components._app.project_name,
+                                des_name=self._component._circuit_components._app.design_name,
+                                level=2,
+                            )
+                            return
+                    self._component._circuit_components.logger.warning(f"Failed to change property {key}")
+                    return
+                except Exception:
+                    return
         if isinstance(value, (int, float)):
             if self._component._change_property(key, value, tab_name=self._tab):
                 dict.__setitem__(self, key, value)
@@ -569,6 +620,7 @@ class CircuitComponent(PyAedtBase):
         self._refdes = None
         self.is_port = False
         self._page = 1
+        self._readonly_parameters = []
 
     @property
     def instance_name(self) -> str:
@@ -583,8 +635,9 @@ class CircuitComponent(PyAedtBase):
         """
         if self._InstanceName:
             return self._InstanceName
-        if "InstanceName" in self.parameters:
-            self._InstanceName = self.parameters["InstanceName"]
+        self._InstanceName = ""
+        if "InstanceName" in self._oeditor.GetProperties("Component", self.composed_name):
+            self._InstanceName = self._oeditor.GetPropertyValue("Component", self.composed_name, "InstanceName")
         return self._InstanceName
 
     @instance_name.setter
@@ -656,7 +709,8 @@ class CircuitComponent(PyAedtBase):
                     ],
                 ]
             self._oeditor.ChangeProperty(args)
-            return True if self._get_property_value(prop_name, tab_name) == prop_value else False
+            output = self._get_property_value(prop_name, tab_name)
+            return True if output == prop_value or output == f'"{prop_value}"' else False
         except Exception:
             return False
 
@@ -797,31 +851,74 @@ class CircuitComponent(PyAedtBase):
         """
         if self._parameters:
             return self._parameters
-        _parameters = {}
-        if self._circuit_components._app.design_type == "Circuit Design" or self.name in [
-            "CompInst@FML_INIT",
-            "CompInst@Measurement",
-        ]:
-            tabs = ["PassedParameterTab"]
-        elif self._circuit_components._app.design_type == "Maxwell Circuit":
-            tabs = ["PassedParameterTab"]
-        else:
-            tabs = ["Quantities", "PassedParameterTab"]
-        proparray = {}
-        for tab in tabs:
-            try:
-                proparray[tab] = self._oeditor.GetProperties(tab, self.composed_name)
-            except Exception:
-                proparray[tab] = []
 
-        for tab, props in proparray.items():
-            if not props:
-                continue
-            for j in props:
-                propval = self._oeditor.GetPropertyValue(tab, self.composed_name, j)
-                _parameters[j] = propval
-            self._parameters = ComponentParameters(self, tab, _parameters)
-        return self._parameters
+        has_child_names = False
+        if hasattr(self._oeditor, "GetChildObject") and self._circuit_components._app.design_type == "Circuit Design":
+            has_child_names = True if self.instance_name in self._oeditor.GetChildNames() else False
+
+        def extract_bracket_content(value: str) -> str:
+            match = re.search(r"\[(.*?)\]", value)
+            return match.group(1) if match else value
+
+        if has_child_names:
+            self._parameters = {}
+            from ansys.aedt.core.application import _get_data_model
+
+            child_object = self._oeditor.GetChildObject(self.instance_name)
+            props = _get_data_model(child_object)
+            prop_names = child_object.GetPropNames()
+            self._readonly_parameters = [
+                extract_bracket_content(i) for i in prop_names if i not in child_object.GetPropNames(False)
+            ]
+            for p in child_object.GetPropNames():
+                if p not in props:
+                    continue
+                correct_name = extract_bracket_content(p)
+                if p in self._parameters:
+                    continue
+                self._parameters[correct_name] = props.get(p, None)
+                if props.get(p, None) == [] and any([i for i in prop_names if f"{correct_name}/ButtonText" in i]):
+                    try:
+                        self._parameters[correct_name] = child_object.GetPropValue(f"{correct_name}")
+                        self._parameters[f"{correct_name}/ButtonText"] = child_object.GetPropValue(
+                            f"{correct_name}/ButtonText"
+                        )
+                    except Exception:
+                        self._parameters[correct_name] = []
+                elif props.get(p, None) == []:
+                    try:
+                        self._parameters[correct_name] = child_object.GetPropValue(f"{correct_name}")
+                    except Exception:
+                        self._parameters[correct_name] = []
+            self._parameters["InstanceName"] = self.instance_name
+            self._parameters = ComponentParameters(self, child_object, self._parameters)
+            return self._parameters
+        else:
+            _parameters = {}
+            if self._circuit_components._app.design_type == "Circuit Design" or self.name in [
+                "CompInst@FML_INIT",
+                "CompInst@Measurement",
+            ]:
+                tabs = ["PassedParameterTab"]
+            elif self._circuit_components._app.design_type == "Maxwell Circuit":
+                tabs = ["PassedParameterTab"]
+            else:
+                tabs = ["Quantities", "PassedParameterTab"]
+            proparray = {}
+            for tab in tabs:
+                try:
+                    proparray[tab] = self._oeditor.GetProperties(tab, self.composed_name)
+                except Exception:
+                    proparray[tab] = []
+
+            for tab, props in proparray.items():
+                if not props:
+                    continue
+                for j in props:
+                    propval = self._oeditor.GetPropertyValue(tab, self.composed_name, j)
+                    _parameters[j] = propval
+                self._parameters = ComponentParameters(self, tab, _parameters)
+            return self._parameters
 
     @property
     def component_info(self) -> ComponentParameters:
