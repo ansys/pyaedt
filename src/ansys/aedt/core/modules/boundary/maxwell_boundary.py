@@ -27,6 +27,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from dataclasses import field
 
+from ansys.aedt.core.application import _get_obj_data
+from ansys.aedt.core.application import _has_get_obj_data
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
 from ansys.aedt.core.generic.data_handlers import _dict2arg
@@ -320,7 +322,7 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         self._name = name
         self.__props = BoundaryProps(self, props) if props else {}
         self.type = boundarytype
-        self._initialize_tree_node()
+        # self._initialize_tree_node()
 
     @property
     def _child_object(self):
@@ -346,13 +348,24 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         >>> obj.props
 
         """
-        if self.__props:
+        has_obj_data = _has_get_obj_data(self._child_object)
+        if self.__props and not has_obj_data:
             return self.__props
-        props = self._get_boundary_data(self.name)
+        child_object = self._child_object
+        if has_obj_data:
+            props = _get_obj_data(child_object)
+        else:
+            boundary_data = self._get_boundary_data(self.name)
+            props = boundary_data[0] if boundary_data else {}
 
         if props:
-            self.__props = BoundaryProps(self, props[0])
-            self._type = props[1]
+            self.__props = BoundaryProps(self, props)
+            if has_obj_data:
+                boundary_type = props.get("Type") or props.get("BoundType")
+            else:
+                boundary_type = boundary_data[1]
+            if boundary_type:
+                self.type = boundary_type
         return self.__props
 
     @property
@@ -425,7 +438,8 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
             self._app.omaxwell_parameters.AssignLayoutForce(self._get_args())
         else:
             return False
-        return self._initialize_tree_node()
+        # return self._initialize_tree_node()
+        return True
 
     @pyaedt_function_handler()
     def update(self) -> bool:

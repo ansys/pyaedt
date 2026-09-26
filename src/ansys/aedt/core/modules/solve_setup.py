@@ -39,6 +39,8 @@ from typing import TYPE_CHECKING
 from typing import Any
 import warnings
 
+from ansys.aedt.core.application import _get_obj_data
+from ansys.aedt.core.application import _has_get_obj_data
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.aedt_constants import DesignType
 from ansys.aedt.core.generic.constants import AEDT_UNITS
@@ -106,7 +108,7 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
         self._is_new_setup = is_new_setup
         # self._init_props(is_new_setup)
         self.auto_update = True
-        self._initialize_tree_node()
+        # self._initialize_tree_node()
 
     def _setup_dict_to_arg(self, name: str = None, props=None):
         if name is None:
@@ -333,17 +335,9 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
 
     @property
     def props(self) -> SetupProps:
-        """Properties of the setup.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> app = Hfss()
-        >>> setup = app.create_setup()
-        >>> setup.props
-
-        """
-        if self._legacy_props:
+        """Properties of the setup."""
+        _has_getobject = _has_get_obj_data(self._child_object)
+        if self._legacy_props and not _has_getobject:
             return self._legacy_props
         if self._is_new_setup:
             setup_template = SetupKeys.get_setup_templates()[self.setuptype]
@@ -351,17 +345,21 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
             self._legacy_props = SetupProps(self, setup_template)
             self._is_new_setup = False
         else:
-            try:
-                if "AnalysisSetup" in self._app.design_properties.keys():
-                    setups_data = self._app.design_properties["AnalysisSetup"]["SolveSetups"]
-                    if self.name in setups_data:
-                        setup_data = setups_data[self.name]
+            if _has_getobject:
+                setup_data = _get_obj_data(self._child_object)
+                self._legacy_props = SetupProps(self, setup_data)
+            else:
+                try:
+                    if "AnalysisSetup" in self._app.design_properties.keys():
+                        setups_data = self._app.design_properties["AnalysisSetup"]["SolveSetups"]
+                        if self.name in setups_data:
+                            setup_data = setups_data[self.name]
+                            self._legacy_props = SetupProps(self, setup_data)
+                    elif "SimSetups" in self._app.design_properties.keys():
+                        setup_data = self._app.design_properties["SimSetups"]["SimSetup"]
                         self._legacy_props = SetupProps(self, setup_data)
-                elif "SimSetups" in self._app.design_properties.keys():
-                    setup_data = self._app.design_properties["SimSetups"]["SimSetup"]
-                    self._legacy_props = SetupProps(self, setup_data)
-            except Exception:
-                self._legacy_props = SetupProps(self, {})
+                except Exception:
+                    self._legacy_props = SetupProps(self, {})
         return self._legacy_props
 
     @props.setter
@@ -754,7 +752,8 @@ class Setup(CommonSetup):
         soltype = SetupKeys.SetupNames[self.setuptype]
         arg = self._setup_dict_to_arg()
         self.omodule.InsertSetup(soltype, arg)
-        return self._initialize_tree_node()
+        # return self._initialize_tree_node()
+        return True
 
     @pyaedt_function_handler()
     def update(self, properties: dict = None) -> bool:
@@ -1355,17 +1354,9 @@ class SetupCircuit(CommonSetup):
 
     @property
     def props(self) -> SetupProps:
-        """Retrieve props.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Circuit
-        >>> from ansys.aedt.core.generic.constants import Setups
-        >>> circuit_app = Circuit()
-        >>> setup1 = circuit_app.create_setup("circuit", Setups.NexximLNA)
-        >>> setup1.props
-
-        """
+        """Retrieve props."""
+        if _has_get_obj_data(self._child_object):
+            return super().props
         if self._legacy_props:
             return self._legacy_props
         if self._is_new_setup:
@@ -1424,7 +1415,8 @@ class SetupCircuit(CommonSetup):
         arg = self._setup_dict_to_arg(name="SimSetup")
 
         self._setup(soltype, arg)
-        return self._initialize_tree_node()
+        # return self._initialize_tree_node()
+        return True
 
     @pyaedt_function_handler()
     def _setup(self, soltype, arg, newsetup: bool = True) -> bool:
@@ -2211,16 +2203,9 @@ class Setup3DLayout(CommonSetup):
 
     @property
     def props(self) -> SetupProps:
-        """Retrieve props.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss3dLayout
-        >>> app = Hfss3dLayout()
-        >>> setup = app.create_setup()
-        >>> setup.props
-
-        """
+        """Retrieve props."""
+        if _has_get_obj_data(self._child_object):
+            return super().props
         if self._legacy_props:
             return self._legacy_props
         if self._is_new_setup:
@@ -2228,7 +2213,6 @@ class Setup3DLayout(CommonSetup):
             setup_template["Name"] = self.name
             self._legacy_props = SetupProps(self, setup_template)
             self._is_new_setup = False
-
         else:
             try:
                 setups_data = self._app.design_properties["Setup"]["Data"]
@@ -2337,7 +2321,8 @@ class Setup3DLayout(CommonSetup):
         arg = self._setup_dict_to_arg()
 
         self.omodule.Add(arg)
-        return self._initialize_tree_node()
+        # return self._initialize_tree_node()
+        return True
 
     @pyaedt_function_handler()
     def update(self, properties: dict = None) -> bool:

@@ -27,8 +27,18 @@ import re
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 
+def _has_get_obj_data(child_object) -> bool:
+    """Return whether an AEDT child object supports ``GetObjData``."""
+    if child_object is None:
+        return False
+    try:
+        return callable(getattr(child_object, "GetObjData"))
+    except (AttributeError, RuntimeError):
+        return False
+
+
 @pyaedt_function_handler()
-def _get_data_model(child_object, level=-1):
+def _get_data_model(child_object, level=0):
     import json
 
     def _fix_dict(p_list, p_out) -> None:
@@ -67,3 +77,98 @@ def _get_data_model(child_object, level=-1):
     props = {}
     _fix_dict(props_list, props)
     return props
+
+
+@pyaedt_function_handler()
+def _get_obj_data(child_object):
+    if not child_object:
+        return {}
+    import json
+
+    def _obj_data_parser(node):
+
+        # Primitive values can occur directly in a named node's "values" list.
+        if not isinstance(node, (dict, list)):
+            return node
+
+        # Case 1: If the node is a list, parse each item in the list
+        if isinstance(node, list):
+            return [_obj_data_parser(item) for item in node]
+
+        # Case 2: If the node is a dictionary without "name", parse its values
+        if isinstance(node, dict) and "name" not in node:
+            return node
+
+        # Case 3: schema dict with "name"
+        if isinstance(node, dict):
+            name = node.get("name")
+
+            if "value" in node:
+                return {name: node["value"]}
+
+            values = node.get("values", [])
+
+            if not values:
+                return {name: {}}
+
+            parsed_children = [_obj_data_parser(child) for child in values]
+
+            result = {}
+
+            for child in parsed_children:
+                if isinstance(child, dict):
+                    for k, v in child.items():
+                        if k in result:
+                            if not isinstance(result[k], list):
+                                result[k] = [result[k]]
+                            result[k].append(v)
+                        else:
+                            result[k] = v
+                else:
+                    return {name: parsed_children}
+
+            return {name: result}
+            # return result
+
+    obj_data = child_object.GetObjData()
+
+    data = json.loads(obj_data)
+    result = {}
+
+    data_2 = data.get("data_2", [])
+
+    if data_2 and isinstance(data_2, list):
+        values = data_2[0].get("values", [])
+    else:
+        values = data_2
+    faces = []
+    objects = []
+    edges = []
+    vertices = []
+    if "Assignment" in dir(child_object):
+        assignments = child_object.Assignment.split(", ")
+
+        for assignment in assignments:
+            if "Face_" in assignment:
+                faces.append(int(re.search(r"Face_(\d+)", assignment).group(1)))
+            elif "Edge_" in assignment:
+                edges.append(int(re.search(r"Edge_(\d+)", assignment).group(1)))
+            elif "Vertex_" in assignment:
+                vertices.append(int(re.search(r"Vertex_(\d+)", assignment).group(1)))
+            else:
+                objects.append(assignment)
+    if faces:
+        result["Faces"] = faces
+    elif edges:
+        result["Edges"] = edges
+    elif vertices:
+        result["Vertices"] = vertices
+    elif objects:
+        result["Objects"] = objects
+
+    if "Type" in dir(child_object):
+        result["Type"] = child_object.Type
+    for item in values:
+        result.update(_obj_data_parser(item))
+
+    return result

@@ -45,6 +45,8 @@ from typing import Any
 from typing import cast
 
 from ansys.aedt.core.aedt_logger import AedtLogger
+from ansys.aedt.core.application import _get_obj_data
+from ansys.aedt.core.application import _has_get_obj_data
 from ansys.aedt.core.application.aedt_objects import AedtObjects
 from ansys.aedt.core.application.design_solutions import DesignSolution
 from ansys.aedt.core.application.design_solutions import HFSSDesignSolution
@@ -278,6 +280,8 @@ class Design(AedtObjects, PyAedtBase):
 
         if self._design_type not in ["Maxwell Circuit", "Circuit Netlist"]:
             self.design_settings = DesignSettings(self)
+
+        self.__get_props = lambda obj: _get_obj_data(obj) if _has_get_obj_data(obj) else None
 
     @property
     def _pyaedt_details(self) -> dict[str, str]:
@@ -571,25 +575,32 @@ class Design(AedtObjects, PyAedtBase):
                     del self._boundaries[k]
         for boundary, boundarytype in zip(current_boundaries, current_types):
             if boundary in self._boundaries:
-                self._boundaries[boundary]._initialize_tree_node()
                 continue
             if boundarytype == "MaxwellParameters":
                 maxwell_parameter_type = self.get_oo_property_value(self.odesign, f"Parameters\\{boundary}", "Type")
 
-                self._boundaries[boundary] = MaxwellParameters(self, boundary, boundarytype=maxwell_parameter_type)
+                props = {}
+                self._boundaries[boundary] = MaxwellParameters(
+                    self, boundary, props=props, boundarytype=maxwell_parameter_type
+                )
             elif boundarytype == "MotionSetup":
                 maxwell_motion_type = self.get_oo_property_value(self.odesign, f"Model\\{boundary}", "Type")
 
-                self._boundaries[boundary] = BoundaryObject(self, boundary, boundarytype=maxwell_motion_type)
+                props = {}
+                self._boundaries[boundary] = BoundaryObject(
+                    self, boundary, props=props, boundarytype=maxwell_motion_type
+                )
             elif boundarytype == "Network":
-                self._boundaries[boundary] = NetworkObject(self, boundary)
+                props = {}
+                self._boundaries[boundary] = NetworkObject(self, boundary, props=props)
             else:
-                self._boundaries[boundary] = BoundaryObject(self, boundary, boundarytype=boundarytype)
+                props = {}
+                self._boundaries[boundary] = BoundaryObject(self, boundary, props=props, boundarytype=boundarytype)
 
         try:
             for k, v in zip(current_excitations, current_excitation_types):
                 if k not in self._boundaries:
-                    if self.design_type == "HFSS 3D Layout Design" and v == "Port":
+                    if self.design_type == ("HFSS 3D Layout Design") and v == "Port":
                         self._boundaries[k] = BoundaryObject3dLayout(self, k, props=None, boundarytype=v)
                     else:
                         self._boundaries[k] = BoundaryObject(self, k, boundarytype=v)

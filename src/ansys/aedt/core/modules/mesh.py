@@ -27,6 +27,8 @@
 import os
 import shutil
 
+from ansys.aedt.core.application import _get_obj_data
+from ansys.aedt.core.application import _has_get_obj_data
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -133,7 +135,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         self._type = meshoptype
         self._name = name
         self.auto_update = True
-        self._initialize_tree_node()
+        # self._initialize_tree_node()
 
     @property
     def _child_object(self):
@@ -172,10 +174,14 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         >>> obj.props
 
         """
-        if not self._legacy_props:
-            props = {}
-            for k, v in self.properties.items():
-                props[k] = v
+        _has_getobject = _has_get_obj_data(self._child_object)
+        if not self._legacy_props or _has_getobject:
+            if _has_getobject:
+                props = _get_obj_data(self._child_object) or {}
+            else:
+                props = {}
+                for key, value in self.properties.items():
+                    props[key] = value
             if "Assignment" in props:
                 assignment = props["Assignment"]
                 if "Face_" in assignment:
@@ -210,6 +216,10 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
                             continue
             self._legacy_props = MeshProps(self, props)
         return self._legacy_props
+
+    @property
+    def props_test(self):
+        return self.props
 
     @pyaedt_function_handler()
     def _get_args(self):
@@ -289,7 +299,8 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
             self._mesh.omeshmodule.AssignCylindricalGapOp(self._get_args())
         else:
             return False
-        return self._initialize_tree_node()
+        # return self._initialize_tree_node()
+        return True
 
     @pyaedt_function_handler()
     def update(self, key_name: str = None, value: int = None) -> bool:

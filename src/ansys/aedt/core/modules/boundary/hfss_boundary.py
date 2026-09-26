@@ -22,6 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from ansys.aedt.core.application import _get_obj_data
+from ansys.aedt.core.application import _has_get_obj_data
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -53,7 +55,7 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         self._name = component_name
         self.__props = BoundaryProps(self, props) if props else {}
         self.auto_update = True
-        self._initialize_tree_node()
+        # self._initialize_tree_node()
 
     @property
     def _child_object(self):
@@ -88,20 +90,26 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         >>> obj.props
 
         """
-        if not self.__props and self._app.design_properties:
-            if (
-                self.type == "FarFieldSphere"
-                and self._app.design_properties.get("RadField")
-                and self._app.design_properties["RadField"].get("FarFieldSetups")
-            ):
-                for val in self._app.design_properties["RadField"]["FarFieldSetups"]:
-                    if val == self.name:
-                        self.__props = self._app.design_properties["RadField"]["FarFieldSetups"][val]
-            elif self.type != "FarFieldSphere" and self._app.design_properties["RadField"].get("NearFieldSetups"):
-                for val in self._app.design_properties["RadField"]["NearFieldSetups"]:
-                    if val == self.name:
-                        self.__props = self._app.design_properties["RadField"]["NearFieldSetups"][val]
-            self.__props = BoundaryProps(self, self.__props)
+        has_obj_data = _has_get_obj_data(self._child_object)
+        if not self.__props or has_obj_data:
+            if has_obj_data:
+                props = _get_obj_data(self._child_object)
+                if props:
+                    self.__props = BoundaryProps(self, props)
+            elif self._app.design_properties:
+                if (
+                    self.type == "FarFieldSphere"
+                    and self._app.design_properties.get("RadField")
+                    and self._app.design_properties["RadField"].get("FarFieldSetups")
+                ):
+                    for val in self._app.design_properties["RadField"]["FarFieldSetups"]:
+                        if val == self.name:
+                            self.__props = self._app.design_properties["RadField"]["FarFieldSetups"][val]
+                elif self.type != "FarFieldSphere" and self._app.design_properties["RadField"].get("NearFieldSetups"):
+                    for val in self._app.design_properties["RadField"]["NearFieldSetups"]:
+                        if val == self.name:
+                            self.__props = self._app.design_properties["RadField"]["NearFieldSetups"][val]
+                self.__props = BoundaryProps(self, self.__props)
         return self.__props
 
     @property
@@ -167,7 +175,8 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
             self._app.oradfield.AddAntennaOverlay(self._get_args())
         elif self.type == "FieldSourceGroup":
             self._app.oradfield.AddRadFieldSourceGroup(self._get_args())
-        return self._initialize_tree_node()
+        # return self._initialize_tree_node()
+        return True
 
     @pyaedt_function_handler()
     def update(self) -> bool:

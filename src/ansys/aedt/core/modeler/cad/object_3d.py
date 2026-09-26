@@ -44,7 +44,6 @@ from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.file_utils import _uname
 from ansys.aedt.core.generic.file_utils import open_file
-from ansys.aedt.core.generic.general_methods import _to_boolean
 from ansys.aedt.core.generic.general_methods import clamp
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import rgb_color_codes
@@ -62,7 +61,7 @@ if TYPE_CHECKING:
     from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 
 
-class Object3d(PyAedtBase):
+class Object3d(BinaryTreeNode, PyAedtBase):
     """Manages object attributes for the AEDT 3D Modeler.
 
     Parameters
@@ -115,9 +114,24 @@ class Object3d(PyAedtBase):
         self._mass = 0.0
         self._volume = 0.0
         self._faces = []
+        self._edges = []
         self._face_ids = []
+        self._edge_ids = []
+        self._vertex_ids = []
         self._is_polyline = None
         self._object_type = ""
+        self._properties = {}
+        try:
+            self._child_object = self._primitives._app.get_oo_object(self._oeditor, self.name)
+        except Exception:
+            self._child_object = None
+
+    @pyaedt_function_handler()
+    def _initialize_tree_node(self) -> bool:
+        if self._child_object:
+            BinaryTreeNode.__init__(self, self._m_name, self._child_object, False, app=self._primitives._app)
+            return True
+        return False
 
     @property
     def is_polyline(self) -> bool:
@@ -482,7 +496,7 @@ class Object3d(PyAedtBase):
             return self._faces
         self._face_ids = face_ids
         self._faces = []
-        for face in list(self._oeditor.GetFaceIDs(self.name)):
+        for face in face_ids:
             face = int(face)
             self._faces.append(FacePrimitive(self, face))
         return self._faces
@@ -947,10 +961,15 @@ class Object3d(PyAedtBase):
         """
         if self.object_type == "Unclassified":
             return []
+        edge_ids = self._primitives.get_object_edges(self.name)
+        if set(edge_ids) == set(self._edge_ids):
+            return self._edges
+        self._edge_ids = edge_ids
         edges = []
-        for edge in self._primitives.get_object_edges(self.name):
+        for edge in edge_ids:
             edge = int(edge)
             edges.append(EdgePrimitive(self, edge))
+        self._edges = edges
         return edges
 
     @property
@@ -1394,7 +1413,7 @@ class Object3d(PyAedtBase):
 
         """
         if not self._all_props:
-            self._all_props = self._oeditor.GetProperties("Geometry3DAttributeTab", self._m_name)
+            self._all_props = list(self.properties.keys())
         return self._all_props
 
     @property
@@ -1413,18 +1432,16 @@ class Object3d(PyAedtBase):
         >>> part.color = (255, 255, 0)
 
         """
-        if self._color is not None:
-            return self._color
         if "Color" in self.valid_properties:
             color = self._oeditor.GetPropertyValue("Geometry3DAttributeTab", self._m_name, "Color")
             if color:
                 b = (int(color) >> 16) & 255
                 g = (int(color) >> 8) & 255
                 r = int(color) & 255
-                self._color = (r, g, b)
+                _color = (r, g, b)
             else:
-                self._color = (0, 195, 255)
-            return self._color
+                _color = (0, 195, 255)
+            return _color
 
     @property
     def color_string(self) -> str:
@@ -1442,7 +1459,8 @@ class Object3d(PyAedtBase):
         >>> obj.color_string
 
         """
-        return f"({self.color[0]} {self.color[1]} {self.color[2]})"
+        _color = self.color
+        return f"({_color[0]} {_color[1]} {_color[2]})"
 
     @color.setter
     def color(self, color_value: str | tuple[int, int, int]) -> None:
@@ -1492,32 +1510,22 @@ class Object3d(PyAedtBase):
         >>> obj.transparency
 
         """
-        if self._transparency is not None:
-            return self._transparency
         if "Transparent" in self.valid_properties:
-            try:
-                transp = self._oeditor.GetPropertyValue("Geometry3DAttributeTab", self._m_name, "Transparent")
-                self._transparency = float(transp)
-            except Exception:
-                self._all_props = None
-                self._transparency = 0.3
-            return self._transparency
+            return self.properties["Transparent"]
+        return 0
 
     @transparency.setter
     def transparency(self, T: float | str) -> None:
-        try:
-            trans_float = float(T)
-            if trans_float < 0.0:
+        if "Transparent" in self.valid_properties:
+            try:
+                trans_float = float(T)
+                if trans_float < 0.0:
+                    trans_float = 0.0
+                elif trans_float > 1.0:
+                    trans_float = 1.0
+            except ValueError:
                 trans_float = 0.0
-            elif trans_float > 1.0:
-                trans_float = 1.0
-        except ValueError:
-            trans_float = 0.0
-        vTrans = ["NAME:Transparent", "Value:=", str(trans_float)]
-
-        self._change_property(vTrans)
-
-        self._transparency = trans_float
+            self.properties["Transparent"] = trans_float
 
     @property
     def object_units(self) -> str:
@@ -1553,19 +1561,14 @@ class Object3d(PyAedtBase):
         >>> obj.part_coordinate_system
 
         """
-        if self._part_coordinate_system is not None and not isinstance(self._part_coordinate_system, int):
-            return self._part_coordinate_system
         if "Orientation" in self.valid_properties:
-            self._part_coordinate_system = self._oeditor.GetPropertyValue(
-                "Geometry3DAttributeTab", self._m_name, "Orientation"
-            )
-            return self._part_coordinate_system
+            return self.properties["Orientation"]
+        return
 
     @part_coordinate_system.setter
     def part_coordinate_system(self, sCS: str) -> None:
-        pcs = ["NAME:Orientation", "Value:=", sCS]
-        self._change_property(pcs)
-        self._part_coordinate_system = sCS
+        if "Orientation" in self.valid_properties:
+            self.properties["Orientation"] = sCS
 
     @property
     def solve_inside(self) -> bool:
@@ -1588,29 +1591,14 @@ class Object3d(PyAedtBase):
         >>> obj.solve_inside
 
         """
-        if self._solve_inside is not None:
-            return self._solve_inside
-        if "Solve Inside" in self.valid_properties and self.is_model:
-            solveinside = self._oeditor.GetPropertyValue("Geometry3DAttributeTab", self._m_name, "Solve Inside")
-            if solveinside == "false" or solveinside == "False":
-                self._solve_inside = False
-            else:
-                self._solve_inside = True
-            return self._solve_inside
+        if "Solve Inside" in self.valid_properties:
+            return self.properties["Solve Inside"]
         return None
 
     @solve_inside.setter
     def solve_inside(self, S: bool) -> None:
-        if not self.is_model:
-            self.is_model = True
-        vSolveInside = []
-        # fS = self._to_boolean(S)
-        fs = S
-        vSolveInside.append("NAME:Solve Inside")
-        vSolveInside.append("Value:=")
-        vSolveInside.append(fs)
-        self._change_property(vSolveInside)
-        self._solve_inside = fs
+        if "Solve Inside" in self.valid_properties:
+            self.properties["Solve Inside"] = S
 
     @property
     def display_wireframe(self) -> bool:
@@ -1633,23 +1621,14 @@ class Object3d(PyAedtBase):
         >>> obj.display_wireframe
 
         """
-        if self._wireframe is not None:
-            return self._wireframe
         if "Display Wireframe" in self.valid_properties:
-            wireframe = self._oeditor.GetPropertyValue("Geometry3DAttributeTab", self._m_name, "Display Wireframe")
-            if wireframe == "true" or wireframe == "True":
-                self._wireframe = True
-            else:
-                self._wireframe = False
-            return self._wireframe
+            return self.properties["Display Wireframe"]
+        return None
 
     @display_wireframe.setter
     def display_wireframe(self, fWireframe: bool) -> None:
-        vWireframe = ["NAME:Display Wireframe", "Value:=", fWireframe]
-        # fwf = self._to_boolean(wf)
-
-        self._change_property(vWireframe)
-        self._wireframe = fWireframe
+        if "Display Wireframe" in self.valid_properties:
+            self.properties["Display Wireframe"] = fWireframe
 
     @property
     def material_appearance(self) -> bool:
@@ -1672,28 +1651,14 @@ class Object3d(PyAedtBase):
         >>> obj.material_appearance
 
         """
-        if self._material_appearance is not None:
-            return self._material_appearance
         if "Material Appearance" in self.valid_properties:
-            material_appearance = self._oeditor.GetPropertyValue(
-                "Geometry3DAttributeTab", self._m_name, "Material Appearance"
-            )
-            if material_appearance == "true" or material_appearance == "True":
-                self._material_appearance = True
-            else:
-                self._material_appearance = False
-            return self._material_appearance
+            return self.properties["Material Appearance"]
+        return None
 
     @material_appearance.setter
     def material_appearance(self, material_appearance: bool) -> None:
-        vMaterialAppearance = [
-            "NAME:Material Appearance",
-            "Value:=",
-            material_appearance,
-        ]
-
-        self._change_property(vMaterialAppearance)
-        self._material_appearance = material_appearance
+        if "Material Appearance" in self.valid_properties:
+            self.properties["Material Appearance"] = material_appearance
 
     @pyaedt_function_handler()
     def history(self) -> BinaryTreeNode | bool:
@@ -1739,23 +1704,14 @@ class Object3d(PyAedtBase):
         >>> obj.is_model
 
         """
-        if self._model is not None:
-            return self._model
-
         if "Model" in self.valid_properties:
-            mod = self._oeditor.GetPropertyValue("Geometry3DAttributeTab", self._m_name, "Model")
-            if mod == "false" or mod == "False":
-                self._model = False
-            else:
-                self._model = True
-        return self._model
+            return self.properties["Model"]
+        return None
 
     @is_model.setter
     def is_model(self, fModel: bool) -> None:
-        vArg1 = ["NAME:Model", "Value:=", fModel]
-        fModel = _to_boolean(fModel)
-        self._change_property(vArg1)
-        self._model = fModel
+        if "Model" in self.valid_properties:
+            self.properties["Model"] = fModel
 
     @pyaedt_function_handler()
     def unite(self, assignment: list[str] | list[Object3d]) -> Object3d:

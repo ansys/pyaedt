@@ -821,7 +821,7 @@ class MeshRegionCommon(BinaryTreeNode, PyAedtBase):
         self._name = name
         self._model_units = units
         self._app = app
-        self._initialize_tree_node()
+        # self._initialize_tree_node()
 
     @property
     def _child_object(self):
@@ -921,7 +921,13 @@ class MeshRegionCommon(BinaryTreeNode, PyAedtBase):
             "child_object",
             "auto_update",
             "_children",
+            "_children_loading",
+            "_children_loaded",
+            "_segments",
+            "_tree_node_initialized",
+            "_tree_node_initializing",
             "_BinaryTreeNode__first_level",
+            "_BinaryTreeNode__child_object",
         ]
         if ("settings" in self.__dict__) and (name in self.settings):
             self.settings[name] = value
@@ -1038,7 +1044,8 @@ class GlobalMeshRegion(MeshRegionCommon):
         self.delete()
         self.global_region = Region(self._app)
         self.global_region.create(self.padding_types, self.padding_values)
-        return self._initialize_tree_node()
+        # return self._initialize_tree_node()
+        return True
 
 
 class MeshRegion(MeshRegionCommon):
@@ -1155,7 +1162,8 @@ class MeshRegion(MeshRegionCommon):
         args += ["UserSpecifiedSettings:=", self.manual_settings]
         try:
             self._app.omeshmodule.EditMeshRegion(self.name, args)
-            return self._initialize_tree_node()
+            # return self._initialize_tree_node()
+            return True
         except GrpcApiError:  # pragma : no cover
             return False
 
