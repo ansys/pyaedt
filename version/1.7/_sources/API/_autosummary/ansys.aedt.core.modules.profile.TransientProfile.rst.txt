@@ -1,0 +1,40 @@
+﻿TransientProfile
+================
+
+.. currentmodule:: ansys.aedt.core.modules.profile
+
+.. autoclass:: TransientProfile
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      TransientProfile.table
+      
+      
+      TransientProfile.time_step_keys
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      TransientProfile.cpu_time
+      TransientProfile.max_memory
+      TransientProfile.max_time
+      TransientProfile.process_steps
+      TransientProfile.public_dir
+      TransientProfile.real_time
+      TransientProfile.time_steps
+   
+   

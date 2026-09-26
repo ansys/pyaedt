@@ -1,0 +1,6 @@
+get\_is\_component
+==================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.rx_selectivity_node
+
+.. automethod:: RxSelectivityNode.get_is_component

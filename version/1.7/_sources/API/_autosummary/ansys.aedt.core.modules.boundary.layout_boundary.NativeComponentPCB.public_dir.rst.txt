@@ -1,0 +1,6 @@
+public\_dir
+===========
+
+.. currentmodule:: ansys.aedt.core.modules.boundary.layout_boundary
+
+.. autoproperty:: NativeComponentPCB.public_dir

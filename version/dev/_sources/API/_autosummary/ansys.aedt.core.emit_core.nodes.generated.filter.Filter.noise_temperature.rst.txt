@@ -1,0 +1,6 @@
+noise\_temperature
+==================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.filter
+
+.. autoproperty:: Filter.noise_temperature

@@ -1,0 +1,6 @@
+add\_mixer\_products
+====================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.rx_susceptibility_prof_node
+
+.. automethod:: RxSusceptibilityProfNode.add_mixer_products

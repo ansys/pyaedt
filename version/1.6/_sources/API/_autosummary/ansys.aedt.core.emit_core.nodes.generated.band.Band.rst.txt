@@ -1,0 +1,106 @@
+﻿Band
+====
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.band
+
+.. autoclass:: Band
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      Band.delete
+      
+      
+      Band.duplicate
+      
+      
+      Band.export_to_csv
+      
+      
+      Band.get_active_frequencies
+      
+      
+      Band.get_is_component
+      
+      
+      Band.get_properties
+      
+      
+      Band.import_rx_measurement
+      
+      
+      Band.import_tx_measurement
+      
+      
+      Band.plot
+      
+      
+      Band.props_to_dict
+      
+      
+      Band.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      Band.allowed_child_types
+      Band.apsk_type
+      Band.bit_rate
+      Band.channel_bandwidth
+      Band.channel_spacing
+      Band.children
+      Band.emission_designator
+      Band.emission_designator_ch_bw
+      Band.emit_modulation_type
+      Band.enabled
+      Band.fm_chirp_period
+      Band.fm_freq_dev_bandwidth
+      Band.fm_freq_deviation
+      Band.freq_deviation
+      Band.fsk_type
+      Band.hop_range_max_freq
+      Band.hop_range_min_freq
+      Band.hopping_radar
+      Band.max_modulating_freq
+      Band.modulation
+      Band.modulation_index
+      Band.name
+      Band.node_type
+      Band.number_of_chips
+      Band.odesktop
+      Band.override_emission_designator_bw
+      Band.parent
+      Band.parent_name
+      Band.post_october_2020_procurement
+      Band.properties
+      Band.psk_type
+      Band.pulse_compression_ratio
+      Band.pulse_duration
+      Band.pulse_fall_time
+      Band.pulse_repetition_rate
+      Band.pulse_rise_time
+      Band.qam_type
+      Band.radar_type
+      Band.sidelobes
+      Band.start_frequency
+      Band.stop_frequency
+      Band.tx_offset
+      Band.use_dd_1494_mode
+      Band.use_emission_designator
+      Band.valid
+      Band.warnings
+   
+   

@@ -1,0 +1,6 @@
+row\_count
+==========
+
+.. currentmodule:: ansys.aedt.core.visualization.advanced.frtm_visualization
+
+.. autoproperty:: FRTMData.row_count

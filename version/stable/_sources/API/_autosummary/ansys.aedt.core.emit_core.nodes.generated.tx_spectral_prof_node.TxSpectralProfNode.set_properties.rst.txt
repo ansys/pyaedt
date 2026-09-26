@@ -1,0 +1,6 @@
+set\_properties
+===============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.tx_spectral_prof_node
+
+.. automethod:: TxSpectralProfNode.set_properties

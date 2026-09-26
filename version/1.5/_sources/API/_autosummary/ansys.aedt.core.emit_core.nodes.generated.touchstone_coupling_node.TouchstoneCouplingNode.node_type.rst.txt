@@ -1,0 +1,6 @@
+node\_type
+==========
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.touchstone_coupling_node
+
+.. autoproperty:: TouchstoneCouplingNode.node_type

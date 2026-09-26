@@ -1,0 +1,6 @@
+minimum\_tuning\_frequency
+==========================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.rx_mixer_product_node
+
+.. autoproperty:: RxMixerProductNode.minimum_tuning_frequency

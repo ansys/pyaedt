@@ -1,0 +1,6 @@
+inductor\_q
+===========
+
+.. currentmodule:: ansys.aedt.core.filtersolutions_core.distributed_parasitics
+
+.. autoproperty:: DistributedParasitics.inductor_q

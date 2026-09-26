@@ -1,0 +1,78 @@
+﻿SubstrateDataBlock
+==================
+
+.. currentmodule:: ansys.aedt.core.modules.substrate_circuit
+
+.. autoclass:: SubstrateDataBlock
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      SubstrateDataBlock.coplanar_waveguide
+      
+      
+      SubstrateDataBlock.create
+      
+      
+      SubstrateDataBlock.from_dict
+      
+      
+      SubstrateDataBlock.grounded_coplanar_waveguide
+      
+      
+      SubstrateDataBlock.microstrip
+      
+      
+      SubstrateDataBlock.offset_stripline
+      
+      
+      SubstrateDataBlock.rectangular_waveguide
+      
+      
+      SubstrateDataBlock.slotline
+      
+      
+      SubstrateDataBlock.stripline
+      
+      
+      SubstrateDataBlock.substrate_reference
+      
+      
+      SubstrateDataBlock.suspended_stripline
+      
+      
+      SubstrateDataBlock.update
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      SubstrateDataBlock.auto_update
+      SubstrateDataBlock.bottom_metal_material
+      SubstrateDataBlock.bottom_metal_thickness
+      SubstrateDataBlock.cover_metal_material
+      SubstrateDataBlock.cover_metal_thickness
+      SubstrateDataBlock.dielectric
+      SubstrateDataBlock.dielectric_temp_materials
+      SubstrateDataBlock.metal_material
+      SubstrateDataBlock.metal_specify_type
+      SubstrateDataBlock.metal_temp_material
+      SubstrateDataBlock.metal_thickness
+      SubstrateDataBlock.name
+      SubstrateDataBlock.public_dir
+      SubstrateDataBlock.roughness
+      SubstrateDataBlock.substrate_type
+   
+   

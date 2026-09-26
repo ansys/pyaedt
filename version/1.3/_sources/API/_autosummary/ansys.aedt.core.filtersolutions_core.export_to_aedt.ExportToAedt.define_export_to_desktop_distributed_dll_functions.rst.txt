@@ -1,0 +1,6 @@
+define\_export\_to\_desktop\_distributed\_dll\_functions
+========================================================
+
+.. currentmodule:: ansys.aedt.core.filtersolutions_core.export_to_aedt
+
+.. automethod:: ExportToAedt.define_export_to_desktop_distributed_dll_functions

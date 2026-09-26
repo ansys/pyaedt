@@ -1,0 +1,6 @@
+attach\_points
+==============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.scene_group_node
+
+.. autoproperty:: SceneGroupNode.attach_points

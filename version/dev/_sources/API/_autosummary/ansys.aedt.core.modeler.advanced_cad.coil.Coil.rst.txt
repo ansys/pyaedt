@@ -1,0 +1,37 @@
+﻿Coil
+====
+
+.. currentmodule:: ansys.aedt.core.modeler.advanced_cad.coil
+
+.. autoclass:: Coil
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      Coil.create_flat_path
+      
+      
+      Coil.create_sweep_profile
+      
+      
+      Coil.create_vertical_path
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      Coil.public_dir
+   
+   

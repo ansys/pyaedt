@@ -1,0 +1,6 @@
+noise\_temperature
+==================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.multiplexer
+
+.. autoproperty:: Multiplexer.noise_temperature

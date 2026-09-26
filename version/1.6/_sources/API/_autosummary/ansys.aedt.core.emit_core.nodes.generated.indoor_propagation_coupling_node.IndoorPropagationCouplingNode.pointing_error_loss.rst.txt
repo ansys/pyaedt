@@ -1,0 +1,6 @@
+pointing\_error\_loss
+=====================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.indoor_propagation_coupling_node
+
+.. autoproperty:: IndoorPropagationCouplingNode.pointing_error_loss

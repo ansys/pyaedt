@@ -1,0 +1,6 @@
+insertion\_loss
+===============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.tr_switch
+
+.. autoproperty:: TR_Switch.insertion_loss

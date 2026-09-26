@@ -1,0 +1,6 @@
+create\_q\_factor\_report
+=========================
+
+.. currentmodule:: ansys.aedt.core.hfss
+
+.. automethod:: Hfss.create_q_factor_report

@@ -1,0 +1,6 @@
+yarn\_material
+==============
+
+.. currentmodule:: ansys.aedt.core.modeler.advanced_cad.weave
+
+.. autoproperty:: Weave.yarn_material

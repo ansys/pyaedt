@@ -1,0 +1,6 @@
+fm\_chirp\_period
+=================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.band
+
+.. autoproperty:: Band.fm_chirp_period

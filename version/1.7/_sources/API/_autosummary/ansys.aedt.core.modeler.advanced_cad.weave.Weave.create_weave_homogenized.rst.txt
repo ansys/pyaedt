@@ -1,0 +1,6 @@
+create\_weave\_homogenized
+==========================
+
+.. currentmodule:: ansys.aedt.core.modeler.advanced_cad.weave
+
+.. automethod:: Weave.create_weave_homogenized

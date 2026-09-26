@@ -1,0 +1,50 @@
+﻿SolutionsNode
+=============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.solutions_node
+
+.. autoclass:: SolutionsNode
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      SolutionsNode.get_is_component
+      
+      
+      SolutionsNode.get_properties
+      
+      
+      SolutionsNode.props_to_dict
+      
+      
+      SolutionsNode.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      SolutionsNode.allowed_child_types
+      SolutionsNode.children
+      SolutionsNode.enabled
+      SolutionsNode.name
+      SolutionsNode.node_type
+      SolutionsNode.odesktop
+      SolutionsNode.parent
+      SolutionsNode.parent_name
+      SolutionsNode.properties
+      SolutionsNode.valid
+      SolutionsNode.warnings
+   
+   

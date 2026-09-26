@@ -1,0 +1,6 @@
+public\_dir
+===========
+
+.. currentmodule:: ansys.aedt.core.modules.boundary.icepak_boundary
+
+.. autoproperty:: SquareWaveDictionary.public_dir

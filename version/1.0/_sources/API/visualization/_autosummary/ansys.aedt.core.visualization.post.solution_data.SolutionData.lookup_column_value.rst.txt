@@ -1,0 +1,6 @@
+lookup\_column\_value
+=====================
+
+.. currentmodule:: ansys.aedt.core.visualization.post.solution_data
+
+.. automethod:: SolutionData.lookup_column_value

@@ -1,0 +1,6 @@
+values
+======
+
+.. currentmodule:: ansys.aedt.core.modules.profile
+
+.. automethod:: Profiles.values

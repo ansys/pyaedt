@@ -1,0 +1,6 @@
+allowed\_child\_types
+=====================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.band_folder
+
+.. autoproperty:: BandFolder.allowed_child_types

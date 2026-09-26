@@ -1,0 +1,6 @@
+post\_october\_2020\_procurement
+================================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.band
+
+.. autoproperty:: Band.post_october_2020_procurement

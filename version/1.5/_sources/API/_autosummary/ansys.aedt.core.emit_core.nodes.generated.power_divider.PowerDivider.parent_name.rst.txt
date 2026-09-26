@@ -1,0 +1,6 @@
+parent\_name
+============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.power_divider
+
+.. autoproperty:: PowerDivider.parent_name
