@@ -38,7 +38,7 @@ def _has_get_obj_data(child_object) -> bool:
 
 
 @pyaedt_function_handler()
-def _get_data_model(child_object, level=-1):
+def _get_data_model(child_object, level=0):
     import json
 
     def _fix_dict(p_list, p_out) -> None:
