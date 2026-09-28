@@ -281,16 +281,34 @@ class Design(AedtObjects, PyAedtBase):
         if self._design_type not in ["Maxwell Circuit", "Circuit Netlist"]:
             self.design_settings = DesignSettings(self)
 
+        # Lambda helper to safely retrieve AEDT object properties.
+        # Uses _has_get_obj_data() to check if the object supports the GetObjData API
+        # (available from AEDT 2026 R1 onwards), then calls _get_obj_data() to extract
+        # the object's property dictionary. Returns None if the API is not supported.
+        # This pattern avoids repeated try/except blocks when accessing object data
+        # throughout the codebase.
         self.__get_props = lambda obj: _get_obj_data(obj) if _has_get_obj_data(obj) else None
 
     @property
     def _pyaedt_details(self) -> dict[str, str]:
         """Retrieve detailed session information for PyAEDT.
 
+        This property collects metadata about the current PyAEDT session,
+        including version information, design context, and runtime environment.
+        It is used internally for logging, debugging, and displaying session
+        information via ``__str__`` and the public ``info`` property.
+
         Returns
         -------
-        dict
-            Session details including.
+        dict[str, str]
+            Dictionary containing session details with the following keys:
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> details = hfss._pyaedt_details
+
         """
         import platform
 
