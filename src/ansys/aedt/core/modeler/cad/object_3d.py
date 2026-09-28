@@ -1511,7 +1511,7 @@ class Object3d(BinaryTreeNode, PyAedtBase):
 
         """
         if "Transparent" in self.valid_properties:
-            return self.properties["Transparent"]
+            return float(self.properties["Transparent"])
         return 0
 
     @transparency.setter
