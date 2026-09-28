@@ -3061,10 +3061,11 @@ class SetupHFSS(Setup, PyAedtBase):
         """
         if not isinstance(derivative_list, list):
             derivative_list = [derivative_list]
-        self.auto_update = False
-        self.props["VariablesForDerivatives"] = derivative_list + self.get_derivative_variables()
-        self.auto_update = True
-        return self.update()
+        # self.auto_update = False
+        new_props = self.props
+        new_props["VariablesForDerivatives"] = derivative_list + self.get_derivative_variables()
+        # self.auto_update = True
+        return self.update(new_props)
 
     @pyaedt_function_handler()
     def set_tuning_offset(self, offsets: dict) -> bool:
@@ -3881,10 +3882,9 @@ class SetupHFSSAuto(Setup, PyAedtBase):
         """
         if not isinstance(derivative_list, list):
             derivative_list = [derivative_list]
-        self.auto_update = False
-        self.props["VariablesForDerivatives"] = derivative_list + self.get_derivative_variables()
-        self.auto_update = True
-        return self.update()
+        new_props = self.props
+        new_props["VariablesForDerivatives"] = derivative_list + self.get_derivative_variables()
+        return self.update(new_props)
 
     @pyaedt_function_handler()
     def set_tuning_offset(self, offsets: dict) -> bool:
