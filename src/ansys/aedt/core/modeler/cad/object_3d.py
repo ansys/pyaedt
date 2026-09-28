@@ -824,7 +824,7 @@ class Object3d(BinaryTreeNode, PyAedtBase):
 
         """
         try:
-            result = [(float(edge.midpoint[0]), edge) for edge in self.edges]
+            result = [(float(edge.midpoint[2]), edge) for edge in self.edges]
             result = sorted(result, key=lambda tup: tup[0])
             return result[-1][1]
         except Exception:
@@ -846,7 +846,7 @@ class Object3d(BinaryTreeNode, PyAedtBase):
 
         """
         try:
-            result = [(float(edge.midpoint[0]), edge) for edge in self.edges]
+            result = [(float(edge.midpoint[2]), edge) for edge in self.edges]
             result = sorted(result, key=lambda tup: tup[0])
             return result[0][1]
         except Exception:
@@ -912,7 +912,7 @@ class Object3d(BinaryTreeNode, PyAedtBase):
 
         """
         try:
-            result = [(float(edge.midpoint[0]), edge) for edge in self.edges]
+            result = [(float(edge.midpoint[1]), edge) for edge in self.edges]
             result = sorted(result, key=lambda tup: tup[0])
             return result[-1][1]
         except Exception:
@@ -934,7 +934,7 @@ class Object3d(BinaryTreeNode, PyAedtBase):
 
         """
         try:
-            result = [(float(edge.midpoint[0]), edge) for edge in self.edges]
+            result = [(float(edge.midpoint[1]), edge) for edge in self.edges]
             result = sorted(result, key=lambda tup: tup[0])
             return result[0][1]
         except Exception:

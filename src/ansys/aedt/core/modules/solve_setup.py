@@ -374,6 +374,8 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
     @props.setter
     def props(self, value: dict) -> None:
         self._legacy_props = SetupProps(self, value)
+        if self.auto_update:
+            self.update(self._legacy_props)
 
     @property
     def is_solved(self) -> bool:
@@ -790,14 +792,13 @@ class Setup(CommonSetup):
         >>> setup.update(properties={"Name": "Value"})
 
         """
-        # legacy_update = self.auto_update
-        # self.auto_update = False
-        # if properties:
-        #     for el in properties:
-        #         self.props[el] = properties[el]
-        # self.auto_update = legacy_update
-        arg = self._setup_dict_to_arg(props=properties)
-
+        legacy_update = self.auto_update
+        self.auto_update = False
+        if properties:
+            arg = self._setup_dict_to_arg(props=properties)
+        else:
+            arg = self._setup_dict_to_arg()
+        self.auto_update = legacy_update
         self.omodule.EditSetup(self.name, arg)
         return True
 
@@ -2251,10 +2252,6 @@ class Setup3DLayout(CommonSetup):
                 self._legacy_props = SetupProps(self, {})
                 settings.logger.error("Unable to set props.")
         return self._legacy_props
-
-    @props.setter
-    def props(self, value: dict) -> None:
-        self._legacy_props = SetupProps(self, value)
 
     @property
     def is_solved(self) -> bool:
