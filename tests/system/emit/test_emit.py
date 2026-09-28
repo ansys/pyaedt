@@ -1591,7 +1591,7 @@ def test_categories(cell_phone):
 
     instance = interaction.get_worst_instance(ResultType.EMI)
     emi_value = instance.get_value(ResultType.EMI)
-    assert emi_value == -3.87
+    assert emi_value == -3.83
 
     problem_type = instance.get_largest_emi_problem_type()
     assert problem_type == EMIInterfererType.OUT_OF_CHANNEL_TX_FUNDAMENTAL

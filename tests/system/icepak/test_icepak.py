@@ -1212,7 +1212,12 @@ def test_assign_network(ipk_app, add_app_example) -> None:
     net.add_face_node(ids[2], thermal_resistance="Specified", resistance="2cel_per_w")
     net.add_face_node(ids[3], thermal_resistance="Compute", material="Al-Extruded", thickness=2)
     net.add_face_node(ids[4], thermal_resistance="Compute", material="Al-Extruded", thickness="2mm")
-    net.add_face_node(ids[5], name="TestFace", thermal_resistance="Specified", resistance="20cel_per_w")
+    net.add_face_node(
+        ids[5],
+        name="TestFace",
+        thermal_resistance="Specified",
+        resistance="20cel_per_w",
+    )
     net.add_internal_node(name="TestInternal", power=2, mass=None, specific_heat=None)
     net.add_internal_node(name="TestInternal2", power="4mW")
     net.add_internal_node(name="TestInternal3", power="6W", mass=2, specific_heat=2000)
@@ -1220,10 +1225,15 @@ def test_assign_network(ipk_app, add_app_example) -> None:
     net.add_boundary_node(name="TestBoundary2", assignment_type="Power", value="3mW")
     net.add_boundary_node(name="TestBoundary3", assignment_type="Temperature", value=3)
     net.add_boundary_node(name="TestBoundary4", assignment_type="Temperature", value="3kel")
-    nodes_names = list(net.nodes.keys())
-    for i in range(len(net.nodes) - 1):
-        net.add_link(nodes_names[i], nodes_names[i + 1], i * 10 + 1)
-    net.add_link(ids[0], ids[4], 9)
+    face_nodes = [n for n, node in net.nodes.items() if node.node_type == "FaceNode"]
+    internal_nodes = [n for n, node in net.nodes.items() if node.node_type == "InternalNode"]
+    allowed_nodes = face_nodes + internal_nodes
+    for i in range(len(allowed_nodes) - 1):
+        net.add_link(allowed_nodes[i], allowed_nodes[i + 1], i * 10 + 1)
+    net.add_link("TestInternal3", "TestBoundary", 100)
+    net.add_link("TestInternal2", "TestBoundary2", 101)
+    net.add_link("TestInternal", "TestBoundary3", 102)
+    net.add_link("TestInternal3", "TestBoundary4", 103)
     assert net.create()
     bkupprops = net.nodes["TestFace"].props
     bkupprops_internal = net.nodes["TestInternal3"].props
@@ -1231,21 +1241,42 @@ def test_assign_network(ipk_app, add_app_example) -> None:
     net.nodes["TestFace"].delete_node()
     net.nodes["TestInternal3"].delete_node()
     net.nodes["TestBoundary4"].delete_node()
-    nodes_names = list(net.nodes.keys())
+    # Only face and internal nodes are used for the main chain.
+    nodes_names = [n for n, node in net.nodes.items() if node.node_type in ["FaceNode", "InternalNode"]]
     for j in net.links.values():
         j.delete_link()
-    for i in range(len(net.nodes) - 1):
-        net.add_link(nodes_names[i], nodes_names[i + 1], str(i + 1) + "cel_per_w", "link_" + str(i))
+    for i in range(len(nodes_names) - 1):
+        net.add_link(
+            nodes_names[i],
+            nodes_names[i + 1],
+            str(i + 1) + "cel_per_w",
+            "link_" + str(i),
+        )
+
+    # Boundary nodes must be connected explicitly.
+    net.add_link("TestInternal2", "TestBoundary", "100cel_per_w")
+    net.add_link("TestInternal2", "TestBoundary2", "101cel_per_w")
+    net.add_link("TestInternal", "TestBoundary3", "102cel_per_w")
     assert net.update()
     assert all(i not in net.nodes for i in ["TestFace", "TestInternal3", "TestBoundary4"])
     net.props["Nodes"].update({"TestFace": bkupprops})
     net.props["Nodes"].update({"TestInternal3": bkupprops_internal})
     net.props["Nodes"].update({"TestBoundary4": bkupprops_boundary})
-    nodes_names = list(net.nodes.keys())
+    # Recalculate after restoring the nodes.
+    nodes_names = [n for n, node in net.nodes.items() if node.node_type in ["FaceNode", "InternalNode"]]
     for j in net.links.values():
         j.delete_link()
-    for i in range(len(net.nodes) - 1):
-        net.add_link(nodes_names[i], nodes_names[i + 1], i * 100 + 1)
+    for i in range(len(nodes_names) - 1):
+        net.add_link(
+            nodes_names[i],
+            nodes_names[i + 1],
+            i * 100 + 1,
+        )
+    # Boundary nodes must be connected explicitly.
+    net.add_link("TestInternal3", "TestBoundary", 100)
+    net.add_link("TestInternal2", "TestBoundary2", 101)
+    net.add_link("TestInternal", "TestBoundary3", 102)
+    net.add_link("TestInternal3", "TestBoundary4", 103)
     assert net.update()
     assert all(i in net.nodes for i in ["TestFace", "TestInternal3", "TestBoundary4"])
     net.nodes["TestFace"].delete_node()
@@ -1258,16 +1289,38 @@ def test_assign_network(ipk_app, add_app_example) -> None:
     bkupprops_boundary_input = {"Name": "TestBoundary4"}
     bkupprops_boundary_input.update(bkupprops_boundary)
     bkupprops_boundary_input["ValueType"] = bkupprops_boundary_input["ValueType"].replace("Value", "")
-    net.add_nodes_from_dictionaries([bkupprops_input, bkupprops_internal_input, bkupprops_boundary_input])
-    nodes_names = list(net.nodes.keys())
+
+    net.add_nodes_from_dictionaries(
+        [
+            bkupprops_input,
+            bkupprops_internal_input,
+            bkupprops_boundary_input,
+        ]
+    )
+
+    # Use only face and internal nodes for R-links and C-links.
+    nodes_names = [n for n, node in net.nodes.items() if node.node_type in ["FaceNode", "InternalNode"]]
+
     for j in net.links.values():
         j.delete_link()
     net.add_link(nodes_names[0], nodes_names[1], 50, "TestLink")
     linkvalue = ["cel_per_w", "g_per_s"]
-    for i in range(len(net.nodes) - 2):
-        net.add_link(nodes_names[i + 1], nodes_names[i + 2], str(i + 1) + linkvalue[i % 2])
+    for i in range(len(nodes_names) - 2):
+        net.add_link(
+            nodes_names[i + 1],
+            nodes_names[i + 2],
+            str(i + 1) + linkvalue[i % 2],
+        )
+    # Boundary nodes are connected separately using R-links.
+    net.add_link("TestInternal3", "TestBoundary", 100)
+    net.add_link("TestInternal2", "TestBoundary2", 101)
+    net.add_link("TestInternal", "TestBoundary3", 102)
+    net.add_link("TestInternal3", "TestBoundary4", 103)
     link_dict = net.links["TestLink"].props
-    link_dict = {"Name": "TestLink", "Link": link_dict[0:2] + link_dict[4:]}
+    link_dict = {
+        "Name": "TestLink",
+        "Link": link_dict[0:2] + link_dict[4:],
+    }
     net.links["TestLink"].delete_link()
     net.add_links_from_dictionaries(link_dict)
     assert net.update()
@@ -1291,7 +1344,13 @@ def test_assign_network(ipk_app, add_app_example) -> None:
         except KeyError:
             pass
 
-    app = add_app_example(application=Icepak, project=NETWORK_TEST, subfolder=TEST_SUBFOLDER, close_projects=False)
+    app = add_app_example(
+        application=Icepak,
+        project=NETWORK_TEST,
+        subfolder=TEST_SUBFOLDER,
+        close_projects=False,
+    )
+
     thermal_b = app.boundaries
     thermal_b[0].props["Nodes"]["Internal"]["Power"] = "10000mW"
     thermal_b[0].update()

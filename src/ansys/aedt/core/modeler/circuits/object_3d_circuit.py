@@ -849,11 +849,12 @@ class CircuitComponent(PyAedtBase):
         >>> obj.parameters
 
         """
-        has_child_names = (
-            hasattr(self._oeditor, "GetChildObject") and self._circuit_components._app.design_type == "Circuit Design"
-        )
         if self._parameters:
             return self._parameters
+
+        has_child_names = False
+        if hasattr(self._oeditor, "GetChildObject") and self._circuit_components._app.design_type == "Circuit Design":
+            has_child_names = True if self.instance_name in self._oeditor.GetChildNames() else False
 
         def extract_bracket_content(value: str) -> str:
             match = re.search(r"\[(.*?)\]", value)
