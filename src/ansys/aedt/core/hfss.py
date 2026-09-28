@@ -1769,26 +1769,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             setup_type = SetupKeys.SetupNames.index(setup_type)
         name = self.generate_unique_setup_name(name)
         setup = self._create_setup(name=name, setup_type=setup_type)
-        setup.auto_update = False
-        if "Frequency" in kwargs.keys():
-            if type(kwargs["Frequency"]) is list:
-                if "MultipleAdaptiveFreqsSetup" not in kwargs.keys():
-                    kwargs["MultipleAdaptiveFreqsSetup"] = kwargs["Frequency"]
+
         for arg_name, arg_value in kwargs.items():
-            if setup[arg_name] is not None:
-                if arg_name == "MultipleAdaptiveFreqsSetup":  # A list of frequency values is passed if
-                    setup[arg_name].delete_all()  # the default convergence criteria are to be
-                    if isinstance(arg_value, list):  # used.
-                        for i in arg_value:
-                            setup[arg_name][i] = [0.02]
-                    else:
-                        for i, k in arg_value.items():
-                            setup[arg_name][i] = [k]
-                    setup.props["SolveType"] = "MultiFrequency"
-                else:
-                    setup[arg_name] = arg_value
-        setup.auto_update = True
-        setup.update()
+            setup.props[arg_name] = arg_value
         return setup
 
     @pyaedt_function_handler()

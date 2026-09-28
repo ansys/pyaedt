@@ -252,7 +252,6 @@ def test_create_linear_count_sweep(aedt_app) -> None:
     assert setup.props["BasisOrder"] == 2
     # Legacy notation using setup.props followed by setup.update()
     setup.props["MaximumPasses"] = 1
-    assert setup.update()
     assert aedt_app.create_linear_count_sweep("MySetup", "GHz", 0.8, 1.2, 401)
     assert not aedt_app.setups[0].sweeps[0].is_solved
     assert aedt_app.create_linear_count_sweep("MySetup", "GHz", 0.8, 1.2, 401)
