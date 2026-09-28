@@ -85,6 +85,8 @@ from dataclasses import dataclass
 from dataclasses import field
 import struct
 
+from ansys.aedt.core.generic.file_utils import open_file
+
 #: The only SSS format version this reader understands. Bump this (and
 #: update the byte walk in :func:`read_header`) when the SSS layout changes.
 SUPPORTED_VERSION = 70
@@ -203,7 +205,7 @@ def read_header(path: str) -> SssHeader:
     EOFError, ValueError
         If the file is truncated or structurally invalid.
     """
-    with open(path, "rb") as fh:
+    with open_file(path, "rb") as fh:
         return _parse_header(_Cursor(fh))
 
 
