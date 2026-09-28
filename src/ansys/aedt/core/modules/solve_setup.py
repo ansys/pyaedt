@@ -1196,7 +1196,8 @@ class Setup(CommonSetup):
             mesh_link["ApplyMeshOp"] = apply_mesh_operations
             if self._app.design_type not in ["Maxwell 2D", "Maxwell 3D"]:
                 mesh_link["AdaptPort"] = adapt_port
-            self.update()
+            self.update({"MeshLink": {"ImportMesh": True}})
+            self.update({"MeshLink": mesh_link})
             self.auto_update = auto_update
             return True
         except Exception:
