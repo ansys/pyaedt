@@ -48,7 +48,7 @@ format changes, update the walk in :func:`read_header` and bump
 ``SUPPORTED_VERSION`` accordingly.
 
 Layout (only the parts relevant to pin names are decoded; the rest is skipped)
-----------------------------------------------------------------------------
+------------------------------------------------------------------------------
 1.  A matrix (sparse CSR):
         u32   n_row_starts   (= n_states + 1)
         u32[] row_starts
