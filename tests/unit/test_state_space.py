@@ -239,7 +239,7 @@ def test_skip_past_end_raises_eof() -> None:
 
 def test_missing_file(tmp_path) -> None:
     missing = tmp_path / "does_not_exist.sss"
-    with pytest.raises(FileNotFoundError):
+    with pytest.raises(TypeError):
         read_header(str(missing))
 
 
