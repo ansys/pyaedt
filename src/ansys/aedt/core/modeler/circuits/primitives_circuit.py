@@ -956,10 +956,17 @@ class CircuitComponents(PyAedtBase):
         if model_name in list(self.omodel_manager.GetNames()):
             model_name = generate_unique_name(model_name, n=2)
         if not port_names or num_terminal == 0:
+            from ansys.aedt.core.modeler.circuits.state_space import UnsupportedVersionError
             from ansys.aedt.core.modeler.circuits.state_space import read_pin_names
 
-            port_names = read_pin_names(input_file)
-            num_terminal = len(port_names)
+            try:
+                port_names = read_pin_names(input_file)
+                num_terminal = len(port_names)
+            except UnsupportedVersionError:
+                if num_terminal:  # pragma: no cover
+                    port_names = [str(i + 1) for i in range(num_terminal)]
+                else:  # pragma: no cover
+                    raise ValueError("sss format unsupported. Port names and number of terminal has to be provided")
         arg = [
             "NAME:" + model_name,
             "Name:=",
