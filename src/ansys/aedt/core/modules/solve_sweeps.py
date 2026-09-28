@@ -1241,8 +1241,9 @@ class SetupProps(dict):
         else:
             value = _units_assignment(value)
             dict.__setitem__(self, key, value)
+
         if self._pyaedt_setup.auto_update:
-            res = self._pyaedt_setup.update()
+            res = self._pyaedt_setup.update(self)
             if not res:
                 self._pyaedt_setup._app.logger.warning("Update of %s failed. Check needed arguments", key)
 

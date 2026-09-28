@@ -790,13 +790,13 @@ class Setup(CommonSetup):
         >>> setup.update(properties={"Name": "Value"})
 
         """
-        legacy_update = self.auto_update
-        self.auto_update = False
-        if properties:
-            for el in properties:
-                self.props[el] = properties[el]
-        self.auto_update = legacy_update
-        arg = self._setup_dict_to_arg()
+        # legacy_update = self.auto_update
+        # self.auto_update = False
+        # if properties:
+        #     for el in properties:
+        #         self.props[el] = properties[el]
+        # self.auto_update = legacy_update
+        arg = self._setup_dict_to_arg(props=properties)
 
         self.omodule.EditSetup(self.name, arg)
         return True
