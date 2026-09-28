@@ -335,7 +335,16 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
 
     @property
     def props(self) -> SetupProps:
-        """Properties of the setup."""
+        """Properties of the setup.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> setup = app.create_setup()
+        >>> setup.props
+
+        """
         _has_getobject = _has_get_obj_data(self._child_object)
         if self._legacy_props and not _has_getobject:
             return self._legacy_props
@@ -1354,7 +1363,17 @@ class SetupCircuit(CommonSetup):
 
     @property
     def props(self) -> SetupProps:
-        """Retrieve props."""
+        """Retrieve props.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> from ansys.aedt.core.generic.constants import Setups
+        >>> circuit_app = Circuit()
+        >>> setup1 = circuit_app.create_setup("circuit", Setups.NexximLNA)
+        >>> setup1.props
+
+        """
         if _has_get_obj_data(self._child_object):
             return super().props
         if self._legacy_props:
@@ -2203,7 +2222,16 @@ class Setup3DLayout(CommonSetup):
 
     @property
     def props(self) -> SetupProps:
-        """Retrieve props."""
+        """Retrieve props.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> app = Hfss3dLayout()
+        >>> setup = app.create_setup()
+        >>> setup.props
+
+        """
         if _has_get_obj_data(self._child_object):
             return super().props
         if self._legacy_props:
