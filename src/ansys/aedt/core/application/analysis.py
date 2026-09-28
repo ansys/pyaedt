@@ -788,6 +788,9 @@ class Analysis(Design, PyAedtBase):
     def list_of_variations(self, setup: str = None, sweep: str = None) -> list[str]:
         """Retrieve a list of active variations for input setup.
 
+        .. deprecated:: 1.5.0
+           Use :meth:`available_variations.variations` instead.
+
         Parameters
         ----------
         setup : str, optional
@@ -813,6 +816,13 @@ class Analysis(Design, PyAedtBase):
         >>> hfss.list_of_variations(setup="Setup1")
 
         """
+        import warnings
+
+        warnings.warn(
+            "`list_of_variations` is deprecated and will be removed in 1.5.0. Use `available_variations.variations` instead.",
+            DeprecationWarning,
+        )
+
         if not setup and ":" in self.nominal_sweep:
             setup = self.nominal_adaptive.split(":")[0].strip()
         elif not setup:

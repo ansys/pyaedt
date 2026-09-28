@@ -1,0 +1,4 @@
+['220uF/25V']
+model_path = 'Capacitor_220uF_HFSS.a3dcomp'
+pin_1_loc = [0.0, 0.0, 0.0]
+pin_2_loc = [0.7375e-3, 0, 0]

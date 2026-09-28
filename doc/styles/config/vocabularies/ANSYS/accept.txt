@@ -37,6 +37,7 @@ expansion_factor
 fanout
 FEBI
 FE-BI
+FilterSolutions
 file_path
 fix_disjoints
 Floquet
@@ -58,6 +59,7 @@ matplotlib
 Maxwell 2D
 Maxwell 3D
 Maxwell Circuit
+MCAD
 mcm
 microstrip
 [Mm]echanical

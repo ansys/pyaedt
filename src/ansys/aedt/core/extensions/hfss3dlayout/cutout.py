@@ -56,12 +56,13 @@ AEDT_PROCESS_ID = get_process_id()
 """AEDT process identifier."""
 IS_STUDENT = is_student()
 """Flag indicating whether the student version is used."""
-CUTOUT_TYPES = ("ConvexHull", "Bounding", "Conforming")
+CUTOUT_TYPES = ("ConvexHull", "Bounding", "Conforming", "CustomExtent")
 """Available cutout types."""
 EXTENSION_DEFAULT_ARGUMENTS = {
     "cutout_type": "ConvexHull",
     "signals": [],
     "references": [],
+    "custom_extent": "",
     "expansion_factor": 3.0,
     "fix_disjoints": False,
 }
@@ -91,6 +92,7 @@ class CutoutData(ExtensionCommonData):
 
     cutout_type: str = "ConvexHull"
     """Value for cutout type."""
+    custom_extent: str | None = None
     signals: list[str] = field(default_factory=list)
     """Value for signals."""
     references: list[str] = field(default_factory=list)
@@ -202,6 +204,22 @@ class CutoutExtension(ExtensionHFSS3DLayoutCommon):
         reference_nets_label.grid(row=4, column=1, **DEFAULT_PADDING)
         self.__widgets["reference_nets_variable"] = reference_nets_variable
 
+        custom_extent_button = ttk.Button(
+            upper_frame,
+            text="Select extent",
+            command=lambda: self.__select("extent"),
+            style="PyAEDT.TButton",
+            width=selection_button_width,
+        )
+        custom_extent_button.grid(row=5, column=0, **DEFAULT_PADDING)
+        self.__widgets["custom_extent"] = custom_extent_button
+
+        custom_extent_variable = tkinter.StringVar()
+        custom_extent_label = ttk.Label(upper_frame, textvariable=custom_extent_variable, style="PyAEDT.TLabel")
+        custom_extent_variable.set(WAITING_FOR_SELECTION)
+        custom_extent_label.grid(row=5, column=1, **DEFAULT_PADDING)
+        self.__widgets["custom_extent_variable"] = custom_extent_variable
+
         lower_frame_1 = ttk.Frame(self.root, style="PyAEDT.TFrame")
         lower_frame_1.grid(row=2, column=0, columnspan=EXTENSION_NB_COLUMN)
 
@@ -303,6 +321,17 @@ class CutoutExtension(ExtensionHFSS3DLayoutCommon):
 
     def __select(self, selection_type: str) -> None:
         """Select nets from the layout."""
+        if selection_type == "extent":
+            selections = self.hfss3dlayout_app.oeditor.GetSelections()
+            if not selections:
+                raise AEDTRuntimeError("No extent selected. Please select one extent object from the layout.")
+            if len(selections) > 1:
+                raise AEDTRuntimeError("Please select exactly one extent object from the layout.")
+            self.cutout_data.custom_extent = selections[0]
+            variable = self.__widgets["custom_extent_variable"]
+            variable.set(self.cutout_data.custom_extent)
+            return
+
         selection = self.__get_selection()
         if not selection:
             raise AEDTRuntimeError("Empty selection. Select nets from layout and retry.")
@@ -327,18 +356,25 @@ class CutoutExtension(ExtensionHFSS3DLayoutCommon):
         variable = self.__widgets["reference_nets_variable"]
         variable.set(WAITING_FOR_SELECTION)
 
+        self.cutout_data.custom_extent = ""
+        variable = self.__widgets["custom_extent_variable"]
+        variable.set(WAITING_FOR_SELECTION)
+
     def __output_data(self) -> None:
         """"""
-        if not self.cutout_data.signals or not self.cutout_data.references:
-            raise AEDTRuntimeError("Please select signal and reference nets before creating a cutout.")
         self.cutout_data.cutout_type = self.__widgets["cutout_type"].get()
+        if self.cutout_data.cutout_type == "CustomExtent":
+            if not self.cutout_data.custom_extent:
+                raise AEDTRuntimeError("Please select a custom extent before creating a cutout.")
+        elif not self.cutout_data.signals or not self.cutout_data.references:
+            raise AEDTRuntimeError("Please select signal and reference nets before creating a cutout.")
         self.cutout_data.expansion_factor = float(self.__widgets["expansion_factor"].get("1.0", tkinter.END).strip())
         self.cutout_data.fix_disjoints = self.__widgets["fix_disjoints"].get() == 1
         self.__execute_cutout = True
         self.root.destroy()
 
 
-def main(data: CutoutData) -> Path:
+def main(data: CutoutData) -> Path | None:
     """Main function to execute the cutout operation.
 
     Examples
@@ -364,6 +400,18 @@ def main(data: CutoutData) -> Path:
 
     edb = Edb(edbpath=str(aedb_path), cellname=active_design.GetName().split(";")[1], version=VERSION)
     edb.save_as(str(new_path))
+    points = None
+    extent_units = "mm"
+    if data.cutout_type == "CustomExtent":
+        result = edb.layout.find_primitive(name=data.custom_extent)
+        if len(result) > 1:
+            raise AEDTRuntimeError(f"Found more than one custom extent named {data.custom_extent} in the layout.")
+        elif len(result) == 0:
+            raise AEDTRuntimeError(f"No custom extent named {data.custom_extent} in the layout.")
+        else:
+            prim = result[0]
+            points = prim.polygon_data.points
+            extent_units = "meter"
     edb.cutout(
         signal_list=data.signals,
         reference_list=data.references,
@@ -377,8 +425,8 @@ def main(data: CutoutData) -> Path:
         use_pyaedt_extent_computing=True,
         extent_defeature=0,
         remove_single_pin_components=data.fix_disjoints,
-        custom_extent=None,
-        custom_extent_units="mm",
+        custom_extent=points,
+        custom_extent_units=extent_units,
         include_partial_instances=False,
         keep_voids=True,
         check_terminals=False,

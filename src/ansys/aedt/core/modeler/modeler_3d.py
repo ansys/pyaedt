@@ -1483,7 +1483,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         else:
             return segment_objects
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def change_region_padding(
         self,
         padding_data: str | list[str],

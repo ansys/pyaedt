@@ -1611,7 +1611,7 @@ class GeometryModeler(Modeler, PyAedtBase):
             return user_list
         return False
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     @min_aedt_version("2026.1")
     def get_named_selection_objects(self, name: str) -> list:
         """Objects in named selection.

@@ -97,7 +97,7 @@ class COMParameters:
         self._init()
         self.standard = standard
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def _init(self) -> None:
         pass  # pragma: no cover
 
@@ -153,7 +153,7 @@ class COMParameters:
         self.load(cfg_path)
         self._standard = value
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def set_parameter(self, keyword: str, value: str) -> None:
         """Set a COM parameter.
 
@@ -198,7 +198,7 @@ class COMParameters:
         else:
             self.other_parameters[keyword] = value
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def export(self, file_path: str) -> None:
         """Export COM parameter to a JSON file.
 
@@ -232,7 +232,7 @@ class COMParameters:
         with open(file_path, "w", encoding="utf-8") as f:
             f.write(json.dumps(temp, indent=4, ensure_ascii=False))
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def load(self, file_path: str) -> None:
         """Load COM parameters from a JSON file.
 
@@ -256,7 +256,7 @@ class COMParameters:
             for k2, v2 in v.items():
                 self.__getattribute__(k)[k2] = v2
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def export_spisim_cfg(self, file_path: str) -> bool:
         """Export COM parameter to a SPISim cfg file.
 
@@ -284,7 +284,7 @@ class COMParameters:
                 fp.write(f"{kw.upper()} = {v}\n")
         return True
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def load_spisim_cfg(self, file_path: str) -> bool:
         """Load a SPIsim configuration file.
 
@@ -332,7 +332,7 @@ class COMParametersVer3p4(COMParameters):
     def __init__(self, standard: int = 1) -> None:
         super().__init__(standard)
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def _init(self) -> None:
         """Initialize COM parameters."""
         self.table_93a1.update(

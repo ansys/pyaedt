@@ -44,10 +44,10 @@ class TxHarmonicNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> tx_profile = band.children[0]
-        >>> tx_harmonics = tx_profile.add_custom_tx_harmonics()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_harmonics = spec.add_custom_tx_harmonics()
         >>> tx_harmonics.parent
 
         """
@@ -62,10 +62,10 @@ class TxHarmonicNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> tx_profile = band.children[0]
-        >>> tx_harmonics = tx_profile.add_custom_tx_harmonics()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_harmonics = spec.add_custom_tx_harmonics()
         >>> tx_harmonics.node_type
 
         """
@@ -73,25 +73,30 @@ class TxHarmonicNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def import_csv_file(self, file_name: str) -> EmitNode:
-        """Import a CSV File.
-
-        Parameters
-        ----------
-        file_name : str
-            File name.
+        """Import a CSV File....
 
         Examples
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> tx_profile = band.children[0]
-        >>> tx_harmonics = tx_profile.add_custom_tx_harmonics()
-        >>> tx_harmonics.import_csv_file("C:\\Measurements\\tx_harmonics.csv")
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_harmonics = spec.add_custom_tx_harmonics()
+        >>> tx_harmonics.import_csv_file("C:\\EMIT\\data.csv")
 
         """
-        return self._import(file_name, "Csv")
+        return self._import(file_name, "CsvFile")
+
+    @min_aedt_version("2027.1")
+    def export_to_csv(self, file_name: str) -> str:
+        """Export's the data for this node"""
+        return self._export_to_csv(file_name, "", "")
+
+    @min_aedt_version("2027.1")
+    def plot(self):
+        """Bring up a Cartesian plot for this node"""
+        return self._plot("", "")
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
@@ -101,10 +106,10 @@ class TxHarmonicNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> tx_profile = band.children[0]
-        >>> tx_harmonics = tx_profile.add_custom_tx_harmonics()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_harmonics = spec.add_custom_tx_harmonics()
         >>> tx_harmonics.delete()
 
         """
@@ -114,8 +119,7 @@ class TxHarmonicNode(EmitNode):
     @min_aedt_version("2025.2")
     def table_data(self) -> list[tuple]:
         """Edit Harmonics Table.
-
-        Table consists of 2 columns:
+        Table consists of 2 columns.
         Harmonic:
             Value should be between 2 and 1000.
         Power (Relative or Absolute):
@@ -125,12 +129,11 @@ class TxHarmonicNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> tx_profile = band.children[0]
-        >>> tx_harmonics = tx_profile.add_custom_tx_harmonics()
-        >>> tx_harmonics.table_data = [(2, -35.0), (3, -45.0)]
-        >>> tx_harmonics.table_data
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_harmonics = spec.add_custom_tx_harmonics()
+        >>> tx_harmonics.table_data = [(2, 25.0)]
 
         """
         return self._get_table_data()
@@ -149,12 +152,11 @@ class TxHarmonicNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> tx_profile = band.children[0]
-        >>> tx_harmonics = tx_profile.add_custom_tx_harmonics()
-        >>> tx_harmonics.enabled = False
-        >>> tx_harmonics.enabled
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_harmonics = spec.add_custom_tx_harmonics()
+        >>> tx_harmonics.enabled = True
 
         """
         return self._get_property("Enabled") == "true"
@@ -177,16 +179,18 @@ class TxHarmonicNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> tx_profile = band.children[0]
-        >>> tx_harmonics = tx_profile.add_custom_tx_harmonics()
-        >>> tx_harmonics.harmonic_table_units = tx_harmonics.HarmonicTableUnitsOption.RELATIVE
-        >>> tx_harmonics.harmonic_table_units
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_harmonics = spec.add_custom_tx_harmonics()
+        >>> tx_harmonics.harmonic_table_units = TxHarmonicNode.HarmonicTableUnitsOption.ABSOLUTE
 
         """
         val = self._get_property("Harmonic Table Units")
-        val = self.HarmonicTableUnitsOption[val.upper()]
+        try:
+            val = self.HarmonicTableUnitsOption(val)
+        except ValueError:
+            val = self.HarmonicTableUnitsOption[val.upper()]
         return val
 
     @harmonic_table_units.setter

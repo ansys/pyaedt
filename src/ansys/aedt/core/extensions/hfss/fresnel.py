@@ -1058,7 +1058,7 @@ class FresnelExtension(ExtensionHFSSCommon):
         values : Sequence[float]
             Input angles (degrees), possibly unsorted and with out-of-range values.
         float_precision : float, optional
-            Tolerance used for “close to integer multiple” checks.
+            Tolerance used for "close to integer multiple" checks.
         min_step_possible : float, optional
             Minimum step allowed during the step search.
 
@@ -1117,7 +1117,7 @@ class FresnelExtension(ExtensionHFSSCommon):
 
             if k_sel.size > 0:
                 # Require first integer index < 2 and successive increments < 2
-                # (equivalent to “exactly one step apart” with tolerance logic)
+                # (equivalent to "exactly one step apart" with tolerance logic)
                 diffs = np.diff(k_sel)
                 if (k_sel[0] < 2) and np.all(diffs < 2):
                     step = step_check

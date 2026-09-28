@@ -47,7 +47,6 @@ from tests import TESTS_VISUALIZATION_PATH
 from tests.conftest import DESKTOP_VERSION
 from tests.conftest import NON_GRAPHICAL
 
-TEST_FIELD_NAME = "Potter_Horn_242"
 Q3D_FILE = "via_gsg_solved"
 TEST_CIRCUIT_NAME = "Switching_Speed_FET_And_Diode_Solved"
 SBR_FILE = "poc_scat_small_solved"
@@ -70,13 +69,6 @@ TEST_SUBFOLDER = "T12"
 @pytest.fixture
 def markers_test(add_app_example):
     app = add_app_example(project=IPK_MARKERS_PROJ, application=Icepak, subfolder=TEST_SUBFOLDER)
-    yield app
-    app.close_project(save=False)
-
-
-@pytest.fixture
-def field_test(add_app_example):
-    app = add_app_example(project=TEST_FIELD_NAME, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(save=False)
 

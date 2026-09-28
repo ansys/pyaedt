@@ -24,9 +24,13 @@
 
 import math
 from sys import float_info
+from typing import TypeAlias
+from typing import TypeGuard
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+
+NestedScalar: TypeAlias = int | float | list["NestedScalar"]
 
 
 class MathUtils(PyAedtBase):
@@ -164,7 +168,7 @@ class MathUtils(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def is_scalar_number(x: object) -> bool:
+    def is_scalar_number(x: object) -> TypeGuard[int | float]:
         """Check if a value is a scalar number (int or float).
 
         Parameters
@@ -188,7 +192,7 @@ class MathUtils(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def fix_negative_zero(value: object) -> object:
+    def fix_negative_zero(value: NestedScalar) -> NestedScalar:
         """Fix the negative zero.
         It supports lists (and nested lists).
 

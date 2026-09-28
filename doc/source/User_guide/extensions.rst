@@ -29,51 +29,47 @@ They are small automated workflows with a simple GUI.
 
 .. grid:: 2
 
+   .. grid-item-card:: Generate Report
+            :link: pyaedt_extensions_doc/project/generate_report
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Create a PDF report from the plots in the active AEDT design.
+
+   .. grid-item-card:: Result Calculator
+            :link: pyaedt_extensions_doc/project/result_calculator
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Collect, plot and manage result traces.
+
+Shared extensions
+~~~~~~~~~~~~~~~~~
+
+Shared extensions are available in the AEDT applications supported by each extension.
+
+.. grid:: 2
+
    .. grid-item-card:: Import Nastran
             :link: pyaedt_extensions_doc/project/import_nastran
             :link-type: doc
             :margin: 2 2 0 0
 
-            Import a Nastran or STL file in any 3D modeler application.
-
-
-   .. grid-item-card:: Configure Layout
-            :link: pyaedt_extensions_doc/project/configure_layout
-            :link-type: doc
-            :margin: 2 2 0 0
-
-            Configure layout for PCB & package analysis.
-
+            Import a Nastran or STL file in supported 3D modeler applications.
 
    .. grid-item-card:: Advanced Fields Calculator
             :link: pyaedt_extensions_doc/project/advanced_fields_calculator
             :link-type: doc
             :margin: 2 2 0 0
 
-            Lear how to use the Advanced Fields Calculator extension.
-
-
-   .. grid-item-card:: Kernel converter
-            :link: pyaedt_extensions_doc/project/kernel_convert
-            :link-type: doc
-            :margin: 2 2 0 0
-
-            Lear how to convert projects from 2022R2 to newer versions.
-
+            Use the Advanced Fields Calculator in supported AEDT applications.
 
    .. grid-item-card:: Point cloud generator
             :link: pyaedt_extensions_doc/project/point_cloud_generator
             :link-type: doc
             :margin: 2 2 0 0
 
-            Generate and import points list from a geometry.
-
-   .. grid-item-card:: Via design
-            :link: pyaedt_extensions_doc/project/via_design
-            :link-type: doc
-            :margin: 2 2 0 0
-
-            Generate a parameterized via design.
+            Generate and import points from geometry in supported AEDT applications.
 
 HFSS 3D Layout extensions
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -90,6 +86,12 @@ They are small automated workflows with a simple GUI.
 
             Parametrize a full layout design.
 
+   .. grid-item-card:: Configure Layout
+            :link: pyaedt_extensions_doc/project/configure_layout
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Configure layout for PCB and package analysis.
 
    .. grid-item-card:: Generate arbitrary wave ports
             :link: pyaedt_extensions_doc/hfss3dlayout/arbitrary_wave_port
@@ -104,6 +106,13 @@ They are small automated workflows with a simple GUI.
             :margin: 2 2 0 0
 
             Edit a source from file data in HFSS 3D Layout.
+
+   .. grid-item-card:: Via design
+            :link: pyaedt_extensions_doc/project/via_design
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Generate a parameterized via design.
 
    .. grid-item-card:: Cutout
             :link: pyaedt_extensions_doc/hfss3dlayout/cutout
@@ -239,6 +248,21 @@ They are small automated workflows with a simple GUI.
 
             Convert Twin Builder design to Circuit.
 
+Q3D extensions
+~~~~~~~~~~~~~~
+
+Pre-installed extensions are available at Q3D level.
+They are small automated workflows with a simple GUI.
+
+.. grid:: 2
+
+   .. grid-item-card:: Harmonic Loss Input
+            :link: pyaedt_extensions_doc/q3d/harmonic_loss
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Import and configure harmonic-loss source data for a Q3D design.
+
 Maxwell extensions
 ~~~~~~~~~~~~~~~~~~
 
@@ -305,6 +329,7 @@ Templates to show how to build an extension consisting of a small automated work
    pyaedt_extensions_doc/icepak/index
    pyaedt_extensions_doc/circuit/index
    pyaedt_extensions_doc/twinbuilder/index
+   pyaedt_extensions_doc/q3d/index
    pyaedt_extensions_doc/maxwell/index
    pyaedt_extensions_doc/emit/index
    pyaedt_extensions_doc/templates/index

@@ -1127,11 +1127,10 @@ def test_create_polygon(aedt_app) -> None:
 @pytest.mark.skipif(not USE_GRPC, reason="Not running in COM mode")
 @pytest.mark.skipif(DESKTOP_VERSION < "2023.2", reason="Working only from 2023 R2")
 @pytest.mark.skipif(is_linux, reason="PyEDB is failing in Linux.")
-def test_post_processing(maxwell, add_app_example) -> None:
-    app = add_app_example(
+def test_post_processing(maxwell, add_app) -> None:
+    app = add_app(
         application=Hfss,
-        subfolder=TEST_SUBFOLDER,
-        project=POST_PROCESSING_PROJECT,
+        project=maxwell.project_name,
         close_projects=False,
     )
 
@@ -1192,7 +1191,6 @@ def test_post_processing(maxwell, add_app_example) -> None:
         intrinsics={"Freq": "1GHz", "Phase": "0deg"},
         nets=["GND", "V3P3_S5"],
     )
-    app.close_project(save=False)
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2023.2", reason="Working only from 2023 R2")
@@ -1301,6 +1299,8 @@ def test_clip_plane(aedt_app) -> None:
 
 
 def test_edit_3dlayout_extents(aedt_app) -> None:
+    rect = aedt_app.modeler.create_rectangle("Outline", [0, 0], [6, 8], 3, 2, "myrectangle")
+
     assert aedt_app.edit_hfss_extents(
         diel_extent_type="ConformalExtent",
         diel_extent_horizontal_padding="1mm",
@@ -1308,6 +1308,13 @@ def test_edit_3dlayout_extents(aedt_app) -> None:
         air_vertical_positive_padding="10mm",
         air_vertical_negative_padding="10mm",
         air_horizontal_padding="1mm",
+    )
+
+    assert aedt_app.edit_hfss_extents(
+        diel_extent_type="PolygonExtent",
+        air_extent_type="PolygonExtent",
+        diel_extent_polygon=rect.name,
+        air_extent_polygon=rect.name,
     )
 
 

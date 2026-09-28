@@ -44,11 +44,11 @@ class TxBbEmissionNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> tx_profile = band.children[0]
-        >>> bb_noise = tx_profile.add_tx_broadband_noise_profile()
-        >>> bb_noise.parent
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_bb_emission = spec.add_tx_broadband_noise_profile()
+        >>> tx_bb_emission.parent
 
         """
         return self._parent
@@ -62,31 +62,43 @@ class TxBbEmissionNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> tx_profile = band.children[0]
-        >>> bb_noise = tx_profile.add_tx_broadband_noise_profile()
-        >>> bb_noise.node_type
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_bb_emission = spec.add_tx_broadband_noise_profile()
+        >>> tx_bb_emission.node_type
 
         """
         return self._node_type
 
     @min_aedt_version("2025.2")
     def import_csv_file(self, file_name: str) -> EmitNode:
-        """Import a CSV File.
+        """Import a CSV File....
+
+        Note: The CSV file should not have any header lines and must contain only numeric values.
 
         Examples
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> tx_profile = band.children[0]
-        >>> bb_noise = tx_profile.add_tx_broadband_noise_profile()
-        >>> bb_noise.import_csv_file("C:\\Measurements\\tx_bb_profile.csv")
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_bb_emission = spec.add_tx_broadband_noise_profile()
+        >>> tx_bb_emission.import_csv_file("C:\\EMIT\\data.csv")
 
         """
-        return self._import(file_name, "Csv")
+        return self._import(file_name, "CsvFile")
+
+    @min_aedt_version("2027.1")
+    def export_to_csv(self, file_name: str) -> str:
+        """Export's the data for this node"""
+        return self._export_to_csv(file_name, "", "")
+
+    @min_aedt_version("2027.1")
+    def plot(self):
+        """Bring up a Cartesian plot for this node"""
+        return self._plot("", "")
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
@@ -96,11 +108,11 @@ class TxBbEmissionNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> tx_profile = band.children[0]
-        >>> bb_noise = tx_profile.add_tx_broadband_noise_profile()
-        >>> bb_noise.delete()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_bb_emission = spec.add_tx_broadband_noise_profile()
+        >>> tx_bb_emission.delete()
 
         """
         self._delete()
@@ -119,12 +131,11 @@ class TxBbEmissionNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> tx_profile = band.children[0]
-        >>> bb_noise = tx_profile.add_tx_broadband_noise_profile()
-        >>> bb_noise.table_data = [(1e6, -165.0), (10e6, -160.0)]
-        >>> bb_noise.table_data
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_bb_emission = spec.add_tx_broadband_noise_profile()
+        >>> tx_bb_emission.table_data = [(2, 25.0)]
 
         """
         return self._get_table_data()
@@ -143,12 +154,11 @@ class TxBbEmissionNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> tx_profile = band.children[0]
-        >>> bb_noise = tx_profile.add_tx_broadband_noise_profile()
-        >>> bb_noise.enabled = False
-        >>> bb_noise.enabled
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_bb_emission = spec.add_tx_broadband_noise_profile()
+        >>> tx_bb_emission.enabled = True
 
         """
         return self._get_property("Enabled") == "true"
@@ -173,16 +183,18 @@ class TxBbEmissionNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> tx_profile = band.children[0]
-        >>> bb_noise = tx_profile.add_tx_broadband_noise_profile()
-        >>> bb_noise.noise_behavior = bb_noise.NoiseBehaviorOption.EQUATION
-        >>> bb_noise.noise_behavior
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_bb_emission = spec.add_tx_broadband_noise_profile()
+        >>> tx_bb_emission.noise_behavior = TxBbEmissionNode.NoiseBehaviorOption.ABSOLUTE
 
         """
         val = self._get_property("Noise Behavior")
-        val = self.NoiseBehaviorOption[val.upper()]
+        try:
+            val = self.NoiseBehaviorOption(val)
+        except ValueError:
+            val = self.NoiseBehaviorOption[val.upper()]
         return val
 
     @noise_behavior.setter
@@ -204,12 +216,12 @@ class TxBbEmissionNode(EmitNode):
         --------
         >>> from ansys.aedt.core import Emit
         >>> app = Emit()
-        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
-        >>> band = emitter.get_radio().add_band()
-        >>> tx_profile = band.children[0]
-        >>> bb_noise = tx_profile.add_tx_broadband_noise_profile()
-        >>> bb_noise.use_log_linear_interpolation = True
-        >>> bb_noise.use_log_linear_interpolation
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> spec = band.children[0]
+        >>> tx_bb_emission = spec.add_tx_broadband_noise_profile()
+        >>> tx_bb_emission.noise_behavior = TxBbEmissionNode.NoiseBehaviorOption.EQUATION
+        >>> tx_bb_emission.use_log_linear_interpolation = True
 
         """
         val = self._get_property("Use Log-Linear Interpolation")

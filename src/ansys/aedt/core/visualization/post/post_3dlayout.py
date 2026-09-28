@@ -58,7 +58,7 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
     def __init__(self, app) -> None:
         PostProcessor3D.__init__(self, app)
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def _compute_power_loss(self, net_filter=None, layer_filter=None, solution: str | None = None):
         if solution is None:
             for setup in self._app.setups:

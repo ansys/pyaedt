@@ -28,6 +28,7 @@ from unittest.mock import patch
 import numpy as np
 import pytest
 
+from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
 from ansys.aedt.core.extensions.emit.emi_heat_map import EMIHeatmapExtension
 from ansys.aedt.core.extensions.emit.emi_heat_map import EMIHeatmapExtensionData
 from tests.conftest import DESKTOP_VERSION
@@ -153,7 +154,10 @@ def test_get_radios(mock_emit_environment):
     extension = EMIHeatmapExtension(withdraw=True)
 
     assert extension._revision == mock_analyze
-    assert extension._domain == mock_domain
+    if DESKTOP_VERSION >= "2027.1":
+        assert isinstance(extension._domain, InteractionDomain)
+    else:
+        assert extension._domain == mock_domain
 
     if DESKTOP_VERSION > "2025.1":
         # New API should be used
@@ -358,8 +362,9 @@ def test_extract_data(mock_emit_environment):
     mock_analyze.get_band_names.return_value = ["Band1"]
     mock_analyze.get_active_frequencies.return_value = [2400.0, 2450.0]
     mock_analyze.run.return_value = mock_interaction
+    mock_analyze.get_simulation.return_value.run.return_value = mock_interaction
     mock_analyze.get_license_session.return_value.__enter__ = MagicMock()
-    mock_analyze.get_license_session.return_value.__exit__ = MagicMock()
+    mock_analyze.get_license_session.return_value.__exit__ = MagicMock(return_value=False)
 
     mock_instance.has_valid_values.return_value = True
     mock_instance.get_value.side_effect = lambda x: -20.0  # EMI, power, etc.
@@ -378,6 +383,8 @@ def test_extract_data(mock_emit_environment):
     extension._victim_band = "Band1"
     extension._aggressor = "TxRadio1"
     extension._aggressor_band = "Band1"
+    # Replace domain with a mock so set_receiver/set_interferer don't hit real code
+    extension._domain = MagicMock()
 
     extension._extract_data()
 

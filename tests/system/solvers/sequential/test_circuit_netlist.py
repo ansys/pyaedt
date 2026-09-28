@@ -23,11 +23,13 @@
 # SOFTWARE.
 
 from pathlib import Path
+import shutil
 
 import pytest
 
 from ansys.aedt.core import CircuitNetlist
 from ansys.aedt.core.generic.general_methods import is_linux
+from tests import TESTS_SEQUENTIAL_PATH
 from tests.conftest import NON_GRAPHICAL
 
 NETLIST = "netlist"
@@ -56,3 +58,17 @@ def test_browse_log_file(netlist_test, test_tmp_dir) -> None:
         netlist_test.save_project()
         assert not netlist_test.browse_log_file(Path(netlist_test.working_directory) / "logfiles")
         assert netlist_test.browse_log_file(netlist_test.working_directory)
+
+
+def test_import_netlist(test_tmp_dir, add_app) -> None:
+    netlist_o = TESTS_SEQUENTIAL_PATH / "example_models" / TEST_SUBFOLDER / "pyaedt_netlist.cir"
+    netlist = shutil.copy2(netlist_o, test_tmp_dir / "pyaedt_netlist.cir")
+    app = add_app(application=CircuitNetlist, project=netlist)
+    app.close_project(app.project_name, save=False)
+
+
+def test_import_netlist_binary(test_tmp_dir, add_app) -> None:
+    netlist_o = TESTS_SEQUENTIAL_PATH / "example_models" / TEST_SUBFOLDER / "top.cir.sdf"
+    netlist = shutil.copy2(netlist_o, test_tmp_dir / "top.cir.sdf")
+    app = add_app(application=CircuitNetlist, project=netlist)
+    app.close_project(app.project_name, save=False)

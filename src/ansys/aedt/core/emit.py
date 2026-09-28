@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import time
 import warnings
 
 from ansys.aedt.core import emit_core
@@ -33,6 +34,7 @@ from ansys.aedt.core.emit_core.emit_constants import emit_unit_type_string_to_en
 from ansys.aedt.core.emit_core.emit_schematic import EmitSchematic
 from ansys.aedt.core.emit_core.results.results import Results
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.modeler.schematic import ModelerEmit
 
 
@@ -169,11 +171,12 @@ class Emit(Design, PyAedtBase):
         self._modeler = ModelerEmit(self)
         self._couplings = CouplingsEmit(self)
         self._schematic = EmitSchematic(self)
-        if self._aedt_version > "2023.1":
+        if self._aedt_version > "2023.1" and self._aedt_version < "2027.1":
             # the next 2 lines of code are needed to point
             # the EMIT object to the correct EmiApiPython
             # module for the current AEDT version
             emit_core._set_api(self.aedt_version_id)
+            emit_core._init_enums(self.aedt_version_id)
             self._emit_api = emit_core.emit_api_python().EmitApi()
             """Instance of the EMIT API."""
 
@@ -181,6 +184,13 @@ class Emit(Design, PyAedtBase):
             """''Result'' object for the selected design."""
 
             self.__emit_api_enabled = True
+        elif self._aedt_version >= "2027.1":
+            self.results = Results(self)
+            """''Result'' object for the selected design."""
+
+        # Throttle delay (ms) between consecutive engine.run() calls.
+        # Non-zero for AEDT <= 26.1 to avoid overwhelming the iemit gRPC server.
+        self._engine_throttle_ms = 50 if self._aedt_version <= "2026.1" else 0
 
     def _init_from_design(self, *args, **kwargs) -> None:
         self.__init__(*args, **kwargs)
@@ -238,6 +248,28 @@ class Emit(Design, PyAedtBase):
 
         """
         return self._schematic
+
+    @property
+    @min_aedt_version("2025.1")
+    def _emit_com_module(self):
+        """Retrieve the EmitCom module from the Emit instance.
+
+        Returns
+        -------
+        object
+            The EmitCom module.
+
+        Raises
+        ------
+        RuntimeError
+            If the EmitCom module cannot be retrieved.
+        """
+        if not hasattr(self, "_odesign"):
+            raise RuntimeError("Emit instance does not have a valid '_odesign' attribute.")
+        try:
+            return self._odesign.GetModule("EmitCom")
+        except Exception as e:
+            raise RuntimeError(f"Failed to retrieve EmitCom module: {e}")
 
     @pyaedt_function_handler()
     def version(self, detailed: bool = False) -> str:
@@ -394,4 +426,28 @@ class Emit(Design, PyAedtBase):
 
         result = Design.save_project(self, file_name, overwrite, refresh_ids)
 
+        return result
+
+    def close_project(self, name: str = None, save: bool = True) -> bool:
+        """Close an AEDT project with a quiesce barrier for EMIT.
+
+        On AEDT <= 26.1, adds a brief delay after closing to allow the iemit
+        subprocess event pipeline to fully drain before a subsequent InsertDesign.
+        This prevents the DesignInstanceBase assertion crash that causes hangs.
+
+        Parameters
+        ----------
+        name : str, optional
+            Name of the project. The default is ``None``.
+        save : bool, optional
+            Whether to save the project before closing. The default is ``True``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        result = Design.close_project(self, name, save)
+        if self._aedt_version <= "2026.1":
+            time.sleep(1.0)
         return result

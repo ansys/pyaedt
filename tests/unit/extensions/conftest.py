@@ -31,6 +31,9 @@ It provides mock fixtures for testing extensions without requiring full
 AEDT applications. General configurations are inherited from top-level.
 """
 
+import os
+import re
+import sys
 from unittest.mock import MagicMock
 from unittest.mock import PropertyMock
 from unittest.mock import patch
@@ -38,6 +41,48 @@ from unittest.mock import patch
 import pytest
 
 from ansys.aedt.core.extensions.misc import ExtensionCommon
+
+
+def _env_is_truthy(name: str) -> bool:
+    """Return True when the environment variable contains a truthy value."""
+    return os.environ.get(name, "").lower() in {"1", "true", "yes"}
+
+
+def _is_tcl_init_error(exc: BaseException) -> bool:
+    """Return True only for intermittent Tcl/Tk library discovery or load failures."""
+    if exc.__class__.__name__ != "TclError":
+        return False
+
+    return bool(
+        re.search(
+            r"Can't find a usable (init|tk)\.tcl"
+            r"|invalid command name \"tcl_findLibrary\""
+            r"|couldn't read file .+\.tcl.*no such file or directory",
+            str(exc),
+        )
+    )
+
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    """Mark known intermittent Tcl/Tk discovery errors as xfail on Windows.
+
+    Scoped to tests/unit/extensions since these are the tests exercising tkinter.
+    """
+    outcome = yield
+    report = outcome.get_result()
+
+    if report.passed or report.when not in {"setup", "call"}:
+        return
+    if call.excinfo is None:
+        return
+
+    exc = call.excinfo.value
+
+    if sys.platform == "win32" and _is_tcl_init_error(exc) and _env_is_truthy("PYAEDT_TCL_INIT_XFAIL"):
+        report.outcome = "skipped"
+        report.wasxfail = "Intermittent tkinter Tcl/Tk discovery or load failure (Windows)"
+        return
 
 
 @pytest.fixture

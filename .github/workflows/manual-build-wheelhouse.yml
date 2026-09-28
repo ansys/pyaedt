@@ -77,7 +77,7 @@ jobs:
 
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse-ubuntu
-        uses: ansys/actions/build-wheelhouse@84b6533ae76f5dde69a1df26c18682160a8121cf # v10.3.5
+        uses: ansys/actions/build-wheelhouse@7410037bfb276c79ae91eb3617b9f5d2876f0c94 # v11.0.8
         with:
           checkout: false
           library-name: ${{ env.PACKAGE_NAME }}
@@ -107,7 +107,7 @@ jobs:
 
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse-ubuntu
-        uses: ansys/actions/build-wheelhouse@84b6533ae76f5dde69a1df26c18682160a8121cf # v10.3.5
+        uses: ansys/actions/build-wheelhouse@7410037bfb276c79ae91eb3617b9f5d2876f0c94 # v11.0.8
         with:
           checkout: false
           library-name: ${{ env.PACKAGE_NAME }}
@@ -141,7 +141,7 @@ jobs:
 
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse-windows
-        uses: ansys/actions/build-wheelhouse@84b6533ae76f5dde69a1df26c18682160a8121cf # v10.3.5
+        uses: ansys/actions/build-wheelhouse@7410037bfb276c79ae91eb3617b9f5d2876f0c94 # v11.0.8
         with:
           checkout: false
           library-name: ${{ env.PACKAGE_NAME }}
@@ -171,7 +171,7 @@ jobs:
 
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse-windows
-        uses: ansys/actions/build-wheelhouse@84b6533ae76f5dde69a1df26c18682160a8121cf # v10.3.5
+        uses: ansys/actions/build-wheelhouse@7410037bfb276c79ae91eb3617b9f5d2876f0c94 # v11.0.8
         with:
           checkout: false
           library-name: ${{ env.PACKAGE_NAME }}
@@ -195,7 +195,7 @@ jobs:
       attestations: write   # Required to create and publish build attestations (SLSA provenance)
       contents: read        # Required to read repository content for building
       id-token: write       # Required for OIDC token generation (for provenance signing)
-    uses: ./.github/workflows/reusable-smoke-tests-rocky.yml
+    uses: $/.github/workflows/reusable-smoke-tests-rocky.yml
     with:
       python-versions: '["3.10", "3.11", "3.12", "3.13", "3.14"]'
       extras: ${{ format('["{0}"]', github.event.inputs.target) }}
@@ -208,7 +208,7 @@ jobs:
       attestations: write   # Required to create and publish build attestations (SLSA provenance)
       contents: read        # Required to read repository content for building
       id-token: write       # Required for OIDC token generation (for provenance signing)
-    uses: ./.github/workflows/reusable-smoke-tests-rocky.yml
+    uses: $/.github/workflows/reusable-smoke-tests-rocky.yml
     with:
       python-versions: ${{ format('["{0}"]', github.event.inputs.python-version) }}
       extras: ${{ format('["{0}"]', github.event.inputs.target) }}

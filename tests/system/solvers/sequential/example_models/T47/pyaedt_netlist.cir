@@ -1,0 +1,23 @@
+*independent voltage source with DC value, AC value, and
+*transient square wave value:
+V1 1 0 1 AC 1 pulse -10 20 0 1.e-8 1.e-8 1e-3 2e-3
+*the square wave defined above has -10V to +20V extent, with
+*a period of 2 milliseconds
+*capacitor for clamping
+C1 1 2 1e-6
+*diode for clamp - model name is dclamp
+D1 2 0 dclamp
+*load resistor - large enought that RC >> 2 ms
+R1 2 0 1e5
+*model for diode
+.model dclamp D(IS=1e-14)
+*DC transfer function generated for this circuit
+.DC V1 -20 20 .1
+*AC frequency sweep - assumes circuit is biased with V1 = 1V
+.AC OCT 20 10 1e2 1e4
+*frequency is swept logarithmically from 100Hz to 10000Hz
+*transient analysis will show clamping
+.TRAN 1e-4 8e-3 0 1e-5
+*start at time zero, go for 8 ms, make internal steps 10 microsec
+*save print data at .1 ms intervals
+*that

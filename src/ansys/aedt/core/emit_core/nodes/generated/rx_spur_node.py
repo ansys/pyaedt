@@ -42,7 +42,13 @@ class RxSpurNode(EmitNode):
 
         Examples
         --------
-        >>> rx_spurs.parent
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> rx_spur = rx_profile.add_spurious_responses()
+        >>> rx_spur.parent
 
         """
         return self._parent
@@ -54,21 +60,45 @@ class RxSpurNode(EmitNode):
 
         Examples
         --------
-        >>> rx_spurs.node_type
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> rx_spur = rx_profile.add_spurious_responses()
+        >>> rx_spur.node_type
 
         """
         return self._node_type
 
     @min_aedt_version("2025.2")
     def import_csv_file(self, file_name: str) -> EmitNode:
-        """Import a CSV File.
+        """Import a CSV File....
+
+        Note: The CSV file should not have any header lines and must contain only numeric values.
 
         Examples
         --------
-        >>> rx_spurs.import_csv_file("C:\\Temp\\rx_spurs.csv")
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> rx_spur = rx_profile.add_spurious_responses()
+        >>> rx_spur.import_csv_file("C:\\EMIT\\data.csv")
 
         """
-        return self._import(file_name, "Csv")
+        return self._import(file_name, "CsvFile")
+
+    @min_aedt_version("2027.1")
+    def export_to_csv(self, file_name: str) -> str:
+        """Export's the data for this node"""
+        return self._export_to_csv(file_name, "", "")
+
+    @min_aedt_version("2027.1")
+    def plot(self):
+        """Bring up a Cartesian plot for this node"""
+        return self._plot("", "")
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
@@ -76,7 +106,13 @@ class RxSpurNode(EmitNode):
 
         Examples
         --------
-        >>> rx_spurs.delete()
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> rx_spur = rx_profile.add_spurious_responses()
+        >>> rx_spur.delete()
 
         """
         self._delete()
@@ -95,7 +131,13 @@ class RxSpurNode(EmitNode):
 
         Examples
         --------
-        >>> rx_spurs.table_data = [("RF+10.0", "50 MHz", -60)]
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> rx_spur = rx_profile.add_spurious_responses()
+        >>> rx_spur.table_data = [(2, 25.0)]
 
         """
         return self._get_table_data()
@@ -112,7 +154,13 @@ class RxSpurNode(EmitNode):
 
         Examples
         --------
-        >>> rx_spurs.enabled = True
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> rx_spur = rx_profile.add_spurious_responses()
+        >>> rx_spur.enabled = True
 
         """
         return self._get_property("Enabled") == "true"
@@ -133,12 +181,20 @@ class RxSpurNode(EmitNode):
 
         Examples
         --------
-        >>> from ansys.aedt.core.emit_core.nodes.generated import RxSpurNode
-        >>> rx_spurs.spur_table_units = RxSpurNode.SpurTableUnitsOption.RELATIVE
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> band = radio.children[0]
+        >>> rx_profile = band.children[1]
+        >>> rx_spur = rx_profile.add_spurious_responses()
+        >>> rx_spur.spur_table_units = RxSpurNode.SpurTableUnitsOption.ABSOLUTE
 
         """
         val = self._get_property("Spur Table Units")
-        val = self.SpurTableUnitsOption[val.upper()]
+        try:
+            val = self.SpurTableUnitsOption(val)
+        except ValueError:
+            val = self.SpurTableUnitsOption[val.upper()]
         return val
 
     @spur_table_units.setter

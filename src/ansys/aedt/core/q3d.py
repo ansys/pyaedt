@@ -1477,7 +1477,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
     def _init_from_design(self, *args, **kwargs) -> None:
         self.__init__(*args, **kwargs)
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     # NOTE: Extend Mixin behaviour to handle em field setups
     def _create_boundary(self, name: str, props, boundary_type):
         # Non em field cases
@@ -2986,6 +2986,9 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
     def export_w_elements(self, export_folder: str | Path | None = None) -> list:
         """Export all W-elements to files.
 
+        .. deprecated:: 1.5.0
+           Use :meth:`export_equivalent_circuit` with file_type=WElement instead.
+
         Parameters
         ----------
         export_folder : str or :class:`pathlib.Path`, optional
@@ -3004,6 +3007,14 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         >>> obj.export_w_elements("C:/Users/UserName/ExportedWElements")
 
         """
+        import warnings
+
+        warnings.warn(
+            "`export_w_elements` is deprecated and will be removed in 1.5.0. "
+            "Use `export_equivalent_circuit` instead with file_type=WElement.",
+            DeprecationWarning,
+        )
+
         exported_files = []
         if not export_folder:
             export_folder = self.working_directory
