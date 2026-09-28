@@ -22,9 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""Standalone reader for pin (port) names in a binary ``.sss`` file.
+"""Standalone reader for pin (port) names in a binary SSS file.
 
-This is a minimal, dependency-free extraction of the ``.sss`` header logic
+This is a minimal, dependency-free extraction of the SSS header logic
 from the XViewer package. It parses only what is needed
 to reach and read the trailing pin-name section, *seeking* past the large
 matrix and vector data blocks instead of reading them off disk -- so only a
@@ -35,13 +35,13 @@ All integers are little-endian.
 
 Source of truth / versioning
 ----------------------------
-This reader is a faithful mirror of the authoritative C++ ``.sss``
+This reader is a faithful mirror of the authoritative C++ SSS
 writer/reader and MUST be kept in lockstep with it: the pin names live at the
 very end of the file and there is no offset table to jump to them, so any
 change to a field *before* the pin section shifts every offset and breaks
 parsing.
 
-This reader targets ``.sss`` format version ``70`` only (see
+This reader targets SSS format version ``70`` only (see
 ``SUPPORTED_VERSION``). A file reporting any other version is rejected with
 :class:`UnsupportedVersionError` rather than returning garbage. When the
 format changes, update the walk in :func:`read_header` and bump
@@ -85,13 +85,13 @@ from dataclasses import dataclass
 from dataclasses import field
 import struct
 
-#: The only ``.sss`` format version this reader understands. Bump this (and
-#: update the byte walk in :func:`read_header`) when the ``.sss`` layout changes.
+#: The only SSS format version this reader understands. Bump this (and
+#: update the byte walk in :func:`read_header`) when the SSS layout changes.
 SUPPORTED_VERSION = 70
 
 
 class UnsupportedVersionError(ValueError):
-    """Raised when a ``.sss`` file's version differs from ``SUPPORTED_VERSION``.
+    """Raised when a SSS file's version differs from ``SUPPORTED_VERSION``.
 
     Subclasses ``ValueError`` so existing ``except ValueError`` handlers still
     catch it.
@@ -99,7 +99,7 @@ class UnsupportedVersionError(ValueError):
 
 
 class _Cursor:
-    """Forward-only cursor over an open ``.sss`` file.
+    """Forward-only cursor over an open SSS file.
 
     Small typed fields are read directly; large data regions are *seeked* past
     with :meth:`skip`, so their bytes are never read off disk -- only the
@@ -158,7 +158,7 @@ class _Cursor:
 
 @dataclass
 class SssHeader:
-    """Lightweight header info extracted from a ``.sss`` file."""
+    """Lightweight header info extracted from a SSS file."""
 
     n_states: int
     version: int
@@ -190,10 +190,10 @@ def _skip_vector(cur: _Cursor) -> None:
 
 
 def read_header(path: str) -> SssHeader:
-    """Parse just the header/pin-name info from a ``.sss`` file.
+    """Parse just the header/pin-name info from a SSS file.
 
     Returns an :class:`SssHeader`. If the file has no pin-name section (an
-    older ``.sss`` layout that still reports version ``70``), ``port_names``
+    older SSS layout that still reports version ``70``), ``port_names``
     is empty.
 
     Raises
@@ -208,7 +208,7 @@ def read_header(path: str) -> SssHeader:
 
 
 def _parse_header(cur: _Cursor) -> SssHeader:
-    """Walk an open ``.sss`` cursor and return its :class:`SssHeader`."""
+    """Walk an open SSS cursor and return its :class:`SssHeader`."""
     # --- A matrix (sparse CSR): skip row_starts, col_indices, data ------
     n_row_starts = cur.u32()
     cur.skip(4 * n_row_starts)
@@ -290,8 +290,8 @@ def _parse_header(cur: _Cursor) -> SssHeader:
 
 
 def read_pin_names(path: str) -> list[str]:
-    """Return the list of pin (port) names stored in a ``.sss`` file.
+    """Return the list of pin (port) names stored in a SSS file.
 
-    Empty if the file has no pin-name section (older ``.sss`` layout).
+    Empty if the file has no pin-name section (older SSS layout).
     """
     return read_header(path).port_names
