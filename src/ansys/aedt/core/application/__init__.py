@@ -28,7 +28,21 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 
 def _has_get_obj_data(child_object) -> bool:
-    """Return whether an AEDT child object supports ``GetObjData``."""
+    """Return whether an AEDT child object supports ``GetObjData``. This is available from 2026 R1 onwards.
+
+    Returns
+    -------
+    bool
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Hfss
+    >>> from ansys.aedt.core.application import _has_get_obj_data
+    >>> hfss = Hfss()
+    >>> boundaries = hfss.get_oo_object(hfss.odesign, "Boundaries")
+    >>> has_obj_data = _has_get_obj_data(boundaries)
+
+    """
     if child_object is None:
         return False
     try:
@@ -38,7 +52,22 @@ def _has_get_obj_data(child_object) -> bool:
 
 
 @pyaedt_function_handler()
-def _get_data_model(child_object, level=0):
+def _get_data_model(child_object, level=0) -> dict:
+    """Return the data model for an AEDT child object.
+
+    Returns
+    -------
+    dict
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Hfss
+    >>> from ansys.aedt.core.application import _get_data_model
+    >>> hfss = Hfss()
+    >>> boundaries = hfss.get_oo_object(hfss.odesign, "Boundaries")
+    >>> has_obj_data = _get_data_model(boundaries)
+
+    """
     import json
 
     def _fix_dict(p_list, p_out) -> None:
@@ -80,7 +109,22 @@ def _get_data_model(child_object, level=0):
 
 
 @pyaedt_function_handler()
-def _get_obj_data(child_object):
+def _get_obj_data(child_object) -> dict:
+    """Return the object data for an AEDT child object. This is available from 2026 R1 onwards.
+
+    Returns
+    -------
+    dict
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Hfss
+    >>> from ansys.aedt.core.application import _get_obj_data
+    >>> hfss = Hfss()
+    >>> boundaries = hfss.get_oo_object(hfss.odesign, "Boundaries")
+    >>> has_obj_data = _get_obj_data(boundaries)
+
+    """
     if not child_object:
         return {}
     import json
