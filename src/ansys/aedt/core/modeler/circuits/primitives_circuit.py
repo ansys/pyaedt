@@ -966,7 +966,7 @@ class CircuitComponents(PyAedtBase):
                 if num_terminal:  # pragma: no cover
                     port_names = [str(i + 1) for i in range(num_terminal)]
                 else:  # pragma: no cover
-                    raise ValueError("sss format unsupported. Port names and number of terminal has to be provided")
+                    raise ValueError("sss format unsupported. Port names and number of terminal has to be provided.")
         arg = [
             "NAME:" + model_name,
             "Name:=",
