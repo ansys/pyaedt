@@ -94,9 +94,10 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         if not self.__props or has_obj_data:
             if has_obj_data:
                 props = _get_obj_data(self._child_object)
-                if props:
+                if props and len(props) > 1:
                     self.__props = BoundaryProps(self, props)
-            elif self._app.design_properties:
+                    return self.__props
+            if self._app.design_properties:
                 if (
                     self.type == "FarFieldSphere"
                     and self._app.design_properties.get("RadField")
