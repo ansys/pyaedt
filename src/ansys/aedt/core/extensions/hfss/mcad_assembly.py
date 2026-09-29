@@ -330,7 +330,7 @@ class Component(BaseModel):
         for i in self.arranges:
             if i.operation == "rotate":
                 self.__rotate_index += 1
-                axis = i.axis or "X"
+                axis = i.axis or "Z"
                 angle = i.angle or "0deg"
                 hfss.modeler.rotate(self.name, getattr(Axis, axis), angle)
                 hfss.modeler.oeditor.ChangeProperty(
@@ -417,7 +417,7 @@ class Component(BaseModel):
                 angle_rad = np.arctan2(dy, dx)
             else:
                 angle_rad = 0
-            self.arranges.append(Arrange(operation="rotate", axis="X", angle=f"{-np.degrees(angle_rad):.0f}deg"))
+            self.arranges.append(Arrange(operation="rotate", axis="Z", angle=f"{-np.degrees(angle_rad):.0f}deg"))
 
             comp_cs = pin_mapping_info
 
