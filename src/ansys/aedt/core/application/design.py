@@ -269,7 +269,7 @@ class Design(AedtObjects, PyAedtBase):
         self._logger.oproject = self.oproject
         self._logger.odesign = self.odesign
         AedtObjects.__init__(self, self._desktop_class, self.oproject, self.odesign, is_inherithed=True)
-        self.logger.info("AEDT objects correctly read")
+        self.logger.info("AEDT API correctly parsed for selected design")
         if is_windows and not self.__t and not settings.lazy_load and Path(self.project_file).exists():
             self.__t = threading.Thread(target=load_aedt_thread, args=(self.project_file,), daemon=True)
             self.__t.start()

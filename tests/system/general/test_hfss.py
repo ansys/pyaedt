@@ -1847,8 +1847,8 @@ def test_create_lumped_ports_on_object_driven_terminal(aedt_app) -> None:
     assert term.type == "Terminal"
     term.name = "test"
     assert term.name == "test"
-    term.props["TerminalResistance"] = "1ohm"
-    assert term.props["TerminalResistance"] == "1ohm"
+    term.props["Resistance"] = "1ohm"
+    assert term.props["Resistance"] == "1ohm"
     with pytest.raises(AEDTRuntimeError, match="Symmetry is only available with 'Modal' solution type."):
         aedt_app.set_impedance_multiplier(2)
 
