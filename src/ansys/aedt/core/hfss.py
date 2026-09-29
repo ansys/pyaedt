@@ -531,64 +531,36 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         ports = list(self.oboundary.GetExcitationsOfType("Terminal"))
         boundary = self._create_boundary(port_name, props, "AutoIdentify")
         if boundary:
+            properties = [
+                "NAME:AllTabs",
+                [
+                    "NAME:HfssTab",
+                    ["NAME:PropServers", "BoundarySetup:" + boundary.name],
+                    [
+                        "NAME:ChangedProps",
+                        ["NAME:Renorm All Terminals", "Value:=", renorm],
+                    ],
+                ],
+            ]
+            try:
+                self.odesign.ChangeProperty(properties)
+            except Exception:  # pragma: no cover
+                self.logger.warning("Failed to change normalization.")
+
             new_ports = list(self.oboundary.GetExcitationsOfType("Terminal"))
             terminals = [i for i in new_ports if i not in ports]
             for count, terminal in enumerate(terminals, start=1):
-                props_terminal = {}
-                props_terminal["TerminalResistance"] = "50ohm"
-                props_terminal["ParentBndID"] = boundary.name
-                terminal_name = terminal
+                bound = BoundaryObject(self, terminal, props={"ParentBndID": boundary.name}, boundarytype="Terminal")
+                bound.props["ImpedanceType"] = "Impedance"
+                bound.props["ImpedanceType"] = "RLC"
 
                 if impedance:
-                    props_terminal["TerminalResistance"] = str(impedance) + "ohm"
-                    properties = [
-                        "NAME:AllTabs",
-                        [
-                            "NAME:HfssTab",
-                            ["NAME:PropServers", "BoundarySetup:" + terminal],
-                            [
-                                "NAME:ChangedProps",
-                                ["NAME:Terminal Renormalizing Impedance", "Value:=", str(impedance) + "ohm"],
-                            ],
-                        ],
-                    ]
-                    try:
-                        self.odesign.ChangeProperty(properties)
-                    except Exception:  # pragma: no cover
-                        self.logger.warning("Failed to change terminal impedance.")
-                if not renorm:
-                    properties = [
-                        "NAME:AllTabs",
-                        [
-                            "NAME:HfssTab",
-                            ["NAME:PropServers", "BoundarySetup:" + boundary.name],
-                            [
-                                "NAME:ChangedProps",
-                                ["NAME:Renorm All Terminals", "Value:=", False],
-                            ],
-                        ],
-                    ]
-                    try:
-                        self.odesign.ChangeProperty(properties)
-                    except Exception:  # pragma: no cover
-                        self.logger.warning("Failed to change normalization.")
+                    bound.props["Resistance"] = str(impedance) + "ohm"
+
                 if terminals_rename:
-                    new_name = port_name + "_T" + str(count)
-                    terminal_name = new_name
-                    properties = [
-                        "NAME:AllTabs",
-                        [
-                            "NAME:HfssTab",
-                            ["NAME:PropServers", "BoundarySetup:" + terminal],
-                            ["NAME:ChangedProps", ["NAME:Name", "Value:=", new_name]],
-                        ],
-                    ]
-                    try:
-                        self.odesign.ChangeProperty(properties)
-                    except Exception:  # pragma: no cover
-                        self.logger.warning(f"Failed to rename terminal {terminal}.")
-                bound = BoundaryObject(self, terminal_name, props_terminal, "Terminal")
-                self._boundaries[terminal_name] = bound
+                    bound.name = port_name + "_T" + str(count)
+
+                self._boundaries[bound.name] = bound
 
             if iswaveport:
                 boundary.type = "Wave Port"
