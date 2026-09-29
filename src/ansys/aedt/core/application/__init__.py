@@ -177,6 +177,10 @@ def _get_obj_data(child_object) -> dict:
     obj_data = child_object.GetObjData()
 
     data = json.loads(obj_data)
+
+    if not obj_data:
+        return {}
+
     result = {}
 
     data_2 = data.get("data_2", [])

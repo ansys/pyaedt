@@ -22,8 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from ansys.aedt.core.application import _get_obj_data
-from ansys.aedt.core.application import _has_get_obj_data
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -90,13 +88,15 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         >>> obj.props
 
         """
-        has_obj_data = _has_get_obj_data(self._child_object)
+        # TODO: Radiation and EM Fields are not compatible with GetObjData yet
+        # has_obj_data = _has_get_obj_data(self._child_object)
+        has_obj_data = False
         if not self.__props or has_obj_data:
-            if has_obj_data:
-                props = _get_obj_data(self._child_object)
-                if props and len(props) > 1:
-                    self.__props = BoundaryProps(self, props)
-                    return self.__props
+            # if has_obj_data:
+            #     props = _get_obj_data(self._child_object)
+            #     if props and len(props) > 1:
+            #         self.__props = BoundaryProps(self, props)
+            #         return self.__props
             if self._app.design_properties:
                 if (
                     self.type == "FarFieldSphere"

@@ -1272,7 +1272,6 @@ def test_autoassign_pairs(aedt_app) -> None:
 
 
 def test_create_infinite_sphere(aedt_app) -> None:
-    aedt_app.insert_design("InfSphere")
     air = aedt_app.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", material="vacuum")
     aedt_app.assign_radiation_boundary_to_objects(air)
     bound = aedt_app.insert_infinite_sphere(
