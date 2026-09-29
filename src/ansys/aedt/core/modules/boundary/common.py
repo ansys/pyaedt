@@ -43,6 +43,9 @@ from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
 class BoundaryProps(dict):
     """AEDT Boundary Component Internal Parameters.
 
+    Nested dictionaries are wrapped as ``BoundaryProps`` so that
+    ``props["a"]["b"]["c"] = value`` still updates the full property tree.
+
     Examples
     --------
     >>> from ansys.aedt.core.modules.boundary.common import BoundaryProps
@@ -52,7 +55,7 @@ class BoundaryProps(dict):
 
     def __setitem__(self, key, value):
         if isinstance(value, dict):
-            dict.__setitem__(self, key, BoundaryProps(self._pyaedt_boundary, value))
+            dict.__setitem__(self, key, BoundaryProps(self._pyaedt_boundary, value, parent=self._root()))
         else:
             value = _units_assignment(value)
             dict.__setitem__(self, key, value)
@@ -61,27 +64,33 @@ class BoundaryProps(dict):
             if key in ["Edges", "Faces", "Objects"]:
                 res = self._pyaedt_boundary.update_assignment()
             else:
-                res = self._pyaedt_boundary.update(self)
+                res = self._pyaedt_boundary.update(self._root())
             if not res:
                 self._pyaedt_boundary._app.logger.warning("Update of %s Failed. Check needed arguments", key)
 
-    def __init__(self, boundary, props) -> None:
+    def __init__(self, boundary, props, parent=None) -> None:
         dict.__init__(self)
+        self._pyaedt_boundary = boundary
+        self._pyaedt_parent = parent
         if props:
             for key, value in props.items():
                 if isinstance(value, dict):
-                    dict.__setitem__(self, key, BoundaryProps(boundary, value))
+                    dict.__setitem__(self, key, BoundaryProps(boundary, value, parent=self._root()))
                 elif isinstance(value, list):
                     list_els = []
                     for el in value:
                         if isinstance(el, dict):
-                            list_els.append(BoundaryProps(boundary, el))
+                            list_els.append(BoundaryProps(boundary, el, parent=self._root()))
                         else:
                             list_els.append(el)
                     dict.__setitem__(self, key, list_els)
                 else:
                     dict.__setitem__(self, key, value)
-        self._pyaedt_boundary = boundary
+
+    def _root(self):
+        """Return the top-level ``BoundaryProps`` for this tree."""
+        parent = getattr(self, "_pyaedt_parent", None)
+        return parent if parent is not None else self
 
     def _setitem_without_update(self, key, value):
         dict.__setitem__(self, key, value)
