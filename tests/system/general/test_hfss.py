@@ -228,7 +228,11 @@ def test_create_wave_port_from_sheets_modal(aedt_app):
     )
     assert port.name == "sheet2_Port"
     assert port.name in [i.name for i in aedt_app.boundaries]
-    assert port.props["RenormalizeAllTerminals"] is True
+
+    assert port.props["NumModes"] == 2
+    assert port.props["DoDeembed"]
+    assert port.props["DeembedDist"] == "5mm"
+    assert port.props["Modes"]["Mode1"]["RefImp"] == "40ohm"
 
     aedt_app.modeler.create_box([20, 20, 20], [10, 10, 2], name="My_Box", material="Copper")
     aedt_app.modeler.create_box([20, 25, 30], [10, 2, 2], material="Copper")
@@ -243,6 +247,17 @@ def test_create_wave_port_from_sheets_modal(aedt_app):
         deembed=5,
     )
     assert port3.name in [i.name for i in aedt_app.boundaries]
+    assert port3.props["NumModes"] == 1
+    assert port3.props["DoDeembed"]
+    assert port3.props["DeembedDist"] == "5mm"
+    assert port3.props["Modes"]["Mode1"]["RefImp"] == "0ohm"
+
+    # current_modes = port3.props["Modes"]
+    # current_modes["Mode1"]["RefImp"] = "30ohm"
+    # port3.props["Modes"] = current_modes
+    # assert port3.props["Modes"]["Mode1"]["RefImp"] == "30ohm"
+
+    port3.props["Modes"]["Mode1"]["RefImp"] = "10ohm"
 
 
 def test_create_linear_count_sweep(aedt_app) -> None:

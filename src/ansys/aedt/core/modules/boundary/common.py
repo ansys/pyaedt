@@ -51,8 +51,12 @@ class BoundaryProps(dict):
     """
 
     def __setitem__(self, key, value):
-        value = _units_assignment(value)
-        dict.__setitem__(self, key, value)
+        if isinstance(value, dict):
+            dict.__setitem__(self, key, BoundaryProps(self._pyaedt_boundary, value))
+        else:
+            value = _units_assignment(value)
+            dict.__setitem__(self, key, value)
+
         if self._pyaedt_boundary.auto_update:
             if key in ["Edges", "Faces", "Objects"]:
                 res = self._pyaedt_boundary.update_assignment()
