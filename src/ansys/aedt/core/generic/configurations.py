@@ -2772,7 +2772,7 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                     elif component_type == "nexxim state space":
                         new_comp = self._app.modeler.schematic.create_nexxim_state_space_component(
                             value["file_path"],
-                            value["num_terminals"],
+                            value.get("num_terminals", 0),
                             location=j["position"],
                             angle=j["angle"],
                             port_names=value.get("pin_names", []),
