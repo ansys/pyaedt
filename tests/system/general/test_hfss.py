@@ -254,16 +254,16 @@ def test_create_wave_port_from_sheets_modal(aedt_app):
     assert port3.props["DoDeembed"]
     assert port3.props["DeembedDist"] == "5mm"
     if DESKTOP_VERSION >= "2027.1":
-        assert port.props["Modes"]["Mode1"]["RefImp"] == "0ohm"
+        assert port3.props["Modes"]["Mode1"]["RefImp"] == "0ohm"
     else:
-        assert port.props["Modes"]["Mode1"]["RenormImp"] == "0ohm"
+        assert "RenormImp" not in port3.props["Modes"]["Mode1"]
 
-    # current_modes = port3.props["Modes"]
-    # current_modes["Mode1"]["RefImp"] = "30ohm"
-    # port3.props["Modes"] = current_modes
-    # assert port3.props["Modes"]["Mode1"]["RefImp"] == "30ohm"
-
-    port3.props["Modes"]["Mode1"]["RefImp"] = "10ohm"
+    if DESKTOP_VERSION >= "2027.1":
+        port3.props["Modes"]["Mode1"]["RefImp"] = "10ohm"
+        assert port3.props["Modes"]["Mode1"]["RefImp"] == "10ohm"
+    else:
+        port3.props["Modes"]["Mode1"]["RenormImp"] = "10ohm"
+        assert port3.props["Modes"]["Mode1"]["RenormImp"] == "10ohm"
 
 
 def test_create_linear_count_sweep(aedt_app) -> None:
