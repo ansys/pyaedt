@@ -375,6 +375,7 @@ class Component(BaseModel):
                 continue
             for comp in comp_def.components:
                 a3d_comp = self.add_sub_mcad_component(name=comp, model=name_def)
+                a3d_comp.password = models[name_def].get("password")
                 a3d_comp.use_pin_mapping = True
                 a3d_comp.placement_pin_mapping.reference_designator = comp
                 a3d_comp.placement_pin_mapping.pin_1_loc = models[name_def].get("pin_1_loc")
