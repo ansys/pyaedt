@@ -264,7 +264,7 @@ class NativeComponentObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def update(self) -> bool:
+    def update(self, properties: dict = None) -> bool:
         """Update the Native Component in AEDT.
 
         Returns
@@ -279,24 +279,25 @@ class NativeComponentObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         >>> obj.update()
 
         """
-        self.update_props = {}
-        self.update_props["DefinitionName"] = self.props["SubmodelDefinitionName"]
-        self.update_props["GeometryDefinitionParameters"] = self.props["GeometryDefinitionParameters"]
-        self.update_props["DesignDefinitionParameters"] = self.props["DesignDefinitionParameters"]
-        self.update_props["MaterialDefinitionParameters"] = self.props["MaterialDefinitionParameters"]
-        self.update_props["NextUniqueID"] = self.props["NextUniqueID"]
-        self.update_props["MoveBackwards"] = self.props["MoveBackwards"]
-        self.update_props["DatasetType"] = self.props["DatasetType"]
-        self.update_props["DatasetDefinitions"] = self.props["DatasetDefinitions"]
-        self.update_props["NativeComponentDefinitionProvider"] = self.props["NativeComponentDefinitionProvider"]
-        self.update_props["ComponentName"] = self.props["BasicComponentInfo"]["ComponentName"]
-        self.update_props["Company"] = self.props["BasicComponentInfo"]["Company"]
-        self.update_props["Model Number"] = self.props["BasicComponentInfo"]["Model Number"]
-        self.update_props["Help URL"] = self.props["BasicComponentInfo"]["Help URL"]
-        self.update_props["Version"] = self.props["BasicComponentInfo"]["Version"]
-        self.update_props["Notes"] = self.props["BasicComponentInfo"]["Notes"]
-        self.update_props["IconType"] = self.props["BasicComponentInfo"]["IconType"]
-        self._app.modeler.oeditor.EditNativeComponentDefinition(self._get_args(self.update_props))
+        if not properties:
+            properties = {}
+            properties["DefinitionName"] = self.props["SubmodelDefinitionName"]
+            properties["GeometryDefinitionParameters"] = self.props["GeometryDefinitionParameters"]
+            properties["DesignDefinitionParameters"] = self.props["DesignDefinitionParameters"]
+            properties["MaterialDefinitionParameters"] = self.props["MaterialDefinitionParameters"]
+            properties["NextUniqueID"] = self.props["NextUniqueID"]
+            properties["MoveBackwards"] = self.props["MoveBackwards"]
+            properties["DatasetType"] = self.props["DatasetType"]
+            properties["DatasetDefinitions"] = self.props["DatasetDefinitions"]
+            properties["NativeComponentDefinitionProvider"] = self.props["NativeComponentDefinitionProvider"]
+            properties["ComponentName"] = self.props["BasicComponentInfo"]["ComponentName"]
+            properties["Company"] = self.props["BasicComponentInfo"]["Company"]
+            properties["Model Number"] = self.props["BasicComponentInfo"]["Model Number"]
+            properties["Help URL"] = self.props["BasicComponentInfo"]["Help URL"]
+            properties["Version"] = self.props["BasicComponentInfo"]["Version"]
+            properties["Notes"] = self.props["BasicComponentInfo"]["Notes"]
+            properties["IconType"] = self.props["BasicComponentInfo"]["IconType"]
+        self._app.modeler.oeditor.EditNativeComponentDefinition(self._get_args(properties))
 
         return True
 
@@ -459,7 +460,7 @@ class BoundaryObject3dLayout(BoundaryCommon, BinaryTreeNode, PyAedtBase):
             self.__props = BoundaryProps(self, props)
 
     @pyaedt_function_handler()
-    def update(self) -> bool:
+    def update(self, properties: dict = None) -> bool:
         """Update the boundary.
 
         Returns

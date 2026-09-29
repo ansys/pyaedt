@@ -129,6 +129,24 @@ def _get_obj_data(child_object) -> dict:
         return {}
     import json
 
+    def _accumulate_parsed_entry(target, parsed) -> None:
+        """Merge a parsed node into ``target``, collating repeated dict keys into lists.
+
+        Repeated blocks such as two ``SweepDefinition`` entries become a list of
+        dictionaries instead of the second entry overwriting the first.
+        """
+        if not isinstance(parsed, dict):
+            return
+        for key, value in parsed.items():
+            if key not in target:
+                target[key] = value
+            elif isinstance(value, dict) and isinstance(target[key], dict):
+                target[key] = [target[key], value]
+            elif isinstance(value, dict) and isinstance(target[key], list):
+                target[key].append(value)
+            else:
+                target[key] = value
+
     def _obj_data_parser(node):
 
         # Primitive values can occur directly in a named node's "values" list.
@@ -161,18 +179,11 @@ def _get_obj_data(child_object) -> dict:
 
             for child in parsed_children:
                 if isinstance(child, dict):
-                    for k, v in child.items():
-                        if k in result:
-                            if not isinstance(result[k], list):
-                                result[k] = [result[k]]
-                            result[k].append(v)
-                        else:
-                            result[k] = v
+                    _accumulate_parsed_entry(result, child)
                 else:
                     return {name: parsed_children}
 
             return {name: result}
-            # return result
 
     obj_data = child_object.GetObjData()
 
@@ -213,6 +224,6 @@ def _get_obj_data(child_object) -> dict:
     if "Type" in dir(child_object):
         result["Type"] = child_object.Type
     for item in values:
-        result.update(_obj_data_parser(item))
+        _accumulate_parsed_entry(result, _obj_data_parser(item))
 
     return result

@@ -1237,25 +1237,31 @@ class SetupProps(dict):
 
     def __setitem__(self, key, value):
         if isinstance(value, dict):
-            dict.__setitem__(self, key, SetupProps(self._pyaedt_setup, value))
+            dict.__setitem__(self, key, SetupProps(self._pyaedt_setup, value, parent=self._root()))
         else:
             value = _units_assignment(value)
             dict.__setitem__(self, key, value)
 
         if self._pyaedt_setup.auto_update:
-            res = self._pyaedt_setup.update(self)
+            res = self._pyaedt_setup.update(self._root())
             if not res:
                 self._pyaedt_setup._app.logger.warning("Update of %s failed. Check needed arguments", key)
 
-    def __init__(self, setup, props) -> None:
+    def __init__(self, setup, props, parent=None) -> None:
         dict.__init__(self)
+        self._pyaedt_parent = parent
         if props:
             for key, value in props.items():
                 if isinstance(value, dict):
-                    dict.__setitem__(self, key, SetupProps(setup, value))
+                    dict.__setitem__(self, key, SetupProps(setup, value, parent=self._root()))
                 else:
                     dict.__setitem__(self, key, value)
         self._pyaedt_setup = setup
+
+    def _root(self):
+        """Return the top-level ``BoundaryProps`` for this tree."""
+        parent = getattr(self, "_pyaedt_parent", None)
+        return parent if parent is not None else self
 
     def _setitem_without_update(self, key, value):
         dict.__setitem__(self, key, value)

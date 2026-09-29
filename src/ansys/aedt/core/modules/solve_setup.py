@@ -1509,10 +1509,10 @@ class SetupCircuit(CommonSetup):
         legacy_update = self.auto_update
         self.auto_update = False
         if properties:
-            for el in properties:
-                self.props[el] = properties[el]
+            arg = self._setup_dict_to_arg(name="SimSetup", props=properties)
+        else:
+            arg = self._setup_dict_to_arg()
         soltype = SetupKeys.SetupNames[self.setuptype]
-        arg = self._setup_dict_to_arg(name="SimSetup")
         self._setup(soltype, arg, False)
         self.auto_update = legacy_update
         return True
@@ -1728,11 +1728,13 @@ class SetupCircuit(CommonSetup):
             else:
                 self.props["SweepDefinition"]["Data"] += " " + equation
             return self.update()
-        if isinstance(self.props["SweepDefinition"], dict):
-            self.props["SweepDefinition"] = [self.props["SweepDefinition"]]
         prop = {"Variable": sweep_variable, "Data": equation, "OffsetF1": False, "Synchronize": 0}
-        self.props["SweepDefinition"].append(prop)
-        return self.update()
+        sw = self.props["SweepDefinition"]
+        if isinstance(sw, list):
+            self.props["SweepDefinition"] = sw + [prop]
+        else:
+            self.props["SweepDefinition"] = [dict(sw)] + [prop]
+        return True
 
     @pyaedt_function_handler()
     def _expression_cache(

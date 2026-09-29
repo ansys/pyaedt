@@ -180,7 +180,7 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def update(self) -> bool:
+    def update(self, properties: dict = None) -> bool:
         """Update the Field Setup in AEDT.
 
         Returns
@@ -196,19 +196,19 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
         """
         if self.type == "FarFieldSphere":
-            self._app.oradfield.EditInfiniteSphereSetup(self.name, self._get_args())
+            self._app.oradfield.EditInfiniteSphereSetup(self.name, self._get_args(properties))
         elif self.type == "NearFieldBox":
-            self._app.oradfield.EditBoxSetup(self.name, self._get_args())
+            self._app.oradfield.EditBoxSetup(self.name, self._get_args(properties))
         elif self.type == "NearFieldSphere":
-            self._app.oradfield.EditSphereSetup(self.name, self._get_args())
+            self._app.oradfield.EditSphereSetup(self.name, self._get_args(properties))
         elif self.type == "NearFieldRectangle":
-            self._app.oradfield.EditRectangleSetup(self.name, self._get_args())
+            self._app.oradfield.EditRectangleSetup(self.name, self._get_args(properties))
         elif self.type == "NearFieldLine":
-            self._app.oradfield.EditLineSetup(self.name, self._get_args())
+            self._app.oradfield.EditLineSetup(self.name, self._get_args(properties))
         elif self.type == "AntennaOverlay":
-            self._app.oradfield.EditAntennaOverlay(self.name, self._get_args())
+            self._app.oradfield.EditAntennaOverlay(self.name, self._get_args(properties))
         elif self.type == "FieldSourceGroup":
-            self._app.oradfield.EditRadFieldSourceGroup(self._get_args())
+            self._app.oradfield.EditRadFieldSourceGroup(self._get_args(properties))
         return True
 
     @pyaedt_function_handler()
