@@ -16,3 +16,10 @@ EMIT extensions
             :margin: 2 2 0 0
 
             Generate a 2D heat map of EMI results between two radio bands.
+
+   .. grid-item-card:: STK Pose Player
+            :link: stk_pose_player
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Replay the position and orientation timeline logged by the EMIT-STK plugin.

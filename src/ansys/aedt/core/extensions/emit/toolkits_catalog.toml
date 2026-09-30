@@ -13,3 +13,11 @@ script = "emi_heat_map.py"
 optional = true
 template = "run_pyaedt_toolkit_script"
 url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/emit/emi_heat_map.html"
+
+[StkPosePlayer]
+icon = "images/large/stk_pose_player.png"
+name = "STK Pose Player"
+script = "stk_pose_player.py"
+optional = true
+template = "run_pyaedt_toolkit_script"
+url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/emit/stk_pose_player.html"

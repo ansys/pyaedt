@@ -306,6 +306,14 @@ They are small automated workflows with a simple GUI.
             :margin: 2 2 0 0
 
             Generate a 2D heat map of EMI results between two radio bands.
+
+   .. grid-item-card:: STK Pose Player
+            :link: pyaedt_extensions_doc/emit/stk_pose_player
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Replay the position and orientation timeline logged by the EMIT-STK plugin.
+
 Templates
 ~~~~~~~~~
 Templates to show how to build an extension consisting of a small automated workflow with a simple UI.
