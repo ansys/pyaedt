@@ -3590,7 +3590,6 @@ class SetupHFSS(Setup, PyAedtBase):
         if self.setuptype != 1 or self._app.solution_type not in ["Modal", "Terminal"]:
             self._app.logger.error("Method applies only to HFSS-driven solutions.")
             return False
-        self.auto_update = False
         self.props["SolveType"] = "Single"
         if isinstance(freq, (int, float)):
             freq = f"{freq}GHz"
@@ -3600,8 +3599,7 @@ class SetupHFSS(Setup, PyAedtBase):
             self.props["MaximumPasses"] = max_passes
         if max_delta_s:
             self.props["MaxDeltaS"] = max_delta_s
-        self.auto_update = True
-        return self.update()
+        return True
 
     @pyaedt_function_handler()
     def enable_adaptive_setup_broadband(
@@ -3641,20 +3639,19 @@ class SetupHFSS(Setup, PyAedtBase):
         if self.setuptype != 1 or self._app.solution_type not in ["Modal", "Terminal"]:
             self._app.logger.error("Method applies only to HFSS-driven solutions.")
             return False
-        self.auto_update = False
         self.props["SolveType"] = "BroadBand"
-        for el in list(self.props["MultipleAdaptiveFreqsSetup"].keys()):
-            del self.props["MultipleAdaptiveFreqsSetup"][el]
+        broad = {}
+
         if isinstance(low_frequency, (int, float)):
             low_frequency = f"{low_frequency}GHz"
         if isinstance(high_frequency, (int, float)):
             high_frequency = f"{high_frequency}GHz"
-        self.props["MultipleAdaptiveFreqsSetup"]["Low"] = low_frequency
-        self.props["MultipleAdaptiveFreqsSetup"]["High"] = high_frequency
+        broad["Low"] = low_frequency
+        broad["High"] = high_frequency
+        self.props["MultipleAdaptiveFreqsSetup"] = broad
         self.props["MaximumPasses"] = max_passes
         self.props["MaxDeltaS"] = max_delta_s
-        self.auto_update = True
-        return self.update()
+        return True
 
     @pyaedt_function_handler()
     def enable_adaptive_setup_multifrequency(self, frequencies: list, max_delta_s: float = 0.02) -> bool:
@@ -3684,30 +3681,26 @@ class SetupHFSS(Setup, PyAedtBase):
         if self.setuptype != 1 or self._app.solution_type not in ["Modal", "Terminal"]:
             self._app.logger.error("Method applies only to HFSS-driven solutions.")
             return False
-        self.auto_update = False
         self.props["SolveType"] = "MultiFrequency"
+        multi = {}
         # props["MultipleAdaptiveFreqsSetup"] could potentially be nonexistent.
         # A known case is the setup automatically created by setting auto-open region.
-        if "MultipleAdaptiveFreqsSetup" not in self.props:  # pragma no cover
-            self.props["MultipleAdaptiveFreqsSetup"] = {}
-        for el in list(self.props["MultipleAdaptiveFreqsSetup"].keys()):
-            del self.props["MultipleAdaptiveFreqsSetup"][el]
         i = 0
         for f in frequencies:
             if isinstance(max_delta_s, float):
                 if isinstance(f, (int, float)):
                     f = f"{f}GHz"
-                self.props["MultipleAdaptiveFreqsSetup"][f] = [max_delta_s]
+                multi[f] = [max_delta_s]
             else:
                 if isinstance(f, (int, float)):
                     f = f"{f}GHz"
                 try:
-                    self.props["MultipleAdaptiveFreqsSetup"][f] = [max_delta_s[i]]
+                    multi[f] = [max_delta_s[i]]
                 except IndexError:
-                    self.props["MultipleAdaptiveFreqsSetup"][f] = [0.02]
+                    multi[f] = [0.02]
             i += 1
-        self.auto_update = True
-        return self.update()
+        self.props["MultipleAdaptiveFreqsSetup"] = multi
+        return True
 
     @pyaedt_function_handler()
     def use_matrix_convergence(

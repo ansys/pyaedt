@@ -1741,7 +1741,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             setup_type = SetupKeys.SetupNames.index(setup_type)
         name = self.generate_unique_setup_name(name)
         setup = self._create_setup(name=name, setup_type=setup_type)
-
+        if "MultipleAdaptiveFreqsSetup" in kwargs:
+            setup.enable_adaptive_setup_multifrequency(kwargs["MultipleAdaptiveFreqsSetup"])
+            del kwargs["MultipleAdaptiveFreqsSetup"]
+        elif "Frequency" in kwargs and isinstance(kwargs["Frequency"], list):
+            setup.enable_adaptive_setup_multifrequency(kwargs["Frequency"])
+            del kwargs["Frequency"]
         for arg_name, arg_value in kwargs.items():
             setup.props[arg_name] = arg_value
         return setup

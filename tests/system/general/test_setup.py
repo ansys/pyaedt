@@ -56,7 +56,8 @@ def test_create_hfss_setup(aedtapp) -> None:
     setup1["SaveRadFieldsonly"] = True
     assert setup1.props["SaveRadFieldsOnly"] == setup1["SaveRadFieldsonly"]
     assert setup1.enable_adaptive_setup_multifrequency([1, 2, 3])
-    assert setup1.props["MultipleAdaptiveFreqsSetup"]["1GHz"][0] == 0.02
+    assert setup1.props["MultipleAdaptiveFreqsSetup"]["AdaptAt"][0]["Delta"] == 0.02
+    assert setup1.props["MultipleAdaptiveFreqsSetup"]["AdaptAt"][0]["Frequency"] == "1GHz"
     assert setup1.enable_adaptive_setup_broadband(1, 2.5, 10, 0.01)
     assert setup1.props["MultipleAdaptiveFreqsSetup"]["Low"] == "1GHz"
     assert setup1.props["MaximumPasses"] == 10
