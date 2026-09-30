@@ -39,7 +39,7 @@ Examples
 from __future__ import annotations
 
 import ast
-import os
+from pathlib import Path
 import re
 import types
 from typing import Any
@@ -151,18 +151,18 @@ class CSVDataset(PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core.application.variables import CSVDataset
-        >>> dataset = CSVDataset("C:\\Users\\user\\Documents\\results.csv")
+        >>> dataset = CSVDataset(r"C:\\Users\\user\\Documents\\results.csv")
         >>> dataset.path
 
         """
-        return os.path.dirname(os.path.realpath(self._csv_file))
+        return str(Path(self._csv_file).resolve().parent) if self._csv_file else ""
 
     def __init__(
         self,
-        csv_file: str = None,
-        separator: str = None,
-        units_dict: dict = None,
-        append_dict: dict = None,
+        csv_file: str | None = None,
+        separator: str | None = None,
+        units_dict: dict | None = None,
+        append_dict: dict | None = None,
     ):
         self._header = []
         self._data = {}
@@ -284,7 +284,8 @@ class CSVDataset(PyAedtBase):
 
     # Create an iterator to yield the row data as a string as we loop through the object
     def __next__(self):
-        if self._index < (self.number_of_rows - 1):
+        num_rows = self.number_of_rows or 0
+        if self._index < (num_rows - 1):
             output = []
             for column in self._header:
                 evaluated_value = str(self._data[column][self._index])
@@ -1051,7 +1052,7 @@ class VariableManager(PyAedtBase):
         return vars_to_output
 
     @pyaedt_function_handler()
-    def get_expression(self, name: str) -> str:  # TODO: Should be renamed to "evaluate"
+    def get_expression(self, name: str) -> str | bool:  # TODO: Should be renamed to "evaluate"
         """Retrieve the variable value of a project or design variable as a string.
 
         Parameters
@@ -1102,53 +1103,58 @@ class VariableManager(PyAedtBase):
             return self._odesign
 
     @pyaedt_function_handler()
+    def _clear_variable_from_cache(self, name: str) -> None:
+        """Clear a variable from internal caches."""
+        if name in self.__independent_design_variables:
+            del self.__independent_design_variables[name]
+        elif name in self.__independent_project_variables:
+            del self.__independent_project_variables[name]
+        elif name in self.__dependent_design_variables:
+            del self.__dependent_design_variables[name]
+        elif name in self.__dependent_project_variables:
+            del self.__dependent_project_variables[name]
+
+    @pyaedt_function_handler()
     def set_variable(
         self,
-        name: str,
-        expression: str = None,
-        read_only: bool = False,
-        hidden: bool = False,
-        description: str = None,
-        sweep: bool = True,
+        name: str | list[str],
+        expression: str | list | None = None,
+        read_only: bool | list[bool] = False,
+        hidden: bool | list[bool] = False,
+        description: str | list[str] | None = None,
+        sweep: bool | list[bool] = True,
         overwrite: bool = True,
-        is_post_processing: bool = False,
-        circuit_parameter: bool = True,
+        is_post_processing: bool | list[bool] = False,
+        circuit_parameter: bool | list[bool] = True,
     ) -> bool:
-        """Set the value of a design property or project variable.
+        """Set the value of one or more design properties or project variables.
 
         Parameters
         ----------
-        name : str
-            Name of the design property or project variable
-            (``$var``). If this variable does not exist, a new one is
-            created and a value is set.
-        expression : str
-            Valid string expression within the AEDT design and project
-            structure.  For example, ``"3*cos(34deg)"``.
-        read_only : bool, optional
-            Whether to set the design property or project variable to
-            read-only. The default is ``False``.
-        hidden : bool, optional
-            Whether to hide the design property or project variable. The
-            default is ``False``.
-        description : str, optional
-            Text to display for the design property or project variable in the
-            ``Properties`` window. The default is ``None``.
-        sweep : bool, optional
-            Allows you to designate variables to include in solution indexing as a way to
-            permit faster post-processing.
-            Variables with the Sweep check box cleared are not used in solution indexing.
+        name : str or list[str]
+            Name of the design property or project variable (``$var``), or a list of names.
+            If a variable does not exist, a new one is created and a value is set.
+            When a list is provided, all other parameters can also be lists of the same length.
+        expression : str or list, optional
+            Valid string expression within the AEDT design and project structure,
+            or a list of expressions. For example, ``"3*cos(34deg)"``.
+        read_only : bool or list[bool], optional
+            Whether to set the variable(s) to read-only. The default is ``False``.
+        hidden : bool or list[bool], optional
+            Whether to hide the variable(s). The default is ``False``.
+        description : str or list[str], optional
+            Text to display for the variable(s) in the ``Properties`` window.
+            The default is ``None``.
+        sweep : bool or list[bool], optional
+            Whether to include variable(s) in solution indexing for faster post-processing.
             The default is ``True``.
         overwrite : bool, optional
-            Whether to overwrite an existing value for the design
-            property or project variable. The default is ``False``, in
-            which case this method is ignored.
-        is_post_processing : bool, optional
-            Whether to define a postprocessing variable.
-             The default is ``False``, in which case the variable is not used in postprocessing.
-        circuit_parameter : bool, optional
+            Whether to overwrite existing values. The default is ``True``.
+        is_post_processing : bool or list[bool], optional
+            Whether to define postprocessing variable(s). The default is ``False``.
+        circuit_parameter : bool or list[bool], optional
             Whether to define a parameter in a circuit design or a local parameter.
-             The default is ``True``, in which case a circuit variable is created as a parameter default.
+            The default is ``True``.
 
         Returns
         -------
@@ -1166,7 +1172,7 @@ class VariableManager(PyAedtBase):
         >>> aedtapp = Maxwell3d(version="2026.1")
 
         Set the value of design property ``p1`` to ``"10mm"``,
-        creating the property if it does not already eixst.
+        creating the property if it does not already exist.
 
         >>> aedtapp.variable_manager.set_variable("p1", expression="10mm")
 
@@ -1190,28 +1196,137 @@ class VariableManager(PyAedtBase):
         Set the value of the project variable ``$p1`` to ``"30mm"``,
         creating the variable if it does not exist.
 
-        >>> aedtapp.variable_manager.set_variable["$p1"] == "30mm"
+        >>> aedtapp.variable_manager.set_variable("$p1", expression="30mm")
+
+        Set multiple variables at once using lists (single API call).
+
+        >>> aedtapp.variable_manager.set_variable(name=["length", "width", "height"], expression=["10mm", "5mm", "2mm"])
 
         """
-        if name in self.independent_variables:
-            if name in self.__independent_design_variables:
-                del self.__independent_design_variables[name]
-            elif name in self.__independent_project_variables:
-                del self.__independent_project_variables[name]
-        elif name in self.dependent_variables:
-            if name in self.__dependent_design_variables:
-                del self.__dependent_design_variables[name]
-            elif name in self.__dependent_project_variables:
-                del self.__dependent_project_variables[name]
-        if not description:
-            description = ""
+        # Normalize to list
+        # If name is a string, expression is the value for that single variable (could be an array)
+        # If name is a list, expression must be a list of values for each variable
+        if isinstance(name, str):
+            names = [name]
+            expressions: list = [expression]
+        else:
+            names = name
+            expressions = expression if expression is not None else [None] * len(names)
+        n = len(names)
 
-        if name in self.variables:
-            variable = self.variables[name]
-            circuit_parameter = variable.is_circuit_parameter
+        # Normalize other parameters to lists
+        if not isinstance(read_only, list):
+            read_only = [read_only] * n
+        if not isinstance(hidden, list):
+            hidden = [hidden] * n
+        if not isinstance(description, list):
+            description = [description if description else ""] * n
+        else:
+            description = [d if d else "" for d in description]
+        if not isinstance(sweep, list):
+            sweep = [sweep] * n
+        if not isinstance(is_post_processing, list):
+            is_post_processing = [is_post_processing] * n
+        if not isinstance(circuit_parameter, list):
+            circuit_parameter = [circuit_parameter] * n
 
-        desktop_object = self.aedt_object(name)
-        if name.startswith("$"):
+        # Separate project variables from design variables
+        # Further separate design variables by circuit_parameter (only matters for circuit designs)
+        project_indices: list[int] = []
+        design_indices: list[int] = []
+        design_circuit_indices: list[int] = []
+        design_local_indices: list[int] = []
+        for i, (nm, is_circuit) in enumerate(zip(names, circuit_parameter)):
+            if nm.startswith("$"):
+                project_indices.append(i)
+                continue
+
+            design_indices.append(i)
+            if nm in self.variables:
+                # Update circuit_parameter based on existing variables
+                is_circuit = self.variables[nm].is_circuit_parameter
+
+            if is_circuit:
+                design_circuit_indices.append(i)
+            else:
+                design_local_indices.append(i)
+
+        result = True
+
+        # Process design variables with circuit_parameter=True
+        if design_circuit_indices:
+            result = self._set_variables_single_call(
+                names=[names[i] for i in design_circuit_indices],
+                expressions=[expressions[i] for i in design_circuit_indices],
+                read_only=[read_only[i] for i in design_circuit_indices],
+                hidden=[hidden[i] for i in design_circuit_indices],
+                description=[description[i] for i in design_circuit_indices],
+                sweep=[sweep[i] for i in design_circuit_indices],
+                is_post_processing=[is_post_processing[i] for i in design_circuit_indices],
+                overwrite=overwrite,
+                circuit_parameter=True,
+                is_project=False,
+            )
+            if not result:
+                return False
+
+        # Process design variables with circuit_parameter=False
+        if design_local_indices:
+            result = self._set_variables_single_call(
+                names=[names[i] for i in design_local_indices],
+                expressions=[expressions[i] for i in design_local_indices],
+                read_only=[read_only[i] for i in design_local_indices],
+                hidden=[hidden[i] for i in design_local_indices],
+                description=[description[i] for i in design_local_indices],
+                sweep=[sweep[i] for i in design_local_indices],
+                is_post_processing=[is_post_processing[i] for i in design_local_indices],
+                overwrite=overwrite,
+                circuit_parameter=False,
+                is_project=False,
+            )
+            if not result:
+                return False
+
+        # Process project variables
+        if project_indices:
+            result = self._set_variables_single_call(
+                names=[names[i] for i in project_indices],
+                expressions=[expressions[i] for i in project_indices],
+                read_only=[read_only[i] for i in project_indices],
+                hidden=[hidden[i] for i in project_indices],
+                description=[description[i] for i in project_indices],
+                sweep=[sweep[i] for i in project_indices],
+                is_post_processing=[is_post_processing[i] for i in project_indices],
+                overwrite=overwrite,
+                circuit_parameter=False,  # Not used for project variables
+                is_project=True,
+            )
+            if not result:
+                return False
+
+        return result
+
+    @pyaedt_function_handler()
+    def _set_variables_single_call(
+        self,
+        names: list[str],
+        expressions: list,
+        read_only: list[bool],
+        hidden: list[bool],
+        description: list[str],
+        sweep: list[bool],
+        is_post_processing: list[bool],
+        overwrite: bool,
+        circuit_parameter: bool,
+        is_project: bool,
+    ) -> bool:
+        """Create or update multiple variables in a single ChangeProperty call."""
+        if not names:
+            return True
+
+        desktop_object = self._oproject if is_project else self._odesign
+
+        if is_project:
             tab_name = "ProjectVariableTab"
             prop_server = "ProjectVariables"
         else:
@@ -1227,41 +1342,26 @@ class VariableManager(PyAedtBase):
             if self._app.design_type in ["HFSS 3D Layout Design", "Circuit Design", "Maxwell Circuit", "Twin Builder"]:
                 prop_server = f"Instance:{desktop_object.GetName()}"
 
-        prop_type = "VariableProp"
-        if is_post_processing or "post" in name.lower()[0:5]:
-            prop_type = "PostProcessingVariableProp"
-        if isinstance(expression, str):
-            # Handle string type variable (including arbitrary expression)# Handle input type variable
-            variable = expression
-        elif isinstance(expression, Variable):
-            # Handle input type variable
-            variable = expression.evaluated_value
-        elif isinstance(expression, Quantity):
-            variable = str(expression)
-        elif is_number(expression):
-            # Handle input type int/float, etc (including numeric 0)
-            variable = str(expression)
-        # Handle None, "" as Separator
-        elif isinstance(expression, list):
-            variable = str(expression).replace("'", '"')
-        elif not expression:
-            prop_type = "SeparatorProp"
-            variable = ""
-            try:
-                if self.delete_separator(name):
-                    desktop_object.Undo()
-                    self._logger.clear_messages()
-                    return
-            except Exception:
-                self._logger.debug(f"Something went wrong when deleting '{name}'.")
-        else:
-            raise Exception("Unhandled input type to the design property or project variable.")  # pragma: no cover
+        # Clear variables from cache and get existing variables
+        for nm in names:
+            self._clear_variable_from_cache(nm)
 
-        # Get all design and project variables in lower case for a case-sensitive comparison
         var_list = self._get_var_list_from_aedt(desktop_object)
-        lower_case_vars = [var_name.lower() for var_name in var_list]
+        lower_case_vars = [v.lower() for v in var_list]
 
-        if name.lower() not in lower_case_vars:
+        # Separate new and existing variables
+        new_indices = [i for i, nm in enumerate(names) if nm.lower() not in lower_case_vars]
+        existing_indices = [i for i, nm in enumerate(names) if nm.lower() in lower_case_vars and overwrite]
+
+        # Build and execute NewProps call for new variables
+        if new_indices:
+            new_props: list[Any] = ["NAME:NewProps"]
+            for i in new_indices:
+                prop = self._build_single_prop(
+                    names[i], expressions[i], read_only[i], hidden[i], description[i], sweep[i], is_post_processing[i]
+                )
+                new_props.append(prop)
+
             try:
                 desktop_object.ChangeProperty(
                     [
@@ -1269,88 +1369,98 @@ class VariableManager(PyAedtBase):
                         [
                             f"NAME:{tab_name}",
                             ["NAME:PropServers", prop_server],
-                            [
-                                "NAME:NewProps",
-                                [
-                                    "NAME:" + name,
-                                    "PropType:=",
-                                    prop_type,
-                                    "UserDef:=",
-                                    True,
-                                    "Value:=",
-                                    variable,
-                                    "Description:=",
-                                    description,
-                                    "ReadOnly:=",
-                                    read_only,
-                                    "Hidden:=",
-                                    hidden,
-                                    "Sweep:=",
-                                    sweep,
-                                ],
-                            ],
+                            new_props,
                         ],
                     ]
                 )
             except Exception:
-                if ";" in desktop_object.GetName() and prop_type == "PostProcessingVariableProp":
-                    self._logger.info("PostProcessing Variable exists already. Changing value.")
-                    desktop_object.ChangeProperty(
-                        [
-                            "NAME:AllTabs",
-                            [
-                                f"NAME:{tab_name}",
-                                ["NAME:PropServers", prop_server],
-                                [
-                                    "NAME:ChangedProps",
-                                    [
-                                        "NAME:" + name,
-                                        "Value:=",
-                                        variable,
-                                        "Description:=",
-                                        description,
-                                        "ReadOnly:=",
-                                        read_only,
-                                        "Hidden:=",
-                                        hidden,
-                                    ],
-                                ],
-                            ],
-                        ]
-                    )
-        elif overwrite:
-            desktop_object.ChangeProperty(
-                [
-                    "NAME:AllTabs",
+                self._logger.debug("Failed to create variables in batch.")
+                return False
+
+        # Build and execute ChangedProps call for existing variables
+        if existing_indices:
+            changed_props: list[Any] = ["NAME:ChangedProps"]
+            for i in existing_indices:
+                prop = self._build_single_prop(
+                    names[i], expressions[i], read_only[i], hidden[i], description[i], sweep[i], is_post_processing[i]
+                )
+                changed_props.append(prop)
+
+            try:
+                desktop_object.ChangeProperty(
                     [
-                        f"NAME:{tab_name}",
-                        ["NAME:PropServers", prop_server],
+                        "NAME:AllTabs",
                         [
-                            "NAME:ChangedProps",
-                            [
-                                "NAME:" + name,
-                                "Value:=",
-                                variable,
-                                "Description:=",
-                                description,
-                                "ReadOnly:=",
-                                read_only,
-                                "Hidden:=",
-                                hidden,
-                                "Sweep:=",
-                                sweep,
-                            ],
+                            f"NAME:{tab_name}",
+                            ["NAME:PropServers", prop_server],
+                            changed_props,
                         ],
-                    ],
-                ]
-            )
+                    ]
+                )
+            except Exception:
+                self._logger.debug("Failed to update variables in batch.")
+                return False
+
             self._cleanup_variables()
+
+        # Verify all variables were created (skip separators, they don't appear in var_list)
         var_list = self._get_var_list_from_aedt(desktop_object)
-        lower_case_vars = [var_name.lower() for var_name in var_list]
-        if name.lower() not in lower_case_vars:
-            return False
+        lower_case_vars = [v.lower() for v in var_list]
+        for i, nm in enumerate(names):
+            if expressions[i] and nm.lower() not in lower_case_vars:
+                return False
 
         return True
+
+    @pyaedt_function_handler()
+    def _build_single_prop(
+        self,
+        name: str,
+        expression,
+        read_only: bool,
+        hidden: bool,
+        description: str,
+        sweep: bool,
+        is_post_processing: bool,
+    ) -> list:
+        """Build a single variable property structure for ChangeProperty API."""
+        desc = description if description else ""
+
+        prop_type = "VariableProp"
+        if is_post_processing or "post" in name.lower()[0:5]:
+            prop_type = "PostProcessingVariableProp"
+
+        if isinstance(expression, str):
+            variable = expression
+        elif isinstance(expression, Variable):
+            variable = expression.evaluated_value
+        elif isinstance(expression, Quantity) or is_number(expression):
+            variable = str(expression)
+        elif isinstance(expression, list):
+            variable = str(expression).replace("'", '"')
+        elif not expression:
+            prop_type = "SeparatorProp"
+            variable = ""
+        else:
+            raise ValueError(f"Unhandled input type for variable '{name}': {type(expression)}")
+
+        return [
+            "NAME:" + name,
+            "PropType:=",
+            prop_type,
+            "UserDef:=",
+            True,
+            "Value:=",
+            variable,
+            "Description:=",
+            desc,
+            "ReadOnly:=",
+            read_only,
+            "Hidden:=",
+            hidden,
+            "Sweep:=",
+            sweep,
+        ]
 
     @pyaedt_function_handler()
     def delete_separator(self, name: str) -> bool:
@@ -1642,24 +1752,24 @@ class Variable(PyAedtBase):
 
     def __repr__(self) -> str:
         """Variable representation."""
-        return self.expression
+        return str(self.expression)
 
     def __str__(self) -> str:
         """Variable string representation."""
-        return self.expression
+        return str(self.expression)
 
     def __init__(
         self,
         expression: float | str,
-        units: str = None,
-        si_value: float = None,
-        full_variables: dict = None,
-        name: str = None,
+        units: str | None = None,
+        si_value: float | None = None,
+        full_variables: dict | None = None,
+        name: str | None = None,
         app=None,
         readonly: bool = False,
         hidden: bool = False,
         sweep: bool = True,
-        description: str = None,
+        description: str | None = None,
         postprocessing: bool = False,
         circuit_parameter: bool = True,
     ):
@@ -2338,7 +2448,7 @@ class Variable(PyAedtBase):
             self._value_fallback()
 
     @property
-    def unit_system(self) -> str:
+    def unit_system(self) -> str | bool:
         """Unit system name.
 
         Examples
@@ -2422,7 +2532,7 @@ class Variable(PyAedtBase):
         return self._value
 
     @property
-    def evaluated_value(self) -> str:
+    def evaluated_value(self) -> str | None:
         """Concatenated numeric value and unit string.
 
         Examples
@@ -2632,12 +2742,12 @@ class Variable(PyAedtBase):
     def _units_fallback(self):
         units = self._units
         if not is_number(self._value):
-            _, units = decompose_variable_value(self._value)
+            _, units = decompose_variable_value(str(self._value))
         self._units = units
         return self._units
 
     @pyaedt_function_handler()
-    def __to_si(self, numeric: float, units: str = None) -> float:
+    def __to_si(self, numeric: float, units: str | None = None) -> float:
         """Convert a numeric value from the given units to SI units.
 
         Parameters
@@ -2672,7 +2782,7 @@ class Variable(PyAedtBase):
             return numeric * scale
 
     @pyaedt_function_handler()
-    def __from_si(self, si_numeric: float, units: str = None) -> float:
+    def __from_si(self, si_numeric: float, units: str | None = None) -> float:
         """Convert a numeric value from SI units to the given units.
 
         Parameters
@@ -2770,10 +2880,10 @@ class DataSet(PyAedtBase):
         self.sort = sort
 
     @pyaedt_function_handler()
-    def _args(self):
+    def _args(self) -> list[Any] | bool:
         """Retrieve arguments."""
-        arg = ["Name:" + self.name]
-        arg2 = ["Name:Coordinates"]
+        arg: list[Any] = ["Name:" + self.name]
+        arg2: list[Any] = ["Name:Coordinates"]
         if self.z is None:
             arg2.append(["NAME:DimUnits", self.xunit, self.yunit])
         elif self.v is not None:
@@ -2798,7 +2908,7 @@ class DataSet(PyAedtBase):
         ver = self._app._aedt_version
         for i in range(len(x)):
             if ver >= "2022.1":
-                arg3 = ["NAME:Point", float(x[i]), float(y[i])]
+                arg3: list[Any] = ["NAME:Point", float(x[i]), float(y[i])]
                 if self.z:
                     arg3.append(float(z[i]))
                     arg3.append(float(v[i]))
@@ -2806,7 +2916,7 @@ class DataSet(PyAedtBase):
             else:
                 arg3 = []
                 arg3.append("NAME:Coordinate")
-                arg4 = ["NAME:CoordPoint"]
+                arg4: list[Any] = ["NAME:CoordPoint"]
                 arg4.append(float(x[i]))
                 arg4.append(float(y[i]))
                 if self.z:
@@ -2847,7 +2957,7 @@ class DataSet(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def add_point(self, x: float, y: float, z: float = None, v: float = None) -> bool:
+    def add_point(self, x: float, y: float, z: float | None = None, v: float | None = None) -> bool:
         """Add a point to the dataset.
 
         Parameters
@@ -3018,7 +3128,7 @@ class DataSet(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def export(self, output_dir: str = None) -> bool:
+    def export(self, output_dir: str | None = None) -> bool:
         """Export the dataset.
 
         Parameters
@@ -3046,7 +3156,7 @@ class DataSet(PyAedtBase):
 
         """
         if not output_dir:
-            output_dir = os.path.join(self._app.working_directory, self.name + ".tab")
+            output_dir = str(Path(self._app.working_directory) / (self.name + ".tab"))
         if self.name[0] == "$":
             self._app._oproject.ExportDataset(self.name, output_dir)
         else:

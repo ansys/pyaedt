@@ -38,9 +38,19 @@ updates:
       day: "saturday"
       time: "06:00"
       timezone: "Europe/Paris"
-    # Skip patch version bumps
+    # Skip patch version bumps except for ansys/actions/*
     ignore:
-      - dependency-name: '*'
+      - dependency-name: "actions/*"
+        update-types: ['version-update:semver-patch']
+      - dependency-name: "astral-sh/setup-uv"
+        update-types: ['version-update:semver-patch']
+      - dependency-name: "codecov/codecov-action"
+        update-types: ['version-update:semver-patch']
+      - dependency-name: "peter-evans/create-or-update-comment"
+        update-types: ['version-update:semver-patch']
+      - dependency-name: "pypa/gh-action-pypi-publish"
+        update-types: ['version-update:semver-patch']
+      - dependency-name: "pyvista/setup-headless-display-action"
         update-types: ['version-update:semver-patch']
     groups:
       ansys-actions:

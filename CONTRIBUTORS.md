@@ -36,6 +36,7 @@
 * [Devin](https://github.com/Devin-Crawford)
 * [Dipin](https://github.com/dipinknair)
 * [DomenicoLoricchio](https://github.com/DomenicoLoricchio)
+* [Dominik Simon](https://github.com/DominikSim-hub)
 * [Dr-Hawal-R](https://github.com/Dr-Hawal-R)
 * [DulceRiosK](https://github.com/DulceRiosK)
 * [Edouard Coussoux](https://github.com/ecoussoux-ansys)

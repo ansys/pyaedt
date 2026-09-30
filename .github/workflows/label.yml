@@ -95,7 +95,7 @@ jobs:
 
       - name: Label based on trailers
         if: github.event_name == 'pull_request'
-        uses: ./.github/actions/label-from-trailers
+        uses: $/.github/actions/label-from-trailers
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           pr-number: ${{ github.event.pull_request.number }}
@@ -131,8 +131,7 @@ jobs:
       pull-requests: write  # Required to update PR with changelog information
     runs-on: ubuntu-latest
     steps:
-    # NOTE: Temporary pin of ansys/actions to avoid the breaking change side effect.
-    - uses: ansys/actions/doc-changelog@84b6533ae76f5dde69a1df26c18682160a8121cf # v10.3.5
+    - uses: ansys/actions/doc-changelog@7410037bfb276c79ae91eb3617b9f5d2876f0c94 # v11.0.8
       with:
         bot-email: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
         bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}

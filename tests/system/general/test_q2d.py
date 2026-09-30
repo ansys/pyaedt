@@ -33,6 +33,7 @@ from ansys.aedt.core.generic.file_utils import get_dxf_layers
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from tests import TESTS_GENERAL_PATH
+from tests.conftest import DESKTOP_VERSION
 from tests.conftest import NON_GRAPHICAL
 
 TEST_SUBFOLDER = "T30"
@@ -322,6 +323,7 @@ def test_import_dxf(aedt_app) -> None:
     assert aedt_app.import_dxf(dxf_file, dxf_layers)
 
 
+@pytest.mark.skipif(DESKTOP_VERSION >= "2027.1", reason="Crashes from AEDT 2027.1 due to native API change.")
 def test_export_w_elements_from_sweep(q2d_solved_sweep_app, test_tmp_dir) -> None:
     export_folder = test_tmp_dir / "export_folder"
     files = q2d_solved_sweep_app.export_w_elements(export_folder)
@@ -332,6 +334,7 @@ def test_export_w_elements_from_sweep(q2d_solved_sweep_app, test_tmp_dir) -> Non
         assert Path(file).is_file()
 
 
+@pytest.mark.skipif(DESKTOP_VERSION >= "2027.1", reason="Crashes from AEDT 2027.1 due to native API change.")
 def test_export_w_elements_from_nominal(q2d_solved_nominal_app, test_tmp_dir) -> None:
     export_folder = test_tmp_dir / "export_folder"
     files = q2d_solved_nominal_app.export_w_elements(export_folder)

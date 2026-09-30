@@ -219,7 +219,7 @@ def unit_system(units: str) -> str | bool:
 
     """
     for unit_type, unit_dict in AEDT_UNITS.items():
-        if units.lower() in [i.lower() for i in unit_dict.keys()]:
+        if any(units.lower() == unit.lower() for unit in unit_dict):
             return unit_type
 
     return False

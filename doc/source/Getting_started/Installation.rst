@@ -16,6 +16,7 @@ requires Ansys Electronics Desktop (AEDT) 2022 R1 or later. The AEDT Student Ver
 
 Install from PyAEDT installer
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 The following Python script automatically installs PyAEDT from AEDT,
 using the CPython interpreter included in the AEDT installation.
 
@@ -32,12 +33,27 @@ In order to do that you can:
     PyAEDT wheelhouse can be found at `Releases <https://github.com/ansys/pyaedt/releases>`_.
     After downloading the wheelhouse zip specific for your distribution and Python release,
     run the script from Electronics Desktop using the zip full path as argument.
-    Please note that AEDT 2023 R1 and lower requires Python 3.7 wheelhouse while AEDT 2023 R2
-    and higher requires the Python 3.10 wheelhouse.
+    Please note that AEDT 2023 R1 and lower require the Python 3.7 wheelhouse,
+    AEDT 2023 R2 through 2026 R2 require the Python 3.10 wheelhouse,
+    and AEDT 2027 R1 and higher require the Python 3.13 wheelhouse.
 
 .. image:: ../Resources/wheelhouse_installation.png
   :width: 800
   :alt: PyAEDT run script
+
+.. warning::
+    AEDT 2027 R1 uses Python 3.13 as its base interpreter. For a clean
+    installation, complete the following steps:
+
+   * Delete the virtual environment folder:
+
+     * On Windows, it is located in your ``APPDATA`` directory.
+     * On Linux, it is located in your ``HOME`` directory.
+
+   * Delete the ``Toolkits`` directory from your ``PersonalLib`` folder.
+
+   These steps remove existing configurations. Rerun this script afterward to
+   recreate the virtual environment with the updated Python version.
 
 Starting from 2023R2, panels are available in the Automation Tab. For detailed information about
 PyAEDT panels, see :doc:`panels`.
@@ -222,7 +238,7 @@ Finally, in the Python console, run the following commands:
 
   .. code::
 
-      add_pyaedt_to_aedt(r“path_to_aedtlib", skip_version_manager=True)
+      add_pyaedt_to_aedt(r"path_to_aedtlib", skip_version_manager=True)
 
 .. note::
   If you created your own virtual environment and you are managing a centralized installation of pyAEDT,
@@ -292,8 +308,8 @@ Finally, in the Python console, run the following commands:
 
 .. code::
 
-     from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
-     add_pyaedt_to_aedt(r“path_to_aedtlib")
+    from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
+    add_pyaedt_to_aedt(r"path_to_aedtlib")
 
 - Replace "your_aedt_version" with the version of AEDT you are using (for example "2026.1").
 - Replace "path_to_aedtlib" with the full path of your PersonalLib or syslib as specified in AEDT, depending if you want to install the PyAEDT icons at user level or application level.
@@ -301,7 +317,7 @@ Finally, in the Python console, run the following commands:
 
   .. code::
 
-      add_pyaedt_to_aedt(r“path_to_aedtlib", skip_version_manager=True)
+      add_pyaedt_to_aedt(r"path_to_aedtlib", skip_version_manager=True)
 
 
 Using uv to manage virtual environments

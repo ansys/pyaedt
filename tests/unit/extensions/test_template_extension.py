@@ -22,17 +22,40 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from types import SimpleNamespace
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
 from ansys.aedt.core.extensions.misc import MOON
 from ansys.aedt.core.extensions.misc import NO_ACTIVE_PROJECT
 from ansys.aedt.core.extensions.misc import SUN
+from ansys.aedt.core.extensions.templates import extension_error_handler
 from ansys.aedt.core.extensions.templates.template_get_started import EXTENSION_TITLE
 from ansys.aedt.core.extensions.templates.template_get_started import ExtensionData
 from ansys.aedt.core.extensions.templates.template_get_started import TemplateExtension
 
 MOCK_PATH = "/mock/path/file.aedt"
+
+
+def test_main_inherits_stderr(monkeypatch):
+    """The script stderr must remain connected to the interactive console."""
+    run_calls = []
+
+    def mock_run(*args, **kwargs):
+        run_calls.append((args, kwargs))
+        return SimpleNamespace(returncode=0)
+
+    monkeypatch.setattr(extension_error_handler.subprocess, "run", mock_run)
+    monkeypatch.setattr(extension_error_handler.sys, "argv", ["handler", "--script", "extension.py"])
+
+    extension_error_handler.main()
+
+    assert run_calls == [
+        (
+            ([extension_error_handler.sys.executable, "extension.py"],),
+            {"env": extension_error_handler.os.environ.copy(), "text": True},
+        )
+    ]
 
 
 @patch("ansys.aedt.core.extensions.misc.active_sessions")
