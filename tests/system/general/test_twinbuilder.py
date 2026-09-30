@@ -35,6 +35,7 @@ TEST_SUBFOLDER = "T34"
 
 ARMOURED_CABLE = "Q2D_ArmouredCableExample"
 EXCITATION_MODEL = "TB_excitation_model"
+RLC_FILTER = "RLC_Filter_solved"
 
 
 @pytest.fixture
@@ -55,6 +56,13 @@ def tb_dynamic_link(add_app_example):
 @pytest.fixture
 def tb_excitation_model(add_app_example):
     app = add_app_example(application=TwinBuilder, project=EXCITATION_MODEL, subfolder=TEST_SUBFOLDER)
+    yield app
+    app.close_project(app.project_name, save=False)
+
+
+@pytest.fixture
+def tb_rlc_filter(add_app_example):
+    app = add_app_example(application=TwinBuilder, project=RLC_FILTER, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(app.project_name, save=False)
 
@@ -320,7 +328,9 @@ def test_transient_setup(aedt_app) -> None:
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
-@pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Feature not working in non-graphical mode before 2027.1")
+@pytest.mark.skipif(
+    DESKTOP_VERSION < "2027.1", reason="GetAllSolutionSetups not working in non-graphical mode before 2027.1"
+)
 def test_ac_setup(aedt_app) -> None:
     setup = aedt_app.create_setup(setup_type="TwinbuilderAC")
     assert setup.name in aedt_app.setup_names
@@ -334,8 +344,29 @@ def test_ac_setup(aedt_app) -> None:
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
-@pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Feature not working in non-graphical mode before 2027.1")
+@pytest.mark.skipif(
+    DESKTOP_VERSION < "2027.1", reason="GetAllSolutionSetups not working in non-graphical mode before 2027.1"
+)
 def test_dc_setup(aedt_app) -> None:
     setup = aedt_app.create_setup(setup_type="TwinbuilderDC")
     assert setup.name in aedt_app.setup_names
     assert aedt_app.design_solutions.solution_type == "TwinbuilderDC"
+
+
+@pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
+def test_create_report(tb_rlc_filter) -> None:
+    vars = tb_rlc_filter.available_variations.all
+    vars["$Rseries"] = "25ohm"
+    report = tb_rlc_filter.post.create_report(
+        plot_name="C_shunt",
+        domain="Time",
+        expressions=["C_SHUNT.V"],
+        primary_sweep_variable="Time",
+        variations=vars,
+        context={"optimetrics_setup": tb_rlc_filter.parametrics.setups[0].name},
+    )
+    assert report.plot_name == "C_shunt"
+    assert report.report_type == "Rectangular Plot"
+    assert report.optimetrics_setup == tb_rlc_filter.parametrics.setups[0].name
+    assert report.primary_sweep == "Time"
+    assert report.expressions == ["C_SHUNT.V"]
