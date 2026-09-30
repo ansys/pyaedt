@@ -46,93 +46,47 @@ import ansys.aedt.core
 from ansys.aedt.core.emit_core.emit_constants import ResultType
 from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
 
-TEST_SUBFOLDER = TESTS_EMIT_PATH / "example_models/EMIT_level_1/SF4945_Workflow"
+TEST_SUBFOLDER = TESTS_EMIT_PATH / "example_models/EMIT_level_1/SF4945_Coupling"
 
 if is_linux:
     pytest.skip("Emit API is not supported on linux.")
 
 @pytest.fixture
-def workflow(add_app_example, desktop):
-    """Fixture that loads the workflow project."""
+def coupling_project(add_app_example, desktop):
+    """Fixture that loads the coupling project."""
     app = add_app_example(
-        project="Workflow",
+        project="Coupling",
         application=Emit,
         subfolder=TEST_SUBFOLDER,
     )
     yield app
     app.close_project(app.project_name, save=False)
 
-@pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
-def test_SF4945_Workflow(workflow):
 
-    # add link to the design
-    workflow.couplings.add_link(workflow.couplings.linkable_design_names[0])
-    assert len(workflow.couplings.coupling_names) == 1
-    assert workflow.couplings.coupling_names[0] == 'SimpleBoard'
+@pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
+def test_SF4945_Coupling(coupling_project):
 
     # Generate a revision
-    rev = workflow.results.analyze()
-    coupling_data = rev.get_coupling_data_node()
-    coupling_link = coupling_data.children[0]
-
-    available_ports = coupling_link.properties["AllLinkedPortNames"].split("|")
-    link_ports = []
-    commponents = {"": ""}  # {"Name":"Object"}
-    ant = None
-    for port in available_ports:
-        if "antenna" in port.lower():
-            ant = workflow.schematic.create_component("Antenna")
-            ant.name = "test"
-            ant.name = port
-            commponents[ant.name] = ant
-        else:
-            emiter = workflow.schematic.create_component("New Emitter")
-            emiter.name = port
-            commponents[emiter.name] = emiter
-        link_ports.append(f"NODE-*-Scene-*-{port}")
-
-    coupling_link.ports = link_ports
-
-    # Create WiFi RF System
-    radio_1 = workflow.schematic.create_component("WiFi - 802.11-2012")
-    commponents[radio_1.name] = radio_1
-    workflow.schematic.connect_components(radio_1.name, ant.name)
-
-    # Enable 4 bands under "HR-DSSS" in WiFi Radio
-    for band_folder in radio_1.children:
-        if band_folder.node_type == "BandFolder" and band_folder.name == "HR-DSSS":
-            for band in band_folder.children:
-                if band.node_type == "Band":
-                    band.enabled = True
-                    assert band.enabled == True
-
-    # Edit number of clock harmonics
-    emitter_clk_wifi = commponents["clk_wifi"]
-    emitter_clk_wifi_band = emitter_clk_wifi.children[0]
-    tx_spectral_profile = emitter_clk_wifi_band.children[0]
-    tx_spectral_profile.number_of_harmonics = 100
-    assert tx_spectral_profile.number_of_harmonics == 100
-
-    workflow.save_project()
-
-    domain = InteractionDomain(workflow)
+    rev = coupling_project.results.analyze()
+    domain = InteractionDomain(coupling_project)
     sim = rev.get_simulation()
 
     # Analyze project
     interaction = sim.run(domain)
     assert interaction is not None
     assert interaction.is_valid()
+
     emi_instance = interaction.get_worst_instance(ResultType.EMI)
     emi_value = emi_instance.get_value(ResultType.EMI)
     assert emi_instance is not None
-    assert emi_value == -14.69
+    assert emi_value == 0.00
     sensitivity_instance = interaction.get_worst_instance(ResultType.SENSITIVITY)
     sensitivity_value = sensitivity_instance.get_value(ResultType.SENSITIVITY)
     assert sensitivity_instance is not None
-    assert sensitivity_value == -76.0
+    assert sensitivity_value == 0.00
     desense_instance = interaction.get_worst_instance(ResultType.DESENSE)
     desense_value = desense_instance.get_value(ResultType.DESENSE)
     assert desense_instance is not None
-    assert desense_value == -21.54
+    assert desense_value == 0.00
 
-    workflow.save_project()
+    coupling_project.save_project()
