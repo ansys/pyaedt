@@ -412,7 +412,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         if props:
             self.__props = BoundaryProps(self, props)
             if has_obj_data:
-                boundary_type = props.get("Type", "")
+                boundary_type = child_object.Type if "Type" in dir(child_object) else props.get("Type", "")
             else:
                 boundary_type = boundary_data[1]
 

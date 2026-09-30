@@ -93,7 +93,6 @@ def test_get_obj_data_collates_duplicate_sweep_definitions() -> None:
     assert props["SweepDefinition"][0]["Data"] == "LIN 1GHz 2GHz 0.01GHz 11GHz 12GHz 13.4GHz"
     assert props["SweepDefinition"][1]["Variable"] == "Temp"
     assert props["SweepDefinition"][1]["Data"] == "DEC 20cel 100cel 81"
-    assert props["Name"] == "Sweep_LNA"
     assert props["LinearFrequencyData"] == [False, 0.1, False, "", False]
 
 

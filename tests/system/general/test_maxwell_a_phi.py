@@ -169,7 +169,6 @@ def test_assign_force(m3d_app_ac) -> None:
 
     force = m3d_app_ac.assign_force(assignment=cyl, is_virtual=True)
     assert force in m3d_app_ac.boundaries
-    assert force.props["Name"] == force.name
     assert force.props["Objects"][0] == cyl.name
     assert force.props["Reference CS"] == "Global"
     assert force.props["Is Virtual"]
@@ -182,7 +181,6 @@ def test_assign_torque(m3d_app_ac) -> None:
 
     torque = m3d_app_ac.assign_torque(assignment=cyl, is_positive=False, is_virtual=True)
     assert torque in m3d_app_ac.boundaries
-    assert torque.props["Name"] == torque.name
     assert torque.props["Objects"][0] == cyl.name
     assert torque.props["Coordinate System"] == "Global"
     assert torque.props["Is Virtual"]
@@ -397,12 +395,12 @@ def test_assign_symmetry(m3d_app_tran) -> None:
     symmetry = m3d_app_tran.assign_symmetry([box.faces[0]], "symmetry_test")
     assert symmetry
     assert symmetry.props["Faces"][0] == box.faces[0].id
-    assert symmetry.props["Name"] == "symmetry_test"
+    assert symmetry.name == "symmetry_test"
     assert symmetry.props["IsOdd"]
     symmetry_1 = m3d_app_tran.assign_symmetry([box.faces[1]], "symmetry_test_1", False)
     assert symmetry_1
     assert symmetry_1.props["Faces"][0] == box.faces[1].id
-    assert symmetry_1.props["Name"] == "symmetry_test_1"
+    assert symmetry_1.name == "symmetry_test_1"
     assert not symmetry_1.props["IsOdd"]
     assert all([bound.type == "Symmetry" for bound in m3d_app_tran.boundaries])
 

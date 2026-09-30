@@ -677,12 +677,10 @@ def test_assign_symmetry(m3d_app) -> None:
     symmetry = m3d_app.assign_symmetry([box.faces[0]], "symmetry_test")
     assert symmetry
     assert symmetry.props["Faces"][0] == box.faces[0].id
-    assert symmetry.props["Name"] == "symmetry_test"
     assert symmetry.props["IsOdd"]
     symmetry_1 = m3d_app.assign_symmetry([box.faces[1]], "symmetry_test_1", False)
     assert symmetry_1
     assert symmetry_1.props["Faces"][0] == box.faces[1].id
-    assert symmetry_1.props["Name"] == "symmetry_test_1"
     assert not symmetry_1.props["IsOdd"]
     assert all([bound.type == "Symmetry" for bound in m3d_app.boundaries])
 

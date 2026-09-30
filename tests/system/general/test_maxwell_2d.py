@@ -679,7 +679,7 @@ def test_create_external_circuit(m2d_app) -> None:
     with pytest.raises(AEDTRuntimeError):
         m2d_app.create_external_circuit()
     m2d_app.solution_type = SolutionsMaxwell2D.EddyCurrentXY
-    for w in m2d_app.excitations_by_type["Winding"]:
+    for w in m2d_app.excitations_by_type["Winding Group"]:
         w.delete()
     m2d_app.save_project()
     with pytest.raises(
