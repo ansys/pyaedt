@@ -30,6 +30,7 @@ from ansys.aedt.core import TwinBuilder
 from ansys.aedt.core.generic.general_methods import is_linux
 from tests import TESTS_GENERAL_PATH
 from tests.conftest import DESKTOP_VERSION
+from tests.conftest import NON_GRAPHICAL
 
 TEST_SUBFOLDER = "T34"
 
@@ -328,9 +329,7 @@ def test_transient_setup(aedt_app) -> None:
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
-@pytest.mark.skipif(
-    DESKTOP_VERSION < "2027.2", reason="GetAllSolutionSetups not working in non-graphical mode before 2027.2"
-)
+@pytest.mark.skipif(NON_GRAPHICAL, reason="GetAllSolutionSetups not working in non-graphical mode")
 def test_ac_setup(aedt_app) -> None:
     setup = aedt_app.create_setup(setup_type="TwinbuilderAC")
     assert setup.name in aedt_app.setup_names
@@ -344,9 +343,7 @@ def test_ac_setup(aedt_app) -> None:
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
-@pytest.mark.skipif(
-    DESKTOP_VERSION < "2027.2", reason="GetAllSolutionSetups not working in non-graphical mode before 2027.2"
-)
+@pytest.mark.skipif(NON_GRAPHICAL, reason="GetAllSolutionSetups not working in non-graphical mode")
 def test_dc_setup(aedt_app) -> None:
     setup = aedt_app.create_setup(setup_type="TwinbuilderDC")
     assert setup.name in aedt_app.setup_names
