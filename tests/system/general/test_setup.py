@@ -213,7 +213,8 @@ def test_delete_sweep(aedtapp) -> None:
 
 def test_sweep_sbr(aedtapp) -> None:
     aedtapp.solution_type = "SBR+"
-    aedtapp.insert_infinite_sphere()
+    sph = aedtapp.insert_infinite_sphere()
+    sph.props
     setup1 = aedtapp.create_setup("My_HFSS_Setup", Setups.HFSSSBR)
     assert setup1.add_subrange("LinearStep", 1, 10, 0.1, clear=False)
     assert setup1.add_subrange("LinearCount", 10, 20, 10, clear=True)

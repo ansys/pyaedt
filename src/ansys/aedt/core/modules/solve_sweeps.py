@@ -1303,15 +1303,19 @@ class SetupProps(dict):
                 if k not in target:
                     self._pyaedt_setup._app.logger.warning(f"{k} is not a valid property name.")
                 if not isinstance(v, dict):
-                    target[k] = v
+                    dict.__setitem__(self, k, v)
                 else:
                     if k not in target:
-                        target[k] = {}
+                        dict.__setitem__(self, k, {})
                     set_props(target[k], v)
 
         with open(file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
             set_props(self, data)
+            if self._pyaedt_setup.auto_update:
+                res = self._pyaedt_setup.update(self._root())
+                if not res:
+                    self._pyaedt_setup._app.logger.warning("Update of %s failed. Check needed arguments")
         return True
 
     def delete_all(self) -> None:
