@@ -359,6 +359,49 @@ def deprecate_argument(arg_name: str, version: str = None, message: str = None, 
     return decorator
 
 
+def deprecated_property(reason: str | None = None, version: str | None = None) -> Callable:
+    """Decorator to deprecate a property getter, setter, or deleter.
+
+    Must be applied under ``@property`` (or ``@x.setter``/``@x.deleter``), not above it, so that
+    it wraps the underlying function rather than the descriptor.
+
+    Parameters
+    ----------
+    reason : str, optional
+        Custom text appended to the deprecation message, typically pointing to the replacement.
+    version : str, optional
+        Version in which the property will be removed.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.general_methods import deprecated_property
+    >>> class MyClass:
+    ...     @property
+    ...     @deprecated_property(reason="Use new_name instead.")
+    ...     def old_name(self):
+    ...         return self.new_name
+
+    """
+
+    def decorator(func: _F) -> _F:
+        msg = f"`{func.__name__}` is deprecated"
+        if version:
+            msg += f" and will be removed in {version}"
+        msg += f". {reason}" if reason else "."
+
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            warnings.warn(msg, DeprecationWarning, stacklevel=2)
+            return func(*args, **kwargs)
+
+        wrapper.__doc__ = func.__doc__ or ""
+        if version or reason:
+            wrapper.__doc__ += f"\n\n.. deprecated:: {version or ''}\n   {reason or ''}"
+        return wrapper  # type: ignore[return-value]
+
+    return decorator
+
+
 def pyaedt_function_handler(**deprecated_kwargs: str) -> Callable[[Callable[_P, _R]], Callable[_P, _R]]:
     """Decorator that provides exception handling, execution logging, and deprecated kwargs management.
 
