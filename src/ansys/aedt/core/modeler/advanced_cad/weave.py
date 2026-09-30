@@ -44,48 +44,80 @@ if TYPE_CHECKING:
     from ansys.aedt.core.modeler.cad.object_3d import Object3d
     from ansys.aedt.core.modeler.modeler_3d import Modeler3D
 
+#: Conversion factor from mils (thousandths of an inch) to millimeters.
+MIL_TO_MM = 0.0254
+
+#: Small interference (overlap) margin applied to the undulation amplitude in `create_weave` so
+#: warp/fill yarns overlap slightly at crossings instead of touching with exactly zero gap. See
+#: the comment at the `amplitude` computation in `create_weave` for the full rationale.
+_AMPLITUDE_OVERLAP_FACTOR = 1.05
+
+#: Vendor "Glass Dimensions" style presets.
+#:
+#: Each preset stores the raw vendor measurements (in mils) as reported on
+#: typical glass-fabric dimension sheets:
+#:
+#: - ``x1``/``y1``: yarn height (thin dimension) for warp/fill, respectively.
+#: - ``x2``/``y2``: yarn width for warp/fill, respectively.
+#: - ``x3``/``y3``: pitch (repeat distance) for warp/fill, respectively.
+#:
+#: ``target_amplitude`` is not stored here: `set_weave_style` derives it from ``x1``/``y1``
+#: as half the centerline-separation distance needed for the warp and fill yarns to clear
+#: each other at a crossing: ``centerline_distance = x1/2 + y1/2`` (mils), and since the warp
+#: and fill paths move by ``+-amplitude`` on opposite sides of the mid-plane, the required
+#: separation ``2 * amplitude`` must equal that distance, giving
+#: ``amplitude = (x1 + y1) / 4 * MIL_TO_MM``. This is also consistent with how yarn height is
+#: already computed elsewhere from ``x1``/``y1`` (see `create_weave_homogenized`).
+#: ``yarn_permittivity`` and ``yarn_loss_tangent`` are not part of the vendor glass-dimensions
+#: table either and are provided separately (E-glass dielectric properties).
 WEAVE_STYLES = {
     "1067": dict(
-        target_pitch_x=0.28,
-        target_pitch_y=0.28,
-        warp_width=0.13,
-        fill_width=0.13,
-        ratio_warp=0.077,
-        ratio_fill=0.077,
-        target_amplitude=0.025,
+        x1=0.82,
+        x2=8.85,
+        x3=14.30,
+        y1=0.78,
+        y2=12.40,
+        y3=13.70,
+        yarn_permittivity=6.0,
+        yarn_loss_tangent=0.004,
+    ),
+    "1078": dict(
+        x1=1.70,
+        x2=13.00,
+        x3=18.50,
+        y1=1.70,
+        y2=13.00,
+        y3=18.50,
         yarn_permittivity=6.0,
         yarn_loss_tangent=0.004,
     ),
     "1080": dict(
-        target_pitch_x=0.40,
-        target_pitch_y=0.40,
-        warp_width=0.18,
-        fill_width=0.18,
-        ratio_warp=0.067,
-        ratio_fill=0.067,
-        target_amplitude=0.035,
+        x1=1.60,
+        x2=8.20,
+        x3=17.00,
+        y1=1.10,
+        y2=12.10,
+        y3=22.40,
         yarn_permittivity=6.0,
         yarn_loss_tangent=0.004,
     ),
     "2116": dict(
-        target_pitch_x=0.50,
-        target_pitch_y=0.50,
-        warp_width=0.20,
-        fill_width=0.20,
-        ratio_warp=0.057,
-        ratio_fill=0.057,
-        target_amplitude=0.050,
+        x1=2.20,
+        x2=14.10,
+        x3=17.20,
+        y1=2.00,
+        y2=14.50,
+        y3=17.30,
         yarn_permittivity=6.0,
         yarn_loss_tangent=0.004,
     ),
     "7628": dict(
-        target_pitch_x=0.80,
-        target_pitch_y=0.80,
-        warp_width=0.35,
-        fill_width=0.28,
-        ratio_warp=0.057,
-        ratio_fill=0.057,
-        target_amplitude=0.080,
+        x1=2.40,
+        x2=13.78,
+        x3=31.50,
+        y1=2.40,
+        y2=11.02,
+        y3=31.50,
         yarn_permittivity=6.0,
         yarn_loss_tangent=0.004,
     ),
@@ -116,6 +148,7 @@ class Weave(PyAedtBase):
         self._fill_width = 0.20
         self._ratio_warp = 0.057
         self._ratio_fill = 0.057
+        self._weave_shift_x = 0.0
         self._weave_shift_y = 0.0
         self._rotation = 0.0
         self._facet_ellipse_segs = 8
@@ -350,6 +383,27 @@ class Weave(PyAedtBase):
         self._ratio_fill = float(value)
 
     @property
+    def shift_x(self) -> float:
+        """X-shift applied to the weave coordinate system in millimeters.
+
+        Returns
+        -------
+        float
+            Offset applied along X when creating the weave.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.weave import Weave
+        >>> obj = Weave()
+        >>> s = obj.shift_x
+        """
+        return self._weave_shift_x
+
+    @shift_x.setter
+    def shift_x(self, value: float) -> None:
+        self._weave_shift_x = float(value)
+
+    @property
     def shift_y(self) -> float:
         """Y-shift applied to the weave coordinate system in millimeters.
 
@@ -508,6 +562,7 @@ class Weave(PyAedtBase):
             "fill_width": self.fill_width,
             "ratio_warp": self.ratio_warp,
             "ratio_fill": self.ratio_fill,
+            "shift_x": self.shift_x,
             "shift_y": self.shift_y,
             "rotation": self.rotation,
             "facet_ellipse_segments": self.facet_ellipse_segments,
@@ -595,6 +650,11 @@ class Weave(PyAedtBase):
     def set_weave_style(self, style: str) -> None:
         """Resolve weave preset values from `WEAVE_STYLES`.
 
+        Vendor glass-dimension measurements (``x1``, ``x2``, ``x3``, ``y1``, ``y2``, ``y3``),
+        expressed in mils, are converted to millimeters and combined to derive
+        `target_pitch_x`, `target_pitch_y`, `warp_width`, `fill_width`, `ratio_warp`,
+        and `ratio_fill`.
+
         Parameters
         ----------
         style: str
@@ -613,13 +673,21 @@ class Weave(PyAedtBase):
             msg = f"Unknown weave style '{style}'. Available options are: {list(WEAVE_STYLES.keys())}"
             raise ValueError(msg)
         preset = WEAVE_STYLES[style]
-        self.target_pitch_x = preset["target_pitch_x"]
-        self.target_pitch_y = preset["target_pitch_y"]
-        self.warp_width = preset["warp_width"]
-        self.fill_width = preset["fill_width"]
-        self.ratio_warp = preset["ratio_warp"]
-        self.ratio_fill = preset["ratio_fill"]
-        self.target_amplitude = preset["target_amplitude"]
+
+        x1, x2, x3 = preset["x1"], preset["x2"], preset["x3"]
+        y1, y2, y3 = preset["y1"], preset["y2"], preset["y3"]
+
+        self.target_pitch_x = x3 * MIL_TO_MM
+        self.target_pitch_y = y3 * MIL_TO_MM
+        self.warp_width = x2 * MIL_TO_MM
+        self.fill_width = y2 * MIL_TO_MM
+        self.ratio_warp = x1 / x2
+        self.ratio_fill = y1 / y2
+
+        # Amplitude derived so that warp/fill centerlines (each moving by +-amplitude on
+        # opposite sides of the mid-plane) achieve a separation equal to the centerline
+        # distance required for the two yarns to clear each other: (x1 + y1) / 2 (mils).
+        self.target_amplitude = (x1 + y1) / 4 * MIL_TO_MM
         self.yarn_permittivity = preset["yarn_permittivity"]
         self.yarn_loss_tangent = preset["yarn_loss_tangent"]
 
@@ -682,22 +750,40 @@ class Weave(PyAedtBase):
             mat.permittivity = self.yarn_permittivity
             mat.dielectric_loss_tangent = self.yarn_loss_tangent
 
-        diag = math.sqrt(sub_w**2 + sub_hy**2)
+        # Tight per-axis half-extent that the (possibly rotated) weave pattern must cover to fully
+        # clip the substrate footprint. Using the full bounding-box diagonal for both axes (as a
+        # worst-case, rotation-agnostic bound) massively over-generates yarn geometry -- especially
+        # for elongated substrates or zero rotation, where the true required extent is much smaller
+        # than the diagonal. This tight bound equals sub_w/2 and sub_hy/2 exactly when rotation=0,
+        # and only approaches the full diagonal at a 45-degree rotation.
+        r = math.radians(self.rotation)
+        cx, sx = math.cos(r), math.sin(r)
+        half_x = abs(sub_w / 2 * cx) + abs(sub_hy / 2 * sx)
+        half_y = abs(sub_w / 2 * sx) + abs(sub_hy / 2 * cx)
 
-        n_cell_x = max(1, round(diag / (2 * self.target_pitch_x)))
-        n_cell_y = max(1, round(diag / (2 * self.target_pitch_y)))
-        pitch_x = diag / (2 * n_cell_x)
-        pitch_y = diag / (2 * n_cell_y)
+        n_cell_x = max(1, round(half_x / self.target_pitch_x))
+        n_cell_y = max(1, round(half_y / self.target_pitch_y))
+        pitch_x = half_x / n_cell_x
+        pitch_y = half_y / n_cell_y
         max_amplitude = (zmax - zmin) / 2.0 * 0.80
         amplitude = min(self.target_amplitude, max_amplitude)
+        # Apply a small interference margin so warp and fill yarns slightly overlap rather than
+        # touch with exactly zero gap at each crossing. `target_amplitude` is derived so the two
+        # yarn centerlines are separated by exactly the sum of their half-heights (see
+        # `set_weave_style`), which means, without this margin, they are perfectly tangent.
+        # Exact (zero-gap) tangency across many duplicated bodies is numerically marginal for the
+        # CAD kernel's boolean union and can intermittently fail ("Error in uniting objects").
+        # Real woven yarns also compress slightly into each other at crossings, so a small overlap
+        # is physically reasonable, not just a numerical workaround.
+        amplitude = min(amplitude * _AMPLITUDE_OVERLAP_FACTOR, max_amplitude)
 
         app[f"{name}_pitch_x"] = f"{pitch_x}mm"
         app[f"{name}_pitch_y"] = f"{pitch_y}mm"
         app[f"{name}_warp_width"] = f"{self.warp_width}mm"
         app[f"{name}_fill_width"] = f"{self.fill_width}mm"
         app[f"{name}_amplitude"] = f"{amplitude}mm"
-        app[f"{name}_span_x"] = f"{diag / 2}mm"
-        app[f"{name}_span_y"] = f"{diag / 2}mm"
+        app[f"{name}_span_x"] = f"{half_x}mm"
+        app[f"{name}_span_y"] = f"{half_y}mm"
 
         n_pts_warp = self.facet_path_segments_per_half * 2 * n_cell_x
         n_pts_fill = self.facet_path_segments_per_half * 2 * n_cell_y
@@ -711,10 +797,8 @@ class Weave(PyAedtBase):
 
         z_mid = (zmin + zmax) / 2.0
 
-        r = math.radians(self.rotation)
-        cx, sx = math.cos(r), math.sin(r)
         m.create_coordinate_system(
-            origin=[xmin + sub_w / 2, ymin + sub_hy / 2 + self.shift_y, z_mid],
+            origin=[xmin + sub_w / 2 + self.shift_x, ymin + sub_hy / 2 + self.shift_y, z_mid],
             x_pointing=[cx, sx, 0],
             y_pointing=[-sx, cx, 0],
             name=cs_name,
@@ -785,11 +869,19 @@ class Weave(PyAedtBase):
         m.move(f"{name}_WarpB", ["0mm", f"{name}_pitch_y", "0mm"])
         m.move(f"{name}_FillB", [f"{name}_pitch_x", "0mm", "0mm"])
 
-        half_diag = diag / 2
-        n_offset_y = math.ceil(half_diag / (2 * pitch_y))
-        n_offset_x = math.ceil(half_diag / (2 * pitch_x))
-        offset_y = f"-{2 * n_offset_y}*{name}_pitch_y"
-        offset_x = f"-{2 * n_offset_x}*{name}_pitch_x"
+        # Symmetric duplication: move the family by -2*n_side*pitch and duplicate 2*n_side+1
+        # times spaced 2*pitch apart, so the resulting span is exactly
+        # [-2*n_side*pitch, +2*n_side*pitch], centered on the origin. n_side is chosen so this
+        # span covers +-half on both sides. An asymmetric (move-negative-only,
+        # duplicate-forward-only) approach would skew the pattern toward negative coordinates;
+        # that skew was negligible with the old (always large) diagonal-based sizing, but became
+        # a dominant, visible offset once sizing was tightened per-axis (see half_x/half_y above).
+        n_side_y = math.ceil((half_y + pitch_y) / (2 * pitch_y))
+        n_side_x = math.ceil((half_x + pitch_x) / (2 * pitch_x))
+        n_total_y = 2 * n_side_y + 1
+        n_total_x = 2 * n_side_x + 1
+        offset_y = f"-{2 * n_side_y}*{name}_pitch_y"
+        offset_x = f"-{2 * n_side_x}*{name}_pitch_x"
 
         for name_warp in [f"{name}_WarpA", f"{name}_WarpB"]:
             m.move(name_warp, ["0mm", offset_y, "0mm"])
@@ -804,10 +896,10 @@ class Weave(PyAedtBase):
         ]
 
         for base, vec, n in [
-            (f"{name}_WarpA", ["0mm", f"2*{name}_pitch_y", "0mm"], n_cell_y + n_offset_y),
-            (f"{name}_WarpB", ["0mm", f"2*{name}_pitch_y", "0mm"], n_cell_y + n_offset_y),
-            (f"{name}_FillA", [f"2*{name}_pitch_x", "0mm", "0mm"], n_cell_x + n_offset_x),
-            (f"{name}_FillB", [f"2*{name}_pitch_x", "0mm", "0mm"], n_cell_x + n_offset_x),
+            (f"{name}_WarpA", ["0mm", f"2*{name}_pitch_y", "0mm"], n_total_y),
+            (f"{name}_WarpB", ["0mm", f"2*{name}_pitch_y", "0mm"], n_total_y),
+            (f"{name}_FillA", [f"2*{name}_pitch_x", "0mm", "0mm"], n_total_x),
+            (f"{name}_FillB", [f"2*{name}_pitch_x", "0mm", "0mm"], n_total_x),
         ]:
             if n < 2:
                 continue
