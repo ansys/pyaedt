@@ -364,9 +364,9 @@ def test_assign_current_density(sinusoidal) -> None:
     assert bound2.props["CoordinateSystem"] == ""
     bound_group = sinusoidal.assign_current_density(["Coil", "Coil_1"], "CurrentDensityGroup_1")
     assert bound_group
-    assert bound_group.props[bound_group.props["items"][0]]["Objects"] == ["Coil", "Coil_1"]
-    assert bound_group.props[bound_group.props["items"][0]]["Value"] == "0"
-    assert bound_group.props[bound_group.props["items"][0]]["CoordinateSystem"] == ""
+    assert bound_group.props["Objects"] == ["Coil"]
+    assert bound_group.props["Value"] == "0"
+    assert bound_group.props["CoordinateSystem"] == ""
     with pytest.raises(AEDTRuntimeError, match="Couldn't assign current density to desired list of objects."):
         sinusoidal.assign_current_density("Circle_inner", "CurrentDensity_1")
 

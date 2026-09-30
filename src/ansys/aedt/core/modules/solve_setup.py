@@ -4002,9 +4002,14 @@ class SetupHFSSAuto(Setup, PyAedtBase):
         if not self.props["Sweeps"]["Sweep"].get("SweepRanges") or not self.props["Sweeps"]["Sweep"]["SweepRanges"].get(
             "Subrange"
         ):
-            self.props["Sweeps"]["Sweep"]["SweepRanges"] = {"Subrange": []}
-        self.props["Sweeps"]["Sweep"]["SweepRanges"]["Subrange"].append(sweep_range)
-        return self.update()
+            cc = self.props["Sweeps"]["Sweep"]
+            cc["SweepRanges"] = {"Subrange": [sweep_range]}
+            self.props["Sweeps"]["Sweep"] = cc
+        else:
+            cc = self.props["Sweeps"]["Sweep"]["SweepRanges"]["Subrange"]
+            cc.append(sweep_range)
+            self.props["Sweeps"]["Sweep"]["SweepRanges"]["Subrange"] = cc
+        return True
 
     @pyaedt_function_handler()
     def enable_adaptive_setup_single(

@@ -62,7 +62,7 @@ class BoundaryProps(dict):
 
         if self._pyaedt_boundary.auto_update:
             if key in ["Edges", "Faces", "Objects"]:
-                res = self._pyaedt_boundary.update_assignment()
+                res = self._pyaedt_boundary.update_assignment(self._root())
             else:
                 res = self._pyaedt_boundary.update(self._root())
             if not res:
@@ -852,7 +852,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def update_assignment(self) -> bool:
+    def update_assignment(self, properties=None) -> bool:
         """Update the boundary assignment.
 
         Returns
@@ -868,9 +868,11 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
         """
         out = ["Name:" + self.name]
+        if properties is None:
+            properties = self.props
 
-        if "Faces" in self.props:
-            faces = self.props["Faces"]
+        if "Faces" in properties:
+            faces = properties.get("Faces", [])
             faces_out = []
             if not isinstance(faces, list):
                 faces = [faces]
@@ -883,7 +885,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
         if "Objects" in self.props:
             pr = []
-            for el in self.props["Objects"]:
+            for el in properties.get("Objects", []):
                 try:
                     pr.append(self._app.modeler[el].name)
                 except (KeyError, AttributeError):

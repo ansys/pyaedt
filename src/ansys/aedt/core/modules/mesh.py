@@ -33,7 +33,6 @@ from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.internal.errors import MethodNotSupportedError
 from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
@@ -82,18 +81,22 @@ class MeshProps(dict):
     """
 
     def __setitem__(self, key, value):
-        value = _units_assignment(value)
+        if isinstance(value, dict):
+            dict.__setitem__(self, key, MeshProps(self._pyaedt_mesh, value, parent=self._root()))
+        else:
+            value = _units_assignment(value)
         dict.__setitem__(self, key, value)
         if self._pyaedt_mesh.auto_update:
             if key in ["Edges", "Faces", "Objects"]:
-                res = self._pyaedt_mesh.update_assignment()
+                res = self._pyaedt_mesh.update_assignment(self)
             else:
                 res = self._pyaedt_mesh.update(key, value)
             if not res:
                 self._pyaedt_mesh._app.logger.warning("Update of %s Failed. Check needed arguments", key)
 
-    def __init__(self, mesh_object, props) -> None:
+    def __init__(self, mesh_object, props, parent=None) -> None:
         dict.__init__(self)
+        self._pyaedt_parent = parent
         if props:
             for key, value in props.items():
                 if isinstance(value, (dict, dict)):
@@ -104,6 +107,11 @@ class MeshProps(dict):
 
     def _setitem_without_update(self, key, value):
         dict.__setitem__(self, key, value)
+
+    def _root(self):
+        """Return the top-level ``BoundaryProps`` for this tree."""
+        parent = getattr(self, "_pyaedt_parent", None)
+        return parent if parent is not None else self
 
 
 class MeshOperation(BinaryTreeNode, PyAedtBase):
@@ -222,9 +230,9 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         return self.props
 
     @pyaedt_function_handler()
-    def _get_args(self):
+    def _get_args(self, props=None):
         """Retrieve arguments."""
-        props = self.props
+        props = self.props if not props else props
         arg = ["NAME:" + self.name]
         _dict2arg(props, arg)
         return arg
@@ -330,49 +338,45 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         >>> obj.update(key_name=1, value=1)
 
         """
-        mesh_oo = self._mesh._app.get_oo_object(self._mesh._app.odesign, "Mesh")
-        mesh_names = self._mesh._app.get_oo_name(mesh_oo)
-        if key_name and settings.aedt_version > "2022.2" and self.name in mesh_names:
-            try:
-                if key_name in mesh_props.keys():
-                    if key_name == "SurfaceRepPriority":
-                        value = "Normal" if value == 0 else "High"
-                    key_name = mesh_props[key_name]
-                self._mesh._app.set_oo_property_value(mesh_oo, self.name, key_name, value)
-                return True
-            except Exception:
-                self._app.logger.info("Failed to use Child Object. Trying with legacy update.")
+        props = dict(self.props)
+        for k, v in props.items():
+            if k == key_name:
+                if key_name == "SurfaceRepPriority":
+                    value = "Normal" if value == 0 else "High"
+                props[k] = value
+                if k == "NormalDev":
+                    props["NormalDeChoice"] = 2
 
         if self.type == "SurfApproxBased":
-            self._mesh.omeshmodule.EditTrueSurfOp(self.name, self._get_args())
+            self._mesh.omeshmodule.EditTrueSurfOp(self.name, self._get_args(props))
         elif self.type == "DefeatureBased":
-            self._mesh.omeshmodule.EditModelResolutionOp(self.name, self._get_args())
+            self._mesh.omeshmodule.EditModelResolutionOp(self.name, self._get_args(props))
         elif self.type == "SurfaceRepPriority":
-            self._mesh.omeshmodule.EditSurfPriorityForTauOp(self.name, self._get_args())
+            self._mesh.omeshmodule.EditSurfPriorityForTauOp(self.name, self._get_args(props))
         elif self.type == "LengthBased":
-            self._mesh.omeshmodule.EditLengthOp(self.name, self._get_args())
+            self._mesh.omeshmodule.EditLengthOp(self.name, self._get_args(props))
         elif self.type == "SkinDepthBased":
-            self._mesh.omeshmodule.EditSkinDepthOp(self.name, self._get_args())
+            self._mesh.omeshmodule.EditSkinDepthOp(self.name, self._get_args(props))
         elif self.type == "Curvilinear":
-            self._mesh.omeshmodule.EditApplyCurvlinearElementsOp(self.name, self._get_args())
+            self._mesh.omeshmodule.EditApplyCurvlinearElementsOp(self.name, self._get_args(props))
         elif self.type == "RotationalLayerMesh":
-            self._mesh.omeshmodule.EditRotationalLayerOp(self.name, self._get_args())
+            self._mesh.omeshmodule.EditRotationalLayerOp(self.name, self._get_args(props))
         elif self.type == "DensityControlBased":
-            self._mesh.omeshmodule.EditDensityControlOp(self.name, self._get_args())
+            self._mesh.omeshmodule.EditDensityControlOp(self.name, self._get_args(props))
         elif self.type == "Icepak":
-            self._mesh.omeshmodule.EditMeshOperation(self.name, self._get_args())
+            self._mesh.omeshmodule.EditMeshOperation(self.name, self._get_args(props))
         elif self.type == "CurvatureExtraction":
-            self._mesh.omeshmodule.EditSBRCurvatureExtractionOp(self.name, self._get_args())
+            self._mesh.omeshmodule.EditSBRCurvatureExtractionOp(self.name, self._get_args(props))
         elif self.type in ["InitialMeshSettings", "MeshSettings"]:
-            self._mesh.omeshmodule.InitialMeshSettings(self._get_args())
+            self._mesh.omeshmodule.InitialMeshSettings(self._get_args(props))
         elif self.type == "CylindricalGap":
-            self._mesh.omeshmodule.EditCylindricalGapOp(self.name, self._get_args())
+            self._mesh.omeshmodule.EditCylindricalGapOp(self.name, self._get_args(props))
         else:
             return False
         return True
 
     @pyaedt_function_handler()
-    def update_assignment(self) -> bool:
+    def update_assignment(self, properties=None) -> bool:
         """Update the boundary assignment.
 
         Returns
@@ -388,9 +392,10 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
 
         """
         out = []
-
-        if "Faces" in self.props:
-            faces = self.props["Faces"]
+        if properties is None:
+            properties = self.props
+        if "Faces" in properties:
+            faces = properties.get("Faces", [])
             faces_out = []
             if not isinstance(faces, list):
                 faces = [faces]
@@ -401,9 +406,9 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
                     faces_out.append(f)
             out += ["Faces:=", faces_out]
 
-        if "Objects" in self.props:
+        if "Objects" in properties:
             pr = []
-            for el in self.props["Objects"]:
+            for el in properties.get("Objects", []):
                 try:
                     pr.append(self._app.modeler[el].name)
                 except (KeyError, AttributeError):
