@@ -55,6 +55,7 @@ import tempfile
 import time
 import traceback
 from types import TracebackType
+from typing import TYPE_CHECKING
 import warnings
 
 from ansys.aedt.core import __version__
@@ -84,6 +85,9 @@ from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 from ansys.aedt.core.internal.desktop_sessions import _edb_sessions
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.generic.protocols import _ODesktop
 
 ON_CI = os.getenv("ON_CI", "false").lower() == "true"
 """Flag indicating whether execution is running on CI."""
@@ -1421,7 +1425,7 @@ class Desktop(PyAedtBase):
         return self.__logger
 
     @property
-    def odesktop(self) -> object:
+    def odesktop(self) -> "_ODesktop" | None:
         """AEDT instance containing all projects and designs.
 
         Examples
@@ -1448,7 +1452,7 @@ class Desktop(PyAedtBase):
         return self.__desktop
 
     @odesktop.setter
-    def odesktop(self, val: object) -> None:
+    def odesktop(self, val: "_ODesktop" | None) -> None:
         self.__desktop = val
 
     @property
