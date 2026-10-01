@@ -91,7 +91,7 @@ def test_assign_assign_voltage(m3d_app_ac) -> None:
     assert voltage.props["Voltage"] == "10V"
     assert voltage.props["Faces"][0] == cyl.top_face_z.id
     assert not voltage.props["VoltageAPhi_Point_out_of_terminal"]
-    assert voltage.props["VoltageAPhiExcitationModel"] == "Double Potentials with Ground"
+    assert voltage.props["VoltageAphiExcitationModel"] == "Double Potentials with Ground"
 
 
 def test_set_core_losses(m3d_app_ac) -> None:
@@ -157,8 +157,8 @@ def test_assign_matrix(m3d_app_ac) -> None:
     )
     matrix = m3d_app_ac.assign_matrix(matrix_args)
     assert matrix in m3d_app_ac.boundaries
-    assert matrix.props["RLMatrix"]["MatrixEntry"]["MatrixEntry"][0]["Source"] == current.name
-    assert matrix.props["GCMatrix"]["MatrixEntry"]["MatrixEntry"][0]["Source"] == current1.name
+    assert matrix.props["RLMatrix"]["MatrixEntry"]["MatrixEntry"]["Source"] == current.name
+    assert matrix.props["GCMatrix"]["MatrixEntry"]["MatrixEntry"]["Source"] == current1.name
     assert matrix.name == "test_matrix"
 
 
@@ -197,6 +197,7 @@ def test_assign_setup(m3d_app_ac) -> None:
 
     dc_freq = 0.1
     stop_freq = 10
+    stop_freq2 = 100
     count = 1
     setup.add_eddy_current_sweep(
         sweep_type="LinearStep", start_frequency=dc_freq, stop_frequency=stop_freq, step_size=count, clear=False
@@ -213,6 +214,15 @@ def test_assign_setup(m3d_app_ac) -> None:
     assert not m3d_app_ac.setups[0].properties["Use Nonlinear Iteration"]
     assert not m3d_app_ac.setups[0].properties["Use higher order shape functions"]
     assert setup.enable_expression_cache(["CoreLoss"], "Fields", "Phase='0deg' ", True)
+    assert m3d_app_ac.setups[0].props["SweepRanges"]["Subrange"] == {
+        "RangeType": "LinearStep",
+        "RangeStart": "0.1Hz",
+        "RangeEnd": "10Hz",
+        "RangeStep": "1Hz",
+    }
+    setup.add_eddy_current_sweep(
+        sweep_type="LinearStep", start_frequency=stop_freq, stop_frequency=stop_freq2, step_size=count, clear=False
+    )
     assert m3d_app_ac.setups[0].props["SweepRanges"]["Subrange"][0] == {
         "RangeType": "LinearStep",
         "RangeStart": "0.1Hz",

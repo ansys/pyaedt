@@ -32,68 +32,13 @@ from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.general_methods import PropsManager
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.generic.numbers_utils import is_number
+from ansys.aedt.core.generic.props import BoundaryAssignmentList  # noqa: F401
+from ansys.aedt.core.generic.props import Props as BoundaryProps
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
-
-
-class BoundaryProps(dict):
-    """AEDT Boundary Component Internal Parameters.
-
-    Nested dictionaries are wrapped as ``BoundaryProps`` so that
-    ``props["a"]["b"]["c"] = value`` still updates the full property tree.
-
-    Examples
-    --------
-    >>> from ansys.aedt.core.modules.boundary.common import BoundaryProps
-    >>> obj = BoundaryProps()
-
-    """
-
-    def __setitem__(self, key, value):
-        if isinstance(value, dict):
-            dict.__setitem__(self, key, BoundaryProps(self._pyaedt_boundary, value, parent=self._root()))
-        else:
-            value = _units_assignment(value)
-            dict.__setitem__(self, key, value)
-
-        if self._pyaedt_boundary.auto_update:
-            if key in ["Edges", "Faces", "Objects"]:
-                res = self._pyaedt_boundary.update_assignment(self._root())
-            else:
-                res = self._pyaedt_boundary.update(self._root())
-            if not res:
-                self._pyaedt_boundary._app.logger.warning("Update of %s Failed. Check needed arguments", key)
-
-    def __init__(self, boundary, props, parent=None) -> None:
-        dict.__init__(self)
-        self._pyaedt_boundary = boundary
-        self._pyaedt_parent = parent
-        if props:
-            for key, value in props.items():
-                if isinstance(value, dict):
-                    dict.__setitem__(self, key, BoundaryProps(boundary, value, parent=self._root()))
-                elif isinstance(value, list):
-                    list_els = []
-                    for el in value:
-                        if isinstance(el, dict):
-                            list_els.append(BoundaryProps(boundary, el, parent=self._root()))
-                        else:
-                            list_els.append(el)
-                    dict.__setitem__(self, key, list_els)
-                else:
-                    dict.__setitem__(self, key, value)
-
-    def _root(self):
-        """Return the top-level ``BoundaryProps`` for this tree."""
-        parent = getattr(self, "_pyaedt_parent", None)
-        return parent if parent is not None else self
-
-    def _setitem_without_update(self, key, value):
-        dict.__setitem__(self, key, value)
 
 
 class BoundaryCommon(PropsManager, PyAedtBase):
@@ -466,15 +411,24 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
         """
         if self._child_object:
-            self._name = str(self.properties["Name"])
+            current_name = self.properties.get("Name")
+            if current_name:
+                object.__setattr__(self, "_name", str(current_name))
         return self._name
 
     @name.setter
     def name(self, value: str) -> None:
         if self._child_object:
             try:
+                old_name = self._name
                 self.properties["Name"] = value
+                object.__setattr__(self, "_name", value)
+                object.__setattr__(self, "_tree_node_initialized", False)
+                object.__setattr__(self, "_props", None)
+                object.__setattr__(self, "_children_loaded", False)
                 self._app._boundaries[value] = self
+                if old_name and old_name != value:
+                    self._app._boundaries.pop(old_name, None)
             except KeyError:
                 self._app.logger.error("Name %s already assigned in the design", value)
 
@@ -869,7 +823,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         """
         out = ["Name:" + self.name]
         if properties is None:
-            properties = self.props
+            properties = dict(self.props)
 
         if "Faces" in properties:
             faces = properties.get("Faces", [])
@@ -883,13 +837,16 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
                     faces_out.append(f)
             out += ["Faces:=", faces_out]
 
-        if "Objects" in self.props:
+        if "Objects" in properties:
             pr = []
             for el in properties.get("Objects", []):
+                if hasattr(el, "name"):
+                    pr.append(el.name)
+                    continue
                 try:
                     pr.append(self._app.modeler[el].name)
                 except (KeyError, AttributeError):
-                    pass
+                    pr.append(el)
             out += ["Objects:=", pr]
 
         if len(out) == 1:

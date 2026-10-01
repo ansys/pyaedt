@@ -1274,6 +1274,8 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         if self._is_created:
             if name not in self._post.oreportsetup.GetAllReportNames():
                 self._post.oreportsetup.RenameReport(self._legacy_props["plot_name"], name)
+            self._legacy_props["plot_name"] = name
+            self._initialize_tree_node()
         self._legacy_props["plot_name"] = name
 
     @property

@@ -48,12 +48,12 @@ from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import PropsManager
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.props import Props as SetupProps
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modules.profile import Profiles
 from ansys.aedt.core.modules.setup_templates import SetupKeys
-from ansys.aedt.core.modules.solve_sweeps import SetupProps
 from ansys.aedt.core.modules.solve_sweeps import SweepHFSS
 from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
 from ansys.aedt.core.modules.solve_sweeps import SweepMatrix
@@ -2971,7 +2971,7 @@ class Setup3DLayout(CommonSetup):
                 val.append(SetupProps(self, entry))
             self.props["MatrixConvEntry"] = val
         else:
-            self.props["MatrixConvEntry"] = []
+            MatrixConvEntry = []
             for entry_custom in custom_entries:
                 entry = {
                     "Port1": entry_custom[0],
@@ -2979,7 +2979,8 @@ class Setup3DLayout(CommonSetup):
                     "MagLimit": str(entry_custom[2]),
                     "PhaseLimit": self._app.value_with_units(entry_custom[3], "deg"),
                 }
-                self.props["MatrixConvEntry"].append(SetupProps(self, entry))
+                MatrixConvEntry.append(SetupProps(self, entry))
+            self.props["MatrixConvEntry"] = MatrixConvEntry
         self.auto_update = legacy_update
         return self.update()
 
@@ -4353,22 +4354,22 @@ class SetupMaxwell(Setup, PyAedtBase):
             sweep.props["RangeSamples"] = step_size
         elif sweep_type == "SinglePoints":
             sweep.props["RangeEnd"] = f"{start_frequency}{units}"
-        self.props["SaveAllFields"] = save_all_fields
-        if self.sweeps:
+        pp = dict(self.props)
+        pp["SaveAllFields"] = save_all_fields
+        if pp.get("SweepRanges"):
             if clear:
-                self.props["SweepRanges"] = {"Subrange": [SetupProps(self, sweep.props)]}
+                pp["SweepRanges"] = {"Subrange": [sweep.props]}
                 self.sweeps.clear()
             else:
                 if isinstance(self.props["SweepRanges"]["Subrange"], dict):
                     temp = self.props["SweepRanges"]["Subrange"]
-                    self.props["SweepRanges"].pop("Subrange", None)
-                    self.props["SweepRanges"]["Subrange"] = [SetupProps(self, temp)]
-                self.props["SweepRanges"]["Subrange"].append(SetupProps(self, sweep.props))
+                    pp["SweepRanges"].pop("Subrange", None)
+                    pp["SweepRanges"]["Subrange"] = [SetupProps(self, temp)]
+                pp["SweepRanges"]["Subrange"].append(SetupProps(self, sweep.props))
         else:
-            self.props["HasSweepSetup"] = True
-            self.props["SweepRanges"] = {"Subrange": [SetupProps(self, sweep.props)]}
-            sweep.create()
-        self.update()
+            pp["HasSweepSetup"] = True
+            pp["SweepRanges"] = {"Subrange": [SetupProps(self, sweep.props)]}
+        sweep.create(pp)
         self.auto_update = legacy_update
         if self._sweeps is None:
             self._sweeps = []

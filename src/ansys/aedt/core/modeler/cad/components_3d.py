@@ -35,7 +35,7 @@ from ansys.aedt.core.generic.constants import Axis
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import _uname
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.numbers_utils import _units_assignment
+from ansys.aedt.core.generic.props import Props as UserDefinedComponentProps
 from ansys.aedt.core.internal.desktop_sessions import _edb_sessions
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 
@@ -66,38 +66,6 @@ class UserDefinedComponentParameters(dict):
     def __init__(self, component, *args, **kw) -> None:
         dict.__init__(self, *args, **kw)
         self._component = component
-
-
-class UserDefinedComponentProps(dict):
-    """User Defined Component Internal Parameters.
-
-    Examples
-    --------
-    >>> from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponentProps
-    >>> obj = UserDefinedComponentProps()
-
-    """
-
-    def __setitem__(self, key, value):
-        value = _units_assignment(value)
-        dict.__setitem__(self, key, value)
-        if self._pyaedt_user_defined_component.auto_update:
-            res = self._pyaedt_user_defined_component.update_native()
-            if not res:
-                self._pyaedt_user_defined_component._logger.warning("Update of %s failed. Check needed arguments", key)
-
-    def __init__(self, user_defined_components, props) -> None:
-        dict.__init__(self)
-        if props:
-            for key, value in props.items():
-                if isinstance(value, dict):
-                    dict.__setitem__(self, key, UserDefinedComponentProps(user_defined_components, value))
-                else:
-                    dict.__setitem__(self, key, value)
-        self._pyaedt_user_defined_component = user_defined_components
-
-    def _setitem_without_update(self, key, value):
-        dict.__setitem__(self, key, value)
 
 
 class UserDefinedComponent(PyAedtBase):

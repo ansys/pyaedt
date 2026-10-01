@@ -24,7 +24,6 @@
 
 import copy
 from difflib import SequenceMatcher
-import json
 import os
 import warnings
 
@@ -33,8 +32,6 @@ from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import Quantity
-from ansys.aedt.core.generic.numbers_utils import _units_assignment
-from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.load_aedt_file import load_entire_aedt_file
 from ansys.aedt.core.modules.setup_templates import Sweep3DLayout
 from ansys.aedt.core.modules.setup_templates import SweepEddyCurrent
@@ -1138,7 +1135,7 @@ class SweepMaxwellEC(SweepCommon):
         return []
 
     @pyaedt_function_handler()
-    def create(self) -> bool:
+    def create(self, properties: dict = None) -> bool:
         """Create a Maxwell Eddy Current sweep.
 
         Returns
@@ -1153,7 +1150,7 @@ class SweepMaxwellEC(SweepCommon):
         >>> obj.create()
 
         """
-        self.oanalysis.EditSetup(self.setup_name, self._get_args(self._setup.props))
+        self.oanalysis.EditSetup(self.setup_name, self._get_args(properties if properties else self._setup.props))
         return True
 
     @pyaedt_function_handler()
@@ -1223,102 +1220,3 @@ class SweepMaxwellEC(SweepCommon):
         arg = ["NAME:" + self.setup_name]
         _dict2arg(props, arg)
         return arg
-
-
-class SetupProps(dict):
-    """Provides internal parameters for the AEDT boundary component.
-
-    Examples
-    --------
-    >>> from ansys.aedt.core.modules.solve_sweeps import SetupProps
-    >>> obj = SetupProps()
-
-    """
-
-    def __setitem__(self, key, value):
-        if isinstance(value, dict):
-            dict.__setitem__(self, key, SetupProps(self._pyaedt_setup, value, parent=self._root()))
-        else:
-            value = _units_assignment(value)
-            dict.__setitem__(self, key, value)
-
-        if self._pyaedt_setup.auto_update:
-            res = self._pyaedt_setup.update(self._root())
-            if not res:
-                self._pyaedt_setup._app.logger.warning("Update of %s failed. Check needed arguments", key)
-
-    def __init__(self, setup, props, parent=None) -> None:
-        dict.__init__(self)
-        self._pyaedt_parent = parent
-        if props:
-            for key, value in props.items():
-                if isinstance(value, dict):
-                    dict.__setitem__(self, key, SetupProps(setup, value, parent=self._root()))
-                else:
-                    dict.__setitem__(self, key, value)
-        self._pyaedt_setup = setup
-
-    def _root(self):
-        """Return the top-level ``BoundaryProps`` for this tree."""
-        parent = getattr(self, "_pyaedt_parent", None)
-        return parent if parent is not None else self
-
-    def _setitem_without_update(self, key, value):
-        dict.__setitem__(self, key, value)
-
-    def _export_properties_to_json(self, file_path, overwrite: bool = False) -> bool:
-        """Export all setup properties to a JSON file.
-
-        Parameters
-        ----------
-        file_path : str
-            File path for the JSON file.
-        """
-        FILTER_KEYS = {"DataId", "SimSetupID", "ProdMajVerID", "ProjDesignSetup", "ProdMinVerID", "NumberOfProcessors"}
-        if not file_path.endswith(".json"):
-            file_path = file_path + ".json"
-        export_dict = {}
-        for k, v in self.items():
-            if k not in FILTER_KEYS:
-                export_dict[k] = v
-        if os.path.isfile(file_path) and not overwrite:
-            settings.logger.warning("Unable to overwrite file: %s." % (file_path))
-            return False
-        else:
-            with open(file_path, "w", encoding="utf-8") as f:
-                f.write(json.dumps(export_dict, indent=4, ensure_ascii=False))
-            return True
-
-    def _import_properties_from_json(self, file_path) -> bool:
-        """Import setup properties from a JSON file.
-
-        Parameters
-        ----------
-        file_path : str
-            File path for the JSON file.
-        """
-
-        def set_props(target, source) -> None:
-            for k, v in source.items():
-                if k not in target:
-                    self._pyaedt_setup._app.logger.warning(f"{k} is not a valid property name.")
-                if not isinstance(v, dict):
-                    dict.__setitem__(self, k, v)
-                else:
-                    if k not in target:
-                        dict.__setitem__(self, k, {})
-                    set_props(target[k], v)
-
-        with open(file_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-            set_props(self, data)
-            if self._pyaedt_setup.auto_update:
-                res = self._pyaedt_setup.update(self._root())
-                if not res:
-                    self._pyaedt_setup._app.logger.warning("Update of %s failed. Check needed arguments")
-        return True
-
-    def delete_all(self) -> None:
-        for item in list(self.keys()):
-            if item != "_pyaedt_setup":
-                dict.__delitem__(self, item)

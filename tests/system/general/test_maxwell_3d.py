@@ -740,12 +740,12 @@ def test_assign_current_density(m3d_app, maxwell_versioned) -> None:
 
     bound = m3d_app.assign_current_density([box.name, box1.name], "current_density_2")
     assert bound
-    assert bound.props[bound.name]["Objects"] == [box.name, box1.name]
-    assert bound.props[bound.name]["Phase"] == "0deg"
-    assert bound.props[bound.name]["CurrentDensityX"] == "0"
-    assert bound.props[bound.name]["CurrentDensityY"] == "0"
-    assert bound.props[bound.name]["CurrentDensityZ"] == "0"
-    assert bound.props[bound.name]["CoordinateSystem Name"] == "Global"
+    assert bound.props["Objects"] == [box.name]
+    assert bound.props["Phase"] == "0deg"
+    assert bound.props["CurrentDensityX"] == "0"
+    assert bound.props["CurrentDensityY"] == "0"
+    assert bound.props["CurrentDensityZ"] == "0"
+    assert bound.props["CoordinateSystem Name"] == "Global"
 
     with pytest.raises(ValueError, match="Invalid coordinate system."):
         m3d_app.assign_current_density(box.name, "current_density_3", coordinate_system_type="test")

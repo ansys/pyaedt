@@ -33,7 +33,7 @@ from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.numbers_utils import _units_assignment
+from ansys.aedt.core.generic.props import Props as MeshProps
 from ansys.aedt.core.internal.errors import MethodNotSupportedError
 from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
@@ -68,50 +68,6 @@ mesh_props = {
     "LayersNum": "Number of layers",
 }
 """Value for mesh props."""
-
-
-class MeshProps(dict):
-    """AEDT Mesh Component Internal Parameters.
-
-    Examples
-    --------
-    >>> from ansys.aedt.core.modules.mesh import MeshProps
-    >>> obj = MeshProps()
-
-    """
-
-    def __setitem__(self, key, value):
-        if isinstance(value, dict):
-            dict.__setitem__(self, key, MeshProps(self._pyaedt_mesh, value, parent=self._root()))
-        else:
-            value = _units_assignment(value)
-        dict.__setitem__(self, key, value)
-        if self._pyaedt_mesh.auto_update:
-            if key in ["Edges", "Faces", "Objects"]:
-                res = self._pyaedt_mesh.update_assignment(self)
-            else:
-                res = self._pyaedt_mesh.update(key, value)
-            if not res:
-                self._pyaedt_mesh._app.logger.warning("Update of %s Failed. Check needed arguments", key)
-
-    def __init__(self, mesh_object, props, parent=None) -> None:
-        dict.__init__(self)
-        self._pyaedt_parent = parent
-        if props:
-            for key, value in props.items():
-                if isinstance(value, (dict, dict)):
-                    dict.__setitem__(self, key, MeshProps(mesh_object, value))
-                else:
-                    dict.__setitem__(self, key, value)
-        self._pyaedt_mesh = mesh_object
-
-    def _setitem_without_update(self, key, value):
-        dict.__setitem__(self, key, value)
-
-    def _root(self):
-        """Return the top-level ``BoundaryProps`` for this tree."""
-        parent = getattr(self, "_pyaedt_parent", None)
-        return parent if parent is not None else self
 
 
 class MeshOperation(BinaryTreeNode, PyAedtBase):
@@ -202,7 +158,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
                     ]
                 else:
                     props["Objects"] = assignment
-            else:
+            elif not (props.get("Edges") or props.get("Faces") or props.get("Objects")):
                 props["Objects"] = []
                 props["Faces"] = []
                 props["Edges"] = []
@@ -393,7 +349,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         """
         out = []
         if properties is None:
-            properties = self.props
+            properties = dict(self.props)
         if "Faces" in properties:
             faces = properties.get("Faces", [])
             faces_out = []

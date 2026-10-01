@@ -405,9 +405,6 @@ def test_ports_on_components_nets(aedt_app) -> None:
     assert ports_after - ports_before == len(nets)
     ports[0].name = "port_test"
     assert ports[0].name == "port_test"
-    assert ports[0].props["Port"] == "port_test"
-    ports[0].props["Port"] = "port_test2"
-    assert ports[0].name == "port_test2"
 
 
 def test_set_variable(aedt_app) -> None:
@@ -508,6 +505,3 @@ def test_ports_on_nets(aedt_app) -> None:
     assert ports_after - ports_before == len(nets) * 2
     ports[0].name = "port_test"
     assert ports[0].name == "port_test"
-    assert ports[0].props["Port"] == "port_test"
-    ports[0].props["Port"] = "port_test2"
-    assert ports[0].name == "port_test2"

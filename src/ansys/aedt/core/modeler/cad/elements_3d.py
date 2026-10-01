@@ -29,7 +29,7 @@ from ansys.aedt.core.generic.general_methods import clamp
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import rgb_color_codes
 from ansys.aedt.core.generic.general_methods import settings
-from ansys.aedt.core.generic.numbers_utils import _units_assignment
+from ansys.aedt.core.generic.props import Props as HistoryProps
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
@@ -1870,38 +1870,6 @@ class Plane(PyAedtBase):
         return self._primitives._change_plane_property(vPropChange, self.name)
 
 
-class HistoryProps(dict):
-    """Manages an object's history properties.
-
-    Examples
-    --------
-    >>> from ansys.aedt.core.modeler.cad.elements_3d import HistoryProps
-    >>> obj = HistoryProps()
-
-    """
-
-    def __setitem__(self, key, value):
-        value = _units_assignment(value)
-        if self._pyaedt_child._app:
-            value = _units_assignment(value)
-        dict.__setitem__(self, key, value)
-        if "auto_update" in dir(self._pyaedt_child) and self._pyaedt_child.auto_update:
-            self._pyaedt_child.update_property(key, value)
-
-    def __init__(self, child_object, props) -> None:
-        dict.__init__(self)
-        if props:
-            for key, value in props.items():
-                dict.__setitem__(self, key, value)
-        self._pyaedt_child = child_object
-
-    def _setitem_without_update(self, key, value):
-        dict.__setitem__(self, key, value)
-
-    def pop(self, key, default=None):
-        dict.pop(self, key, default)
-
-
 class BinaryTreeNode:
     """Manages an object's history structure.
 
@@ -2150,8 +2118,13 @@ class BinaryTreeNode:
         try:
             result = self.child_object.SetPropValue(prop_name, prop_value)
             if result:
-                if prop_name == "Name" and getattr(self, "_name", False):
-                    setattr(self, "_name", prop_value)
+                if prop_name == "Name" and hasattr(self, "_name"):
+                    # Bypass BinaryTreeNode.__setattr__ and drop the stale COM handle so
+                    # ``_child_object`` is resolved again from the new name.
+                    object.__setattr__(self, "_name", prop_value)
+                    object.__setattr__(self, "_tree_node_initialized", False)
+                    object.__setattr__(self, "_props", None)
+                    object.__setattr__(self, "_children_loaded", False)
             else:
                 settings.logger.warning(f"Property {prop_name} is read-only.")
                 # Property Name duplicated

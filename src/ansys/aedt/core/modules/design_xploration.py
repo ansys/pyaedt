@@ -38,13 +38,13 @@ from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import PropsManager
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.props import Props as SetupProps
 from ansys.aedt.core.modules.optimetrics_templates import defaultdoeSetup
 from ansys.aedt.core.modules.optimetrics_templates import defaultdxSetup
 from ansys.aedt.core.modules.optimetrics_templates import defaultoptiSetup
 from ansys.aedt.core.modules.optimetrics_templates import defaultparametricSetup
 from ansys.aedt.core.modules.optimetrics_templates import defaultsensitivitySetup
 from ansys.aedt.core.modules.optimetrics_templates import defaultstatisticalSetup
-from ansys.aedt.core.modules.solve_sweeps import SetupProps
 
 if TYPE_CHECKING:
     from ansys.aedt.core.modules.solve_setup import Setup

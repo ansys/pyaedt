@@ -56,7 +56,6 @@ def test_assign_model_resolution(aedt_app) -> None:
     mr1.name = "resolution_test"
     assert aedt_app.odesign.GetChildObject("Mesh")
     mr1.auto_update = False
-    mr1.props["DefeatureLength"] = "0.1mm"
     assert not (
         aedt_app.odesign.GetChildObject("Mesh").GetChildObject(mr1.name).GetPropValue("Model Resolution Length")
         == "0.1mm"

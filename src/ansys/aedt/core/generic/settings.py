@@ -52,6 +52,7 @@ from typing import Any
 import uuid
 
 from ansys.aedt.core import pyaedt_path
+from ansys.aedt.core.aedt_logger import AedtLogger
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.scheduler import DEFAULT_CUSTOM_SUBMISSION_STRING
 from ansys.aedt.core.generic.scheduler import DEFAULT_NUM_CORES
@@ -192,7 +193,7 @@ class Settings(PyAedtBase):
     def __init__(self) -> None:
         # Setup default values then load values from PersoalLib' settings_config.yaml if it exists.
         # Settings related to logging
-        self.__logger: logging.Logger | None = None
+        self.__logger: logging.Logger | AedtLogger | None = None
         self.__enable_logger: bool = True
         self.__enable_desktop_logs: bool = False
         self.__enable_screen_logs: bool = True
@@ -373,7 +374,7 @@ class Settings(PyAedtBase):
     # ########################## Logging properties ##########################
 
     @property
-    def logger(self) -> logging.Logger | None:
+    def logger(self) -> logging.Logger | AedtLogger | None:
         """Active logger.
 
         Examples
@@ -386,7 +387,7 @@ class Settings(PyAedtBase):
         return self.__logger
 
     @logger.setter
-    def logger(self, val: logging.Logger | None) -> None:
+    def logger(self, val: logging.Logger | AedtLogger | None) -> None:
         self.__logger = val
 
     @property

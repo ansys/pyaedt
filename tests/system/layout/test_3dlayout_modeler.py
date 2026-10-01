@@ -503,7 +503,7 @@ def test_create_coaxial_port(aedt_app) -> None:
 
     port = aedt_app.create_coax_port("port_via", 0.5, "Top", "Lower")
     assert port.name == "Port1"  # First port when test runs independently
-    assert port.props["Radial Extent Factor"] == "0.5"
+    assert port.props["Properties"]["Radial Extent Factor"] == "0.5"
     aedt_app.delete_port(name=port.name, remove_geometry=False)
     assert len(aedt_app.port_list) == 0
     aedt_app.odesign.Undo()
@@ -940,11 +940,11 @@ def test_create_pin_port(aedt_app) -> None:
 
     port = aedt_app.create_pin_port("PinPort1")
     assert port.name == "PinPort1"
-    port.props["Magnitude"] = "2V"
-    assert port.props["Magnitude"] == "2V"
-    assert port.properties["Magnitude"] == "2V"
-    port.properties["Magnitude"] = "5V"
-    assert port.properties["Magnitude"] == "5V"
+    port.props["Properties"]["Magnitude"] = "2V"
+    assert port.props["Properties"]["Magnitude"] == "2V"
+    assert port.properties["Properties"]["Magnitude"] == "2V"
+    port.properties["Properties"]["Magnitude"] = "5V"
+    assert port.properties["Properties"]["Magnitude"] == "5V"
 
 
 def test_duplicate_material(aedt_app) -> None:

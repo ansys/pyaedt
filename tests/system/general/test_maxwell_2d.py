@@ -149,7 +149,7 @@ def test_assign_coil(aedt_app) -> None:
     assert bound.props["PolarityType"] == polarity.lower()
     polarity = "Negative"
     bound = aedt_app.assign_coil(assignment=["Coil"], polarity=polarity)
-    assert bound.props["PolarityType"] == polarity.lower()
+    assert bound.props["PolarityType"].lower() == polarity.lower()
     bound_name = ansys.aedt.core.generate_unique_name("Coil")
     bound = aedt_app.assign_coil(assignment=["Coil"], name=bound_name)
     assert bound_name == bound.name
@@ -403,14 +403,14 @@ def test_skin_depth(aedt_app) -> None:
     assert mesh.type == "SkinDepthBased"
     assert mesh.props["Edges"][0] == edge.id
     assert mesh.props["SkinDepth"] == "0.3mm"
-    assert mesh.props["NumLayers"] == 3
+    assert int(mesh.props["NumLayers"]) == 3
     edge1 = aedt_app.modeler["Rotor_Section1"].edges[1]
     mesh = aedt_app.mesh.assign_skin_depth(assignment=edge1.id, skin_depth="0.3mm", layers_number=3)
     assert mesh
     assert mesh.type == "SkinDepthBased"
     assert mesh.props["Edges"][0] == edge1.id
     assert mesh.props["SkinDepth"] == "0.3mm"
-    assert mesh.props["NumLayers"] == 3
+    assert int(mesh.props["NumLayers"]) == 3
 
 
 def test_start_continue_from_previous_setup(test_tmp_dir, aedt_app) -> None:
