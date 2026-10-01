@@ -23,7 +23,6 @@
 # SOFTWARE.
 
 from ansys.aedt.core.application import _get_obj_data
-from ansys.aedt.core.application import _has_get_obj_data
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -90,7 +89,9 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         >>> obj.props
 
         """
-        has_obj_data = _has_get_obj_data(self._child_object)
+        # TODO: Remove this when AEDT supports get_object_data for Radiation and EM Fields.
+        has_obj_data = False
+        # has_obj_data = _has_get_obj_data(self._child_object)
         if not self.__props or (has_obj_data and not self.auto_update):
             if has_obj_data:
                 props = _get_obj_data(self._child_object)
