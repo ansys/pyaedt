@@ -106,6 +106,7 @@ RE_PORT = re.compile(r"(?:\*|0\.0\.0\.0|\[::\]|\[::ffff:[0-9.]+\]|127\.0\.0\.1|[
 
 
 def _write_mes(mes_text) -> None:
+    """Write an error message in chunks when a logger is configured."""
     if not settings.logger:
         return
     mes_text = str(mes_text)
@@ -115,13 +116,14 @@ def _write_mes(mes_text) -> None:
 
 
 def _get_args_dicts(func, args, kwargs):
+    """Build a mapping of function argument names to supplied values."""
     args_name = list(dict.fromkeys(inspect.getfullargspec(func)[0] + list(kwargs.keys())))
     args_dict = dict(list(itertools.zip_longest(args_name, args)) + list(kwargs.items()))
     return args_dict
 
 
 def _exception(ex_info, func, args, kwargs, message: str = "Type Error") -> None:
-    """Write the trace stack to the desktop when a Python error occurs.
+    """Write the trace stack to the configured logger when a Python error occurs.
 
     Parameters
     ----------
@@ -134,7 +136,7 @@ def _exception(ex_info, func, args, kwargs, message: str = "Type Error") -> None
     kwargs :
 
     message :
-         (Default value = "Type Error")
+        Error message prefix. The default is ``"Type Error"``.
 
     Returns
     -------
@@ -237,6 +239,8 @@ def raise_exception_or_return_false(e):
 
 
 def _function_handler_wrapper(user_function: Callable[_P, _R], **deprecated_kwargs) -> Callable[_P, _R]:
+    """Wrap a function with error handling, logging, and deprecated-argument support."""
+
     def wrapper(*args: _P.args, **kwargs: _P.kwargs) -> _R:
         function_name = getattr(user_function, "__name__", str(user_function))
         if deprecated_kwargs and kwargs:
@@ -304,7 +308,7 @@ def deprecate_argument(
     ----------
         arg_name : str
             The name of the deprecated argument.
-        version : str
+        version : str, optional
             The version in which the argument was removed.
         message : str, optional
             Custom deprecation message.
@@ -466,6 +470,7 @@ def check_numeric_equivalence(a, b, relative_tolerance: float = 1e-7):
 
 
 def _log_method(func, new_args, new_kwargs) -> None:
+    """Log a method call when debug logging is enabled and a logger is available."""
     if not (settings.enable_debug_logger or settings.enable_debug_edb_logger):
         return
     if not settings.enable_debug_internal_methods_logger and str(func.__name__)[0] == "_":
@@ -1080,9 +1085,11 @@ def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str] |
 
     Returns
     -------
-    list[tuple[int, list[str]]]
-        List of tuples containing (process_id, command_line_arguments).
-        Command line arguments are split into individual strings.
+    list[tuple[int, list[str] | str]]
+        List of tuples containing ``(process_id, command_line_arguments)``.
+        On Linux, command-line arguments are split into individual strings.
+        On Windows, the executable name is returned because ``tasklist`` does
+        not provide the full command line.
 
     Notes
     -----
@@ -1162,6 +1169,8 @@ def _check_psutil_connections(pids: list[int]) -> dict[int, list[dict[str, Any]]
             Port number of the local connection endpoint.
         - "status" : str
             Connection status, for example "LISTEN", or "ESTABLISHED".
+        - "cmdline" : str
+            Full command line of the process, used for version and mode filtering.
     """
     # Step 1: Initialize result dictionary with empty lists for each PID
     # This ensures every requested PID appears in the result, even if it has no connections

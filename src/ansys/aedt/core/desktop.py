@@ -1428,6 +1428,12 @@ class Desktop(PyAedtBase):
     def odesktop(self) -> "_ODesktop" | None:
         """AEDT instance containing all projects and designs.
 
+        Returns
+        -------
+        _ODesktop or None
+            The connected AEDT desktop object, or ``None`` when no desktop is
+            currently available.
+
         Examples
         --------
         Get the COM object representing the desktop.
