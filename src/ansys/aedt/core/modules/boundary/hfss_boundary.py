@@ -256,19 +256,26 @@ class FarFieldSetup(FieldSetup):
 
     @property
     def definition(self) -> str:
-        """Set/Get the Far Field Angle Definition.
+        """Far Field Angle Definition.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
-        >>> obj = FarFieldSetup()
-        >>> obj.definition
+        >>> from ansys.aedt.core import Hfss
+        >>> from ansys.aedt.core.generic.constants import InfiniteSphereType
+        >>> aedt_app = Hfss()
+        >>> air = aedt_app.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", material="vacuum")
+        >>> aedt_app.assign_radiation_boundary_to_objects(air)
+        >>> inf = aedt_app.insert_infinite_sphere(definition=InfiniteSphereType.ThetaPhi)
+        >>> inf.definition
 
         """
         return self.props["CSDefinition"]
 
     @definition.setter
     def definition(self, value: str) -> None:
+        legacy_auto_update = self.auto_update
+        self.auto_update = False
+
         actual_value = self.props["CSDefinition"]
         self.props["CSDefinition"] = value
         actual_defs = None
@@ -322,76 +329,53 @@ class FarFieldSetup(FieldSetup):
             del self.props[actual_defs[3]]
             del self.props[actual_defs[4]]
             del self.props[actual_defs[5]]
-        self.update()
 
-    @property
-    def use_custom_radiation_surface(self) -> bool:
-        """Set/Get the Far Field Radiation Surface Enable.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
-        >>> obj = FarFieldSetup()
-        >>> obj.use_custom_radiation_surface
-
-        """
-        return self.props["UseCustomRadiationSurface"]
-
-    @use_custom_radiation_surface.setter
-    def use_custom_radiation_surface(self, value: bool) -> None:
-        self.props["UseCustomRadiationSurface"] = value
+        self.auto_update = legacy_auto_update
         self.update()
 
     @property
     def custom_radiation_surface(self) -> str:
-        """Set/Get the Far Field Radiation Surface FaceList.
+        """Radiation surface.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
-        >>> obj = FarFieldSetup()
-        >>> obj.custom_radiation_surface
+        >>> from ansys.aedt.core import Hfss
+        >>> aedt_app = Hfss()
+        >>> air = aedt_app.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", material="vacuum")
+        >>> aedt_app.assign_radiation_boundary_to_objects(air)
+        >>> face_list = aedt_app.modeler.create_named_selection("radiation_surface", air.faces[0])
+        >>> inf = aedt_app.insert_infinite_sphere(custom_radiation_faces=face_list)
+        >>> inf.custom_radiation_surface
 
         """
         return self.props["CustomRadiationSurface"]
 
     @custom_radiation_surface.setter
     def custom_radiation_surface(self, value: str) -> None:
+        legacy_auto_update = self.auto_update
+        self.auto_update = False
         if value:
             self.props["UseCustomRadiationSurface"] = True
             self.props["CustomRadiationSurface"] = value
         else:
             self.props["UseCustomRadiationSurface"] = False
             self.props["CustomRadiationSurface"] = ""
+        self.auto_update = legacy_auto_update
         self.update()
 
     @property
-    def use_local_coordinate_system(self) -> bool:
-        """Set/Get the usage of a custom Coordinate System.
+    def local_coordinate_system(self) -> str | None:
+        """Custom coordinate system name.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
-        >>> obj = FarFieldSetup()
-        >>> obj.use_local_coordinate_system
-
-        """
-        return self.props["UseLocalCS"]
-
-    @use_local_coordinate_system.setter
-    def use_local_coordinate_system(self, value: bool) -> None:
-        self.props["UseLocalCS"] = value
-        self.update()
-
-    @property
-    def local_coordinate_system(self) -> str:
-        """Set/Get the custom Coordinate System name.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
-        >>> obj = FarFieldSetup()
-        >>> obj.local_coordinate_system
+        >>> from ansys.aedt.core import Hfss
+        >>> aedt_app = Hfss()
+        >>> air = aedt_app.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", material="vacuum")
+        >>> aedt_app.assign_radiation_boundary_to_objects(air)
+        >>> cs = aedt_app.modeler.create_coordinate_system()
+        >>> inf = aedt_app.insert_infinite_sphere(custom_coordinate_system=cs.name)
+        >>> inf.local_coordinate_system
 
         """
         try:
@@ -401,23 +385,30 @@ class FarFieldSetup(FieldSetup):
 
     @local_coordinate_system.setter
     def local_coordinate_system(self, value: str) -> None:
+        legacy_auto_update = self.auto_update
+        self.auto_update = False
         if value:
             self.props["UseLocalCS"] = True
             self.props["CoordSystem"] = value
         else:
             self.props["UseLocalCS"] = False
             self.props["CoordSystem"] = ""
+        self.auto_update = legacy_auto_update
         self.update()
 
     @property
     def polarization(self) -> str:
-        """Set/Get the Far Field Polarization.
+        """Polarization. Two options are available: `Linear` and `Slant`.
+        If `Slant` is selected, the slant angle can be set.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
-        >>> obj = FarFieldSetup()
-        >>> obj.polarization
+        >>> from ansys.aedt.core import Hfss
+        >>> aedt_app = Hfss()
+        >>> air = aedt_app.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", material="vacuum")
+        >>> aedt_app.assign_radiation_boundary_to_objects(air)
+        >>> inf = aedt_app.insert_infinite_sphere()
+        >>> inf.polarization
 
         """
         return self.props["Polarization"]
@@ -425,215 +416,323 @@ class FarFieldSetup(FieldSetup):
     @polarization.setter
     def polarization(self, value: str) -> None:
         self.props["Polarization"] = value
-        self.update()
 
     @property
-    def slant_angle(self) -> float:
-        """Set/Get the Far Field Slant Angle if Polarization is Set to `Slant`.
+    def slant_angle(self) -> float | None:
+        """Slant angle if polarization is set to `Slant`.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
-        >>> obj = FarFieldSetup()
-        >>> obj.slant_angle
+        >>> from ansys.aedt.core import Hfss
+        >>> aedt_app = Hfss()
+        >>> air = aedt_app.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", material="vacuum")
+        >>> aedt_app.assign_radiation_boundary_to_objects(air)
+        >>> inf = aedt_app.insert_infinite_sphere(use_slant_polarization=True)
+        >>> inf.slant_angle
 
         """
         if self.props["Polarization"] == "Slant":
             return self.props["SlantAngle"]
         else:
-            return
+            return None
 
     @slant_angle.setter
     def slant_angle(self, value: float) -> None:
+        legacy_auto_update = self.auto_update
+        self.auto_update = False
         self.props["Polarization"] = "Slant"
         self.props["SlantAngle"] = value
+        self.auto_update = legacy_auto_update
         self.update()
 
     @property
-    def theta_start(self) -> float:
-        """Set/Get the Far Field Theta Start Angle if Definition is Set to `Theta-Phi`.
+    def theta_start(self) -> float | None:
+        """Theta start angle if definition is Set to `Theta-Phi`.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
-        >>> obj = FarFieldSetup()
-        >>> obj.theta_start
+        >>> from ansys.aedt.core import Hfss
+        >>> from ansys.aedt.core.generic.constants import InfiniteSphereType
+        >>> aedt_app = Hfss()
+        >>> air = aedt_app.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", material="vacuum")
+        >>> aedt_app.assign_radiation_boundary_to_objects(air)
+        >>> inf = aedt_app.insert_infinite_sphere(definition=InfiniteSphereType.ThetaPhi)
+        >>> inf.theta_start
 
         """
         if "ThetaStart" in self.props:
             return self.props["ThetaStart"]
         else:
-            return
+            return None
+
+    @theta_start.setter
+    def theta_start(self, value: float) -> None:
+        if "ThetaStart" in self.props:
+            self.props["ThetaStart"] = self._app.value_with_units(value, self.units)
 
     @property
-    def theta_stop(self) -> float:
-        """Set/Get the Far Field Theta Stop Angle if Definition is Set to `Theta-Phi`.
+    def theta_stop(self) -> float | None:
+        """Theta stop angle if definition is set to `Theta-Phi`.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
-        >>> obj = FarFieldSetup()
-        >>> obj.theta_stop
+        >>> from ansys.aedt.core import Hfss
+        >>> from ansys.aedt.core.generic.constants import InfiniteSphereType
+        >>> aedt_app = Hfss()
+        >>> air = aedt_app.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", material="vacuum")
+        >>> aedt_app.assign_radiation_boundary_to_objects(air)
+        >>> inf = aedt_app.insert_infinite_sphere(definition=InfiniteSphereType.ThetaPhi)
+        >>> inf.theta_stop
 
         """
         if "ThetaStop" in self.props:
             return self.props["ThetaStop"]
         else:
-            return
+            return None
+
+    @theta_stop.setter
+    def theta_stop(self, value: float) -> None:
+        if "ThetaStop" in self.props:
+            self.props["ThetaStop"] = self._app.value_with_units(value, self.units)
 
     @property
-    def theta_step(self) -> float:
-        """Set/Get the Far Field Theta Step Angle if Definition is Set to `Theta-Phi`.
+    def theta_step(self) -> float | None:
+        """Theta step angle if definition is set to `Theta-Phi`.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
-        >>> obj = FarFieldSetup()
-        >>> obj.theta_step
+        >>> from ansys.aedt.core import Hfss
+        >>> from ansys.aedt.core.generic.constants import InfiniteSphereType
+        >>> aedt_app = Hfss()
+        >>> air = aedt_app.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", material="vacuum")
+        >>> aedt_app.assign_radiation_boundary_to_objects(air)
+        >>> inf = aedt_app.insert_infinite_sphere(definition=InfiniteSphereType.ThetaPhi)
+        >>> inf.theta_step
 
         """
         if "ThetaStep" in self.props:
             return self.props["ThetaStep"]
         else:
-            return
+            return None
+
+    @theta_step.setter
+    def theta_step(self, value: float) -> None:
+        if "ThetaStep" in self.props:
+            self.props["ThetaStep"] = self._app.value_with_units(value, self.units)
 
     @property
-    def phi_start(self) -> float:
-        """Set/Get the Far Field Phi Start Angle if Definition is Set to `Theta-Phi`.
+    def phi_start(self) -> float | None:
+        """Phi start angle if definition is set to `Theta-Phi`.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
-        >>> obj = FarFieldSetup()
-        >>> obj.phi_start
+        >>> from ansys.aedt.core import Hfss
+        >>> from ansys.aedt.core.generic.constants import InfiniteSphereType
+        >>> aedt_app = Hfss()
+        >>> air = aedt_app.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", material="vacuum")
+        >>> aedt_app.assign_radiation_boundary_to_objects(air)
+        >>> inf = aedt_app.insert_infinite_sphere(definition=InfiniteSphereType.ThetaPhi)
+        >>> inf.phi_start
 
         """
         if "PhiStart" in self.props:
             return self.props["PhiStart"]
         else:
-            return
+            return None
+
+    @phi_start.setter
+    def phi_start(self, value: float) -> None:
+        if "PhiStart" in self.props:
+            self.props["PhiStart"] = self._app.value_with_units(value, self.units)
 
     @property
-    def phi_stop(self) -> float:
-        """Set/Get the Far Field Phi Stop Angle if Definition is Set to `Theta-Phi`.
+    def phi_stop(self) -> float | None:
+        """Phi stop angle if definition is set to `Theta-Phi`.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
-        >>> obj = FarFieldSetup()
-        >>> obj.phi_stop
+        >>> from ansys.aedt.core import Hfss
+        >>> from ansys.aedt.core.generic.constants import InfiniteSphereType
+        >>> aedt_app = Hfss()
+        >>> air = aedt_app.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", material="vacuum")
+        >>> aedt_app.assign_radiation_boundary_to_objects(air)
+        >>> inf = aedt_app.insert_infinite_sphere(definition=InfiniteSphereType.ThetaPhi)
+        >>> inf.phi_stop
 
         """
         if "PhiStop" in self.props:
             return self.props["PhiStop"]
         else:
-            return
+            return None
+
+    @phi_stop.setter
+    def phi_stop(self, value: float) -> None:
+        if "PhiStop" in self.props:
+            self.props["PhiStop"] = self._app.value_with_units(value, self.units)
 
     @property
-    def phi_step(self) -> float:
-        """Set/Get the Far Field Phi Step Angle if Definition is Set to `Theta-Phi`.
+    def phi_step(self) -> float | None:
+        """Phi step angle if definition is set to `Theta-Phi`.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
-        >>> obj = FarFieldSetup()
-        >>> obj.phi_step
+        >>> from ansys.aedt.core import Hfss
+        >>> from ansys.aedt.core.generic.constants import InfiniteSphereType
+        >>> aedt_app = Hfss()
+        >>> air = aedt_app.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", material="vacuum")
+        >>> aedt_app.assign_radiation_boundary_to_objects(air)
+        >>> inf = aedt_app.insert_infinite_sphere(definition=InfiniteSphereType.ThetaPhi)
+        >>> inf.phi_step
 
         """
         if "PhiStep" in self.props:
             return self.props["PhiStep"]
         else:
-            return
+            return None
+
+    @phi_step.setter
+    def phi_step(self, value: float) -> None:
+        if "PhiStep" in self.props:
+            self.props["PhiStep"] = self._app.value_with_units(value, self.units)
 
     @property
-    def azimuth_start(self) -> float:
-        """Set/Get the Far Field Azimuth Start Angle if Definition is Set to `Az Over El` or `El Over Az`.
+    def azimuth_start(self) -> float | None:
+        """Azimuth start angle if definition is set to `Az Over El` or `El Over Az`.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
-        >>> obj = FarFieldSetup()
-        >>> obj.azimuth_start
+        >>> from ansys.aedt.core import Hfss
+        >>> from ansys.aedt.core.generic.constants import InfiniteSphereType
+        >>> aedt_app = Hfss()
+        >>> air = aedt_app.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", material="vacuum")
+        >>> aedt_app.assign_radiation_boundary_to_objects(air)
+        >>> inf = aedt_app.insert_infinite_sphere(definition=InfiniteSphereType.AzOverEl)
+        >>> inf.azimuth_start
 
         """
         if "AzimuthStart" in self.props:
             return self.props["AzimuthStart"]
         else:
-            return
+            return None
+
+    @azimuth_start.setter
+    def azimuth_start(self, value: float) -> None:
+        if "AzimuthStart" in self.props:
+            self.props["AzimuthStart"] = self._app.value_with_units(value, self.units)
 
     @property
-    def azimuth_stop(self) -> float:
-        """Set/Get the Far Field Azimuth Stop Angle if Definition is Set to `Az Over El` or `El Over Az`.
+    def azimuth_stop(self) -> float | None:
+        """Azimuth stop angle if definition is set to `Az Over El` or `El Over Az`.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
-        >>> obj = FarFieldSetup()
-        >>> obj.azimuth_stop
+        >>> from ansys.aedt.core import Hfss
+        >>> from ansys.aedt.core.generic.constants import InfiniteSphereType
+        >>> aedt_app = Hfss()
+        >>> air = aedt_app.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", material="vacuum")
+        >>> aedt_app.assign_radiation_boundary_to_objects(air)
+        >>> inf = aedt_app.insert_infinite_sphere(definition=InfiniteSphereType.AzOverEl)
+        >>> inf.azimuth_stop
 
         """
         if "AzimuthStop" in self.props:
             return self.props["AzimuthStop"]
         else:
-            return
+            return None
+
+    @azimuth_stop.setter
+    def azimuth_stop(self, value: float) -> None:
+        if "AzimuthStop" in self.props:
+            self.props["AzimuthStop"] = self._app.value_with_units(value, self.units)
 
     @property
-    def azimuth_step(self) -> float:
-        """Set/Get the Far Field Azimuth Step Angle if Definition is Set to `Az Over El` or `El Over Az`.
+    def azimuth_step(self) -> float | None:
+        """Azimuth step angle if definition is set to `Az Over El` or `El Over Az`.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
-        >>> obj = FarFieldSetup()
-        >>> obj.azimuth_step
+        >>> from ansys.aedt.core import Hfss
+        >>> from ansys.aedt.core.generic.constants import InfiniteSphereType
+        >>> aedt_app = Hfss()
+        >>> air = aedt_app.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", material="vacuum")
+        >>> aedt_app.assign_radiation_boundary_to_objects(air)
+        >>> inf = aedt_app.insert_infinite_sphere(definition=InfiniteSphereType.AzOverEl)
+        >>> inf.azimuth_step
 
         """
         if "AzimuthStep" in self.props:
             return self.props["AzimuthStep"]
         else:
-            return
+            return None
+
+    @azimuth_step.setter
+    def azimuth_step(self, value: float) -> None:
+        if "AzimuthStep" in self.props:
+            self.props["AzimuthStep"] = self._app.value_with_units(value, self.units)
 
     @property
-    def elevation_start(self) -> float:
-        """Set/Get the Far Field Elevation Start Angle if Definition is Set to `Az Over El` or `El Over Az`.
+    def elevation_start(self) -> float | None:
+        """Elevation start angle if definition is set to `Az Over El` or `El Over Az`.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
-        >>> obj = FarFieldSetup()
-        >>> obj.elevation_start
+        >>> from ansys.aedt.core import Hfss
+        >>> from ansys.aedt.core.generic.constants import InfiniteSphereType
+        >>> aedt_app = Hfss()
+        >>> air = aedt_app.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", material="vacuum")
+        >>> aedt_app.assign_radiation_boundary_to_objects(air)
+        >>> inf = aedt_app.insert_infinite_sphere(definition=InfiniteSphereType.AzOverEl)
+        >>> inf.elevation_start
 
         """
         if "ElevationStart" in self.props:
             return self.props["ElevationStart"]
         else:
-            return
+            return None
+
+    @elevation_start.setter
+    def elevation_start(self, value: float) -> None:
+        if "ElevationStart" in self.props:
+            self.props["ElevationStart"] = self._app.value_with_units(value, self.units)
 
     @property
-    def elevation_stop(self) -> float:
-        """Set/Get the Far Field Elevation Stop Angle if Definition is Set to `Az Over El` or `El Over Az`.
+    def elevation_stop(self) -> float | None:
+        """Elevation stop angle if definition is set to `Az Over El` or `El Over Az`.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
-        >>> obj = FarFieldSetup()
-        >>> obj.elevation_stop
+        >>> from ansys.aedt.core import Hfss
+        >>> from ansys.aedt.core.generic.constants import InfiniteSphereType
+        >>> aedt_app = Hfss()
+        >>> air = aedt_app.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", material="vacuum")
+        >>> aedt_app.assign_radiation_boundary_to_objects(air)
+        >>> inf = aedt_app.insert_infinite_sphere(definition=InfiniteSphereType.AzOverEl)
+        >>> inf.elevation_stop
 
         """
         if "ElevationStop" in self.props:
             return self.props["ElevationStop"]
         else:
-            return
+            return None
+
+    @elevation_stop.setter
+    def elevation_stop(self, value: float) -> None:
+        if "ElevationStop" in self.props:
+            self.props["ElevationStop"] = self._app.value_with_units(value, self.units)
 
     @property
-    def elevation_step(self) -> float:
-        """Set/Get the Far Field Elevation Step Angle if Definition is Set to `Az Over El` or `El Over Az`.
+    def elevation_step(self) -> float | None:
+        """Elevation step angle if definition is set to `Az Over El` or `El Over Az`.
 
         Examples
         --------
-        >>> from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
-        >>> obj = FarFieldSetup()
-        >>> obj.elevation_step
+        >>> from ansys.aedt.core import Hfss
+        >>> from ansys.aedt.core.generic.constants import InfiniteSphereType
+        >>> aedt_app = Hfss()
+        >>> air = aedt_app.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", material="vacuum")
+        >>> aedt_app.assign_radiation_boundary_to_objects(air)
+        >>> inf = aedt_app.insert_infinite_sphere(definition=InfiniteSphereType.AzOverEl)
+        >>> inf.elevation_step
 
         """
         if "ElevationStep" in self.props:
@@ -641,77 +740,38 @@ class FarFieldSetup(FieldSetup):
         else:
             return
 
-    @theta_start.setter
-    def theta_start(self, value: float) -> None:
-        if "ThetaStart" in self.props:
-            self.props["ThetaStart"] = self._app.value_with_units(value, self.units)
-            self.update()
-
-    @theta_stop.setter
-    def theta_stop(self, value: float) -> None:
-        if "ThetaStop" in self.props:
-            self.props["ThetaStop"] = self._app.value_with_units(value, self.units)
-            self.update()
-
-    @theta_step.setter
-    def theta_step(self, value: float) -> None:
-        if "ThetaStep" in self.props:
-            self.props["ThetaStep"] = self._app.value_with_units(value, self.units)
-            self.update()
-
-    @phi_start.setter
-    def phi_start(self, value: float) -> None:
-        if "PhiStart" in self.props:
-            self.props["PhiStart"] = self._app.value_with_units(value, self.units)
-            self.update()
-
-    @phi_stop.setter
-    def phi_stop(self, value: float) -> None:
-        if "PhiStop" in self.props:
-            self.props["PhiStop"] = self._app.value_with_units(value, self.units)
-            self.update()
-
-    @phi_step.setter
-    def phi_step(self, value: float) -> None:
-        if "PhiStep" in self.props:
-            self.props["PhiStep"] = self._app.value_with_units(value, self.units)
-            self.update()
-
-    @azimuth_start.setter
-    def azimuth_start(self, value: float) -> None:
-        if "AzimuthStart" in self.props:
-            self.props["AzimuthStart"] = self._app.value_with_units(value, self.units)
-            self.update()
-
-    @azimuth_stop.setter
-    def azimuth_stop(self, value: float) -> None:
-        if "AzimuthStop" in self.props:
-            self.props["AzimuthStop"] = self._app.value_with_units(value, self.units)
-            self.update()
-
-    @azimuth_step.setter
-    def azimuth_step(self, value: float) -> None:
-        if "AzimuthStep" in self.props:
-            self.props["AzimuthStep"] = self._app.value_with_units(value, self.units)
-            self.update()
-
-    @elevation_start.setter
-    def elevation_start(self, value: float) -> None:
-        if "ElevationStart" in self.props:
-            self.props["ElevationStart"] = self._app.value_with_units(value, self.units)
-            self.update()
-
-    @elevation_stop.setter
-    def elevation_stop(self, value: float) -> None:
-        if "ElevationStop" in self.props:
-            self.props["ElevationStop"] = self._app.value_with_units(value, self.units)
-            self.update()
-
     @elevation_step.setter
     def elevation_step(self, value: float) -> None:
         if "ElevationStep" in self.props:
             self.props["ElevationStep"] = self._app.value_with_units(value, self.units)
-            self.update()
+
+    @property
+    def boresight(self) -> str:
+        """Boresight axis. Available options are `X Axis`, `Y Axis`, or `Z Axis`.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> aedt_app = Hfss()
+        >>> air = aedt_app.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", material="vacuum")
+        >>> aedt_app.assign_radiation_boundary_to_objects(air)
+        >>> inf = aedt_app.insert_infinite_sphere()
+        >>> inf.boresight
+
+        """
+        return self.properties["Boresight"]
+
+    @boresight.setter
+    def boresight(self, value: str) -> None:
+        if self._child_object:
+            if value not in ["X Axis", "Y Axis", "Z Axis"]:
+                raise ValueError("Boresight axis must be one of: 'X Axis', 'Y Axis', or 'Z Axis'")
+            try:
+                self.properties["Boresight"] = value
+            except KeyError:
+                self._app.logger.error(
+                    "Invalid boresight value: %s. Available options are 'X Axis', 'Y Axis', or 'Z Axis'", value
+                )
 
 
 class NearFieldSetup(FieldSetup):

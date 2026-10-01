@@ -503,6 +503,8 @@ def open_file(
             local_file = Path(tempfile.gettempdir()) / file_path.name
             settings.remote_rpc_session.filemanager.download_file(str(file_path), str(local_file))
             return open(str(local_file), file_options, encoding=encoding)
+        pyaedt_logger.error(f"The file {file_path} does not exist locally or remotely.")
+        return
     elif dir_name.exists():
         return open(str(file_path), file_options, encoding=encoding)
     elif settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(str(dir_name)):
@@ -513,8 +515,8 @@ def open_file(
         else:
             return settings.remote_rpc_session.open_file(str(file_path), file_options, encoding=encoding)
     else:
-        pyaedt_logger.error("The file or folder %s does not exist", dir_name)
-        return None
+        pyaedt_logger.error(f"The file or folder {dir_name} does not exist.")
+        return
 
 
 @pyaedt_function_handler()

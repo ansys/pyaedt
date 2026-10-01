@@ -31,6 +31,7 @@ import pytest
 
 from ansys.aedt.core.generic.constants import Axis
 from ansys.aedt.core.generic.constants import IncidentWaveType
+from ansys.aedt.core.generic.constants import InfiniteSphereType
 from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.generic.file_utils import get_dxf_layers
 from ansys.aedt.core.hfss import Hfss
@@ -1272,11 +1273,15 @@ def test_autoassign_pairs(aedt_app) -> None:
 
 
 def test_create_infinite_sphere(aedt_app) -> None:
-    aedt_app.insert_design("InfSphere")
     air = aedt_app.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", material="vacuum")
     aedt_app.assign_radiation_boundary_to_objects(air)
+
+    face_list = aedt_app.modeler.create_named_selection("radiation_surface", air.faces[0])
+    new_cs = aedt_app.modeler.create_coordinate_system(origin=[0, 0, 1])
+
+    # Test with "ElOverAz" definition
     bound = aedt_app.insert_infinite_sphere(
-        definition="El Over Az",
+        definition=InfiniteSphereType.ElOverAz,
         phi_start=1,
         phi_stop=91,
         phi_step=45,
@@ -1287,30 +1292,83 @@ def test_create_infinite_sphere(aedt_app) -> None:
         polarization_angle=30,
     )
     assert bound
+
     assert bound.azimuth_start == "2deg"
     assert bound.properties["Start Azimuth"] == "2deg"
-    assert bound.azimuth_stop == "92deg"
-    assert bound.properties["Stop Azimuth"] == "92deg"
-    assert bound.azimuth_step == "10deg"
-    assert bound.properties["Azimuth Step"] == "10deg"
-    assert bound.elevation_start == "1deg"
-    assert bound.properties["Start Elevation"] == "1deg"
-    assert bound.elevation_stop == "91deg"
-    assert bound.properties["Stop Elevation"] == "91deg"
-    assert bound.elevation_step == "45deg"
-    assert bound.properties["Elevation Step"] == "45deg"
-    assert bound.slant_angle == "30deg"
-    assert bound.properties["Slant Angle"] == "30deg"
-    assert bound.polarization == "Slant"
-    assert bound.properties["Polarization"] == "Slant"
-
+    bound.azimuth_start = "4deg"
+    assert bound.properties["Start Azimuth"] == "4deg"
     bound.azimuth_start = 20
     assert bound.azimuth_start == "20deg"
     assert bound.properties["Start Azimuth"] == "20deg"
+
+    assert bound.azimuth_stop == "92deg"
+    assert bound.properties["Stop Azimuth"] == "92deg"
+    bound.azimuth_stop = "94deg"
+    assert bound.properties["Stop Azimuth"] == "94deg"
+
+    assert bound.azimuth_step == "10deg"
+    assert bound.properties["Azimuth Step"] == "10deg"
+    bound.azimuth_step = "11deg"
+    assert bound.properties["Azimuth Step"] == "11deg"
+
+    assert bound.elevation_start == "1deg"
+    assert bound.properties["Start Elevation"] == "1deg"
+    bound.elevation_start = "2deg"
+    assert bound.properties["Start Elevation"] == "2deg"
+
+    assert bound.elevation_stop == "91deg"
+    assert bound.properties["Stop Elevation"] == "91deg"
+    bound.elevation_stop = "93deg"
+    assert bound.properties["Stop Elevation"] == "93deg"
+
+    assert bound.elevation_step == "45deg"
+    assert bound.properties["Elevation Step"] == "45deg"
+    bound.elevation_step = "46deg"
+    assert bound.properties["Elevation Step"] == "46deg"
+
+    assert bound.slant_angle == "30deg"
+    assert bound.properties["Slant Angle"] == "30deg"
+    bound.slant_angle = "31deg"
+    assert bound.properties["Slant Angle"] == "31deg"
+
+    assert bound.polarization == "Slant"
+    assert bound.properties["Polarization"] == "Slant"
+    bound.polarization = "Linear"
+    assert bound.properties["Polarization"] == "Linear"
+
+    assert bound.boresight == "X Axis"
+    assert bound.properties["Boresight"] == "X Axis"
+    bound.boresight = "Y Axis"
+    assert bound.properties["Boresight"] == "Y Axis"
+    with pytest.raises(ValueError):
+        bound.boresight = "Y Invented"
+    assert bound.properties["Boresight"] == "Y Axis"
+
+    # Custom radiation surface
+    assert bound.custom_radiation_surface == ""
+    assert not bound.properties["Use Custom Radiation Surface"]
+    bound.custom_radiation_surface = face_list.name
+    assert bound.properties["Use Custom Radiation Surface"]
+    assert bound.props["CustomRadiationSurface"] == face_list.name
+
+    # Local coordinate system
+    assert bound.local_coordinate_system == "Global"
+    assert not bound.props["UseLocalCS"]
+    bound.local_coordinate_system = new_cs.name
+    assert bound.props["UseLocalCS"]
+    assert bound.props["CoordSystem"] == new_cs.name
+    assert bound.properties["Coordinate System"] == new_cs.name
+
+    # Test change definition
+    bound.definition = InfiniteSphereType.ThetaPhi
+    assert bound.properties["CS Definition"] == InfiniteSphereType.ThetaPhi
+    bound.definition = InfiniteSphereType.ElOverAz
+    assert bound.properties["CS Definition"] == InfiniteSphereType.ElOverAz
+
     assert bound.delete()
 
     bound = aedt_app.insert_infinite_sphere(
-        definition="Az Over El",
+        definition=InfiniteSphereType.AzOverEl,
         phi_start=1,
         phi_stop=91,
         phi_step=45,
@@ -1319,14 +1377,16 @@ def test_create_infinite_sphere(aedt_app) -> None:
         theta_step=10,
         use_slant_polarization=True,
         polarization_angle=30,
+        custom_radiation_faces=face_list.name,
     )
     assert bound.azimuth_start == "1deg"
     assert bound.properties["Start Azimuth"] == "1deg"
+    assert bound.custom_radiation_surface == face_list.name
     assert bound.delete()
 
     # Test with default "Theta-Phi" definition
     bound = aedt_app.insert_infinite_sphere(
-        definition="Theta-Phi",
+        definition=InfiniteSphereType.ThetaPhi,
         phi_start=0,
         phi_stop=180,
         phi_step=7,
@@ -1362,6 +1422,7 @@ def test_create_infinite_sphere(aedt_app) -> None:
     sphere_2 = aedt_app.insert_infinite_sphere(name=boundary_name)
     boundary_names = [fs.name for fs in aedt_app.field_setups]
 
+    # Test renaming of infinite spheres
     assert sphere
     assert boundary_name == sphere.name
     assert sphere_1
