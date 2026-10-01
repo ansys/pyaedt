@@ -55,7 +55,7 @@ jobs:
         run: |
           set -eux
           dnf -y update
-          dnf groupinstall -y "Development Tools"
+          dnf groupinstall -y --nobest "Development Tools"
           dnf -y install \
             gcc make wget tar xz bzip2 \
             bzip2-devel zlib-devel xz-devel \
