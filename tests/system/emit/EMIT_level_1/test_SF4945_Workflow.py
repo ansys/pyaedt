@@ -48,9 +48,6 @@ from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDoma
 
 TEST_SUBFOLDER = TESTS_EMIT_PATH / "example_models/EMIT_level_1/SF4945_Workflow"
 
-if is_linux:
-    pytest.skip("Emit API is not supported on linux.")
-
 @pytest.fixture
 def workflow(add_app_example, desktop):
     """Fixture that loads the workflow project."""
@@ -64,6 +61,12 @@ def workflow(add_app_example, desktop):
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
 def test_SF4945_Workflow(workflow):
+
+    if is_linux:
+        pytest.skip("Emit API is not supported on linux.")
+
+    assert workflow is not None
+    assert workflow.project_name == "Workflow"
 
     # add link to the design
     workflow.couplings.add_link(workflow.couplings.linkable_design_names[0])
@@ -95,6 +98,7 @@ def test_SF4945_Workflow(workflow):
 
     # Create WiFi RF System
     radio_1 = workflow.schematic.create_component("WiFi - 802.11-2012")
+    assert radio_1 is not None
     commponents[radio_1.name] = radio_1
     workflow.schematic.connect_components(radio_1.name, ant.name)
 
