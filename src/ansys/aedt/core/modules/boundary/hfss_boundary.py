@@ -91,26 +91,27 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
         """
         has_obj_data = _has_get_obj_data(self._child_object)
-        if not self.__props or has_obj_data:
-            if has_obj_data:
-                props = _get_obj_data(self._child_object)
-                if props and len(props) > 1:
-                    self.__props = BoundaryProps(self, props)
-                    return self.__props
-            if self._app.design_properties:
-                if (
-                    self.type == "FarFieldSphere"
-                    and self._app.design_properties.get("RadField")
-                    and self._app.design_properties["RadField"].get("FarFieldSetups")
-                ):
-                    for val in self._app.design_properties["RadField"]["FarFieldSetups"]:
-                        if val == self.name:
-                            self.__props = self._app.design_properties["RadField"]["FarFieldSetups"][val]
-                elif self.type != "FarFieldSphere" and self._app.design_properties["RadField"].get("NearFieldSetups"):
-                    for val in self._app.design_properties["RadField"]["NearFieldSetups"]:
-                        if val == self.name:
-                            self.__props = self._app.design_properties["RadField"]["NearFieldSetups"][val]
-                self.__props = BoundaryProps(self, self.__props)
+        if self.__props and not (has_obj_data and self.auto_update):
+            return self.__props
+        if has_obj_data:
+            props = _get_obj_data(self._child_object)
+            if props and len(props) > 1:
+                self.__props = BoundaryProps(self, props)
+                return self.__props
+        if self._app.design_properties:
+            if (
+                self.type == "FarFieldSphere"
+                and self._app.design_properties.get("RadField")
+                and self._app.design_properties["RadField"].get("FarFieldSetups")
+            ):
+                for val in self._app.design_properties["RadField"]["FarFieldSetups"]:
+                    if val == self.name:
+                        self.__props = self._app.design_properties["RadField"]["FarFieldSetups"][val]
+            elif self.type != "FarFieldSphere" and self._app.design_properties["RadField"].get("NearFieldSetups"):
+                for val in self._app.design_properties["RadField"]["NearFieldSetups"]:
+                    if val == self.name:
+                        self.__props = self._app.design_properties["RadField"]["NearFieldSetups"][val]
+            self.__props = BoundaryProps(self, self.__props)
         return self.__props
 
     @property

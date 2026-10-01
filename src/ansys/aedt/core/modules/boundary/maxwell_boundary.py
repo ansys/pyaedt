@@ -349,7 +349,7 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
         """
         has_obj_data = _has_get_obj_data(self._child_object)
-        if self.__props and not has_obj_data:
+        if self.__props and not (has_obj_data and self.auto_update):
             return self.__props
         child_object = self._child_object
         if has_obj_data:

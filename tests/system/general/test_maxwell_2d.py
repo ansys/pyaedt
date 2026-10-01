@@ -146,7 +146,7 @@ def test_assign_coil(aedt_app) -> None:
     assert bound
     polarity = "Positive"
     bound = aedt_app.assign_coil(assignment=["Coil"], polarity=polarity)
-    assert bound.props["PolarityType"] == polarity.lower()
+    assert bound.props["PolarityType"].lower() == polarity.lower()
     polarity = "Negative"
     bound = aedt_app.assign_coil(assignment=["Coil"], polarity=polarity)
     assert bound.props["PolarityType"].lower() == polarity.lower()

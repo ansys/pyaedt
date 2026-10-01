@@ -346,7 +346,7 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
 
         """
         _has_getobject = _has_get_obj_data(self._child_object)
-        if self._legacy_props and not _has_getobject:
+        if self._legacy_props and not (_has_getobject and self.auto_update):
             return self._legacy_props
         if self._is_new_setup:
             setup_template = SetupKeys.get_setup_templates()[self.setuptype]

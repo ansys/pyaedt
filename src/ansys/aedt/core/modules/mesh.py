@@ -139,46 +139,47 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
 
         """
         _has_getobject = _has_get_obj_data(self._child_object)
-        if not self._legacy_props or _has_getobject:
-            if _has_getobject:
-                props = _get_obj_data(self._child_object) or {}
+        if self._legacy_props and not (_has_getobject and self.auto_update):
+            return self._legacy_props
+        if _has_getobject:
+            props = _get_obj_data(self._child_object) or {}
+        else:
+            props = {}
+            for key, value in self.properties.items():
+                props[key] = value
+        if "Assignment" in props:
+            assignment = props["Assignment"]
+            if "Face_" in assignment:
+                props["Faces"] = [
+                    int(i.replace("Face_", "")) for i in assignment.split("(")[1].split(")")[0].split(",")
+                ]
+            elif "Edge_" in assignment:
+                props["Edges"] = [
+                    int(i.replace("Edge_", "")) for i in assignment.split("(")[1].split(")")[0].split(",")
+                ]
             else:
-                props = {}
-                for key, value in self.properties.items():
-                    props[key] = value
-            if "Assignment" in props:
-                assignment = props["Assignment"]
-                if "Face_" in assignment:
-                    props["Faces"] = [
-                        int(i.replace("Face_", "")) for i in assignment.split("(")[1].split(")")[0].split(",")
-                    ]
-                elif "Edge_" in assignment:
-                    props["Edges"] = [
-                        int(i.replace("Edge_", "")) for i in assignment.split("(")[1].split(")")[0].split(",")
-                    ]
-                else:
-                    props["Objects"] = assignment
-            elif not (props.get("Edges") or props.get("Faces") or props.get("Objects")):
-                props["Objects"] = []
-                props["Faces"] = []
-                props["Edges"] = []
-                assigned_id = self._mesh.omeshmodule.GetMeshOpAssignment(self.name)
-                for comp_id in assigned_id:
-                    if int(comp_id) in self._app.modeler.objects.keys():
-                        props["Objects"].append(self._app.oeditor.GetObjectNameByID(comp_id))
+                props["Objects"] = assignment
+        elif not (props.get("Edges") or props.get("Faces") or props.get("Objects")):
+            props["Objects"] = []
+            props["Faces"] = []
+            props["Edges"] = []
+            assigned_id = self._mesh.omeshmodule.GetMeshOpAssignment(self.name)
+            for comp_id in assigned_id:
+                if int(comp_id) in self._app.modeler.objects.keys():
+                    props["Objects"].append(self._app.oeditor.GetObjectNameByID(comp_id))
+                    continue
+                for comp in self._app.modeler.object_list:
+                    faces = comp.faces
+                    face_ids = [face.id for face in faces]
+                    if int(comp_id) in face_ids:
+                        props["Faces"].append(int(comp_id))
                         continue
-                    for comp in self._app.modeler.object_list:
-                        faces = comp.faces
-                        face_ids = [face.id for face in faces]
-                        if int(comp_id) in face_ids:
-                            props["Faces"].append(int(comp_id))
-                            continue
-                        edges = comp.edges
-                        edge_ids = [edge.id for edge in edges]
-                        if int(comp_id) in edge_ids:
-                            props["Edges"].append(int(comp_id))
-                            continue
-            self._legacy_props = MeshProps(self, props)
+                    edges = comp.edges
+                    edge_ids = [edge.id for edge in edges]
+                    if int(comp_id) in edge_ids:
+                        props["Edges"].append(int(comp_id))
+                        continue
+        self._legacy_props = MeshProps(self, props)
         return self._legacy_props
 
     @property
