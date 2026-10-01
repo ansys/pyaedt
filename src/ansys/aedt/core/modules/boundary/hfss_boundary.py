@@ -91,7 +91,7 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
         """
         has_obj_data = _has_get_obj_data(self._child_object)
-        if not self.__props or has_obj_data:
+        if not self.__props or (has_obj_data and not self.auto_update):
             if has_obj_data:
                 props = _get_obj_data(self._child_object)
                 if props and len(props) > 1:
@@ -112,6 +112,11 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
                             self.__props = self._app.design_properties["RadField"]["NearFieldSetups"][val]
                 self.__props = BoundaryProps(self, self.__props)
         return self.__props
+
+    @props.setter
+    def props(self, value: dict) -> None:
+        self.__props = BoundaryProps(self, value)
+        self.update(self.__props)
 
     @property
     def name(self) -> str:
@@ -738,7 +743,7 @@ class FarFieldSetup(FieldSetup):
         if "ElevationStep" in self.props:
             return self.props["ElevationStep"]
         else:
-            return
+            return None
 
     @elevation_step.setter
     def elevation_step(self, value: float) -> None:
