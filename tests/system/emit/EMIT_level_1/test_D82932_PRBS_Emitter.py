@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -24,38 +24,27 @@
 
 from __future__ import annotations
 
-from enum import Enum
-import inspect
-import os
 from pathlib import Path
-import random
-import shutil
 import sys
-import tempfile
-import types
 
 # Import required modules
-from typing import cast
-from typing import get_args
-from unittest.mock import MagicMock
-import warnings
-
 import pytest
+
 
 def pyaedt_root():
     return Path(__file__).parent.parent.parent.parent.parent
 
+
 sys.path.append(pyaedt_root())
+from ansys.aedt.core import Emit
+from ansys.aedt.core.emit_core.emit_constants import ResultType
+from ansys.aedt.core.emit_core.nodes.emitter_node import EmitterNode
+from ansys.aedt.core.emit_core.nodes.generated import *
+from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
 from ansys.aedt.core.generic.general_methods import is_linux
 from tests.conftest import DESKTOP_VERSION
 from tests.conftest import NON_GRAPHICAL
-from ansys.aedt.core import Emit
 
-import ansys.aedt.core
-from ansys.aedt.core.emit_core.emit_constants import ResultType
-from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
-from ansys.aedt.core.emit_core.nodes.emitter_node import EmitterNode
-from ansys.aedt.core.emit_core.nodes.generated import *
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
 def test_D82932_PRBS_Emitte():
@@ -126,8 +115,9 @@ def test_D82932_PRBS_Emitte():
     radio_1_band.stop_frequency = "2400000000.0"
     assert radio_1_band.properties["Stop Frequency"] == "2400000000.0"
 
-    radio_1_rx_spectral_profile: RxSusceptibilityProfNode = \
-    [rx_prof for rx_prof in radio_1_band.children if rx_prof.node_type == "RxSusceptibilityProfNode"][0]
+    radio_1_rx_spectral_profile: RxSusceptibilityProfNode = [
+        rx_prof for rx_prof in radio_1_band.children if rx_prof.node_type == "RxSusceptibilityProfNode"
+    ][0]
     assert radio_1_rx_spectral_profile is not None
     assert radio_1_rx_spectral_profile.name == "Rx Spectral Profile"
     radio_1_rx_spectral_profile.min_receive_signal_pwr = -100.0

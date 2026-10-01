@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -24,27 +24,23 @@
 
 from __future__ import annotations
 
-import time
-import os
+from pathlib import Path
 import sys
-import tempfile
-import shutil
 
 import pytest
-from pathlib import Path
+
 
 def pyaedt_root():
     return Path(__file__).parent.parent.parent.parent.parent
 
+
 sys.path.append(pyaedt_root())
+from ansys.aedt.core import Emit
+from ansys.aedt.core.emit_core.emit_constants import ResultType
+from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
 from ansys.aedt.core.generic.general_methods import is_linux
 from tests.conftest import DESKTOP_VERSION
 from tests.conftest import NON_GRAPHICAL
-from ansys.aedt.core import Emit
-
-import ansys.aedt.core
-from ansys.aedt.core.emit_core.emit_constants import ResultType
-from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")

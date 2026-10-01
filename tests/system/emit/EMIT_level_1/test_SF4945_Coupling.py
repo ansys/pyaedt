@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -24,29 +24,26 @@
 
 from __future__ import annotations
 
-import os
+from pathlib import Path
 import sys
-import tempfile
-import shutil
 
 import pytest
-from pathlib import Path
+
 
 def pyaedt_root():
     return Path(__file__).parent.parent.parent.parent.parent
 
+
 sys.path.append(pyaedt_root())
-from ansys.aedt.core.generic import constants as consts
+from ansys.aedt.core import Emit
+from ansys.aedt.core.emit_core.emit_constants import ResultType
+from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
 from ansys.aedt.core.generic.general_methods import is_linux
 from tests import TESTS_EMIT_PATH
 from tests.conftest import DESKTOP_VERSION
-from ansys.aedt.core import Emit
-
-import ansys.aedt.core
-from ansys.aedt.core.emit_core.emit_constants import ResultType
-from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
 
 TEST_SUBFOLDER = TESTS_EMIT_PATH / "example_models/EMIT_level_1/SF4945_Coupling"
+
 
 @pytest.fixture
 def coupling_project(add_app_example, desktop):
