@@ -35,12 +35,12 @@ def pyaedt_root():
 
 
 sys.path.append(pyaedt_root())
-from ansys.aedt.core import Emit
-from ansys.aedt.core.emit_core.emit_constants import ResultType
-from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
-from ansys.aedt.core.generic.general_methods import is_linux
-from tests.conftest import DESKTOP_VERSION
-from tests.conftest import NON_GRAPHICAL
+from ansys.aedt.core import Emit  # noqa: E402
+from ansys.aedt.core.emit_core.emit_constants import ResultType  # noqa: E402
+from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain  # noqa: E402
+from ansys.aedt.core.generic.general_methods import is_linux  # noqa: E402
+from tests.conftest import DESKTOP_VERSION  # noqa: E402
+from tests.conftest import NON_GRAPHICAL  # noqa: E402
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")

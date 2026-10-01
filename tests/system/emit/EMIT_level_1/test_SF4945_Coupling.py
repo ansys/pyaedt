@@ -35,12 +35,12 @@ def pyaedt_root():
 
 
 sys.path.append(pyaedt_root())
-from ansys.aedt.core import Emit
-from ansys.aedt.core.emit_core.emit_constants import ResultType
-from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
-from ansys.aedt.core.generic.general_methods import is_linux
-from tests import TESTS_EMIT_PATH
-from tests.conftest import DESKTOP_VERSION
+from ansys.aedt.core import Emit  # noqa: E402
+from ansys.aedt.core.emit_core.emit_constants import ResultType  # noqa: E402
+from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain  # noqa: E402
+from ansys.aedt.core.generic.general_methods import is_linux  # noqa: E402
+from tests import TESTS_EMIT_PATH  # noqa: E402
+from tests.conftest import DESKTOP_VERSION  # noqa: E402
 
 TEST_SUBFOLDER = TESTS_EMIT_PATH / "example_models/EMIT_level_1/SF4945_Coupling"
 

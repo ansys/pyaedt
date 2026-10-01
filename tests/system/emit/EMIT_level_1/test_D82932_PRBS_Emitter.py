@@ -36,14 +36,14 @@ def pyaedt_root():
 
 
 sys.path.append(pyaedt_root())
-from ansys.aedt.core import Emit
-from ansys.aedt.core.emit_core.emit_constants import ResultType
-from ansys.aedt.core.emit_core.nodes.emitter_node import EmitterNode
-from ansys.aedt.core.emit_core.nodes.generated import *
-from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
-from ansys.aedt.core.generic.general_methods import is_linux
-from tests.conftest import DESKTOP_VERSION
-from tests.conftest import NON_GRAPHICAL
+from ansys.aedt.core import Emit  # noqa: E402
+from ansys.aedt.core.emit_core.emit_constants import ResultType  # noqa: E402
+from ansys.aedt.core.emit_core.nodes.emitter_node import EmitterNode  # noqa: E402
+from ansys.aedt.core.emit_core.nodes.generated import *  # noqa: F403, E402
+from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain  # noqa: E402
+from ansys.aedt.core.generic.general_methods import is_linux  # noqa: E402
+from tests.conftest import DESKTOP_VERSION  # noqa: E402
+from tests.conftest import NON_GRAPHICAL  # noqa: E402
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
@@ -74,7 +74,7 @@ def test_D82932_PRBS_Emitte():
 
     # Configuring the emitter to use PRBS and a EmitterDataRate = 2.4 Gbps
     assert len(emitter_1.get_waveforms()) == 1
-    emitter_1_band: Waveform = emitter_1.get_waveforms()[0]
+    emitter_1_band: Waveform = emitter_1.get_waveforms()[0]  # noqa: F405
     emitter_1_band.waveform = emitter_1_band.WaveformOption.PRBS
     assert emitter_1_band.properties["Waveform"] == "PRBS"
     emitter_1_band.data_rate = "2400000000.0"
@@ -88,7 +88,7 @@ def test_D82932_PRBS_Emitte():
     assert emitter_2 is not None
     assert emitter_2.name == emitter_2_name
     assert len(emitter_2.get_waveforms()) == 1
-    emitter_2_band: Waveform = emitter_2.get_waveforms()[0]
+    emitter_2_band: Waveform = emitter_2.get_waveforms()[0]  # noqa: F405
     emitter_2_band.waveform = emitter_2_band.WaveformOption.PRBS
     assert emitter_2_band.properties["Waveform"] == "PRBS"
     emitter_2_band.data_rate = "2400000000.0"
@@ -98,16 +98,16 @@ def test_D82932_PRBS_Emitte():
 
     # Adding a Rx System at 2.4 GHz with -100 dBm susceptibility
     radio_1_name = "Radio 2"
-    radio_1: RadioNode = emit.schematic.create_component(name=radio_1_name, component_type="New Radio")
+    radio_1: RadioNode = emit.schematic.create_component(name=radio_1_name, component_type="New Radio")  # noqa: F405
     assert radio_1 is not None
     assert radio_1.name == radio_1_name
     antenna_1_name = "Antenna"
-    antenna_1: AntennaNode = emit.schematic.create_component(name=antenna_1_name, component_type="Antenna")
+    antenna_1: AntennaNode = emit.schematic.create_component(name=antenna_1_name, component_type="Antenna")  # noqa: F405
     assert antenna_1 is not None
     assert antenna_1.name == antenna_1_name
     emit.schematic.connect_components(radio_1.name, antenna_1.name)
 
-    radio_1_band: Band = [band for band in radio_1.children if band.node_type == "Band"][0]
+    radio_1_band: Band = [band for band in radio_1.children if band.node_type == "Band"][0]  # noqa: F405
     radio_1_band.channel_bandwidth = "10000000.0"
     assert radio_1_band.properties["Channel Bandwidth"] == "10000000.0"
     radio_1_band.start_frequency = "2400000000.0"
@@ -115,7 +115,7 @@ def test_D82932_PRBS_Emitte():
     radio_1_band.stop_frequency = "2400000000.0"
     assert radio_1_band.properties["Stop Frequency"] == "2400000000.0"
 
-    radio_1_rx_spectral_profile: RxSusceptibilityProfNode = [
+    radio_1_rx_spectral_profile: RxSusceptibilityProfNode = [  # noqa: F405
         rx_prof for rx_prof in radio_1_band.children if rx_prof.node_type == "RxSusceptibilityProfNode"
     ][0]
     assert radio_1_rx_spectral_profile is not None

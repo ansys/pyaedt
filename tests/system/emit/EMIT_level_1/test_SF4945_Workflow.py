@@ -35,12 +35,12 @@ def pyaedt_root():
 
 
 sys.path.append(pyaedt_root())
-from ansys.aedt.core import Emit
-from ansys.aedt.core.emit_core.emit_constants import ResultType
-from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
-from ansys.aedt.core.generic.general_methods import is_linux
-from tests import TESTS_EMIT_PATH
-from tests.conftest import DESKTOP_VERSION
+from ansys.aedt.core import Emit  # noqa: E402
+from ansys.aedt.core.emit_core.emit_constants import ResultType  # noqa: E402
+from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain  # noqa: E402
+from ansys.aedt.core.generic.general_methods import is_linux  # noqa: E402
+from tests import TESTS_EMIT_PATH  # noqa: E402
+from tests.conftest import DESKTOP_VERSION  # noqa: E402
 
 TEST_SUBFOLDER = TESTS_EMIT_PATH / "example_models/EMIT_level_1/SF4945_Workflow"
 
@@ -78,18 +78,18 @@ def test_SF4945_Workflow(workflow):
 
     available_ports = coupling_link.properties["AllLinkedPortNames"].split("|")
     link_ports = []
-    commponents = {"": ""}  # {"Name":"Object"}
+    components = {"": ""}  # {"Name":"Object"}
     ant = None
     for port in available_ports:
         if "antenna" in port.lower():
             ant = workflow.schematic.create_component("Antenna")
             ant.name = "test"
             ant.name = port
-            commponents[ant.name] = ant
+            components[ant.name] = ant
         else:
             emiter = workflow.schematic.create_component("New Emitter")
             emiter.name = port
-            commponents[emiter.name] = emiter
+            components[emiter.name] = emiter
         link_ports.append(f"NODE-*-Scene-*-{port}")
 
     coupling_link.ports = link_ports
@@ -97,7 +97,7 @@ def test_SF4945_Workflow(workflow):
     # Create WiFi RF System
     radio_1 = workflow.schematic.create_component("WiFi - 802.11-2012")
     assert radio_1 is not None
-    commponents[radio_1.name] = radio_1
+    components[radio_1.name] = radio_1
     workflow.schematic.connect_components(radio_1.name, ant.name)
 
     # Enable 4 bands under "HR-DSSS" in WiFi Radio
@@ -106,10 +106,10 @@ def test_SF4945_Workflow(workflow):
             for band in band_folder.children:
                 if band.node_type == "Band":
                     band.enabled = True
-                    assert band.enabled == True
+                    assert band.enabled
 
     # Edit number of clock harmonics
-    emitter_clk_wifi = commponents["clk_wifi"]
+    emitter_clk_wifi = components["clk_wifi"]
     emitter_clk_wifi_band = emitter_clk_wifi.children[0]
     tx_spectral_profile = emitter_clk_wifi_band.children[0]
     tx_spectral_profile.number_of_harmonics = 100
