@@ -182,10 +182,6 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         self._legacy_props = MeshProps(self, props)
         return self._legacy_props
 
-    @property
-    def props_test(self):
-        return self.props
-
     @pyaedt_function_handler()
     def _get_args(self, props=None):
         """Retrieve arguments."""
@@ -306,9 +302,6 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         props = dict(self.props)
         for k, v in props.items():
             if k == key_name:
-                if key_name == "SurfaceRepPriority":
-                    value = "Normal" if value == 0 else "High"
-                props[k] = value
                 if k == "NormalDev":
                     props["NormalDeChoice"] = 2
 
@@ -317,7 +310,9 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         elif self.type == "DefeatureBased":
             self._mesh.omeshmodule.EditModelResolutionOp(self.name, self._get_args(props))
         elif self.type == "SurfaceRepPriority":
-            self._mesh.omeshmodule.EditSurfPriorityForTauOp(self.name, self._get_args(props))
+            self._mesh.omeshmodule.Edit(
+                self.name, [f"NAME:{self.name}", "SurfaceRepPriority:=", 1 if value in [1, "High"] else 0]
+            )
         elif self.type == "LengthBased":
             self._mesh.omeshmodule.EditLengthOp(self.name, self._get_args(props))
         elif self.type == "SkinDepthBased":

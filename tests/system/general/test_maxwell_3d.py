@@ -133,6 +133,7 @@ def test_lamination(m3d_app) -> None:
 
 
 def test_assign_winding(m3d_app) -> None:
+    m3d_app.solution_type = "AC Magnetic"
     coil_hole = m3d_app.modeler.create_box([-50, -50, 0], [100, 100, 100], name="Coil_Hole")
     coil = m3d_app.modeler.create_box([-100, -100, 0], [200, 200, 100], name="Coil")
     m3d_app.modeler.subtract([coil], [coil_hole])
@@ -144,12 +145,12 @@ def test_assign_winding(m3d_app) -> None:
     bounds = m3d_app.assign_winding(assignment=face_id, current=20e-3)
     assert bounds.props["Current"] == "0.02A"
     bounds = m3d_app.assign_winding(assignment=face_id, current="20e-3A")
-    assert bounds.props["Current"] == "20e-3A"
+    assert bounds.props["Current"] == "0.02A"
     bounds = m3d_app.assign_winding(assignment=face_id, resistance="1ohm")
     assert bounds.props["Resistance"] == "1ohm"
-    bounds = m3d_app.assign_winding(assignment=face_id, inductance="1H")
+    bounds = m3d_app.assign_winding(winding_type="Voltage", assignment=face_id, inductance="1H")
     assert bounds.props["Inductance"] == "1H"
-    bounds = m3d_app.assign_winding(assignment=face_id, voltage="10V")
+    bounds = m3d_app.assign_winding(winding_type="Voltage", assignment=face_id, voltage="10V")
     assert bounds.props["Voltage"] == "10V"
     bounds_name = generate_unique_name("Winding")
     bounds = m3d_app.assign_winding(assignment=face_id, name=bounds_name)
