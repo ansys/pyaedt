@@ -1431,9 +1431,11 @@ class SetupCircuit(CommonSetup):
         if newsetup:
             if soltype == "NexximLNA":
                 self.omodule.AddLinearNetworkAnalysis(arg)
-            elif soltype == "NexximDC":
+            elif soltype == "TwinbuilderAC":
+                self.omodule.AddACAnalysis(arg)
+            elif soltype in ["NexximDC", "TwinbuilderDC"]:
                 self.omodule.AddDCAnalysis(arg)
-            elif soltype == "NexximTransient":
+            elif soltype in ["NexximTransient", "TwinbuilderTR"]:
                 self.omodule.AddTransient(arg)
             elif soltype == "NexximQuickEye":
                 self.omodule.AddQuickEyeAnalysis(arg)
@@ -1446,9 +1448,11 @@ class SetupCircuit(CommonSetup):
         else:
             if soltype == "NexximLNA":
                 self.omodule.EditLinearNetworkAnalysis(self.name, arg)
-            elif soltype == "NexximDC":
+            elif soltype == "TwinbuilderAC":
+                self.omodule.EditACAnalysis(self.name, arg)
+            elif soltype in ["NexximDC", "TwinbuilderDC"]:
                 self.omodule.EditDCAnalysis(self.name, arg)
-            elif soltype == "NexximTransient":
+            elif soltype in ["NexximTransient", "TwinbuilderTR"]:
                 self.omodule.EditTransient(self.name, arg)
             elif soltype == "NexximQuickEye":
                 self.omodule.EditQuickEyeAnalysis(self.name, arg)
