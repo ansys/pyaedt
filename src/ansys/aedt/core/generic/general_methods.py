@@ -1042,7 +1042,7 @@ def _get_pids_by_name_windows(image_name: str) -> list[int]:
         shell=False,
         encoding="mbcs",
         check=False,
-        creationflags=subprocess.CREATE_NO_WINDOW,
+        creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
     )  # nosec
 
     # Parse the CSV output from tasklist
