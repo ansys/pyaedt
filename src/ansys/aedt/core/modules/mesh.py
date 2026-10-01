@@ -250,9 +250,17 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         elif self.type == "Curvilinear":
             self._mesh.omeshmodule.AssignApplyCurvlinearElementsOp(self._get_args())
         elif self.type == "RotationalLayerMesh":
-            self._mesh.omeshmodule.AssignRotationalLayerOp(self._get_args())
+            props = dict(self.props)
+            if "Total Layer Thickness" in props:
+                props["Total Layer Thickenss"] = props["Total Layer Thickness"]
+                del props["Total Layer Thickness"]
+            self._mesh.omeshmodule.AssignRotationalLayerOp(self._get_args(props))
         elif self.type == "EdgeCutLayerMesh":
-            self._mesh.omeshmodule.AssignEdgeCutLayerOp(self._get_args())
+            props = dict(self.props)
+            if "Layer Thickness" in props:
+                props["Layer Thickenss"] = props["Layer Thickness"]
+                del props["Layer Thickness"]
+            self._mesh.omeshmodule.AssignEdgeCutLayerOp(self._get_args(props))
         elif self.type == "DensityControlBased":
             self._mesh.omeshmodule.AssignDensityControlOp(self._get_args())
         elif self.type == "Icepak":
@@ -316,13 +324,22 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         elif self.type == "Curvilinear":
             self._mesh.omeshmodule.EditApplyCurvlinearElementsOp(self.name, self._get_args(props))
         elif self.type == "RotationalLayerMesh":
+            if "Total Layer Thickness" in props:
+                props["Total Layer Thickenss"] = props["Total Layer Thickness"]
+                del props["Total Layer Thickness"]
             self._mesh.omeshmodule.EditRotationalLayerOp(self.name, self._get_args(props))
         elif self.type == "DensityControlBased":
-            self._mesh.omeshmodule.EditDensityControlOp(self.name, self._get_args(props))
+            self._mesh.omeshmodule.EditDensityControlOp(self.name, self._get_args())
+        elif self.type == "EdgeCutLayerMesh":
+            props = dict(self.props)
+            if "Layer Thickness" in props:
+                props["Layer Thickenss"] = props["Layer Thickness"]
+                del props["Layer Thickness"]
+            self._mesh.omeshmodule.EditEdgeCutLayerOp(self.name, self._get_args(props))
         elif self.type == "Icepak":
             self._mesh.omeshmodule.EditMeshOperation(self.name, self._get_args(props))
         elif self.type == "CurvatureExtraction":
-            self._mesh.omeshmodule.EditSBRCurvatureExtractionOp(self.name, self._get_args(props))
+            self._mesh.omeshmodule.EditCurvatureExtractionOp(self.name, self._get_args(props))
         elif self.type in ["InitialMeshSettings", "MeshSettings"]:
             self._mesh.omeshmodule.InitialMeshSettings(self._get_args(props))
         elif self.type == "CylindricalGap":
@@ -1530,7 +1547,6 @@ class Mesh(PyAedtBase):
 
         mop = MeshOperation(self, name, props, "RotationalLayerMesh")
         mop.create()
-        mop.props["Total Layer Thickness"] = total_thickness
         self.meshoperations.append(mop)
         return mop
 

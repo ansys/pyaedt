@@ -123,3 +123,31 @@ def test_get_obj_data_keeps_single_sweep_definition_as_dict() -> None:
 
 def test_get_obj_data_returns_empty_for_missing_child() -> None:
     assert _get_obj_data(None) == {}
+
+
+def test_get_obj_data_replaces_typo_words_in_keys() -> None:
+    payload = {
+        "data_2": [
+            {
+                "name": "MeshOp",
+                "values": [
+                    {"name": "Total Layer Thickenss", "value": "5mm"},
+                    {"name": "Layer Thickenss", "value": "1mm"},
+                    {
+                        "name": "Nested",
+                        "values": [{"name": "Inner Thickenss", "value": "2mm"}],
+                    },
+                    {"name": "Number of Layers", "value": "3"},
+                ],
+            }
+        ]
+    }
+    props = _get_obj_data(DummyChild(payload))
+
+    assert props["Total Layer Thickness"] == "5mm"
+    assert props["Layer Thickness"] == "1mm"
+    assert props["Nested"]["Inner Thickness"] == "2mm"
+    assert props["Number of Layers"] == "3"
+    assert "Total Layer Thickenss" not in props
+    assert "Layer Thickenss" not in props
+    assert "Inner Thickenss" not in props["Nested"]

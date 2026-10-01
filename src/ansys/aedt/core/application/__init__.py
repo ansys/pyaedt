@@ -26,6 +26,29 @@ import re
 
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
+TYPO_WORDS = {"Thickenss": "Thickness"}
+
+
+def _correct_typo_keys(node):
+    """Replace known AEDT typos in dictionary keys, including nested keys.
+
+    A key is corrected when it contains a typo from ``TYPO_WORDS``. Only that
+    word is replaced, so ``"Total Layer Thickenss"`` becomes ``"Total Layer Thickness"``.
+    """
+    if isinstance(node, list):
+        return [_correct_typo_keys(item) for item in node]
+    if isinstance(node, dict):
+        corrected = {}
+        for key, value in node.items():
+            new_key = key
+            if isinstance(key, str):
+                for typo, replacement in TYPO_WORDS.items():
+                    if typo in new_key:
+                        new_key = new_key.replace(typo, replacement)
+            corrected[new_key] = _correct_typo_keys(value)
+        return corrected
+    return node
+
 
 def _has_get_obj_data(child_object) -> bool:
     """Return whether an AEDT child object supports ``GetObjData``. This is available from 2026 R1 onwards.
@@ -226,4 +249,4 @@ def _get_obj_data(child_object) -> dict:
     for item in values:
         _accumulate_parsed_entry(result, _obj_data_parser(item))
 
-    return result
+    return _correct_typo_keys(result)

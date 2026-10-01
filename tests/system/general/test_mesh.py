@@ -180,7 +180,7 @@ def test_maxwell_mesh(maxwell_app) -> None:
     dens = maxwell_app.mesh.assign_density_control(o.name, maximum_element_length=10000, name="Density")
     assert dens.props["RestrictMaxElemLength"]
 
-    assert dens.props["MaxElemLength"] == 10000
+    assert int(dens.props["MaxElemLength"]) == 10000
     dens.props["MaxElemLength"] = 10
     assert str(dens.props["MaxElemLength"]) == maxwell_app.odesign.GetChildObject("Mesh").GetChildObject(
         dens.name
