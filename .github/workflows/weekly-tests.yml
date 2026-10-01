@@ -136,7 +136,7 @@ jobs:
       - name: Delete old testmon caches
         shell: bash
         run: |
-          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {}
+          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
         env:
           CACHE_KEY: ${{ env.TESTMON_CACHE_KEY_SOLVERS_WIN }}
           GH_TOKEN: ${{ github.token }}
@@ -184,7 +184,7 @@ jobs:
       - name: Delete old testmon caches
         shell: bash
         run: |
-          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {}
+          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
         env:
           CACHE_KEY: ${{ env.TESTMON_CACHE_KEY_SOLVERS_LINUX }}
           GH_TOKEN: ${{ github.token }}
@@ -233,7 +233,7 @@ jobs:
       - name: Delete old testmon caches
         shell: bash
         run: |
-          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {}
+          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
         env:
           CACHE_KEY: ${{ env.TESTMON_CACHE_KEY_GENERAL_WIN }}
           GH_TOKEN: ${{ github.token }}
@@ -281,7 +281,7 @@ jobs:
       - name: Delete old testmon caches
         shell: bash
         run: |
-          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {}
+          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
         env:
           CACHE_KEY: ${{ env.TESTMON_CACHE_KEY_GENERAL_LINUX }}
           GH_TOKEN: ${{ github.token }}
@@ -331,7 +331,7 @@ jobs:
       - name: Delete old testmon caches
         shell: bash
         run: |
-          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {}
+          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
         env:
           CACHE_KEY: ${{ env.TESTMON_CACHE_KEY_VISUALIZATION_WIN }}
           GH_TOKEN: ${{ github.token }}
@@ -380,7 +380,7 @@ jobs:
       - name: Delete old testmon caches
         shell: bash
         run: |
-          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {}
+          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
         env:
           CACHE_KEY: ${{ env.TESTMON_CACHE_KEY_VISUALIZATION_LINUX }}
           GH_TOKEN: ${{ github.token }}
@@ -428,7 +428,7 @@ jobs:
       - name: Delete old testmon caches
         shell: bash
         run: |
-          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {}
+          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
         env:
           CACHE_KEY: ${{ env.TESTMON_CACHE_KEY_ICEPAK_WIN }}
           GH_TOKEN: ${{ github.token }}
@@ -476,7 +476,7 @@ jobs:
       - name: Delete old testmon caches
         shell: bash
         run: |
-          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {}
+          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
         env:
           CACHE_KEY: ${{ env.TESTMON_CACHE_KEY_ICEPAK_LINUX }}
           GH_TOKEN: ${{ github.token }}
@@ -524,7 +524,7 @@ jobs:
       - name: Delete old testmon caches
         shell: bash
         run: |
-          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {}
+          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
         env:
           CACHE_KEY: ${{ env.TESTMON_CACHE_KEY_LAYOUT_WIN }}
           GH_TOKEN: ${{ github.token }}
@@ -572,7 +572,7 @@ jobs:
       - name: Delete old testmon caches
         shell: bash
         run: |
-          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {}
+          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
         env:
           CACHE_KEY: ${{ env.TESTMON_CACHE_KEY_LAYOUT_LINUX }}
           GH_TOKEN: ${{ github.token }}
@@ -679,7 +679,7 @@ jobs:
       - name: Delete old testmon caches
         shell: bash
         run: |
-          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {}
+          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
         env:
           CACHE_KEY: ${{ env.TESTMON_CACHE_KEY_FILTER_WIN }}
           GH_TOKEN: ${{ github.token }}
