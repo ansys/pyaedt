@@ -99,7 +99,7 @@ def test_run_desktop_hfss3dlayout(desktop) -> None:
 def test_run_desktop_twinbuilder(desktop) -> None:
     aedtapp = TwinBuilder()
     assert aedtapp.design_type == "Twin Builder"
-    assert aedtapp.solution_type == "TR"
+    assert aedtapp.solution_type == "TwinbuilderTR"
     aedtapp.close_project(save=False)
 
 

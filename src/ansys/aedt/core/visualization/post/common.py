@@ -1286,13 +1286,20 @@ class PostProcessorCommon(PyAedtBase):
             if "Theta" not in families_input:
                 families_input["Theta"] = ["All"]
 
-        if self.post_solution_type in ["TR", "AC", "DC"]:
+        if self.post_solution_type in ["TR", "AC", "DC", "TwinbuilderTR", "TwinbuilderAC", "TwinbuilderDC"]:
             ctxt = [
                 "NAME:Context",
                 "SimValueContext:=",
                 [did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0],
             ]
-            setup_sweep_name = self.post_solution_type
+            if self.post_solution_type == "TwinbuilderTR":
+                setup_sweep_name = "TR"
+            elif self.post_solution_type == "TwinbuilderAC":
+                setup_sweep_name = "AC"
+            elif self.post_solution_type == "TwinbuilderDC":
+                setup_sweep_name = "DC"
+            else:
+                setup_sweep_name = self.post_solution_type
         elif self.post_solution_type in ["HFSS3DLayout"]:
             if context == "Differential Pairs":
                 ctxt = [
