@@ -45,9 +45,13 @@ from typing import TYPE_CHECKING
 from typing import Callable
 from typing import ParamSpec
 from typing import TypeVar
+from typing import cast
+
+from ansys.aedt.core.generic.protocols import _AppWithOProject
+from ansys.aedt.core.generic.protocols import _ODesktop
 
 if TYPE_CHECKING:
-    from numpy import array
+    from numpy import ndarray
 from typing import Any
 import warnings
 
@@ -102,6 +106,9 @@ RE_PORT = re.compile(r"(?:\*|0\.0\.0\.0|\[::\]|\[::ffff:[0-9.]+\]|127\.0\.0\.1|[
 
 
 def _write_mes(mes_text) -> None:
+    """Write an error message in chunks when a logger is configured."""
+    if not settings.logger:
+        return
     mes_text = str(mes_text)
     parts = [mes_text[i : i + 250] for i in range(0, len(mes_text), 250)]
     for el in parts:
@@ -109,17 +116,14 @@ def _write_mes(mes_text) -> None:
 
 
 def _get_args_dicts(func, args, kwargs):
-    if int(sys.version[0]) > 2:
-        args_name = list(dict.fromkeys(inspect.getfullargspec(func)[0] + list(kwargs.keys())))
-        args_dict = dict(list(itertools.zip_longest(args_name, args)) + list(kwargs.items()))
-    else:
-        args_name = list(dict.fromkeys(inspect.getargspec(func)[0] + list(kwargs.keys())))
-        args_dict = dict(list(itertools.izip(args_name, args)) + list(kwargs.iteritems()))
+    """Build a mapping of function argument names to supplied values."""
+    args_name = list(dict.fromkeys(inspect.getfullargspec(func)[0] + list(kwargs.keys())))
+    args_dict = dict(list(itertools.zip_longest(args_name, args)) + list(kwargs.items()))
     return args_dict
 
 
 def _exception(ex_info, func, args, kwargs, message: str = "Type Error") -> None:
-    """Write the trace stack to the desktop when a Python error occurs.
+    """Write the trace stack to the configured logger when a Python error occurs.
 
     Parameters
     ----------
@@ -132,7 +136,7 @@ def _exception(ex_info, func, args, kwargs, message: str = "Type Error") -> None
     kwargs :
 
     message :
-         (Default value = "Type Error")
+        Error message prefix. The default is ``"Type Error"``.
 
     Returns
     -------
@@ -192,7 +196,8 @@ def _exception(ex_info, func, args, kwargs, message: str = "Type Error") -> None
 
     if len(list(_desktop_sessions.values())) == 1:
         try:
-            messages = list(list(_desktop_sessions.values())[0].odesktop.GetMessages("", "", 2))[-1].lower()
+            odesktop = cast(_ODesktop, list(_desktop_sessions.values())[0].odesktop)
+            messages = list(odesktop.GetMessages("", "", 2))[-1].lower()
         except (GrpcApiError, AttributeError, TypeError, IndexError):
             pass
     if "[error]" in messages:
@@ -212,21 +217,9 @@ def _exception(ex_info, func, args, kwargs, message: str = "Type Error") -> None
                     first_time_log = False
                 _write_mes(f"    {el} = {args_dict[el]} ")
     except Exception:
-        pyaedt_logger.error("An error occurred while parsing and logging an error with method {}.")
+        pyaedt_logger.error(f"An error occurred while parsing and logging an error with method {func.__name__}.")
 
     _write_mes(header)
-
-
-def _check_types(arg) -> str:
-    if "netref.builtins.list" in str(type(arg)):
-        return "list"
-    elif "netref.builtins.dict" in str(type(arg)):
-        return "dict"
-    elif "netref.__builtin__.list" in str(type(arg)):
-        return "list"
-    elif "netref.__builtin__.dict" in str(type(arg)):
-        return "dict"
-    return ""
 
 
 def raise_exception_or_return_false(e):
@@ -246,9 +239,12 @@ def raise_exception_or_return_false(e):
 
 
 def _function_handler_wrapper(user_function: Callable[_P, _R], **deprecated_kwargs) -> Callable[_P, _R]:
+    """Wrap a function with error handling, logging, and deprecated-argument support."""
+
     def wrapper(*args: _P.args, **kwargs: _P.kwargs) -> _R:
+        function_name = getattr(user_function, "__name__", str(user_function))
         if deprecated_kwargs and kwargs:
-            deprecate_kwargs(user_function.__name__, kwargs, deprecated_kwargs)
+            deprecate_kwargs(function_name, kwargs, deprecated_kwargs)
         try:
             settings.time_tick = time.time()
             out = user_function(*args, **kwargs)
@@ -258,11 +254,11 @@ def _function_handler_wrapper(user_function: Callable[_P, _R], **deprecated_kwar
             message = "This method is not supported in current AEDT design type."
             if settings.enable_screen_logs:
                 pyaedt_logger.error("**************************************************************")
-                pyaedt_logger.error(f"PyAEDT error on method {user_function.__name__}:  {message}. Check again")
+                pyaedt_logger.error(f"PyAEDT error on method {function_name}:  {message}. Check again")
                 pyaedt_logger.error("**************************************************************")
                 pyaedt_logger.error("")
-            if settings.enable_file_logs:
-                settings.error(message)
+            if settings.enable_file_logs and settings.logger:
+                settings.logger.error(message)
             return raise_exception_or_return_false(e)
         except GrpcApiError as e:
             _exception(sys.exc_info(), user_function, args, kwargs, "AEDT API Error")
@@ -303,14 +299,16 @@ def deprecate_kwargs(func_name, kwargs, aliases):
             kwargs[new] = kwargs.pop(alias)
 
 
-def deprecate_argument(arg_name: str, version: str = None, message: str = None, removed: bool = False) -> callable:
+def deprecate_argument(
+    arg_name: str, version: str | None = None, message: str | None = None, removed: bool = False
+) -> Callable:
     """Decorator to deprecate a specific argument (positional or keyword) in a function.
 
     Parameters
     ----------
         arg_name : str
             The name of the deprecated argument.
-        version : str
+        version : str, optional
             The version in which the argument was removed.
         message : str, optional
             Custom deprecation message.
@@ -354,7 +352,7 @@ def deprecate_argument(arg_name: str, version: str = None, message: str = None, 
 
             return func(*args, **kwargs)
 
-        return wrapper  # type: ignore[return-value]
+        return wrapper  # ty: ignore[invalid-return-type]
 
     return decorator
 
@@ -384,7 +382,8 @@ def deprecated_property(reason: str | None = None, version: str | None = None) -
     """
 
     def decorator(func: _F) -> _F:
-        msg = f"`{func.__name__}` is deprecated"
+        property_name = getattr(func, "__name__", str(func))
+        msg = f"`{property_name}` is deprecated"
         if version:
             msg += f" and will be removed in {version}"
         msg += f". {reason}" if reason else "."
@@ -397,7 +396,7 @@ def deprecated_property(reason: str | None = None, version: str | None = None) -
         wrapper.__doc__ = func.__doc__ or ""
         if version or reason:
             wrapper.__doc__ += f"\n\n.. deprecated:: {version or ''}\n   {reason or ''}"
-        return wrapper  # type: ignore[return-value]
+        return wrapper  # ty: ignore[invalid-return-type]
 
     return decorator
 
@@ -471,11 +470,14 @@ def check_numeric_equivalence(a, b, relative_tolerance: float = 1e-7):
 
 
 def _log_method(func, new_args, new_kwargs) -> None:
+    """Log a method call when debug logging is enabled and a logger is available."""
     if not (settings.enable_debug_logger or settings.enable_debug_edb_logger):
         return
     if not settings.enable_debug_internal_methods_logger and str(func.__name__)[0] == "_":
         return
     if not settings.enable_debug_geometry_operator_logger and "GeometryOperators" in str(func):
+        return
+    if not settings.logger:
         return
     # Avoid infinite recursion with __repr__ and __str__ methods
     if func.__name__ in ("__repr__", "__str__"):
@@ -737,12 +739,12 @@ def _retry_ntimes(n, function, *args, **kwargs):
 
 
 @pyaedt_function_handler()
-def time_fn(fn: callable, *args, **kwargs):
+def time_fn(fn: Callable, *args, **kwargs):
     """Return time fn."""
     start = datetime.datetime.now()
     results = fn(*args, **kwargs)
     end = datetime.datetime.now()
-    fn_name = fn.__module__ + "." + fn.__name__
+    fn_name = f"{getattr(fn, '__module__', '')}.{getattr(fn, '__name__', str(fn))}"
     delta = (end - start).microseconds * 1e-6
     print(fn_name + ": " + str(delta) + "s")
     return results
@@ -1040,7 +1042,7 @@ def _get_pids_by_name_windows(image_name: str) -> list[int]:
         shell=False,
         encoding="mbcs",
         check=False,
-        creationflags=subprocess.CREATE_NO_WINDOW,
+        creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
     )  # nosec
 
     # Parse the CSV output from tasklist
@@ -1070,7 +1072,7 @@ def _get_pids_by_name_windows(image_name: str) -> list[int]:
     return pids
 
 
-def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str]]]:
+def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str] | str]]:
     """Get process IDs and command line arguments for target processes.
 
     This function searches for running processes matching the specified names
@@ -1083,9 +1085,11 @@ def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str]]]
 
     Returns
     -------
-    list[tuple[int, list[str]]]
-        List of tuples containing (process_id, command_line_arguments).
-        Command line arguments are split into individual strings.
+    list[tuple[int, list[str] | str]]
+        List of tuples containing ``(process_id, command_line_arguments)``.
+        On Linux, command-line arguments are split into individual strings.
+        On Windows, the executable name is returned because ``tasklist`` does
+        not provide the full command line.
 
     Notes
     -----
@@ -1141,7 +1145,7 @@ def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str]]]
 
 
 @pyaedt_function_handler()
-def _check_psutil_connections(pids: list[int]) -> dict[int, list[str, Any]]:
+def _check_psutil_connections(pids: list[int]) -> dict[int, list[dict[str, Any]]]:
     """Retrieve network connections for specified process IDs.
 
     This function collects TCP connection information for a list of process IDs,
@@ -1165,6 +1169,8 @@ def _check_psutil_connections(pids: list[int]) -> dict[int, list[str, Any]]:
             Port number of the local connection endpoint.
         - "status" : str
             Connection status, for example "LISTEN", or "ESTABLISHED".
+        - "cmdline" : str
+            Full command line of the process, used for version and mode filtering.
     """
     # Step 1: Initialize result dictionary with empty lists for each PID
     # This ensures every requested PID appears in the result, even if it has no connections
@@ -1402,7 +1408,7 @@ def is_grpc_session_active(
 
 @pyaedt_function_handler()
 def active_sessions(
-    version: str = None,
+    version: str | None = None,
     student_version: bool | None = False,
     non_graphical: bool | None = None,
 ) -> dict[int, int]:
@@ -1753,7 +1759,7 @@ def grpc_active_sessions(
 
 
 @pyaedt_function_handler()
-def conversion_function(data: "list | array", function: str = None):  # pragma: no cover
+def conversion_function(data: "list | ndarray", function: str | None = None):  # pragma: no cover
     """Convert input data based on a specified function string.
 
     The available functions are:
@@ -1818,6 +1824,10 @@ def conversion_function(data: "list | array", function: str = None):  # pragma: 
 
 class PropsManager(PyAedtBase):
     """Manage props manager."""
+
+    # NOTE: props and _app are provided by subclasses; declared here so this mixin type-checks.
+    props: dict
+    _app: _AppWithOProject
 
     def __getitem__(self, item):
         """Get the `self.props` key value.
@@ -2014,7 +2024,7 @@ def _to_boolean(val):
 
 @pyaedt_function_handler()
 def install_with_pip(
-    package_name: str, package_path: str = None, upgrade: bool = False, uninstall: bool = False
+    package_name: str, package_path: str | None = None, upgrade: bool = False, uninstall: bool = False
 ):  # pragma: no cover
     """Install a new package using pip.
 
