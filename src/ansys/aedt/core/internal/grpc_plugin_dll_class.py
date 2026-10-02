@@ -32,12 +32,16 @@ import os
 from pathlib import Path
 import re
 import types
+from typing import TYPE_CHECKING
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.general_methods import _retry_ntimes
 from ansys.aedt.core.generic.general_methods import inclusion_list
 from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.internal.errors import GrpcApiError
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.generic.protocols import _ODesktop
 
 
 class AedtBlockObj(list):
@@ -363,7 +367,7 @@ class AEDT:
         return self.aedt
 
     @property
-    def odesktop(self):
+    def odesktop(self) -> "_ODesktop":
         """Retrieve odesktop."""
         return self.recreate_application()
 
