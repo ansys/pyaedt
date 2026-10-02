@@ -1,0 +1,183 @@
+DLXEMIASCII
+2.600000
+
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios-*-WiFi - 802.11-2012-*-HR-DSSS-*-HR-DSSS Rx - Ch 1-13
+1
+NODE-*-RF Systems-*-Serial_m-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Serial_m-*-Radios-*-Serial_m-*-Waveform
+1,1,13
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-5759,-5205,-5205,-32742,-5759,-5205,-5205,-32742,-32742,-32742,-32742,-32742,-32742,-32742,-2154,-2154
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios-*-WiFi - 802.11-2012-*-HR-DSSS-*-HR-DSSS Rx - Ch 1-13
+1
+NODE-*-RF Systems-*-Serial_s-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Serial_s-*-Radios-*-Serial_s-*-Waveform
+1,1,13
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-5641,-5288,-5288,-32742,-5641,-5288,-5288,-32742,-32742,-32742,-32742,-32742,-32742,-32742,-2154,-2154
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios-*-WiFi - 802.11-2012-*-HR-DSSS-*-HR-DSSS Rx - Ch 1-13
+1
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios-*-WiFi - 802.11-2012-*-HR-DSSS-*-HR-DSSS Tx - Ch 1-13
+1,13,13
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-32740,-32740,-32740,-32740,-32740,-32740,-32740,-32740,-32740,-32740,-32740,-32740,-32740,-32740,-32740,-32740
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios-*-WiFi - 802.11-2012-*-HR-DSSS-*-HR-DSSS Rx - Ch 1-13
+1
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios-*-WiFi - 802.11-2012-*-HR-DSSS-*-HR-DSSS Tx - Ch 14
+1,1,13
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-32740,-32740,-32740,-32740,-32740,-32740,-32740,-32740,-32740,-32740,-32740,-32740,-32740,-32740,-32740,-32740
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios-*-WiFi - 802.11-2012-*-HR-DSSS-*-HR-DSSS Rx - Ch 1-13
+1
+NODE-*-RF Systems-*-clk_usb-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-clk_usb-*-Radios-*-clk_usb-*-Waveform
+1,1,13
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-8053,-6386,-6386,-32742,-8053,-6386,-6386,-32742,-32742,-32742,-32742,-32742,-32742,-32742,-2154,-2154
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios-*-WiFi - 802.11-2012-*-HR-DSSS-*-HR-DSSS Rx - Ch 1-13
+1
+NODE-*-RF Systems-*-clk_wifi-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-clk_wifi-*-Radios-*-clk_wifi-*-Waveform
+1,1,13
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-5157,-1469,-1469,-32742,-5157,-1469,-1469,-32742,-32742,-32742,-32742,-32742,-32742,-32742,-2154,-2154
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios-*-WiFi - 802.11-2012-*-HR-DSSS-*-HR-DSSS Rx - Ch 1-13
+1
+NODE-*-RF Systems-*-usbdatan-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-usbdatan-*-Radios-*-usbdatan-*-Waveform
+1,1,13
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-9830,-9352,-9352,-32742,-9830,-9352,-9352,-32742,-32742,-32742,-32742,-32742,-32742,-32742,-2154,-2154
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios-*-WiFi - 802.11-2012-*-HR-DSSS-*-HR-DSSS Rx - Ch 1-13
+1
+NODE-*-RF Systems-*-usbdatan_slave-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-usbdatan_slave-*-Radios-*-usbdatan_slave-*-Waveform
+1,1,13
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-9809,-8471,-8471,-32742,-9809,-8471,-8471,-32742,-32742,-32742,-32742,-32742,-32742,-32742,-2154,-2154
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios-*-WiFi - 802.11-2012-*-HR-DSSS-*-HR-DSSS Rx - Ch 1-13
+1
+NODE-*-RF Systems-*-usbdatap-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-usbdatap-*-Radios-*-usbdatap-*-Waveform
+1,1,13
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-9778,-9309,-9309,-32742,-9778,-9309,-9309,-32742,-32742,-32742,-32742,-32742,-32742,-32742,-2154,-2154
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios-*-WiFi - 802.11-2012-*-HR-DSSS-*-HR-DSSS Rx - Ch 1-13
+1
+NODE-*-RF Systems-*-usbdatap_slave-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-usbdatap_slave-*-Radios-*-usbdatap_slave-*-Waveform
+1,1,13
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-9779,-8401,-8401,-32742,-9779,-8401,-8401,-32742,-32742,-32742,-32742,-32742,-32742,-32742,-2154,-2154
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios-*-WiFi - 802.11-2012-*-HR-DSSS-*-HR-DSSS Rx - Ch 14
+1
+NODE-*-RF Systems-*-Serial_m-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Serial_m-*-Radios-*-Serial_m-*-Waveform
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-5759,-5205,-5205,-32742,-5759,-5205,-5205,-32742,-32742,-32742,-32742,-32742,-32742,-32742,-2154,-2154
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios-*-WiFi - 802.11-2012-*-HR-DSSS-*-HR-DSSS Rx - Ch 14
+1
+NODE-*-RF Systems-*-Serial_s-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-Serial_s-*-Radios-*-Serial_s-*-Waveform
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-5641,-5288,-5288,-32742,-5641,-5288,-5288,-32742,-32742,-32742,-32742,-32742,-32742,-32742,-2154,-2154
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios-*-WiFi - 802.11-2012-*-HR-DSSS-*-HR-DSSS Rx - Ch 14
+1
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios-*-WiFi - 802.11-2012-*-HR-DSSS-*-HR-DSSS Tx - Ch 1-13
+1,13,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-32740,-32740,-32740,-32740,-32740,-32740,-32740,-32740,-32740,-32740,-32740,-32740,-32740,-32740,-32740,-32740
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios-*-WiFi - 802.11-2012-*-HR-DSSS-*-HR-DSSS Rx - Ch 14
+1
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios-*-WiFi - 802.11-2012-*-HR-DSSS-*-HR-DSSS Tx - Ch 14
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-32740,-32740,-32740,-32740,-32740,-32740,-32740,-32740,-32740,-32740,-32740,-32740,-32740,-32740,-32740,-32740
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios-*-WiFi - 802.11-2012-*-HR-DSSS-*-HR-DSSS Rx - Ch 14
+1
+NODE-*-RF Systems-*-clk_usb-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-clk_usb-*-Radios-*-clk_usb-*-Waveform
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-8053,-6386,-6386,-32742,-8053,-6386,-6386,-32742,-32742,-32742,-32742,-32742,-32742,-32742,-2154,-2154
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios-*-WiFi - 802.11-2012-*-HR-DSSS-*-HR-DSSS Rx - Ch 14
+1
+NODE-*-RF Systems-*-clk_wifi-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-clk_wifi-*-Radios-*-clk_wifi-*-Waveform
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-5157,-1469,-1469,-32742,-5157,-1469,-1469,-32742,-32742,-32742,-32742,-32742,-32742,-32742,-2154,-2154
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios-*-WiFi - 802.11-2012-*-HR-DSSS-*-HR-DSSS Rx - Ch 14
+1
+NODE-*-RF Systems-*-usbdatan-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-usbdatan-*-Radios-*-usbdatan-*-Waveform
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-9830,-9352,-9352,-32742,-9830,-9352,-9352,-32742,-32742,-32742,-32742,-32742,-32742,-32742,-2154,-2154
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios-*-WiFi - 802.11-2012-*-HR-DSSS-*-HR-DSSS Rx - Ch 14
+1
+NODE-*-RF Systems-*-usbdatan_slave-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-usbdatan_slave-*-Radios-*-usbdatan_slave-*-Waveform
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-9809,-8471,-8471,-32742,-9809,-8471,-8471,-32742,-32742,-32742,-32742,-32742,-32742,-32742,-2154,-2154
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios-*-WiFi - 802.11-2012-*-HR-DSSS-*-HR-DSSS Rx - Ch 14
+1
+NODE-*-RF Systems-*-usbdatap-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-usbdatap-*-Radios-*-usbdatap-*-Waveform
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-9778,-9309,-9309,-32742,-9778,-9309,-9309,-32742,-32742,-32742,-32742,-32742,-32742,-32742,-2154,-2154
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios-*-WiFi - 802.11-2012-*-HR-DSSS-*-HR-DSSS Rx - Ch 14
+1
+NODE-*-RF Systems-*-usbdatap_slave-*-Configurations-*-Configuration
+NODE-*-RF Systems-*-usbdatap_slave-*-Radios-*-usbdatap_slave-*-Waveform
+1,1,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+-9779,-8401,-8401,-32742,-9779,-8401,-8401,-32742,-32742,-32742,-32742,-32742,-32742,-32742,-2154,-2154
