@@ -51,7 +51,7 @@ AEDT_PROCESS_ID = get_process_id()
 IS_STUDENT = is_student()
 
 #: Directory holding static assets (diagrams) bundled alongside this extension.
-IMAGES_DIR = pathlib.Path(__file__).parent / "images"
+IMAGES_DIR = pathlib.Path(__file__).parent / "images" / "gui"
 
 LINE_TYPES = ["Microstrip", "Stripline"]
 
