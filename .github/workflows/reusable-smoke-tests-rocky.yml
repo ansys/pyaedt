@@ -54,9 +54,9 @@ jobs:
         shell: bash
         run: |
           set -eux
-          dnf -y update
-          dnf groupinstall -y "Development Tools"
-          dnf -y install \
+          dnf -y update --nobest
+          dnf groupinstall -y --nobest "Development Tools"
+          dnf -y install --nobest \
             gcc make wget tar xz bzip2 \
             bzip2-devel zlib-devel xz-devel \
             openssl-devel libffi-devel sqlite-devel \
@@ -98,5 +98,3 @@ jobs:
         run: |
           ${ACTIVATE_VENV}
           python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
-
-

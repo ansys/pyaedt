@@ -1374,7 +1374,8 @@ def test_get_fans_operating_point(fan_op_point_app) -> None:
 
 
 def test_generate_mesh(ipk_app) -> None:
-    ipk_app.mesh.generate_mesh()
+    setup = ipk_app.create_setup()
+    assert ipk_app.mesh.generate_mesh(setup.name)
 
 
 def test_assign_free_opening(ipk_app) -> None:
