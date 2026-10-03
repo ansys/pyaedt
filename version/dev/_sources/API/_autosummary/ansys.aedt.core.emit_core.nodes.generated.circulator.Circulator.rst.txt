@@ -1,0 +1,73 @@
+﻿Circulator
+==========
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.circulator
+
+.. autoclass:: Circulator
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      Circulator.delete
+      
+      
+      Circulator.duplicate
+      
+      
+      Circulator.export_to_csv
+      
+      
+      Circulator.get_is_component
+      
+      
+      Circulator.get_properties
+      
+      
+      Circulator.plot
+      
+      
+      Circulator.props_to_dict
+      
+      
+      Circulator.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      Circulator.allowed_child_types
+      Circulator.children
+      Circulator.circulator_type
+      Circulator.filename
+      Circulator.finite_bandwidth
+      Circulator.finite_reverse_isolation
+      Circulator.higher_cutoff
+      Circulator.higher_stop_band
+      Circulator.insertion_loss
+      Circulator.lower_cutoff
+      Circulator.lower_stop_band
+      Circulator.name
+      Circulator.node_type
+      Circulator.noise_temperature
+      Circulator.notes
+      Circulator.odesktop
+      Circulator.out_of_band_attenuation
+      Circulator.parent_name
+      Circulator.properties
+      Circulator.reverse_isolation
+      Circulator.valid
+      Circulator.warnings
+   
+   

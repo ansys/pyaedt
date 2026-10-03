@@ -1,0 +1,6 @@
+node\_type
+==========
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.solution_coupling_node
+
+.. autoproperty:: SolutionCouplingNode.node_type

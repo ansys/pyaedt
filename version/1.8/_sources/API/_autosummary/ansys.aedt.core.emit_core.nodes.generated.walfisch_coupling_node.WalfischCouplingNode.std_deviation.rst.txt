@@ -1,0 +1,6 @@
+std\_deviation
+==============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.walfisch_coupling_node
+
+.. autoproperty:: WalfischCouplingNode.std_deviation

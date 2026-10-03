@@ -1,0 +1,6 @@
+notes
+=====
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.radio_node
+
+.. autoproperty:: RadioNode.notes

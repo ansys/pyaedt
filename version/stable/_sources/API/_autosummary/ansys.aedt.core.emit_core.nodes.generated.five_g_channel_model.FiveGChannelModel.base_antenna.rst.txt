@@ -1,0 +1,6 @@
+base\_antenna
+=============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.five_g_channel_model
+
+.. autoproperty:: FiveGChannelModel.base_antenna

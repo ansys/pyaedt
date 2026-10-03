@@ -1,0 +1,6 @@
+is\_transient
+=============
+
+.. currentmodule:: ansys.aedt.core.modules.profile
+
+.. autoproperty:: SimulationProfile.is_transient

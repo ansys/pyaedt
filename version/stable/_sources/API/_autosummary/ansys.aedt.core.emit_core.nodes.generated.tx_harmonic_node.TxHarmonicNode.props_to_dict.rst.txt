@@ -1,0 +1,6 @@
+props\_to\_dict
+===============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.tx_harmonic_node
+
+.. automethod:: TxHarmonicNode.props_to_dict

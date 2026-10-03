@@ -1,0 +1,6 @@
+﻿merge\_dict
+===========
+
+.. currentmodule:: ansys.aedt.core.modules.profile
+
+.. autofunction:: merge_dict

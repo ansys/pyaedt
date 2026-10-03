@@ -1,0 +1,65 @@
+﻿TxBbEmissionNode
+================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.tx_bb_emission_node
+
+.. autoclass:: TxBbEmissionNode
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      TxBbEmissionNode.delete
+      
+      
+      TxBbEmissionNode.export_to_csv
+      
+      
+      TxBbEmissionNode.get_is_component
+      
+      
+      TxBbEmissionNode.get_properties
+      
+      
+      TxBbEmissionNode.import_csv_file
+      
+      
+      TxBbEmissionNode.plot
+      
+      
+      TxBbEmissionNode.props_to_dict
+      
+      
+      TxBbEmissionNode.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      TxBbEmissionNode.allowed_child_types
+      TxBbEmissionNode.children
+      TxBbEmissionNode.enabled
+      TxBbEmissionNode.name
+      TxBbEmissionNode.node_type
+      TxBbEmissionNode.noise_behavior
+      TxBbEmissionNode.odesktop
+      TxBbEmissionNode.parent
+      TxBbEmissionNode.parent_name
+      TxBbEmissionNode.properties
+      TxBbEmissionNode.table_data
+      TxBbEmissionNode.use_log_linear_interpolation
+      TxBbEmissionNode.valid
+      TxBbEmissionNode.warnings
+   
+   

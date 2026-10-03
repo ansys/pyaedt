@@ -1,0 +1,6 @@
+﻿tech\_to\_control\_file
+=======================
+
+.. currentmodule:: ansys.aedt.core.generic.file_utils
+
+.. autofunction:: tech_to_control_file

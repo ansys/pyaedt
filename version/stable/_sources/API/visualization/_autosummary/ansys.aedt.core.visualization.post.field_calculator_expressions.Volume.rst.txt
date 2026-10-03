@@ -1,0 +1,25 @@
+﻿Volume
+======
+
+.. currentmodule:: ansys.aedt.core.visualization.post.field_calculator_expressions
+
+.. autoclass:: Volume
+
+   
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      Volume.assignment_type
+      Volume.calculator_entry
+      Volume.public_dir
+      Volume.value_op
+   
+   

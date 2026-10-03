@@ -1,0 +1,6 @@
+roof\_height
+============
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.walfisch_coupling_node
+
+.. autoproperty:: WalfischCouplingNode.roof_height

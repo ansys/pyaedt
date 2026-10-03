@@ -1,0 +1,6 @@
+odata\_block
+============
+
+.. currentmodule:: ansys.aedt.core.maxwellcircuit
+
+.. autoproperty:: MaxwellCircuit.odata_block

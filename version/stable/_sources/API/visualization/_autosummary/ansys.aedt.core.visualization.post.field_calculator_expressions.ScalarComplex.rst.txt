@@ -1,0 +1,91 @@
+﻿ScalarComplex
+=============
+
+.. currentmodule:: ansys.aedt.core.visualization.post.field_calculator_expressions
+
+.. autoclass:: ScalarComplex
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      ScalarComplex.add
+      
+      
+      ScalarComplex.as_vector_x
+      
+      
+      ScalarComplex.as_vector_y
+      
+      
+      ScalarComplex.as_vector_z
+      
+      
+      ScalarComplex.at_phase
+      
+      
+      ScalarComplex.checkpoint
+      
+      
+      ScalarComplex.conjugate
+      
+      
+      ScalarComplex.evaluate
+      
+      
+      ScalarComplex.export
+      
+      
+      ScalarComplex.imaginary
+      
+      
+      ScalarComplex.integrate
+      
+      
+      ScalarComplex.magnitude
+      
+      
+      ScalarComplex.mean
+      
+      
+      ScalarComplex.phase
+      
+      
+      ScalarComplex.real
+      
+      
+      ScalarComplex.smooth
+      
+      
+      ScalarComplex.stack_depth
+      
+      
+      ScalarComplex.to_dict
+      
+      
+      ScalarComplex.value
+      
+      
+      ScalarComplex.verify
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      ScalarComplex.is_complex
+      ScalarComplex.is_vector
+      ScalarComplex.operations
+      ScalarComplex.public_dir
+   
+   

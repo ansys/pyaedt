@@ -1,0 +1,6 @@
+aedt\_version
+=============
+
+.. currentmodule:: ansys.aedt.core.emit_core.results.revision
+
+.. autoattribute:: Revision.aedt_version

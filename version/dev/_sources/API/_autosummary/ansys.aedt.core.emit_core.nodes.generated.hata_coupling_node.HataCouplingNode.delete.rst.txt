@@ -1,0 +1,6 @@
+delete
+======
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.hata_coupling_node
+
+.. automethod:: HataCouplingNode.delete

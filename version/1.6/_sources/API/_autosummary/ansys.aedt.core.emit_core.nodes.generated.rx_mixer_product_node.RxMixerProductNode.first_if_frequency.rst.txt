@@ -1,0 +1,6 @@
+first\_if\_frequency
+====================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.rx_mixer_product_node
+
+.. autoproperty:: RxMixerProductNode.first_if_frequency

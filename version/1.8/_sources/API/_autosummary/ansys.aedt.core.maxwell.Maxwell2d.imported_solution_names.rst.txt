@@ -1,0 +1,6 @@
+imported\_solution\_names
+=========================
+
+.. currentmodule:: ansys.aedt.core.maxwell
+
+.. autoproperty:: Maxwell2d.imported_solution_names

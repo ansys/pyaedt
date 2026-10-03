@@ -1,0 +1,6 @@
+lower\_stop\_band
+=================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.power_divider
+
+.. autoproperty:: PowerDivider.lower_stop_band

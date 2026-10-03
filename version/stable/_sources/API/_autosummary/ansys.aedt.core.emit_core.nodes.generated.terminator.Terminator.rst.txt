@@ -1,0 +1,66 @@
+﻿Terminator
+==========
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.terminator
+
+.. autoclass:: Terminator
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      Terminator.delete
+      
+      
+      Terminator.duplicate
+      
+      
+      Terminator.export_to_csv
+      
+      
+      Terminator.get_is_component
+      
+      
+      Terminator.get_properties
+      
+      
+      Terminator.plot
+      
+      
+      Terminator.props_to_dict
+      
+      
+      Terminator.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      Terminator.allowed_child_types
+      Terminator.children
+      Terminator.filename
+      Terminator.name
+      Terminator.node_type
+      Terminator.noise_temperature
+      Terminator.notes
+      Terminator.odesktop
+      Terminator.parent_name
+      Terminator.properties
+      Terminator.table_data
+      Terminator.terminator_type
+      Terminator.valid
+      Terminator.vswr
+      Terminator.warnings
+   
+   

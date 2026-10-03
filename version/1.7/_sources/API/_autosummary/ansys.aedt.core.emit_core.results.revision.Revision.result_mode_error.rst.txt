@@ -1,0 +1,6 @@
+result\_mode\_error
+===================
+
+.. currentmodule:: ansys.aedt.core.emit_core.results.revision
+
+.. automethod:: Revision.result_mode_error

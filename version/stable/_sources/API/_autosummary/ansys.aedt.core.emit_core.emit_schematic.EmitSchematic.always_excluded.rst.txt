@@ -1,0 +1,6 @@
+always\_excluded
+================
+
+.. currentmodule:: ansys.aedt.core.emit_core.emit_schematic
+
+.. autoattribute:: EmitSchematic.always_excluded

@@ -1,0 +1,6 @@
+validate
+========
+
+.. currentmodule:: ansys.aedt.core.emit_core.results.interaction
+
+.. automethod:: Interaction.validate

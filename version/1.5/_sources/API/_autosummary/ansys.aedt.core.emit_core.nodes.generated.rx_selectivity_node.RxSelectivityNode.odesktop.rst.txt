@@ -1,0 +1,6 @@
+odesktop
+========
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.rx_selectivity_node
+
+.. autoproperty:: RxSelectivityNode.odesktop

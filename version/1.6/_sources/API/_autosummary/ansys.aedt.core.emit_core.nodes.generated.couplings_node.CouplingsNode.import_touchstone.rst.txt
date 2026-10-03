@@ -1,0 +1,6 @@
+import\_touchstone
+==================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.couplings_node
+
+.. automethod:: CouplingsNode.import_touchstone

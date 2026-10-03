@@ -1,0 +1,82 @@
+﻿RxSusceptibilityProfNode
+========================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.rx_susceptibility_prof_node
+
+.. autoclass:: RxSusceptibilityProfNode
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      RxSusceptibilityProfNode.add_mixer_products
+      
+      
+      RxSusceptibilityProfNode.add_rx_saturation
+      
+      
+      RxSusceptibilityProfNode.add_rx_selectivity
+      
+      
+      RxSusceptibilityProfNode.add_spurious_responses
+      
+      
+      RxSusceptibilityProfNode.export_to_csv
+      
+      
+      RxSusceptibilityProfNode.get_is_component
+      
+      
+      RxSusceptibilityProfNode.get_properties
+      
+      
+      RxSusceptibilityProfNode.plot
+      
+      
+      RxSusceptibilityProfNode.props_to_dict
+      
+      
+      RxSusceptibilityProfNode.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      RxSusceptibilityProfNode.allowed_child_types
+      RxSusceptibilityProfNode.amplifier_saturation_level
+      RxSusceptibilityProfNode.apply_pg_to_narrowband_only
+      RxSusceptibilityProfNode.children
+      RxSusceptibilityProfNode.enabled
+      RxSusceptibilityProfNode.ip3_ref_input
+      RxSusceptibilityProfNode.max_intermod_order
+      RxSusceptibilityProfNode.min_receive_signal_pwr
+      RxSusceptibilityProfNode.name
+      RxSusceptibilityProfNode.node_type
+      RxSusceptibilityProfNode.odesktop
+      RxSusceptibilityProfNode.p1_db_point_ref_input
+      RxSusceptibilityProfNode.parent
+      RxSusceptibilityProfNode.parent_name
+      RxSusceptibilityProfNode.perform_rx_intermod_analysis
+      RxSusceptibilityProfNode.processing_gain
+      RxSusceptibilityProfNode.properties
+      RxSusceptibilityProfNode.receiver_sensitivity
+      RxSusceptibilityProfNode.rx_noise_figure
+      RxSusceptibilityProfNode.saturation_level
+      RxSusceptibilityProfNode.sensitivity_units
+      RxSusceptibilityProfNode.snr_at_rx_signal_pwr
+      RxSusceptibilityProfNode.snrsinad_at_sensitivity
+      RxSusceptibilityProfNode.valid
+      RxSusceptibilityProfNode.warnings
+   
+   

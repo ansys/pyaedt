@@ -1,0 +1,6 @@
+is\_orthonormal\_triplet
+========================
+
+.. currentmodule:: ansys.aedt.core.modeler.geometry_operators
+
+.. automethod:: GeometryOperators.is_orthonormal_triplet

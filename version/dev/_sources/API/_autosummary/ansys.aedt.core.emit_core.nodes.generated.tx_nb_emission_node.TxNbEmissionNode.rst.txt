@@ -1,0 +1,65 @@
+﻿TxNbEmissionNode
+================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.tx_nb_emission_node
+
+.. autoclass:: TxNbEmissionNode
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      TxNbEmissionNode.delete
+      
+      
+      TxNbEmissionNode.export_to_csv
+      
+      
+      TxNbEmissionNode.get_is_component
+      
+      
+      TxNbEmissionNode.get_properties
+      
+      
+      TxNbEmissionNode.import_csv_file
+      
+      
+      TxNbEmissionNode.plot
+      
+      
+      TxNbEmissionNode.props_to_dict
+      
+      
+      TxNbEmissionNode.set_properties
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      TxNbEmissionNode.allowed_child_types
+      TxNbEmissionNode.children
+      TxNbEmissionNode.enabled
+      TxNbEmissionNode.measurement_frequency
+      TxNbEmissionNode.name
+      TxNbEmissionNode.narrowband_behavior
+      TxNbEmissionNode.node_type
+      TxNbEmissionNode.odesktop
+      TxNbEmissionNode.parent
+      TxNbEmissionNode.parent_name
+      TxNbEmissionNode.properties
+      TxNbEmissionNode.table_data
+      TxNbEmissionNode.valid
+      TxNbEmissionNode.warnings
+   
+   

@@ -1,0 +1,6 @@
+dpi
+===
+
+.. currentmodule:: ansys.aedt.core.visualization.plot.matplotlib
+
+.. autoproperty:: ReportPlotter.dpi

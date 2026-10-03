@@ -1,0 +1,24 @@
+﻿MatrixACMagneticAPhi
+====================
+
+.. currentmodule:: ansys.aedt.core.modules.boundary.maxwell_boundary
+
+.. autoclass:: MatrixACMagneticAPhi
+
+   
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      MatrixACMagneticAPhi.matrix_name
+      MatrixACMagneticAPhi.rl_sources
+      MatrixACMagneticAPhi.gc_sources
+   
+   

@@ -1,0 +1,40 @@
+﻿Profiles
+========
+
+.. currentmodule:: ansys.aedt.core.modules.profile
+
+.. autoclass:: Profiles
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      Profiles.get
+      
+      
+      Profiles.items
+      
+      
+      Profiles.keys
+      
+      
+      Profiles.values
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      Profiles.public_dir
+   
+   

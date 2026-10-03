@@ -1,0 +1,6 @@
+job\_status
+===========
+
+.. currentmodule:: ansys.aedt.core.desktop
+
+.. automethod:: Desktop.job_status

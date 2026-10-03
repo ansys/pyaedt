@@ -1,0 +1,6 @@
+create\_em\_target\_design
+==========================
+
+.. currentmodule:: ansys.aedt.core.circuit
+
+.. automethod:: Circuit.create_em_target_design

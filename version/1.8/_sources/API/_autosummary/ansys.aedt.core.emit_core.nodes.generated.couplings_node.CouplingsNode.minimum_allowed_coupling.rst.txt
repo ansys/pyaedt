@@ -1,0 +1,6 @@
+minimum\_allowed\_coupling
+==========================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.couplings_node
+
+.. autoproperty:: CouplingsNode.minimum_allowed_coupling

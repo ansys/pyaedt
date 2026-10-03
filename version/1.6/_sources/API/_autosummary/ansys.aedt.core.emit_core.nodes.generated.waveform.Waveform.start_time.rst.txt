@@ -1,0 +1,6 @@
+start\_time
+===========
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.waveform
+
+.. autoproperty:: Waveform.start_time

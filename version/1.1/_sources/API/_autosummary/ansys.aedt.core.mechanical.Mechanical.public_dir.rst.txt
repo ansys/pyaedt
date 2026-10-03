@@ -1,0 +1,6 @@
+public\_dir
+===========
+
+.. currentmodule:: ansys.aedt.core.mechanical
+
+.. autoproperty:: Mechanical.public_dir

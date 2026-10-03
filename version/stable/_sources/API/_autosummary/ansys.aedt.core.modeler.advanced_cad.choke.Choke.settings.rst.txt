@@ -1,0 +1,6 @@
+settings
+========
+
+.. currentmodule:: ansys.aedt.core.modeler.advanced_cad.choke
+
+.. autoattribute:: Choke.settings

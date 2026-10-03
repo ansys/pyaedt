@@ -1,0 +1,6 @@
+aedt\_process\_id
+=================
+
+.. currentmodule:: ansys.aedt.core.desktop
+
+.. autoproperty:: Desktop.aedt_process_id

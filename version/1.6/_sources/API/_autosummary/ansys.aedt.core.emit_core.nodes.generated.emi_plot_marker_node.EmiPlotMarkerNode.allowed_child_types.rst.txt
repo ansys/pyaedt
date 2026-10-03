@@ -1,0 +1,6 @@
+allowed\_child\_types
+=====================
+
+.. currentmodule:: ansys.aedt.core.emit_core.nodes.generated.emi_plot_marker_node
+
+.. autoproperty:: EmiPlotMarkerNode.allowed_child_types

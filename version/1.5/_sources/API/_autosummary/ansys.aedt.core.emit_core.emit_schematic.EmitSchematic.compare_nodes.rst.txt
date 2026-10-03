@@ -1,0 +1,6 @@
+compare\_nodes
+==============
+
+.. currentmodule:: ansys.aedt.core.emit_core.emit_schematic
+
+.. automethod:: EmitSchematic.compare_nodes

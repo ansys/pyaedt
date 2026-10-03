@@ -1,0 +1,56 @@
+﻿InteractionDomain
+=================
+
+.. currentmodule:: ansys.aedt.core.emit_core.results.interaction_domain
+
+.. autoclass:: InteractionDomain
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      InteractionDomain.get_interferer_channel_frequencies
+      
+      
+      InteractionDomain.get_receiver_channel_frequency
+      
+      
+      InteractionDomain.is_single_instance
+      
+      
+      InteractionDomain.set_interferer
+      
+      
+      InteractionDomain.set_interferers
+      
+      
+      InteractionDomain.set_receiver
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      InteractionDomain.current_revision
+      InteractionDomain.emit_project
+      InteractionDomain.odesktop
+      InteractionDomain.revisions
+      InteractionDomain.design
+      InteractionDomain.interferer_band_names
+      InteractionDomain.interferer_channel_frequencies
+      InteractionDomain.interferer_names
+      InteractionDomain.receiver_band_name
+      InteractionDomain.receiver_channel_frequency
+      InteractionDomain.receiver_name
+   
+   

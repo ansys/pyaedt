@@ -1,0 +1,6 @@
+get\_interferer\_channel\_frequencies
+=====================================
+
+.. currentmodule:: ansys.aedt.core.emit_core.results.interaction_domain
+
+.. automethod:: InteractionDomain.get_interferer_channel_frequencies
