@@ -796,22 +796,37 @@ class Design(AedtObjects, PyAedtBase):
 
     @property
     def aedt_version_id(self) -> str:
-        """AEDT version.
+        """AEDT version environment variable name.
+
+        Returns the name of the environment variable associated with the current
+        AEDT version (`"ANSYSEM_ROOT252"`` for version 2025.2).
+
+        .. note::
+            This property returns the environment variable **name**, not the actual
+            AEDT version string. To get the version string, use
+            :attr:`desktop_class.aedt_version_id` instead.
+
+        .. warning::
+            On Student version, the returned variable name (``ANSYSEM_ROOT*``)
+            may not exist because the student installer sets ``ANSYSEMSV_ROOT*`` instead.
 
         Returns
         -------
         str
-            Version of AEDT.
+            Environment variable name for the AEDT installation path.
 
-        References
-        ----------
-        >>> oDesktop.GetVersion()
+        See Also
+        --------
+        desktop_class.aedt_version_id : Returns the actual AEDT version string.
 
         Examples
         --------
         >>> from ansys.aedt.core import Hfss
         >>> app = Hfss()
-        >>> app.aedt_version_id
+        >>> app.aedt_version_id  # Returns environment variable name
+        'ANSYSEM_ROOT252'
+        >>> app.desktop_class.aedt_version_id  # Returns actual version
+        '2025.2'
 
         """
         return aedt_versions.get_version_env_variable(self._aedt_version)
