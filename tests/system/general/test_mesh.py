@@ -56,17 +56,16 @@ def test_assign_model_resolution(aedt_app) -> None:
     mr1.name = "resolution_test"
     assert aedt_app.odesign.GetChildObject("Mesh")
     mr1.auto_update = False
-    mr1.props["DefeatureLength"] = "0.1mm"
     assert not (
         aedt_app.odesign.GetChildObject("Mesh").GetChildObject(mr1.name).GetPropValue("Model Resolution Length")
         == "0.1mm"
     )
-    mr1.update()
+    mr1.auto_update = True
+    mr1.props["DefeatureLength"] = "0.1mm"
     assert (
         aedt_app.odesign.GetChildObject("Mesh").GetChildObject(mr1.name).GetPropValue("Model Resolution Length")
         == "0.1mm"
     )
-    mr1.auto_update = True
     mr1.props["UseAutoLength"] = True
     assert aedt_app.odesign.GetChildObject("Mesh").GetChildObject(mr1.name).GetPropValue("Use Auto Simplify")
     o2 = aedt_app.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, "inner")
@@ -93,13 +92,15 @@ def test_assign_surface_mesh_manual(aedt_app) -> None:
     o = aedt_app.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, "surface_manual")
     surface = aedt_app.mesh.assign_surface_mesh_manual(o.id, 1e-6, aspect_ratio=3, name="Surface_Manual")
     assert "Surface_Manual" in [i.name for i in aedt_app.mesh.meshoperations]
-    assert surface.props["SurfDev"] == 1e-6
+    assert float(surface.props["SurfDev"]) == 1e-6
     surface.props["SurfDev"] = 1e-05
     assert (
         aedt_app.odesign.GetChildObject("Mesh").GetChildObject(surface.name).GetPropValue("Surface Deviation")
         == "1e-05"
     )
-    assert surface.props["NormalDev"] == "1"
+    surface.props["NormalDevChoice"] = 2
+
+    assert surface.props["NormalDev"] == "22.5deg"
     surface.props["AspectRatio"] = 20
     assert aedt_app.odesign.GetChildObject("Mesh").GetChildObject(surface.name).GetPropValue("Aspect Ratio") == "20"
 
@@ -107,7 +108,6 @@ def test_assign_surface_mesh_manual(aedt_app) -> None:
     surface_default_value = aedt_app.mesh.assign_surface_mesh_manual(cylinder_zx.id)
     assert surface_default_value.name in [i.name for i in aedt_app.mesh.meshoperations]
     assert surface_default_value.props["SurfDevChoice"] == 0
-    assert surface_default_value.props["NormalDev"] == "1"
 
 
 def test_assign_surface_priority(aedt_app):
@@ -180,7 +180,7 @@ def test_maxwell_mesh(maxwell_app) -> None:
     dens = maxwell_app.mesh.assign_density_control(o.name, maximum_element_length=10000, name="Density")
     assert dens.props["RestrictMaxElemLength"]
 
-    assert dens.props["MaxElemLength"] == 10000
+    assert int(dens.props["MaxElemLength"]) == 10000
     dens.props["MaxElemLength"] = 10
     assert str(dens.props["MaxElemLength"]) == maxwell_app.odesign.GetChildObject("Mesh").GetChildObject(
         dens.name

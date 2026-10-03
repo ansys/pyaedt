@@ -39,6 +39,8 @@ from typing import TYPE_CHECKING
 from typing import Any
 import warnings
 
+from ansys.aedt.core.application import _get_obj_data
+from ansys.aedt.core.application import _has_get_obj_data
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.aedt_constants import DesignType
 from ansys.aedt.core.generic.constants import AEDT_UNITS
@@ -46,12 +48,12 @@ from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import PropsManager
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.props import Props as SetupProps
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modules.profile import Profiles
 from ansys.aedt.core.modules.setup_templates import SetupKeys
-from ansys.aedt.core.modules.solve_sweeps import SetupProps
 from ansys.aedt.core.modules.solve_sweeps import SweepHFSS
 from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
 from ansys.aedt.core.modules.solve_sweeps import SweepMatrix
@@ -106,7 +108,7 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
         self._is_new_setup = is_new_setup
         # self._init_props(is_new_setup)
         self.auto_update = True
-        self._initialize_tree_node()
+        # self._initialize_tree_node()
 
     def _setup_dict_to_arg(self, name: str = None, props=None):
         if name is None:
@@ -343,7 +345,8 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
         >>> setup.props
 
         """
-        if self._legacy_props:
+        _has_getobject = _has_get_obj_data(self._child_object)
+        if self._legacy_props and not (_has_getobject and self.auto_update):
             return self._legacy_props
         if self._is_new_setup:
             setup_template = SetupKeys.get_setup_templates()[self.setuptype]
@@ -351,22 +354,28 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
             self._legacy_props = SetupProps(self, setup_template)
             self._is_new_setup = False
         else:
-            try:
-                if "AnalysisSetup" in self._app.design_properties.keys():
-                    setups_data = self._app.design_properties["AnalysisSetup"]["SolveSetups"]
-                    if self.name in setups_data:
-                        setup_data = setups_data[self.name]
+            if _has_getobject:
+                setup_data = _get_obj_data(self._child_object)
+                self._legacy_props = SetupProps(self, setup_data)
+            else:
+                try:
+                    if "AnalysisSetup" in self._app.design_properties.keys():
+                        setups_data = self._app.design_properties["AnalysisSetup"]["SolveSetups"]
+                        if self.name in setups_data:
+                            setup_data = setups_data[self.name]
+                            self._legacy_props = SetupProps(self, setup_data)
+                    elif "SimSetups" in self._app.design_properties.keys():
+                        setup_data = self._app.design_properties["SimSetups"]["SimSetup"]
                         self._legacy_props = SetupProps(self, setup_data)
-                elif "SimSetups" in self._app.design_properties.keys():
-                    setup_data = self._app.design_properties["SimSetups"]["SimSetup"]
-                    self._legacy_props = SetupProps(self, setup_data)
-            except Exception:
-                self._legacy_props = SetupProps(self, {})
+                except Exception:
+                    self._legacy_props = SetupProps(self, {})
         return self._legacy_props
 
     @props.setter
     def props(self, value: dict) -> None:
         self._legacy_props = SetupProps(self, value)
+        if self.auto_update:
+            self.update(self._legacy_props)
 
     @property
     def is_solved(self) -> bool:
@@ -754,7 +763,8 @@ class Setup(CommonSetup):
         soltype = SetupKeys.SetupNames[self.setuptype]
         arg = self._setup_dict_to_arg()
         self.omodule.InsertSetup(soltype, arg)
-        return self._initialize_tree_node()
+        # return self._initialize_tree_node()
+        return True
 
     @pyaedt_function_handler()
     def update(self, properties: dict = None) -> bool:
@@ -785,11 +795,10 @@ class Setup(CommonSetup):
         legacy_update = self.auto_update
         self.auto_update = False
         if properties:
-            for el in properties:
-                self.props[el] = properties[el]
+            arg = self._setup_dict_to_arg(props=properties)
+        else:
+            arg = self._setup_dict_to_arg()
         self.auto_update = legacy_update
-        arg = self._setup_dict_to_arg()
-
         self.omodule.EditSetup(self.name, arg)
         return True
 
@@ -1187,8 +1196,8 @@ class Setup(CommonSetup):
             mesh_link["ApplyMeshOp"] = apply_mesh_operations
             if self._app.design_type not in ["Maxwell 2D", "Maxwell 3D"]:
                 mesh_link["AdaptPort"] = adapt_port
-            self.update()
             self.auto_update = auto_update
+            self.props["MeshLink"] = mesh_link
             return True
         except Exception:
             self.auto_update = auto_update
@@ -1366,6 +1375,8 @@ class SetupCircuit(CommonSetup):
         >>> setup1.props
 
         """
+        if _has_get_obj_data(self._child_object):
+            return super().props
         if self._legacy_props:
             return self._legacy_props
         if self._is_new_setup:
@@ -1424,7 +1435,8 @@ class SetupCircuit(CommonSetup):
         arg = self._setup_dict_to_arg(name="SimSetup")
 
         self._setup(soltype, arg)
-        return self._initialize_tree_node()
+        # return self._initialize_tree_node()
+        return True
 
     @pyaedt_function_handler()
     def _setup(self, soltype, arg, newsetup: bool = True) -> bool:
@@ -1500,10 +1512,10 @@ class SetupCircuit(CommonSetup):
         legacy_update = self.auto_update
         self.auto_update = False
         if properties:
-            for el in properties:
-                self.props[el] = properties[el]
+            arg = self._setup_dict_to_arg(name="SimSetup", props=properties)
+        else:
+            arg = self._setup_dict_to_arg()
         soltype = SetupKeys.SetupNames[self.setuptype]
-        arg = self._setup_dict_to_arg(name="SimSetup")
         self._setup(soltype, arg, False)
         self.auto_update = legacy_update
         return True
@@ -1719,11 +1731,13 @@ class SetupCircuit(CommonSetup):
             else:
                 self.props["SweepDefinition"]["Data"] += " " + equation
             return self.update()
-        if isinstance(self.props["SweepDefinition"], dict):
-            self.props["SweepDefinition"] = [self.props["SweepDefinition"]]
         prop = {"Variable": sweep_variable, "Data": equation, "OffsetF1": False, "Synchronize": 0}
-        self.props["SweepDefinition"].append(prop)
-        return self.update()
+        sw = self.props["SweepDefinition"]
+        if isinstance(sw, list):
+            self.props["SweepDefinition"] = sw + [prop]
+        else:
+            self.props["SweepDefinition"] = [dict(sw)] + [prop]
+        return True
 
     @pyaedt_function_handler()
     def _expression_cache(
@@ -2225,6 +2239,8 @@ class Setup3DLayout(CommonSetup):
         >>> setup.props
 
         """
+        if _has_get_obj_data(self._child_object):
+            return super().props
         if self._legacy_props:
             return self._legacy_props
         if self._is_new_setup:
@@ -2232,7 +2248,6 @@ class Setup3DLayout(CommonSetup):
             setup_template["Name"] = self.name
             self._legacy_props = SetupProps(self, setup_template)
             self._is_new_setup = False
-
         else:
             try:
                 setups_data = self._app.design_properties["Setup"]["Data"]
@@ -2243,10 +2258,6 @@ class Setup3DLayout(CommonSetup):
                 self._legacy_props = SetupProps(self, {})
                 settings.logger.error("Unable to set props.")
         return self._legacy_props
-
-    @props.setter
-    def props(self, value: dict) -> None:
-        self._legacy_props = SetupProps(self, value)
 
     @property
     def is_solved(self) -> bool:
@@ -2341,7 +2352,8 @@ class Setup3DLayout(CommonSetup):
         arg = self._setup_dict_to_arg()
 
         self.omodule.Add(arg)
-        return self._initialize_tree_node()
+        # return self._initialize_tree_node()
+        return True
 
     @pyaedt_function_handler()
     def update(self, properties: dict = None) -> bool:
@@ -2963,7 +2975,7 @@ class Setup3DLayout(CommonSetup):
                 val.append(SetupProps(self, entry))
             self.props["MatrixConvEntry"] = val
         else:
-            self.props["MatrixConvEntry"] = []
+            MatrixConvEntry = []
             for entry_custom in custom_entries:
                 entry = {
                     "Port1": entry_custom[0],
@@ -2971,7 +2983,8 @@ class Setup3DLayout(CommonSetup):
                     "MagLimit": str(entry_custom[2]),
                     "PhaseLimit": self._app.value_with_units(entry_custom[3], "deg"),
                 }
-                self.props["MatrixConvEntry"].append(SetupProps(self, entry))
+                MatrixConvEntry.append(SetupProps(self, entry))
+            self.props["MatrixConvEntry"] = MatrixConvEntry
         self.auto_update = legacy_update
         return self.update()
 
@@ -3052,10 +3065,11 @@ class SetupHFSS(Setup, PyAedtBase):
         """
         if not isinstance(derivative_list, list):
             derivative_list = [derivative_list]
-        self.auto_update = False
-        self.props["VariablesForDerivatives"] = derivative_list + self.get_derivative_variables()
-        self.auto_update = True
-        return self.update()
+        # self.auto_update = False
+        new_props = self.props
+        new_props["VariablesForDerivatives"] = derivative_list + self.get_derivative_variables()
+        # self.auto_update = True
+        return self.update(new_props)
 
     @pyaedt_function_handler()
     def set_tuning_offset(self, offsets: dict) -> bool:
@@ -3581,7 +3595,6 @@ class SetupHFSS(Setup, PyAedtBase):
         if self.setuptype != 1 or self._app.solution_type not in ["Modal", "Terminal"]:
             self._app.logger.error("Method applies only to HFSS-driven solutions.")
             return False
-        self.auto_update = False
         self.props["SolveType"] = "Single"
         if isinstance(freq, (int, float)):
             freq = f"{freq}GHz"
@@ -3591,8 +3604,7 @@ class SetupHFSS(Setup, PyAedtBase):
             self.props["MaximumPasses"] = max_passes
         if max_delta_s:
             self.props["MaxDeltaS"] = max_delta_s
-        self.auto_update = True
-        return self.update()
+        return True
 
     @pyaedt_function_handler()
     def enable_adaptive_setup_broadband(
@@ -3632,20 +3644,19 @@ class SetupHFSS(Setup, PyAedtBase):
         if self.setuptype != 1 or self._app.solution_type not in ["Modal", "Terminal"]:
             self._app.logger.error("Method applies only to HFSS-driven solutions.")
             return False
-        self.auto_update = False
         self.props["SolveType"] = "BroadBand"
-        for el in list(self.props["MultipleAdaptiveFreqsSetup"].keys()):
-            del self.props["MultipleAdaptiveFreqsSetup"][el]
+        broad = {}
+
         if isinstance(low_frequency, (int, float)):
             low_frequency = f"{low_frequency}GHz"
         if isinstance(high_frequency, (int, float)):
             high_frequency = f"{high_frequency}GHz"
-        self.props["MultipleAdaptiveFreqsSetup"]["Low"] = low_frequency
-        self.props["MultipleAdaptiveFreqsSetup"]["High"] = high_frequency
+        broad["Low"] = low_frequency
+        broad["High"] = high_frequency
+        self.props["MultipleAdaptiveFreqsSetup"] = broad
         self.props["MaximumPasses"] = max_passes
         self.props["MaxDeltaS"] = max_delta_s
-        self.auto_update = True
-        return self.update()
+        return True
 
     @pyaedt_function_handler()
     def enable_adaptive_setup_multifrequency(self, frequencies: list, max_delta_s: float = 0.02) -> bool:
@@ -3675,30 +3686,26 @@ class SetupHFSS(Setup, PyAedtBase):
         if self.setuptype != 1 or self._app.solution_type not in ["Modal", "Terminal"]:
             self._app.logger.error("Method applies only to HFSS-driven solutions.")
             return False
-        self.auto_update = False
         self.props["SolveType"] = "MultiFrequency"
+        multi = {}
         # props["MultipleAdaptiveFreqsSetup"] could potentially be nonexistent.
         # A known case is the setup automatically created by setting auto-open region.
-        if "MultipleAdaptiveFreqsSetup" not in self.props:  # pragma no cover
-            self.props["MultipleAdaptiveFreqsSetup"] = {}
-        for el in list(self.props["MultipleAdaptiveFreqsSetup"].keys()):
-            del self.props["MultipleAdaptiveFreqsSetup"][el]
         i = 0
         for f in frequencies:
             if isinstance(max_delta_s, float):
                 if isinstance(f, (int, float)):
                     f = f"{f}GHz"
-                self.props["MultipleAdaptiveFreqsSetup"][f] = [max_delta_s]
+                multi[f] = [max_delta_s]
             else:
                 if isinstance(f, (int, float)):
                     f = f"{f}GHz"
                 try:
-                    self.props["MultipleAdaptiveFreqsSetup"][f] = [max_delta_s[i]]
+                    multi[f] = [max_delta_s[i]]
                 except IndexError:
-                    self.props["MultipleAdaptiveFreqsSetup"][f] = [0.02]
+                    multi[f] = [0.02]
             i += 1
-        self.auto_update = True
-        return self.update()
+        self.props["MultipleAdaptiveFreqsSetup"] = multi
+        return True
 
     @pyaedt_function_handler()
     def use_matrix_convergence(
@@ -3872,10 +3879,9 @@ class SetupHFSSAuto(Setup, PyAedtBase):
         """
         if not isinstance(derivative_list, list):
             derivative_list = [derivative_list]
-        self.auto_update = False
-        self.props["VariablesForDerivatives"] = derivative_list + self.get_derivative_variables()
-        self.auto_update = True
-        return self.update()
+        new_props = self.props
+        new_props["VariablesForDerivatives"] = derivative_list + self.get_derivative_variables()
+        return self.update(new_props)
 
     @pyaedt_function_handler()
     def set_tuning_offset(self, offsets: dict) -> bool:
@@ -4001,9 +4007,14 @@ class SetupHFSSAuto(Setup, PyAedtBase):
         if not self.props["Sweeps"]["Sweep"].get("SweepRanges") or not self.props["Sweeps"]["Sweep"]["SweepRanges"].get(
             "Subrange"
         ):
-            self.props["Sweeps"]["Sweep"]["SweepRanges"] = {"Subrange": []}
-        self.props["Sweeps"]["Sweep"]["SweepRanges"]["Subrange"].append(sweep_range)
-        return self.update()
+            cc = self.props["Sweeps"]["Sweep"]
+            cc["SweepRanges"] = {"Subrange": [sweep_range]}
+            self.props["Sweeps"]["Sweep"] = cc
+        else:
+            cc = self.props["Sweeps"]["Sweep"]["SweepRanges"]["Subrange"]
+            cc.append(sweep_range)
+            self.props["Sweeps"]["Sweep"]["SweepRanges"]["Subrange"] = cc
+        return True
 
     @pyaedt_function_handler()
     def enable_adaptive_setup_single(
@@ -4347,22 +4358,22 @@ class SetupMaxwell(Setup, PyAedtBase):
             sweep.props["RangeSamples"] = step_size
         elif sweep_type == "SinglePoints":
             sweep.props["RangeEnd"] = f"{start_frequency}{units}"
-        self.props["SaveAllFields"] = save_all_fields
-        if self.sweeps:
+        pp = dict(self.props)
+        pp["SaveAllFields"] = save_all_fields
+        if pp.get("SweepRanges"):
             if clear:
-                self.props["SweepRanges"] = {"Subrange": [SetupProps(self, sweep.props)]}
+                pp["SweepRanges"] = {"Subrange": [sweep.props]}
                 self.sweeps.clear()
             else:
                 if isinstance(self.props["SweepRanges"]["Subrange"], dict):
                     temp = self.props["SweepRanges"]["Subrange"]
-                    self.props["SweepRanges"].pop("Subrange", None)
-                    self.props["SweepRanges"]["Subrange"] = [SetupProps(self, temp)]
-                self.props["SweepRanges"]["Subrange"].append(SetupProps(self, sweep.props))
+                    pp["SweepRanges"].pop("Subrange", None)
+                    pp["SweepRanges"]["Subrange"] = [SetupProps(self, temp)]
+                pp["SweepRanges"]["Subrange"].append(SetupProps(self, sweep.props))
         else:
-            self.props["HasSweepSetup"] = True
-            self.props["SweepRanges"] = {"Subrange": [SetupProps(self, sweep.props)]}
-            sweep.create()
-        self.update()
+            pp["HasSweepSetup"] = True
+            pp["SweepRanges"] = {"Subrange": [SetupProps(self, sweep.props)]}
+        sweep.create(pp)
         self.auto_update = legacy_update
         if self._sweeps is None:
             self._sweeps = []

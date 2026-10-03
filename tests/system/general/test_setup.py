@@ -56,7 +56,8 @@ def test_create_hfss_setup(aedtapp) -> None:
     setup1["SaveRadFieldsonly"] = True
     assert setup1.props["SaveRadFieldsOnly"] == setup1["SaveRadFieldsonly"]
     assert setup1.enable_adaptive_setup_multifrequency([1, 2, 3])
-    assert setup1.props["MultipleAdaptiveFreqsSetup"]["1GHz"][0] == 0.02
+    assert setup1.props["MultipleAdaptiveFreqsSetup"]["AdaptAt"][0]["Delta"] == 0.02
+    assert setup1.props["MultipleAdaptiveFreqsSetup"]["AdaptAt"][0]["Frequency"] == "1GHz"
     assert setup1.enable_adaptive_setup_broadband(1, 2.5, 10, 0.01)
     assert setup1.props["MultipleAdaptiveFreqsSetup"]["Low"] == "1GHz"
     assert setup1.props["MaximumPasses"] == 10
@@ -213,7 +214,8 @@ def test_delete_sweep(aedtapp) -> None:
 
 def test_sweep_sbr(aedtapp) -> None:
     aedtapp.solution_type = "SBR+"
-    aedtapp.insert_infinite_sphere()
+    sph = aedtapp.insert_infinite_sphere()
+    sph.props
     setup1 = aedtapp.create_setup("My_HFSS_Setup", Setups.HFSSSBR)
     assert setup1.add_subrange("LinearStep", 1, 10, 0.1, clear=False)
     assert setup1.add_subrange("LinearCount", 10, 20, 10, clear=True)

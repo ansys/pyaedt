@@ -53,6 +53,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 # from ansys.aedt.core.generic.numbers_utils import Quantity
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.numbers_utils import is_number
+from ansys.aedt.core.generic.props import Props as SetupProps
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
@@ -69,7 +70,6 @@ from ansys.aedt.core.modules.solve_setup import SetupIcepak
 from ansys.aedt.core.modules.solve_setup import SetupMaxwell
 from ansys.aedt.core.modules.solve_setup import SetupQ3D
 from ansys.aedt.core.modules.solve_setup import SetupSBR
-from ansys.aedt.core.modules.solve_sweeps import SetupProps
 
 if TYPE_CHECKING:
     from ansys.aedt.core.modules.boundary.common import BoundaryObject
