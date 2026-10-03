@@ -44,3 +44,10 @@ HFSS extensions
             :margin: 2 2 0 0
 
             Extract Fresnel coefficients from HFSS Floquet port simulations for periodic structures.
+
+   .. grid-item-card:: Weave designer
+            :link: weave_designer
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Generate woven glass-fiber fill geometry for PCB substrates.
