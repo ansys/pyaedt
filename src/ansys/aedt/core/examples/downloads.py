@@ -90,31 +90,39 @@ def _download_file(
         The path to the downloaded file.
     """
     relative_path: Path = Path(github_relative_path.strip("/"))
-    # Strip "pyaedt" prefix for local storage to avoid redundant folder structure
+    # Strip prefix for local storage to avoid redundant folder structure
     local_relative_path = relative_path
     if strip_prefix:
         local_relative_path = relative_path.relative_to(strip_prefix)
 
-    if not local_path:  # pragma: no cover
-        local_path = EXAMPLES_PATH / local_relative_path
-    else:
-        local_path = Path(local_path) / local_relative_path
+    # Determine the base destination directory and final file path
+    # This preserves the original pyaedt behavior where files are stored at:
+    # local_path / local_relative_path (with strip_prefix applied)
+    base_destination = Path(local_path) if local_path else EXAMPLES_PATH
+    final_path = base_destination / local_relative_path
 
     try:
-        if not local_path.exists() or force:
-            pyaedt_logger.debug(f"Downloading file from {github_relative_path} to {local_path}")
-            download_manager.download_file(
-                filename=relative_path.name,
-                directory=relative_path.parent.as_posix(),
-                destination=str(local_path.parent),
-                force=force,
-            )
+        if not final_path.exists() or force:
+            pyaedt_logger.debug(f"Downloading file from {github_relative_path} to {final_path}")
+            # Download to a temporary directory to avoid creating intermediate directories
+            # in the final destination that would need cleanup
+            with tempfile.TemporaryDirectory() as temp_dir:
+                temp_path = Path(temp_dir)
+                download_manager.download_file(
+                    filename=relative_path.name,
+                    directory=relative_path.parent.as_posix(),
+                    destination=str(temp_path),
+                    force=True,
+                )
+                downloaded_file = temp_path / relative_path
+                final_path.parent.mkdir(parents=True, exist_ok=True)
+                shutil.move(str(downloaded_file), str(final_path))
         else:
-            pyaedt_logger.debug(f"File already exists in {local_path}. Skipping download.")
+            pyaedt_logger.debug(f"File already exists in {final_path}. Skipping download.")
     except Exception as e:  # pragma: no cover
         raise AEDTRuntimeError(f"Failed to download file from URL {github_relative_path}.") from e
 
-    return local_path.resolve()
+    return final_path.resolve()
 
 
 def _copy_local_example(

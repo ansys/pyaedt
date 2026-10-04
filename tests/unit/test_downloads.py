@@ -39,6 +39,8 @@ def desktop():
 
 def test_download_edb(test_tmp_dir):
     assert downloads.download_aedb(test_tmp_dir)
+    assert (test_tmp_dir / "ANSYS-HSD_V1.aedb" / "GRM32ER72A225KA35_25C_0V.sp").exists()
+    assert (test_tmp_dir / "ANSYS-HSD_V1.aedb" / "edb.def").exists()
 
 
 def test_download_touchstone(test_tmp_dir):
